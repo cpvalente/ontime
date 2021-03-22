@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap');
+
+.smallTimer {
+  display: flex;
+  flex-direction: column;
+}
+
+.label,
+.timer {
+  font-size: 1vw;
+  text-align: center;
+}
+
+.label {
+  font-size: 1.5vw;
+  color: #888;
+  margin-bottom: 0;
+}
+
+.timer {
+  font-family: 'Open Sans', sans-serif;
+
+  font-size: 4vw;
+  letter-spacing: 0.125em;
+}

@@ -1,0 +1,20 @@
+.progress {
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.progressBar {
+  height: 18px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 1) 0%,
+    rgba(255, 149, 0, 1) 20%,
+    rgba(255, 244, 0, 0.8287037037037037) 50%,
+    rgba(0, 255, 156, 0.7083333333333333) 100%
+  );
+  border-radius: 4px;
+  transition: 0.4s linear;
+  transition-property: width, background-color;
+}

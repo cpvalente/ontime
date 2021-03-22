@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap');
+
+.presenter {
+  font-size: 24px;
+  height: 100%;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  border: red 1px solid;
+}
+
+.presentationTitle {
+  font-size: 5vw;
+  text-align: left;
+}
+
+.presentationSub {
+  font-size: 3vw;
+  text-align: left;
+}
+
+.userMessage {
+  font-size: 10em;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.extra {
+  width: 100%;
+  position: absolute;
+  bottom: 3vh;
+  left: 0;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+}

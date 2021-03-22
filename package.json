@@ -6,8 +6,11 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "date-fns": "^2.19.0",
     "react": "^17.0.1",
+    "react-bulma-components": "^3.4.0",
     "react-dom": "^17.0.1",
+    "react-router": "^5.2.0",
     "react-scripts": "4.0.3",
     "web-vitals": "^1.0.1"
   },

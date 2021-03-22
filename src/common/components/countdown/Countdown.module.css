@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap');
+
+.countdownClock {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 25vw;
+  text-align: center;
+  letter-spacing: 0.125em;
+  line-height: 0.9;
+}
