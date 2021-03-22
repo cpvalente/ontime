@@ -6,7 +6,7 @@
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  border: red 1px solid;
+  padding: 1em;
 }
 
 .presentationTitle {

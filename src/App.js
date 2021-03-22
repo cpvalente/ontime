@@ -1,10 +1,12 @@
 import './App.css';
-import DefaultViewer from './features/viewers/DefaultViewer';
+import Editor from './features/editors/Editor';
+import DefaultPresenter from './features/viewers/DefaultPresenter';
 
 function App() {
   return (
     <div className='App'>
-      <DefaultViewer />
+      {/* <Editor /> */}
+      <DefaultPresenter />
     </div>
   );
 }
