@@ -6,8 +6,8 @@
 
 .editor {
   height: 100%;
-  margin-top: 1em;
-  background-color: white;
+  margin-top: 2.5vh;
+  background-color: #fcfcfa;
   padding: 2em;
 
   display: flex;

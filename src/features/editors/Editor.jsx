@@ -1,7 +1,8 @@
-import { Flex, Text } from '@chakra-ui/layout';
+import { Button } from '@chakra-ui/button';
 import { Heading } from '@chakra-ui/layout';
 import { SimpleGrid } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
+import { useState } from 'react';
 import NumberedText from '../../common/components/text/NumberedText';
 import EventForm from '../form/EventForm';
 import PreviewContainer from '../viewers/PreviewContainer';
@@ -9,6 +10,8 @@ import styles from './Editor.module.css';
 import EventList from './list/EventList';
 
 export default function Editor() {
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   return (
     <SimpleGrid
       minChildWidth='120px'
@@ -19,7 +22,10 @@ export default function Editor() {
         <Heading>List Events</Heading>
         <NumberedText number={1} text={'Select Event'} />
         <div className={styles.content}>
-          <EventList />
+          <EventList selected={selectedEvent} setSelected={setSelectedEvent} />
+          <div className={styles.buttons}>
+            <Button colorScheme='teal'>Add Event</Button>
+          </div>
         </div>
       </Box>
 
