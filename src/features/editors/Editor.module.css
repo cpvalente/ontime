@@ -1,0 +1,19 @@
+.mainContainer {
+  width: 95%;
+  margin: auto;
+  height: 95vh;
+}
+
+.editor {
+  height: 100%;
+  margin-top: 1em;
+  background-color: white;
+  padding: 2em;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  padding-top: 2em;
+}
