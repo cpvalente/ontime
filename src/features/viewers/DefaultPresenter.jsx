@@ -1,14 +1,12 @@
-import 'bulma/css/bulma.css';
-import { addMinutes, format } from 'date-fns';
-import { useEffect, useState } from 'react';
-import { Container, Progress } from 'react-bulma-components/dist';
+import { format } from 'date-fns';
+import { useState } from 'react';
 import { sampleData } from '../../app/sampleData';
 import Countdown from '../../common/components/countdown/Countdown';
 import MyProgressBar from '../../common/components/myProgressBar/MyProgressBar';
 import SmallTimer from '../../common/components/smallTimer/SmallTimer';
 import './viewers.css';
 
-export default function DefaultViewer() {
+export default function DefaultPresenter() {
   const [data, setData] = useState(sampleData);
   const [timer, setTimer] = useState(sampleData.timerDuration);
   const [elapsed, setElapsed] = useState(0);
@@ -16,7 +14,7 @@ export default function DefaultViewer() {
   const timeNow = new Date();
 
   return (
-    <Container fluid className='presenter'>
+    <div className='presenter'>
       <div className='presentationTitle'>{data.title}</div>
       <div className='presentationSub'>{data.subtitle}</div>
       <Countdown time={format(timer, 'mm.ss')} />
@@ -31,6 +29,6 @@ export default function DefaultViewer() {
         <SmallTimer label='Current Time' time={format(timeNow, 'HH:mm')} />
         <SmallTimer label='Scheduled End' time={data.timeEnd} />
       </div>
-    </Container>
+    </div>
   );
 }
