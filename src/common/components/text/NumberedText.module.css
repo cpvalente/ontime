@@ -1,0 +1,12 @@
+.stylednumber {
+  display: inline;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+
+  background-color: #319795;
+  width: 1.5em;
+  border-radius: 1em;
+
+  margin-right: 0.5em;
+}

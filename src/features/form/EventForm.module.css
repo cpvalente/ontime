@@ -1,0 +1,23 @@
+.label {
+  padding-top: 1.5em;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.timings {
+  display: flex;
+  justify-content: space-between;
+}
+
+.timeInput {
+  display: flex;
+  gap: 10px;
+}
+
+.buttons {
+  padding-top: 3em;
+  bottom: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+}
