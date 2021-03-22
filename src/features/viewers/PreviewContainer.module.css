@@ -1,0 +1,17 @@
+.previewContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview {
+  margin-top: 2em;
+  width: 95%;
+  aspect-ratio: 16 / 9;
+  background-color: #222;
+}
+
+.label {
+  padding: 1em;
+  align-self: flex-end;
+}
