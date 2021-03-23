@@ -7,8 +7,8 @@ export const sampleData = {
       title: 'Is the internet a fad?',
       subtitle: 'It is',
       presenter: 'Carlos Valente',
-      timeStart: '10:00',
-      timeEnd: '11:30',
+      timeStart: dummy,
+      timeEnd: dummy,
       clockStarted: dummy,
       timerDuration: 10,
       message: {
@@ -22,8 +22,8 @@ export const sampleData = {
       title: 'Is reddit a dictatorship?',
       subtitle: 'It is',
       presenter: 'Carlos Valente',
-      timeStart: '11:40',
-      timeEnd: '13:00',
+      timeStart: dummy,
+      timeEnd: dummy,
       clockStarted: dummy,
       timerDuration: 10,
       message: {

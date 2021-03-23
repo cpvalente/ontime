@@ -17,3 +17,9 @@
 .content {
   padding-top: 2em;
 }
+
+.buttonContainer {
+  padding-top: 2em;
+  display: flex;
+  justify-content: flex-end;
+}

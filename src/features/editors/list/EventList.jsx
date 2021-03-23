@@ -1,11 +1,7 @@
 import { Table, Thead, Tbody, Tr, Th } from '@chakra-ui/react';
-import { useState } from 'react';
-import { sampleData } from '../../../app/sampleData';
 import EventListItem from './EventListItem';
 
 export default function EventList(props) {
-  const [data, setData] = useState(sampleData);
-
   return (
     <Table variant='simple' size='sm'>
       <Thead>
@@ -18,12 +14,13 @@ export default function EventList(props) {
         </Tr>
       </Thead>
       <Tbody>
-        {data.events.map((e) => (
+        {props.data.events.map((e) => (
           <EventListItem
             key={e.id}
             data={e}
-            isSelected={props.selected === e.id}
-            setSelected={props.setSelected}
+            selected={props.selected}
+            setSelectedEvent={props.setSelectedEvent}
+            formMode={props.formMode}
           />
         ))}
       </Tbody>

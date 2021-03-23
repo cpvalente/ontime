@@ -1,26 +1,33 @@
-import { Button } from '@chakra-ui/button';
+import { IconButton } from '@chakra-ui/button';
 import { Td, Tr } from '@chakra-ui/table';
+import { format } from 'date-fns';
+import { timeFormat } from '../../../common/dateConfig';
+import { ChevronRightIcon } from '@chakra-ui/icons';
 
 export default function EventListItem(props) {
+  const selected = props.selected === props.data.id
   return (
     <Tr
       style={
-        props.isSelected
+        selected
           ? { backgroundColor: '#b2f5ea' }
           : { backgroundColor: 'white' }
       }
     >
       <Td>{props.data.title}</Td>
       <Td>{props.data.presenter}</Td>
-      <Td>{props.data.timeStart}</Td>
-      <Td>{props.data.timeEnd}</Td>
+      <Td>{format(props.data.timeStart, timeFormat)}</Td>
+      <Td>{format(props.data.timeEnd, timeFormat)}</Td>
       <Td>
-        <Button
+        <IconButton
           colorScheme='teal'
-          onClick={() => props.setSelected(props.data.id)}
-        >
-          ❯
-        </Button>
+          variant={selected ? 'solid' : 'outline'}
+          onClick={() => props.setSelectedEvent(props.data.id)}
+          disabled={props.formMode !== null}
+          size='sm'
+          aria-label='Select Item'
+          icon={<ChevronRightIcon />}
+        />
       </Td>
     </Tr>
   );
