@@ -2,7 +2,8 @@ import { Button } from '@chakra-ui/button';
 import { Heading } from '@chakra-ui/layout';
 import { SimpleGrid } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { sampleData } from '../../app/sampleData';
 import NumberedText from '../../common/components/text/NumberedText';
 import EventForm from '../form/EventForm';
 import PreviewContainer from '../viewers/PreviewContainer';
@@ -10,7 +11,15 @@ import styles from './Editor.module.css';
 import EventList from './list/EventList';
 
 export default function Editor() {
+  const [data, setData] = useState(sampleData);
+  const [selectedData, setSelectedData] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  useEffect(() => {
+    const se = data.events.filter((d) => d.id === selectedEvent);
+
+    if (se.length > 0) setSelectedData(se[0]);
+  }, [data, selectedEvent]);
 
   return (
     <SimpleGrid
@@ -22,7 +31,11 @@ export default function Editor() {
         <Heading>List Events</Heading>
         <NumberedText number={1} text={'Select Event'} />
         <div className={styles.content}>
-          <EventList selected={selectedEvent} setSelected={setSelectedEvent} />
+          <EventList
+            data={data}
+            selected={selectedEvent}
+            setSelected={setSelectedEvent}
+          />
           <div className={styles.buttons}>
             <Button colorScheme='teal'>Add Event</Button>
           </div>
@@ -33,7 +46,7 @@ export default function Editor() {
         <Heading>Event Details</Heading>
         <NumberedText number={2} text={'Click Save to send to screens'} />
         <div className={styles.content}>
-          <EventForm />
+          <EventForm data={selectedData} />
         </div>
       </Box>
 

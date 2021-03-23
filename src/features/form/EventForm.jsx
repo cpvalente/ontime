@@ -1,43 +1,88 @@
 import { Button } from '@chakra-ui/button';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { Stack } from '@chakra-ui/layout';
-import { Spacer } from '@chakra-ui/layout';
-import { Text } from '@chakra-ui/layout';
-import SingleTimeInput from '../../common/input/SingleTimeInput';
-import TimeInput from '../../common/input/TimeInput';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import ChakraInput from '../../common/input/ChakraInput';
+import ChakraNumberInput from '../../common/input/ChakraNumberInput';
+
 import styles from './EventForm.module.css';
 
 export default function EventForm(props) {
+  const initialValues = props.data ?? {
+    id: '1',
+    title: 'Is the internet a fad?',
+    subtitle: 'It is',
+    presenter: 'Carlos Valente',
+    timeStart: '10:00',
+    timeEnd: '11:30',
+    timerDuration: 10,
+    message: {
+      text: 'Hurry Up!',
+      color: '#F00',
+      active: false,
+    },
+  };
+
+  const validationSchema = Yup.object({
+    title: Yup.string().required(),
+    subtitle: Yup.string(),
+    presenter: Yup.string(),
+    timerDuration: Yup.number().required().min(1).max(60),
+  });
+
+  const submitForm = (values) => {
+    console.log('form', values);
+  };
+
+  if (props.data === null || props.data === undefined) {
+    return <div>nothing selected</div>;
+  }
+
   return (
     <div>
-      <Text className={styles.label}>Event Title </Text>
-      <Editable defaultValue='Event Title'>
-        <EditablePreview />
-        <EditableInput />
-      </Editable>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={(values, actions) => {
+          setTimeout(() => {
+            console.log(values);
+            actions.setSubmitting(false);
+          }, 100);
+        }}
+      >
+        {(props) => (
+          <form onSubmit={props.handleSubmit}>
+            <ChakraInput name='title' label='Event Title' />
+            <ChakraInput name='subtitle' label='Event Subtitle' />
+            <ChakraInput name='presenter' label='Presenter Name' />
+            <ChakraNumberInput
+              name='timerDuration'
+              label='Timer Duration'
+              allowMouseWheel
+              min={1}
+              max={60}
+              maxW={24}
+            />
 
-      <Text className={styles.label}>Event Subtitle </Text>
-      <Editable defaultValue='Event Subtitle'>
-        <EditablePreview />
-        <EditableInput />
-      </Editable>
-
-      <Text className={styles.label}>Presenter Name </Text>
-      <Editable defaultValue='Presenter Name'>
-        <EditablePreview />
-        <EditableInput />
-      </Editable>
-
-      <div className={styles.timings}>
-        <TimeInput label='Scheduled Start' />
-        <TimeInput label='Scheduled End' />
-        <SingleTimeInput label='Timer' />
-      </div>
-
-      <div className={styles.buttons}>
-        <Button variant='outline'>Cancel</Button>
-        <Button colorScheme='teal'>Save</Button>
-      </div>
+            <div className={styles.buttons}>
+              <Button
+                variant='outline'
+                disabled={props.isSubmitting}
+                onClick={() => console.log('ccancel form?')}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme='teal'
+                isLoading={props.isSubmitting}
+                disabled={!props.isValid || !props.dirty || props.isSubmitting}
+                type='submit'
+              >
+                Save
+              </Button>
+            </div>
+          </form>
+        )}
+      </Formik>
     </div>
   );
 }
