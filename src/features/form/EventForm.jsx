@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/button';
-import { Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import ChakraInput from '../../common/input/ChakraInput';
 import ChakraNumberInput from '../../common/input/ChakraNumberInput';
@@ -23,10 +23,13 @@ export default function EventForm(props) {
   };
 
   const validationSchema = Yup.object({
-    title: Yup.string().required(),
+    title: Yup.string().required('An event requires a title'),
     subtitle: Yup.string(),
     presenter: Yup.string(),
-    timerDuration: Yup.number().required().min(1).max(60),
+    timerDuration: Yup.number()
+      .min(1)
+      .max(60)
+      .required('An event requires a duration'),
   });
 
   const submitForm = (values) => {
@@ -50,7 +53,7 @@ export default function EventForm(props) {
         }}
       >
         {(props) => (
-          <form onSubmit={props.handleSubmit}>
+          <Form onSubmit={props.handleSubmit}>
             <ChakraInput name='title' label='Event Title' />
             <ChakraInput name='subtitle' label='Event Subtitle' />
             <ChakraInput name='presenter' label='Presenter Name' />
@@ -67,7 +70,7 @@ export default function EventForm(props) {
               <Button
                 variant='outline'
                 disabled={props.isSubmitting}
-                onClick={() => console.log('ccancel form?')}
+                type='reset'
               >
                 Cancel
               </Button>
@@ -80,7 +83,7 @@ export default function EventForm(props) {
                 Save
               </Button>
             </div>
-          </form>
+          </Form>
         )}
       </Formik>
     </div>

@@ -15,13 +15,8 @@ export default function ChakraNumberInput(props) {
     <Field name={name}>
       {({ field, form }) => {
         return (
-          <FormControl>
-            <FormLabel
-              htmlFor={name}
-              isInvalid={form.errors[name] && form.touched[name]}
-            >
-              {label}
-            </FormLabel>
+          <FormControl isInvalid={form.errors[name] && form.touched[name]}>
+            <FormLabel htmlFor={name}>{label}</FormLabel>
             <NumberInput
               defaultValue={field.value}
               {...rest}
