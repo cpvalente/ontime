@@ -78,7 +78,7 @@ export default function Editor() {
         <Heading style={{ paddingBottom: '0.25em' }}>List Events</Heading>
         <NumberedText number={3} text={'Preview layout'} />
         <div className={styles.content}>
-          <PreviewContainer />
+          <PreviewContainer data={selectedData} />
         </div>
       </Box>
     </SimpleGrid>
