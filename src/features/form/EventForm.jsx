@@ -19,11 +19,6 @@ export default function EventForm(props) {
     timeStart: today,
     timeEnd: today,
     timerDuration: 30,
-    message: {
-      text: '',
-      color: '',
-      active: false,
-    },
   };
 
   const validationSchema = Yup.object({

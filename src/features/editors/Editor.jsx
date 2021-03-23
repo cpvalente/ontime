@@ -74,7 +74,7 @@ export default function Editor() {
         </div>
       </Box>
 
-      <Box className={styles.editor} borderRadius='0.5em'>
+      <Box className={styles.editor} borderRadius='0.5em' overflowX='auto'>
         <Heading style={{ paddingBottom: '0.25em' }}>List Events</Heading>
         <NumberedText number={3} text={'Preview layout'} />
         <div className={styles.content}>

@@ -2,7 +2,9 @@
 
 .countdownClock {
   font-family: 'Open Sans', sans-serif;
-  font-size: 25vw;
+  font-size: 18vw;
+  margin-top: 6vh;
+  margin-bottom: 5vh;
   text-align: center;
   letter-spacing: 0.125em;
   line-height: 0.9;

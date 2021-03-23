@@ -1,6 +1,11 @@
 const dummy = new Date();
 
 export const sampleData = {
+  message: {
+    text: 'Hurry Up!',
+    color: '#F00',
+    active: false,
+  },
   events: [
     {
       id: '1',
@@ -11,11 +16,6 @@ export const sampleData = {
       timeEnd: dummy,
       clockStarted: dummy,
       timerDuration: 10,
-      message: {
-        text: 'Hurry Up!',
-        color: '#F00',
-        active: false,
-      },
     },
     {
       id: '2',
@@ -26,11 +26,6 @@ export const sampleData = {
       timeEnd: dummy,
       clockStarted: dummy,
       timerDuration: 10,
-      message: {
-        text: 'Hurry Up!',
-        color: '#F00',
-        active: false,
-      },
     },
   ],
 };
