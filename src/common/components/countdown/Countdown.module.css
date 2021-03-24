@@ -9,3 +9,11 @@
   letter-spacing: 0.125em;
   line-height: 0.9;
 }
+
+.countdownClockSmall {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 6em;
+  text-align: center;
+  letter-spacing: 0.125em;
+  line-height: 0.9;
+}

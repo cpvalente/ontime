@@ -10,12 +10,14 @@ function display(seconds) {
   else return [hours, minutes, seconds % 60].map(format).join(':');
 }
 
-export default function Countdown({ time }) {
+export default function Countdown({ time, small }) {
   const [counter, setCounter] = useState(time);
 
   useEffect(() => {
     counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
   }, [counter]);
 
-  return <div className={styles.countdownClock}>{display(counter)}</div>;
+  return <div
+  className={small ? styles.countdownClockSmall : styles.countdownClock}
+  >{display(counter)}</div>;
 }

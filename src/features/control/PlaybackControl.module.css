@@ -1,0 +1,43 @@
+.mainContainer {
+  width: 90%;
+  display: flex;
+  margin: 0 auto;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.timeContainer {
+  display: grid;
+  gap: 5px;
+  grid-template-areas:
+    'timer plus1 plus5'
+    'timer minu1 minu5';
+  grid-template-columns: auto 50px 50px;
+}
+
+.timer {
+  grid-area: timer;
+}
+
+.plus1 {
+  grid-area: plus1;
+}
+
+.plus5 {
+  grid-area: plus5;
+}
+
+.minu1 {
+  grid-area: minu1;
+}
+
+.minu5 {
+  grid-area: minu5;
+}
+
+.playbackContainer, .trackContainer {
+  display: flex;
+  justify-content: space-evenly;
+  padding-top: 0.5em;
+
+}
