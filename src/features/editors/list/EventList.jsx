@@ -1,14 +1,20 @@
 import { Table, Thead, Tbody, Tr, Th } from '@chakra-ui/react';
 import { useContext } from 'react';
+import { EventContext } from '../../../app/context/eventContext';
 import { EventListContext } from '../../../app/context/eventListContext';
 import EventListItem from './EventListItem';
 import { sortByDate } from './listUtils';
 
 export default function EventList(props) {
-  const [events, setEvents] = useContext(EventListContext);
+  const [events, ] = useContext(EventListContext);
+  const [event, setEvent] = useContext(EventContext);
 
-  console.log('e', events);
-  console.log('sort', sortByDate(events));
+  const handleSetSelected = (id) => {
+    setEvent(events.filter((e) => e.id === id)[0]);
+    props.setFormMode('edit');
+  };
+
+  const disabled = props.formMode !== null;
 
   return (
     <Table variant='simple' size='sm'>
@@ -26,9 +32,9 @@ export default function EventList(props) {
           <EventListItem
             key={e.id}
             data={e}
-            selected={props.selected}
-            setSelectedEvent={props.setSelectedEvent}
-            formMode={props.formMode}
+            disabled={disabled}
+            selectedId={event?.id}
+            setSelected={handleSetSelected}
           />
         ))}
       </Tbody>

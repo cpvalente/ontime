@@ -1,33 +1,48 @@
 import { Button } from '@chakra-ui/button';
 import { Form, Formik } from 'formik';
-import { useContext, useState } from 'react';
-import ReactDatePicker from 'react-datepicker';
+import { useContext, useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import * as Yup from 'yup';
+import { EventContext } from '../../app/context/eventContext';
 import { EventListContext } from '../../app/context/eventListContext';
 import ChakraInput from '../../common/input/ChakraInput';
 import ChakraNumberInput from '../../common/input/ChakraNumberInput';
 import TimeInput from '../../common/input/TimeInput';
-
 import styles from './EventForm.module.css';
 
+const sampleInitialValues = {
+  title: '',
+  subtitle: '',
+  presenter: '',
+  timeStart: new Date(),
+  timeEnd: new Date(),
+  timerDuration: 5,
+};
+
 export default function EventForm(props) {
-  const [events, setEvents] = useContext(EventListContext);
-  const today = new Date();
-  const initialValues = props.data ?? {
-    title: '',
-    subtitle: '',
-    presenter: '',
-    timeStart: today,
-    timeEnd: today,
-    timerDuration: 30,
-  };
+  const [event, setEvent] = useContext(EventContext);
+  const [, setEvents] = useContext(EventListContext);
+  const [initialValues, setInitialValues] = useState(null);
+
+  useEffect(() => {
+    if (props.formMode === 'edit') setInitialValues(event);
+    else if (props.formMode === 'add') setInitialValues(sampleInitialValues);
+    else if (props.formMode === null) setInitialValues(null);
+  }, [event, props.formMode]);
+
+  // TODO: Cleanup
+  if (props.formMode === null || initialValues === null)
+    return <div>Replace with nice empty illustration</div>;
+  else if (props.formMode === 'edit' && event === null) {
+    return <div>Replace with nice empty illustration also</div>;
+  }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('An event requires a title'),
     subtitle: Yup.string(),
     presenter: Yup.string(),
-    timeStart: Yup.date().nullable(),
+    timeStart: Yup.date(),
+    timeEnd: Yup.date(),
     timerDuration: Yup.number()
       .min(1)
       .max(60)
@@ -35,12 +50,12 @@ export default function EventForm(props) {
   });
 
   const submitForm = (values) => {
+    console.log('called submit');
+
     // prevent default stops page from refreshing, necessary?
-    console.log('form', values);
 
     // update form state
     props.setFormMode(null);
-    props.setSelectedEvent(null);
 
     // are we updating or creating new?
 
@@ -58,17 +73,14 @@ export default function EventForm(props) {
 
   const cancelForm = () => {
     props.setFormMode(null);
-    props.setSelectedEvent(null);
+    setEvent(null);
+    setInitialValues(null);
   };
-
-  if (props.data === null || props.data === undefined) {
-    if (props.formMode === null)
-      return <div>Replace with nice empty illustration</div>;
-  }
 
   return (
     <div>
       <Formik
+        enableReinitialize={true}
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={(values, actions) => {
@@ -76,7 +88,10 @@ export default function EventForm(props) {
             submitForm(values);
           }, 100);
         }}
-        onReset={(values) => cancelForm()}
+        // FIX: This kept being called on render
+        // onReset={() => {
+        //   cancelForm();
+        // }}
       >
         {(props) => (
           <Form onSubmit={props.handleSubmit}>
@@ -109,9 +124,10 @@ export default function EventForm(props) {
               <Button
                 variant='outline'
                 disabled={props.isSubmitting}
-                type='reset'
+                // type='reset'
+                onClick={() => cancelForm()}
               >
-                Cancel
+                Back
               </Button>
               <Button
                 colorScheme='teal'

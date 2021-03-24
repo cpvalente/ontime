@@ -1,53 +1,45 @@
 import { Button } from '@chakra-ui/button';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
-import { Flex, Heading } from '@chakra-ui/layout';
-import { SimpleGrid } from '@chakra-ui/layout';
+import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
+import { useContext } from 'react';
 import { useEffect, useState } from 'react';
-import { sampleData } from '../../app/sampleData';
+import { EventContext } from '../../app/context/eventContext';
 import NumberedText from '../../common/components/text/NumberedText';
+import PlaybackControl from '../control/PlaybackControl';
 import EventForm from '../form/EventForm';
+import MessageForm from '../form/MessageForm';
 import PreviewContainer from '../viewers/PreviewContainer';
 import styles from './Editor.module.css';
 import EventList from './list/EventList';
 
 export default function Editor() {
-  const [data, setData] = useState(sampleData);
-  const [selectedData, setSelectedData] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const [formMode, setFormMode] = useState(null);
+  const [event] = useContext(EventContext);
 
   useEffect(() => {
-    if (selectedEvent === null) {
-      setSelectedData(null);
+    if (event === null) {
       setFormMode(null);
     } else {
-      const se = data.events.filter((d) => d.id === selectedEvent);
-      if (se.length > 0) setSelectedData(se[0]);
       setFormMode('edit');
     }
-  }, [data, selectedEvent]);
+  }, [event]);
 
   return (
-    <SimpleGrid
-      minChildWidth='120px'
-      spacing='40px'
+    <Grid
+      templateRows='60% 40%'
+      templateColumns='repeat(3, 1fr)'
+      gap={5}
       className={styles.mainContainer}
     >
-      <Box className={styles.editor} borderRadius='0.5em'>
-        <Heading style={{ paddingBottom: '0.25em' }}>List Events</Heading>
-        <NumberedText
-          number={1}
-          text={'Select event or click Add Event to create new'}
-        />
-        <div className={styles.content}>
-          <EventList
-            data={data}
-            selected={selectedEvent}
-            setSelectedEvent={setSelectedEvent}
-            formMode={formMode}
+      <GridItem rowSpan={2} colSpan={1}>
+        <Box className={styles.editor} borderRadius='0.5em'>
+          <Heading style={{ paddingBottom: '0.25em' }}>List Events</Heading>
+          <NumberedText
+            number={1}
+            text={'Select event or click Add Event to create new'}
           />
-          <div className={styles.buttonContainer}>
+          <div className={styles.cornerButtonContainer}>
             <Button
               colorScheme='teal'
               variant={formMode === 'add' ? 'solid' : 'outline'}
@@ -58,29 +50,50 @@ export default function Editor() {
               Add Event
             </Button>
           </div>
-        </div>
-      </Box>
 
-      <Box className={styles.editor} borderRadius='0.5em'>
-        <Heading style={{ paddingBottom: '0.25em' }}>Event Details</Heading>
-        <NumberedText number={2} text={'Edit event info'} />
-        <div className={styles.content}>
-          <EventForm
-            data={selectedData}
-            formMode={formMode}
-            setFormMode={setFormMode}
-            setSelectedEvent={setSelectedEvent}
-          />
-        </div>
-      </Box>
+          <div className={styles.content}>
+            <EventList formMode={formMode} setFormMode={setFormMode} />
+          </div>
+        </Box>
+      </GridItem>
 
-      <Box className={styles.editor} borderRadius='0.5em' overflowX='auto'>
-        <Heading style={{ paddingBottom: '0.25em' }}>List Events</Heading>
-        <NumberedText number={3} text={'Preview layout'} />
-        <div className={styles.content}>
-          <PreviewContainer data={selectedData} />
-        </div>
-      </Box>
-    </SimpleGrid>
+      <GridItem colStart={2} rowSpan={1} colSpan={1}>
+        <Box className={styles.editor} borderRadius='0.5em'>
+          <Heading style={{ paddingBottom: '0.25em' }}>Event Details</Heading>
+          <NumberedText number={2} text={'Edit event info'} />
+          <div className={styles.content}>
+            <EventForm formMode={formMode} setFormMode={setFormMode} />
+          </div>
+        </Box>
+      </GridItem>
+
+      <GridItem colStart={3} rowStart={1} rowSpan={1} colSpan={1}>
+        <Box className={styles.editor} borderRadius='0.5em' overflowX='auto'>
+          <Heading style={{ paddingBottom: '0.25em' }}>Screens</Heading>
+          <NumberedText number={3} text={'Preview layout'} />
+          <div className={styles.content}>
+            {/* <PreviewContainer data={selectedData} /> */}
+          </div>
+        </Box>
+      </GridItem>
+
+      <GridItem colStart={2} rowStart={2} rowSpan={1} colSpan={1}>
+        <Box className={styles.editor} borderRadius='0.5em'>
+          <Heading style={{ paddingBottom: '0.25em' }}>Screen Messages</Heading>
+          <NumberedText number={3} text={'Show / Hide messages on screens'} />
+          <div className={styles.content}></div>
+          <MessageForm />
+        </Box>
+      </GridItem>
+
+      <GridItem colStart={3} rowStart={2} rowSpan={1} colSpan={1}>
+        <Box className={styles.editor} borderRadius='0.5em'>
+          <Heading style={{ paddingBottom: '0.25em' }}>Time Control</Heading>
+          <NumberedText number={0} text={'Control Timer'} />
+          <div className={styles.content}></div>
+          <PlaybackControl />
+        </Box>
+      </GridItem>
+    </Grid>
   );
 }

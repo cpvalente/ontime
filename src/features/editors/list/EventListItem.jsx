@@ -5,11 +5,11 @@ import { timeFormat } from '../../../common/dateConfig';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 
 export default function EventListItem(props) {
-  const selected = props.selected === props.data.id
+  const isSelected = props.selectedId === props.data.id;
   return (
     <Tr
       style={
-        selected
+        isSelected
           ? { backgroundColor: '#b2f5ea' }
           : { backgroundColor: 'white' }
       }
@@ -21,9 +21,9 @@ export default function EventListItem(props) {
       <Td>
         <IconButton
           colorScheme='teal'
-          variant={selected ? 'solid' : 'outline'}
-          onClick={() => props.setSelectedEvent(props.data.id)}
-          disabled={props.formMode !== null}
+          variant={isSelected ? 'solid' : 'outline'}
+          onClick={() => props.setSelected(props.data.id)}
+          disabled={props.disabled}
           size='sm'
           aria-label='Select Item'
           icon={<ChevronRightIcon />}
