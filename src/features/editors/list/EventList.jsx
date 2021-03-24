@@ -1,7 +1,15 @@
 import { Table, Thead, Tbody, Tr, Th } from '@chakra-ui/react';
+import { useContext } from 'react';
+import { EventListContext } from '../../../app/context/eventListContext';
 import EventListItem from './EventListItem';
+import { sortByDate } from './listUtils';
 
 export default function EventList(props) {
+  const [events, setEvents] = useContext(EventListContext);
+
+  console.log('e', events);
+  console.log('sort', sortByDate(events));
+
   return (
     <Table variant='simple' size='sm'>
       <Thead>
@@ -14,7 +22,7 @@ export default function EventList(props) {
         </Tr>
       </Thead>
       <Tbody>
-        {props.data.events.map((e) => (
+        {sortByDate(events).map((e) => (
           <EventListItem
             key={e.id}
             data={e}

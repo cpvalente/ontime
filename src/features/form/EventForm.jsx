@@ -1,9 +1,10 @@
 import { Button } from '@chakra-ui/button';
 import { Form, Formik } from 'formik';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import DatePicker from 'react-datepicker';
 import * as Yup from 'yup';
+import { EventListContext } from '../../app/context/eventListContext';
 import ChakraInput from '../../common/input/ChakraInput';
 import ChakraNumberInput from '../../common/input/ChakraNumberInput';
 import TimeInput from '../../common/input/TimeInput';
@@ -11,6 +12,7 @@ import TimeInput from '../../common/input/TimeInput';
 import styles from './EventForm.module.css';
 
 export default function EventForm(props) {
+  const [events, setEvents] = useContext(EventListContext);
   const today = new Date();
   const initialValues = props.data ?? {
     title: '',
@@ -33,9 +35,25 @@ export default function EventForm(props) {
   });
 
   const submitForm = (values) => {
+    // prevent default stops page from refreshing, necessary?
     console.log('form', values);
+
+    // update form state
     props.setFormMode(null);
     props.setSelectedEvent(null);
+
+    // are we updating or creating new?
+
+    // add new event to data context
+    if (props.formMode === 'add')
+      setEvents((prevEvents) => [...prevEvents, { ...values }]);
+
+    // edit event data from  context
+    if (props.formMode === 'edit')
+      setEvents((prevEvents) => [
+        ...prevEvents.filter((pe) => pe.id !== values.id),
+        { ...values },
+      ]);
   };
 
   const cancelForm = () => {
