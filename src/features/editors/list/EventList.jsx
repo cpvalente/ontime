@@ -3,10 +3,10 @@ import { useContext } from 'react';
 import { EventContext } from '../../../app/context/eventContext';
 import { EventListContext } from '../../../app/context/eventListContext';
 import EventListItem from './EventListItem';
-import { sortByDate } from './listUtils';
+import { sortByDate, sortByNumber } from './listUtils';
 
 export default function EventList(props) {
-  const [events, ] = useContext(EventListContext);
+  const [events] = useContext(EventListContext);
   const [event, setEvent] = useContext(EventContext);
 
   const handleSetSelected = (id) => {
@@ -21,6 +21,7 @@ export default function EventList(props) {
       <Thead>
         <Tr>
           <Th>Event Title</Th>
+          <Th>Event Subtitle</Th>
           <Th>Presenter Name</Th>
           <Th>Time Start</Th>
           <Th>Time End</Th>
@@ -28,7 +29,7 @@ export default function EventList(props) {
         </Tr>
       </Thead>
       <Tbody>
-        {sortByDate(events).map((e) => (
+        {sortByNumber(events).map((e) => (
           <EventListItem
             key={e.id}
             data={e}

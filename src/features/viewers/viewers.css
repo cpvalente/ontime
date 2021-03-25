@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap');
 
 .presenter {
-  font-size: 24px;
+  font-size: 1vh;
   height: 100%;
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  padding: 1em;
+  padding-left: 4vh;
 }
 
 .presentationTitle {
@@ -20,7 +20,7 @@
 }
 
 .userMessage {
-  font-size: 10em;
+  font-size: 10vw;
   text-align: center;
 }
 

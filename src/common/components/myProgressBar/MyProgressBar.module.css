@@ -1,5 +1,5 @@
 .progress {
-  padding: 6px;
+  padding: 1vh;
   width: 90%;
   margin: 0 auto;
   background: rgba(0, 0, 0, 0.25);
@@ -8,7 +8,7 @@
 }
 
 .progressBar {
-  height: 18px;
+  height: 2vh;
   background: linear-gradient(
     90deg,
     rgb(145, 255, 191, 1) 0%,

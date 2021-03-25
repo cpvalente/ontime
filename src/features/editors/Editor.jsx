@@ -27,17 +27,17 @@ export default function Editor() {
 
   return (
     <Grid
-      templateRows='60% 40%'
-      templateColumns='repeat(3, 1fr)'
+      templateRows='1fr 1fr 1fr'
+      templateColumns='1fr 25vw 25vw 5vw'
       gap={5}
       className={styles.mainContainer}
     >
-      <GridItem rowSpan={2} colSpan={1}>
+      <GridItem rowSpan={3}>
         <Box className={styles.editor} borderRadius='0.5em'>
-          <Heading style={{ paddingBottom: '0.25em' }}>List Events</Heading>
+          <Heading style={{ paddingBottom: '0.25em' }}>Event List</Heading>
           <NumberedText
             number={1}
-            text={'Select event or click Add Event to create new'}
+            text={'Manage and select event to run'}
           />
           <div className={styles.cornerButtonContainer}>
             <Button
@@ -57,42 +57,36 @@ export default function Editor() {
         </Box>
       </GridItem>
 
-      <GridItem colStart={2} rowSpan={1} colSpan={1}>
-        <Box className={styles.editor} borderRadius='0.5em'>
-          <Heading style={{ paddingBottom: '0.25em' }}>Event Details</Heading>
-          <NumberedText number={2} text={'Edit event info'} />
-          <div className={styles.content}>
-            <EventForm formMode={formMode} setFormMode={setFormMode} />
-          </div>
-        </Box>
-      </GridItem>
-
-      <GridItem colStart={3} rowStart={1} rowSpan={1} colSpan={1}>
+      <GridItem colStart={2} rowStart={2} rowSpan={2} colSpan={2}>
         <Box className={styles.editor} borderRadius='0.5em' overflowX='auto'>
-          <Heading style={{ paddingBottom: '0.25em' }}>Screens</Heading>
-          <NumberedText number={3} text={'Preview layout'} />
+          <Heading style={{ paddingBottom: '0.25em' }}>Preview Displays</Heading>
+          <NumberedText number={4} text={'Realtime screen preview'} />
           <div className={styles.content}>
-            {/* <PreviewContainer data={selectedData} /> */}
+            <PreviewContainer />
           </div>
         </Box>
       </GridItem>
 
-      <GridItem colStart={2} rowStart={2} rowSpan={1} colSpan={1}>
+      <GridItem colStart={2} rowStart={1} rowSpan={1} colSpan={1}>
         <Box className={styles.editor} borderRadius='0.5em'>
-          <Heading style={{ paddingBottom: '0.25em' }}>Screen Messages</Heading>
-          <NumberedText number={3} text={'Show / Hide messages on screens'} />
+          <Heading style={{ paddingBottom: '0.25em' }}>Display Messages</Heading>
+          <NumberedText number={2} text={'Show realtime messages on separate screen types'} />
           <div className={styles.content}></div>
           <MessageForm />
         </Box>
       </GridItem>
 
-      <GridItem colStart={3} rowStart={2} rowSpan={1} colSpan={1}>
+      <GridItem colStart={3} rowStart={1}>
         <Box className={styles.editor} borderRadius='0.5em'>
           <Heading style={{ paddingBottom: '0.25em' }}>Time Control</Heading>
-          <NumberedText number={0} text={'Control Timer'} />
+          <NumberedText number={3} text={'Control Timer'} />
           <div className={styles.content}></div>
           <PlaybackControl />
         </Box>
+      </GridItem>
+
+      <GridItem colStart={4} rowSpan={3}>
+        <Box className={styles.editor} borderRadius='0.5em'>S</Box>
       </GridItem>
     </Grid>
   );

@@ -12,6 +12,8 @@ import styles from './EventForm.module.css';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { Wrap } from '@chakra-ui/layout';
+import { Flex } from '@chakra-ui/layout';
 
 const sampleInitialValues = {
   title: '',
@@ -103,16 +105,19 @@ export default function EventForm(props) {
               label='Event Title'
               placeholder='eg. Is the Internet a fad?'
             />
-            <ChakraInput
-              name='subtitle'
-              label='Event Subtitle'
-              placeholder='eg. After tea thoughts'
-            />
-            <ChakraInput
-              name='presenter'
-              label='Presenter Name'
-              placeholder='eg. Duran Duran'
-            />
+            <Flex direction='row'>
+              <ChakraInput
+                name='subtitle'
+                label='Event Subtitle'
+                placeholder='eg. After tea thoughts'
+              />
+              <ChakraInput
+                name='presenter'
+                label='Presenter Name'
+                placeholder='eg. Duran Duran'
+              />
+            </Flex>
+
             {/* <TimeInput name='timeStart' label='Scheduled Start' /> */}
             <ChakraNumberInput
               name='timerDuration'
@@ -123,7 +128,11 @@ export default function EventForm(props) {
               maxW={24}
             />
 
-            <DatePicker />
+            <Flex direction='row'>
+              <TimeInput name='timeStart' label='Scheduled Start' />
+              <TimeInput name='timeEnd' label='Scheduled End' />
+            </Flex>
+
             <div className={styles.buttons}>
               <Button
                 variant='outline'

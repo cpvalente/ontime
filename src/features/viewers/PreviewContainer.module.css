@@ -3,19 +3,18 @@
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
+  align-content: center;
   gap: 1em;
 }
 
 .previewItem {
-  width: 47%;
+  width: 45%;
 }
 
 .preview {
-  aspect-ratio: 16 / 9;
-  border-color: #222;
-  background-color: #888;
+  margin: auto;
 }
 
 .label {
-  padding: 0.1em;
+  padding: 0.1em 4em;
 }
