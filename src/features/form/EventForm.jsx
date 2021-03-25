@@ -9,6 +9,9 @@ import ChakraInput from '../../common/input/ChakraInput';
 import ChakraNumberInput from '../../common/input/ChakraNumberInput';
 import TimeInput from '../../common/input/TimeInput';
 import styles from './EventForm.module.css';
+import 'react-datepicker/dist/react-datepicker-cssmodules.css';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const sampleInitialValues = {
   title: '',
@@ -80,7 +83,7 @@ export default function EventForm(props) {
   return (
     <div>
       <Formik
-        enableReinitialize={true}
+        // enableReinitialize={true}
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={(values, actions) => {
@@ -120,6 +123,7 @@ export default function EventForm(props) {
               maxW={24}
             />
 
+            <DatePicker />
             <div className={styles.buttons}>
               <Button
                 variant='outline'
