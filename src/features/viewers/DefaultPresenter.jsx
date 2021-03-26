@@ -3,14 +3,13 @@ import addMinutes from 'date-fns/addMinutes';
 import { useContext, useEffect, useState } from 'react';
 import { EventContext } from '../../app/context/eventContext';
 import { PresenterMessagesContext } from '../../app/context/presenterMessageContext';
-import { sampleData } from '../../app/sampleData';
 import Countdown from '../../common/components/countdown/Countdown';
 import MyProgressBar from '../../common/components/myProgressBar/MyProgressBar';
 import SmallTimer from '../../common/components/smallTimer/SmallTimer';
 import './viewers.css';
 
 export default function DefaultPresenter() {
-  const [event, setEvent] = useContext(EventContext);
+  const [event] = useContext(EventContext);
   const [presMessage] = useContext(PresenterMessagesContext);
   const [initialValues, setInitialValues] = useState(null);
 

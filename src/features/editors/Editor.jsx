@@ -39,18 +39,6 @@ export default function Editor() {
             number={1}
             text={'Manage and select event to run'}
           />
-          <div className={styles.cornerButtonContainer}>
-            <Button
-              colorScheme='teal'
-              variant={formMode === 'add' ? 'solid' : 'outline'}
-              rightIcon={<ArrowForwardIcon />}
-              disabled={formMode !== null}
-              onClick={() => setFormMode('add')}
-            >
-              Add Event
-            </Button>
-          </div>
-
           <div className={styles.content}>
             <EventList formMode={formMode} setFormMode={setFormMode} />
           </div>
