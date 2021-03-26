@@ -5,7 +5,7 @@ export const sortByDate = (arr) => {
   return arr.sort(sorter);
 };
 
-export const sortByNumber = (arr) => {
+export const sortByOrderVal = (arr) => {
   const sorter = (a, b) => {
     return a.order - b.order;
   };

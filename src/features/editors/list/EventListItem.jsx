@@ -19,14 +19,30 @@ export default function EventListItem(props) {
   const [more, setMore] = useState(false);
   const [armed, setArmed] = useState(false);
 
+  const { data, selected, ...rest } = props;
+
   return (
-    <div className={armed ? style.eventRowActive : style.eventRow}>
+    <div className={selected ? style.eventRowActive : style.eventRow}>
       <div
         className={armed ? style.armActive : style.arm}
         onClick={() => setArmed(!armed)}
       />
       <div className={style.time}>
-        <Editable defaultValue='11:20' style={{ textAlign: 'center' }}>
+        <Editable
+          defaultValue={data.timerStart}
+          placeholder='--:--'
+          style={{ textAlign: 'center' }}
+        >
+          <EditablePreview />
+          <EditableInput />
+        </Editable>
+      </div>
+      <div className={style.time}>
+        <Editable
+          defaultValue={data.timerEnd}
+          placeholder='--:--'
+          style={{ textAlign: 'center' }}
+        >
           <EditablePreview />
           <EditableInput />
         </Editable>
@@ -37,31 +53,34 @@ export default function EventListItem(props) {
             <div style={{ display: 'block' }}>
               <span className={style.detailedTitleUnderlined}>Title</span>
               <Editable
-                defaultValue='Event Title'
+                defaultValue={data.title}
+                placeholder='Add title'
                 style={{ display: 'inline' }}
               >
                 <EditablePreview />
-                <EditableInput style={{width:'15em'}} />
+                <EditableInput style={{ width: '13em' }} />
               </Editable>
             </div>
             <div style={{ display: 'block' }}>
               <span className={style.detailedTitleUnderlined}>Subtitle</span>
               <Editable
-                defaultValue='Event Subtitle'
+                defaultValue={data.subtitle}
+                placeholder='Add subtitle'
                 style={{ display: 'inline' }}
               >
                 <EditablePreview />
-                <EditableInput style={{width:'15em'}} />
+                <EditableInput style={{ width: '13em', minWidth: '13em' }} />
               </Editable>
             </div>
             <div style={{ display: 'block' }}>
               <span className={style.detailedTitleUnderlined}>Presenter</span>
               <Editable
-                defaultValue='Presenter Name'
+                defaultValue={data.presenter}
+                placeholder='Add presenter name'
                 style={{ display: 'inline' }}
               >
                 <EditablePreview style={{}} />
-                <EditableInput style={{width:'15em'}} />
+                <EditableInput style={{ width: '13em' }} />
               </Editable>
             </div>
           </div>
@@ -70,11 +89,12 @@ export default function EventListItem(props) {
             <div>
               <span className={style.detailedTitle}>Title</span>
               <Editable
-                defaultValue='Event Title'
+                defaultValue={data.title}
+                placeholder='Add title'
                 style={{ display: 'inline' }}
               >
                 <EditablePreview />
-                <EditableInput style={{width:'15em'}} />
+                <EditableInput style={{ width: '13em' }} />
               </Editable>
             </div>
           </div>
@@ -84,8 +104,18 @@ export default function EventListItem(props) {
         </div>
       </div>
       <div className={style.actionOverlay}>
-        <IconButton size='xs' icon={<MinusIcon />} colorScheme='red' />
-        <IconButton size='xs' icon={<AddIcon />} colorScheme='blue' />
+        <IconButton
+          size='xs'
+          icon={<MinusIcon />}
+          colorScheme='red'
+          onClick={() => props.deleteEvent(data.id)}
+        />
+        <IconButton
+          size='xs'
+          icon={<AddIcon />}
+          colorScheme='blue'
+          onClick={() => props.createEvent(data.order)}
+        />
         <IconButton size='xs' icon={<TimeIcon />} colorScheme='yellow' />
         <IconButton size='xs' icon={<NotAllowedIcon />} colorScheme='purple' />
       </div>

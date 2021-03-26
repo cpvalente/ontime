@@ -20,7 +20,7 @@
   left: 0;
   width: 100%;
   display: grid;
-  grid-template-columns: 2em 5em 1fr auto;
+  grid-template-columns: auto auto 5em 1fr auto;
   gap: 0.5em;
   justify-content: center;
   align-content: center;
@@ -38,8 +38,8 @@
 
 .arm,
 .armActive {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 10px;
   cursor: pointer;
 }
@@ -96,6 +96,7 @@
   color: #888;
   display: inline-block;
   width: 6em;
+  cursor: default;
 }
 
 .detailedTitleUnderlined {
