@@ -1,44 +1,40 @@
-import { Table, Thead, Tbody, Tr, Th } from '@chakra-ui/react';
+import { AddIcon, AttachmentIcon, DownloadIcon } from '@chakra-ui/icons';
+import { Button, IconButton } from '@chakra-ui/react';
 import { useContext } from 'react';
 import { EventContext } from '../../../app/context/eventContext';
 import { EventListContext } from '../../../app/context/eventListContext';
 import EventListItem from './EventListItem';
-import { sortByDate, sortByNumber } from './listUtils';
+import { sortByNumber } from './listUtils';
+import style from './List.module.css';
+import DelayBlock from './DelayBlock';
+import BlockBlock from './BlockBlock';
 
 export default function EventList(props) {
   const [events] = useContext(EventListContext);
-  const [event, setEvent] = useContext(EventContext);
-
-  const handleSetSelected = (id) => {
-    setEvent(events.filter((e) => e.id === id)[0]);
-    props.setFormMode('edit');
-  };
-
-  const disabled = props.formMode !== null;
+  const [, setEvent] = useContext(EventContext);
 
   return (
-    <Table variant='simple' size='sm'>
-      <Thead>
-        <Tr>
-          <Th>Event Title</Th>
-          <Th>Event Subtitle</Th>
-          <Th>Presenter Name</Th>
-          <Th>Time Start</Th>
-          <Th>Time End</Th>
-          <Th></Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {sortByNumber(events).map((e) => (
-          <EventListItem
-            key={e.id}
-            data={e}
-            disabled={disabled}
-            selectedId={event?.id}
-            setSelected={handleSetSelected}
-          />
-        ))}
-      </Tbody>
-    </Table>
+    <>
+      <div className={style.headerButtons}>
+        <Button size='sm' rightIcon={<AttachmentIcon />}>
+          Upload
+        </Button>
+        <Button size='sm' rightIcon={<DownloadIcon />}>
+          Download
+        </Button>
+        <IconButton size='sm' icon={<AddIcon />} colorScheme='blue' />
+      </div>
+      <div className={style.eventContainer}>
+        <EventListItem />
+
+        <EventListItem />
+        <DelayBlock />
+
+        <EventListItem />
+        <BlockBlock />
+
+        <EventListItem />
+      </div>
+    </>
   );
 }

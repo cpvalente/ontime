@@ -1,0 +1,175 @@
+/* ============= EVENT LIST ============= */
+.headerButtons {
+  display: flex;
+  gap: 0.5em;
+  align-content: center;
+  justify-content: flex-end;
+}
+
+.eventContainer {
+}
+
+/* ============= EVENT ITEM ============= */
+
+.eventRow,
+.eventRowActive {
+  margin: 0.2em 0;
+  padding: 0.2em 0.5em;
+  position: relative;
+  top: 1em;
+  left: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2em 5em 1fr auto;
+  gap: 0.5em;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.eventRow {
+  background-color: #0001;
+}
+
+.eventRowActive {
+  background-color: #b2f5eaaa;
+}
+
+.arm,
+.armActive {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.arm {
+  background-color: #888;
+  border: 1px solid #444;
+}
+
+.armActive {
+  background: radial-gradient(
+    circle,
+    rgba(22, 255, 0, 1) 0%,
+    rgba(50, 255, 31, 1) 49%,
+    rgba(0, 0, 0, 1) 65%,
+    rgba(0, 255, 156, 0.7083333333333333) 81%
+  );
+  border: 1px solid #256e62;
+}
+
+.time,
+.titleContainer,
+.detailedContainer {
+  background-color: #fff8;
+  border: 1px solid #0001;
+  border-radius: 3px;
+}
+
+.time {
+  width: 4em;
+  height: fit-content;
+}
+
+.rowDetailed {
+  display: inline-flex;
+  position: relative;
+}
+
+.titleContainer,
+.detailedContainer {
+  width: 90%;
+  display: block;
+}
+
+.detailedContainer > div,
+.titleContainer > div {
+  display: inline;
+}
+
+.detailedTitle,
+.detailedTitleUnderlined {
+  padding-left: 1em;
+  font-size: 0.8em;
+  color: #888;
+  display: inline-block;
+  width: 6em;
+}
+
+.detailedTitleUnderlined {
+  border-bottom: 1px solid #0001;
+}
+
+.more {
+  position: absolute;
+  right: 0.25em;
+  top: 0em;
+}
+
+.actionOverlay {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+  align-content: center;
+  align-self: center;
+
+  opacity: 0.6;
+  transition: linear 0.1s;
+}
+
+.eventRow:hover > .actionOverlay {
+  opacity: 0.9;
+  transition: linear 0.1s;
+}
+
+.actionOverlay:hover {
+  opacity: 1;
+}
+
+/* ============= DELAY BLOCK ============= */
+.delayContainer {
+  position: relative;
+  top: 1em;
+  margin: 0.2em 0;
+  padding: 0.2em 1em;
+  width: 100%;
+  background-color: #ecc94baa;
+  border-radius: 8px;
+  color: white;
+  border: 1px solid #0001;
+  border-top: 8px solid #ecc94b;
+  box-sizing: border-box;
+
+  width: 100%;
+  display: flex;
+  margin: auto;
+  gap: 1em;
+}
+
+.delayValue {
+  color: #000;
+  background-color: #fff5;
+  border-radius: 4px;
+  padding: 0.2em;
+  text-align: center;
+  width: 6em;
+  border: 1px solid #0001;
+}
+
+/* ============= BLOCK BLOCK ============= */
+.blockContainer {
+  position: relative;
+  top: 1em;
+  margin: 0.2em 0;
+  padding: 0.2em 1em;
+  width: 100%;
+  background-color: #805ad5aa;
+  border-radius: 8px;
+  color: white;
+  height: 2em;
+  border: 1px solid #0001;
+  border-bottom: 8px solid #805ad5;
+  box-sizing: border-box;
+}
