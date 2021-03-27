@@ -24,8 +24,9 @@
   gap: 0.5em;
   justify-content: center;
   align-content: center;
-  align-items: center;
+  align-items: baseline;
   border-radius: 8px;
+  font-size: 15px;
 }
 
 .eventRow {
@@ -69,7 +70,7 @@
 }
 
 .time {
-  width: 4em;
+  width: 5em;
   height: fit-content;
 }
 

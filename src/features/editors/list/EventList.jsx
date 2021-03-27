@@ -22,7 +22,7 @@ export default function EventList(props) {
     // TODO: Replace this with global def somewhere
     // TODO: handle random ids better
     let newEvent = {
-      id: Math.floor(Math.random()*10000000),
+      id: Math.floor(Math.random() * 10000000),
       order: startPosition + 1,
       title: '',
       subtitle: '',
@@ -47,13 +47,24 @@ export default function EventList(props) {
   };
 
   const deleteEvent = (position) => {
-    // ?? SHould i reorder after?
+    // ?? Should i reorder after?
 
     // remove event from array
     let filtered = events.filter((e) => e.id !== position);
 
     // set to state
     setEvents(filtered);
+  };
+
+  const replaceAt = (array, index, value) => {
+    const ret = array.slice(0);
+    ret[index] = value;
+    return ret;
+  };
+
+  const updateData = (itemIndex, data) => {
+    const newEvents = replaceAt(events, itemIndex, data);
+    setEvents(newEvents);
   };
 
   return (
@@ -73,13 +84,15 @@ export default function EventList(props) {
         />
       </div>
       <div className={style.eventContainer}>
-        {sortByOrderVal(events).map((e) => (
+        {sortByOrderVal(events).map((e, index) => (
           <EventListItem
             key={e.id}
+            index={index}
             data={e}
             selected={e.id === selected}
             createEvent={createEvent}
             deleteEvent={deleteEvent}
+            updateData={updateData}
           />
         ))}
       </div>
