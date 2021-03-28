@@ -160,6 +160,10 @@
   border: 1px solid #0001;
 }
 
+.delayedEditable {
+  background-color: #ecc94b55;
+}
+
 /* ============= BLOCK BLOCK ============= */
 .blockContainer {
   position: relative;
@@ -170,8 +174,14 @@
   background-color: #805ad5aa;
   border-radius: 8px;
   color: white;
-  height: 2em;
+  height: 3em;
   border: 1px solid #0001;
   border-bottom: 8px solid #805ad5;
   box-sizing: border-box;
+
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  margin: auto;
+  gap: 1em;
 }

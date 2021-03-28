@@ -12,14 +12,34 @@ import {
   EditablePreview,
   EditableInput,
 } from '@chakra-ui/react';
+import { addMinutes, format } from 'date-fns';
 import { useEffect, useState } from 'react';
+import { timeFormat, timeToDate } from '../../../common/dateConfig';
 import style from './List.module.css';
+
+// small shorthand for adding delay and formatting date
+const addAndFormat = (time, delay) => {
+  return format(addMinutes(time, delay), timeFormat);
+};
 
 export default function EventListItem(props) {
   const [more, setMore] = useState(false);
   const [armed, setArmed] = useState(false);
+  // const [timeStart, setTimeStart] = useState(
+  //   addAndFormat(props.data.timeStart, props.delay)
+  // );
+  const [timeStart, setTimeStart] = useState(0);
+  const [timeEnd, setTimeEnd] = useState(
+    addAndFormat(props.data.timeEnd, props.delay)
+  );
 
-  const { data, selected, ...rest } = props;
+  const { data, selected, delay, ...rest } = props;
+
+  // prepare time fields
+  useEffect(() => {
+    setTimeStart(addAndFormat(props.data.timeStart, props.delay));
+    setTimeEnd(addAndFormat(props.data.timeEnd, props.delay));
+  }, [props.data, props.delay]);
 
   const updateValues = (field, value) => {
     // validate field
@@ -43,10 +63,12 @@ export default function EventListItem(props) {
         />
         <div className={style.time}>
           <Editable
-            onSubmit={(v) => updateValues('timerStart', v)}
-            defaultValue={data.timerStart}
+            onSubmit={(v) => updateValues('timeStart', timeToDate(v))}
+            value={timeStart}
+            onChange={(val) => setTimeStart(val)}
             placeholder='--:--'
             style={{ textAlign: 'center' }}
+            className={delay > 0 && style.delayedEditable}
           >
             <EditablePreview />
             <EditableInput type='time' min='00:00' max='23:59' />
@@ -54,10 +76,12 @@ export default function EventListItem(props) {
         </div>
         <div className={style.time}>
           <Editable
-            onSubmit={(v) => updateValues('timerEnd', v)}
-            defaultValue={data.timerEnd}
+            onSubmit={(v) => updateValues('timeEnd', timeToDate(v))}
+            value={timeEnd}
+            onChange={(val) => setTimeEnd(val)}
             placeholder='--:--'
             style={{ textAlign: 'center' }}
+            className={delay > 0 && style.delayedEditable}
           >
             <EditablePreview />
             <EditableInput type='time' min='00:00' max='23:59' />
@@ -129,19 +153,25 @@ export default function EventListItem(props) {
             size='xs'
             icon={<MinusIcon />}
             colorScheme='red'
-            onClick={() => props.deleteEvent(data.id)}
+            onClick={() => props.deleteEvent(props.index)}
           />
           <IconButton
             size='xs'
             icon={<AddIcon />}
             colorScheme='blue'
-            onClick={() => props.createEvent(data.order)}
+            onClick={() => props.createEvent(props.index)}
           />
-          <IconButton size='xs' icon={<TimeIcon />} colorScheme='yellow' />
+          <IconButton
+            size='xs'
+            icon={<TimeIcon />}
+            colorScheme='yellow'
+            onClick={() => props.createDelay(props.index)}
+          />
           <IconButton
             size='xs'
             icon={<NotAllowedIcon />}
             colorScheme='purple'
+            onClick={() => props.createBlock(props.index)}
           />
         </div>
       </div>

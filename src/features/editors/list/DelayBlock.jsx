@@ -8,35 +8,40 @@ import {
   SliderThumb,
   SliderTrack,
 } from '@chakra-ui/slider';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import style from './List.module.css';
 
-export default function DelayBlock() {
+export default function DelayBlock(props) {
   const [delay, setDelay] = useState(0);
-  const { getIncrementButtonProps, getDecrementButtonProps } = useNumberInput({
-    step: 1,
-    defaultValue: 0,
-    min: -60,
-    max: 60,
-  });
+  const { data, ...rest } = props;
 
-  const inc = getIncrementButtonProps();
-  const dec = getDecrementButtonProps();
+  // update delay value in parent
+  const populateDelay = (value) => {
+    // check if value has changed
+    if (data.timerDuration !== value) {
+      // create object with new field
+      const newData = { ...data, timerDuration: delay };
 
-  const populateDelay = (val) => {
-    console.log('set delay in parent', val);
+      // request update in parent
+      props.updateData(props.index, newData);
+    }
   };
+
+  // update delay value in state
+  useEffect(() => {
+    setDelay(data.timerDuration);
+  }, [data]);
 
   return (
     <div className={style.delayContainer}>
       <div className={style.delayValue}>{`${delay} min`}</div>
       <Slider
-        defaultValue={0}
-        min={-60}
+        defaultValue={data.timerDuration}
+        min={0}
         max={60}
         step={5}
-        onChange={(val) => setDelay(val)}
-        onChangeEnd={(val) => populateDelay(val)}
+        onChange={(value) => setDelay(value)}
+        onChangeEnd={(value) => populateDelay(value)}
       >
         <SliderTrack bg='orange.100'>
           <Box position='relative' right={10} />
@@ -45,8 +50,18 @@ export default function DelayBlock() {
         <SliderThumb boxSize={4} />
       </Slider>
       <div className={style.actionOverlay}>
-        <IconButton size='xs' icon={<MinusIcon />} colorScheme='red' />
-        <IconButton size='xs' icon={<AddIcon />} colorScheme='blue' />
+        <IconButton
+          size='xs'
+          icon={<MinusIcon />}
+          colorScheme='red'
+          onClick={() => props.deleteEvent(props.index)}
+        />
+        <IconButton
+          size='xs'
+          icon={<AddIcon />}
+          colorScheme='blue'
+          onClick={() => props.createEvent(props.index)}
+        />
       </div>
     </div>
   );

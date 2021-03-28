@@ -8,52 +8,87 @@ import { sortByOrderVal } from './listUtils';
 import style from './List.module.css';
 import DelayBlock from './DelayBlock';
 import BlockBlock from './BlockBlock';
-import { createEvent } from '@testing-library/dom';
 
 export default function EventList(props) {
   const [events, setEvents] = useContext(EventListContext);
   const [event, setEvent] = useContext(EventContext);
-  console.log('in el', events);
 
   const selected = event?.id || -1;
 
-  const createEvent = (startPosition = 0) => {
+  const insertItemAt = (item, index) => {
+    // handle insert at beggining of array
+    if (index === -1) {
+      // move all items one element down, starting from new position
+      events.forEach((e) => {
+        e.order = e.order + 1;
+      });
+      return [item, ...events];
+    } else {
+      let before = events.slice(0, index + 1);
+      let after = events.slice(index + 1);
+
+      // move all items one element down, starting from new position
+      after.forEach((e) => {
+        e.order = e.order + 1;
+      });
+      return [...before, item, ...after];
+    }
+  };
+
+  const createEvent = (itemIndex = -1) => {
     // make an event
     // TODO: Replace this with global def somewhere
     // TODO: handle random ids better
     let newEvent = {
-      id: Math.floor(Math.random() * 10000000),
-      order: startPosition + 1,
+      id: Math.random(),
+      order: itemIndex + 1,
       title: '',
       subtitle: '',
       presenter: '',
-      timerStart: '',
-      timerEnd: '',
+      timeStart: new Date(),
+      timeEnd: new Date(),
       clockStarted: null,
       timerDuration: 0,
+      type: 'event',
     };
 
-    // move all items one element down, starting from new position
-    let newEvents = events.map((e) => {
-      if (e.order > startPosition) e.order = e.order + 1;
-      return e;
-    });
-
-    // add an event at the beggining
-    newEvents = [newEvent, ...events];
-
     // set to state
-    setEvents(newEvents);
+    setEvents(insertItemAt(newEvent, itemIndex));
   };
 
-  const deleteEvent = (position) => {
-    // ?? Should i reorder after?
-
-    // remove event from array
-    let filtered = events.filter((e) => e.id !== position);
+  const createDelay = (itemIndex = 0) => {
+    // make an event
+    // TODO: Replace this with global def somewhere
+    // TODO: handle random ids better
+    let newEvent = {
+      id: Math.random(),
+      order: itemIndex + 1,
+      timerDuration: 0,
+      type: 'delay',
+    };
 
     // set to state
-    setEvents(filtered);
+    setEvents(insertItemAt(newEvent, itemIndex));
+  };
+
+  const createBlock = (itemIndex = 0) => {
+    // make an event
+    // TODO: Replace this with global def somewhere
+    // TODO: handle random ids better
+    let newEvent = {
+      id: Math.random(),
+      order: itemIndex + 1,
+      type: 'block',
+    };
+
+    // set to state
+    setEvents(insertItemAt(newEvent, itemIndex));
+  };
+
+  const deleteEvent = (index) => {
+    // TODO: This feels weird?
+    let e = events.splice(index, 1);
+    setEvents([...events]);
   };
 
   const replaceAt = (array, index, value) => {
@@ -65,8 +100,10 @@ export default function EventList(props) {
   const updateData = (itemIndex, data) => {
     const newEvents = replaceAt(events, itemIndex, data);
     setEvents(newEvents);
-  };
+  }
 
+  console.log('events in event list', events);
+  let cumulativeDelay = 0;
   return (
     <>
       <div className={style.headerButtons}>
@@ -84,17 +121,46 @@ export default function EventList(props) {
         />
       </div>
       <div className={style.eventContainer}>
-        {sortByOrderVal(events).map((e, index) => (
-          <EventListItem
-            key={e.id}
-            index={index}
-            data={e}
-            selected={e.id === selected}
-            createEvent={createEvent}
-            deleteEvent={deleteEvent}
-            updateData={updateData}
-          />
-        ))}
+        {events.map((e, index) => {
+          if (e.type === 'event') {
+            return (
+              <EventListItem
+                key={e.id}
+                index={index}
+                data={e}
+                selected={e.id === selected}
+                createEvent={createEvent}
+                deleteEvent={deleteEvent}
+                createDelay={createDelay}
+                createBlock={createBlock}
+                updateData={updateData}
+                delay={cumulativeDelay}
+              />
+            );
+          } else if (e.type === 'block') {
+            cumulativeDelay = 0;
+            return (
+              <BlockBlock
+                key={e.id}
+                index={index}
+                createEvent={createEvent}
+                deleteEvent={deleteEvent}
+              />
+            );
+          } else if (e.type === 'delay') {
+            cumulativeDelay = cumulativeDelay + e.timerDuration;
+            return (
+              <DelayBlock
+                key={e.id}
+                index={index}
+                data={e}
+                createEvent={createEvent}
+                deleteEvent={deleteEvent}
+                updateData={updateData}
+              />
+            );
+          }
+        })}
       </div>
     </>
   );
