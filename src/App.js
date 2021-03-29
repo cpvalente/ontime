@@ -10,16 +10,12 @@ function App() {
   return (
     <PresenterMessageProvider>
       <EventProvider>
-
         <div className='App'>
           <Route path='/' exact component={DefaultPresenter} />
-
           <EventListProvider>
             <Route path='/editor' exact component={Editor} />
           </EventListProvider>
-
         </div>
-
       </EventProvider>
     </PresenterMessageProvider>
   );

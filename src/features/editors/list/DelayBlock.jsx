@@ -1,7 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { AddIcon, MinusIcon } from '@chakra-ui/icons';
 import { Box } from '@chakra-ui/layout';
-import { useNumberInput } from '@chakra-ui/number-input';
 import {
   Slider,
   SliderFilledTrack,

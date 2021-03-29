@@ -11,16 +11,13 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "date-fns": "^2.19.0",
-    "formik": "^2.2.6",
     "framer-motion": "^4",
     "react": "^17.0.1",
-    "react-datepicker": "^3.6.0",
     "react-dom": "^17.0.1",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
-    "web-vitals": "^1.0.1",
-    "yup": "^0.32.9"
+    "web-vitals": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

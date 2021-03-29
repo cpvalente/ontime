@@ -6,7 +6,7 @@ import { useContext } from 'react';
 import { useState } from 'react';
 import { PresenterMessagesContext } from '../../app/context/presenterMessageContext';
 
-export default function MessageForm(props) {
+export default function MessageForm() {
   const [presenterShow, setPresenterShow] = useState(false);
   const [publicShow, setPublicShow] = useState(false);
   const [presMessage, setPresMessage] = useContext(PresenterMessagesContext);
@@ -24,11 +24,11 @@ export default function MessageForm(props) {
     setPublicShow(!publicShow);
   };
 
-  const handlePublicChange = () => {};
+  const handlePublicChange = (val) => {};
 
   return (
     <>
-      <form style={{ display: 'flex', gap: '1em' }}>
+      <form style={{ display: 'flex', gap: '1em', fontSize: '15px' }}>
         <FormControl id='presenterMessage'>
           <FormLabel>Presenter screen message</FormLabel>
           <Input
@@ -48,7 +48,10 @@ export default function MessageForm(props) {
       <form style={{ display: 'flex', gap: '1em', paddingTop: '1em' }}>
         <FormControl id='generalMessage'>
           <FormLabel>Public screen message</FormLabel>
-          <Input placeholder='all screens will render this' />
+          <Input
+            placeholder='all screens will render this'
+            onChange={(event) => handlePublicChange(event.target.value)}
+          />
         </FormControl>
         <IconButton
           style={{ alignSelf: 'flex-end' }}

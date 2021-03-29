@@ -31,11 +31,7 @@ export default function DefaultPresenter() {
     setInitialValues(event);
   }, [event]);
 
-  console.log('local event event', event);
-  console.log('local event values', values);
-  console.log('local event initialv', initialValues);
-
-  // NITE: test only
+  // NOTE: test only
   const clockStarted = addMinutes(now, 6);
 
   const timer = differenceInSeconds(
@@ -47,8 +43,6 @@ export default function DefaultPresenter() {
   const currentTime = format(now, 'HH:mm');
   const timeEnd = format(values.timeEnd, 'HH:mm');
   const elapsed = timer / (values.timerDuration * 60);
-
-  console.log('timers', timer, timeStart, currentTime, timeEnd, elapsed);
 
   return (
     <div className='presenter'>

@@ -35,9 +35,9 @@
   grid-area: minu5;
 }
 
-.playbackContainer, .trackContainer {
+.playbackContainer,
+.trackContainer {
   display: flex;
   justify-content: space-evenly;
   padding-top: 0.5em;
-
 }

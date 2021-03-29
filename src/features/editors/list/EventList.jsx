@@ -1,17 +1,29 @@
-import { AddIcon, AttachmentIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Button, IconButton } from '@chakra-ui/react';
+import {
+  AddIcon,
+  AttachmentIcon,
+  ChevronDownIcon,
+  DownloadIcon,
+} from '@chakra-ui/icons';
+import {
+  Button,
+  ButtonGroup,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from '@chakra-ui/react';
 import { useContext } from 'react';
 import { EventContext } from '../../../app/context/eventContext';
 import { EventListContext } from '../../../app/context/eventListContext';
 import EventListItem from './EventListItem';
-import { sortByOrderVal } from './listUtils';
 import style from './List.module.css';
 import DelayBlock from './DelayBlock';
 import BlockBlock from './BlockBlock';
 
-export default function EventList(props) {
+export default function EventList() {
   const [events, setEvents] = useContext(EventListContext);
-  const [event, setEvent] = useContext(EventContext);
+  const [event] = useContext(EventContext);
 
   const selected = event?.id || -1;
 
@@ -100,19 +112,51 @@ export default function EventList(props) {
   const updateData = (itemIndex, data) => {
     const newEvents = replaceAt(events, itemIndex, data);
     setEvents(newEvents);
-  }
+  };
 
   console.log('events in event list', events);
   let cumulativeDelay = 0;
   return (
     <>
       <div className={style.headerButtons}>
-        <Button size='sm' rightIcon={<AttachmentIcon />} disabled>
-          Upload
-        </Button>
-        <Button size='sm' rightIcon={<DownloadIcon />} disabled>
-          Download
-        </Button>
+        <Menu>
+          <ButtonGroup isAttached>
+            <Button size='sm' variant='outline'>
+              Upload
+            </Button>
+            <MenuButton
+              as={Button}
+              leftIcon={<AttachmentIcon />}
+              size='sm'
+              variant='outline'
+            >
+              <ChevronDownIcon />
+            </MenuButton>
+          </ButtonGroup>
+          <MenuList>
+            <MenuItem>Upload Excel</MenuItem>
+            <MenuItem>Upload CSV</MenuItem>
+          </MenuList>
+        </Menu>
+        <Menu>
+          <ButtonGroup isAttached>
+            <Button size='sm' variant='outline'>
+              Save
+            </Button>
+            <MenuButton
+              as={Button}
+              leftIcon={<DownloadIcon />}
+              size='sm'
+              variant='outline'
+            >
+              <ChevronDownIcon />
+            </MenuButton>
+          </ButtonGroup>
+          <MenuList>
+            <MenuItem>Download Excel</MenuItem>
+            <MenuItem>Download CSV</MenuItem>
+          </MenuList>
+        </Menu>
         <IconButton
           size='sm'
           icon={<AddIcon />}
