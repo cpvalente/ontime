@@ -24,7 +24,6 @@ const addAndFormat = (time, delay) => {
 
 export default function EventListItem(props) {
   const [more, setMore] = useState(false);
-  const [armed, setArmed] = useState(false);
   // const [timeStart, setTimeStart] = useState(
   //   addAndFormat(props.data.timeStart, props.delay)
   // );
@@ -57,10 +56,6 @@ export default function EventListItem(props) {
   return (
     <form>
       <div className={selected ? style.eventRowActive : style.eventRow}>
-        <div
-          className={armed ? style.armActive : style.arm}
-          onClick={() => setArmed(!armed)}
-        />
         <div className={style.time}>
           <Editable
             onSubmit={(v) => updateValues('timeStart', timeToDate(v))}
