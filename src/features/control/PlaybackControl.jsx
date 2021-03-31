@@ -1,19 +1,18 @@
 import { Button } from '@chakra-ui/button';
 import style from './PlaybackControl.module.css';
 import Countdown from '../../common/components/countdown/Countdown';
-import { useState } from 'react';
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
 
-export default function PlaybackControl() {
-  const [time] = useState(15);
-  const [roll, setRoll] = useState(false);
+// BUTTON DEFINITION
+const defProps = {
+  colorScheme: 'blackAlpha',
+  variant: 'outline',
+};
 
-  const defProps = {
-    colorScheme: 'blackAlpha',
-    variant: 'outline',
-  };
+const bigSize = 120;
 
-  const bigSize = 120;
+export default function PlaybackControl(props) {
+  const { time, roll } = props;
 
   return (
     <div className={style.mainContainer}>
@@ -28,6 +27,7 @@ export default function PlaybackControl() {
           colorScheme='green'
           className={style.start}
           disabled={roll}
+          onClick={() => props.playbackControl('start')}
         >
           Start
         </Button>
@@ -36,6 +36,7 @@ export default function PlaybackControl() {
           colorScheme='orange'
           className={style.pause}
           disabled={roll}
+          onClick={() => props.playbackControl('pause')}
         >
           Pause
         </Button>
@@ -47,6 +48,7 @@ export default function PlaybackControl() {
           leftIcon={<ArrowBackIcon />}
           className={style.prev}
           disabled={roll}
+          onClick={() => props.playbackControl('previous')}
         >
           Prev
         </Button>
@@ -56,6 +58,7 @@ export default function PlaybackControl() {
           rightIcon={<ArrowForwardIcon />}
           className={style.next}
           disabled={roll}
+          onClick={() => props.playbackControl('next')}
         >
           Next
         </Button>
@@ -63,7 +66,7 @@ export default function PlaybackControl() {
           width={bigSize}
           colorScheme='blue'
           className={style.reset}
-          onClick={() => setRoll(!roll)}
+          onClick={() => props.playbackControl('roll')}
         >
           Roll
         </Button>

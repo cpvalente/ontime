@@ -2,9 +2,12 @@ import { IconButton } from '@chakra-ui/button';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
+import { getHours, getMinutes } from 'date-fns';
+import { differenceInSeconds } from 'date-fns/esm';
 import { useContext } from 'react';
 import { useEffect, useState } from 'react';
 import { EventContext } from '../../app/context/eventContext';
+import { EventListContext } from '../../app/context/eventListContext';
 import NumberedText from '../../common/components/text/NumberedText';
 import PlaybackControl from '../control/PlaybackControl';
 import MessageForm from '../form/MessageForm';
@@ -14,15 +17,111 @@ import EventList from './list/EventList';
 
 export default function Editor() {
   const [formMode, setFormMode] = useState(null);
-  const [event] = useContext(EventContext);
+  const [events] = useContext(EventListContext);
+  const [event, setEvent] = useContext(EventContext);
+  const [playback, setPlayback] = useState({
+    current: null,
+    next: null,
+    currentTimer: null,
+    numEvents: 0,
+    state: 'pause',
+    prevState: 'pause',
+  });
 
-  useEffect(() => {
-    if (event === null) {
-      setFormMode(null);
-    } else {
-      setFormMode('edit');
+  const updatePlayback = (vals) => {
+    setPlayback({ ...playback, ...vals });
+  };
+
+  // ?? I have already done this a few times,
+  // maybe loop once and get all data?
+  const getCurrentTime = (target) => {
+    if (events !== null) {
+      // loop through events to find target
+      const filteredEvents = events.filter((e) => e.type === 'event');
+      const curEvent = filteredEvents[target];
+
+      // set as event
+      setEvent(curEvent);
+
+      // extract time only from dates
+      let minStart = getHours(curEvent.timeStart) * 60;
+      minStart = minStart + getMinutes(curEvent.timeStart);
+
+      let minEnd = getHours(curEvent.timeEnd) * 60;
+      minEnd = minEnd + getMinutes(curEvent.timeEnd);
+
+
+      // return time in seconds
+      return ((minEnd - minStart) * 60);
     }
-  }, [event]);
+  };
+
+  const playbackControl = (action, payload) => {
+    switch (action) {
+      case 'start': {
+        if (playback.state !== 'play') {
+          updatePlayback({ state: 'play', prevState: playback.state });
+        }
+        break;
+      }
+      case 'pause': {
+        if (playback.state !== 'pause') {
+          updatePlayback({ state: 'pause', prevState: playback.state });
+        }
+        break;
+      }
+      case 'roll': {
+        if (playback.state === 'roll' && playback.prevState !== 'roll') {
+          updatePlayback({ state: playback.prevState, prevState: 'roll' });
+        } else {
+          updatePlayback({ state: 'roll', prevState: playback.state });
+        }
+        break;
+      }
+      case 'previous': {
+        if (playback.numEvents !== null) {
+          let cur = null,
+            nxt = null;
+          if (playback.current === null || playback.current === 0) {
+            cur = 0;
+          } else {
+            cur = playback.current - 1;
+          }
+          if (playback.numEvents > 1) nxt = cur + 1;
+          if (nxt > playback.numEvents) nxt = playback.numEvents;
+
+          // get time
+          let time = getCurrentTime(cur);
+          // update playback
+          updatePlayback({ current: cur, next: nxt, currentTimer: time });
+        }
+        break;
+      }
+      case 'next': {
+        if (playback.numEvents !== null) {
+          let cur = null,
+            nxt = null;
+          if (playback.current === null) {
+            cur = 0;
+          } else {
+            cur = playback.next;
+          }
+          if (playback.numEvents > 1) nxt = cur + 1;
+          if (nxt >= playback.numEvents) nxt = playback.numEvents - 1;
+
+          // get time
+          let time = getCurrentTime(cur);
+          // update playback
+          updatePlayback({ current: cur, next: nxt, currentTimer: time });
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  };
+
+  console.log('playback here', playback);
 
   return (
     <Grid
@@ -38,7 +137,12 @@ export default function Editor() {
           </Heading>
           <NumberedText number={1} text={'Manage and select event to run'} />
           <div className={styles.content}>
-            <EventList formMode={formMode} setFormMode={setFormMode} />
+            <EventList
+              formMode={formMode}
+              setFormMode={setFormMode}
+              selected={playback.current}
+              updatePlayback={updatePlayback}
+            />
           </div>
         </Box>
       </GridItem>
@@ -64,8 +168,9 @@ export default function Editor() {
             number={2}
             text={'Show realtime messages on separate screen types'}
           />
-          <div className={styles.content}></div>
-          <MessageForm />
+          <div className={styles.content}>
+            <MessageForm />
+          </div>
         </Box>
       </GridItem>
 
@@ -75,8 +180,14 @@ export default function Editor() {
             Time Control
           </Heading>
           <NumberedText number={3} text={'Control Timer'} />
-          <div className={styles.content}></div>
-          <PlaybackControl />
+          <div className={styles.content}>
+            <PlaybackControl
+              playback={playback}
+              playbackControl={playbackControl}
+              time={playback.currentTimer}
+              roll={playback.state === 'roll'}
+            />
+          </div>
         </Box>
       </GridItem>
 
