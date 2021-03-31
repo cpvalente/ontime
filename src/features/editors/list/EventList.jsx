@@ -1,31 +1,22 @@
-import {
-  AddIcon,
-  AttachmentIcon,
-  ChevronDownIcon,
-  DownloadIcon,
-} from '@chakra-ui/icons';
-import {
-  Button,
-  ButtonGroup,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from '@chakra-ui/react';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { EventContext } from '../../../app/context/eventContext';
 import { EventListContext } from '../../../app/context/eventListContext';
 import EventListItem from './EventListItem';
 import style from './List.module.css';
 import DelayBlock from './DelayBlock';
 import BlockBlock from './BlockBlock';
+import EventListMenu from '../../menu/EventListMenu';
 
-export default function EventList() {
+
+export default function EventList(props) {
   const [events, setEvents] = useContext(EventListContext);
   const [event] = useContext(EventContext);
 
-  const selected = event?.id || -1;
+  // update number of events
+  useEffect(() => {
+    const f = events.filter((e) => e.type === 'event');
+    props.updatePlayback({ numEvents: f.length });
+  }, [events]);
 
   const insertItemAt = (item, index) => {
     // handle insert at beggining of array
@@ -116,63 +107,21 @@ export default function EventList() {
 
   console.log('events in event list', events);
   let cumulativeDelay = 0;
+  let eventCount = -1;
+
   return (
     <>
-      <div className={style.headerButtons}>
-        <Menu>
-          <ButtonGroup isAttached>
-            <Button size='sm' variant='outline'>
-              Upload
-            </Button>
-            <MenuButton
-              as={Button}
-              leftIcon={<AttachmentIcon />}
-              size='sm'
-              variant='outline'
-            >
-              <ChevronDownIcon />
-            </MenuButton>
-          </ButtonGroup>
-          <MenuList>
-            <MenuItem>Upload Excel</MenuItem>
-            <MenuItem>Upload CSV</MenuItem>
-          </MenuList>
-        </Menu>
-        <Menu>
-          <ButtonGroup isAttached>
-            <Button size='sm' variant='outline'>
-              Save
-            </Button>
-            <MenuButton
-              as={Button}
-              leftIcon={<DownloadIcon />}
-              size='sm'
-              variant='outline'
-            >
-              <ChevronDownIcon />
-            </MenuButton>
-          </ButtonGroup>
-          <MenuList>
-            <MenuItem>Download Excel</MenuItem>
-            <MenuItem>Download CSV</MenuItem>
-          </MenuList>
-        </Menu>
-        <IconButton
-          size='sm'
-          icon={<AddIcon />}
-          colorScheme='blue'
-          onClick={() => createEvent()}
-        />
-      </div>
+      <EventListMenu createEvent={createEvent} />
       <div className={style.eventContainer}>
         {events.map((e, index) => {
           if (e.type === 'event') {
+            eventCount = eventCount + 1;
             return (
               <EventListItem
                 key={e.id}
                 index={index}
                 data={e}
-                selected={e.id === selected}
+                selected={props.selected === eventCount}
                 createEvent={createEvent}
                 deleteEvent={deleteEvent}
                 createDelay={createDelay}

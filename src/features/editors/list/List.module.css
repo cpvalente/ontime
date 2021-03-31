@@ -1,11 +1,4 @@
 /* ============= EVENT LIST ============= */
-.headerButtons {
-  display: flex;
-  gap: 0.5em;
-  align-content: center;
-  justify-content: flex-end;
-}
-
 .eventContainer {
 }
 
@@ -20,7 +13,8 @@
   left: 0;
   width: 100%;
   display: grid;
-  grid-template-columns: auto auto 5em 1fr auto;
+  grid-template-columns: auto 5em 1fr auto;
+  padding-left: 1em;
   gap: 0.5em;
   justify-content: center;
   align-content: center;
@@ -31,10 +25,14 @@
 
 .eventRow {
   background-color: #0001;
+  border-top: 2px solid #0001;
+  border-bottom: 2px solid #0001;
 }
 
 .eventRowActive {
   background-color: #b2f5eaaa;
+  border-top: 2px solid #b2f5ea;
+  border-bottom: 2px solid #b2f5ea;
 }
 
 .arm,
@@ -136,12 +134,11 @@
   top: 1em;
   margin: 0.2em 0;
   padding: 0.2em 1em;
-  width: 100%;
   background-color: #ecc94baa;
   border-radius: 8px;
   color: white;
   border: 1px solid #0001;
-  border-top: 8px solid #ecc94b;
+  border-top: 4px solid #ecc94b;
   box-sizing: border-box;
 
   width: 100%;
