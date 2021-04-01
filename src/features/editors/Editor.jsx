@@ -2,7 +2,7 @@ import { IconButton } from '@chakra-ui/button';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import { getHours, getMinutes } from 'date-fns';
+import { addSeconds, getHours, getMinutes, getSeconds } from 'date-fns';
 import { differenceInSeconds } from 'date-fns/esm';
 import { useContext } from 'react';
 import { useEffect, useState } from 'react';
@@ -28,10 +28,113 @@ export default function Editor() {
     prevState: 'pause',
   });
 
+  // Timer stuff
+  const [timer, setTimer] = useState({
+    TIMER_UPDATE_INTERVAL: 250,
+    currentTime: null,
+    currentTimeSeconds: null,
+
+    playMode: 'stop',
+
+    isStarted: false,
+    isRunning: false,
+
+    startTime: null,
+    pauseTime: null,
+
+    lastRun: null,
+    elapsedTime: 0,
+
+    elapsedStartedTime: 0,
+    elapsedRunningTime: 0,
+
+    totalElapsedPausedTime: 0,
+    periodElapsedPausedTime: 0,
+
+    elapsedResumeTime: 0,
+
+    targetTime: null,
+  });
+
+  // update timer object
+  const updateTimer = (vals) => {
+    setTimer({ ...timer, ...vals });
+  };
+
+  // set timer target
+  const setTimerTargetinSeconds = (target) => {
+    const t = addSeconds(new Date(), target);
+    updateTimer({ currentTime: t, currentTimeSeconds: target, targetTime: t });
+  };
+
+  // timer playback control
+  const setTimerState = (state) => {
+    const now = new Date();
+
+    switch (state) {
+      case 'play': {
+        updateTimer({ playMode: state, isStarted: true, startTime: now, lastRun: now });
+        break;
+      }
+      case 'pause': {
+        updateTimer({ playMode: state, pauseTime: now, isRunning: false });
+        break;
+      }
+
+      default:
+        break;
+    }
+  };
+
+  // update
+  const updateTime = () => {
+    // exit if we are not ready
+    if (timer.startTime == null) return;
+
+    // aux
+    const now = new Date();
+
+    // how long has the time been running
+    const elapsedTime = now - timer.startTime;
+
+    if (timer.playMode === 'play') {
+      // current time here
+      const currentTime = timer.targetTime - elapsedTime;
+      updateTimer({
+        currentTime: currentTime,
+        currentTimeSeconds: getSeconds(currentTime),
+        elapsedTime: elapsedTime,
+        lastRun: now,
+      });
+    }
+
+    if (timer.playMode === 'pause') {
+      const pausedTime = now - timer.pauseTime;
+      updateTimer({
+        totalElapsedPausedTime: timer.totalElapsedPausedTime + pausedTime,
+        periodElapsedPausedTime: timer.periodElapsedPausedTime + now,
+        elapsedTime: elapsedTime,
+        lastRun: now,
+      });
+    }
+
+    // call again
+    setTimeout(updateTime, timer.TIMER_UPDATE_INTERVAL);
+  };
+
+  // when playmode changes, we might schedule a timer
+  // is this enough for change or should i check prevstate?
+  useEffect(() => {
+    if (playback.state !== 'stop' || playback.state !== null) {
+      updateTime();
+    }
+  }, [playback.state]);
+
   const updatePlayback = (vals) => {
     setPlayback({ ...playback, ...vals });
   };
 
+  // gets timer on current
   // ?? I have already done this a few times,
   // maybe loop once and get all data?
   const getCurrentTime = (target) => {
@@ -50,23 +153,24 @@ export default function Editor() {
       let minEnd = getHours(curEvent.timeEnd) * 60;
       minEnd = minEnd + getMinutes(curEvent.timeEnd);
 
-
       // return time in seconds
-      return ((minEnd - minStart) * 60);
+      return (minEnd - minStart) * 60;
     }
   };
 
   const playbackControl = (action, payload) => {
     switch (action) {
-      case 'start': {
+      case 'play': {
         if (playback.state !== 'play') {
           updatePlayback({ state: 'play', prevState: playback.state });
+          setTimerState('play');
         }
         break;
       }
       case 'pause': {
         if (playback.state !== 'pause') {
           updatePlayback({ state: 'pause', prevState: playback.state });
+          setTimerState('pause');
         }
         break;
       }
@@ -94,6 +198,8 @@ export default function Editor() {
           let time = getCurrentTime(cur);
           // update playback
           updatePlayback({ current: cur, next: nxt, currentTimer: time });
+          // set timer
+          setTimerTargetinSeconds(time);
         }
         break;
       }
@@ -113,6 +219,8 @@ export default function Editor() {
           let time = getCurrentTime(cur);
           // update playback
           updatePlayback({ current: cur, next: nxt, currentTimer: time });
+          // set timer
+          setTimerTargetinSeconds(time);
         }
         break;
       }
@@ -122,6 +230,7 @@ export default function Editor() {
   };
 
   console.log('playback here', playback);
+  console.log('timer here', timer);
 
   return (
     <Grid
@@ -184,7 +293,7 @@ export default function Editor() {
             <PlaybackControl
               playback={playback}
               playbackControl={playbackControl}
-              time={playback.currentTimer}
+              time={timer.currentTimeSeconds}
               roll={playback.state === 'roll'}
             />
           </div>

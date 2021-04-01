@@ -27,7 +27,7 @@ export default function PlaybackControl(props) {
           colorScheme='green'
           className={style.start}
           disabled={roll}
-          onClick={() => props.playbackControl('start')}
+          onClick={() => props.playbackControl('play')}
         >
           Start
         </Button>
@@ -67,6 +67,7 @@ export default function PlaybackControl(props) {
           colorScheme='blue'
           className={style.reset}
           onClick={() => props.playbackControl('roll')}
+          disabled
         >
           Roll
         </Button>
