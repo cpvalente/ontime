@@ -14,6 +14,7 @@ import MessageForm from '../form/MessageForm';
 import PreviewContainer from '../viewers/PreviewContainer';
 import styles from './Editor.module.css';
 import EventList from './list/EventList';
+import { io } from 'socket.io-client';
 
 export default function Editor() {
   const [formMode, setFormMode] = useState(null);
@@ -28,12 +29,27 @@ export default function Editor() {
     prevState: 'pause',
   });
 
+  const [response, setResponse] = useState('');
+
+  // WEBSOCKETZ
+  useEffect(() => {
+    // TODO: add namespace?
+    const socket = io('http://localhost:4001', { transport: ['websocket'] });
+    console.log('websocket started');
+
+    socket.on('FromAPI', (data) => {
+      setResponse(data);
+      console.log('websocket stuff', data);
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
   // Timer stuff
   const [timer, setTimer] = useState({
     TIMER_UPDATE_INTERVAL: 250,
     currentTime: null,
     currentTimeSeconds: null,
-
     playMode: 'stop',
 
     isStarted: false,
@@ -73,7 +89,12 @@ export default function Editor() {
 
     switch (state) {
       case 'play': {
-        updateTimer({ playMode: state, isStarted: true, startTime: now, lastRun: now });
+        updateTimer({
+          playMode: state,
+          isStarted: true,
+          startTime: now,
+          lastRun: now,
+        });
         break;
       }
       case 'pause': {
