@@ -1,6 +1,10 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const sampleData = require('./data/sampleData.js');
+
+// TODO: implement timer
+// TODO: - Play / pause
 
 const port = process.env.PORT || 4001;
 const index = require('./routes/index');
@@ -8,8 +12,10 @@ const index = require('./routes/index');
 const app = express();
 app.use(index);
 
+// create HTTP server
 const server = http.createServer(app);
 
+// initialise socketIO server
 const io = socketIo(server, {
   cors: {
     origin: 'http://localhost:3000',
@@ -17,10 +23,12 @@ const io = socketIo(server, {
   },
 });
 
+// transmit
 let interval;
 
 io.on('connection', (socket) => {
   console.log('New client connected');
+  socket.emit('eventdata', sampleData);
   if (interval) {
     clearInterval(interval);
   }

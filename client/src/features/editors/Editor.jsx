@@ -38,8 +38,11 @@ export default function Editor() {
     console.log('websocket started');
 
     socket.on('FromAPI', (data) => {
-      setResponse(data);
-      console.log('websocket stuff', data);
+      console.log('got date', data);
+    });
+
+    socket.on('eventdata', (data) => {
+      console.log('got eventdata', data);
     });
 
     return () => socket.disconnect();
