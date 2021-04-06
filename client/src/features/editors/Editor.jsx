@@ -2,7 +2,7 @@ import { IconButton } from '@chakra-ui/button';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import { getHours, getMinutes } from 'date-fns';
+import { addSeconds, getHours, getMinutes, getSeconds } from 'date-fns';
 import { differenceInSeconds } from 'date-fns/esm';
 import { useContext } from 'react';
 import { useEffect, useState } from 'react';
@@ -14,6 +14,7 @@ import MessageForm from '../form/MessageForm';
 import PreviewContainer from '../viewers/PreviewContainer';
 import styles from './Editor.module.css';
 import EventList from './list/EventList';
+import { io } from 'socket.io-client';
 
 export default function Editor() {
   const [formMode, setFormMode] = useState(null);
@@ -32,41 +33,52 @@ export default function Editor() {
     setPlayback({ ...playback, ...vals });
   };
 
-  // ?? I have already done this a few times,
-  // maybe loop once and get all data?
-  const getCurrentTime = (target) => {
-    if (events !== null) {
-      // loop through events to find target
-      const filteredEvents = events.filter((e) => e.type === 'event');
-      const curEvent = filteredEvents[target];
+  // WEBSOCKETZ
+  useEffect(() => {
+    // TODO: add namespace?
+    const socket = io('http://localhost:4001', { transport: ['websocket'] });
+    console.log('websocket started');
 
-      // set as event
-      setEvent(curEvent);
+    socket.on('timerSeconds', (data) => {
+      console.log('got time', data);
+      updatePlayback({ currentTimer: data });
+    });
 
-      // extract time only from dates
-      let minStart = getHours(curEvent.timeStart) * 60;
-      minStart = minStart + getMinutes(curEvent.timeStart);
+    socket.on('eventdata', (data) => {
+      console.log('got eventdata', data);
+    });
 
-      let minEnd = getHours(curEvent.timeEnd) * 60;
-      minEnd = minEnd + getMinutes(curEvent.timeEnd);
+    return () => socket.disconnect();
+  }, []);
 
+  // timer playback control
+  const setTimerState = (state) => {
+    switch (state) {
+      case 'play': {
+        break;
+      }
+      case 'pause': {
+        break;
+      }
 
-      // return time in seconds
-      return ((minEnd - minStart) * 60);
+      default:
+        break;
     }
   };
 
   const playbackControl = (action, payload) => {
     switch (action) {
-      case 'start': {
+      case 'play': {
         if (playback.state !== 'play') {
           updatePlayback({ state: 'play', prevState: playback.state });
+          setTimerState('play');
         }
         break;
       }
       case 'pause': {
         if (playback.state !== 'pause') {
           updatePlayback({ state: 'pause', prevState: playback.state });
+          setTimerState('pause');
         }
         break;
       }
@@ -89,11 +101,8 @@ export default function Editor() {
           }
           if (playback.numEvents > 1) nxt = cur + 1;
           if (nxt > playback.numEvents) nxt = playback.numEvents;
-
-          // get time
-          let time = getCurrentTime(cur);
           // update playback
-          updatePlayback({ current: cur, next: nxt, currentTimer: time });
+          updatePlayback({ current: cur, next: nxt });
         }
         break;
       }
@@ -108,11 +117,7 @@ export default function Editor() {
           }
           if (playback.numEvents > 1) nxt = cur + 1;
           if (nxt >= playback.numEvents) nxt = playback.numEvents - 1;
-
-          // get time
-          let time = getCurrentTime(cur);
-          // update playback
-          updatePlayback({ current: cur, next: nxt, currentTimer: time });
+          updatePlayback({ current: cur, next: nxt });
         }
         break;
       }

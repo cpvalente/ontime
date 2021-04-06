@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import styles from './Countdown.module.css';
 
 function display(seconds) {
@@ -11,20 +10,9 @@ function display(seconds) {
 }
 
 export default function Countdown({ time, small }) {
-  const [counter, setCounter] = useState(time);
-
-  useEffect(() => {
-    console.log('setting time here');
-    setCounter(time);
-  }, [time]);
-
-  useEffect(() => {
-    counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
-  }, [counter]);
-
   return (
     <div className={small ? styles.countdownClockSmall : styles.countdownClock}>
-      {display(counter)}
+      {time === null ? '- -:- -' : display(time * 60)}
     </div>
   );
 }
