@@ -23,6 +23,9 @@ const io = socketIo(server, {
   },
 });
 
+// timer stuff, for now
+let timer = 5400;
+
 // transmit
 let interval;
 
@@ -40,9 +43,8 @@ io.on('connection', (socket) => {
 });
 
 const getApiAndEmit = (socket) => {
-  const response = new Date();
-  // Emitting a new message. Will be consumed by the client
-  socket.emit('FromAPI', response);
+  socket.emit('timerSeconds', timer);
+  if (timer > 0) timer = timer - 1;
 };
 
 server.listen(port, () => console.log(`Listening on port ${port}`));

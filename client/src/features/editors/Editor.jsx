@@ -29,7 +29,9 @@ export default function Editor() {
     prevState: 'pause',
   });
 
-  const [response, setResponse] = useState('');
+  const updatePlayback = (vals) => {
+    setPlayback({ ...playback, ...vals });
+  };
 
   // WEBSOCKETZ
   useEffect(() => {
@@ -37,8 +39,9 @@ export default function Editor() {
     const socket = io('http://localhost:4001', { transport: ['websocket'] });
     console.log('websocket started');
 
-    socket.on('FromAPI', (data) => {
-      console.log('got date', data);
+    socket.on('timerSeconds', (data) => {
+      console.log('got time', data);
+      updatePlayback({ currentTimer: data });
     });
 
     socket.on('eventdata', (data) => {
@@ -48,137 +51,18 @@ export default function Editor() {
     return () => socket.disconnect();
   }, []);
 
-  // Timer stuff
-  const [timer, setTimer] = useState({
-    TIMER_UPDATE_INTERVAL: 250,
-    currentTime: null,
-    currentTimeSeconds: null,
-    playMode: 'stop',
-
-    isStarted: false,
-    isRunning: false,
-
-    startTime: null,
-    pauseTime: null,
-
-    lastRun: null,
-    elapsedTime: 0,
-
-    elapsedStartedTime: 0,
-    elapsedRunningTime: 0,
-
-    totalElapsedPausedTime: 0,
-    periodElapsedPausedTime: 0,
-
-    elapsedResumeTime: 0,
-
-    targetTime: null,
-  });
-
-  // update timer object
-  const updateTimer = (vals) => {
-    setTimer({ ...timer, ...vals });
-  };
-
-  // set timer target
-  const setTimerTargetinSeconds = (target) => {
-    const t = addSeconds(new Date(), target);
-    updateTimer({ currentTime: t, currentTimeSeconds: target, targetTime: t });
-  };
-
   // timer playback control
   const setTimerState = (state) => {
-    const now = new Date();
-
     switch (state) {
       case 'play': {
-        updateTimer({
-          playMode: state,
-          isStarted: true,
-          startTime: now,
-          lastRun: now,
-        });
         break;
       }
       case 'pause': {
-        updateTimer({ playMode: state, pauseTime: now, isRunning: false });
         break;
       }
 
       default:
         break;
-    }
-  };
-
-  // update
-  const updateTime = () => {
-    // exit if we are not ready
-    if (timer.startTime == null) return;
-
-    // aux
-    const now = new Date();
-
-    // how long has the time been running
-    const elapsedTime = now - timer.startTime;
-
-    if (timer.playMode === 'play') {
-      // current time here
-      const currentTime = timer.targetTime - elapsedTime;
-      updateTimer({
-        currentTime: currentTime,
-        currentTimeSeconds: getSeconds(currentTime),
-        elapsedTime: elapsedTime,
-        lastRun: now,
-      });
-    }
-
-    if (timer.playMode === 'pause') {
-      const pausedTime = now - timer.pauseTime;
-      updateTimer({
-        totalElapsedPausedTime: timer.totalElapsedPausedTime + pausedTime,
-        periodElapsedPausedTime: timer.periodElapsedPausedTime + now,
-        elapsedTime: elapsedTime,
-        lastRun: now,
-      });
-    }
-
-    // call again
-    setTimeout(updateTime, timer.TIMER_UPDATE_INTERVAL);
-  };
-
-  // when playmode changes, we might schedule a timer
-  // is this enough for change or should i check prevstate?
-  useEffect(() => {
-    if (playback.state !== 'stop' || playback.state !== null) {
-      updateTime();
-    }
-  }, [playback.state]);
-
-  const updatePlayback = (vals) => {
-    setPlayback({ ...playback, ...vals });
-  };
-
-  // gets timer on current
-  // ?? I have already done this a few times,
-  // maybe loop once and get all data?
-  const getCurrentTime = (target) => {
-    if (events !== null) {
-      // loop through events to find target
-      const filteredEvents = events.filter((e) => e.type === 'event');
-      const curEvent = filteredEvents[target];
-
-      // set as event
-      setEvent(curEvent);
-
-      // extract time only from dates
-      let minStart = getHours(curEvent.timeStart) * 60;
-      minStart = minStart + getMinutes(curEvent.timeStart);
-
-      let minEnd = getHours(curEvent.timeEnd) * 60;
-      minEnd = minEnd + getMinutes(curEvent.timeEnd);
-
-      // return time in seconds
-      return (minEnd - minStart) * 60;
     }
   };
 
@@ -217,13 +101,8 @@ export default function Editor() {
           }
           if (playback.numEvents > 1) nxt = cur + 1;
           if (nxt > playback.numEvents) nxt = playback.numEvents;
-
-          // get time
-          let time = getCurrentTime(cur);
           // update playback
-          updatePlayback({ current: cur, next: nxt, currentTimer: time });
-          // set timer
-          setTimerTargetinSeconds(time);
+          updatePlayback({ current: cur, next: nxt });
         }
         break;
       }
@@ -238,13 +117,7 @@ export default function Editor() {
           }
           if (playback.numEvents > 1) nxt = cur + 1;
           if (nxt >= playback.numEvents) nxt = playback.numEvents - 1;
-
-          // get time
-          let time = getCurrentTime(cur);
-          // update playback
-          updatePlayback({ current: cur, next: nxt, currentTimer: time });
-          // set timer
-          setTimerTargetinSeconds(time);
+          updatePlayback({ current: cur, next: nxt });
         }
         break;
       }
@@ -254,7 +127,6 @@ export default function Editor() {
   };
 
   console.log('playback here', playback);
-  console.log('timer here', timer);
 
   return (
     <Grid
@@ -317,7 +189,7 @@ export default function Editor() {
             <PlaybackControl
               playback={playback}
               playbackControl={playbackControl}
-              time={timer.currentTimeSeconds}
+              time={playback.currentTimer}
               roll={playback.state === 'roll'}
             />
           </div>
