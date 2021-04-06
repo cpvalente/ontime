@@ -1,21 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap');
 
-.countdownClock {
+/* Common */
+.countdownClock,
+.countdownClockSmall {
   font-family: 'Open Sans', sans-serif;
+  line-height: 0.9;
+}
+
+/* Viewers */
+.countdownClock {
   font-size: 18vw;
   margin-top: 6vh;
   margin-bottom: 5vh;
   text-align: center;
   letter-spacing: 0.125em;
-  line-height: 0.9;
 }
 
+/* Editor */
 .countdownClockSmall {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 6em;
+  font-size: 4em;
   text-align: center;
   letter-spacing: 0.1em;
-  line-height: 0.9;
   font-weight: 600;
   color: #333;
 }

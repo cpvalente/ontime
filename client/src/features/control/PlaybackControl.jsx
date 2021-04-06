@@ -1,7 +1,13 @@
-import { Button } from '@chakra-ui/button';
+import { IconButton } from '@chakra-ui/button';
 import style from './PlaybackControl.module.css';
 import Countdown from '../../common/components/countdown/Countdown';
-import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
+import {
+  FiPlay,
+  FiPause,
+  FiSkipBack,
+  FiSkipForward,
+  FiClock,
+} from 'react-icons/fi';
 
 // BUTTON DEFINITION
 const defProps = {
@@ -9,8 +15,9 @@ const defProps = {
   variant: 'outline',
 };
 
-const bigSize = 120;
-
+const size = {
+  width: 90,
+};
 export default function PlaybackControl(props) {
   const { time, roll } = props;
 
@@ -20,57 +27,47 @@ export default function PlaybackControl(props) {
         <div className={style.timer}>
           <Countdown time={time} small />
         </div>
+        <div className={style.start}>
+          <span className={style.tag}>Started at </span>
+          <span className={style.time}>12:01</span>
+        </div>
+        <div className={style.finish}>
+          <span className={style.tag}>Finish at </span>
+          <span className={style.time}>13:01</span>
+        </div>
       </div>
+
       <div className={style.playbackContainer}>
-        <Button
-          width={bigSize}
+        <IconButton
+          {...size}
+          icon={<FiPlay />}
           colorScheme='green'
-          className={style.start}
-          disabled={roll}
           onClick={() => props.playbackControl('play')}
-        >
-          Start
-        </Button>
-        <Button
-          width={bigSize}
+        />
+        <IconButton
+          {...size}
+          icon={<FiPause />}
           colorScheme='orange'
-          className={style.pause}
-          disabled={roll}
           onClick={() => props.playbackControl('pause')}
-        >
-          Pause
-        </Button>
-      </div>
-      <div className={style.trackContainer}>
-        <Button
-          width={bigSize}
+        />
+        <IconButton
+          {...size}
           {...defProps}
-          leftIcon={<ArrowBackIcon />}
-          className={style.prev}
-          disabled={roll}
+          icon={<FiSkipBack />}
           onClick={() => props.playbackControl('previous')}
-        >
-          Prev
-        </Button>
-        <Button
-          width={bigSize}
+        />
+        <IconButton
+          {...size}
           {...defProps}
-          rightIcon={<ArrowForwardIcon />}
-          className={style.next}
-          disabled={roll}
+          icon={<FiSkipForward />}
           onClick={() => props.playbackControl('next')}
-        >
-          Next
-        </Button>
-        <Button
-          width={bigSize}
+        />
+        <IconButton
+          {...size}
+          icon={<FiClock />}
           colorScheme='blue'
-          className={style.reset}
           onClick={() => props.playbackControl('roll')}
-          disabled
-        >
-          Roll
-        </Button>
+        />
       </div>
     </div>
   );

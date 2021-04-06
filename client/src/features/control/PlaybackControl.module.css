@@ -1,43 +1,54 @@
 .mainContainer {
-  width: 90%;
+  width: 100%;
   display: flex;
   margin: 0 auto;
   flex-direction: column;
   gap: 5px;
 }
 
+.timeContainer,
+.playbackContainer {
+  border: 1px solid rgb(226, 232, 240);
+  border-radius: 8px;
+  padding: 0.5em;
+}
+
 .timeContainer {
   display: grid;
-  gap: 5px;
   grid-template-areas:
-    'timer plus1 plus5'
-    'timer minu1 minu5';
-  grid-template-columns: auto 50px 50px;
+    'clk clk ...'
+    'sta fin ...';
+  grid-template-rows: 1fr auto;
+  grid-template-columns: 1fr 1fr 80px;
+  gap: 5px;
+  justify-items: start;
 }
 
 .timer {
-  grid-area: timer;
+  grid-area: clk;
 }
 
-.plus1 {
-  grid-area: plus1;
+.start {
+  grid-area: sta;
 }
 
-.plus5 {
-  grid-area: plus5;
+.finish {
+  grid-area: fin;
 }
 
-.minu1 {
-  grid-area: minu1;
+.time {
+  color: #333;
+  font-size: 1.1em;
 }
 
-.minu5 {
-  grid-area: minu5;
+.tag {
+  color: #666;
+  font-size: 0.9em;
 }
 
-.playbackContainer,
-.trackContainer {
+.playbackContainer {
   display: flex;
   justify-content: space-evenly;
   padding-top: 0.5em;
+  gap: 10px;
 }

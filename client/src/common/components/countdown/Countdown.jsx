@@ -5,14 +5,13 @@ function display(seconds) {
   const hours = seconds / 3600;
   const minutes = (seconds % 3600) / 60;
 
-  if (hours < 1) return [minutes, seconds % 60].map(format).join(':');
-  else return [hours, minutes, seconds % 60].map(format).join(':');
+  return [hours, minutes, seconds % 60].map(format).join(':');
 }
 
 export default function Countdown({ time, small }) {
   return (
     <div className={small ? styles.countdownClockSmall : styles.countdownClock}>
-      {time === null ? '- -:- -' : display(time * 60)}
+      {time === null ? '-- : -- : --' : display(time)}
     </div>
   );
 }
