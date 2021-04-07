@@ -1,16 +1,34 @@
+// get config
+const config = require('./config.json');
+
+// dependencies
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const sampleData = require('./data/sampleData.js');
 
-// TODO: implement timer
-// TODO: - Play / pause
+// Import Routes
+const eventsRouter = require('./routes/eventsRouter.js');
+const playbackRouter = require('./routes/playbackRouter.js');
 
+// TODO: Move to config file
+// Setup default port
 const port = process.env.PORT || 4001;
-const index = require('./routes/index');
 
+// Create express APP
 const app = express();
-app.use(index);
+
+// Implement middleware
+// ---
+
+// Implement route endpoints
+app.use('/events', eventsRouter);
+app.use('/playback', playbackRouter);
+
+// Implement route for errors
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 
 // create HTTP server
 const server = http.createServer(app);
@@ -23,28 +41,41 @@ const io = socketIo(server, {
   },
 });
 
-// timer stuff, for now
-let timer = 5400;
+const Timer = require('./timer.js');
+// TODO: this should be replaced by some sort of calculation
+let durationForNow = 5400;
+let timer = new Timer(durationForNow);
 
-// transmit
+// interval function
 let interval;
 
 io.on('connection', (socket) => {
+  // send initial eventdata to any new clients
   console.log('New client connected');
-  socket.emit('eventdata', sampleData);
+  socket.emit('timer', timer.getObject());
+
+  // avoid multiple intervals
   if (interval) {
     clearInterval(interval);
   }
-  interval = setInterval(() => getApiAndEmit(socket), 1000);
+
+  // set callback for timer events
+  interval = setInterval(() => getApiAndEmit(socket), config.timer.refresh);
+
+  // handle client disconnect
   socket.on('disconnect', () => {
     console.log('Client disconnected');
     clearInterval(interval);
   });
 });
 
+// send timer events
 const getApiAndEmit = (socket) => {
-  socket.emit('timerSeconds', timer);
-  if (timer > 0) timer = timer - 1;
+  const t = timer.getObject();
+  // console.log(t)
+  // send current timer
+  socket.emit('timer', t);
 };
 
+// Start server
 server.listen(port, () => console.log(`Listening on port ${port}`));

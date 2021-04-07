@@ -1,0 +1,48 @@
+[
+  {
+    "id": "1",
+    "order": 1,
+    "title": "Is the internet a fad?",
+    "subtitle": "It is",
+    "presenter": "Carlos Valente",
+    "timeStart": "",
+    "timeEnd":"",
+    "type": "event"
+  },
+  {
+    "id": 0.4849093424577693,
+    "order": 2,
+    "timerDuration": 25,
+    "type": "delay"
+  },
+  {
+    "id": "2",
+    "order": 3,
+    "title": "Is reddit a dictatorship?",
+    "subtitle": "It is",
+    "presenter": "Carlos Valente",
+    "timeStart": "",
+    "timeEnd":"",
+    "type": "event"
+  },
+  {
+    "id": "3",
+    "order": 4,
+    "title": "Out of words",
+    "subtitle": "",
+    "presenter": "Carlos Valente",
+    "timeStart": "",
+    "timeEnd":"",
+    "type": "event"
+  },
+  {
+    "id": "4",
+    "order": 5,
+    "title": "Really",
+    "subtitle": "",
+    "presenter": "Carlos Valente",
+    "timeStart": "",
+    "timeEnd":"",
+    "type": "event"
+  }
+]
