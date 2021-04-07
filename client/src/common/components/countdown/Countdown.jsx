@@ -11,7 +11,7 @@ function display(seconds) {
 export default function Countdown({ time, small }) {
   return (
     <div className={small ? styles.countdownClockSmall : styles.countdownClock}>
-      {time === null ? '-- : -- : --' : display(time)}
+      {(time === null || isNaN(time)) ? '-- : -- : --' : display(time)}
     </div>
   );
 }
