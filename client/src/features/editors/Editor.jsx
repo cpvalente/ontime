@@ -2,8 +2,6 @@ import { IconButton } from '@chakra-ui/button';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import { addSeconds, getHours, getMinutes, getSeconds } from 'date-fns';
-import { differenceInSeconds } from 'date-fns/esm';
 import { useContext } from 'react';
 import { useEffect, useState } from 'react';
 import { EventContext } from '../../app/context/eventContext';
@@ -19,6 +17,7 @@ import { io } from 'socket.io-client';
 export default function Editor() {
   const [formMode, setFormMode] = useState(null);
   const [events] = useContext(EventListContext);
+  const [webEvents, setWebEvents] = useState(null);
   const [event, setEvent] = useContext(EventContext);
   const [playback, setPlayback] = useState({
     current: null,
@@ -28,9 +27,17 @@ export default function Editor() {
     state: 'pause',
     prevState: 'pause',
   });
-
   const updatePlayback = (vals) => {
     setPlayback({ ...playback, ...vals });
+  };
+  const [timer, setTimer] = useState({
+    current: null,
+    duration: null,
+    started: null,
+    finished: null,
+  });
+  const updateTimer = (vals) => {
+    setTimer({ ...timer, ...vals });
   };
 
   // WEBSOCKETZ
@@ -39,94 +46,23 @@ export default function Editor() {
     const socket = io('http://localhost:4001', { transport: ['websocket'] });
     console.log('websocket started');
 
-    socket.on('timerSeconds', (data) => {
+    // Handle timer
+    socket.on('timer', (data) => {
       console.log('got time', data);
-      updatePlayback({ currentTimer: data });
+      updateTimer(data);
     });
 
+    // Handle events
     socket.on('eventdata', (data) => {
       console.log('got eventdata', data);
+      setWebEvents(data);
     });
 
     return () => socket.disconnect();
   }, []);
 
-  // timer playback control
-  const setTimerState = (state) => {
-    switch (state) {
-      case 'play': {
-        break;
-      }
-      case 'pause': {
-        break;
-      }
-
-      default:
-        break;
-    }
-  };
-
-  const playbackControl = (action, payload) => {
-    switch (action) {
-      case 'play': {
-        if (playback.state !== 'play') {
-          updatePlayback({ state: 'play', prevState: playback.state });
-          setTimerState('play');
-        }
-        break;
-      }
-      case 'pause': {
-        if (playback.state !== 'pause') {
-          updatePlayback({ state: 'pause', prevState: playback.state });
-          setTimerState('pause');
-        }
-        break;
-      }
-      case 'roll': {
-        if (playback.state === 'roll' && playback.prevState !== 'roll') {
-          updatePlayback({ state: playback.prevState, prevState: 'roll' });
-        } else {
-          updatePlayback({ state: 'roll', prevState: playback.state });
-        }
-        break;
-      }
-      case 'previous': {
-        if (playback.numEvents !== null) {
-          let cur = null,
-            nxt = null;
-          if (playback.current === null || playback.current === 0) {
-            cur = 0;
-          } else {
-            cur = playback.current - 1;
-          }
-          if (playback.numEvents > 1) nxt = cur + 1;
-          if (nxt > playback.numEvents) nxt = playback.numEvents;
-          // update playback
-          updatePlayback({ current: cur, next: nxt });
-        }
-        break;
-      }
-      case 'next': {
-        if (playback.numEvents !== null) {
-          let cur = null,
-            nxt = null;
-          if (playback.current === null) {
-            cur = 0;
-          } else {
-            cur = playback.next;
-          }
-          if (playback.numEvents > 1) nxt = cur + 1;
-          if (nxt >= playback.numEvents) nxt = playback.numEvents - 1;
-          updatePlayback({ current: cur, next: nxt });
-        }
-        break;
-      }
-      default:
-        break;
-    }
-  };
-
   console.log('playback here', playback);
+  console.log('events here', webEvents);
 
   return (
     <Grid
@@ -143,6 +79,7 @@ export default function Editor() {
           <NumberedText number={1} text={'Manage and select event to run'} />
           <div className={styles.content}>
             <EventList
+              events={webEvents}
               formMode={formMode}
               setFormMode={setFormMode}
               selected={playback.current}
@@ -188,9 +125,7 @@ export default function Editor() {
           <div className={styles.content}>
             <PlaybackControl
               playback={playback}
-              playbackControl={playbackControl}
-              time={playback.currentTimer}
-              roll={playback.state === 'roll'}
+              timer={timer}
             />
           </div>
         </Box>
