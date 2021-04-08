@@ -10,7 +10,8 @@ import {
 } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { timeFormatSeconds } from '../../common/dateConfig';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
 // BUTTON DEFINITION
 const defProps = {
@@ -23,39 +24,59 @@ const size = {
 };
 
 export default function PlaybackControl(props) {
-  const { timer, roll } = props;
-  const { playback } = useState(props.playback);
+  const [playback, setPlayback] = useState(null);
+  const [timer, setTimer] = useState({
+    currentSeconds: null,
+    startedAt: null,
+    expectedFinish: null,
+  });
+  const updateTimer = (vals) => {
+    setTimer({ ...timer, ...vals });
+  };
+  // TODO: Move to config file
+  const serverURL = 'http://localhost:4001/';
+  const playbackURL = serverURL + 'playback/';
+
+  // WEBSOCKETZ
+  useEffect(() => {
+    // TODO: add namespace?
+    const socket = io(serverURL, { transport: ['websocket'] });
+    console.log('websocket started');
+
+    // Handle timer
+    socket.on('timer', (data) => {
+      updateTimer(data);
+    });
+
+    return () => socket.disconnect();
+  }, []);
 
   const playbackControl = async (action, payload) => {
     switch (action) {
-      case 'play': {
-        const pb = await fetch('http://localhost:4001/play').then((res) =>
-          console.log(res)
+      case 'start': {
+        await fetch(playbackURL + 'start').then(
+          (res) => res.ok && setPlayback('start')
         );
         break;
       }
       case 'pause': {
-        const pb = await fetch('http://localhost:4001/pause').then((res) =>
-          console.log(res)
+        await fetch(playbackURL + 'pause').then(
+          (res) => res.ok && setPlayback('pause')
         );
         break;
       }
       case 'roll': {
-        const pb = await fetch('http://localhost:4001/roll').then((res) =>
-          console.log(res)
+        await fetch(playbackURL + 'roll').then(
+          (res) => res.ok && setPlayback('roll')
         );
         break;
       }
       case 'previous': {
-        const pb = await fetch('http://localhost:4001/previous').then((res) =>
-          console.log(res)
-        );
+        await fetch(playbackURL + 'previous').then((res) => console.log(res));
         break;
       }
       case 'next': {
-        const pb = await fetch('http://localhost:4001/next').then((res) =>
-          console.log(res)
-        );
+        await fetch(playbackURL + 'next').then((res) => console.log(res));
         break;
       }
       default:
@@ -63,18 +84,18 @@ export default function PlaybackControl(props) {
     }
   };
 
-  const started = timer.started
-    ? format(timer.started, timeFormatSeconds)
+  const started = timer.startedAt
+    ? format(timer.startedAt, timeFormatSeconds)
     : '...';
-  const finish = timer.started
-    ? format(timer.finish, timeFormatSeconds)
+  const finish = timer.expectedFinish
+    ? format(timer.expectedFinish, timeFormatSeconds)
     : '...';
 
   return (
     <div className={style.mainContainer}>
       <div className={style.timeContainer}>
         <div className={style.timer}>
-          <Countdown time={timer.current} small />
+          <Countdown time={timer.currentSeconds} small />
         </div>
         <div className={style.start}>
           <span className={style.tag}>Started at </span>
@@ -91,13 +112,15 @@ export default function PlaybackControl(props) {
           {...size}
           icon={<FiPlay />}
           colorScheme='green'
-          onClick={() => playbackControl('play')}
+          onClick={() => playbackControl('start')}
+          variant={playback === 'start' ? 'solid' : 'outline'}
         />
         <IconButton
           {...size}
           icon={<FiPause />}
           colorScheme='orange'
           onClick={() => playbackControl('pause')}
+          variant={playback === 'pause' ? 'solid' : 'outline'}
         />
         <IconButton
           {...size}
@@ -116,6 +139,7 @@ export default function PlaybackControl(props) {
           icon={<FiClock />}
           colorScheme='blue'
           onClick={() => playbackControl('roll')}
+          variant={playback === 'roll' ? 'solid' : 'outline'}
         />
       </div>
     </div>

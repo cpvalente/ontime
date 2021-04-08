@@ -1,5 +1,8 @@
 {
   "timer": {
     "refresh": 1000
+  },
+  "server": {
+    "port": 4001
   }
 }

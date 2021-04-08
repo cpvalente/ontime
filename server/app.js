@@ -5,17 +5,27 @@ const config = require('./config.json');
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const cors = require('cors');
 
 // Import Routes
 const eventsRouter = require('./routes/eventsRouter.js');
 const playbackRouter = require('./routes/playbackRouter.js');
 
-// TODO: Move to config file
 // Setup default port
-const port = process.env.PORT || 4001;
+const port = process.env.PORT || config.server.port;
+
+// Global Objects
+const Timer = require('./timer.js');
+// TODO: this should be replaced by some sort of calculation
+let durationForNow = 5400;
+global.timer = new Timer();
+timer.setupWithSeconds(durationForNow, true);
 
 // Create express APP
 const app = express();
+
+// setup cors for all routes
+app.use(cors());
 
 // Implement middleware
 // ---
@@ -40,11 +50,6 @@ const io = socketIo(server, {
     methods: ['GET', 'POST'],
   },
 });
-
-const Timer = require('./timer.js');
-// TODO: this should be replaced by some sort of calculation
-let durationForNow = 5400;
-let timer = new Timer(durationForNow);
 
 // interval function
 let interval;

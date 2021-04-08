@@ -12,7 +12,6 @@ import MessageForm from '../form/MessageForm';
 import PreviewContainer from '../viewers/PreviewContainer';
 import styles from './Editor.module.css';
 import EventList from './list/EventList';
-import { io } from 'socket.io-client';
 
 export default function Editor() {
   const [formMode, setFormMode] = useState(null);
@@ -30,38 +29,7 @@ export default function Editor() {
   const updatePlayback = (vals) => {
     setPlayback({ ...playback, ...vals });
   };
-  const [timer, setTimer] = useState({
-    current: null,
-    duration: null,
-    started: null,
-    finished: null,
-  });
-  const updateTimer = (vals) => {
-    setTimer({ ...timer, ...vals });
-  };
 
-  // WEBSOCKETZ
-  useEffect(() => {
-    // TODO: add namespace?
-    const socket = io('http://localhost:4001', { transport: ['websocket'] });
-    console.log('websocket started');
-
-    // Handle timer
-    socket.on('timer', (data) => {
-      console.log('got time', data);
-      updateTimer(data);
-    });
-
-    // Handle events
-    socket.on('eventdata', (data) => {
-      console.log('got eventdata', data);
-      setWebEvents(data);
-    });
-
-    return () => socket.disconnect();
-  }, []);
-
-  console.log('playback here', playback);
   console.log('events here', webEvents);
 
   return (
@@ -123,10 +91,7 @@ export default function Editor() {
           </Heading>
           <NumberedText number={3} text={'Control Timer'} />
           <div className={styles.content}>
-            <PlaybackControl
-              playback={playback}
-              timer={timer}
-            />
+            <PlaybackControl playback={playback} />
           </div>
         </Box>
       </GridItem>
