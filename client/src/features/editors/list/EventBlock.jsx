@@ -17,7 +17,7 @@ import { addAndFormat, timeToDate } from '../../../common/dateConfig';
 import { showErrorToast } from '../../../common/helpers/toastManager';
 import style from './List.module.css';
 
-export default function EventListItem(props) {
+export default function EventBlock(props) {
   const { data, selected, delay, index, eventsHandler } = props;
 
   const [more, setMore] = useState(false);
