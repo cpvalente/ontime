@@ -1,10 +1,10 @@
 class Timer {
-  #current = null;
-  #finishAt = null;
-  #startedAt = null;
-  #pausedAt = null;
-  #pausedInterval = null;
-  #pausedTotal = null;
+  _current = null;
+  _finishAt = null;
+  _startedAt = null;
+  _pausedAt = null;
+  _pausedInterval = null;
+  _pausedTotal = null;
   state = 'pause';
 
   constructor() {}
@@ -15,18 +15,18 @@ class Timer {
     const now = new Date().getTime();
 
     // populate targets
-    this.#finishAt = now + seconds * 1000;
+    this._finishAt = now + seconds * 1000;
 
     // start counting
-    this.#startedAt = now;
+    this._startedAt = now;
 
     if (autoStart) {
       this.state = 'start';
     } else {
-      this.#pausedAt = now;
-      this.#pausedInterval = 0;
+      this._pausedAt = now;
+      this._pausedInterval = 0;
     }
-    this.#pausedTotal = 0;
+    this._pausedTotal = 0;
     this.update();
   }
 
@@ -39,11 +39,11 @@ class Timer {
     switch (this.state) {
       case 'start':
         // update current timer
-        this.#current = this.#finishAt + this.#pausedTotal - now;
+        this._current = this._finishAt + this._pausedTotal - now;
         break;
       case 'pause':
         // update paused time
-        this.#pausedInterval = now - this.#pausedAt;
+        this._pausedInterval = now - this._pausedAt;
         break;
       default:
         console.error('Timer: no playstate on update call', this.state);
@@ -56,17 +56,17 @@ class Timer {
     return Math.floor(Math.max(millis * 0.001), 0);
   }
 
-  #getExpectedFinish() {
-    return this.#finishAt + (this.#pausedInterval + this.#pausedTotal);
+  _getExpectedFinish() {
+    return this._finishAt + (this._pausedInterval + this._pausedTotal);
   }
 
   // getObject
   getObject() {
     this.update();
     return {
-      currentSeconds: Timer.toSeconds(this.#current),
-      expectedFinish: this.#getExpectedFinish(),
-      startedAt: this.#startedAt,
+      currentSeconds: Timer.toSeconds(this._current),
+      expectedFinish: this._getExpectedFinish(),
+      startedAt: this._startedAt,
     };
   }
 
@@ -74,7 +74,7 @@ class Timer {
   getCurrentInSeconds() {
     // update timeStamp
     this.update();
-    return Timer.toSeconds(this.#current);
+    return Timer.toSeconds(this._current);
   }
 
   // playback
@@ -83,14 +83,14 @@ class Timer {
     if (this.state === 'start') return;
 
     // update start time if needed
-    if (!this.#startedAt) {
-      this.#startedAt = new Date().getTime();
+    if (!this._startedAt) {
+      this._startedAt = new Date().getTime();
     }
 
     // check if there is paused time
-    if (this.#pausedInterval) {
-      this.#pausedTotal += this.#pausedInterval;
-      this.#pausedInterval = null;
+    if (this._pausedInterval) {
+      this._pausedTotal += this._pausedInterval;
+      this._pausedInterval = null;
     }
 
     // change state
@@ -101,7 +101,7 @@ class Timer {
     if (this.state === 'pause') return;
 
     // update pause time
-    this.#pausedAt = new Date().getTime();
+    this._pausedAt = new Date().getTime();
 
     // change state
     this.state = 'pause';
