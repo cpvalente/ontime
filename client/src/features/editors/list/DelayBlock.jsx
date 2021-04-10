@@ -9,6 +9,9 @@ import {
 } from '@chakra-ui/slider';
 import { useEffect, useState } from 'react';
 import style from './List.module.css';
+import AddIconBtn from '../../../common/components/buttons/AddIconBtn';
+import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
+import style from './Block.module.css';
 
 export default function DelayBlock(props) {
   const [delay, setDelay] = useState(0);
@@ -39,6 +42,7 @@ export default function DelayBlock(props) {
 
   return (
     <div className={style.delayContainer}>
+    <div className={style.delay}>
       <div className={style.delayValue}>{`${delay} min`}</div>
       <Slider
         defaultValue={data.timerDuration}

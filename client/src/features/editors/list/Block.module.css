@@ -1,0 +1,116 @@
+/* ============= COMMON ============= */
+
+.eventRow,
+.eventRowActive,
+.block,
+.delay {
+  position: relative;
+  top: 1em;
+  margin: 0.2em 0;
+  width: 100%;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.block,
+.delay {
+  padding: 0.2em 1em;
+  color: white;
+  box-sizing: border-box;
+  display: flex;
+  margin: auto;
+  gap: 1em;
+}
+
+.actionOverlay {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+  align-content: center;
+  align-self: center;
+
+  opacity: 0.6;
+  transition: linear 0.1s;
+}
+
+.actionOverlay:hover {
+  opacity: 1;
+}
+
+/* ============= EVENT ITEM ============= */
+
+.eventRow,
+.eventRowActive {
+  padding: 0.2em 0.5em;
+  padding-left: 1em;
+
+  display: grid;
+  grid-template-columns: auto auto 3em 1fr auto;
+  justify-content: center;
+  align-content: center;
+  align-items: baseline;
+  gap: 0.5em;
+}
+
+.eventRow {
+  background-color: #0001;
+  border-top: 2px solid #0001;
+  border-bottom: 2px solid #0001;
+}
+
+.eventRowActive {
+  background-color: #b2f5eaaa;
+  border-top: 2px solid #b2f5ea;
+  border-bottom: 2px solid #b2f5ea;
+}
+
+.titleContainer,
+.detailedContainer {
+  background-color: #fff8;
+  border: 1px solid #0001;
+  border-radius: 4px;
+}
+
+.rowDetailed {
+  display: inline-flex;
+  position: relative;
+}
+
+.titleContainer,
+.detailedContainer {
+  width: 90%;
+  display: block;
+}
+
+.more {
+  position: absolute;
+  right: 0.25em;
+  top: 0.5em;
+}
+
+/* ============= BLOCK BLOCK ============= */
+.block {
+  background-color: #805ad5aa;
+  height: 3em;
+  border: 1px solid #0001;
+  border-bottom: 8px solid #805ad5;
+
+  flex-direction: row-reverse;
+}
+
+/* ============= DELAY BLOCK ============= */
+.delay {
+  background-color: #ecc94baa;
+  border: 1px solid #0001;
+  border-top: 4px solid #ecc94b;
+}
+
+.delayValue {
+  color: #000;
+  background-color: #fff5;
+  border-radius: 4px;
+  padding: 0.2em;
+  text-align: center;
+  width: 6em;
+  border: 1px solid #0001;
+}

@@ -1,5 +1,4 @@
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { Editable, EditablePreview, EditableInput } from '@chakra-ui/react';
 import { useState } from 'react';
 import AddIconBtn from '../../../common/components/buttons/AddIconBtn';
 import BlockIconBtn from '../../../common/components/buttons/BlockIconBtn';
@@ -7,7 +6,7 @@ import DelayIconBtn from '../../../common/components/buttons/DelayIconBtn';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import { showErrorToast } from '../../../common/helpers/toastManager';
-import style from './List.module.css';
+import style from './Block.module.css';
 import EditableText from '../../../common/input/EditableText';
 
 export default function EventBlock(props) {
