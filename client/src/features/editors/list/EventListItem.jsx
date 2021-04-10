@@ -18,7 +18,7 @@ import { showErrorToast } from '../../../common/helpers/toastManager';
 import style from './List.module.css';
 
 export default function EventListItem(props) {
-  const { data, selected, delay, index, eventsHandler, updateData } = props;
+  const { data, selected, delay, index, eventsHandler } = props;
 
   const [more, setMore] = useState(false);
   const [timeStart, setTimeStart] = useState(0);
@@ -34,10 +34,10 @@ export default function EventListItem(props) {
     // validate field
     if (field in data) {
       // create object with new field
-      const newData = { ...data, [field]: value };
+      const newData = { id: data.id, [field]: value };
 
       // request update in parent
-      updateData(index, newData);
+      eventsHandler('patch', newData);
     } else {
       showErrorToast('Field Error: ' + field);
     }

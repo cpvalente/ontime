@@ -20,6 +20,9 @@ router.post('/', eventsController.eventsPost);
 router.put('/', eventsController.eventsPut);
 
 // create route between controller and '/events/:id' endpoint
+router.patch('/', eventsController.eventsPatch);
+
+// create route between controller and '/events/:id' endpoint
 router.delete('/:id', eventsController.eventsDelete);
 
 module.exports = router;
