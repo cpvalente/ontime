@@ -12,6 +12,7 @@ class Timer {
   _pausedInterval = null;
   _pausedTotal = null;
   state = 'pause';
+  showNegative = false;
 
   constructor() {}
 
@@ -45,7 +46,11 @@ class Timer {
     switch (this.state) {
       case 'start':
         // update current timer
-        this._current = this._finishAt + this._pausedTotal - now;
+        if (!this.showNegative) {
+          this._current = Math.max(this._finishAt + this._pausedTotal - now, 0);
+        } else {
+          (this._current = this._finishAt + this._pausedTotal - now), 0;
+        }
         break;
       case 'pause':
         // update paused time
