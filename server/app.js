@@ -15,7 +15,7 @@ const playbackRouter = require('./routes/playbackRouter.js');
 const port = process.env.PORT || config.server.port;
 
 // Global Objects
-const Timer = require('./timer.js');
+const Timer = require('./classes/Timer.js');
 // TODO: this should be replaced by some sort of calculation
 let durationForNow = 5400;
 global.timer = new Timer();
