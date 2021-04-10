@@ -28,7 +28,8 @@ const app = express();
 app.use(cors());
 
 // Implement middleware
-// ---
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Implement route endpoints
 app.use('/events', eventsRouter);

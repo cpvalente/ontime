@@ -1,19 +1,25 @@
 const express = require('express');
-const cors = require('cors');
 const router = express.Router();
-
-// Cross origin stuff
-const corsOptions = {
-  origin: 'http://localhost',
-}
 
 // import playback controller
 const eventsController = require('../controllers/eventsController');
 
 // create route between controller and '/events' endpoint
-router.get('/', cors(corsOptions), eventsController.eventsGet);
+router.get('/', eventsController.eventsGet);
 
 // create route between controller and '/events/all' endpoint
-router.get('/all', cors(corsOptions), eventsController.eventsGetAll);
+router.get('/all', eventsController.eventsGetAll);
+
+// create route between controller and '/events/:id' endpoint
+router.get('/:id', eventsController.eventsGetById);
+
+// create route between controller and '/events/' endpoint
+router.post('/', eventsController.eventsPost);
+
+// create route between controller and '/events/:id' endpoint
+router.put('/', eventsController.eventsPut);
+
+// create route between controller and '/events/:id' endpoint
+router.delete('/:id', eventsController.eventsDelete);
 
 module.exports = router;

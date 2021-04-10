@@ -2,9 +2,9 @@ import { IconButton } from '@chakra-ui/button';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import { useContext } from 'react';
-import { useEffect, useState } from 'react';
-import { EventContext } from '../../app/context/eventContext';
+import { useContext, useEffect } from 'react';
+import { useQuery } from 'react-query';
+import { useState } from 'react';
 import { EventListContext } from '../../app/context/eventListContext';
 import NumberedText from '../../common/components/text/NumberedText';
 import PlaybackControl from '../control/PlaybackControl';
@@ -12,25 +12,21 @@ import MessageForm from '../form/MessageForm';
 import PreviewContainer from '../viewers/PreviewContainer';
 import styles from './Editor.module.css';
 import EventList from './list/EventList';
+import EventListWrapper from './list/EventListWrapper';
 
 export default function Editor() {
   const [formMode, setFormMode] = useState(null);
-  const [events] = useContext(EventListContext);
   const [webEvents, setWebEvents] = useState(null);
-  const [event, setEvent] = useContext(EventContext);
   const [playback, setPlayback] = useState({
     current: null,
     next: null,
     currentTimer: null,
     numEvents: 0,
     state: 'pause',
-    prevState: 'pause',
   });
   const updatePlayback = (vals) => {
     setPlayback({ ...playback, ...vals });
   };
-
-  console.log('events here', webEvents);
 
   return (
     <Grid
@@ -46,10 +42,7 @@ export default function Editor() {
           </Heading>
           <NumberedText number={1} text={'Manage and select event to run'} />
           <div className={styles.content}>
-            <EventList
-              events={webEvents}
-              formMode={formMode}
-              setFormMode={setFormMode}
+            <EventListWrapper
               selected={playback.current}
               updatePlayback={updatePlayback}
             />
