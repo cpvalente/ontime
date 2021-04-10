@@ -7,7 +7,7 @@ export default function BlockIconBtn(props) {
       size={props.size || 'xs'}
       icon={<FiMinusCircle />}
       colorScheme='purple'
-      onClick={() => props.clickHandler}
+      onClick={props.clickHandler}
     />
   );
 }

@@ -37,8 +37,6 @@ export default function EditableTimer(props) {
     setValue(addAndFormat(time, delay));
   };
 
-  console.log('hh', value, time);
-
   return (
     <div className={style.time}>
       <Editable

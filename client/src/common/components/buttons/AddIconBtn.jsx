@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiPlus } from "react-icons/fi";
+import { FiPlus } from 'react-icons/fi';
 
 export default function AddIconBtn(props) {
   return (
@@ -7,7 +7,7 @@ export default function AddIconBtn(props) {
       size={props.size || 'xs'}
       icon={<FiPlus />}
       colorScheme='blue'
-      onClick={() => props.clickHandler}
+      onClick={props.clickHandler}
     />
   );
 }

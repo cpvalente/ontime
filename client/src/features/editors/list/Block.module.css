@@ -33,10 +33,18 @@
   transition: linear 0.1s;
 }
 
+.eventRow:hover > .actionOverlay,
+.eventRowActive:hover > .actionOverlay,
+.block:hover > .actionOverlay,
+.delay:hover > .actionOverlay {
+  opacity: 0.85;
+  transition: linear 0.1s;
+}
+
+/* NA */
 .actionOverlay:hover {
   opacity: 1;
 }
-
 /* ============= EVENT ITEM ============= */
 
 .eventRow,

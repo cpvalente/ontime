@@ -7,7 +7,7 @@ export default function DeleteIconBtn(props) {
       size={props.size || 'xs'}
       icon={<FiMinus />}
       colorScheme='red'
-      onClick={() => props.clickHandler}
+      onClick={props.clickHandler}
     />
   );
 }

@@ -1,5 +1,3 @@
-import { IconButton } from '@chakra-ui/button';
-import { AddIcon, MinusIcon } from '@chakra-ui/icons';
 import { Box } from '@chakra-ui/layout';
 import {
   Slider,
@@ -8,7 +6,6 @@ import {
   SliderTrack,
 } from '@chakra-ui/slider';
 import { useEffect, useState } from 'react';
-import style from './List.module.css';
 import AddIconBtn from '../../../common/components/buttons/AddIconBtn';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 import style from './Block.module.css';
@@ -34,14 +31,12 @@ export default function DelayBlock(props) {
     setDelay(data.timerDuration);
   }, [data]);
   const addHandler = () => {
-    eventsHandler('add', { type: 'block', order: index + 1 });
   };
   const deleteHandler = () => {
     eventsHandler('delete', data.id);
   };
 
   return (
-    <div className={style.delayContainer}>
     <div className={style.delay}>
       <div className={style.delayValue}>{`${delay} min`}</div>
       <Slider
@@ -59,15 +54,6 @@ export default function DelayBlock(props) {
         <SliderThumb boxSize={4} />
       </Slider>
       <div className={style.actionOverlay}>
-        />
-        <IconButton
-          size='xs'
-          icon={<AddIcon />}
-          colorScheme='blue'
-          onClick={() =>
-            eventsHandler('add', { type: 'event', order: index + 1 })
-          }
-        />
         <DeleteIconBtn clickHandler={deleteHandler} />
         <AddIconBtn clickHandler={addHandler} />
       </div>

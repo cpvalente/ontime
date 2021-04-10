@@ -1,8 +1,7 @@
-import { AddIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { FiChevronDown } from 'react-icons/fi';
 import {
   Button,
   ButtonGroup,
-  IconButton,
   Menu,
   MenuButton,
   MenuItem,
@@ -30,7 +29,7 @@ export default function EventListMenu(props) {
             Upload
           </Button>
           <MenuButton as={Button} {...buttonProps}>
-            <ChevronDownIcon />
+            <FiChevronDown />
           </MenuButton>
         </ButtonGroup>
         <MenuList>
@@ -42,7 +41,7 @@ export default function EventListMenu(props) {
         <ButtonGroup isAttached>
           <Button {...buttonProps}>Save</Button>
           <MenuButton as={Button} {...buttonProps}>
-            <ChevronDownIcon />
+            <FiChevronDown />
           </MenuButton>
         </ButtonGroup>
         <MenuList>

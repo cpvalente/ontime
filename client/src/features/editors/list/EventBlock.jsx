@@ -28,7 +28,7 @@ export default function EventBlock(props) {
   };
 
   const addHandler = () => {
-    eventsHandler('add', { type: 'block', order: index + 1 });
+    eventsHandler('add', { type: 'event', order: index + 1 });
   };
   const delayHandler = () => {
     eventsHandler('add', { type: 'delay', order: index + 1 });
