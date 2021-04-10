@@ -30,6 +30,12 @@ export default function DelayBlock(props) {
   useEffect(() => {
     setDelay(data.timerDuration);
   }, [data]);
+  const addHandler = () => {
+    eventsHandler('add', { type: 'block', order: index + 1 });
+  };
+  const deleteHandler = () => {
+    eventsHandler('delete', data.id);
+  };
 
   return (
     <div className={style.delayContainer}>
@@ -49,11 +55,6 @@ export default function DelayBlock(props) {
         <SliderThumb boxSize={4} />
       </Slider>
       <div className={style.actionOverlay}>
-        <IconButton
-          size='xs'
-          icon={<MinusIcon />}
-          colorScheme='red'
-          onClick={() => eventsHandler('delete', data.id)}
         />
         <IconButton
           size='xs'
@@ -63,6 +64,8 @@ export default function DelayBlock(props) {
             eventsHandler('add', { type: 'event', order: index + 1 })
           }
         />
+        <DeleteIconBtn clickHandler={deleteHandler} />
+        <AddIconBtn clickHandler={addHandler} />
       </div>
     </div>
   );

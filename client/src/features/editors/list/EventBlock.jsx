@@ -1,34 +1,19 @@
-import {
-  AddIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  MinusIcon,
-  NotAllowedIcon,
-  TimeIcon,
-} from '@chakra-ui/icons';
-import {
-  IconButton,
-  Editable,
-  EditablePreview,
-  EditableInput,
-} from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { addAndFormat, timeToDate } from '../../../common/dateConfig';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { Editable, EditablePreview, EditableInput } from '@chakra-ui/react';
+import { useState } from 'react';
+import AddIconBtn from '../../../common/components/buttons/AddIconBtn';
+import BlockIconBtn from '../../../common/components/buttons/BlockIconBtn';
+import DelayIconBtn from '../../../common/components/buttons/DelayIconBtn';
+import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
+import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import { showErrorToast } from '../../../common/helpers/toastManager';
 import style from './List.module.css';
+import EditableText from '../../../common/input/EditableText';
 
 export default function EventBlock(props) {
   const { data, selected, delay, index, eventsHandler } = props;
 
   const [more, setMore] = useState(false);
-  const [timeStart, setTimeStart] = useState(0);
-  const [timeEnd, setTimeEnd] = useState(addAndFormat(data.timeEnd, delay));
-
-  // prepare time fields
-  useEffect(() => {
-    setTimeStart(addAndFormat(data.timeStart, delay));
-    setTimeEnd(addAndFormat(data.timeEnd, delay));
-  }, [data, delay]);
 
   const updateValues = (field, value) => {
     // validate field
@@ -43,129 +28,84 @@ export default function EventBlock(props) {
     }
   };
 
+  const addHandler = () => {
+    eventsHandler('add', { type: 'block', order: index + 1 });
+  };
+  const delayHandler = () => {
+    eventsHandler('add', { type: 'delay', order: index + 1 });
+  };
+  const blockHandler = () => {
+    eventsHandler('add', { type: 'block', order: index + 1 });
+  };
+  const deleteHandler = () => {
+    eventsHandler('delete', data.id);
+  };
+
+  const handleTitleSubmit = (v) => {
+    updateValues('title', v);
+  };
+
+  const handleSubtitleSubmit = (v) => {
+    updateValues('subtitle', v);
+  };
+
+  const handlePresenterSubmit = (v) => {
+    updateValues('presenter', v);
+  };
+
   return (
-    <form>
-      <div className={selected ? style.eventRowActive : style.eventRow}>
-        <div className={style.time}>
-          <Editable
-            onSubmit={(v) => updateValues('timeStart', timeToDate(v))}
-            value={timeStart}
-            onChange={(val) => setTimeStart(val)}
-            placeholder='--:--'
-            style={{ textAlign: 'center' }}
-            className={delay > 0 && style.delayedEditable}
-          >
-            <EditablePreview />
-            <EditableInput type='time' min='00:00' max='23:59' />
-          </Editable>
-        </div>
-        <div className={style.time}>
-          <Editable
-            onSubmit={(v) => updateValues('timeEnd', timeToDate(v))}
-            value={timeEnd}
-            onChange={(val) => setTimeEnd(val)}
-            placeholder='--:--'
-            style={{ textAlign: 'center' }}
-            className={delay > 0 && style.delayedEditable}
-          >
-            <EditablePreview />
-            <EditableInput type='time' min='00:00' max='23:59' />
-          </Editable>
-        </div>
-        <div className={style.rowDetailed}>
-          {more ? (
-            <div className={style.detailedContainer}>
-              <div style={{ display: 'block' }}>
-                <span className={style.detailedTitleUnderlined}>Title</span>
-                <Editable
-                  onSubmit={(v) => updateValues('title', v)}
-                  defaultValue={data.title}
-                  placeholder='Add title'
-                  style={{ display: 'inline' }}
-                >
-                  <EditablePreview />
-                  <EditableInput style={{ width: '13em' }} />
-                </Editable>
-              </div>
-              <div style={{ display: 'block' }}>
-                <span className={style.detailedTitleUnderlined}>Subtitle</span>
-                <Editable
-                  onSubmit={(v) => updateValues('subtitle', v)}
-                  defaultValue={data.subtitle}
-                  placeholder='Add subtitle'
-                  style={{ display: 'inline' }}
-                >
-                  <EditablePreview />
-                  <EditableInput style={{ width: '13em', minWidth: '13em' }} />
-                </Editable>
-              </div>
-              <div style={{ display: 'block' }}>
-                <span className={style.detailedTitleUnderlined}>Presenter</span>
-                <Editable
-                  onSubmit={(v) => updateValues('presenter', v)}
-                  defaultValue={data.presenter}
-                  placeholder='Add presenter name'
-                  style={{ display: 'inline' }}
-                >
-                  <EditablePreview style={{}} />
-                  <EditableInput style={{ width: '13em' }} />
-                </Editable>
-              </div>
-            </div>
-          ) : (
-            <div className={style.titleContainer}>
-              <div>
-                <span className={style.detailedTitle}>Title</span>
-                <Editable
-                  onSubmit={(v) => updateValues('title', v)}
-                  defaultValue={data.title}
-                  placeholder='Add title'
-                  style={{ display: 'inline' }}
-                  id='title'
-                >
-                  <EditablePreview />
-                  <EditableInput style={{ width: '13em' }} />
-                </Editable>
-              </div>
-            </div>
-          )}
-          <div className={style.more} onClick={() => setMore(!more)}>
-            {more ? <ChevronUpIcon /> : <ChevronDownIcon />}
+    <div className={selected ? style.eventRowActive : style.eventRow}>
+      <EventTimes
+        updateValues={updateValues}
+        timeStart={data.timeStart}
+        timeEnd={data.timeEnd}
+        delay={delay}
+      />
+      <div className={style.rowDetailed}>
+        {more ? (
+          <div className={style.detailedContainer}>
+            <EditableText
+              label='Title'
+              defaultValue={data.title}
+              placeholder='Add Title'
+              underlined
+              submitHandler={handleTitleSubmit}
+            />
+            <EditableText
+              label='Subtitle'
+              defaultValue={data.subtitle}
+              placeholder='Add Subtitle'
+              underlined
+              submitHandler={handleSubtitleSubmit}
+            />
+            <EditableText
+              label='Presenter'
+              defaultValue={data.subtitle}
+              placeholder='Add Presenter name'
+              underlined
+              submitHandler={handlePresenterSubmit}
+            />
           </div>
-        </div>
-        <div className={style.actionOverlay}>
-          <IconButton
-            size='xs'
-            icon={<MinusIcon />}
-            colorScheme='red'
-            onClick={() => eventsHandler('delete', data.id)}
-          />
-          <IconButton
-            size='xs'
-            icon={<AddIcon />}
-            colorScheme='blue'
-            onClick={() =>
-              eventsHandler('add', { type: 'event', order: index + 1 })
-            }
-          />
-          <IconButton
-            size='xs'
-            icon={<TimeIcon />}
-            colorScheme='yellow'
-            onClick={() =>
-              eventsHandler('add', { type: 'delay', order: index + 1 })
-            }
-          />
-          <IconButton
-            size='xs'
-            icon={<NotAllowedIcon />}
-            colorScheme='purple'
-            onClick={() =>
-              eventsHandler('add', { type: 'block', order: index + 1 })
-            }
-          />
+        ) : (
+          <div className={style.titleContainer}>
+            <EditableText
+              label='Title'
+              defaultValue={data.title}
+              placeholder='Add Title'
+              submitHandler={handleTitleSubmit}
+            />
+          </div>
+        )}
+        <div className={style.more} onClick={() => setMore(!more)}>
+          {more ? <FiChevronUp /> : <FiChevronDown />}
         </div>
       </div>
-    </form>
+      <div className={style.actionOverlay}>
+        <DeleteIconBtn clickHandler={deleteHandler} />
+        <AddIconBtn clickHandler={addHandler} />
+        <DelayIconBtn clickHandler={delayHandler} />
+        <BlockIconBtn clickHandler={blockHandler} />
+      </div>
+    </div>
   );
 }

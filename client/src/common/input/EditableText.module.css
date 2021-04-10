@@ -1,0 +1,13 @@
+.title,
+.titleUnderlined {
+  padding-left: 1em;
+  font-size: 0.8em;
+  color: #888;
+  display: inline-block;
+  width: 6em;
+  cursor: default;
+}
+
+.titleUnderlined {
+  border-bottom: 1px solid #0001;
+}

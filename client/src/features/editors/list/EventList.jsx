@@ -1,7 +1,7 @@
-import EventListItem from './EventListItem';
 import style from './List.module.css';
 import DelayBlock from './DelayBlock';
 import BlockBlock from './BlockBlock';
+import EventBlock from './EventBlock';
 
 export default function EventList(props) {
   const { events, selected, eventsHandler } = props;
@@ -19,7 +19,7 @@ export default function EventList(props) {
         if (e.type === 'event') {
           eventCount = eventCount + 1;
           return (
-            <EventListItem
+            <EventBlock
               key={e.id}
               index={index}
               data={e}

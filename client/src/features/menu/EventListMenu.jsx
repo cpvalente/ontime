@@ -8,6 +8,7 @@ import {
   MenuItem,
   MenuList,
 } from '@chakra-ui/react';
+import AddIconBtn from '../../common/components/buttons/AddIconBtn';
 import style from './EventListMenu.module.css';
 
 export default function EventListMenu(props) {
@@ -15,6 +16,10 @@ export default function EventListMenu(props) {
   const buttonProps = {
     size: 'sm',
     variant: 'outline',
+  };
+
+  const addHandler = () => {
+    eventsHandler('add', { type: 'event', order: 0 });
   };
 
   return (
@@ -45,12 +50,7 @@ export default function EventListMenu(props) {
           <MenuItem>Download CSV</MenuItem>
         </MenuList>
       </Menu>
-      <IconButton
-        size='sm'
-        icon={<AddIcon />}
-        colorScheme='blue'
-        onClick={() => eventsHandler('add', { type: 'event', order: 0 })}
-      />
+      <AddIconBtn clickHandler={addHandler} size='sm' />
     </div>
   );
 }

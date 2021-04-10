@@ -1,0 +1,21 @@
+.time {
+  background-color: #fff8;
+  border: 1px solid #0001;
+  border-radius: 4px;
+  width: 5em;
+  height: fit-content;
+}
+
+.delayedEditable {
+  background-color: #ecc94b22;
+}
+
+.delayValue {
+  font-size: 14px;
+  line-height: 2em;
+  color: #555;
+  background-color: #ffeaa066;
+  border-radius: 4px;
+  text-align: center;
+  border: 1px solid #0001;
+}
