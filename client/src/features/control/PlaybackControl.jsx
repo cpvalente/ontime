@@ -12,6 +12,14 @@ import { format } from 'date-fns';
 import { timeFormatSeconds } from '../../common/dateConfig';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import { serverURL } from '../../app/api/apiConstants';
+import {
+  getStart,
+  getPause,
+  getRoll,
+  getPrevious,
+  getNext,
+} from '../../app/api/playbackApi';
 
 // BUTTON DEFINITION
 const defProps = {
@@ -33,9 +41,6 @@ export default function PlaybackControl(props) {
   const updateTimer = (vals) => {
     setTimer({ ...timer, ...vals });
   };
-  // TODO: Move to config file
-  const serverURL = 'http://localhost:4001/';
-  const playbackURL = serverURL + 'playback/';
 
   // WEBSOCKETZ
   useEffect(() => {
@@ -54,29 +59,23 @@ export default function PlaybackControl(props) {
   const playbackControl = async (action, payload) => {
     switch (action) {
       case 'start': {
-        await fetch(playbackURL + 'start').then(
-          (res) => res.ok && setPlayback('start')
-        );
+        await getStart().then((res) => res.ok && setPlayback('start'));
         break;
       }
       case 'pause': {
-        await fetch(playbackURL + 'pause').then(
-          (res) => res.ok && setPlayback('pause')
-        );
+        await getPause().then((res) => res.ok && setPlayback('pause'));
         break;
       }
       case 'roll': {
-        await fetch(playbackURL + 'roll').then(
-          (res) => res.ok && setPlayback('roll')
-        );
+        await getRoll().then((res) => res.ok && setPlayback('roll'));
         break;
       }
       case 'previous': {
-        await fetch(playbackURL + 'previous').then((res) => console.log(res));
+        await getPrevious().then((res) => console.log(res));
         break;
       }
       case 'next': {
-        await fetch(playbackURL + 'next').then((res) => console.log(res));
+        await getNext().then((res) => console.log(res));
         break;
       }
       default:
