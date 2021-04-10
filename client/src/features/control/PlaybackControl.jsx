@@ -11,8 +11,6 @@ import {
 import { format } from 'date-fns';
 import { timeFormatSeconds } from '../../common/dateConfig';
 import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
-import { serverURL } from '../../app/api/apiConstants';
 import {
   getStart,
   getPause,
@@ -20,6 +18,7 @@ import {
   getPrevious,
   getNext,
 } from '../../app/api/playbackApi';
+import { useSocket } from '../../app/context/socketContext';
 
 // BUTTON DEFINITION
 const defProps = {
@@ -33,28 +32,24 @@ const size = {
 
 export default function PlaybackControl(props) {
   const [playback, setPlayback] = useState(null);
+  const socket = useSocket();
   const [timer, setTimer] = useState({
     currentSeconds: null,
     startedAt: null,
     expectedFinish: null,
   });
-  const updateTimer = (vals) => {
-    setTimer({ ...timer, ...vals });
-  };
 
-  // WEBSOCKETZ
   useEffect(() => {
-    // TODO: add namespace?
-    const socket = io(serverURL, { transport: ['websocket'] });
-    console.log('websocket started');
+    if (socket == null) return;
 
     // Handle timer
     socket.on('timer', (data) => {
-      updateTimer(data);
+      setTimer({ ...data });
     });
 
-    return () => socket.disconnect();
-  }, []);
+    return () => socket.off('timer');
+  }, [socket]);
+
 
   const playbackControl = async (action, payload) => {
     switch (action) {
@@ -83,10 +78,10 @@ export default function PlaybackControl(props) {
     }
   };
 
-  const started = timer.startedAt
+  const started = timer?.startedAt
     ? format(timer.startedAt, timeFormatSeconds)
     : '...';
-  const finish = timer.expectedFinish
+  const finish = timer?.expectedFinish
     ? format(timer.expectedFinish, timeFormatSeconds)
     : '...';
 
@@ -94,7 +89,7 @@ export default function PlaybackControl(props) {
     <div className={style.mainContainer}>
       <div className={style.timeContainer}>
         <div className={style.timer}>
-          <Countdown time={timer.currentSeconds} small />
+          <Countdown time={timer?.currentSeconds} small />
         </div>
         <div className={style.start}>
           <span className={style.tag}>Started at </span>

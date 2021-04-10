@@ -6,23 +6,26 @@ import { PresenterMessageProvider } from './app/context/presenterMessageContext'
 import Editor from './features/editors/Editor';
 import DefaultPresenter from './features/viewers/DefaultPresenter';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import SocketProvider from './app/context/socketContext';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <PresenterMessageProvider>
-        <EventProvider>
-          <div className='App'>
-            <Route path='/' exact component={DefaultPresenter} />
-            <EventListProvider>
-              <Route path='/editor' exact component={Editor} />
-            </EventListProvider>
-          </div>
-        </EventProvider>
-      </PresenterMessageProvider>
-    </QueryClientProvider>
+    <SocketProvider>
+      <QueryClientProvider client={queryClient}>
+        <PresenterMessageProvider>
+          <EventProvider>
+            <div className='App'>
+              <Route path='/' exact component={DefaultPresenter} />
+              <EventListProvider>
+                <Route path='/editor' exact component={Editor} />
+              </EventListProvider>
+            </div>
+          </EventProvider>
+        </PresenterMessageProvider>
+      </QueryClientProvider>
+    </SocketProvider>
   );
 }
 
