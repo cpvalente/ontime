@@ -1,3 +1,5 @@
+import { addMinutes, format, parseISO } from "date-fns";
+
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 
@@ -6,3 +8,10 @@ export const timeToDate = (time) => {
   const today = new Date();
   return new Date(today.toDateString() + ' ' + time);
 };
+
+// small shorthand for adding delay and formatting date
+export const addAndFormat = (time, delay) => {
+  const fTime = parseISO(time, 1);
+  return format(addMinutes(fTime, delay), timeFormat);
+};
+

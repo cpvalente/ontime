@@ -11,10 +11,12 @@ import {
 import style from './EventListMenu.module.css';
 
 export default function EventListMenu(props) {
+  const { eventsHandler } = props;
   const buttonProps = {
     size: 'sm',
     variant: 'outline',
   };
+
   return (
     <div className={style.headerButtons}>
       <Menu>
@@ -47,7 +49,7 @@ export default function EventListMenu(props) {
         size='sm'
         icon={<AddIcon />}
         colorScheme='blue'
-        onClick={() => props.createEvent()}
+        onClick={() => eventsHandler('add', { type: 'event', order: 0 })}
       />
     </div>
   );

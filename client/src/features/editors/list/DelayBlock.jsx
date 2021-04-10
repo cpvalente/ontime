@@ -12,7 +12,7 @@ import style from './List.module.css';
 
 export default function DelayBlock(props) {
   const [delay, setDelay] = useState(0);
-  const { data, ...rest } = props;
+  const { data, eventsHandler, index, updateData } = props;
 
   // update delay value in parent
   const populateDelay = (value) => {
@@ -22,7 +22,7 @@ export default function DelayBlock(props) {
       const newData = { ...data, timerDuration: delay };
 
       // request update in parent
-      props.updateData(props.index, newData);
+      updateData(index, newData);
     }
   };
 
@@ -53,13 +53,15 @@ export default function DelayBlock(props) {
           size='xs'
           icon={<MinusIcon />}
           colorScheme='red'
-          onClick={() => props.deleteEvent(props.index)}
+          onClick={() => eventsHandler('delete', data.id)}
         />
         <IconButton
           size='xs'
           icon={<AddIcon />}
           colorScheme='blue'
-          onClick={() => props.createEvent(props.index)}
+          onClick={() =>
+            eventsHandler('add', { type: 'event', order: index + 1 })
+          }
         />
       </div>
     </div>

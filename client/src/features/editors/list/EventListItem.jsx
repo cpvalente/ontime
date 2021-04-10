@@ -12,33 +12,23 @@ import {
   EditablePreview,
   EditableInput,
 } from '@chakra-ui/react';
-import { addMinutes, format } from 'date-fns';
 import { useEffect, useState } from 'react';
-import { timeFormat, timeToDate } from '../../../common/dateConfig';
+import { addAndFormat, timeToDate } from '../../../common/dateConfig';
+import { showErrorToast } from '../../../common/helpers/toastManager';
 import style from './List.module.css';
 
-// small shorthand for adding delay and formatting date
-const addAndFormat = (time, delay) => {
-  return format(addMinutes(time, delay), timeFormat);
-};
-
 export default function EventListItem(props) {
-  const [more, setMore] = useState(false);
-  // const [timeStart, setTimeStart] = useState(
-  //   addAndFormat(props.data.timeStart, props.delay)
-  // );
-  const [timeStart, setTimeStart] = useState(0);
-  const [timeEnd, setTimeEnd] = useState(
-    addAndFormat(props.data.timeEnd, props.delay)
-  );
+  const { data, selected, delay, index, eventsHandler, updateData } = props;
 
-  const { data, selected, delay, ...rest } = props;
+  const [more, setMore] = useState(false);
+  const [timeStart, setTimeStart] = useState(0);
+  const [timeEnd, setTimeEnd] = useState(addAndFormat(data.timeEnd, delay));
 
   // prepare time fields
   useEffect(() => {
-    setTimeStart(addAndFormat(props.data.timeStart, props.delay));
-    setTimeEnd(addAndFormat(props.data.timeEnd, props.delay));
-  }, [props.data, props.delay]);
+    setTimeStart(addAndFormat(data.timeStart, delay));
+    setTimeEnd(addAndFormat(data.timeEnd, delay));
+  }, [data, delay]);
 
   const updateValues = (field, value) => {
     // validate field
@@ -47,9 +37,9 @@ export default function EventListItem(props) {
       const newData = { ...data, [field]: value };
 
       // request update in parent
-      props.updateData(props.index, newData);
+      updateData(index, newData);
     } else {
-      console.log('field error', field);
+      showErrorToast('Field Error: ' + field);
     }
   };
 
@@ -148,25 +138,31 @@ export default function EventListItem(props) {
             size='xs'
             icon={<MinusIcon />}
             colorScheme='red'
-            onClick={() => props.deleteEvent(props.index)}
+            onClick={() => eventsHandler('delete', data.id)}
           />
           <IconButton
             size='xs'
             icon={<AddIcon />}
             colorScheme='blue'
-            onClick={() => props.createEvent(props.index)}
+            onClick={() =>
+              eventsHandler('add', { type: 'event', order: index + 1 })
+            }
           />
           <IconButton
             size='xs'
             icon={<TimeIcon />}
             colorScheme='yellow'
-            onClick={() => props.createDelay(props.index)}
+            onClick={() =>
+              eventsHandler('add', { type: 'delay', order: index + 1 })
+            }
           />
           <IconButton
             size='xs'
             icon={<NotAllowedIcon />}
             colorScheme='purple'
-            onClick={() => props.createBlock(props.index)}
+            onClick={() =>
+              eventsHandler('add', { type: 'block', order: index + 1 })
+            }
           />
         </div>
       </div>

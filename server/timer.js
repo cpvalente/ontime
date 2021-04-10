@@ -57,10 +57,7 @@ class Timer {
   }
 
   #getExpectedFinish() {
-    return (
-      this.#finishAt +
-      (this.#pausedInterval + this.#pausedTotal)
-    );
+    return this.#finishAt + (this.#pausedInterval + this.#pausedTotal);
   }
 
   // getObject
@@ -98,7 +95,6 @@ class Timer {
 
     // change state
     this.state = 'start';
-    console.log('started');
   }
   pause() {
     // do we need to change
@@ -109,8 +105,6 @@ class Timer {
 
     // change state
     this.state = 'pause';
-
-    console.log('paused');
   }
   stop() {
     console.log('stop: not yet implemented');
