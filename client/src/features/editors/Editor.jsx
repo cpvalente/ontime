@@ -2,7 +2,6 @@ import { IconButton } from '@chakra-ui/button';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import { useState } from 'react';
 import NumberedText from '../../common/components/text/NumberedText';
 import PlaybackControl from '../control/PlaybackControl';
 import MessageControl from '../control/MessageControl';
@@ -11,16 +10,6 @@ import styles from './Editor.module.css';
 import EventListWrapper from './list/EventListWrapper';
 
 export default function Editor() {
-  const [playback, setPlayback] = useState({
-    current: null,
-    next: null,
-    currentTimer: null,
-    numEvents: 0,
-    state: 'pause',
-  });
-  const updatePlayback = (vals) => {
-    setPlayback({ ...playback, ...vals });
-  };
 
   return (
     <Grid
@@ -75,7 +64,7 @@ export default function Editor() {
           </Heading>
           <NumberedText number={3} text={'Control Timer'} />
           <div className={styles.content}>
-            <PlaybackControl playback={playback} />
+            <PlaybackControl />
           </div>
         </Box>
       </GridItem>

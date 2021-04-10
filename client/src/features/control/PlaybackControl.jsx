@@ -30,7 +30,7 @@ const size = {
   width: 90,
 };
 
-export default function PlaybackControl(props) {
+export default function PlaybackControl() {
   const [playback, setPlayback] = useState(null);
   const socket = useSocket();
   const [timer, setTimer] = useState({
@@ -39,18 +39,25 @@ export default function PlaybackControl(props) {
     expectedFinish: null,
   });
 
+  // Torbjorn: why is this not updating?
   useEffect(() => {
     if (socket == null) return;
 
     // Handle timer
     socket.on('timer', (data) => {
+      console.log('websocket: got data', data);
       setTimer({ ...data });
     });
 
+    // Clear listener
     return () => socket.off('timer');
   }, [socket]);
 
+  // TO SEND TO SOCKET HERE WE CAN USE
+  // socket.emit('test')
 
+  // TODO: Move to playback API
+  // Soould this go through sockets?
   const playbackControl = async (action, payload) => {
     switch (action) {
       case 'start': {

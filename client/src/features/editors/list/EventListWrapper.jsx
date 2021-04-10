@@ -35,7 +35,7 @@ export default function EventListWrapper() {
     switch (action) {
       case 'add':
         try {
-          const event = await addEvent
+          await addEvent
             .mutateAsync(payload)
             .then(queryClient.invalidateQueries('events'));
         } catch (error) {
@@ -44,7 +44,7 @@ export default function EventListWrapper() {
         break;
       case 'update':
         try {
-          const event = await updateEvent
+          await updateEvent
             .mutateAsync(payload)
             .then(queryClient.invalidateQueries('events'));
         } catch (error) {
@@ -53,7 +53,7 @@ export default function EventListWrapper() {
         break;
       case 'delete':
         try {
-          const event = await deleteEvent
+          await deleteEvent
             .mutateAsync(payload)
             .then(queryClient.invalidateQueries('events'));
         } catch (error) {

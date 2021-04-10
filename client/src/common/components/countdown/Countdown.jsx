@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import styles from './Countdown.module.css';
 
-function display(seconds) {
+function formatDisplay(seconds) {
   const format = (val) => `0${Math.floor(val)}`.slice(-2);
   const hours = seconds / 3600;
   const minutes = (seconds % 3600) / 60;
@@ -8,10 +9,24 @@ function display(seconds) {
   return [hours, minutes, seconds % 60].map(format).join(':');
 }
 
-export default function Countdown({ time, small }) {
+export default function Countdown(props) {
+  const { time, small } = props;
+  const [clock, setClock] = useState(time);
+  let display = '-- : -- : --';
+
+  console.log('websocket: time and t', time);
+
+  useEffect(() => {
+    setClock(time);
+    console.log('websocket: time changed', time)
+  }, [time]);
+
+  // prepare display string
+  if (clock != null && !isNaN(clock)) display = formatDisplay(clock);
+
   return (
     <div className={small ? styles.countdownClockSmall : styles.countdownClock}>
-      {(time === null || isNaN(time)) ? '-- : -- : --' : display(time)}
+      {display}
     </div>
   );
 }
