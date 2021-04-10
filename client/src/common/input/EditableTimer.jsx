@@ -6,7 +6,7 @@ import style from './EditableTimer.module.css';
 export default function EditableTimer(props) {
   const { name, updateValues, time, delay } = props;
   const [value, setValue] = useState('');
-  const [showValue, setShowValue] = useState('');
+  const [editing, setEditing] = useState(false);
 
   // prepare time fields
   useEffect(() => {
@@ -14,41 +14,34 @@ export default function EditableTimer(props) {
   }, [time, delay]);
 
   const handleSubmit = (submitedVal) => {
-    console.log('edit: on submit');
-
-    if (submitedVal === value) return;
-
-    updateValues(name, timeToDate(submitedVal));
     setValue(addAndFormat(time, delay));
+    setEditing(false);
+
+    const newTime = timeToDate(submitedVal);
+
+    // No need to update if it hasnt changed
+    if (newTime === value) return;
+    updateValues(name, newTime);
   };
 
   const showNormal = () => {
-    console.log('edit: on edit');
-    setValue(dateToTime(time));
+    if (!editing) setValue(dateToTime(time));
   };
 
   const handleChange = (submitedVal) => {
-    console.log('edit: change handler', submitedVal);
+    setEditing(true);
     setValue(submitedVal);
-  };
-
-  const handleBlur = () => {
-    console.log('edit: onBlur');
-    setValue(addAndFormat(time, delay));
   };
 
   return (
     <div className={style.time}>
       <Editable
-        // submitOnBlur={false}
-        // onEdit={showNormal}
+        onEdit={() => showNormal}
         onSubmit={(v) => handleSubmit(v)}
         onChange={(v) => handleChange(v)}
-        onBlur={(v) => handleBlur(v)}
         value={value}
         placeholder='--:--'
-        style={{ textAlign: 'center' }}
-        className={delay > 0 && style.delayedEditable}
+        className={delay > 0 ? style.delayedEditable : style.editable}
       >
         <EditablePreview />
         <EditableInput type='time' min='00:00' max='23:59' />

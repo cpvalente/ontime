@@ -6,6 +6,7 @@ export default function EventTimes(props) {
 
   return (
     <>
+      <DelayValue delay={delay} />
       <EditableTimer
         name='timeStart'
         updateValues={updateValues}
@@ -18,7 +19,6 @@ export default function EventTimes(props) {
         time={timeEnd}
         delay={delay}
       />
-      <DelayValue delay={delay} />
     </>
   );
 }

@@ -53,7 +53,7 @@
   padding-left: 1em;
 
   display: grid;
-  grid-template-columns: auto auto 3em 1fr auto;
+  grid-template-columns: 3em auto auto 1fr auto;
   justify-content: center;
   align-content: center;
   align-items: baseline;

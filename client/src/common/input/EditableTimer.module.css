@@ -6,6 +6,11 @@
   height: fit-content;
 }
 
+.editable,
+.delayedEditable {
+  text-align: center;
+}
+
 .delayedEditable {
   background-color: #ecc94b22;
 }
@@ -19,3 +24,4 @@
   text-align: center;
   border: 1px solid #0001;
 }
+
