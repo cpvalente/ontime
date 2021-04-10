@@ -15,10 +15,10 @@ const playbackRouter = require('./routes/playbackRouter.js');
 const port = process.env.PORT || config.server.port;
 
 // Global Objects
-const Timer = require('./classes/Timer.js');
+const EventTimer = require('./classes/EventTimer.js');
 // TODO: this should be replaced by some sort of calculation
 let durationForNow = 5400;
-global.timer = new Timer();
+global.timer = new EventTimer();
 timer.setupWithSeconds(durationForNow, true);
 
 // Create express APP
@@ -56,17 +56,50 @@ const io = socketIo(server, {
 let interval;
 
 io.on('connection', (socket) => {
-  // send initial eventdata to any new clients
   console.log('New client connected');
+
+  // timer API
   socket.emit('timer', timer.getObject());
 
   // avoid multiple intervals
   if (interval) {
     clearInterval(interval);
   }
-
   // set callback for timer events
   interval = setInterval(() => getApiAndEmit(socket), config.timer.refresh);
+
+  socket.on('get-timer', () => {
+    socket.emit('timer', timer.getObject());
+  });
+
+  // playback API
+  socket.on('set-presenter-text', (data) => {
+    timer.presenterText = data;
+    socket.emit('messages-presenter', timer.presenter);
+  });
+
+  socket.on('set-presenter-visible', (data) => {
+    timer.presenterVisible = data;
+    socket.emit('messages-presenter', timer.presenter);
+  });
+
+  socket.on('get-presenter', () => {
+    socket.emit('messages-presenter', timer.presenter);
+  });
+
+  socket.on('set-public-text', (data) => {
+    timer.publicText = data;
+    socket.emit('messages-public', timer.public);
+  });
+
+  socket.on('set-public-visible', (data) => {
+    timer.publicVisible = data;
+    socket.emit('messages-public', timer.public);
+  });
+
+  socket.on('get-public', () => {
+    socket.emit('messages-public', timer.public);
+  });
 
   // handle client disconnect
   socket.on('disconnect', () => {
@@ -77,10 +110,8 @@ io.on('connection', (socket) => {
 
 // send timer events
 const getApiAndEmit = (socket) => {
-  const t = timer.getObject();
-  // console.log(t)
   // send current timer
-  socket.emit('timer', t);
+  socket.emit('timer', timer.getObject());
 };
 
 // Start server

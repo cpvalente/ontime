@@ -1,3 +1,9 @@
+/*
+ * Timer implements simple countdown timer functions
+ * User needs to use setup function to be able to use
+ *
+ */
+
 class Timer {
   _current = null;
   _finishAt = null;
@@ -115,6 +121,5 @@ class Timer {
     return false;
   }
 }
-
 
 module.exports = Timer;
