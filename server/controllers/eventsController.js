@@ -97,16 +97,25 @@ exports.eventsPut = async (req, res) => {
 // Create controller for DELETE request to '/events/'
 // Returns -
 exports.eventsDelete = async (req, res) => {
-  if (req.params.id) {
-    const itemIndex = events.findIndex((e) => e.id == req.params.id);
-
-    if (!itemIndex) res.sendStatus(400);
-
-    // Torbjorn: this syntax is very bad
-    const e = events.splice(itemIndex, 1);
-    events = [...events];
-    res.sendStatus(200);
-  } else {
+  if (!req.params.id) {
     res.sendStatus(400);
   }
+
+  const itemIndex = events.findIndex((e) => e.id == req.params.id);
+
+  console.log('found at index', itemIndex);
+
+  // Torbjorn: this syntax is very bad
+  if (itemIndex === -1) {
+    res.sendStatus(400);
+    return;
+  }
+
+  if (itemIndex === 0) {
+    const e = events.shift();
+  } else {
+    const e = events.splice(itemIndex, 1);
+  }
+  events = [...events];
+  res.sendStatus(200);
 };
