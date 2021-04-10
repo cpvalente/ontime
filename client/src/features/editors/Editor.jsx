@@ -2,21 +2,15 @@ import { IconButton } from '@chakra-ui/button';
 import { SettingsIcon } from '@chakra-ui/icons';
 import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import { useContext, useEffect } from 'react';
-import { useQuery } from 'react-query';
 import { useState } from 'react';
-import { EventListContext } from '../../app/context/eventListContext';
 import NumberedText from '../../common/components/text/NumberedText';
 import PlaybackControl from '../control/PlaybackControl';
-import MessageForm from '../form/MessageForm';
+import MessageControl from '../control/MessageControl';
 import PreviewContainer from '../viewers/PreviewContainer';
 import styles from './Editor.module.css';
-import EventList from './list/EventList';
 import EventListWrapper from './list/EventListWrapper';
 
 export default function Editor() {
-  const [formMode, setFormMode] = useState(null);
-  const [webEvents, setWebEvents] = useState(null);
   const [playback, setPlayback] = useState({
     current: null,
     next: null,
@@ -42,10 +36,7 @@ export default function Editor() {
           </Heading>
           <NumberedText number={1} text={'Manage and select event to run'} />
           <div className={styles.content}>
-            <EventListWrapper
-              selected={playback.current}
-              updatePlayback={updatePlayback}
-            />
+            <EventListWrapper />
           </div>
         </Box>
       </GridItem>
@@ -72,7 +63,7 @@ export default function Editor() {
             text={'Show realtime messages on separate screen types'}
           />
           <div className={styles.content}>
-            <MessageForm />
+            <MessageControl />
           </div>
         </Box>
       </GridItem>
