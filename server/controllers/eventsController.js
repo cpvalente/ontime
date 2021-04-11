@@ -12,12 +12,6 @@ const replaceAt = (array, index, value) => {
   return ret;
 };
 
-// Create controller for GET request to '/events'
-// Returns ACK message
-exports.eventsGet = async (req, res) => {
-  res.send({ response: 'Events Controller API' });
-};
-
 // Create controller for GET request to '/events/all'
 // Returns -
 exports.eventsGetAll = async (req, res) => {
@@ -41,7 +35,7 @@ exports.eventsPost = async (req, res) => {
 
   // ensure structure
   let newEvent = {};
-  req.body.id = nanoid(10);
+  req.body.id = nanoid(6);
 
   switch (req.body.type) {
     case 'event':
@@ -131,17 +125,14 @@ exports.eventsDelete = async (req, res) => {
 
   const itemIndex = events.findIndex((e) => e.id == req.params.id);
 
-  // Torbjorn: this syntax is very bad
   if (itemIndex === -1) {
     res.sendStatus(400);
     return;
   }
+  else if (itemIndex === 0) events.shift();
+  else events.splice(itemIndex, 1);
 
-  if (itemIndex === 0) {
-    const e = events.shift();
-  } else {
-    const e = events.splice(itemIndex, 1);
-  }
+  // Update events
   events = [...events];
   res.sendStatus(200);
 };

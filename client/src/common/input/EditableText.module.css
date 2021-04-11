@@ -11,3 +11,16 @@
 .titleUnderlined {
   border-bottom: 1px solid #0001;
 }
+
+.block {
+  display: 'block';
+}
+
+.inline {
+  display: inline;
+}
+
+.editable13 {
+  width: '13em';
+  min-width: '13em';
+}

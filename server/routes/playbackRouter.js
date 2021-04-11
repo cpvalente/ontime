@@ -4,11 +4,8 @@ const router = express.Router();
 // import event controller
 const playbackController = require('../controllers/playbackController');
 
-// create route between controller and '/playback' endpoint
-router.get('/', playbackController.pbGet);
-
-// create route between controller and '/playback/all' endpoint
-router.get('/all', playbackController.pbGetAll);
+// create route between controller and '/playback/' endpoint
+router.get('/', playbackController.pbGetAll);
 
 // create route between controller and '/playback/start' endpoint
 router.get('/start', playbackController.pbStart);
@@ -23,7 +20,7 @@ router.get('/stop', playbackController.pbStop);
 router.get('/roll', playbackController.pbRoll);
 
 // create route between controller and '/playback/previous' endpoint
-router.get('/previous',playbackController.pbPrevious);
+router.get('/previous', playbackController.pbPrevious);
 
 // create route between controller and '/playback/next' endpoint
 router.get('/next', playbackController.pbNext);

@@ -4,7 +4,6 @@ const config = require('./config.json');
 // dependencies
 const express = require('express');
 const http = require('http');
-const socketIo = require('socket.io');
 const cors = require('cors');
 
 // Import Routes
@@ -20,6 +19,9 @@ const EventTimer = require('./classes/EventTimer.js');
 let durationForNow = 5400;
 global.timer = new EventTimer();
 timer.setupWithSeconds(durationForNow, true);
+
+// Socket
+const initiateSocket = require('./controllers/socketController.js');
 
 // Create express APP
 const app = express();
@@ -44,93 +46,8 @@ app.use((err, req, res, next) => {
 // create HTTP server
 const server = http.createServer(app);
 
-// initialise socketIO server
-const io = socketIo(server, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  },
-});
-
-// Torbjorn: should the interval be here or inside the connection?
-//  I am guessing one interval per timer
-// interval function
-let interval;
-
-io.on('connection', (socket) => {
-  console.log('New client connected');
-
-  // let interval = null;
-
-  // subscribe to timer
-  socket.on('subscribe-to-timer', () => {
-    console.log('New subscription');
-    // avoid multiple intervals
-    if (interval) clearInterval(interval);
-
-    // send current data
-    socket.emit('timer', timer.getObject());
-
-    // set callback for timer events
-    interval = setInterval(() => emitTimer(socket), config.timer.refresh);
-  });
-
-  // unsubscribe to timer
-  socket.on('release-timer', () => {
-    console.log('Releasing subscription');
-    // avoid multiple intervals
-    if (interval) clearInterval(interval);
-  });
-
-  socket.on('get-timer', () => {
-    socket.emit('timer', timer.getObject());
-  });
-
-  socket.on('get-playstate', () => {
-    socket.emit('playstate', timer.playState);
-  });
-
-  // playback API
-  socket.on('set-presenter-text', (data) => {
-    timer.presenterText = data;
-    socket.emit('messages-presenter', timer.presenter);
-  });
-
-  socket.on('set-presenter-visible', (data) => {
-    timer.presenterVisible = data;
-    socket.emit('messages-presenter', timer.presenter);
-  });
-
-  socket.on('get-presenter', () => {
-    socket.emit('messages-presenter', timer.presenter);
-  });
-
-  socket.on('set-public-text', (data) => {
-    timer.publicText = data;
-    socket.emit('messages-public', timer.public);
-  });
-
-  socket.on('set-public-visible', (data) => {
-    timer.publicVisible = data;
-    socket.emit('messages-public', timer.public);
-  });
-
-  socket.on('get-public', () => {
-    socket.emit('messages-public', timer.public);
-  });
-
-  // handle client disconnect
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-    if (interval) clearInterval(interval);
-  });
-});
-
-// send timer events
-const emitTimer = (socket) => {
-  // send current timer
-  socket.emit('timer', timer.getObject());
-};
+// start socket server
+initiateSocket(server, config);
 
 // Start server
 server.listen(port, () => console.log(`Listening on port ${port}`));

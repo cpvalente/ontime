@@ -23,19 +23,16 @@ export default function MessageControl() {
     visible: false,
   });
 
-  // Torbjorn: why is this not updating?
   useEffect(() => {
     if (socket == null) return;
 
     // Handle presenter messages
     socket.on('messages-presenter', (data) => {
-      console.log('websocket: got data', data);
       setPres({ ...data });
     });
 
     // Handle public messages
     socket.on('messages-public', (data) => {
-      console.log('websocket: got data', data);
       setPubl({ ...data });
     });
 
@@ -43,8 +40,11 @@ export default function MessageControl() {
     socket.emit('get-presenter');
     socket.emit('get-public');
 
-    // Clear listener
-    return () => socket.off('messages-presenter', 'messages-public');
+    // Clear listeners
+    return () => {
+      socket.off('messages-public');
+      socket.off('messages-presenter');
+    };
   }, [socket]);
 
   const messageControl = async (action, payload) => {

@@ -31,8 +31,8 @@ const size = {
 };
 
 export default function PlaybackControl() {
-  const [playback, setPlayback] = useState(null);
   const socket = useSocket();
+  const [playback, setPlayback] = useState(null);
   const [timer, setTimer] = useState({
     currentSeconds: null,
     startedAt: null,
@@ -42,13 +42,10 @@ export default function PlaybackControl() {
   // handle incoming messages
   useEffect(() => {
     if (socket == null) return;
-
-    // Subscribe to timer event
-    socket.emit('subscribe-to-timer');
-
     // ask for playstate
     socket.emit('get-playstate');
 
+    // Handle playstate
     socket.on('playstate', (data) => {
       setPlayback(data);
     });
@@ -60,7 +57,7 @@ export default function PlaybackControl() {
 
     // Clear listener
     return () => {
-      socket.emit('release-timer');
+      socket.off('playstate');
       socket.off('timer');
     };
   }, [socket]);

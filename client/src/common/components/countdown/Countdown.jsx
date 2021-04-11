@@ -14,11 +14,8 @@ export default function Countdown(props) {
   const [clock, setClock] = useState(time);
   let display = '-- : -- : --';
 
-  console.log('websocket: time and t', time);
-
   useEffect(() => {
     setClock(time);
-    console.log('websocket: time changed', time)
   }, [time]);
 
   // prepare display string

@@ -5,10 +5,7 @@ const router = express.Router();
 const eventsController = require('../controllers/eventsController');
 
 // create route between controller and '/events' endpoint
-router.get('/', eventsController.eventsGet);
-
-// create route between controller and '/events/all' endpoint
-router.get('/all', eventsController.eventsGetAll);
+router.get('/', eventsController.eventsGetAll);
 
 // create route between controller and '/events/:id' endpoint
 router.get('/:id', eventsController.eventsGetById);

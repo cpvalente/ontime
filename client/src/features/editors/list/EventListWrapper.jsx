@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { useEffect } from 'react';
 import { fetchAllEvents } from '../../../app/api/eventsApi.js';
 import EventList from './EventList';
@@ -10,13 +10,12 @@ import { Skeleton } from '@chakra-ui/skeleton';
 import style from './List.module.css';
 
 export default function EventListWrapper() {
-  const { data, status, isError } = useQuery('events', fetchAllEvents);
-  const queryClient = useQueryClient();
-  // TODO: Move to events API?
+  const { data, status, isError, refetch } = useQuery('events', fetchAllEvents);
   const addEvent = useMutation((data) => axios.post(eventsURL, data));
   const updateEvent = useMutation((data) => axios.put(eventsURL, data));
+  const patchEvent = useMutation((data) => axios.patch(eventsURL, data));
   const deleteEvent = useMutation((eventId) =>
-    axios.delete(eventsURL + eventId)
+    axios.delete(eventsURL + '/' + eventId)
   );
 
   // Show toasts on errors
@@ -28,34 +27,35 @@ export default function EventListWrapper() {
 
   // Events API
   const eventsHandler = async (action, payload) => {
-    // Torbjorn: is this a good way to do it?
-    // How do I handle the mutation thing
-    // https://react-query.tanstack.com/guides/invalidations-from-mutations
-    // https://react-query.tanstack.com/guides/updates-from-mutation-responses
+    let needsRefetch = false;
     switch (action) {
       case 'add':
         try {
-          await addEvent
-            .mutateAsync(payload)
-            .then(queryClient.invalidateQueries('events'));
+          await addEvent.mutateAsync(payload).then((needsRefetch = true));
         } catch (error) {
           showErrorToast('Error creating event', error.message);
         }
         break;
       case 'update':
         try {
-          await updateEvent
-            .mutateAsync(payload)
-            .then(queryClient.invalidateQueries('events'));
+          await updateEvent.mutateAsync(payload).then((needsRefetch = true));
+          // TODO: instead of refetching, update the item here
+        } catch (error) {
+          showErrorToast('Error updating event', error.message);
+        }
+        break;
+      case 'patch':
+        try {
+          await patchEvent.mutateAsync(payload).then((needsRefetch = true));
+          // TODO: instead of refetching, update the item here
         } catch (error) {
           showErrorToast('Error updating event', error.message);
         }
         break;
       case 'delete':
         try {
-          await deleteEvent
-            .mutateAsync(payload)
-            .then(queryClient.invalidateQueries('events'));
+          await deleteEvent.mutateAsync(payload).then((needsRefetch = true));
+          needsRefetch = true;
         } catch (error) {
           showErrorToast('Error deleting event', error.message);
         }
@@ -63,6 +63,9 @@ export default function EventListWrapper() {
       default:
         showErrorToast('Unrecognised request', action);
         break;
+    }
+    if (needsRefetch) {
+      refetch();
     }
   };
 

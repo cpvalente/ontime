@@ -2,9 +2,17 @@ import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import style from './EditableText.module.css';
 
 export default function EditableText(props) {
-  const { label, defaultValue, placeholder, handleSubmit } = props;
+  const { label, defaultValue, placeholder, submitHandler } = props;
+
+  const handleSubmit = (submitedVal) => {
+    // No need to update if it hasnt changed
+    if (submitedVal === defaultValue) return;
+
+    submitHandler(submitedVal);
+  };
+
   return (
-    <div style={{ display: 'block' }}>
+    <div className={style.block}>
       <span className={props.underlined ? style.titleUnderlined : style.title}>
         {label}
       </span>
@@ -12,10 +20,10 @@ export default function EditableText(props) {
         onSubmit={(v) => handleSubmit(v)}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        style={{ display: 'inline' }}
+        className={style.inline}
       >
         <EditablePreview />
-        <EditableInput style={{ width: '13em', minWidth: '13em' }} />
+        <EditableInput className={style.editable13} />
       </Editable>
     </div>
   );
