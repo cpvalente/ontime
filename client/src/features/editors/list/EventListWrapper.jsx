@@ -1,22 +1,121 @@
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useEffect } from 'react';
-import { fetchAllEvents } from '../../../app/api/eventsApi.js';
+import {
+  eventsNamespace,
+  fetchAllEvents,
+  requestPatch,
+  requestPost,
+  requestPut,
+  requestDelete,
+} from '../../../app/api/eventsApi.js';
 import EventList from './EventList';
 import EventListMenu from '../../menu/EventListMenu.jsx';
-import axios from 'axios';
 import { showErrorToast } from '../../../common/helpers/toastManager';
-import { eventsURL } from '../../../app/api/eventsApi';
 import { Skeleton } from '@chakra-ui/skeleton';
 import style from './List.module.css';
 
 export default function EventListWrapper() {
-  const { data, status, isError, refetch } = useQuery('events', fetchAllEvents);
-  const addEvent = useMutation((data) => axios.post(eventsURL, data));
-  const updateEvent = useMutation((data) => axios.put(eventsURL, data));
-  const patchEvent = useMutation((data) => axios.patch(eventsURL, data));
-  const deleteEvent = useMutation((eventId) =>
-    axios.delete(eventsURL + '/' + eventId)
+  const queryClient = useQueryClient();
+  const { data, status, isError, refetch } = useQuery(
+    eventsNamespace,
+    fetchAllEvents
   );
+  const addEvent = useMutation(requestPost, {
+    // we optimistically update here
+    onMutate: async (newEvent) => {
+      // cancel ongoing queries
+      queryClient.cancelQueries(eventsNamespace);
+
+      // Snapshot the previous value
+      const previousEvents = queryClient.getQueryData(eventsNamespace);
+
+      // optimistically update object, temp ID until refetch
+      queryClient.setQueryData(eventsNamespace, (old) => [
+        ...old,
+        { ...newEvent, id: new Date().toISOString() },
+      ]);
+
+      // Return a context with the previous and new todo
+      return { previousEvents };
+    },
+
+    // Mutation fails, rollback undos optimist update
+    onError: (error, newEvent, context) => {
+      queryClient.setQueryData(eventsNamespace, context.previousEvents);
+    },
+    // Mutation finished, failed or successful
+    // Fetch anyway, just to be sure
+    onSettled: () => {
+      queryClient.invalidateQueries(eventsNamespace);
+    },
+  });
+  const updateEvent = useMutation(requestPut, {
+    // we optimistically update here
+    onMutate: async (newEvent) => {
+      // cancel ongoing queries
+      queryClient.cancelQueries([eventsNamespace, newEvent.id]);
+
+      // Snapshot the previous value
+      const previousEvent = queryClient.getQueryData([
+        eventsNamespace,
+        newEvent.id,
+      ]);
+
+      // optimistically update object
+      queryClient.setQueryData([eventsNamespace, newEvent.id], newEvent);
+
+      // Return a context with the previous and new todo
+      return { previousEvent, newEvent };
+    },
+
+    // Mutation fails, rollback undos optimist update
+    onError: (error, newEvent, context) => {
+      queryClient.setQueryData(
+        [eventsNamespace, context.newEvent.id],
+        context.previousEvent
+      );
+    },
+    // Mutation finished, failed or successful
+    // Fetch anyway, just to be sure
+    onSettled: (newEvent) => {
+      queryClient.invalidateQueries([eventsNamespace, newEvent.id]);
+    },
+  });
+
+  const patchEvent = useMutation(requestPatch, {
+    // we optimistically update here
+    onMutate: async (newEvent) => {
+      // cancel ongoing queries
+      queryClient.cancelQueries([eventsNamespace, newEvent.id]);
+
+      // Snapshot the previous value
+      const previousEvent = queryClient.getQueryData([
+        eventsNamespace,
+        newEvent.id,
+      ]);
+
+      // optimistically update object
+      queryClient.setQueryData([eventsNamespace, newEvent.id], newEvent);
+
+      // Return a context with the previous and new todo
+      return { previousEvent, newEvent };
+    },
+
+    // Mutation fails, rollback undos optimist update
+    onError: (error, newEvent, context) => {
+      queryClient.setQueryData(
+        [eventsNamespace, context.newEvent.id],
+        context.previousEvent
+      );
+    },
+    // Mutation finished, failed or successful
+    // Fetch anyway, just to be sure
+    onSettled: (newEvent) => {
+      queryClient.invalidateQueries([eventsNamespace, newEvent.id]);
+    },
+  });
+
+  const deleteEvent = useMutation(requestDelete);
 
   // Show toasts on errors
   useEffect(() => {
@@ -31,31 +130,29 @@ export default function EventListWrapper() {
     switch (action) {
       case 'add':
         try {
-          await addEvent.mutateAsync(payload).then((needsRefetch = true));
+          await addEvent.mutateAsync(payload);
         } catch (error) {
           showErrorToast('Error creating event', error.message);
         }
         break;
       case 'update':
         try {
-          await updateEvent.mutateAsync(payload).then((needsRefetch = true));
-          // TODO: instead of refetching, update the item here
+          await updateEvent.mutateAsync(payload);
         } catch (error) {
           showErrorToast('Error updating event', error.message);
         }
         break;
       case 'patch':
         try {
-          await patchEvent.mutateAsync(payload).then((needsRefetch = true));
-          // TODO: instead of refetching, update the item here
+          await patchEvent.mutateAsync(payload);
         } catch (error) {
           showErrorToast('Error updating event', error.message);
         }
         break;
       case 'delete':
+        // TODO: could do optimistic update here?
         try {
           await deleteEvent.mutateAsync(payload).then((needsRefetch = true));
-          needsRefetch = true;
         } catch (error) {
           showErrorToast('Error deleting event', error.message);
         }

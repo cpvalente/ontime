@@ -113,7 +113,7 @@ exports.eventsPatch = async (req, res) => {
   const newEvents = replaceAt(events, itemIndex, updatedEvent);
 
   events = [...newEvents];
-  res.sendStatus(200);
+  res.send(updatedEvent);
 };
 
 // Create controller for DELETE request to '/events/'
@@ -128,8 +128,7 @@ exports.eventsDelete = async (req, res) => {
   if (itemIndex === -1) {
     res.sendStatus(400);
     return;
-  }
-  else if (itemIndex === 0) events.shift();
+  } else if (itemIndex === 0) events.shift();
   else events.splice(itemIndex, 1);
 
   // Update events

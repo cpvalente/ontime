@@ -10,6 +10,7 @@ export default function EditableTimer(props) {
 
   // prepare time fields
   useEffect(() => {
+    if (time == null) return;
     setValue(addAndFormat(time, delay));
   }, [time, delay]);
 

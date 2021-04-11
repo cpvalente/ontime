@@ -3,8 +3,8 @@ const event = {
   title: '',
   subtitle: '',
   presenter: '',
-  timeStart: new Date(),
-  timeEnd: new Date(),
+  timeStart: null,
+  timeEnd: null,
   clockStarted: null,
   type: 'event',
 };
