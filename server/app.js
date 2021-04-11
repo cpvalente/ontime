@@ -52,24 +52,42 @@ const io = socketIo(server, {
   },
 });
 
+// Torbjorn: should the interval be here or inside the connection?
+//  I am guessing one interval per timer
 // interval function
 let interval;
 
 io.on('connection', (socket) => {
   console.log('New client connected');
 
-  // timer API
-  socket.emit('timer', timer.getObject());
+  // let interval = null;
 
-  // avoid multiple intervals
-  if (interval) {
-    clearInterval(interval);
-  }
-  // set callback for timer events
-  interval = setInterval(() => getApiAndEmit(socket), config.timer.refresh);
+  // subscribe to timer
+  socket.on('subscribe-to-timer', () => {
+    console.log('New subscription');
+    // avoid multiple intervals
+    if (interval) clearInterval(interval);
+
+    // send current data
+    socket.emit('timer', timer.getObject());
+
+    // set callback for timer events
+    interval = setInterval(() => emitTimer(socket), config.timer.refresh);
+  });
+
+  // unsubscribe to timer
+  socket.on('release-timer', () => {
+    console.log('Releasing subscription');
+    // avoid multiple intervals
+    if (interval) clearInterval(interval);
+  });
 
   socket.on('get-timer', () => {
     socket.emit('timer', timer.getObject());
+  });
+
+  socket.on('get-playstate', () => {
+    socket.emit('playstate', timer.playState);
   });
 
   // playback API
@@ -104,12 +122,12 @@ io.on('connection', (socket) => {
   // handle client disconnect
   socket.on('disconnect', () => {
     console.log('Client disconnected');
-    clearInterval(interval);
+    if (interval) clearInterval(interval);
   });
 });
 
 // send timer events
-const getApiAndEmit = (socket) => {
+const emitTimer = (socket) => {
   // send current timer
   socket.emit('timer', timer.getObject());
 };

@@ -39,22 +39,31 @@ export default function PlaybackControl() {
     expectedFinish: null,
   });
 
-  // Torbjorn: why is this not updating?
+  // handle incoming messages
   useEffect(() => {
     if (socket == null) return;
 
+    // Subscribe to timer event
+    socket.emit('subscribe-to-timer');
+
+    // ask for playstate
+    socket.emit('get-playstate');
+
+    socket.on('playstate', (data) => {
+      setPlayback(data);
+    });
+
     // Handle timer
     socket.on('timer', (data) => {
-      console.log('websocket: got data', data);
       setTimer({ ...data });
     });
 
     // Clear listener
-    return () => socket.off('timer');
+    return () => {
+      socket.emit('release-timer');
+      socket.off('timer');
+    };
   }, [socket]);
-
-  // TO SEND TO SOCKET HERE WE CAN USE
-  // socket.emit('test')
 
   // TODO: Move to playback API
   // Soould this go through sockets?

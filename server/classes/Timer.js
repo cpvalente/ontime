@@ -88,6 +88,10 @@ class Timer {
     return Timer.toSeconds(this._current);
   }
 
+  get playState() {
+    return this.state;
+  }
+
   // playback
   start() {
     // do we need to change
