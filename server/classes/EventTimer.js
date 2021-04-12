@@ -44,17 +44,14 @@ class EventTimer extends Timer {
   loadEvent(eventIndex) {
     // set event specific
     const e = this._eventList[eventIndex];
-    const start =
-      e.timeStart == null || e.timeStart === '' ? 0 : new Date(e.timeStart);
-    const end =
-      e.timeEnd == null || e.timeEnd === '' ? 0 : new Date(e.timeEnd);
+    const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
+    const end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
 
     this._resetTimers();
     this.duration = end - start;
     this.current = this.duration;
     this.selectedEvent = eventIndex;
     this.selectedEventId = e.id;
-    
   }
 
   print() {

@@ -29,11 +29,6 @@ export const millisToMinutes = (millis) => {
   return Math.floor(millis / 60000);
 };
 
-// make date with string
-export const timeToDate = (time) => {
-  return new Date(refDate.toDateString() + ' ' + time);
-};
-
 // timeStringToMillis
 export const timeStringToMillis = (string) => {
   let time = string.split(':');

@@ -11,7 +11,7 @@ const event = {
 
 const delay = {
   order: 0,
-  timerDuration: 0,
+  duration: 0,
   type: 'delay',
 };
 

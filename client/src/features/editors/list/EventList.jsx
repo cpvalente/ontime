@@ -39,7 +39,7 @@ export default function EventList(props) {
             />
           );
         } else if (e.type === 'delay') {
-          cumulativeDelay = cumulativeDelay + e.timerDuration;
+          cumulativeDelay = cumulativeDelay + e.duration;
           return (
             <DelayBlock
               key={e.id}

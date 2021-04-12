@@ -36,13 +36,13 @@ export default function DefaultPresenter() {
 
   const timer = differenceInSeconds(
     now,
-    subMinutes(clockStarted, values.timerDuration)
+    subMinutes(clockStarted, values.duration)
   );
 
   const timeStart = format(values.timeStart, 'HH:mm');
   const currentTime = format(now, 'HH:mm');
   const timeEnd = format(values.timeEnd, 'HH:mm');
-  const elapsed = timer / (values.timerDuration * 60);
+  const elapsed = timer / (values.duration * 60);
 
   return (
     <div className='presenter'>

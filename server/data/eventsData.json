@@ -1,54 +1,64 @@
 [
   {
-    "id":"5ce39a29-a70c-426a-9ce2-f97782049c71",
+    "id":"xxxxx0",
     "order": 0,
-    "timerDuration": 5,
+    "duration": 300000,
     "type": "delay"
   },
   {
-    "id": "5ce39a29-a70c-426a-9ce2-f97782049c72",
+    "id":"xxxxx1",
     "order": 1,
     "title": "Is the internet a fad?",
     "subtitle": "It is",
     "presenter": "Carlos Valente",
-    "timeStart": "2020-04-09T11:25:43.511Z",
-    "timeEnd": "2020-04-09T12:25:43.511Z",
+    "timeStart": 32400000,
+    "timeEnd": 34200000,
     "type": "event"
   },
   {
-    "id":"5ce39a29-a70c-426a-9ce2-f97782049c73",
+    "id":"xxxxx2",
     "order": 2,
-    "timerDuration": 25,
+    "duration": 1500000,
     "type": "delay"
   },
   {
-    "id": "5ce39a29-a70c-426a-9ce2-f97782049c74",
+    "id":"xxxxx3",
     "order": 3,
     "title": "Is reddit a dictatorship?",
     "subtitle": "It is",
     "presenter": "Carlos Valente",
-    "timeStart": "2020-04-09T13:25:43.511Z",
-    "timeEnd": "2020-04-09T14:25:43.511Z",
+    "timeStart": 34200000,
+    "timeEnd": 36000000,
     "type": "event"
   },
   {
-    "id": "5ce39a29-a70c-426a-9ce2-f97782049c75",
+    "id":"xxxxx4",
     "order": 4,
     "title": "Out of words",
     "subtitle": "",
     "presenter": "Carlos Valente",
-    "timeStart": "2020-04-09T15:25:43.511Z",
-    "timeEnd": "2020-04-09T16:25:43.511Z",
+    "timeStart": 36000000,
+    "timeEnd": 39600000,
     "type": "event"
   },
   {
-    "id": "5ce39a29-a70c-426a-9ce2-f97782049c76",
+    "id":"xxxxx5",
     "order": 5,
     "title": "Really",
     "subtitle": "",
     "presenter": "Carlos Valente",
-    "timeStart": "2020-04-09T17:25:43.511Z",
-    "timeEnd": "2020-04-09T18:25:43.511Z",
+    "timeStart": 39600000,
+    "timeEnd": 41400000,
+    "type": "event"
+  },
+  {
+    "id":"xxxxx6",
+    "order": 6,
+    "title": "...",
+    "subtitle": "",
+    "presenter": "Carlos Valente",
+    "timeStart": null,
+    "timeEnd": null,
     "type": "event"
   }
 ]

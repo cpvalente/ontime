@@ -20,7 +20,7 @@ class Timer {
   // call setup separately
   setupWithSeconds(seconds, autoStart = false) {
     // aux
-    const now = new Date().getTime();
+    const now = this._getCurrentTime();
 
     // populate targets
     this.duration = seconds * 1000;
@@ -42,7 +42,7 @@ class Timer {
   // update()
   update() {
     // get current time
-    const now = new Date().getTime();
+    const now = this._getCurrentTime();
 
     // check playstate
     switch (this.state) {
@@ -72,7 +72,18 @@ class Timer {
     return Math.floor(Math.max(millis * 0.001), 0);
   }
 
+  // get current time in epoc
+  _getCurrentTime() {
+    // date today at midnight
+    let now = new Date();
+    let midnight = new Date(now).setHours(0, 0, 0);
+
+    // return diffence
+    return now - midnight;
+  }
+
   _getExpectedFinish() {
+    if (this._finishAt == null) return null;
     return this._finishAt + (this._pausedInterval + this._pausedTotal);
   }
 
@@ -88,6 +99,7 @@ class Timer {
   // getObject
   getObject() {
     this.update();
+
     return {
       currentSeconds: Timer.toSeconds(this.current),
       expectedFinish: this._getExpectedFinish(),
@@ -111,7 +123,7 @@ class Timer {
     // do we need to change
     if (this.state === 'start') return;
     else if (this.state === 'stop') {
-      const now = new Date().getTime();
+      const now = this._getCurrentTime();
       this._startedAt = now;
       this._finishAt = now + this.duration;
     } else {
@@ -130,7 +142,7 @@ class Timer {
     if (this.state === 'pause') return;
 
     // update pause time
-    this._pausedAt = new Date().getTime();
+    this._pausedAt = this._getCurrentTime();
 
     // change state
     this.state = 'pause';

@@ -1,9 +1,6 @@
-import { IconButton } from '@chakra-ui/button';
 import style from './PlaybackControl.module.css';
 import Countdown from '../../common/components/countdown/Countdown';
-import { FiPause, FiSkipBack, FiSkipForward, FiClock } from 'react-icons/fi';
-import { format } from 'date-fns';
-import { timeFormatSeconds } from '../../common/dateConfig';
+import { stringFromMillis } from '../../common/dateConfig';
 import { useEffect, useState } from 'react';
 import {
   getStart,
@@ -13,7 +10,6 @@ import {
   getNext,
 } from '../../app/api/playbackApi';
 import { useSocket } from '../../app/context/socketContext';
-import PlayIconButton from '../../common/components/buttons/StartIconBtn';
 import StartIconBtn from '../../common/components/buttons/StartIconBtn';
 import PauseIconBtn from '../../common/components/buttons/PauseIconBtn';
 import PrevIconBtn from '../../common/components/buttons/PrevIconBtn';
@@ -92,12 +88,8 @@ export default function PlaybackControl() {
     }
   };
 
-  const started = timer?.startedAt
-    ? format(timer.startedAt, timeFormatSeconds)
-    : '...';
-  const finish = timer?.expectedFinish
-    ? format(timer.expectedFinish, timeFormatSeconds)
-    : '...';
+  const started = stringFromMillis(timer.startedAt, true);
+  const finish = stringFromMillis(timer.expectedFinish, true);
 
   return (
     <div className={style.mainContainer}>
