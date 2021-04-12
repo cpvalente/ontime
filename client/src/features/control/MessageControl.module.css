@@ -1,13 +1,10 @@
 .inputContainer,
 .inputContainerWGap {
   display: flex;
+  align-items: flex-end;
   gap: 1em;
 }
 
 .inputContainerWGap {
   padding-top: 1em;
-}
-
-.btn {
-  align-self: flex-end;
 }

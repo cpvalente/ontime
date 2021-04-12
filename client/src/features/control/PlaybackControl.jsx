@@ -1,13 +1,7 @@
 import { IconButton } from '@chakra-ui/button';
 import style from './PlaybackControl.module.css';
 import Countdown from '../../common/components/countdown/Countdown';
-import {
-  FiPlay,
-  FiPause,
-  FiSkipBack,
-  FiSkipForward,
-  FiClock,
-} from 'react-icons/fi';
+import { FiPause, FiSkipBack, FiSkipForward, FiClock } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { timeFormatSeconds } from '../../common/dateConfig';
 import { useEffect, useState } from 'react';
@@ -19,16 +13,12 @@ import {
   getNext,
 } from '../../app/api/playbackApi';
 import { useSocket } from '../../app/context/socketContext';
-
-// BUTTON DEFINITION
-const defProps = {
-  colorScheme: 'blackAlpha',
-  variant: 'outline',
-};
-
-const size = {
-  width: 90,
-};
+import PlayIconButton from '../../common/components/buttons/StartIconBtn';
+import StartIconBtn from '../../common/components/buttons/StartIconBtn';
+import PauseIconBtn from '../../common/components/buttons/PauseIconBtn';
+import PrevIconBtn from '../../common/components/buttons/PrevIconBtn';
+import NextIconBtn from '../../common/components/buttons/NextIconBtn';
+import RollIconBtn from '../../common/components/buttons/RollIconBtn';
 
 export default function PlaybackControl() {
   const socket = useSocket();
@@ -39,11 +29,18 @@ export default function PlaybackControl() {
     expectedFinish: null,
   });
 
+  const updateState = () => {
+    if (socket == null) return;
+
+    // ask for playstate
+    socket.emit('get-state');
+  };
+
   // handle incoming messages
   useEffect(() => {
     if (socket == null) return;
-    // ask for playstate
-    socket.emit('get-playstate');
+
+    updateState();
 
     // Handle playstate
     socket.on('playstate', (data) => {
@@ -67,11 +64,15 @@ export default function PlaybackControl() {
   const playbackControl = async (action, payload) => {
     switch (action) {
       case 'start': {
-        await getStart().then((res) => res.ok && setPlayback('start'));
+        await getStart().then(
+          (res) => res.statusText === 'OK' && setPlayback('start')
+        );
         break;
       }
       case 'pause': {
-        await getPause().then((res) => res.ok && setPlayback('pause'));
+        await getPause().then(
+          (res) => res.statusText === 'OK' && setPlayback('pause')
+        );
         break;
       }
       case 'roll': {
@@ -79,11 +80,11 @@ export default function PlaybackControl() {
         break;
       }
       case 'previous': {
-        await getPrevious().then((res) => console.log(res));
+        await getPrevious().then(updateState);
         break;
       }
       case 'next': {
-        await getNext().then((res) => console.log(res));
+        await getNext().then(updateState);
         break;
       }
       default:
@@ -115,38 +116,19 @@ export default function PlaybackControl() {
       </div>
 
       <div className={style.playbackContainer}>
-        <IconButton
-          {...size}
-          icon={<FiPlay />}
-          colorScheme='green'
-          onClick={() => playbackControl('start')}
-          variant={playback === 'start' ? 'solid' : 'outline'}
+        <StartIconBtn
+          active={playback === 'start'}
+          clickHandler={() => playbackControl('start')}
         />
-        <IconButton
-          {...size}
-          icon={<FiPause />}
-          colorScheme='orange'
-          onClick={() => playbackControl('pause')}
-          variant={playback === 'pause' ? 'solid' : 'outline'}
+        <PauseIconBtn
+          active={playback === 'pause'}
+          clickHandler={() => playbackControl('pause')}
         />
-        <IconButton
-          {...size}
-          {...defProps}
-          icon={<FiSkipBack />}
-          onClick={() => playbackControl('previous')}
-        />
-        <IconButton
-          {...size}
-          {...defProps}
-          icon={<FiSkipForward />}
-          onClick={() => playbackControl('next')}
-        />
-        <IconButton
-          {...size}
-          icon={<FiClock />}
-          colorScheme='blue'
-          onClick={() => playbackControl('roll')}
-          variant={playback === 'roll' ? 'solid' : 'outline'}
+        <PrevIconBtn clickHandler={() => playbackControl('previous')} />
+        <NextIconBtn clickHandler={() => playbackControl('next')} />
+        <RollIconBtn
+          active={playback === 'roll'}
+          clickHandler={() => playbackControl('roll')}
         />
       </div>
     </div>

@@ -1,16 +1,9 @@
-import { IconButton } from '@chakra-ui/button';
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
-import { FiSun } from 'react-icons/fi';
 import { Input } from '@chakra-ui/input';
 import { useEffect, useState } from 'react';
 import { useSocket } from '../../app/context/socketContext';
+import VisibleIconBtn from '../../common/components/buttons/VisibleIconBtn';
 import style from './MessageControl.module.css';
-
-// Button definition
-const btnDef = {
-  colorScheme: 'blue',
-  icon: <FiSun />,
-};
 
 export default function MessageControl() {
   const socket = useSocket();
@@ -79,11 +72,10 @@ export default function MessageControl() {
             }
           />
         </FormControl>
-        <IconButton
-          className={style.btn}
-          {...btnDef}
-          variant={pres.visible ? 'solid' : 'outline'}
-          onClick={() => messageControl('toggle-pres-visible')}
+        <VisibleIconBtn
+          size='md'
+          active={pres.visible}
+          clickHandler={() => messageControl('toggle-pres-visible')}
         />
       </div>
 
@@ -97,11 +89,10 @@ export default function MessageControl() {
             }
           />
         </FormControl>
-        <IconButton
-          className={style.btn}
-          {...btnDef}
-          variant={publ.visible ? 'solid' : 'outline'}
-          onClick={() => messageControl('toggle-publ-visible')}
+        <VisibleIconBtn
+          size='md'
+          active={publ.visible}
+          clickHandler={() => messageControl('toggle-publ-visible')}
         />
       </div>
     </>
