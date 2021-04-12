@@ -1,22 +1,41 @@
-import { addMinutes, format, parseISO } from 'date-fns';
 
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 
+// time string from miliseconds
+export const stringFromMillis = (
+  ms,
+  showSeconds = true,
+  delim = ':',
+  ifNull = '...'
+) => {
+  if (ms === null) return ifNull;
+  const showWith0 = (value) => (value < 10 ? `0${value}` : value);
+  const hours = showWith0(Math.floor((ms / (1000 * 60 * 60)) % 60));
+  const minutes = showWith0(Math.floor((ms / (1000 * 60)) % 60));
+  const seconds = showWith0(Math.floor((ms / 1000) % 60));
+  return showSeconds
+    ? `${parseInt(hours) ? `${hours}${delim}` : ''}${minutes}${delim}${seconds}`
+    : `${parseInt(hours) ? `${hours}${delim}` : ''}${minutes}`;
+};
+
+// millis to seconds
+export const millisToSeconds = (millis) => {
+  return Math.floor(millis / 1000);
+};
+
+// millis to minutes
+export const millisToMinutes = (millis) => {
+  return Math.floor(millis / 60000);
+};
+
 // make date with string
 export const timeToDate = (time) => {
-  const today = new Date();
-  return new Date(today.toDateString() + ' ' + time);
+  return new Date(refDate.toDateString() + ' ' + time);
 };
 
-// utility to parse and format
-export const dateToTime = (time) => {
-  const fTime = parseISO(time, 1);
-  return format(fTime, timeFormat);
-};
-
-// small shorthand for adding delay and formatting date
-export const addAndFormat = (time, delay) => {
-  const fTime = parseISO(time, 1);
-  return format(addMinutes(fTime, delay), timeFormat);
+// timeStringToMillis
+export const timeStringToMillis = (string) => {
+  let time = string.split(':');
+  return time[0] * 3600000 + time[1] * 60000;
 };
