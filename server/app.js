@@ -14,11 +14,16 @@ const playbackRouter = require('./routes/playbackRouter.js');
 const port = process.env.PORT || config.server.port;
 
 // Global Objects
+const eventlist = require('./data/eventsData.json');
 const EventTimer = require('./classes/EventTimer.js');
+
 // TODO: this should be replaced by some sort of calculation
 let durationForNow = 5400;
 global.timer = new EventTimer();
-timer.setupWithSeconds(durationForNow, true);
+timer.setupWithEventList(eventlist);
+// timer.setupWithSeconds(durationForNow, true);
+
+console.log(timer.print());
 
 // Socket
 const initiateSocket = require('./controllers/socketController.js');

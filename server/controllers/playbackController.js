@@ -47,13 +47,13 @@ exports.pbRoll = async (req, res) => {
 // Create controller for GET request to '/playback/previous'
 // Sets timer object to roll mode
 exports.pbPrevious = async (req, res) => {
-  console.log('previous: not implemented');
-  res.sendStatus(501);
+  global.timer.previous();
+  res.sendStatus(200);
 };
 
 // Create controller for GET request to '/playback/next'
 // Sets timer object to roll mode
 exports.pbNext = async (req, res) => {
-  console.log('next: not implemented');
-  res.sendStatus(501);
+  global.timer.next();
+  res.sendStatus(200);
 };

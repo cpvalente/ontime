@@ -20,11 +20,10 @@ const initiateSocket = (server, config) => {
     // send current data
     socket.emit('timer', global.timer.getObject());
 
-    // unsubscribe to timer
-    socket.on('release-timer', () => {
-      console.log('Releasing subscription');
-      // avoid multiple intervals
-      if (interval) clearInterval(interval);
+    socket.on('get-state', () => {
+      socket.emit('timer', global.timer.getObject());
+      socket.emit('playstate', global.timer.playState);
+      socket.emit('selected-id', global.timer.selectedEventId);
     });
 
     socket.on('get-timer', () => {
@@ -33,6 +32,10 @@ const initiateSocket = (server, config) => {
 
     socket.on('get-playstate', () => {
       socket.emit('playstate', global.timer.playState);
+    });
+
+    socket.on('get-selected-id', () => {
+      socket.emit('selected-id', global.timer.selectedEventId);
     });
 
     // playback API
