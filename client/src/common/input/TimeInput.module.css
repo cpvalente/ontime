@@ -1,0 +1,9 @@
+.timeInput {
+  display: flex;
+  font-size: 15px;
+}
+
+.label {
+  color: #0005;
+  padding-left: 0.8em;
+}
