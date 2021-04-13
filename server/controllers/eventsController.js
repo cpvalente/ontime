@@ -12,6 +12,10 @@ const replaceAt = (array, index, value) => {
   return ret;
 };
 
+const getEvents = () => {
+  return global.timer.events;
+};
+
 // Create controller for GET request to '/events/all'
 // Returns -
 exports.eventsGetAll = async (req, res) => {

@@ -17,6 +17,15 @@ class EventTimer extends Timer {
     text: '',
     visible: false,
   };
+  lower = {
+    text: '',
+    visible: false,
+  };
+  titles = {
+    title: '',
+    subtitle: '',
+    presenter: '',
+  };
 
   selectedEvent = null;
   selectedEventId = null;
@@ -47,15 +56,20 @@ class EventTimer extends Timer {
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
     const end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
 
+    // time stuff
     this._resetTimers();
     this.duration = end - start;
     this.current = this.duration;
     this.selectedEvent = eventIndex;
     this.selectedEventId = e.id;
+
+    // event titles
+    this.titles.title = e.title;
+    this.titles.subtitle = e.subtitle;
+    this.titles.presenter = e.presenter;
   }
 
   print() {
-    // TODO: better formatting?
     return `
       Timer
       =========
@@ -72,9 +86,12 @@ class EventTimer extends Timer {
 
       Events
       ------------------------------
+      numEvents       = ${this.numEvents}
       selectedEvent   = ${this.selectedEvent}
       selectedEventId = ${this.selectedEventId}
-      numEvents       = ${this.numEvents}
+      title           = ${this.titles.title}
+      subtitle        = ${this.titles.subtitle}
+      presenter       = ${this.titles.presenter}
 
       Messages
       ------------------------------
@@ -82,6 +99,8 @@ class EventTimer extends Timer {
       presenter vis   = ${this.presenter.visible}
       public text     = ${this.public.text}
       public vis      = ${this.public.visible}
+      lower text      = ${this.lower.text}
+      lower vis       = ${this.lower.visible}
 
       Private
       ------------------------------
@@ -109,6 +128,14 @@ class EventTimer extends Timer {
     this.public.visible = state;
   }
 
+  set lowerText(text) {
+    this.lower.text = text;
+  }
+
+  set lowerVisible(state) {
+    this.lower.visible = state;
+  }
+
   get presenter() {
     return this.presenter;
   }
@@ -117,7 +144,24 @@ class EventTimer extends Timer {
     return this.public;
   }
 
-  _getEventData() {}
+  get lower() {
+    return this.lower;
+  }
+
+  get titles() {
+    return this.titles;
+  }
+
+  getEventData() {}
+
+  get events() {
+    return this._eventList;
+  }
+
+  // Torbjorn: is this a good idea?
+  set events(events) {
+    this._eventList = events;
+  }
 
   goto(eventIndex) {
     this.loadEvent(eventIndex);

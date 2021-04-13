@@ -12,7 +12,7 @@ function SocketProvider(props) {
   const [socket, setSocket] = useState();
 
   useEffect(() => {
-    const socket = io(serverURL);
+    const socket = io(serverURL, { transports: ['websocket'] });
     setSocket(socket);
     return () => socket.disconnect();
   }, []);

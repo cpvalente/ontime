@@ -24,6 +24,11 @@ const initiateSocket = (server, config) => {
       socket.emit('timer', global.timer.getObject());
       socket.emit('playstate', global.timer.playState);
       socket.emit('selected-id', global.timer.selectedEventId);
+      socket.emit('titles', global.timer.titles);
+    });
+
+    socket.on('get-current', () => {
+      socket.emit('current', global.timer.getCurrentInSeconds());
     });
 
     socket.on('get-timer', () => {
@@ -38,22 +43,25 @@ const initiateSocket = (server, config) => {
       socket.emit('selected-id', global.timer.selectedEventId);
     });
 
-    // playback API
+    socket.on('get-titles', () => {
+      socket.emit('titles', global.timer.titles);
+    });
 
+    // playback API
     socket.on('get-messages', () => {
-      socket.emit('messages-presenter', global.timer.presenter);
-      socket.emit('messages-public', global.timer.public);
-      socket.emit('messages-lower', global.timer.lower);
+      broadcast(io, 'messages-presenter', global.timer.presenter);
+      broadcast(io, 'messages-public', global.timer.public);
+      broadcast(io, 'messages-lower', global.timer.lower);
     });
 
     socket.on('set-presenter-text', (data) => {
       global.timer.presenterText = data;
-      socket.emit('messages-presenter', global.timer.presenter);
+      broadcast(io, 'messages-presenter', global.timer.presenter);
     });
 
     socket.on('set-presenter-visible', (data) => {
       global.timer.presenterVisible = data;
-      socket.emit('messages-presenter', global.timer.presenter);
+      broadcast(io, 'messages-presenter', global.timer.presenter);
     });
 
     socket.on('get-presenter', () => {
@@ -62,12 +70,12 @@ const initiateSocket = (server, config) => {
 
     socket.on('set-public-text', (data) => {
       global.timer.publicText = data;
-      socket.emit('messages-public', global.timer.public);
+      broadcast(io, 'messages-public', global.timer.public);
     });
 
     socket.on('set-public-visible', (data) => {
       global.timer.publicVisible = data;
-      socket.emit('messages-public', global.timer.public);
+      broadcast(io, 'messages-public', global.timer.public);
     });
 
     socket.on('get-public', () => {
@@ -76,12 +84,12 @@ const initiateSocket = (server, config) => {
 
     socket.on('set-lower-text', (data) => {
       global.timer.lowerText = data;
-      socket.emit('messages-lower', global.timer.lower);
+      broadcast(io, 'messages-lower', global.timer.lower);
     });
 
     socket.on('set-lower-visible', (data) => {
       global.timer.lowerVisible = data;
-      socket.emit('messages-lower', global.timer.lower);
+      broadcast(io, 'messages-lower', global.timer.lower);
     });
 
     socket.on('get-lower', () => {
@@ -90,7 +98,11 @@ const initiateSocket = (server, config) => {
   });
 };
 
-// send timer events
+const broadcast = (socket, address, payload) => {
+  socket.emit(address, payload);
+};
+
+// broadcast: send timer events
 const emitTimer = (socket) => {
   // send current timer
   socket.emit('timer', global.timer.getObject());
