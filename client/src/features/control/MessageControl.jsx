@@ -1,9 +1,13 @@
-import { FormControl, FormLabel } from '@chakra-ui/form-control';
+import { FormControl } from '@chakra-ui/form-control';
 import { Input } from '@chakra-ui/input';
 import { useEffect, useState } from 'react';
 import { useSocket } from '../../app/context/socketContext';
 import VisibleIconBtn from '../../common/components/buttons/VisibleIconBtn';
 import style from './MessageControl.module.css';
+
+const inputProps = {
+  size: 'sm',
+};
 
 export default function MessageControl() {
   const socket = useSocket();
@@ -12,6 +16,10 @@ export default function MessageControl() {
     visible: false,
   });
   const [publ, setPubl] = useState({
+    text: '',
+    visible: false,
+  });
+  const [lower, setLower] = useState({
     text: '',
     visible: false,
   });
@@ -29,14 +37,19 @@ export default function MessageControl() {
       setPubl({ ...data });
     });
 
+    // Handle lower third messages
+    socket.on('messages-lower', (data) => {
+      setLower({ ...data });
+    });
+
     // Ask for up to date data
-    socket.emit('get-presenter');
-    socket.emit('get-public');
+    socket.emit('get-messages');
 
     // Clear listeners
     return () => {
       socket.off('messages-public');
       socket.off('messages-presenter');
+      socket.off('messages-lower');
     };
   }, [socket]);
 
@@ -54,6 +67,12 @@ export default function MessageControl() {
       case 'toggle-publ-visible':
         socket.emit('set-public-visible', !publ.visible);
         break;
+      case 'lower-text':
+        socket.emit('set-lower-text', payload);
+        break;
+      case 'toggle-lower-visible':
+        socket.emit('set-lower-visible', !lower.visible);
+        break;
 
       default:
         break;
@@ -64,35 +83,55 @@ export default function MessageControl() {
     <>
       <div className={style.inputContainer}>
         <FormControl id='presenterMessage'>
-          <FormLabel>Presenter screen message</FormLabel>
+          <span className={style.label}>Presenter screen message</span>
           <Input
             placeholder='only the presenter screens see this'
             onChange={(event) =>
               messageControl('pres-text', event.target.value)
             }
+            {...inputProps}
           />
         </FormControl>
         <VisibleIconBtn
-          size='md'
           active={pres.visible}
           clickHandler={() => messageControl('toggle-pres-visible')}
+          {...inputProps}
         />
       </div>
 
       <div className={style.inputContainerWGap}>
         <FormControl id='generalMessage'>
-          <FormLabel>Public screen message</FormLabel>
+          <span className={style.label}>Public screen message</span>
           <Input
             placeholder='all screens will render this'
             onChange={(event) =>
               messageControl('publ-text', event.target.value)
             }
+            {...inputProps}
           />
         </FormControl>
         <VisibleIconBtn
-          size='md'
           active={publ.visible}
           clickHandler={() => messageControl('toggle-publ-visible')}
+          {...inputProps}
+        />
+      </div>
+
+      <div className={style.inputContainerWGap}>
+        <FormControl id='lowerMessage'>
+          <span className={style.label}>Lower third message</span>
+          <Input
+            placeholder='visible in lower third screen'
+            onChange={(event) =>
+              messageControl('lower-text', event.target.value)
+            }
+            {...inputProps}
+          />
+        </FormControl>
+        <VisibleIconBtn
+          active={lower.visible}
+          clickHandler={() => messageControl('toggle-lower-visible')}
+          {...inputProps}
         />
       </div>
     </>

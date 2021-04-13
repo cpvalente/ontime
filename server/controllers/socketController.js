@@ -39,6 +39,13 @@ const initiateSocket = (server, config) => {
     });
 
     // playback API
+
+    socket.on('get-messages', () => {
+      socket.emit('messages-presenter', global.timer.presenter);
+      socket.emit('messages-public', global.timer.public);
+      socket.emit('messages-lower', global.timer.lower);
+    });
+
     socket.on('set-presenter-text', (data) => {
       global.timer.presenterText = data;
       socket.emit('messages-presenter', global.timer.presenter);
@@ -67,6 +74,19 @@ const initiateSocket = (server, config) => {
       socket.emit('messages-public', global.timer.public);
     });
 
+    socket.on('set-lower-text', (data) => {
+      global.timer.lowerText = data;
+      socket.emit('messages-lower', global.timer.lower);
+    });
+
+    socket.on('set-lower-visible', (data) => {
+      global.timer.lowerVisible = data;
+      socket.emit('messages-lower', global.timer.lower);
+    });
+
+    socket.on('get-lower', () => {
+      socket.emit('messages-lower', global.timer.lower);
+    });
   });
 };
 
