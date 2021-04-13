@@ -2,9 +2,31 @@ import style from './List.module.css';
 import DelayBlock from './DelayBlock';
 import BlockBlock from './BlockBlock';
 import EventBlock from './EventBlock';
+import { useEffect, useState } from 'react';
+import { useSocket } from '../../../app/context/socketContext';
 
 export default function EventList(props) {
-  const { events, selected, eventsHandler } = props;
+  const { events, eventsHandler } = props;
+  const socket = useSocket();
+  const [selected, setSelected] = useState(null);
+
+  // handle incoming messages
+  useEffect(() => {
+    if (socket == null) return;
+
+    // ask for playstate
+    socket.emit('get-selected-id');
+
+    // Handle playstate
+    socket.on('selected-id', (data) => {
+      setSelected(data);
+    });
+
+    // Clear listener
+    return () => {
+      socket.off('selected-id');
+    };
+  }, [socket]);
 
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
@@ -23,7 +45,7 @@ export default function EventList(props) {
               key={e.id}
               index={index}
               data={e}
-              selected={selected === eventCount}
+              selected={selected === e.id}
               eventsHandler={eventsHandler}
               delay={cumulativeDelay}
             />
