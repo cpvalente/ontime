@@ -10,12 +10,12 @@
   width: 100%;
   border-radius: 8px;
   font-size: 15px;
+  border: 1px solid #0001;
 }
 
 .block,
 .delay {
   padding: 0.2em 1em;
-  color: white;
   box-sizing: border-box;
   display: flex;
   margin: auto;
@@ -62,14 +62,17 @@
 
 .eventRow {
   background-color: #0001;
-  border-top: 2px solid #0001;
-  border-bottom: 2px solid #0001;
 }
 
 .eventRowActive {
   background-color: #b2f5eaaa;
-  border-top: 2px solid #b2f5ea;
-  border-bottom: 2px solid #b2f5ea;
+  background: linear-gradient(
+    0deg,
+    #7aadffaa 5%,
+    #7aadff55 6%,
+    #7aadff55 95%,
+    #7aadffaa 96%
+  );
 }
 
 .titleContainer,
@@ -99,22 +102,19 @@
 /* ============= BLOCK BLOCK ============= */
 .block {
   background-color: #805ad5aa;
-  height: 3em;
-  border: 1px solid #0001;
-  border-bottom: 8px solid #805ad5;
-
+  background: linear-gradient(0deg, #805ad5aa 20%, #805ad555 21%);
   flex-direction: row-reverse;
 }
 
 /* ============= DELAY BLOCK ============= */
 .delay {
   background-color: #ecc94baa;
-  border: 1px solid #0001;
-  border-top: 4px solid #ecc94b;
+  background: linear-gradient(180deg, #ecc94baa 20%, #ecc94b55 21%);
+  justify-content: space-between;
 }
 
 .delayValue {
-  color: #000;
+  color: #222;
   background-color: #fff5;
   border-radius: 4px;
   padding: 0.2em;

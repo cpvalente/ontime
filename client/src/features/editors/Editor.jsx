@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { SettingsIcon } from '@chakra-ui/icons';
+import { FiSettings } from "react-icons/fi";
 import { Grid, GridItem, Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
 import NumberedText from '../../common/components/text/NumberedText';
@@ -80,7 +80,7 @@ export default function Editor() {
               paddingTop: '3em',
             }}
           >
-            <IconButton icon={<SettingsIcon />} isRound variant='outline' />
+            <IconButton icon={<FiSettings />} isRound variant='outline' />
             <div
               style={{
                 width: 35,

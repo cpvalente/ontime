@@ -12,13 +12,16 @@ export default function BlockBlock(props) {
   const deleteHandler = () => {
     eventsHandler('delete', data.id);
   };
+  const delayHandler = () => {
+    eventsHandler('add', { type: 'delay', order: index + 1 });
+  };
 
   return (
     <div className={style.block}>
       <div className={style.actionOverlay}>
         <DeleteIconBtn clickHandler={deleteHandler} />
         <AddIconBtn clickHandler={addHandler} />
-        <DelayIconBtn />
+        <DelayIconBtn clickHandler={delayHandler} />
       </div>
     </div>
   );
