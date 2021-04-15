@@ -1,0 +1,206 @@
+.container__gray,
+.container__grayFinished {
+  background: linear-gradient(90deg, #252525 0%, #121212 100%);
+  height: 100%;
+  color: #fffd;
+  font-size: 16px;
+  font-weight: 300;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 3vw 2fr 1vw;
+  grid-template-rows: 5em 1fr 1fr 1fr 1fr 1fr;
+  grid-template-areas:
+    ' titl titl titl . schd .'
+    ' titl titl titl . schd .'
+    ' now  now  now  . schd .'
+    ' next next .... . schd .'
+    ' .... .... .... . info .'
+    ' time clck pres . info .';
+  gap: 1em;
+}
+
+.label {
+  font-size: 1.3vw;
+  color: #ff7597;
+}
+
+.eventTitle {
+  grid-area: titl;
+  font-size: 5vw;
+  font-weight: 600;
+  padding-top: 0.1em;
+  padding-left: 0.5em;
+}
+
+/* =================== TITLES ===================*/
+
+.nowContainer,
+.nextContainer,
+.todayContainer,
+.clockContainer,
+.countdownContainer {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 1em 2.5em;
+}
+
+.todayContainer,
+.infoContainer {
+  background-color: rgba(255, 255, 255, 0.07);
+  padding: 1.5em 2.5em;
+}
+
+.infoContainer,
+.todayContainer {
+  border-radius: 1em;
+}
+
+.nowContainer {
+  background-color: rgba(255, 255, 255, 0.09);
+
+  grid-area: now;
+  border-radius: 0 2em 2em 0;
+}
+.nextContainer {
+  grid-area: next;
+  border-radius: 0 2em 2em 0;
+}
+
+.nowTitle,
+.nextTitle {
+  color: #ddd;
+  font-weight: 400;
+}
+
+.nowSubtitle,
+.nowPresenter,
+.nextSubtitle,
+.nextPresenter {
+  color: #aaa;
+}
+
+.nowTitle {
+  font-size: 3vw;
+}
+
+.nowSubtitle,
+.nowPresenter {
+  font-size: 2.2vw;
+}
+
+.nextTitle {
+  font-size: 2.5vw;
+}
+
+.nextSubtitle,
+.nextPresenter {
+  color: #aaa;
+  font-size: 1.8vw;
+}
+
+/* =================== SCHEDULE ===================*/
+
+.todayContainer {
+  grid-area: schd;
+  display: grid;
+  grid-template-rows: 3em 1fr 2em;
+  margin-top: 3vh;
+  height: 95%;
+}
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+}
+
+.navItem,
+.navItemSelected {
+  background-color: rgba(255, 255, 255, 0.39);
+  width: 16px;
+  height: 16px;
+  border-radius: 10px;
+}
+
+.navItemSelected {
+  background-color: rgba(255, 255, 255, 0.79);
+}
+
+.entryPast,
+.entryNow,
+.entryFuture {
+  background-color: rgba(255, 255, 255, 0.03);
+  display: flex;
+  gap: 1em;
+  font-size: 1.3vw;
+  padding: 0.2em 1em;
+  border-radius: 8px;
+}
+
+.entryPast {
+  color: #aaa;
+}
+.entryFuture {
+  color: #ddd;
+}
+.entryNow {
+  font-size: 1.3vw;
+  color: #fff;
+  line-height: 3em;
+  background-color: rgba(255, 255, 255, 0.09);
+}
+
+/* =================== OVERLAY ===================*/
+
+.message {
+  grid-area: pres;
+}
+
+.infoContainer {
+  grid-area: info;
+  margin-bottom: 2vh;
+  display: grid;
+
+  grid-template-columns: 3fr 1fr;
+  grid-template-areas:
+    'titl qr'
+    'info qr';
+}
+
+.infoMessages {
+  grid-area: info;
+  font-size: 2em;
+}
+
+.qr {
+  align-self: center;
+  justify-self: center;
+  grid-area: qr;
+}
+
+/* =================== MAIN ===================*/
+
+.clockContainer {
+  grid-area: time;
+  margin-bottom: 2vh;
+  border-radius: 1em 0em 0em 1em;
+}
+
+.countdownContainer {
+  grid-area: clck;
+  margin-bottom: 2vh;
+  border-radius: 0em 1em 1em 0em;
+}
+
+.clock {
+  font-size: 3vw;
+  text-align: center;
+  letter-spacing: 0.1em;
+  color: #ddd;
+}
+
+.nav {
+  align-self: center;
+  justify-self: flex-end;
+  display: flex;
+  gap: 1em;
+  margin-bottom: auto;
+}
