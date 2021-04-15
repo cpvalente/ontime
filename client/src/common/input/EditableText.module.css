@@ -2,14 +2,14 @@
 .titleUnderlined {
   padding-left: 1em;
   font-size: 0.8em;
-  color: #888;
+  color: #aaa;
   display: inline-block;
   width: 6em;
   cursor: default;
 }
 
 .titleUnderlined {
-  border-bottom: 1px solid #0001;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 .block {

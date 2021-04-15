@@ -1,16 +1,34 @@
+.messageContainer {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
 .inputContainer,
 .inputContainerWGap {
-  display: flex;
-  align-items: flex-end;
-  gap: 1em;
+  padding: 0.5em;
 }
 
 .inputContainerWGap {
   padding-top: 0.5em;
 }
 
+.inputItems {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1em;
+}
+
 .label {
   padding: 0;
   margin: 0;
-  font-size: 14px;
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+.inline {
+  padding-left: 0.5em;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }

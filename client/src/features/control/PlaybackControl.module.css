@@ -8,8 +8,9 @@
 
 .timeContainer,
 .playbackContainer {
-  border: 1px solid rgb(226, 232, 240);
-  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
   padding: 0.5em;
 }
 
@@ -37,12 +38,12 @@
 }
 
 .time {
-  color: #333;
+  color: #ccc;
   font-size: 1.1em;
 }
 
 .tag {
-  color: #666;
+  color: #aaa;
   font-size: 0.9em;
 }
 

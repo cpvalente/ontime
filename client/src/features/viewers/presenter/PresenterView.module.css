@@ -3,12 +3,33 @@
   background: radial-gradient(circle, #202020 0%, #121212 80%);
   height: 100vh;
   color: #fffd;
-  font-size: 16px;
-  padding: 1em;
+  display: grid;
+  grid-template-columns: 1fr 1fr 5vw 1fr 1fr;
+  grid-template-rows: auto 1fr auto auto;
+  grid-template-areas:
+    ' clck .... .... .... ....'
+    ' timr timr timr timr timr'
+    ' prog prog prog prog prog'
+    ' now  now  .... next next';
+  gap: 1vw;
+}
+.container__graySimple,
+.container__grayFinishedSimple {
+  background: radial-gradient(circle, #202020 0%, #121212 80%);
+  height: 100vh;
+  color: #fffd;
+  display: grid;
+  grid-template-columns: 1fr 1fr 5vw 1fr 1fr;
+  grid-template-rows: auto 1fr 30vh;
+  grid-template-areas:
+    ' clck .... .... .... ....'
+    ' timr timr timr timr timr'
+    ' prog prog prog prog prog';
+  gap: 1vw;
 }
 
 .label {
-  font-size: 1.5vw;
+  font-size: 1.3vw;
   color: #ff7597;
 }
 /* =================== TITLES ===================*/
@@ -16,30 +37,26 @@
 .nowContainer,
 .nextContainer {
   background-color: rgba(255, 255, 255, 0.05);
-  padding: 1em 3em;
-  border-radius: 4px;
-  width: 40vw;
+  padding: 1vh 2vw;
+  border-radius: 1vw;
 }
 
 .nowContainer {
-  position: absolute;
-  bottom: 1em;
-  left: 1em;
+  grid-area: now;
 }
 .nextContainer {
-  position: absolute;
-  bottom: 1em;
-  left: calc(50% + 1em);
+  grid-area: next;
 }
 
 .title {
   color: #ddd;
   font-size: 2.5vw;
 }
+
 .subtitle,
 .presenter {
   color: #aaa;
-  font-size: 1.8vw;
+  font-size: 2vw;
 }
 
 .title:after,
@@ -50,55 +67,53 @@
 
 /* =================== MAIN ===================*/
 
-.mainContainer,
-.mainContainerFinished {
-  margin: auto;
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  top: 40%;
-  left: 50%;
+.timerContainer,
+.timerContainerFinished {
+  grid-area: timr;
+  justify-self: center;
+  align-self: center;
   color: white;
-  transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-}
-
-.countdown,
-.countdownBig {
-  line-height: 1em;
-  letter-spacing: 0.1em;
-}
-
-.countdown {
-  font-size: 25vw;
-}
-
-.countdownBig {
-  padding-top: 10vh;
-  font-size: 30vw;
-}
-
-.progress {
-  width: 80%;
-  margin: auto;
-  height: 1em;
-  background-color: #333;
-}
-
-.progressed {
-  width: 30%;
-  height: 1em;
-  background-color: #ddd;
-}
-
-.container__grayFinished {
-  border: 1em solid #ff5353;
 }
 
 .finished {
   font-size: 23vw;
   font-weight: 600;
   color: #ff5353;
+}
+
+.countdown,
+.countdownBig {
+  letter-spacing: 4vw;
+}
+
+.countdown {
+  font-size: 23vw;
+  line-height: 23vw;
+}
+
+.countdownBig {
+  font-size: 30vw;
+  line-height: 30vw;
+}
+
+.progress {
+  grid-area: prog;
+  width: 80%;
+  margin: 0 auto;
+  height: 2vh;
+  background-color: rgba(255, 255, 255, 0.13);
+  border-radius: 4px;
+}
+
+.progressed {
+  width: 30%;
+  height: 2vh;
+  background-color: rgba(255, 255, 255, 0.79);
+  border-radius: 4px;
+}
+
+.container__grayFinished {
+  border: 1vw solid #ff5353;
 }
 
 /* =================== OVERLAY ===================*/
@@ -129,7 +144,7 @@
   transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
   font-size: 15vw;
-  line-height: 1.1em;
+  line-height: 30vh;
   text-align: center;
   font-weight: 600;
 }
@@ -137,13 +152,12 @@
 /* =================== MAIN ===================*/
 
 .clockContainer {
-  position: absolute;
-  top: 2em;
-  left: 2em;
+  grid-area: clck;
+  padding: 1vh 2vw;
 }
 
 .clock {
   font-size: 4vw;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.4vw;
   color: #ddd;
 }

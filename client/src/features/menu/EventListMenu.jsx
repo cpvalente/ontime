@@ -15,6 +15,8 @@ export default function EventListMenu(props) {
   const buttonProps = {
     size: 'sm',
     variant: 'outline',
+    colorScheme: 'whiteAlpha',
+    backgroundColor: '#ffffff05'
   };
 
   const addHandler = () => {
@@ -25,7 +27,7 @@ export default function EventListMenu(props) {
     <div className={style.headerButtons}>
       <Menu>
         <ButtonGroup isAttached>
-          <Button size='sm' variant='outline'>
+          <Button {...buttonProps}>
             Upload
           </Button>
           <MenuButton as={Button} {...buttonProps}>
@@ -40,7 +42,7 @@ export default function EventListMenu(props) {
       <Menu>
         <ButtonGroup isAttached>
           <Button {...buttonProps}>Save</Button>
-          <MenuButton as={Button} {...buttonProps}>
+          <MenuButton as={Button} {...buttonProps} >
             <FiChevronDown />
           </MenuButton>
         </ButtonGroup>

@@ -4,7 +4,11 @@ import style from './TimeInput.module.css';
 
 const inputProps = {
   width: 20,
-  backgroundColor: '#fff5',
+  fontWeight: 400,
+  backgroundColor: 'rgba(0,0,0,0.05)',
+  color: '#fff',
+  border: '1px solid #ecc94b',
+  borderRadius: '4px',
   placeholder: '-',
   textAlign: 'center',
 };

@@ -21,15 +21,13 @@ export default function PresenterView() {
         <div className={style.message}>Remember to smile</div>
       </div> */}
 
-      <div className={style.mainContainer}>
+      <div className={style.timerContainer}>
         <div className={style.countdown}>01:03</div>
-        <div className={style.progress}>
-          <div className={style.progressed}></div>
-        </div>
+        {/* <div className={style.finished}>TIME UP</div> */}
       </div>
 
-      <div className={style.mainContainer}>
-        <div className={style.finished}>TIME UP</div>
+      <div className={style.progress}>
+        <div className={style.progressed}></div>
       </div>
 
       <div className={style.clockContainer}>

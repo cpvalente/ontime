@@ -5,7 +5,8 @@ export default function PrevIconBtn(props) {
   return (
     <IconButton
       icon={<FiSkipBack />}
-      colorScheme= 'blackAlpha'
+      colorScheme= 'whiteAlpha'
+      backgroundColor='#ffffff05'
       variant= 'outline'
       onClick={props.clickHandler}
       width={90}

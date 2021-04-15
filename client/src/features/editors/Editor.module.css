@@ -2,13 +2,13 @@
   width: 95%;
   margin: auto;
   height: 95vh;
+  color: #fffd;
 }
 
 .editor {
   height: 100%;
   margin-top: 1.5vh;
-  background-color: #fcfcfa;
-  /* 011627 */
+  background-color: rgba(255, 255, 255, 0.13);
   padding: 0.8em 1.5em;
 
   display: flex;

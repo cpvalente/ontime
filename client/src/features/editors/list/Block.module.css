@@ -5,12 +5,11 @@
 .block,
 .delay {
   position: relative;
-  top: 1em;
   margin: 0.2em 0;
   width: 100%;
   border-radius: 8px;
   font-size: 15px;
-  border: 1px solid #0001;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .block,
@@ -29,7 +28,7 @@
   align-content: center;
   align-self: center;
 
-  opacity: 0.6;
+  opacity: 0.8;
   transition: linear 0.1s;
 }
 
@@ -37,7 +36,7 @@
 .eventRowActive:hover > .actionOverlay,
 .block:hover > .actionOverlay,
 .delay:hover > .actionOverlay {
-  opacity: 0.85;
+  opacity: 1;
   transition: linear 0.1s;
 }
 
@@ -61,24 +60,26 @@
 }
 
 .eventRow {
-  background-color: #0001;
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
 .eventRowActive {
-  background-color: #b2f5eaaa;
+  background-color: rgba(255, 255, 255, 0.36);
   background: linear-gradient(
-    0deg,
-    #7aadffaa 5%,
-    #7aadff55 6%,
-    #7aadff55 95%,
-    #7aadffaa 96%
+    180deg,
+    #ff5b7e 0%,
+    #ff7597 05%,
+    #ff759733 06%,
+    #ff759733 94%,
+    #ff7597 95%,
+    #ff5b7e 100%
   );
 }
 
 .titleContainer,
 .detailedContainer {
-  background-color: #fff8;
-  border: 1px solid #0001;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
@@ -101,24 +102,38 @@
 
 /* ============= BLOCK BLOCK ============= */
 .block {
-  background-color: #805ad5aa;
-  background: linear-gradient(0deg, #805ad5aa 20%, #805ad555 21%);
+  background-color: #805ad5;
+  /* background: linear-gradient(0deg, #6b46c1 20%, #805ad5 21%); */
+  background: linear-gradient(
+    0deg,
+    rgba(107, 70, 193, 1) 0%,
+    rgba(128, 90, 213, 1) 20%,
+    rgba(107, 70, 193, 0.15) 21%
+  );
+
   flex-direction: row-reverse;
 }
 
 /* ============= DELAY BLOCK ============= */
 .delay {
-  background-color: #ecc94baa;
-  background: linear-gradient(180deg, #ecc94baa 20%, #ecc94b55 21%);
+  background-color: #ecc94b;
+  /* background: linear-gradient(180deg, #d69e2e 20%, #ecc94b 21%); */
+  background: linear-gradient(
+    180deg,
+    rgba(214, 158, 46, 1) 0%,
+    rgba(236, 201, 75, 1) 20%,
+    rgba(214, 158, 46, 0.07) 21%
+  );
+
   justify-content: space-between;
 }
 
-.delayValue {
-  color: #222;
-  background-color: #fff5;
+/* .delayValue {
+  color: #ffa;
+  font-weight: 600;
   border-radius: 4px;
   padding: 0.2em;
   text-align: center;
   width: 6em;
-  border: 1px solid #0001;
-}
+  border: 1px solid rgba(255,255,255,0.05);
+} */

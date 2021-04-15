@@ -1,6 +1,6 @@
 .time {
-  background-color: #fff8;
-  border: 1px solid #0001;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   width: 5em;
   height: fit-content;
@@ -9,19 +9,18 @@
 .editable,
 .delayedEditable {
   text-align: center;
+  border-radius: 4px;
 }
 
 .delayedEditable {
-  background-color: #ecc94b22;
+  border: 1px solid #ecc94b;
 }
 
 .delayValue {
-  font-size: 14px;
-  line-height: 2em;
-  color: #555;
-  background-color: #ffeaa066;
+  color: #fff;
   border-radius: 4px;
+  padding: 0.3em 0;
   text-align: center;
-  border: 1px solid #0001;
+  align-self: flex-start;
+  background-color: #d69e2e;
 }
-

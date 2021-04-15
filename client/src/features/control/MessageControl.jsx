@@ -1,5 +1,4 @@
-import { FormControl } from '@chakra-ui/form-control';
-import { Input } from '@chakra-ui/input';
+import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useEffect, useState } from 'react';
 import { useSocket } from '../../app/context/socketContext';
 import VisibleIconBtn from '../../common/components/buttons/VisibleIconBtn';
@@ -80,60 +79,70 @@ export default function MessageControl() {
   };
 
   return (
-    <>
+    <div className={style.messageContainer}>
       <div className={style.inputContainer}>
-        <FormControl id='presenterMessage'>
-          <span className={style.label}>Presenter screen message</span>
-          <Input
-            placeholder='only the presenter screens see this'
+        <span className={style.label}>Presenter screen message</span>
+        <div className={style.inputItems}>
+          <Editable
             onChange={(event) =>
               messageControl('pres-text', event.target.value)
             }
+            placeholder='only the presenter screens see this'
+            className={style.inline}
+          >
+            <EditablePreview />
+            <EditableInput className={style.editable13} />
+          </Editable>
+          <VisibleIconBtn
+            active={pres.visible}
+            clickHandler={() => messageControl('toggle-pres-visible')}
             {...inputProps}
           />
-        </FormControl>
-        <VisibleIconBtn
-          active={pres.visible}
-          clickHandler={() => messageControl('toggle-pres-visible')}
-          {...inputProps}
-        />
+        </div>
       </div>
 
       <div className={style.inputContainerWGap}>
-        <FormControl id='generalMessage'>
-          <span className={style.label}>Public screen message</span>
-          <Input
-            placeholder='all screens will render this'
+        <span className={style.label}>Public screen message</span>
+        <div className={style.inputItems}>
+          <Editable
             onChange={(event) =>
               messageControl('publ-text', event.target.value)
             }
+            placeholder='all screens will render this'
+            className={style.inline}
+          >
+            <EditablePreview />
+            <EditableInput className={style.editable13} />
+          </Editable>
+          <VisibleIconBtn
+            active={publ.visible}
+            clickHandler={() => messageControl('toggle-publ-visible')}
             {...inputProps}
           />
-        </FormControl>
-        <VisibleIconBtn
-          active={publ.visible}
-          clickHandler={() => messageControl('toggle-publ-visible')}
-          {...inputProps}
-        />
+        </div>
       </div>
 
       <div className={style.inputContainerWGap}>
-        <FormControl id='lowerMessage'>
-          <span className={style.label}>Lower third message</span>
-          <Input
-            placeholder='visible in lower third screen'
+        <span className={style.label}>Lower third message</span>
+        <div className={style.inputItems}>
+          <Editable
             onChange={(event) =>
               messageControl('lower-text', event.target.value)
             }
+            placeholder='visible in lower third screen'
+            className={style.inline}
+          >
+            <EditablePreview />
+            <EditableInput />
+          </Editable>
+
+          <VisibleIconBtn
+            active={lower.visible}
+            clickHandler={() => messageControl('toggle-lower-visible')}
             {...inputProps}
           />
-        </FormControl>
-        <VisibleIconBtn
-          active={lower.visible}
-          clickHandler={() => messageControl('toggle-lower-visible')}
-          {...inputProps}
-        />
+        </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -1,13 +1,12 @@
 .container__gray,
 .container__grayFinished {
   background: linear-gradient(90deg, #252525 0%, #121212 100%);
-  height: 100%;
+  height: 100vh;
   color: #fffd;
-  font-size: 16px;
   font-weight: 300;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 3vw 2fr 1vw;
-  grid-template-rows: 5em 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 5vh 1fr 1fr 1fr 1fr 1fr;
   grid-template-areas:
     ' titl titl titl . schd .'
     ' titl titl titl . schd .'
@@ -15,7 +14,7 @@
     ' next next .... . schd .'
     ' .... .... .... . info .'
     ' time clck pres . info .';
-  gap: 1em;
+  gap: 1vw;
 }
 
 .label {
@@ -27,8 +26,8 @@
   grid-area: titl;
   font-size: 5vw;
   font-weight: 600;
-  padding-top: 0.1em;
-  padding-left: 0.5em;
+  padding-top: 0.2vh;
+  padding-left: 2vw;
 }
 
 /* =================== TITLES ===================*/
@@ -39,29 +38,29 @@
 .clockContainer,
 .countdownContainer {
   background-color: rgba(255, 255, 255, 0.05);
-  padding: 1em 2.5em;
+  padding: 1vh 2vw;
 }
 
 .todayContainer,
 .infoContainer {
   background-color: rgba(255, 255, 255, 0.07);
-  padding: 1.5em 2.5em;
+  padding: 2.5vh 2vw;
 }
 
 .infoContainer,
 .todayContainer {
-  border-radius: 1em;
+  border-radius: 1vw;
 }
 
 .nowContainer {
   background-color: rgba(255, 255, 255, 0.09);
 
   grid-area: now;
-  border-radius: 0 2em 2em 0;
+  border-radius: 0 2vw 2vw 0;
 }
 .nextContainer {
   grid-area: next;
-  border-radius: 0 2em 2em 0;
+  border-radius: 0 2vw 2vw 0;
 }
 
 .nowTitle,
@@ -101,7 +100,7 @@
 .todayContainer {
   grid-area: schd;
   display: grid;
-  grid-template-rows: 3em 1fr 2em;
+  grid-template-rows: 5vh 1fr 3vh;
   margin-top: 3vh;
   height: 95%;
 }
@@ -109,30 +108,37 @@
 .entries {
   display: flex;
   flex-direction: column;
-  gap: 0.8em;
+  gap: 1.5vh;
 }
 
 .navItem,
 .navItemSelected {
   background-color: rgba(255, 255, 255, 0.39);
-  width: 16px;
-  height: 16px;
-  border-radius: 10px;
+  width: 1vw;
+  height: 1vw;
+  border-radius: 1vw;
 }
 
 .navItemSelected {
   background-color: rgba(255, 255, 255, 0.79);
 }
 
+.entryStart,
+.entryEnd {
+font-size: 1.5vw;
+}
+
+.entryTitle {
+  align-self: center;
+}
 .entryPast,
 .entryNow,
 .entryFuture {
   background-color: rgba(255, 255, 255, 0.03);
   display: flex;
-  gap: 1em;
+  gap: 1.5vw;
   font-size: 1.3vw;
-  padding: 0.2em 1em;
-  border-radius: 8px;
+  padding: 0.2vh 1vw;
 }
 
 .entryPast {
@@ -144,8 +150,9 @@
 .entryNow {
   font-size: 1.3vw;
   color: #fff;
-  line-height: 3em;
+  line-height: 7vh;
   background-color: rgba(255, 255, 255, 0.09);
+  border-bottom: 3px solid #ff7597aa;
 }
 
 /* =================== OVERLAY ===================*/
@@ -167,7 +174,7 @@
 
 .infoMessages {
   grid-area: info;
-  font-size: 2em;
+  font-size: 1.5vw;
 }
 
 .qr {
@@ -181,19 +188,19 @@
 .clockContainer {
   grid-area: time;
   margin-bottom: 2vh;
-  border-radius: 1em 0em 0em 1em;
+  border-radius: 1vw 0 0 1vw;
 }
 
 .countdownContainer {
   grid-area: clck;
   margin-bottom: 2vh;
-  border-radius: 0em 1em 1em 0em;
+  border-radius: 0 1vw 1vw 0;
 }
 
 .clock {
   font-size: 3vw;
   text-align: center;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.25vw;
   color: #ddd;
 }
 
@@ -201,6 +208,6 @@
   align-self: center;
   justify-self: flex-end;
   display: flex;
-  gap: 1em;
+  gap: 1vw;
   margin-bottom: auto;
 }

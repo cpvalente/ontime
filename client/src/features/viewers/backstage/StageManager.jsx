@@ -74,7 +74,11 @@ export default function StageManager() {
           <div className={style.info}>Have a nice day</div>
         </div>
         <div className={style.qr}>
-          <QRCode value='www.carlosvalente.com' size={180} level='L' />
+          <QRCode
+            value='www.carlosvalente.com'
+            size={window.innerWidth / 10}
+            level='L'
+          />
         </div>
       </div>
     </div>

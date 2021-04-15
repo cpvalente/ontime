@@ -4,7 +4,8 @@
   color: white;
   font-weight: 600;
 
-  background-color: #319795;
+  background-color: #ff5b7e;
+  border: 1px solid rgba(255,255,255,0.47);
   width: 1.5em;
   border-radius: 1em;
 

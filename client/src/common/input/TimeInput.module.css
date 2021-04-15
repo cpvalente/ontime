@@ -4,6 +4,7 @@
 }
 
 .label {
-  color: #0005;
   padding-left: 0.8em;
+  align-self: center;
+  font-weight: 600;
 }
