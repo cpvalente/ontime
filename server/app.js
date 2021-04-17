@@ -1,6 +1,16 @@
 // get config
 const config = require('./config.json');
 
+// init database
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync(config.database.filename);
+const db = low(adapter);
+db.defaults({ events: [] }).write();
+
+// export db
+module.exports.db = db;
+
 // dependencies
 const express = require('express');
 const http = require('http');
@@ -14,8 +24,10 @@ const playbackRouter = require('./routes/playbackRouter.js');
 const port = process.env.PORT || config.server.port;
 
 // Global Objects
-const eventlist = require('./data/eventsData.json');
 const EventTimer = require('./classes/EventTimer.js');
+
+// get data (if any)
+const eventlist = db.get('events').sortBy('order').value();
 
 // init timer
 global.timer = new EventTimer();
@@ -37,6 +49,11 @@ app.use(express.json());
 // Implement route endpoints
 app.use('/events', eventsRouter);
 app.use('/playback', playbackRouter);
+
+// implement general router
+app.get('/', function (req, res) {
+  res.send('ontime API');
+});
 
 // Implement route for errors
 app.use((err, req, res, next) => {

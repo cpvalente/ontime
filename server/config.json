@@ -4,5 +4,9 @@
   },
   "server": {
     "port": 4001
+  },
+  "database": {
+    "filename": "db.json",
+    "tablename": "events"
   }
 }

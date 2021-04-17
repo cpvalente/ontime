@@ -1,15 +1,5 @@
-// CONST
-const filename = 'db.json';
-const tableName = 'events';
-const countfield = 'eventCount';
-
-// data
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('db.json');
-const db = low(adapter);
-
-db.defaults({ events: [] }).write();
+// get database
+const db = require('../app.js').db;
 
 // utils
 const { nanoid } = require('nanoid');
@@ -42,6 +32,20 @@ function _pushNew(entry) {
 
 function _removeById(eventId) {
   return db.get('events').remove({ id: eventId }).write();
+}
+
+function getEventEvents() {
+  return db
+    .get('events')
+    .chain()
+    .filter({ type: 'event' })
+    .sortBy('order')
+    .value();
+}
+
+function _updateTimers() {
+  const results = getEventEvents();
+  global.timer.updateEventList(results);
 }
 
 // Create controller for GET request to '/events'
@@ -98,9 +102,14 @@ exports.eventsPost = async (req, res) => {
     // add new event
     _pushNew(newEvent);
 
+    // update timer
+    // TODO: update single values when possible
+    _updateTimers();
+
     res.sendStatus(201);
   } catch (error) {
     res.status(400).send(error);
+    console.log('debug', error);
   }
 };
 
@@ -110,12 +119,16 @@ exports.eventsPut = async (req, res) => {
   // no valid params
   if (!req.body) {
     res.status(400).send(`No object found`);
+    console.log('error here', 'noobj');
+
     return;
   }
 
   let eventId = req.body.id;
   if (!eventId) {
     res.status(400).send(`No id found`);
+    console.log('error here', 'noid');
+
     return;
   }
 
@@ -124,9 +137,11 @@ exports.eventsPut = async (req, res) => {
       .find({ id: req.body.id })
       .assign({ ...req.body })
       .write()
+      .then(_updateTimers())
       .then(res.sendStatus(200));
   } catch (error) {
     res.status(400).send(error);
+    console.log('error here', error);
   }
 };
 
@@ -150,6 +165,10 @@ exports.eventsPatch = async (req, res) => {
       .find({ id: req.body.id })
       .assign({ ...req.body })
       .write();
+
+    // update timer
+    // TODO: update single values when possible
+    _updateTimers();
 
     res.sendStatus(200);
   } catch (error) {
@@ -176,6 +195,10 @@ exports.eventsDelete = async (req, res) => {
 
     // add new event
     _removeById(req.params.eventId);
+
+    // update timer
+    // TODO: update single values when possible
+    _updateTimers();
 
     res.sendStatus(201);
   } catch (error) {

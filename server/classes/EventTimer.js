@@ -50,6 +50,19 @@ class EventTimer extends Timer {
     this.loadEvent(0);
   }
 
+  updateEventList(eventlist) {
+    // filter only events
+    const events = eventlist.filter((e) => e.type === 'event');
+
+    const numEvents = events.length;
+
+    // set general
+    this._eventList = events;
+    this.numEvents = numEvents;
+
+    // TODO: What to do about reloading
+  }
+
   loadEvent(eventIndex) {
     // set event specific
     const e = this._eventList[eventIndex];
