@@ -1,4 +1,3 @@
-
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 
@@ -16,7 +15,7 @@ export const stringFromMillis = (
   const seconds = showWith0(Math.floor((ms / 1000) % 60));
   return showSeconds
     ? `${parseInt(hours) ? `${hours}${delim}` : ''}${minutes}${delim}${seconds}`
-    : `${parseInt(hours) ? `${hours}${delim}` : ''}${minutes}`;
+    : `${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
 };
 
 // millis to seconds

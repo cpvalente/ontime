@@ -1,5 +1,6 @@
 import EditableTimer from '../../input/EditableTimer';
 import DelayValue from '../../input/DelayValue';
+import { showErrorToast } from '../../helpers/toastManager';
 
 export default function EventTimes(props) {
   const { updateValues, delay, timeStart, timeEnd } = props;
@@ -9,14 +10,18 @@ export default function EventTimes(props) {
     // if one of the fields is not set, all good
 
     if (v == null || timeStart == null || timeEnd == null) return true;
+    if (v === 0 || timeStart === 0 || timeEnd === 0) return true;
 
-    if (entry === 'timeStart') return v < timeEnd;
-    else if (entry === 'timeEnd') return v > timeStart;
+    let validate = { value: false, catch: 'undefined error' };
+    if (entry === 'timeStart')
+      validate = { value: v < timeEnd, catch: 'Start time later than end time' };
+    else if (entry === 'timeEnd')
+      validate = { value: v > timeStart, catch: 'End time earlier than start time' };
 
-    // shouldnt come to this
-    return false;
+    if (validate.value === false)
+      showErrorToast('Time Input Invalid', validate.catch);
+    return validate.value;
   };
-
 
   return (
     <>

@@ -3,9 +3,10 @@ const event = {
   title: '',
   subtitle: '',
   presenter: '',
-  timeStart: null,
-  timeEnd: null,
+  timeStart: 0,
+  timeEnd: 0,
   clockStarted: null,
+  isPublic: false,
   type: 'event',
 };
 
