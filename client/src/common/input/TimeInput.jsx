@@ -7,7 +7,7 @@ const inputProps = {
   fontWeight: 400,
   backgroundColor: 'rgba(0,0,0,0.05)',
   color: '#fff',
-  border: '1px solid #ecc94b',
+  border: '1px solid #ecc94b55',
   borderRadius: '4px',
   placeholder: '-',
   textAlign: 'center',
@@ -44,7 +44,7 @@ export default function TimeInput(props) {
         <EditablePreview />
         <EditableInput type='number' min='0' max='60' />
       </Editable>
-      <span className={style.label}>{'(min)'}</span>
+      <span className={style.label}>{'minutes'}</span>
     </div>
   );
 }

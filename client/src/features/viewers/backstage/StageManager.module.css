@@ -125,7 +125,7 @@
 
 .entryStart,
 .entryEnd {
-font-size: 1.5vw;
+  font-size: 1.5vw;
 }
 
 .entryTitle {
@@ -152,7 +152,7 @@ font-size: 1.5vw;
   color: #fff;
   line-height: 7vh;
   background-color: rgba(255, 255, 255, 0.09);
-  border-bottom: 3px solid #ff7597aa;
+  border-bottom: 0.5vh solid #ff7597aa;
 }
 
 /* =================== OVERLAY ===================*/

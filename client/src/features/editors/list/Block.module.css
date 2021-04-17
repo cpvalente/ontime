@@ -24,11 +24,12 @@
 .actionOverlay {
   display: flex;
   flex-direction: row;
+  padding-top: 0.2em;
   gap: 0.5em;
   align-content: center;
-  align-self: center;
+  align-self: flex-start;
 
-  opacity: 0.8;
+  opacity: 0.4;
   transition: linear 0.1s;
 }
 
@@ -67,12 +68,12 @@
   background-color: rgba(255, 255, 255, 0.36);
   background: linear-gradient(
     180deg,
-    #ff5b7e 0%,
-    #ff7597 05%,
-    #ff759733 06%,
-    #ff759733 94%,
-    #ff7597 95%,
-    #ff5b7e 100%
+    #4bffabcc 0%,
+    #227c52aa 09%,
+    #4bffab11 10%,
+    #4bffab11 89%,
+    #227c52aa 90%,
+    #4bffabcc 100%
   );
 }
 
@@ -106,8 +107,8 @@
   /* background: linear-gradient(0deg, #6b46c1 20%, #805ad5 21%); */
   background: linear-gradient(
     0deg,
-    rgba(107, 70, 193, 1) 0%,
-    rgba(128, 90, 213, 1) 20%,
+    rgba(107, 70, 193, 0.4) 0%,
+    rgba(128, 90, 213, 0.4) 20%,
     rgba(107, 70, 193, 0.15) 21%
   );
 
@@ -120,20 +121,10 @@
   /* background: linear-gradient(180deg, #d69e2e 20%, #ecc94b 21%); */
   background: linear-gradient(
     180deg,
-    rgba(214, 158, 46, 1) 0%,
-    rgba(236, 201, 75, 1) 20%,
+    rgba(214, 158, 46, 0.4) 0%,
+    rgba(236, 201, 75, 0.4) 20%,
     rgba(214, 158, 46, 0.07) 21%
   );
 
   justify-content: space-between;
 }
-
-/* .delayValue {
-  color: #ffa;
-  font-weight: 600;
-  border-radius: 4px;
-  padding: 0.2em;
-  text-align: center;
-  width: 6em;
-  border: 1px solid rgba(255,255,255,0.05);
-} */

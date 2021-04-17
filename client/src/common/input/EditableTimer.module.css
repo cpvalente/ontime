@@ -13,7 +13,7 @@
 }
 
 .delayedEditable {
-  border: 1px solid #ecc94b;
+  border: 1px solid #d69e2e88;
 }
 
 .delayValue {
@@ -22,5 +22,6 @@
   padding: 0.3em 0;
   text-align: center;
   align-self: flex-start;
-  background-color: #d69e2e;
+  border: 1px solid #d69e2e88;
+  background-color: #d69e2e22;
 }
