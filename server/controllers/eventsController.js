@@ -1,31 +1,61 @@
+// CONST
+const filename = 'db.json';
+const tableName = 'events';
+const countfield = 'eventCount';
+
+// data
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync('db.json');
+const db = low(adapter);
+
+db.defaults({ events: [] }).write();
+
 // utils
 const { nanoid } = require('nanoid');
-
-// import json with initial data
-let events = require('../data/eventsData.json');
 const eventDefs = require('../data/eventsDefinition.js');
 
-// aux
-const replaceAt = (array, index, value) => {
-  const ret = array.slice(0);
-  ret[index] = value;
-  return ret;
-};
+// incrementFrom
+function incrementFrom(start, incr = 1) {
+  try {
+    let entries = db.get('events').sortBy('order').value();
 
-const getEvents = () => {
-  return global.timer.events;
-};
+    entries.map((e) => {
+      if (e.order < start) return;
+      db.get('events')
+        .find({ id: e.id })
+        .assign({ order: e.order + incr })
+        .write();
+    });
+  } catch (error) {
+    console.log('error on increment function', error);
+  }
+}
 
-// Create controller for GET request to '/events/all'
+function _getEventsCount() {
+  return db.get('events').size().value();
+}
+
+function _pushNew(entry) {
+  return db.get('events').push(entry).write();
+}
+
+function _removeById(eventId) {
+  return db.get('events').remove({ id: eventId }).write();
+}
+
+// Create controller for GET request to '/events'
 // Returns -
 exports.eventsGetAll = async (req, res) => {
-  res.json(events);
+  const results = db.get('events').sortBy('order').value();
+  res.json(results);
 };
 
-// Create controller for GET request to '/events/:Id'
+// Create controller for GET request to '/events/:eventId'
 // Returns -
 exports.eventsGetById = async (req, res) => {
-  // TODO
+  const e = db.get('events').find({ id: req.params.eventId }).value();
+  res.json(e);
 };
 
 // Create controller for POST request to '/events/'
@@ -33,7 +63,7 @@ exports.eventsGetById = async (req, res) => {
 exports.eventsPost = async (req, res) => {
   // TODO: Validate event
   if (!req.body) {
-    res.sendStatus(400);
+    res.status(400).send(`No object found in request`);
     return;
   }
 
@@ -53,89 +83,102 @@ exports.eventsPost = async (req, res) => {
       break;
 
     default:
-      res.sendStatus(400);
+      res
+        .status(400)
+        .send(`Object type missing or unrecognised: ${req.body.type}`);
       break;
   }
 
-  // Torbjorn: hmmmmmmm, can we look here?
-  if (newEvent.order <= 0) {
-    newEvent.order = 0;
-    // insert at top
-    events.forEach((e) => {
-      e.order = e.order + 1;
-    });
-    events = [newEvent, ...events];
-  } else if (newEvent.order >= events.length) {
-    newEvent.order = events.length;
-    events = [...events, newEvent];
-  } else {
-    let before = events.slice(0, newEvent.order);
-    let after = events.slice(newEvent.order);
-    // move all items one element down, starting from new position
-    after.forEach((e) => {
-      e.order = e.order + 1;
-    });
-    events = [...before, newEvent, ...after];
+  try {
+    // increment count if necessary
+    const c = _getEventsCount();
+
+    if (c > 0 && newEvent.order < c) incrementFrom(newEvent.order);
+
+    // add new event
+    _pushNew(newEvent);
+
+    res.sendStatus(201);
+  } catch (error) {
+    res.status(400).send(error);
   }
-  console.log('added', events);
-  res.sendStatus(201);
 };
 
-// Create controller for PUT request to '/events/:id'
+// Create controller for PUT request to '/events/'
 // Returns -
 exports.eventsPut = async (req, res) => {
-  const itemIndex = events.findIndex((e) => e.id == req.body.id);
-
-  // Item with index not found
-  if (itemIndex === -1) {
-    res.sendStatus(400);
+  // no valid params
+  if (!req.body) {
+    res.status(400).send(`No object found`);
     return;
   }
 
-  // Torbjorn: bad syntax?
-  const newEvents = replaceAt(events, itemIndex, req.body);
-  events = [...newEvents];
-  res.sendStatus(200);
+  let eventId = req.body.id;
+  if (!eventId) {
+    res.status(400).send(`No id found`);
+    return;
+  }
+
+  try {
+    db.get('events')
+      .find({ id: req.body.id })
+      .assign({ ...req.body })
+      .write()
+      .then(res.sendStatus(200));
+  } catch (error) {
+    res.status(400).send(error);
+  }
 };
 
-// Create controller for PATCH request to '/events/:id'
+// Create controller for PATCH request to '/events/'
 // Returns -
 exports.eventsPatch = async (req, res) => {
-  const itemIndex = events.findIndex((e) => e.id == req.body.id);
-
-  // Item with index not found
-  if (itemIndex === -1) {
-    res.sendStatus(400);
+  // no valid params
+  if (!req.body) {
+    res.status(400).send(`No object found`);
     return;
   }
 
-  // Get current object
-  const eventToUpdate = events[itemIndex];
+  let eventId = req.body.id;
+  if (!eventId) {
+    res.status(400).send(`No id found`);
+    return;
+  }
 
-  // Update and replace
-  const updatedEvent = { ...eventToUpdate, ...req.body };
-  const newEvents = replaceAt(events, itemIndex, updatedEvent);
+  try {
+    db.get('events')
+      .find({ id: req.body.id })
+      .assign({ ...req.body })
+      .write();
 
-  events = [...newEvents];
-  res.send(updatedEvent);
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
 };
 
-// Create controller for DELETE request to '/events/'
+// Create controller for DELETE request to '/events/:eventId'
 // Returns -
+// TODO: should reorder al events down
 exports.eventsDelete = async (req, res) => {
-  if (!req.params.id) {
-    res.sendStatus(400);
+  // no valid params
+  if (!req.params.eventId) {
+    res.status(400).send(`No id found in request`);
+    return;
   }
 
-  const itemIndex = events.findIndex((e) => e.id == req.params.id);
+  try {
+    // increment count if necessary
+    const c = _getEventsCount();
+    const e = db.get('events').find({ id: req.params.eventId }).value();
 
-  if (itemIndex === -1) {
-    res.sendStatus(400);
-    return;
-  } else if (itemIndex === 0) events.shift();
-  else events.splice(itemIndex, 1);
+    if (c > 0 && e.order < c) incrementFrom(e.order, -1);
 
-  // Update events
-  events = [...events];
-  res.sendStatus(200);
+    // add new event
+    _removeById(req.params.eventId);
+
+    res.sendStatus(201);
+  } catch (error) {
+    res.status(400).send(error);
+  }
 };

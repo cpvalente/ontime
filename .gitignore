@@ -27,3 +27,4 @@ TODO.md
 # working stuff
 _SS/
 .vscode/launch.json
+server/db.json

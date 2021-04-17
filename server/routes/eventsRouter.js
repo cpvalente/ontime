@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 
 // import playback controller
-const eventsController = require('../controllers/eventsController');
+  const eventsController = require('../controllers/eventsController');
 
 // create route between controller and '/events' endpoint
 router.get('/', eventsController.eventsGetAll);
 
 // create route between controller and '/events/:id' endpoint
-router.get('/:id', eventsController.eventsGetById);
+router.get('/:eventId', eventsController.eventsGetById);
 
 // create route between controller and '/events/' endpoint
 router.post('/', eventsController.eventsPost);
@@ -20,6 +20,6 @@ router.put('/', eventsController.eventsPut);
 router.patch('/', eventsController.eventsPatch);
 
 // create route between controller and '/events/:id' endpoint
-router.delete('/:id', eventsController.eventsDelete);
+router.delete('/:eventId', eventsController.eventsDelete);
 
 module.exports = router;
