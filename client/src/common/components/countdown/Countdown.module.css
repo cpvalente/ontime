@@ -9,11 +9,10 @@
 
 /* Viewers */
 .countdownClock {
-  font-size: 18vw;
-  margin-top: 6vh;
-  margin-bottom: 5vh;
+  font-size: 21vw;
+  line-height: 21vw;
   text-align: center;
-  letter-spacing: 0.125em;
+  letter-spacing: 1vw;
 }
 
 /* Editor */

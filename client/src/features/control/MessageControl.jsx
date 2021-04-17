@@ -85,7 +85,7 @@ export default function MessageControl() {
         <div className={style.inputItems}>
           <Editable
             onChange={(event) =>
-              messageControl('pres-text', event.target.value)
+              messageControl('pres-text', event)
             }
             placeholder='only the presenter screens see this'
             className={style.inline}
@@ -106,7 +106,7 @@ export default function MessageControl() {
         <div className={style.inputItems}>
           <Editable
             onChange={(event) =>
-              messageControl('publ-text', event.target.value)
+              messageControl('publ-text', event)
             }
             placeholder='all screens will render this'
             className={style.inline}
@@ -127,7 +127,7 @@ export default function MessageControl() {
         <div className={style.inputItems}>
           <Editable
             onChange={(event) =>
-              messageControl('lower-text', event.target.value)
+              messageControl('lower-text', event)
             }
             placeholder='visible in lower third screen'
             className={style.inline}

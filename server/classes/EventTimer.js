@@ -21,15 +21,20 @@ class EventTimer extends Timer {
     text: '',
     visible: false,
   };
+
   titles = {
-    title: '',
-    subtitle: '',
-    presenter: '',
+    titleNow: null,
+    subtitleNow: null,
+    presenterNow: null,
+    titleNext: null,
+    subtitleNext: null,
+    presenterNext: null,
   };
 
   selectedEvent = null;
   selectedEventId = null;
   numEvents = null;
+  _eventlist = null;
 
   constructor() {
     super();
@@ -77,9 +82,28 @@ class EventTimer extends Timer {
     this.selectedEventId = e.id;
 
     // event titles
-    this.titles.title = e.title;
-    this.titles.subtitle = e.subtitle;
-    this.titles.presenter = e.presenter;
+    this.titles.titleNow = e.title;
+    this.titles.subtitleNow = e.subtitle;
+    this.titles.presenterNow = e.presenter;
+
+    // assume tere is no next event
+    this.titles.titleNext = null;
+    this.titles.subtitleNext = null;
+    this.titles.presenterNext = null;
+
+    // look for event after
+    if (eventIndex < this.numEvents - 1) {
+      for (let i = eventIndex + 1 ; i < this.numEvents; i++) {
+        // check that is the right type
+        console.log(this._eventList[i]);
+        if (this._eventList[i].type === 'event') {
+          this.titles.titleNext = this._eventList[i].title;
+          this.titles.subtitleNext = this._eventList[i].subtitle;
+          this.titles.presenterNext = this._eventList[i].presenter;
+          break;
+        }
+      }
+    }
   }
 
   print() {

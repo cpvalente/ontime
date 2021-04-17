@@ -1,5 +1,11 @@
 .container__gray,
 .container__grayFinished {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+
   background: radial-gradient(circle, #202020 0%, #121212 80%);
   height: 100vh;
   color: #fffd;
@@ -12,7 +18,9 @@
     ' prog prog prog prog prog'
     ' now  now  .... next next';
   gap: 1vw;
+  padding: 1vw;
 }
+
 .container__graySimple,
 .container__grayFinishedSimple {
   background: radial-gradient(circle, #202020 0%, #121212 80%);
@@ -76,40 +84,17 @@
 }
 
 .finished {
-  font-size: 23vw;
+  font-size: 18vw;
+  line-height: 18vw;
   font-weight: 600;
   color: #ff5353;
+  padding: 0;
 }
 
-.countdown,
-.countdownBig {
-  letter-spacing: 4vw;
-}
-
-.countdown {
-  font-size: 23vw;
-  line-height: 23vw;
-}
-
-.countdownBig {
-  font-size: 30vw;
-  line-height: 30vw;
-}
-
-.progress {
+.progressContainer {
   grid-area: prog;
   width: 80%;
   margin: 0 auto;
-  height: 2vh;
-  background-color: rgba(255, 255, 255, 0.13);
-  border-radius: 4px;
-}
-
-.progressed {
-  width: 30%;
-  height: 2vh;
-  background-color: rgba(255, 255, 255, 0.79);
-  border-radius: 4px;
 }
 
 .container__grayFinished {
@@ -130,13 +115,17 @@
   background-color: rgba(0, 0, 0, 0.85);
   z-index: 2;
   opacity: 0;
+  transition: 0.5s;
 }
 
 .messageOverlayActive {
   opacity: 1;
+  transition: 0.5s;
 }
 
 .message {
+  width: inherit;
+  padding: 2vw;
   position: absolute;
   top: 50%;
   left: 50%;

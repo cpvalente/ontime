@@ -1,15 +1,15 @@
 import { clamp } from '../../../app/utils';
 import styles from './MyProgressBar.module.css';
 
-export default function MyProgressBar({ normalisedComplete }) {
-  const percentComplete = clamp(100 - normalisedComplete * 100, 0, 100);
-  const completeWidth = `${percentComplete}%`;
+export default function MyProgressBar(props) {
+  const { now, complete } = props;
+  const percentComplete = clamp((now * 100) / complete, 0, 100);
 
   return (
     <div className={styles.progress}>
       <div
         className={styles.progressBar}
-        style={{ width: completeWidth }}
+        style={{ width: `${percentComplete}%` }}
       ></div>
     </div>
   );

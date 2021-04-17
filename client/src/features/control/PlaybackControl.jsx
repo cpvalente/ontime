@@ -20,6 +20,7 @@ export default function PlaybackControl() {
   const socket = useSocket();
   const [playback, setPlayback] = useState(null);
   const [timer, setTimer] = useState({
+    clock: null,
     currentSeconds: null,
     startedAt: null,
     expectedFinish: null,

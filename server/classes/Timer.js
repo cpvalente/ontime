@@ -5,6 +5,7 @@
  */
 
 class Timer {
+  clock = null;
   duration = null;
   current = null;
   _finishAt = null;
@@ -21,6 +22,7 @@ class Timer {
   setupWithSeconds(seconds, autoStart = false) {
     // aux
     const now = this._getCurrentTime();
+    this.clock = now;
 
     // populate targets
     this.duration = seconds * 1000;
@@ -43,6 +45,7 @@ class Timer {
   update() {
     // get current time
     const now = this._getCurrentTime();
+    this.clock = now;
 
     // check playstate
     switch (this.state) {
@@ -101,7 +104,9 @@ class Timer {
     this.update();
 
     return {
+      clock: this.clock,
       currentSeconds: Timer.toSeconds(this.current),
+      durationSeconds: Timer.toSeconds(this.duration),
       expectedFinish: this._getExpectedFinish(),
       startedAt: this._startedAt,
     };
