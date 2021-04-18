@@ -2,13 +2,6 @@ import style from './PlaybackControl.module.css';
 import Countdown from '../../common/components/countdown/Countdown';
 import { stringFromMillis } from '../../common/dateConfig';
 import { useEffect, useState } from 'react';
-import {
-  getStart,
-  getPause,
-  getRoll,
-  getPrevious,
-  getNext,
-} from '../../app/api/playbackApi';
 import { useSocket } from '../../app/context/socketContext';
 import StartIconBtn from '../../common/components/buttons/StartIconBtn';
 import PauseIconBtn from '../../common/components/buttons/PauseIconBtn';
@@ -26,18 +19,12 @@ export default function PlaybackControl() {
     expectedFinish: null,
   });
 
-  const updateState = () => {
-    if (socket == null) return;
-
-    // ask for playstate
-    socket.emit('get-state');
-  };
-
   // handle incoming messages
   useEffect(() => {
     if (socket == null) return;
 
-    updateState();
+    socket.emit('get-timer');
+    socket.emit('get-playstate');
 
     // Handle playstate
     socket.on('playstate', (data) => {
@@ -56,34 +43,23 @@ export default function PlaybackControl() {
     };
   }, [socket]);
 
-  // TODO: Move to playback API
-  // Soould this go through sockets?
   const playbackControl = async (action, payload) => {
     switch (action) {
-      case 'start': {
-        await getStart().then(
-          (res) => res.statusText === 'OK' && setPlayback('start')
-        );
+      case 'start':
+        socket.emit('set-playstate', 'start');
         break;
-      }
-      case 'pause': {
-        await getPause().then(
-          (res) => res.statusText === 'OK' && setPlayback('pause')
-        );
+      case 'pause':
+        socket.emit('set-playstate', 'pause');
         break;
-      }
-      case 'roll': {
-        await getRoll().then((res) => res.ok && setPlayback('roll'));
+      case 'roll':
+        socket.emit('set-playstate', 'roll');
         break;
-      }
-      case 'previous': {
-        await getPrevious().then(updateState);
+      case 'previous':
+        socket.emit('set-playstate', 'previous');
         break;
-      }
-      case 'next': {
-        await getNext().then(updateState);
+      case 'next':
+        socket.emit('set-playstate', 'next');
         break;
-      }
       default:
         break;
     }

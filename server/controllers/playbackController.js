@@ -1,23 +1,12 @@
-// import json with initial data
-const playbackState = require('../data/playbackData.json');
-
 // Create controller for GET request to '/playback'
 // Returns ACK message
 exports.pbGet = async (req, res) => {
-  // ?? Do i need to wrap this in an object?
-  res.send({ response: 'Playback Controller API' });
-};
-
-// Create controller for GET request to '/playback/all'
-// Returns playback state object
-exports.pbGetAll = async (req, res) => {
-  res.json(playbackState);
+  res.send(global.timer.playState);
 };
 
 // Create controller for GET request to '/playback/start'
 // Starts timer object
 exports.pbStart = async (req, res) => {
-  console.log('start request');
   global.timer.start();
   res.sendStatus(200);
 };
@@ -25,7 +14,6 @@ exports.pbStart = async (req, res) => {
 // Create controller for GET request to '/playback/pause'
 // Pauses timer object
 exports.pbPause = async (req, res) => {
-  console.log('pause request');
   global.timer.pause();
   res.sendStatus(200);
 };

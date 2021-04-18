@@ -5,7 +5,7 @@ const router = express.Router();
 const playbackController = require('../controllers/playbackController');
 
 // create route between controller and '/playback/' endpoint
-router.get('/', playbackController.pbGetAll);
+router.get('/', playbackController.pbGet);
 
 // create route between controller and '/playback/start' endpoint
 router.get('/start', playbackController.pbStart);
