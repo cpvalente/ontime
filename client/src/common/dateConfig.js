@@ -20,6 +20,17 @@ export const stringFromMillis = (
     : `${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
 };
 
+// another go at simpler string formatting (counters)
+export function formatDisplay(seconds, hideZero) {
+  const format = (val) => `0${Math.floor(val)}`.slice(-2);
+  const hours = seconds / 3600;
+  const minutes = (seconds % 3600) / 60;
+
+  if (hideZero && hours < 1)
+    return [minutes, seconds % 60].map(format).join(':');
+  else return [hours, minutes, seconds % 60].map(format).join(':');
+}
+
 // millis to seconds
 export const millisToSeconds = (millis) => {
   return Math.floor(millis / 1000);

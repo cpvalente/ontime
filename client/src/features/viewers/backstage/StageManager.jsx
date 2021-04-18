@@ -1,25 +1,31 @@
 import QRCode from 'react-qr-code';
+import { formatDisplay } from '../../../common/dateConfig';
 import style from './StageManager.module.css';
 
-export default function StageManager() {
+export default function StageManager(props) {
+  const { pres, publ, lower, title, time } = props;
+
+  const showPubl = publ.text !== '' && publ.visible;
+  const stageTimer =
+    time.currentSeconds != null && !isNaN(time.currentSeconds)
+      ? formatDisplay(time.currentSeconds, true)
+      : '';
+
   return (
     <div className={style.container__gray}>
-      <div className={style.eventTitle}>Todays event name</div>
-
+      <div className={style.eventTitle}>A hamburger life</div>
       <div className={style.nowContainer}>
         <div className={style.label}>Now</div>
-        <div className={style.nowTitle}>Are hamburguers real</div>
-        <div className={style.nowSubtitle}>A day in the life....</div>
-        <div className={style.nowPresenter}>Carlos Valente</div>
+        <div className={style.nowTitle}>{title.titleNow}</div>
+        <div className={style.nowSubtitle}>{title.subtitleNow}</div>
+        <div className={style.nowPresenter}>{title.presenterNow}</div>
       </div>
-
       <div className={style.nextContainer}>
-        <div className={style.label}>Up Next</div>
-        <div className={style.nextTitle}>Up to midnight</div>
-        <div className={style.nextSubtitle}></div>
-        <div className={style.nextPresenter}>Veronica</div>
+        <div className={style.label}>Next</div>
+        <div className={style.nextTitle}>{title.titleNext}</div>
+        <div className={style.nextSubtitle}>{title.subtitleNext}</div>
+        <div className={style.nextPresenter}>{title.presenterNext}</div>
       </div>
-
       <div className={style.todayContainer}>
         <div className={style.label}>Today</div>
         <div className={style.entries}>
@@ -56,14 +62,23 @@ export default function StageManager() {
         </div>
       </div>
 
+      <div
+        className={
+          showPubl ? style.publicContainer : style.publicContainerHidden
+        }
+      >
+        <div className={style.label}>Public message</div>
+        <div className={style.message}>{publ.text}</div>
+      </div>
+
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>11:00:23</div>
+        <div className={style.clock}>{time.clock}</div>
       </div>
 
       <div className={style.countdownContainer}>
-        <div className={style.label}>Countdown</div>
-        <div className={style.clock}>00:23</div>
+        <div className={style.label}>Stage Timer</div>
+        <div className={style.clock}>{stageTimer}</div>
       </div>
 
       <div className={style.infoContainer}>

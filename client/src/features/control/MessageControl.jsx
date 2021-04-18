@@ -28,6 +28,7 @@ export default function MessageControl() {
 
     // Handle presenter messages
     socket.on('messages-presenter', (data) => {
+      console.log('debug: stting data', data);
       setPres({ ...data });
     });
 
@@ -51,6 +52,8 @@ export default function MessageControl() {
       socket.off('messages-lower');
     };
   }, [socket]);
+
+  console.log('debug', pres);
 
   const messageControl = async (action, payload) => {
     switch (action) {
@@ -84,9 +87,8 @@ export default function MessageControl() {
         <span className={style.label}>Presenter screen message</span>
         <div className={style.inputItems}>
           <Editable
-            onChange={(event) =>
-              messageControl('pres-text', event)
-            }
+            onChange={(event) => messageControl('pres-text', event)}
+            value={pres.text}
             placeholder='only the presenter screens see this'
             className={style.inline}
           >
@@ -105,10 +107,9 @@ export default function MessageControl() {
         <span className={style.label}>Public screen message</span>
         <div className={style.inputItems}>
           <Editable
-            onChange={(event) =>
-              messageControl('publ-text', event)
-            }
-            placeholder='all screens will render this'
+            onChange={(event) => messageControl('publ-text', event)}
+            value={publ.text}
+            placeholder='public screens will render this'
             className={style.inline}
           >
             <EditablePreview />
@@ -126,9 +127,8 @@ export default function MessageControl() {
         <span className={style.label}>Lower third message</span>
         <div className={style.inputItems}>
           <Editable
-            onChange={(event) =>
-              messageControl('lower-text', event)
-            }
+            onChange={(event) => messageControl('lower-text', event)}
+            value={lower.text}
             placeholder='visible in lower third screen'
             className={style.inline}
           >
