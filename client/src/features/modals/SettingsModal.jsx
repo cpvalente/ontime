@@ -1,0 +1,179 @@
+import {
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+} from '@chakra-ui/modal';
+import {
+  FormLabel,
+  FormControl,
+  Input,
+  Button,
+  Textarea,
+} from '@chakra-ui/react';
+import {
+  fetchSettings,
+  postSettings,
+  settingsNamespace,
+} from '../../app/api/settingsApi';
+import { useQuery } from 'react-query';
+import { useEffect, useState } from 'react';
+
+export default function SettingsModal(props) {
+  const { data, status, isError } = useQuery(settingsNamespace, fetchSettings);
+  const [formData, setFormData] = useState({
+    title: '',
+    url: '',
+    publicInfo: '',
+    backstageInfo: '',
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const { isOpen, onClose } = props;
+
+  useEffect(() => {
+    if (data == null) return;
+
+    setFormData({
+      title: data.title,
+      url: data.url,
+      publicInfo: data.publicInfo,
+      backstageInfo: data.backstageInfo,
+    });
+  }, [data]);
+
+  const submitHandler = async (event) => {
+    event.preventDefault();
+    setSubmitting(true);
+
+    await postSettings(formData).then(setSubmitting(false)).then(onClose);
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      closeOnOverlayClick={false}
+      motionPreset={'slideInBottom'}
+    >
+      <ModalOverlay />
+      <ModalContent>
+        <form onSubmit={submitHandler}>
+          <ModalHeader>Event Main Info</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {status === 'success' && (
+              <>
+                <FormControl id='title'>
+                  <FormLabel
+                    style={{ fontWeight: 400, paddingTop: '1em' }}
+                    htmlFor='title'
+                  >
+                    Event Title
+                  </FormLabel>
+                  <Input
+                    size='sm'
+                    name='title'
+                    placeholder='Event Title'
+                    autocomplete='off'
+                    value={formData.title}
+                    onChange={(event) =>
+                      setFormData({ ...formData, title: event.target.value })
+                    }
+                    isDisabled={submitting}
+                  />
+                </FormControl>
+
+                <FormControl id='url'>
+                  <FormLabel
+                    style={{ fontWeight: 400, paddingTop: '1em' }}
+                    htmlFor='url'
+                  >
+                    Event URL
+                  </FormLabel>
+                  <Input
+                    size='sm'
+                    name='url'
+                    placeholder='www.onsite.no'
+                    autocomplete='off'
+                    value={formData.url}
+                    onChange={(event) =>
+                      setFormData({ ...formData, url: event.target.value })
+                    }
+                    isDisabled={submitting}
+                  />
+                </FormControl>
+
+                <FormControl id='pubInfo'>
+                  <FormLabel
+                    style={{ fontWeight: 400, paddingTop: '1em' }}
+                    htmlFor='pubInfo'
+                  >
+                    Public Info
+                  </FormLabel>
+                  <Textarea
+                    size='sm'
+                    name='pubInfo'
+                    placeholder='Information to be shown on public screens'
+                    autocomplete='off'
+                    value={formData.publicInfo}
+                    onChange={(event) =>
+                      setFormData({
+                        ...formData,
+                        publicInfo: event.target.value,
+                      })
+                    }
+                    isDisabled={submitting}
+                  />
+                </FormControl>
+
+                <FormControl id='backstageInfo'>
+                  <FormLabel
+                    style={{ fontWeight: 400, paddingTop: '1em' }}
+                    htmlFor='backstageInfo'
+                  >
+                    Backstage Info
+                  </FormLabel>
+                  <Textarea
+                    size='sm'
+                    name='backstageInfo'
+                    placeholder='Information to be shown on backstage screens'
+                    autocomplete='off'
+                    value={formData.backstageInfo}
+                    onChange={(event) =>
+                      setFormData({
+                        ...formData,
+                        backstageInfo: event.target.value,
+                      })
+                    }
+                    isDisabled={submitting}
+                  />
+                </FormControl>
+              </>
+            )}
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              colorScheme='blue'
+              mr={3}
+              isLoading={submitting}
+              type='submit'
+            >
+              Save
+            </Button>
+            <Button
+              variant='ghost'
+              onClick={onClose}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+          </ModalFooter>
+        </form>
+      </ModalContent>
+    </Modal>
+  );
+}
