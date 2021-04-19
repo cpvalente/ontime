@@ -6,7 +6,12 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync(config.database.filename);
 const db = low(adapter);
-db.defaults({ events: [] }).write();
+// TODO: move defaults to config file
+db.defaults({
+  events: [],
+  event: { title: '', url: '', publicInfo: '', backstageInfo: '' },
+  settings: {},
+}).write();
 
 // export db
 module.exports.db = db;
@@ -18,7 +23,7 @@ const cors = require('cors');
 
 // Import Routes
 const eventsRouter = require('./routes/eventsRouter.js');
-const playbackRouter = require('./routes/playbackRouter.js');
+const settingsRouter = require('./routes/settingsRouter.js');
 
 // Setup default port
 const port = process.env.PORT || config.server.port;
@@ -48,7 +53,7 @@ app.use(express.json());
 
 // Implement route endpoints
 app.use('/events', eventsRouter);
-app.use('/playback', playbackRouter);
+app.use('/settings', settingsRouter);
 
 // implement general router
 app.get('/', function (req, res) {

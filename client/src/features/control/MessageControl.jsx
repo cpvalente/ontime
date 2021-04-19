@@ -28,7 +28,6 @@ export default function MessageControl() {
 
     // Handle presenter messages
     socket.on('messages-presenter', (data) => {
-      console.log('debug: stting data', data);
       setPres({ ...data });
     });
 
@@ -52,8 +51,6 @@ export default function MessageControl() {
       socket.off('messages-lower');
     };
   }, [socket]);
-
-  console.log('debug', pres);
 
   const messageControl = async (action, payload) => {
     switch (action) {
