@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap');
+
 .container__gray,
 .container__grayFinished {
   margin: 0;
@@ -30,8 +32,9 @@
 
 .eventTitle {
   grid-area: titl;
-  font-size: 4vw;
+  font-size: 3vw;
   font-weight: 600;
+  text-decoration: underline #ff7597 0.5vh;
   padding-top: 0.2vh;
   padding-left: 1vw;
 }
@@ -206,15 +209,18 @@
   grid-area: info;
   display: grid;
 
+  grid-template-rows: 3vh minmax(0, 1fr);
   grid-template-columns: 3fr 1fr;
   grid-template-areas:
-    'titl qr'
-    'info qr';
+    'titl .'
+    'binf qr';
+  gap: 0.5vw;
 }
 
 .infoMessages {
-  grid-area: info;
+  grid-area: binf;
   font-size: 1.5vw;
+  white-space: pre-line;
 }
 
 .qr {
@@ -236,6 +242,7 @@
 }
 
 .clock {
+  font-family: 'Open Sans', sans-serif;
   font-size: 3vw;
   line-height: 3vw;
   text-align: center;

@@ -19,18 +19,17 @@ const SStageManager = withSocket(StageManager);
 function App() {
   return (
     <SocketProvider>
-      <div className='App'>
-        <Switch>
-          <Route exact path='/' component={SDefault} />
-          <Route path='/sm' component={SStageManager} />
-          <Route path='/speaker' component={SSpeaker} />
-          <Route path='/speakersimple' component={SSpeakerSimple} />
-
-          <QueryClientProvider client={queryClient}>
-            <Route path='/editor' component={Editor} />
-          </QueryClientProvider>
-        </Switch>
-      </div>
+      <QueryClientProvider client={queryClient}>
+        <div className='App'>
+          <Switch>
+            <Route exact path='/' component={SDefault} />
+            <Route exact path='/sm' component={SStageManager} />
+            <Route exact path='/speaker' component={SSpeaker} />
+            <Route exact path='/speakersimple' component={SSpeakerSimple} />
+            <Route exact path='/editor' component={Editor} />
+          </Switch>
+        </div>
+      </QueryClientProvider>
     </SocketProvider>
   );
 }

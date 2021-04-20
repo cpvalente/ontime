@@ -1,9 +1,25 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from 'react-query';
+import { eventsNamespace, fetchAllEvents } from '../../app/api/eventsApi';
+import { fetchSettings, settingsNamespace } from '../../app/api/settingsApi';
 import { useSocket } from '../../app/context/socketContext';
 import { stringFromMillis } from '../../common/dateConfig';
 
 const withSocket = (Component) => {
   const WrappedComponent = (props) => {
+    const {
+      data: eventsData,
+      status: eventsDataStatus,
+      isError: eventsDataIsError,
+    } = useQuery(eventsNamespace, fetchAllEvents);
+    const {
+      data: genData,
+      status: genDataStatus,
+      isError: genDataIsError,
+    } = useQuery(settingsNamespace, fetchSettings);
+
+    const [events, setEvents] = useState([]);
+
     const socket = useSocket();
     const [pres, setPres] = useState({
       text: '',
@@ -31,6 +47,13 @@ const withSocket = (Component) => {
       subtitleNext: '',
       presenterNext: '',
     });
+    const [selectedId, setSelectedId] = useState({});
+    const [general, setGeneral] = useState({
+      title: '',
+      url: '',
+      publicInfo: '',
+      backstageInfo: '',
+    });
 
     // Ask for update on load
     useEffect(() => {
@@ -56,9 +79,14 @@ const withSocket = (Component) => {
         setTimer({ ...data });
       });
 
-      // Handle timer
+      // Handle titles
       socket.on('titles', (data) => {
         setTitles({ ...data });
+      });
+
+      // Handle selected event
+      socket.on('selected-id', (data) => {
+        setSelectedId(data);
       });
 
       // Ask for up to date data
@@ -70,6 +98,9 @@ const withSocket = (Component) => {
       // Ask for up titles
       socket.emit('get-titles');
 
+      // Ask for up selected
+      socket.emit('get-selected-id');
+
       // Clear listeners
       return () => {
         socket.off('messages-public');
@@ -77,8 +108,22 @@ const withSocket = (Component) => {
         socket.off('messages-lower');
         socket.off('timer');
         socket.off('titles');
+        socket.off('selected-id');
       };
     }, [socket]);
+
+    // Filter events only to pass down
+    useEffect(() => {
+      if (eventsData == null) return;
+      const e = eventsData.filter((d) => d.type === 'event');
+      setEvents(e);
+    }, [eventsData]);
+
+    // Set general data
+    useEffect(() => {
+      if (genData == null) return;
+      setGeneral(genData);
+    }, [genData]);
 
     /********************************************/
     /***  + titleManager                      ***/
@@ -114,6 +159,9 @@ const withSocket = (Component) => {
         lower={lower}
         title={titleManager}
         time={timeManager}
+        events={events}
+        selectedId={selectedId}
+        general={general}
       />
     );
   };
