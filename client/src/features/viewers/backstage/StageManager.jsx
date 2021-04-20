@@ -1,7 +1,7 @@
 import QRCode from 'react-qr-code';
 import { formatDisplay } from '../../../common/dateConfig';
 import style from './StageManager.module.css';
-import TodayItem from './TodayItem';
+import Paginator from './Paginator';
 
 export default function StageManager(props) {
   const { pres, publ, lower, title, time, events, selectedId, general } = props;
@@ -12,12 +12,6 @@ export default function StageManager(props) {
     time.currentSeconds != null && !isNaN(time.currentSeconds)
       ? formatDisplay(time.currentSeconds, true)
       : '';
-
-  // Keep track of order
-  // 0 - events before
-  // 1 - running event
-  // 2 - future event
-  let selectedYet = 0;
 
   return (
     <div className={style.container__gray}>
@@ -36,25 +30,8 @@ export default function StageManager(props) {
       </div>
       <div className={style.todayContainer}>
         <div className={style.label}>Today</div>
-        <div className={style.entries}>
-          {events.map((e) => {
-            if (e.id === selectedId) selectedYet = 1;
-            else if (selectedYet === 1) selectedYet = 2;
-            return (
-              <TodayItem
-                selected={selectedYet}
-                timeStart={e.timeStart}
-                timeEnd={e.timeEnd}
-                title={e.title}
-              />
-            );
-          })}
-        </div>
-
-        <div className={style.nav}>
-          <div className={style.navItem} />
-          <div className={style.navItem} />
-          <div className={style.navItemSelected} />
+        <div className={style.entriesContainer}>
+          <Paginator selectedId={selectedId} events={events} />
         </div>
       </div>
 

@@ -1,0 +1,25 @@
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vh;
+  padding-top: 2vh;
+}
+
+.navItem,
+.navItemSelected {
+  background-color: rgba(255, 255, 255, 0.39);
+  width: 0.7vw;
+  height: 0.7vw;
+  border-radius: 0.35vw;
+}
+
+.navItemSelected {
+  background-color: rgba(255, 255, 255, 0.79);
+}
+
+.nav {
+  align-self: center;
+  justify-content: flex-end;
+  display: flex;
+  gap: 1vw;
+}

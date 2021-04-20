@@ -134,6 +134,15 @@
   font-size: 1.5vw;
 }
 
+.nowTitle:after,
+.nowSubtitle:after,
+.nowPresenter:after,
+.nextTitle:after,
+.nextSubtitle:after,
+.nextPresenter:after {
+  content: '\200b';
+}
+
 /* =================== SCHEDULE ===================*/
 
 .todayContainer {
@@ -144,23 +153,6 @@
   height: 95%;
 }
 
-.entries {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5vh;
-}
-
-.navItem,
-.navItemSelected {
-  background-color: rgba(255, 255, 255, 0.39);
-  width: 0.7vw;
-  height: 0.7vw;
-  border-radius: 0.35vw;
-}
-
-.navItemSelected {
-  background-color: rgba(255, 255, 255, 0.79);
-}
 
 .entryStart,
 .entryEnd {
@@ -248,12 +240,4 @@
   text-align: center;
   letter-spacing: 0.25vw;
   color: #ddd;
-}
-
-.nav {
-  align-self: center;
-  justify-self: flex-end;
-  display: flex;
-  gap: 1vw;
-  margin-bottom: auto;
 }
