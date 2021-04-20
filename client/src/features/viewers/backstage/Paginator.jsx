@@ -1,7 +1,6 @@
 import TodayItem from './TodayItem';
 import style from './Paginator.module.css';
 import { useEffect, useState } from 'react';
-import { useTimeout } from '../../../app/hooks/useTimeout';
 import { useInterval } from '../../../app/hooks/useInterval';
 
 export default function Paginator(props) {
@@ -23,24 +22,19 @@ export default function Paginator(props) {
   useEffect(() => {
     if (events == null) return;
 
-    console.log('debug events', events);
-
     // how many events in list
     let n = events.length;
     setNumEvents(n);
-    console.log('debug ne', n);
 
     // how many paginated views
     let p = Math.ceil(n / LIMIT_PER_PAGE);
     setPages(p);
-    console.log('debug np', p);
 
     // divide events in parts of LIMIT_PER_PAGE
     const eventStart = LIMIT_PER_PAGE * selPage;
     const eventEnd = LIMIT_PER_PAGE * (selPage + 1);
     let e = events.slice(eventStart, eventEnd);
     setPage(e);
-    console.log('debug show', e);
 
     // if array is completely in past, show depending on SCROLL_PAST
   }, [events, selPage]);
@@ -58,6 +52,7 @@ export default function Paginator(props) {
       <div className={style.nav}>
         {[...Array(pages)].map((p, i) => (
           <div
+            key={i}
             className={i === selPage ? style.navItemSelected : style.navItem}
           />
         ))}
@@ -69,6 +64,7 @@ export default function Paginator(props) {
           else if (selectedYet === 1) selectedYet = 2;
           return (
             <TodayItem
+              key={e.id}
               selected={selectedYet}
               timeStart={e.timeStart}
               timeEnd={e.timeEnd}

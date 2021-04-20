@@ -1,62 +1,129 @@
-import { differenceInSeconds, format, subMinutes } from 'date-fns';
-import addMinutes from 'date-fns/addMinutes';
-import { useContext, useEffect, useState } from 'react';
-import { EventContext } from '../../app/context/eventContext';
-import { PresenterMessagesContext } from '../../app/context/presenterMessageContext';
-import Countdown from '../../common/components/countdown/Countdown';
-import MyProgressBar from '../../common/components/myProgressBar/MyProgressBar';
-import SmallTimer from '../../common/components/smallTimer/SmallTimer';
-import './viewers.css';
+import { useEffect, useState } from 'react';
+import { useSocket } from '../../app/context/socketContext';
+import style from './DefaultPresenter.module.css';
 
 export default function DefaultPresenter() {
-  const [event] = useContext(EventContext);
-  const [presMessage] = useContext(PresenterMessagesContext);
-  const [initialValues, setInitialValues] = useState(null);
+  const socket = useSocket();
+  const [pres, setPres] = useState({
+    text: '',
+    visible: false,
+  });
+  const [publ, setPubl] = useState({
+    text: '',
+    visible: false,
+  });
+  const [lower, setLower] = useState({
+    text: '',
+    visible: false,
+  });
+  const [timer, setTimer] = useState({
+    clock: null,
+    currentSeconds: null,
+    startedAt: null,
+    expectedFinish: null,
+  });
+  const [titles, setTitles] = useState({
+    titleNow: '',
+    subtitleNow: '',
+    presenterNow: '',
+    titleNext: '',
+    subtitleNext: '',
+    presenterNext: '',
+  });
 
-  const now = new Date();
-  let values = event ?? {
-    title: 'Presentation Title',
-    subtitle: 'Presentation Subtitle',
-    presenter: 'Presenter Name',
-    timerDuration: 10,
-    timeStart: now,
-    timeEnd: now,
-  };
-
+  // Ask for update on load
   useEffect(() => {
-    values = event;
-  }, [event]);
+    if (socket == null) return;
 
-  useEffect(() => {
-    setInitialValues(event);
-  }, [event]);
+    // Handle presenter messages
+    socket.on('messages-presenter', (data) => {
+      setPres({ ...data });
+    });
 
-  // NOTE: test only
-  const clockStarted = addMinutes(now, 6);
+    // Handle public messages
+    socket.on('messages-public', (data) => {
+      setPubl({ ...data });
+    });
 
-  const timer = differenceInSeconds(
-    now,
-    subMinutes(clockStarted, values.duration)
-  );
+    // Handle lower third messages
+    socket.on('messages-lower', (data) => {
+      setLower({ ...data });
+    });
 
-  const timeStart = format(values.timeStart, 'HH:mm');
-  const currentTime = format(now, 'HH:mm');
-  const timeEnd = format(values.timeEnd, 'HH:mm');
-  const elapsed = timer / (values.duration * 60);
+    // Handle timer
+    socket.on('timer', (data) => {
+      setTimer({ ...data });
+    });
+
+    // Handle timer
+    socket.on('titles', (data) => {
+      setTitles({ ...data });
+    });
+
+    // Ask for up to date data
+    socket.emit('get-messages');
+
+    // Ask for up to data
+    socket.emit('get-presenter');
+
+    // Ask for up titles
+    socket.emit('get-titles');
+
+    // Clear listeners
+    return () => {
+      socket.off('messages-public');
+      socket.off('messages-presenter');
+      socket.off('messages-lower');
+      socket.off('timer');
+      socket.off('titles');
+    };
+  }, [socket]);
 
   return (
-    <div className='presenter'>
-      <div className='presentationTitle'>{values.title}</div>
-      <div className='presentationSub'>{values.subtitle}</div>
-      <Countdown time={timer} />
-      {!presMessage.show && <MyProgressBar normalisedComplete={elapsed} />}
-      <div className={presMessage.show ? 'userMessage' : 'userMessage hidden'}>
-        {presMessage.text}
+    <div className={style.mainContainer}>
+      <div className={style.container}>
+        <span className={style.label}>Clock: </span>
+        <span>{timer.clock}</span>
+        <span className={style.label}>Timer: </span>
+        <span>{timer.currentSeconds}</span>
+        <span className={style.label}>Started: </span>
+        <span>{timer.startedAt}</span>
+        <span className={style.label}>Finish: </span>
+        <span>{timer.expectedFinish}</span>
       </div>
-      <div className='extra'>
-        <SmallTimer label='Scheduled Start' time={timeStart} />
-        <SmallTimer label='Current Time' time={currentTime} />
-        <SmallTimer label='Scheduled End' time={timeEnd} />
+      <div className={style.container}>
+        <span className={style.label}>Presenter Message: </span>
+        <span>{pres.text}</span>
+        <span className={style.label}>Vis: </span>
+        <span>{pres.visible ? 'visible' : 'invisible'}</span>
+      </div>
+      <div className={style.container}>
+        <span className={style.label}>Public Message: </span>
+        <span>{publ.text}</span>
+        <span className={style.label}>Vis: </span>
+        <span>{publ.visible ? 'visible' : 'invisible'}</span>
+      </div>
+      <div className={style.container}>
+        <span className={style.label}>Lower third Message: </span>
+        <span>{lower.text}</span>
+        <span className={style.label}>Vis: </span>
+        <span>{lower.visible ? 'visible' : 'invisible'}</span>
+      </div>
+      <div className={style.container}>
+        <span className={style.label}>Title Now: </span>
+        <span>{titles.titleNow}</span>
+        <span className={style.label}>Subtitle Now: </span>
+        <span>{titles.subtitleNow}</span>
+        <span className={style.label}>Presenter Now: </span>
+        <span>{titles.presenterNow}</span>
+      </div>
+      <div className={style.container}>
+        <span className={style.label}>Title Next: </span>
+        <span>{titles.titleNext}</span>
+        <span className={style.label}>Subtitle Next: </span>
+        <span>{titles.subtitleNext}</span>
+        <span className={style.label}>Presenter Next: </span>
+        <span>{titles.presenterNext}</span>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export default function TodayItem(props) {
   if (selected === 1) selectStyle = style.entryNow;
   else if (selected === 2) selectStyle = style.entryFuture;
   return (
-    <div class={selectStyle}>
+    <div className={selectStyle}>
       <div className={style.entryStart}>{start}</div>
       <div className={style.entryEnd}>{end}</div>
       <div className={style.entryTitle}>{title}</div>

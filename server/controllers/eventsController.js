@@ -109,7 +109,6 @@ exports.eventsPost = async (req, res) => {
     res.sendStatus(201);
   } catch (error) {
     res.status(400).send(error);
-    console.log('debug', error);
   }
 };
 
@@ -119,19 +118,14 @@ exports.eventsPut = async (req, res) => {
   // no valid params
   if (!req.body) {
     res.status(400).send(`No object found`);
-    console.log('error here', 'noobj');
-
     return;
   }
 
   let eventId = req.body.id;
   if (!eventId) {
-    res.status(400).send(`No id found`);
-    console.log('error here', 'noid');
-
+    res.status(400).send(`Object malformed: id missing`);
     return;
   }
-
   try {
     db.get('events')
       .find({ id: req.body.id })
@@ -141,7 +135,6 @@ exports.eventsPut = async (req, res) => {
       .then(res.sendStatus(200));
   } catch (error) {
     res.status(400).send(error);
-    console.log('error here', error);
   }
 };
 

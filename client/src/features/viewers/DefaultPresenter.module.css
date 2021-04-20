@@ -1,0 +1,18 @@
+.mainContainer {
+  color: white;
+  display: flex;
+  flex-direction: rows;
+  flex-wrap: wrap;
+  font-size: 28px;
+  gap: 2em
+}
+
+.container {
+  flex: 1 0 56%;
+  display: flex;
+}
+
+.label {
+  padding: 0 1em;
+  color: #fff5;
+}

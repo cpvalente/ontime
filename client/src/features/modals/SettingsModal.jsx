@@ -164,11 +164,7 @@ export default function SettingsModal(props) {
             >
               Save
             </Button>
-            <Button
-              variant='ghost'
-              onClick={onClose}
-              disabled={submitting}
-            >
+            <Button variant='ghost' onClick={onClose} disabled={submitting}>
               Cancel
             </Button>
           </ModalFooter>

@@ -6,12 +6,13 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 
 // 1. import `ChakraProvider` component
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, CSSReset } from '@chakra-ui/react';
 
 ReactDOM.render(
   <React.StrictMode>
     <ChakraProvider>
       <BrowserRouter>
+        <CSSReset />
         <App />
       </BrowserRouter>
     </ChakraProvider>

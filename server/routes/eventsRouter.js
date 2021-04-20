@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-// import playback controller
-  const eventsController = require('../controllers/eventsController');
+// import events controller
+const eventsController = require('../controllers/eventsController');
 
 // create route between controller and '/events' endpoint
 router.get('/', eventsController.eventsGetAll);
