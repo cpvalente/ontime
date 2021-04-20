@@ -1,5 +1,6 @@
 .mainContainer {
-  width: 95%;
+  background: linear-gradient(90deg, #202020 0%, #121212 100%);
+  width: 100%;
   margin: auto;
   height: 95vh;
   color: #fffd;

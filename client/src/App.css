@@ -4,6 +4,8 @@
 }
 
 .App {
-  background: linear-gradient(90deg, #202020 0%, #121212 100%);
+  margin: 0px auto;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0);
   height: 100vh;
 }

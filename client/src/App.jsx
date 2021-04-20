@@ -8,6 +8,7 @@ import SocketProvider from './app/context/socketContext';
 import PresenterSimple from './features/viewers/presenter/PresenterSimple';
 import StageManager from './features/viewers/backstage/StageManager';
 import withSocket from './features/viewers/ViewWrapper';
+import Lower from './features/viewers/lower/Lower';
 
 const queryClient = new QueryClient();
 
@@ -15,20 +16,20 @@ const SDefault = withSocket(DefaultPresenter);
 const SSpeaker = withSocket(PresenterView);
 const SSpeakerSimple = withSocket(PresenterSimple);
 const SStageManager = withSocket(StageManager);
+const SLowerThird = withSocket(Lower);
 
 function App() {
   return (
     <SocketProvider>
       <QueryClientProvider client={queryClient}>
-        <div className='App'>
-          <Switch>
+          <div className='App'>
             <Route exact path='/' component={SDefault} />
             <Route exact path='/sm' component={SStageManager} />
             <Route exact path='/speaker' component={SSpeaker} />
             <Route exact path='/speakersimple' component={SSpeakerSimple} />
             <Route exact path='/editor' component={Editor} />
-          </Switch>
-        </div>
+            <Route path='/lower' component={SLowerThird} />
+          </div>
       </QueryClientProvider>
     </SocketProvider>
   );

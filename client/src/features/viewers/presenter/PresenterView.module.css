@@ -86,7 +86,7 @@
   font-size: 18vw;
   line-height: 18vw;
   font-weight: 600;
-  color: #ff5353;
+  color: #ff6969;
   padding: 0;
 }
 
@@ -97,7 +97,7 @@
 }
 
 .container__grayFinished {
-  border: 1vw solid #ff5353;
+  border: 1vw solid #ff6969;
 }
 
 /* =================== OVERLAY ===================*/

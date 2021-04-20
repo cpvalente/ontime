@@ -1,0 +1,89 @@
+.lowerThird {
+  color: #fffffa;
+  font-size: 4vh;
+  width: 100%;
+  height: 100%;
+}
+
+.lowerContainer {
+  position: absolute;
+  top: 70vh;
+  background-color: #00000033;
+
+  padding: 1vw 1vw 1vw 0;
+  display: flex;
+  flex-direction: column;
+  width: 45vw;
+  gap: 3vh;
+  border-radius: 0 1vh 1vh 0;
+}
+
+.messageContainer,
+.messageContainerHidden {
+  position: absolute;
+  bottom: 2vh;
+  width: 100%;
+  text-align: center;
+  filter: blur(0);
+}
+
+.titleContainer,
+.subtitleContainer {
+  display: grid;
+  grid-template-columns: auto max-content;
+  grid-template-areas: 'decor text';
+  align-items: center;
+  position: relative;
+}
+
+.titleDecor,
+.subDecor {
+  grid-area: decor;
+  height: 4vh;
+  background-color: #ff6969;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 105, 105, 1) 0%,
+    rgba(255, 132, 132, 1) 100%
+  );
+}
+
+.titleDecor,
+.subDecor {
+  width: 100%;
+}
+
+.title,
+.subtitle {
+  grid-area: text;
+  padding-left: 1vw;
+  justify-self: right;
+  width: fit-content;
+}
+
+.title {
+}
+
+.subtitleContainer {
+}
+
+.subtitle {
+}
+
+.messageContainer {
+  background-color: #00000033;
+  opacity: 1;
+  transition: 0.5s;
+  transition-property: opacity;
+}
+
+.messageContainerHidden {
+  background-color: #00000033;
+  opacity: 0;
+  transition: 0.5s;
+  transition-property: opacity;
+}
+
+.message {
+  font-size: 3.5vh;
+}
