@@ -4,8 +4,8 @@ export default function TodayItem(props) {
   const { selected, timeStart, timeEnd, title } = props;
 
   // Format timers
-  const start = timeStart ? stringFromMillis(timeStart, false) : '';
-  const end = timeEnd ? stringFromMillis(timeEnd, false) : '';
+  const start = stringFromMillis(timeStart, false) || '';
+  const end = stringFromMillis(timeEnd, false) || '';
 
   // select styling
   let selectStyle = style.entryPast;

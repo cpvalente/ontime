@@ -89,8 +89,8 @@ export default function MessageControl() {
             placeholder='only the presenter screens see this'
             className={style.inline}
           >
-            <EditablePreview />
-            <EditableInput className={style.editable13} />
+            <EditablePreview className={style.padleft} />
+            <EditableInput className={style.padleft} />
           </Editable>
           <VisibleIconBtn
             active={pres.visible}
@@ -109,8 +109,8 @@ export default function MessageControl() {
             placeholder='public screens will render this'
             className={style.inline}
           >
-            <EditablePreview />
-            <EditableInput className={style.editable13} />
+            <EditablePreview className={style.padleft} />
+            <EditableInput className={style.padleft} />
           </Editable>
           <VisibleIconBtn
             active={publ.visible}
@@ -129,8 +129,8 @@ export default function MessageControl() {
             placeholder='visible in lower third screen'
             className={style.inline}
           >
-            <EditablePreview />
-            <EditableInput />
+            <EditablePreview className={style.padleft} />
+            <EditableInput className={style.padleft} />
           </Editable>
 
           <VisibleIconBtn

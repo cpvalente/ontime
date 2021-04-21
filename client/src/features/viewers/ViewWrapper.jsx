@@ -115,7 +115,10 @@ const withSocket = (Component) => {
     // Filter events only to pass down
     useEffect(() => {
       if (eventsData == null) return;
-      const e = eventsData.filter((d) => d.type === 'event');
+
+      // filter just events with title
+      const e = eventsData.filter((d) => d.type === 'event' && d.title !== '');
+
       setEvents(e);
     }, [eventsData]);
 

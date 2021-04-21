@@ -4,6 +4,8 @@ import BlockBlock from './BlockBlock';
 import EventBlock from './EventBlock';
 import { useEffect, useState } from 'react';
 import { useSocket } from '../../../app/context/socketContext';
+import Empty from '../../../common/state/Empty';
+
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
@@ -27,6 +29,12 @@ export default function EventList(props) {
       socket.off('selected-id');
     };
   }, [socket]);
+
+  if (events.length < 1) {
+    return (
+        <Empty text='No Events' />
+    );
+  }
 
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;

@@ -41,6 +41,17 @@
 
 /* =================== TITLES ===================*/
 
+.infoContainer > div {
+  overflow:hidden;
+}
+
+.nextContainer > div,
+.nowContainer > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .nowContainer,
 .nextContainer,
 .todayContainer {
@@ -157,7 +168,9 @@
 .entryStart,
 .entryEnd {
   font-size: 1.5vw;
+  min-width: 3.5vw;
 }
+
 
 .entryTitle {
   align-self: center;
@@ -183,7 +196,7 @@
 .entryNow {
   font-size: 1.3vw;
   color: #fff;
-  line-height: 7vh;
+  line-height: 4vh;
   background-color: rgba(255, 255, 255, 0.09);
   border-bottom: 0.5vh solid #ff7597aa;
   margin-left: -0.5vw;
@@ -212,6 +225,7 @@
 .infoMessages {
   grid-area: binf;
   font-size: 1.5vw;
+  line-height: 2vw;
   white-space: pre-line;
 }
 

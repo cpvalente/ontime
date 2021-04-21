@@ -5,7 +5,7 @@ import { useInterval } from '../../../app/hooks/useInterval';
 
 export default function Paginator(props) {
   const { events, selectedId } = props;
-  const LIMIT_PER_PAGE = 3;
+  const LIMIT_PER_PAGE = 7;
   const SCROLL_TIME = 5000;
   const SCROLL_PAST = false;
   const [numEvents, setNumEvents] = useState(0);
@@ -49,14 +49,16 @@ export default function Paginator(props) {
 
   return (
     <>
-      <div className={style.nav}>
-        {[...Array(pages)].map((p, i) => (
-          <div
-            key={i}
-            className={i === selPage ? style.navItemSelected : style.navItem}
-          />
-        ))}
-      </div>
+      {pages > 1 && (
+        <div className={style.nav}>
+          {[...Array(pages)].map((p, i) => (
+            <div
+              key={i}
+              className={i === selPage ? style.navItemSelected : style.navItem}
+            />
+          ))}
+        </div>
+      )}
 
       <div className={style.entries}>
         {page.map((e) => {

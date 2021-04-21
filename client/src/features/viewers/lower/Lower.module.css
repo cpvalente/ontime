@@ -1,8 +1,12 @@
 .lowerThird {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100%;
+
   color: #fffffa;
   font-size: 4vh;
-  width: 100%;
-  height: 100%;
 }
 
 .lowerContainer {
@@ -34,6 +38,13 @@
   grid-template-areas: 'decor text';
   align-items: center;
   position: relative;
+}
+
+.titleContainer,
+.subtitleContainer {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .titleDecor,

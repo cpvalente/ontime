@@ -20,7 +20,10 @@ export default function PreviewContainer() {
         <div className={styles.label}>Stage Manager</div>
       </div>
       <div className={styles.previewItem}>
-        <IFrameLoader title='Lower third' src='http://localhost:3000/lower' />
+        <IFrameLoader
+          title='Lower third'
+          src='http://localhost:3000/lower?key=242424'
+        />
         <div className={styles.label}>Lower third</div>
       </div>
     </div>

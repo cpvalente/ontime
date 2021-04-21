@@ -16,7 +16,12 @@ export default function EventListMenu(props) {
     size: 'sm',
     variant: 'outline',
     colorScheme: 'whiteAlpha',
-    backgroundColor: '#ffffff05'
+    backgroundColor: '#ffffff05',
+  };
+
+  const menuStyle = {
+    color: 'initial',
+    backgroundColor: 'rgba(255,255,255,0.67)',
   };
 
   const addHandler = () => {
@@ -25,16 +30,14 @@ export default function EventListMenu(props) {
 
   return (
     <div className={style.headerButtons}>
-      <Menu>
+      <Menu className={style.menu}>
         <ButtonGroup isAttached>
-          <Button {...buttonProps}>
-            Upload
-          </Button>
+          <Button {...buttonProps}>Upload</Button>
           <MenuButton as={Button} {...buttonProps}>
             <FiChevronDown />
           </MenuButton>
         </ButtonGroup>
-        <MenuList>
+        <MenuList style={menuStyle}>
           <MenuItem>Upload Excel</MenuItem>
           <MenuItem>Upload CSV</MenuItem>
         </MenuList>
@@ -42,11 +45,11 @@ export default function EventListMenu(props) {
       <Menu>
         <ButtonGroup isAttached>
           <Button {...buttonProps}>Save</Button>
-          <MenuButton as={Button} {...buttonProps} >
+          <MenuButton as={Button} {...buttonProps}>
             <FiChevronDown />
           </MenuButton>
         </ButtonGroup>
-        <MenuList>
+        <MenuList style={menuStyle}>
           <MenuItem>Download Excel</MenuItem>
           <MenuItem>Download CSV</MenuItem>
         </MenuList>

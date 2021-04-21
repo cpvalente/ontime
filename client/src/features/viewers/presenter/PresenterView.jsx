@@ -41,6 +41,7 @@ export default function PresenterView(props) {
           <MyProgressBar
             now={time.currentSeconds}
             complete={time.durationSeconds}
+            showElapsed
           />
         </div>
       )}

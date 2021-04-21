@@ -7,4 +7,11 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 4px;
   padding: 8px;
+  overflow-y: scroll;
+  height: 71vh;
+}
+
+.empty {
+  opacity: 0.3;
+  align-self: center;
 }
