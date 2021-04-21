@@ -14,3 +14,15 @@ export const showErrorToast = (title, description) => {
     isClosable: true,
   });
 };
+
+// warning toast
+export const showWarningToast = (title, description) => {
+  toast({
+    title: title,
+    description: description,
+    position: 'top-left',
+    variant: 'subtle',
+    status: 'warning',
+    isClosable: true,
+  });
+};

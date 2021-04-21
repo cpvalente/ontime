@@ -1,25 +1,24 @@
 import EditableTimer from '../../input/EditableTimer';
 import DelayValue from '../../input/DelayValue';
-import { showErrorToast } from '../../helpers/toastManager';
+import { showWarningToast } from '../../helpers/toastManager';
 
 export default function EventTimes(props) {
   const { updateValues, delay, timeStart, timeEnd } = props;
 
-  // TODO: how to handle midnight rollover
   const handleValidate = (entry, v) => {
-    // if one of the fields is not set, all good
+    // we dont inforce validation here
 
     if (v == null || timeStart == null || timeEnd == null) return true;
-    if (v === 0 || timeStart === 0 || timeEnd === 0) return true;
+    if (timeStart === 0) return true;
 
-    let validate = { value: false, catch: 'undefined error' };
-    if (entry === 'timeStart')
-      validate = { value: v < timeEnd, catch: 'Start time later than end time' };
-    else if (entry === 'timeEnd')
-      validate = { value: v > timeStart, catch: 'End time earlier than start time' };
+    let validate = { value: true, catch: '' };
+    if (entry === 'timeStart' && v > timeEnd)
+      validate.catch = 'Start time later than end time';
+    else if (entry === 'timeEnd' && v < timeStart)
+      validate.catch = 'End time earlier than start time';
 
-    if (validate.value === false)
-      showErrorToast('Time Input Invalid', validate.catch);
+    if (validate.catch !== '')
+      showWarningToast('Time Input Warning', validate.catch);
     return validate.value;
   };
 
