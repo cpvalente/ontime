@@ -30,13 +30,12 @@ export default function EventListWrapper() {
       const previousEvents = queryClient.getQueryData(eventsNamespace);
 
       // optimistically update object, temp ID until refetch
-
-      queryClient.setQueryData(eventsNamespace, (old) =>
-        old.splice(newEvent.order, 0, {
-          ...newEvent,
-          id: new Date().toISOString(),
-        })
-      );
+      let optimistic = [...previousEvents];
+      optimistic.splice(newEvent.order, 0, {
+        ...newEvent,
+        id: new Date().toISOString(),
+      });
+      queryClient.setQueryData(eventsNamespace, optimistic);
 
       // Return a context with the previous and new todo
       return { previousEvents };
