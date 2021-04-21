@@ -6,7 +6,7 @@ const { nanoid } = require('nanoid');
 const eventDefs = require('../data/eventsDefinition.js');
 
 // incrementFrom
-function incrementFrom(start, incr = 1) {
+async function incrementFrom(start, incr = 1) {
   try {
     let entries = db.get('events').sortBy('order').value();
 
@@ -22,15 +22,15 @@ function incrementFrom(start, incr = 1) {
   }
 }
 
-function _getEventsCount() {
+async function _getEventsCount() {
   return db.get('events').size().value();
 }
 
-function _pushNew(entry) {
+async function _pushNew(entry) {
   return db.get('events').push(entry).write();
 }
 
-function _removeById(eventId) {
+async function _removeById(eventId) {
   return db.get('events').remove({ id: eventId }).write();
 }
 
@@ -95,18 +95,12 @@ exports.eventsPost = async (req, res) => {
 
   try {
     // increment count if necessary
-    const c = _getEventsCount();
+    const c = await _getEventsCount();
 
-    if (c > 0 && newEvent.order < c) incrementFrom(newEvent.order);
+    if (newEvent.order < c) await incrementFrom(newEvent.order);
 
-    // add new event
-    _pushNew(newEvent);
-
-    // update timer
-    // TODO: update single values when possible
-    _updateTimers();
-
-    res.sendStatus(201);
+    // add new event, update timer, reply
+    await _pushNew(newEvent).then(_updateTimers()).then(res.sendStatus(201));
   } catch (error) {
     res.status(400).send(error);
   }
@@ -126,13 +120,15 @@ exports.eventsPut = async (req, res) => {
     res.status(400).send(`Object malformed: id missing`);
     return;
   }
+
   try {
     db.get('events')
       .find({ id: req.body.id })
       .assign({ ...req.body })
-      .write()
-      .then(_updateTimers())
-      .then(res.sendStatus(200));
+      .write();
+    _updateTimers();
+
+    res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -171,7 +167,6 @@ exports.eventsPatch = async (req, res) => {
 
 // Create controller for DELETE request to '/events/:eventId'
 // Returns -
-// TODO: should reorder al events down
 exports.eventsDelete = async (req, res) => {
   // no valid params
   if (!req.params.eventId) {
