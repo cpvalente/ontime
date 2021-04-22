@@ -150,12 +150,12 @@ class EventTimer extends Timer {
       /***  HANDLE DISCONNECT USER  ***/
       /***  ----------------------  ***/
       /********************************/
-      socket.on('disconnect', function () {
+      socket.on('disconnect', () => {
         this._numClients--;
         console.log(
           `EventTimer: Client disconnected, total now: ${this._numClients}`
         );
-      });
+      })
 
       /***************************************/
       /***  TIMER STATE GETTERS / SETTERS  ***/
