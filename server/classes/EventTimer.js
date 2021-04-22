@@ -59,7 +59,10 @@ class EventTimer extends Timer {
     });
 
     // set recurrent emits
-    this._interval = setInterval(() => this.broadcastTimer(), config.timer.refresh);
+    this._interval = setInterval(
+      () => this.broadcastTimer(),
+      config.timer.refresh
+    );
 
     // listen to new connections
     this._listenToConnections();
@@ -73,6 +76,63 @@ class EventTimer extends Timer {
   // broadcast message
   broadcastThis(address, payload) {
     this.io.emit(address, payload);
+  }
+
+  _setterManager(action, payload) {
+    switch (action) {
+      /*******************************************/
+      // playstate
+      case 'set-playstate':
+        // check state is defined
+        if (payload === 'start') this.start();
+        else if (payload === 'pause') this.pause();
+        else if (payload === 'stop') this.stop();
+        else if (payload === 'previous') this.previous();
+        else if (payload === 'next') this.next();
+        // Not yet implemented
+        // else if (payload === 'roll') this.roll();
+        // else if (payload === 'release') this.roll();
+        this.broadcastThis('playstate', this.playState);
+        this.broadcastThis('selected-id', this.selectedEventId);
+        this.broadcastThis('titles', this.titles);
+        break;
+
+      /*******************************************/
+      // Presenter message
+      case 'set-presenter-text':
+        this.presenter.text = payload;
+        this.broadcastThis('messages-presenter', this.presenter);
+        break;
+      case 'set-presenter-visible':
+        this.presenter.visible = payload;
+        this.broadcastThis('messages-presenter', this.presenter);
+        break;
+
+      /*******************************************/
+      // Public message
+      case 'set-public-text':
+        this.public.text = payload;
+        this.broadcastThis('messages-public', this.public);
+        break;
+      case 'set-public-visible':
+        this.public.visible = payload;
+        this.broadcastThis('messages-public', this.public);
+        break;
+
+      /*******************************************/
+      // Lower third message
+      case 'set-lower-text':
+        this.lower.text = payload;
+        this.broadcastThis('messages-lower', this.lower);
+        break;
+      case 'set-lower-visible':
+        this.lower.visible = payload;
+        this.broadcastThis('messages-lower', this.lower);
+        break;
+
+      default:
+        break;
+    }
   }
 
   _listenToConnections() {
@@ -102,6 +162,7 @@ class EventTimer extends Timer {
       /***  -----------------------------  ***/
       /***************************************/
 
+      /*******************************************/
       // general playback state
       socket.on('get-state', () => {
         socket.emit('timer', this.getObject());
@@ -110,6 +171,7 @@ class EventTimer extends Timer {
         socket.emit('titles', this.titles);
       });
 
+      /*******************************************/
       // timer
       socket.on('get-current', () => {
         socket.emit('current', this.getCurrentInSeconds());
@@ -119,26 +181,17 @@ class EventTimer extends Timer {
         socket.emit('timer', this.getObject());
       });
 
+      /*******************************************/
       // playstate
       socket.on('set-playstate', (data) => {
-        // check state is defined
-        if (data === 'start') this.start();
-        else if (data === 'pause') this.pause();
-        else if (data === 'stop') this.stop();
-        else if (data === 'previous') this.previous();
-        else if (data === 'next') this.next();
-        // Not yet implemented
-        // else if (data === 'roll') this.roll();
-        // else if (data === 'release') this.roll();
-        this.broadcastThis('playstate', this.playState);
-        this.broadcastThis('selected-id', this.selectedEventId);
-        this.broadcastThis('titles', this.titles);
+        this._setterManager('set-playstate', data);
       });
 
       socket.on('get-playstate', () => {
         socket.emit('playstate', this.playState);
       });
 
+      /*******************************************/
       // titles data
       socket.on('get-selected-id', () => {
         socket.emit('selected-id', this.selectedEventId);
@@ -154,6 +207,7 @@ class EventTimer extends Timer {
       /***  -------------------  ***/
       /*****************************/
 
+      /*******************************************/
       // playback API
       // ? should i change the address tokeep convention?
       socket.on('get-messages', () => {
@@ -167,45 +221,42 @@ class EventTimer extends Timer {
       /***  -------------------------  ***/
       /***********************************/
 
+      /*******************************************/
       // Presenter message
       socket.on('set-presenter-text', (data) => {
-        this.presenterText = data;
-        this.broadcastThis('messages-presenter', this.presenter);
+        console.log(data);
+        this._setterManager('set-presenter-text', data);
       });
 
       socket.on('set-presenter-visible', (data) => {
-        this.presenterVisible = data;
-        this.broadcastThis('messages-presenter', this.presenter);
+        this._setterManager('set-presenter-visible', data);
       });
 
       socket.on('get-presenter', () => {
         this.broadcastThis('messages-presenter', this.presenter);
       });
-
+      /*******************************************/
       // Public message
       socket.on('set-public-text', (data) => {
-        this.publicText = data;
-        this.broadcastThis('messages-public', this.public);
+        this._setterManager('set-public-text', data);
       });
 
       socket.on('set-public-visible', (data) => {
-        this.publicVisible = data;
-        this.broadcastThis('messages-public', this.public);
+        this._setterManager('set-public-visible', data);
       });
 
       socket.on('get-public', () => {
         socket.emit('messages-public', this.public);
       });
 
+      /*******************************************/
       // Lower third message
       socket.on('set-lower-text', (data) => {
-        this.lowerText = data;
-        this.broadcast('messages-lower', this.lower);
+        this._setterManager('set-lower-text', data);
       });
 
       socket.on('set-lower-visible', (data) => {
-        this.lowerVisible = data;
-        this.broadcast('messages-lower', this.lower);
+        this._setterManager('set-lower-visible', data);
       });
 
       socket.on('get-lower', () => {
