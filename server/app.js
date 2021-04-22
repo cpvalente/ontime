@@ -31,21 +31,14 @@ const port = process.env.PORT || config.server.port;
 // Global Objects
 const EventTimer = require('./classes/EventTimer.js');
 
-// get data (if any)
-const eventlist = db.get('events').sortBy('order').value();
-
-// init timer
-global.timer = new EventTimer();
-timer.setupWithEventList(eventlist);
-
-// Socket
-const initiateSocket = require('./controllers/socketController.js');
-
 // Create express APP
 const app = express();
 
 // setup cors for all routes
 app.use(cors());
+
+// enable pre-flight cors
+app.options('*', cors());
 
 // Implement middleware
 app.use(express.urlencoded({ extended: true }));
@@ -69,8 +62,12 @@ app.use((err, req, res, next) => {
 // create HTTP server
 const server = http.createServer(app);
 
-// start socket server
-initiateSocket(server, config);
+// get data (if any)
+const eventlist = db.get('events').sortBy('order').value();
+
+// init timer
+global.timer = new EventTimer(server, config);
+timer.setupWithEventList(eventlist);
 
 // Start server
 server.listen(port, () => console.log(`Listening on port ${port}`));

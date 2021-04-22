@@ -1,4 +1,5 @@
 const Timer = require('./Timer');
+const socketIo = require('socket.io');
 
 /*
  * EventTimer adds functions specific to APP
@@ -9,6 +10,13 @@ const Timer = require('./Timer');
  */
 
 class EventTimer extends Timer {
+  // Socket IO Object
+  io = null;
+
+  // Socket IO helpers
+  _numClients = 0;
+  _interval = null;
+
   presenter = {
     text: '',
     visible: false,
@@ -36,8 +44,174 @@ class EventTimer extends Timer {
   numEvents = null;
   _eventlist = null;
 
-  constructor() {
+  constructor(server, config) {
+    // call super constructor
     super();
+
+    // initialise socketIO server
+    this.io = socketIo(server, {
+      cors: {
+        origin: '*',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        preflightContinue: false,
+        optionsSuccessStatus: 204,
+      },
+    });
+
+    // set recurrent emits
+    this._interval = setInterval(() => this.broadcastTimer(), config.timer.refresh);
+
+    // listen to new connections
+    this._listenToConnections();
+  }
+
+  // send current timer
+  broadcastTimer() {
+    this.io.emit('timer', this.getObject());
+  }
+
+  // broadcast message
+  broadcastThis(address, payload) {
+    this.io.emit(address, payload);
+  }
+
+  _listenToConnections() {
+    this.io.on('connection', (socket) => {
+      /*******************************/
+      /***  HANDLE NEW CONNECTION  ***/
+      /***  ---------------------  ***/
+      /*******************************/
+      this._numClients++;
+      console.log(
+        `EventTimer: ${this._numClients} Clients with new connection: ${socket.id}`
+      );
+
+      /********************************/
+      /***  HANDLE DISCONNECT USER  ***/
+      /***  ----------------------  ***/
+      /********************************/
+      socket.on('disconnect', function () {
+        this._numClients--;
+        console.log(
+          `EventTimer: Client disconnected, total now: ${this._numClients}`
+        );
+      });
+
+      /***************************************/
+      /***  TIMER STATE GETTERS / SETTERS  ***/
+      /***  -----------------------------  ***/
+      /***************************************/
+
+      // general playback state
+      socket.on('get-state', () => {
+        socket.emit('timer', this.getObject());
+        socket.emit('playstate', this.playState);
+        socket.emit('selected-id', this.selectedEventId);
+        socket.emit('titles', this.titles);
+      });
+
+      // timer
+      socket.on('get-current', () => {
+        socket.emit('current', this.getCurrentInSeconds());
+      });
+
+      socket.on('get-timer', () => {
+        socket.emit('timer', this.getObject());
+      });
+
+      // playstate
+      socket.on('set-playstate', (data) => {
+        // check state is defined
+        if (data === 'start') this.start();
+        else if (data === 'pause') this.pause();
+        else if (data === 'stop') this.stop();
+        else if (data === 'previous') this.previous();
+        else if (data === 'next') this.next();
+        // Not yet implemented
+        // else if (data === 'roll') this.roll();
+        // else if (data === 'release') this.roll();
+        this.broadcastThis('playstate', this.playState);
+        this.broadcastThis('selected-id', this.selectedEventId);
+        this.broadcastThis('titles', this.titles);
+      });
+
+      socket.on('get-playstate', () => {
+        socket.emit('playstate', this.playState);
+      });
+
+      // titles data
+      socket.on('get-selected-id', () => {
+        socket.emit('selected-id', this.selectedEventId);
+      });
+
+      socket.on('get-titles', () => {
+        socket.emit('titles', this.titles);
+      });
+
+      /*****************************/
+      /***  BROADCAST            ***/
+      /***  TIMER STATE GETTERS  ***/
+      /***  -------------------  ***/
+      /*****************************/
+
+      // playback API
+      // ? should i change the address tokeep convention?
+      socket.on('get-messages', () => {
+        this.broadcastThis('messages-presenter', this.presenter);
+        this.broadcastThis('messages-public', this.public);
+        this.broadcastThis('messages-lower', this.lower);
+      });
+
+      /***********************************/
+      /***  MESSAGE GETTERS / SETTERS  ***/
+      /***  -------------------------  ***/
+      /***********************************/
+
+      // Presenter message
+      socket.on('set-presenter-text', (data) => {
+        this.presenterText = data;
+        this.broadcastThis('messages-presenter', this.presenter);
+      });
+
+      socket.on('set-presenter-visible', (data) => {
+        this.presenterVisible = data;
+        this.broadcastThis('messages-presenter', this.presenter);
+      });
+
+      socket.on('get-presenter', () => {
+        this.broadcastThis('messages-presenter', this.presenter);
+      });
+
+      // Public message
+      socket.on('set-public-text', (data) => {
+        this.publicText = data;
+        this.broadcastThis('messages-public', this.public);
+      });
+
+      socket.on('set-public-visible', (data) => {
+        this.publicVisible = data;
+        this.broadcastThis('messages-public', this.public);
+      });
+
+      socket.on('get-public', () => {
+        socket.emit('messages-public', this.public);
+      });
+
+      // Lower third message
+      socket.on('set-lower-text', (data) => {
+        this.lowerText = data;
+        this.broadcast('messages-lower', this.lower);
+      });
+
+      socket.on('set-lower-visible', (data) => {
+        this.lowerVisible = data;
+        this.broadcast('messages-lower', this.lower);
+      });
+
+      socket.on('get-lower', () => {
+        socket.emit('messages-lower', this.lower);
+      });
+    });
   }
 
   setupWithEventList(eventlist) {
@@ -72,7 +246,10 @@ class EventTimer extends Timer {
     // set event specific
     const e = this._eventList[eventIndex];
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
-    const end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
+    let end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
+
+    // in case the end is earlier than start, we assume is the day after
+    if (end < start) end += 86400000;
 
     // time stuff
     this._resetTimers();
@@ -93,9 +270,8 @@ class EventTimer extends Timer {
 
     // look for event after
     if (eventIndex < this.numEvents - 1) {
-      for (let i = eventIndex + 1 ; i < this.numEvents; i++) {
+      for (let i = eventIndex + 1; i < this.numEvents; i++) {
         // check that is the right type
-        console.log(this._eventList[i]);
         if (this._eventList[i].type === 'event') {
           this.titles.titleNext = this._eventList[i].title;
           this.titles.subtitleNext = this._eventList[i].subtitle;
