@@ -1,5 +1,12 @@
 import axios from 'axios';
-import { serverURL } from './apiConstants';
+import { NODE_PORT } from '../api/apiConstants';
+
+// get origin from URL
+const serverURL = window.location.origin.replace(
+  window.location.port,
+  `${NODE_PORT}/`
+);
+
 export const settingsNamespace = 'settings';
 export const settingsURL = serverURL + settingsNamespace;
 

@@ -1,8 +1,16 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { serverURL } from '../api/apiConstants';
+import { NODE_PORT } from '../api/apiConstants';
 
 export const SocketContext = createContext([[], () => {}]);
+// get origin from URL
+const serverURL = window.location.origin.replace(
+  window.location.port,
+  `${NODE_PORT}/`
+);
+
+const SocketContext = createContext([[], () => {}]);
 
 export const useSocket = () => {
   return useContext(SocketContext);
