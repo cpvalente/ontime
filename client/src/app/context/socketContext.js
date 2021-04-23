@@ -1,9 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import { serverURL } from '../api/apiConstants';
 import { NODE_PORT } from '../api/apiConstants';
 
-export const SocketContext = createContext([[], () => {}]);
 // get origin from URL
 const serverURL = window.location.origin.replace(
   window.location.port,
@@ -20,9 +18,9 @@ function SocketProvider(props) {
   const [socket, setSocket] = useState();
 
   useEffect(() => {
-    const socket = io(serverURL, { transports: ['websocket'] });
-    setSocket(socket);
-    return () => socket.disconnect();
+    const s = io(serverURL, { transports: ['websocket'] });
+    setSocket(s);
+    return () => s.disconnect();
   }, []);
 
   return (
