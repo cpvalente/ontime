@@ -5,14 +5,21 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 
-// 1. import `ChakraProvider` component
-import { ChakraProvider, CSSReset } from '@chakra-ui/react';
+// 1. import Chakra components
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+
+
+// 2. Extend the theme to include custom colors, fonts, etc
+const colors = {
+  // not yet
+};
+
+const theme = extendTheme({ colors });
 
 ReactDOM.render(
   <React.StrictMode>
-    <ChakraProvider>
+    <ChakraProvider resetCSS theme={theme}>
       <BrowserRouter>
-        <CSSReset />
         <App />
       </BrowserRouter>
     </ChakraProvider>
