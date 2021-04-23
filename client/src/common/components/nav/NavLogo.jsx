@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
@@ -32,13 +32,28 @@ export default function NavLogo() {
             exit={{ opacity: 0, scaleY: 0, y: -50 }}
             className={showNav ? style.nav : style.navHidden}
           >
-            <Link to='/speaker' className={style.navItem}>
+            <Link
+              to='/speaker'
+              className={style.navItem}
+              tabIndex={1}
+              onKeyDownCapture={() => <Redirect push to='/speaker' />}
+            >
               Speaker
             </Link>
-            <Link to='/sm' className={style.navItem}>
+            <Link
+              to='/sm'
+              className={style.navItem}
+              tabIndex={2}
+              onKeyDownCapture={() => <Redirect push to='/sm' />}
+            >
               Backstage
             </Link>
-            <Link to='/lower' className={style.navItem}>
+            <Link
+              to='/lower'
+              className={style.navItem}
+              tabIndex={3}
+              onKeyDownCapture={() => <Redirect push to='/lower' />}
+            >
               Lower Thirds
             </Link>
           </motion.div>
