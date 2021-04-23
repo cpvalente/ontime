@@ -8,26 +8,47 @@ export default function PreviewContainer() {
   return (
     <div className={styles.previewContainer}>
       <div className={styles.previewItem}>
-        <IFrameLoader
-          title='Default Presenter'
-          src={`${serverURL}/speaker`}
-        />
-        <div className={styles.label}>Default Presenter</div>
+        <IFrameLoader title='Default Presenter' src={`${serverURL}/speaker`} />
+        <a
+          href={`${serverURL}/speaker`}
+          target='_blank'
+          rel='noreferrer'
+          className={styles.label}
+        >
+          Default Presenter
+        </a>
       </div>
+
       <div className={styles.previewItem}>
         <IFrameLoader title='Audience' src={`${serverURL}/public`} />
-        <div className={styles.label}>Audience</div>
+        <div className={styles.label}>Audience (Not yet)</div>
       </div>
+
       <div className={styles.previewItem}>
         <IFrameLoader title='Stage Manager' src={`${serverURL}/sm`} />
-        <div className={styles.label}>Stage Manager</div>
+        <a
+          href={`${serverURL}/sm`}
+          target='_blank'
+          rel='noreferrer'
+          className={styles.label}
+        >
+          Stage Manager
+        </a>
       </div>
+
       <div className={styles.previewItem}>
         <IFrameLoader
           title='Lower third'
           src={`${serverURL}/lower?key=242424`}
         />
-        <div className={styles.label}>Lower third</div>
+        <a
+          href={`${serverURL}/lower`}
+          target='_blank'
+          rel='noreferrer'
+          className={styles.label}
+        >
+          Lower third
+        </a>
       </div>
     </div>
   );

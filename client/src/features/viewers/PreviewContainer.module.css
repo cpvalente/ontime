@@ -14,3 +14,12 @@
 .label {
   padding: 0.1em 4em;
 }
+
+a::after {
+  content: '  \2197';
+  color: #ff7597;
+}
+
+a:hover {
+  color: #ff7597;
+}
