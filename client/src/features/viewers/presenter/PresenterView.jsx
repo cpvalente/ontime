@@ -1,5 +1,6 @@
 import Countdown from '../../../common/components/countdown/Countdown';
 import MyProgressBar from '../../../common/components/myProgressBar/MyProgressBar';
+import NavLogo from '../../../common/components/nav/NavLogo';
 import style from './PresenterView.module.css';
 
 export default function PresenterView(props) {
@@ -20,6 +21,8 @@ export default function PresenterView(props) {
       >
         <div className={style.message}>{pres.text}</div>
       </div>
+
+      <NavLogo />
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>

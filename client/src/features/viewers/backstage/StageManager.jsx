@@ -2,6 +2,7 @@ import QRCode from 'react-qr-code';
 import { formatDisplay } from '../../../common/dateConfig';
 import style from './StageManager.module.css';
 import Paginator from './Paginator';
+import NavLogo from '../../../common/components/nav/NavLogo';
 
 export default function StageManager(props) {
   const { pres, publ, lower, title, time, events, selectedId, general } = props;
@@ -15,6 +16,8 @@ export default function StageManager(props) {
 
   return (
     <div className={style.container__gray}>
+      <NavLogo />
+
       <div className={style.eventTitle}>{general.title}</div>
       <div className={style.nowContainer}>
         <div className={style.label}>Now</div>
