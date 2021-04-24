@@ -80,20 +80,20 @@ class EventTimer extends Timer {
 
   update() {
     // if there is nothing selected, no nothing
-    if (!this.selectedEventId) return;
+    if (this.selectedEventId == null) return;
     super.update();
   }
 
   start() {
     // if there is nothing selected, no nothing
-    if (!this.selectedEventId) return;
-    super.start()
+    if (this.selectedEventId == null) return;
+    super.start();
   }
 
   pause() {
     // if there is nothing selected, no nothing
-    if (!this.selectedEventId) return;
-    super.pause()
+    if (this.selectedEventId == null) return;
+    super.pause();
   }
 
   _setterManager(action, payload) {
@@ -475,7 +475,7 @@ class EventTimer extends Timer {
     if (this.numEvents < 1) return;
 
     // if there is no event running, go to first
-    if (!this.selectedEvent) {
+    if (this.selectedEvent == null) {
       this.goto(0);
       return;
     }
@@ -490,7 +490,7 @@ class EventTimer extends Timer {
     if (this.numEvents < 1) return;
 
     // if there is no event running, go to first
-    if (!this.selectedEvent) {
+    if (this.selectedEvent == null) {
       this.goto(0);
       return;
     }

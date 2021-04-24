@@ -2,6 +2,7 @@ import { millisToMinutes } from '../../../common/dateConfig';
 import TimeInput from '../../../common/input/TimeInput';
 import style from './Block.module.css';
 import ActionButtons from './ActionButtons';
+import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 
 export default function DelayBlock(props) {
   const { data, eventsHandler, index } = props;
@@ -12,7 +13,6 @@ export default function DelayBlock(props) {
 
   const submitHandler = (value) => {
     // convert to ms and patch
-    console.log('debug adding', { id: data.id, duration: value * 1000 * 60 });
     eventsHandler('patch', { id: data.id, duration: value * 1000 * 60 });
   };
 
@@ -27,12 +27,8 @@ export default function DelayBlock(props) {
         submitHandler={submitHandler}
       />
       <div className={style.actionOverlay}>
-        <ActionButtons
-          showDel
-          deleteHandler={deleteHandler}
-          showAdd
-          addHandler={addHandler}
-        />
+        <DeleteIconBtn clickHandler={deleteHandler} />
+        <ActionButtons showAdd addHandler={addHandler} />
       </div>
     </div>
   );

@@ -17,10 +17,10 @@ export default function ActionButtons(props) {
         aria-label='Options'
         size='xs'
         icon={<FiZap />}
-        _hover={{ bg: 'pink.500' }}
-        _expanded={{ bg: 'pink.300' }}
+        _expanded={{ bg: 'pink.300', color: 'white' }}
         _focus={{ boxShadow: 'none' }}
-        colorScheme='pink'
+        backgroundColor={'orange.200'}
+        color={'orange.500'}
       />
       <MenuList style={menuStyle}>
         {showDel && (

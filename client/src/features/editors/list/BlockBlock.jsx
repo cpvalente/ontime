@@ -1,3 +1,4 @@
+import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 import ActionButtons from './ActionButtons';
 import style from './Block.module.css';
 
@@ -17,14 +18,12 @@ export default function BlockBlock(props) {
   return (
     <div className={style.block}>
       <div className={style.actionOverlay}>
+        <DeleteIconBtn clickHandler={deleteHandler} />
         <ActionButtons
-          showDel
-          deleteHandler={deleteHandler}
           showAdd
           addHandler={addHandler}
           showDelay
           delayHandler={delayHandler}
-          showBlock
         />
       </div>
     </div>

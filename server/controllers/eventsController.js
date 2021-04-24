@@ -6,31 +6,27 @@ const { nanoid } = require('nanoid');
 const eventDefs = require('../data/eventsDefinition.js');
 
 // incrementFrom
-async function incrementFrom(start, incr = 1) {
-  try {
-    let entries = db.get('events').sortBy('order').value();
+function incrementFrom(start, incr = 1) {
+  let entries = db.get('events').sortBy('order').value();
 
-    entries.map((e) => {
-      if (e.order < start) return;
-      db.get('events')
-        .find({ id: e.id })
-        .assign({ order: e.order + incr })
-        .write();
-    });
-  } catch (error) {
-    console.log('error on increment function', error);
-  }
+  entries.map((e) => {
+    if (e.order < start) return;
+    db.get('events')
+      .find({ id: e.id })
+      .assign({ order: e.order + incr })
+      .write();
+  });
 }
 
-async function _getEventsCount() {
+function _getEventsCount() {
   return db.get('events').size().value();
 }
 
-async function _pushNew(entry) {
+function _pushNew(entry) {
   return db.get('events').push(entry).write();
 }
 
-async function _removeById(eventId) {
+function _removeById(eventId) {
   return db.get('events').remove({ id: eventId }).write();
 }
 
@@ -95,12 +91,18 @@ exports.eventsPost = async (req, res) => {
 
   try {
     // increment count if necessary
-    const c = await _getEventsCount();
+    const c = _getEventsCount();
 
-    if (newEvent.order < c) await incrementFrom(newEvent.order);
+    if (newEvent.order < c) incrementFrom(newEvent.order);
 
-    // add new event, update timer, reply
-    await _pushNew(newEvent).then(_updateTimers()).then(res.sendStatus(201));
+    // add new event
+    _pushNew(newEvent);
+
+    // update timers
+    _updateTimers();
+
+    // reply OK
+    res.sendStatus(201);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -185,7 +187,6 @@ exports.eventsDelete = async (req, res) => {
     _removeById(req.params.eventId);
 
     // update timer
-    // TODO: update single values when possible
     _updateTimers();
 
     res.sendStatus(201);

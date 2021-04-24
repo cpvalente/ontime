@@ -7,6 +7,7 @@ import EditableText from '../../../common/input/EditableText';
 import DelayValue from '../../../common/input/DelayValue';
 import ActionButtons from './ActionButtons';
 import VisibleIconBtn from '../../../common/components/buttons/VisibleIconBtn';
+import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 
 export default function EventBlock(props) {
   const { data, selected, delay, index, eventsHandler } = props;
@@ -115,16 +116,14 @@ export default function EventBlock(props) {
           clickHandler={() => setVisible(!visible)}
           active={visible}
         />
+        <DeleteIconBtn clickHandler={deleteHandler} />
         <ActionButtons
-          showDel
-          deleteHandler={deleteHandler}
           showAdd
           addHandler={addHandler}
           showDelay
           delayHandler={delayHandler}
           showBlock
           blockHandler={blockHandler}
-          showPublic
         />
       </div>
     </div>
