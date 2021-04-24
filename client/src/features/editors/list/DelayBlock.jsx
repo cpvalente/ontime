@@ -20,10 +20,11 @@ export default function DelayBlock(props) {
     eventsHandler('delete', data.id);
   };
 
+  let delayValue = (data.duration != null) ? millisToMinutes(data.duration) : undefined;
   return (
     <div className={style.delay}>
       <TimeInput
-        value={millisToMinutes(data.duration)}
+        value={delayValue}
         submitHandler={submitHandler}
       />
       <div className={style.actionOverlay}>

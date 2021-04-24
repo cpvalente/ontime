@@ -17,7 +17,7 @@ export default function TimeInput(props) {
   const [value, setValue] = useState(props.value);
 
   useEffect(() => {
-    if (props.value === null) return;
+    if (props.value == null) return;
     setValue(props.value);
   }, [props.value]);
 
