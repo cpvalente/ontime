@@ -48,7 +48,7 @@ const withSocket = (Component) => {
       subtitleNext: '',
       presenterNext: '',
     });
-    const [selectedId, setSelectedId] = useState({});
+    const [selectedId, setSelectedId] = useState(null);
     const [general, setGeneral] = useState({
       title: '',
       url: '',

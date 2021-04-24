@@ -25,4 +25,10 @@ router.get('/previous', playbackController.pbPrevious);
 // create route between controller and '/playback/next' endpoint
 router.get('/next', playbackController.pbNext);
 
+// create route between controller and '/playback/unload' endpoint
+router.get('/unload', playbackController.pbUnload);
+
+// create route between controller and '/playback/reload' endpoint
+router.get('/reload', playbackController.pbReload);
+
 module.exports = router;

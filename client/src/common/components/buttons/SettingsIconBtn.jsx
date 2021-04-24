@@ -10,6 +10,7 @@ export default function SettingsIconBtn(props) {
       variant='outline'
       onClick={props.clickHandler}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

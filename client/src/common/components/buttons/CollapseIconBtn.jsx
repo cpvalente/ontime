@@ -10,6 +10,7 @@ export default function CollapseIconBtn(props) {
       variant={props.active ? 'solid' : 'outline'}
       onClick={props.clickHandler}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

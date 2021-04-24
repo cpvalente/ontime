@@ -10,6 +10,7 @@ export default function VisibleIconBtn(props) {
       variant={props.active ? 'solid' : 'outline'}
       onClick={props.clickHandler}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

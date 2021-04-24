@@ -6,11 +6,12 @@ export default function NextIconBtn(props) {
     <IconButton
       icon={<FiSkipForward />}
       colorScheme='whiteAlpha'
-      backgroundColor='#ffffff05'
+      backgroundColor='#ffffff11'
       variant='outline'
       onClick={props.clickHandler}
       width={90}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

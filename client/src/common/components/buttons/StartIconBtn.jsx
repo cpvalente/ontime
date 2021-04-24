@@ -10,6 +10,7 @@ export default function StartIconBtn(props) {
       onClick={props.clickHandler}
       width={120}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

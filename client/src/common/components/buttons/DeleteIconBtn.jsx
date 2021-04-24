@@ -9,6 +9,7 @@ export default function DeleteIconBtn(props) {
       colorScheme='red'
       onClick={props.clickHandler}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

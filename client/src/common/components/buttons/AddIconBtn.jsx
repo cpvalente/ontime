@@ -9,6 +9,7 @@ export default function AddIconBtn(props) {
       colorScheme='blue'
       onClick={props.clickHandler}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

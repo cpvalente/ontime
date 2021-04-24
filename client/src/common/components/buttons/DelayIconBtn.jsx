@@ -9,6 +9,7 @@ export default function DelayIconBtn(props) {
       colorScheme='yellow'
       onClick={props.clickHandler}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

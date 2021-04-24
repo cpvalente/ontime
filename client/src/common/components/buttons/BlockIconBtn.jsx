@@ -9,6 +9,7 @@ export default function BlockIconBtn(props) {
       colorScheme='purple'
       onClick={props.clickHandler}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

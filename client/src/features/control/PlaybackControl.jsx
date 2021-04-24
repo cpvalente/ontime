@@ -20,6 +20,7 @@ export default function PlaybackControl() {
     startedAt: null,
     expectedFinish: null,
   });
+  const [selectedId, setSelectedId] = useState(null);
 
   const resetTimer = () => {
     setTimer({
@@ -35,6 +36,7 @@ export default function PlaybackControl() {
 
     socket.emit('get-timer');
     socket.emit('get-playstate');
+    socket.emit('get-selected-id');
 
     // Handle playstate
     socket.on('playstate', (data) => {
@@ -46,10 +48,16 @@ export default function PlaybackControl() {
       setTimer({ ...data });
     });
 
+    // Handle selected event
+    socket.on('selected-id', (data) => {
+      setSelectedId(data);
+    });
+
     // Clear listener
     return () => {
       socket.off('playstate');
       socket.off('timer');
+      socket.off('selected-id');
     };
   }, [socket]);
 
@@ -70,6 +78,14 @@ export default function PlaybackControl() {
         break;
       case 'next':
         socket.emit('set-playstate', 'next');
+        resetTimer();
+        break;
+      case 'unload':
+        socket.emit('set-playstate', 'unload');
+        resetTimer();
+        break;
+      case 'reload':
+        socket.emit('set-playstate', 'reload');
         resetTimer();
         break;
       default:
@@ -100,10 +116,12 @@ export default function PlaybackControl() {
         <StartIconBtn
           active={playback === 'start'}
           clickHandler={() => playbackControl('start')}
+          disabled={!selectedId}
         />
         <PauseIconBtn
           active={playback === 'pause'}
           clickHandler={() => playbackControl('pause')}
+          disabled={!selectedId}
         />
         <RollIconBtn
           active={playback === 'roll'}
@@ -113,8 +131,14 @@ export default function PlaybackControl() {
       <div className={style.playbackContainer}>
         <PrevIconBtn clickHandler={() => playbackControl('previous')} />
         <NextIconBtn clickHandler={() => playbackControl('next')} />
-        <UnloadIconBtn clickHandler={() => playbackControl('unload')} />
-        <ReloadIconButton clickHandler={() => playbackControl('reload')} />
+        <UnloadIconBtn
+          clickHandler={() => playbackControl('unload')}
+          disabled={!selectedId}
+        />
+        <ReloadIconButton
+          clickHandler={() => playbackControl('reload')}
+          disabled={!selectedId}
+        />
       </div>
     </div>
   );

@@ -34,3 +34,13 @@ export const getNext = async () => {
   const res = axios.get(playbackURL + '/next');
   return res;
 };
+
+export const getUnload = async () => {
+  const res = axios.get(playbackURL + '/unload');
+  return res;
+};
+
+export const getReload = async () => {
+  const res = axios.get(playbackURL + '/reload');
+  return res;
+};

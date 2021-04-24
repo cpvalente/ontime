@@ -91,12 +91,12 @@ class Timer {
   }
 
   _resetTimers() {
+    this.current = this.duration;
     this._finishAt = null;
     this._startedAt = null;
     this._pausedAt = null;
     this._pausedInterval = null;
     this._pausedTotal = null;
-    this.state = 'stop';
   }
 
   // getObject
@@ -127,7 +127,7 @@ class Timer {
   start() {
     // do we need to change
     if (this.state === 'start') return;
-    else if (this.state === 'stop') {
+    else if (this.startedAt == null) {
       const now = this._getCurrentTime();
       this._startedAt = now;
       this._finishAt = now + this.duration;
@@ -157,14 +157,7 @@ class Timer {
     if (this.state === 'stop') return;
 
     // clear all timers
-    this.current = duration;
-    this._finishAt = null;
-    this._startedAt = null;
-    this._pausedAt = null;
-    this._pausedInterval = null;
-    this._pausedTotal = null;
-
-    // change state
+    this._resetTimers();
     this.state = 'stop';
   }
 }

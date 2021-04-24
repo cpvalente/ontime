@@ -78,6 +78,24 @@ class EventTimer extends Timer {
     this.io.emit(address, payload);
   }
 
+  update() {
+    // if there is nothing selected, no nothing
+    if (!this.selectedEventId) return;
+    super.update();
+  }
+
+  start() {
+    // if there is nothing selected, no nothing
+    if (!this.selectedEventId) return;
+    super.start()
+  }
+
+  pause() {
+    // if there is nothing selected, no nothing
+    if (!this.selectedEventId) return;
+    super.pause()
+  }
+
   _setterManager(action, payload) {
     switch (action) {
       /*******************************************/
@@ -89,9 +107,10 @@ class EventTimer extends Timer {
         else if (payload === 'stop') this.stop();
         else if (payload === 'previous') this.previous();
         else if (payload === 'next') this.next();
+        else if (payload === 'reload') this.reload();
+        else if (payload === 'unload') this.unload();
         // Not yet implemented
         // else if (payload === 'roll') this.roll();
-        // else if (payload === 'release') this.roll();
         this.broadcastThis('playstate', this.playState);
         this.broadcastThis('selected-id', this.selectedEventId);
         this.broadcastThis('titles', this.titles);
@@ -155,7 +174,7 @@ class EventTimer extends Timer {
         console.log(
           `EventTimer: Client disconnected, total now: ${this._numClients}`
         );
-      })
+      });
 
       /***************************************/
       /***  TIMER STATE GETTERS / SETTERS  ***/
@@ -333,6 +352,20 @@ class EventTimer extends Timer {
     }
   }
 
+  _resetSelection() {
+    this.titles = {
+      titleNow: null,
+      subtitleNow: null,
+      presenterNow: null,
+      titleNext: null,
+      subtitleNext: null,
+      presenterNext: null,
+    };
+
+    this.selectedEvent = null;
+    this.selectedEventId = null;
+  }
+
   print() {
     return `
       Timer
@@ -438,6 +471,14 @@ class EventTimer extends Timer {
   }
 
   previous() {
+    // check that we have events to run
+    if (this.numEvents < 1) return;
+
+    // if there is no event running, go to first
+    if (!this.selectedEvent) {
+      this.goto(0);
+      return;
+    }
     const gotoEvent = this.selectedEvent > 0 ? this.selectedEvent - 1 : 0;
 
     if (gotoEvent === this.selectedEvent) return;
@@ -445,6 +486,15 @@ class EventTimer extends Timer {
   }
 
   next() {
+    // check that we have events to run
+    if (this.numEvents < 1) return;
+
+    // if there is no event running, go to first
+    if (!this.selectedEvent) {
+      this.goto(0);
+      return;
+    }
+
     const gotoEvent =
       this.selectedEvent < this.numEvents - 1
         ? this.selectedEvent + 1
@@ -452,6 +502,25 @@ class EventTimer extends Timer {
 
     if (gotoEvent === this.selectedEvent) return;
     this.goto(gotoEvent);
+  }
+
+  unload() {
+    // reset duration
+    this.duration = null;
+
+    // reset timers
+    this._resetTimers();
+
+    // reset playstate
+    this.state = 'stop';
+
+    // reset selected
+    this._resetSelection();
+  }
+
+  reload() {
+    this._resetTimers();
+    this.state = 'pause';
   }
 }
 

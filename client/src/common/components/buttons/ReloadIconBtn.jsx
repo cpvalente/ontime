@@ -11,6 +11,7 @@ export default function ReloadIconButton(props) {
       onClick={props.clickHandler}
       width={90}
       _focus={{ boxShadow: 'none' }}
+      {...props}
     />
   );
 }

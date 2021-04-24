@@ -45,3 +45,20 @@ exports.pbNext = async (req, res) => {
   global.timer.next();
   res.sendStatus(200);
 };
+
+// Create controller for GET request to '/playback/unload'
+// Unloads any events
+exports.pbUnload = async (req, res) => {
+  global.timer.unload();
+  console.log('debug: unload called')
+
+  res.sendStatus(200);
+};
+
+// Create controller for GET request to '/playback/reload'
+// Reloads current event
+exports.pbReload = async (req, res) => {
+  global.timer.reload();
+  console.log('debug: reload called')
+  res.sendStatus(200);
+};

@@ -9,8 +9,9 @@ export default function RollIconBtn(props) {
       variant={props.active ? 'solid' : 'outline'}
       onClick={props.clickHandler}
       width={120}
-      disabled
       _focus={{ boxShadow: 'none' }}
+      {...props}
+      disabled
     />
   );
 }
