@@ -3,9 +3,32 @@ import { formatDisplay } from '../../../common/dateConfig';
 import style from './StageManager.module.css';
 import Paginator from './Paginator';
 import NavLogo from '../../../common/components/nav/NavLogo';
+import { useEffect, useState } from 'react';
 
 export default function StageManager(props) {
-  const { publ, title, time, events, selectedId, general } = props;
+  const { publ, title, time, backstageEvents, selectedId, general } = props;
+  const [filteredEvents, setFilteredEvents] = useState(null);
+
+  // calculate delays if any
+  useEffect(() => {
+    if (backstageEvents == null) return;
+
+    // Add running delay
+    let delay = 0;
+    backstageEvents.map((e) => {
+      if (e.type === 'block') delay = 0;
+      else if (e.type === 'delay') delay = delay + e.duration;
+      else if (e.type === 'event' && delay > 0) {
+        e.timeStart += delay;
+        e.timedEnd += delay;
+      }
+    });
+
+    // filter just events
+    let events = backstageEvents.filter((e) => e.type === 'event');
+
+    setFilteredEvents(events);
+  }, [backstageEvents]);
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
@@ -40,7 +63,7 @@ export default function StageManager(props) {
       <div className={style.todayContainer}>
         <div className={style.label}>Today</div>
         <div className={style.entriesContainer}>
-          <Paginator selectedId={selectedId} events={events} />
+          <Paginator selectedId={selectedId} events={filteredEvents} />
         </div>
       </div>
 
