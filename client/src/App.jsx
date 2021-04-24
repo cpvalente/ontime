@@ -5,6 +5,7 @@ import DefaultPresenter from './features/viewers/DefaultPresenter';
 import PresenterView from './features/viewers/presenter/PresenterView';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { broadcastQueryClient } from 'react-query/broadcastQueryClient-experimental';
+// import { broadcastQueryClient } from 'react-query/broadcastQueryClient-experimental';
 import SocketProvider from './app/context/socketContext';
 import PresenterSimple from './features/viewers/presenter/PresenterSimple';
 import StageManager from './features/viewers/backstage/StageManager';
@@ -16,6 +17,11 @@ broadcastQueryClient({
   queryClient,
   broadcastChannel: 'ontime',
 });
+// Seemed to cause issues
+// broadcastQueryClient({
+//   queryClient,
+//   broadcastChannel: 'ontime',
+// });
 
 const SDefault = withSocket(DefaultPresenter);
 const SSpeaker = withSocket(PresenterView);
