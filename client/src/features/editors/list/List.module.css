@@ -15,3 +15,11 @@
   opacity: 0.3;
   align-self: center;
 }
+
+.cursor {
+  width: 90%;
+  min-height: 2px;
+  background-color: #ff7597;
+  border-radius: 2px;
+  margin: 0 auto;
+}

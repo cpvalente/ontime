@@ -10,7 +10,7 @@ import VisibleIconBtn from '../../../common/components/buttons/VisibleIconBtn';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 
 export default function EventBlock(props) {
-  const { data, selected, delay, index, eventsHandler } = props;
+  const { data, selected, next, delay, index, eventsHandler } = props;
   const [visible, setVisible] = useState(false);
 
   const [more, setMore] = useState(false);
@@ -53,16 +53,13 @@ export default function EventBlock(props) {
     updateValues('presenter', v);
   };
 
-  // TODO: implement functionality to select next
-  let isNext = false;
-
   return (
     <div className={selected ? style.eventRowActive : style.eventRow}>
       <span className={style.drag}>
         <FiMoreVertical />
       </span>
       <div className={style.indicators}>
-        <div className={isNext ? style.next : style.nextDisabled}>Next</div>
+        <div className={next ? style.next : style.nextDisabled}>Next</div>
         <DelayValue delay={delay} />
       </div>
       <EventTimes

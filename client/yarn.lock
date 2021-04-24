@@ -11657,6 +11657,11 @@ tinycolor2@1.4.2:
   resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.4.2.tgz#3f6a4d1071ad07676d7fa472e1fac40a719d8803"
   integrity sha512-vJhccZPs965sV/L2sU4oRQVAos0pQXwsvTLkWYdqJ+a8Q5kPFzJTuOFwy7UniPli44NKQGAglksjvOcpo95aZA==
 
+tinykeys@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/tinykeys/-/tinykeys-1.1.2.tgz#f9bf567d44e57166a95ac9a6c1d6408e2caa993c"
+  integrity sha512-BFOdq1hPKYrgx98JgnjMuv/unHXqLULfXC9suTeC7yrNFRMGjlZMO1ZL3aF1s6EIYqwkeHkLNe1R3e2F/VoG0A==
+
 tmpl@1.0.x:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/tmpl/-/tmpl-1.0.4.tgz#23640dd7b42d00433911140820e5cf440e521dd1"
