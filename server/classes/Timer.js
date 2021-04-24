@@ -54,7 +54,7 @@ class Timer {
         if (!this.showNegative) {
           this.current = Math.max(this._finishAt + this._pausedTotal - now, 0);
         } else {
-          (this.current = this._finishAt + this._pausedTotal - now), 0;
+          this.current = this._finishAt + this._pausedTotal - now;
         }
         break;
       case 'pause':
@@ -97,6 +97,11 @@ class Timer {
     this._pausedAt = null;
     this._pausedInterval = null;
     this._pausedTotal = null;
+  }
+
+  // get elapsed time
+  getElapsed() {
+    return this.duration - this.current;
   }
 
   // getObject
@@ -142,7 +147,6 @@ class Timer {
   pause() {
     // do we need to change
     if (this.state === 'pause') return;
-
     else if (this.duration === 0) return;
 
     // update pause time

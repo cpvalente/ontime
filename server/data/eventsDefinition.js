@@ -5,7 +5,6 @@ const event = {
   presenter: '',
   timeStart: 0,
   timeEnd: 0,
-  clockStarted: null,
   isPublic: false,
   type: 'event',
 };

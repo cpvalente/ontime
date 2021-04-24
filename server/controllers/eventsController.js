@@ -39,6 +39,7 @@ function getEventEvents() {
     .value();
 }
 
+// Updates timer object
 function _updateTimers() {
   const results = getEventEvents();
   global.timer.updateEventList(results);
@@ -180,6 +181,11 @@ exports.eventsDelete = async (req, res) => {
     // increment count if necessary
     const c = _getEventsCount();
     const e = db.get('events').find({ id: req.params.eventId }).value();
+
+    if (e == null) {
+      res.status(400).send(`No match`);
+      return;
+    }
 
     if (c > 0 && e.order < c) incrementFrom(e.order, -1);
 

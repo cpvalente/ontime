@@ -76,7 +76,7 @@ class EventTimer extends Timer {
   // broadcast state
   broadcastState() {
     this.io.emit('timer', this.getObject());
-    this.io.emit('playstate', this.playState);
+    this.io.emit('playstate', this.state);
     this.io.emit('selected-id', this.selectedEventId);
     this.io.emit('titles', this.titles);
   }
@@ -121,7 +121,7 @@ class EventTimer extends Timer {
         // Not yet implemented
         // else if (payload === 'roll') this.roll();
 
-        this.broadcastThis('playstate', this.playState);
+        this.broadcastThis('playstate', this.state);
         this.broadcastThis('selected-id', this.selectedEventId);
         this.broadcastThis('titles', this.titles);
 
@@ -179,7 +179,7 @@ class EventTimer extends Timer {
 
       // send state
       socket.emit('timer', this.getObject());
-      socket.emit('playstate', this.playState);
+      socket.emit('playstate', this.state);
       socket.emit('selected-id', this.selectedEventId);
       socket.emit('titles', this.titles);
 
@@ -203,7 +203,7 @@ class EventTimer extends Timer {
       // general playback state
       socket.on('get-state', () => {
         socket.emit('timer', this.getObject());
-        socket.emit('playstate', this.playState);
+        socket.emit('playstate', this.state);
         socket.emit('selected-id', this.selectedEventId);
         socket.emit('titles', this.titles);
       });
@@ -225,7 +225,7 @@ class EventTimer extends Timer {
       });
 
       socket.on('get-playstate', () => {
-        socket.emit('playstate', this.playState);
+        socket.emit('playstate', this.state);
       });
 
       /*******************************************/
@@ -261,7 +261,6 @@ class EventTimer extends Timer {
       /*******************************************/
       // Presenter message
       socket.on('set-presenter-text', (data) => {
-        console.log(data);
         this._setterManager('set-presenter-text', data);
       });
 
@@ -326,10 +325,69 @@ class EventTimer extends Timer {
     // set general
     this._eventList = events;
     this.numEvents = numEvents;
+    // handle reload selected
+    if (this.selectedEventId != null) {
+      // Look for event (order might have changed)
+      const eventIndex = this._eventList.findIndex(
+        (e) => e.id === this.selectedEventId
+      );
 
-    // TODO: What to do about reloading
+      // Maybe is missing
+      if (eventIndex === -1) {
+        this._resetTimers();
+        this._resetSelection();
+        return;
+      }
+
+      // Reload data if running
+      if (this._startedAt != null) this.reloadRunning(eventIndex);
+      else if (this.selectedEventId != null) this.loadEvent(eventIndex);
+    }
   }
 
+  // Reloads changed info in current event
+  reloadRunning(eventIndex) {
+    const e = this._eventList[eventIndex];
+    const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
+    let end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
+
+    // in case the end is earlier than start, we assume is the day after
+    if (end < start) end += 86400000;
+
+    // time stuff
+    const now = this._getCurrentTime();
+    const elapsed = this.getElapsed();
+
+    this.duration = end - start;
+    this.selectedEvent = eventIndex;
+    this._finishAt = now + (this.duration - elapsed);
+
+    // event titles
+    this.titles.titleNow = e.title;
+    this.titles.subtitleNow = e.subtitle;
+    this.titles.presenterNow = e.presenter;
+
+    // assume tere is no next event
+    this.titles.titleNext = null;
+    this.titles.subtitleNext = null;
+    this.titles.presenterNext = null;
+
+    // look for event after
+    if (eventIndex < this.numEvents - 1) {
+      for (let i = eventIndex + 1; i < this.numEvents; i++) {
+        // check that is the right type
+        if (this._eventList[i].type === 'event') {
+          this.titles.titleNext = this._eventList[i].title;
+          this.titles.subtitleNext = this._eventList[i].subtitle;
+          this.titles.presenterNext = this._eventList[i].presenter;
+          break;
+        }
+      }
+    }
+    this.broadcastState();
+  }
+
+  // Loads a given event
   loadEvent(eventIndex) {
     // set event specific
     const e = this._eventList[eventIndex];
@@ -368,6 +426,7 @@ class EventTimer extends Timer {
         }
       }
     }
+    this.broadcastState();
   }
 
   _resetSelection() {
