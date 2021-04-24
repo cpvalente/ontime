@@ -73,6 +73,14 @@ class EventTimer extends Timer {
     this.io.emit('timer', this.getObject());
   }
 
+  // broadcast state
+  broadcastState() {
+    this.io.emit('timer', this.getObject());
+    this.io.emit('playstate', this.playState);
+    this.io.emit('selected-id', this.selectedEventId);
+    this.io.emit('titles', this.titles);
+  }
+
   // broadcast message
   broadcastThis(address, payload) {
     this.io.emit(address, payload);
@@ -109,11 +117,14 @@ class EventTimer extends Timer {
         else if (payload === 'next') this.next();
         else if (payload === 'reload') this.reload();
         else if (payload === 'unload') this.unload();
+
         // Not yet implemented
         // else if (payload === 'roll') this.roll();
+
         this.broadcastThis('playstate', this.playState);
         this.broadcastThis('selected-id', this.selectedEventId);
         this.broadcastThis('titles', this.titles);
+
         break;
 
       /*******************************************/
@@ -160,10 +171,17 @@ class EventTimer extends Timer {
       /***  HANDLE NEW CONNECTION  ***/
       /***  ---------------------  ***/
       /*******************************/
+      // keep track of connections
       this._numClients++;
       console.log(
         `EventTimer: ${this._numClients} Clients with new connection: ${socket.id}`
       );
+
+      // send state
+      socket.emit('timer', this.getObject());
+      socket.emit('playstate', this.playState);
+      socket.emit('selected-id', this.selectedEventId);
+      socket.emit('titles', this.titles);
 
       /********************************/
       /***  HANDLE DISCONNECT USER  ***/
@@ -409,59 +427,35 @@ class EventTimer extends Timer {
     `;
   }
 
-  set presenterText(text) {
-    this.presenter.text = text;
+  start() {
+    // call super
+    super.start();
+
+    // broadcast current state
+    this.broadcastState();
   }
 
-  set presenterVisible(state) {
-    this.presenter.visible = state;
+  pause() {
+    // call super
+    super.pause();
+
+    // broadcast current state
+    this.broadcastState();
   }
 
-  set publicText(text) {
-    this.public.text = text;
-  }
+  stop() {
+    // call super
+    super.stop();
 
-  set publicVisible(state) {
-    this.public.visible = state;
-  }
-
-  set lowerText(text) {
-    this.lower.text = text;
-  }
-
-  set lowerVisible(state) {
-    this.lower.visible = state;
-  }
-
-  get presenter() {
-    return this.presenter;
-  }
-
-  get public() {
-    return this.public;
-  }
-
-  get lower() {
-    return this.lower;
-  }
-
-  get titles() {
-    return this.titles;
-  }
-
-  getEventData() {}
-
-  get events() {
-    return this._eventList;
-  }
-
-  // Torbjorn: is this a good idea?
-  set events(events) {
-    this._eventList = events;
+    // broadcast current state
+    this.broadcastState();
   }
 
   goto(eventIndex) {
     this.loadEvent(eventIndex);
+
+    // broadcast current state
+    this.broadcastState();
   }
 
   roll() {
@@ -483,6 +477,9 @@ class EventTimer extends Timer {
 
     if (gotoEvent === this.selectedEvent) return;
     this.goto(gotoEvent);
+
+    // broadcast current state
+    this.broadcastState();
   }
 
   next() {
@@ -502,6 +499,9 @@ class EventTimer extends Timer {
 
     if (gotoEvent === this.selectedEvent) return;
     this.goto(gotoEvent);
+
+    // broadcast current state
+    this.broadcastState();
   }
 
   unload() {
@@ -516,11 +516,20 @@ class EventTimer extends Timer {
 
     // reset selected
     this._resetSelection();
+
+    // broadcast current state
+    this.broadcastState();
   }
 
   reload() {
-    this._resetTimers();
+    // reload data
+    this.loadEvent(this.selectedEvent);
+
+    // reset playstate
     this.state = 'pause';
+
+    // broadcast current state
+    this.broadcastState();
   }
 }
 

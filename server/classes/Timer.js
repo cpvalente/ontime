@@ -119,14 +119,11 @@ class Timer {
     return Timer.toSeconds(this.current);
   }
 
-  get playState() {
-    return this.state;
-  }
-
   // playback
   start() {
     // do we need to change
     if (this.state === 'start') return;
+    else if (this.duration === 0) return;
     else if (this.startedAt == null) {
       const now = this._getCurrentTime();
       this._startedAt = now;
@@ -145,6 +142,8 @@ class Timer {
   pause() {
     // do we need to change
     if (this.state === 'pause') return;
+
+    else if (this.duration === 0) return;
 
     // update pause time
     this._pausedAt = this._getCurrentTime();
