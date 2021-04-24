@@ -93,8 +93,8 @@ export default function MessageControl() {
             <EditableInput className={style.padleft} />
           </Editable>
           <VisibleIconBtn
-            active={pres.visible}
-            clickHandler={() => messageControl('toggle-pres-visible')}
+            active={pres.visible || undefined}
+            clickhandler={() => messageControl('toggle-pres-visible')}
             {...inputProps}
           />
         </div>
@@ -113,8 +113,8 @@ export default function MessageControl() {
             <EditableInput className={style.padleft} />
           </Editable>
           <VisibleIconBtn
-            active={publ.visible}
-            clickHandler={() => messageControl('toggle-publ-visible')}
+            active={publ.visible || undefined}
+            clickhandler={() => messageControl('toggle-publ-visible')}
             {...inputProps}
           />
         </div>
@@ -134,8 +134,8 @@ export default function MessageControl() {
           </Editable>
 
           <VisibleIconBtn
-            active={lower.visible}
-            clickHandler={() => messageControl('toggle-lower-visible')}
+            active={lower.visible || undefined}
+            clickhandler={() => messageControl('toggle-lower-visible')}
             {...inputProps}
           />
         </div>

@@ -27,7 +27,7 @@ export default function DelayBlock(props) {
         submitHandler={submitHandler}
       />
       <div className={style.actionOverlay}>
-        <DeleteIconBtn clickHandler={deleteHandler} />
+        <DeleteIconBtn clickhandler={deleteHandler} />
         <ActionButtons showAdd addHandler={addHandler} />
       </div>
     </div>

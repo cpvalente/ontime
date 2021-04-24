@@ -18,7 +18,7 @@ export default function BlockBlock(props) {
   return (
     <div className={style.block}>
       <div className={style.actionOverlay}>
-        <DeleteIconBtn clickHandler={deleteHandler} />
+        <DeleteIconBtn clickhandler={deleteHandler} />
         <ActionButtons
           showAdd
           addHandler={addHandler}

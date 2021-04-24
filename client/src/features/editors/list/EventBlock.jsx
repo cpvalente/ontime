@@ -113,10 +113,10 @@ export default function EventBlock(props) {
       </div>
       <div className={style.actionOverlay}>
         <VisibleIconBtn
-          clickHandler={() => setVisible(!visible)}
-          active={visible}
+          clickhandler={() => setVisible(!visible)}
+          active={visible || undefined}
         />
-        <DeleteIconBtn clickHandler={deleteHandler} />
+        <DeleteIconBtn clickhandler={deleteHandler} />
         <ActionButtons
           showAdd
           addHandler={addHandler}

@@ -71,7 +71,7 @@ export default function Editor() {
               paddingTop: '3em',
             }}
           >
-            <SettingsIconBtn size='md' clickHandler={onOpen} />
+            <SettingsIconBtn size='md' clickhandler={onOpen} />
             <div
               style={{
                 width: 35,

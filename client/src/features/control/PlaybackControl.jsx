@@ -115,28 +115,28 @@ export default function PlaybackControl() {
       <div className={style.playbackContainer}>
         <StartIconBtn
           active={playback === 'start'}
-          clickHandler={() => playbackControl('start')}
+          clickhandler={() => playbackControl('start')}
           disabled={!selectedId}
         />
         <PauseIconBtn
           active={playback === 'pause'}
-          clickHandler={() => playbackControl('pause')}
+          clickhandler={() => playbackControl('pause')}
           disabled={!selectedId}
         />
         <RollIconBtn
           active={playback === 'roll'}
-          clickHandler={() => playbackControl('roll')}
+          clickhandler={() => playbackControl('roll')}
         />
       </div>
       <div className={style.playbackContainer}>
-        <PrevIconBtn clickHandler={() => playbackControl('previous')} />
-        <NextIconBtn clickHandler={() => playbackControl('next')} />
+        <PrevIconBtn clickhandler={() => playbackControl('previous')} />
+        <NextIconBtn clickhandler={() => playbackControl('next')} />
         <UnloadIconBtn
-          clickHandler={() => playbackControl('unload')}
+          clickhandler={() => playbackControl('unload')}
           disabled={!selectedId}
         />
         <ReloadIconButton
-          clickHandler={() => playbackControl('reload')}
+          clickhandler={() => playbackControl('reload')}
           disabled={!selectedId}
         />
       </div>

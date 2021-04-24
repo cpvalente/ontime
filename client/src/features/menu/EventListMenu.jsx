@@ -57,7 +57,7 @@ export default function EventListMenu(props) {
           <MenuItem>Download CSV</MenuItem>
         </MenuList>
       </Menu>
-      <AddIconBtn clickHandler={addHandler} size='sm' />
+      <AddIconBtn clickhandler={addHandler} size='sm' />
     </div>
   );
 }
