@@ -9,6 +9,7 @@ export default function SettingsIconBtn(props) {
       isRound
       variant='outline'
       onClick={props.clickHandler}
+      _focus={{ boxShadow: 'none' }}
     />
   );
 }

@@ -2,16 +2,18 @@ import { AnimatePresence, motion } from 'framer-motion';
 import style from './Lower.module.css';
 
 export default function Lower(props) {
-  const { pres, publ, lower, title, time, events, selectedId, general } = props;
+  const { lower, title, time, general } = props;
 
-  // getting config from URL
-  // like http://localhost:3000/lower?bg=ff2&text=f00&size=0.6&transition=5
+  // getting config from URL: preset, size, transition, bg, text, key
+  // eg. http://localhost:3000/lower?bg=ff2&text=f00&size=0.6&transition=5
   let params = new URLSearchParams(props.location.search);
 
+  // Preset: choose from an animation preset, not yet
   const preset = params.get('preset') ? params.get('preset') : 1;
+
   const size = params.get('size') ? params.get('size') : 1;
   const transitionIn = params.get('transition') ? params.get('transition') : 3;
-  const textColour = params.get('bg') ? `#${params.get('text')}` : '#fffffa';
+  const textColour = params.get('text') ? `#${params.get('text')}` : '#fffffa';
   const bgColour = params.get('bg') ? `#${params.get('bg')}` : '#00000033';
   const key = params.get('key') ? `#${params.get('key')}` : 'null';
 
@@ -87,7 +89,7 @@ export default function Lower(props) {
       },
     },
   };
-  
+
   return (
     <div
       className={style.lowerThird}

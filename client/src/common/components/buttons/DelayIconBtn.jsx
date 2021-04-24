@@ -8,6 +8,7 @@ export default function DelayIconBtn(props) {
       icon={<FiClock />}
       colorScheme='yellow'
       onClick={props.clickHandler}
+      _focus={{ boxShadow: 'none' }}
     />
   );
 }

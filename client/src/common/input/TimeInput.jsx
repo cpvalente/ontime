@@ -22,14 +22,16 @@ export default function TimeInput(props) {
   }, [props.value]);
 
   const handleChange = (val) => {
-    if (val <= 999) setValue(val);
+    if (val <= 666) setValue(val);
   };
 
   const handleSubmit = (val) => {
     if (val === props.value) return;
     if (val === '') setValue(0);
-    if (val > 0 && val < 60) {
+    if (val >= 0 && val <= 60) {
       props.submitHandler(val);
+    } else {
+      setValue(60);
     }
   };
 

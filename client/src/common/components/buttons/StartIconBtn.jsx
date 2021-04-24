@@ -8,7 +8,8 @@ export default function StartIconBtn(props) {
       colorScheme='green'
       variant={props.active ? 'solid' : 'outline'}
       onClick={props.clickHandler}
-      width={90}
+      width={120}
+      _focus={{ boxShadow: 'none' }}
     />
   );
 }

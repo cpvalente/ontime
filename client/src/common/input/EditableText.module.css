@@ -14,13 +14,11 @@
 
 .block {
   display: 'block';
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .inline {
   display: inline;
-}
-
-.editable13 {
-  width: '13em';
-  min-width: '13em';
+  width: max-content;
 }

@@ -1,10 +1,10 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiSkipForward } from 'react-icons/fi';
+import { FiCornerLeftUp } from 'react-icons/fi';
 
-export default function NextIconBtn(props) {
+export default function UnloadIconBtn(props) {
   return (
     <IconButton
-      icon={<FiSkipForward />}
+      icon={<FiCornerLeftUp />}
       colorScheme='whiteAlpha'
       backgroundColor='#ffffff05'
       variant='outline'

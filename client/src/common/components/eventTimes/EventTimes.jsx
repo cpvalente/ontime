@@ -1,5 +1,4 @@
 import EditableTimer from '../../input/EditableTimer';
-import DelayValue from '../../input/DelayValue';
 import { showWarningToast } from '../../helpers/toastManager';
 
 export default function EventTimes(props) {
@@ -24,7 +23,6 @@ export default function EventTimes(props) {
 
   return (
     <>
-      <DelayValue delay={delay} />
       <EditableTimer
         name='timeStart'
         validate={handleValidate}

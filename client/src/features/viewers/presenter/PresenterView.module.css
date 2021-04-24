@@ -101,10 +101,21 @@
   padding: 0;
 }
 
-.progressContainer {
+.countdown {
+  opacity: 1;
+}
+
+.progressContainer,
+.progressContainerPaused {
   grid-area: prog;
   width: 80%;
   margin: 0 auto;
+  opacity: 1;
+}
+
+.countdownPaused,
+.progressContainerPaused {
+  opacity: 0.6;
 }
 
 .container__grayFinished {

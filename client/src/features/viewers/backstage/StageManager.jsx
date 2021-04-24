@@ -5,7 +5,7 @@ import Paginator from './Paginator';
 import NavLogo from '../../../common/components/nav/NavLogo';
 
 export default function StageManager(props) {
-  const { pres, publ, lower, title, time, events, selectedId, general } = props;
+  const { publ, title, time, events, selectedId, general } = props;
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
@@ -19,18 +19,24 @@ export default function StageManager(props) {
       <NavLogo />
 
       <div className={style.eventTitle}>{general.title}</div>
-      <div className={style.nowContainer}>
-        <div className={style.label}>Now</div>
-        <div className={style.nowTitle}>{title.titleNow}</div>
-        <div className={style.nowSubtitle}>{title.subtitleNow}</div>
-        <div className={style.nowPresenter}>{title.presenterNow}</div>
-      </div>
-      <div className={style.nextContainer}>
-        <div className={style.label}>Next</div>
-        <div className={style.nextTitle}>{title.titleNext}</div>
-        <div className={style.nextSubtitle}>{title.subtitleNext}</div>
-        <div className={style.nextPresenter}>{title.presenterNext}</div>
-      </div>
+      {title.showNow && (
+        <div className={style.nowContainer}>
+          <div className={style.label}>Now</div>
+          <div className={style.nowTitle}>{title.titleNow}</div>
+          <div className={style.nowSubtitle}>{title.subtitleNow}</div>
+          <div className={style.nowPresenter}>{title.presenterNow}</div>
+        </div>
+      )}
+
+      {title.showNext && (
+        <div className={style.nextContainer}>
+          <div className={style.label}>Next</div>
+          <div className={style.nextTitle}>{title.titleNext}</div>
+          <div className={style.nextSubtitle}>{title.subtitleNext}</div>
+          <div className={style.nextPresenter}>{title.presenterNext}</div>
+        </div>
+      )}
+
       <div className={style.todayContainer}>
         <div className={style.label}>Today</div>
         <div className={style.entriesContainer}>

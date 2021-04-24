@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { eventsNamespace, fetchAllEvents } from '../../app/api/eventsApi';
-import { fetchSettings, settingsNamespace } from '../../app/api/settingsApi';
+import { fetchEvent, eventNamespace } from '../../app/api/eventApi';
 import { useSocket } from '../../app/context/socketContext';
 import { stringFromMillis } from '../../common/dateConfig';
 
@@ -16,9 +16,10 @@ const withSocket = (Component) => {
       data: genData,
       status: genDataStatus,
       isError: genDataIsError,
-    } = useQuery(settingsNamespace, fetchSettings);
+    } = useQuery(eventNamespace, fetchEvent);
 
-    const [events, setEvents] = useState([]);
+    const [publicEvents, setPublicEvents] = useState([]);
+    const [backstageEvents, setBackstageEvents] = useState([]);
 
     const socket = useSocket();
     const [pres, setPres] = useState({
@@ -54,6 +55,7 @@ const withSocket = (Component) => {
       publicInfo: '',
       backstageInfo: '',
     });
+    const [playback, setPlayback] = useState(null);
 
     // Ask for update on load
     useEffect(() => {
@@ -79,6 +81,11 @@ const withSocket = (Component) => {
         setTimer({ ...data });
       });
 
+      // Handle playstate
+      socket.on('playstate', (data) => {
+        setPlayback(data);
+      });
+
       // Handle titles
       socket.on('titles', (data) => {
         setTitles({ ...data });
@@ -95,6 +102,12 @@ const withSocket = (Component) => {
       // Ask for up to data
       socket.emit('get-presenter');
 
+      // ask for timer
+      socket.emit('get-timer');
+
+      // ask for playstate
+      socket.emit('get-playstate');
+
       // Ask for up titles
       socket.emit('get-titles');
 
@@ -107,6 +120,7 @@ const withSocket = (Component) => {
         socket.off('messages-presenter');
         socket.off('messages-lower');
         socket.off('timer');
+        socket.off('playstate');
         socket.off('titles');
         socket.off('selected-id');
       };
@@ -117,9 +131,11 @@ const withSocket = (Component) => {
       if (eventsData == null) return;
 
       // filter just events with title
-      const e = eventsData.filter((d) => d.type === 'event' && d.title !== '');
+      const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '');
+      setPublicEvents(pe);
 
-      setEvents(e);
+      // everything goes backstage
+      setBackstageEvents(eventsData);
     }, [eventsData]);
 
     // Set general data
@@ -133,12 +149,17 @@ const withSocket = (Component) => {
     /***  WRAP INFORMATION RELATED TO TITLES  ***/
     /***  ----------------------------------  ***/
     /********************************************/
+    // is there a now field?
+    let showNow = true;
+    if (!titles.titleNow && !titles.subtitleNow && !titles.presenterNow)
+      showNow = false;
+
     // is there a next field?
     let showNext = true;
     if (!titles.titleNext && !titles.subtitleNext && !titles.presenterNext)
       showNext = false;
 
-    const titleManager = { ...titles, showNext: showNext };
+    const titleManager = { ...titles, showNow: showNow, showNext: showNext };
 
     /******************************************/
     /***  + timeManager                     ***/
@@ -152,7 +173,12 @@ const withSocket = (Component) => {
     // get clock
     let clock = stringFromMillis(timer.clock);
 
-    const timeManager = { ...timer, finished: finished, clock: clock };
+    const timeManager = {
+      ...timer,
+      finished: finished,
+      clock: clock,
+      playstate: playback,
+    };
 
     return (
       <Component
@@ -162,7 +188,8 @@ const withSocket = (Component) => {
         lower={lower}
         title={titleManager}
         time={timeManager}
-        events={events}
+        events={publicEvents}
+        backstageEvents={backstageEvents}
         selectedId={selectedId}
         general={general}
       />

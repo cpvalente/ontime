@@ -8,6 +8,7 @@ export default function BlockIconBtn(props) {
       icon={<FiMinusCircle />}
       colorScheme='purple'
       onClick={props.clickHandler}
+      _focus={{ boxShadow: 'none' }}
     />
   );
 }

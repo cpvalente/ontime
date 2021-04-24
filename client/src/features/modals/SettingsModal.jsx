@@ -15,15 +15,15 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import {
-  fetchSettings,
-  postSettings,
-  settingsNamespace,
-} from '../../app/api/settingsApi';
+  fetchEvent,
+  postEvent,
+  eventNamespace,
+} from '../../app/api/eventApi';
 import { useQuery } from 'react-query';
 import { useEffect, useState } from 'react';
 
 export default function SettingsModal(props) {
-  const { data, status, isError } = useQuery(settingsNamespace, fetchSettings);
+  const { data, status, isError } = useQuery(eventNamespace, fetchEvent);
   const [formData, setFormData] = useState({
     title: '',
     url: '',
@@ -48,7 +48,7 @@ export default function SettingsModal(props) {
     event.preventDefault();
     setSubmitting(true);
 
-    await postSettings(formData).then(setSubmitting(false)).then(onClose);
+    await postEvent(formData).then(setSubmitting(false)).then(onClose);
   };
 
   return (
@@ -77,7 +77,7 @@ export default function SettingsModal(props) {
                     size='sm'
                     name='title'
                     placeholder='Event Title'
-                    autocomplete='off'
+                    autoComplete='off'
                     value={formData.title}
                     onChange={(event) =>
                       setFormData({ ...formData, title: event.target.value })
@@ -97,7 +97,7 @@ export default function SettingsModal(props) {
                     size='sm'
                     name='url'
                     placeholder='www.onsite.no'
-                    autocomplete='off'
+                    autoComplete='off'
                     value={formData.url}
                     onChange={(event) =>
                       setFormData({ ...formData, url: event.target.value })
@@ -117,7 +117,7 @@ export default function SettingsModal(props) {
                     size='sm'
                     name='pubInfo'
                     placeholder='Information to be shown on public screens'
-                    autocomplete='off'
+                    autoComplete='off'
                     value={formData.publicInfo}
                     onChange={(event) =>
                       setFormData({
@@ -140,7 +140,7 @@ export default function SettingsModal(props) {
                     size='sm'
                     name='backstageInfo'
                     placeholder='Information to be shown on backstage screens'
-                    autocomplete='off'
+                    autoComplete='off'
                     value={formData.backstageInfo}
                     onChange={(event) =>
                       setFormData({

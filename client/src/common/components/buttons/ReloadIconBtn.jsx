@@ -1,10 +1,10 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiSkipForward } from 'react-icons/fi';
+import { FiRefreshCcw } from 'react-icons/fi';
 
-export default function NextIconBtn(props) {
+export default function ReloadIconButton(props) {
   return (
     <IconButton
-      icon={<FiSkipForward />}
+      icon={<FiRefreshCcw />}
       colorScheme='whiteAlpha'
       backgroundColor='#ffffff05'
       variant='outline'

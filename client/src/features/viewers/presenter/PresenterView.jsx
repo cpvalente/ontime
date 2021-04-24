@@ -4,9 +4,10 @@ import NavLogo from '../../../common/components/nav/NavLogo';
 import style from './PresenterView.module.css';
 
 export default function PresenterView(props) {
-  const { pres, publ, lower, title, time } = props;
+  const { pres, title, time } = props;
 
-  let showOverlay = pres.text !== '' && pres.visible;
+  const showOverlay = pres.text !== '' && pres.visible;
+  const isPlaying = time.playstate === 'start';
 
   return (
     <div
@@ -33,14 +34,18 @@ export default function PresenterView(props) {
         {time.finished ? (
           <div className={style.finished}>TIME UP</div>
         ) : (
-          <div className={style.countdown}>
+          <div className={isPlaying ? style.countdown : style.countdownPaused}>
             <Countdown time={time.currentSeconds} hideZeroHours />
           </div>
         )}
       </div>
 
       {!time.finished && (
-        <div className={style.progressContainer}>
+        <div
+          className={
+            isPlaying ? style.progressContainer : style.progressContainerPaused
+          }
+        >
           <MyProgressBar
             now={time.currentSeconds}
             complete={time.durationSeconds}
@@ -49,12 +54,14 @@ export default function PresenterView(props) {
         </div>
       )}
 
-      <div className={style.nowContainer}>
-        <div className={style.label}>Now</div>
-        <div className={style.title}>{title.titleNow}</div>
-        <div className={style.subtitle}>{title.subtitleNow}</div>
-        <div className={style.presenter}>{title.presenterNow}</div>
-      </div>
+      {title.showNow && (
+        <div className={style.nowContainer}>
+          <div className={style.label}>Now</div>
+          <div className={style.title}>{title.titleNow}</div>
+          <div className={style.subtitle}>{title.subtitleNow}</div>
+          <div className={style.presenter}>{title.presenterNow}</div>
+        </div>
+      )}
 
       {title.showNext && (
         <div className={style.nextContainer}>

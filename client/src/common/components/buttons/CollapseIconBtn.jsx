@@ -9,6 +9,7 @@ export default function CollapseIconBtn(props) {
       colorScheme='orange'
       variant={props.active ? 'solid' : 'outline'}
       onClick={props.clickHandler}
+      _focus={{ boxShadow: 'none' }}
     />
   );
 }

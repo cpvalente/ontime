@@ -1,12 +1,12 @@
 // get database
 const db = require('../app.js').db;
-const table = 'settings';
+const table = 'event';
 
 function getSettings() {
   return db.get(table).value();
 }
 
-// Create controller for GET request to 'settings'
+// Create controller for GET request to 'event'
 // Returns ACK message
 exports.getAll = async (req, res) => {
   const settings = getSettings();
@@ -14,7 +14,7 @@ exports.getAll = async (req, res) => {
   else res.sendStatus(400);
 };
 
-// Create controller for POST request to 'settings'
+// Create controller for POST request to 'event'
 // Returns ACK message
 exports.post = async (req, res) => {
   if (!req.body) {
@@ -32,7 +32,7 @@ exports.post = async (req, res) => {
   }
 };
 
-// Create controller for GET request to 'settings/title'
+// Create controller for GET request to 'event/title'
 // Returns ACK message
 exports.titleGet = async (req, res) => {
   const settings = getSettings();
@@ -41,7 +41,7 @@ exports.titleGet = async (req, res) => {
   else res.sendStatus(400);
 };
 
-// Create controller for POST request to 'settings/title'
+// Create controller for POST request to 'event/title'
 // Returns ACK message
 exports.titlePost = async (req, res) => {
   if (!req.body) {
@@ -58,7 +58,7 @@ exports.titlePost = async (req, res) => {
   }
 };
 
-// Create controller for GET request to '/settings/url'
+// Create controller for GET request to '/event/url'
 // Returns ACK message
 exports.urlGet = async (req, res) => {
   let event = getEventOptions();
@@ -67,7 +67,7 @@ exports.urlGet = async (req, res) => {
   else res.sendStatus(400);
 };
 
-// Create controller for POST request to '/settings/url'
+// Create controller for POST request to '/event/url'
 // Returns ACK message
 exports.urlPost = async (req, res) => {
   if (!req.body) {
@@ -84,7 +84,7 @@ exports.urlPost = async (req, res) => {
   }
 };
 
-// Create controller for GET request to 'settings/publicInfo'
+// Create controller for GET request to 'event/publicInfo'
 // Returns ACK message
 exports.publicInfoGet = async (req, res) => {
   const settings = getSettings();
@@ -93,7 +93,7 @@ exports.publicInfoGet = async (req, res) => {
   else res.sendStatus(400);
 };
 
-// Create controller for POST request to '/settings/publicInfo'
+// Create controller for POST request to '/event/publicInfo'
 // Returns ACK message
 exports.publicInfoPost = async (req, res) => {
   if (!req.body) {
@@ -110,7 +110,7 @@ exports.publicInfoPost = async (req, res) => {
   }
 };
 
-// Create controller for GET request to 'settings/backstageInfo'
+// Create controller for GET request to 'event/backstageInfo'
 // Returns ACK message
 exports.backstageInfoGet = async (req, res) => {
   const settings = getSettings();
@@ -119,7 +119,7 @@ exports.backstageInfoGet = async (req, res) => {
   else res.sendStatus(400);
 };
 
-// Create controller for POST request to '/settings/info'
+// Create controller for POST request to '/event/info'
 // Returns ACK message
 exports.backstageInfoPost = async (req, res) => {
   if (!req.body) {
@@ -136,7 +136,7 @@ exports.backstageInfoPost = async (req, res) => {
   }
 };
 
-// Create controller for GET request to 'settings/osc'
+// Create controller for GET request to 'event/osc'
 // Returns ACK message
 exports.osc = async (req, res) => {
   res.send('Not yet implemented').status(500);

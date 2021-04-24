@@ -1,4 +1,4 @@
-import { Route, Switch } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import './App.css';
 import Editor from './features/editors/Editor';
 import DefaultPresenter from './features/viewers/DefaultPresenter';
@@ -22,14 +22,14 @@ function App() {
   return (
     <SocketProvider>
       <QueryClientProvider client={queryClient}>
-          <div className='App'>
-            <Route exact path='/' component={SDefault} />
-            <Route exact path='/sm' component={SStageManager} />
-            <Route exact path='/speaker' component={SSpeaker} />
-            <Route exact path='/speakersimple' component={SSpeakerSimple} />
-            <Route exact path='/editor' component={Editor} />
-            <Route path='/lower' component={SLowerThird} />
-          </div>
+        <div className='App'>
+          <Route exact path='/' component={PresenterView} />
+          <Route exact path='/sm' component={SStageManager} />
+          <Route exact path='/speaker' component={SSpeaker} />
+          <Route exact path='/speakersimple' component={SSpeakerSimple} />
+          <Route exact path='/editor' component={Editor} />
+          <Route path='/lower' component={SLowerThird} />
+        </div>
       </QueryClientProvider>
     </SocketProvider>
   );

@@ -17,6 +17,9 @@ export default function EventListMenu(props) {
     variant: 'outline',
     colorScheme: 'whiteAlpha',
     backgroundColor: '#ffffff05',
+    _hover: { bg: 'blue.800' },
+    _expanded: { bg: 'blue.400' },
+    _focus: { boxShadow: 'none' },
   };
 
   const menuStyle = {

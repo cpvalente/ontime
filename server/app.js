@@ -23,7 +23,9 @@ const cors = require('cors');
 
 // Import Routes
 const eventsRouter = require('./routes/eventsRouter.js');
-const settingsRouter = require('./routes/settingsRouter.js');
+const eventRouter = require('./routes/eventRouter.js');
+// No settings yet
+// const settingsRouter = require('./routes/settingsRouter.js');
 
 // Setup default port
 const port = process.env.PORT || config.server.port;
@@ -46,7 +48,7 @@ app.use(express.json());
 
 // Implement route endpoints
 app.use('/events', eventsRouter);
-app.use('/settings', settingsRouter);
+app.use('/event', eventRouter);
 
 // implement general router
 app.get('/', function (req, res) {

@@ -8,6 +8,8 @@ import PauseIconBtn from '../../common/components/buttons/PauseIconBtn';
 import PrevIconBtn from '../../common/components/buttons/PrevIconBtn';
 import NextIconBtn from '../../common/components/buttons/NextIconBtn';
 import RollIconBtn from '../../common/components/buttons/RollIconBtn';
+import UnloadIconBtn from '../../common/components/buttons/UnloadIconBtn';
+import ReloadIconButton from '../../common/components/buttons/ReloadIconBtn';
 
 export default function PlaybackControl() {
   const socket = useSocket();
@@ -18,6 +20,14 @@ export default function PlaybackControl() {
     startedAt: null,
     expectedFinish: null,
   });
+
+  const resetTimer = () => {
+    setTimer({
+      currentSeconds: null,
+      startedAt: null,
+      expectedFinish: null,
+    });
+  };
 
   // handle incoming messages
   useEffect(() => {
@@ -56,9 +66,11 @@ export default function PlaybackControl() {
         break;
       case 'previous':
         socket.emit('set-playstate', 'previous');
+        resetTimer();
         break;
       case 'next':
         socket.emit('set-playstate', 'next');
+        resetTimer();
         break;
       default:
         break;
@@ -93,12 +105,16 @@ export default function PlaybackControl() {
           active={playback === 'pause'}
           clickHandler={() => playbackControl('pause')}
         />
-        <PrevIconBtn clickHandler={() => playbackControl('previous')} />
-        <NextIconBtn clickHandler={() => playbackControl('next')} />
         <RollIconBtn
           active={playback === 'roll'}
           clickHandler={() => playbackControl('roll')}
         />
+      </div>
+      <div className={style.playbackContainer}>
+        <PrevIconBtn clickHandler={() => playbackControl('previous')} />
+        <NextIconBtn clickHandler={() => playbackControl('next')} />
+        <UnloadIconBtn clickHandler={() => playbackControl('unload')} />
+        <ReloadIconButton clickHandler={() => playbackControl('reload')} />
       </div>
     </div>
   );

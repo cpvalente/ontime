@@ -24,11 +24,14 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      queryClient.cancelQueries(eventsNamespace);
+      queryClient.cancelQueries(eventsNamespace, { exact: true });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(eventsNamespace);
-
+      let previousEvents = queryClient.getQueryData(eventsNamespace);
+      if (previousEvents == null) {
+        await queryClient.refetchQueries();
+        previousEvents = queryClient.getQueryData(eventsNamespace);
+      }
       // optimistically update object, temp ID until refetch
       let optimistic = [...previousEvents];
       optimistic.splice(newEvent.order, 0, {
