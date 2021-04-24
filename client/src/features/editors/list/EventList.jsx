@@ -1,11 +1,10 @@
 import style from './List.module.css';
-import DelayBlock from './DelayBlock';
-import BlockBlock from './BlockBlock';
-import EventBlock from './EventBlock';
+
 import { useEffect, useState } from 'react';
 import { useSocket } from '../../../app/context/socketContext';
 import tinykeys from 'tinykeys';
 import Empty from '../../../common/state/Empty';
+import EventListItem from './EventListItem';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
@@ -17,33 +16,30 @@ export default function EventList(props) {
   // Handle keyboard shortcuts
   useEffect(() => {
     let unsubscribe = tinykeys(window, {
-      'Shift+ArrowDown': () => {
+      'Alt+ArrowDown': () => {
         if (cursor == null) setCursor(0);
         else if (cursor < events.length - 1) setCursor(cursor + 1);
       },
-      'Shift+ArrowUp': () => {
+      'Alt+ArrowUp': () => {
         if (cursor == null) setCursor(0);
         else if (cursor >= 0) setCursor(cursor - 1);
       },
-      '$mod+Shift+ArrowUp': () => {
-        setCursor(-1);
-      },
-      'Shift+KeyE': (event) => {
+      'Alt+KeyE': (event) => {
         event.preventDefault();
         if (cursor == null) return;
         eventsHandler('add', { type: 'event', order: cursor + 1 });
       },
-      'Shift+KeyD': (event) => {
+      'Alt+KeyD': (event) => {
         event.preventDefault();
         if (cursor == null) return;
         eventsHandler('add', { type: 'delay', order: cursor + 1 });
       },
-      'Shift+KeyB': (event) => {
+      'Alt+KeyB': (event) => {
         event.preventDefault();
         if (cursor == null) return;
         eventsHandler('add', { type: 'block', order: cursor + 1 });
       },
-      'Shift+KeyN': (event) => {
+      'Alt+KeyN': (event) => {
         event.preventDefault();
         if (cursor == null) return;
         if (events[cursor].type === 'event') setNext(cursor);
@@ -78,61 +74,29 @@ export default function EventList(props) {
   }
 
   console.log('EventList: events in event list', events);
-  console.log('Debug: cursor', cursor);
   let cumulativeDelay = 0;
-  let eventCount = -1;
 
-  // Torbjorn: is this very dirty code?
-  //  -- map and cumulative delay thing
-  // -- should i skip the order value and just use the array as order? (checkout dnd)
   return (
     <div className={style.eventContainer}>
       {cursor === -1 && <div className={style.cursor} />}
 
       {events.map((e, index) => {
-        if (e.type === 'event') {
-          eventCount = eventCount + 1;
-          return (
-            <>
-              <EventBlock
-                key={e.id}
-                index={index}
-                data={e}
-                selected={selected === e.id}
-                next={next === index}
-                eventsHandler={eventsHandler}
-                delay={cumulativeDelay}
-              />
-              {index === cursor && <div className={style.cursor} />}
-            </>
-          );
-        } else if (e.type === 'block') {
-          cumulativeDelay = 0;
-          return (
-            <>
-              <BlockBlock
-                key={e.id}
-                index={index}
-                data={e}
-                eventsHandler={eventsHandler}
-              />
-              {index === cursor && <div className={style.cursor} />}
-            </>
-          );
-        } else if (e.type === 'delay') {
-          cumulativeDelay = cumulativeDelay + e.duration;
-          return (
-            <>
-              <DelayBlock
-                key={e.id}
-                index={index}
-                data={e}
-                eventsHandler={eventsHandler}
-              />
-              {index === cursor && <div className={style.cursor} />}
-            </>
-          );
-        }
+        if (e.type === 'delay') cumulativeDelay += e.duration;
+        else if (e.type === 'block') cumulativeDelay = 0;
+        return (
+          <div key={index}>
+            <EventListItem
+              type={e.type}
+              index={index}
+              data={e}
+              selected={selected === e.id}
+              next={next === index}
+              eventsHandler={eventsHandler}
+              delay={cumulativeDelay}
+            />
+            {cursor === index && <div className={style.cursor} />}
+          </div>
+        );
       })}
     </div>
   );
