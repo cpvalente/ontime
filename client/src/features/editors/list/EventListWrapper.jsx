@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { useEffect } from 'react';
 import {
   eventsNamespace,
@@ -13,10 +13,11 @@ import EventListMenu from '../../menu/EventListMenu.jsx';
 import { showErrorToast } from '../../../common/helpers/toastManager';
 import { Skeleton } from '@chakra-ui/skeleton';
 import style from './List.module.css';
+import { useFetch } from '../../../app/hooks/useFetch.js';
 
 export default function EventListWrapper() {
   const queryClient = useQueryClient();
-  const { data, status, isError, refetch } = useQuery(
+  const { data, status, isError, refetch } = useFetch(
     eventsNamespace,
     fetchAllEvents
   );

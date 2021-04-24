@@ -19,11 +19,11 @@ import {
   postEvent,
   eventNamespace,
 } from '../../app/api/eventApi';
-import { useQuery } from 'react-query';
 import { useEffect, useState } from 'react';
+import { useFetch } from '../../app/hooks/useFetch';
 
 export default function SettingsModal(props) {
-  const { data, status, isError } = useQuery(eventNamespace, fetchEvent);
+  const { data, status, isError } = useFetch(eventNamespace, fetchEvent);
   const [formData, setFormData] = useState({
     title: '',
     url: '',

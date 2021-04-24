@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
 import { eventsNamespace, fetchAllEvents } from '../../app/api/eventsApi';
 import { fetchEvent, eventNamespace } from '../../app/api/eventApi';
 import { useSocket } from '../../app/context/socketContext';
 import { stringFromMillis } from '../../common/dateConfig';
+import { useFetch } from '../../app/hooks/useFetch';
+
 
 const withSocket = (Component) => {
   const WrappedComponent = (props) => {
@@ -11,12 +12,12 @@ const withSocket = (Component) => {
       data: eventsData,
       status: eventsDataStatus,
       isError: eventsDataIsError,
-    } = useQuery(eventsNamespace, fetchAllEvents);
+    } = useFetch(eventsNamespace, fetchAllEvents);
     const {
       data: genData,
       status: genDataStatus,
       isError: genDataIsError,
-    } = useQuery(eventNamespace, fetchEvent);
+    } = useFetch(eventNamespace, fetchEvent);
 
     const [publicEvents, setPublicEvents] = useState([]);
     const [backstageEvents, setBackstageEvents] = useState([]);
