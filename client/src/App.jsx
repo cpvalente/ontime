@@ -35,6 +35,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <div className='App'>
           <Route exact path='/' component={PresenterView} />
+          <Route exact path='/' component={SSpeaker} />
           <Route exact path='/sm' component={SStageManager} />
           <Route exact path='/speaker' component={SSpeaker} />
           <Route exact path='/speakersimple' component={SSpeakerSimple} />
