@@ -49,9 +49,17 @@ export default function NavLogo() {
               Backstage
             </Link>
             <Link
-              to='/lower'
+              to='/public'
               className={style.navItem}
               tabIndex={3}
+              onKeyDownCapture={() => <Redirect push to='/public' />}
+            >
+              Public
+            </Link>
+            <Link
+              to='/lower'
+              className={style.navItem}
+              tabIndex={4}
               onKeyDownCapture={() => <Redirect push to='/lower' />}
             >
               Lower Thirds

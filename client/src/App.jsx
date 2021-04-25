@@ -16,6 +16,9 @@ const PresenterSimple = lazy(() =>
 const StageManager = lazy(() =>
   import('./features/viewers/backstage/StageManager')
 );
+const Public = lazy(() =>
+  import('./features/viewers/foh/Public')
+);
 const Lower = lazy(() => import('./features/viewers/lower/Lower'));
 
 const queryClient = new QueryClient();
@@ -28,6 +31,7 @@ const queryClient = new QueryClient();
 const SSpeaker = withSocket(PresenterView);
 const SSpeakerSimple = withSocket(PresenterSimple);
 const SStageManager = withSocket(StageManager);
+const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
 
 function App() {
@@ -41,6 +45,7 @@ function App() {
             <Route exact path='/speaker' component={SSpeaker} />
             <Route exact path='/speakersimple' component={SSpeakerSimple} />
             <Route exact path='/editor' component={Editor} />
+            <Route path='/public' component={SPublic} />
             <Route path='/lower' component={SLowerThird} />
             {/* <ReactQueryDevtools initialIsOpen={false} /> */}
           </Suspense>

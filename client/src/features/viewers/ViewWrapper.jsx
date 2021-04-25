@@ -5,7 +5,6 @@ import { useSocket } from '../../app/context/socketContext';
 import { stringFromMillis } from '../../common/dateConfig';
 import { useFetch } from '../../app/hooks/useFetch';
 
-
 const withSocket = (Component) => {
   const WrappedComponent = (props) => {
     const {
@@ -132,7 +131,7 @@ const withSocket = (Component) => {
       if (eventsData == null) return;
 
       // filter just events with title
-      const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '');
+      const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic === true);
       setPublicEvents(pe);
 
       // everything goes backstage
