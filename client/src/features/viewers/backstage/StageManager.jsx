@@ -13,21 +13,23 @@ export default function StageManager(props) {
   useEffect(() => {
     if (backstageEvents == null) return;
 
+    let events = [...backstageEvents];
+
     // Add running delay
     let delay = 0;
-    backstageEvents.map((e) => {
+    events.forEach((e) => {
       if (e.type === 'block') delay = 0;
       else if (e.type === 'delay') delay = delay + e.duration;
       else if (e.type === 'event' && delay > 0) {
         e.timeStart += delay;
-        e.timedEnd += delay;
+        e.timeEnd += delay;
       }
     });
 
     // filter just events
-    let events = backstageEvents.filter((e) => e.type === 'event');
+    let filtered = events.filter((e) => e.type === 'event');
 
-    setFilteredEvents(events);
+    setFilteredEvents(filtered);
   }, [backstageEvents]);
 
   // Format messages
