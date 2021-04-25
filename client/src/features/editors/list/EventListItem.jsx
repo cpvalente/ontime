@@ -21,7 +21,7 @@ export default function EventListItem(props) {
           index={index}
           data={data}
           selected={selected}
-          next={next === index}
+          next={next}
           eventsHandler={eventsHandler}
           delay={delay}
         />

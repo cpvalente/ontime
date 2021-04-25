@@ -57,15 +57,20 @@ export default function EventList(props) {
 
     // ask for playstate
     socket.emit('get-selected-id');
+    socket.emit('get-next-id');
 
     // Handle playstate
     socket.on('selected-id', (data) => {
       setSelected(data);
     });
+    socket.on('next-id', (data) => {
+      setNext(data);
+    });
 
     // Clear listener
     return () => {
       socket.off('selected-id');
+      socket.off('next-id');
     };
   }, [socket]);
 
@@ -75,6 +80,8 @@ export default function EventList(props) {
 
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
+
+  console.log('debug next id', next)
 
   return (
     <div className={style.eventContainer}>
@@ -90,7 +97,7 @@ export default function EventList(props) {
               index={index}
               data={e}
               selected={selected === e.id}
-              next={next === index}
+              next={next === e.id}
               eventsHandler={eventsHandler}
               delay={cumulativeDelay}
             />

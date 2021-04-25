@@ -41,6 +41,7 @@ class EventTimer extends Timer {
 
   selectedEvent = null;
   selectedEventId = null;
+  nextEventId = null;
   numEvents = null;
   _eventlist = null;
 
@@ -78,6 +79,7 @@ class EventTimer extends Timer {
     this.io.emit('timer', this.getObject());
     this.io.emit('playstate', this.state);
     this.io.emit('selected-id', this.selectedEventId);
+    this.io.emit('next-id', this.nextEventId);
     this.io.emit('titles', this.titles);
   }
 
@@ -205,6 +207,7 @@ class EventTimer extends Timer {
         socket.emit('timer', this.getObject());
         socket.emit('playstate', this.state);
         socket.emit('selected-id', this.selectedEventId);
+        socket.emit('next-id', this.nextEventId);
         socket.emit('titles', this.titles);
       });
 
@@ -232,6 +235,10 @@ class EventTimer extends Timer {
       // titles data
       socket.on('get-selected-id', () => {
         socket.emit('selected-id', this.selectedEventId);
+      });
+
+      socket.on('get-next-id', () => {
+        socket.emit('next-id', this.nextEventId);
       });
 
       socket.on('get-titles', () => {
@@ -371,19 +378,11 @@ class EventTimer extends Timer {
     this.titles.titleNext = null;
     this.titles.subtitleNext = null;
     this.titles.presenterNext = null;
+    this.nextEventId = null;
 
     // look for event after
-    if (eventIndex < this.numEvents - 1) {
-      for (let i = eventIndex + 1; i < this.numEvents; i++) {
-        // check that is the right type
-        if (this._eventList[i].type === 'event') {
-          this.titles.titleNext = this._eventList[i].title;
-          this.titles.subtitleNext = this._eventList[i].subtitle;
-          this.titles.presenterNext = this._eventList[i].presenter;
-          break;
-        }
-      }
-    }
+    this._loadNext(eventIndex);
+
     this.broadcastState();
   }
 
@@ -413,8 +412,15 @@ class EventTimer extends Timer {
     this.titles.titleNext = null;
     this.titles.subtitleNext = null;
     this.titles.presenterNext = null;
+    this.nextEventId = null;
 
     // look for event after
+    this._loadNext(eventIndex);
+
+    this.broadcastState();
+  }
+
+  _loadNext(eventIndex) {
     if (eventIndex < this.numEvents - 1) {
       for (let i = eventIndex + 1; i < this.numEvents; i++) {
         // check that is the right type
@@ -422,11 +428,11 @@ class EventTimer extends Timer {
           this.titles.titleNext = this._eventList[i].title;
           this.titles.subtitleNext = this._eventList[i].subtitle;
           this.titles.presenterNext = this._eventList[i].presenter;
+          this.nextEventId = this._eventList[i].id;
           break;
         }
       }
     }
-    this.broadcastState();
   }
 
   _resetSelection() {
