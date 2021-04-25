@@ -1,7 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap');
+
 .entries {
   display: flex;
   flex-direction: column;
-  gap: 1.5vh;
 }
 
 .navItem,
@@ -20,5 +21,47 @@
   align-self: center;
   justify-content: flex-end;
   display: flex;
-  gap: 1vw;
+  margin-bottom: 2.5vh;
+}
+
+.nav > div {
+  margin-left: 0.5vw;
+}
+
+.entryStart,
+.entryEnd {
+  font-family: 'Open Sans', sans-serif;
+  min-width: 5vw;
+  opacity: 0.9;
+}
+
+.entryTitle {
+  align-self: center;
+}
+
+.entryPast,
+.entryNow,
+.entryFuture {
+  background-color: rgba(255, 255, 255, 0.03);
+  display: flex;
+  font-size: 1.3vw;
+  padding: 0.2vh 1vw;
+  margin-bottom: 1.5vh;
+}
+
+.entryPast {
+  color: #aaa;
+  font-size: 1.2vw;
+}
+
+.entryFuture {
+  color: #ddd;
+}
+
+.entryNow {
+  color: #fff;
+  line-height: 5vh;
+  background-color: rgba(255, 255, 255, 0.09);
+  border-bottom: 0.5vh solid #ff7597aa;
+  margin-left: -0.5vw;
 }

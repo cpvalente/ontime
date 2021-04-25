@@ -18,7 +18,6 @@
   display: flex;
   flex-direction: column;
   width: 45vw;
-  gap: 3vh;
   border-radius: 0 1vh 1vh 0;
 }
 
@@ -42,6 +41,7 @@
 
 .titleContainer,
 .subtitleContainer {
+  margin-bottom: 1vh;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

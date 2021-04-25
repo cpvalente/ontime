@@ -42,7 +42,7 @@
 /* =================== TITLES ===================*/
 
 .infoContainer > div {
-  overflow:hidden;
+  overflow: hidden;
 }
 
 .nextContainer > div,
@@ -162,44 +162,6 @@
   grid-template-rows: 5vh 1fr 3vh;
   margin-top: 3vh;
   height: 95%;
-}
-
-
-.entryStart,
-.entryEnd {
-  font-size: 1.5vw;
-  min-width: 3.5vw;
-}
-
-
-.entryTitle {
-  align-self: center;
-}
-.entryPast,
-.entryNow,
-.entryFuture {
-  background-color: rgba(255, 255, 255, 0.03);
-  display: flex;
-  gap: 1.5vw;
-  font-size: 1.3vw;
-  padding: 0.2vh 1vw;
-}
-
-.entryPast {
-  color: #aaa;
-  font-size: 1.2vw;
-}
-
-.entryFuture {
-  color: #ddd;
-}
-.entryNow {
-  font-size: 1.3vw;
-  color: #fff;
-  line-height: 4vh;
-  background-color: rgba(255, 255, 255, 0.09);
-  border-bottom: 0.5vh solid #ff7597aa;
-  margin-left: -0.5vw;
 }
 
 /* =================== OVERLAY ===================*/
