@@ -130,6 +130,7 @@ class Timer {
     if (this.state === 'start') return;
     else if (this.duration === 0) return;
     else if (this.startedAt == null) {
+      this._resetTimers();
       const now = this._getCurrentTime();
       this._startedAt = now;
       this._finishAt = now + this.duration;

@@ -605,6 +605,7 @@ class EventTimer extends Timer {
   }
 
   goto(eventIndex) {
+    // load event
     this.loadEvent(eventIndex);
 
     // broadcast current state
