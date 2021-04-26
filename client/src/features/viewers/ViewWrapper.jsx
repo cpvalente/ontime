@@ -48,7 +48,16 @@ const withSocket = (Component) => {
       subtitleNext: '',
       presenterNext: '',
     });
+    const [publicTitles, setPublicTitles] = useState({
+      titleNow: '',
+      subtitleNow: '',
+      presenterNow: '',
+      titleNext: '',
+      subtitleNext: '',
+      presenterNext: '',
+    });
     const [selectedId, setSelectedId] = useState(null);
+    const [publicSelectedId, setPublicSelectedId] = useState(null);
     const [general, setGeneral] = useState({
       title: '',
       url: '',
@@ -90,10 +99,16 @@ const withSocket = (Component) => {
       socket.on('titles', (data) => {
         setTitles({ ...data });
       });
+      socket.on('publictitles', (data) => {
+        setPublicTitles({ ...data });
+      });
 
       // Handle selected event
       socket.on('selected-id', (data) => {
         setSelectedId(data);
+      });
+      socket.on('publicselected-id', (data) => {
+        setPublicSelectedId(data);
       });
 
       // Ask for up to date data
@@ -110,6 +125,7 @@ const withSocket = (Component) => {
 
       // Ask for up titles
       socket.emit('get-titles');
+      socket.emit('get-publictitles');
 
       // Ask for up selected
       socket.emit('get-selected-id');
@@ -122,6 +138,7 @@ const withSocket = (Component) => {
         socket.off('timer');
         socket.off('playstate');
         socket.off('titles');
+        socket.off('publictitles');
         socket.off('selected-id');
       };
     }, [socket]);
@@ -131,7 +148,9 @@ const withSocket = (Component) => {
       if (eventsData == null) return;
 
       // filter just events with title
-      const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic === true);
+      const pe = eventsData.filter(
+        (d) => d.type === 'event' && d.title !== '' && d.isPublic === true
+      );
       setPublicEvents(pe);
 
       // everything goes backstage
@@ -161,6 +180,35 @@ const withSocket = (Component) => {
 
     const titleManager = { ...titles, showNow: showNow, showNext: showNext };
 
+    /********************************************/
+    /***  + publicTitleManager               ***/
+    /***  WRAP INFORMATION RELATED TO TITLES  ***/
+    /***  ----------------------------------  ***/
+    /********************************************/
+    // is there a now field?
+    let showPublicNow = true;
+    if (
+      !publicTitles.titleNow &&
+      !publicTitles.subtitleNow &&
+      !publicTitles.presenterNow
+    )
+      showPublicNow = false;
+
+    // is there a next field?
+    let showPublicNext = true;
+    if (
+      !publicTitles.titleNext &&
+      !publicTitles.subtitleNext &&
+      !publicTitles.presenterNext
+    )
+      showPublicNext = false;
+
+    const publicTitleManager = {
+      ...publicTitles,
+      showNow: showPublicNow,
+      showNext: showPublicNext,
+    };
+
     /******************************************/
     /***  + timeManager                     ***/
     /***  WRAP INFORMATION RELATED TO TIME  ***/
@@ -187,10 +235,12 @@ const withSocket = (Component) => {
         publ={publ}
         lower={lower}
         title={titleManager}
+        publicTitle={publicTitleManager}
         time={timeManager}
         events={publicEvents}
         backstageEvents={backstageEvents}
         selectedId={selectedId}
+        publicSelectedId={publicSelectedId}
         general={general}
       />
     );

@@ -40,11 +40,6 @@ export default function EventList(props) {
         if (cursor == null) return;
         eventsHandler('add', { type: 'block', order: cursor + 1 });
       },
-      'Alt+KeyN': (event) => {
-        event.preventDefault();
-        if (cursor == null) return;
-        if (events[cursor].type === 'event') setNext(cursor);
-      },
     });
     if (cursor > events.length - 1) setCursor(events.length - 1);
     return () => {

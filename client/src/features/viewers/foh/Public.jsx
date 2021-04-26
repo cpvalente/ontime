@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from '../../../common/components/views/TitleSide';
 
 export default function StageManager(props) {
-  const { publ, title, time, events, selectedId, general } = props;
+  const { publ, publicTitle, time, events, publicSelectedId, general } = props;
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
@@ -34,7 +34,7 @@ export default function StageManager(props) {
       <div className={style.eventTitle}>{general.title}</div>
 
       <AnimatePresence>
-        {title.showNow && (
+        {publicTitle.showNow && (
           <motion.div
             className={style.nowContainer}
             key='now'
@@ -46,16 +46,16 @@ export default function StageManager(props) {
             <TitleSide
               label='Now'
               type='now'
-              title={title.titleNow}
-              subtitle={title.subtitleNow}
-              presenter={title.presenterNow}
+              title={publicTitle.titleNow}
+              subtitle={publicTitle.subtitleNow}
+              presenter={publicTitle.presenterNow}
             />
           </motion.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
-        {title.showNext && (
+        {publicTitle.showNext && (
           <motion.div
             className={style.nextContainer}
             key='next'
@@ -67,9 +67,9 @@ export default function StageManager(props) {
             <TitleSide
               label='Next'
               type='next'
-              title={title.titleNext}
-              subtitle={title.subtitleNext}
-              presenter={title.presenterNext}
+              title={publicTitle.titleNext}
+              subtitle={publicTitle.subtitleNext}
+              presenter={publicTitle.presenterNext}
             />
           </motion.div>
         )}
@@ -78,7 +78,7 @@ export default function StageManager(props) {
       <div className={style.todayContainer}>
         <div className={style.label}>Today</div>
         <div className={style.entriesContainer}>
-          <Paginator selectedId={selectedId} events={events} />
+          <Paginator selectedId={publicSelectedId} events={events} />
         </div>
       </div>
 

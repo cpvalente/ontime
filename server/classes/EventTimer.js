@@ -10,10 +10,11 @@ const socketIo = require('socket.io');
  */
 
 class EventTimer extends Timer {
+  // AUX
+  DAYMS = 86400000;
+
   // Socket IO Object
   io = null;
-
-  // Socket IO helpers
   _numClients = 0;
   _interval = null;
 
@@ -30,6 +31,15 @@ class EventTimer extends Timer {
     visible: false,
   };
 
+  titlesPublic = {
+    titleNow: null,
+    subtitleNow: null,
+    presenterNow: null,
+    titleNext: null,
+    subtitleNext: null,
+    presenterNext: null,
+  };
+
   titles = {
     titleNow: null,
     subtitleNow: null,
@@ -42,6 +52,8 @@ class EventTimer extends Timer {
   selectedEvent = null;
   selectedEventId = null;
   nextEventId = null;
+  selectedPublicEventId = null;
+  nextPublicEventId = null;
   numEvents = null;
   _eventlist = null;
 
@@ -80,7 +92,10 @@ class EventTimer extends Timer {
     this.io.emit('playstate', this.state);
     this.io.emit('selected-id', this.selectedEventId);
     this.io.emit('next-id', this.nextEventId);
+    this.io.emit('publicselected-id', this.selectedPublicEventId);
+    this.io.emit('publicnext-id', this.nextPublicEventId);
     this.io.emit('titles', this.titles);
+    this.io.emit('publictitles', this.titlesPublic);
   }
 
   // broadcast message
@@ -183,7 +198,9 @@ class EventTimer extends Timer {
       socket.emit('timer', this.getObject());
       socket.emit('playstate', this.state);
       socket.emit('selected-id', this.selectedEventId);
-      socket.emit('titles', this.titles);
+      socket.emit('next-id', this.nextEventId);
+      socket.emit('publicselected-id', this.selectedPublicEventId);
+      socket.emit('publicnext-id', this.nextPublicEventId);
 
       /********************************/
       /***  HANDLE DISCONNECT USER  ***/
@@ -208,7 +225,8 @@ class EventTimer extends Timer {
         socket.emit('playstate', this.state);
         socket.emit('selected-id', this.selectedEventId);
         socket.emit('next-id', this.nextEventId);
-        socket.emit('titles', this.titles);
+        socket.emit('publicselected-id', this.selectedPublicEventId);
+        socket.emit('publicnext-id', this.this.nextPublicEventId);
       });
 
       /*******************************************/
@@ -232,7 +250,7 @@ class EventTimer extends Timer {
       });
 
       /*******************************************/
-      // titles data
+      // selection data
       socket.on('get-selected-id', () => {
         socket.emit('selected-id', this.selectedEventId);
       });
@@ -241,23 +259,22 @@ class EventTimer extends Timer {
         socket.emit('next-id', this.nextEventId);
       });
 
+      socket.on('get-publicselected-id', () => {
+        socket.emit('publicselected-id', this.selectedPublicEventId);
+      });
+
+      socket.on('get-publicnext-id', () => {
+        socket.emit('publicnext-id', this.nextPublicEventId);
+      });
+
+      // title data
       socket.on('get-titles', () => {
         socket.emit('titles', this.titles);
       });
 
-      /*****************************/
-      /***  BROADCAST            ***/
-      /***  TIMER STATE GETTERS  ***/
-      /***  -------------------  ***/
-      /*****************************/
-
-      /*******************************************/
-      // playback API
-      // ? should i change the address tokeep convention?
-      socket.on('get-messages', () => {
-        this.broadcastThis('messages-presenter', this.presenter);
-        this.broadcastThis('messages-public', this.public);
-        this.broadcastThis('messages-lower', this.lower);
+      // title data
+      socket.on('get-publictitles', () => {
+        socket.emit('publictitles', this.titlesPublic);
       });
 
       /***********************************/
@@ -266,6 +283,14 @@ class EventTimer extends Timer {
       /***********************************/
 
       /*******************************************/
+
+      // Messages
+      socket.on('get-messages', () => {
+        this.broadcastThis('messages-presenter', this.presenter);
+        this.broadcastThis('messages-public', this.public);
+        this.broadcastThis('messages-lower', this.lower);
+      });
+
       // Presenter message
       socket.on('set-presenter-text', (data) => {
         this._setterManager('set-presenter-text', data);
@@ -327,11 +352,10 @@ class EventTimer extends Timer {
     // filter only events
     const events = eventlist.filter((e) => e.type === 'event');
 
-    const numEvents = events.length;
-
     // set general
     this._eventList = events;
-    this.numEvents = numEvents;
+    this.numEvents = events.length;
+
     // handle reload selected
     if (this.selectedEventId != null) {
       // Look for event (order might have changed)
@@ -347,90 +371,123 @@ class EventTimer extends Timer {
       }
 
       // Reload data if running
-      if (this._startedAt != null) this.reloadRunning(eventIndex);
-      else if (this.selectedEventId != null) this.loadEvent(eventIndex);
+      let type = this._startedAt != null ? 'reload' : 'load';
+      this.loadEvent(eventIndex, type);
+
+      this.broadcastState();
     }
   }
 
-  // Reloads changed info in current event
-  reloadRunning(eventIndex) {
+  // Loads a given event
+  loadEvent(eventIndex, type = 'load') {
     const e = this._eventList[eventIndex];
+
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
     let end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
-
     // in case the end is earlier than start, we assume is the day after
-    if (end < start) end += 86400000;
+    if (end < start) end += this.DAYMS;
 
-    // time stuff
-    const now = this._getCurrentTime();
-    const elapsed = this.getElapsed();
+    // time stuff changes on wheter we keep the running clock
+    if (type === 'load') {
+      this._resetTimers();
+      this.duration = end - start;
+      this.current = this.duration;
+      this.selectedEvent = eventIndex;
+      this.selectedEventId = e.id;
+    } else if (type === 'reload') {
+      const now = this._getCurrentTime();
+      const elapsed = this.getElapsed();
 
-    this.duration = end - start;
-    this.selectedEvent = eventIndex;
-    this._finishAt = now + (this.duration - elapsed);
+      this.duration = end - start;
+      this.selectedEvent = eventIndex;
+      this._finishAt = now + (this.duration - elapsed);
+    }
 
-    // event titles
+    // load current titles
+    this._loadTitlesNow(e, eventIndex);
+
+    // look for event after
+    this._loadTitlesNext(eventIndex);
+  }
+
+  _loadTitlesNow(e, eventIndex) {
+    // private title is always current
     this.titles.titleNow = e.title;
     this.titles.subtitleNow = e.subtitle;
     this.titles.presenterNow = e.presenter;
-
-    // assume tere is no next event
-    this.titles.titleNext = null;
-    this.titles.subtitleNext = null;
-    this.titles.presenterNext = null;
-    this.nextEventId = null;
-
-    // look for event after
-    this._loadNext(eventIndex);
-
-    this.broadcastState();
-  }
-
-  // Loads a given event
-  loadEvent(eventIndex) {
-    // set event specific
-    const e = this._eventList[eventIndex];
-    const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
-    let end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
-
-    // in case the end is earlier than start, we assume is the day after
-    if (end < start) end += 86400000;
-
-    // time stuff
-    this._resetTimers();
-    this.duration = end - start;
-    this.current = this.duration;
-    this.selectedEvent = eventIndex;
     this.selectedEventId = e.id;
 
-    // event titles
-    this.titles.titleNow = e.title;
-    this.titles.subtitleNow = e.subtitle;
-    this.titles.presenterNow = e.presenter;
+    // check if current is also public
+    if (e.isPublic) {
+      this.titlesPublic.titleNow = e.title;
+      this.titlesPublic.subtitleNow = e.subtitle;
+      this.titlesPublic.presenterNow = e.presenter;
+      this.selectedPublicEventId = e.id;
+    } else {
+      // assume there is no public event
+      this.titlesPublic.titleNow = null;
+      this.titlesPublic.subtitleNow = null;
+      this.titlesPublic.presenterNow = null;
+      this.selectedPublicEventId = null;
 
-    // assume tere is no next event
+      // if there is nothing before, return
+      if (eventIndex === 0) return;
+
+      // iterate backwards to find it
+      for (let i = eventIndex - 1; i >= 0; i--) {
+        if (
+          this._eventList[i].type === 'event' &&
+          this._eventList[i].isPublic
+        ) {
+          this.titlesPublic.titleNow = this._eventList[i].title;
+          this.titlesPublic.subtitleNow = this._eventList[i].subtitle;
+          this.titlesPublic.presenterNow = this._eventList[i].presenter;
+          this.selectedPublicEventId = this._eventList[i].id;
+        }
+      }
+    }
+  }
+
+  _loadTitlesNext(eventIndex) {
+    // assume there is no next event
     this.titles.titleNext = null;
     this.titles.subtitleNext = null;
     this.titles.presenterNext = null;
     this.nextEventId = null;
 
-    // look for event after
-    this._loadNext(eventIndex);
+    this.titlesPublic.titleNext = null;
+    this.titlesPublic.subtitleNext = null;
+    this.titlesPublic.presenterNext = null;
+    this.nextPublicEventId = null;
 
-    this.broadcastState();
-  }
-
-  _loadNext(eventIndex) {
     if (eventIndex < this.numEvents - 1) {
+      let nextPublic = false;
+      let nextPrivate = false;
+
       for (let i = eventIndex + 1; i < this.numEvents; i++) {
         // check that is the right type
         if (this._eventList[i].type === 'event') {
-          this.titles.titleNext = this._eventList[i].title;
-          this.titles.subtitleNext = this._eventList[i].subtitle;
-          this.titles.presenterNext = this._eventList[i].presenter;
-          this.nextEventId = this._eventList[i].id;
-          break;
+          // if we have not set private
+          if (!nextPrivate) {
+            this.titles.titleNext = this._eventList[i].title;
+            this.titles.subtitleNext = this._eventList[i].subtitle;
+            this.titles.presenterNext = this._eventList[i].presenter;
+            this.nextEventId = this._eventList[i].id;
+            nextPrivate = true;
+          }
+
+          // if event is public
+          if (this._eventList[i].isPublic) {
+            this.titlesPublic.titleNext = this._eventList[i].title;
+            this.titlesPublic.subtitleNext = this._eventList[i].subtitle;
+            this.titlesPublic.presenterNext = this._eventList[i].presenter;
+            this.nextPublicEventId = this._eventList[i].id;
+            nextPublic = true;
+          }
         }
+
+        // Stop if both are set
+        if (nextPublic && nextPrivate) break;
       }
     }
   }
@@ -445,8 +502,20 @@ class EventTimer extends Timer {
       presenterNext: null,
     };
 
+    this.publicTitles = {
+      titleNow: null,
+      subtitleNow: null,
+      presenterNow: null,
+      titleNext: null,
+      subtitleNext: null,
+      presenterNext: null,
+    };
+
     this.selectedEvent = null;
     this.selectedEventId = null;
+    this.nextEventId = null;
+    this.selectedPublicEventId = null;
+    this.nextPublicEventId = null;
   }
 
   print() {
@@ -468,10 +537,29 @@ class EventTimer extends Timer {
       ------------------------------
       numEvents       = ${this.numEvents}
       selectedEvent   = ${this.selectedEvent}
-      selectedEventId = ${this.selectedEventId}
-      title           = ${this.titles.title}
-      subtitle        = ${this.titles.subtitle}
-      presenter       = ${this.titles.presenter}
+
+      Private Titles
+      ------------------------------
+      NowID           = ${this.selectedEventId}
+      NextID          = ${this.nextEventId}
+      Title Now       = ${this.titles.titleNow}
+      Subtitle Now    = ${this.titles.subtitleNow}
+      Presenter Now   = ${this.titles.presenterNow}
+      Title Next      = ${this.titles.titleNext}
+      Subtitle Next   = ${this.titles.subtitleNext}
+      Presenter Next  = ${this.titles.presenterNext}
+
+      Public Titles
+      ------------------------------
+      NowID           = ${this.selectedPublicEventId}
+      NextID          = ${this.nextPublicEventId}
+      Title Now       = ${this.titlesPublic.titleNow}
+      Subtitle Now    = ${this.titlesPublic.subtitleNow}
+      Presenter Now   = ${this.titlesPublic.presenterNow}
+      Title Next      = ${this.titlesPublic.titleNext}
+      Subtitle Next   = ${this.titlesPublic.subtitleNext}
+      Presenter Next  = ${this.titlesPublic.presenterNext}
+
 
       Messages
       ------------------------------
@@ -533,6 +621,9 @@ class EventTimer extends Timer {
     // check that we have events to run
     if (this.numEvents < 1) return;
 
+    // change playstate
+    this.state = 'pause';
+
     // if there is no event running, go to first
     if (this.selectedEvent == null) {
       this.goto(0);
@@ -550,6 +641,9 @@ class EventTimer extends Timer {
   next() {
     // check that we have events to run
     if (this.numEvents < 1) return;
+
+    // change playstate
+    this.state = 'pause';
 
     // if there is no event running, go to first
     if (this.selectedEvent == null) {
