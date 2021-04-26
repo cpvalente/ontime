@@ -1,13 +1,13 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
-import { FiZap, FiPlus, FiMinus, FiMinusCircle, FiClock } from 'react-icons/fi';
+import { FiZap, FiPlus, FiMinusCircle, FiClock } from 'react-icons/fi';
 
 export default function ActionButtons(props) {
-  const { showDel, showAdd, showDelay, showBlock } = props;
+  const { showAdd, showDelay, showBlock } = props;
 
   const menuStyle = {
     color: '#000000',
-    backgroundColor: 'rgba(255,255,255,0.67)',
+    backgroundColor: 'rgba(255,255,255,1)',
   };
 
   return (
@@ -23,26 +23,28 @@ export default function ActionButtons(props) {
         color={'orange.500'}
       />
       <MenuList style={menuStyle}>
-        {showDel && (
-          <MenuItem icon={<FiMinus />} onClick={props.deleteHandler}>
-            Delete
-          </MenuItem>
-        )}
-        {showAdd && (
-          <MenuItem icon={<FiPlus />} onClick={props.addHandler}>
-            Event next
-          </MenuItem>
-        )}
-        {showDelay && (
-          <MenuItem icon={<FiClock />} onClick={props.delayHandler}>
-            Delay next
-          </MenuItem>
-        )}
-        {showBlock && (
-          <MenuItem icon={<FiMinusCircle />} onClick={props.blockHandler}>
-            Block next
-          </MenuItem>
-        )}
+        <MenuItem
+          icon={<FiPlus />}
+          onClick={props.addHandler}
+          isDisabled={!showAdd}
+        >
+          Event next
+        </MenuItem>
+
+        <MenuItem
+          icon={<FiClock />}
+          onClick={props.delayHandler}
+          isDisabled={!showDelay}
+        >
+          Delay next
+        </MenuItem>
+        <MenuItem
+          icon={<FiMinusCircle />}
+          onClick={props.blockHandler}
+          isDisabled={!showBlock}
+        >
+          Block next
+        </MenuItem>
       </MenuList>
     </Menu>
   );

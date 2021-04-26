@@ -1,6 +1,8 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import Countdown from '../../../common/components/countdown/Countdown';
 import MyProgressBar from '../../../common/components/myProgressBar/MyProgressBar';
 import NavLogo from '../../../common/components/nav/NavLogo';
+import TitleCard from '../../../common/components/views/TitleCard';
 import style from './PresenterView.module.css';
 
 export default function PresenterView(props) {
@@ -8,6 +10,22 @@ export default function PresenterView(props) {
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate === 'start';
+
+  // motion
+  const titleVariants = {
+    hidden: {
+      y: 500,
+    },
+    visible: {
+      y: 0,
+      transition: {
+        duration: 1,
+      },
+    },
+    exit: {
+      y: 500,
+    },
+  };
 
   return (
     <div
@@ -54,23 +72,45 @@ export default function PresenterView(props) {
         </div>
       )}
 
-      {title.showNow && (
-        <div className={style.nowContainer}>
-          <div className={style.label}>Now</div>
-          <div className={style.title}>{title.titleNow}</div>
-          <div className={style.subtitle}>{title.subtitleNow}</div>
-          <div className={style.presenter}>{title.presenterNow}</div>
-        </div>
-      )}
+      <AnimatePresence>
+        {title.showNow && (
+          <motion.div
+            className={style.nowContainer}
+            key='now'
+            variants={titleVariants}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+          >
+            <TitleCard
+              label='Now'
+              title={title.titleNow}
+              subtitle={title.subtitleNow}
+              presenter={title.presenterNow}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {title.showNext && (
-        <div className={style.nextContainer}>
-          <div className={style.label}>Next</div>
-          <div className={style.title}>{title.titleNext}</div>
-          <div className={style.subtitle}>{title.subtitleNext}</div>
-          <div className={style.presenter}>{title.presenterNext}</div>
-        </div>
-      )}
+      <AnimatePresence>
+        {title.showNext && (
+          <motion.div
+            className={style.nextContainer}
+            key='next'
+            variants={titleVariants}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+          >
+            <TitleCard
+              label='Next'
+              title={title.titleNext}
+              subtitle={title.subtitleNext}
+              presenter={title.presenterNext}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

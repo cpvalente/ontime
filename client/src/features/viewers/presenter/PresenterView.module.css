@@ -57,32 +57,6 @@
   grid-area: next;
 }
 
-.title,
-.subtitle,
-.presenter {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.title {
-  color: #ddd;
-  font-size: 2.5vw;
-  flex: 1;
-}
-
-.subtitle,
-.presenter {
-  color: #aaa;
-  font-size: 2vw;
-}
-
-.title:after,
-.presenter:after,
-.subtitle:after {
-  content: '\200b';
-}
-
 /* =================== MAIN ===================*/
 
 .timerContainer,
@@ -111,11 +85,13 @@
   width: 80%;
   margin: 0 auto;
   opacity: 1;
+  transition: 0.5s;
 }
 
 .countdownPaused,
 .progressContainerPaused {
   opacity: 0.6;
+  transition: 0.5s;
 }
 
 .container__grayFinished {

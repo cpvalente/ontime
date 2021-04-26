@@ -112,47 +112,6 @@
   border-radius: 0 2vw 2vw 0;
 }
 
-.nowTitle,
-.nextTitle {
-  color: #ddd;
-  font-weight: 400;
-}
-
-.nowSubtitle,
-.nowPresenter,
-.nextSubtitle,
-.nextPresenter {
-  color: #aaa;
-}
-
-.nowTitle {
-  font-size: 2.5vw;
-}
-
-.nowSubtitle,
-.nowPresenter {
-  font-size: 2vw;
-}
-
-.nextTitle {
-  font-size: 2vw;
-}
-
-.nextSubtitle,
-.nextPresenter {
-  color: #aaa;
-  font-size: 1.5vw;
-}
-
-.nowTitle:after,
-.nowSubtitle:after,
-.nowPresenter:after,
-.nextTitle:after,
-.nextSubtitle:after,
-.nextPresenter:after {
-  content: '\200b';
-}
-
 /* =================== SCHEDULE ===================*/
 
 .todayContainer {

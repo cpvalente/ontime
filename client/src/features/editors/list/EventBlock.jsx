@@ -11,7 +11,6 @@ import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 
 export default function EventBlock(props) {
   const { data, selected, next, delay, index, eventsHandler } = props;
-  const [visible, setVisible] = useState(false);
 
   const [more, setMore] = useState(false);
 
@@ -51,6 +50,11 @@ export default function EventBlock(props) {
 
   const handlePresenterSubmit = (v) => {
     updateValues('presenter', v);
+  };
+
+  const handleVisibleToggle = (v) => {
+    // setVisible(previousState => !previousState);
+    updateValues('isPublic', !data.isPublic);
   };
 
   return (
@@ -110,8 +114,8 @@ export default function EventBlock(props) {
       </div>
       <div className={style.actionOverlay}>
         <VisibleIconBtn
-          clickhandler={() => setVisible(!visible)}
-          active={visible || undefined}
+          clickhandler={handleVisibleToggle}
+          active={data.isPublic}
         />
         <DeleteIconBtn clickhandler={deleteHandler} />
         <ActionButtons

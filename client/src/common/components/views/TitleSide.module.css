@@ -1,0 +1,54 @@
+.label {
+  font-size: 1.3vw;
+  color: #ff7597;
+}
+
+.nowTitle,
+.nextTitle {
+  color: #ddd;
+  font-weight: 600;
+}
+
+.nowSubtitle,
+.nowPresenter,
+.nextSubtitle,
+.nextPresenter {
+  color: #aaa;
+}
+
+.nowTitle {
+  font-size: 2.5vw;
+}
+
+.nowPresenter {
+  font-size: 2vw;
+  font-weight: 400;
+}
+
+.nowSubtitle {
+  font-size: 1.2vw;
+  margin-top: -1vh;
+}
+
+.nextTitle {
+  font-size: 2vw;
+}
+
+.nextSubtitle {
+  margin-top: -0.8vh;
+  font-size: 1.1vw;
+}
+
+.nextPresenter {
+  font-weight: 400;
+  font-size: 1.5vw;
+}
+
+.nowTitle:after,
+.nowSubtitle:after,
+.nowPresenter:after,
+.nextTitle:after,
+.nextSubtitle:after,
+.nextPresenter:after {
+  content: '\200b';
+}

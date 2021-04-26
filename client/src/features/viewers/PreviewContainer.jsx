@@ -21,7 +21,14 @@ export default function PreviewContainer() {
 
       <div className={styles.previewItem}>
         <IFrameLoader title='Audience' src={`${serverURL}/public`} />
-        <div className={styles.label}>Audience</div>
+        <a
+          href={`${serverURL}/public`}
+          target='_blank'
+          rel='noreferrer'
+          className={styles.label}
+        >
+          Audience
+        </a>
       </div>
 
       <div className={styles.previewItem}>

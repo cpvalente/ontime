@@ -92,6 +92,10 @@
 
 .settings {
   grid-area: sett;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.6em;
 }
 
 .content {

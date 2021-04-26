@@ -21,6 +21,7 @@ export default function EventListWrapper() {
     eventsNamespace,
     fetchAllEvents
   );
+
   const addEvent = useMutation(requestPost, {
     // we optimistically update here
     onMutate: async (newEvent) => {
@@ -29,10 +30,13 @@ export default function EventListWrapper() {
 
       // Snapshot the previous value
       let previousEvents = queryClient.getQueryData(eventsNamespace);
+      console.log('debug', previousEvents)
       if (previousEvents == null) {
-        await queryClient.refetchQueries();
+        refetch();
         previousEvents = queryClient.getQueryData(eventsNamespace);
       }
+      console.log('debug 2', previousEvents)
+
       // optimistically update object, temp ID until refetch
       let optimistic = [...previousEvents];
       optimistic.splice(newEvent.order, 0, {

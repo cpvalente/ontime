@@ -5,6 +5,7 @@ import { useSocket } from '../../../app/context/socketContext';
 import tinykeys from 'tinykeys';
 import Empty from '../../../common/state/Empty';
 import EventListItem from './EventListItem';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
@@ -78,14 +79,38 @@ export default function EventList(props) {
     return <Empty text='No Events' />;
   }
 
+  // motion
+  const cursorVariants = {
+    hidden: {
+      scale: 0,
+    },
+    visible: {
+      scale: 1,
+      transition: {
+        duration: 0.3,
+      },
+    },
+    exit: {
+      scale: 0,
+    },
+  };
+
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
 
-  console.log('debug next id', next)
-
   return (
     <div className={style.eventContainer}>
-      {cursor === -1 && <div className={style.cursor} />}
+      <AnimatePresence>
+        {cursor === -1 && (
+          <motion.div
+            className={style.cursor}
+            variants={cursorVariants}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+          />
+        )}
+      </AnimatePresence>
 
       {events.map((e, index) => {
         if (e.type === 'delay') cumulativeDelay += e.duration;
@@ -101,7 +126,17 @@ export default function EventList(props) {
               eventsHandler={eventsHandler}
               delay={cumulativeDelay}
             />
-            {cursor === index && <div className={style.cursor} />}
+            <AnimatePresence>
+              {cursor === index && (
+                <motion.div
+                  className={style.cursor}
+                  variants={cursorVariants}
+                  initial='hidden'
+                  animate='visible'
+                  exit='exit'
+                />
+              )}
+            </AnimatePresence>
           </div>
         );
       })}

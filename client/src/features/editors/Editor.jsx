@@ -19,7 +19,7 @@ export default function Editor() {
 
       <div className={styles.mainContainer}>
         <Box className={styles.editor}>
-          <Heading size='lg' style={{ paddingBottom: '0.25em' }}>
+          <Heading size='lg' paddingBottom={'0.25em'}>
             Event List
           </Heading>
           <NumberedText number={1} text={'Manage and select event to run'} />
@@ -29,7 +29,7 @@ export default function Editor() {
         </Box>
 
         <Box className={styles.preview} borderRadius='0.5em' overflowX='auto'>
-          <Heading size='lg' style={{ paddingBottom: '0.25em' }}>
+          <Heading size='lg' paddingBottom={'0.25em'}>
             Preview Displays
           </Heading>
           <NumberedText number={4} text={'Realtime screen preview'} />
@@ -39,7 +39,7 @@ export default function Editor() {
         </Box>
 
         <Box className={styles.messages}>
-          <Heading size='lg' style={{ paddingBottom: '0.25em' }}>
+          <Heading size='lg' paddingBottom={'0.25em'}>
             Display Messages
           </Heading>
           <NumberedText
@@ -52,7 +52,7 @@ export default function Editor() {
         </Box>
 
         <Box className={styles.playback}>
-          <Heading size='lg' style={{ paddingBottom: '0.25em' }}>
+          <Heading size='lg' paddingBottom={'0.25em'}>
             Time Control
           </Heading>
           <NumberedText number={3} text={'Control Timer'} />
@@ -62,64 +62,8 @@ export default function Editor() {
         </Box>
 
         <Box className={styles.settings}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '2em',
-              paddingTop: '3em',
-            }}
-          >
+          <div className={styles.content}>
             <SettingsIconBtn size='md' clickhandler={onOpen} />
-            <div
-              style={{
-                width: 35,
-                height: 35,
-                backgroundColor: '#3b8cd8',
-                borderRadius: '50%',
-              }}
-            />
-            <div
-              style={{
-                width: 35,
-                height: 35,
-                backgroundColor: '#3182ce',
-                borderRadius: '50%',
-              }}
-            />
-            <div
-              style={{
-                width: 35,
-                height: 35,
-                backgroundColor: '#2778c4',
-                borderRadius: '50%',
-              }}
-            />
-            <div
-              style={{
-                width: 35,
-                height: 35,
-                backgroundColor: '#1d6eba',
-                borderRadius: '50%',
-              }}
-            />
-            <div
-              style={{
-                width: 35,
-                height: 35,
-                backgroundColor: '#1364b0',
-                borderRadius: '50%',
-              }}
-            />
-            <div
-              style={{
-                width: 35,
-                height: 35,
-                backgroundColor: '#095aa6',
-                borderRadius: '50%',
-              }}
-            />
           </div>
         </Box>
       </div>

@@ -1,0 +1,41 @@
+.label {
+  font-size: 1.3vw;
+  color: #ff7597;
+}
+
+.title,
+.subtitle,
+.presenter {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.title {
+  color: #ddd;
+  font-size: 2.5vw;
+  flex: 1;
+  font-weight: 600;
+
+}
+
+.subtitle,
+.presenter {
+  color: #aaa;
+}
+
+.subtitle {
+  font-size: 1.5vw;
+  font-weight: 200;
+  margin-top: -0.8vh;
+}
+
+.presenter {
+  font-size: 2vw;
+}
+
+.title:after,
+.presenter:after,
+.subtitle:after {
+  content: '\200b';
+}

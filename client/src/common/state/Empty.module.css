@@ -1,16 +1,17 @@
 .emptyContainer {
-  text-align: center;
-  color: rgba(0, 0, 0, 0.17);
-  font-weight: 600;
-  font-size: 2em;
   width: 100%;
+  text-align: center;
 }
+
 .empty {
   width: 100%;
   margin: auto 0;
+  margin-top: 10vh;
   opacity: 0.3;
 }
 
 .text {
-  text-align: center;
+  color: rgba(0, 0, 0, 0.17);
+  font-weight: 600;
+  font-size: 2em;
 }
