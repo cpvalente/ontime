@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "name": "ontime",
+  "short_name": "ontime",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,8 +18,9 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
+  "scope": "/",
+  "start_url": "/",
+  "display": "",
+  "theme_color": "#121212",
   "background_color": "#ffffff"
 }
