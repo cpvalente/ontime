@@ -72,6 +72,7 @@ class Timer {
 
   // helpers
   static toSeconds(millis) {
+    if (millis == null) return null;
     return Math.floor(Math.max(millis * 0.001), 0);
   }
 

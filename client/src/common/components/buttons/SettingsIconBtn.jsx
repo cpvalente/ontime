@@ -11,6 +11,7 @@ export default function SettingsIconBtn(props) {
       variant='outline'
       onClick={clickhandler}
       _focus={{ boxShadow: 'none' }}
+      colorScheme='whiteAlpha'
       {...rest}
     />
   );
