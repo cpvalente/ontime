@@ -133,7 +133,7 @@ export default function EventListWrapper() {
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(eventsNamespace);
 
-      let filtered = [...previousEvents]
+      let filtered = [...previousEvents];
       filtered.filter((e) => e.id === 'eventId');
 
       // optimistically update object
@@ -144,12 +144,12 @@ export default function EventListWrapper() {
     },
 
     // Mutation fails, rollback undos optimist update
-    onError: (error, newEvent, context) => {
+    onError: (error, eventId, context) => {
       queryClient.setQueryData(eventsNamespace, context.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    onSettled: (newEvent) => {
+    onSettled: () => {
       queryClient.invalidateQueries(eventsNamespace);
     },
   });
@@ -163,7 +163,6 @@ export default function EventListWrapper() {
 
   // Events API
   const eventsHandler = async (action, payload) => {
-    let needsRefetch = false;
     switch (action) {
       case 'add':
         try {
@@ -187,9 +186,8 @@ export default function EventListWrapper() {
         }
         break;
       case 'delete':
-        // TODO: could do optimistic update here?
         try {
-          await deleteEvent.mutateAsync(payload).then((needsRefetch = true));
+          await deleteEvent.mutateAsync(payload);
         } catch (error) {
           showErrorToast('Error deleting event', error.message);
         }
@@ -197,9 +195,6 @@ export default function EventListWrapper() {
       default:
         showErrorToast('Unrecognised request', action);
         break;
-    }
-    if (needsRefetch) {
-      refetch();
     }
   };
 

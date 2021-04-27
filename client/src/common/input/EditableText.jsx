@@ -1,15 +1,19 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import style from './EditableText.module.css';
 
 export default function EditableText(props) {
   const { label, defaultValue, placeholder, submitHandler } = props;
-  const [text, setText] = useState(props.defaultValue || '');
+  const [text, setText] = useState('');
+
+  useEffect(() => {
+    if (defaultValue == null) setText('');
+    else setText(defaultValue);
+  }, [defaultValue]);
 
   const handleSubmit = (submitedVal) => {
     // No need to update if it hasnt changed
     if (submitedVal === defaultValue) return;
-
     submitHandler(submitedVal);
   };
 
