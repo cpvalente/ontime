@@ -21,7 +21,6 @@ export default function EventListWrapper() {
     eventsNamespace,
     fetchAllEvents
   );
-
   const addEvent = useMutation(requestPost, {
     // we optimistically update here
     onMutate: async (newEvent) => {
@@ -30,12 +29,12 @@ export default function EventListWrapper() {
 
       // Snapshot the previous value
       let previousEvents = queryClient.getQueryData(eventsNamespace);
-      console.log('debug', previousEvents)
+      console.log('debug', previousEvents);
       if (previousEvents == null) {
         refetch();
         previousEvents = queryClient.getQueryData(eventsNamespace);
       }
-      console.log('debug 2', previousEvents)
+      console.log('debug 2', previousEvents);
 
       // optimistically update object, temp ID until refetch
       let optimistic = [...previousEvents];
@@ -125,7 +124,35 @@ export default function EventListWrapper() {
     },
   });
 
-  const deleteEvent = useMutation(requestDelete);
+  const deleteEvent = useMutation(requestDelete, {
+    // we optimistically update here
+    onMutate: async (eventId) => {
+      // cancel ongoing queries
+      queryClient.cancelQueries([eventsNamespace, eventId]);
+
+      // Snapshot the previous value
+      const previousEvents = queryClient.getQueryData(eventsNamespace);
+
+      let filtered = [...previousEvents]
+      filtered.filter((e) => e.id === 'eventId');
+
+      // optimistically update object
+      queryClient.setQueryData(eventsNamespace, filtered);
+
+      // Return a context with the previous and new todo
+      return { previousEvents };
+    },
+
+    // Mutation fails, rollback undos optimist update
+    onError: (error, newEvent, context) => {
+      queryClient.setQueryData(eventsNamespace, context.previousEvents);
+    },
+    // Mutation finished, failed or successful
+    // Fetch anyway, just to be sure
+    onSettled: (newEvent) => {
+      queryClient.invalidateQueries(eventsNamespace);
+    },
+  });
 
   // Show toasts on errors
   useEffect(() => {
