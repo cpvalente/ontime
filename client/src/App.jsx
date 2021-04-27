@@ -19,7 +19,6 @@ const StageManager = lazy(() =>
 const Public = lazy(() =>
   import('./features/viewers/foh/Public')
 );
-const Lower = lazy(() => import('./features/viewers/lower/Lower'));
 const Lower = lazy(() => import('./features/viewers/production/Lower'));
 const Pip = lazy(() => import('./features/viewers/production/Pip'));
 
