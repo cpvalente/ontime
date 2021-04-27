@@ -5,7 +5,7 @@ import { useInterval } from '../../../app/hooks/useInterval';
 
 export default function Paginator(props) {
   const { events, selectedId } = props;
-  const LIMIT_PER_PAGE = props.limit || 7;
+  const LIMIT_PER_PAGE = props.limit || 8;
   const SCROLL_TIME = (props.time * 1000) || 5000;
   const SCROLL_PAST = false;
   const [numEvents, setNumEvents] = useState(0);
