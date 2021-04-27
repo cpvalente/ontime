@@ -4,6 +4,7 @@ import style from './Lower.module.css';
 
 export default function Lower(props) {
   const { lower, title, time, general } = props;
+  const [showLower, setShowLower] = useState(true);
 
   // Set window title
   useEffect(() => {
@@ -15,7 +16,6 @@ export default function Lower(props) {
   // eg. http://localhost:3000/lower?bg=ff2&text=f00&size=0.6&transition=5
   let params = new URLSearchParams(props.location.search);
 
-  // Preset: choose from an animation preset, not yet
   const preset = params.get('preset') ? params.get('preset') : 1;
 
   const size = params.get('size') ? params.get('size') : 1;
@@ -23,9 +23,25 @@ export default function Lower(props) {
   const textColour = params.get('text') ? `#${params.get('text')}` : '#fffffa';
   const bgColour = params.get('bg') ? `#${params.get('bg')}` : '#00000033';
   const key = params.get('key') ? `#${params.get('key')}` : 'null';
+  const fadeOut = params.get('fadeout') ? `${params.get('fadeout')}` : 'null';
+
+  useEffect(() => {
+    if (!fadeOut) return;
+
+    // Calculate time
+    let transitionTime = parseInt(transitionIn) || 0;
+    let fadeOutTime = (parseInt(fadeOut) + transitionTime) * 1000;
+    if (isNaN(fadeOutTime)) return;
+
+    const timeout = setTimeout(() => {
+      setShowLower(false);
+    }, fadeOutTime);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   // Format messages
-  const showLower = lower.text !== '' && lower.visible;
+  const showLowerMessage = lower.text !== '' && lower.visible;
 
   // transition segments
   const eight = transitionIn / 8;
@@ -40,6 +56,13 @@ export default function Lower(props) {
     },
     visible: {
       opacity: 1,
+      transition: {
+        duration: third,
+      },
+    },
+    exit: {
+      opacity: 0,
+      x: -1000,
       transition: {
         duration: third,
       },
@@ -106,42 +129,49 @@ export default function Lower(props) {
         fontSize: `${size * 4}vh`,
       }}
     >
-      <motion.div
-        className={style.lowerContainer}
-        style={{ backgroundColor: bgColour }}
-        variants={lowerThirdVariants}
-        initial='hidden'
-        animate='visible'
-        exit={{ opacity: 0 }}
-      >
-        <motion.div
-          className={style.titleContainer}
-          variants={titleContainerVariants}
-        >
-          <motion.div className={style.title} variants={titleVariants}>
-            {title.titleNow}
-          </motion.div>
-          <div className={style.titleDecor} />
-        </motion.div>
-        <motion.div
-          className={style.subtitleContainer}
-          variants={subtitleContainerVariants}
-        >
-          <div className={style.subDecor} />
-          <motion.div className={style.subtitle} variants={subtitleVariants}>
-            {title.presenterNow}
-          </motion.div>
-        </motion.div>
-      </motion.div>
-
       <AnimatePresence>
         {showLower && (
+          <motion.div
+            className={style.lowerContainer}
+            style={{ backgroundColor: bgColour }}
+            variants={lowerThirdVariants}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+          >
+            <motion.div
+              className={style.titleContainer}
+              variants={titleContainerVariants}
+            >
+              <motion.div className={style.title} variants={titleVariants}>
+                {title.titleNow}
+              </motion.div>
+              <div className={style.titleDecor} />
+            </motion.div>
+            <motion.div
+              className={style.subtitleContainer}
+              variants={subtitleContainerVariants}
+            >
+              <div className={style.subDecor} />
+              <motion.div
+                className={style.subtitle}
+                variants={subtitleVariants}
+              >
+                {title.presenterNow}
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLowerMessage && (
           <motion.div
             className={style.messageContainer}
             key='modal'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ scaleY: 0 }}
+            exit={{ scaleY: 0, opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
             <div className={style.message}>{lower.text}</div>

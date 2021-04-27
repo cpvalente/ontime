@@ -14,7 +14,7 @@
   top: 75vh;
   background-color: #00000033;
 
-  padding: 1vw 1vw 1vw 0;
+  padding: 1vh 1vw 1vh 0;
   display: flex;
   flex-direction: column;
   width: 45vw;
@@ -27,7 +27,6 @@
   bottom: 2vh;
   width: 100%;
   text-align: center;
-  filter: blur(0);
 }
 
 .titleContainer,
@@ -72,27 +71,8 @@
   width: fit-content;
 }
 
-.title {
-}
-
-.subtitleContainer {
-}
-
-.subtitle {
-}
-
 .messageContainer {
   background-color: #00000033;
-  opacity: 1;
-  transition: 0.5s;
-  transition-property: opacity;
-}
-
-.messageContainerHidden {
-  background-color: #00000033;
-  opacity: 0;
-  transition: 0.5s;
-  transition-property: opacity;
 }
 
 .message {
