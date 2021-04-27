@@ -33,6 +33,7 @@ export default function StageManager(props) {
     },
   };
 
+  console.log('debug', events)
   return (
     <div className={style.container__gray}>
       <NavLogo />

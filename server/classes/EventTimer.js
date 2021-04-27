@@ -373,9 +373,28 @@ class EventTimer extends Timer {
       // Reload data if running
       let type = this._startedAt != null ? 'reload' : 'load';
       this.loadEvent(eventIndex, type);
-
-      this.broadcastState();
     }
+    this.broadcastState();
+  }
+
+  updateSingleEvent(id, entry) {
+    // find object in events
+    const eventIndex = this._eventList.findIndex((e) => e.id === id);
+    if (eventIndex === -1) return;
+
+    // update events
+    const e = this._eventList[eventIndex];
+    this._eventList[eventIndex] = { ...e, ...entry };
+
+    // handle reload selected
+    // Reload data if running
+    let type =
+      this.selectedEventId === id && this._startedAt != null
+        ? 'reload'
+        : 'load';
+    this.loadEvent(this.selectedEvent, type);
+
+    this.broadcastState();
   }
 
   // Loads a given event
@@ -434,7 +453,7 @@ class EventTimer extends Timer {
       if (eventIndex === 0) return;
 
       // iterate backwards to find it
-      for (let i = eventIndex - 1; i >= 0; i--) {
+      for (let i = eventIndex; i >= 0; i--) {
         if (
           this._eventList[i].type === 'event' &&
           this._eventList[i].isPublic
@@ -443,6 +462,7 @@ class EventTimer extends Timer {
           this.titlesPublic.subtitleNow = this._eventList[i].subtitle;
           this.titlesPublic.presenterNow = this._eventList[i].presenter;
           this.selectedPublicEventId = this._eventList[i].id;
+          break;
         }
       }
     }

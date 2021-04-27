@@ -45,6 +45,11 @@ function _updateTimers() {
   global.timer.updateEventList(results);
 }
 
+// Updates timer object single event
+function _updateTimersSingle(id, entry) {
+  global.timer.updateSingleEvent(id, entry);
+}
+
 // Create controller for GET request to '/events'
 // Returns -
 exports.eventsGetAll = async (req, res) => {
@@ -129,7 +134,9 @@ exports.eventsPut = async (req, res) => {
       .find({ id: req.body.id })
       .assign({ ...req.body })
       .write();
-    _updateTimers();
+
+    // update timer
+    _updateTimersSingle(req.body.id, req.body);
 
     res.sendStatus(200);
   } catch (error) {
@@ -159,8 +166,7 @@ exports.eventsPatch = async (req, res) => {
       .write();
 
     // update timer
-    // TODO: update single values when possible
-    _updateTimers();
+    _updateTimersSingle(req.body.id, req.body);
 
     res.sendStatus(200);
   } catch (error) {
@@ -175,6 +181,7 @@ exports.eventsDelete = async (req, res) => {
   if (!req.params.eventId) {
     res.status(400).send(`No id found in request`);
     return;
+    console.log('debug: No id found in request');
   }
 
   try {
@@ -197,6 +204,8 @@ exports.eventsDelete = async (req, res) => {
 
     res.sendStatus(201);
   } catch (error) {
+    console.log('debug:', error);
+
     res.status(400).send(error);
   }
 };

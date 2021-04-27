@@ -13,6 +13,8 @@ export default function EventBlock(props) {
   const { data, selected, next, delay, index, eventsHandler } = props;
 
   const [more, setMore] = useState(false);
+  // NOTE: cheating to add responsiveness
+  const [visible, setVisible] = useState(data.isPublic || false);
 
   const updateValues = (field, value) => {
     // validate field
@@ -52,9 +54,10 @@ export default function EventBlock(props) {
     updateValues('presenter', v);
   };
 
-  const handleVisibleToggle = (v) => {
-    // setVisible(previousState => !previousState);
-    updateValues('isPublic', !data.isPublic);
+  const handleVisibleToggle = () => {
+    let viz = !data.isPublic || !visible;
+    setVisible(viz);
+    updateValues('isPublic', viz);
   };
 
   return (
@@ -113,10 +116,7 @@ export default function EventBlock(props) {
         </div>
       </div>
       <div className={style.actionOverlay}>
-        <VisibleIconBtn
-          clickhandler={handleVisibleToggle}
-          active={data.isPublic}
-        />
+        <VisibleIconBtn clickhandler={handleVisibleToggle} active={visible} />
         <DeleteIconBtn clickhandler={deleteHandler} />
         <ActionButtons
           showAdd
