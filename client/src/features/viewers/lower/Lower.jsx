@@ -1,9 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import style from './Lower.module.css';
 
 export default function Lower(props) {
   const { lower, title, time, general } = props;
 
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Lower Thirds';
+  }, []);
+
+  // TODO: sanitize data
   // getting config from URL: preset, size, transition, bg, text, key
   // eg. http://localhost:3000/lower?bg=ff2&text=f00&size=0.6&transition=5
   let params = new URLSearchParams(props.location.search);

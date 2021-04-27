@@ -11,6 +11,11 @@ export default function StageManager(props) {
   const { publ, title, time, backstageEvents, selectedId, general } = props;
   const [filteredEvents, setFilteredEvents] = useState(null);
 
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Backstage Screen';
+  }, []);
+
   // calculate delays if any
   useEffect(() => {
     if (backstageEvents == null) return;

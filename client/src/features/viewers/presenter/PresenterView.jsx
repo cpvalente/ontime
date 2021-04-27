@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect } from 'react';
 import Countdown from '../../../common/components/countdown/Countdown';
 import MyProgressBar from '../../../common/components/myProgressBar/MyProgressBar';
 import NavLogo from '../../../common/components/nav/NavLogo';
@@ -7,6 +8,11 @@ import style from './PresenterView.module.css';
 
 export default function PresenterView(props) {
   const { pres, title, time } = props;
+
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Speaker Screen';
+  }, []);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate === 'start';

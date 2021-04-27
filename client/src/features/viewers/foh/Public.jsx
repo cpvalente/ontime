@@ -4,9 +4,15 @@ import Paginator from '../../../common/components/views/Paginator';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from '../../../common/components/views/TitleSide';
+import { useEffect } from 'react';
 
 export default function StageManager(props) {
   const { publ, publicTitle, time, events, publicSelectedId, general } = props;
+
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Public Screen';
+  }, []);
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;

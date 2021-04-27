@@ -9,9 +9,15 @@ import EventListWrapper from './list/EventListWrapper';
 import { useDisclosure } from '@chakra-ui/hooks';
 import SettingsModal from '../modals/SettingsModal';
 import SettingsIconBtn from '../../common/components/buttons/SettingsIconBtn';
+import { useEffect } from 'react';
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Editor';
+  }, []);
 
   return (
     <>
