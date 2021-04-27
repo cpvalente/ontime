@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from '../../../common/components/views/TitleSide';
 import { useEffect } from 'react';
 
-export default function StageManager(props) {
+export default function Public(props) {
   const { publ, publicTitle, time, events, publicSelectedId, general } = props;
 
   // Set window title
@@ -32,8 +32,6 @@ export default function StageManager(props) {
       x: -1500,
     },
   };
-
-  console.log('debug', events)
   return (
     <div className={style.container__gray}>
       <NavLogo />

@@ -20,6 +20,8 @@ const Public = lazy(() =>
   import('./features/viewers/foh/Public')
 );
 const Lower = lazy(() => import('./features/viewers/lower/Lower'));
+const Lower = lazy(() => import('./features/viewers/production/Lower'));
+const Pip = lazy(() => import('./features/viewers/production/Pip'));
 
 const queryClient = new QueryClient();
 // Seemed to cause issues
@@ -33,6 +35,7 @@ const SSpeakerSimple = withSocket(PresenterSimple);
 const SStageManager = withSocket(StageManager);
 const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
+const SPip = withSocket(Pip);
 
 function App() {
   return (
@@ -48,6 +51,7 @@ function App() {
             <Route path='/public' component={SPublic} />
             <Route path='/lower' component={SLowerThird} />
             {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+            <Route path='/pip' component={SPip} />
           </Suspense>
         </div>
       </QueryClientProvider>

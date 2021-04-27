@@ -64,6 +64,14 @@ export default function NavLogo() {
             >
               Lower Thirds
             </Link>
+            <Link
+              to='/pip'
+              className={style.navItem}
+              tabIndex={4}
+              onKeyDownCapture={() => <Redirect push to='/pip' />}
+            >
+              PIP
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

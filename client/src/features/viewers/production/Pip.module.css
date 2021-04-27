@@ -12,15 +12,13 @@
   color: #fffd;
   font-weight: 300;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 3vw 2fr;
-  grid-template-rows: 2fr 1fr 1fr 0 1fr;
+  grid-template-columns: 20vw 20vw 18vw 3vw 1fr;
+  grid-template-rows: 60vh 1fr 1fr 1fr;
   grid-template-areas:
+    ' pip  pip  pip  . schd'
     ' titl titl titl . schd'
-    ' now  now  now  . schd'
-    ' next next .... . schd'
-    ' ...  .... .... . ....'
-    ' publ publ clck . info'
-    ' publ publ time . info';
+    ' info info clck . schd'
+    ' info info time . schd';
   gap: 1vw;
   padding: 1vw;
 }
@@ -39,96 +37,48 @@
   padding-left: 1vw;
 }
 
+.pip {
+  grid-area: pip;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 2555, 0.07);
+  width: 100%;
+  text-align: center;
+  display: grid;
+  place-content: center;
+}
+
+.empty {
+  opacity: 0.5;
+}
+
+.piptext {
+  color: rgba(255, 255, 255, 0.13);
+  font-weight: 600;
+  font-size: 4vh;
+}
+
+
 /* =================== TITLES ===================*/
 
 .infoContainer > div {
   overflow: hidden;
 }
 
-.nextContainer > div,
-.nowContainer > div {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.nowContainer,
-.nextContainer,
-.todayContainer {
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 1vh 2vw;
-}
-
+.infoContainer,
 .clockContainer,
-.countdownContainer,
-.publicContainer,
-.publicContainerHidden {
+.countdownContainer {
   background-color: rgba(255, 255, 255, 0.05);
   padding: 1vh 1vw;
 }
 
-.publicContainer {
-  opacity: 1;
-  transition: 0.5s;
-  transition-property: opacity;
-}
-
-.publicContainerHidden {
-  opacity: 0;
-  transition: 0.5s;
-  transition-property: opacity;
-}
-
-.todayContainer,
-.infoContainer {
+.todayContainer {
   background-color: rgba(255, 255, 255, 0.07);
   padding: 2.5vh 2vw;
 }
 
 .infoContainer,
-.todayContainer,
-.publicContainer,
-.publicContainerHidden {
-  border-radius: 1vw;
-}
-
-.nowContainer,
-.nextContainer {
-  margin-left: -1vw;
-}
-
-.nowContainer {
-  background-color: rgba(255, 255, 255, 0.09);
-  grid-area: now;
-  border-radius: 0 2vw 2vw 0;
-}
-
-.publicContainer,
-.publicContainerHidden {
-  grid-area: publ;
-}
-
-.nextContainer {
-  grid-area: next;
-  border-radius: 0 2vw 2vw 0;
-}
-
-/* =================== SCHEDULE ===================*/
-
 .todayContainer {
-  grid-area: schd;
-  display: grid;
-  grid-template-rows: 5vh 1fr 3vh;
-  margin-top: 3vh;
-  height: 95%;
-}
-
-/* =================== OVERLAY ===================*/
-
-.message {
-  font-size: 3vw;
-  line-height: 3vw;
-  padding: 0.5vh 0 0.5vh 1vw;
+  border-radius: 1vw;
 }
 
 .infoContainer {
@@ -138,7 +88,7 @@
   grid-template-rows: 3vh minmax(0, 1fr);
   grid-template-columns: 3fr 1fr;
   grid-template-areas:
-    'titl .'
+    'titl qr'
     'binf qr';
   gap: 0.5vw;
 }
@@ -156,6 +106,15 @@
   grid-area: qr;
 }
 
+/* =================== SCHEDULE ===================*/
+
+.todayContainer {
+  grid-area: schd;
+  display: grid;
+  grid-template-rows: 5vh 1fr 3vh;
+  height: 100%;
+}
+
 /* =================== MAIN ===================*/
 
 .clockContainer {
@@ -165,7 +124,7 @@
 
 .countdownContainer {
   grid-area: clck;
-    border-radius: 1vw 1vw 0 0;
+  border-radius: 1vw 1vw 0 0;
 }
 
 .clock {

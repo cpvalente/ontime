@@ -166,28 +166,36 @@ export default function EventListWrapper() {
     switch (action) {
       case 'add':
         try {
+          let t = Date.now();
           await addEvent.mutateAsync(payload);
+          console.log('debug m add', Date.now() - t);
         } catch (error) {
           showErrorToast('Error creating event', error.message);
         }
         break;
       case 'update':
         try {
+          let t = Date.now();
           await updateEvent.mutateAsync(payload);
+          console.log('debug m update', Date.now() - t);
         } catch (error) {
           showErrorToast('Error updating event', error.message);
         }
         break;
       case 'patch':
         try {
+          let t = Date.now();
           await patchEvent.mutateAsync(payload);
+          console.log('debug m patch', Date.now() - t);
         } catch (error) {
           showErrorToast('Error updating event', error.message);
         }
         break;
       case 'delete':
         try {
+          let t = Date.now();
           await deleteEvent.mutateAsync(payload);
+          console.log('debug m delete', Date.now() - t);
         } catch (error) {
           showErrorToast('Error deleting event', error.message);
         }

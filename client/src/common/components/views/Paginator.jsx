@@ -5,23 +5,17 @@ import { useInterval } from '../../../app/hooks/useInterval';
 
 export default function Paginator(props) {
   const { events, selectedId } = props;
-  const LIMIT_PER_PAGE = 7;
-  const SCROLL_TIME = 5000;
+  const LIMIT_PER_PAGE = props.limit || 7;
+  const SCROLL_TIME = (props.time * 1000) || 5000;
   const SCROLL_PAST = false;
   const [numEvents, setNumEvents] = useState(0);
   const [page, setPage] = useState([]);
   const [pages, setPages] = useState(0);
   const [selPage, setSelPage] = useState(0);
-
-  // Keep track of order
-  // 0 - events before
-  // 1 - running event
-  // 2 - future event
-  let selectedYet = 0;
+  const [selected, setSelected] = useState(-1);
 
   useEffect(() => {
     if (events == null) return;
-
     // how many events in list
     let n = events.length;
     setNumEvents(n);
@@ -37,7 +31,19 @@ export default function Paginator(props) {
     setPage(e);
 
     // if array is completely in past, show depending on SCROLL_PAST
-  }, [events, selPage]);
+  }, [events, selPage, LIMIT_PER_PAGE]);
+
+  useEffect(() => {
+    // maybe nothing is selected
+    if (events == null || selectedId == null) return;
+
+    // which one is selected
+    const s = events.filter((e) => e.id === selectedId);
+
+    if (s.length < 1) return;
+
+    setSelected(s[0].order);
+  }, [events, selectedId]);
 
   // every SCROLL_TIME go to the next array
   useInterval(() => {
@@ -49,25 +55,24 @@ export default function Paginator(props) {
 
   return (
     <>
-      {pages > 1 && (
-        <div className={style.nav}>
-          {[...Array(pages)].map((p, i) => (
+      <div className={style.nav}>
+        {pages > 1 &&
+          [...Array(pages)].map((p, i) => (
             <div
               key={i}
               className={i === selPage ? style.navItemSelected : style.navItem}
             />
           ))}
-        </div>
-      )}
-
+      </div>
       <div className={style.entries}>
         {page.map((e) => {
-          if (e.id === selectedId) selectedYet = 1;
-          else if (selectedYet === 1) selectedYet = 2;
+          let selectedState = 0;
+          if (e.order === selected) selectedState = 1;
+          else if (e.order > selected) selectedState = 2;
           return (
             <TodayItem
               key={e.id}
-              selected={selectedYet}
+              selected={selectedState}
               timeStart={e.timeStart}
               timeEnd={e.timeEnd}
               title={e.title}
