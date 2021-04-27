@@ -239,6 +239,12 @@ class EventTimer extends Timer {
         socket.emit('timer', this.getObject());
       });
 
+      socket.on('increment-timer', (data) => {
+        if (isNaN(parseInt(data))) return;
+        if (data < -5 || data > 5) return;
+        this.increment(data * 1000 * 60);
+      });
+
       /*******************************************/
       // playstate
       socket.on('set-playstate', (data) => {
@@ -619,6 +625,14 @@ class EventTimer extends Timer {
   stop() {
     // call super
     super.stop();
+
+    // broadcast current state
+    this.broadcastState();
+  }
+
+  increment(amount) {
+    // call super
+    super.increment(amount);
 
     // broadcast current state
     this.broadcastState();

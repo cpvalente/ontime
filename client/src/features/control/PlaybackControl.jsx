@@ -3,6 +3,7 @@ import Countdown from '../../common/components/countdown/Countdown';
 import { stringFromMillis } from '../../common/dateConfig';
 import { useEffect, useState } from 'react';
 import { useSocket } from '../../app/context/socketContext';
+import { Button } from '@chakra-ui/button';
 import StartIconBtn from '../../common/components/buttons/StartIconBtn';
 import PauseIconBtn from '../../common/components/buttons/PauseIconBtn';
 import PrevIconBtn from '../../common/components/buttons/PrevIconBtn';
@@ -96,6 +97,14 @@ export default function PlaybackControl() {
   const started = stringFromMillis(timer.startedAt, true);
   const finish = stringFromMillis(timer.expectedFinish, true);
 
+  const incrementProps = {
+    size: 'sm',
+    width: '2.9em',
+    colorScheme: 'whiteAlpha',
+    variant: 'outline',
+    _focus: { boxShadow: 'none' },
+  };
+
   return (
     <div className={style.mainContainer}>
       <div className={style.timeContainer}>
@@ -109,6 +118,32 @@ export default function PlaybackControl() {
         <div className={style.finish}>
           <span className={style.tag}>Finish at </span>
           <span className={style.time}>{finish}</span>
+        </div>
+        <div className={style.btn}>
+          <Button
+            {...incrementProps}
+            onClick={() => socket.emit('increment-timer', 1)}
+          >
+            +1
+          </Button>
+          <Button
+            {...incrementProps}
+            onClick={() => socket.emit('increment-timer', 5)}
+          >
+            +5
+          </Button>
+          <Button
+            {...incrementProps}
+            onClick={() => socket.emit('increment-timer', -1)}
+          >
+            -1
+          </Button>
+          <Button
+            {...incrementProps}
+            onClick={() => socket.emit('increment-timer', -5)}
+          >
+            -5
+          </Button>
         </div>
       </div>
 

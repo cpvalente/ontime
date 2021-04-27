@@ -17,16 +17,32 @@
 .timeContainer {
   display: grid;
   grid-template-areas:
-    'clk clk ...'
-    'sta fin ...';
+    'clk clk btn'
+    'sta fin btn';
   grid-template-rows: 1fr auto;
-  grid-template-columns: 1fr 1fr 80px;
+  grid-template-columns: 2fr 2fr 22%;
   gap: 5px;
   justify-items: start;
 }
 
 .timer {
   grid-area: clk;
+}
+
+.btn {
+  grid-area: btn;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+
+.minus {
+  grid-area: min;
+  display: flex;
+  flex-direction: column;
 }
 
 .start {

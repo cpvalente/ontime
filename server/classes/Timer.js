@@ -58,6 +58,7 @@ class Timer {
         }
         break;
       case 'pause':
+        if (this.current <= 0) return;
         // update paused time
         this._pausedInterval = now - this._pausedAt;
         break;
@@ -129,8 +130,8 @@ class Timer {
   start() {
     // do we need to change
     if (this.state === 'start') return;
-    else if (this.duration === 0) return;
-    else if (this.startedAt == null) {
+    else if (this.duration <= 0) return;
+    else if (this._startedAt == null) {
       this._resetTimers();
       const now = this._getCurrentTime();
       this._startedAt = now;
@@ -164,6 +165,21 @@ class Timer {
     // clear all timers
     this._resetTimers();
     this.state = 'stop';
+  }
+
+  increment(amount) {
+
+    if (amount < 0) {
+      if (Math.abs(amount) > this.current) {
+        console.log('ot os');
+
+        this.current = 0;
+        this._finishAt = this._getCurrentTime();
+        return;
+      }
+    }
+    this.current += amount;
+    this._finishAt += amount;
   }
 }
 
