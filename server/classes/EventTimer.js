@@ -388,22 +388,36 @@ class EventTimer extends Timer {
     const eventIndex = this._eventList.findIndex((e) => e.id === id);
     if (eventIndex === -1) return;
 
-    // update events
+    // update event in memory
     const e = this._eventList[eventIndex];
     this._eventList[eventIndex] = { ...e, ...entry };
 
-    // handle reload selected
-    // Reload data if running
-    let type =
-      this.selectedEventId === id && this._startedAt != null
-        ? 'reload'
-        : 'load';
-    this.loadEvent(this.selectedEvent, type);
+    try {
+    // check if entry is running
+    if (e.id === this.selectedEventId) {
+      // handle reload selected
+      // Reload data if running
+      let type =
+        this.selectedEventId === id && this._startedAt != null
+          ? 'reload'
+          : 'load';
+      this.loadEvent(this.selectedEvent, type);
+    } else if ('title' in e || 'subtitle' in e || 'presenter') {
+      // TODO: should be more selective on the need to load titles
+      this._loadTitlesNext();
+      this._loadTitlesNow();
+    }
+  } catch (error) {
+    console.log(error)
+  }
 
     this.broadcastState();
   }
 
   // Loads a given event
+  // load timers
+  // load selectedEvent
+  // load titles
   loadEvent(eventIndex, type = 'load') {
     const e = this._eventList[eventIndex];
 
@@ -429,13 +443,16 @@ class EventTimer extends Timer {
     }
 
     // load current titles
-    this._loadTitlesNow(e, eventIndex);
+    this._loadTitlesNow();
 
     // look for event after
-    this._loadTitlesNext(eventIndex);
+    this._loadTitlesNext();
   }
 
-  _loadTitlesNow(e, eventIndex) {
+  _loadTitlesNow() {
+    const e = this._eventList[this.selectedEvent];
+    if (e == null) return
+
     // private title is always current
     this.titles.titleNow = e.title;
     this.titles.subtitleNow = e.subtitle;
@@ -456,10 +473,10 @@ class EventTimer extends Timer {
       this.selectedPublicEventId = null;
 
       // if there is nothing before, return
-      if (eventIndex === 0) return;
+      if (this.selectedEvent === 0) return;
 
       // iterate backwards to find it
-      for (let i = eventIndex; i >= 0; i--) {
+      for (let i = this.selectedEvent; i >= 0; i--) {
         if (
           this._eventList[i].type === 'event' &&
           this._eventList[i].isPublic
@@ -474,7 +491,10 @@ class EventTimer extends Timer {
     }
   }
 
-  _loadTitlesNext(eventIndex) {
+  _loadTitlesNext() {
+    // maybe there is nothing to load
+    if (this.selectedEvent == null) return
+
     // assume there is no next event
     this.titles.titleNext = null;
     this.titles.subtitleNext = null;
@@ -486,11 +506,11 @@ class EventTimer extends Timer {
     this.titlesPublic.presenterNext = null;
     this.nextPublicEventId = null;
 
-    if (eventIndex < this.numEvents - 1) {
+    if (this.selectedEvent < this.numEvents - 1) {
       let nextPublic = false;
       let nextPrivate = false;
 
-      for (let i = eventIndex + 1; i < this.numEvents; i++) {
+      for (let i = this.selectedEvent + 1; i < this.numEvents; i++) {
         // check that is the right type
         if (this._eventList[i].type === 'event') {
           // if we have not set private
