@@ -113,12 +113,14 @@ class EventTimer extends Timer {
     // if there is nothing selected, no nothing
     if (this.selectedEventId == null) return;
     super.start();
+    this.broadcastState();
   }
 
   pause() {
     // if there is nothing selected, no nothing
     if (this.selectedEventId == null) return;
     super.pause();
+    this.broadcastState();
   }
 
   _setterManager(action, payload) {
@@ -342,13 +344,14 @@ class EventTimer extends Timer {
   setupWithEventList(eventlist) {
     // filter only events
     const events = eventlist.filter((e) => e.type === 'event');
-
     const numEvents = events.length;
-    if (numEvents < 1) return;
 
     // set general
     this._eventList = events;
     this.numEvents = numEvents;
+
+    // list may be empty
+    if (numEvents < 1) return;
 
     // load first event
     this.loadEvent(0);
@@ -357,10 +360,17 @@ class EventTimer extends Timer {
   updateEventList(eventlist) {
     // filter only events
     const events = eventlist.filter((e) => e.type === 'event');
+    const numEvents = events.length;
 
     // set general
     this._eventList = events;
-    this.numEvents = events.length;
+    this.numEvents = numEvents;
+
+    // list may be empty
+    if (numEvents < 1) {
+      this.unload();
+      return;
+    }
 
     // handle reload selected
     if (this.selectedEventId != null) {
@@ -377,7 +387,7 @@ class EventTimer extends Timer {
       }
 
       // Reload data if running
-      let type = this._startedAt != null ? 'reload' : 'load';
+      const type = this._startedAt != null ? 'reload' : 'load';
       this.loadEvent(eventIndex, type);
     }
     this.broadcastState();
@@ -393,23 +403,23 @@ class EventTimer extends Timer {
     this._eventList[eventIndex] = { ...e, ...entry };
 
     try {
-    // check if entry is running
-    if (e.id === this.selectedEventId) {
-      // handle reload selected
-      // Reload data if running
-      let type =
-        this.selectedEventId === id && this._startedAt != null
-          ? 'reload'
-          : 'load';
-      this.loadEvent(this.selectedEvent, type);
-    } else if ('title' in e || 'subtitle' in e || 'presenter') {
-      // TODO: should be more selective on the need to load titles
-      this._loadTitlesNext();
-      this._loadTitlesNow();
+      // check if entry is running
+      if (e.id === this.selectedEventId) {
+        // handle reload selected
+        // Reload data if running
+        let type =
+          this.selectedEventId === id && this._startedAt != null
+            ? 'reload'
+            : 'load';
+        this.loadEvent(this.selectedEvent, type);
+      } else if ('title' in e || 'subtitle' in e || 'presenter') {
+        // TODO: should be more selective on the need to load titles
+        this._loadTitlesNext();
+        this._loadTitlesNow();
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error)
-  }
 
     this.broadcastState();
   }
@@ -429,6 +439,7 @@ class EventTimer extends Timer {
     // time stuff changes on wheter we keep the running clock
     if (type === 'load') {
       this._resetTimers();
+
       this.duration = end - start;
       this.current = this.duration;
       this.selectedEvent = eventIndex;
@@ -451,7 +462,7 @@ class EventTimer extends Timer {
 
   _loadTitlesNow() {
     const e = this._eventList[this.selectedEvent];
-    if (e == null) return
+    if (e == null) return;
 
     // private title is always current
     this.titles.titleNow = e.title;
@@ -493,7 +504,7 @@ class EventTimer extends Timer {
 
   _loadTitlesNext() {
     // maybe there is nothing to load
-    if (this.selectedEvent == null) return
+    if (this.selectedEvent == null) return;
 
     // assume there is no next event
     this.titles.titleNext = null;
@@ -658,14 +669,6 @@ class EventTimer extends Timer {
     this.broadcastState();
   }
 
-  goto(eventIndex) {
-    // load event
-    this.loadEvent(eventIndex);
-
-    // broadcast current state
-    this.broadcastState();
-  }
-
   roll() {
     console.log('roll: not yet implemented');
     return false;
@@ -676,33 +679,27 @@ class EventTimer extends Timer {
     // check that we have events to run
     if (this.numEvents < 1) return;
 
-    // change playstate
-    this.state = 'pause';
-
     // if there is no event running, go to first
     if (this.selectedEvent == null) {
-      this.goto(0);
+      this.loadEvent(0);
       return;
     }
     const gotoEvent = this.selectedEvent > 0 ? this.selectedEvent - 1 : 0;
 
     if (gotoEvent === this.selectedEvent) return;
-    this.goto(gotoEvent);
+    this.loadEvent(gotoEvent);
 
-    // broadcast current state
-    this.broadcastState();
+    // change playstate
+    this.pause();
   }
 
   next() {
     // check that we have events to run
     if (this.numEvents < 1) return;
 
-    // change playstate
-    this.state = 'pause';
-
     // if there is no event running, go to first
     if (this.selectedEvent == null) {
-      this.goto(0);
+      this.loadEvent(0);
       return;
     }
 
@@ -712,27 +709,21 @@ class EventTimer extends Timer {
         : this.numEvents - 1;
 
     if (gotoEvent === this.selectedEvent) return;
-    this.goto(gotoEvent);
+    this.loadEvent(gotoEvent);
 
-    // broadcast current state
-    this.broadcastState();
+    // change playstate
+    this.pause();
   }
 
   unload() {
     // reset duration
     this.duration = null;
 
-    // reset timers
-    this._resetTimers();
-
-    // reset playstate
-    this.state = 'stop';
-
     // reset selected
     this._resetSelection();
 
-    // broadcast current state
-    this.broadcastState();
+    // reset playstate
+    this.stop();
   }
 
   reload() {
@@ -740,10 +731,7 @@ class EventTimer extends Timer {
     this.loadEvent(this.selectedEvent);
 
     // reset playstate
-    this.state = 'pause';
-
-    // broadcast current state
-    this.broadcastState();
+    this.pause();
   }
 }
 

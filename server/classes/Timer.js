@@ -13,8 +13,8 @@ class Timer {
   _pausedAt = null;
   _pausedInterval = null;
   _pausedTotal = null;
+  _delays = null;
   state = 'stop';
-  showNegative = false;
 
   constructor() {}
 
@@ -38,6 +38,7 @@ class Timer {
       this._pausedInterval = 0;
     }
     this._pausedTotal = 0;
+    this._delays = 0;
     this.update();
   }
 
@@ -51,16 +52,13 @@ class Timer {
     switch (this.state) {
       case 'start':
         // update current timer
-        if (!this.showNegative) {
-          this.current = Math.max(this._finishAt + this._pausedTotal - now, 0);
-        } else {
-          this.current = this._finishAt + this._pausedTotal - now;
-        }
+        this.current = Math.max(this._finishAt + this._pausedTotal - now, 0);
         break;
       case 'pause':
-        if (this.current <= 0) return;
         // update paused time
-        this._pausedInterval = now - this._pausedAt;
+        if (this.current > 0) {
+          this._pausedInterval = now - this._pausedAt;
+        }
         break;
       case 'stop':
         // nothing here yet
@@ -80,8 +78,8 @@ class Timer {
   // get current time in epoc
   _getCurrentTime() {
     // date today at midnight
-    let now = new Date();
-    let midnight = new Date(now).setHours(0, 0, 0);
+    const now = new Date();
+    const midnight = new Date(now).setHours(0, 0, 0);
 
     // return diffence
     return now - midnight;
@@ -92,13 +90,14 @@ class Timer {
     return this._finishAt + (this._pausedInterval + this._pausedTotal);
   }
 
-  _resetTimers() {
+  _resetTimers(resetDelay = true) {
     this.current = this.duration;
     this._finishAt = null;
     this._startedAt = null;
     this._pausedAt = null;
     this._pausedInterval = null;
     this._pausedTotal = null;
+    if (resetDelay) this._delays = null;
   }
 
   // get elapsed time
@@ -132,10 +131,15 @@ class Timer {
     if (this.state === 'start') return;
     else if (this.duration <= 0) return;
     else if (this._startedAt == null) {
-      this._resetTimers();
+      // it hasnt started yet
       const now = this._getCurrentTime();
+      // set start time as now
       this._startedAt = now;
+      // calculate expected finish time
       this._finishAt = now + this.duration;
+      // reset pauses
+      this._pausedTotal = null;
+      this._pausedInterval = null;
     } else {
       // check if there is paused time
       if (this._pausedInterval) {
@@ -143,6 +147,7 @@ class Timer {
         this._pausedInterval = null;
       }
     }
+
     // change state
     this.state = 'start';
   }
@@ -150,35 +155,41 @@ class Timer {
   pause() {
     // do we need to change
     if (this.state === 'pause') return;
-    else if (this.duration === 0) return;
 
-    // update pause time
+    // if there is already paused time (shouldnt)
+    if (this._pausedInterval) {
+      console.log('TIMER: it was not paused and had pausedInterval');
+      this._pausedTotal += this._pausedInterval;
+      this._pausedInterval = null;
+    }
+
+    // set pause time
     this._pausedAt = this._getCurrentTime();
 
     // change state
     this.state = 'pause';
   }
+
   stop() {
     // do we need to change
     if (this.state === 'stop') return;
 
     // clear all timers
     this._resetTimers();
+
     this.state = 'stop';
   }
 
   increment(amount) {
-
     if (amount < 0) {
       if (Math.abs(amount) > this.current) {
-        console.log('ot os');
-
+        this._delays -= this.current;
         this.current = 0;
         this._finishAt = this._getCurrentTime();
         return;
       }
     }
-    this.current += amount;
+    this._delays += amount;
     this._finishAt += amount;
   }
 }
