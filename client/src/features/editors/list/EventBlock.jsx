@@ -1,5 +1,5 @@
 import { FiChevronDown, FiChevronUp, FiMoreVertical } from 'react-icons/fi';
-import { useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import { showErrorToast } from '../../../common/helpers/toastManager';
 import style from './Block.module.css';
@@ -9,12 +9,29 @@ import ActionButtons from './ActionButtons';
 import VisibleIconBtn from '../../../common/components/buttons/VisibleIconBtn';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 
-export default function EventBlock(props) {
+const areEqual = (prevProps, nextProps) => {
+  let shouldNotRerender =
+    prevProps.data.revision === nextProps.data.revision &&
+    prevProps.selected === nextProps.selected &&
+    prevProps.next === nextProps.next;
+  console.log('debug memo2', shouldNotRerender);
+  return (
+    prevProps.data.revision === nextProps.data.revision &&
+    prevProps.selected === nextProps.selected &&
+    prevProps.next === nextProps.next
+  );
+};
+
+const EventBlock = (props) => {
   const { data, selected, next, delay, index, eventsHandler } = props;
 
   const [more, setMore] = useState(false);
-  // NOTE: cheating to add responsiveness
   const [visible, setVisible] = useState(data.isPublic || false);
+
+  // Set visibility indicator
+  useEffect(() => {
+    setVisible(data.isPublic);
+  }, [data.isPublic]);
 
   const updateValues = (field, value) => {
     // validate field
@@ -56,7 +73,6 @@ export default function EventBlock(props) {
 
   const handleVisibleToggle = () => {
     let viz = !data.isPublic || !visible;
-    setVisible(viz);
     updateValues('isPublic', viz);
   };
 
@@ -86,17 +102,17 @@ export default function EventBlock(props) {
               underlined
             />
             <EditableText
-              label='Subtitle'
-              defaultValue={data.subtitle}
-              placeholder='Add Subtitle'
-              submitHandler={handleSubtitleSubmit}
-              underlined
-            />
-            <EditableText
               label='Presenter'
               defaultValue={data.presenter}
               placeholder='Add Presenter name'
               submitHandler={handlePresenterSubmit}
+              underlined
+            />
+            <EditableText
+              label='Subtitle'
+              defaultValue={data.subtitle}
+              placeholder='Add Subtitle'
+              submitHandler={handleSubtitleSubmit}
               underlined
             />
           </div>
@@ -129,4 +145,6 @@ export default function EventBlock(props) {
       </div>
     </div>
   );
-}
+};
+
+export default memo(EventBlock, areEqual);

@@ -7,6 +7,7 @@ const event = {
   timeEnd: 0,
   isPublic: false,
   type: 'event',
+  revision: 0,
 };
 
 const delay = {

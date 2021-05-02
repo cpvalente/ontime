@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import {
   Button,
@@ -9,9 +10,9 @@ import {
 } from '@chakra-ui/react';
 import AddIconBtn from '../../common/components/buttons/AddIconBtn';
 import style from './EventListMenu.module.css';
+import MenuActionButtons from '../editors/list/MenuActionButtons';
 
-export default function EventListMenu(props) {
-  const { eventsHandler } = props;
+const EventListMenu = ({ eventsHandler }) => {
   const buttonProps = {
     size: 'sm',
     variant: 'outline',
@@ -27,9 +28,9 @@ export default function EventListMenu(props) {
     backgroundColor: 'rgba(255,255,255,0.67)',
   };
 
-  const addHandler = () => {
+  const addHandler = useCallback(() => {
     eventsHandler('add', { type: 'event', order: 0 });
-  };
+  }, [eventsHandler]);
 
   return (
     <div className={style.headerButtons}>
@@ -58,6 +59,9 @@ export default function EventListMenu(props) {
         </MenuList>
       </Menu>
       <AddIconBtn clickhandler={addHandler} size='sm' />
+      {/* <MenuActionButtons size='sm' /> */}
     </div>
   );
-}
+};
+
+export default memo(EventListMenu);

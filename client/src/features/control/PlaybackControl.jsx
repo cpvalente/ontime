@@ -4,13 +4,7 @@ import { stringFromMillis } from '../../common/dateConfig';
 import { useEffect, useState } from 'react';
 import { useSocket } from '../../app/context/socketContext';
 import { Button } from '@chakra-ui/button';
-import StartIconBtn from '../../common/components/buttons/StartIconBtn';
-import PauseIconBtn from '../../common/components/buttons/PauseIconBtn';
-import PrevIconBtn from '../../common/components/buttons/PrevIconBtn';
-import NextIconBtn from '../../common/components/buttons/NextIconBtn';
-import RollIconBtn from '../../common/components/buttons/RollIconBtn';
-import UnloadIconBtn from '../../common/components/buttons/UnloadIconBtn';
-import ReloadIconButton from '../../common/components/buttons/ReloadIconBtn';
+import PlaybackButtons from './PlaybackButtons';
 
 export default function PlaybackControl() {
   const socket = useSocket();
@@ -146,35 +140,11 @@ export default function PlaybackControl() {
           </Button>
         </div>
       </div>
-
-      <div className={style.playbackContainer}>
-        <StartIconBtn
-          active={playback === 'start'}
-          clickhandler={() => playbackControl('start')}
-          disabled={!selectedId}
-        />
-        <PauseIconBtn
-          active={playback === 'pause'}
-          clickhandler={() => playbackControl('pause')}
-          disabled={!selectedId}
-        />
-        <RollIconBtn
-          active={playback === 'roll'}
-          clickhandler={() => playbackControl('roll')}
-        />
-      </div>
-      <div className={style.playbackContainer}>
-        <PrevIconBtn clickhandler={() => playbackControl('previous')} />
-        <NextIconBtn clickhandler={() => playbackControl('next')} />
-        <UnloadIconBtn
-          clickhandler={() => playbackControl('unload')}
-          disabled={!selectedId}
-        />
-        <ReloadIconButton
-          clickhandler={() => playbackControl('reload')}
-          disabled={!selectedId}
-        />
-      </div>
+      <PlaybackButtons
+        playback={playback}
+        selectedId={selectedId}
+        playbackControl={playbackControl}
+      />
     </div>
   );
 }

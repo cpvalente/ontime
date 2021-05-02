@@ -1,6 +1,6 @@
 import style from './List.module.css';
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useSocket } from '../../../app/context/socketContext';
 import tinykeys from 'tinykeys';
 import Empty from '../../../common/state/Empty';
@@ -111,7 +111,7 @@ export default function EventList(props) {
         if (e.type === 'delay') cumulativeDelay += e.duration;
         else if (e.type === 'block') cumulativeDelay = 0;
         return (
-          <div key={index}>
+          <Fragment key={index}>
             <EventListItem
               type={e.type}
               index={index}
@@ -132,7 +132,7 @@ export default function EventList(props) {
                 />
               )}
             </AnimatePresence>
-          </div>
+          </Fragment>
         );
       })}
     </div>

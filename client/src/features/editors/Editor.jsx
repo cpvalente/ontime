@@ -40,7 +40,7 @@ export default function Editor() {
           </Heading>
           <NumberedText number={4} text={'Realtime screen preview'} />
           <div className={styles.content}>
-            <PreviewContainer />
+            {/* <PreviewContainer /> */}
           </div>
         </Box>
 

@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { formatDisplay } from '../../dateConfig';
 import styles from './Countdown.module.css';
 
-export default function Countdown(props) {
-  const { time, small, hideZeroHours } = props;
+const Countdown = ({ time, small, hideZeroHours }) => {
   const [clock, setClock] = useState(time);
   let display = '-- : -- : --';
 
@@ -20,4 +19,6 @@ export default function Countdown(props) {
       {display}
     </div>
   );
-}
+};
+
+export default memo(Countdown);

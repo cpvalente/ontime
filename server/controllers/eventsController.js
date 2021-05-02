@@ -14,6 +14,7 @@ function incrementFrom(start, incr = 1) {
     db.get('events')
       .find({ id: e.id })
       .assign({ order: e.order + incr })
+      .update('revision', (n) => n + 1)
       .write();
   });
 }
@@ -163,6 +164,7 @@ exports.eventsPatch = async (req, res) => {
     db.get('events')
       .find({ id: req.body.id })
       .assign({ ...req.body })
+      .update('revision', (n) => n + 1)
       .write();
 
     // update timer
