@@ -8,11 +8,13 @@ import { BrowserRouter } from 'react-router-dom';
 // 1. import Chakra components
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
-
 // 2. Extend the theme to include custom colors, fonts, etc
 const colors = {
   // not yet
 };
+
+// Load Open Sans typeface
+require('typeface-open-sans');
 
 const theme = extendTheme({ colors });
 
