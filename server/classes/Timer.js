@@ -9,11 +9,11 @@ class Timer {
   duration = null;
   current = null;
   _finishAt = null;
+  _finishedAt = null;
   _startedAt = null;
   _pausedAt = null;
   _pausedInterval = null;
   _pausedTotal = null;
-  _delays = null;
   state = 'stop';
 
   constructor() {}
@@ -38,7 +38,6 @@ class Timer {
       this._pausedInterval = 0;
     }
     this._pausedTotal = 0;
-    this._delays = 0;
     this.update();
   }
 
@@ -52,13 +51,15 @@ class Timer {
     switch (this.state) {
       case 'start':
         // update current timer
-        this.current = Math.max(this._finishAt + this._pausedTotal - now, 0);
+        this.current =
+          this._startedAt + this.duration + this._pausedTotal - now;
+
+        if (this.current <= 0 && this._finishedAt == null)
+          this._finishedAt = now;
         break;
       case 'pause':
         // update paused time
-        if (this.current > 0) {
-          this._pausedInterval = now - this._pausedAt;
-        }
+        this._pausedInterval = now - this._pausedAt;
         break;
       case 'stop':
         // nothing here yet
@@ -86,18 +87,26 @@ class Timer {
   }
 
   _getExpectedFinish() {
-    if (this._finishAt == null) return null;
-    return this._finishAt + (this._pausedInterval + this._pausedTotal);
+    if (this._startedAt == null) return null;
+    if (this._finishedAt) return this._finishedAt;
+
+    return Math.max(
+      this._startedAt +
+        this.duration +
+        this._pausedInterval +
+        this._pausedTotal,
+      this._startedAt
+    );
   }
 
-  _resetTimers(resetDelay = true) {
+  _resetTimers() {
     this.current = this.duration;
     this._finishAt = null;
+    this._finishedAt = null;
     this._startedAt = null;
     this._pausedAt = null;
     this._pausedInterval = null;
     this._pausedTotal = null;
-    if (resetDelay) this._delays = null;
   }
 
   // get elapsed time
@@ -111,7 +120,8 @@ class Timer {
 
     return {
       clock: this.clock,
-      currentSeconds: Timer.toSeconds(this.current),
+      running: Timer.toSeconds(this.current),
+      currentSeconds: Timer.toSeconds(Math.max(this.current, 0)),
       durationSeconds: Timer.toSeconds(this.duration),
       expectedFinish: this._getExpectedFinish(),
       startedAt: this._startedAt,
@@ -129,7 +139,6 @@ class Timer {
   start() {
     // do we need to change
     if (this.state === 'start') return;
-    else if (this.duration <= 0) return;
     else if (this._startedAt == null) {
       // it hasnt started yet
       const now = this._getCurrentTime();
@@ -156,9 +165,7 @@ class Timer {
     // do we need to change
     if (this.state === 'pause') return;
 
-    // if there is already paused time (shouldnt)
     if (this._pausedInterval) {
-      console.log('TIMER: it was not paused and had pausedInterval');
       this._pausedTotal += this._pausedInterval;
       this._pausedInterval = null;
     }
@@ -177,20 +184,20 @@ class Timer {
     // clear all timers
     this._resetTimers();
 
+    // change state
     this.state = 'stop';
   }
 
   increment(amount) {
-    if (amount < 0) {
-      if (Math.abs(amount) > this.current) {
-        this._delays -= this.current;
-        this.current = 0;
-        this._finishAt = this._getCurrentTime();
-        return;
-      }
+    this.duration += amount;
+
+    if (amount < 0 && Math.abs(amount) > this.current) {
+      // if we will make the clock negative
+      this._finishedAt = this._getCurrentTime();
+    } else if (this.current < 0 && this.current + amount > 0) {
+      // clock will go from negative to positive
+      this._finishedAt = null;
     }
-    this._delays += amount;
-    this._finishAt += amount;
   }
 }
 

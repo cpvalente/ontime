@@ -17,10 +17,10 @@
 .timeContainer {
   display: grid;
   grid-template-areas:
-    'clk clk btn'
-    'sta fin btn';
+    'ind clk clk btn'
+    '... sta fin btn';
   grid-template-rows: 1fr auto;
-  grid-template-columns: 2fr 2fr 22%;
+  grid-template-columns: 1.5em 2fr 2fr 22%;
   gap: 5px;
   justify-items: start;
 }
@@ -29,14 +29,55 @@
   grid-area: clk;
 }
 
+.indicators {
+  grid-area: ind;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.indRoll,
+.indDelay,
+.indNegative {
+  background-color: rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+}
+
+.indRoll,
+.indDelay {
+  border-radius: 50%;
+  width: 0.8em;
+  height: 0.8em;
+}
+
+.indRollActive {
+  background-color: #2b6cb0;
+}
+
+.indNegative,
+.indNegativeActive {
+  margin: 0 auto;
+  width: 90%;
+  height: 0.3em
+}
+
+.indNegativeActive {
+  background-color: #ff7597;
+}
+
+.indDelayActive {
+  background-color: #dd6b20;
+}
+
 .btn {
   grid-area: btn;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5em;
+  justify-content: space-around;
 }
 
 .minus {

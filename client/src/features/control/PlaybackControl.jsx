@@ -11,6 +11,7 @@ export default function PlaybackControl() {
   const [playback, setPlayback] = useState(null);
   const [timer, setTimer] = useState({
     clock: null,
+    running: null,
     currentSeconds: null,
     startedAt: null,
     expectedFinish: null,
@@ -90,6 +91,9 @@ export default function PlaybackControl() {
 
   const started = stringFromMillis(timer.startedAt, true);
   const finish = stringFromMillis(timer.expectedFinish, true);
+  const isNegative = timer.running < 0;
+  const isDelayed = false;
+  const isRolling = false;
 
   const incrementProps = {
     size: 'sm',
@@ -99,11 +103,19 @@ export default function PlaybackControl() {
     _focus: { boxShadow: 'none' },
   };
 
+  console.log('debug timer', timer.running);
   return (
     <div className={style.mainContainer}>
       <div className={style.timeContainer}>
+        <div className={style.indicators}>
+          <div className={style.indRoll} />
+          <div
+            className={isNegative ? style.indNegativeActive : style.indNegative}
+          />
+          <div className={style.indDelay} />
+        </div>
         <div className={style.timer}>
-          <Countdown time={timer?.currentSeconds} small />
+          <Countdown time={timer?.running} small negative={isNegative} />
         </div>
         <div className={style.start}>
           <span className={style.tag}>Started at </span>

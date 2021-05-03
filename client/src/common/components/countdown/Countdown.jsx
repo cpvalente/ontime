@@ -2,7 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import { formatDisplay } from '../../dateConfig';
 import styles from './Countdown.module.css';
 
-const Countdown = ({ time, small, hideZeroHours }) => {
+const Countdown = ({ time, small, negative, hideZeroHours }) => {
   const [clock, setClock] = useState(time);
   let display = '-- : -- : --';
 
@@ -12,10 +12,13 @@ const Countdown = ({ time, small, hideZeroHours }) => {
 
   // prepare display string
   if (clock != null && !isNaN(clock))
-    display = formatDisplay(clock, hideZeroHours);
-
+    display = formatDisplay(Math.abs(clock), hideZeroHours);
+  const colour = negative ? '#ff7597' : '#fffffa';
   return (
-    <div className={small ? styles.countdownClockSmall : styles.countdownClock}>
+    <div
+      className={small ? styles.countdownClockSmall : styles.countdownClock}
+      style={{ color: colour }}
+    >
       {display}
     </div>
   );
