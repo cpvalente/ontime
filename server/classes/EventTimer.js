@@ -1,7 +1,5 @@
 const Timer = require('./Timer');
 const socketIo = require('socket.io');
-// DEBUG
-const { instrument } = require("@socket.io/admin-ui");
 
 /*
  * EventTimer adds functions specific to APP
@@ -71,11 +69,6 @@ class EventTimer extends Timer {
         preflightContinue: false,
         optionsSuccessStatus: 204,
       },
-    });
-
-    // DEBUG
-    instrument(this.io, {
-      auth: false
     });
 
     // set recurrent emits
