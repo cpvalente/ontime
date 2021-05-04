@@ -11,7 +11,7 @@ export default function ActionButtons(props) {
   };
 
   return (
-    <Menu>
+    <Menu isLazy lazyBehavior='unmount'>
       <MenuButton
         as={IconButton}
         aria-label='Options'

@@ -34,7 +34,7 @@ const EventListMenu = ({ eventsHandler }) => {
 
   return (
     <div className={style.headerButtons}>
-      <Menu className={style.menu}>
+      <Menu className={style.menu} isLazy>
         <ButtonGroup isAttached>
           <Button {...buttonProps}>Upload</Button>
           <MenuButton as={Button} {...buttonProps}>
