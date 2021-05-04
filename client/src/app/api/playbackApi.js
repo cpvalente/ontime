@@ -1,11 +1,5 @@
 import axios from 'axios';
-import { NODE_PORT } from '../api/apiConstants';
-
-// get origin from URL
-const serverURL = window.location.origin.replace(
-  window.location.port,
-  `${NODE_PORT}/`
-);
+import { serverURL } from '../api/apiConstants';
 
 export const playbackNamespace = 'playback';
 const playbackURL = serverURL + playbackNamespace;

@@ -1,11 +1,5 @@
 import axios from 'axios';
-import { NODE_PORT } from './apiConstants';
-
-// get origin from URL
-const serverURL = window.location.origin.replace(
-  window.location.port,
-  `${NODE_PORT}/`
-);
+import { serverURL } from './apiConstants';
 
 export const eventNamespace = 'event';
 export const eventURL = serverURL + eventNamespace;
