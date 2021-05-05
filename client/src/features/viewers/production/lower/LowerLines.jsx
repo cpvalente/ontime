@@ -1,36 +1,26 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import style from './Lower.module.css';
+import style from './LowerLines.module.css';
 
-export default function Lower(props) {
-  const { lower, title, time, general } = props;
+export default function LowerLines(props) {
+  const { lower, title, options } = props;
+  const defaults = {
+    size: 1,
+    transitionIn: 3,
+    textColour: '#fffffa',
+    bgColour: '#00000033',
+  };
   const [showLower, setShowLower] = useState(true);
 
-  // Set window title
+  // Unmount if fadeOut
   useEffect(() => {
-    document.title = 'ontime - Lower Thirds';
-  }, []);
-
-  // TODO: sanitize data
-  // getting config from URL: preset, size, transition, bg, text, key
-  // eg. http://localhost:3000/lower?bg=ff2&text=f00&size=0.6&transition=5
-  let params = new URLSearchParams(props.location.search);
-
-  const preset = params.get('preset') ? params.get('preset') : 1;
-
-  const size = params.get('size') ? params.get('size') : 1;
-  const transitionIn = params.get('transition') ? params.get('transition') : 3;
-  const textColour = params.get('text') ? `#${params.get('text')}` : '#fffffa';
-  const bgColour = params.get('bg') ? `#${params.get('bg')}` : '#00000033';
-  const key = params.get('key') ? `#${params.get('key')}` : 'null';
-  const fadeOut = params.get('fadeout') ? `${params.get('fadeout')}` : 'null';
-
-  useEffect(() => {
-    if (!fadeOut) return;
+    if (!options.fadeOut) return;
 
     // Calculate time
-    let transitionTime = parseInt(transitionIn) || 0;
-    let fadeOutTime = (parseInt(fadeOut) + transitionTime) * 1000;
+    const fadeOutTime =
+      (parseInt(options.fadeOut) +
+        (options.transitionIn || defaults.transitionIn)) *
+      1000;
     if (isNaN(fadeOutTime)) return;
 
     const timeout = setTimeout(() => {
@@ -38,18 +28,19 @@ export default function Lower(props) {
     }, fadeOutTime);
 
     return () => clearTimeout(timeout);
-  }, []);
+  }, [options.fadeOut, options.transitionIn, defaults.transitionIn]);
 
   // Format messages
   const showLowerMessage = lower.text !== '' && lower.visible;
 
-  // transition segments
-  const eight = transitionIn / 8;
-  const quarter = transitionIn / 4;
-  const third = transitionIn / 3;
-  const half = transitionIn / 2;
-
   // motion
+  // transition segments
+  const t = options.transitionIn || defaults.transitionIn;
+  const eight = t / 8;
+  const quarter = t / 4;
+  const third = t / 3;
+  const half = t / 2;
+
   const lowerThirdVariants = {
     hidden: {
       opacity: 0,
@@ -120,20 +111,22 @@ export default function Lower(props) {
     },
   };
 
+  const sizeMultiplier = (options.size || 1) * 4;
+
   return (
     <div
       className={style.lowerThird}
       style={{
-        backgroundColor: key,
-        color: textColour,
-        fontSize: `${size * 4}vh`,
+        backgroundColor: options.keyColour || defaults.keyColour,
+        color: options.textColour || defaults.textColour,
+        fontSize: `${sizeMultiplier}vh`,
       }}
     >
       <AnimatePresence>
         {showLower && (
           <motion.div
             className={style.lowerContainer}
-            style={{ backgroundColor: bgColour }}
+            style={{ backgroundColor: options.bgColour || defaults.bgColour }}
             variants={lowerThirdVariants}
             initial='hidden'
             animate='visible'

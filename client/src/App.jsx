@@ -17,7 +17,9 @@ const StageManager = lazy(() =>
   import('./features/viewers/backstage/StageManager')
 );
 const Public = lazy(() => import('./features/viewers/foh/Public'));
-const Lower = lazy(() => import('./features/viewers/production/Lower'));
+const Lower = lazy(() =>
+  import('./features/viewers/production/lower/LowerWrapper')
+);
 const Pip = lazy(() => import('./features/viewers/production/Pip'));
 
 const queryClient = new QueryClient();

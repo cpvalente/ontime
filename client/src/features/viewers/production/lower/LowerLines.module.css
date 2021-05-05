@@ -21,8 +21,7 @@
   border-radius: 0 1vh 1vh 0;
 }
 
-.messageContainer,
-.messageContainerHidden {
+.messageContainer {
   position: absolute;
   bottom: 2vh;
   width: 100%;
