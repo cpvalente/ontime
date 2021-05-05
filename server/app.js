@@ -72,4 +72,8 @@ global.timer = new EventTimer(server, config);
 timer.setupWithEventList(eventlist);
 
 // Start server
-server.listen(port, () => console.log(`Listening on port ${port}`));
+server.listen(port, () => console.log(`HTTP Server is listening on port ${port}`));
+
+// Start OSC server
+const initiateOSC = require('./controllers/OscController.js').initiateOSC;
+initiateOSC(config.osc);

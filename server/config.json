@@ -8,5 +8,8 @@
   "database": {
     "filename": "db.json",
     "tablename": "events"
+  },
+  "osc": {
+    "port": 8888
   }
 }

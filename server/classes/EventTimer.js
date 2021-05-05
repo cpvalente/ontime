@@ -437,6 +437,7 @@ class EventTimer extends Timer {
     if (end < start) end += this.DAYMS;
 
     // time stuff changes on wheter we keep the running clock
+
     if (type === 'load') {
       this._resetTimers();
 
@@ -586,14 +587,14 @@ class EventTimer extends Timer {
       current         = ${this.current}
       duration        = ${this.duration}
 
-      Options
-      ------------------------------
-      showNegative    = ${this.showNegative}
-
       Events
       ------------------------------
-      numEvents       = ${this.numEvents}
-      selectedEvent   = ${this.selectedEvent}
+      numEvents             = ${this.numEvents}
+      selectedEvent         = ${this.selectedEvent}
+      selectedEventId       = ${this.selectedEventId}
+      nextEventId           = ${this.nextEventId}
+      selectedPublicEventId = ${this.selectedPublicEventId}
+      nextPublicEventId     = ${this.nextPublicEventId}
 
       Private Titles
       ------------------------------
@@ -617,7 +618,6 @@ class EventTimer extends Timer {
       Subtitle Next   = ${this.titlesPublic.subtitleNext}
       Presenter Next  = ${this.titlesPublic.presenterNext}
 
-
       Messages
       ------------------------------
       presenter text  = ${this.presenter.text}
@@ -630,10 +630,15 @@ class EventTimer extends Timer {
       Private
       ------------------------------
       finishAt        = ${this._finishAt}
+      finished        = ${this._finishedAt}
       startedAt       = ${this._startedAt}
       pausedAt        = ${this._pausedAt}
       pausedInterval  = ${this._pausedInterval}
       pausedTotal     = ${this._pausedTotal}
+
+      Socket
+      ------------------------------
+      numClients      = ${this._numClients}
     `;
   }
 

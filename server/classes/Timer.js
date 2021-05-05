@@ -54,12 +54,20 @@ class Timer {
         this.current =
           this._startedAt + this.duration + this._pausedTotal - now;
 
-        if (this.current <= 0 && this._finishedAt == null)
-          this._finishedAt = now;
         break;
       case 'pause':
         // update paused time
         this._pausedInterval = now - this._pausedAt;
+
+        if (this._startedAt != null) {
+          // update current timer
+          this.current =
+            this._startedAt +
+            this.duration +
+            this._pausedTotal +
+            this._pausedInterval -
+            now;
+        }
         break;
       case 'stop':
         // nothing here yet
@@ -68,6 +76,9 @@ class Timer {
         console.error('Timer: no playstate on update call', this.state);
         break;
     }
+
+    // Cleanup
+    if (this.current <= 0 && this._finishedAt == null) this._finishedAt = now;
   }
 
   // helpers
@@ -193,7 +204,7 @@ class Timer {
 
     if (amount < 0 && Math.abs(amount) > this.current) {
       // if we will make the clock negative
-      this._finishedAt = this._getCurrentTime();
+      if (this._finishedAt == null) this._finishedAt = this._getCurrentTime();
     } else if (this.current < 0 && this.current + amount > 0) {
       // clock will go from negative to positive
       this._finishedAt = null;
