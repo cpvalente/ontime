@@ -128,8 +128,10 @@ export default function EventList(props) {
               ref={provided.innerRef}
             >
               {events.map((e, index) => {
-                if (e.type === 'delay') cumulativeDelay += e.duration;
-                else if (e.type === 'block') cumulativeDelay = 0;
+                if (index === 0) cumulativeDelay = 0;
+                if (e.type === 'delay' && e.duration != null) {
+                  cumulativeDelay += e.duration;
+                } else if (e.type === 'block') cumulativeDelay = 0;
                 return (
                   <Fragment key={e.id}>
                     <EventListItem

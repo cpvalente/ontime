@@ -15,7 +15,8 @@ const areEqual = (prevProps, nextProps) => {
     prevProps.data.revision === nextProps.data.revision &&
     prevProps.selected === nextProps.selected &&
     prevProps.next === nextProps.next &&
-    prevProps.index === nextProps.index
+    prevProps.index === nextProps.index &&
+    prevProps.delay === nextProps.delay
   );
 };
 
