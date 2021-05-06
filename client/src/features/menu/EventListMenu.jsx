@@ -28,9 +28,22 @@ const EventListMenu = ({ eventsHandler }) => {
     backgroundColor: 'rgba(255,255,255,0.67)',
   };
 
-  const addHandler = useCallback(() => {
-    eventsHandler('add', { type: 'event', order: 0 });
-  }, [eventsHandler]);
+  const actionHandler = (action) => {
+    console.log('debug action called', action);
+    switch (action) {
+      case 'event':
+        eventsHandler('add', { type: action, order: 0 });
+        break;
+      case 'delay':
+        eventsHandler('add', { type: action, order: 0 });
+        break;
+      case 'block':
+        eventsHandler('add', { type: action, order: 0 });
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className={style.headerButtons}>
@@ -58,8 +71,7 @@ const EventListMenu = ({ eventsHandler }) => {
           <MenuItem>Download CSV</MenuItem>
         </MenuList>
       </Menu>
-      <AddIconBtn clickhandler={addHandler} size='sm' />
-      {/* <MenuActionButtons size='sm' /> */}
+      <MenuActionButtons actionHandler={actionHandler} size='sm' />
     </div>
   );
 };

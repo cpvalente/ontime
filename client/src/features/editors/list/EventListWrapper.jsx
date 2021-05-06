@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   eventsNamespace,
   fetchAllEvents,
@@ -14,7 +14,7 @@ import EventList from './EventList';
 import EventListMenu from '../../menu/EventListMenu.jsx';
 import { showErrorToast } from '../../../common/helpers/toastManager';
 import { useFetch } from '../../../app/hooks/useFetch.js';
-import EventListSkeleton from '../skeletons/EventListSkeleton.jsx';
+import Empty from '../../../common/state/Empty';
 
 export default function EventListWrapper() {
   const queryClient = useQueryClient();
@@ -164,7 +164,7 @@ export default function EventListWrapper() {
     },
   });
 
-    const reorderEvent = useMutation(requestReorder, {
+  const reorderEvent = useMutation(requestReorder, {
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
@@ -203,7 +203,7 @@ export default function EventListWrapper() {
   }, [isError]);
 
   // Events API
-  const eventsHandler = async (action, payload) => {
+  const eventsHandler = useCallback(async (action, payload) => {
     switch (action) {
       case 'add':
         try {
@@ -289,7 +289,7 @@ export default function EventListWrapper() {
         showErrorToast('Unrecognised request', action);
         break;
     }
-  };
+  }, []);
 
   return (
     <>
@@ -297,7 +297,7 @@ export default function EventListWrapper() {
       {status === 'success' ? (
         <EventList events={data} eventsHandler={eventsHandler} />
       ) : (
-        <EventListSkeleton />
+        <Empty text='Connecting to server' />
       )}
     </>
   );
