@@ -5,6 +5,7 @@ import TimeInput from '../../../common/input/TimeInput';
 import style from './Block.module.css';
 import ActionButtons from './ActionButtons';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
+import ApplyIconBtn from '../../../common/components/buttons/ApplyIconBtn';
 
 export default function DelayBlock(props) {
   const { data, eventsHandler, index } = props;
@@ -22,6 +23,10 @@ export default function DelayBlock(props) {
     eventsHandler('delete', data.id);
   };
 
+  const applyDelayHandler = () => {
+    eventsHandler('applyDelay', { id: data.id, duration: data.duration });
+  };
+
   let delayValue =
     data.duration != null ? millisToMinutes(data.duration) : undefined;
   return (
@@ -37,6 +42,7 @@ export default function DelayBlock(props) {
           </span>
           <TimeInput value={delayValue} submitHandler={submitHandler} />
           <div className={style.actionOverlay}>
+            <ApplyIconBtn clickhandler={applyDelayHandler} />
             <DeleteIconBtn clickhandler={deleteHandler} />
             <ActionButtons showAdd addHandler={addHandler} />
           </div>

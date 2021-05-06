@@ -165,14 +165,10 @@ exports.eventsReorder = async (req, res) => {
   // TODO: Validate event
   if (!req.body) {
     res.status(400).send(`No object found in request`);
-    console.log(`No object found in request`);
-
     return;
   }
 
   const { index, from, to } = req.body;
-
-  console.log(req.body);
 
   // get events
   let events = db.get('events').value();
@@ -181,7 +177,6 @@ exports.eventsReorder = async (req, res) => {
   // Check if item is at given index
   if (idx !== from) {
     res.status(400).send(`Id not found at index`);
-    console.log(`Id not found at index`, idx, from);
     return;
   }
 
@@ -206,6 +201,71 @@ exports.eventsReorder = async (req, res) => {
   }
 };
 
+// Create controller for PATCH request to '/events/applydelay/:eventId'
+// Returns -
+exports.eventsApplyDelay = async (req, res) => {
+  // no valid params
+  if (!req.params.eventId) {
+    res.status(400).send(`No id found in request`);
+    return;
+  }
+
+  try {
+    // get events
+    let events = db.get('events').value();
+
+    // AUX
+    let delayIndex = null;
+    let blockIndex = null;
+    let delayValue = 0;
+
+    for (const [index, e] of events.entries()) {
+      if (delayIndex == null) {
+        // look for delay
+        if (e.id === req.params.eventId && e.type === 'delay') {
+          delayValue = e.duration;
+          delayIndex = index;
+        }
+      }
+
+      // apply delay value to all items until block or end
+      else {
+        if (e.type === 'event') {
+          // update times
+          e.timeStart += delayValue;
+          e.timeEnd += delayValue;
+
+          // increment revision
+          e.revision += 1;
+        } else if (e.type === 'block') {
+          // save id and stop
+          blockIndex = index;
+          break;
+        }
+      }
+    }
+
+    // delete delay
+    events.splice(delayIndex, 1);
+
+    // delete block
+    // index would have moved down since we deleted delay
+    if (blockIndex) events.splice(blockIndex - 1, 1);
+
+    // update events
+    db.set('events', events).write();
+
+    // update timer
+    _updateTimers();
+
+    res.sendStatus(201);
+  } catch (error) {
+    console.log('debug:', error);
+
+    res.status(400).send(error);
+  }
+};
+
 // Create controller for DELETE request to '/events/:eventId'
 // Returns -
 exports.eventsDelete = async (req, res) => {
@@ -213,7 +273,6 @@ exports.eventsDelete = async (req, res) => {
   if (!req.params.eventId) {
     res.status(400).send(`No id found in request`);
     return;
-    console.log('debug: No id found in request');
   }
 
   try {

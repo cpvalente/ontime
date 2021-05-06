@@ -31,9 +31,14 @@ export const requestPatch = async (data) => {
 };
 
 export const requestReorder = async (data) => {
-  const reorder = 'reorder';
-  console.log('debug got reorder with payload', data);
-  const res = await axios.patch(eventsURL + '/' + reorder, data);
+  const action = 'reorder';
+  const res = await axios.patch(eventsURL + '/' + action, data);
+  return res;
+};
+
+export const requestApplyDelay = async (eventId) => {
+  const action = 'applydelay';
+  const res = await axios.patch(eventsURL + '/' + action + '/' + eventId);
   return res;
 };
 

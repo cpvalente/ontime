@@ -95,6 +95,9 @@ export default function EventList(props) {
     // drop outside of area
     if (!result.destination) return;
 
+    // no change
+    if (result.destination === result.source.index) return;
+
     // Call API
     eventsHandler('reorder', {
       index: result.draggableId,

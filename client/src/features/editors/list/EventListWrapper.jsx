@@ -8,6 +8,7 @@ import {
   requestPut,
   requestDelete,
   requestReorder,
+  requestApplyDelay,
 } from '../../../app/api/eventsApi.js';
 import EventList from './EventList';
 import EventListMenu from '../../menu/EventListMenu.jsx';
@@ -156,7 +157,14 @@ export default function EventListWrapper() {
     },
   });
 
-  const reorderEvent = useMutation(requestReorder, {
+  const applyDelay = useMutation(requestApplyDelay, {
+    // Mutation finished, failed or successful
+    onSettled: () => {
+      queryClient.invalidateQueries(eventsNamespace);
+    },
+  });
+
+    const reorderEvent = useMutation(requestReorder, {
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
@@ -241,6 +249,41 @@ export default function EventListWrapper() {
         } catch (error) {
           showErrorToast('Error reordering event', error.message);
         }
+        break;
+      case 'applyDelay':
+        let t = Date.now();
+
+        // if delay <= 0 delete delay and next block
+        if (payload.duration <= 0) {
+          try {
+            // look for block after
+            let afterId = false;
+            let blockAfter = null;
+            for (const d of data) {
+              if (d.id === payload.id) afterId = true;
+              if (afterId && d.type === 'block') {
+                blockAfter = d.id;
+                break;
+              }
+            }
+
+            // delete delay
+            await deleteEvent.mutateAsync(payload.id);
+            // delete block after, if any
+            if (blockAfter) await deleteEvent.mutateAsync(blockAfter);
+          } catch (error) {
+            showErrorToast('Error applying delay', error.message);
+          }
+        } else {
+          console.log('debug applydelay', payload.id);
+          try {
+            await applyDelay.mutateAsync(payload.id);
+          } catch (error) {
+            showErrorToast('Error applying delay', error.message);
+          }
+        }
+        console.log('debug m apply', Date.now() - t);
+
         break;
       default:
         showErrorToast('Unrecognised request', action);
