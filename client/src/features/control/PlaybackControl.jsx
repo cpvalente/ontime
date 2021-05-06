@@ -41,7 +41,7 @@ export default function PlaybackControl() {
 
     // Handle timer
     socket.on('timer', (data) => {
-      setTimer({ ...data });
+      setTimer(data);
     });
 
     // Handle selected event
@@ -103,7 +103,6 @@ export default function PlaybackControl() {
     _focus: { boxShadow: 'none' },
   };
 
-  console.log('debug timer', timer.running);
   return (
     <div className={style.mainContainer}>
       <div className={style.timeContainer}>
@@ -128,27 +127,27 @@ export default function PlaybackControl() {
         <div className={style.btn}>
           <Button
             {...incrementProps}
-            onClick={() => socket.emit('increment-timer', 1)}
-          >
-            +1
-          </Button>
-          <Button
-            {...incrementProps}
-            onClick={() => socket.emit('increment-timer', 5)}
-          >
-            +5
-          </Button>
-          <Button
-            {...incrementProps}
             onClick={() => socket.emit('increment-timer', -1)}
           >
             -1
           </Button>
           <Button
             {...incrementProps}
+            onClick={() => socket.emit('increment-timer', 1)}
+          >
+            +1
+          </Button>
+          <Button
+            {...incrementProps}
             onClick={() => socket.emit('increment-timer', -5)}
           >
             -5
+          </Button>
+          <Button
+            {...incrementProps}
+            onClick={() => socket.emit('increment-timer', 5)}
+          >
+            +5
           </Button>
         </div>
       </div>

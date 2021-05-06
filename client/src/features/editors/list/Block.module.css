@@ -49,10 +49,8 @@
 
 .eventRow,
 .eventRowActive {
-  padding-left: 1em;
-
   display: grid;
-  grid-template-columns: auto 2em auto auto 1fr auto;
+  grid-template-columns: 2em 2em auto auto 1fr auto;
 
   justify-content: center;
   align-content: center;
@@ -78,7 +76,6 @@
 .drag {
   color: rgba(255, 255, 255, 0.37);
   align-self: center;
-  /* cursor: grab; Later */
 }
 
 .indicators {
@@ -95,16 +92,16 @@
 .nextDisabled {
   width: max-content;
   padding: 0 0.2em;
+  color: #4bffab;
+  transition: 0.3s;
 }
 
 .next {
-  color: #4bffabcc;
-  transition: 0.3s;
+  opacity: 0.8;
 }
 
 .nextDisabled {
-  color: rgba(255, 255, 255, 0.07);
-  transition: 0.3s;
+  opacity: 0.05;
 }
 
 .delayValue {
@@ -130,6 +127,7 @@
 .rowDetailed {
   display: inline-flex;
   position: relative;
+  align-self: flex-start;
 }
 
 .titleContainer,
@@ -147,7 +145,6 @@
 /* ============= BLOCK BLOCK ============= */
 .block {
   background-color: #805ad5;
-  /* background: linear-gradient(0deg, #6b46c1 20%, #805ad5 21%); */
   background: linear-gradient(
     0deg,
     rgba(107, 70, 193, 0.4) 0%,
@@ -155,13 +152,24 @@
     rgba(107, 70, 193, 0.15) 21%
   );
 
-  flex-direction: row-reverse;
+  display: grid;
+  grid-template-columns: 2em auto;
+  align-content: center;
+  align-items: baseline;
+  gap: 0.5em;
+}
+
+.block > .drag {
+  justify-self: start;
+}
+
+.block > .actionOverlay {
+  justify-self: end;
 }
 
 /* ============= DELAY BLOCK ============= */
 .delay {
   background-color: #ecc94b;
-  /* background: linear-gradient(180deg, #d69e2e 20%, #ecc94b 21%); */
   background: linear-gradient(
     180deg,
     rgba(214, 158, 46, 0.4) 0%,
@@ -169,5 +177,10 @@
     rgba(214, 158, 46, 0.07) 21%
   );
 
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 2em 1fr auto;
+  justify-content: center;
+  align-content: center;
+  align-items: baseline;
+  gap: 0.5em;
 }

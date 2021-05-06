@@ -34,16 +34,6 @@ export default function Editor() {
           </div>
         </Box>
 
-        <Box className={styles.preview} borderRadius='0.5em' overflowX='auto'>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Preview Displays
-          </Heading>
-          <NumberedText number={4} text={'Realtime screen preview'} />
-          <div className={styles.content}>
-            {/* <PreviewContainer /> */}
-          </div>
-        </Box>
-
         <Box className={styles.messages}>
           <Heading size='lg' paddingBottom={'0.25em'}>
             Display Messages
@@ -71,6 +61,14 @@ export default function Editor() {
           <div className={styles.content}>
             <SettingsIconBtn size='md' clickhandler={onOpen} />
           </div>
+        </Box>
+
+        <Box className={styles.info} borderRadius='0.5em' overflowX='auto'>
+          <Heading size='lg' paddingBottom={'0.25em'}>
+            Info
+          </Heading>
+          <NumberedText number={4} text={'Running Info'} />
+          <div className={styles.content}></div>
         </Box>
       </div>
     </>

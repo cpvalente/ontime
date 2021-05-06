@@ -7,12 +7,11 @@
   padding: 2vh;
 
   display: grid;
-  grid-template-rows: 38vh 1fr 1fr;
-  grid-template-columns: 1fr 25vw 25vw 5vw;
+  grid-template-rows: 38vh 1fr;
+  grid-template-columns: 48em 27vw 25vw 4vw;
   grid-template-areas:
-    'even mess play sett'
-    'even prev prev sett'
-    'even prev prev sett';
+    'even play info sett'
+    'even mess info sett';
   gap: 2vh;
 }
 
@@ -20,13 +19,13 @@
 @media (max-width: 1250px) and (min-height: 700px) {
   .mainContainer {
     grid-template-rows: 1fr 1fr;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 48em 1fr 1fr;
     grid-template-areas:
       'even play sett'
       'even mess sett';
   }
 
-  .preview {
+  .info {
     visibility: hidden;
   }
 }
@@ -42,7 +41,7 @@
   }
 
   .editor,
-  .preview,
+  .info,
   .settings {
     visibility: hidden;
   }
@@ -58,7 +57,7 @@
 
   .editor,
   .messages,
-  .preview,
+  .info,
   .settings {
     visibility: hidden;
   }
@@ -78,8 +77,8 @@
   grid-area: even;
 }
 
-.preview {
-  grid-area: prev;
+.info {
+  grid-area: info;
 }
 
 .messages {

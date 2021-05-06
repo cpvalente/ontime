@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import SocketProvider from './app/context/socketContext';
 import withSocket from './features/viewers/ViewWrapper';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import Empty from './common/state/Empty';
 
 const Editor = lazy(() => import('./features/editors/Editor'));
 const PresenterView = lazy(() =>
@@ -41,7 +42,7 @@ function App() {
     <SocketProvider>
       <QueryClientProvider client={queryClient}>
         <div className='App'>
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<Empty text='Loading' />}>
             <Switch>
               <Route exact path='/' component={SSpeaker} />
               <Route exact path='/sm' component={SStageManager} />

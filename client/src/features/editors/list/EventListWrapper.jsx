@@ -12,8 +12,8 @@ import {
 import EventList from './EventList';
 import EventListMenu from '../../menu/EventListMenu.jsx';
 import { showErrorToast } from '../../../common/helpers/toastManager';
-import { Skeleton } from '@chakra-ui/skeleton';
 import { useFetch } from '../../../app/hooks/useFetch.js';
+import EventListSkeleton from '../skeletons/EventListSkeleton.jsx';
 
 export default function EventListWrapper() {
   const queryClient = useQueryClient();
@@ -254,9 +254,7 @@ export default function EventListWrapper() {
       {status === 'success' ? (
         <EventList events={data} eventsHandler={eventsHandler} />
       ) : (
-        <div className={style.eventContainer}>
-          <Skeleton height='50vh' />
-        </div>
+        <EventListSkeleton />
       )}
     </>
   );
