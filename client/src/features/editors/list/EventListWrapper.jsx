@@ -7,12 +7,12 @@ import {
   requestPost,
   requestPut,
   requestDelete,
+  requestReorder,
 } from '../../../app/api/eventsApi.js';
 import EventList from './EventList';
 import EventListMenu from '../../menu/EventListMenu.jsx';
 import { showErrorToast } from '../../../common/helpers/toastManager';
 import { Skeleton } from '@chakra-ui/skeleton';
-import style from './List.module.css';
 import { useFetch } from '../../../app/hooks/useFetch.js';
 
 export default function EventListWrapper() {
@@ -21,6 +21,7 @@ export default function EventListWrapper() {
     eventsNamespace,
     fetchAllEvents
   );
+
   const addEvent = useMutation(requestPost, {
     // we optimistically update here
     onMutate: async (newEvent) => {
@@ -58,6 +59,7 @@ export default function EventListWrapper() {
       queryClient.invalidateQueries(eventsNamespace);
     },
   });
+
   const updateEvent = useMutation(requestPut, {
     // we optimistically update here
     onMutate: async (newEvent) => {
@@ -154,6 +156,37 @@ export default function EventListWrapper() {
     },
   });
 
+  const reorderEvent = useMutation(requestReorder, {
+    // we optimistically update here
+    onMutate: async (data) => {
+      // cancel ongoing queries
+      queryClient.cancelQueries(eventsNamespace, { exact: true });
+
+      // Snapshot the previous value
+      const previousEvents = queryClient.getQueryData(eventsNamespace);
+
+      const e = [...previousEvents];
+      const [reorderedItem] = e.splice(data.from, 1);
+      e.splice(data.to, 0, reorderedItem);
+
+      // optimistically update object
+      queryClient.setQueryData(eventsNamespace, e);
+
+      // Return a context with the previous and new todo
+      return { previousEvents };
+    },
+
+    // Mutation fails, rollback undos optimist update
+    onError: (error, eventId, context) => {
+      queryClient.setQueryData(eventsNamespace, context.previousEvents);
+    },
+    // Mutation finished, failed or successful
+    // Fetch anyway, just to be sure
+    onSettled: () => {
+      queryClient.invalidateQueries(eventsNamespace);
+    },
+  });
+
   // Show toasts on errors
   useEffect(() => {
     if (isError) {
@@ -198,6 +231,15 @@ export default function EventListWrapper() {
           console.log('debug m delete', Date.now() - t);
         } catch (error) {
           showErrorToast('Error deleting event', error.message);
+        }
+        break;
+      case 'reorder':
+        try {
+          let t = Date.now();
+          await reorderEvent.mutateAsync(payload);
+          console.log('debug m reorder', Date.now() - t);
+        } catch (error) {
+          showErrorToast('Error reordering event', error.message);
         }
         break;
       default:

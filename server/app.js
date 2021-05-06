@@ -6,6 +6,7 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync(config.database.filename);
 const db = low(adapter);
+
 // TODO: move defaults to config file
 db.defaults({
   events: [],
@@ -65,7 +66,7 @@ app.use((err, req, res, next) => {
 const server = http.createServer(app);
 
 // get data (if any)
-const eventlist = db.get('events').sortBy('order').value();
+const eventlist = db.get('events').value();
 
 // init timer
 global.timer = new EventTimer(server, config);

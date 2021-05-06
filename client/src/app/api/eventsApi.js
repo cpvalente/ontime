@@ -30,6 +30,13 @@ export const requestPatch = async (data) => {
   return res;
 };
 
+export const requestReorder = async (data) => {
+  const reorder = 'reorder';
+  console.log('debug got reorder with payload', data);
+  const res = await axios.patch(eventsURL + '/' + reorder, data);
+  return res;
+};
+
 export const requestDelete = async (eventId) => {
   const res = await axios.delete(eventsURL + '/' + eventId);
   return res;

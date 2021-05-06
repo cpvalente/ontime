@@ -12,7 +12,6 @@ export const sampleData = {
   events: [
     {
       id: '1',
-      order: 1,
       title: 'Is the internet a fad?',
       subtitle: 'It is',
       presenter: 'Carlos Valente',
@@ -24,13 +23,11 @@ export const sampleData = {
     },
     {
       id: 0.4849093424577693,
-      order: 2,
       duration: 25*60000,
       type: 'delay',
     },
     {
       id: '2',
-      order: 3,
       title: 'Is reddit a dictatorship?',
       subtitle: 'It is',
       presenter: 'Carlos Valente',
@@ -42,7 +39,6 @@ export const sampleData = {
     },
     {
       id: '3',
-      order: 4,
       title: 'Out of words',
       subtitle: '',
       presenter: 'Carlos Valente',

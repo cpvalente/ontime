@@ -6,7 +6,7 @@ import { useInterval } from '../../../app/hooks/useInterval';
 export default function Paginator(props) {
   const { events, selectedId } = props;
   const LIMIT_PER_PAGE = props.limit || 8;
-  const SCROLL_TIME = (props.time * 1000) || 5000;
+  const SCROLL_TIME = props.time * 1000 || 5000;
   const SCROLL_PAST = false;
   const [numEvents, setNumEvents] = useState(0);
   const [page, setPage] = useState([]);
@@ -42,7 +42,7 @@ export default function Paginator(props) {
 
     if (s.length < 1) return;
 
-    setSelected(s[0].order);
+    setSelected(s[0].id);
   }, [events, selectedId]);
 
   // every SCROLL_TIME go to the next array
@@ -67,8 +67,8 @@ export default function Paginator(props) {
       <div className={style.entries}>
         {page.map((e) => {
           let selectedState = 0;
-          if (e.order === selected) selectedState = 1;
-          else if (e.order > selected) selectedState = 2;
+          if (e.id === selected) selectedState = 1;
+          else if (e.id > selected) selectedState = 2;
           return (
             <TodayItem
               key={e.id}

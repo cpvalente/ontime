@@ -1,8 +1,8 @@
 const event = {
-  order: 0,
   title: '',
   subtitle: '',
   presenter: '',
+  note: '',
   timeStart: 0,
   timeEnd: 0,
   isPublic: false,
@@ -11,13 +11,11 @@ const event = {
 };
 
 const delay = {
-  order: 0,
   duration: 0,
   type: 'delay',
 };
 
 const block = {
-  order: 0,
   type: 'block',
 };
 

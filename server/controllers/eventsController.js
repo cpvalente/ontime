@@ -5,20 +5,6 @@ const db = require('../app.js').db;
 const { nanoid } = require('nanoid');
 const eventDefs = require('../data/eventsDefinition.js');
 
-// incrementFrom
-function incrementFrom(start, incr = 1) {
-  let entries = db.get('events').sortBy('order').value();
-
-  entries.map((e) => {
-    if (e.order < start) return;
-    db.get('events')
-      .find({ id: e.id })
-      .assign({ order: e.order + incr })
-      .update('revision', (n) => n + 1)
-      .write();
-  });
-}
-
 function _getEventsCount() {
   return db.get('events').size().value();
 }
@@ -27,17 +13,40 @@ function _pushNew(entry) {
   return db.get('events').push(entry).write();
 }
 
+function _insertAt(entry, index) {
+  // get events
+  let events = db.get('events').value();
+  let count = events.length;
+  let order = entry.order;
+
+  // Remove order field from object
+  delete entry.order;
+
+  // Insert at beggining
+  if (order === 0) {
+    events.unshift(entry);
+  }
+
+  // insert at end
+  else if (order >= count) {
+    events.push(entry);
+  }
+
+  // insert in the middle
+  else {
+    events.splice(index, 0, entry);
+  }
+
+  // save events
+  db.set('events', events).write();
+}
+
 function _removeById(eventId) {
   return db.get('events').remove({ id: eventId }).write();
 }
 
 function getEventEvents() {
-  return db
-    .get('events')
-    .chain()
-    .filter({ type: 'event' })
-    .sortBy('order')
-    .value();
+  return db.get('events').chain().filter({ type: 'event' }).value();
 }
 
 // Updates timer object
@@ -54,7 +63,7 @@ function _updateTimersSingle(id, entry) {
 // Create controller for GET request to '/events'
 // Returns -
 exports.eventsGetAll = async (req, res) => {
-  const results = db.get('events').sortBy('order').value();
+  const results = db.get('events').value();
   res.json(results);
 };
 
@@ -97,13 +106,11 @@ exports.eventsPost = async (req, res) => {
   }
 
   try {
-    // increment count if necessary
-    const c = _getEventsCount();
+    // get place where event should be
+    const index = newEvent.order || 0;
 
-    if (newEvent.order < c) incrementFrom(newEvent.order);
-
-    // add new event
-    _pushNew(newEvent);
+    // add new event in place
+    _insertAt(newEvent, index);
 
     // update timers
     _updateTimers();
@@ -111,6 +118,7 @@ exports.eventsPost = async (req, res) => {
     // reply OK
     res.sendStatus(201);
   } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 };
@@ -134,6 +142,7 @@ exports.eventsPut = async (req, res) => {
     db.get('events')
       .find({ id: req.body.id })
       .assign({ ...req.body })
+      .update('revision', (n) => n + 1)
       .write();
 
     // update timer
@@ -148,30 +157,51 @@ exports.eventsPut = async (req, res) => {
 // Create controller for PATCH request to '/events/'
 // Returns -
 exports.eventsPatch = async (req, res) => {
-  // no valid params
+  // Code is the same as put, call that
+  this.eventsPut(req, res);
+};
+
+exports.eventsReorder = async (req, res) => {
+  // TODO: Validate event
   if (!req.body) {
-    res.status(400).send(`No object found`);
+    res.status(400).send(`No object found in request`);
+    console.log(`No object found in request`);
+
     return;
   }
 
-  let eventId = req.body.id;
-  if (!eventId) {
-    res.status(400).send(`No id found`);
+  const { index, from, to } = req.body;
+
+  console.log(req.body);
+
+  // get events
+  let events = db.get('events').value();
+  let idx = events.findIndex((e) => e.id === index, from);
+
+  // Check if item is at given index
+  if (idx !== from) {
+    res.status(400).send(`Id not found at index`);
+    console.log(`Id not found at index`, idx, from);
     return;
   }
 
   try {
-    db.get('events')
-      .find({ id: req.body.id })
-      .assign({ ...req.body })
-      .update('revision', (n) => n + 1)
-      .write();
+    // remove item at from
+    const [reorderedItem] = events.splice(from, 1);
 
+    // reinsert item at to
+    events.splice(to, 0, reorderedItem);
+
+    // save events
+    db.set('events', events).write();
+
+    // TODO: would it be more efficient to reorder at timer?
     // update timer
-    _updateTimersSingle(req.body.id, req.body);
+    _updateTimers();
 
     res.sendStatus(200);
   } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 };
@@ -187,18 +217,7 @@ exports.eventsDelete = async (req, res) => {
   }
 
   try {
-    // increment count if necessary
-    const c = _getEventsCount();
-    const e = db.get('events').find({ id: req.params.eventId }).value();
-
-    if (e == null) {
-      res.status(400).send(`No match`);
-      return;
-    }
-
-    if (c > 0 && e.order < c) incrementFrom(e.order, -1);
-
-    // add new event
+    // remove new event
     _removeById(req.params.eventId);
 
     // update timer

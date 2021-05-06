@@ -1,11 +1,11 @@
 import style from './List.module.css';
-
 import { Fragment, useEffect, useState } from 'react';
 import { useSocket } from '../../../app/context/socketContext';
 import tinykeys from 'tinykeys';
 import Empty from '../../../common/state/Empty';
 import EventListItem from './EventListItem';
 import { AnimatePresence, motion } from 'framer-motion';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
@@ -90,6 +90,19 @@ export default function EventList(props) {
     },
   };
 
+  // DND
+  const handleOnDragEnd = (result) => {
+    // drop outside of area
+    if (!result.destination) return;
+
+    // Call API
+    eventsHandler('reorder', {
+      index: result.draggableId,
+      from: result.source.index,
+      to: result.destination.index,
+    });
+  };
+
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
 
@@ -106,35 +119,47 @@ export default function EventList(props) {
           />
         )}
       </AnimatePresence>
-
-      {events.map((e, index) => {
-        if (e.type === 'delay') cumulativeDelay += e.duration;
-        else if (e.type === 'block') cumulativeDelay = 0;
-        return (
-          <Fragment key={index}>
-            <EventListItem
-              type={e.type}
-              index={index}
-              data={e}
-              selected={selected === e.id}
-              next={next === e.id}
-              eventsHandler={eventsHandler}
-              delay={cumulativeDelay}
-            />
-            <AnimatePresence>
-              {cursor === index && (
-                <motion.div
-                  className={style.cursor}
-                  variants={cursorVariants}
-                  initial='hidden'
-                  animate='visible'
-                  exit='exit'
-                />
-              )}
-            </AnimatePresence>
-          </Fragment>
-        );
-      })}
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <Droppable droppableId='eventlist'>
+          {(provided) => (
+            <div
+              className={style.list}
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {events.map((e, index) => {
+                if (e.type === 'delay') cumulativeDelay += e.duration;
+                else if (e.type === 'block') cumulativeDelay = 0;
+                return (
+                  <Fragment key={e.id}>
+                    <EventListItem
+                      type={e.type}
+                      index={index}
+                      data={e}
+                      selected={selected === e.id}
+                      next={next === e.id}
+                      eventsHandler={eventsHandler}
+                      delay={cumulativeDelay}
+                    />
+                    <AnimatePresence>
+                      {cursor === index && (
+                        <motion.div
+                          className={style.cursor}
+                          variants={cursorVariants}
+                          initial='hidden'
+                          animate='visible'
+                          exit='exit'
+                        />
+                      )}
+                    </AnimatePresence>
+                  </Fragment>
+                );
+              })}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 }

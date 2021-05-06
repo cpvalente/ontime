@@ -1,7 +1,8 @@
 import { FiChevronDown, FiChevronUp, FiMoreVertical } from 'react-icons/fi';
 import { memo, useEffect, useState } from 'react';
-import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import { showErrorToast } from '../../../common/helpers/toastManager';
+import { Draggable } from 'react-beautiful-dnd';
+import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import style from './Block.module.css';
 import EditableText from '../../../common/input/EditableText';
 import DelayValue from '../../../common/input/DelayValue';
@@ -10,15 +11,11 @@ import VisibleIconBtn from '../../../common/components/buttons/VisibleIconBtn';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 
 const areEqual = (prevProps, nextProps) => {
-  let shouldNotRerender =
-    prevProps.data.revision === nextProps.data.revision &&
-    prevProps.selected === nextProps.selected &&
-    prevProps.next === nextProps.next;
-  console.log('debug memo2', shouldNotRerender);
   return (
     prevProps.data.revision === nextProps.data.revision &&
     prevProps.selected === nextProps.selected &&
-    prevProps.next === nextProps.next
+    prevProps.next === nextProps.next &&
+    prevProps.index === nextProps.index
   );
 };
 
@@ -77,74 +74,86 @@ const EventBlock = (props) => {
   };
 
   return (
-    <div className={selected ? style.eventRowActive : style.eventRow}>
-      <span className={style.drag}>
-        <FiMoreVertical />
-      </span>
-      <div className={style.indicators}>
-        <div className={next ? style.next : style.nextDisabled}>Next</div>
-        <DelayValue delay={delay} />
-      </div>
-      <EventTimes
-        updateValues={updateValues}
-        timeStart={data.timeStart}
-        timeEnd={data.timeEnd}
-        delay={delay}
-      />
-      <div className={style.rowDetailed}>
-        {more ? (
-          <div className={style.detailedContainer}>
-            <EditableText
-              label='Title'
-              defaultValue={data.title}
-              placeholder='Add Title'
-              submitHandler={handleTitleSubmit}
-              underlined
+    <Draggable key={data.id} draggableId={data.id} index={index}>
+      {(provided) => (
+        <div
+          className={selected ? style.eventRowActive : style.eventRow}
+          {...provided.draggableProps}
+          ref={provided.innerRef}
+        >
+          <span className={style.drag} {...provided.dragHandleProps}>
+            <FiMoreVertical />
+          </span>
+          <div className={style.indicators}>
+            <div className={next ? style.next : style.nextDisabled}>Next</div>
+            <DelayValue delay={delay} />
+          </div>
+          <EventTimes
+            updateValues={updateValues}
+            timeStart={data.timeStart}
+            timeEnd={data.timeEnd}
+            delay={delay}
+          />
+          <div className={style.rowDetailed}>
+            {more ? (
+              <div className={style.detailedContainer}>
+                <EditableText
+                  label='Title'
+                  defaultValue={data.title}
+                  placeholder='Add Title'
+                  submitHandler={handleTitleSubmit}
+                  underlined
+                />
+                <EditableText
+                  label='Presenter'
+                  defaultValue={data.presenter}
+                  placeholder='Add Presenter name'
+                  submitHandler={handlePresenterSubmit}
+                  underlined
+                />
+                <EditableText
+                  label='Subtitle'
+                  defaultValue={data.subtitle}
+                  placeholder='Add Subtitle'
+                  submitHandler={handleSubtitleSubmit}
+                  underlined
+                />
+              </div>
+            ) : (
+              <div className={style.titleContainer}>
+                <EditableText
+                  label='Title'
+                  defaultValue={data.title}
+                  placeholder='Add Title'
+                  submitHandler={handleTitleSubmit}
+                  isTight
+                />
+              </div>
+            )}
+            <div className={style.more} onClick={() => setMore(!more)}>
+              {more ? <FiChevronUp /> : <FiChevronDown />}
+            </div>
+          </div>
+          <div className={style.actionOverlay}>
+            <VisibleIconBtn
+              clickhandler={handleVisibleToggle}
+              active={visible}
             />
-            <EditableText
-              label='Presenter'
-              defaultValue={data.presenter}
-              placeholder='Add Presenter name'
-              submitHandler={handlePresenterSubmit}
-              underlined
-            />
-            <EditableText
-              label='Subtitle'
-              defaultValue={data.subtitle}
-              placeholder='Add Subtitle'
-              submitHandler={handleSubtitleSubmit}
-              underlined
+            <DeleteIconBtn clickhandler={deleteHandler} />
+            <ActionButtons
+              showAdd
+              addHandler={addHandler}
+              showDelay
+              delayHandler={delayHandler}
+              showBlock
+              blockHandler={blockHandler}
             />
           </div>
-        ) : (
-          <div className={style.titleContainer}>
-            <EditableText
-              label='Title'
-              defaultValue={data.title}
-              placeholder='Add Title'
-              submitHandler={handleTitleSubmit}
-              isTight
-            />
-          </div>
-        )}
-        <div className={style.more} onClick={() => setMore(!more)}>
-          {more ? <FiChevronUp /> : <FiChevronDown />}
         </div>
-      </div>
-      <div className={style.actionOverlay}>
-        <VisibleIconBtn clickhandler={handleVisibleToggle} active={visible} />
-        <DeleteIconBtn clickhandler={deleteHandler} />
-        <ActionButtons
-          showAdd
-          addHandler={addHandler}
-          showDelay
-          delayHandler={delayHandler}
-          showBlock
-          blockHandler={blockHandler}
-        />
-      </div>
-    </div>
+      )}
+    </Draggable>
   );
 };
 
 export default memo(EventBlock, areEqual);
+// export default EventBlock;

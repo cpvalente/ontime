@@ -1,3 +1,5 @@
+import { Draggable } from 'react-beautiful-dnd';
+import { FiMoreVertical } from 'react-icons/fi';
 import { millisToMinutes } from '../../../common/dateConfig';
 import TimeInput from '../../../common/input/TimeInput';
 import style from './Block.module.css';
@@ -20,17 +22,26 @@ export default function DelayBlock(props) {
     eventsHandler('delete', data.id);
   };
 
-  let delayValue = (data.duration != null) ? millisToMinutes(data.duration) : undefined;
+  let delayValue =
+    data.duration != null ? millisToMinutes(data.duration) : undefined;
   return (
-    <div className={style.delay}>
-      <TimeInput
-        value={delayValue}
-        submitHandler={submitHandler}
-      />
-      <div className={style.actionOverlay}>
-        <DeleteIconBtn clickhandler={deleteHandler} />
-        <ActionButtons showAdd addHandler={addHandler} />
-      </div>
-    </div>
+    <Draggable key={data.id} draggableId={data.id} index={index}>
+      {(provided) => (
+        <div
+          className={style.delay}
+          {...provided.draggableProps}
+          ref={provided.innerRef}
+        >
+          <span className={style.drag} {...provided.dragHandleProps}>
+            <FiMoreVertical />
+          </span>
+          <TimeInput value={delayValue} submitHandler={submitHandler} />
+          <div className={style.actionOverlay}>
+            <DeleteIconBtn clickhandler={deleteHandler} />
+            <ActionButtons showAdd addHandler={addHandler} />
+          </div>
+        </div>
+      )}
+    </Draggable>
   );
 }
