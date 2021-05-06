@@ -23,7 +23,7 @@ const areEqual = (prevProps, nextProps) => {
 const EventBlock = (props) => {
   const { data, selected, next, delay, index, eventsHandler } = props;
 
-  const [more, setMore] = useState(false);
+  const [more, setMore] = useState(true);
   const [visible, setVisible] = useState(data.isPublic || false);
 
   // Set visibility indicator
@@ -67,6 +67,10 @@ const EventBlock = (props) => {
 
   const handlePresenterSubmit = (v) => {
     updateValues('presenter', v);
+  };
+
+  const handleNoteSubmit = (v) => {
+    updateValues('note', v);
   };
 
   const handleVisibleToggle = () => {
@@ -117,6 +121,13 @@ const EventBlock = (props) => {
                   defaultValue={data.subtitle}
                   placeholder='Add Subtitle'
                   submitHandler={handleSubtitleSubmit}
+                  underlined
+                />
+                <EditableText
+                  label='note'
+                  defaultValue={data.note}
+                  placeholder='Add note'
+                  submitHandler={handleNoteSubmit}
                   underlined
                 />
               </div>
