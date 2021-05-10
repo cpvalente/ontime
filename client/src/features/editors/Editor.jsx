@@ -3,7 +3,6 @@ import { Box } from '@chakra-ui/layout';
 import NumberedText from '../../common/components/text/NumberedText';
 import PlaybackControl from '../control/PlaybackControl';
 import MessageControl from '../control/MessageControl';
-import PreviewContainer from '../viewers/PreviewContainer';
 import styles from './Editor.module.css';
 import EventListWrapper from './list/EventListWrapper';
 import { useDisclosure } from '@chakra-ui/hooks';
@@ -28,7 +27,7 @@ export default function Editor() {
           <Heading size='lg' paddingBottom={'0.25em'}>
             Event List
           </Heading>
-          <NumberedText number={1} text={'Manage and select event to run'} />
+          <NumberedText number={1} text={'Manage events'} />
           <div className={styles.content}>
             <EventListWrapper />
           </div>
@@ -39,8 +38,8 @@ export default function Editor() {
             Display Messages
           </Heading>
           <NumberedText
-            number={2}
-            text={'Show realtime messages on separate screen types'}
+            number={3}
+            text={'Show realtime messages on different screens'}
           />
           <div className={styles.content}>
             <MessageControl />
@@ -51,15 +50,9 @@ export default function Editor() {
           <Heading size='lg' paddingBottom={'0.25em'}>
             Time Control
           </Heading>
-          <NumberedText number={3} text={'Control Timer'} />
+          <NumberedText number={2} text={'Control timers'} />
           <div className={styles.content}>
             <PlaybackControl />
-          </div>
-        </Box>
-
-        <Box className={styles.settings}>
-          <div className={styles.content}>
-            <SettingsIconBtn size='md' clickhandler={onOpen} />
           </div>
         </Box>
 
@@ -69,6 +62,12 @@ export default function Editor() {
           </Heading>
           <NumberedText number={4} text={'Running Info'} />
           <div className={styles.content}></div>
+        </Box>
+
+        <Box className={styles.settings}>
+          <div className={styles.content}>
+            <SettingsIconBtn size='md' clickhandler={onOpen} />
+          </div>
         </Box>
       </div>
     </>

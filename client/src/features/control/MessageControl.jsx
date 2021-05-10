@@ -8,6 +8,33 @@ const inputProps = {
   size: 'sm',
 };
 
+const InputRow = (props) => {
+  const { label, placeholder, text, visible } = props;
+
+  return (
+    <>
+      <span className={style.label}>{label}</span>
+      <div className={style.inputItems}>
+        <Editable
+          onChange={(event) => props.changeHandler(event)}
+          value={text}
+          placeholder={placeholder}
+          className={style.inline}
+          color={text === '' ? '#666' : 'inherit'}
+        >
+          <EditablePreview className={style.padleft} />
+          <EditableInput className={style.padleft} />
+        </Editable>
+        <VisibleIconBtn
+          active={visible || undefined}
+          actionHandler={props.actionHandler}
+          {...inputProps}
+        />
+      </div>
+    </>
+  );
+};
+
 export default function MessageControl() {
   const socket = useSocket();
   const [pres, setPres] = useState({
@@ -80,66 +107,30 @@ export default function MessageControl() {
 
   return (
     <div className={style.messageContainer}>
-      <div className={style.inputContainer}>
-        <span className={style.label}>Presenter screen message</span>
-        <div className={style.inputItems}>
-          <Editable
-            onChange={(event) => messageControl('pres-text', event)}
-            value={pres.text}
-            placeholder='only the presenter screens see this'
-            className={style.inline}
-          >
-            <EditablePreview className={style.padleft} />
-            <EditableInput className={style.padleft} />
-          </Editable>
-          <VisibleIconBtn
-            active={pres.visible || undefined}
-            actionHandler={() => messageControl('toggle-pres-visible')}
-            {...inputProps}
-          />
-        </div>
-      </div>
-
-      <div className={style.inputContainerWGap}>
-        <span className={style.label}>Public screen message</span>
-        <div className={style.inputItems}>
-          <Editable
-            onChange={(event) => messageControl('publ-text', event)}
-            value={publ.text}
-            placeholder='public screens will render this'
-            className={style.inline}
-          >
-            <EditablePreview className={style.padleft} />
-            <EditableInput className={style.padleft} />
-          </Editable>
-          <VisibleIconBtn
-            active={publ.visible || undefined}
-            actionHandler={() => messageControl('toggle-publ-visible')}
-            {...inputProps}
-          />
-        </div>
-      </div>
-
-      <div className={style.inputContainerWGap}>
-        <span className={style.label}>Lower third message</span>
-        <div className={style.inputItems}>
-          <Editable
-            onChange={(event) => messageControl('lower-text', event)}
-            value={lower.text}
-            placeholder='visible in lower third screen'
-            className={style.inline}
-          >
-            <EditablePreview className={style.padleft} />
-            <EditableInput className={style.padleft} />
-          </Editable>
-
-          <VisibleIconBtn
-            active={lower.visible || undefined}
-            actionHandler={() => messageControl('toggle-lower-visible')}
-            {...inputProps}
-          />
-        </div>
-      </div>
+      <InputRow
+        label='Presenter screen message'
+        placeholder='only the presenter screens see this'
+        text={pres.text}
+        visible={pres.visible}
+        changeHandler={(event) => messageControl('pres-text', event)}
+        actionHandler={() => messageControl('toggle-pres-visible')}
+      />
+      <InputRow
+        label='Public screen message'
+        placeholder='public screens will render this'
+        text={publ.text}
+        visible={publ.visible}
+        changeHandler={(event) => messageControl('publ-text', event)}
+        actionHandler={() => messageControl('toggle-publ-visible')}
+      />
+      <InputRow
+        label='Lower third message'
+        placeholder='visible in lower third screen'
+        text={lower.text}
+        visible={lower.visible}
+        changeHandler={(event) => messageControl('lower-text', event)}
+        actionHandler={() => messageControl('toggle-publ-visible')}
+      />
     </div>
   );
 }

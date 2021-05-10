@@ -1,7 +1,6 @@
 import EditableTimer from '../../input/EditableTimer';
 import { showWarningToast } from '../../helpers/toastManager';
-import { useEffect, useState } from 'react';
-import { millisToMinutes, stringFromMillis } from '../../dateConfig';
+import { stringFromMillis } from '../../dateConfig';
 
 const label = {
   fontSize: '0.75em',
@@ -50,7 +49,7 @@ const TimesDelayed = (props) => {
 };
 
 const Times = (props) => {
-  const { handleValidate, actionHandler, timeStart, timeEnd, duration } = props;
+  const { handleValidate, actionHandler, timeStart, timeEnd } = props;
 
   return (
     <>
@@ -84,13 +83,6 @@ const Times = (props) => {
 
 export default function EventTimesVertical(props) {
   const { delay, timeStart, timeEnd } = props;
-  const [duration, setDuration] = useState(
-    millisToMinutes(timeEnd - timeStart) || 0
-  );
-  useEffect(() => {
-    setDuration(millisToMinutes(timeEnd - timeStart));
-  }, [timeStart, timeEnd]);
-
   const handleValidate = (entry, v) => {
     // we dont enforce validation here
 
@@ -115,7 +107,6 @@ export default function EventTimesVertical(props) {
       delay={delay}
       timeStart={timeStart}
       timeEnd={timeEnd}
-      duration={duration}
     />
   ) : (
     <Times
@@ -123,7 +114,6 @@ export default function EventTimesVertical(props) {
       actionHandler={props.actionHandler}
       timeStart={timeStart}
       timeEnd={timeEnd}
-      duration={duration}
     />
   );
 }

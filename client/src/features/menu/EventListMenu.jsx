@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import {
   Button,
@@ -8,7 +8,6 @@ import {
   MenuItem,
   MenuList,
 } from '@chakra-ui/react';
-import AddIconBtn from '../../common/components/buttons/AddIconBtn';
 import style from './EventListMenu.module.css';
 import MenuActionButtons from '../editors/list/MenuActionButtons';
 
@@ -29,7 +28,6 @@ const EventListMenu = ({ eventsHandler }) => {
   };
 
   const actionHandler = (action) => {
-    console.log('debug action called', action);
     switch (action) {
       case 'event':
         eventsHandler('add', { type: action, order: 0 });
