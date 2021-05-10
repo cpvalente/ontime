@@ -1,19 +1,15 @@
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import { formatDisplay } from '../../dateConfig';
 import styles from './Countdown.module.css';
 
 const Countdown = ({ time, small, negative, hideZeroHours }) => {
-  const [clock, setClock] = useState(time);
   let display = '-- : -- : --';
 
-  useEffect(() => {
-    setClock(time);
-  }, [time]);
-
   // prepare display string
-  if (clock != null && !isNaN(clock))
-    display = formatDisplay(Math.abs(clock), hideZeroHours);
+  if (time != null && !isNaN(time))
+    display = formatDisplay(Math.abs(time), hideZeroHours);
   const colour = negative ? '#ff7597' : '#fffffa';
+
   return (
     <div
       className={small ? styles.countdownClockSmall : styles.countdownClock}

@@ -1,10 +1,8 @@
 import style from './PlaybackControl.module.css';
-import Countdown from '../../common/components/countdown/Countdown';
-import { stringFromMillis } from '../../common/dateConfig';
 import { useEffect, useState } from 'react';
 import { useSocket } from '../../app/context/socketContext';
-import { Button } from '@chakra-ui/button';
 import PlaybackButtons from './PlaybackButtons';
+import PlaybackTimer from './PlaybackTimer';
 
 export default function PlaybackControl() {
   const socket = useSocket();
@@ -12,7 +10,6 @@ export default function PlaybackControl() {
   const [timer, setTimer] = useState({
     clock: null,
     running: null,
-    currentSeconds: null,
     startedAt: null,
     expectedFinish: null,
   });
@@ -20,7 +17,7 @@ export default function PlaybackControl() {
 
   const resetTimer = () => {
     setTimer({
-      currentSeconds: null,
+      running: null,
       startedAt: null,
       expectedFinish: null,
     });
@@ -89,68 +86,12 @@ export default function PlaybackControl() {
     }
   };
 
-  const started = stringFromMillis(timer.startedAt, true);
-  const finish = stringFromMillis(timer.expectedFinish, true);
-  const isNegative = timer.running < 0;
-  const isDelayed = false;
-  const isRolling = false;
-
-  const incrementProps = {
-    size: 'sm',
-    width: '2.9em',
-    colorScheme: 'whiteAlpha',
-    variant: 'outline',
-    _focus: { boxShadow: 'none' },
-  };
-
   return (
     <div className={style.mainContainer}>
-      <div className={style.timeContainer}>
-        <div className={style.indicators}>
-          <div className={style.indRoll} />
-          <div
-            className={isNegative ? style.indNegativeActive : style.indNegative}
-          />
-          <div className={style.indDelay} />
-        </div>
-        <div className={style.timer}>
-          <Countdown time={timer?.running} small negative={isNegative} />
-        </div>
-        <div className={style.start}>
-          <span className={style.tag}>Started at </span>
-          <span className={style.time}>{started}</span>
-        </div>
-        <div className={style.finish}>
-          <span className={style.tag}>Finish at </span>
-          <span className={style.time}>{finish}</span>
-        </div>
-        <div className={style.btn}>
-          <Button
-            {...incrementProps}
-            onClick={() => socket.emit('increment-timer', -1)}
-          >
-            -1
-          </Button>
-          <Button
-            {...incrementProps}
-            onClick={() => socket.emit('increment-timer', 1)}
-          >
-            +1
-          </Button>
-          <Button
-            {...incrementProps}
-            onClick={() => socket.emit('increment-timer', -5)}
-          >
-            -5
-          </Button>
-          <Button
-            {...incrementProps}
-            onClick={() => socket.emit('increment-timer', 5)}
-          >
-            +5
-          </Button>
-        </div>
-      </div>
+      <PlaybackTimer
+        timer={timer}
+        handleIncrement={(amount) => socket.emit('increment-timer', amount)}
+      />
       <PlaybackButtons
         playback={playback}
         selectedId={selectedId}
