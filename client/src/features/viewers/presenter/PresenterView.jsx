@@ -14,6 +14,8 @@ export default function PresenterView(props) {
     document.title = 'ontime - Speaker Screen';
   }, []);
 
+  
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate === 'start';
 

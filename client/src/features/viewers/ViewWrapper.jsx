@@ -215,16 +215,13 @@ const withSocket = (Component) => {
     /***  --------------------------------  ***/
     /******************************************/
 
+    // inject info:
     // is timer finished
-    let finished = timer.currentSeconds <= 0;
-
-    // get clock
-    let clock = stringFromMillis(timer.clock);
-
+    // get clock string
     const timeManager = {
       ...timer,
-      finished: finished,
-      clock: clock,
+      finished: timer.running <= 0 && timer.startedAt,
+      clock: stringFromMillis(timer.clock),
       playstate: playback,
     };
 

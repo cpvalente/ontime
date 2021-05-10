@@ -11,7 +11,9 @@ export default function Pip(props) {
   const { time, backstageEvents, selectedId, general } = props;
   const [size, setSize] = useState('');
   const ref = useRef(null);
+  const [filteredEvents, setFilteredEvents] = useState(null);
 
+  // calculcate pip size
   useEffect(() => {
     const h = ref.current.clientHeight;
     const w = ref.current.clientWidth;
@@ -22,6 +24,29 @@ export default function Pip(props) {
   useEffect(() => {
     document.title = 'ontime - Pip';
   }, []);
+
+  // calculate delays if any
+  useEffect(() => {
+    if (backstageEvents == null) return;
+
+    let events = [...backstageEvents];
+
+    // Add running delay
+    let delay = 0;
+    for (const e of events) {
+      if (e.type === 'block') delay = 0;
+      else if (e.type === 'delay') delay = delay + e.duration;
+      else if (e.type === 'event' && delay > 0) {
+        e.timeStart += delay;
+        e.timeEnd += delay;
+      }
+    }
+
+    // filter just events
+    let filtered = events.filter((e) => e.type === 'event');
+
+    setFilteredEvents(filtered);
+  }, [backstageEvents]);
 
   // Format messages
   const showInfo =
@@ -43,7 +68,7 @@ export default function Pip(props) {
         <div className={style.entriesContainer}>
           <Paginator
             selectedId={selectedId}
-            events={backstageEvents}
+            events={filteredEvents}
             limit={15}
             time={20}
           />

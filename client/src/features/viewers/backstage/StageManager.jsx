@@ -24,14 +24,14 @@ export default function StageManager(props) {
 
     // Add running delay
     let delay = 0;
-    events.forEach((e) => {
+    for (const e of events) {
       if (e.type === 'block') delay = 0;
       else if (e.type === 'delay') delay = delay + e.duration;
       else if (e.type === 'event' && delay > 0) {
         e.timeStart += delay;
         e.timeEnd += delay;
       }
-    });
+    }
 
     // filter just events
     let filtered = events.filter((e) => e.type === 'event');
@@ -41,10 +41,8 @@ export default function StageManager(props) {
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
-  const stageTimer =
-    time.currentSeconds != null && !isNaN(time.currentSeconds)
-      ? formatDisplay(time.currentSeconds, true)
-      : '';
+  let stageTimer = formatDisplay(Math.abs(time.running), true);
+  if (time.running < 0) stageTimer = '-' + stageTimer;
 
   // motion
   const titleVariants = {
