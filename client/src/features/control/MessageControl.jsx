@@ -94,7 +94,7 @@ export default function MessageControl() {
           </Editable>
           <VisibleIconBtn
             active={pres.visible || undefined}
-            clickhandler={() => messageControl('toggle-pres-visible')}
+            actionHandler={() => messageControl('toggle-pres-visible')}
             {...inputProps}
           />
         </div>
@@ -114,7 +114,7 @@ export default function MessageControl() {
           </Editable>
           <VisibleIconBtn
             active={publ.visible || undefined}
-            clickhandler={() => messageControl('toggle-publ-visible')}
+            actionHandler={() => messageControl('toggle-publ-visible')}
             {...inputProps}
           />
         </div>
@@ -135,7 +135,7 @@ export default function MessageControl() {
 
           <VisibleIconBtn
             active={lower.visible || undefined}
-            clickhandler={() => messageControl('toggle-lower-visible')}
+            actionHandler={() => messageControl('toggle-lower-visible')}
             {...inputProps}
           />
         </div>

@@ -9,7 +9,7 @@ import { showErrorToast } from '../helpers/toastManager';
 import style from './EditableTimer.module.css';
 
 export default function EditableTimer(props) {
-  const { name, updateValues, time, delay, validate } = props;
+  const { name, actionHandler, time, delay, validate } = props;
   const [value, setValue] = useState('');
 
   // prepare time fields
@@ -46,7 +46,7 @@ export default function EditableTimer(props) {
     if (!validate(name, millis)) return false;
 
     // update entry
-    updateValues(name, millis);
+    actionHandler('update', { field: name, value: millis });
 
     return true;
   };
@@ -56,19 +56,17 @@ export default function EditableTimer(props) {
   };
 
   return (
-    <div className={style.time}>
-      <Editable
-        onFocus={() => showOriginal()}
-        onEdit={() => showOriginal}
-        onChange={(v) => setValue(v)}
-        onSubmit={(v) => validateValue(v)}
-        value={value}
-        placeholder='--:--'
-        className={delay > 0 ? style.delayedEditable : style.editable}
-      >
-        <EditablePreview />
-        <EditableInput type='time' min='00:00' max='23:59' />
-      </Editable>
-    </div>
+    <Editable
+      onFocus={() => showOriginal}
+      onEdit={() => showOriginal}
+      onChange={(v) => setValue(v)}
+      onSubmit={(v) => validateValue(v)}
+      value={value}
+      placeholder='--:--'
+      className={delay > 0 ? style.delayedEditable : style.editable}
+    >
+      <EditablePreview />
+      <EditableInput type='time' min='00:00' max='23:59' />
+    </Editable>
   );
 }

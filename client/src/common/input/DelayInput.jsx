@@ -13,7 +13,7 @@ const inputProps = {
   textAlign: 'center',
 };
 
-export default function TimeInput(props) {
+export default function DelayInput(props) {
   const [value, setValue] = useState(props.value);
 
   useEffect(() => {
@@ -29,9 +29,10 @@ export default function TimeInput(props) {
     if (val === props.value) return;
     if (val === '') setValue(0);
     if (val >= 0 && val <= 60) {
-      props.submitHandler(val);
+      // convert to ms and updates
+      props.actionHandler('update', { field: 'duration', value: val * 60000 });
     } else {
-      setValue(60);
+      props.actionHandler('update', { field: 'duration', value: 3600000 });
     }
   };
 

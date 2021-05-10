@@ -1,24 +1,16 @@
-.title,
-.titleUnderlined {
+.title {
   padding-left: 1em;
-  font-size: 0.8em;
+  font-size: 0.75em;
   color: #aaa;
   display: inline-block;
   width: 6em;
-  cursor: default;
-}
-
-.titleUnderlined {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .block {
   display: 'block';
-  overflow: hidden;
-  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .inline {
   display: inline;
-  width: max-content;
 }

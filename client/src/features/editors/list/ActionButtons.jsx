@@ -3,7 +3,7 @@ import { IconButton } from '@chakra-ui/button';
 import { FiZap, FiPlus, FiMinusCircle, FiClock } from 'react-icons/fi';
 
 export default function ActionButtons(props) {
-  const { showAdd, showDelay, showBlock } = props;
+  const { showAdd, showDelay, showBlock, actionHandler } = props;
 
   const menuStyle = {
     color: '#000000',
@@ -25,7 +25,7 @@ export default function ActionButtons(props) {
       <MenuList style={menuStyle}>
         <MenuItem
           icon={<FiPlus />}
-          onClick={props.addHandler}
+          onClick={() => actionHandler('event')}
           isDisabled={!showAdd}
         >
           Event next
@@ -33,14 +33,14 @@ export default function ActionButtons(props) {
 
         <MenuItem
           icon={<FiClock />}
-          onClick={props.delayHandler}
+          onClick={() => actionHandler('delay')}
           isDisabled={!showDelay}
         >
           Delay next
         </MenuItem>
         <MenuItem
           icon={<FiMinusCircle />}
-          onClick={props.blockHandler}
+          onClick={() => actionHandler('block')}
           isDisabled={!showBlock}
         >
           Block next

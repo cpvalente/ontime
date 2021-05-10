@@ -2,20 +2,10 @@ import { Draggable } from 'react-beautiful-dnd';
 import { FiMoreVertical } from 'react-icons/fi';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 import ActionButtons from './ActionButtons';
-import style from './Block.module.css';
+import style from './BlockBlock.module.css';
 
 export default function BlockBlock(props) {
-  const { eventsHandler, index, data } = props;
-
-  const addHandler = () => {
-    eventsHandler('add', { type: 'event', order: index + 1 });
-  };
-  const deleteHandler = () => {
-    eventsHandler('delete', data.id);
-  };
-  const delayHandler = () => {
-    eventsHandler('add', { type: 'delay', order: index + 1 });
-  };
+  const { index, data, actionHandler } = props;
 
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
@@ -29,13 +19,8 @@ export default function BlockBlock(props) {
             <FiMoreVertical />
           </span>
           <div className={style.actionOverlay}>
-            <DeleteIconBtn clickhandler={deleteHandler} />
-            <ActionButtons
-              showAdd
-              addHandler={addHandler}
-              showDelay
-              delayHandler={delayHandler}
-            />
+            <DeleteIconBtn actionHandler={actionHandler} />
+            <ActionButtons showAdd showDelay actionHandler={actionHandler} />
           </div>
         </div>
       )}

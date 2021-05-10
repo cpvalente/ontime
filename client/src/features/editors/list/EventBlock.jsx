@@ -1,14 +1,15 @@
+import Icon from '@chakra-ui/icon';
 import { FiChevronDown, FiChevronUp, FiMoreVertical } from 'react-icons/fi';
-import { memo, useEffect, useState } from 'react';
-import { showErrorToast } from '../../../common/helpers/toastManager';
+import { memo, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from '../../../common/components/eventTimes/EventTimes';
-import style from './Block.module.css';
+import EventTimesVertical from '../../../common/components/eventTimes/EventTimesVertical';
 import EditableText from '../../../common/input/EditableText';
-import DelayValue from '../../../common/input/DelayValue';
 import ActionButtons from './ActionButtons';
 import VisibleIconBtn from '../../../common/components/buttons/VisibleIconBtn';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
+import { millisToMinutes } from '../../../common/dateConfig';
+import style from './EventBlock.module.css';
 
 const areEqual = (prevProps, nextProps) => {
   return (
@@ -20,147 +21,181 @@ const areEqual = (prevProps, nextProps) => {
   );
 };
 
+const ExpandedBlock = (props) => {
+  const { provided, data, next, delay, delayValue, actionHandler } = props;
+
+  return (
+    <>
+      <span className={style.drag} {...provided.dragHandleProps}>
+        <FiMoreVertical />
+      </span>
+
+      <div className={style.indicators}>
+        <span className={next ? style.next : style.nextDisabled}>Next</span>
+        {delayValue != null && (
+          <span className={style.delayValue}>+ {delayValue}</span>
+        )}
+      </div>
+      <div className={style.timeExpanded}>
+        <EventTimesVertical
+          actionHandler={actionHandler}
+          timeStart={data.timeStart}
+          timeEnd={data.timeEnd}
+          delay={delay}
+          className={style.time}
+        />
+      </div>
+
+      <div className={style.titleContainer}>
+        <EditableText
+          label='Title'
+          defaultValue={data.title}
+          placeholder='Add Title'
+          submitHandler={(v) =>
+            actionHandler('update', { field: 'title', value: v })
+          }
+        />
+        <EditableText
+          label='Presenter'
+          defaultValue={data.presenter}
+          placeholder='Add Presenter name'
+          submitHandler={(v) =>
+            actionHandler('update', { field: 'presenter', value: v })
+          }
+        />
+        <EditableText
+          label='Subtitle'
+          defaultValue={data.subtitle}
+          placeholder='Add Subtitle'
+          submitHandler={(v) =>
+            actionHandler('update', { field: 'subtitle', value: v })
+          }
+        />
+        <EditableText
+          label='Note'
+          defaultValue={data.note}
+          placeholder='Add Note'
+          submitHandler={(v) =>
+            actionHandler('update', { field: 'note', value: v })
+          }
+        />
+      </div>
+      <Icon
+        className={style.more}
+        as={FiChevronUp}
+        marginTop='0.2em'
+        gridArea='more'
+        onClick={() => props.setExpanded(false)}
+      />
+      <div className={style.actionOverlay}>
+        <VisibleIconBtn actionHandler={actionHandler} active={data.isPublic} />
+        <ActionButtons
+          showAdd
+          showDelay
+          showBlock
+          actionHandler={actionHandler}
+        />
+        <DeleteIconBtn actionHandler={actionHandler} />
+      </div>
+    </>
+  );
+};
+
+const CollapsedBlock = (props) => {
+  const { provided, data, next, delay, delayValue, actionHandler } = props;
+
+  return (
+    <>
+      <span className={style.drag} {...provided.dragHandleProps}>
+        <FiMoreVertical />
+      </span>
+
+      <div className={style.indicators}>
+        <span className={next ? style.next : style.nextDisabled}>Next</span>
+        {delayValue != null && (
+          <span className={style.delayValue}>+ {delayValue}</span>
+        )}
+      </div>
+      <EventTimes
+        actionHandler={actionHandler}
+        timeStart={data.timeStart}
+        timeEnd={data.timeEnd}
+        delay={delay}
+        className={style.time}
+      />
+      <div className={style.titleContainer}>
+        <EditableText
+          label='Title'
+          defaultValue={data.title}
+          placeholder='Add Title'
+          submitHandler={(v) =>
+            actionHandler('update', { field: 'title', value: v })
+          }
+        />
+      </div>
+      <Icon
+        className={style.more}
+        as={FiChevronDown}
+        marginTop='0.2em'
+        gridArea='more'
+        onClick={() => props.setExpanded(true)}
+      />
+      <div className={style.actionOverlay}>
+        <VisibleIconBtn actionHandler={actionHandler} active={data.isPublic} />
+        <ActionButtons
+          showAdd
+          showDelay
+          showBlock
+          actionHandler={actionHandler}
+        />
+      </div>
+    </>
+  );
+};
+
 const EventBlock = (props) => {
-  const { data, selected, next, delay, index, eventsHandler } = props;
+  const { data, selected, delay, index, actionHandler } = props;
 
-  const [more, setMore] = useState(true);
-  const [visible, setVisible] = useState(data.isPublic || false);
+  const [expanded, setExpanded] = useState(true);
 
-  // Set visibility indicator
-  useEffect(() => {
-    setVisible(data.isPublic);
-  }, [data.isPublic]);
+  // TODO: should this go inside useEffect()
+  // Would I then need to add this to state?
+  const isSelected = selected ? style.active : '';
+  const isExpanded = expanded ? style.expanded : style.collapsed;
+  const classSelect = `${style.event} ${isExpanded} ${isSelected}`;
 
-  const updateValues = (field, value) => {
-    // validate field
-    if (field in data) {
-      // create object with new field
-      const newData = { id: data.id, [field]: value };
-
-      // request update in parent
-      eventsHandler('patch', newData);
-    } else {
-      showErrorToast('Field Error: ' + field);
-    }
-  };
-
-  const addHandler = () => {
-    eventsHandler('add', { type: 'event', order: index + 1 });
-  };
-  const delayHandler = () => {
-    eventsHandler('add', { type: 'delay', order: index + 1 });
-  };
-  const blockHandler = () => {
-    eventsHandler('add', { type: 'block', order: index + 1 });
-  };
-  const deleteHandler = () => {
-    eventsHandler('delete', data.id);
-  };
-
-  const handleTitleSubmit = (v) => {
-    updateValues('title', v);
-  };
-
-  const handleSubtitleSubmit = (v) => {
-    updateValues('subtitle', v);
-  };
-
-  const handlePresenterSubmit = (v) => {
-    updateValues('presenter', v);
-  };
-
-  const handleNoteSubmit = (v) => {
-    updateValues('note', v);
-  };
-
-  const handleVisibleToggle = () => {
-    let viz = !data.isPublic || !visible;
-    updateValues('isPublic', viz);
-  };
+  // Calculate delay in min
+  const delayValue = delay > 0 ? millisToMinutes(delay) : null;
 
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
         <div
-          className={selected ? style.eventRowActive : style.eventRow}
+          className={classSelect}
           {...provided.draggableProps}
           ref={provided.innerRef}
         >
-          <span className={style.drag} {...provided.dragHandleProps}>
-            <FiMoreVertical />
-          </span>
-          <div className={style.indicators}>
-            <div className={next ? style.next : style.nextDisabled}>Next</div>
-            <DelayValue delay={delay} />
-          </div>
-          <EventTimes
-            updateValues={updateValues}
-            timeStart={data.timeStart}
-            timeEnd={data.timeEnd}
-            delay={delay}
-          />
-          <div className={style.rowDetailed}>
-            {more ? (
-              <div className={style.detailedContainer}>
-                <EditableText
-                  label='Title'
-                  defaultValue={data.title}
-                  placeholder='Add Title'
-                  submitHandler={handleTitleSubmit}
-                  underlined
-                />
-                <EditableText
-                  label='Presenter'
-                  defaultValue={data.presenter}
-                  placeholder='Add Presenter name'
-                  submitHandler={handlePresenterSubmit}
-                  underlined
-                />
-                <EditableText
-                  label='Subtitle'
-                  defaultValue={data.subtitle}
-                  placeholder='Add Subtitle'
-                  submitHandler={handleSubtitleSubmit}
-                  underlined
-                />
-                <EditableText
-                  label='note'
-                  defaultValue={data.note}
-                  placeholder='Add note'
-                  submitHandler={handleNoteSubmit}
-                  underlined
-                />
-              </div>
-            ) : (
-              <div className={style.titleContainer}>
-                <EditableText
-                  label='Title'
-                  defaultValue={data.title}
-                  placeholder='Add Title'
-                  submitHandler={handleTitleSubmit}
-                  isTight
-                />
-              </div>
-            )}
-            <div className={style.more} onClick={() => setMore(!more)}>
-              {more ? <FiChevronUp /> : <FiChevronDown />}
-            </div>
-          </div>
-          <div className={style.actionOverlay}>
-            <VisibleIconBtn
-              clickhandler={handleVisibleToggle}
-              active={visible}
+          {expanded ? (
+            <ExpandedBlock
+              provided={provided}
+              data={data}
+              next={props.next}
+              delay={delay}
+              delayValue={delayValue}
+              actionHandler={actionHandler}
+              setExpanded={setExpanded}
             />
-            <DeleteIconBtn clickhandler={deleteHandler} />
-            <ActionButtons
-              showAdd
-              addHandler={addHandler}
-              showDelay
-              delayHandler={delayHandler}
-              showBlock
-              blockHandler={blockHandler}
+          ) : (
+            <CollapsedBlock
+              provided={provided}
+              data={data}
+              next={props.next}
+              delay={delay}
+              delayValue={delayValue}
+              actionHandler={actionHandler}
+              setExpanded={setExpanded}
             />
-          </div>
+          )}
         </div>
       )}
     </Draggable>
@@ -168,4 +203,3 @@ const EventBlock = (props) => {
 };
 
 export default memo(EventBlock, areEqual);
-// export default EventBlock;

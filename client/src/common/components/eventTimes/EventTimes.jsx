@@ -2,7 +2,7 @@ import EditableTimer from '../../input/EditableTimer';
 import { showWarningToast } from '../../helpers/toastManager';
 
 export default function EventTimes(props) {
-  const { updateValues, delay, timeStart, timeEnd } = props;
+  const { actionHandler, delay, timeStart, timeEnd } = props;
 
   const handleValidate = (entry, v) => {
     // we dont inforce validation here
@@ -26,14 +26,14 @@ export default function EventTimes(props) {
       <EditableTimer
         name='timeStart'
         validate={handleValidate}
-        updateValues={updateValues}
+        actionHandler={actionHandler}
         time={timeStart}
         delay={delay}
       />
       <EditableTimer
         name='timeEnd'
         validate={handleValidate}
-        updateValues={updateValues}
+        actionHandler={actionHandler}
         time={timeEnd}
         delay={delay}
       />

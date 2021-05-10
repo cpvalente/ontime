@@ -1,27 +1,14 @@
 import { Draggable } from 'react-beautiful-dnd';
 import { FiMoreVertical } from 'react-icons/fi';
 import { millisToMinutes } from '../../../common/dateConfig';
-import TimeInput from '../../../common/input/TimeInput';
-import style from './Block.module.css';
 import ActionButtons from './ActionButtons';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 import ApplyIconBtn from '../../../common/components/buttons/ApplyIconBtn';
+import DelayInput from '../../../common/input/DelayInput';
+import style from './DelayBlock.module.css';
 
 export default function DelayBlock(props) {
-  const { data, eventsHandler, index } = props;
-
-  const addHandler = () => {
-    eventsHandler('add', { type: 'event', order: index + 1 });
-  };
-
-  const submitHandler = (value) => {
-    // convert to ms and patch
-    eventsHandler('patch', { id: data.id, duration: value * 1000 * 60 });
-  };
-
-  const deleteHandler = () => {
-    eventsHandler('delete', data.id);
-  };
+  const { eventsHandler, data, index, actionHandler } = props;
 
   const applyDelayHandler = () => {
     eventsHandler('applyDelay', { id: data.id, duration: data.duration });
@@ -29,6 +16,7 @@ export default function DelayBlock(props) {
 
   let delayValue =
     data.duration != null ? millisToMinutes(data.duration) : undefined;
+
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
@@ -40,11 +28,15 @@ export default function DelayBlock(props) {
           <span className={style.drag} {...provided.dragHandleProps}>
             <FiMoreVertical />
           </span>
-          <TimeInput value={delayValue} submitHandler={submitHandler} />
+          <DelayInput
+            className={style.input}
+            value={delayValue}
+            actionHandler={actionHandler}
+          />
           <div className={style.actionOverlay}>
             <ApplyIconBtn clickhandler={applyDelayHandler} />
-            <DeleteIconBtn clickhandler={deleteHandler} />
-            <ActionButtons showAdd addHandler={addHandler} />
+            <DeleteIconBtn actionHandler={actionHandler} />
+            <ActionButtons showAdd actionHandler={actionHandler} />
           </div>
         </div>
       )}

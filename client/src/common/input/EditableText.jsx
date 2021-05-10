@@ -4,7 +4,7 @@ import style from './EditableText.module.css';
 
 export default function EditableText(props) {
   const { label, defaultValue, placeholder, submitHandler } = props;
-  const [text, setText] = useState('');
+  const [text, setText] = useState(defaultValue || '');
 
   useEffect(() => {
     if (defaultValue == null) setText('');
@@ -19,14 +19,11 @@ export default function EditableText(props) {
 
   const handleChange = (val) => {
     if (val.length < 40) setText(val);
-    console.log(val.length);
   };
 
   return (
     <div className={style.block}>
-      <span className={props.underlined ? style.titleUnderlined : style.title}>
-        {label}
-      </span>
+      <span className={style.title}>{label}</span>
       <Editable
         onChange={(v) => handleChange(v)}
         onSubmit={(v) => handleSubmit(v)}
@@ -34,8 +31,11 @@ export default function EditableText(props) {
         placeholder={placeholder}
         className={style.inline}
       >
-        <EditablePreview />
-        <EditableInput />
+        <EditablePreview
+          color={text === '' ? '#666' : 'inherit'}
+          maxWidth='20em'
+        />
+        <EditableInput overflowX='hidden' maxWidth='20em' />
       </Editable>
     </div>
   );
