@@ -20,7 +20,7 @@ const ExpandedBlock = (props) => {
   const duration =
     data.timeStart > data.timeEnd
       ? data.timeEnd + 86400000 - data.timeStart
-      : data.timeEnd + 86400000 - data.timeStart;
+      : data.timeEnd - data.timeStart;
 
   return (
     <>
