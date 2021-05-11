@@ -8,10 +8,16 @@ const label = {
 };
 
 const TimesDelayed = (props) => {
-  const { handleValidate, actionHandler, delay, timeStart, timeEnd } = props;
+  const {
+    handleValidate,
+    actionHandler,
+    delay,
+    timeStart,
+    timeEnd,
+    duration,
+  } = props;
 
   const scheduledStart = stringFromMillis(timeStart, false);
-
   const scheduledEnd = stringFromMillis(timeEnd, false);
 
   return (
@@ -41,7 +47,7 @@ const TimesDelayed = (props) => {
         name='duration'
         validate={handleValidate}
         actionHandler={actionHandler}
-        time={timeEnd - timeStart}
+        time={duration}
         delay={0}
       />
     </>
@@ -49,7 +55,7 @@ const TimesDelayed = (props) => {
 };
 
 const Times = (props) => {
-  const { handleValidate, actionHandler, timeStart, timeEnd } = props;
+  const { handleValidate, actionHandler, timeStart, timeEnd, duration } = props;
 
   return (
     <>
@@ -69,12 +75,12 @@ const Times = (props) => {
         time={timeEnd}
         delay={0}
       />
-      <span style={label}>Duration (min)</span>
+      <span style={label}>Duration</span>
       <EditableTimer
         name='durationOverride'
         validate={handleValidate}
         actionHandler={actionHandler}
-        time={timeEnd - timeStart}
+        time={duration}
         delay={0}
       />
     </>
@@ -82,7 +88,7 @@ const Times = (props) => {
 };
 
 export default function EventTimesVertical(props) {
-  const { delay, timeStart, timeEnd } = props;
+  const { delay, timeStart, timeEnd, duration } = props;
   const handleValidate = (entry, v) => {
     // we dont enforce validation here
 
@@ -107,6 +113,7 @@ export default function EventTimesVertical(props) {
       delay={delay}
       timeStart={timeStart}
       timeEnd={timeEnd}
+      duration={duration}
     />
   ) : (
     <Times
@@ -114,6 +121,7 @@ export default function EventTimesVertical(props) {
       actionHandler={props.actionHandler}
       timeStart={timeStart}
       timeEnd={timeEnd}
+      duration={duration}
     />
   );
 }
