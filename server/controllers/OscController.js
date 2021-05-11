@@ -56,6 +56,7 @@ const initiateOSC = (config) => {
         break;
       case 'goto':
         console.log('calling goto with', args);
+        global.timer.loadEventById(args.toLowerCase());
         break;
 
       default:

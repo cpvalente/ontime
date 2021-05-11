@@ -14,6 +14,8 @@ import style from './EventBlock.module.css';
 const ExpandedBlock = (props) => {
   const { provided, data, next, delay, delayValue, actionHandler } = props;
 
+  const oscid = data.id.length > 4 ? '...' : data.id;
+
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
@@ -69,6 +71,7 @@ const ExpandedBlock = (props) => {
             actionHandler('update', { field: 'note', value: v })
           }
         />
+        <span className={style.oscLabel}>{`OSC ID: ${oscid}`}</span>
       </div>
       <Icon
         className={style.more}

@@ -2,7 +2,8 @@
 const db = require('../app.js').db;
 
 // utils
-const { nanoid } = require('nanoid');
+const customAlphabet = require('nanoid').customAlphabet;
+const nanoid = customAlphabet('1234567890abcdef', 4);
 const eventDefs = require('../data/eventsDefinition.js');
 
 function _getEventsCount() {
@@ -85,7 +86,7 @@ exports.eventsPost = async (req, res) => {
 
   // ensure structure
   let newEvent = {};
-  req.body.id = nanoid(6);
+  req.body.id = nanoid();
 
   switch (req.body.type) {
     case 'event':

@@ -424,6 +424,22 @@ class EventTimer extends Timer {
     this.broadcastState();
   }
 
+  loadEventById(eventId) {
+    let eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
+
+    console.log(
+      eventId,
+      this.selectedEventId,
+      eventIndex === this.selectedEventId
+    );
+
+    if (eventIndex === -1) return;
+    this.pause();
+    this.loadEvent(eventIndex);
+
+    this.broadcastState();
+  }
+
   // Loads a given event
   // load timers
   // load selectedEvent

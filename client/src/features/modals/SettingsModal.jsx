@@ -14,11 +14,7 @@ import {
   Button,
   Textarea,
 } from '@chakra-ui/react';
-import {
-  fetchEvent,
-  postEvent,
-  eventNamespace,
-} from '../../app/api/eventApi';
+import { fetchEvent, postEvent, eventNamespace } from '../../app/api/eventApi';
 import { useEffect, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
 
