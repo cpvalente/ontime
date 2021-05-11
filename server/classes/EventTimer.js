@@ -347,7 +347,7 @@ class EventTimer extends Timer {
     const numEvents = events.length;
 
     // set general
-    this._eventList = events;
+    this._eventlist = events;
     this.numEvents = numEvents;
 
     // list may be empty
@@ -363,7 +363,7 @@ class EventTimer extends Timer {
     const numEvents = events.length;
 
     // set general
-    this._eventList = events;
+    this._eventlist = events;
     this.numEvents = numEvents;
 
     // list may be empty
@@ -375,7 +375,7 @@ class EventTimer extends Timer {
     // handle reload selected
     if (this.selectedEventId != null) {
       // Look for event (order might have changed)
-      const eventIndex = this._eventList.findIndex(
+      const eventIndex = this._eventlist.findIndex(
         (e) => e.id === this.selectedEventId
       );
 
@@ -395,12 +395,12 @@ class EventTimer extends Timer {
 
   updateSingleEvent(id, entry) {
     // find object in events
-    const eventIndex = this._eventList.findIndex((e) => e.id === id);
+    const eventIndex = this._eventlist.findIndex((e) => e.id === id);
     if (eventIndex === -1) return;
 
     // update event in memory
-    const e = this._eventList[eventIndex];
-    this._eventList[eventIndex] = { ...e, ...entry };
+    const e = this._eventlist[eventIndex];
+    this._eventlist[eventIndex] = { ...e, ...entry };
 
     try {
       // check if entry is running
@@ -429,7 +429,7 @@ class EventTimer extends Timer {
   // load selectedEvent
   // load titles
   loadEvent(eventIndex, type = 'load') {
-    const e = this._eventList[eventIndex];
+    const e = this._eventlist[eventIndex];
 
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
     let end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
@@ -462,7 +462,7 @@ class EventTimer extends Timer {
   }
 
   _loadTitlesNow() {
-    const e = this._eventList[this.selectedEvent];
+    const e = this._eventlist[this.selectedEvent];
     if (e == null) return;
 
     // private title is always current
@@ -490,13 +490,13 @@ class EventTimer extends Timer {
       // iterate backwards to find it
       for (let i = this.selectedEvent; i >= 0; i--) {
         if (
-          this._eventList[i].type === 'event' &&
-          this._eventList[i].isPublic
+          this._eventlist[i].type === 'event' &&
+          this._eventlist[i].isPublic
         ) {
-          this.titlesPublic.titleNow = this._eventList[i].title;
-          this.titlesPublic.subtitleNow = this._eventList[i].subtitle;
-          this.titlesPublic.presenterNow = this._eventList[i].presenter;
-          this.selectedPublicEventId = this._eventList[i].id;
+          this.titlesPublic.titleNow = this._eventlist[i].title;
+          this.titlesPublic.subtitleNow = this._eventlist[i].subtitle;
+          this.titlesPublic.presenterNow = this._eventlist[i].presenter;
+          this.selectedPublicEventId = this._eventlist[i].id;
           break;
         }
       }
@@ -524,22 +524,22 @@ class EventTimer extends Timer {
 
       for (let i = this.selectedEvent + 1; i < this.numEvents; i++) {
         // check that is the right type
-        if (this._eventList[i].type === 'event') {
+        if (this._eventlist[i].type === 'event') {
           // if we have not set private
           if (!nextPrivate) {
-            this.titles.titleNext = this._eventList[i].title;
-            this.titles.subtitleNext = this._eventList[i].subtitle;
-            this.titles.presenterNext = this._eventList[i].presenter;
-            this.nextEventId = this._eventList[i].id;
+            this.titles.titleNext = this._eventlist[i].title;
+            this.titles.subtitleNext = this._eventlist[i].subtitle;
+            this.titles.presenterNext = this._eventlist[i].presenter;
+            this.nextEventId = this._eventlist[i].id;
             nextPrivate = true;
           }
 
           // if event is public
-          if (this._eventList[i].isPublic) {
-            this.titlesPublic.titleNext = this._eventList[i].title;
-            this.titlesPublic.subtitleNext = this._eventList[i].subtitle;
-            this.titlesPublic.presenterNext = this._eventList[i].presenter;
-            this.nextPublicEventId = this._eventList[i].id;
+          if (this._eventlist[i].isPublic) {
+            this.titlesPublic.titleNext = this._eventlist[i].title;
+            this.titlesPublic.subtitleNext = this._eventlist[i].subtitle;
+            this.titlesPublic.presenterNext = this._eventlist[i].presenter;
+            this.nextPublicEventId = this._eventlist[i].id;
             nextPublic = true;
           }
         }
