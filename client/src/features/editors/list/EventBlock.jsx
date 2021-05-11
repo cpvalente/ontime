@@ -1,6 +1,6 @@
 import Icon from '@chakra-ui/icon';
 import { FiChevronDown, FiChevronUp, FiMoreVertical } from 'react-icons/fi';
-import { memo, useState } from 'react';
+import { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import EventTimesVertical from '../../../common/components/eventTimes/EventTimesVertical';
@@ -10,16 +10,6 @@ import VisibleIconBtn from '../../../common/components/buttons/VisibleIconBtn';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 import { millisToMinutes } from '../../../common/dateConfig';
 import style from './EventBlock.module.css';
-
-const areEqual = (prevProps, nextProps) => {
-  return (
-    prevProps.data.revision === nextProps.data.revision &&
-    prevProps.selected === nextProps.selected &&
-    prevProps.next === nextProps.next &&
-    prevProps.index === nextProps.index &&
-    prevProps.delay === nextProps.delay
-  );
-};
 
 const ExpandedBlock = (props) => {
   const { provided, data, next, delay, delayValue, actionHandler } = props;
@@ -153,7 +143,7 @@ const CollapsedBlock = (props) => {
   );
 };
 
-const EventBlock = (props) => {
+export default function EventBlock(props) {
   const { data, selected, delay, index, actionHandler } = props;
 
   const [expanded, setExpanded] = useState(true);
@@ -200,6 +190,4 @@ const EventBlock = (props) => {
       )}
     </Draggable>
   );
-};
-
-export default memo(EventBlock, areEqual);
+}

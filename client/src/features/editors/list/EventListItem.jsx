@@ -2,8 +2,19 @@ import DelayBlock from './DelayBlock';
 import BlockBlock from './BlockBlock';
 import EventBlock from './EventBlock';
 import { showErrorToast } from '../../../common/helpers/toastManager';
+import { memo } from 'react';
 
-export default function EventListItem(props) {
+const areEqual = (prevProps, nextProps) => {
+  return (
+    prevProps.data.revision === nextProps.data.revision &&
+    prevProps.selected === nextProps.selected &&
+    prevProps.next === nextProps.next &&
+    prevProps.index === nextProps.index &&
+    prevProps.delay === nextProps.delay
+  );
+};
+
+const EventListItem = (props) => {
   const {
     type,
     index,
@@ -27,7 +38,7 @@ export default function EventListItem(props) {
       case 'block':
         eventsHandler('add', { type: 'block', order: index + 1 });
         break;
-        case 'delete':
+      case 'delete':
         eventsHandler('delete', data.id);
         break;
       case 'update':
@@ -83,4 +94,6 @@ export default function EventListItem(props) {
     default:
       break;
   }
-}
+};
+
+export default memo(EventListItem, areEqual);
