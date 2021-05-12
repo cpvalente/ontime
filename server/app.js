@@ -13,6 +13,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { dbModel } = require('./data/dataModel.js');
+const path = require('path');
 
 db.defaults(dbModel).write();
 
@@ -48,9 +49,11 @@ app.use(express.json());
 app.use('/events', eventsRouter);
 app.use('/event', eventRouter);
 
-// implement general router
-app.get('/', (req, res) => {
-  res.send('ontime API');
+// serve react
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'));
 });
 
 // Implement route for errors

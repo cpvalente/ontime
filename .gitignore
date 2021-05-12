@@ -32,3 +32,4 @@ server/db.json
 yarn.lock
 package.json
 package-lock.json
+db.json
