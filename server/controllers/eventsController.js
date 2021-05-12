@@ -61,6 +61,11 @@ function _updateTimersSingle(id, entry) {
   global.timer.updateSingleEvent(id, entry);
 }
 
+// Delete a single entry in timer object
+function _deleteTimerId(entryId) {
+  global.timer.deleteId(entryId);
+}
+
 // Create controller for GET request to '/events'
 // Returns -
 exports.eventsGetAll = async (req, res) => {
@@ -281,7 +286,7 @@ exports.eventsDelete = async (req, res) => {
     _removeById(req.params.eventId);
 
     // update timer
-    _updateTimers();
+    _deleteTimerId(req.params.eventId);
 
     res.sendStatus(201);
   } catch (error) {

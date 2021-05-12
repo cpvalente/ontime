@@ -49,7 +49,7 @@ class EventTimer extends Timer {
     presenterNext: null,
   };
 
-  selectedEvent = null;
+  selectedEventIndex = null;
   selectedEventId = null;
   nextEventId = null;
   selectedPublicEventId = null;
@@ -411,7 +411,7 @@ class EventTimer extends Timer {
           this.selectedEventId === id && this._startedAt != null
             ? 'reload'
             : 'load';
-        this.loadEvent(this.selectedEvent, type);
+        this.loadEvent(this.selectedEventIndex, type);
       } else if ('title' in e || 'subtitle' in e || 'presenter') {
         // TODO: should be more selective on the need to load titles
         this._loadTitlesNext();
@@ -424,14 +424,38 @@ class EventTimer extends Timer {
     this.broadcastState();
   }
 
+  deleteId(eventId) {
+    // find object in events
+    const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
+    if (eventIndex === -1) return;
+
+    // delete event and update count
+    this._eventlist.splice(eventIndex, 1);
+    this.numEvents = this._eventlist.length;
+
+    // reload data if necessary
+    if (eventId === this.selectedEventId) {
+      this.unload();
+      return;
+    }
+
+    // update selected event index
+    this.selectedEventIndex = this._eventlist.findIndex(
+      (e) => e.id === eventId
+    );
+
+    // reload titles if necessary
+    if (eventId === this.nextEventId || eventId === this.nextPublicEventId) {
+      this._loadTitlesNext();
+    } else if (eventId === this.selectedPublicEventId) {
+      this._loadTitlesNow();
+    }
+
+    this.broadcastState();
+  }
+
   loadEventById(eventId) {
     let eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
-
-    console.log(
-      eventId,
-      this.selectedEventId,
-      eventIndex === this.selectedEventId
-    );
 
     if (eventIndex === -1) return;
     this.pause();
@@ -442,10 +466,12 @@ class EventTimer extends Timer {
 
   // Loads a given event
   // load timers
-  // load selectedEvent
+  // load selectedEventIndex
   // load titles
   loadEvent(eventIndex, type = 'load') {
     const e = this._eventlist[eventIndex];
+
+    if (e == null) return;
 
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
     let end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
@@ -459,14 +485,14 @@ class EventTimer extends Timer {
 
       this.duration = end - start;
       this.current = this.duration;
-      this.selectedEvent = eventIndex;
+      this.selectedEventIndex = eventIndex;
       this.selectedEventId = e.id;
     } else if (type === 'reload') {
       const now = this._getCurrentTime();
       const elapsed = this.getElapsed();
 
       this.duration = end - start;
-      this.selectedEvent = eventIndex;
+      this.selectedEventIndex = eventIndex;
       this._finishAt = now + (this.duration - elapsed);
     }
 
@@ -478,7 +504,7 @@ class EventTimer extends Timer {
   }
 
   _loadTitlesNow() {
-    const e = this._eventlist[this.selectedEvent];
+    const e = this._eventlist[this.selectedEventIndex];
     if (e == null) return;
 
     // private title is always current
@@ -501,10 +527,10 @@ class EventTimer extends Timer {
       this.selectedPublicEventId = null;
 
       // if there is nothing before, return
-      if (this.selectedEvent === 0) return;
+      if (this.selectedEventIndex === 0) return;
 
       // iterate backwards to find it
-      for (let i = this.selectedEvent; i >= 0; i--) {
+      for (let i = this.selectedEventIndex; i >= 0; i--) {
         if (
           this._eventlist[i].type === 'event' &&
           this._eventlist[i].isPublic
@@ -521,7 +547,7 @@ class EventTimer extends Timer {
 
   _loadTitlesNext() {
     // maybe there is nothing to load
-    if (this.selectedEvent == null) return;
+    if (this.selectedEventIndex == null) return;
 
     // assume there is no next event
     this.titles.titleNext = null;
@@ -534,11 +560,11 @@ class EventTimer extends Timer {
     this.titlesPublic.presenterNext = null;
     this.nextPublicEventId = null;
 
-    if (this.selectedEvent < this.numEvents - 1) {
+    if (this.selectedEventIndex < this.numEvents - 1) {
       let nextPublic = false;
       let nextPrivate = false;
 
-      for (let i = this.selectedEvent + 1; i < this.numEvents; i++) {
+      for (let i = this.selectedEventIndex + 1; i < this.numEvents; i++) {
         // check that is the right type
         if (this._eventlist[i].type === 'event') {
           // if we have not set private
@@ -585,7 +611,7 @@ class EventTimer extends Timer {
       presenterNext: null,
     };
 
-    this.selectedEvent = null;
+    this.selectedEventIndex = null;
     this.selectedEventId = null;
     this.nextEventId = null;
     this.selectedPublicEventId = null;
@@ -606,7 +632,7 @@ class EventTimer extends Timer {
       Events
       ------------------------------
       numEvents             = ${this.numEvents}
-      selectedEvent         = ${this.selectedEvent}
+      selectedEventIndex    = ${this.selectedEventIndex}
       selectedEventId       = ${this.selectedEventId}
       nextEventId           = ${this.nextEventId}
       selectedPublicEventId = ${this.selectedPublicEventId}
@@ -701,13 +727,14 @@ class EventTimer extends Timer {
     if (this.numEvents < 1) return;
 
     // if there is no event running, go to first
-    if (this.selectedEvent == null) {
+    if (this.selectedEventIndex == null) {
       this.loadEvent(0);
       return;
     }
-    const gotoEvent = this.selectedEvent > 0 ? this.selectedEvent - 1 : 0;
+    const gotoEvent =
+      this.selectedEventIndex > 0 ? this.selectedEventIndex - 1 : 0;
 
-    if (gotoEvent === this.selectedEvent) return;
+    if (gotoEvent === this.selectedEventIndex) return;
     this.loadEvent(gotoEvent);
 
     // change playstate
@@ -719,17 +746,17 @@ class EventTimer extends Timer {
     if (this.numEvents < 1) return;
 
     // if there is no event running, go to first
-    if (this.selectedEvent == null) {
+    if (this.selectedEventIndex == null) {
       this.loadEvent(0);
       return;
     }
 
     const gotoEvent =
-      this.selectedEvent < this.numEvents - 1
-        ? this.selectedEvent + 1
+      this.selectedEventIndex < this.numEvents - 1
+        ? this.selectedEventIndex + 1
         : this.numEvents - 1;
 
-    if (gotoEvent === this.selectedEvent) return;
+    if (gotoEvent === this.selectedEventIndex) return;
     this.loadEvent(gotoEvent);
 
     // change playstate
@@ -749,7 +776,7 @@ class EventTimer extends Timer {
 
   reload() {
     // reload data
-    this.loadEvent(this.selectedEvent);
+    this.loadEvent(this.selectedEventIndex);
 
     // reset playstate
     this.pause();
