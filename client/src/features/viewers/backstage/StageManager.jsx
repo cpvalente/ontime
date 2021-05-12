@@ -1,11 +1,11 @@
 import QRCode from 'react-qr-code';
-import { formatDisplay } from '../../../common/dateConfig';
+import { formatDisplay } from 'common/dateConfig';
 import style from './StageManager.module.css';
-import Paginator from '../../../common/components/views/Paginator';
-import NavLogo from '../../../common/components/nav/NavLogo';
+import Paginator from 'common/components/views/Paginator';
+import NavLogo from 'common/components/nav/NavLogo';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import TitleSide from '../../../common/components/views/TitleSide';
+import TitleSide from 'common/components/views/TitleSide';
 
 export default function StageManager(props) {
   const { publ, title, time, backstageEvents, selectedId, general } = props;

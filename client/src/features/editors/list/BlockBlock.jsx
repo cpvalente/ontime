@@ -1,6 +1,6 @@
 import { Draggable } from 'react-beautiful-dnd';
 import { FiMoreVertical } from 'react-icons/fi';
-import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
+import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import ActionButtons from './ActionButtons';
 import style from './BlockBlock.module.css';
 

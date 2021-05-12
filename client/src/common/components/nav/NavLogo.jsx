@@ -3,7 +3,7 @@ import { Image } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import tinykeys from 'tinykeys';
-import navlogo from '../../../assets/images/logos/LOGO-72.png';
+import navlogo from 'assets/images/logos/LOGO-72.png';
 import style from './NavLogo.module.css';
 
 export default function NavLogo() {

@@ -1,7 +1,7 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useEffect, useState } from 'react';
-import { useSocket } from '../../app/context/socketContext';
-import VisibleIconBtn from '../../common/components/buttons/VisibleIconBtn';
+import { useSocket } from 'app/context/socketContext';
+import VisibleIconBtn from 'common/components/buttons/VisibleIconBtn';
 import style from './MessageControl.module.css';
 
 const inputProps = {

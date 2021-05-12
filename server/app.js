@@ -4,23 +4,20 @@ const config = require('./config.json');
 // init database
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+
 const adapter = new FileSync(config.database.filename);
 const db = low(adapter);
-
-// TODO: move defaults to config file
-db.defaults({
-  events: [],
-  event: { title: '', url: '', publicInfo: '', backstageInfo: '' },
-  settings: {},
-}).write();
-
-// export db
-module.exports.db = db;
 
 // dependencies
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const dataModel = require('./data/dataModel.js');
+
+db.defaults(dataModel).write();
+
+// export db
+module.exports.db = db;
 
 // Import Routes
 const eventsRouter = require('./routes/eventsRouter.js');
@@ -52,7 +49,7 @@ app.use('/events', eventsRouter);
 app.use('/event', eventRouter);
 
 // implement general router
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
   res.send('ontime API');
 });
 
@@ -70,11 +67,14 @@ const eventlist = db.get('events').value();
 
 // init timer
 global.timer = new EventTimer(server, config);
-timer.setupWithEventList(eventlist);
+global.timer.setupWithEventList(eventlist);
 
 // Start server
-server.listen(port, () => console.log(`HTTP Server is listening on port ${port}`));
+server.listen(port, () =>
+  console.log(`HTTP Server is listening on port ${port}`)
+);
 
 // Start OSC server
-const initiateOSC = require('./controllers/OscController.js').initiateOSC;
+const { initiateOSC } = require('./controllers/OscController.js');
+
 initiateOSC(config.osc);

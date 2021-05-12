@@ -9,12 +9,12 @@ import {
   requestDelete,
   requestReorder,
   requestApplyDelay,
-} from '../../../app/api/eventsApi.js';
+} from 'app/api/eventsApi.js';
 import EventList from './EventList';
-import EventListMenu from '../../menu/EventListMenu.jsx';
-import { showErrorToast } from '../../../common/helpers/toastManager';
-import { useFetch } from '../../../app/hooks/useFetch.js';
-import Empty from '../../../common/state/Empty';
+import EventListMenu from 'features/menu/EventListMenu.jsx';
+import { showErrorToast } from 'common/helpers/toastManager';
+import { useFetch } from 'app/hooks/useFetch.js';
+import Empty from 'common/state/Empty';
 
 export default function EventListWrapper() {
   const queryClient = useQueryClient();

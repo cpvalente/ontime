@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { formatDisplay } from '../../dateConfig';
+import { formatDisplay } from 'common/dateConfig';
 import styles from './Countdown.module.css';
 
 const Countdown = ({ time, small, negative, hideZeroHours }) => {

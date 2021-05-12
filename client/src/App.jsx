@@ -2,26 +2,26 @@ import { lazy, Suspense } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import './App.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import SocketProvider from './app/context/socketContext';
-import withSocket from './features/viewers/ViewWrapper';
+import SocketProvider from 'app/context/socketContext';
+import withSocket from 'features/viewers/ViewWrapper';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import Empty from './common/state/Empty';
+import Empty from 'common/state/Empty';
 
-const Editor = lazy(() => import('./features/editors/Editor'));
+const Editor = lazy(() => import('features/editors/Editor'));
 const PresenterView = lazy(() =>
-  import('./features/viewers/presenter/PresenterView')
+  import('features/viewers/presenter/PresenterView')
 );
 const PresenterSimple = lazy(() =>
-  import('./features/viewers/presenter/PresenterSimple')
+  import('features/viewers/presenter/PresenterSimple')
 );
 const StageManager = lazy(() =>
-  import('./features/viewers/backstage/StageManager')
+  import('features/viewers/backstage/StageManager')
 );
-const Public = lazy(() => import('./features/viewers/foh/Public'));
+const Public = lazy(() => import('features/viewers/foh/Public'));
 const Lower = lazy(() =>
-  import('./features/viewers/production/lower/LowerWrapper')
+  import('features/viewers/production/lower/LowerWrapper')
 );
-const Pip = lazy(() => import('./features/viewers/production/Pip'));
+const Pip = lazy(() => import('features/viewers/production/Pip'));
 
 const queryClient = new QueryClient();
 // Seemed to cause issues

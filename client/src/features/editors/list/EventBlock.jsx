@@ -2,13 +2,13 @@ import Icon from '@chakra-ui/icon';
 import { FiChevronDown, FiChevronUp, FiMoreVertical } from 'react-icons/fi';
 import { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import EventTimes from '../../../common/components/eventTimes/EventTimes';
-import EventTimesVertical from '../../../common/components/eventTimes/EventTimesVertical';
-import EditableText from '../../../common/input/EditableText';
+import EventTimes from 'common/components/eventTimes/EventTimes';
+import EventTimesVertical from 'common/components/eventTimes/EventTimesVertical';
+import EditableText from 'common/input/EditableText';
 import ActionButtons from './ActionButtons';
-import VisibleIconBtn from '../../../common/components/buttons/VisibleIconBtn';
-import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
-import { millisToMinutes } from '../../../common/dateConfig';
+import VisibleIconBtn from 'common/components/buttons/VisibleIconBtn';
+import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
+import { millisToMinutes } from 'common/dateConfig';
 import style from './EventBlock.module.css';
 
 const ExpandedBlock = (props) => {

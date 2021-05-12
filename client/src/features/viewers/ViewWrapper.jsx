@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { eventsNamespace, fetchAllEvents } from '../../app/api/eventsApi';
-import { fetchEvent, eventNamespace } from '../../app/api/eventApi';
-import { useSocket } from '../../app/context/socketContext';
-import { stringFromMillis } from '../../common/dateConfig';
-import { useFetch } from '../../app/hooks/useFetch';
+import { eventsNamespace, fetchAllEvents } from 'app/api/eventsApi';
+import { fetchEvent, eventNamespace } from 'app/api/eventApi';
+import { useSocket } from 'app/context/socketContext';
+import { stringFromMillis } from 'common/dateConfig';
+import { useFetch } from 'app/hooks/useFetch';
 
 const withSocket = (Component) => {
   const WrappedComponent = (props) => {

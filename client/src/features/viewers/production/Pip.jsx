@@ -1,11 +1,11 @@
 import QRCode from 'react-qr-code';
 import style from './Pip.module.css';
-import Paginator from '../../../common/components/views/Paginator';
-import NavLogo from '../../../common/components/nav/NavLogo';
+import Paginator from 'common/components/views/Paginator';
+import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { formatDisplay } from '../../../common/dateConfig';
-import { ReactComponent as Emptyimage } from '../../../assets/images/empty.svg';
+import { formatDisplay } from 'common/dateConfig';
+import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 
 export default function Pip(props) {
   const { time, backstageEvents, selectedId, general } = props;

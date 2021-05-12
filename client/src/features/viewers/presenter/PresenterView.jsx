@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect } from 'react';
-import Countdown from '../../../common/components/countdown/Countdown';
-import MyProgressBar from '../../../common/components/myProgressBar/MyProgressBar';
-import NavLogo from '../../../common/components/nav/NavLogo';
-import TitleCard from '../../../common/components/views/TitleCard';
+import Countdown from 'common/components/countdown/Countdown';
+import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
+import NavLogo from 'common/components/nav/NavLogo';
+import TitleCard from 'common/components/views/TitleCard';
 import style from './PresenterView.module.css';
 
 export default function PresenterView(props) {
@@ -14,7 +14,7 @@ export default function PresenterView(props) {
     document.title = 'ontime - Speaker Screen';
   }, []);
 
-  
+
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate === 'start';

@@ -1,4 +1,4 @@
-import { ReactComponent as Emptyimage } from '../../assets/images/empty.svg';
+import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 import style from './Empty.module.css';
 
 export default function Empty(props) {

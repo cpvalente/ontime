@@ -51,12 +51,20 @@ const initiateOSC = (config) => {
         break;
       case 'delay':
         console.log('calling delay with', args);
-        let t = parseInt(args);
-        if (!isNaN(t)) global.timer.increment(t * 1000 * 60);
+        try {
+          let t = parseInt(args);
+          if (!isNaN(t)) global.timer.increment(t * 1000 * 60);
+        } catch (error) {
+          console.log('error parsing: ', error);
+        }
         break;
       case 'goto':
         console.log('calling goto with', args);
-        global.timer.loadEventById(args.toLowerCase());
+        try {
+          global.timer.loadEventById(args.toLowerCase());
+        } catch (error) {
+          console.log('error calling goto: ', error);
+        }
         break;
 
       default:

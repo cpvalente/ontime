@@ -1,12 +1,12 @@
 import { memo } from 'react';
 import style from './PlaybackControl.module.css';
-import StartIconBtn from '../../common/components/buttons/StartIconBtn';
-import PauseIconBtn from '../../common/components/buttons/PauseIconBtn';
-import PrevIconBtn from '../../common/components/buttons/PrevIconBtn';
-import NextIconBtn from '../../common/components/buttons/NextIconBtn';
-import RollIconBtn from '../../common/components/buttons/RollIconBtn';
-import UnloadIconBtn from '../../common/components/buttons/UnloadIconBtn';
-import ReloadIconButton from '../../common/components/buttons/ReloadIconBtn';
+import StartIconBtn from 'common/components/buttons/StartIconBtn';
+import PauseIconBtn from 'common/components/buttons/PauseIconBtn';
+import PrevIconBtn from 'common/components/buttons/PrevIconBtn';
+import NextIconBtn from 'common/components/buttons/NextIconBtn';
+import RollIconBtn from 'common/components/buttons/RollIconBtn';
+import UnloadIconBtn from 'common/components/buttons/UnloadIconBtn';
+import ReloadIconButton from 'common/components/buttons/ReloadIconBtn';
 
 const areEqual = (prevProps, nextProps) => {
   return (

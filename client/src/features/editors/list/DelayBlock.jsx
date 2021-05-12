@@ -1,10 +1,10 @@
 import { Draggable } from 'react-beautiful-dnd';
 import { FiMoreVertical } from 'react-icons/fi';
-import { millisToMinutes } from '../../../common/dateConfig';
+import { millisToMinutes } from 'common/dateConfig';
 import ActionButtons from './ActionButtons';
-import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
-import ApplyIconBtn from '../../../common/components/buttons/ApplyIconBtn';
-import DelayInput from '../../../common/input/DelayInput';
+import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
+import ApplyIconBtn from 'common/components/buttons/ApplyIconBtn';
+import DelayInput from 'common/input/DelayInput';
 import style from './DelayBlock.module.css';
 
 export default function DelayBlock(props) {

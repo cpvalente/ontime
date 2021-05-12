@@ -1,6 +1,6 @@
-import EditableTimer from '../../input/EditableTimer';
-import { showWarningToast } from '../../helpers/toastManager';
-import { stringFromMillis } from '../../dateConfig';
+import EditableTimer from 'common/input/EditableTimer';
+import { showWarningToast } from 'common/helpers/toastManager';
+import { stringFromMillis } from 'common/dateConfig';
 
 const label = {
   fontSize: '0.75em',

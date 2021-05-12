@@ -1,6 +1,6 @@
 import style from './PlaybackControl.module.css';
-import Countdown from '../../common/components/countdown/Countdown';
-import { stringFromMillis } from '../../common/dateConfig';
+import Countdown from 'common/components/countdown/Countdown';
+import { stringFromMillis } from 'common/dateConfig';
 import { Button } from '@chakra-ui/button';
 import { memo } from 'react';
 

@@ -1,5 +1,5 @@
-import EditableTimer from '../../input/EditableTimer';
-import { showWarningToast } from '../../helpers/toastManager';
+import EditableTimer from 'common/input/EditableTimer';
+import { showWarningToast } from 'common/helpers/toastManager';
 
 export default function EventTimes(props) {
   const { actionHandler, delay, timeStart, timeEnd } = props;

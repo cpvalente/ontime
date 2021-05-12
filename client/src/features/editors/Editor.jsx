@@ -1,13 +1,13 @@
 import { Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import NumberedText from '../../common/components/text/NumberedText';
+import NumberedText from 'common/components/text/NumberedText';
 import PlaybackControl from '../control/PlaybackControl';
 import MessageControl from '../control/MessageControl';
 import styles from './Editor.module.css';
 import EventListWrapper from './list/EventListWrapper';
 import { useDisclosure } from '@chakra-ui/hooks';
 import SettingsModal from '../modals/SettingsModal';
-import SettingsIconBtn from '../../common/components/buttons/SettingsIconBtn';
+import SettingsIconBtn from 'common/components/buttons/SettingsIconBtn';
 import { useEffect } from 'react';
 
 export default function Editor() {

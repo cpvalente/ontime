@@ -1,8 +1,8 @@
 import style from './List.module.css';
 import { Fragment, useEffect, useState } from 'react';
-import { useSocket } from '../../../app/context/socketContext';
+import { useSocket } from 'app/context/socketContext';
 import tinykeys from 'tinykeys';
-import Empty from '../../../common/state/Empty';
+import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -45,7 +45,7 @@ export default function EventList(props) {
     return () => {
       unsubscribe();
     };
-  }, [cursor, events, eventsHandler]);
+  }, [cursor, events.length, eventsHandler]);
 
   // handle incoming messages
   useEffect(() => {

@@ -1,5 +1,6 @@
 // get database
-const db = require('../app.js').db;
+const { db } = require('../app.js');
+
 const table = 'event';
 
 function getSettings() {
@@ -18,7 +19,7 @@ exports.getAll = async (req, res) => {
 // Returns ACK message
 exports.post = async (req, res) => {
   if (!req.body) {
-    res.status(400).send(`No object found in request`);
+    res.status(400).send('No object found in request');
     return;
   }
   // TODO: validate data
@@ -45,7 +46,7 @@ exports.titleGet = async (req, res) => {
 // Returns ACK message
 exports.titlePost = async (req, res) => {
   if (!req.body) {
-    res.status(400).send(`No object found in request`);
+    res.status(400).send('No object found in request');
     return;
   }
 
@@ -61,7 +62,7 @@ exports.titlePost = async (req, res) => {
 // Create controller for GET request to '/event/url'
 // Returns ACK message
 exports.urlGet = async (req, res) => {
-  let event = getEventOptions();
+  const event = getSettings();
 
   if (event) res.json(event.url);
   else res.sendStatus(400);
@@ -71,7 +72,7 @@ exports.urlGet = async (req, res) => {
 // Returns ACK message
 exports.urlPost = async (req, res) => {
   if (!req.body) {
-    res.status(400).send(`No object found in request`);
+    res.status(400).send('No object found in request');
     return;
   }
 
@@ -97,7 +98,7 @@ exports.publicInfoGet = async (req, res) => {
 // Returns ACK message
 exports.publicInfoPost = async (req, res) => {
   if (!req.body) {
-    res.status(400).send(`No object found in request`);
+    res.status(400).send('No object found in request');
     return;
   }
 
@@ -123,7 +124,7 @@ exports.backstageInfoGet = async (req, res) => {
 // Returns ACK message
 exports.backstageInfoPost = async (req, res) => {
   if (!req.body) {
-    res.status(400).send(`No object found in request`);
+    res.status(400).send('No object found in request');
     return;
   }
 

@@ -1,7 +1,7 @@
 import DelayBlock from './DelayBlock';
 import BlockBlock from './BlockBlock';
 import EventBlock from './EventBlock';
-import { showErrorToast } from '../../../common/helpers/toastManager';
+import { showErrorToast } from 'common/helpers/toastManager';
 import { memo } from 'react';
 
 const areEqual = (prevProps, nextProps) => {
