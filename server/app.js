@@ -12,9 +12,9 @@ const db = low(adapter);
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
-const dataModel = require('./data/dataModel.js');
+const { dbModel } = require('./data/dataModel.js');
 
-db.defaults(dataModel).write();
+db.defaults(dbModel).write();
 
 // export db
 module.exports.db = db;
