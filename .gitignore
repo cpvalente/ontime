@@ -28,3 +28,7 @@ TODO.md
 _SS/
 .vscode/launch.json
 server/db.json
+.eslintrc.json
+yarn.lock
+package.json
+package-lock.json
