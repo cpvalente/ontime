@@ -10,6 +10,7 @@ node_modules/
 
 # production
 build/
+dist/
 
 # misc
 .DS_Store
@@ -27,9 +28,8 @@ TODO.md
 # working stuff
 _SS/
 .vscode/launch.json
-server/db.json
+db.json
 .eslintrc.json
 yarn.lock
 package.json
 package-lock.json
-db.json

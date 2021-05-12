@@ -1,7 +1,10 @@
 {
-  "name": "passport-example",
-  "version": "0.0.1",
-  "description": "Example with Passport (http://www.passportjs.org/)",
+  "name": "my-electron-app",
+  "version": "0.1.0",
+  "author": "your name",
+  "description": "My Electron app",
+  "main": "main.js",
+
   "dependencies": {
     "body-parser": "~1.19.0",
     "express": "~4.17.1",
@@ -13,7 +16,37 @@
     "passport-local": "~1.0.0",
     "socket.io": "^4.0.0"
   },
+  "devDependencies": {
+    "electron": "^12.0.7",
+    "electron-builder": "^22.11.3",
+    "eslint": "^7.26.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0"
+  },
   "scripts": {
-    "start": "node app.js"
-  }
+    "nodestart": "node app.js",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "your.id",
+    "mac": {
+      "category": "your.app.category.type"
+    },
+    "files": [
+      "**/*"
+    ],
+    "extraFiles": [
+      {
+        "from": "../client/build",
+        "to": "resources/client/build",
+        "filter": ["**/*"]
+      }
+    ]  },
+  "postinstall": "electron-builder install-app-deps"
 }
