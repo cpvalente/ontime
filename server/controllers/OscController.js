@@ -20,7 +20,7 @@ const initiateOSC = (config) => {
     if (address !== 'ontime') return;
 
     // get second part (command)
-    switch (path) {
+    switch (path.toLocaleLowerCase()) {
       case 'start':
       case 'play':
         console.log('calling play');
@@ -60,6 +60,16 @@ const initiateOSC = (config) => {
         break;
       case 'goto':
         console.log('calling goto with', args);
+        try {
+          let eventIndex = parseInt(args);
+          if (isNaN(eventIndex) || eventIndex <= 0) return;
+          global.timer.loadEvent(eventIndex - 1, undefined, true);
+        } catch (error) {
+          console.log('error calling goto: ', error);
+        }
+        break;
+      case 'gotoid':
+        console.log('calling gotoid with', args);
         try {
           global.timer.loadEventById(args.toLowerCase());
         } catch (error) {

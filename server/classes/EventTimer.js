@@ -461,18 +461,15 @@ class EventTimer extends Timer {
 
     if (eventIndex === -1) return;
     this.pause();
-    this.loadEvent(eventIndex);
-
-    this.broadcastState();
+    this.loadEvent(eventIndex, true, true);
   }
 
   // Loads a given event
   // load timers
   // load selectedEventIndex
   // load titles
-  loadEvent(eventIndex, type = 'load') {
+  loadEvent(eventIndex, type = 'load', broadcastChange = 'false') {
     const e = this._eventlist[eventIndex];
-
     if (e == null) return;
 
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
@@ -503,6 +500,10 @@ class EventTimer extends Timer {
 
     // look for event after
     this._loadTitlesNext();
+
+    if (broadcastChange)
+      // broadcast current state
+      this.broadcastState();
   }
 
   _loadTitlesNow() {
