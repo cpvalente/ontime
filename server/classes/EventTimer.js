@@ -734,14 +734,15 @@ class EventTimer extends Timer {
       this.loadEvent(0);
       return;
     }
+
+    // change playstate
+    this.pause();
+
     const gotoEvent =
       this.selectedEventIndex > 0 ? this.selectedEventIndex - 1 : 0;
 
     if (gotoEvent === this.selectedEventIndex) return;
     this.loadEvent(gotoEvent);
-
-    // change playstate
-    this.pause();
   }
 
   next() {
@@ -754,6 +755,9 @@ class EventTimer extends Timer {
       return;
     }
 
+    // change playstate
+    this.pause();
+
     const gotoEvent =
       this.selectedEventIndex < this.numEvents - 1
         ? this.selectedEventIndex + 1
@@ -761,9 +765,6 @@ class EventTimer extends Timer {
 
     if (gotoEvent === this.selectedEventIndex) return;
     this.loadEvent(gotoEvent);
-
-    // change playstate
-    this.pause();
   }
 
   unload() {
