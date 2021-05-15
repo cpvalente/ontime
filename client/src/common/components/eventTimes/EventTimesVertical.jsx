@@ -8,14 +8,8 @@ const label = {
 };
 
 const TimesDelayed = (props) => {
-  const {
-    handleValidate,
-    actionHandler,
-    delay,
-    timeStart,
-    timeEnd,
-    duration,
-  } = props;
+  const { handleValidate, actionHandler, delay, timeStart, timeEnd, duration } =
+    props;
 
   const scheduledStart = stringFromMillis(timeStart, false);
   const scheduledEnd = stringFromMillis(timeEnd, false);
@@ -44,7 +38,7 @@ const TimesDelayed = (props) => {
       />
       <span style={label}>Duration</span>
       <EditableTimer
-        name='duration'
+        name='durationOverride'
         validate={handleValidate}
         actionHandler={actionHandler}
         time={duration}

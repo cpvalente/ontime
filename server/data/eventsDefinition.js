@@ -13,6 +13,7 @@ const event = {
 const delay = {
   duration: 0,
   type: 'delay',
+  revision: 0,
 };
 
 const block = {
