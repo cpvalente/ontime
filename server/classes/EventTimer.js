@@ -342,6 +342,8 @@ class EventTimer extends Timer {
   }
 
   setupWithEventList(eventlist) {
+    if (!Array.isArray(eventlist) || eventlist.length < 1) return;
+
     // filter only events
     const events = eventlist.filter((e) => e.type === 'event');
     const numEvents = events.length;
