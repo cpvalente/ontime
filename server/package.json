@@ -1,10 +1,9 @@
 {
-  "name": "my-electron-app",
+  "name": "ontime",
   "version": "0.1.0",
-  "author": "your name",
-  "description": "My Electron app",
+  "author": "Carlos Valente",
+  "description": "Time keeping for live events",
   "main": "main.js",
-
   "dependencies": {
     "body-parser": "~1.19.0",
     "express": "~4.17.1",
@@ -17,6 +16,8 @@
     "socket.io": "^4.0.0"
   },
   "devDependencies": {
+    "@electron/remote": "^1.1.0",
+    "concurrently": "^6.1.0",
     "electron": "^12.0.7",
     "electron-builder": "^22.11.3",
     "eslint": "^7.26.0",
@@ -31,7 +32,8 @@
     "nodestart": "node app.js",
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "startall": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "build": {
     "appId": "your.id",
@@ -45,8 +47,11 @@
       {
         "from": "../client/build",
         "to": "resources/client/build",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
-    ]  },
+    ]
+  },
   "postinstall": "electron-builder install-app-deps"
 }
