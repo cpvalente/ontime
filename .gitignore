@@ -10,6 +10,7 @@ node_modules/
 
 # production
 build/
+dist/
 
 # misc
 .DS_Store
@@ -32,3 +33,4 @@ server/db.json
 yarn.lock
 package.json
 package-lock.json
+db.json
