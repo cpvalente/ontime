@@ -129,7 +129,7 @@ export default function MessageControl() {
         text={lower.text}
         visible={lower.visible}
         changeHandler={(event) => messageControl('lower-text', event)}
-        actionHandler={() => messageControl('toggle-publ-visible')}
+        actionHandler={() => messageControl('toggle-lower-visible')}
       />
     </div>
   );
