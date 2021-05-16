@@ -779,11 +779,11 @@ class EventTimer extends Timer {
   }
 
   reload() {
-    // reload data
-    this.loadEvent(this.selectedEventIndex);
-
     // reset playstate
     this.pause();
+
+    // reload data
+    this.loadEvent(this.selectedEventIndex);
   }
 }
 
