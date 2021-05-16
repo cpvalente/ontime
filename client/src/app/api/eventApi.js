@@ -1,8 +1,5 @@
 import axios from 'axios';
-import { serverURL } from './apiConstants';
-
-export const eventNamespace = 'event';
-export const eventURL = serverURL + eventNamespace;
+import { eventURL } from './apiConstants';
 
 export const fetchEvent = async () => {
   const res = await axios.get(eventURL);

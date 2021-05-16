@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { useCallback, useEffect } from 'react';
 import {
-  eventsNamespace,
   fetchAllEvents,
   requestPatch,
   requestPost,
@@ -15,11 +14,12 @@ import EventListMenu from 'features/menu/EventListMenu.jsx';
 import { showErrorToast } from 'common/helpers/toastManager';
 import { useFetch } from 'app/hooks/useFetch.js';
 import Empty from 'common/state/Empty';
+import { EVENTS_TABLE } from 'app/api/apiConstants';
 
 export default function EventListWrapper() {
   const queryClient = useQueryClient();
   const { data, status, isError, refetch } = useFetch(
-    eventsNamespace,
+    EVENTS_TABLE,
     fetchAllEvents
   );
 
@@ -27,14 +27,14 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      queryClient.cancelQueries(eventsNamespace, { exact: true });
+      queryClient.cancelQueries(EVENTS_TABLE, { exact: true });
 
       // Snapshot the previous value
-      let previousEvents = queryClient.getQueryData(eventsNamespace);
+      let previousEvents = queryClient.getQueryData(EVENTS_TABLE);
       console.log('debug', previousEvents);
       if (previousEvents == null) {
         refetch();
-        previousEvents = queryClient.getQueryData(eventsNamespace);
+        previousEvents = queryClient.getQueryData(EVENTS_TABLE);
       }
       console.log('debug 2', previousEvents);
 
@@ -44,7 +44,7 @@ export default function EventListWrapper() {
         ...newEvent,
         id: new Date().toISOString(),
       });
-      queryClient.setQueryData(eventsNamespace, optimistic);
+      queryClient.setQueryData(EVENTS_TABLE, optimistic);
 
       // Return a context with the previous and new todo
       return { previousEvents };
@@ -52,12 +52,12 @@ export default function EventListWrapper() {
 
     // Mutation fails, rollback undos optimist update
     onError: (error, newEvent, context) => {
-      queryClient.setQueryData(eventsNamespace, context.previousEvents);
+      queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(eventsNamespace);
+      queryClient.invalidateQueries(EVENTS_TABLE);
     },
   });
 
@@ -65,16 +65,16 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      queryClient.cancelQueries([eventsNamespace, newEvent.id]);
+      queryClient.cancelQueries([EVENTS_TABLE, newEvent.id]);
 
       // Snapshot the previous value
       const previousEvent = queryClient.getQueryData([
-        eventsNamespace,
+        EVENTS_TABLE,
         newEvent.id,
       ]);
 
       // optimistically update object
-      queryClient.setQueryData([eventsNamespace, newEvent.id], newEvent);
+      queryClient.setQueryData([EVENTS_TABLE, newEvent.id], newEvent);
 
       // Return a context with the previous and new todo
       return { previousEvent, newEvent };
@@ -83,14 +83,14 @@ export default function EventListWrapper() {
     // Mutation fails, rollback undos optimist update
     onError: (error, newEvent, context) => {
       queryClient.setQueryData(
-        [eventsNamespace, context.newEvent.id],
+        [EVENTS_TABLE, context.newEvent.id],
         context.previousEvent
       );
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: (newEvent) => {
-      queryClient.invalidateQueries([eventsNamespace, newEvent.id]);
+      queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
     },
   });
 
@@ -98,16 +98,16 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      queryClient.cancelQueries([eventsNamespace, newEvent.id]);
+      queryClient.cancelQueries([EVENTS_TABLE, newEvent.id]);
 
       // Snapshot the previous value
       const previousEvent = queryClient.getQueryData([
-        eventsNamespace,
+        EVENTS_TABLE,
         newEvent.id,
       ]);
 
       // optimistically update object
-      queryClient.setQueryData([eventsNamespace, newEvent.id], newEvent);
+      queryClient.setQueryData([EVENTS_TABLE, newEvent.id], newEvent);
 
       // Return a context with the previous and new todo
       return { previousEvent, newEvent };
@@ -116,14 +116,14 @@ export default function EventListWrapper() {
     // Mutation fails, rollback undos optimist update
     onError: (error, newEvent, context) => {
       queryClient.setQueryData(
-        [eventsNamespace, context.newEvent.id],
+        [EVENTS_TABLE, context.newEvent.id],
         context.previousEvent
       );
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: (newEvent) => {
-      queryClient.invalidateQueries([eventsNamespace, newEvent.id]);
+      queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
     },
   });
 
@@ -131,16 +131,16 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
-      queryClient.cancelQueries([eventsNamespace, eventId]);
+      queryClient.cancelQueries([EVENTS_TABLE, eventId]);
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(eventsNamespace);
+      const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
 
       let filtered = [...previousEvents];
       filtered.filter((e) => e.id === 'eventId');
 
       // optimistically update object
-      queryClient.setQueryData(eventsNamespace, filtered);
+      queryClient.setQueryData(EVENTS_TABLE, filtered);
 
       // Return a context with the previous and new todo
       return { previousEvents };
@@ -148,19 +148,19 @@ export default function EventListWrapper() {
 
     // Mutation fails, rollback undos optimist update
     onError: (error, eventId, context) => {
-      queryClient.setQueryData(eventsNamespace, context.previousEvents);
+      queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(eventsNamespace);
+      queryClient.invalidateQueries(EVENTS_TABLE);
     },
   });
 
   const applyDelay = useMutation(requestApplyDelay, {
     // Mutation finished, failed or successful
     onSettled: () => {
-      queryClient.invalidateQueries(eventsNamespace);
+      queryClient.invalidateQueries(EVENTS_TABLE);
     },
   });
 
@@ -168,17 +168,17 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
-      queryClient.cancelQueries(eventsNamespace, { exact: true });
+      queryClient.cancelQueries(EVENTS_TABLE, { exact: true });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(eventsNamespace);
+      const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
 
       const e = [...previousEvents];
       const [reorderedItem] = e.splice(data.from, 1);
       e.splice(data.to, 0, reorderedItem);
 
       // optimistically update object
-      queryClient.setQueryData(eventsNamespace, e);
+      queryClient.setQueryData(EVENTS_TABLE, e);
 
       // Return a context with the previous and new todo
       return { previousEvents };
@@ -186,12 +186,12 @@ export default function EventListWrapper() {
 
     // Mutation fails, rollback undos optimist update
     onError: (error, eventId, context) => {
-      queryClient.setQueryData(eventsNamespace, context.previousEvents);
+      queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(eventsNamespace);
+      queryClient.invalidateQueries(EVENTS_TABLE);
     },
   });
 

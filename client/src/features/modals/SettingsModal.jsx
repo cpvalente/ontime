@@ -14,12 +14,13 @@ import {
   Button,
   Textarea,
 } from '@chakra-ui/react';
-import { fetchEvent, postEvent, eventNamespace } from 'app/api/eventApi';
+import { fetchEvent, postEvent } from 'app/api/eventApi';
 import { useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
+import { EVENT_TABLE } from 'app/api/apiConstants';
 
 export default function SettingsModal(props) {
-  const { data, status, isError } = useFetch(eventNamespace, fetchEvent);
+  const { data, status, isError } = useFetch(EVENT_TABLE, fetchEvent);
   const [formData, setFormData] = useState({
     title: '',
     url: '',

@@ -1,8 +1,5 @@
 import axios from 'axios';
-import { serverURL } from '../api/apiConstants';
-
-export const playbackNamespace = 'playback';
-const playbackURL = serverURL + playbackNamespace;
+import { playbackURL } from '../api/apiConstants';
 
 export const getStart = async () => {
   const res = await axios.get(playbackURL + '/start');
