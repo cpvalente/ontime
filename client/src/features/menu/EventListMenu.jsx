@@ -10,6 +10,9 @@ import {
 } from '@chakra-ui/react';
 import style from './EventListMenu.module.css';
 import MenuActionButtons from '../editors/list/MenuActionButtons';
+import CollapseBtn from 'common/components/buttons/CollapseBtn';
+import ExpandBtn from 'common/components/buttons/ExpandBtn';
+import CurrentBtn from 'common/components/buttons/CurrentBtn';
 
 const EventListMenu = ({ eventsHandler }) => {
   const buttonProps = {
@@ -69,6 +72,9 @@ const EventListMenu = ({ eventsHandler }) => {
           <MenuItem>Download CSV</MenuItem>
         </MenuList>
       </Menu>
+      <CurrentBtn size='sm' />
+      <CollapseBtn size='sm' />
+      <ExpandBtn size='sm' />
       <MenuActionButtons actionHandler={actionHandler} size='sm' />
     </div>
   );
