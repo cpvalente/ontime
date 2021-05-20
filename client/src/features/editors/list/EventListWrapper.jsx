@@ -206,102 +206,105 @@ export default function EventListWrapper() {
   }, [isError]);
 
   // Events API
-  const eventsHandler = useCallback(async (action, payload) => {
-    switch (action) {
-      case 'add':
-        try {
-          let t = Date.now();
-          await addEvent.mutateAsync(payload);
-          console.log('debug m add', Date.now() - t);
-        } catch (error) {
-          showErrorToast('Error creating event', error.message);
-        }
-        break;
-      case 'update':
-        try {
-          let t = Date.now();
-          await updateEvent.mutateAsync(payload);
-          console.log('debug m update', Date.now() - t);
-        } catch (error) {
-          showErrorToast('Error updating event', error.message);
-        }
-        break;
-      case 'patch':
-        try {
-          let t = Date.now();
-          await patchEvent.mutateAsync(payload);
-          console.log('debug m patch', Date.now() - t);
-        } catch (error) {
-          showErrorToast('Error updating event', error.message);
-        }
-        break;
-      case 'delete':
-        try {
-          let t = Date.now();
-          await deleteEvent.mutateAsync(payload);
-          console.log('debug m delete', Date.now() - t);
-        } catch (error) {
-          showErrorToast('Error deleting event', error.message);
-        }
-        break;
-      case 'reorder':
-        try {
-          let t = Date.now();
-          await reorderEvent.mutateAsync(payload);
-          console.log('debug m reorder', Date.now() - t);
-        } catch (error) {
-          showErrorToast('Error reordering event', error.message);
-        }
-        break;
-      case 'applyDelay':
-        let t = Date.now();
-
-        // if delay <= 0 delete delay and next block
-        if (payload.duration <= 0) {
+  const eventsHandler = useCallback(
+    async (action, payload) => {
+      switch (action) {
+        case 'add':
           try {
-            // look for block after
-            let afterId = false;
-            let blockAfter = null;
-            for (const d of data) {
-              if (d.id === payload.id) afterId = true;
-              if (afterId && d.type === 'block') {
-                blockAfter = d.id;
-                break;
+            let t = Date.now();
+            await addEvent.mutateAsync(payload);
+            console.log('debug m add', Date.now() - t);
+          } catch (error) {
+            showErrorToast('Error creating event', error.message);
+          }
+          break;
+        case 'update':
+          try {
+            let t = Date.now();
+            await updateEvent.mutateAsync(payload);
+            console.log('debug m update', Date.now() - t);
+          } catch (error) {
+            showErrorToast('Error updating event', error.message);
+          }
+          break;
+        case 'patch':
+          try {
+            let t = Date.now();
+            await patchEvent.mutateAsync(payload);
+            console.log('debug m patch', Date.now() - t);
+          } catch (error) {
+            showErrorToast('Error updating event', error.message);
+          }
+          break;
+        case 'delete':
+          try {
+            let t = Date.now();
+            await deleteEvent.mutateAsync(payload);
+            console.log('debug m delete', Date.now() - t);
+          } catch (error) {
+            showErrorToast('Error deleting event', error.message);
+          }
+          break;
+        case 'reorder':
+          try {
+            let t = Date.now();
+            await reorderEvent.mutateAsync(payload);
+            console.log('debug m reorder', Date.now() - t);
+          } catch (error) {
+            showErrorToast('Error reordering event', error.message);
+          }
+          break;
+        case 'applyDelay':
+          let t = Date.now();
+
+          // if delay <= 0 delete delay and next block
+          if (payload.duration <= 0) {
+            try {
+              // look for block after
+              let afterId = false;
+              let blockAfter = null;
+              for (const d of data) {
+                if (d.id === payload.id) afterId = true;
+                if (afterId && d.type === 'block') {
+                  blockAfter = d.id;
+                  break;
+                }
               }
+
+              // delete delay
+              await deleteEvent.mutateAsync(payload.id);
+              // delete block after, if any
+              if (blockAfter) await deleteEvent.mutateAsync(blockAfter);
+            } catch (error) {
+              showErrorToast('Error applying delay', error.message);
             }
-
-            // delete delay
-            await deleteEvent.mutateAsync(payload.id);
-            // delete block after, if any
-            if (blockAfter) await deleteEvent.mutateAsync(blockAfter);
-          } catch (error) {
-            showErrorToast('Error applying delay', error.message);
+          } else {
+            console.log('debug applydelay', payload.id);
+            try {
+              await applyDelay.mutateAsync(payload.id);
+            } catch (error) {
+              showErrorToast('Error applying delay', error.message);
+            }
           }
-        } else {
-          console.log('debug applydelay', payload.id);
-          try {
-            await applyDelay.mutateAsync(payload.id);
-          } catch (error) {
-            showErrorToast('Error applying delay', error.message);
-          }
-        }
-        console.log('debug m apply', Date.now() - t);
-        break;
+          console.log('debug m apply', Date.now() - t);
+          break;
 
-      case 'collapseall':
-        if (data == null) return;
-        setCollapsed({ clear: true, items: data, isCollapsed: true });
-        break;
-      case 'expandall':
-        if (data == null) return;
-        setCollapsed({ clear: true, items: data, isCollapsed: false });
-        break;
+        case 'collapseall':
+          if (data == null) return;
+          setCollapsed({ clear: true, items: data, isCollapsed: true });
+          break;
+        case 'expandall':
+          if (data == null) return;
+          setCollapsed({ clear: true, items: data, isCollapsed: false });
+          break;
 
-      default:
-        showErrorToast('Unrecognised request', action);
-        break;
-    }
-  }, []);
+        default:
+          showErrorToast('Unrecognised request', action);
+          break;
+      }
+    },
+    [data]
+  );
 
   return (
     <>

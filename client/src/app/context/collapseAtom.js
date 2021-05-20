@@ -1,12 +1,24 @@
 const { atom } = require('jotai');
 
 const PATH = 'option-collapse';
+const initialValue = {};
 
 // collapse options object, initialised from local storage
 // REFRACT: When do we read from local storage?
 //          on every render?
 
-export const collapseAtom = atom(JSON.parse(localStorage.getItem(PATH)) || {});
+export const collapseAtom = atom(
+  (get) => {
+    const storedOptions = localStorage.getItem(PATH);
+    if (storedOptions == null) return initialValue;
+
+    return JSON.parse(storedOptions);
+  },
+  (get, set, newValues) => {
+    set(collapseAtom, newValues);
+    localStorage.setItem(PATH, JSON.stringify(newValues));
+  }
+);
 
 // get a single option, if it exists
 export const SelectCollapse = (id) => {
@@ -51,9 +63,6 @@ export const BatchOperation = atom(null, (get, set, payload) => {
 export const setAll = async (items, isCollapsed) => {
   // clear storage
   localStorage.removeItem(PATH);
-
-  // clear local object
-  console.log('debug collapse here', isCollapsed);
 
   // call batch
   BatchOperation({ items: items, isCollapsed: isCollapsed });

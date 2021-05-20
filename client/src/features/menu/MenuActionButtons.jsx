@@ -1,7 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
 import { FiZap, FiPlus, FiClock, FiMinusCircle } from 'react-icons/fi';
-import { useEffect } from 'react';
 
 export default function MenuActionButtons(props) {
   const { actionHandler } = props;
@@ -9,10 +8,6 @@ export default function MenuActionButtons(props) {
     color: '#000000',
     backgroundColor: 'rgba(255,255,255,1)',
   };
-
-  useEffect(() =>{
-    console.log('debug action button render')
-  })
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
