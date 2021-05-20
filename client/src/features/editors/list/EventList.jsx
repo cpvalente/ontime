@@ -1,18 +1,22 @@
 import style from './List.module.css';
-import { Fragment, useEffect, useState } from 'react';
+import { createRef, useEffect, useMemo, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import tinykeys from 'tinykeys';
 import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';
-import { AnimatePresence, motion } from 'framer-motion';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { useAtom } from 'jotai';
+import { SelectSetting } from 'app/context/settingsAtom';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
   const socket = useSocket();
   const [selected, setSelected] = useState(null);
   const [next, setNext] = useState(null);
-  const [cursor, setCursor] = useState(null);
+  const [cursor, setCursor] = useState(0);
+  const [cursorSettings] = useAtom(useMemo(() => SelectSetting('cursor'), []));
+
+  const cursorRef = createRef();
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -52,12 +56,13 @@ export default function EventList(props) {
     if (socket == null) return;
 
     // ask for playstate
-    socket.emit('get-selected-id');
+    socket.emit('get-selected');
     socket.emit('get-next-id');
 
     // Handle playstate
-    socket.on('selected-id', (data) => {
+    socket.on('selected', (data) => {
       setSelected(data);
+      console.log('debug cursor setted', data);
     });
     socket.on('next-id', (data) => {
       setNext(data);
@@ -65,30 +70,34 @@ export default function EventList(props) {
 
     // Clear listener
     return () => {
-      socket.off('selected-id');
+      socket.off('selected');
       socket.off('next-id');
     };
   }, [socket]);
 
+  // attach cursor to selected
+  useEffect(() => {
+    if (cursorSettings !== 'locked' || selected == null) return;
+    if (selected.index == null) return;
+
+    setCursor(selected.index);
+  }, [selected, cursorSettings]);
+
+  // attach scroll to cursor
+  useEffect(() => {
+    if (cursor == null || cursorRef.current == null) return;
+    console.log('debug cursor scrolling');
+
+    cursorRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'start',
+    });
+  }, [cursor, cursorRef]);
+
   if (events.length < 1) {
     return <Empty text='No Events' />;
   }
-
-  // motion
-  const cursorVariants = {
-    hidden: {
-      scale: 0,
-    },
-    visible: {
-      scale: 1,
-      transition: {
-        duration: 0.3,
-      },
-    },
-    exit: {
-      scale: 0,
-    },
-  };
 
   // DND
   const handleOnDragEnd = (result) => {
@@ -109,19 +118,10 @@ export default function EventList(props) {
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
 
+  console.log('debug selected', selected);
+
   return (
     <div className={style.eventContainer}>
-      <AnimatePresence>
-        {cursor === -1 && (
-          <motion.div
-            className={style.cursor}
-            variants={cursorVariants}
-            initial='hidden'
-            animate='visible'
-            exit='exit'
-          />
-        )}
-      </AnimatePresence>
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <Droppable droppableId='eventlist'>
           {(provided) => (
@@ -131,33 +131,27 @@ export default function EventList(props) {
               ref={provided.innerRef}
             >
               {events.map((e, index) => {
+                let isCursor = cursor === index;
                 if (index === 0) cumulativeDelay = 0;
                 if (e.type === 'delay' && e.duration != null) {
                   cumulativeDelay += e.duration;
                 } else if (e.type === 'block') cumulativeDelay = 0;
                 return (
-                  <Fragment key={e.id}>
+                  <div
+                    ref={isCursor ? cursorRef : undefined}
+                    key={e.id}
+                    className={isCursor ? style.cursor : undefined}
+                  >
                     <EventListItem
                       type={e.type}
                       index={index}
                       data={e}
-                      selected={selected === e.id}
+                      selected={selected?.id === e.id}
                       next={next === e.id}
                       eventsHandler={eventsHandler}
                       delay={cumulativeDelay}
                     />
-                    <AnimatePresence>
-                      {cursor === index && (
-                        <motion.div
-                          className={style.cursor}
-                          variants={cursorVariants}
-                          initial='hidden'
-                          animate='visible'
-                          exit='exit'
-                        />
-                      )}
-                    </AnimatePresence>
-                  </Fragment>
+                  </div>
                 );
               })}
               {provided.placeholder}
