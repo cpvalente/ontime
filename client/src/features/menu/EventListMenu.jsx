@@ -73,8 +73,11 @@ const EventListMenu = ({ eventsHandler }) => {
         </MenuList>
       </Menu>
       <CurrentBtn size='sm' />
-      <CollapseBtn size='sm' />
-      <ExpandBtn size='sm' />
+      <CollapseBtn
+        size='sm'
+        clickhandler={() => eventsHandler('collapseall')}
+      />
+      <ExpandBtn size='sm' clickhandler={() => eventsHandler('expandall')} />
       <MenuActionButtons actionHandler={actionHandler} size='sm' />
     </div>
   );

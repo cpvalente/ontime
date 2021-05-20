@@ -15,8 +15,11 @@ import { showErrorToast } from 'common/helpers/toastManager';
 import { useFetch } from 'app/hooks/useFetch.js';
 import Empty from 'common/state/Empty';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
+import { BatchOperation } from 'app/context/collapseAtom';
+import { useAtom } from 'jotai';
 
 export default function EventListWrapper() {
+  const [, setCollapsed] = useAtom(BatchOperation);
   const queryClient = useQueryClient();
   const { data, status, isError, refetch } = useFetch(
     EVENTS_TABLE,
@@ -283,8 +286,17 @@ export default function EventListWrapper() {
           }
         }
         console.log('debug m apply', Date.now() - t);
-
         break;
+
+      case 'collapseall':
+        if (data == null) return;
+        setCollapsed({ clear: true, items: data, isCollapsed: true });
+        break;
+      case 'expandall':
+        if (data == null) return;
+        setCollapsed({ clear: true, items: data, isCollapsed: false });
+        break;
+
       default:
         showErrorToast('Unrecognised request', action);
         break;

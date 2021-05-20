@@ -7,7 +7,7 @@ export default function CollapseBtn(props) {
     <Button
       size={props.size || 'xs'}
       leftIcon={<FiChevronsUp />}
-      colorScheme='whiteAlpha'
+      colorScheme='white'
       variant='outline'
       onClick={clickhandler}
       _focus={{ boxShadow: 'none' }}

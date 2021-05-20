@@ -7,7 +7,7 @@ export default function ExpandBtn(props) {
     <Button
       size={props.size || 'xs'}
       leftIcon={<FiChevronsDown />}
-      colorScheme='whiteAlpha'
+      colorScheme='white'
       variant='outline'
       onClick={clickhandler}
       _focus={{ boxShadow: 'none' }}
