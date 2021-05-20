@@ -75,9 +75,18 @@ export default function EventList(props) {
     };
   }, [socket]);
 
+  // attach cursor to selected
+  useEffect(() => {
+    if (cursorSettings !== 'locked' || selected == null) return;
+    if (selected.index == null) return;
+
+    setCursor(selected.index);
+  }, [selected, cursorSettings]);
+
   // attach scroll to cursor
   useEffect(() => {
     if (cursor == null || cursorRef.current == null) return;
+    console.log('debug cursor scrolling');
 
     cursorRef.current.scrollIntoView({
       behavior: 'smooth',
@@ -85,13 +94,6 @@ export default function EventList(props) {
       inline: 'start',
     });
   }, [cursor, cursorRef]);
-
-  useEffect(() => {
-    if (cursorSettings !== 'locked' || selected == null) return;
-    if (selected.index == null) return;
-
-    setCursor(selected.index);
-  }, [selected, cursorSettings]);
 
   if (events.length < 1) {
     return <Empty text='No Events' />;
@@ -129,14 +131,16 @@ export default function EventList(props) {
               ref={provided.innerRef}
             >
               {events.map((e, index) => {
+                let isCursor = cursor === index;
                 if (index === 0) cumulativeDelay = 0;
                 if (e.type === 'delay' && e.duration != null) {
                   cumulativeDelay += e.duration;
                 } else if (e.type === 'block') cumulativeDelay = 0;
                 return (
                   <div
+                    ref={isCursor ? cursorRef : undefined}
                     key={e.id}
-                    className={cursor === index ? style.cursor : 'undefined'}
+                    className={isCursor ? style.cursor : undefined}
                   >
                     <EventListItem
                       type={e.type}
