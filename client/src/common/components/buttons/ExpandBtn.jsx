@@ -1,18 +1,20 @@
-import { Button } from '@chakra-ui/button';
+import { IconButton } from '@chakra-ui/button';
+import { Tooltip } from '@chakra-ui/tooltip';
 import { FiChevronsDown } from 'react-icons/fi';
 
 export default function ExpandBtn(props) {
   const { clickhandler } = props;
   return (
-    <Button
-      size={props.size || 'xs'}
-      leftIcon={<FiChevronsDown />}
-      colorScheme='white'
-      variant='outline'
-      onClick={clickhandler}
-      _focus={{ boxShadow: 'none' }}
-    >
-      Expand All
-    </Button>
+    <Tooltip label='Expand all'>
+      <IconButton
+        size={props.size || 'xs'}
+        icon={<FiChevronsDown />}
+        colorScheme='white'
+        variant='outline'
+        background='#fff1'
+        onClick={clickhandler}
+        _focus={{ boxShadow: 'none' }}
+      />
+    </Tooltip>
   );
 }
