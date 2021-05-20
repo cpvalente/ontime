@@ -295,3 +295,20 @@ exports.eventsDelete = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
+// Create controller for DELETE request to '/events/:eventId'
+// Returns -
+exports.eventsDeleteAll = async (req, res) => {
+  try {
+    // set with nothing
+    db.set('events', []).write();
+
+    // update timer object
+    _updateTimersSingle();
+
+    res.sendStatus(201);
+  } catch (error) {
+    console.log('debug:', error);
+    res.status(400).send(error);
+  }
+};

@@ -25,6 +25,9 @@ router.patch('/reorder/', eventsController.eventsReorder);
 // create route between controller and '/events/applydelay/:eventId' endpoint
 router.patch('/applydelay/:eventId', eventsController.eventsApplyDelay);
 
+// create route between controller and '/events/all' endpoint
+router.delete('/all', eventsController.eventsDeleteAll);
+
 // create route between controller and '/events/:eventId' endpoint
 router.delete('/:eventId', eventsController.eventsDelete);
 

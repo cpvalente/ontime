@@ -37,3 +37,8 @@ export const requestDelete = async (eventId) => {
   const res = await axios.delete(eventsURL + '/' + eventId);
   return res;
 };
+
+export const requestDeleteAll = async () => {
+  const res = await axios.delete(eventsURL + '/all');
+  return res;
+};

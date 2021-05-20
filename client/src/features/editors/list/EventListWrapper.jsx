@@ -6,6 +6,7 @@ import {
   requestPost,
   requestPut,
   requestDelete,
+  requestDeleteAll,
   requestReorder,
   requestApplyDelay,
 } from 'app/api/eventsApi.js';
@@ -160,6 +161,35 @@ export default function EventListWrapper() {
     },
   });
 
+  const deleteAllEvents = useMutation(requestDeleteAll, {
+    // we optimistically update here
+    onMutate: async () => {
+      // cancel ongoing queries
+      queryClient.cancelQueries(EVENTS_TABLE, { exact: true });
+
+      // Snapshot the previous value
+      const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
+
+      let clear = [];
+
+      // optimistically update object
+      queryClient.setQueryData(EVENTS_TABLE, clear);
+
+      // Return a context with the previous and new todo
+      return { previousEvents };
+    },
+
+    // Mutation fails, rollback undos optimist update
+    onError: (error, eventId, context) => {
+      queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
+    },
+    // Mutation finished, failed or successful
+    // Fetch anyway, just to be sure
+    onSettled: () => {
+      queryClient.invalidateQueries(EVENTS_TABLE);
+    },
+  });
+
   const applyDelay = useMutation(requestApplyDelay, {
     // Mutation finished, failed or successful
     onSettled: () => {
@@ -298,6 +328,15 @@ export default function EventListWrapper() {
           setCollapsed({ clear: true, items: data, isCollapsed: false });
           break;
 
+        case 'deleteall':
+          try {
+            let t = Date.now();
+            await deleteAllEvents.mutateAsync();
+            console.log('debug m deleteall', Date.now() - t);
+          } catch (error) {
+            showErrorToast('Error deleting events', error.message);
+          }
+          break;
         default:
           showErrorToast('Unrecognised request', action);
           break;

@@ -30,6 +30,9 @@ const EventListMenu = ({ eventsHandler }) => {
         }
         SetOption({ cursor: newSet });
         break;
+      case 'deleteall':
+        eventsHandler('deleteall');
+        break;
       default:
         break;
     }
