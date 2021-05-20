@@ -1,10 +1,9 @@
 import style from './List.module.css';
-import { createRef, Fragment, useEffect, useMemo, useState } from 'react';
+import { createRef, useEffect, useMemo, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import tinykeys from 'tinykeys';
 import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';
-import { AnimatePresence, motion } from 'framer-motion';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { useAtom } from 'jotai';
 import { SelectSetting } from 'app/context/settingsAtom';
@@ -94,22 +93,6 @@ export default function EventList(props) {
     return <Empty text='No Events' />;
   }
 
-  // motion
-  const cursorVariants = {
-    hidden: {
-      scale: 0,
-    },
-    visible: {
-      scale: 1,
-      transition: {
-        duration: 0.3,
-      },
-    },
-    exit: {
-      scale: 0,
-    },
-  };
-
   // DND
   const handleOnDragEnd = (result) => {
     // drop outside of area
@@ -131,18 +114,6 @@ export default function EventList(props) {
 
   return (
     <div className={style.eventContainer}>
-      <AnimatePresence>
-        {cursor === -1 && (
-          <motion.div
-            ref={cursorRef}
-            className={style.cursor}
-            variants={cursorVariants}
-            initial='hidden'
-            animate='visible'
-            exit='exit'
-          />
-        )}
-      </AnimatePresence>
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <Droppable droppableId='eventlist'>
           {(provided) => (
@@ -157,7 +128,10 @@ export default function EventList(props) {
                   cumulativeDelay += e.duration;
                 } else if (e.type === 'block') cumulativeDelay = 0;
                 return (
-                  <Fragment key={e.id}>
+                  <div
+                    key={e.id}
+                    className={cursor === index ? style.cursor : 'undefined'}
+                  >
                     <EventListItem
                       type={e.type}
                       index={index}
@@ -167,19 +141,7 @@ export default function EventList(props) {
                       eventsHandler={eventsHandler}
                       delay={cumulativeDelay}
                     />
-                    <AnimatePresence>
-                      {cursor === index && (
-                        <motion.div
-                          ref={cursorRef}
-                          className={style.cursor}
-                          variants={cursorVariants}
-                          initial='hidden'
-                          animate='visible'
-                          exit='exit'
-                        />
-                      )}
-                    </AnimatePresence>
-                  </Fragment>
+                  </div>
                 );
               })}
               {provided.placeholder}

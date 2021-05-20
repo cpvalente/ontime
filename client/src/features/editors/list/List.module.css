@@ -21,11 +21,15 @@
 }
 
 .cursor {
-  width: 90%;
-  min-height: 2px;
-  background-color: #ff7597;
-  border-radius: 2px;
-  margin: 0 auto;
-  /* transition: 1s;
-  transition-property: all; */
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    #ff7597 0%,
+    #0000 10%,
+    #0000 90%,
+    #ff7597 100%
+  );
+  border-radius: 20px;
+  transition: 0.3s;
+  transition-property: all;
 }
