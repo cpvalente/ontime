@@ -56,12 +56,13 @@ export default function EventList(props) {
     if (socket == null) return;
 
     // ask for playstate
-    socket.emit('get-selected-id');
+    socket.emit('get-selected');
     socket.emit('get-next-id');
 
     // Handle playstate
-    socket.on('selected-id', (data) => {
+    socket.on('selected', (data) => {
       setSelected(data);
+      console.log('debug cursor setted', data);
     });
     socket.on('next-id', (data) => {
       setNext(data);
@@ -69,7 +70,7 @@ export default function EventList(props) {
 
     // Clear listener
     return () => {
-      socket.off('selected-id');
+      socket.off('selected');
       socket.off('next-id');
     };
   }, [socket]);
@@ -86,8 +87,11 @@ export default function EventList(props) {
   }, [cursor, cursorRef]);
 
   useEffect(() => {
-    if (cursorSettings !== 'locked') return;
-  }, [selected]);
+    if (cursorSettings !== 'locked' || selected == null) return;
+    if (selected.index == null) return;
+
+    setCursor(selected.index);
+  }, [selected, cursorSettings]);
 
   if (events.length < 1) {
     return <Empty text='No Events' />;
@@ -111,6 +115,8 @@ export default function EventList(props) {
 
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
+
+  console.log('debug selected', selected);
 
   return (
     <div className={style.eventContainer}>
@@ -136,7 +142,7 @@ export default function EventList(props) {
                       type={e.type}
                       index={index}
                       data={e}
-                      selected={selected === e.id}
+                      selected={selected?.id === e.id}
                       next={next === e.id}
                       eventsHandler={eventsHandler}
                       delay={cumulativeDelay}

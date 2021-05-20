@@ -90,6 +90,10 @@ class EventTimer extends Timer {
   broadcastState() {
     this.io.emit('timer', this.getObject());
     this.io.emit('playstate', this.state);
+    this.io.emit('selected', {
+      id: this.selectedEventId,
+      index: this.selectedEventIndex,
+    });
     this.io.emit('selected-id', this.selectedEventId);
     this.io.emit('next-id', this.nextEventId);
     this.io.emit('publicselected-id', this.selectedPublicEventId);
@@ -259,6 +263,13 @@ class EventTimer extends Timer {
 
       /*******************************************/
       // selection data
+      socket.on('get-selected', () => {
+        socket.emit('selected', {
+          id: this.selectedEventId,
+          index: this.selectedEventIndex,
+        });
+      });
+
       socket.on('get-selected-id', () => {
         socket.emit('selected-id', this.selectedEventId);
       });
