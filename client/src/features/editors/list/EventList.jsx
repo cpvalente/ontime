@@ -1,18 +1,23 @@
 import style from './List.module.css';
-import { Fragment, useEffect, useState } from 'react';
+import { createRef, Fragment, useEffect, useMemo, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import tinykeys from 'tinykeys';
 import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { useAtom } from 'jotai';
+import { SelectSetting } from 'app/context/settingsAtom';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
   const socket = useSocket();
   const [selected, setSelected] = useState(null);
   const [next, setNext] = useState(null);
-  const [cursor, setCursor] = useState(null);
+  const [cursor, setCursor] = useState(0);
+  const [cursorSettings] = useAtom(useMemo(() => SelectSetting('cursor'), []));
+
+  const cursorRef = createRef();
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -70,6 +75,21 @@ export default function EventList(props) {
     };
   }, [socket]);
 
+  // attach scroll to cursor
+  useEffect(() => {
+    if (cursor == null || cursorRef.current == null) return;
+
+    cursorRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'start',
+    });
+  }, [cursor, cursorRef]);
+
+  useEffect(() => {
+    if (cursorSettings !== 'locked') return;
+  }, [selected]);
+
   if (events.length < 1) {
     return <Empty text='No Events' />;
   }
@@ -114,6 +134,7 @@ export default function EventList(props) {
       <AnimatePresence>
         {cursor === -1 && (
           <motion.div
+            ref={cursorRef}
             className={style.cursor}
             variants={cursorVariants}
             initial='hidden'
@@ -149,6 +170,7 @@ export default function EventList(props) {
                     <AnimatePresence>
                       {cursor === index && (
                         <motion.div
+                          ref={cursorRef}
                           className={style.cursor}
                           variants={cursorVariants}
                           initial='hidden'
