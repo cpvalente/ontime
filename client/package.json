@@ -12,6 +12,7 @@
     "axios": "^0.21.1",
     "date-fns": "^2.20.1",
     "framer-motion": "^4.1.6",
+    "jotai": "^0.16.5",
     "react": "^17.0.1",
     "react-beautiful-dnd": "^13.1.0",
     "react-dom": "^17.0.1",
