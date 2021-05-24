@@ -1,4 +1,4 @@
-const dbModel = {
+export const dbModel = {
   events: [],
   event: {
     title: '',
@@ -14,5 +14,3 @@ const dbModel = {
     lock: false,
   },
 };
-
-module.exports = { dbModel };

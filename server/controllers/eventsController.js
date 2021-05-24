@@ -1,10 +1,14 @@
 // get database
-const db = require('../app.js').db;
+import { db } from '../app.js';
 
 // utils
-const customAlphabet = require('nanoid').customAlphabet;
+import { customAlphabet } from 'nanoid';
 const nanoid = customAlphabet('1234567890abcdef', 4);
-const eventDefs = require('../data/eventsDefinition.js');
+import {
+  event as eventDef,
+  block as blockDef,
+  delay as delayDEf,
+} from '../data/eventsDefinition.js';
 
 function _getEventsCount() {
   return db.get('events').size().value();
@@ -68,21 +72,21 @@ function _deleteTimerId(entryId) {
 
 // Create controller for GET request to '/events'
 // Returns -
-exports.eventsGetAll = async (req, res) => {
+export const eventsGetAll = async (req, res) => {
   const results = db.get('events').value();
   res.json(results);
 };
 
 // Create controller for GET request to '/events/:eventId'
 // Returns -
-exports.eventsGetById = async (req, res) => {
+export const eventsGetById = async (req, res) => {
   const e = db.get('events').find({ id: req.params.eventId }).value();
   res.json(e);
 };
 
 // Create controller for POST request to '/events/'
 // Returns -
-exports.eventsPost = async (req, res) => {
+export const eventsPost = async (req, res) => {
   // TODO: Validate event
   if (!req.body) {
     res.status(400).send(`No object found in request`);
@@ -131,7 +135,7 @@ exports.eventsPost = async (req, res) => {
 
 // Create controller for PUT request to '/events/'
 // Returns -
-exports.eventsPut = async (req, res) => {
+export const eventsPut = async (req, res) => {
   // no valid params
   if (!req.body) {
     res.status(400).send(`No object found`);
@@ -162,12 +166,12 @@ exports.eventsPut = async (req, res) => {
 
 // Create controller for PATCH request to '/events/'
 // Returns -
-exports.eventsPatch = async (req, res) => {
+export const eventsPatch = async (req, res) => {
   // Code is the same as put, call that
   this.eventsPut(req, res);
 };
 
-exports.eventsReorder = async (req, res) => {
+export const eventsReorder = async (req, res) => {
   // TODO: Validate event
   if (!req.body) {
     res.status(400).send(`No object found in request`);
@@ -209,7 +213,7 @@ exports.eventsReorder = async (req, res) => {
 
 // Create controller for PATCH request to '/events/applydelay/:eventId'
 // Returns -
-exports.eventsApplyDelay = async (req, res) => {
+export const eventsApplyDelay = async (req, res) => {
   // no valid params
   if (!req.params.eventId) {
     res.status(400).send(`No id found in request`);
@@ -274,7 +278,7 @@ exports.eventsApplyDelay = async (req, res) => {
 
 // Create controller for DELETE request to '/events/:eventId'
 // Returns -
-exports.eventsDelete = async (req, res) => {
+export const eventsDelete = async (req, res) => {
   // no valid params
   if (!req.params.eventId) {
     res.status(400).send(`No id found in request`);
@@ -298,7 +302,7 @@ exports.eventsDelete = async (req, res) => {
 
 // Create controller for DELETE request to '/events/:eventId'
 // Returns -
-exports.eventsDeleteAll = async (req, res) => {
+export const eventsDeleteAll = async (req, res) => {
   try {
     // set with nothing
     db.set('events', []).write();

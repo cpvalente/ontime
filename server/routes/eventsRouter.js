@@ -1,34 +1,42 @@
-const express = require('express');
-const router = express.Router();
+import express from 'express';
+export const router = express.Router();
 
 // import events controller
-const eventsController = require('../controllers/eventsController');
+import {
+  eventsGetAll,
+  eventsGetById,
+  eventsPost,
+  eventsPut,
+  eventsPatch,
+  eventsReorder,
+  eventsApplyDelay,
+  eventsDeleteAll,
+  eventsDelete,
+} from '../controllers/eventsController.js';
 
 // create route between controller and '/events/' endpoint
-router.get('/', eventsController.eventsGetAll);
+router.get('/', eventsGetAll);
 
 // create route between controller and '/events/:eventId' endpoint
-router.get('/:eventId', eventsController.eventsGetById);
+router.get('/:eventId', eventsGetById);
 
 // create route between controller and '/events/' endpoint
-router.post('/', eventsController.eventsPost);
+router.post('/', eventsPost);
 
 // create route between controller and '/events/' endpoint
-router.put('/', eventsController.eventsPut);
+router.put('/', eventsPut);
 
 // create route between controller and '/events/' endpoint
-router.patch('/', eventsController.eventsPatch);
+router.patch('/', eventsPatch);
 
 // create route between controller and '/events/reorder' endpoint
-router.patch('/reorder/', eventsController.eventsReorder);
+router.patch('/reorder/', eventsReorder);
 
 // create route between controller and '/events/applydelay/:eventId' endpoint
-router.patch('/applydelay/:eventId', eventsController.eventsApplyDelay);
+router.patch('/applydelay/:eventId', eventsApplyDelay);
 
 // create route between controller and '/events/all' endpoint
-router.delete('/all', eventsController.eventsDeleteAll);
+router.delete('/all', eventsDeleteAll);
 
 // create route between controller and '/events/:eventId' endpoint
-router.delete('/:eventId', eventsController.eventsDelete);
-
-module.exports = router;
+router.delete('/:eventId', eventsDelete);

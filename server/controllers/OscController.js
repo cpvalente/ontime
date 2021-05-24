@@ -1,7 +1,7 @@
-const osc = require('node-osc');
+import { Server } from 'node-osc';
 
-const initiateOSC = (config) => {
-  const oscServer = new osc.Server(config.port, '0.0.0.0', () => {
+export const initiateOSC = (config) => {
+  const oscServer = new Server(config.port, '0.0.0.0', () => {
     console.log(`OSC Server is listening on port ${config.port}`);
   });
 
@@ -83,5 +83,3 @@ const initiateOSC = (config) => {
     }
   });
 };
-
-module.exports = { initiateOSC };

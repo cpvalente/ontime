@@ -1,5 +1,5 @@
 // get database
-const { db } = require('../app.js');
+import { db } from '../app.js';
 
 const table = 'event';
 
@@ -9,7 +9,7 @@ function getSettings() {
 
 // Create controller for GET request to 'event'
 // Returns ACK message
-exports.getAll = async (req, res) => {
+export const getAll = async (req, res) => {
   const settings = getSettings();
   if (settings) res.json(settings);
   else res.sendStatus(400);
@@ -17,7 +17,7 @@ exports.getAll = async (req, res) => {
 
 // Create controller for POST request to 'event'
 // Returns ACK message
-exports.post = async (req, res) => {
+export const post = async (req, res) => {
   if (!req.body) {
     res.status(400).send('No object found in request');
     return;
@@ -35,7 +35,7 @@ exports.post = async (req, res) => {
 
 // Create controller for GET request to 'event/title'
 // Returns ACK message
-exports.titleGet = async (req, res) => {
+export const titleGet = async (req, res) => {
   const settings = getSettings();
 
   if (settings) res.json(settings.title);
@@ -44,7 +44,7 @@ exports.titleGet = async (req, res) => {
 
 // Create controller for POST request to 'event/title'
 // Returns ACK message
-exports.titlePost = async (req, res) => {
+export const titlePost = async (req, res) => {
   if (!req.body) {
     res.status(400).send('No object found in request');
     return;
@@ -61,7 +61,7 @@ exports.titlePost = async (req, res) => {
 
 // Create controller for GET request to '/event/url'
 // Returns ACK message
-exports.urlGet = async (req, res) => {
+export const urlGet = async (req, res) => {
   const event = getSettings();
 
   if (event) res.json(event.url);
@@ -70,7 +70,7 @@ exports.urlGet = async (req, res) => {
 
 // Create controller for POST request to '/event/url'
 // Returns ACK message
-exports.urlPost = async (req, res) => {
+export const urlPost = async (req, res) => {
   if (!req.body) {
     res.status(400).send('No object found in request');
     return;
@@ -87,7 +87,7 @@ exports.urlPost = async (req, res) => {
 
 // Create controller for GET request to 'event/publicInfo'
 // Returns ACK message
-exports.publicInfoGet = async (req, res) => {
+export const publicInfoGet = async (req, res) => {
   const settings = getSettings();
 
   if (settings) res.json(settings.publicInfo);
@@ -96,7 +96,7 @@ exports.publicInfoGet = async (req, res) => {
 
 // Create controller for POST request to '/event/publicInfo'
 // Returns ACK message
-exports.publicInfoPost = async (req, res) => {
+export const publicInfoPost = async (req, res) => {
   if (!req.body) {
     res.status(400).send('No object found in request');
     return;
@@ -113,7 +113,7 @@ exports.publicInfoPost = async (req, res) => {
 
 // Create controller for GET request to 'event/backstageInfo'
 // Returns ACK message
-exports.backstageInfoGet = async (req, res) => {
+export const backstageInfoGet = async (req, res) => {
   const settings = getSettings();
 
   if (settings) res.json(settings.backstageInfo);
@@ -122,7 +122,7 @@ exports.backstageInfoGet = async (req, res) => {
 
 // Create controller for POST request to '/event/info'
 // Returns ACK message
-exports.backstageInfoPost = async (req, res) => {
+export const backstageInfoPost = async (req, res) => {
   if (!req.body) {
     res.status(400).send('No object found in request');
     return;
@@ -139,6 +139,6 @@ exports.backstageInfoPost = async (req, res) => {
 
 // Create controller for GET request to 'event/osc'
 // Returns ACK message
-exports.osc = async (req, res) => {
+export const osc = async (req, res) => {
   res.send('Not yet implemented').status(500);
 };

@@ -1,27 +1,33 @@
 // get config
-const config = require('./config.json');
+import { config } from './config.js';
 
 // init database
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+import { Low, JSONFile } from 'lowdb';
 
-const adapter = new FileSync(config.database.filename);
-const db = low(adapter);
+const adapter = new JSONFile(config.database.filename);
+export const db = new Low(adapter);
 
 // dependencies
-const express = require('express');
-const http = require('http');
-const cors = require('cors');
-const { dbModel } = require('./data/dataModel.js');
+import express from 'express';
+import http from 'http';
+import cors from 'cors';
+import { dbModel } from './data/dataModel.js';
 
-db.defaults(dbModel).write();
+// Read data from JSON file, this will set db.data content
+await db.read();
 
-// export db
-module.exports.db = db;
+// If file.json doesn't exist, db.data will be null
+// Set default data
+// db.data ||= { posts: [] };
+if (!db.data) db.data = { dbModel };
+
+// get data
+const { events } = db.data;
 
 // Import Routes
-const eventsRouter = require('./routes/eventsRouter.js');
-const eventRouter = require('./routes/eventRouter.js');
+import { router as eventsRouter } from './routes/eventsRouter.js';
+import { router as eventRouter } from './routes/eventRouter.js';
+
 // No settings yet
 // const settingsRouter = require('./routes/settingsRouter.js');
 
@@ -29,7 +35,7 @@ const eventRouter = require('./routes/eventRouter.js');
 const port = process.env.PORT || config.server.port;
 
 // Global Objects
-const EventTimer = require('./classes/EventTimer.js');
+import { EventTimer } from './classes/EventTimer.js';
 
 // Create express APP
 const app = express();
@@ -62,12 +68,9 @@ app.use((err, req, res, next) => {
 // create HTTP server
 const server = http.createServer(app);
 
-// get data (if any)
-const eventlist = db.get('events').value();
-
 // init timer
 global.timer = new EventTimer(server, config);
-global.timer.setupWithEventList(eventlist);
+global.timer.setupWithEventList(events);
 
 // Start server
 server.listen(port, () =>
@@ -75,6 +78,6 @@ server.listen(port, () =>
 );
 
 // Start OSC server
-const { initiateOSC } = require('./controllers/OscController.js');
+import { initiateOSC } from './controllers/OscController.js';
 
 initiateOSC(config.osc);
