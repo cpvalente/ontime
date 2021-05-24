@@ -18,7 +18,7 @@ await db.read();
 
 // If file.json doesn't exist, db.data will be null
 // Set default data
-// db.data ||= { events: [] };
+// db.data ||= { events: [] }; NODE v15 - v16
 if (db.data == null) {
   db.data = dbModel;
   db.write();
@@ -73,7 +73,7 @@ const server = http.createServer(app);
 
 // init timer
 global.timer = new EventTimer(server, config);
-global.timer.setupWithEventList(events);
+global.timer.setupWithEventList(data.events);
 
 // Start server
 server.listen(port, () =>
