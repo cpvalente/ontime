@@ -4,7 +4,7 @@ export const dbModel = {
     title: '',
     url: '',
     publicInfo: '',
-    backStageInfo: '',
+    backstageInfo: '',
   },
   settings: {
     app: 'ontime',

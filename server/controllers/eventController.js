@@ -1,18 +1,10 @@
 // get database
-import { db } from '../app.js';
-
-const table = 'event';
-
-function getSettings() {
-  return db.get(table).value();
-}
+import { db, data } from '../app.js';
 
 // Create controller for GET request to 'event'
 // Returns ACK message
 export const getAll = async (req, res) => {
-  const settings = getSettings();
-  if (settings) res.json(settings);
-  else res.sendStatus(400);
+  res.json(data.event);
 };
 
 // Create controller for POST request to 'event'
@@ -24,22 +16,20 @@ export const post = async (req, res) => {
   }
   // TODO: validate data
   try {
-    db.get(table)
-      .assign({ ...req.body })
-      .write();
+    data.event = { ...data.event, ...req.body };
+    db.write();
+    // data.event.push({ ...req.body }).write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
+    console.log(error);
   }
 };
 
 // Create controller for GET request to 'event/title'
 // Returns ACK message
 export const titleGet = async (req, res) => {
-  const settings = getSettings();
-
-  if (settings) res.json(settings.title);
-  else res.sendStatus(400);
+  res.json(data.event.title);
 };
 
 // Create controller for POST request to 'event/title'
@@ -52,7 +42,7 @@ export const titlePost = async (req, res) => {
 
   // TODO: validate data
   try {
-    db.get(table).assign({ title: req.body.title }).write();
+    data.event.assign({ title: req.body.title }).write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -62,10 +52,7 @@ export const titlePost = async (req, res) => {
 // Create controller for GET request to '/event/url'
 // Returns ACK message
 export const urlGet = async (req, res) => {
-  const event = getSettings();
-
-  if (event) res.json(event.url);
-  else res.sendStatus(400);
+  res.json(data.event.url);
 };
 
 // Create controller for POST request to '/event/url'
@@ -78,7 +65,7 @@ export const urlPost = async (req, res) => {
 
   // TODO: validate data
   try {
-    db.get(table).assign({ url: req.body.url }).write();
+    data.event.assign({ url: req.body.url }).write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -88,10 +75,7 @@ export const urlPost = async (req, res) => {
 // Create controller for GET request to 'event/publicInfo'
 // Returns ACK message
 export const publicInfoGet = async (req, res) => {
-  const settings = getSettings();
-
-  if (settings) res.json(settings.publicInfo);
-  else res.sendStatus(400);
+  res.json(data.event.publicInfo);
 };
 
 // Create controller for POST request to '/event/publicInfo'
@@ -104,7 +88,7 @@ export const publicInfoPost = async (req, res) => {
 
   // TODO: validate data
   try {
-    db.get(table).assign({ publicInfo: req.body.publicInfo }).write();
+    data.event.assign({ publicInfo: req.body.publicInfo }).write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -114,10 +98,7 @@ export const publicInfoPost = async (req, res) => {
 // Create controller for GET request to 'event/backstageInfo'
 // Returns ACK message
 export const backstageInfoGet = async (req, res) => {
-  const settings = getSettings();
-
-  if (settings) res.json(settings.backstageInfo);
-  else res.sendStatus(400);
+  res.json(data.event.backstageInfo);
 };
 
 // Create controller for POST request to '/event/info'
@@ -130,7 +111,7 @@ export const backstageInfoPost = async (req, res) => {
 
   // TODO: validate data
   try {
-    db.get(table).assign({ backstageInfo: req.body.backstageInfo }).write();
+    data.event.assign({ backstageInfo: req.body.backstageInfo }).write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);

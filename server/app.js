@@ -18,11 +18,14 @@ await db.read();
 
 // If file.json doesn't exist, db.data will be null
 // Set default data
-// db.data ||= { posts: [] };
-if (!db.data) db.data = { dbModel };
+// db.data ||= { events: [] };
+if (db.data == null) {
+  db.data = dbModel;
+  db.write();
+}
 
 // get data
-const { events } = db.data;
+export const data = db.data;
 
 // Import Routes
 import { router as eventsRouter } from './routes/eventsRouter.js';
