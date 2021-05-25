@@ -71,7 +71,7 @@ const initiateOSC = (config) => {
       case 'gotoid':
         console.log('calling gotoid with', args);
         try {
-          global.timer.loadEventById(args.toLowerCase());
+          global.timer.loadEventById(args.toString().toLowerCase());
         } catch (error) {
           console.log('error calling goto: ', error);
         }

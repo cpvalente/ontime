@@ -472,7 +472,7 @@ class EventTimer extends Timer {
 
     if (eventIndex === -1) return;
     this.pause();
-    this.loadEvent(eventIndex, true, true);
+    this.loadEvent(eventIndex, 'load', true);
   }
 
   // Loads a given event
