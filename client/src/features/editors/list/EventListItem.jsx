@@ -18,6 +18,7 @@ const EventListItem = (props) => {
   const {
     type,
     index,
+    eventIndex,
     data,
     selected,
     next,
@@ -71,6 +72,7 @@ const EventListItem = (props) => {
       return (
         <EventBlock
           index={index}
+          eventIndex={eventIndex}
           data={data}
           selected={selected}
           next={next}

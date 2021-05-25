@@ -14,7 +14,8 @@ import { SelectCollapse, HandleCollapse } from 'app/context/collapseAtom';
 import { useAtom } from 'jotai';
 
 const ExpandedBlock = (props) => {
-  const { provided, data, next, delay, delayValue, actionHandler } = props;
+  const { provided, data, eventIndex, next, delay, delayValue, actionHandler } =
+    props;
 
   const oscid = data.id.length > 4 ? '...' : data.id;
 
@@ -80,7 +81,9 @@ const ExpandedBlock = (props) => {
             actionHandler('update', { field: 'note', value: v })
           }
         />
-        <span className={style.oscLabel}>{`OSC ID: ${oscid}`}</span>
+        <span className={style.oscLabel}>
+          {`/ontime/goto ${eventIndex}  << OSC >> /ontime/gotoid ${oscid}`}
+        </span>
       </div>
       <Icon
         className={style.more}
@@ -156,7 +159,7 @@ const CollapsedBlock = (props) => {
 };
 
 export default function EventBlock(props) {
-  const { data, selected, delay, index, actionHandler } = props;
+  const { data, selected, delay, index, eventIndex, actionHandler } = props;
 
   // const [collapsed, setCollapsed] = useState(checkLocalStorage(data.id));
 
@@ -200,6 +203,7 @@ export default function EventBlock(props) {
           ) : (
             <ExpandedBlock
               provided={provided}
+              eventIndex={eventIndex}
               data={data}
               next={props.next}
               delay={delay}

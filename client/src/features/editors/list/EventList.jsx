@@ -117,6 +117,7 @@ export default function EventList(props) {
 
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
+  let eventIndex = -1;
 
   console.log('debug selected', selected);
 
@@ -132,10 +133,18 @@ export default function EventList(props) {
             >
               {events.map((e, index) => {
                 let isCursor = cursor === index;
-                if (index === 0) cumulativeDelay = 0;
+                if (index === 0) {
+                  cumulativeDelay = 0;
+                  eventIndex = -1;
+                }
                 if (e.type === 'delay' && e.duration != null) {
                   cumulativeDelay += e.duration;
-                } else if (e.type === 'block') cumulativeDelay = 0;
+                } else if (e.type === 'block') {
+                  cumulativeDelay = 0;
+                } else if (e.type === 'event') {
+                  eventIndex++;
+                }
+
                 return (
                   <div
                     ref={isCursor ? cursorRef : undefined}
@@ -145,6 +154,7 @@ export default function EventList(props) {
                     <EventListItem
                       type={e.type}
                       index={index}
+                      eventIndex={eventIndex}
                       data={e}
                       selected={selected?.id === e.id}
                       next={next === e.id}
