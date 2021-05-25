@@ -50,6 +50,9 @@ class Timer {
     // check playstate
     switch (this.state) {
       case 'start':
+        // ensure we have a start time
+        if (this._startedAt == null) this._startedAt = now;
+
         // update current timer
         this.current =
           this._startedAt + this.duration + this._pausedTotal - now;

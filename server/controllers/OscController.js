@@ -63,6 +63,7 @@ const initiateOSC = (config) => {
         try {
           let eventIndex = parseInt(args);
           if (isNaN(eventIndex) || eventIndex <= 0) return;
+          global.timer.pause();
           global.timer.loadEvent(eventIndex - 1, undefined, true);
         } catch (error) {
           console.log('error calling goto: ', error);
