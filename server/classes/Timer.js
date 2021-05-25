@@ -110,7 +110,8 @@ class Timer {
     );
   }
 
-  _resetTimers() {
+  _resetTimers(total = false) {
+    if (total) this.duration = null;
     this.current = this.duration;
     this._finishAt = null;
     this._finishedAt = null;

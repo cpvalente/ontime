@@ -109,8 +109,28 @@ class EventTimer extends Timer {
 
   update() {
     // if there is nothing selected, no nothing
-    if (this.selectedEventId == null) return;
-    super.update();
+    if (this.selectedEventId == null && this.state !== 'roll') return;
+
+    // only implement roll here
+    if (this.state !== 'roll') {
+      super.update();
+      return;
+    }
+
+    // get current time
+    const now = this._getCurrentTime();
+    this.clock = now;
+
+    if (this.selectedEventId == null) {
+      // look for event if none is loaded
+      this.rollLoad();
+    } else if (now > this._finishAt) {
+      // look for new if finished
+      this.rollLoad();
+    } else {
+      // update timer as usual
+      this.current = this._finishAt - now;
+    }
   }
 
   start() {
@@ -140,9 +160,7 @@ class EventTimer extends Timer {
         else if (payload === 'next') this.next();
         else if (payload === 'reload') this.reload();
         else if (payload === 'unload') this.unload();
-
-        // Not yet implemented
-        // else if (payload === 'roll') this.roll();
+        else if (payload === 'roll') this.roll();
 
         this.broadcastThis('playstate', this.state);
         this.broadcastThis('selected-id', this.selectedEventId);
@@ -730,10 +748,44 @@ class EventTimer extends Timer {
     this.broadcastState();
   }
 
+  rollLoad() {
+    const now = this._getCurrentTime();
+    this._resetTimers(true);
+    this._resetSelection();
+
+    // loop through events, look for where we should be
+    for (const [index, e] of this._eventlist.entries()) {
+      if (e.timeStart <= now && now < e.timeEnd) {
+        // set timers
+        this._startedAt = e.timeStart;
+        this._finishAt = e.timeEnd;
+        this.duration = e.timeEnd - e.timeStart;
+        this.current = e.timeEnd - now;
+
+        // set selection
+        this.selectedEventId = e.id;
+        this.selectedEventIndex = index;
+
+        // set titles
+        this._loadTitlesNow();
+        this._loadTitlesNext();
+        // exit
+        break;
+      }
+    }
+  }
+
   roll() {
-    console.log('roll: not yet implemented');
-    return false;
+    // do we need to change
+    if (this.state === 'roll') return;
+
+    // load into event
+    this.rollLoad();
+
+    // set state
     this.state = 'roll';
+
+    this.broadcastState();
   }
 
   previous() {
