@@ -82,7 +82,7 @@ const ExpandedBlock = (props) => {
           }
         />
         <span className={style.oscLabel}>
-          {`/ontime/goto ${eventIndex}  << OSC >> /ontime/gotoid ${oscid}`}
+          {`/ontime/goto ${eventIndex + 1}  << OSC >> /ontime/gotoid ${oscid}`}
         </span>
       </div>
       <Icon
