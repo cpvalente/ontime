@@ -8,16 +8,18 @@ const areEqual = (prevProps, nextProps) => {
   return (
     prevProps.timer.running === nextProps.timer.running &&
     prevProps.timer.expectedFinish === nextProps.timer.expectedFinish &&
-    prevProps.timer.startedAt === nextProps.timer.startedAt
+    prevProps.timer.startedAt === nextProps.timer.startedAt &&
+    prevProps.playback === nextProps.playback
   );
 };
 
-const PlaybackTimer = ({ timer, handleIncrement }) => {
+const PlaybackTimer = (props) => {
+  const { timer, playback, handleIncrement } = props;
   const started = stringFromMillis(timer.startedAt, true);
   const finish = stringFromMillis(timer.expectedFinish, true);
   const isNegative = timer.running < 0;
   const isDelayed = false;
-  const isRolling = false;
+  const isRolling = playback === 'roll';
 
   const incrementProps = {
     size: 'sm',
@@ -31,7 +33,7 @@ const PlaybackTimer = ({ timer, handleIncrement }) => {
     <>
       <div className={style.timeContainer}>
         <div className={style.indicators}>
-          <div className={style.indRoll} />
+          <div className={isRolling ? style.indRollActive : style.indRoll} />
           <div
             className={isNegative ? style.indNegativeActive : style.indNegative}
           />
@@ -49,16 +51,32 @@ const PlaybackTimer = ({ timer, handleIncrement }) => {
           <span className={style.time}>{finish}</span>
         </div>
         <div className={style.btn}>
-          <Button {...incrementProps} onClick={() => handleIncrement(-1)}>
+          <Button
+            {...incrementProps}
+            disabled={isRolling}
+            onClick={() => handleIncrement(-1)}
+          >
             -1
           </Button>
-          <Button {...incrementProps} onClick={() => handleIncrement(1)}>
+          <Button
+            {...incrementProps}
+            disabled={isRolling}
+            onClick={() => handleIncrement(1)}
+          >
             +1
           </Button>
-          <Button {...incrementProps} onClick={() => handleIncrement(-5)}>
+          <Button
+            {...incrementProps}
+            disabled={isRolling}
+            onClick={() => handleIncrement(-5)}
+          >
             -5
           </Button>
-          <Button {...incrementProps} onClick={() => handleIncrement(5)}>
+          <Button
+            {...incrementProps}
+            disabled={isRolling}
+            onClick={() => handleIncrement(5)}
+          >
             +5
           </Button>
         </div>

@@ -90,6 +90,7 @@ export default function PlaybackControl() {
     <div className={style.mainContainer}>
       <PlaybackTimer
         timer={timer}
+        playback={playback}
         handleIncrement={(amount) => socket.emit('increment-timer', amount)}
       />
       <PlaybackButtons

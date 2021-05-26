@@ -8,6 +8,7 @@ class Timer {
   clock = null;
   duration = null;
   current = null;
+  secondaryTimer = null;
   _finishAt = null;
   _finishedAt = null;
   _startedAt = null;
@@ -113,8 +114,10 @@ class Timer {
     );
   }
 
-  _resetTimers() {
+  _resetTimers(total = false) {
+    if (total) this.duration = null;
     this.current = this.duration;
+    this.secondaryTimer = null;
     this._finishAt = null;
     this._finishedAt = null;
     this._startedAt = null;
@@ -135,7 +138,7 @@ class Timer {
     return {
       clock: this.clock,
       running: Timer.toSeconds(this.current),
-      currentSeconds: Timer.toSeconds(Math.max(this.current, 0)),
+      secondary: Timer.toSeconds(this.secondaryTimer),
       durationSeconds: Timer.toSeconds(this.duration),
       expectedFinish: this._getExpectedFinish(),
       startedAt: this._startedAt,
