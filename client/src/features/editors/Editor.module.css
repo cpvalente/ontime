@@ -18,11 +18,12 @@
 /* 2/3 window, hide previews */
 @media (max-width: 1250px) and (min-height: 700px) {
   .mainContainer {
+    height: 100%;
     grid-template-rows: 1fr 1fr;
     grid-template-columns: 48em 1fr 1fr;
-    grid-template-areas:
+    /* grid-template-areas:
       'even play sett'
-      'even mess sett';
+      'even mess sett'; */
   }
 
   .info {
@@ -38,6 +39,11 @@
     grid-template-areas:
       'mess'
       'play';
+  }
+
+  .messages,
+  .playback {
+    min-width: 31em;
   }
 
   .editor,

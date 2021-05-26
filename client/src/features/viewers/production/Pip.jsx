@@ -51,11 +51,8 @@ export default function Pip(props) {
   // Format messages
   const showInfo =
     general.backstageInfo !== '' && general.backstageInfo != null;
-
-  const stageTimer =
-    time.currentSeconds != null && !isNaN(time.currentSeconds)
-      ? formatDisplay(time.currentSeconds, true)
-      : '';
+  let stageTimer = formatDisplay(Math.abs(time.running), true);
+  if (time.running < 0) stageTimer = `-${stageTimer}`;
 
   return (
     <div className={style.container__gray}>

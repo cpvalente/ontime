@@ -42,7 +42,7 @@ export default function StageManager(props) {
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
   let stageTimer = formatDisplay(Math.abs(time.running), true);
-  if (time.running < 0) stageTimer = '-' + stageTimer;
+  if (time.running < 0) stageTimer = `-${stageTimer}`;
 
   // motion
   const titleVariants = {
