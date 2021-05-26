@@ -544,18 +544,12 @@ class EventTimer extends Timer {
     if (e == null) return;
 
     // private title is always current
-    this.titles.titleNow = e.title;
-    this.titles.subtitleNow = e.subtitle;
-    this.titles.presenterNow = e.presenter;
-    this.selectedEventId = e.id;
-
     // check if current is also public
     if (e.isPublic) {
-      this.titlesPublic.titleNow = e.title;
-      this.titlesPublic.subtitleNow = e.subtitle;
-      this.titlesPublic.presenterNow = e.presenter;
-      this.selectedPublicEventId = e.id;
+      this._loadThisTitles(e, 'now');
     } else {
+      this._loadThisTitles(e, 'now-private');
+
       // assume there is no public event
       this.titlesPublic.titleNow = null;
       this.titlesPublic.subtitleNow = null;
@@ -571,45 +565,70 @@ class EventTimer extends Timer {
           this._eventlist[i].type === 'event' &&
           this._eventlist[i].isPublic
         ) {
-          this.titlesPublic.titleNow = this._eventlist[i].title;
-          this.titlesPublic.subtitleNow = this._eventlist[i].subtitle;
-          this.titlesPublic.presenterNow = this._eventlist[i].presenter;
-          this.selectedPublicEventId = this._eventlist[i].id;
+          this._loadThisTitles(this._eventlist[i], 'now-public');
           break;
         }
       }
     }
   }
 
-  _loadThisTitles(eventIndex, type) {
-    if (eventIndex < 0 || eventIndex >= this.numEvents) return;
-    const e = this._eventlist[eventIndex];
+  _loadThisTitles(e, type) {
+    if (e == null) return;
 
     switch (type) {
       // now, load to both public and private
       case 'now':
+        // public
+        this.titlesPublic.titleNow = e.title;
+        this.titlesPublic.subtitleNow = e.subtitle;
+        this.titlesPublic.presenterNow = e.presenter;
+        this.selectedPublicEventId = e.id;
+
+        // private
+        this.titles.titleNow = e.title;
+        this.titles.subtitleNow = e.subtitle;
+        this.titles.presenterNow = e.presenter;
+        this.selectedEventId = e.id;
+
         break;
       case 'now-public':
+        this.titlesPublic.titleNow = e.title;
+        this.titlesPublic.subtitleNow = e.subtitle;
+        this.titlesPublic.presenterNow = e.presenter;
+        this.selectedPublicEventId = e.id;
         break;
       case 'now-private':
+        this.titles.titleNow = e.title;
+        this.titles.subtitleNow = e.subtitle;
+        this.titles.presenterNow = e.presenter;
+        this.selectedEventId = e.id;
         break;
 
       // next, load to both public and private
       case 'next':
-        this.titles.titleNext = e.title;
-        this.titles.subtitleNext = e.subtitle;
-        this.titles.presenterNext = e.presenter;
-        this.nextEventId = e.id;
-
+        // public
         this.titlesPublic.titleNext = e.title;
         this.titlesPublic.subtitleNext = e.subtitle;
         this.titlesPublic.presenterNext = e.presenter;
         this.nextPublicEventId = e.id;
 
+        // private
+        this.titles.titleNext = e.title;
+        this.titles.subtitleNext = e.subtitle;
+        this.titles.presenterNext = e.presenter;
+        this.nextEventId = e.id;
         break;
       case 'next-public':
+        this.titlesPublic.titleNext = e.title;
+        this.titlesPublic.subtitleNext = e.subtitle;
+        this.titlesPublic.presenterNext = e.presenter;
+        this.nextPublicEventId = e.id;
         break;
       case 'next-private':
+        this.titles.titleNext = e.title;
+        this.titles.subtitleNext = e.subtitle;
+        this.titles.presenterNext = e.presenter;
+        this.nextEventId = e.id;
         break;
 
       default:
@@ -641,19 +660,13 @@ class EventTimer extends Timer {
         if (this._eventlist[i].type === 'event') {
           // if we have not set private
           if (!nextPrivate) {
-            this.titles.titleNext = this._eventlist[i].title;
-            this.titles.subtitleNext = this._eventlist[i].subtitle;
-            this.titles.presenterNext = this._eventlist[i].presenter;
-            this.nextEventId = this._eventlist[i].id;
+            this._loadThisTitles(this._eventlist[i], 'next-private');
             nextPrivate = true;
           }
 
           // if event is public
           if (this._eventlist[i].isPublic) {
-            this.titlesPublic.titleNext = this._eventlist[i].title;
-            this.titlesPublic.subtitleNext = this._eventlist[i].subtitle;
-            this.titlesPublic.presenterNext = this._eventlist[i].presenter;
-            this.nextPublicEventId = this._eventlist[i].id;
+            this._loadThisTitles(this._eventlist[i], 'next-public');
             nextPublic = true;
           }
         }
