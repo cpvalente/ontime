@@ -37,7 +37,7 @@ const withSocket = (Component) => {
     });
     const [timer, setTimer] = useState({
       clock: null,
-      currentSeconds: null,
+      running: null,
       startedAt: null,
       expectedFinish: null,
     });
@@ -221,7 +221,7 @@ const withSocket = (Component) => {
     // get clock string
     const timeManager = {
       ...timer,
-      finished: timer.running <= 0 && timer.startedAt,
+      finished: playback === 'start' && timer.running <= 0 && timer.startedAt,
       clock: stringFromMillis(timer.clock),
       playstate: playback,
     };
