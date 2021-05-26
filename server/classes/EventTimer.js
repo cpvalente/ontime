@@ -121,15 +121,16 @@ class EventTimer extends Timer {
     const now = this._getCurrentTime();
     this.clock = now;
 
-    if (this.selectedEventId == null) {
-      // look for event if none is loaded
-      this.rollLoad();
-    } else if (now > this._finishAt) {
-      // look for new if finished
-      this.rollLoad();
-    } else {
+    if (this.selectedEventId && this.current > 0) {
       // update timer as usual
       this.current = this._finishAt - now;
+    } else {
+      // look for event if none is loaded
+      if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
+
+      // count to next event
+      // TODO: replace with proper counter
+      if (this.secondaryTimer != null) this.secondaryTimer -= 1000;
     }
   }
 
@@ -162,6 +163,9 @@ class EventTimer extends Timer {
         else if (payload === 'unload') this.unload();
         else if (payload === 'roll') this.roll();
 
+        // TODO: Cleanup
+        // here tdo this.broadcastState;
+        // remove broadcast from functions
         this.broadcastThis('playstate', this.state);
         this.broadcastThis('selected-id', this.selectedEventId);
         this.broadcastThis('titles', this.titles);
@@ -577,6 +581,42 @@ class EventTimer extends Timer {
     }
   }
 
+  _loadThisTitles(eventIndex, type) {
+    if (eventIndex < 0 || eventIndex >= this.numEvents) return;
+    const e = this._eventlist[eventIndex];
+
+    switch (type) {
+      // now, load to both public and private
+      case 'now':
+        break;
+      case 'now-public':
+        break;
+      case 'now-private':
+        break;
+
+      // next, load to both public and private
+      case 'next':
+        this.titles.titleNext = e.title;
+        this.titles.subtitleNext = e.subtitle;
+        this.titles.presenterNext = e.presenter;
+        this.nextEventId = e.id;
+
+        this.titlesPublic.titleNext = e.title;
+        this.titlesPublic.subtitleNext = e.subtitle;
+        this.titlesPublic.presenterNext = e.presenter;
+        this.nextPublicEventId = e.id;
+
+        break;
+      case 'next-public':
+        break;
+      case 'next-private':
+        break;
+
+      default:
+        break;
+    }
+  }
+
   _loadTitlesNext() {
     // maybe there is nothing to load
     if (this.selectedEventIndex == null) return;
@@ -660,6 +700,7 @@ class EventTimer extends Timer {
       state           = ${this.state}
       current         = ${this.current}
       duration        = ${this.duration}
+      secondaryTimer  = ${this.secondaryTimer}
 
       Events
       ------------------------------
@@ -753,24 +794,57 @@ class EventTimer extends Timer {
     this._resetTimers(true);
     this._resetSelection();
 
+    let foundNow = null;
+    let nextIndex = null;
+    let nextStart = null;
+
     // loop through events, look for where we should be
     for (const [index, e] of this._eventlist.entries()) {
-      if (e.timeStart <= now && now < e.timeEnd) {
-        // set timers
-        this._startedAt = e.timeStart;
-        this._finishAt = e.timeEnd;
-        this.duration = e.timeEnd - e.timeStart;
-        this.current = e.timeEnd - now;
+      if (!foundNow) {
+        if (e.timeStart <= now && now < e.timeEnd) {
+          // set flag
+          foundNow = true;
 
-        // set selection
-        this.selectedEventId = e.id;
-        this.selectedEventIndex = index;
+          // set timers
+          this._startedAt = e.timeStart;
+          this._finishAt = e.timeEnd;
+          this.duration = e.timeEnd - e.timeStart;
+          this.current = e.timeEnd - now;
 
-        // set titles
-        this._loadTitlesNow();
-        this._loadTitlesNext();
-        // exit
-        break;
+          // set selection
+          this.selectedEventId = e.id;
+          this.selectedEventIndex = index;
+
+          // set titles
+          this._loadTitlesNow();
+
+          // skip this entry for next
+          continue;
+        }
+      }
+      // check how far the start is from now
+      let wait = e.timeStart - now;
+      if (wait > 0) {
+        if (nextStart == null || wait < nextStart) {
+          nextStart = wait;
+          nextIndex = index;
+        }
+      }
+    }
+
+    // nothing to play next, unload
+    if (!foundNow && !nextIndex) {
+      this.unload();
+      return;
+    }
+
+    if (nextIndex) {
+      // load titles
+      this._loadThisTitles(nextIndex, 'next');
+
+      if (!foundNow) {
+        // timer counts to nextStart
+        this.secondaryTimer = nextStart;
       }
     }
   }
