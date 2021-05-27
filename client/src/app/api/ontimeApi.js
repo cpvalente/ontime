@@ -15,3 +15,17 @@ export const downloadEvents = async () => {
     link.click();
   });
 };
+
+export const uploadEvents = async (file) => {
+  console.log('uploading', file);
+  const formData = new FormData();
+  formData.append('jsondb', file); // appending file
+  await axios
+    .post(ontimeURL + '/db', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then((res) => console.log(res.data))
+    .catch((err) => console.error(err));
+};

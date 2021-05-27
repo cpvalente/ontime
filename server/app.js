@@ -11,7 +11,6 @@ export const db = new Low(adapter);
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import multer from 'multer';
 import { dbModel } from './data/dataModel.js';
 
 // Read data from JSON file, this will set db.data content
@@ -49,7 +48,6 @@ app.use(cors());
 app.options('*', cors());
 
 // Implement middleware
-app.use(express.static('./public'));
 app.use('/uploads', express.static('uploads'));
 
 app.use(express.urlencoded({ extended: true }));

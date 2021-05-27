@@ -8,12 +8,13 @@ import EventListWrapper from './list/EventListWrapper';
 import { useDisclosure } from '@chakra-ui/hooks';
 import SettingsModal from '../modals/SettingsModal';
 import SettingsIconBtn from 'common/components/buttons/SettingsIconBtn';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import DownloadIconBtn from 'common/components/buttons/DownloadIconBtn';
-import { downloadEvents } from 'app/api/eventsApi';
+import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [file, setFile] = useState(null);
 
   // Set window title
   useEffect(() => {
@@ -21,8 +22,20 @@ export default function Editor() {
   }, []);
 
   const handleDownload = () => {
-    console.log('debug download');
     downloadEvents();
+  };
+
+  const handleFile = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleUpload = (e) => {
+    e.preventDefault();
+    console.log('gonna upload', file);
+
+    if (file && file.type === 'application/json') {
+      if (file.size < 1048576) uploadEvents(file);
+    }
   };
 
   return (
@@ -68,7 +81,19 @@ export default function Editor() {
             Info
           </Heading>
           <NumberedText number={4} text={'Running Info'} />
-          <div className={styles.content}></div>
+          <div className={styles.content}>
+            <form id='uploaddb' onSubmit={handleUpload}>
+              <input
+                type='file'
+                name='jsondb'
+                accept='.json'
+                onChange={handleFile}
+              />
+              <button className='submit-btn' type='submit'>
+                Upload
+              </button>
+            </form>
+          </div>
         </Box>
 
         <Box className={styles.settings}>
