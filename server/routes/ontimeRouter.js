@@ -1,5 +1,7 @@
 import express from 'express';
 export const router = express.Router();
 
-// create route between controller and '/ontime/download' endpoint
-router.get('/download', eventsDownload);
+import { dbDownload, dbUpload } from '../controllers/ontimeController.js';
+
+// create route between controller and '/ontime/db' endpoint
+router.get('/db', dbDownload);

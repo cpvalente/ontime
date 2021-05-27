@@ -11,6 +11,7 @@ export const db = new Low(adapter);
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+import multer from 'multer';
 import { dbModel } from './data/dataModel.js';
 
 // Read data from JSON file, this will set db.data content
@@ -30,9 +31,7 @@ export const data = db.data;
 // Import Routes
 import { router as eventsRouter } from './routes/eventsRouter.js';
 import { router as eventRouter } from './routes/eventRouter.js';
-
-// No settings yet
-// const settingsRouter = require('./routes/settingsRouter.js');
+import { router as ontimeRouter } from './routes/ontimeRouter.js';
 
 // Setup default port
 const port = process.env.PORT || config.server.port;
@@ -50,12 +49,16 @@ app.use(cors());
 app.options('*', cors());
 
 // Implement middleware
+app.use(express.static('./public'));
+app.use('/uploads', express.static('uploads'));
+
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
 app.use('/events', eventsRouter);
 app.use('/event', eventRouter);
+app.use('/ontime', ontimeRouter);
 
 // implement general router
 app.get('/', (req, res) => {
