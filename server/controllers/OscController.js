@@ -5,6 +5,9 @@ const initiateOSC = (config) => {
     console.log(`OSC Server is listening on port ${config.port}`);
   });
 
+  // error
+  oscServer.on('error', console.error);
+
   oscServer.on('message', function (msg) {
     // message should look like /ontime/{path}/{args} where
     // ontime: fixed message for app
@@ -62,8 +65,8 @@ const initiateOSC = (config) => {
         console.log('calling goto with', args);
         try {
           let eventIndex = parseInt(args);
-          if (isNaN(eventIndex) || eventIndex <= 0) return;
-          global.timer.pause();
+          if (isNaN(eventIndex) || eventIndex <= 0 || eventIndex == null)
+            return;
           global.timer.loadEvent(eventIndex - 1, undefined, true);
         } catch (error) {
           console.log('error calling goto: ', error);
@@ -71,6 +74,7 @@ const initiateOSC = (config) => {
         break;
       case 'gotoid':
         console.log('calling gotoid with', args);
+        if (args == null) return;
         try {
           global.timer.loadEventById(args.toString().toLowerCase());
         } catch (error) {
