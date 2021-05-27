@@ -1,6 +1,12 @@
 // get database
 import { db, data } from '../app.js';
 import fs from 'fs';
+import {
+  event as eventDef,
+  delay as delayDef,
+  block as blockDef,
+} from '../data/eventsDefinition.js';
+import { dbModel } from '../data/dataModel.js';
 
 function getEventTitle() {
   return data.event.title;
@@ -17,11 +23,59 @@ async function deleteFile(file) {
 
 // parses version 1 of the data system
 async function parsev1(jsonData) {
-  // loop through events
-  // doublecheck unique ids
-  // merge to an event definition
-  // merge event info
-  // merge settings
+  if ('events' in jsonData) {
+    let events = [];
+    let ids = [];
+    for (const e of jsonData.events) {
+      if (e.type === 'event') {
+        // doublecheck unique ids
+        if (e.id == null || ids.indexOf(e.id) !== -1) continue;
+        ids.push(e.id);
+
+        // make sure all properties exits
+        // dont load any extra properties than the ones known
+        events.push({
+          ...eventDef,
+          title: e.title,
+          subtitle: e.subtitle,
+          presenter: e.presenter,
+          note: e.note,
+          timeStart: e.timeStart,
+          timeEnd: e.timeEnd,
+          isPublic: e.isPublic,
+          id: e.id,
+        });
+      } else if (e.type === 'delay') {
+        events.push({ ...delayDef, duration: e.duration });
+      } else if (e.type === 'block') {
+        events.push({ ...blockDef });
+      }
+    }
+    // write to db
+    db.data.events = events;
+    db.write();
+  }
+
+  if ('event' in jsonData) {
+    const e = jsonData.event;
+    // filter known properties
+    const event = {
+      ...dbModel.event,
+      title: e.title,
+      url: e.url,
+      publicInfo: e.publicInfo,
+      backstageInfo: e.backstageInfo,
+    };
+    console.log(event);
+    // write to db
+    db.data.event = event;
+    db.write();
+  }
+
+  // Not handling settings yet
+  // let settings = {};
+  // if ('settings' in jsonData) {
+  // }
 }
 
 // Create controller for GET request to '/ontime/db'
