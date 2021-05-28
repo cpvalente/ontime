@@ -4,7 +4,7 @@
  *
  */
 
-class Timer {
+export class Timer {
   clock = null;
   duration = null;
   current = null;
@@ -217,5 +217,3 @@ class Timer {
     }
   }
 }
-
-module.exports = Timer;

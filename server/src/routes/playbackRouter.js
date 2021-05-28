@@ -1,5 +1,5 @@
-const express = require('express');
-const router = express.Router();
+import express from 'express';
+export const router = express.Router();
 
 // import event controller
 const playbackController = require('../controllers/playbackController');
@@ -30,5 +30,3 @@ router.get('/unload', playbackController.pbUnload);
 
 // create route between controller and '/playback/reload' endpoint
 router.get('/reload', playbackController.pbReload);
-
-module.exports = router;

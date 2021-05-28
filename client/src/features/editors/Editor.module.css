@@ -107,6 +107,12 @@
   padding-top: 1.5em;
 }
 
+.settings > .content {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
 .cornerButtonContainer {
   position: relative;
   top: -4.5em;

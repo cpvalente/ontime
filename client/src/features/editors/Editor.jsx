@@ -9,6 +9,8 @@ import { useDisclosure } from '@chakra-ui/hooks';
 import SettingsModal from '../modals/SettingsModal';
 import SettingsIconBtn from 'common/components/buttons/SettingsIconBtn';
 import { useEffect } from 'react';
+import DownloadIconBtn from 'common/components/buttons/DownloadIconBtn';
+import { downloadEvents } from 'app/api/ontimeApi';
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -17,6 +19,10 @@ export default function Editor() {
   useEffect(() => {
     document.title = 'ontime - Editor';
   }, []);
+
+  const handleDownload = () => {
+    downloadEvents();
+  };
 
   return (
     <>
@@ -67,6 +73,7 @@ export default function Editor() {
         <Box className={styles.settings}>
           <div className={styles.content}>
             <SettingsIconBtn size='md' clickhandler={onOpen} />
+            <DownloadIconBtn size='md' clickhandler={handleDownload} />
           </div>
         </Box>
       </div>

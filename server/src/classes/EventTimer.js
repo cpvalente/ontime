@@ -1,5 +1,5 @@
-const Timer = require('./Timer');
-const socketIo = require('socket.io');
+import { Timer } from './Timer.js';
+import { Server } from 'socket.io';
 
 /*
  * EventTimer adds functions specific to APP
@@ -9,7 +9,7 @@ const socketIo = require('socket.io');
  *
  */
 
-class EventTimer extends Timer {
+export class EventTimer extends Timer {
   // AUX
   DAYMS = 86400000;
 
@@ -57,12 +57,12 @@ class EventTimer extends Timer {
   numEvents = null;
   _eventlist = null;
 
-  constructor(server, config) {
+  constructor(httpServer, config) {
     // call super constructor
     super();
 
     // initialise socketIO server
-    this.io = socketIo(server, {
+    this.io = new Server(httpServer, {
       cors: {
         origin: '*',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -936,5 +936,3 @@ class EventTimer extends Timer {
     this.loadEvent(this.selectedEventIndex);
   }
 }
-
-module.exports = EventTimer;
