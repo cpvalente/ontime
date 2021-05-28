@@ -3,8 +3,10 @@ import { config } from './config/config.js';
 
 // init database
 import { Low, JSONFile } from 'lowdb';
+import { join } from 'path';
 
-const adapter = new JSONFile(config.database.filename);
+const file = join('data/', config.database.filename);
+const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
 // dependencies
