@@ -476,7 +476,7 @@ export class EventTimer extends Timer {
 
     // update selected event index
     this.selectedEventIndex = this._eventlist.findIndex(
-      (e) => e.id === eventId
+      (e) => e.id === this.selectedEventId
     );
 
     // reload titles if necessary

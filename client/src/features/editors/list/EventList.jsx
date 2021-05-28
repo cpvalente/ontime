@@ -11,8 +11,8 @@ import { SelectSetting } from 'app/context/settingsAtom';
 export default function EventList(props) {
   const { events, eventsHandler } = props;
   const socket = useSocket();
-  const [selected, setSelected] = useState(null);
-  const [next, setNext] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [nextId, setNextId] = useState(null);
   const [cursor, setCursor] = useState(0);
   const [cursorSettings] = useAtom(useMemo(() => SelectSetting('cursor'), []));
 
@@ -61,10 +61,11 @@ export default function EventList(props) {
 
     // Handle playstate
     socket.on('selected', (data) => {
-      setSelected(data);
+      setSelectedId(data.id);
     });
+
     socket.on('next-id', (data) => {
-      setNext(data);
+      setNextId(data);
     });
 
     // Clear listener
@@ -74,32 +75,36 @@ export default function EventList(props) {
     };
   }, [socket]);
 
-  // attach cursor to selected
+  // when cursor moves, view should follow
   useEffect(() => {
-    if (cursorSettings !== 'locked' || selected == null) return;
-    if (selected.index == null) return;
-
-    let eventIndex = -1;
-    let gotoIndex = -1;
-    for (const e of events) {
-      gotoIndex++;
-      if (e.type === 'event') eventIndex++;
-      if (eventIndex === selected.index) break;
-    }
-
-    setCursor(gotoIndex);
-  }, [events, selected, cursorSettings]);
-
-  // attach scroll to cursor
-  useEffect(() => {
-    if (cursor == null || cursorRef.current == null) return;
-
     cursorRef.current.scrollIntoView({
       behavior: 'smooth',
       block: 'nearest',
       inline: 'start',
     });
-  }, [cursor, cursorRef]);
+  }, [cursor]);
+
+  // if selected event
+  // or cursor settings changed
+  useEffect(() => {
+    // and if we are locked
+    if (cursorSettings !== 'locked' || selectedId == null) return;
+
+    // move cursor
+    let gotoIndex = -1;
+    let found = false;
+    for (const e of events) {
+      gotoIndex++;
+      if (e.id === selectedId) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      // move cursor
+      setCursor(gotoIndex);
+    }
+  }, [selectedId, cursorSettings]);
 
   if (events.length < 1) {
     return <Empty text='No Events' />;
@@ -159,8 +164,8 @@ export default function EventList(props) {
                       index={index}
                       eventIndex={eventIndex}
                       data={e}
-                      selected={selected?.id === e.id}
-                      next={next === e.id}
+                      selected={selectedId === e.id}
+                      next={nextId === e.id}
                       eventsHandler={eventsHandler}
                       delay={cumulativeDelay}
                     />

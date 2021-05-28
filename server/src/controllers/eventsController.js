@@ -152,7 +152,7 @@ export const eventsPut = async (req, res) => {
   }
 
   try {
-    const eventIndex = data.events.findIndex((e) => e.id === req.body.id);
+    const eventIndex = data.events.findIndex((e) => e.id === eventId);
     if (eventIndex === -1) {
       res.status(400).send(`No Id found found`);
       return;
@@ -164,7 +164,7 @@ export const eventsPut = async (req, res) => {
     db.write();
 
     // update timer
-    _updateTimersSingle(req.body.id, req.body);
+    _updateTimersSingle(eventId, req.body);
 
     res.sendStatus(200);
   } catch (error) {
