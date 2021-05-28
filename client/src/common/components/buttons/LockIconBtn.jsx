@@ -10,8 +10,9 @@ export default function LockIconBtn(props) {
         ref={ref}
         size={props.size || 'xs'}
         icon={<FiTarget />}
-        colorScheme='pink'
-        color={'pink.300'}
+        color={active ? 'pink.100' : 'pink.300'}
+        borderColor={active ? undefined : 'pink.300'}
+        backgroundColor={active ? 'pink.300' : undefined}
         variant={active ? 'solid' : 'outline'}
         onClick={clickhandler}
         _focus={{ boxShadow: 'none' }}

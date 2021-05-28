@@ -34,12 +34,12 @@ export default function EditableTimer(props) {
     if (value === '') return false;
 
     // Time now and time submitedVal
-    const original = stringFromMillis(time, false);
+    const original = stringFromMillis(time + delay, false);
 
     // check if time is different from before
     if (value === original) return false;
 
-    // conver to millis object
+    // convert to millis object
     const millis = timeStringToMillis(value, timeFormat);
 
     // validate with parent
@@ -51,14 +51,8 @@ export default function EditableTimer(props) {
     return true;
   };
 
-  const showOriginal = () => {
-    setValue(stringFromMillis(time, false));
-  };
-
   return (
     <Editable
-      onFocus={() => showOriginal}
-      onEdit={() => showOriginal}
       onChange={(v) => setValue(v)}
       onSubmit={(v) => validateValue(v)}
       value={value}

@@ -14,10 +14,9 @@ export default function PresenterView(props) {
     document.title = 'ontime - Speaker Screen';
   }, []);
 
-
-
   const showOverlay = pres.text !== '' && pres.visible;
-  const isPlaying = time.playstate === 'start';
+  const isPlaying = time.playstate !== 'pause';
+  const normalisedTime = Math.max(time.running, 0);
 
   // motion
   const titleVariants = {
@@ -61,7 +60,7 @@ export default function PresenterView(props) {
           <div className={style.finished}>TIME UP</div>
         ) : (
           <div className={isPlaying ? style.countdown : style.countdownPaused}>
-            <Countdown time={time.currentSeconds} hideZeroHours />
+            <Countdown time={normalisedTime} hideZeroHours />
           </div>
         )}
       </div>
@@ -73,7 +72,7 @@ export default function PresenterView(props) {
           }
         >
           <MyProgressBar
-            now={time.currentSeconds}
+            now={normalisedTime}
             complete={time.durationSeconds}
             showElapsed
           />

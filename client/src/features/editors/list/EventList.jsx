@@ -27,7 +27,7 @@ export default function EventList(props) {
       },
       'Alt+ArrowUp': () => {
         if (cursor == null) setCursor(0);
-        else if (cursor >= 0) setCursor(cursor - 1);
+        else if (cursor > 0) setCursor(cursor - 1);
       },
       'Alt+KeyE': (event) => {
         event.preventDefault();
@@ -49,7 +49,7 @@ export default function EventList(props) {
     return () => {
       unsubscribe();
     };
-  }, [cursor, events.length, eventsHandler]);
+  }, [cursor, events, eventsHandler]);
 
   // handle incoming messages
   useEffect(() => {
@@ -62,7 +62,6 @@ export default function EventList(props) {
     // Handle playstate
     socket.on('selected', (data) => {
       setSelected(data);
-      console.log('debug cursor setted', data);
     });
     socket.on('next-id', (data) => {
       setNext(data);
@@ -80,13 +79,20 @@ export default function EventList(props) {
     if (cursorSettings !== 'locked' || selected == null) return;
     if (selected.index == null) return;
 
-    setCursor(selected.index);
-  }, [selected, cursorSettings]);
+    let eventIndex = -1;
+    let gotoIndex = -1;
+    for (const e of events) {
+      gotoIndex++;
+      if (e.type === 'event') eventIndex++;
+      if (eventIndex === selected.index) break;
+    }
+
+    setCursor(gotoIndex);
+  }, [events, selected, cursorSettings]);
 
   // attach scroll to cursor
   useEffect(() => {
     if (cursor == null || cursorRef.current == null) return;
-    console.log('debug cursor scrolling');
 
     cursorRef.current.scrollIntoView({
       behavior: 'smooth',
@@ -117,8 +123,7 @@ export default function EventList(props) {
 
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
-
-  console.log('debug selected', selected);
+  let eventIndex = -1;
 
   return (
     <div className={style.eventContainer}>
@@ -131,20 +136,28 @@ export default function EventList(props) {
               ref={provided.innerRef}
             >
               {events.map((e, index) => {
-                let isCursor = cursor === index;
-                if (index === 0) cumulativeDelay = 0;
+                if (index === 0) {
+                  cumulativeDelay = 0;
+                  eventIndex = -1;
+                }
                 if (e.type === 'delay' && e.duration != null) {
                   cumulativeDelay += e.duration;
-                } else if (e.type === 'block') cumulativeDelay = 0;
+                } else if (e.type === 'block') {
+                  cumulativeDelay = 0;
+                } else if (e.type === 'event') {
+                  eventIndex++;
+                }
+
                 return (
                   <div
-                    ref={isCursor ? cursorRef : undefined}
+                    ref={cursor === index ? cursorRef : undefined}
                     key={e.id}
-                    className={isCursor ? style.cursor : undefined}
+                    className={cursor === index ? style.cursor : undefined}
                   >
                     <EventListItem
                       type={e.type}
                       index={index}
+                      eventIndex={eventIndex}
                       data={e}
                       selected={selected?.id === e.id}
                       next={next === e.id}

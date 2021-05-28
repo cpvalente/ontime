@@ -58,12 +58,3 @@ export const BatchOperation = atom(null, (get, set, payload) => {
 
   localStorage.setItem(PATH, JSON.stringify(options));
 });
-
-// change collapsed in all items
-export const setAll = async (items, isCollapsed) => {
-  // clear storage
-  localStorage.removeItem(PATH);
-
-  // call batch
-  BatchOperation({ items: items, isCollapsed: isCollapsed });
-};
