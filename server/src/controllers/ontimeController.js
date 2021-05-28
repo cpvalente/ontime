@@ -66,7 +66,7 @@ async function parsev1(jsonData) {
       publicInfo: e.publicInfo,
       backstageInfo: e.backstageInfo,
     };
-    console.log(event);
+
     // write to db
     db.data.event = event;
     db.write();

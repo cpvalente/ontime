@@ -1,5 +1,5 @@
 // get config
-import { config } from './config.js';
+import { config } from './config/config.js';
 
 // init database
 import { Low, JSONFile } from 'lowdb';
