@@ -77,6 +77,7 @@ export default function EventList(props) {
 
   // when cursor moves, view should follow
   useEffect(() => {
+    if (cursorRef.current == null) return;
     cursorRef.current.scrollIntoView({
       behavior: 'smooth',
       block: 'nearest',

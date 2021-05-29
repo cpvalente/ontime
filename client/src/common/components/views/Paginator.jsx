@@ -53,6 +53,8 @@ export default function Paginator(props) {
     }
   }, SCROLL_TIME);
 
+  let selectedState = 0;
+
   return (
     <>
       <div className={style.nav}>
@@ -66,7 +68,7 @@ export default function Paginator(props) {
       </div>
       <div className={style.entries}>
         {page.map((e) => {
-          let selectedState = 0;
+          if (selectedState === 1) selectedState = 2;
           if (e.id === selected) selectedState = 1;
           else if (e.id > selected) selectedState = 2;
           return (

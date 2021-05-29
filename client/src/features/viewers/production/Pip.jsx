@@ -3,7 +3,7 @@ import style from './Pip.module.css';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { formatDisplay } from 'common/dateConfig';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 
@@ -14,7 +14,7 @@ export default function Pip(props) {
   const [filteredEvents, setFilteredEvents] = useState(null);
 
   // calculcate pip size
-  useEffect(() => {
+  useLayoutEffect(() => {
     const h = ref.current.clientHeight;
     const w = ref.current.clientWidth;
     setSize(`${w} x ${h}`);
