@@ -1,4 +1,4 @@
-const event = {
+export const event = {
   title: '',
   subtitle: '',
   presenter: '',
@@ -10,13 +10,12 @@ const event = {
   revision: 0,
 };
 
-const delay = {
+export const delay = {
   duration: 0,
   type: 'delay',
+  revision: 0,
 };
 
-const block = {
+export const block = {
   type: 'block',
 };
-
-module.exports = { event, delay, block };

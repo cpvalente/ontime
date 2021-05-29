@@ -1,18 +1,22 @@
 import style from './List.module.css';
-import { Fragment, useEffect, useState } from 'react';
+import { createRef, useEffect, useMemo, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import tinykeys from 'tinykeys';
 import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';
-import { AnimatePresence, motion } from 'framer-motion';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { useAtom } from 'jotai';
+import { SelectSetting } from 'app/context/settingsAtom';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
   const socket = useSocket();
-  const [selected, setSelected] = useState(null);
-  const [next, setNext] = useState(null);
-  const [cursor, setCursor] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [nextId, setNextId] = useState(null);
+  const [cursor, setCursor] = useState(0);
+  const [cursorSettings] = useAtom(useMemo(() => SelectSetting('cursor'), []));
+
+  const cursorRef = createRef();
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -23,7 +27,7 @@ export default function EventList(props) {
       },
       'Alt+ArrowUp': () => {
         if (cursor == null) setCursor(0);
-        else if (cursor >= 0) setCursor(cursor - 1);
+        else if (cursor > 0) setCursor(cursor - 1);
       },
       'Alt+KeyE': (event) => {
         event.preventDefault();
@@ -45,50 +49,67 @@ export default function EventList(props) {
     return () => {
       unsubscribe();
     };
-  }, [cursor, events.length, eventsHandler]);
+  }, [cursor, events, eventsHandler]);
 
   // handle incoming messages
   useEffect(() => {
     if (socket == null) return;
 
     // ask for playstate
-    socket.emit('get-selected-id');
+    socket.emit('get-selected');
     socket.emit('get-next-id');
 
     // Handle playstate
-    socket.on('selected-id', (data) => {
-      setSelected(data);
+    socket.on('selected', (data) => {
+      setSelectedId(data.id);
     });
+
     socket.on('next-id', (data) => {
-      setNext(data);
+      setNextId(data);
     });
 
     // Clear listener
     return () => {
-      socket.off('selected-id');
+      socket.off('selected');
       socket.off('next-id');
     };
   }, [socket]);
 
+  // when cursor moves, view should follow
+  useEffect(() => {
+    if (cursorRef.current == null) return;
+    cursorRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'start',
+    });
+  }, [cursor]);
+
+  // if selected event
+  // or cursor settings changed
+  useEffect(() => {
+    // and if we are locked
+    if (cursorSettings !== 'locked' || selectedId == null) return;
+
+    // move cursor
+    let gotoIndex = -1;
+    let found = false;
+    for (const e of events) {
+      gotoIndex++;
+      if (e.id === selectedId) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      // move cursor
+      setCursor(gotoIndex);
+    }
+  }, [selectedId, cursorSettings]);
+
   if (events.length < 1) {
     return <Empty text='No Events' />;
   }
-
-  // motion
-  const cursorVariants = {
-    hidden: {
-      scale: 0,
-    },
-    visible: {
-      scale: 1,
-      transition: {
-        duration: 0.3,
-      },
-    },
-    exit: {
-      scale: 0,
-    },
-  };
 
   // DND
   const handleOnDragEnd = (result) => {
@@ -108,20 +129,10 @@ export default function EventList(props) {
 
   console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
+  let eventIndex = -1;
 
   return (
     <div className={style.eventContainer}>
-      <AnimatePresence>
-        {cursor === -1 && (
-          <motion.div
-            className={style.cursor}
-            variants={cursorVariants}
-            initial='hidden'
-            animate='visible'
-            exit='exit'
-          />
-        )}
-      </AnimatePresence>
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <Droppable droppableId='eventlist'>
           {(provided) => (
@@ -131,33 +142,35 @@ export default function EventList(props) {
               ref={provided.innerRef}
             >
               {events.map((e, index) => {
-                if (index === 0) cumulativeDelay = 0;
+                if (index === 0) {
+                  cumulativeDelay = 0;
+                  eventIndex = -1;
+                }
                 if (e.type === 'delay' && e.duration != null) {
                   cumulativeDelay += e.duration;
-                } else if (e.type === 'block') cumulativeDelay = 0;
+                } else if (e.type === 'block') {
+                  cumulativeDelay = 0;
+                } else if (e.type === 'event') {
+                  eventIndex++;
+                }
+
                 return (
-                  <Fragment key={e.id}>
+                  <div
+                    ref={cursor === index ? cursorRef : undefined}
+                    key={e.id}
+                    className={cursor === index ? style.cursor : undefined}
+                  >
                     <EventListItem
                       type={e.type}
                       index={index}
+                      eventIndex={eventIndex}
                       data={e}
-                      selected={selected === e.id}
-                      next={next === e.id}
+                      selected={selectedId === e.id}
+                      next={nextId === e.id}
                       eventsHandler={eventsHandler}
                       delay={cumulativeDelay}
                     />
-                    <AnimatePresence>
-                      {cursor === index && (
-                        <motion.div
-                          className={style.cursor}
-                          variants={cursorVariants}
-                          initial='hidden'
-                          animate='visible'
-                          exit='exit'
-                        />
-                      )}
-                    </AnimatePresence>
-                  </Fragment>
+                  </div>
                 );
               })}
               {provided.placeholder}

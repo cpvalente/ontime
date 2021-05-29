@@ -33,9 +33,9 @@ export default function EditableText(props) {
       >
         <EditablePreview
           color={text === '' ? '#666' : 'inherit'}
-          maxWidth='20em'
+          maxWidth='75%'
         />
-        <EditableInput overflowX='hidden' maxWidth='20em' />
+        <EditableInput overflowX='hidden' maxWidth='75%' />
       </Editable>
     </div>
   );

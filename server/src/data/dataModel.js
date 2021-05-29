@@ -1,10 +1,10 @@
-const dbModel = {
+export const dbModel = {
   events: [],
   event: {
     title: '',
     url: '',
     publicInfo: '',
-    backStageInfo: '',
+    backstageInfo: '',
   },
   settings: {
     app: 'ontime',
@@ -14,5 +14,3 @@ const dbModel = {
     lock: false,
   },
 };
-
-module.exports = { dbModel };

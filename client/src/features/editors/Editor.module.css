@@ -8,21 +8,22 @@
 
   display: grid;
   grid-template-rows: 38vh 1fr;
-  grid-template-columns: 48em 27vw 25vw 4vw;
+  grid-template-columns: 40px 48em 27vw 1fr;
   grid-template-areas:
-    'even play info sett'
-    'even mess info sett';
+    'sett even play info'
+    'sett even mess info';
   gap: 2vh;
 }
 
 /* 2/3 window, hide previews */
 @media (max-width: 1250px) and (min-height: 700px) {
   .mainContainer {
+    height: 100%;
     grid-template-rows: 1fr 1fr;
-    grid-template-columns: 48em 1fr 1fr;
-    grid-template-areas:
+    grid-template-columns: 40px 48em 1fr 1fr;
+    /* grid-template-areas:
       'even play sett'
-      'even mess sett';
+      'even mess sett'; */
   }
 
   .info {
@@ -38,6 +39,11 @@
     grid-template-areas:
       'mess'
       'play';
+  }
+
+  .messages,
+  .playback {
+    min-width: 31em;
   }
 
   .editor,
@@ -89,12 +95,16 @@
   grid-area: play;
 }
 
-.settings {
+.mainContainer > .settings {
   grid-area: sett;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  width: fit-content;
+
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2.6em;
+  gap: 1em;
 }
 
 .content {

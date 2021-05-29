@@ -1,22 +1,26 @@
 // get database
-const db = require('../app.js').db;
+import { db, data } from '../app.js';
 
 // utils
-const customAlphabet = require('nanoid').customAlphabet;
+import { customAlphabet } from 'nanoid';
 const nanoid = customAlphabet('1234567890abcdef', 4);
-const eventDefs = require('../data/eventsDefinition.js');
+import {
+  event as eventDef,
+  delay as delayDef,
+  block as blockDef,
+} from '../data/eventsDefinition.js';
 
 function _getEventsCount() {
-  return db.get('events').size().value();
+  return Array.from(data.events).length;
 }
 
 function _pushNew(entry) {
-  return db.get('events').push(entry).write();
+  return data.events.push(entry).write();
 }
 
-function _insertAt(entry, index) {
+async function _insertAt(entry, index) {
   // get events
-  let events = db.get('events').value();
+  let events = data.events;
   let count = events.length;
   let order = entry.order;
 
@@ -39,15 +43,18 @@ function _insertAt(entry, index) {
   }
 
   // save events
-  db.set('events', events).write();
+  data.events = events;
+  await db.write();
 }
 
-function _removeById(eventId) {
-  return db.get('events').remove({ id: eventId }).write();
+async function _removeById(eventId) {
+  data.events = Array.from(data.events).filter((e) => e.id != eventId);
+  await db.write();
 }
 
 function getEventEvents() {
-  return db.get('events').chain().filter({ type: 'event' }).value();
+  // return data.events.filter((e) => e.type === 'event');
+  return Array.from(data.events).filter((e) => e.type === 'event');
 }
 
 // Updates timer object
@@ -68,21 +75,21 @@ function _deleteTimerId(entryId) {
 
 // Create controller for GET request to '/events'
 // Returns -
-exports.eventsGetAll = async (req, res) => {
-  const results = db.get('events').value();
-  res.json(results);
+export const eventsGetAll = async (req, res) => {
+  res.json(data.events);
 };
 
 // Create controller for GET request to '/events/:eventId'
 // Returns -
-exports.eventsGetById = async (req, res) => {
-  const e = db.get('events').find({ id: req.params.eventId }).value();
+export const eventsGetById = async (req, res) => {
+  const e = data.events.find({ id: req.params.eventId }).value();
+  console.log('event by id', e);
   res.json(e);
 };
 
 // Create controller for POST request to '/events/'
 // Returns -
-exports.eventsPost = async (req, res) => {
+export const eventsPost = async (req, res) => {
   // TODO: Validate event
   if (!req.body) {
     res.status(400).send(`No object found in request`);
@@ -95,13 +102,13 @@ exports.eventsPost = async (req, res) => {
 
   switch (req.body.type) {
     case 'event':
-      newEvent = { ...eventDefs.event, ...req.body };
+      newEvent = { ...eventDef, ...req.body };
       break;
     case 'delay':
-      newEvent = { ...eventDefs.delay, ...req.body };
+      newEvent = { ...delayDef, ...req.body };
       break;
     case 'block':
-      newEvent = { ...eventDefs.block, ...req.body };
+      newEvent = { ...blockDef, ...req.body };
       break;
 
     default:
@@ -131,7 +138,7 @@ exports.eventsPost = async (req, res) => {
 
 // Create controller for PUT request to '/events/'
 // Returns -
-exports.eventsPut = async (req, res) => {
+export const eventsPut = async (req, res) => {
   // no valid params
   if (!req.body) {
     res.status(400).send(`No object found`);
@@ -145,29 +152,35 @@ exports.eventsPut = async (req, res) => {
   }
 
   try {
-    db.get('events')
-      .find({ id: req.body.id })
-      .assign({ ...req.body })
-      .update('revision', (n) => n + 1)
-      .write();
+    const eventIndex = data.events.findIndex((e) => e.id === eventId);
+    if (eventIndex === -1) {
+      res.status(400).send(`No Id found found`);
+      return;
+    }
+
+    const e = data.events[eventIndex];
+    data.events[eventIndex] = { ...e, ...req.body };
+    data.events[eventIndex].revision++;
+    db.write();
 
     // update timer
-    _updateTimersSingle(req.body.id, req.body);
+    _updateTimersSingle(eventId, req.body);
 
     res.sendStatus(200);
   } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 };
 
 // Create controller for PATCH request to '/events/'
 // Returns -
-exports.eventsPatch = async (req, res) => {
+export const eventsPatch = async (req, res) => {
   // Code is the same as put, call that
-  this.eventsPut(req, res);
+  eventsPut(req, res);
 };
 
-exports.eventsReorder = async (req, res) => {
+export const eventsReorder = async (req, res) => {
   // TODO: Validate event
   if (!req.body) {
     res.status(400).send(`No object found in request`);
@@ -177,7 +190,7 @@ exports.eventsReorder = async (req, res) => {
   const { index, from, to } = req.body;
 
   // get events
-  let events = db.get('events').value();
+  let events = data.events;
   let idx = events.findIndex((e) => e.id === index, from);
 
   // Check if item is at given index
@@ -194,7 +207,8 @@ exports.eventsReorder = async (req, res) => {
     events.splice(to, 0, reorderedItem);
 
     // save events
-    db.set('events', events).write();
+    data.events = events;
+    db.write();
 
     // TODO: would it be more efficient to reorder at timer?
     // update timer
@@ -209,7 +223,7 @@ exports.eventsReorder = async (req, res) => {
 
 // Create controller for PATCH request to '/events/applydelay/:eventId'
 // Returns -
-exports.eventsApplyDelay = async (req, res) => {
+export const eventsApplyDelay = async (req, res) => {
   // no valid params
   if (!req.params.eventId) {
     res.status(400).send(`No id found in request`);
@@ -218,7 +232,7 @@ exports.eventsApplyDelay = async (req, res) => {
 
   try {
     // get events
-    let events = db.get('events').value();
+    let events = data.events;
 
     // AUX
     let delayIndex = null;
@@ -259,7 +273,8 @@ exports.eventsApplyDelay = async (req, res) => {
     if (blockIndex) events.splice(blockIndex - 1, 1);
 
     // update events
-    db.set('events', events).write();
+    data.events = events;
+    db.write();
 
     // update timer
     _updateTimers();
@@ -274,7 +289,7 @@ exports.eventsApplyDelay = async (req, res) => {
 
 // Create controller for DELETE request to '/events/:eventId'
 // Returns -
-exports.eventsDelete = async (req, res) => {
+export const eventsDelete = async (req, res) => {
   // no valid params
   if (!req.params.eventId) {
     res.status(400).send(`No id found in request`);
@@ -292,6 +307,23 @@ exports.eventsDelete = async (req, res) => {
   } catch (error) {
     console.log('debug:', error);
 
+    res.status(400).send(error);
+  }
+};
+
+// Create controller for DELETE request to '/events/:eventId'
+// Returns -
+export const eventsDeleteAll = async (req, res) => {
+  try {
+    // set with nothing
+    data.events = [];
+    db.write();
+
+    // update timer object
+    _updateTimersSingle();
+
+    res.sendStatus(201);
+  } catch (error) {
     res.status(400).send(error);
   }
 };

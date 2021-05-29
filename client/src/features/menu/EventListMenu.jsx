@@ -1,31 +1,16 @@
-import { memo } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
-import {
-  Button,
-  ButtonGroup,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from '@chakra-ui/react';
+import { memo, useMemo } from 'react';
+import { Divider } from '@chakra-ui/react';
 import style from './EventListMenu.module.css';
-import MenuActionButtons from '../editors/list/MenuActionButtons';
+import MenuActionButtons from './MenuActionButtons';
+import CollapseBtn from 'common/components/buttons/CollapseBtn';
+import ExpandBtn from 'common/components/buttons/ExpandBtn';
+import { SelectSetting, HandleOptions } from 'app/context/settingsAtom';
+import { useAtom } from 'jotai';
+import LockIconBtn from 'common/components/buttons/LockIconBtn';
 
 const EventListMenu = ({ eventsHandler }) => {
-  const buttonProps = {
-    size: 'sm',
-    variant: 'outline',
-    colorScheme: 'whiteAlpha',
-    backgroundColor: '#ffffff05',
-    _hover: { bg: 'blue.800' },
-    _expanded: { bg: 'blue.400' },
-    _focus: { boxShadow: 'none' },
-  };
-
-  const menuStyle = {
-    color: 'initial',
-    backgroundColor: 'rgba(255,255,255,0.67)',
-  };
+  const [cursorSettings] = useAtom(useMemo(() => SelectSetting('cursor'), []));
+  const [, SetOption] = useAtom(HandleOptions);
 
   const actionHandler = (action) => {
     switch (action) {
@@ -38,6 +23,16 @@ const EventListMenu = ({ eventsHandler }) => {
       case 'block':
         eventsHandler('add', { type: action, order: 0 });
         break;
+      case 'togglelock':
+        let newSet = 'locked';
+        if (cursorSettings === 'locked') {
+          newSet = 'unlocked';
+        }
+        SetOption({ cursor: newSet });
+        break;
+      case 'deleteall':
+        eventsHandler('deleteall');
+        break;
       default:
         break;
     }
@@ -45,30 +40,18 @@ const EventListMenu = ({ eventsHandler }) => {
 
   return (
     <div className={style.headerButtons}>
-      <Menu className={style.menu} isLazy>
-        <ButtonGroup isAttached>
-          <Button {...buttonProps}>Upload</Button>
-          <MenuButton as={Button} {...buttonProps}>
-            <FiChevronDown />
-          </MenuButton>
-        </ButtonGroup>
-        <MenuList style={menuStyle}>
-          <MenuItem>Upload Excel</MenuItem>
-          <MenuItem>Upload CSV</MenuItem>
-        </MenuList>
-      </Menu>
-      <Menu>
-        <ButtonGroup isAttached>
-          <Button {...buttonProps}>Save</Button>
-          <MenuButton as={Button} {...buttonProps}>
-            <FiChevronDown />
-          </MenuButton>
-        </ButtonGroup>
-        <MenuList style={menuStyle}>
-          <MenuItem>Download Excel</MenuItem>
-          <MenuItem>Download CSV</MenuItem>
-        </MenuList>
-      </Menu>
+      <CollapseBtn
+        size='sm'
+        clickhandler={() => eventsHandler('collapseall')}
+      />
+      <ExpandBtn size='sm' clickhandler={() => eventsHandler('expandall')} />
+      <Divider orientation='vertical' />
+      <LockIconBtn
+        size='sm'
+        clickhandler={() => actionHandler('togglelock')}
+        active={cursorSettings === 'locked'}
+      />
+      <Divider orientation='vertical' />
       <MenuActionButtons actionHandler={actionHandler} size='sm' />
     </div>
   );

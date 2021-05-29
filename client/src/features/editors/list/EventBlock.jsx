@@ -1,6 +1,6 @@
 import Icon from '@chakra-ui/icon';
 import { FiChevronDown, FiChevronUp, FiMoreVertical } from 'react-icons/fi';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
 import EventTimesVertical from 'common/components/eventTimes/EventTimesVertical';
@@ -10,9 +10,12 @@ import VisibleIconBtn from 'common/components/buttons/VisibleIconBtn';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import { millisToMinutes } from 'common/dateConfig';
 import style from './EventBlock.module.css';
+import { SelectCollapse, HandleCollapse } from 'app/context/collapseAtom';
+import { useAtom } from 'jotai';
 
 const ExpandedBlock = (props) => {
-  const { provided, data, next, delay, delayValue, actionHandler } = props;
+  const { provided, data, eventIndex, next, delay, delayValue, actionHandler } =
+    props;
 
   const oscid = data.id.length > 4 ? '...' : data.id;
 
@@ -78,14 +81,16 @@ const ExpandedBlock = (props) => {
             actionHandler('update', { field: 'note', value: v })
           }
         />
-        <span className={style.oscLabel}>{`OSC ID: ${oscid}`}</span>
+        <span className={style.oscLabel}>
+          {`/ontime/goto ${eventIndex + 1}  << OSC >> /ontime/gotoid ${oscid}`}
+        </span>
       </div>
       <Icon
         className={style.more}
         as={FiChevronUp}
         marginTop='0.2em'
         gridArea='more'
-        onClick={() => props.setExpanded(false)}
+        onClick={() => props.setCollapsed(true)}
       />
       <div className={style.actionOverlay}>
         <VisibleIconBtn actionHandler={actionHandler} active={data.isPublic} />
@@ -138,7 +143,7 @@ const CollapsedBlock = (props) => {
         as={FiChevronDown}
         marginTop='0.2em'
         gridArea='more'
-        onClick={() => props.setExpanded(true)}
+        onClick={() => props.setCollapsed(false)}
       />
       <div className={style.actionOverlay}>
         <VisibleIconBtn actionHandler={actionHandler} active={data.isPublic} />
@@ -154,18 +159,28 @@ const CollapsedBlock = (props) => {
 };
 
 export default function EventBlock(props) {
-  const { data, selected, delay, index, actionHandler } = props;
+  const { data, selected, delay, index, eventIndex, actionHandler } = props;
 
-  const [expanded, setExpanded] = useState(true);
+  // const [collapsed, setCollapsed] = useState(checkLocalStorage(data.id));
+
+  // const collapsed = useSelector(itemsAtom, (state) => state === data.id);
+  const [collapsed] = useAtom(
+    useMemo(() => SelectCollapse(data.id), [data.id])
+  );
+  const [, setCollapsed] = useAtom(HandleCollapse);
 
   // TODO: should this go inside useEffect()
   // Would I then need to add this to state?
   const isSelected = selected ? style.active : '';
-  const isExpanded = expanded ? style.expanded : style.collapsed;
-  const classSelect = `${style.event} ${isExpanded} ${isSelected}`;
+  const isCollapsed = collapsed ? style.collapsed : style.expanded;
+  const classSelect = `${style.event} ${isCollapsed} ${isSelected}`;
 
   // Calculate delay in min
   const delayValue = delay > 0 ? millisToMinutes(delay) : null;
+
+  const handleCollapse = (isCollapsed) => {
+    setCollapsed({ [data.id]: isCollapsed });
+  };
 
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
@@ -175,17 +190,7 @@ export default function EventBlock(props) {
           {...provided.draggableProps}
           ref={provided.innerRef}
         >
-          {expanded ? (
-            <ExpandedBlock
-              provided={provided}
-              data={data}
-              next={props.next}
-              delay={delay}
-              delayValue={delayValue}
-              actionHandler={actionHandler}
-              setExpanded={setExpanded}
-            />
-          ) : (
+          {collapsed ? (
             <CollapsedBlock
               provided={provided}
               data={data}
@@ -193,7 +198,18 @@ export default function EventBlock(props) {
               delay={delay}
               delayValue={delayValue}
               actionHandler={actionHandler}
-              setExpanded={setExpanded}
+              setCollapsed={handleCollapse}
+            />
+          ) : (
+            <ExpandedBlock
+              provided={provided}
+              eventIndex={eventIndex}
+              data={data}
+              next={props.next}
+              delay={delay}
+              delayValue={delayValue}
+              actionHandler={actionHandler}
+              setCollapsed={handleCollapse}
             />
           )}
         </div>

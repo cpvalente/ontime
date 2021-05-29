@@ -1,14 +1,5 @@
 import axios from 'axios';
-import { NODE_PORT } from '../api/apiConstants';
-
-// get origin from URL
-const serverURL = window.location.origin.replace(
-  window.location.port,
-  `${NODE_PORT}/`
-);
-
-export const eventsNamespace = 'events';
-export const eventsURL = serverURL + eventsNamespace;
+import { eventsURL } from '../api/apiConstants';
 
 export const fetchAllEvents = async () => {
   const res = await axios.get(eventsURL);
@@ -44,5 +35,10 @@ export const requestApplyDelay = async (eventId) => {
 
 export const requestDelete = async (eventId) => {
   const res = await axios.delete(eventsURL + '/' + eventId);
+  return res;
+};
+
+export const requestDeleteAll = async () => {
+  const res = await axios.delete(eventsURL + '/all');
   return res;
 };

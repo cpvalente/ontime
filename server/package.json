@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
+  "type": "module",
   "main": "main.js",
   "dependencies": {
     "body-parser": "~1.19.0",
     "express": "~4.17.1",
     "express-session": "~1.17.1",
-    "lowdb": "^1.0.0",
+    "lowdb": "2.1.0",
+    "multer": "^1.4.2",
     "nanoid": "^3.1.22",
-    "node-osc": "^6.0.1",
+    "node-osc": "6.0.2",
     "passport": "~0.4.1",
     "passport-local": "~1.0.0",
     "socket.io": "^4.0.0"

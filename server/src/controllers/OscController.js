@@ -1,9 +1,12 @@
-const osc = require('node-osc');
+import { Server } from 'node-osc';
 
-const initiateOSC = (config) => {
-  const oscServer = new osc.Server(config.port, '0.0.0.0', () => {
+export const initiateOSC = (config) => {
+  const oscServer = new Server(config.port, '0.0.0.0', () => {
     console.log(`OSC Server is listening on port ${config.port}`);
   });
+
+  // error
+  oscServer.on('error', console.error);
 
   oscServer.on('message', function (msg) {
     // message should look like /ontime/{path}/{args} where
@@ -20,7 +23,7 @@ const initiateOSC = (config) => {
     if (address !== 'ontime') return;
 
     // get second part (command)
-    switch (path) {
+    switch (path.toLocaleLowerCase()) {
       case 'start':
       case 'play':
         console.log('calling play');
@@ -61,7 +64,19 @@ const initiateOSC = (config) => {
       case 'goto':
         console.log('calling goto with', args);
         try {
-          global.timer.loadEventById(args.toLowerCase());
+          let eventIndex = parseInt(args);
+          if (isNaN(eventIndex) || eventIndex <= 0 || eventIndex == null)
+            return;
+          global.timer.loadEvent(eventIndex - 1, undefined, true);
+        } catch (error) {
+          console.log('error calling goto: ', error);
+        }
+        break;
+      case 'gotoid':
+        console.log('calling gotoid with', args);
+        if (args == null) return;
+        try {
+          global.timer.loadEventById(args.toString().toLowerCase());
         } catch (error) {
           console.log('error calling goto: ', error);
         }
@@ -73,5 +88,3 @@ const initiateOSC = (config) => {
     }
   });
 };
-
-module.exports = { initiateOSC };

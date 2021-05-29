@@ -12,7 +12,6 @@ export default function RollIconBtn(props) {
       width={120}
       _focus={{ boxShadow: 'none' }}
       {...rest}
-      disabled
     />
   );
 }

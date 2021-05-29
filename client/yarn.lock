@@ -7575,6 +7575,11 @@ jest@26.6.0:
     import-local "^3.0.2"
     jest-cli "^26.6.0"
 
+jotai@^0.16.5:
+  version "0.16.5"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-0.16.5.tgz#493bab65b69c045c508d8a3a4996fcc4d75e8228"
+  integrity sha512-exiddLOPp22P0c7z+X5jQEraoEdFm80BaNeuT2WTMAFNRZY2l1XmefR/PXj9JEaAMrHRQk7BKbJ51C5AddoSWA==
+
 js-sha3@0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/js-sha3/-/js-sha3-0.8.0.tgz#b9b7a5da73afad7dedd0f8c463954cbde6818840"
