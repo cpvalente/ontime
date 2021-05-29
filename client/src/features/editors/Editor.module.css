@@ -8,10 +8,10 @@
 
   display: grid;
   grid-template-rows: 38vh 1fr;
-  grid-template-columns: 48em 27vw 25vw 4vw;
+  grid-template-columns: 40px 48em 27vw 1fr;
   grid-template-areas:
-    'even play info sett'
-    'even mess info sett';
+    'sett even play info'
+    'sett even mess info';
   gap: 2vh;
 }
 
@@ -20,7 +20,7 @@
   .mainContainer {
     height: 100%;
     grid-template-rows: 1fr 1fr;
-    grid-template-columns: 48em 1fr 1fr;
+    grid-template-columns: 40px 48em 1fr 1fr;
     /* grid-template-areas:
       'even play sett'
       'even mess sett'; */
@@ -95,22 +95,20 @@
   grid-area: play;
 }
 
-.settings {
+.mainContainer > .settings {
   grid-area: sett;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  width: fit-content;
+
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2.6em;
+  gap: 1em;
 }
 
 .content {
   padding-top: 1.5em;
-}
-
-.settings > .content {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
 }
 
 .cornerButtonContainer {

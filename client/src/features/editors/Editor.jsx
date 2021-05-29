@@ -7,10 +7,8 @@ import styles from './Editor.module.css';
 import EventListWrapper from './list/EventListWrapper';
 import { useDisclosure } from '@chakra-ui/hooks';
 import SettingsModal from '../modals/SettingsModal';
-import SettingsIconBtn from 'common/components/buttons/SettingsIconBtn';
 import { useEffect } from 'react';
-import DownloadIconBtn from 'common/components/buttons/DownloadIconBtn';
-import { downloadEvents } from 'app/api/ontimeApi';
+import MenuBar from 'features/menu/MenuBar';
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -20,15 +18,15 @@ export default function Editor() {
     document.title = 'ontime - Editor';
   }, []);
 
-  const handleDownload = () => {
-    downloadEvents();
-  };
-
   return (
     <>
       <SettingsModal isOpen={isOpen} onClose={onClose} />
 
       <div className={styles.mainContainer}>
+        <Box id='settings' className={styles.settings}>
+          <NavMenu onOpen={onOpen} onClose={onClose} />
+        </Box>
+
         <Box className={styles.editor}>
           <Heading size='lg' paddingBottom={'0.25em'}>
             Event List
@@ -68,13 +66,6 @@ export default function Editor() {
           </Heading>
           <NumberedText number={4} text={'Running Info'} />
           <div className={styles.content}></div>
-        </Box>
-
-        <Box className={styles.settings}>
-          <div className={styles.content}>
-            <SettingsIconBtn size='md' clickhandler={onOpen} />
-            <DownloadIconBtn size='md' clickhandler={handleDownload} />
-          </div>
         </Box>
       </div>
     </>
