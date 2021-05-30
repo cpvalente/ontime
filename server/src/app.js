@@ -3,7 +3,12 @@ import { config } from './config/config.js';
 
 // init database
 import { Low, JSONFile } from 'lowdb';
+
 import { join } from 'path';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const file = join('data/', config.database.filename);
 const adapter = new JSONFile(file);
@@ -60,9 +65,11 @@ app.use('/events', eventsRouter);
 app.use('/event', eventRouter);
 app.use('/ontime', ontimeRouter);
 
-// implement general router
-app.get('/', (req, res) => {
-  res.send('ontime API');
+// serve react
+app.use(express.static(path.join(__dirname, '../../client/build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../../client', 'build', 'index.html'));
 });
 
 // Implement route for errors
@@ -87,3 +94,7 @@ server.listen(port, () =>
 import { initiateOSC } from './controllers/OscController.js';
 
 initiateOSC(config.osc);
+
+export function init() {
+  console.log('init');
+}

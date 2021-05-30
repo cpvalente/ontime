@@ -8,7 +8,11 @@ const {
 } = require('electron');
 const path = require('path');
 const { electron } = require('process');
-const nodeapp = require('./app.js');
+
+(async () => {
+  const { nodeapp } = await import('./src/app.js');
+})();
+
 require('@electron/remote/main').initialize();
 
 // Load Icons

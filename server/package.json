@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
-  "type": "module",
   "main": "main.js",
   "dependencies": {
     "body-parser": "~1.19.0",
