@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "scripts": {
+    "nodestart": "nodemon app.js",
+    "start": "node app.js"
+  }
+}
