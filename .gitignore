@@ -30,7 +30,5 @@ _SS/
 .vscode/launch.json
 db.json
 .eslintrc.json
-yarn.lock
-package-lock.json
 db.json
 db backup.json
