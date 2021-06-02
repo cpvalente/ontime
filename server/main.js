@@ -9,9 +9,9 @@ const {
 const path = require('path');
 const { electron } = require('process');
 
-(async () => {
-  const { nodeapp } = await import('./src/app.js');
-})();
+var env = process.env.NODE_ENV || 'prod';
+
+const { nodeapp } = import(path.join(__dirname, env=='prod' ? '../' : '', 'src/app.js'));
 
 // Load Icons
 // TODO: Icons appear pixelated
@@ -68,8 +68,8 @@ function createWindow() {
   try {
     // loaded = path.join(__dirname, '../client/build/index.html');
     // win.loadURL(`file://${loaded}`);
-    // win.loadURL('http://localhost:4001/editor');
-    win.loadURL(`file://${__dirname}/dist/index.html`);
+     win.loadURL('http://localhost:4001/editor');
+    //win.loadURL(`file://${__dirname}/dist/index.html`);
   } catch (error) {
     loaded = error;
   }

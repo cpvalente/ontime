@@ -10,7 +10,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const file = join('data/', config.database.filename);
+var env = process.env.NODE_ENV || 'prod';
+
+const file = join(__dirname, 'data/', config.database.filename);
 const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
@@ -66,10 +68,10 @@ app.use('/event', eventRouter);
 app.use('/ontime', ontimeRouter);
 
 // serve react
-app.use(express.static(path.join(__dirname, '../../client/build')));
+app.use(express.static(path.join(__dirname, env == 'prod' ? '../' : '../../', 'client/build')));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../client', 'build', 'index.html'));
+  res.sendFile(path.resolve(__dirname,  env == 'prod' ? '../' : '../../', 'client', 'build', 'index.html'));
 });
 
 // Implement route for errors
