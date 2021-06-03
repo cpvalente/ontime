@@ -11,7 +11,9 @@ const { electron } = require('process');
 
 var env = process.env.NODE_ENV || 'prod';
 
-const { nodeapp } = import(path.join(__dirname, env=='prod' ? '../' : '', 'src/app.js'));
+const { nodeapp } = import(
+  path.join('file:///', __dirname, env == 'prod' ? '../' : '', 'src/app.js')
+);
 
 // Load Icons
 // TODO: Icons appear pixelated
@@ -65,18 +67,9 @@ function createWindow() {
   win.setMenu(null);
 
   // Load page served by node
-  try {
-    // loaded = path.join(__dirname, '../client/build/index.html');
-    // win.loadURL(`file://${loaded}`);
-     win.loadURL('http://localhost:4001/editor');
-    //win.loadURL(`file://${__dirname}/dist/index.html`);
-  } catch (error) {
-    loaded = error;
-  }
-
-  // win.loadURL('http://localhost:4001/editor').then(() => {
-  //   win.webContents.setBackgroundThrottling(false);
-  // });
+  win.loadURL('http://localhost:4001/editor').then(() => {
+    win.webContents.setBackgroundThrottling(false);
+  });
 
   // Show dev tools
   win.webContents.openDevTools({ mode: 'detach' });
