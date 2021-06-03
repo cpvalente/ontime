@@ -5,11 +5,14 @@ const {
   globalShortcut,
   Tray,
   dialog,
+  ipcMain,
+  shell,
 } = require('electron');
 const path = require('path');
 const { electron } = require('process');
+const { Notification } = require('electron');
 
-var env = process.env.NODE_ENV || 'prod';
+const env = process.env.NODE_ENV || 'prod';
 
 (async () => {
   const { nodeapp } = import(
@@ -32,8 +35,6 @@ if (!lock) {
   app.quit();
   return;
 }
-
-const { Notification } = require('electron');
 
 function showNotification(text) {
   new Notification({
@@ -75,14 +76,19 @@ function createWindow() {
       preload: path.join(__dirname, './electron/preload.js'),
       // TODO: what are recommended alternatives to node integration?
       nodeIntegration: true,
-      // enableRemoteModule: true,
+      contextIsolation: false,
     },
   });
 
   win.setMenu(null);
 
   // Load page served by node
-  win.loadURL('http://localhost:4001/editor').then(() => {
+  const reactApp =
+    env == 'prod'
+      ? 'http://localhost:4001/editor'
+      : 'http://localhost:3000/editor';
+
+  win.loadURL(reactApp).then(() => {
     win.webContents.setBackgroundThrottling(false);
   });
 
@@ -172,4 +178,41 @@ app
 // unregister shortcuts before quitting
 app.once('will-quit', () => {
   globalShortcut.unregisterAll();
+});
+
+// Get messages from react
+// Test message
+ipcMain.on('test-message', (event, arg) => {
+  showNotification('testing 1-2', arg);
+});
+
+// Terminate
+ipcMain.on('shutdown', (event, arg) => {
+  console.log('Got IPC shutdown');
+  win.destroy();
+  app.quit();
+});
+
+// Window manipulation
+ipcMain.on('set-window', (event, arg) => {
+  console.log('Got IPC set-window', arg);
+
+  if (arg === 'to-max') {
+    // window full
+    win.setContentSize(1920, 1080);
+    win.setPosition(0, 0);
+  } else if (arg === 'to-tray') {
+    // window to tray
+    win.close();
+  }
+});
+
+// Open links external
+ipcMain.on('send-to-link', (event, arg) => {
+  console.log('Got IPC send-to-link', arg);
+
+  // send to help URL
+  if (arg === 'help') {
+    shell.openExternal('http://blank');
+  }
 });
