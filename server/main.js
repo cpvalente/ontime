@@ -11,9 +11,11 @@ const { electron } = require('process');
 
 var env = process.env.NODE_ENV || 'prod';
 
-const { nodeapp } = import(
-  path.join('file:///', __dirname, env == 'prod' ? '../' : '', 'src/app.js')
-);
+(async () => {
+  const { nodeapp } = import(
+    path.join('file:///', __dirname, env == 'prod' ? '../' : '', 'src/app.js')
+  );
+})();
 
 // Load Icons
 // TODO: Icons appear pixelated
@@ -41,10 +43,22 @@ function showNotification(text) {
 }
 
 let win;
+let splash;
 let tray = null;
 let loaded = false;
 
 function createWindow() {
+  // create a new `splash`-Window
+  splash = new BrowserWindow({
+    width: 333,
+    height: 333,
+    transparent: true,
+    resizable: false,
+    frame: false,
+    alwaysOnTop: true,
+  });
+  splash.loadURL(`file://${__dirname}/electron/splash/splash.html`);
+
   win = new BrowserWindow({
     width: 1920,
     height: 1080,
@@ -54,6 +68,7 @@ function createWindow() {
     maxHeight: 1440,
     backgroundColor: '#202020',
     icon: appIcon,
+    show: false,
     textAreasAreResizable: false,
     enableWebSQL: false,
     webPreferences: {
@@ -111,14 +126,14 @@ app
       }
     });
 
-    // Hide on minimise
-    win.on('minimize', function (event) {
-      event.preventDefault();
-      showNotification('App running in background');
-      win.hide();
+    win.once('ready-to-show', () => {
+      setTimeout(() => {
+        win.show();
+        splash.destroy();
+      }, 2000);
     });
 
-    //Hide on close
+    // Hide on close
     win.on('close', function (event) {
       event.preventDefault();
       showNotification('App running in background');
@@ -149,6 +164,7 @@ app
     const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
 
     tray.setContextMenu(trayContextMenu);
+    // TODO: get IP Address
     tray.setToolTip('ontime running on http://localhost:4001/');
   })
   .then(() => showNotification(loaded));
