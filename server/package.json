@@ -29,14 +29,15 @@
     "eslint-plugin-simple-import-sort": "^7.0.0"
   },
   "scripts": {
-    "nodestart": "node app.js",
-    "start": "electron .",
+    "nodestart": "NODE_ENV=development node app.js",
+    "start": "NODE_ENV=development electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "startall": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "build": {
     "appId": "your.id",
+    "asar": false,
     "mac": {
       "category": "your.app.category.type"
     },
@@ -47,6 +48,13 @@
       {
         "from": "../client/build",
         "to": "resources/client/build",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "src",
+        "to": "resources/src",
         "filter": [
           "**/*"
         ]
