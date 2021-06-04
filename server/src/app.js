@@ -106,7 +106,7 @@ export const startServer = (overrideConfig = null) => {
 };
 
 // Start OSC server
-import { initiateOSC } from './controllers/OscController.js';
+import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 
 export const startOSCServer = (overrideConfig = null) => {
   // Setup default port
@@ -118,4 +118,14 @@ export const startOSCClient = (overrideConfig = null) => {
   // Setup default port
   const oscOutPort = overrideConfig?.port || config.osc.portOut;
   console.log('initialise OSC Client at port: ', oscOutPort);
+};
+
+export const shutdown = () => {
+  console.log('Node service shutdown');
+
+  // shutdown express server
+  server.close();
+  // shutdown OSC Server
+  shutdownOSCServer();
+  // shutdown OSC Client
 };

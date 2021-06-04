@@ -195,6 +195,16 @@ ipcMain.on('test-message', (event, arg) => {
 // Terminate
 ipcMain.on('shutdown', (event, arg) => {
   console.log('Got IPC shutdown');
+
+  // terminate node service
+  (async () => {
+    const { shutdown } = await import(
+      path.join('file:///', __dirname, env == 'prod' ? '../' : '', 'src/app.js')
+    );
+    // Start express server
+    await shutdown();
+  })();
+
   win.destroy();
   app.quit();
 });
