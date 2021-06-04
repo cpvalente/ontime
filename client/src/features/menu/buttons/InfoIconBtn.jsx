@@ -10,9 +10,6 @@ export default function InfoIconBtn(props) {
         size={props.size || 'xs'}
         icon={<FiHome />}
         colorScheme='white'
-        variant='outline'
-        isRound
-        borderColor='#fff1'
         onClick={clickhandler}
         _focus={{ boxShadow: 'none' }}
         {...rest}

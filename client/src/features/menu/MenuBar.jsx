@@ -37,14 +37,34 @@ export default function MenuBar(props) {
 
   return (
     <>
-      <QuitIconBtn size='md' clickhandler={() => handleIPC('shutdown')} />
-      <MaxIconBtn size='md' clickhandler={() => handleIPC('max')} />
-      <MinIconBtn size='md' clickhandler={() => handleIPC('min')} />
+      <QuitIconBtn size='lg' clickhandler={() => handleIPC('shutdown')} />
+      <MaxIconBtn
+        style={{ fontSize: '1.5em' }}
+        size='lg'
+        clickhandler={() => handleIPC('max')}
+      />
+      <MinIconBtn
+        style={{ fontSize: '1.5em' }}
+        size='lg'
+        clickhandler={() => handleIPC('min')}
+      />
       <div className={style.gap} />
-      <HelpIconBtn size='md' clickhandler={() => handleIPC('help')} />
-      <SettingsIconBtn size='md' disabled />
-      <InfoIconBtn size='md' clickhandler={onOpen} />
-      <DownloadIconBtn size='md' clickhandler={handleDownload} />
+      <HelpIconBtn
+        style={{ fontSize: '1.5em' }}
+        size='lg'
+        clickhandler={() => handleIPC('help')}
+      />
+      <SettingsIconBtn style={{ fontSize: '1.5em' }} size='lg' disabled />
+      <InfoIconBtn
+        style={{ fontSize: '1.5em' }}
+        size='lg'
+        clickhandler={onOpen}
+      />
+      <DownloadIconBtn
+        style={{ fontSize: '1.5em' }}
+        size='lg'
+        clickhandler={handleDownload}
+      />
     </>
   );
 }
