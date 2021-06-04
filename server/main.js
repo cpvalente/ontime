@@ -15,9 +15,15 @@ const { Notification } = require('electron');
 const env = process.env.NODE_ENV || 'prod';
 
 (async () => {
-  const { nodeapp } = import(
+  const { startServer, startOSCServer, startOSCClient } = await import(
     path.join('file:///', __dirname, env == 'prod' ? '../' : '', 'src/app.js')
   );
+  // Start express server
+  startServer();
+  // Start OSC Server (API)
+  startOSCServer();
+  // Start OSC Client (Feedback)
+  startOSCClient();
 })();
 
 // Load Icons
@@ -62,7 +68,7 @@ function createWindow() {
 
   win = new BrowserWindow({
     width: 1920,
-    height: 1080,
+    height: 1000,
     minWidth: 500,
     minHeight: 530,
     maxWidth: 1920,
@@ -199,7 +205,7 @@ ipcMain.on('set-window', (event, arg) => {
 
   if (arg === 'to-max') {
     // window full
-    win.setContentSize(1920, 1080);
+    win.setContentSize(1920, 1000);
     win.setPosition(0, 0);
   } else if (arg === 'to-tray') {
     // window to tray
