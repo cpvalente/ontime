@@ -1,14 +1,17 @@
+import { lazy, useEffect } from 'react';
 import { Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
 import NumberedText from 'common/components/text/NumberedText';
-import PlaybackControl from '../control/PlaybackControl';
-import MessageControl from '../control/MessageControl';
 import styles from './Editor.module.css';
-import EventListWrapper from './list/EventListWrapper';
 import { useDisclosure } from '@chakra-ui/hooks';
 import SettingsModal from '../modals/SettingsModal';
-import { useEffect } from 'react';
 import MenuBar from 'features/menu/MenuBar';
+
+const EventListWrapper = lazy(() =>
+  import('features/editors/list/EventListWrapper')
+);
+const PlaybackControl = lazy(() => import('features/control/PlaybackButtons'));
+const MessageControl = lazy(() => import('features/control/MessageControl'));
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
