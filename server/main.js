@@ -41,18 +41,6 @@ const nodePath =
 // TODO: Icons appear pixelated
 const trayIcon = path.join(__dirname, './assets/images/logos/LOGO-512.png');
 const appIcon = path.join(__dirname, './assets/images/logos/LOGO-512.png');
-
-// Ensure there isn't another instance of the app running already
-var lock = app.requestSingleInstanceLock();
-if (!lock) {
-  dialog.showErrorBox(
-    'Multiple instances',
-    'Another instance is already running. Please close the other instance first.'
-  );
-  app.quit();
-  return;
-}
-
 function showNotification(text) {
   new Notification({
     title: 'ontime',
@@ -63,6 +51,25 @@ function showNotification(text) {
 let win;
 let splash;
 let tray = null;
+
+// Ensure there isn't another instance of the app running already
+const lock = app.requestSingleInstanceLock();
+if (!lock) {
+  dialog.showErrorBox(
+    'Multiple instances',
+    'An instance if the App is already running.'
+  );
+  app.quit();
+  return;
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.show();
+    }
+  });
+}
 
 function createWindow() {
   // create a new `splash`-Window
@@ -150,9 +157,14 @@ app.whenReady().then(() => {
 
   win.once('ready-to-show', () => {
     setTimeout(() => {
+      // window stuff
       win.show();
       splash.destroy();
       showNotification(loaded.toString());
+
+      // tray stuff
+      // TODO: get IP Address
+      tray.setToolTip(loaded);
     }, 2000);
   });
 
@@ -185,10 +197,7 @@ app.whenReady().then(() => {
   ];
 
   const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
-
   tray.setContextMenu(trayContextMenu);
-  // TODO: get IP Address
-  tray.setToolTip('ontime running on http://localhost:4001/');
 });
 
 // unregister shortcuts before quitting
@@ -213,6 +222,7 @@ ipcMain.on('shutdown', (event, arg) => {
     await shutdown();
   })();
 
+  tray.remove();
   win.destroy();
   app.quit();
 });
@@ -227,7 +237,7 @@ ipcMain.on('set-window', (event, arg) => {
     win.setPosition(0, 0);
   } else if (arg === 'to-tray') {
     // window to tray
-    win.close();
+    win.hide();
   }
 });
 
