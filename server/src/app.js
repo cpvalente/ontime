@@ -4,7 +4,6 @@ import { config } from './config/config.js';
 // init database
 import { Low, JSONFile } from 'lowdb';
 
-import { join } from 'path';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const env = process.env.NODE_ENV || 'prod';
 
-const file = join(__dirname, 'data/', config.database.filename);
+const file = path.join(__dirname, 'data/', config.database.filename);
 const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 

@@ -1,12 +1,18 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 // get database
 import { db, data } from '../app.js';
-import fs from 'fs';
 import {
   event as eventDef,
   delay as delayDef,
   block as blockDef,
 } from '../data/eventsDefinition.js';
 import { dbModel } from '../data/dataModel.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function getEventTitle() {
   return data.event.title;
@@ -82,7 +88,9 @@ async function parsev1(jsonData) {
 // Returns -
 export const dbDownload = async (req, res) => {
   const fileTitle = getEventTitle() || 'ontime events';
-  res.download('db.json', `${fileTitle}.json`, (err) => {
+  const dbFile = path.resolve(__dirname, '../', 'data/db.json');
+
+  res.download(dbFile, `${fileTitle}.json`, (err) => {
     if (err) {
       res.status(500).send({
         message: 'Could not download the file. ' + err,
