@@ -5,20 +5,85 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <!-- TODO: ADD CSP -->
     <title>ontime</title>
+    <style>
+      body {
+        background-color: #0005;
+      }
+      h1 {
+        font-family: Roboto, sans-serif;
+        font-weight: 100;
+        color: #fffa;
+        font-size: 24px;
+      }
+      .container {
+        margin-top: 5vh;
+        display: grid;
+        place-items: center;
+      }
+      .lds-ellipsis {
+        display: inline-block;
+        position: relative;
+        width: 71px;
+      }
+      .lds-ellipsis div {
+        position: absolute;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #fffa;
+        animation-timing-function: cubic-bezier(0, 1, 1, 0);
+      }
+      .lds-ellipsis div:nth-child(1) {
+        animation: lds-ellipsis1 0.6s infinite;
+      }
+      .lds-ellipsis div:nth-child(2) {
+        left: 8px;
+        animation: lds-ellipsis2 0.6s infinite;
+      }
+      .lds-ellipsis div:nth-child(3) {
+        left: 32px;
+        animation: lds-ellipsis2 0.6s infinite;
+      }
+      .lds-ellipsis div:nth-child(4) {
+        left: 56px;
+        animation: lds-ellipsis3 0.6s infinite;
+      }
+      @keyframes lds-ellipsis1 {
+        0% {
+          transform: scale(0);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes lds-ellipsis3 {
+        0% {
+          transform: scale(1);
+        }
+        100% {
+          transform: scale(0);
+        }
+      }
+      @keyframes lds-ellipsis2 {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(24px, 0);
+        }
+      }
+    </style>
   </head>
-  <body style="background-color: #0003">
-    <div style="margin-top: 10vh; display: grid; place-items: center">
+  <body>
+    <div class="container">
       <img src="../../assets/images/logosbwa/LOGO-192.png" />
-      <h1
-        style="
-          font-family: Roboto, sans-serif;
-          font-weight: 100;
-          color: #fffffa;
-          font-size: 24px;
-        "
-      >
-        ontime - event timers
-      </h1>
+      <h1>ontime · event timers</h1>
+      <div class="lds-ellipsis">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
     </div>
   </body>
 </html>

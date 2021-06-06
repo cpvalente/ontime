@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
+  "repository": "https://github.com/cpvalente/ontime",
+  "keywords": ["lighdev", "ontime"],
+  "license": "MIT",
   "main": "main.js",
   "devDependencies": {
     "concurrently": "^6.1.0",
@@ -25,14 +28,28 @@
     "startall": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "build": {
-    "appId": "your.id",
-    "asar": false,
+    "productName": "ontime",
+    "appId": "ontime.lightdev.no",
+    "asar": true,
     "mac": {
       "category": "your.app.category.type"
     },
+    "win": {
+			"target": "nsis"
+    },
+    "nsis": {
+			"createDesktopShortcut": true,
+			"createStartMenuShortcut": true,
+			"deleteAppDataOnUninstall": true,
+      "installerIcon": "icon.ico"
+    },
     "files": [
-      "**/*"
+      "**/*",
+      "assets/"
     ],
+    "directories": {
+			"buildResources": "./assets/"
+		},
     "extraResources": [
       {
         "from": "../client/build",
