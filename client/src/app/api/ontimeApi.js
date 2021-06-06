@@ -28,7 +28,6 @@ export const downloadEvents = async () => {
 };
 
 export const uploadEvents = async (file) => {
-  console.log('uploading', file);
   const formData = new FormData();
   formData.append('jsondb', file); // appending file
   await axios
@@ -39,4 +38,8 @@ export const uploadEvents = async (file) => {
     })
     .then((res) => console.log(res.data))
     .catch((err) => console.error(err));
+};
+
+export const uploadEventsWithPath = async (filepath) => {
+  await axios.post(ontimeURL + '/dbpath', { path: filepath });
 };

@@ -7,10 +7,10 @@ const {
   dialog,
   ipcMain,
   shell,
+  Notification,
 } = require('electron');
 const path = require('path');
 const { electron } = require('process');
-const { Notification } = require('electron');
 
 const env = process.env.NODE_ENV || 'prod';
 
@@ -100,6 +100,7 @@ function createWindow() {
       // TODO: what are recommended alternatives to node integration?
       nodeIntegration: true,
       contextIsolation: false,
+      enableRemoteModule: true,
     },
   });
 

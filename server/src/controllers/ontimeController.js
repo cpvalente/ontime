@@ -29,6 +29,7 @@ async function deleteFile(file) {
 
 // parses version 1 of the data system
 async function parsev1(jsonData) {
+  let numEntries = 0;
   if ('events' in jsonData) {
     let events = [];
     let ids = [];
@@ -51,15 +52,19 @@ async function parsev1(jsonData) {
           isPublic: e.isPublic,
           id: e.id,
         });
+        numEntries++;
       } else if (e.type === 'delay') {
         events.push({ ...delayDef, duration: e.duration });
+        numEntries++;
       } else if (e.type === 'block') {
         events.push({ ...blockDef });
+        numEntries++;
       }
     }
     // write to db
     db.data.events = events;
     db.write();
+    console.log(`Uploaded file with ${numEntries} entries`);
   }
 
   if ('event' in jsonData) {
@@ -99,15 +104,7 @@ export const dbDownload = async (req, res) => {
   });
 };
 
-// Create controller for POST request to '/ontime/db'
-// Returns -
-export const dbUpload = async (req, res) => {
-  if (!req.file) {
-    res.status(400).send({ message: 'File not found' });
-    return;
-  }
-
-  const file = req.file.path;
+const upload = async (file, req, res) => {
   if (!fs.existsSync(file)) {
     res.status(500).send({ message: 'Upload failed' });
     return;
@@ -115,11 +112,8 @@ export const dbUpload = async (req, res) => {
 
   try {
     // get file
-    let rawdata = fs.readFileSync(file);
-    let uploadedJson = JSON.parse(rawdata);
-
-    // delete file
-    deleteFile(file);
+    const rawdata = fs.readFileSync(file);
+    const uploadedJson = JSON.parse(rawdata);
 
     // check version
     if (uploadedJson.settings.version === 1) parsev1(uploadedJson);
@@ -133,4 +127,26 @@ export const dbUpload = async (req, res) => {
     console.log('Error parsing file', error);
     res.status(400).send({ message: error });
   }
+};
+
+// Create controller for POST request to '/ontime/db'
+// Returns -
+export const dbUpload = async (req, res) => {
+  if (!req.file) {
+    res.status(400).send({ message: 'File not found' });
+    return;
+  }
+
+  const file = req.file.path;
+  upload(file, req, res);
+};
+
+// Create controller for POST request to '/ontime/dbpath'
+// Returns -
+export const dbPathToUpload = async (req, res) => {
+  if (!req.body.path) {
+    res.status(400).send({ message: 'Path to file not found' });
+    return;
+  }
+  upload(req.body.path, req, res);
 };
