@@ -14,16 +14,27 @@ const { Notification } = require('electron');
 
 const env = process.env.NODE_ENV || 'prod';
 
+let loaded = 'Nothing loaded';
+
+const nodePath =
+  env != 'prod'
+    ? path.join('file://', __dirname, 'src/app.js')
+    : path.join('file://', __dirname, '../', 'extraResources', 'src/app.js');
+
 (async () => {
-  const { startServer, startOSCServer, startOSCClient } = await import(
-    path.join('file:///', __dirname, env == 'prod' ? '../' : '', 'src/app.js')
-  );
-  // Start express server
-  startServer();
-  // Start OSC Server (API)
-  startOSCServer();
-  // Start OSC Client (Feedback)
-  startOSCClient();
+  try {
+    const { startServer, startOSCServer, startOSCClient } = await import(
+      nodePath
+    );
+    // Start express server
+    loaded = startServer();
+    // Start OSC Server (API)
+    startOSCServer();
+    // Start OSC Client (Feedback)
+    startOSCClient();
+  } catch (error) {
+    loaded = error;
+  }
 })();
 
 // Load Icons
@@ -52,7 +63,6 @@ function showNotification(text) {
 let win;
 let splash;
 let tray = null;
-let loaded = false;
 
 function createWindow() {
   // create a new `splash`-Window
@@ -97,17 +107,12 @@ function createWindow() {
   win.loadURL(reactApp).then(() => {
     win.webContents.setBackgroundThrottling(false);
   });
-
-  // Show dev tools
-  win.webContents.openDevTools({ mode: 'detach' });
 }
 
-app
-  .whenReady()
-  .then(() => {
-    createWindow();
+app.whenReady().then(() => {
+  createWindow();
 
-    /* ======================================
+  /* ======================================
    * CONTEXT MENU CREATION ON REACT SIDE
   // Create context menu
   // const contextMenu = new Menu();
@@ -124,62 +129,67 @@ app
   * ======================================
   */
 
-    // register global shortcuts
-    // (available regardless of wheter app is in focus)
-    // bring focus to window
-    globalShortcut.register('Alt+1', () => {
+  // register global shortcuts
+  // (available regardless of wheter app is in focus)
+  // bring focus to window
+  globalShortcut.register('Alt+1', () => {
+    win.show();
+  });
+
+  globalShortcut.register('Alt+t', () => {
+    // Show dev tools
+    win.webContents.openDevTools({ mode: 'detach' });
+  });
+
+  // recreate window if no others open
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+
+  win.once('ready-to-show', () => {
+    setTimeout(() => {
       win.show();
-    });
+      splash.destroy();
+      showNotification(loaded.toString());
+    }, 2000);
+  });
 
-    // recreate window if no others open
-    app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
-      }
-    });
+  // Hide on close
+  win.on('close', function (event) {
+    event.preventDefault();
+    showNotification('App running in background');
+    win.hide();
+    return false;
+  });
 
-    win.once('ready-to-show', () => {
-      setTimeout(() => {
-        win.show();
-        splash.destroy();
-      }, 2000);
-    });
+  // create tray
+  // TODO: Design better icon
+  tray = new Tray(trayIcon);
 
-    // Hide on close
-    win.on('close', function (event) {
-      event.preventDefault();
-      showNotification('App running in background');
-      win.hide();
-      return false;
-    });
-
-    // create tray
-    // TODO: Design better icon
-    tray = new Tray(trayIcon);
-
-    // TODO: Move to separate file
-    // Define context menu
-    const trayMenuTemplate = [
-      {
-        label: 'Show App',
-        click: () => win.show(),
+  // TODO: Move to separate file
+  // Define context menu
+  const trayMenuTemplate = [
+    {
+      label: 'Show App',
+      click: () => win.show(),
+    },
+    {
+      label: 'Close',
+      click: () => {
+        win.destroy();
+        app.quit();
       },
-      {
-        label: 'Close',
-        click: () => {
-          win.destroy();
-          app.quit();
-        },
-      },
-    ];
+    },
+  ];
 
-    const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
+  const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
 
-    tray.setContextMenu(trayContextMenu);
-    // TODO: get IP Address
-    tray.setToolTip('ontime running on http://localhost:4001/');
-  })
-  .then(() => showNotification(loaded));
+  tray.setContextMenu(trayContextMenu);
+  // TODO: get IP Address
+  tray.setToolTip('ontime running on http://localhost:4001/');
+});
 
 // unregister shortcuts before quitting
 app.once('will-quit', () => {
@@ -198,10 +208,8 @@ ipcMain.on('shutdown', (event, arg) => {
 
   // terminate node service
   (async () => {
-    const { shutdown } = await import(
-      path.join('file:///', __dirname, env == 'prod' ? '../' : '', 'src/app.js')
-    );
-    // Start express server
+    const { shutdown } = await import(nodePath);
+    // Shutdown service
     await shutdown();
   })();
 

@@ -96,13 +96,14 @@ export const startServer = (overrideConfig = null) => {
   const serverPort = overrideConfig?.port || config.server.port;
 
   // Start server
-  server.listen(serverPort, '0.0.0.0', () =>
-    console.log(`HTTP Server is listening on port ${serverPort}`)
-  );
+  const returnMessage = `HTTP Server is listening on port ${serverPort}`;
+  server.listen(serverPort, '0.0.0.0', () => console.log(returnMessage));
 
   // init timer
   global.timer = new EventTimer(server, config);
   global.timer.setupWithEventList(data.events);
+
+  return returnMessage;
 };
 
 // Start OSC server
