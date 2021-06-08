@@ -77,6 +77,7 @@ function createWindow() {
     width: 333,
     height: 333,
     transparent: true,
+    icon: appIcon,
     resizable: false,
     frame: false,
     alwaysOnTop: true,
@@ -223,7 +224,7 @@ ipcMain.on('shutdown', (event, arg) => {
     await shutdown();
   })();
 
-  tray.remove();
+  tray.destroy();
   win.destroy();
   app.quit();
 });

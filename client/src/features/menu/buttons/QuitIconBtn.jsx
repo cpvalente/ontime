@@ -57,7 +57,7 @@ export default function QuitIconBtn(props) {
                 Cancel
               </Button>
               <Button colorScheme='red' onClick={handleShutdown} ml={3}>
-                Delete
+                Shutdown
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
