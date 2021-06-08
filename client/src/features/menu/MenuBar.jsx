@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { downloadEvents, uploadEventsWithPath } from 'app/api/ontimeApi';
+import {
+  downloadEvents,
+  uploadEvents,
+  uploadEventsWithPath,
+} from 'app/api/ontimeApi';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
 import DownloadIconBtn from './buttons/DownloadIconBtn';
 import SettingsIconBtn from './buttons/SettingsIconBtn';
@@ -10,13 +14,15 @@ import QuitIconBtn from './buttons/QuitIconBtn';
 import style from './MenuBar.module.css';
 import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
+import { useRef } from 'react';
 
-const { ipcRenderer, remote } = window.require('electron');
+const { ipcRenderer } = window.require('electron');
 
 export default function MenuBar(props) {
-  const { onOpen, onClose } = props;
+  const { onOpen } = props;
+  const hiddenFileInput = useRef(null);
   const queryClient = useQueryClient();
-  const uploaddbPath = useMutation(uploadEventsWithPath, {
+  const uploaddb = useMutation(uploadEvents, {
     onSettled: () => {
       queryClient.invalidateQueries(EVENTS_TABLE);
     },
@@ -26,30 +32,22 @@ export default function MenuBar(props) {
     downloadEvents();
   };
 
-  const handleUpload = () => {
-    remote.dialog
-      .showOpenDialog({
-        title: 'Select the File to be uploaded',
-        buttonLabel: 'Upload',
-        filters: [
-          {
-            name: 'Text Files',
-            extensions: ['json'],
-          },
-        ],
-        // Specifying the File Selector Property
-        properties: ['openFile'],
-      })
-      .then((file) => {
-        // Stating whether dialog operation was
-        // cancelled or not.
-        if (!file.canceled) {
-          uploaddbPath.mutate(file.filePaths[0].toString());
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const handleClick = () => {
+    if (hiddenFileInput && hiddenFileInput.current) {
+      hiddenFileInput.current.click();
+    }
+  };
+
+  const handleUpload = (event) => {
+    const fileUploaded = event.target.files[0];
+
+    if (fileUploaded == null) return;
+
+    try {
+      uploaddb.mutate(fileUploaded);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleIPC = (action) => {
@@ -89,6 +87,7 @@ export default function MenuBar(props) {
         style={{ fontSize: '1.5em' }}
         size='lg'
         clickhandler={() => handleIPC('help')}
+        disabled
       />
       <SettingsIconBtn style={{ fontSize: '1.5em' }} size='lg' disabled />
       <div className={style.gap} />
@@ -97,10 +96,17 @@ export default function MenuBar(props) {
         size='lg'
         clickhandler={onOpen}
       />
+      <input
+        type='file'
+        style={{ display: 'none' }}
+        ref={hiddenFileInput}
+        onChange={handleUpload}
+        accept='.json'
+      />
       <UploadIconBtn
         style={{ fontSize: '1.5em' }}
         size='lg'
-        clickhandler={handleUpload}
+        clickhandler={handleClick}
       />
       <DownloadIconBtn
         style={{ fontSize: '1.5em' }}

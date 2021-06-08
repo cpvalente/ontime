@@ -115,6 +115,9 @@ const upload = async (file, req, res) => {
     const rawdata = fs.readFileSync(file);
     const uploadedJson = JSON.parse(rawdata);
 
+    // delete file
+    deleteFile(file);
+
     // check version
     if (uploadedJson.settings.version === 1) parsev1(uploadedJson);
     else {
