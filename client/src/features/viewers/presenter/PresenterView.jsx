@@ -71,11 +71,7 @@ export default function PresenterView(props) {
             isPlaying ? style.progressContainer : style.progressContainerPaused
           }
         >
-          <MyProgressBar
-            now={normalisedTime}
-            complete={time.durationSeconds}
-            showElapsed
-          />
+          <MyProgressBar now={normalisedTime} complete={time.durationSeconds} />
         </div>
       )}
 
