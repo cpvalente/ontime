@@ -3,6 +3,8 @@ import LowerClean from './LowerClean';
 import LowerLines from './LowerLines';
 
 export default function Lower(props) {
+  const { title, ...rest } = props;
+  const [titles, setTitles] = useState(null);
   const [preset, setPreset] = useState(1);
   const [lowerOptions, setLowerOptions] = useState({});
 
@@ -10,6 +12,36 @@ export default function Lower(props) {
   useEffect(() => {
     document.title = 'ontime - Lower Thirds';
   }, []);
+
+  // reload if data changes
+  useEffect(() => {
+    // clear titles if necessary
+    // will trigger an animation out in the component
+    let timeout = null;
+    if (
+      title?.titleNow !== titles?.titleNow ||
+      title?.subtitleNow !== titles?.subtitleNow ||
+      title?.presenterNow !== titles?.presenterNow
+    ) {
+      console.log('DEBUG TITLES: SETTING TITLES TO NULL');
+      setTitles((t) => ({ ...t, showNow: false }));
+
+      const transitionTime = 2000;
+
+      timeout = setTimeout(() => {
+        console.log('DEBUG TITLES: RESUMING');
+        setTitles(title);
+      }, transitionTime);
+    }
+
+    return () => {
+      if (timeout != null) {
+        console.log('DEBUG TITLES: CLEARING');
+
+        clearTimeout(timeout);
+      }
+    };
+  }, [title.titleNow, title.subtitleNow, title.presenterNow]);
 
   // TODO: sanitize data
   // getting config from URL: preset, size, transition, bg, text, key
@@ -77,10 +109,10 @@ export default function Lower(props) {
 
   switch (preset) {
     case 0:
-      return <LowerClean {...props} options={lowerOptions} />;
+      return <LowerClean {...rest} title={title} options={lowerOptions} />;
     case 1:
-      return <LowerLines {...props} options={lowerOptions} />;
+      return <LowerLines {...rest} title={titles} options={lowerOptions} />;
     default:
-      return <LowerLines {...props} options={lowerOptions} />;
+      return <LowerLines {...rest} title={title} options={lowerOptions} />;
   }
 }

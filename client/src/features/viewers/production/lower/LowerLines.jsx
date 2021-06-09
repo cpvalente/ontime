@@ -12,6 +12,8 @@ export default function LowerLines(props) {
   };
   const [showLower, setShowLower] = useState(true);
 
+  console.log('DEBUG TITLE SHOW:', title.showNow);
+
   // Unmount if fadeOut
   useEffect(() => {
     if (!options.fadeOut) return;
@@ -29,6 +31,10 @@ export default function LowerLines(props) {
 
     return () => clearTimeout(timeout);
   }, [options.fadeOut, options.transitionIn, defaults.transitionIn]);
+
+  useEffect(() => {
+    setShowLower(title.showNow);
+  }, [title.showNow]);
 
   // Format messages
   const showLowerMessage = lower.text !== '' && lower.visible;
