@@ -10,7 +10,7 @@ import MenuBar from 'features/menu/MenuBar';
 const EventListWrapper = lazy(() =>
   import('features/editors/list/EventListWrapper')
 );
-const PlaybackControl = lazy(() => import('features/control/PlaybackButtons'));
+const PlaybackControl = lazy(() => import('features/control/PlaybackControl'));
 const MessageControl = lazy(() => import('features/control/MessageControl'));
 
 export default function Editor() {
