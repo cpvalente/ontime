@@ -88,10 +88,18 @@ export class EventTimer extends Timer {
     this.updateOSCClient(oscClient);
   }
 
+  /**
+   * @description Updates the osc client used in the object
+   * @param {object} oscClient
+   */
   updateOSCClient(oscClient) {
     this.oscClient = oscClient;
   }
 
+  /**
+   * @description Sends osc value from predefined messages
+   * @param {string} event - message to be sent
+   */
   sendOSC(event) {
     if (this.oscClient == null) return;
 
