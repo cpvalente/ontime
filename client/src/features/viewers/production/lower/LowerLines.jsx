@@ -30,6 +30,10 @@ export default function LowerLines(props) {
     return () => clearTimeout(timeout);
   }, [options.fadeOut, options.transitionIn, defaults.transitionIn]);
 
+  useEffect(() => {
+    setShowLower(title.showNow);
+  }, [title.showNow]);
+
   // Format messages
   const showLowerMessage = lower.text !== '' && lower.visible;
 

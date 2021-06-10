@@ -1,8 +1,27 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import LowerClean from './LowerClean';
 import LowerLines from './LowerLines';
+const isEqual = require('react-fast-compare');
 
-export default function Lower(props) {
+const areEqual = (prevProps, nextProps) => {
+  return (
+    isEqual(prevProps.title, nextProps.title) &&
+    isEqual(prevProps.lower && nextProps.lower)
+  );
+};
+
+const Lower = (props) => {
+  const { title } = props;
+  const [titles, setTitles] = useState({
+    titleNow: '',
+    titleNext: '',
+    subtitleNow: '',
+    subtitleNext: '',
+    presenterNow: '',
+    presenterNext: '',
+    showNow: false,
+    showNext: false,
+  });
   const [preset, setPreset] = useState(1);
   const [lowerOptions, setLowerOptions] = useState({});
 
@@ -10,6 +29,32 @@ export default function Lower(props) {
   useEffect(() => {
     document.title = 'ontime - Lower Thirds';
   }, []);
+
+  // reload if data changes
+  useEffect(() => {
+    // clear titles if necessary
+    // will trigger an animation out in the component
+    let timeout = null;
+    if (
+      title?.titleNow !== titles?.titleNow ||
+      title?.subtitleNow !== titles?.subtitleNow ||
+      title?.presenterNow !== titles?.presenterNow
+    ) {
+      setTitles((t) => ({ ...t, showNow: false }));
+
+      const transitionTime = 2000;
+
+      timeout = setTimeout(() => {
+        setTitles(title);
+      }, transitionTime);
+    }
+
+    return () => {
+      if (timeout != null) {
+        clearTimeout(timeout);
+      }
+    };
+  }, [title.titleNow, title.subtitleNow, title.presenterNow]);
 
   // TODO: sanitize data
   // getting config from URL: preset, size, transition, bg, text, key
@@ -77,10 +122,18 @@ export default function Lower(props) {
 
   switch (preset) {
     case 0:
-      return <LowerClean {...props} options={lowerOptions} />;
+      return (
+        <LowerClean lower={props.lower} title={titles} options={lowerOptions} />
+      );
     case 1:
-      return <LowerLines {...props} options={lowerOptions} />;
+      return (
+        <LowerLines lower={props.lower} title={titles} options={lowerOptions} />
+      );
     default:
-      return <LowerLines {...props} options={lowerOptions} />;
+      return (
+        <LowerLines lower={props.lower} title={titles} options={lowerOptions} />
+      );
   }
-}
+};
+
+export default memo(Lower, areEqual);
