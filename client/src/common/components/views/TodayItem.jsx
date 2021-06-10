@@ -1,7 +1,7 @@
 import { stringFromMillis } from 'common/dateConfig';
 import style from './Paginator.module.css';
 export default function TodayItem(props) {
-  const { selected, timeStart, timeEnd, title } = props;
+  const { selected, timeStart, timeEnd, title, backstageEvent } = props;
 
   // Format timers
   const start = stringFromMillis(timeStart, false) || '';
@@ -13,9 +13,13 @@ export default function TodayItem(props) {
   else if (selected === 2) selectStyle = style.entryFuture;
   return (
     <div className={selectStyle}>
-      <div className={style.entryStart}>{start}</div>
-      <div className={style.entryEnd}>{end}</div>
+      <div
+        className={`${style.entryTimes} ${
+          backstageEvent ? style.backstage : undefined
+        }`}
+      >{`${start} · ${end}`}</div>
       <div className={style.entryTitle}>{title}</div>
+      {backstageEvent && <div className={style.backstageInd}></div>}
     </div>
   );
 }

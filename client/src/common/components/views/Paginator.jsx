@@ -32,8 +32,6 @@ export default function Paginator(props) {
     // if array is completely in past, show depending on SCROLL_PAST
   }, [events, selPage, LIMIT_PER_PAGE]);
 
-  console.log('debug events', events);
-
   // every SCROLL_TIME go to the next array
   useInterval(() => {
     if (numEvents > LIMIT_PER_PAGE) {
