@@ -12,7 +12,6 @@ export default function Paginator(props) {
   const [page, setPage] = useState([]);
   const [pages, setPages] = useState(0);
   const [selPage, setSelPage] = useState(0);
-  const [selected, setSelected] = useState(-1);
 
   useEffect(() => {
     if (events == null) return;
@@ -33,17 +32,7 @@ export default function Paginator(props) {
     // if array is completely in past, show depending on SCROLL_PAST
   }, [events, selPage, LIMIT_PER_PAGE]);
 
-  useEffect(() => {
-    // maybe nothing is selected
-    if (events == null || selectedId == null) return;
-
-    // which one is selected
-    const s = events.filter((e) => e.id === selectedId);
-
-    if (s.length < 1) return;
-
-    setSelected(s[0].id);
-  }, [events, selectedId]);
+  console.log('debug events', events);
 
   // every SCROLL_TIME go to the next array
   useInterval(() => {
@@ -68,9 +57,8 @@ export default function Paginator(props) {
       </div>
       <div className={style.entries}>
         {page.map((e) => {
-          if (selectedState === 1) selectedState = 2;
-          if (e.id === selected) selectedState = 1;
-          else if (e.id > selected) selectedState = 2;
+          if (e.id === selectedId) selectedState = 1;
+          else if (selectedState === 1) selectedState = 2;
           return (
             <TodayItem
               key={e.id}
@@ -78,6 +66,7 @@ export default function Paginator(props) {
               timeStart={e.timeStart}
               timeEnd={e.timeEnd}
               title={e.title}
+              backstageEvent={!e.isPublic}
             />
           );
         })}
