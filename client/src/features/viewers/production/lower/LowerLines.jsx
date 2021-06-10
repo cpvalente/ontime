@@ -12,8 +12,6 @@ export default function LowerLines(props) {
   };
   const [showLower, setShowLower] = useState(true);
 
-  console.log('DEBUG TITLE SHOW:', title.showNow);
-
   // Unmount if fadeOut
   useEffect(() => {
     if (!options.fadeOut) return;
