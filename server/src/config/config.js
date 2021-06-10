@@ -11,5 +11,7 @@ export const config = {
   },
   osc: {
     port: 8888,
+    ipOut: '127.0.0.1',
+    portOut: 9999,
   },
 };

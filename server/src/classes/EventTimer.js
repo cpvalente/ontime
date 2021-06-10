@@ -15,6 +15,10 @@ export class EventTimer extends Timer {
 
   // Socket IO Object
   io = null;
+
+  // OSC Client
+  oscClient = null;
+
   _numClients = 0;
   _interval = null;
 
@@ -57,7 +61,7 @@ export class EventTimer extends Timer {
   numEvents = null;
   _eventlist = null;
 
-  constructor(httpServer, config) {
+  constructor(httpServer, oscClient, config) {
     // call super constructor
     super();
 
@@ -79,11 +83,80 @@ export class EventTimer extends Timer {
 
     // listen to new connections
     this._listenToConnections();
+
+    // set oscClient
+    this.updateOSCClient(oscClient);
+  }
+
+  updateOSCClient(oscClient) {
+    this.oscClient = oscClient;
+  }
+
+  sendOSC(event) {
+    if (this.oscClient == null) return;
+
+    const add = '/ontime';
+    const play = 'play';
+    const pause = 'pause';
+    const stop = 'stop';
+    const prev = 'prev';
+    const next = 'next';
+    const reload = 'reload';
+
+    switch (event) {
+      case 'time':
+        // Send Timetag Message
+
+        this.oscClient.send(add, this.timeTag, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'play':
+        // Play Message
+        this.oscClient.send(add, play, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'pause':
+        // Pause Message
+        this.oscClient.send(add, pause, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'stop':
+        // Stop Message
+        this.oscClient.send(add, stop, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'prev':
+        this.oscClient.send(add, prev, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'next':
+        this.oscClient.send(add, next, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'reload':
+        this.oscClient.send(add, reload, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+
+      default:
+        break;
+    }
   }
 
   // send current timer
   broadcastTimer() {
+    // through websockets
     this.io.emit('timer', this.getObject());
+
+    // through OSC
+    this.sendOSC('time');
   }
 
   // broadcast state
@@ -132,20 +205,6 @@ export class EventTimer extends Timer {
       // TODO: replace with proper counter
       if (this.secondaryTimer != null) this.secondaryTimer -= 1000;
     }
-  }
-
-  start() {
-    // if there is nothing selected, no nothing
-    if (this.selectedEventId == null) return;
-    super.start();
-    this.broadcastState();
-  }
-
-  pause() {
-    // if there is nothing selected, no nothing
-    if (this.selectedEventId == null) return;
-    super.pause();
-    this.broadcastState();
   }
 
   _setterManager(action, payload) {
@@ -771,19 +830,31 @@ export class EventTimer extends Timer {
   }
 
   start() {
+    // if there is nothing selected, no nothing
+    if (this.selectedEventId == null) return;
+
     // call super
     super.start();
 
     // broadcast current state
     this.broadcastState();
+
+    // send OSC
+    this.sendOSC('play');
   }
 
   pause() {
+    // if there is nothing selected, no nothing
+    if (this.selectedEventId == null) return;
+
     // call super
     super.pause();
 
     // broadcast current state
     this.broadcastState();
+
+    // send OSC
+    this.sendOSC('pause');
   }
 
   stop() {
@@ -792,6 +863,9 @@ export class EventTimer extends Timer {
 
     // broadcast current state
     this.broadcastState();
+
+    // send OSC
+    this.sendOSC('stop');
   }
 
   increment(amount) {
@@ -885,6 +959,9 @@ export class EventTimer extends Timer {
       return;
     }
 
+    // send OSC
+    this.sendOSC('prev');
+
     // change playstate
     this.pause();
 
@@ -904,6 +981,9 @@ export class EventTimer extends Timer {
       this.loadEvent(0);
       return;
     }
+
+    // send OSC
+    this.sendOSC('next');
 
     // change playstate
     this.pause();
@@ -931,6 +1011,9 @@ export class EventTimer extends Timer {
   reload() {
     // reset playstate
     this.pause();
+
+    // send OSC
+    this.sendOSC('reload');
 
     // reload data
     this.loadEvent(this.selectedEventIndex);

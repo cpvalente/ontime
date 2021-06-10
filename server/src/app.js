@@ -10,6 +10,7 @@ const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
 // dependencies
+import { Client } from 'node-osc';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -74,8 +75,21 @@ app.use((err, req, res, next) => {
 // create HTTP server
 const server = http.createServer(app);
 
+// Start OSC Client
+let oscClient = null;
+export const startOSCClient = (overrideConfig = null) => {
+  // Setup IP
+  const ipOut = overrideConfig?.ip || config.osc.ipOut;
+  // Setup default port
+  const oscOutPort = overrideConfig?.port || config.osc.portOut;
+  oscClient = new Client(ipOut, oscOutPort);
+  console.log(`OSC Client sending to ${ipOut}:${oscOutPort}`);
+};
+
+startOSCClient();
+
 // init timer
-global.timer = new EventTimer(server, config);
+global.timer = new EventTimer(server, oscClient, config);
 global.timer.setupWithEventList(data.events);
 
 // Start server
@@ -85,5 +99,4 @@ server.listen(port, () =>
 
 // Start OSC server
 import { initiateOSC } from './controllers/OscController.js';
-
 initiateOSC(config.osc);
