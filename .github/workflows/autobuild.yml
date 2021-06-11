@@ -19,6 +19,8 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: windows-latest
+    env:
+      CI: false
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -31,15 +33,19 @@ jobs:
           node-version: '14.x'
           
       # install and build react 
-      - run: yarn install 
+      - name: Install React dependencies
+        run: yarn install 
         working-directory: ./client
-      - run: yarn build
+      - name: Build React App
+        run: yarn build
         working-directory: ./client
         
       # install and build electron
-      - run: yarn install
+      - name: Install Electron + nodejs dependencies
+        run: yarn install
         working-directory: ./server
-      - run: yarn dist-win
+      - name: Build Electron App
+        run: yarn dist-win
         working-directory: ./server
         
       # handle artifact
