@@ -51,5 +51,7 @@ jobs:
       # release
       - name: Release
         uses: softprops/action-gh-release@v1
+        with:
+          files: ./server/dist/ontime-win64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
