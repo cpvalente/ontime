@@ -1,21 +1,78 @@
 {
-  "name": "passport-example",
-  "version": "0.0.1",
-  "description": "Example with Passport (http://www.passportjs.org/)",
-  "type": "module",
-  "dependencies": {
-    "body-parser": "~1.19.0",
-    "express": "~4.17.1",
-    "express-session": "~1.17.1",
-    "lowdb": "2.1.0",
-    "multer": "^1.4.2",
-    "nanoid": "^3.1.22",
-    "node-osc": "6.0.2",
-    "passport": "~0.4.1",
-    "passport-local": "~1.0.0",
-    "socket.io": "^4.0.0"
+  "name": "ontime",
+  "version": "0.1.0",
+  "author": "Carlos Valente",
+  "description": "Time keeping for live events",
+  "repository": "https://github.com/cpvalente/ontime",
+  "keywords": [ "lighdev", "ontime", "timer" ],
+  "license": "MIT",
+  "main": "main.js",
+  "devDependencies": {
+    "concurrently": "^6.1.0",
+    "electron": "^13.1.2",
+    "electron-builder": "^22.11.3",
+    "eslint": "^7.26.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0"
   },
   "scripts": {
-    "start": "node src/app.js"
-  }
+    "nodestart": "NODE_ENV=development node app.js",
+    "start": "NODE_ENV=development electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+
+    "dist-win": "electron-builder --publish=never  --x64 --win",
+    "dist-mac": "electron-builder --publish=never  --x64 --mac",
+
+    "startall": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\""
+  },
+  "build": {
+    "productName": "ontime",
+    "appId": "no.lightdev.ontime",
+    "asar": true,
+    "dmg": {
+		},
+    "mac": {
+			"target": "dmg",
+      "category": "no.lightdev.ontime"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "artifactName": "ontime-win64.exe",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": true,
+      "installerIcon": "icon.ico"
+    },
+    "files": [
+      "**/*",
+      "assets/"
+    ],
+    "directories": {
+      "buildResources": "./assets/"
+    },
+    "extraResources": [
+      {
+        "from": "../client/build",
+        "to": "extraResources/client/build",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "src",
+        "to": "extraResources/src",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  },
+  "postinstall": "electron-builder install-app-deps"
 }

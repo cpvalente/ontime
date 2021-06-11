@@ -81,6 +81,14 @@ export class EventTimer extends Timer {
     this._listenToConnections();
   }
 
+  /**
+   * @description Shutdown process
+   */
+  shutdown() {
+    console.log('Closing socket server');
+    this.io.close();
+  }
+
   // send current timer
   broadcastTimer() {
     this.io.emit('timer', this.getObject());

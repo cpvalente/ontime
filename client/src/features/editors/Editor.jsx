@@ -27,7 +27,7 @@ export default function Editor() {
 
       <div className={styles.mainContainer}>
         <Box id='settings' className={styles.settings}>
-          <MenuBar onOpen={onOpen} onClose={onClose} />
+          <MenuBar onOpen={onOpen} />
         </Box>
 
         <Box className={styles.editor}>

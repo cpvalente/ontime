@@ -1,14 +1,14 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiMaximize } from 'react-icons/fi';
+import { FiUpload } from 'react-icons/fi';
 
-export default function MaxIconBtn(props) {
+export default function UploadIconBtn(props) {
   const { clickhandler, ...rest } = props;
   return (
-    <Tooltip label='Show full window'>
+    <Tooltip label='Upload File'>
       <IconButton
         size={props.size || 'xs'}
-        icon={<FiMaximize />}
+        icon={<FiUpload />}
         colorScheme='white'
         onClick={clickhandler}
         _focus={{ boxShadow: 'none' }}
