@@ -48,9 +48,7 @@ jobs:
         run: yarn dist-win
         working-directory: ./server
         
-      # handle artifact
-      - uses: actions/upload-artifact@v2
-        with:
-          name: wininstaller-64.exe
-          path: ./server/dist/ontime-win64.exe
+      # release
+      - name: Release
+        uses: softprops/action-gh-release@v1
 
