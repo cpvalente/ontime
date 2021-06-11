@@ -24,19 +24,27 @@
     "start": "NODE_ENV=development electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
+
+    "dist-win": "electron-builder --publish=never  --x64 --win",
+    "dist-mac": "electron-builder --publish=never  --x64 --mac",
+
     "startall": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "build": {
     "productName": "ontime",
-    "appId": "ontime.lightdev.no",
+    "appId": "no.lightdev.ontime",
     "asar": true,
+    "dmg": {
+		},
     "mac": {
-      "category": "your.app.category.type"
+			"target": "dmg",
+      "category": "no.lightdev.ontime"
     },
     "win": {
       "target": "nsis"
     },
     "nsis": {
+      "artifactName": "ontime-win64.exe",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "deleteAppDataOnUninstall": true,
