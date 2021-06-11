@@ -17,16 +17,20 @@ export default function InfoTitle(props) {
       </div>
 
       <div>
-        <span className={style.label}>Title: </span>Demo title
+        <span className={style.label}>Title: </span>
+        {data.title}
       </div>
       <div>
-        <span className={style.label}>Subtitle: </span>Demo Subtitle
+        <span className={style.label}>Subtitle: </span>
+        {data.subtitle}
       </div>
       <div>
-        <span className={style.label}>Presenter: </span>Demo Presenter Name
+        <span className={style.label}>Presenter: </span>
+        {data.presenter}
       </div>
       <div>
-        <span className={style.label}>Notes: </span>Demo Notes
+        <span className={style.label}>Notes: </span>
+        {data.note}
       </div>
     </div>
   );
