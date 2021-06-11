@@ -1,0 +1,63 @@
+.container {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  padding: 8px;
+  overflow-y: scroll;
+}
+
+.main {
+  font-size: 0.9em;
+  text-align: right;
+  color: #ff7597;
+}
+
+.header {
+  padding: 0;
+  margin: 0;
+  font-size: 0.9em;
+  color: #aaa;
+  display: flex;
+  justify-content: space-between;
+}
+
+.label {
+  padding: 0;
+  margin: 0;
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+ul > li {
+  font-size: 0.9em;
+  color: #fff;
+}
+
+.info {
+  color: #fff;
+}
+
+.error {
+  color: red;
+}
+
+.client {
+  color: lightblue;
+}
+
+.moreExpanded,
+.moreCollapsed {
+  cursor: pointer;
+  color: #fff;
+}
+
+.moreExpanded {
+  transform: rotate(0deg);
+}
+
+.moreCollapsed {
+  transform: rotate(180deg);
+}
