@@ -4,12 +4,12 @@
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
-  "keywords": ["lighdev", "ontime"],
+  "keywords": [ "lighdev", "ontime", "timer" ],
   "license": "MIT",
   "main": "main.js",
   "devDependencies": {
     "concurrently": "^6.1.0",
-    "electron": "^12.0.7",
+    "electron": "^13.1.2",
     "electron-builder": "^22.11.3",
     "eslint": "^7.26.0",
     "eslint-config-airbnb": "^18.2.1",
@@ -19,7 +19,6 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-simple-import-sort": "^7.0.0"
   },
-
   "scripts": {
     "nodestart": "NODE_ENV=development node app.js",
     "start": "NODE_ENV=development electron .",
@@ -35,12 +34,12 @@
       "category": "your.app.category.type"
     },
     "win": {
-			"target": "nsis"
+      "target": "nsis"
     },
     "nsis": {
-			"createDesktopShortcut": true,
-			"createStartMenuShortcut": true,
-			"deleteAppDataOnUninstall": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": true,
       "installerIcon": "icon.ico"
     },
     "files": [
@@ -48,8 +47,8 @@
       "assets/"
     ],
     "directories": {
-			"buildResources": "./assets/"
-		},
+      "buildResources": "./assets/"
+    },
     "extraResources": [
       {
         "from": "../client/build",

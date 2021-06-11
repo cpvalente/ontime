@@ -10,11 +10,11 @@ const {
   Notification,
 } = require('electron');
 const path = require('path');
-const { electron } = require('process');
 
 const env = process.env.NODE_ENV || 'prod';
 
 let loaded = 'Nothing loaded';
+let isQuitting = false;
 
 const nodePath =
   env != 'prod'
@@ -173,9 +173,12 @@ app.whenReady().then(() => {
   // Hide on close
   win.on('close', function (event) {
     event.preventDefault();
-    showNotification('App running in background');
-    win.hide();
-    return false;
+    if (!isQuitting) {
+      showNotification('App running in background');
+      win.hide();
+      return false;
+    }
+    return true;
   });
 
   // create tray
@@ -224,6 +227,7 @@ ipcMain.on('shutdown', (event, arg) => {
     await shutdown();
   })();
 
+  isQuitting = true;
   tray.destroy();
   win.destroy();
   app.quit();

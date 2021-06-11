@@ -128,4 +128,7 @@ export const shutdown = () => {
   // shutdown OSC Server
   shutdownOSCServer();
   // shutdown OSC Client
+
+  // shutdown timer
+  global.timer.shutdown();
 };
