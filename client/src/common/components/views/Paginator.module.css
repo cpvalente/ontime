@@ -26,11 +26,13 @@
   margin-left: 0.5vw;
 }
 
-.entryStart,
-.entryEnd {
+.entryTimes {
   font-family: 'Open Sans', sans-serif;
-  min-width: 5vw;
+  font-size: 1.4vw;
+
+  min-width: 10vw;
   opacity: 0.9;
+  letter-spacing: 0.035em;
 }
 
 .entryTitle {
@@ -40,26 +42,42 @@
 .entryPast,
 .entryNow,
 .entryFuture {
-  background-color: rgba(255, 255, 255, 0.03);
   display: flex;
   font-size: 1.3vw;
   padding: 0.2vh 1vw;
   margin-bottom: 1.5vh;
+  border-radius: 3px;
 }
 
 .entryPast {
-  color: #aaa;
+  background-color: rgba(255, 255, 255, 0.01);
   font-size: 1.2vw;
 }
 
+.entryPast > .entryTitle {
+  color: #999;
+}
+
 .entryFuture {
+  background-color: rgba(255, 255, 255, 0.03);
   color: #ddd;
 }
 
 .entryNow {
   color: #fff;
   line-height: 5vh;
-  background-color: rgba(255, 255, 255, 0.09);
+  background-color: rgba(255, 255, 255, 0.07);
   border-bottom: 0.5vh solid #ff7597aa;
-  margin-left: -0.5vw;
+  margin-left: -0.5em;
+  padding-left: 0.5em;
+}
+
+.backstageInd {
+  color: #ff7597aa;
+  margin-left: auto;
+  margin-right: -0.5vw;
+}
+
+.backstageInd::before {
+  content: '*';
 }

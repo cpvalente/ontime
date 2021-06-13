@@ -33,6 +33,7 @@ export default function LowerClean(props) {
 
   // calculate transition times
   useEffect(() => {});
+
   // Format messages
   const showLowerMessage = lower.text !== '' && lower.visible;
 
