@@ -110,12 +110,34 @@ export class EventTimer extends Timer {
     const prev = 'prev';
     const next = 'next';
     const reload = 'reload';
+    const finished = 'finished';
+    const time = this.timeTag;
+    // TODO: Should this be boolean?
+    const overtime = this.current > 0 ? 0 : 1;
+    const title = this.titles.titleNow;
 
     switch (event) {
       case 'time':
         // Send Timetag Message
-
-        this.oscClient.send(add, this.timeTag, (err) => {
+        this.oscClient.send(add + '/time', time, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'finished':
+        // Runs when timer reaches 0
+        this.oscClient.send(add, finished, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'overtime':
+        // Whether timer is negative
+        this.oscClient.send(add + '/overtime', overtime, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'title':
+        // Send Title of current event
+        this.oscClient.send(add + '/title', title, (err) => {
           if (err) console.error(err);
         });
         break;
@@ -163,8 +185,11 @@ export class EventTimer extends Timer {
     // through websockets
     this.io.emit('timer', this.getObject());
 
-    // through OSC
-    this.sendOSC('time');
+    // through OSC, only if running
+    if (this.state === 'start' || this.state === 'roll') {
+      this.sendOSC('time');
+      this.sendOSC('overtime');
+    }
   }
 
   // broadcast state
@@ -189,30 +214,32 @@ export class EventTimer extends Timer {
   }
 
   update() {
-    // if there is nothing selected, no nothing
+    // if there is nothing selected, do nothing
     if (this.selectedEventId == null && this.state !== 'roll') return;
 
     // only implement roll here
     if (this.state !== 'roll') {
       super.update();
-      return;
-    }
-
-    // get current time
-    const now = this._getCurrentTime();
-    this.clock = now;
-
-    if (this.selectedEventId && this.current > 0) {
-      // update timer as usual
-      this.current = this._finishAt - now;
     } else {
-      // look for event if none is loaded
-      if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
+      // get current time
+      const now = this._getCurrentTime();
+      this.clock = now;
 
-      // count to next event
-      // TODO: replace with proper counter
-      if (this.secondaryTimer != null) this.secondaryTimer -= 1000;
+      if (this.selectedEventId && this.current > 0) {
+        // update timer as usual
+        this.current = this._finishAt - now;
+      } else {
+        // look for event if none is loaded
+        if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
+
+        // count to next event
+        // TODO: replace with proper counter
+        if (this.secondaryTimer != null) this.secondaryTimer -= 1000;
+      }
     }
+
+    // sendOSC on reaching 0
+    if (this.current === 0 && this.state === 'start') this.sendOSC('finished');
   }
 
   _setterManager(action, payload) {
