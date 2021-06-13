@@ -27,8 +27,7 @@
 
     "dist-win": "electron-builder --publish=never  --x64 --win",
     "dist-mac": "electron-builder --publish=never  --x64 --mac",
-
-    "startall": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\""
+    "dist-all": "electron-builder -mw"
   },
   "build": {
     "productName": "ontime",
@@ -38,7 +37,8 @@
 		},
     "mac": {
 			"target": "dmg",
-      "category": "no.lightdev.ontime"
+      "category": "public.app-category.productivity",
+      "icon": "icon.icns"
     },
     "win": {
       "target": "nsis"
