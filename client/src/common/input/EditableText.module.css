@@ -8,9 +8,12 @@
 
 .block {
   display: 'block';
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .inline {
   display: inline;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

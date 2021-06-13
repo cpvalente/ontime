@@ -152,6 +152,8 @@
   font-size: 0.8em;
   float: right;
   padding-right: 1em;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* ================ MORE ================ */
