@@ -3,6 +3,7 @@ import { useSocket } from 'app/context/socketContext';
 import style from './Info.module.css';
 import InfoTitle from './InfoTitle';
 import InfoLogger from './InfoLogger';
+import InfoNif from './InfoNif';
 import { useState } from 'react';
 
 export default function Info() {
@@ -71,6 +72,7 @@ export default function Info() {
     <>
       <div className={style.main}>{selected}</div>
       <InfoLogger logData={logData} />
+      <InfoNif />
       <InfoTitle title={'Now'} data={titlesNow} />
       <InfoTitle title={'Next'} data={titlesNext} />
     </>

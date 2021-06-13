@@ -30,6 +30,15 @@
   color: #ccc;
 }
 
+.if {
+  font-size: 0.8em;
+  color: #4bffabcc;
+  background-color: rgba(0, 0, 0, 0.13);
+  border-radius: 2px;
+  padding: 0 0.5em;
+  margin: 0 0.5em;
+}
+
 ul > li {
   font-size: 0.9em;
   color: #fff;
@@ -37,7 +46,7 @@ ul > li {
 
 .log {
   overflow-y: scroll;
-  height: 40vh;
+  height: 30vh;
 }
 
 .info {

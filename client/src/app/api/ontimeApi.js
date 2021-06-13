@@ -1,6 +1,15 @@
 import axios from 'axios';
 import { ontimeURL } from './apiConstants';
 
+export const ontimePlaceholderInfo = {
+  networkInterfaces: [],
+};
+
+export const getInfo = async () => {
+  const res = await axios.get(ontimeURL + '/info');
+  return res.data;
+};
+
 export const downloadEvents = async () => {
   await axios({
     url: ontimeURL + '/db',
