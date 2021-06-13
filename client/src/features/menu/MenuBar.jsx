@@ -1,9 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import {
-  downloadEvents,
-  uploadEvents,
-  uploadEventsWithPath,
-} from 'app/api/ontimeApi';
+import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
 import DownloadIconBtn from './buttons/DownloadIconBtn';
 import SettingsIconBtn from './buttons/SettingsIconBtn';
@@ -87,7 +83,6 @@ export default function MenuBar(props) {
         style={{ fontSize: '1.5em' }}
         size='lg'
         clickhandler={() => handleIPC('help')}
-        disabled
       />
       <SettingsIconBtn style={{ fontSize: '1.5em' }} size='lg' disabled />
       <div className={style.gap} />

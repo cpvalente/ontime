@@ -1,6 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
-import { FiZap, FiPlus, FiMinusCircle, FiClock } from 'react-icons/fi';
+import { FiPlus, FiMinusCircle, FiClock } from 'react-icons/fi';
 
 export default function ActionButtons(props) {
   const { showAdd, showDelay, showBlock, actionHandler } = props;
@@ -16,7 +16,7 @@ export default function ActionButtons(props) {
         as={IconButton}
         aria-label='Options'
         size='xs'
-        icon={<FiZap />}
+        icon={<FiPlus />}
         _expanded={{ bg: 'orange.300', color: 'white' }}
         _focus={{ boxShadow: 'none' }}
         backgroundColor={'orange.200'}

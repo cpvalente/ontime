@@ -1,12 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
-import {
-  FiTrash2,
-  FiZap,
-  FiPlus,
-  FiClock,
-  FiMinusCircle,
-} from 'react-icons/fi';
+import { FiTrash2, FiPlus, FiClock, FiMinusCircle } from 'react-icons/fi';
 import { Divider } from '@chakra-ui/layout';
 
 export default function MenuActionButtons(props) {
@@ -20,9 +14,9 @@ export default function MenuActionButtons(props) {
     <Menu isLazy lazyBehavior='unmount'>
       <MenuButton
         as={IconButton}
-        aria-label='Options'
+        aria-label='Create Menu'
         size={props.size || 'xs'}
-        icon={<FiZap />}
+        icon={<FiPlus />}
         _expanded={{ bg: 'orange.300', color: 'white' }}
         _focus={{ boxShadow: 'none' }}
         backgroundColor={'orange.200'}

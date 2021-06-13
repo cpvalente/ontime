@@ -1,3 +1,4 @@
+
 import { lazy, useEffect } from 'react';
 import { Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
@@ -31,43 +32,28 @@ export default function Editor() {
         </Box>
 
         <Box className={styles.editor}>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Event List
-          </Heading>
-          <NumberedText number={1} text={'Manage events'} />
+          <h1>Event List</h1>
           <div className={styles.content}>
             <EventListWrapper />
           </div>
         </Box>
 
         <Box className={styles.messages}>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Display Messages
-          </Heading>
-          <NumberedText
-            number={3}
-            text={'Show realtime messages on different screens'}
-          />
+          <h1>Display Messages</h1>
           <div className={styles.content}>
             <MessageControl />
           </div>
         </Box>
 
         <Box className={styles.playback}>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Time Control
-          </Heading>
-          <NumberedText number={2} text={'Control timers'} />
+          <h1>Timer Control</h1>
           <div className={styles.content}>
             <PlaybackControl />
           </div>
         </Box>
 
         <Box className={styles.info} borderRadius='0.5em' overflowX='auto'>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Info
-          </Heading>
-          <NumberedText number={4} text={'Running Info'} />
+          <h1>Info</h1>
           <div className={styles.content}></div>
         </Box>
       </div>
