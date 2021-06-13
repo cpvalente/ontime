@@ -6,7 +6,6 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 4px;
   padding: 8px;
-  overflow-y: scroll;
 }
 
 .main {
@@ -36,6 +35,11 @@ ul > li {
   color: #fff;
 }
 
+.log {
+  overflow-y: scroll;
+  height: 40vh;
+}
+
 .info {
   color: #fff;
 }
@@ -55,9 +59,11 @@ ul > li {
 }
 
 .moreExpanded {
-  transform: rotate(0deg);
+  transform: scaleY(-1);
+  transition: transform 0.3s;
 }
 
 .moreCollapsed {
-  transform: rotate(180deg);
+  transform: scaleY(1);
+  transition: transform 0.3s;
 }

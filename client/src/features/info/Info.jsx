@@ -37,9 +37,9 @@ export default function Info() {
 
     // Handle selection data
     socket.on('selected', (data) => {
-      const formatedCurrent = `${data.index != null ? data.index + 1 : '-'}/${
-        data.total != null ? data.total : '-'
-      }`;
+      const formatedCurrent = `Event ${
+        data.index != null ? data.index + 1 : '-'
+      }/${data.total != null ? data.total : '-'}`;
 
       setSelected(formatedCurrent);
     });
@@ -51,6 +51,7 @@ export default function Info() {
     };
   }, [socket]);
 
+  // TODO: Put this in use effect
   // prepare data
   const titlesNow = {
     title: titles.titleNow,
@@ -68,10 +69,10 @@ export default function Info() {
 
   return (
     <>
-      <div className={style.main}>{`Event ${selected}`}</div>
+      <div className={style.main}>{selected}</div>
+      <InfoLogger logData={logData} />
       <InfoTitle title={'Now'} data={titlesNow} />
       <InfoTitle title={'Next'} data={titlesNext} />
-      <InfoLogger logData={logData} />
     </>
   );
 }
