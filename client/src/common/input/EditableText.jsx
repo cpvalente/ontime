@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import style from './EditableText.module.css';
 
 export default function EditableText(props) {
-  const { label, defaultValue, placeholder, submitHandler } = props;
+  const { label, defaultValue, placeholder, submitHandler, ...rest } = props;
   const [text, setText] = useState(defaultValue || '');
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function EditableText(props) {
   };
 
   return (
-    <div className={style.block}>
+    <div className={style.block} {...rest}>
       <span className={style.title}>{label}</span>
       <Editable
         onChange={(v) => handleChange(v)}

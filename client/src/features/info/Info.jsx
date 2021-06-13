@@ -71,7 +71,7 @@ export default function Info() {
   return (
     <>
       <div className={style.main}>{selected}</div>
-      <InfoLogger logData={logData} />
+      {/* <InfoLogger logData={logData} /> */}
       <InfoNif />
       <InfoTitle title={'Now'} data={titlesNow} />
       <InfoTitle title={'Next'} data={titlesNext} />
