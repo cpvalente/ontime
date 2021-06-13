@@ -10,6 +10,7 @@ import {
   block as blockDef,
 } from '../data/eventsDefinition.js';
 import { dbModel } from '../data/dataModel.js';
+import { networkInterfaces } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -132,6 +133,37 @@ const upload = async (file, req, res) => {
   }
 };
 
+/**
+ * @description Gets information on IPV4 non internal interfaces
+ * @returns {array} - Array of objects {name: ip}
+ */
+const getNetworkInterfaces = () => {
+  const nets = networkInterfaces();
+  const results = [];
+
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+      if (net.family === 'IPv4' && !net.internal) {
+        results.push({
+          name: name,
+          address: net.address,
+        });
+      }
+    }
+  }
+  return results;
+};
+
+// Create controller for POST request to '/ontime/info'
+// Returns -
+// TODO: Add version
+export const getInfo = async (req, res) => {
+  const ni = getNetworkInterfaces();
+  res.status(200).send({
+    networkInterfaces: ni,
+  });
+
 // Create controller for POST request to '/ontime/db'
 // Returns -
 export const dbUpload = async (req, res) => {
@@ -152,4 +184,5 @@ export const dbPathToUpload = async (req, res) => {
     return;
   }
   upload(req.body.path, req, res);
+
 };
