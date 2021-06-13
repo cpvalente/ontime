@@ -163,6 +163,7 @@ export const getInfo = async (req, res) => {
   res.status(200).send({
     networkInterfaces: ni,
   });
+};
 
 // Create controller for POST request to '/ontime/db'
 // Returns -
@@ -184,5 +185,4 @@ export const dbPathToUpload = async (req, res) => {
     return;
   }
   upload(req.body.path, req, res);
-
 };

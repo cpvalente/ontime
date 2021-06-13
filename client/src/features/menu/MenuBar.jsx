@@ -12,7 +12,8 @@ import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
 import { useRef } from 'react';
 
-const { ipcRenderer } = window.require('electron');
+// const { ipcRenderer } = window.require('electron');
+// import { ipcRenderer, remote }from 'electron';
 
 export default function MenuBar(props) {
   const { onOpen } = props;
@@ -47,21 +48,23 @@ export default function MenuBar(props) {
   };
 
   const handleIPC = (action) => {
-    switch (action) {
-      case 'min':
-        ipcRenderer.send('set-window', 'to-tray');
-        break;
-      case 'max':
-        ipcRenderer.send('set-window', 'to-max');
-        break;
-      case 'shutdown':
-        ipcRenderer.send('shutdown', 'now');
-        break;
-      case 'help':
-        ipcRenderer.send('send-to-link', 'help');
-        break;
-      default:
-        break;
+    if (window.process.type === 'renderer') {
+      switch (action) {
+        case 'min':
+          window.ipcRenderer.send('set-window', 'to-tray');
+          break;
+        case 'max':
+          window.ipcRenderer.send('set-window', 'to-max');
+          break;
+        case 'shutdown':
+          window.ipcRenderer.send('shutdown', 'now');
+          break;
+        case 'help':
+          window.ipcRenderer.send('send-to-link', 'help');
+          break;
+        default:
+          break;
+      }
     }
   };
 

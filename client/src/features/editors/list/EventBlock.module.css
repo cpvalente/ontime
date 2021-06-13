@@ -30,7 +30,6 @@
   grid-template-columns: 2em 2em auto auto 1fr auto 3.7em;
   grid-template-areas: 'drag indi time time text more btns';
   justify-content: center;
-  align-items: baseline;
 }
 
 .expanded {

@@ -22,7 +22,7 @@ export default function EditableText(props) {
   };
 
   return (
-    <div className={style.block} {...rest}>
+    <div className={style.block}>
       <span className={style.title}>{label}</span>
       <Editable
         onChange={(v) => handleChange(v)}
@@ -30,6 +30,7 @@ export default function EditableText(props) {
         value={text}
         placeholder={placeholder}
         className={style.inline}
+        {...rest}
       >
         <EditablePreview
           color={text === '' ? '#666' : 'inherit'}

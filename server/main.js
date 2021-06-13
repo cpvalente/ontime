@@ -33,6 +33,7 @@ const nodePath =
     // Start OSC Client (Feedback)
     startOSCClient();
   } catch (error) {
+    console.log(error);
     loaded = error;
   }
 })();
@@ -122,7 +123,6 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow();
-
   /* ======================================
    * CONTEXT MENU CREATION ON REACT SIDE
   // Create context menu

@@ -1,10 +1,7 @@
-
 import { lazy, useEffect } from 'react';
-import { Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
 import { useDisclosure } from '@chakra-ui/hooks';
 import styles from './Editor.module.css';
-import NumberedText from 'common/components/text/NumberedText';
 import SettingsModal from 'features/modals/SettingsModal';
 import MenuBar from 'features/menu/MenuBar';
 
@@ -53,9 +50,11 @@ export default function Editor() {
           </div>
         </Box>
 
-        <Box className={styles.info} borderRadius='0.5em' overflowX='auto'>
+        <Box className={styles.info}>
           <h1>Info</h1>
-          <div className={styles.content}></div>
+          <div className={styles.content}>
+            <Info />
+          </div>
         </Box>
       </div>
     </>

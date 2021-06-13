@@ -161,10 +161,6 @@ const CollapsedBlock = (props) => {
 
 export default function EventBlock(props) {
   const { data, selected, delay, index, eventIndex, actionHandler } = props;
-
-  // const [collapsed, setCollapsed] = useState(checkLocalStorage(data.id));
-
-  // const collapsed = useSelector(itemsAtom, (state) => state === data.id);
   const [collapsed] = useAtom(
     useMemo(() => SelectCollapse(data.id), [data.id])
   );
