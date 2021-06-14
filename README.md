@@ -29,6 +29,7 @@ Almost reaching a feature set that we can call v1. Before that:
 - [ ] Finish Documentation
 ### Continuing
 - [ ] Linux version
+- [ ] Headless version (run server only anywhere, configure from a browser locally)
 - [ ] Companion integration
 - [ ] Lower Third Manager
 - [ ] Note only event
