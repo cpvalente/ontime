@@ -21,6 +21,7 @@ const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
 // dependencies
+import { Client } from 'node-osc';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';

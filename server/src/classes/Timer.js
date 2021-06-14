@@ -4,10 +4,13 @@
  *
  */
 
+import { stringFromMillis } from '../utils/time.js';
+
 export class Timer {
   clock = null;
   duration = null;
   current = null;
+  timeTag = null;
   secondaryTimer = null;
   _finishAt = null;
   _finishedAt = null;
@@ -133,7 +136,11 @@ export class Timer {
 
   // getObject
   getObject() {
+    // update timer
     this.update();
+
+    // update timetag
+    this.timeTag = stringFromMillis(this.current);
 
     return {
       clock: this.clock,

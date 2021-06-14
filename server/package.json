@@ -23,8 +23,12 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-simple-import-sort": "^7.0.0"
   },
+  "devDependencies": {
+    "jest": "^27.0.4"
+  },
   "scripts": {
     "nodestart": "NODE_ENV=development node src/app.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
     "start": "NODE_ENV=development electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
