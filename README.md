@@ -31,6 +31,7 @@ Almost reaching a feature set that we can call v1. Before that:
 - [ ] Linux version
 - [ ] Companion integration
 - [ ] Lower Third Manager
+- [ ] Note only event
 - [ ] URL Aliases (define configurable aliases to ease onsite setup)
 - [ ] Logging view
 - [ ] Reach Schedule: way to speedup timer to meet a deadline

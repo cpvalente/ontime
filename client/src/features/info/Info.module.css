@@ -10,8 +10,9 @@
 
 .main {
   font-size: 0.9em;
-  text-align: right;
   color: #ff7597;
+  display: flex;
+  justify-content: space-between;
 }
 
 .header {

@@ -487,6 +487,9 @@ export class EventTimer extends Timer {
     // set general
     this._eventlist = [];
     this.numEvents = 0;
+
+    // broadcast change
+    this.broadcastState();
   }
 
   setupWithEventList(eventlist) {

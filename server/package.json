@@ -5,7 +5,7 @@
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
   "keywords": [ "lighdev", "ontime", "timer" ],
-  "license": "lgpl-3.0",
+  "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
     "concurrently": "^6.1.0",

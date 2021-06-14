@@ -18,7 +18,7 @@ export default function Info() {
     presenterNext: '',
     noteNext: '',
   });
-  const [selected, setSelected] = useState('-/-');
+  const [selected, setSelected] = useState('No events');
   const logData = [];
 
   // handle incoming messages
@@ -38,11 +38,14 @@ export default function Info() {
 
     // Handle selection data
     socket.on('selected', (data) => {
-      const formatedCurrent = `Event ${
-        data.index != null ? data.index + 1 : '-'
-      }/${data.total != null ? data.total : '-'}`;
-
-      setSelected(formatedCurrent);
+      if (data.total === 0 || data.total == null) {
+        setSelected('No events');
+      } else {
+        const formatedCurrent = `Event ${
+          data.index != null ? data.index + 1 : '-'
+        }/${data.total != null ? data.total : '-'}`;
+        setSelected(formatedCurrent);
+      }
     });
 
     // Clear listener
@@ -70,7 +73,10 @@ export default function Info() {
 
   return (
     <>
-      <div className={style.main}>{selected}</div>
+      <div className={style.main}>
+        <span>{`Running on port 4001`}</span>
+        <span>{selected}</span>
+      </div>
       {/* <InfoLogger logData={logData} /> */}
       <InfoNif />
       <InfoTitle title={'Now'} data={titlesNow} />

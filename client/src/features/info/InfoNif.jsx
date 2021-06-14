@@ -39,6 +39,7 @@ export default function InfoNif() {
               {data?.networkInterfaces.map((e) => {
                 return (
                   <a
+                    key={e.address}
                     href='/'
                     onClick={() =>
                       handleLink(baseURL.replace('__IP__', e.address))
