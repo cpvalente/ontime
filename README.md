@@ -5,7 +5,10 @@ Ontime is an application for managing and running stage timers.
 
 It allows a center application to be able to distribute event information in the local network. This minimises needs for using Media Server outputs or expensive video distribution while allowing easy integration in workflows including OBS and d3.
 
-## Feature List
+![App Window](https://github.com/cpvalente/ontime/01_app.png)
+
+![Views](https://github.com/cpvalente/ontime/02_screentypes.png)
+## Feature List (in no specific order)
 - Distribute Data over network and render in the browser
 - Different screen types
   - Stage Timer
@@ -13,7 +16,9 @@ It allows a center application to be able to distribute event information in the
   - Public Info
   - Picture in Picture
 - Configurable realtime Lower Thirds
+- Send live messages to different screen types
 - Ability to differentiate between backstage and public data
+- Manage delays workflow
 - OSC Control and Feedback
 - Roll mode: run independently from system clock
 
