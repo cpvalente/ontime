@@ -212,6 +212,11 @@ app.once('will-quit', () => {
   globalShortcut.unregisterAll();
 });
 
+// destroy tray icon before quit
+app.once('before-quit', () => {
+  tray.destroy();
+});
+
 // Get messages from react
 // Test message
 ipcMain.on('test-message', (event, arg) => {
