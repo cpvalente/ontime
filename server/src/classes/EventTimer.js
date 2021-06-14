@@ -15,6 +15,10 @@ export class EventTimer extends Timer {
 
   // Socket IO Object
   io = null;
+
+  // OSC Client
+  oscClient = null;
+
   _numClients = 0;
   _interval = null;
 
@@ -44,9 +48,11 @@ export class EventTimer extends Timer {
     titleNow: null,
     subtitleNow: null,
     presenterNow: null,
+    noteNow: null,
     titleNext: null,
     subtitleNext: null,
     presenterNext: null,
+    noteNext: null,
   };
 
   selectedEventIndex = null;
@@ -57,7 +63,7 @@ export class EventTimer extends Timer {
   numEvents = null;
   _eventlist = null;
 
-  constructor(httpServer, config) {
+  constructor(httpServer, oscClient, config) {
     // call super constructor
     super();
 
@@ -79,6 +85,101 @@ export class EventTimer extends Timer {
 
     // listen to new connections
     this._listenToConnections();
+
+    // set oscClient
+    this.updateOSCClient(oscClient);
+  }
+
+  /**
+   * @description Updates the osc client used in the object
+   * @param {object} oscClient
+   */
+  updateOSCClient(oscClient) {
+    this.oscClient = oscClient;
+  }
+
+  /**
+   * @description Sends osc value from predefined messages
+   * @param {string} event - message to be sent
+   */
+  sendOSC(event) {
+    if (this.oscClient == null) return;
+
+    const add = '/ontime';
+    const play = 'play';
+    const pause = 'pause';
+    const stop = 'stop';
+    const prev = 'prev';
+    const next = 'next';
+    const reload = 'reload';
+    const finished = 'finished';
+    const time = this.timeTag;
+    // TODO: Should this be boolean?
+    const overtime = this.current > 0 ? 0 : 1;
+    const title = this.titles.titleNow;
+
+    switch (event) {
+      case 'time':
+        // Send Timetag Message
+        this.oscClient.send(add + '/time', time, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'finished':
+        // Runs when timer reaches 0
+        this.oscClient.send(add, finished, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'overtime':
+        // Whether timer is negative
+        this.oscClient.send(add + '/overtime', overtime, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'title':
+        // Send Title of current event
+        this.oscClient.send(add + '/title', title, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'play':
+        // Play Message
+        this.oscClient.send(add, play, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'pause':
+        // Pause Message
+        this.oscClient.send(add, pause, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'stop':
+        // Stop Message
+        this.oscClient.send(add, stop, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'prev':
+        this.oscClient.send(add, prev, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'next':
+        this.oscClient.send(add, next, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'reload':
+        this.oscClient.send(add, reload, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+
+      default:
+        break;
+    }
   }
 
   /**
@@ -91,7 +192,14 @@ export class EventTimer extends Timer {
 
   // send current timer
   broadcastTimer() {
+    // through websockets
     this.io.emit('timer', this.getObject());
+
+    // through OSC, only if running
+    if (this.state === 'start' || this.state === 'roll') {
+      this.sendOSC('time');
+      this.sendOSC('overtime');
+    }
   }
 
   // broadcast state
@@ -101,6 +209,7 @@ export class EventTimer extends Timer {
     this.io.emit('selected', {
       id: this.selectedEventId,
       index: this.selectedEventIndex,
+      total: this.numEvents,
     });
     this.io.emit('selected-id', this.selectedEventId);
     this.io.emit('next-id', this.nextEventId);
@@ -116,44 +225,32 @@ export class EventTimer extends Timer {
   }
 
   update() {
-    // if there is nothing selected, no nothing
+    // if there is nothing selected, do nothing
     if (this.selectedEventId == null && this.state !== 'roll') return;
 
     // only implement roll here
     if (this.state !== 'roll') {
       super.update();
-      return;
-    }
-
-    // get current time
-    const now = this._getCurrentTime();
-    this.clock = now;
-
-    if (this.selectedEventId && this.current > 0) {
-      // update timer as usual
-      this.current = this._finishAt - now;
     } else {
-      // look for event if none is loaded
-      if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
+      // get current time
+      const now = this._getCurrentTime();
+      this.clock = now;
 
-      // count to next event
-      // TODO: replace with proper counter
-      if (this.secondaryTimer != null) this.secondaryTimer -= 1000;
+      if (this.selectedEventId && this.current > 0) {
+        // update timer as usual
+        this.current = this._finishAt - now;
+      } else {
+        // look for event if none is loaded
+        if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
+
+        // count to next event
+        // TODO: replace with proper counter
+        if (this.secondaryTimer != null) this.secondaryTimer -= 1000;
+      }
     }
-  }
 
-  start() {
-    // if there is nothing selected, no nothing
-    if (this.selectedEventId == null) return;
-    super.start();
-    this.broadcastState();
-  }
-
-  pause() {
-    // if there is nothing selected, no nothing
-    if (this.selectedEventId == null) return;
-    super.pause();
-    this.broadcastState();
+    // sendOSC on reaching 0
+    if (this.current === 0 && this.state === 'start') this.sendOSC('finished');
   }
 
   _setterManager(action, payload) {
@@ -297,6 +394,7 @@ export class EventTimer extends Timer {
         socket.emit('selected', {
           id: this.selectedEventId,
           index: this.selectedEventIndex,
+          total: this.numEvents,
         });
       });
 
@@ -596,6 +694,7 @@ export class EventTimer extends Timer {
         this.titles.titleNow = e.title;
         this.titles.subtitleNow = e.subtitle;
         this.titles.presenterNow = e.presenter;
+        this.titles.noteNow = e.note;
         this.selectedEventId = e.id;
 
         break;
@@ -609,6 +708,7 @@ export class EventTimer extends Timer {
         this.titles.titleNow = e.title;
         this.titles.subtitleNow = e.subtitle;
         this.titles.presenterNow = e.presenter;
+        this.titles.noteNow = e.note;
         this.selectedEventId = e.id;
         break;
 
@@ -624,6 +724,7 @@ export class EventTimer extends Timer {
         this.titles.titleNext = e.title;
         this.titles.subtitleNext = e.subtitle;
         this.titles.presenterNext = e.presenter;
+        this.titles.noteNext = e.note;
         this.nextEventId = e.id;
         break;
       case 'next-public':
@@ -636,6 +737,7 @@ export class EventTimer extends Timer {
         this.titles.titleNext = e.title;
         this.titles.subtitleNext = e.subtitle;
         this.titles.presenterNext = e.presenter;
+        this.titles.noteNext = e.note;
         this.nextEventId = e.id;
         break;
 
@@ -652,6 +754,7 @@ export class EventTimer extends Timer {
     this.titles.titleNext = null;
     this.titles.subtitleNext = null;
     this.titles.presenterNext = null;
+    this.titles.noteNext = null;
     this.nextEventId = null;
 
     this.titlesPublic.titleNext = null;
@@ -690,9 +793,11 @@ export class EventTimer extends Timer {
       titleNow: null,
       subtitleNow: null,
       presenterNow: null,
+      noteNow: null,
       titleNext: null,
       subtitleNext: null,
       presenterNext: null,
+      noteNext: null,
     };
 
     this.publicTitles = {
@@ -739,9 +844,11 @@ export class EventTimer extends Timer {
       Title Now       = ${this.titles.titleNow}
       Subtitle Now    = ${this.titles.subtitleNow}
       Presenter Now   = ${this.titles.presenterNow}
+      Note Now        = ${this.titles.noteNow}
       Title Next      = ${this.titles.titleNext}
       Subtitle Next   = ${this.titles.subtitleNext}
       Presenter Next  = ${this.titles.presenterNext}
+      Note Next       = ${this.titles.noteNext}
 
       Public Titles
       ------------------------------
@@ -779,19 +886,31 @@ export class EventTimer extends Timer {
   }
 
   start() {
+    // if there is nothing selected, no nothing
+    if (this.selectedEventId == null) return;
+
     // call super
     super.start();
 
     // broadcast current state
     this.broadcastState();
+
+    // send OSC
+    this.sendOSC('play');
   }
 
   pause() {
+    // if there is nothing selected, no nothing
+    if (this.selectedEventId == null) return;
+
     // call super
     super.pause();
 
     // broadcast current state
     this.broadcastState();
+
+    // send OSC
+    this.sendOSC('pause');
   }
 
   stop() {
@@ -800,6 +919,9 @@ export class EventTimer extends Timer {
 
     // broadcast current state
     this.broadcastState();
+
+    // send OSC
+    this.sendOSC('stop');
   }
 
   increment(amount) {
@@ -893,6 +1015,9 @@ export class EventTimer extends Timer {
       return;
     }
 
+    // send OSC
+    this.sendOSC('prev');
+
     // change playstate
     this.pause();
 
@@ -912,6 +1037,9 @@ export class EventTimer extends Timer {
       this.loadEvent(0);
       return;
     }
+
+    // send OSC
+    this.sendOSC('next');
 
     // change playstate
     this.pause();
@@ -939,6 +1067,9 @@ export class EventTimer extends Timer {
   reload() {
     // reset playstate
     this.pause();
+
+    // send OSC
+    this.sendOSC('reload');
 
     // reload data
     this.loadEvent(this.selectedEventIndex);

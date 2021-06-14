@@ -1,9 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import {
-  downloadEvents,
-  uploadEvents,
-  uploadEventsWithPath,
-} from 'app/api/ontimeApi';
+import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
 import DownloadIconBtn from './buttons/DownloadIconBtn';
 import SettingsIconBtn from './buttons/SettingsIconBtn';
@@ -15,8 +11,6 @@ import style from './MenuBar.module.css';
 import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
 import { useRef } from 'react';
-
-const { ipcRenderer } = window.require('electron');
 
 export default function MenuBar(props) {
   const { onOpen } = props;
@@ -51,21 +45,23 @@ export default function MenuBar(props) {
   };
 
   const handleIPC = (action) => {
-    switch (action) {
-      case 'min':
-        ipcRenderer.send('set-window', 'to-tray');
-        break;
-      case 'max':
-        ipcRenderer.send('set-window', 'to-max');
-        break;
-      case 'shutdown':
-        ipcRenderer.send('shutdown', 'now');
-        break;
-      case 'help':
-        ipcRenderer.send('send-to-link', 'help');
-        break;
-      default:
-        break;
+    if (window.process.type === 'renderer') {
+      switch (action) {
+        case 'min':
+          window.ipcRenderer.send('set-window', 'to-tray');
+          break;
+        case 'max':
+          window.ipcRenderer.send('set-window', 'to-max');
+          break;
+        case 'shutdown':
+          window.ipcRenderer.send('shutdown', 'now');
+          break;
+        case 'help':
+          window.ipcRenderer.send('send-to-link', 'help');
+          break;
+        default:
+          break;
+      }
     }
   };
 
@@ -87,7 +83,6 @@ export default function MenuBar(props) {
         style={{ fontSize: '1.5em' }}
         size='lg'
         clickhandler={() => handleIPC('help')}
-        disabled
       />
       <SettingsIconBtn style={{ fontSize: '1.5em' }} size='lg' disabled />
       <div className={style.gap} />

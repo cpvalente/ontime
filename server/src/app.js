@@ -1,4 +1,9 @@
-// get config
+// get environment vars
+import 'dotenv/config';
+import { sessionId, user } from './utils/analytics.js';
+user.screenview('Node service', 'ontime').send();
+user.event('NODE', 'started', 'starting node service').send();
+
 import { config } from './config/config.js';
 
 // init database
@@ -16,10 +21,12 @@ const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
 // dependencies
+import { Client } from 'node-osc';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbModel } from './data/dataModel.js';
+import ua from 'universal-analytics';
 
 // Read data from JSON file, this will set db.data content
 await db.read();
@@ -53,10 +60,11 @@ app.use(cors());
 app.options('*', cors());
 
 // Implement middleware
-app.use('/uploads', express.static('uploads'));
-
+app.use(ua.middleware(process.env.ANALYTICS_ID, sessionId));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
+
+app.use('/uploads', express.static('uploads'));
 
 // Implement route endpoints
 app.use('/events', eventsRouter);
@@ -87,6 +95,10 @@ app.use((err, req, res, next) => {
   res.status(500).send(err.stack);
 });
 
+// Start OSC Client
+// TODO: Move this to function
+const oscClient = new Client('127.0.0.1', 9999);
+
 // create HTTP server
 const server = http.createServer(app);
 
@@ -99,7 +111,7 @@ export const startServer = (overrideConfig = null) => {
   server.listen(serverPort, '0.0.0.0', () => console.log(returnMessage));
 
   // init timer
-  global.timer = new EventTimer(server, config);
+  global.timer = new EventTimer(server, oscClient, config);
   global.timer.setupWithEventList(data.events);
 
   return returnMessage;
@@ -123,6 +135,8 @@ export const startOSCClient = (overrideConfig = null) => {
 export const shutdown = () => {
   console.log('Node service shutdown');
 
+  user.event('NODE', 'shutdown', 'requesting node shutfown').send();
+
   // shutdown express server
   server.close();
   // shutdown OSC Server
@@ -132,3 +146,9 @@ export const shutdown = () => {
   // shutdown timer
   global.timer.shutdown();
 };
+
+// if (env == 'development') {
+//   startServer();
+//   startOSCServer();
+//   startOSCClient();
+// }

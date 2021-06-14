@@ -1,0 +1,82 @@
+.container {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.main {
+  font-size: 0.9em;
+  text-align: right;
+  color: #ff7597;
+}
+
+.header {
+  padding: 0;
+  margin: 0;
+  font-size: 0.9em;
+  color: #aaa;
+  display: flex;
+  justify-content: space-between;
+}
+
+.label {
+  padding: 0;
+  margin: 0;
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+.notes {
+  color: #d69e2e;
+}
+
+.if {
+  font-size: 0.8em;
+  color: #4bffabcc;
+  background-color: rgba(0, 0, 0, 0.13);
+  border-radius: 2px;
+  padding: 0 0.5em;
+  margin: 0 0.5em;
+}
+
+ul > li {
+  font-size: 0.9em;
+  color: #fff;
+}
+
+.log {
+  overflow-y: scroll;
+  height: 30vh;
+}
+
+.info {
+  color: #fff;
+}
+
+.error {
+  color: red;
+}
+
+.client {
+  color: lightblue;
+}
+
+.moreExpanded,
+.moreCollapsed {
+  cursor: pointer;
+  color: #fff;
+}
+
+.moreExpanded {
+  transform: scaleY(-1);
+  transition: transform 0.3s;
+}
+
+.moreCollapsed {
+  transform: scaleY(1);
+  transition: transform 0.3s;
+}

@@ -6,7 +6,7 @@ import EventTimes from 'common/components/eventTimes/EventTimes';
 import EventTimesVertical from 'common/components/eventTimes/EventTimesVertical';
 import EditableText from 'common/input/EditableText';
 import ActionButtons from './ActionButtons';
-import VisibleIconBtn from 'common/components/buttons/VisibleIconBtn';
+import PublicIconBtn from 'common/components/buttons/PublicIconBtn';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import { millisToMinutes } from 'common/dateConfig';
 import style from './EventBlock.module.css';
@@ -77,6 +77,7 @@ const ExpandedBlock = (props) => {
           label='Note'
           defaultValue={data.note}
           placeholder='Add Note'
+          style={{ color: '#d69e2e' }}
           submitHandler={(v) =>
             actionHandler('update', { field: 'note', value: v })
           }
@@ -93,7 +94,7 @@ const ExpandedBlock = (props) => {
         onClick={() => props.setCollapsed(true)}
       />
       <div className={style.actionOverlay}>
-        <VisibleIconBtn actionHandler={actionHandler} active={data.isPublic} />
+        <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
         <ActionButtons
           showAdd
           showDelay
@@ -146,7 +147,7 @@ const CollapsedBlock = (props) => {
         onClick={() => props.setCollapsed(false)}
       />
       <div className={style.actionOverlay}>
-        <VisibleIconBtn actionHandler={actionHandler} active={data.isPublic} />
+        <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
         <ActionButtons
           showAdd
           showDelay
@@ -160,10 +161,6 @@ const CollapsedBlock = (props) => {
 
 export default function EventBlock(props) {
   const { data, selected, delay, index, eventIndex, actionHandler } = props;
-
-  // const [collapsed, setCollapsed] = useState(checkLocalStorage(data.id));
-
-  // const collapsed = useSelector(itemsAtom, (state) => state === data.id);
   const [collapsed] = useAtom(
     useMemo(() => SelectCollapse(data.id), [data.id])
   );

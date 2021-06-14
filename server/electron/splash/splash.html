@@ -9,6 +9,10 @@
     <title>ontime</title>
     <style>
       body {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-app-region: drag;
+        animation: fadein 0s;
         background-color: #0005;
       }
       h1 {
@@ -29,10 +33,10 @@
       }
       .lds-ellipsis div {
         position: absolute;
-        width: 13px;
-        height: 13px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        background: #fffa;
+        background: #ff7597aa;
         animation-timing-function: cubic-bezier(0, 1, 1, 0);
       }
       .lds-ellipsis div:nth-child(1) {
@@ -50,6 +54,14 @@
       .lds-ellipsis div:nth-child(4) {
         left: 56px;
         animation: lds-ellipsis3 0.6s infinite;
+      }
+      @keyframes fadein {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
       @keyframes lds-ellipsis1 {
         0% {
@@ -79,7 +91,7 @@
   </head>
   <body>
     <div class="container">
-      <img src="../../assets/images/logosbwa/LOGO-192.png" />
+      <img src="../../assets/logo.png" />
       <h1>ontime · event timers</h1>
       <div class="lds-ellipsis">
         <div></div>

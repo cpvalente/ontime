@@ -1,10 +1,8 @@
 import { lazy, useEffect } from 'react';
-import { Heading } from '@chakra-ui/layout';
 import { Box } from '@chakra-ui/layout';
-import NumberedText from 'common/components/text/NumberedText';
-import styles from './Editor.module.css';
 import { useDisclosure } from '@chakra-ui/hooks';
-import SettingsModal from '../modals/SettingsModal';
+import styles from './Editor.module.css';
+import SettingsModal from 'features/modals/SettingsModal';
 import MenuBar from 'features/menu/MenuBar';
 
 const EventListWrapper = lazy(() =>
@@ -12,6 +10,7 @@ const EventListWrapper = lazy(() =>
 );
 const PlaybackControl = lazy(() => import('features/control/PlaybackControl'));
 const MessageControl = lazy(() => import('features/control/MessageControl'));
+const Info = lazy(() => import('features/info/Info'));
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -31,44 +30,31 @@ export default function Editor() {
         </Box>
 
         <Box className={styles.editor}>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Event List
-          </Heading>
-          <NumberedText number={1} text={'Manage events'} />
+          <h1>Event List</h1>
           <div className={styles.content}>
             <EventListWrapper />
           </div>
         </Box>
 
         <Box className={styles.messages}>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Display Messages
-          </Heading>
-          <NumberedText
-            number={3}
-            text={'Show realtime messages on different screens'}
-          />
+          <h1>Display Messages</h1>
           <div className={styles.content}>
             <MessageControl />
           </div>
         </Box>
 
         <Box className={styles.playback}>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Time Control
-          </Heading>
-          <NumberedText number={2} text={'Control timers'} />
+          <h1>Timer Control</h1>
           <div className={styles.content}>
             <PlaybackControl />
           </div>
         </Box>
 
-        <Box className={styles.info} borderRadius='0.5em' overflowX='auto'>
-          <Heading size='lg' paddingBottom={'0.25em'}>
-            Info
-          </Heading>
-          <NumberedText number={4} text={'Running Info'} />
-          <div className={styles.content}></div>
+        <Box className={styles.info}>
+          <h1>Info</h1>
+          <div className={styles.content}>
+            <Info />
+          </div>
         </Box>
       </div>
     </>

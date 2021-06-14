@@ -29,7 +29,7 @@ export const initiateOSC = (config) => {
     if (address !== 'ontime') return;
 
     // get second part (command)
-    switch (path.toLocaleLowerCase()) {
+    switch (path.toLowerCase()) {
       case 'start':
       case 'play':
         console.log('calling play');

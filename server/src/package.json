@@ -10,7 +10,9 @@
     "node-osc": "6.0.2",
     "passport": "~0.4.1",
     "passport-local": "~1.0.0",
-    "socket.io": "^4.0.0"
+    "socket.io": "^4.0.0",
+    "dotenv": "^10.0.0",
+    "universal-analytics": "^0.4.23"
   },
   "devDependencies": {
     "eslint": "^7.26.0",

@@ -17,28 +17,31 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0"
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "jest": "^27.0.4"
   },
   "scripts": {
-    "nodestart": "NODE_ENV=development node app.js",
+    "nodestart": "NODE_ENV=development node src/app.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-
     "dist-win": "electron-builder --publish=never  --x64 --win",
     "dist-mac": "electron-builder --publish=never  --x64 --mac",
-
-    "startall": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\""
+    "dist-all": "electron-builder -mw"
   },
   "build": {
     "productName": "ontime",
     "appId": "no.lightdev.ontime",
     "asar": true,
     "dmg": {
-		},
+      "artifactName": "ontime-macOS.dmg",
+      "icon": "icon.icns"
+    },
     "mac": {
-			"target": "dmg",
-      "category": "no.lightdev.ontime"
+      "target": "dmg",
+      "category": "public.app-category.productivity",
+      "icon": "icon.icns"
     },
     "win": {
       "target": "nsis"
@@ -48,6 +51,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "deleteAppDataOnUninstall": true,
+      "runAfterFinish": false,
       "installerIcon": "icon.ico"
     },
     "files": [

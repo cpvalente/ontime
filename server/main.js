@@ -33,6 +33,7 @@ const nodePath =
     // Start OSC Client (Feedback)
     startOSCClient();
   } catch (error) {
+    console.log(error);
     loaded = error;
   }
 })();
@@ -41,10 +42,12 @@ const nodePath =
 // TODO: Icons appear pixelated
 const trayIcon = path.join(__dirname, './assets/images/logos/LOGO-512.png');
 const appIcon = path.join(__dirname, './assets/images/logos/LOGO-512.png');
+
 function showNotification(text) {
   new Notification({
     title: 'ontime',
     body: text,
+    silent: true,
   }).show();
 }
 
@@ -120,7 +123,6 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow();
-
   /* ======================================
    * CONTEXT MENU CREATION ON REACT SIDE
   // Create context menu
@@ -253,6 +255,8 @@ ipcMain.on('send-to-link', (event, arg) => {
 
   // send to help URL
   if (arg === 'help') {
-    shell.openExternal('http://blank');
+    shell.openExternal('https://cpvalente.gitbook.io/ontime/');
+  } else {
+    shell.openExternal(arg);
   }
 });
