@@ -1,5 +1,5 @@
 // get environment vars
-import 'dotenv/config.js';
+import 'dotenv/config';
 import { sessionId, user } from './utils/analytics.js';
 user.screenview('Node service', 'ontime').send();
 user.event('NODE', 'started', 'starting node service').send();
@@ -95,6 +95,10 @@ app.use((err, req, res, next) => {
   res.status(500).send(err.stack);
 });
 
+// Start OSC Client
+// TODO: Move this to function
+const oscClient = new Client('127.0.0.1', 9999);
+
 // create HTTP server
 const server = http.createServer(app);
 
@@ -107,7 +111,7 @@ export const startServer = (overrideConfig = null) => {
   server.listen(serverPort, '0.0.0.0', () => console.log(returnMessage));
 
   // init timer
-  global.timer = new EventTimer(server, config);
+  global.timer = new EventTimer(server, oscClient, config);
   global.timer.setupWithEventList(data.events);
 
   return returnMessage;
@@ -143,7 +147,8 @@ export const shutdown = () => {
   global.timer.shutdown();
 };
 
-if (env == 'development') {
-  startServer();
-  startOSCClient();
-}
+// if (env == 'development') {
+//   startServer();
+//   startOSCServer();
+//   startOSCClient();
+// }
