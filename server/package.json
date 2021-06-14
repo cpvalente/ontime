@@ -55,6 +55,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "deleteAppDataOnUninstall": true,
+      "runAfterFinish": false,
       "installerIcon": "icon.ico"
     },
     "files": [

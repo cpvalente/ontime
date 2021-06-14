@@ -12,9 +12,6 @@ import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
 import { useRef } from 'react';
 
-// const { ipcRenderer } = window.require('electron');
-// import { ipcRenderer, remote }from 'electron';
-
 export default function MenuBar(props) {
   const { onOpen } = props;
   const hiddenFileInput = useRef(null);

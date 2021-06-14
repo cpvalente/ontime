@@ -15,6 +15,12 @@ export default function InfoNif() {
   const isDev = process.env.NODE_ENV === 'development';
   const baseURL = `http://__IP__:${isDev ? 3000 : 4001}`;
 
+  const handleLink = (url) => {
+    if (window.process.type === 'renderer') {
+      window.ipcRenderer.send('send-to-link', url);
+    }
+  };
+
   return (
     <div className={style.container}>
       <div className={style.header}>
@@ -33,9 +39,10 @@ export default function InfoNif() {
               {data?.networkInterfaces.map((e) => {
                 return (
                   <a
-                    href={baseURL.replace('__IP__', e.address)}
-                    target='_blank'
-                    rel='noreferrer'
+                    href='/'
+                    onClick={() =>
+                      handleLink(baseURL.replace('__IP__', e.address))
+                    }
                     className={style.if}
                   >{`${e.name} - ${e.address}`}</a>
                 );

@@ -256,5 +256,7 @@ ipcMain.on('send-to-link', (event, arg) => {
   // send to help URL
   if (arg === 'help') {
     shell.openExternal('https://cpvalente.gitbook.io/ontime/');
+  } else {
+    shell.openExternal(arg);
   }
 });

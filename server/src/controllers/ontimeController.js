@@ -120,8 +120,14 @@ const upload = async (file, req, res) => {
     deleteFile(file);
 
     // check version
-    if (uploadedJson.settings.version === 1) parsev1(uploadedJson);
-    else {
+    if (uploadedJson.settings.version === 1) {
+      try {
+        parsev1(uploadedJson);
+        global.timer.setupWithEventList(db.data.events);
+      } catch (error) {
+        res.status(400).send({ message: `Error parsing file: ${error}` });
+      }
+    } else {
       res.status(400).send({ message: 'Error parsing file, version unknown' });
       return;
     }
