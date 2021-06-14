@@ -69,6 +69,12 @@
   }
 }
 
+h1 {
+  font-size: 2.5vh;
+  color: rgba(255, 255, 255, 0.63);
+  padding-bottom: 0.25em;
+}
+
 .mainContainer > div {
   border-radius: 0.5em;
   height: 100%;

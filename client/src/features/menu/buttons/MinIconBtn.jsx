@@ -10,9 +10,6 @@ export default function MinIconBtn(props) {
         size={props.size || 'xs'}
         icon={<FiMinimize />}
         colorScheme='white'
-        variant='outline'
-        isRound
-        borderColor='#fff1'
         onClick={clickhandler}
         _focus={{ boxShadow: 'none' }}
         {...rest}

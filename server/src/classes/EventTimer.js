@@ -48,9 +48,11 @@ export class EventTimer extends Timer {
     titleNow: null,
     subtitleNow: null,
     presenterNow: null,
+    noteNow: null,
     titleNext: null,
     subtitleNext: null,
     presenterNext: null,
+    noteNext: null,
   };
 
   selectedEventIndex = null;
@@ -180,6 +182,14 @@ export class EventTimer extends Timer {
     }
   }
 
+  /**
+   * @description Shutdown process
+   */
+  shutdown() {
+    console.log('Closing socket server');
+    this.io.close();
+  }
+
   // send current timer
   broadcastTimer() {
     // through websockets
@@ -199,6 +209,7 @@ export class EventTimer extends Timer {
     this.io.emit('selected', {
       id: this.selectedEventId,
       index: this.selectedEventIndex,
+      total: this.numEvents,
     });
     this.io.emit('selected-id', this.selectedEventId);
     this.io.emit('next-id', this.nextEventId);
@@ -383,6 +394,7 @@ export class EventTimer extends Timer {
         socket.emit('selected', {
           id: this.selectedEventId,
           index: this.selectedEventIndex,
+          total: this.numEvents,
         });
       });
 
@@ -682,6 +694,7 @@ export class EventTimer extends Timer {
         this.titles.titleNow = e.title;
         this.titles.subtitleNow = e.subtitle;
         this.titles.presenterNow = e.presenter;
+        this.titles.noteNow = e.note;
         this.selectedEventId = e.id;
 
         break;
@@ -695,6 +708,7 @@ export class EventTimer extends Timer {
         this.titles.titleNow = e.title;
         this.titles.subtitleNow = e.subtitle;
         this.titles.presenterNow = e.presenter;
+        this.titles.noteNow = e.note;
         this.selectedEventId = e.id;
         break;
 
@@ -710,6 +724,7 @@ export class EventTimer extends Timer {
         this.titles.titleNext = e.title;
         this.titles.subtitleNext = e.subtitle;
         this.titles.presenterNext = e.presenter;
+        this.titles.noteNext = e.note;
         this.nextEventId = e.id;
         break;
       case 'next-public':
@@ -722,6 +737,7 @@ export class EventTimer extends Timer {
         this.titles.titleNext = e.title;
         this.titles.subtitleNext = e.subtitle;
         this.titles.presenterNext = e.presenter;
+        this.titles.noteNext = e.note;
         this.nextEventId = e.id;
         break;
 
@@ -738,6 +754,7 @@ export class EventTimer extends Timer {
     this.titles.titleNext = null;
     this.titles.subtitleNext = null;
     this.titles.presenterNext = null;
+    this.titles.noteNext = null;
     this.nextEventId = null;
 
     this.titlesPublic.titleNext = null;
@@ -776,9 +793,11 @@ export class EventTimer extends Timer {
       titleNow: null,
       subtitleNow: null,
       presenterNow: null,
+      noteNow: null,
       titleNext: null,
       subtitleNext: null,
       presenterNext: null,
+      noteNext: null,
     };
 
     this.publicTitles = {
@@ -825,9 +844,11 @@ export class EventTimer extends Timer {
       Title Now       = ${this.titles.titleNow}
       Subtitle Now    = ${this.titles.subtitleNow}
       Presenter Now   = ${this.titles.presenterNow}
+      Note Now        = ${this.titles.noteNow}
       Title Next      = ${this.titles.titleNext}
       Subtitle Next   = ${this.titles.subtitleNext}
       Presenter Next  = ${this.titles.presenterNext}
+      Note Next       = ${this.titles.noteNext}
 
       Public Titles
       ------------------------------

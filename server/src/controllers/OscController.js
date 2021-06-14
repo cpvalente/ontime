@@ -1,7 +1,13 @@
 import { Server } from 'node-osc';
 
+let oscServer = null;
+
+export const shutdownOSCServer = () => {
+  if (oscServer != null) oscServer.close();
+};
+
 export const initiateOSC = (config) => {
-  const oscServer = new Server(config.port, '0.0.0.0', () => {
+  oscServer = new Server(config.port, '0.0.0.0', () => {
     console.log(`OSC Server is listening on port ${config.port}`);
   });
 

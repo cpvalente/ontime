@@ -7,6 +7,10 @@ body,
 html,
 .App {
   margin: 0px auto;
+  overflow: hidden;
   overflow: clip;
   height: 100vh;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-app-region: drag;
 }
