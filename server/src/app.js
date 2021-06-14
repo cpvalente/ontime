@@ -1,4 +1,9 @@
-// get config
+// get environment vars
+import 'dotenv/config.js';
+import { sessionId, user } from './utils/analytics.js';
+user.screenview('Node service', 'ontime').send();
+user.event('NODE', 'started', 'starting node service').send();
+
 import { config } from './config/config.js';
 
 // init database
@@ -20,6 +25,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbModel } from './data/dataModel.js';
+import ua from 'universal-analytics';
 
 // Read data from JSON file, this will set db.data content
 await db.read();
@@ -53,10 +59,11 @@ app.use(cors());
 app.options('*', cors());
 
 // Implement middleware
-app.use('/uploads', express.static('uploads'));
-
+app.use(ua.middleware(process.env.ANALYTICS_ID, sessionId));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
+
+app.use('/uploads', express.static('uploads'));
 
 // Implement route endpoints
 app.use('/events', eventsRouter);
@@ -123,6 +130,8 @@ export const startOSCClient = (overrideConfig = null) => {
 export const shutdown = () => {
   console.log('Node service shutdown');
 
+  user.event('NODE', 'shutdown', 'requesting node shutfown').send();
+
   // shutdown express server
   server.close();
   // shutdown OSC Server
@@ -132,3 +141,8 @@ export const shutdown = () => {
   // shutdown timer
   global.timer.shutdown();
 };
+
+if (env == 'development') {
+  startServer();
+  startOSCClient();
+}

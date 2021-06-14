@@ -4,7 +4,11 @@
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
-  "keywords": [ "lighdev", "ontime", "timer" ],
+  "keywords": [
+    "lighdev",
+    "ontime",
+    "timer"
+  ],
   "license": "MIT",
   "main": "main.js",
   "devDependencies": {
@@ -20,11 +24,10 @@
     "eslint-plugin-simple-import-sort": "^7.0.0"
   },
   "scripts": {
-    "nodestart": "NODE_ENV=development node app.js",
+    "nodestart": "NODE_ENV=development node src/app.js",
     "start": "NODE_ENV=development electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-
     "dist-win": "electron-builder --publish=never  --x64 --win",
     "dist-mac": "electron-builder --publish=never  --x64 --mac",
     "dist-all": "electron-builder -mw"
@@ -36,9 +39,9 @@
     "dmg": {
       "artifactName": "ontime-macOS.dmg",
       "icon": "icon.icns"
-		},
+    },
     "mac": {
-			"target": "dmg",
+      "target": "dmg",
       "category": "public.app-category.productivity",
       "icon": "icon.icns"
     },
