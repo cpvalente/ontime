@@ -320,7 +320,7 @@ export const eventsDeleteAll = async (req, res) => {
     db.write();
 
     // update timer object
-    _updateTimersSingle();
+    global.timer.clearEventList();
 
     res.sendStatus(201);
   } catch (error) {

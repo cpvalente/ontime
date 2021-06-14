@@ -480,6 +480,15 @@ export class EventTimer extends Timer {
     });
   }
 
+  clearEventList() {
+    // unload events
+    this.unload();
+
+    // set general
+    this._eventlist = [];
+    this.numEvents = 0;
+  }
+
   setupWithEventList(eventlist) {
     if (!Array.isArray(eventlist) || eventlist.length < 1) return;
 
