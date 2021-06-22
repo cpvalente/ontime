@@ -22,6 +22,16 @@ It allows a center application to be able to distribute event information in the
 - [x] OSC Control and Feedback
 - [x] Roll mode: run independently from system clock
 
+## Unopinionated
+We are not interested in forcing workflows and have made ontime so it is flexible to whichever way you would like to work.
+
+
+- [x] You do not need an order list to use the timer. Create an empty event and the OSC API works just the same
+- [x] If you want just the info screens, no need to use the timer!
+- [x] Dont have or care for a schedule?
+  - [x] a single event with no data is enough to use the OSC API and get going
+  - [x] use the order list to create a set of quick timers by setting the beggining and start times to 00:00 and 00:10 (**BAM**! 10 minute timer). You can quick recall this with OSC as always
+
 ## Roadmap
 ### For version 1
 Almost reaching a feature set that we can call v1. Before that:
