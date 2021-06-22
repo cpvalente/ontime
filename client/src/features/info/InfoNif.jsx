@@ -12,8 +12,7 @@ export default function InfoNif() {
   });
   const [collapsed, setCollapsed] = useState(false);
 
-  const isDev = process.env.NODE_ENV === 'development';
-  const baseURL = `http://__IP__:${isDev ? 3000 : 4001}`;
+  const baseURL = `http://__IP__:${4001}`;
 
   const handleLink = (url) => {
     if (window.process.type === 'renderer') {
