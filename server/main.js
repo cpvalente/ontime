@@ -40,7 +40,7 @@ const nodePath =
 
 // Load Icons
 // TODO: Icons appear pixelated
-const trayIcon = path.join(__dirname, './assets/images/logos/LOGO-512.png');
+const trayIcon = path.join(__dirname, './assets/background.png');
 const appIcon = path.join(__dirname, './assets/images/logos/LOGO-512.png');
 
 function showNotification(text) {
@@ -70,6 +70,7 @@ if (!lock) {
     if (win) {
       if (win.isMinimized()) win.restore();
       win.show();
+      win.focus();
     }
   });
 }
@@ -101,7 +102,6 @@ function createWindow() {
     enableWebSQL: false,
     webPreferences: {
       preload: path.join(__dirname, './electron/preload.js'),
-      // TODO: what are recommended alternatives to node integration?
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
@@ -109,16 +109,6 @@ function createWindow() {
   });
 
   win.setMenu(null);
-
-  // Load page served by node
-  const reactApp =
-    env == 'prod'
-      ? 'http://localhost:4001/editor'
-      : 'http://localhost:3000/editor';
-
-  win.loadURL(reactApp).then(() => {
-    win.webContents.setBackgroundThrottling(false);
-  });
 }
 
 app.whenReady().then(() => {
@@ -145,6 +135,7 @@ app.whenReady().then(() => {
   // bring focus to window
   globalShortcut.register('Alt+1', () => {
     win.show();
+    win.focus();
   });
 
   globalShortcut.register('Alt+t', () => {
@@ -159,18 +150,29 @@ app.whenReady().then(() => {
     }
   });
 
-  win.once('ready-to-show', () => {
-    setTimeout(() => {
+  // give the nodejs server some time
+  setTimeout(() => {
+    // Load page served by node
+    const reactApp =
+      env == 'prod'
+        ? 'http://localhost:4001/editor'
+        : 'http://localhost:3000/editor';
+
+    win.loadURL(reactApp).then(() => {
+      win.webContents.setBackgroundThrottling(false);
+
       // window stuff
       win.show();
+      win.focus();
+
       splash.destroy();
       showNotification(loaded.toString());
 
       // tray stuff
       // TODO: get IP Address
       tray.setToolTip(loaded);
-    }, 2000);
-  });
+    });
+  }, 2000);
 
   // Hide on close
   win.on('close', function (event) {
@@ -192,7 +194,10 @@ app.whenReady().then(() => {
   const trayMenuTemplate = [
     {
       label: 'Show App',
-      click: () => win.show(),
+      click: () => {
+        win.show();
+        win.focus();
+      },
     },
     {
       label: 'Close',
