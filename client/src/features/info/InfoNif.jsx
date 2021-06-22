@@ -40,7 +40,7 @@ export default function InfoNif() {
                 return (
                   <a
                     key={e.address}
-                    href='/'
+                    href='#!'
                     onClick={() =>
                       handleLink(baseURL.replace('__IP__', e.address))
                     }
