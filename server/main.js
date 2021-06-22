@@ -39,9 +39,8 @@ const nodePath =
 })();
 
 // Load Icons
-// TODO: Icons appear pixelated
 const trayIcon = path.join(__dirname, './assets/background.png');
-const appIcon = path.join(__dirname, './assets/images/logos/LOGO-512.png');
+const appIcon = path.join(__dirname, './assets/logo.png');
 
 function showNotification(text) {
   new Notification({
@@ -100,6 +99,8 @@ function createWindow() {
     show: false,
     textAreasAreResizable: false,
     enableWebSQL: false,
+    skipTaskbar: true,
+    darkTheme: true,
     webPreferences: {
       preload: path.join(__dirname, './electron/preload.js'),
       nodeIntegration: true,
@@ -113,22 +114,6 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow();
-  /* ======================================
-   * CONTEXT MENU CREATION ON REACT SIDE
-  // Create context menu
-  // const contextMenu = new Menu();
-  // contextMenu.append(
-  //   new MenuItem({
-  //     label: 'Build context menu here',
-  //   })
-  // );
-
-  // open context menu when clicked
-  // win.webContents.on('context-menu', (e, params) => {
-  //   contextMenu.popup(win, params.x, params.y);
-  // });
-  * ======================================
-  */
 
   // register global shortcuts
   // (available regardless of wheter app is in focus)
@@ -189,7 +174,6 @@ app.whenReady().then(() => {
   // TODO: Design better icon
   tray = new Tray(trayIcon);
 
-  // TODO: Move to separate file
   // Define context menu
   const trayMenuTemplate = [
     {
