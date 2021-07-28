@@ -19,16 +19,30 @@
   padding: 0;
   margin: 0;
   font-size: 0.9em;
-  color: #aaa;
+  color: #ccc;
   display: flex;
   justify-content: space-between;
 }
 
-.label {
+.label,
+.emptyLabel {
   padding: 0;
   margin: 0;
   font-size: 0.9em;
-  color: #ccc;
+}
+
+.label {
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.label::after {
+  content: ': ';
+}
+
+.emptyLabel {
+  font-size: 0.8em;
+  color: #555;
 }
 
 .notes {
