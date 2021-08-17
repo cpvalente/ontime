@@ -40,8 +40,13 @@ jobs:
         run: yarn build
         working-directory: ./client
 
+      # install node dependencies
+      - name: Install nodejs dependencies
+        run: yarn install
+        working-directory: ./server/src
+
       # install and build electron
-      - name: Install Electron + nodejs dependencies
+      - name: Install Electron dependencies
         run: yarn install
         working-directory: ./server
       - name: Build Electron App
