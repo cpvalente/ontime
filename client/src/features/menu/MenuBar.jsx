@@ -44,6 +44,9 @@ export default function MenuBar(props) {
   };
 
   const handleIPC = (action) => {
+    // Stop crashes when testing locally
+    if (window.process?.type === undefined) return;
+
     if (window.process.type === 'renderer') {
       switch (action) {
         case 'min':
