@@ -5,7 +5,7 @@ import { FiSettings } from 'react-icons/fi';
 export default function SettingsIconBtn(props) {
   const { clickhandler, ...rest } = props;
   return (
-    <Tooltip label='Application Settings'>
+    <Tooltip label='Settings'>
       <IconButton
         size={props.size || 'xs'}
         icon={<FiSettings />}

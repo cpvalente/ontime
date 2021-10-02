@@ -2,8 +2,8 @@ import { lazy, useEffect } from 'react';
 import { Box } from '@chakra-ui/layout';
 import { useDisclosure } from '@chakra-ui/hooks';
 import styles from './Editor.module.css';
-import SettingsModal from 'features/modals/SettingsModal';
 import MenuBar from 'features/menu/MenuBar';
+import ModalManager from 'features/modals/ModalManager';
 
 const EventListWrapper = lazy(() =>
   import('features/editors/list/EventListWrapper')
@@ -22,7 +22,7 @@ export default function Editor() {
 
   return (
     <>
-      <SettingsModal isOpen={isOpen} onClose={onClose} />
+      <ModalManager isOpen={isOpen} onClose={onClose} />
 
       <div className={styles.mainContainer}>
         <Box id='settings' className={styles.settings}>
