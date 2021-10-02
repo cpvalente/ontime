@@ -3,7 +3,6 @@ import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
 import DownloadIconBtn from './buttons/DownloadIconBtn';
 import SettingsIconBtn from './buttons/SettingsIconBtn';
-import InfoIconBtn from './buttons/InfoIconBtn';
 import MaxIconBtn from './buttons/MaxIconBtn';
 import MinIconBtn from './buttons/MinIconBtn';
 import QuitIconBtn from './buttons/QuitIconBtn';
@@ -84,13 +83,12 @@ export default function MenuBar(props) {
         size='lg'
         clickhandler={() => handleIPC('help')}
       />
-      <SettingsIconBtn style={{ fontSize: '1.5em' }} size='lg' disabled />
-      <div className={style.gap} />
-      <InfoIconBtn
+      <SettingsIconBtn
         style={{ fontSize: '1.5em' }}
         size='lg'
         clickhandler={onOpen}
       />
+      <div className={style.gap} />
       <input
         type='file'
         style={{ display: 'none' }}
