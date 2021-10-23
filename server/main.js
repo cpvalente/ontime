@@ -42,9 +42,9 @@ const nodePath =
 const trayIcon = path.join(__dirname, './assets/background.png');
 const appIcon = path.join(__dirname, './assets/logo.png');
 
-function showNotification(text) {
+function showNotification(title, text) {
   new Notification({
-    title: 'ontime',
+    title: title,
     body: text,
     silent: true,
   }).show();
@@ -113,6 +113,11 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Set app title in windows
+  if (process.platform === 'win32') {
+    app.setAppUserModelId(app.name);
+  }
+
   createWindow();
 
   // register global shortcuts
@@ -151,7 +156,6 @@ app.whenReady().then(() => {
       win.focus();
 
       splash.destroy();
-      showNotification(loaded.toString());
 
       // tray stuff
       // TODO: get IP Address
@@ -163,7 +167,7 @@ app.whenReady().then(() => {
   win.on('close', function (event) {
     event.preventDefault();
     if (!isQuitting) {
-      showNotification('App running in background');
+      showNotification('Window Closed', 'App running in background');
       win.hide();
       return false;
     }
@@ -209,7 +213,7 @@ app.once('before-quit', () => {
 // Get messages from react
 // Test message
 ipcMain.on('test-message', (event, arg) => {
-  showNotification('testing 1-2', arg);
+  showNotification('Test Message', 'test from react', arg);
 });
 
 // Terminate
