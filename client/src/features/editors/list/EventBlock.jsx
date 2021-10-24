@@ -1,5 +1,5 @@
 import Icon from '@chakra-ui/icon';
-import { FiChevronDown, FiChevronUp, FiMoreVertical } from 'react-icons/fi';
+import { FiChevronUp, FiMoreVertical } from 'react-icons/fi';
 import { useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
@@ -86,13 +86,6 @@ const ExpandedBlock = (props) => {
           {`/ontime/goto ${eventIndex + 1}  << OSC >> /ontime/gotoid ${oscid}`}
         </span>
       </div>
-      <Icon
-        className={style.more}
-        as={FiChevronUp}
-        marginTop='0.2em'
-        gridArea='more'
-        onClick={() => props.setCollapsed(true)}
-      />
       <div className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
         <ActionButtons
@@ -139,13 +132,6 @@ const CollapsedBlock = (props) => {
           }
         />
       </div>
-      <Icon
-        className={style.more}
-        as={FiChevronDown}
-        marginTop='0.2em'
-        gridArea='more'
-        onClick={() => props.setCollapsed(false)}
-      />
       <div className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
         <ActionButtons
@@ -176,6 +162,7 @@ export default function EventBlock(props) {
   const delayValue = delay > 0 ? millisToMinutes(delay) : null;
 
   const handleCollapse = (isCollapsed) => {
+    console.log('setting collapsed', isCollapsed);
     setCollapsed({ [data.id]: isCollapsed });
   };
 
@@ -187,6 +174,11 @@ export default function EventBlock(props) {
           {...provided.draggableProps}
           ref={provided.innerRef}
         >
+          <Icon
+            className={collapsed ? style.moreCollapsed : style.moreExpanded}
+            as={FiChevronUp}
+            onClick={() => handleCollapse(!collapsed)}
+          />
           {collapsed ? (
             <CollapsedBlock
               provided={provided}
@@ -195,7 +187,6 @@ export default function EventBlock(props) {
               delay={delay}
               delayValue={delayValue}
               actionHandler={actionHandler}
-              setCollapsed={handleCollapse}
             />
           ) : (
             <ExpandedBlock
@@ -206,7 +197,6 @@ export default function EventBlock(props) {
               delay={delay}
               delayValue={delayValue}
               actionHandler={actionHandler}
-              setCollapsed={handleCollapse}
             />
           )}
         </div>
