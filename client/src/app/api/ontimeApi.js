@@ -17,7 +17,6 @@ export const downloadEvents = async () => {
     responseType: 'blob', // important
   }).then((response) => {
     let headerLine = response.headers['Content-Disposition'];
-    console.log(response);
     let filename = 'events.json';
 
     // try and get the filename from the response
