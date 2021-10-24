@@ -11,7 +11,7 @@
   font-weight: 300;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 3vw 2fr;
-  grid-template-rows: 2fr 1fr 1fr 0 1fr;
+  grid-template-rows: 15vh 1fr 1fr 0 13vh 13vh;
   grid-template-areas:
     ' titl titl titl . schd'
     ' now  now  now  . schd'
