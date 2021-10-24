@@ -26,19 +26,19 @@ export default function InfoTitle(props) {
 
       {!collapsed && (
         <>
-          <div>
+          <div className={style.labelContainer}>
             <span className={noTitl ? style.emptyLabel : style.label}>
               Title
             </span>
             {data.title}
           </div>
-          <div>
+          <div className={style.labelContainer}>
             <span className={noPres ? style.emptyLabel : style.label}>
               Presenter
             </span>
             {data.presenter}
           </div>
-          <div>
+          <div className={style.labelContainer}>
             <span className={noSubt ? style.emptyLabel : style.label}>
               Subtitle
             </span>

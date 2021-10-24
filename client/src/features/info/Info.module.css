@@ -6,6 +6,8 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 4px;
   padding: 8px;
+
+  max-width: 90%;
 }
 
 .main {
@@ -13,6 +15,8 @@
   color: #ff7597;
   display: flex;
   justify-content: space-between;
+
+  max-width: 90%;
 }
 
 .header {
@@ -22,6 +26,12 @@
   color: #ccc;
   display: flex;
   justify-content: space-between;
+}
+
+.labelContainer {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .label,
@@ -47,6 +57,8 @@
 
 .notes {
   color: #d69e2e;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .if {
