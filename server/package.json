@@ -8,7 +8,6 @@
   "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
-    "concurrently": "^6.1.0",
     "electron": "^13.1.2",
     "electron-builder": "^22.11.3",
     "eslint": "^7.26.0",
