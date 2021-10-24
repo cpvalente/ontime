@@ -8,7 +8,7 @@ import {
   event as eventDef,
   delay as delayDef,
   block as blockDef,
-} from '../data/eventsDefinition.js';
+} from '../models/eventsDefinition.js';
 
 function _getEventsCount() {
   return Array.from(data.events).length;

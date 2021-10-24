@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 
 const env = process.env.NODE_ENV || 'prod';
 
-const file = path.join(__dirname, 'data/', config.database.filename);
+const file = path.join(__dirname, '../data/', config.database.filename);
 const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
@@ -25,7 +25,7 @@ import { Client } from 'node-osc';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import { dbModel } from './data/dataModel.js';
+import { dbModel } from './models/dataModel.js';
 import ua from 'universal-analytics';
 
 // Read data from JSON file, this will set db.data content

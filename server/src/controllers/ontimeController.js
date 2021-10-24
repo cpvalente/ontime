@@ -8,8 +8,8 @@ import {
   event as eventDef,
   delay as delayDef,
   block as blockDef,
-} from '../data/eventsDefinition.js';
-import { dbModel } from '../data/dataModel.js';
+} from '../models/eventsDefinition.js';
+import { dbModel } from '../models/dataModel.js';
 import { networkInterfaces } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
