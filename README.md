@@ -50,6 +50,15 @@ Almost reaching a feature set that we can call v1. Before that:
 - [ ] Logging view
 - [ ] Reach Schedule: way to speedup timer to meet a deadline
 
+### Issues
+The app is still in pre-release and there are a few issues, mainly concerning style.
+This will be receiving attention as we near v1 release
+
+- [ ] App appears visually broken: Please ensure that windows settings have no display zoom (it is 125% by default)
+- [ ] app is needs improvement on handling zoomed interfaces
+- [ ] Very long titles might cause interface to shift
+- [ ] App sometimes hides itself when window is not visible. Ontime is always running in the background, find it in the tray or press Alt+1 to bring it to the foreground
+
 # Help
 Help is underway! ... and can be viewed [here](https://cpvalente.gitbook.io/ontime/)
 
