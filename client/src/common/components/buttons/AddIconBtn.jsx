@@ -7,9 +7,11 @@ export default function AddIconBtn(props) {
     <IconButton
       size={props.size || 'xs'}
       icon={<FiPlus />}
-      colorScheme='blue'
-      onClick={clickhandler}
+      _expanded={{ bg: 'orange.300', color: 'white' }}
       _focus={{ boxShadow: 'none' }}
+      backgroundColor={'orange.200'}
+      color={'orange.500'}
+      onClick={clickhandler}
       {...rest}
     />
   );
