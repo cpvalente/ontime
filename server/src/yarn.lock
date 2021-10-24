@@ -1592,10 +1592,10 @@ negotiator@0.6.2:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
   integrity sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==
 
-node-osc@6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/node-osc/-/node-osc-6.0.2.tgz#185d387928b186a84e8d0eebcae9e54a8bf50729"
-  integrity sha512-RW8PRLMh4H14veC5gZVUTcRkrk5pXd+b4vmitWL55c9ZI+5yEvMXkrokfnRH0u7DYveqw4h+uCPIUDifY/vjfA==
+node-osc@6.1.10:
+  version "6.1.10"
+  resolved "https://registry.yarnpkg.com/node-osc/-/node-osc-6.1.10.tgz#f618281f1f4fe91a41bc1414f58322369011e1ed"
+  integrity sha512-HiDNie6meSzfUcmso8jGyeQ1TTWC2G9FI/vO57H5JaNGAUCCh9X8wDzTZy0KpDTSBxxNC2Rgr8kCC7f0oJ/gww==
   dependencies:
     osc-min "^1.1.1"
 
