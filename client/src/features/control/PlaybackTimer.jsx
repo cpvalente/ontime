@@ -18,7 +18,6 @@ const PlaybackTimer = (props) => {
   const started = stringFromMillis(timer.startedAt, true);
   const finish = stringFromMillis(timer.expectedFinish, true);
   const isNegative = timer.running < 0;
-  const isDelayed = false;
   const isRolling = playback === 'roll';
 
   const incrementProps = {

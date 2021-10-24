@@ -239,7 +239,6 @@ export default function EventListWrapper() {
       switch (action) {
         case 'add':
           try {
-            let t = Date.now();
             await addEvent.mutateAsync(payload);
           } catch (error) {
             showErrorToast('Error creating event', error.message);
@@ -247,7 +246,6 @@ export default function EventListWrapper() {
           break;
         case 'update':
           try {
-            let t = Date.now();
             await updateEvent.mutateAsync(payload);
           } catch (error) {
             showErrorToast('Error updating event', error.message);
@@ -255,7 +253,6 @@ export default function EventListWrapper() {
           break;
         case 'patch':
           try {
-            let t = Date.now();
             await patchEvent.mutateAsync(payload);
           } catch (error) {
             showErrorToast('Error updating event', error.message);
@@ -263,7 +260,6 @@ export default function EventListWrapper() {
           break;
         case 'delete':
           try {
-            let t = Date.now();
             await deleteEvent.mutateAsync(payload);
           } catch (error) {
             showErrorToast('Error deleting event', error.message);
@@ -271,15 +267,12 @@ export default function EventListWrapper() {
           break;
         case 'reorder':
           try {
-            let t = Date.now();
             await reorderEvent.mutateAsync(payload);
           } catch (error) {
             showErrorToast('Error reordering event', error.message);
           }
           break;
         case 'applyDelay':
-          let t = Date.now();
-
           // if delay <= 0 delete delay and next block
           if (payload.duration <= 0) {
             try {
@@ -321,7 +314,6 @@ export default function EventListWrapper() {
 
         case 'deleteall':
           try {
-            let t = Date.now();
             await deleteAllEvents.mutateAsync();
           } catch (error) {
             showErrorToast('Error deleting events', error.message);
