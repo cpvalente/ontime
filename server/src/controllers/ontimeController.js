@@ -94,7 +94,7 @@ async function parsev1(jsonData) {
 // Returns -
 export const dbDownload = async (req, res) => {
   const fileTitle = getEventTitle() || 'ontime events';
-  const dbFile = path.resolve(__dirname, '../', 'data/db.json');
+  const dbFile = path.resolve(__dirname, '../../', 'data/db.json');
 
   res.download(dbFile, `${fileTitle}.json`, (err) => {
     if (err) {
