@@ -11,6 +11,26 @@ It allows a center application to be able to distribute event information in the
 ![App Window](https://github.com/cpvalente/ontime/blob/master/01_app.png)
 
 ![Views](https://github.com/cpvalente/ontime/blob/master/02_screentypes.png)
+
+## Using Ontime
+Once installed and running, ontime starts a background server that is the heart of all processes.
+The app, is used to add / edit your running order in the event list, and running the timers using the Playback Control function.
+
+From here, any device in the same network with a browser is able to render the views as described. This is done by reaching the ontime server at the _default port 4001_ eg: `localhost:4001` or `192.168.1.3:4001`
+You can then use the the ontime logo on the top right corner to select the desired view.
+
+In case of unnatended machines or automations, it is possible to use different URL to recall individual views
+
+```
+IP.ADDRESS:4001           > Web server default to stage timer view
+IP.ADDRESS:4001/speaker   > Speaker / Stage timer view
+IP.ADDRESS:4001/sm        > Stage Manager / Backstage view
+IP.ADDRESS:4001/public    > Public / Foyer view
+IP.ADDRESS:4001/pip       > Picture in Picture view
+IP.ADDRESS:4001/lower     > Lower Thirds
+```
+
+More documentation available [here](https://cpvalente.gitbook.io/ontime/)
 ## Feature List (in no specific order)
 - [x] Distribute Data over network and render in the browser
 - [x] Different screen types
