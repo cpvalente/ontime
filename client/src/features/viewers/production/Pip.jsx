@@ -87,7 +87,7 @@ export default function Pip(props) {
             <div className={style.qr}>
               {general.url != null && general.url !== '' && (
                 <QRCode
-                  value='www.carlosvalente.com'
+                  value={general.url}
                   size={window.innerWidth / 12}
                   level='L'
                 />

@@ -41,11 +41,11 @@ const Transport = ({ selectedId, playbackControl }) => {
     <div className={style.playbackContainer}>
       <PrevIconBtn clickhandler={() => playbackControl('previous')} />
       <NextIconBtn clickhandler={() => playbackControl('next')} />
-      <UnloadIconBtn clickhandler={() => playbackControl('unload')} />
       <ReloadIconButton
         clickhandler={() => playbackControl('reload')}
         disabled={!selectedId}
       />
+      <UnloadIconBtn clickhandler={() => playbackControl('unload')} />
     </div>
   );
 };

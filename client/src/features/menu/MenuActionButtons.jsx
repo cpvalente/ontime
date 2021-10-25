@@ -24,16 +24,16 @@ export default function MenuActionButtons(props) {
       />
       <MenuList style={menuStyle}>
         <MenuItem icon={<FiPlus />} onClick={() => actionHandler('event')}>
-          Event first
+          Add Event first
         </MenuItem>
         <MenuItem icon={<FiClock />} onClick={() => actionHandler('delay')}>
-          Delay first
+          Add Delay first
         </MenuItem>
         <MenuItem
           icon={<FiMinusCircle />}
           onClick={() => actionHandler('block')}
         >
-          Block first
+          Add Block first
         </MenuItem>
         <Divider />
         <MenuItem
