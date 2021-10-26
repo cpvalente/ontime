@@ -4,6 +4,7 @@ import { sessionId, user } from './utils/analytics.js';
 user.screenview('Node service', 'ontime').send();
 user.event('NODE', 'started', 'starting node service').send();
 
+// import config
 import { config } from './config/config.js';
 
 // init database
@@ -95,20 +96,38 @@ app.use((err, req, res, next) => {
   res.status(500).send(err.stack);
 });
 
+/***************  START SERVICES ***************/
+/* Override config
+ * ----------------
+ *
+ * Configuration of services comes from app general config
+ * It can be overriden here by the settings in the db
+ * It can also be overriden on call
+ *
+ */
+
+const s = data.settings;
+
+const oscIP = s.oscOutIP || config.osc.ipOut;
+const oscOutPort = s.oscOutPort || config.osc.portOut;
+const oscInPort = s.oscInPort || config.osc.port;
+
+const serverPort = s.serverPort || config.server.port;
+
 // Start OSC Client
 // TODO: Move this to function
-const oscClient = new Client('127.0.0.1', 9999);
+const oscClient = new Client(oscIP, oscOutPort);
 
 // create HTTP server
 const server = http.createServer(app);
 
 export const startServer = (overrideConfig = null) => {
   // Setup default port
-  const serverPort = overrideConfig?.port || config.server.port;
+  const port = overrideConfig?.port || serverPort;
 
   // Start server
-  const returnMessage = `HTTP Server is listening on port ${serverPort}`;
-  server.listen(serverPort, '0.0.0.0', () => console.log(returnMessage));
+  const returnMessage = `HTTP Server is listening on port ${port}`;
+  server.listen(port, '0.0.0.0', () => console.log(returnMessage));
 
   // init timer
   global.timer = new EventTimer(server, oscClient, config);
@@ -122,14 +141,18 @@ import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 
 export const startOSCServer = (overrideConfig = null) => {
   // Setup default port
-  const oscInPort = overrideConfig?.port || config.osc.port;
-  initiateOSC(config.osc);
+  const oscSettings = {
+    port: overrideConfig?.port || oscInPort,
+    ipOut: oscIP,
+    portOut: oscOutPort,
+  };
+  initiateOSC(oscSettings);
 };
 
 export const startOSCClient = (overrideConfig = null) => {
   // Setup default port
-  const oscOutPort = overrideConfig?.port || config.osc.portOut;
-  console.log('initialise OSC Client at port: ', oscOutPort);
+  const port = overrideConfig?.port || oscOutPort;
+  console.log('initialise OSC Client at port: ', port);
 };
 
 export const shutdown = () => {
