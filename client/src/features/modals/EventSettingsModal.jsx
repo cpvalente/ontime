@@ -10,6 +10,7 @@ import { fetchEvent, postEvent } from 'app/api/eventApi';
 import { useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { EVENT_TABLE } from 'app/api/apiConstants';
+import style from './Modals.module.css';
 
 export default function SettingsModal() {
   const { data, status, isError } = useFetch(EVENT_TABLE, fetchEvent);
@@ -19,6 +20,7 @@ export default function SettingsModal() {
     publicInfo: '',
     backstageInfo: '',
   });
+  const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -37,40 +39,46 @@ export default function SettingsModal() {
     setSubmitting(true);
 
     await postEvent(formData).then(setSubmitting(false));
+
+    setChanged(false);
+    setSubmitting(false);
   };
 
   return (
     <>
       <form onSubmit={submitHandler}>
-        <ModalBody>
+        <ModalBody className={style.modalBody}>
           {status === 'success' && (
             <>
+              <p className={style.notes}>
+                Options related to the running event
+                <br />
+                Affect rendered views
+              </p>
+
               <FormControl id='title'>
-                <FormLabel
-                  style={{ fontWeight: 400, paddingTop: '1em' }}
-                  htmlFor='title'
-                >
-                  Event Title
-                </FormLabel>
+                <FormLabel htmlFor='title'>Event Title</FormLabel>
                 <Input
                   size='sm'
                   name='title'
                   placeholder='Event Title'
                   autoComplete='off'
                   value={formData.title}
-                  onChange={(event) =>
-                    setFormData({ ...formData, title: event.target.value })
-                  }
+                  onChange={(event) => {
+                    setChanged(true);
+
+                    setFormData({ ...formData, title: event.target.value });
+                  }}
                   isDisabled={submitting}
                 />
               </FormControl>
 
               <FormControl id='url'>
-                <FormLabel
-                  style={{ fontWeight: 400, paddingTop: '1em' }}
-                  htmlFor='url'
-                >
+                <FormLabel htmlFor='url'>
                   Event URL
+                  <span className={style.notes}>
+                    (shown as a QR code in some views)
+                  </span>
                 </FormLabel>
                 <Input
                   size='sm'
@@ -78,55 +86,48 @@ export default function SettingsModal() {
                   placeholder='www.onsite.no'
                   autoComplete='off'
                   value={formData.url}
-                  onChange={(event) =>
-                    setFormData({ ...formData, url: event.target.value })
-                  }
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({ ...formData, url: event.target.value });
+                  }}
                   isDisabled={submitting}
                 />
               </FormControl>
 
               <FormControl id='pubInfo'>
-                <FormLabel
-                  style={{ fontWeight: 400, paddingTop: '1em' }}
-                  htmlFor='pubInfo'
-                >
-                  Public Info
-                </FormLabel>
+                <FormLabel htmlFor='pubInfo'>Public Info</FormLabel>
                 <Textarea
                   size='sm'
                   name='pubInfo'
                   placeholder='Information to be shown on public screens'
                   autoComplete='off'
                   value={formData.publicInfo}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    setChanged(true);
                     setFormData({
                       ...formData,
                       publicInfo: event.target.value,
-                    })
-                  }
+                    });
+                  }}
                   isDisabled={submitting}
                 />
               </FormControl>
 
               <FormControl id='backstageInfo'>
-                <FormLabel
-                  style={{ fontWeight: 400, paddingTop: '1em' }}
-                  htmlFor='backstageInfo'
-                >
-                  Backstage Info
-                </FormLabel>
+                <FormLabel htmlFor='backstageInfo'>Backstage Info</FormLabel>
                 <Textarea
                   size='sm'
                   name='backstageInfo'
                   placeholder='Information to be shown on backstage screens'
                   autoComplete='off'
                   value={formData.backstageInfo}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    setChanged(true);
                     setFormData({
                       ...formData,
                       backstageInfo: event.target.value,
-                    })
-                  }
+                    });
+                  }}
                   isDisabled={submitting}
                 />
               </FormControl>
@@ -134,9 +135,9 @@ export default function SettingsModal() {
           )}
           <Button
             colorScheme='blue'
-            mr={3}
-            isLoading={submitting}
             type='submit'
+            isLoading={submitting}
+            disabled={!changed}
           >
             Save
           </Button>
