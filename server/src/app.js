@@ -114,14 +114,36 @@ const oscInPort = s.oscInPort || config.osc.port;
 
 const serverPort = s.serverPort || config.server.port;
 
+// Start OSC server
+import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
+
+export const startOSCServer = async (overrideConfig = null) => {
+  // Setup default port
+  const oscSettings = {
+    port: overrideConfig?.port || oscInPort,
+    ipOut: oscIP,
+    portOut: oscOutPort,
+  };
+
+  // Start OSC Server
+  initiateOSC(oscSettings);
+};
+
 // Start OSC Client
-// TODO: Move this to function
-const oscClient = new Client(oscIP, oscOutPort);
+let oscClient = null;
+
+export const startOSCClient = async (overrideConfig = null) => {
+  // Setup default port
+  const port = overrideConfig?.port || oscOutPort;
+  console.log('initialise OSC Client on port: ', port);
+
+  oscClient = new Client(oscIP, oscOutPort);
+};
 
 // create HTTP server
 const server = http.createServer(app);
 
-export const startServer = (overrideConfig = null) => {
+export const startServer = async (overrideConfig = null) => {
   // Setup default port
   const port = overrideConfig?.port || serverPort;
 
@@ -136,26 +158,7 @@ export const startServer = (overrideConfig = null) => {
   return returnMessage;
 };
 
-// Start OSC server
-import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
-
-export const startOSCServer = (overrideConfig = null) => {
-  // Setup default port
-  const oscSettings = {
-    port: overrideConfig?.port || oscInPort,
-    ipOut: oscIP,
-    portOut: oscOutPort,
-  };
-  initiateOSC(oscSettings);
-};
-
-export const startOSCClient = (overrideConfig = null) => {
-  // Setup default port
-  const port = overrideConfig?.port || oscOutPort;
-  console.log('initialise OSC Client at port: ', port);
-};
-
-export const shutdown = () => {
+export const shutdown = async () => {
   console.log('Node service shutdown');
 
   user.event('NODE', 'shutdown', 'requesting node shutfown').send();

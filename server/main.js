@@ -26,12 +26,14 @@ const nodePath =
     const { startServer, startOSCServer, startOSCClient } = await import(
       nodePath
     );
-    // Start express server
-    loaded = startServer();
-    // Start OSC Server (API)
-    startOSCServer();
     // Start OSC Client (Feedback)
-    startOSCClient();
+    await startOSCClient();
+
+    // Start express server
+    loaded = await startServer();
+
+    // Start OSC Server (API)
+    await startOSCServer();
   } catch (error) {
     console.log(error);
     loaded = error;
