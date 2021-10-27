@@ -158,17 +158,50 @@ const getNetworkInterfaces = () => {
       }
     }
   }
+
   return results;
 };
 
 // Create controller for POST request to '/ontime/info'
 // Returns -
-// TODO: Add version
 export const getInfo = async (req, res) => {
+  const version = data.settings.version;
+  const serverPort = data.settings.serverPort;
+  const oscInPort = data.settings.oscInPort;
+  const oscOutPort = data.settings.oscOutPort;
+  const oscOutIP = data.settings.oscOutIP;
+
+  // get nif and inject localhost
   const ni = getNetworkInterfaces();
+  ni.unshift({ name: 'localhost', address: '127.0.0.1' });
+
+  // send object with network information
   res.status(200).send({
     networkInterfaces: ni,
+    version,
+    serverPort,
+    oscInPort,
+    oscOutPort,
+    oscOutIP,
   });
+};
+
+// Create controller for POST request to '/ontime/info'
+// Returns ACK message
+export const postInfo = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  // TODO: validate data
+  try {
+    data.settings = { ...data.settings, ...req.body };
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+    console.log(error);
+  }
 };
 
 // Create controller for POST request to '/ontime/db'
