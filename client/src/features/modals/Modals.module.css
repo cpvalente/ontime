@@ -6,6 +6,10 @@
   margin-top: 0.5em;
 }
 
+.modalBody > button {
+  margin-top: 1em;
+}
+
 .notes {
   font-weight: 400;
   color: #2b6cb0;
@@ -26,8 +30,7 @@ span.notes {
 
 .modalInline {
   display: flex;
-  justify-content: space-between;
-  gap: 1em;
+  gap: 2em;
 }
 
 .highNotes {

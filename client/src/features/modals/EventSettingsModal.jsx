@@ -13,7 +13,7 @@ import { EVENT_TABLE } from 'app/api/apiConstants';
 import style from './Modals.module.css';
 
 export default function SettingsModal() {
-  const { data, status, isError } = useFetch(EVENT_TABLE, fetchEvent);
+  const { data, status } = useFetch(EVENT_TABLE, fetchEvent);
   const [formData, setFormData] = useState({
     title: '',
     url: '',
@@ -36,13 +36,11 @@ export default function SettingsModal() {
     });
   }, [data]);
 
-  console.log(`formData.endMessage`, formData.endMessage);
-
   const submitHandler = async (event) => {
     event.preventDefault();
     setSubmitting(true);
 
-    await postEvent(formData).then(setSubmitting(false));
+    await postEvent(formData);
 
     setChanged(false);
     setSubmitting(false);
@@ -71,7 +69,6 @@ export default function SettingsModal() {
                   value={formData.title}
                   onChange={(event) => {
                     setChanged(true);
-
                     setFormData({ ...formData, title: event.target.value });
                   }}
                   isDisabled={submitting}

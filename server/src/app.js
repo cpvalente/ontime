@@ -145,7 +145,13 @@ const server = http.createServer(app);
 
 export const startServer = async (overrideConfig = null) => {
   // Setup default port
-  const port = overrideConfig?.port || serverPort;
+  // const port = overrideConfig?.port || serverPort;
+
+  /* Note: Port is hardcoded
+   * need to find a good solution for sharing
+   * the dynamic info with the frontend
+   */
+  const port = 4001;
 
   // Start server
   const returnMessage = `HTTP Server is listening on port ${port}`;
@@ -165,9 +171,12 @@ export const shutdown = async () => {
 
   // shutdown express server
   server.close();
+
   // shutdown OSC Server
   shutdownOSCServer();
+
   // shutdown OSC Client
+  oscClient.close();
 
   // shutdown timer
   global.timer.shutdown();
