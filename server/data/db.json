@@ -112,6 +112,7 @@
     "url": "www.carlosvalente.com",
     "publicInfo": "WiFi: demoproject \nPassword: ontimeproject",
     "backstageInfo": "WiFi: demobackstage\nPassword: ontimeproject"
+    "endMessage": ""
   },
   "settings": {
     "app": "ontime",
