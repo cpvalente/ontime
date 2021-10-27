@@ -19,6 +19,7 @@ export default function SettingsModal() {
     url: '',
     publicInfo: '',
     backstageInfo: '',
+    endMessage: '',
   });
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -31,8 +32,11 @@ export default function SettingsModal() {
       url: data.url,
       publicInfo: data.publicInfo,
       backstageInfo: data.backstageInfo,
+      endMessage: data.endMessage,
     });
   }, [data]);
+
+  console.log(`formData.endMessage`, formData.endMessage);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -60,6 +64,7 @@ export default function SettingsModal() {
                 <FormLabel htmlFor='title'>Event Title</FormLabel>
                 <Input
                   size='sm'
+                  maxLength={35}
                   name='title'
                   placeholder='Event Title'
                   autoComplete='off'
@@ -126,6 +131,31 @@ export default function SettingsModal() {
                     setFormData({
                       ...formData,
                       backstageInfo: event.target.value,
+                    });
+                  }}
+                  isDisabled={submitting}
+                />
+              </FormControl>
+
+              <FormControl id='endMessage'>
+                <FormLabel htmlFor='endMessage'>
+                  End Message
+                  <span className={style.notes}>
+                    Shown on presenter view when time is finished
+                  </span>
+                </FormLabel>
+                <Input
+                  size='sm'
+                  maxLength={30}
+                  name='endMessage'
+                  placeholder='Empty message shows elapsed time'
+                  autoComplete='off'
+                  value={formData.endMessage}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      endMessage: event.target.value,
                     });
                   }}
                   isDisabled={submitting}

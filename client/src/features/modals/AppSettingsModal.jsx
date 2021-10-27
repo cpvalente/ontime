@@ -110,26 +110,6 @@ export default function AppSettingsModal() {
                 />
               </FormControl>
             </div>
-
-            <FormControl id='endMessage'>
-              <FormLabel htmlFor='endMessage'>
-                End Message
-                <span className={style.notes}>
-                  Message shown in timer when time is finished
-                </span>
-              </FormLabel>
-              <Input
-                size='sm'
-                name='endMessage'
-                placeholder='Time Out'
-                autoComplete='off'
-                value={'TIME UP'}
-                onChange={(event) => {
-                  // Nothing here yet
-                }}
-                isDisabled={true}
-              />
-            </FormControl>
           </>
           <Button
             colorScheme='blue'
