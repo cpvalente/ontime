@@ -64,6 +64,7 @@ const withSocket = (Component) => {
       url: '',
       publicInfo: '',
       backstageInfo: '',
+      endMessage: '',
     });
     const [playback, setPlayback] = useState(null);
 

@@ -3,11 +3,21 @@ import { ontimeURL } from './apiConstants';
 
 export const ontimePlaceholderInfo = {
   networkInterfaces: [],
+  version: '',
+  serverPort: 4001,
+  oscInPort: '',
+  oscOutPort: '',
+  oscOutIP: '',
 };
 
 export const getInfo = async () => {
   const res = await axios.get(ontimeURL + '/info');
   return res.data;
+};
+
+export const postInfo = async (data) => {
+  const res = await axios.post(ontimeURL + '/info', data);
+  return res;
 };
 
 export const downloadEvents = async () => {

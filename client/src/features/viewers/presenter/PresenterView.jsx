@@ -7,7 +7,7 @@ import TitleCard from 'common/components/views/TitleCard';
 import style from './PresenterView.module.css';
 
 export default function PresenterView(props) {
-  const { pres, title, time } = props;
+  const { general, pres, title, time } = props;
 
   // Set window title
   useEffect(() => {
@@ -17,6 +17,14 @@ export default function PresenterView(props) {
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
   const normalisedTime = Math.max(time.running, 0);
+
+  // show timer if end message is empty
+  const endMessage =
+    general.endMessage == null || general.endMessage === '' ? (
+      <Countdown time={time.running} hideZeroHours negative />
+    ) : (
+      general.endMessage
+    );
 
   // motion
   const titleVariants = {
@@ -57,7 +65,7 @@ export default function PresenterView(props) {
 
       <div className={style.timerContainer}>
         {time.finished ? (
-          <div className={style.finished}>TIME UP</div>
+          <div className={style.finished}>{endMessage}</div>
         ) : (
           <div className={isPlaying ? style.countdown : style.countdownPaused}>
             <Countdown time={normalisedTime} hideZeroHours />

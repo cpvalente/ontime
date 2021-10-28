@@ -66,7 +66,8 @@
 }
 
 .finished {
-  font-size: 18vw;
+  text-align: center;
+  font-size: 12vw;
   line-height: 18vw;
   font-weight: 600;
   color: #ff6969;

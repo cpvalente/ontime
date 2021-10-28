@@ -6,6 +6,7 @@ import {
   dbDownload,
   dbUpload,
   getInfo,
+  postInfo,
   dbPathToUpload,
 } from '../controllers/ontimeController.js';
 
@@ -17,6 +18,9 @@ router.post('/db', uploadJson, dbUpload);
 
 // create route between controller and '/ontime/info' endpoint
 router.get('/info', uploadJson, getInfo);
+
+// create route between controller and '/ontime/info' endpoint
+router.post('/info', postInfo);
 
 // create route between controller and '/ontime/dbpath' endpoint
 router.post('/dbpath', dbPathToUpload);
