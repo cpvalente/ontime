@@ -32,6 +32,7 @@ async function deleteFile(file) {
 async function parsev1(jsonData) {
   let numEntries = 0;
   if ('events' in jsonData) {
+    console.log('Found events definition, importing...');
     let events = [];
     let ids = [];
     for (const e of jsonData.events) {
@@ -69,6 +70,7 @@ async function parsev1(jsonData) {
   }
 
   if ('event' in jsonData) {
+    console.log('Found event data, importing...');
     const e = jsonData.event;
     // filter known properties
     const event = {
@@ -77,6 +79,7 @@ async function parsev1(jsonData) {
       url: e.url,
       publicInfo: e.publicInfo,
       backstageInfo: e.backstageInfo,
+      endMessage: e.endMessage,
     };
 
     // write to db
@@ -84,17 +87,30 @@ async function parsev1(jsonData) {
     db.write();
   }
 
-  // Not handling settings yet
-  // let settings = {};
-  // if ('settings' in jsonData) {
-  // }
+  // Settings handled partially
+  if ('settings' in jsonData) {
+    console.log('Found settings definition, importing...');
+    const s = jsonData.settings;
+    let settings = {};
+
+    if (s.oscInPort) settings.oscInPort = s.oscInPort;
+    if (s.oscOutPort) settings.oscOutPort = s.oscOutPort;
+    if (s.oscOutIP) settings.oscOutIP = s.oscOutIP;
+
+    // write to db
+    db.data.settings = {
+      ...dbModel.settings,
+      ...settings,
+    };
+    db.write();
+  }
 }
 
 // Create controller for GET request to '/ontime/db'
 // Returns -
 export const dbDownload = async (req, res) => {
   const fileTitle = getEventTitle() || 'ontime events';
-  const dbFile = path.resolve(__dirname, '../../', 'data/db.json');
+  const dbFile = path.resolve(__dirname, '../', 'data/db.json');
 
   res.download(dbFile, `${fileTitle}.json`, (err) => {
     if (err) {
