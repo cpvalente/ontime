@@ -101,7 +101,6 @@ function createWindow() {
     show: false,
     textAreasAreResizable: false,
     enableWebSQL: false,
-    skipTaskbar: true,
     darkTheme: true,
     webPreferences: {
       preload: path.join(__dirname, './electron/preload.js'),
