@@ -1066,8 +1066,8 @@ export class EventTimer extends Timer {
   }
 
   unload() {
-    // reset duration
-    this.duration = null;
+    // reset timer
+    this._resetTimers(true);
 
     // reset selected
     this._resetSelection();
