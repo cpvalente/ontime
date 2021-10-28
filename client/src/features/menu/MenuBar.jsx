@@ -45,7 +45,12 @@ export default function MenuBar(props) {
 
   const handleIPC = (action) => {
     // Stop crashes when testing locally
-    if (window.process?.type === undefined) return;
+    if (window.process?.type === undefined) {
+      if (action === 'help') {
+        window.open('https://cpvalente.gitbook.io/ontime/');
+      }
+      return;
+    }
 
     if (window.process.type === 'renderer') {
       switch (action) {
