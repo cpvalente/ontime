@@ -129,11 +129,6 @@ app.whenReady().then(() => {
     win.focus();
   });
 
-  globalShortcut.register('Alt+t', () => {
-    // Show dev tools
-    win.webContents.openDevTools({ mode: 'detach' });
-  });
-
   // recreate window if no others open
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -245,6 +240,9 @@ ipcMain.on('set-window', (event, arg) => {
   } else if (arg === 'to-tray') {
     // window to tray
     win.hide();
+  } else if (arg === 'show-dev') {
+    // Show dev tools
+    win.webContents.openDevTools({ mode: 'detach' });
   }
 });
 

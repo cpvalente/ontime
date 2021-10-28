@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import './App.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import SocketProvider from 'app/context/socketContext';
 import withSocket from 'features/viewers/ViewWrapper';
+import tinykeys from 'tinykeys';
 
 const Editor = lazy(() => import('features/editors/Editor'));
 const PresenterView = lazy(() =>
@@ -36,6 +37,22 @@ const SLowerThird = withSocket(Lower);
 const SPip = withSocket(Pip);
 
 function App() {
+  useEffect(() => {
+    let unsubscribe = tinykeys(window, {
+      'Alt+t': () => {
+        // if we are in electron
+        if (window.process?.type === undefined) return;
+        if (window.process.type === 'renderer') {
+          // ask to see debug
+          window.ipcRenderer.send('set-window', 'show-dev');
+        }
+      },
+    });
+    return () => {
+      unsubscribe();
+    };
+  });
+
   return (
     <SocketProvider>
       <QueryClientProvider client={queryClient}>

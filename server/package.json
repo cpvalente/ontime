@@ -54,7 +54,9 @@
       "createStartMenuShortcut": true,
       "deleteAppDataOnUninstall": true,
       "runAfterFinish": false,
-      "installerIcon": "icon.ico"
+      "installerIcon": "icon.ico",
+      "installerSidebar": "ontime-install.bmp",
+      "uninstallerSidebar": "ontime-uninstall.bmp"
     },
     "files": [
       "**/*",
