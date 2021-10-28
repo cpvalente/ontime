@@ -163,3 +163,21 @@ export const startServer = async (overrideConfig = null) => {
 
   return returnMessage;
 };
+
+export const shutdown = async () => {
+  console.log('Node service shutdown');
+
+  user.event('NODE', 'shutdown', 'requesting node shutfown').send();
+
+  // shutdown express server
+  server.close();
+
+  // shutdown OSC Server
+  shutdownOSCServer();
+
+  // shutdown OSC Client
+  oscClient.close();
+
+  // shutdown timer
+  global.timer.shutdown();
+};
