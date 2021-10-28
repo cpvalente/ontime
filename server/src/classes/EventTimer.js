@@ -988,16 +988,16 @@ export class EventTimer extends Timer {
     }
 
     // nothing to play next, unload
-    if (!foundNow && !nextIndex) {
+    if (foundNow == null && nextIndex == null) {
       this.unload();
       return;
     }
 
-    if (nextIndex) {
+    if (nextIndex != null) {
       // load titles
       this._loadThisTitles(nextIndex, 'next');
 
-      if (!foundNow) {
+      if (foundNow == null) {
         // timer counts to nextStart
         this.secondaryTimer = nextStart;
       }
