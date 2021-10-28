@@ -11,8 +11,7 @@ export default function InfoNif() {
     placeholderData: ontimePlaceholderInfo,
   });
   const [collapsed, setCollapsed] = useState(false);
-
-  const baseURL = `http://__IP__:${4001}`;
+  const baseURL = 'http://__IP__:4001';
 
   const handleLink = (url) => {
     if (window.process?.type === 'renderer') {
