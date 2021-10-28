@@ -181,14 +181,14 @@ app.whenReady().then(() => {
   // Define context menu
   const trayMenuTemplate = [
     {
-      label: 'Show App',
+      label: 'Show App (Alt + 1)',
       click: () => {
         win.show();
         win.focus();
       },
     },
     {
-      label: 'Close',
+      label: 'Shutdown',
       click: () => {
         win.destroy();
         app.quit();

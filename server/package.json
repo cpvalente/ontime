@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -47,6 +47,9 @@
     },
     "nsis": {
       "artifactName": "ontime-win64.exe",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "deleteAppDataOnUninstall": true,
