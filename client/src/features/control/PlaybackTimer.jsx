@@ -1,6 +1,7 @@
 import style from './PlaybackControl.module.css';
 import Countdown from 'common/components/countdown/Countdown';
 import { stringFromMillis } from 'common/dateConfig';
+import { Tooltip } from '@chakra-ui/react';
 import { Button } from '@chakra-ui/button';
 import { memo } from 'react';
 
@@ -9,7 +10,8 @@ const areEqual = (prevProps, nextProps) => {
     prevProps.timer.running === nextProps.timer.running &&
     prevProps.timer.expectedFinish === nextProps.timer.expectedFinish &&
     prevProps.timer.startedAt === nextProps.timer.startedAt &&
-    prevProps.playback === nextProps.playback
+    prevProps.playback === nextProps.playback &&
+    prevProps.timer.secondary === nextProps.timer.secondary
   );
 };
 
@@ -19,6 +21,7 @@ const PlaybackTimer = (props) => {
   const finish = stringFromMillis(timer.expectedFinish, true);
   const isNegative = timer.running < 0;
   const isRolling = playback === 'roll';
+  const isWaiting = timer.secondary > 0 && timer.running == null;
 
   const incrementProps = {
     size: 'sm',
@@ -32,23 +35,38 @@ const PlaybackTimer = (props) => {
     <>
       <div className={style.timeContainer}>
         <div className={style.indicators}>
-          <div className={isRolling ? style.indRollActive : style.indRoll} />
+          <Tooltip label='Roll mode active'>
+            <div className={isRolling ? style.indRollActive : style.indRoll} />
+          </Tooltip>
           <div
             className={isNegative ? style.indNegativeActive : style.indNegative}
           />
           <div className={style.indDelay} />
         </div>
         <div className={style.timer}>
-          <Countdown time={timer?.running} small negative={isNegative} />
+          <Countdown
+            time={isWaiting ? timer.secondary : timer.running}
+            small
+            negative={isNegative}
+          />
         </div>
-        <div className={style.start}>
-          <span className={style.tag}>Started at </span>
-          <span className={style.time}>{started}</span>
-        </div>
-        <div className={style.finish}>
-          <span className={style.tag}>Finish at </span>
-          <span className={style.time}>{finish}</span>
-        </div>
+        {isWaiting ? (
+          <div className={style.start}>
+            <span className={style.rolltag}>Roll: Countdown to start</span>
+            <span className={style.time}>{''}</span>
+          </div>
+        ) : (
+          <>
+            <div className={style.start}>
+              <span className={style.tag}>Started at </span>
+              <span className={style.time}>{started}</span>
+            </div>
+            <div className={style.finish}>
+              <span className={style.tag}>Finish at </span>
+              <span className={style.time}>{finish}</span>
+            </div>
+          </>
+        )}
         <div className={style.btn}>
           <Button
             {...incrementProps}

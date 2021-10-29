@@ -105,6 +105,11 @@
   font-size: 0.9em;
 }
 
+.rolltag {
+  color: #2b6cb0;
+  font-size: 0.9em;
+}
+
 .playbackContainer {
   display: flex;
   justify-content: space-evenly;
