@@ -1,7 +1,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Download the latest releases here
-- [Windows](https://github.com/cpvalente/ontime/releases/download/v0.10-beta/ontime-win64.exe)
+- [Windows](https://github.com/cpvalente/ontime/releases/download/v0.2.0-beta/ontime-win64.exe)
 
 # Ontime
 Ontime is an application for managing event rundowns and running stage timers.
