@@ -996,7 +996,8 @@ export class EventTimer extends Timer {
 
     if (nextIndex != null) {
       // load titles
-      this._loadThisTitles(nextIndex, 'next');
+      const e = this._eventlist[nextIndex];
+      this._loadThisTitles(e, 'next');
 
       if (foundNow == null) {
         if (this.secondaryTimer == null)
