@@ -4,12 +4,16 @@
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
-  "keywords": [ "lighdev", "ontime", "timer" ],
+  "keywords": [
+    "lighdev",
+    "ontime",
+    "timer"
+  ],
   "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
     "electron": "^15.3.0",
-    "electron-builder": "^22.11.3",
+    "electron-builder": "^22.13.1",
     "eslint": "^7.26.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.22.1",
