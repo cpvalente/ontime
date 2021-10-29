@@ -127,7 +127,6 @@ export default function EventList(props) {
     });
   };
 
-  console.log('EventList: events in event list', events);
   let cumulativeDelay = 0;
   let eventIndex = -1;
 

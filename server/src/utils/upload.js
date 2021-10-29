@@ -1,8 +1,23 @@
 import multer from 'multer';
+import { statSync, mkdirSync } from 'fs';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    let newDestination = 'uploads/';
+    let stat = null;
+    try {
+      stat = statSync(newDestination);
+    } catch (err) {
+      mkdirSync(newDestination);
+    }
+    if (stat && !stat.isDirectory()) {
+      throw new Error(
+        'Directory cannot be created because an inode of a different type exists at "' +
+          dest +
+          '"'
+      );
+    }
+    cb(null, newDestination);
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '--' + file.originalname);

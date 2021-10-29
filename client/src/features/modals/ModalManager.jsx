@@ -7,7 +7,9 @@ import {
   ModalOverlay,
 } from '@chakra-ui/modal';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/tabs';
-import SettingsModal from './SettingsModal';
+import EventSettingsModal from './EventSettingsModal';
+import AppSettingsModal from './AppSettingsModal';
+import AliasesModal from './AliasesModal';
 
 export default function ModalManager(props) {
   const { isOpen, onClose } = props;
@@ -31,19 +33,13 @@ export default function ModalManager(props) {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <SettingsModal onClose={onClose} />
+              <EventSettingsModal />
             </TabPanel>
             <TabPanel>
-              <p>Application settings will be here!</p>
-              <p>Set port</p>
-              <p>Set end message</p>
+              <AppSettingsModal />
             </TabPanel>
             <TabPanel>
-              <p>You will be able to define URL aliases here!</p>
-              <p>List existing aliases</p>
-              <p>List existing aliases</p>
-              <p>List existing aliases</p>
-              <p>Add new alias input + button</p>
+              <AliasesModal />
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -54,5 +50,5 @@ export default function ModalManager(props) {
 
 ModalManager.propTypes = {
   isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };

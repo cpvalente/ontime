@@ -14,3 +14,7 @@ html,
   user-select: none;
   -webkit-app-region: drag;
 }
+
+option {
+  color: black;
+}

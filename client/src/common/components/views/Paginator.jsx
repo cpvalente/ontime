@@ -7,7 +7,6 @@ export default function Paginator(props) {
   const { events, selectedId } = props;
   const LIMIT_PER_PAGE = props.limit || 8;
   const SCROLL_TIME = props.time * 1000 || 10000;
-  const SCROLL_PAST = false;
   const [numEvents, setNumEvents] = useState(0);
   const [page, setPage] = useState([]);
   const [pages, setPages] = useState(0);

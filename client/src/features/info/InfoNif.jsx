@@ -11,12 +11,13 @@ export default function InfoNif() {
     placeholderData: ontimePlaceholderInfo,
   });
   const [collapsed, setCollapsed] = useState(false);
-
-  const baseURL = `http://__IP__:${4001}`;
+  const baseURL = 'http://__IP__:4001';
 
   const handleLink = (url) => {
-    if (window.process.type === 'renderer') {
+    if (window.process?.type === 'renderer') {
       window.ipcRenderer.send('send-to-link', url);
+    } else {
+      window.open(url);
     }
   };
 

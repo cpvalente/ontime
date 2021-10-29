@@ -8,8 +8,8 @@ import {
   event as eventDef,
   delay as delayDef,
   block as blockDef,
-} from '../data/eventsDefinition.js';
-import { dbModel } from '../data/dataModel.js';
+} from '../models/eventsDefinition.js';
+import { dbModel } from '../models/dataModel.js';
 import { networkInterfaces } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +32,7 @@ async function deleteFile(file) {
 async function parsev1(jsonData) {
   let numEntries = 0;
   if ('events' in jsonData) {
+    console.log('Found events definition, importing...');
     let events = [];
     let ids = [];
     for (const e of jsonData.events) {
@@ -69,6 +70,7 @@ async function parsev1(jsonData) {
   }
 
   if ('event' in jsonData) {
+    console.log('Found event data, importing...');
     const e = jsonData.event;
     // filter known properties
     const event = {
@@ -77,6 +79,7 @@ async function parsev1(jsonData) {
       url: e.url,
       publicInfo: e.publicInfo,
       backstageInfo: e.backstageInfo,
+      endMessage: e.endMessage,
     };
 
     // write to db
@@ -84,10 +87,23 @@ async function parsev1(jsonData) {
     db.write();
   }
 
-  // Not handling settings yet
-  // let settings = {};
-  // if ('settings' in jsonData) {
-  // }
+  // Settings handled partially
+  if ('settings' in jsonData) {
+    console.log('Found settings definition, importing...');
+    const s = jsonData.settings;
+    let settings = {};
+
+    if (s.oscInPort) settings.oscInPort = s.oscInPort;
+    if (s.oscOutPort) settings.oscOutPort = s.oscOutPort;
+    if (s.oscOutIP) settings.oscOutIP = s.oscOutIP;
+
+    // write to db
+    db.data.settings = {
+      ...dbModel.settings,
+      ...settings,
+    };
+    db.write();
+  }
 }
 
 // Create controller for GET request to '/ontime/db'
@@ -158,17 +174,50 @@ const getNetworkInterfaces = () => {
       }
     }
   }
+
   return results;
 };
 
 // Create controller for POST request to '/ontime/info'
 // Returns -
-// TODO: Add version
 export const getInfo = async (req, res) => {
+  const version = data.settings.version;
+  const serverPort = data.settings.serverPort;
+  const oscInPort = data.settings.oscInPort;
+  const oscOutPort = data.settings.oscOutPort;
+  const oscOutIP = data.settings.oscOutIP;
+
+  // get nif and inject localhost
   const ni = getNetworkInterfaces();
+  ni.unshift({ name: 'localhost', address: '127.0.0.1' });
+
+  // send object with network information
   res.status(200).send({
     networkInterfaces: ni,
+    version,
+    serverPort,
+    oscInPort,
+    oscOutPort,
+    oscOutIP,
   });
+};
+
+// Create controller for POST request to '/ontime/info'
+// Returns ACK message
+export const postInfo = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  // TODO: validate data
+  try {
+    data.settings = { ...data.settings, ...req.body };
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+    console.log(error);
+  }
 };
 
 // Create controller for POST request to '/ontime/db'

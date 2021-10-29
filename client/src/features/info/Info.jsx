@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import style from './Info.module.css';
 import InfoTitle from './InfoTitle';
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';
-import { useState } from 'react';
 
 export default function Info() {
   const socket = useSocket();
@@ -20,6 +19,8 @@ export default function Info() {
   });
   const [selected, setSelected] = useState('No events');
   const logData = [];
+
+  console.log(`titles`, titles);
 
   // handle incoming messages
   useEffect(() => {

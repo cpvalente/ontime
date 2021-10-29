@@ -144,6 +144,9 @@
   border-radius: 4px;
   width: 100%;
   display: block;
+
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .oscLabel {
@@ -157,9 +160,24 @@
 
 /* ================ MORE ================ */
 
-.more {
+.moreExpanded,
+.moreCollapsed {
   cursor: pointer;
+  color: #fff;
+  grid-area: more;
+  margin-top: 0.2em;
 }
+
+.moreExpanded {
+  transform: scaleY(-1);
+  transition: transform 0.3s;
+}
+
+.moreCollapsed {
+  transform: scaleY(1);
+  transition: transform 0.3s;
+}
+
 /* ============== ACTION ================ */
 
 .actionOverlay {

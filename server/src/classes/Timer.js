@@ -120,6 +120,7 @@ export class Timer {
   _resetTimers(total = false) {
     if (total) this.duration = null;
     this.current = this.duration;
+    this.running = null;
     this.secondaryTimer = null;
     this._finishAt = null;
     this._finishedAt = null;

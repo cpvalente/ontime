@@ -26,12 +26,14 @@ const nodePath =
     const { startServer, startOSCServer, startOSCClient } = await import(
       nodePath
     );
-    // Start express server
-    loaded = startServer();
-    // Start OSC Server (API)
-    startOSCServer();
     // Start OSC Client (Feedback)
-    startOSCClient();
+    await startOSCClient();
+
+    // Start express server
+    loaded = await startServer();
+
+    // Start OSC Server (API)
+    await startOSCServer();
   } catch (error) {
     console.log(error);
     loaded = error;
@@ -42,9 +44,9 @@ const nodePath =
 const trayIcon = path.join(__dirname, './assets/background.png');
 const appIcon = path.join(__dirname, './assets/logo.png');
 
-function showNotification(text) {
+function showNotification(title, text) {
   new Notification({
-    title: 'ontime',
+    title: title,
     body: text,
     silent: true,
   }).show();
@@ -99,7 +101,6 @@ function createWindow() {
     show: false,
     textAreasAreResizable: false,
     enableWebSQL: false,
-    skipTaskbar: true,
     darkTheme: true,
     webPreferences: {
       preload: path.join(__dirname, './electron/preload.js'),
@@ -113,6 +114,11 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Set app title in windows
+  if (process.platform === 'win32') {
+    app.setAppUserModelId(app.name);
+  }
+
   createWindow();
 
   // register global shortcuts
@@ -121,11 +127,6 @@ app.whenReady().then(() => {
   globalShortcut.register('Alt+1', () => {
     win.show();
     win.focus();
-  });
-
-  globalShortcut.register('Alt+t', () => {
-    // Show dev tools
-    win.webContents.openDevTools({ mode: 'detach' });
   });
 
   // recreate window if no others open
@@ -151,7 +152,6 @@ app.whenReady().then(() => {
       win.focus();
 
       splash.destroy();
-      showNotification(loaded.toString());
 
       // tray stuff
       // TODO: get IP Address
@@ -163,7 +163,7 @@ app.whenReady().then(() => {
   win.on('close', function (event) {
     event.preventDefault();
     if (!isQuitting) {
-      showNotification('App running in background');
+      showNotification('Window Closed', 'App running in background');
       win.hide();
       return false;
     }
@@ -177,14 +177,14 @@ app.whenReady().then(() => {
   // Define context menu
   const trayMenuTemplate = [
     {
-      label: 'Show App',
+      label: 'Show App (Alt + 1)',
       click: () => {
         win.show();
         win.focus();
       },
     },
     {
-      label: 'Close',
+      label: 'Shutdown',
       click: () => {
         win.destroy();
         app.quit();
@@ -209,7 +209,7 @@ app.once('before-quit', () => {
 // Get messages from react
 // Test message
 ipcMain.on('test-message', (event, arg) => {
-  showNotification('testing 1-2', arg);
+  showNotification('Test Message', 'test from react', arg);
 });
 
 // Terminate
@@ -240,6 +240,9 @@ ipcMain.on('set-window', (event, arg) => {
   } else if (arg === 'to-tray') {
     // window to tray
     win.hide();
+  } else if (arg === 'show-dev') {
+    // Show dev tools
+    win.webContents.openDevTools({ mode: 'detach' });
   }
 });
 

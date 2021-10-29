@@ -28,7 +28,7 @@ export default function ActionButtons(props) {
           onClick={() => actionHandler('event')}
           isDisabled={!showAdd}
         >
-          Event next
+          Add Event after
         </MenuItem>
 
         <MenuItem
@@ -36,14 +36,14 @@ export default function ActionButtons(props) {
           onClick={() => actionHandler('delay')}
           isDisabled={!showDelay}
         >
-          Delay next
+          Add Delay after
         </MenuItem>
         <MenuItem
           icon={<FiMinusCircle />}
           onClick={() => actionHandler('block')}
           isDisabled={!showBlock}
         >
-          Block next
+          Add Block after
         </MenuItem>
       </MenuList>
     </Menu>

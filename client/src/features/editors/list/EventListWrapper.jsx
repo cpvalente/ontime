@@ -35,12 +35,10 @@ export default function EventListWrapper() {
 
       // Snapshot the previous value
       let previousEvents = queryClient.getQueryData(EVENTS_TABLE);
-      console.log('debug', previousEvents);
       if (previousEvents == null) {
         refetch();
         previousEvents = queryClient.getQueryData(EVENTS_TABLE);
       }
-      console.log('debug 2', previousEvents);
 
       // optimistically update object, temp ID until refetch
       let optimistic = [...previousEvents];
@@ -241,52 +239,40 @@ export default function EventListWrapper() {
       switch (action) {
         case 'add':
           try {
-            let t = Date.now();
             await addEvent.mutateAsync(payload);
-            console.log('debug m add', Date.now() - t);
           } catch (error) {
             showErrorToast('Error creating event', error.message);
           }
           break;
         case 'update':
           try {
-            let t = Date.now();
             await updateEvent.mutateAsync(payload);
-            console.log('debug m update', Date.now() - t);
           } catch (error) {
             showErrorToast('Error updating event', error.message);
           }
           break;
         case 'patch':
           try {
-            let t = Date.now();
             await patchEvent.mutateAsync(payload);
-            console.log('debug m patch', Date.now() - t);
           } catch (error) {
             showErrorToast('Error updating event', error.message);
           }
           break;
         case 'delete':
           try {
-            let t = Date.now();
             await deleteEvent.mutateAsync(payload);
-            console.log('debug m delete', Date.now() - t);
           } catch (error) {
             showErrorToast('Error deleting event', error.message);
           }
           break;
         case 'reorder':
           try {
-            let t = Date.now();
             await reorderEvent.mutateAsync(payload);
-            console.log('debug m reorder', Date.now() - t);
           } catch (error) {
             showErrorToast('Error reordering event', error.message);
           }
           break;
         case 'applyDelay':
-          let t = Date.now();
-
           // if delay <= 0 delete delay and next block
           if (payload.duration <= 0) {
             try {
@@ -309,14 +295,12 @@ export default function EventListWrapper() {
               showErrorToast('Error applying delay', error.message);
             }
           } else {
-            console.log('debug applydelay', payload.id);
             try {
               await applyDelay.mutateAsync(payload.id);
             } catch (error) {
               showErrorToast('Error applying delay', error.message);
             }
           }
-          console.log('debug m apply', Date.now() - t);
           break;
 
         case 'collapseall':
@@ -330,9 +314,7 @@ export default function EventListWrapper() {
 
         case 'deleteall':
           try {
-            let t = Date.now();
             await deleteAllEvents.mutateAsync();
-            console.log('debug m deleteall', Date.now() - t);
           } catch (error) {
             showErrorToast('Error deleting events', error.message);
           }

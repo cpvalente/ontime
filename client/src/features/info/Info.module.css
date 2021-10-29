@@ -24,6 +24,12 @@
   justify-content: space-between;
 }
 
+.labelContainer {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .label,
 .emptyLabel {
   padding: 0;
@@ -47,6 +53,8 @@
 
 .notes {
   color: #d69e2e;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .if {
