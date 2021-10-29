@@ -30,17 +30,24 @@ const Playback = ({ playback, selectedId, playbackControl }) => {
       />
       <RollIconBtn
         active={playback === 'roll'}
+        disabled={playback === 'roll'}
         clickhandler={() => playbackControl('roll')}
       />
     </div>
   );
 };
 
-const Transport = ({ selectedId, playbackControl }) => {
+const Transport = ({ playback, selectedId, playbackControl }) => {
   return (
     <div className={style.playbackContainer}>
-      <PrevIconBtn clickhandler={() => playbackControl('previous')} />
-      <NextIconBtn clickhandler={() => playbackControl('next')} />
+      <PrevIconBtn
+        clickhandler={() => playbackControl('previous')}
+        disabled={playback === 'roll'}
+      />
+      <NextIconBtn
+        clickhandler={() => playbackControl('next')}
+        disabled={playback === 'roll'}
+      />
       <ReloadIconButton
         clickhandler={() => playbackControl('reload')}
         disabled={!selectedId}
@@ -60,6 +67,7 @@ const PlaybackButtons = (props) => {
         playbackControl={props.playbackControl}
       />
       <Transport
+        playback={playback}
         selectedId={selectedId}
         playbackControl={props.playbackControl}
       />

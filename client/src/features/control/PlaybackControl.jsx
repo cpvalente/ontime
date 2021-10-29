@@ -12,6 +12,7 @@ export default function PlaybackControl() {
     running: null,
     startedAt: null,
     expectedFinish: null,
+    secondary: null,
   });
   const [selectedId, setSelectedId] = useState(null);
 
@@ -20,6 +21,7 @@ export default function PlaybackControl() {
       running: null,
       startedAt: null,
       expectedFinish: null,
+      secondary: null,
     });
   };
 

@@ -242,10 +242,6 @@ export class EventTimer extends Timer {
       } else {
         // look for event if none is loaded
         if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
-
-        // count to next event
-        // TODO: replace with proper counter
-        if (this.secondaryTimer != null) this.secondaryTimer -= 1000;
       }
     }
 
@@ -946,8 +942,12 @@ export class EventTimer extends Timer {
 
   rollLoad() {
     const now = this._getCurrentTime();
-    this._resetTimers(true);
-    this._resetSelection();
+
+    // maybe roll has already been loaded
+    if (this.secondaryTimer == null) {
+      this._resetTimers(true);
+      this._resetSelection();
+    }
 
     let foundNow = null;
     let nextIndex = null;
@@ -988,16 +988,20 @@ export class EventTimer extends Timer {
     }
 
     // nothing to play next, unload
-    if (!foundNow && !nextIndex) {
+    if (foundNow == null && nextIndex == null) {
       this.unload();
+      console.log('Roll: no events found');
       return;
     }
 
-    if (nextIndex) {
+    if (nextIndex != null) {
       // load titles
-      this._loadThisTitles(nextIndex, 'next');
+      const e = this._eventlist[nextIndex];
+      this._loadThisTitles(e, 'next');
 
-      if (!foundNow) {
+      if (foundNow == null) {
+        if (this.secondaryTimer == null)
+          console.log('Roll: waiting for event start');
         // timer counts to nextStart
         this.secondaryTimer = nextStart;
       }
