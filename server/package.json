@@ -8,7 +8,7 @@
   "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
-    "electron": "^13.1.2",
+    "electron": "^15.3.0",
     "electron-builder": "^22.11.3",
     "eslint": "^7.26.0",
     "eslint-config-airbnb": "^18.2.1",
