@@ -62,6 +62,7 @@ function App() {
               <Route exact path='/' component={SSpeaker} />
               <Route exact path='/sm' component={SStageManager} />
               <Route exact path='/speaker' component={SSpeaker} />
+              <Route exact path='/stage' component={SSpeaker} />
               <Route exact path='/speakersimple' component={SSpeakerSimple} />
               <Route exact path='/editor' component={Editor} />
               <Route exact path='/public' component={SPublic} />
