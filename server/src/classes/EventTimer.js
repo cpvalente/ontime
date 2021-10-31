@@ -252,7 +252,7 @@ export class EventTimer extends Timer {
         // look for events
         this.rollLoad();
 
-        // broadcast state without recalling timer
+        // broadcast state without recalculating timer
         this.broadcastState(false);
       }
     }
@@ -1038,11 +1038,11 @@ export class EventTimer extends Timer {
     // do we need to change
     if (this.state === 'roll') return;
 
-    // load into event
-    this.rollLoad();
-
     // set state
     this.state = 'roll';
+
+    // load into event
+    this.rollLoad();
 
     this.broadcastState();
   }
