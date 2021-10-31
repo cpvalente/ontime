@@ -78,6 +78,7 @@ const ExpandedBlock = (props) => {
           defaultValue={data.note}
           placeholder='Add Note'
           style={{ color: '#d69e2e' }}
+          maxChar={160}
           submitHandler={(v) =>
             actionHandler('update', { field: 'note', value: v })
           }
