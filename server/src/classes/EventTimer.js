@@ -203,8 +203,8 @@ export class EventTimer extends Timer {
   }
 
   // broadcast state
-  broadcastState() {
-    this.io.emit('timer', this.getObject());
+  broadcastState(update = true) {
+    this.io.emit('timer', this.getObject(update));
     this.io.emit('playstate', this.state);
     this.io.emit('selected', {
       id: this.selectedEventId,
@@ -232,16 +232,28 @@ export class EventTimer extends Timer {
     if (this.state !== 'roll') {
       super.update();
     } else {
-      // get current time
+      // update timer as usual
       const now = this._getCurrentTime();
       this.clock = now;
-
       if (this.selectedEventId && this.current > 0) {
-        // update timer as usual
+        // something is running, update
         this.current = this._finishAt - now;
-      } else {
-        // look for event if none is loaded
-        if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
+      } else if (this.secondaryTimer > 0) {
+        // waiting to start, update secondary
+        this.secondaryTimer = this._secondaryTarget - now;
+      }
+
+      // look for event if none is loaded
+      const currentRunning = this.current <= 0 && this.current !== null;
+      const secondaryRunning =
+        this.secondaryTimer <= 0 && this.secondaryTimer !== null;
+
+      if (currentRunning || secondaryRunning) {
+        // look for events
+        this.rollLoad();
+
+        // broadcast state without recalculating timer
+        this.broadcastState(false);
       }
     }
 
@@ -561,6 +573,11 @@ export class EventTimer extends Timer {
             ? 'reload'
             : 'load';
         this.loadEvent(this.selectedEventIndex, type);
+      } else if (e.id === this.nextEventId) {
+        // roll needs to recalculate
+        if (this.state === 'roll') {
+          this.rollLoad();
+        }
       } else if ('title' in e || 'subtitle' in e || 'presenter') {
         // TODO: should be more selective on the need to load titles
         this._loadTitlesNext();
@@ -956,15 +973,25 @@ export class EventTimer extends Timer {
     // loop through events, look for where we should be
     for (const [index, e] of this._eventlist.entries()) {
       if (!foundNow) {
-        if (e.timeStart <= now && now < e.timeEnd) {
+        let normalEnd = e.timeEnd;
+
+        // handle midnight
+        if (normalEnd < e.timeStart) {
+          normalEnd += this.DAYMS;
+        }
+
+        if (e.timeStart <= now && now < normalEnd) {
           // set flag
           foundNow = true;
 
           // set timers
+          this.secondaryTimer = null;
+          this._secondaryTarget = null;
+
           this._startedAt = e.timeStart;
-          this._finishAt = e.timeEnd;
-          this.duration = e.timeEnd - e.timeStart;
-          this.current = e.timeEnd - now;
+          this._finishAt = normalEnd;
+          this.duration = normalEnd - e.timeStart;
+          this.current = normalEnd - now;
 
           // set selection
           this.selectedEventId = e.id;
@@ -987,23 +1014,29 @@ export class EventTimer extends Timer {
       }
     }
 
-    // nothing to play next, unload
+    // nothing to play, unload
     if (foundNow == null && nextIndex == null) {
       this.unload();
       console.log('Roll: no events found');
       return;
     }
 
+    // we found something to play next
     if (nextIndex != null) {
-      // load titles
       const e = this._eventlist[nextIndex];
       this._loadThisTitles(e, 'next');
 
       if (foundNow == null) {
+        // only warn the first time
         if (this.secondaryTimer == null)
           console.log('Roll: waiting for event start');
+
+        // reset running timer
+        this.current = null;
+
         // timer counts to nextStart
         this.secondaryTimer = nextStart;
+        this._secondaryTarget = e.timeStart;
       }
     }
   }
@@ -1012,11 +1045,11 @@ export class EventTimer extends Timer {
     // do we need to change
     if (this.state === 'roll') return;
 
-    // load into event
-    this.rollLoad();
-
     // set state
     this.state = 'roll';
+
+    // load into event
+    this.rollLoad();
 
     this.broadcastState();
   }

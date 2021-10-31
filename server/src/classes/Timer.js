@@ -12,6 +12,7 @@ export class Timer {
   current = null;
   timeTag = null;
   secondaryTimer = null;
+  _secondaryTarget = null;
   _finishAt = null;
   _finishedAt = null;
   _startedAt = null;
@@ -125,6 +126,7 @@ export class Timer {
     this.current = this.duration;
     this.running = null;
     this.secondaryTimer = null;
+    this._secondaryTarget = null;
     this._finishAt = null;
     this._finishedAt = null;
     this._startedAt = null;
@@ -139,9 +141,9 @@ export class Timer {
   }
 
   // getObject
-  getObject() {
+  getObject(update = true) {
     // update timer
-    this.update();
+    if (update) this.update();
 
     // update timetag
     this.timeTag = stringFromMillis(this.current);
