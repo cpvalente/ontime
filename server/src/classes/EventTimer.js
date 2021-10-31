@@ -973,7 +973,14 @@ export class EventTimer extends Timer {
     // loop through events, look for where we should be
     for (const [index, e] of this._eventlist.entries()) {
       if (!foundNow) {
-        if (e.timeStart <= now && now < e.timeEnd) {
+        let normalEnd = e.timeEnd;
+
+        // handle midnight
+        if (normalEnd < e.timeStart) {
+          normalEnd += this.DAYMS;
+        }
+
+        if (e.timeStart <= now && now < normalEnd) {
           // set flag
           foundNow = true;
 
@@ -982,9 +989,9 @@ export class EventTimer extends Timer {
           this._secondaryTarget = null;
 
           this._startedAt = e.timeStart;
-          this._finishAt = e.timeEnd;
-          this.duration = e.timeEnd - e.timeStart;
-          this.current = e.timeEnd - now;
+          this._finishAt = normalEnd;
+          this.duration = normalEnd - e.timeStart;
+          this.current = normalEnd - now;
 
           // set selection
           this.selectedEventId = e.id;
