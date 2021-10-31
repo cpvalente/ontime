@@ -232,21 +232,28 @@ export class EventTimer extends Timer {
     if (this.state !== 'roll') {
       super.update();
     } else {
-      // get current time
+      // update timer as usual
       const now = this._getCurrentTime();
       this.clock = now;
-
       if (this.selectedEventId && this.current > 0) {
-        // update timer as usual
+        // something is running, update
         this.current = this._finishAt - now;
-      } else {
-        // look for event if none is loaded
-        if (this.current <= 0 || this.secondaryTimer <= 0) {
-          const newState = this.rollLoad();
+      } else if (this.secondaryTimer > 0) {
+        // waiting to start, update secondary
+        this.secondaryTimer = this._secondaryTarget - now;
+      }
 
-          // broadcast state without recalling timer
-          if (newState) this.broadcastState(false);
-        }
+      // look for event if none is loaded
+      const currentRunning = this.current <= 0 && this.current !== null;
+      const secondaryRunning =
+        this.secondaryTimer <= 0 && this.secondaryTimer !== null;
+
+      if (currentRunning || secondaryRunning) {
+        // look for events
+        this.rollLoad();
+
+        // broadcast state without recalling timer
+        this.broadcastState(false);
       }
     }
 
@@ -566,6 +573,11 @@ export class EventTimer extends Timer {
             ? 'reload'
             : 'load';
         this.loadEvent(this.selectedEventIndex, type);
+      } else if (e.id === this.nextEventId) {
+        // roll needs to recalculate
+        if (this.state === 'roll') {
+          this.rollLoad();
+        }
       } else if ('title' in e || 'subtitle' in e || 'presenter') {
         // TODO: should be more selective on the need to load titles
         this._loadTitlesNext();
@@ -967,6 +979,8 @@ export class EventTimer extends Timer {
 
           // set timers
           this.secondaryTimer = null;
+          this._secondaryTarget = null;
+
           this._startedAt = e.timeStart;
           this._finishAt = e.timeEnd;
           this.duration = e.timeEnd - e.timeStart;
@@ -993,15 +1007,15 @@ export class EventTimer extends Timer {
       }
     }
 
-    // nothing to play next, unload
+    // nothing to play, unload
     if (foundNow == null && nextIndex == null) {
       this.unload();
       console.log('Roll: no events found');
       return;
     }
 
+    // we found something to play next
     if (nextIndex != null) {
-      // load titles
       const e = this._eventlist[nextIndex];
       this._loadThisTitles(e, 'next');
 
@@ -1015,6 +1029,7 @@ export class EventTimer extends Timer {
 
         // timer counts to nextStart
         this.secondaryTimer = nextStart;
+        this._secondaryTarget = e.timeStart;
       }
     }
   }
