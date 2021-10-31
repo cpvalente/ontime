@@ -74,10 +74,14 @@ Almost reaching a feature set that we can call v1. Before that:
 The app is still in pre-release and there are a few issues, mainly concerning style.
 This will be receiving attention as we near v1 release
 
+### iOS
+- [ ] Views do not render in iOS devices. this is being prioritized and will be fixed soon
+#### Style
 - [ ] App appears visually broken: Please ensure that windows settings have no display zoom (it is 125% by default)
-- [ ] app is needs improvement on handling zoomed interfaces
+- [ ] app needs improvement on handling zoomed interfaces
 - [ ] Very long titles might cause interface to shift
-- [ ] App sometimes hides itself when window is not visible. Ontime is always running in the background, find it in the tray or press Alt+1 to bring it to the foreground
+#### Roll
+- [ ] Roll feature does not understand difference between public and backstage titles
 
 # Help
 Help is underway! ... and can be viewed [here](https://cpvalente.gitbook.io/ontime/)
