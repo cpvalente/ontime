@@ -511,6 +511,9 @@ export class EventTimer extends Timer {
     const events = eventlist.filter((e) => e.type === 'event');
     const numEvents = events.length;
 
+    // is this the first event
+    let first = this.numEvents === 0;
+
     // set general
     this._eventlist = events;
     this.numEvents = numEvents;
@@ -521,8 +524,11 @@ export class EventTimer extends Timer {
       return;
     }
 
-    // handle reload selected
-    if (this.selectedEventId != null) {
+    // auto load if is the only event
+    if (first) {
+      this.loadEvent(0);
+    } else if (this.selectedEventId != null) {
+      // handle reload selected
       // Look for event (order might have changed)
       const eventIndex = this._eventlist.findIndex(
         (e) => e.id === this.selectedEventId
@@ -539,6 +545,7 @@ export class EventTimer extends Timer {
       const type = this._startedAt != null ? 'reload' : 'load';
       this.loadEvent(eventIndex, type);
     }
+
     this.broadcastState();
   }
 
