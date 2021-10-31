@@ -203,8 +203,8 @@ export class EventTimer extends Timer {
   }
 
   // broadcast state
-  broadcastState() {
-    this.io.emit('timer', this.getObject());
+  broadcastState(update = true) {
+    this.io.emit('timer', this.getObject(update));
     this.io.emit('playstate', this.state);
     this.io.emit('selected', {
       id: this.selectedEventId,
@@ -241,7 +241,12 @@ export class EventTimer extends Timer {
         this.current = this._finishAt - now;
       } else {
         // look for event if none is loaded
-        if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
+        if (this.current <= 0 || this.secondaryTimer <= 0) {
+          const newState = this.rollLoad();
+
+          // broadcast state without recalling timer
+          if (newState) this.broadcastState(false);
+        }
       }
     }
 

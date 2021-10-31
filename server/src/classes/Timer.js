@@ -136,9 +136,9 @@ export class Timer {
   }
 
   // getObject
-  getObject() {
+  getObject(update = true) {
     // update timer
-    this.update();
+    if (update) this.update();
 
     // update timetag
     this.timeTag = stringFromMillis(this.current);
