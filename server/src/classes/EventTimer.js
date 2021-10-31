@@ -961,6 +961,7 @@ export class EventTimer extends Timer {
           foundNow = true;
 
           // set timers
+          this.secondaryTimer = null;
           this._startedAt = e.timeStart;
           this._finishAt = e.timeEnd;
           this.duration = e.timeEnd - e.timeStart;
@@ -1000,8 +1001,13 @@ export class EventTimer extends Timer {
       this._loadThisTitles(e, 'next');
 
       if (foundNow == null) {
+        // only warn the first time
         if (this.secondaryTimer == null)
           console.log('Roll: waiting for event start');
+
+        // reset running timer
+        this.current = null;
+
         // timer counts to nextStart
         this.secondaryTimer = nextStart;
       }
