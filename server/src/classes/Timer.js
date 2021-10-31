@@ -96,12 +96,15 @@ export class Timer {
 
   // get current time in epoc
   _getCurrentTime() {
-    // date today at midnight
     const now = new Date();
-    const midnight = new Date(now).setHours(0, 0, 0);
 
-    // return diffence
-    return now - midnight;
+    // extract milliseconds since midnight
+    let elapsed = now.getHours() * 3600000;
+    elapsed += now.getMinutes() * 60000;
+    elapsed += now.getSeconds() * 1000;
+    elapsed += now.getMilliseconds();
+
+    return elapsed;
   }
 
   _getExpectedFinish() {
