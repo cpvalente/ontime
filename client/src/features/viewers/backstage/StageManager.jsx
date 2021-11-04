@@ -22,6 +22,8 @@ export default function StageManager(props) {
 
     let events = [...backstageEvents];
 
+    console.log({ backstageEvents }, { events });
+
     // Add running delay
     let delay = 0;
     for (const e of events) {
