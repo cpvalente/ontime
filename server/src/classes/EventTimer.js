@@ -1,5 +1,6 @@
 import { Timer } from './Timer.js';
 import { Server } from 'socket.io';
+import { getSelectionByRoll } from './classUtils.js';
 
 /*
  * EventTimer adds functions specific to APP
@@ -961,83 +962,78 @@ export class EventTimer extends Timer {
     const now = this._getCurrentTime();
 
     // maybe roll has already been loaded
-    if (this.secondaryTimer == null) {
+    if (this.secondaryTimer === null) {
       this._resetTimers(true);
       this._resetSelection();
     }
 
-    let foundNow = null;
-    let nextIndex = null;
-    let nextStart = null;
-
-    // loop through events, look for where we should be
-    for (const [index, e] of this._eventlist.entries()) {
-      if (!foundNow) {
-        let normalEnd = e.timeEnd;
-
-        // handle midnight
-        if (normalEnd < e.timeStart) {
-          normalEnd += this.DAYMS;
-        }
-
-        if (e.timeStart <= now && now < normalEnd) {
-          // set flag
-          foundNow = true;
-
-          // set timers
-          this.secondaryTimer = null;
-          this._secondaryTarget = null;
-
-          this._startedAt = e.timeStart;
-          this._finishAt = normalEnd;
-          this.duration = normalEnd - e.timeStart;
-          this.current = normalEnd - now;
-
-          // set selection
-          this.selectedEventId = e.id;
-          this.selectedEventIndex = index;
-
-          // set titles
-          this._loadTitlesNow();
-
-          // skip this entry for next
-          continue;
-        }
-      }
-      // check how far the start is from now
-      let wait = e.timeStart - now;
-      if (wait > 0) {
-        if (nextStart == null || wait < nextStart) {
-          nextStart = wait;
-          nextIndex = index;
-        }
-      }
-    }
+    const {
+      nowIndex,
+      nowId,
+      publicIndex,
+      nextIndex,
+      publicNextIndex,
+      timers,
+      timeToNext,
+    } = getSelectionByRoll(this._eventlist, now);
 
     // nothing to play, unload
-    if (foundNow == null && nextIndex == null) {
+    if (nowIndex === null && nextIndex === null) {
       this.unload();
       console.log('Roll: no events found');
       return;
     }
 
-    // we found something to play next
-    if (nextIndex != null) {
-      const e = this._eventlist[nextIndex];
-      this._loadThisTitles(e, 'next');
+    // there is something running, load
+    if (nowIndex !== null) {
+      // clear secondary timers
+      this.secondaryTimer = null;
+      this._secondaryTarget = null;
 
-      if (foundNow == null) {
+      // set timers
+      this._startedAt = timers._startedAt;
+      this._finishAt = timers._finishAt;
+      this.duration = timers.duration;
+      this.current = timers.current;
+
+      // set selection
+      this.selectedEventId = nowId;
+      this.selectedEventIndex = nowIndex;
+    }
+
+    // found something to run next
+    if (nextIndex != null) {
+      // Set running timers
+      if (nowIndex === null) {
         // only warn the first time
-        if (this.secondaryTimer == null)
+        if (this.secondaryTimer === null)
           console.log('Roll: waiting for event start');
 
         // reset running timer
+        // ??? should this not have been reset?
         this.current = null;
 
-        // timer counts to nextStart
-        this.secondaryTimer = nextStart;
-        this._secondaryTarget = e.timeStart;
+        // timer counts to next event
+        this.secondaryTimer = timeToNext;
+        this._secondaryTarget = this._eventlist[nextIndex].timeStart;
       }
+
+      // TITLES: Load next private
+      this._loadThisTitles(this._eventlist[nextIndex], 'next-private');
+    }
+
+    // TITLES: Load next public
+    if (publicNextIndex !== null) {
+      this._loadThisTitles(this._eventlist[publicNextIndex], 'next-public');
+    }
+
+    // TITLES: Load now private
+    if (nowIndex !== null) {
+      this._loadThisTitles(this._eventlist[nowIndex], 'now-private');
+    }
+    // TITLES: Load now public
+    if (publicIndex !== null) {
+      this._loadThisTitles(this._eventlist[publicIndex], 'now-public');
     }
   }
 
