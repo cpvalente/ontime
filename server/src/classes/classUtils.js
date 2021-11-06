@@ -52,7 +52,7 @@ export const getSelectionByRoll = (arr, now) => {
   }
 
   // loop through events, look for where we should be
-  for (const [index, e] of orderedEvents.entries()) {
+  for (const e of orderedEvents) {
     // When does the event end (handle midnight)
     const normalEnd =
       e.timeEnd < e.timeStart ? (e.timeEnd += this.DAYMS) : e.timeEnd;
@@ -63,7 +63,7 @@ export const getSelectionByRoll = (arr, now) => {
       // public event might not be the one running
       if (e.isPublic && normalEnd > publicTime) {
         publicTime = normalEnd;
-        publicIndex = index;
+        publicIndex = arr.findIndex((a) => a.id === e.id);
       }
     } else if (normalEnd >= now && now >= e.timeStart) {
       // event is running
@@ -71,10 +71,10 @@ export const getSelectionByRoll = (arr, now) => {
       // it could also be public
       if (e.isPublic) {
         publicTime = normalEnd;
-        publicIndex = index;
+        publicIndex = arr.findIndex((a) => a.id === e.id);
       }
 
-      nowIndex = index;
+      nowIndex = arr.findIndex((a) => a.id === e.id);
       nowId = e.id;
 
       // set timers
@@ -87,7 +87,7 @@ export const getSelectionByRoll = (arr, now) => {
     } else if (normalEnd > now) {
       // event will run
 
-      // no need to look after found
+      // no need to look after found first
       if (nextIndex !== null && publicNextIndex !== null) continue;
 
       // look for next events
@@ -96,14 +96,14 @@ export const getSelectionByRoll = (arr, now) => {
       if (wait > 0) {
         if (nextIndex === null || wait < timeToNext) {
           timeToNext = wait;
-          nextIndex = index;
+          nextIndex = arr.findIndex((a) => a.id === e.id);
         }
         if (
           (publicNextIndex === null || wait < publicTimeToNext) &&
           e.isPublic
         ) {
           publicTimeToNext = wait;
-          publicNextIndex = index;
+          publicNextIndex = arr.findIndex((a) => a.id === e.id);
         }
       }
     }
