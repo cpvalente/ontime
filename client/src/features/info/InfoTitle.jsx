@@ -6,7 +6,7 @@ import style from './Info.module.css';
 export default function InfoTitle(props) {
   const [collapsed, setCollapsed] = useState(false);
 
-  const { title, data } = props;
+  const { title, data, roll } = props;
 
   const noTitl = data.title == null || data.title === '';
   const noPres = data.presenter == null || data.presenter === '';
@@ -15,7 +15,7 @@ export default function InfoTitle(props) {
 
   return (
     <div className={style.container}>
-      <div className={style.header}>
+      <div className={roll ? style.headerRoll : style.header}>
         {title}
         <Icon
           className={collapsed ? style.moreCollapsed : style.moreExpanded}
