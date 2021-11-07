@@ -43,7 +43,7 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
 - [x] Ability to differentiate between backstage and public data
 - [x] Manage delays workflow
 - [x] OSC Control and Feedback
-- [x] Roll mode: run independently from system clock
+- [x] Roll mode: run independently using the system clock
 
 ## Unopinionated
 We are not interested in forcing workflows and have made ontime so it is flexible to whichever way you would like to work.
@@ -80,8 +80,6 @@ This will be receiving attention as we near v1 release
 - [ ] App appears visually broken: Please ensure that windows settings have no display zoom (it is 125% by default)
 - [ ] app needs improvement on handling zoomed interfaces
 - [ ] Very long titles might cause interface to shift
-#### Roll
-- [ ] Roll feature does not understand difference between public and backstage titles
 
 # Help
 Help is underway! ... and can be viewed [here](https://cpvalente.gitbook.io/ontime/)
