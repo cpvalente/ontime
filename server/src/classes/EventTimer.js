@@ -826,7 +826,7 @@ export class EventTimer extends Timer {
       noteNext: null,
     };
 
-    this.publicTitles = {
+    this.titlesPublic = {
       titleNow: null,
       subtitleNow: null,
       presenterNow: null,
