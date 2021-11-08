@@ -139,13 +139,12 @@ export class EventTimer extends Timer {
           if (err) console.error(err);
         });
         break;
-      case 'title':
+      case 'titles':
         // Send Title of current event
         this.oscClient.send(add + '/title', title, (err) => {
           if (err) console.error(err);
         });
-        break;
-      case 'presenter':
+
         // Send presenter data on current event
         this.oscClient.send(add + '/presenter', presenter, (err) => {
           if (err) console.error(err);
@@ -207,6 +206,7 @@ export class EventTimer extends Timer {
     if (this.state === 'start' || this.state === 'roll') {
       this.sendOSC('time');
       this.sendOSC('overtime');
+      this.sendOSC('titles');
     }
   }
 
