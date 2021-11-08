@@ -26,7 +26,15 @@ export const initiateOSC = (config) => {
     const args = msg[1];
 
     // get first part before (ontime)
-    if (address !== 'ontime') return;
+    if (address !== 'ontime') {
+      console.error(`OSC IN: Message address ${address} not recognised`);
+      return;
+    }
+
+    if (path == null) {
+      console.error('OSC IN: No path found');
+      return;
+    }
 
     // get second part (command)
     switch (path.toLowerCase()) {
@@ -63,7 +71,11 @@ export const initiateOSC = (config) => {
         console.log('calling delay with', args);
         try {
           let t = parseInt(args);
-          if (!isNaN(t)) global.timer.increment(t * 1000 * 60);
+          if (isNaN(t)) {
+            console.error(`OSC IN: delay time not recognised ${args}`);
+            return;
+          }
+          global.timer.increment(t * 1000 * 60);
         } catch (error) {
           console.log('error parsing: ', error);
         }
@@ -72,16 +84,24 @@ export const initiateOSC = (config) => {
         console.log('calling goto with', args);
         try {
           let eventIndex = parseInt(args);
-          if (isNaN(eventIndex) || eventIndex <= 0 || eventIndex == null)
-            return;
-          global.timer.loadEvent(eventIndex - 1, undefined, true);
+          if (isNaN(eventIndex) || eventIndex <= 0 || eventIndex == null) {
+            console.error(
+              `OSC IN: event index not recognised or out of range ${eventIndex}`
+            );
+          }
+          global.timer.loadEventByIndex(eventIndex - 1, undefined, true);
         } catch (error) {
           console.log('error calling goto: ', error);
         }
         break;
       case 'gotoid':
         console.log('calling gotoid with', args);
-        if (args == null) return;
+        if (args == null) {
+          console.error(
+            `OSC IN: event id not recognised or out of range ${args}`
+          );
+          return;
+        }
         try {
           global.timer.loadEventById(args.toString().toLowerCase());
         } catch (error) {
@@ -90,7 +110,7 @@ export const initiateOSC = (config) => {
         break;
 
       default:
-        console.log('Error: not recognised');
+        console.log(`Error: unhandled message ${path}`);
         break;
     }
   });
