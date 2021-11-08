@@ -118,6 +118,7 @@ export class EventTimer extends Timer {
     // TODO: Should this be boolean?
     const overtime = this.current > 0 ? 0 : 1;
     const title = this.titles.titleNow;
+    const presenter = this.titles.presenterNow;
 
     switch (event) {
       case 'time':
@@ -141,6 +142,12 @@ export class EventTimer extends Timer {
       case 'title':
         // Send Title of current event
         this.oscClient.send(add + '/title', title, (err) => {
+          if (err) console.error(err);
+        });
+        break;
+      case 'presenter':
+        // Send presenter data on current event
+        this.oscClient.send(add + '/presenter', presenter, (err) => {
           if (err) console.error(err);
         });
         break;
