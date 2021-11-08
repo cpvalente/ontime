@@ -115,9 +115,9 @@ export class EventTimer extends Timer {
     const reload = 'reload';
     const finished = 'finished';
     const time = this.timeTag;
-    // TODO: Should this be boolean?
     const overtime = this.current > 0 ? 0 : 1;
-    const title = this.titles.titleNow;
+    const title = this.titles?.titleNow || '';
+    const presenter = this.titles?.presenterNow || '';
 
     switch (event) {
       case 'time':
@@ -138,9 +138,14 @@ export class EventTimer extends Timer {
           if (err) console.error(err);
         });
         break;
-      case 'title':
+      case 'titles':
         // Send Title of current event
         this.oscClient.send(add + '/title', title, (err) => {
+          if (err) console.error(err);
+        });
+
+        // Send presenter data on current event
+        this.oscClient.send(add + '/presenter', presenter, (err) => {
           if (err) console.error(err);
         });
         break;
@@ -200,6 +205,7 @@ export class EventTimer extends Timer {
     if (this.state === 'start' || this.state === 'roll') {
       this.sendOSC('time');
       this.sendOSC('overtime');
+      this.sendOSC('titles');
     }
   }
 
@@ -228,13 +234,13 @@ export class EventTimer extends Timer {
   update() {
     // if there is nothing selected, do nothing
     if (this.selectedEventId == null && this.state !== 'roll') return;
+    const now = this._getCurrentTime();
 
     // only implement roll here
     if (this.state !== 'roll') {
       super.update();
     } else {
       // update timer as usual
-      const now = this._getCurrentTime();
       this.clock = now;
       if (this.selectedEventId && this.current > 0) {
         // something is running, update
@@ -249,6 +255,12 @@ export class EventTimer extends Timer {
       const secondaryRunning =
         this.secondaryTimer <= 0 && this.secondaryTimer !== null;
 
+      if (currentRunning) {
+        // finished an event
+        this.sendOSC('finished');
+        this._finishedFlag = true;
+      }
+
       if (currentRunning || secondaryRunning) {
         // look for events
         this.rollLoad();
@@ -258,8 +270,18 @@ export class EventTimer extends Timer {
       }
     }
 
-    // sendOSC on reaching 0
-    if (this.current === 0 && this.state === 'start') this.sendOSC('finished');
+    // if event is finished
+    if (
+      this.current <= 0 &&
+      (this.state === 'start' || this.state === 'roll') &&
+      !this._finishedFlag
+    ) {
+      if (this._finishedAt === null) {
+        this._finishedAt = now;
+      }
+      this.sendOSC('finished');
+      this._finishedFlag = true;
+    }
   }
 
   _setterManager(action, payload) {
@@ -625,6 +647,12 @@ export class EventTimer extends Timer {
     let eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
 
     if (eventIndex === -1) return;
+    this.pause();
+    this.loadEvent(eventIndex, 'load', true);
+  }
+
+  loadEventByIndex(eventIndex) {
+    if (eventIndex === -1 || index > this.numEvents) return;
     this.pause();
     this.loadEvent(eventIndex, 'load', true);
   }
