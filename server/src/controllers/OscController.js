@@ -56,6 +56,7 @@ export const initiateOSC = (config) => {
         global.timer.next();
         break;
       case 'unload':
+      case 'stop':
         console.log('calling unload');
         global.timer.unload();
         break;
