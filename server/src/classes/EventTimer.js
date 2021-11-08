@@ -255,6 +255,12 @@ export class EventTimer extends Timer {
       const secondaryRunning =
         this.secondaryTimer <= 0 && this.secondaryTimer !== null;
 
+      if (currentRunning) {
+        // finished an event
+        this.sendOSC('finished');
+        this._finishedFlag = true;
+      }
+
       if (currentRunning || secondaryRunning) {
         // look for events
         this.rollLoad();
