@@ -115,10 +115,9 @@ export class EventTimer extends Timer {
     const reload = 'reload';
     const finished = 'finished';
     const time = this.timeTag;
-    // TODO: Should this be boolean?
     const overtime = this.current > 0 ? 0 : 1;
-    const title = this.titles.titleNow;
-    const presenter = this.titles.presenterNow;
+    const title = this.titles?.titleNow || '';
+    const presenter = this.titles?.presenterNow || '';
 
     switch (event) {
       case 'time':
