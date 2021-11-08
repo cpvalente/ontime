@@ -57,6 +57,7 @@ export const initiateOSC = (config) => {
         break;
       case 'roll':
         console.log('calling roll');
+        global.timer.roll();
         break;
       case 'delay':
         console.log('calling delay with', args);
