@@ -646,6 +646,12 @@ export class EventTimer extends Timer {
     this.loadEvent(eventIndex, 'load', true);
   }
 
+  loadEventByIndex(eventIndex) {
+    if (eventIndex === -1 || index > this.numEvents) return;
+    this.pause();
+    this.loadEvent(eventIndex, 'load', true);
+  }
+
   // Loads a given event
   // load timers
   // load selectedEventIndex
