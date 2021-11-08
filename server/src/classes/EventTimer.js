@@ -228,13 +228,13 @@ export class EventTimer extends Timer {
   update() {
     // if there is nothing selected, do nothing
     if (this.selectedEventId == null && this.state !== 'roll') return;
+    const now = this._getCurrentTime();
 
     // only implement roll here
     if (this.state !== 'roll') {
       super.update();
     } else {
       // update timer as usual
-      const now = this._getCurrentTime();
       this.clock = now;
       if (this.selectedEventId && this.current > 0) {
         // something is running, update
@@ -258,8 +258,18 @@ export class EventTimer extends Timer {
       }
     }
 
-    // sendOSC on reaching 0
-    if (this.current === 0 && this.state === 'start') this.sendOSC('finished');
+    // if event is finished
+    if (
+      this.current <= 0 &&
+      (this.state === 'start' || this.state === 'roll') &&
+      !this._finishedFlag
+    ) {
+      if (this._finishedAt === null) {
+        this._finishedAt = now;
+      }
+      this.sendOSC('finished');
+      this._finishedFlag = true;
+    }
   }
 
   _setterManager(action, payload) {

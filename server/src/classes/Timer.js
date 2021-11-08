@@ -15,6 +15,7 @@ export class Timer {
   _secondaryTarget = null;
   _finishAt = null;
   _finishedAt = null;
+  _finishedFlag = false;
   _startedAt = null;
   _pausedAt = null;
   _pausedInterval = null;
@@ -84,9 +85,6 @@ export class Timer {
         console.error('Timer: no playstate on update call', this.state);
         break;
     }
-
-    // Cleanup
-    if (this.current <= 0 && this._finishedAt == null) this._finishedAt = now;
   }
 
   // helpers
@@ -129,6 +127,7 @@ export class Timer {
     this._secondaryTarget = null;
     this._finishAt = null;
     this._finishedAt = null;
+    this._finishedFlag = false;
     this._startedAt = null;
     this._pausedAt = null;
     this._pausedInterval = null;
