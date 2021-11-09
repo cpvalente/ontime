@@ -16,17 +16,18 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const Playback = ({ playback, selectedId, playbackControl }) => {
+  const isRolling = playback === 'roll';
   return (
     <div className={style.playbackContainer}>
       <StartIconBtn
         active={playback === 'start'}
         clickhandler={() => playbackControl('start')}
-        disabled={!selectedId}
+        disabled={!selectedId || isRolling}
       />
       <PauseIconBtn
         active={playback === 'pause'}
         clickhandler={() => playbackControl('pause')}
-        disabled={!selectedId}
+        disabled={!selectedId || isRolling}
       />
       <RollIconBtn
         active={playback === 'roll'}
@@ -38,6 +39,7 @@ const Playback = ({ playback, selectedId, playbackControl }) => {
 };
 
 const Transport = ({ playback, selectedId, playbackControl }) => {
+  const isRolling = playback === 'roll';
   return (
     <div className={style.playbackContainer}>
       <PrevIconBtn
@@ -50,9 +52,12 @@ const Transport = ({ playback, selectedId, playbackControl }) => {
       />
       <ReloadIconButton
         clickhandler={() => playbackControl('reload')}
-        disabled={!selectedId}
+        disabled={!selectedId || isRolling}
       />
-      <UnloadIconBtn clickhandler={() => playbackControl('unload')} />
+      <UnloadIconBtn
+        clickhandler={() => playbackControl('unload')}
+        disabled={!selectedId && !isRolling}
+      />
     </div>
   );
 };

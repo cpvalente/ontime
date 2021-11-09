@@ -18,6 +18,7 @@ export default function Info() {
     noteNext: '',
   });
   const [selected, setSelected] = useState('No events');
+  const [playback, setPlayback] = useState(null);
   const logData = [];
 
   // handle incoming messages
@@ -30,6 +31,11 @@ export default function Info() {
     // Handle titles
     socket.on('titles', (data) => {
       setTitles(data);
+    });
+
+    // Handle playstate
+    socket.on('playstate', (data) => {
+      setPlayback(data);
     });
 
     // Ask for selection data
@@ -51,6 +57,7 @@ export default function Info() {
     return () => {
       socket.off('titles');
       socket.off('selected');
+      socket.off('playstate');
     };
   }, [socket]);
 
@@ -78,8 +85,8 @@ export default function Info() {
       </div>
       {/* <InfoLogger logData={logData} /> */}
       <InfoNif />
-      <InfoTitle title={'Now'} data={titlesNow} />
-      <InfoTitle title={'Next'} data={titlesNext} />
+      <InfoTitle title={'Now'} data={titlesNow} roll={playback === 'roll'} />
+      <InfoTitle title={'Next'} data={titlesNext} roll={playback === 'roll'} />
     </>
   );
 }

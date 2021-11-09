@@ -43,7 +43,7 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
 - [x] Ability to differentiate between backstage and public data
 - [x] Manage delays workflow
 - [x] OSC Control and Feedback
-- [x] Roll mode: run independently from system clock
+- [x] Roll mode: run independently using the system clock
 
 ## Unopinionated
 We are not interested in forcing workflows and have made ontime so it is flexible to whichever way you would like to work.
@@ -74,10 +74,12 @@ Almost reaching a feature set that we can call v1. Before that:
 The app is still in pre-release and there are a few issues, mainly concerning style.
 This will be receiving attention as we near v1 release
 
+### iOS
+- [ ] Views do not render in iOS devices. this is being prioritized and will be fixed soon
+#### Style
 - [ ] App appears visually broken: Please ensure that windows settings have no display zoom (it is 125% by default)
-- [ ] app is needs improvement on handling zoomed interfaces
+- [ ] app needs improvement on handling zoomed interfaces
 - [ ] Very long titles might cause interface to shift
-- [ ] App sometimes hides itself when window is not visible. Ontime is always running in the background, find it in the tray or press Alt+1 to bring it to the foreground
 
 # Help
 Help is underway! ... and can be viewed [here](https://cpvalente.gitbook.io/ontime/)

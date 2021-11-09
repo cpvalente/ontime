@@ -6,8 +6,8 @@ export default function UnloadIconBtn(props) {
   return (
     <IconButton
       icon={<FiXOctagon />}
-      colorScheme='whiteAlpha'
-      backgroundColor='#ffffff05'
+      colorScheme='red'
+      backgroundColor='#ff000022'
       variant='outline'
       onClick={clickhandler}
       width={90}

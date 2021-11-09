@@ -12,8 +12,10 @@ export class Timer {
   current = null;
   timeTag = null;
   secondaryTimer = null;
+  _secondaryTarget = null;
   _finishAt = null;
   _finishedAt = null;
+  _finishedFlag = false;
   _startedAt = null;
   _pausedAt = null;
   _pausedInterval = null;
@@ -83,9 +85,6 @@ export class Timer {
         console.error('Timer: no playstate on update call', this.state);
         break;
     }
-
-    // Cleanup
-    if (this.current <= 0 && this._finishedAt == null) this._finishedAt = now;
   }
 
   // helpers
@@ -96,12 +95,15 @@ export class Timer {
 
   // get current time in epoc
   _getCurrentTime() {
-    // date today at midnight
     const now = new Date();
-    const midnight = new Date(now).setHours(0, 0, 0);
 
-    // return diffence
-    return now - midnight;
+    // extract milliseconds since midnight
+    let elapsed = now.getHours() * 3600000;
+    elapsed += now.getMinutes() * 60000;
+    elapsed += now.getSeconds() * 1000;
+    elapsed += now.getMilliseconds();
+
+    return elapsed;
   }
 
   _getExpectedFinish() {
@@ -122,8 +124,10 @@ export class Timer {
     this.current = this.duration;
     this.running = null;
     this.secondaryTimer = null;
+    this._secondaryTarget = null;
     this._finishAt = null;
     this._finishedAt = null;
+    this._finishedFlag = false;
     this._startedAt = null;
     this._pausedAt = null;
     this._pausedInterval = null;
@@ -136,9 +140,9 @@ export class Timer {
   }
 
   // getObject
-  getObject() {
+  getObject(update = true) {
     // update timer
-    this.update();
+    if (update) this.update();
 
     // update timetag
     this.timeTag = stringFromMillis(this.current);

@@ -1,5 +1,6 @@
 import { Timer } from './Timer.js';
 import { Server } from 'socket.io';
+import { getSelectionByRoll } from './classUtils.js';
 
 /*
  * EventTimer adds functions specific to APP
@@ -114,9 +115,9 @@ export class EventTimer extends Timer {
     const reload = 'reload';
     const finished = 'finished';
     const time = this.timeTag;
-    // TODO: Should this be boolean?
     const overtime = this.current > 0 ? 0 : 1;
-    const title = this.titles.titleNow;
+    const title = this.titles?.titleNow || '';
+    const presenter = this.titles?.presenterNow || '';
 
     switch (event) {
       case 'time':
@@ -137,9 +138,14 @@ export class EventTimer extends Timer {
           if (err) console.error(err);
         });
         break;
-      case 'title':
+      case 'titles':
         // Send Title of current event
         this.oscClient.send(add + '/title', title, (err) => {
+          if (err) console.error(err);
+        });
+
+        // Send presenter data on current event
+        this.oscClient.send(add + '/presenter', presenter, (err) => {
           if (err) console.error(err);
         });
         break;
@@ -199,12 +205,13 @@ export class EventTimer extends Timer {
     if (this.state === 'start' || this.state === 'roll') {
       this.sendOSC('time');
       this.sendOSC('overtime');
+      this.sendOSC('titles');
     }
   }
 
   // broadcast state
-  broadcastState() {
-    this.io.emit('timer', this.getObject());
+  broadcastState(update = true) {
+    this.io.emit('timer', this.getObject(update));
     this.io.emit('playstate', this.state);
     this.io.emit('selected', {
       id: this.selectedEventId,
@@ -227,26 +234,54 @@ export class EventTimer extends Timer {
   update() {
     // if there is nothing selected, do nothing
     if (this.selectedEventId == null && this.state !== 'roll') return;
+    const now = this._getCurrentTime();
 
     // only implement roll here
     if (this.state !== 'roll') {
       super.update();
     } else {
-      // get current time
-      const now = this._getCurrentTime();
+      // update timer as usual
       this.clock = now;
-
       if (this.selectedEventId && this.current > 0) {
-        // update timer as usual
+        // something is running, update
         this.current = this._finishAt - now;
-      } else {
-        // look for event if none is loaded
-        if (this.current <= 0 || this.secondaryTimer <= 0) this.rollLoad();
+      } else if (this.secondaryTimer > 0) {
+        // waiting to start, update secondary
+        this.secondaryTimer = this._secondaryTarget - now;
+      }
+
+      // look for event if none is loaded
+      const currentRunning = this.current <= 0 && this.current !== null;
+      const secondaryRunning =
+        this.secondaryTimer <= 0 && this.secondaryTimer !== null;
+
+      if (currentRunning) {
+        // finished an event
+        this.sendOSC('finished');
+        this._finishedFlag = true;
+      }
+
+      if (currentRunning || secondaryRunning) {
+        // look for events
+        this.rollLoad();
+
+        // broadcast state without recalculating timer
+        this.broadcastState(false);
       }
     }
 
-    // sendOSC on reaching 0
-    if (this.current === 0 && this.state === 'start') this.sendOSC('finished');
+    // if event is finished
+    if (
+      this.current <= 0 &&
+      (this.state === 'start' || this.state === 'roll') &&
+      !this._finishedFlag
+    ) {
+      if (this._finishedAt === null) {
+        this._finishedAt = now;
+      }
+      this.sendOSC('finished');
+      this._finishedFlag = true;
+    }
   }
 
   _setterManager(action, payload) {
@@ -568,6 +603,11 @@ export class EventTimer extends Timer {
             ? 'reload'
             : 'load';
         this.loadEvent(this.selectedEventIndex, type);
+      } else if (e.id === this.nextEventId) {
+        // roll needs to recalculate
+        if (this.state === 'roll') {
+          this.rollLoad();
+        }
       } else if ('title' in e || 'subtitle' in e || 'presenter') {
         // TODO: should be more selective on the need to load titles
         this._loadTitlesNext();
@@ -614,6 +654,12 @@ export class EventTimer extends Timer {
     let eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
 
     if (eventIndex === -1) return;
+    this.pause();
+    this.loadEvent(eventIndex, 'load', true);
+  }
+
+  loadEventByIndex(eventIndex) {
+    if (eventIndex === -1 || index > this.numEvents) return;
     this.pause();
     this.loadEvent(eventIndex, 'load', true);
   }
@@ -815,7 +861,7 @@ export class EventTimer extends Timer {
       noteNext: null,
     };
 
-    this.publicTitles = {
+    this.titlesPublic = {
       titleNow: null,
       subtitleNow: null,
       presenterNow: null,
@@ -951,67 +997,78 @@ export class EventTimer extends Timer {
     const now = this._getCurrentTime();
 
     // maybe roll has already been loaded
-    if (this.secondaryTimer == null) {
+    if (this.secondaryTimer === null) {
       this._resetTimers(true);
       this._resetSelection();
     }
 
-    let foundNow = null;
-    let nextIndex = null;
-    let nextStart = null;
+    const {
+      nowIndex,
+      nowId,
+      publicIndex,
+      nextIndex,
+      publicNextIndex,
+      timers,
+      timeToNext,
+    } = getSelectionByRoll(this._eventlist, now);
 
-    // loop through events, look for where we should be
-    for (const [index, e] of this._eventlist.entries()) {
-      if (!foundNow) {
-        if (e.timeStart <= now && now < e.timeEnd) {
-          // set flag
-          foundNow = true;
-
-          // set timers
-          this._startedAt = e.timeStart;
-          this._finishAt = e.timeEnd;
-          this.duration = e.timeEnd - e.timeStart;
-          this.current = e.timeEnd - now;
-
-          // set selection
-          this.selectedEventId = e.id;
-          this.selectedEventIndex = index;
-
-          // set titles
-          this._loadTitlesNow();
-
-          // skip this entry for next
-          continue;
-        }
-      }
-      // check how far the start is from now
-      let wait = e.timeStart - now;
-      if (wait > 0) {
-        if (nextStart == null || wait < nextStart) {
-          nextStart = wait;
-          nextIndex = index;
-        }
-      }
-    }
-
-    // nothing to play next, unload
-    if (foundNow == null && nextIndex == null) {
+    // nothing to play, unload
+    if (nowIndex === null && nextIndex === null) {
       this.unload();
       console.log('Roll: no events found');
       return;
     }
 
-    if (nextIndex != null) {
-      // load titles
-      const e = this._eventlist[nextIndex];
-      this._loadThisTitles(e, 'next');
+    // there is something running, load
+    if (nowIndex !== null) {
+      // clear secondary timers
+      this.secondaryTimer = null;
+      this._secondaryTarget = null;
 
-      if (foundNow == null) {
-        if (this.secondaryTimer == null)
+      // set timers
+      this._startedAt = timers._startedAt;
+      this._finishAt = timers._finishAt;
+      this.duration = timers.duration;
+      this.current = timers.current;
+
+      // set selection
+      this.selectedEventId = nowId;
+      this.selectedEventIndex = nowIndex;
+    }
+
+    // found something to run next
+    if (nextIndex != null) {
+      // Set running timers
+      if (nowIndex === null) {
+        // only warn the first time
+        if (this.secondaryTimer === null)
           console.log('Roll: waiting for event start');
-        // timer counts to nextStart
-        this.secondaryTimer = nextStart;
+
+        // reset running timer
+        // ??? should this not have been reset?
+        this.current = null;
+
+        // timer counts to next event
+        this.secondaryTimer = timeToNext;
+        this._secondaryTarget = this._eventlist[nextIndex].timeStart;
       }
+
+      // TITLES: Load next private
+      this._loadThisTitles(this._eventlist[nextIndex], 'next-private');
+    }
+
+    // TITLES: Load next public
+    if (publicNextIndex !== null) {
+      this._loadThisTitles(this._eventlist[publicNextIndex], 'next-public');
+    }
+
+    // TITLES: Load now private
+    if (nowIndex !== null) {
+      this._loadThisTitles(this._eventlist[nowIndex], 'now-private');
+    }
+    // TITLES: Load now public
+    if (publicIndex !== null) {
+      this._loadThisTitles(this._eventlist[publicIndex], 'now-public');
     }
   }
 
@@ -1019,11 +1076,11 @@ export class EventTimer extends Timer {
     // do we need to change
     if (this.state === 'roll') return;
 
-    // load into event
-    this.rollLoad();
-
     // set state
     this.state = 'roll';
+
+    // load into event
+    this.rollLoad();
 
     this.broadcastState();
   }

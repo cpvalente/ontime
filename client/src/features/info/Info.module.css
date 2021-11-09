@@ -15,13 +15,22 @@
   justify-content: space-between;
 }
 
-.header {
+.header,
+.headerRoll {
   padding: 0;
   margin: 0;
   font-size: 0.9em;
   color: #ccc;
   display: flex;
   justify-content: space-between;
+}
+
+.header {
+  color: #ccc;
+}
+
+.headerRoll {
+  color: #2b6cb0;
 }
 
 .labelContainer {
