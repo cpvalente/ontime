@@ -20,8 +20,6 @@ export default function Info() {
   const [selected, setSelected] = useState('No events');
   const logData = [];
 
-  console.log(`titles`, titles);
-
   // handle incoming messages
   useEffect(() => {
     if (socket == null) return;

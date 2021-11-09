@@ -163,7 +163,6 @@ export default function EventBlock(props) {
   const delayValue = delay > 0 ? millisToMinutes(delay) : null;
 
   const handleCollapse = (isCollapsed) => {
-    console.log('setting collapsed', isCollapsed);
     setCollapsed({ [data.id]: isCollapsed });
   };
 
