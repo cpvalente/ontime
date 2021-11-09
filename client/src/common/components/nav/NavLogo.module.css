@@ -4,12 +4,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  font-size: 1vw;
+  font-size: max(1vw, 16px);
   z-index: 10;
 }
 
 .logo {
-  width: 3vw;
+  width: max(3vw, 32px);
   opacity: 0.5;
 }
 

@@ -5,6 +5,7 @@ import style from './EditableText.module.css';
 export default function EditableText(props) {
   const { label, defaultValue, placeholder, submitHandler, ...rest } = props;
   const [text, setText] = useState(defaultValue || '');
+  const maxchar = props.maxchar || 40;
 
   useEffect(() => {
     if (defaultValue == null) setText('');
@@ -18,7 +19,7 @@ export default function EditableText(props) {
   };
 
   const handleChange = (val) => {
-    if (val.length < 40) setText(val);
+    if (val.length < maxchar) setText(val);
   };
 
   return (

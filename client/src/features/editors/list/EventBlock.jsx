@@ -78,6 +78,7 @@ const ExpandedBlock = (props) => {
           defaultValue={data.note}
           placeholder='Add Note'
           style={{ color: '#d69e2e' }}
+          maxchar={160}
           submitHandler={(v) =>
             actionHandler('update', { field: 'note', value: v })
           }
@@ -162,7 +163,6 @@ export default function EventBlock(props) {
   const delayValue = delay > 0 ? millisToMinutes(delay) : null;
 
   const handleCollapse = (isCollapsed) => {
-    console.log('setting collapsed', isCollapsed);
     setCollapsed({ [data.id]: isCollapsed });
   };
 

@@ -113,7 +113,6 @@
   grid-area: time;
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
   align-items: flex-start;
   justify-items: flex-start;
 
