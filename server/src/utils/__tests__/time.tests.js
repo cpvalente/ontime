@@ -16,6 +16,11 @@ describe('test string to milis function', () => {
     expect(stringFromMillis(t.val)).toBe(t.result);
   });
 
+  it('test with -1', () => {
+    const t = { val: -1, result: '-00:00:00' };
+    expect(stringFromMillis(t.val)).toBe(t.result);
+  });
+
   it('test  with 0', () => {
     const t = { val: 0, result: '00:00:00' };
     expect(stringFromMillis(t.val)).toBe(t.result);
@@ -23,6 +28,16 @@ describe('test string to milis function', () => {
 
   it('test with -0', () => {
     const t = { val: -0, result: '00:00:00' };
+    expect(stringFromMillis(t.val)).toBe(t.result);
+  });
+
+  it('test with 999', () => {
+    const t = { val: 999, result: '00:00:00' };
+    expect(stringFromMillis(t.val)).toBe(t.result);
+  });
+
+  it('test with 1000', () => {
+    const t = { val: 1000, result: '00:00:01' };
     expect(stringFromMillis(t.val)).toBe(t.result);
   });
 
