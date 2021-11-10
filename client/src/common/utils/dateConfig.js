@@ -51,6 +51,13 @@ export function formatDisplay(seconds, hideZero) {
   else return [hours, minutes, s % 60].map(format).join(':');
 }
 
+/**
+ * @description Converts milliseconds to seconds
+ * @param {number} millis - time in seconds
+ * @param {boolean} hideZero - wether to show hours in case its 00
+ * @returns {number} Amount in seconds
+ */
+
 // millis to seconds
 export const millisToSeconds = (millis) => {
   return Math.floor(millis / 1000);
