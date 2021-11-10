@@ -1,6 +1,6 @@
 import { Draggable } from 'react-beautiful-dnd';
 import { FiMoreVertical } from 'react-icons/fi';
-import { millisToMinutes } from 'common/dateConfig';
+import { millisToMinutes } from 'common/utils/dateConfig';
 import ActionButtons from './ActionButtons';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import ApplyIconBtn from 'common/components/buttons/ApplyIconBtn';

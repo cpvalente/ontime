@@ -4,7 +4,7 @@ import {
   timeFormat,
   stringFromMillis,
   timeStringToMillis,
-} from '../dateConfig';
+} from '../utils/dateConfig';
 import { showErrorToast } from '../helpers/toastManager';
 import style from './EditableTimer.module.css';
 

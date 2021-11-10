@@ -4,7 +4,7 @@ import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { formatDisplay } from 'common/dateConfig';
+import { formatDisplay } from 'common/utils/dateConfig';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 
 export default function Pip(props) {

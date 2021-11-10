@@ -1,7 +1,16 @@
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 
-// time string from miliseconds
+/**
+ * @description Converts milliseconds to string representing time
+ * @param {number} ms - time in milliseconds
+ * @param {boolean} showSeconds - wether to show the seconds
+ * @param {string} delim - character between HH MM SS
+ * @param {string} ifNull - what to return if value is null
+ * @returns {string} String representing time 00:12:02
+ */
+
+// This is shared and tested in backend in time.js
 export const stringFromMillis = (
   ms,
   showSeconds = true,
@@ -9,16 +18,17 @@ export const stringFromMillis = (
   ifNull = '...'
 ) => {
   if (ms === null || isNaN(ms)) return ifNull;
+  const isNegative = ms < 0 ? '-' : '';
   const showWith0 = (value) => (value < 10 ? `0${value}` : value);
   const hours = showWith0(Math.floor(((ms / (1000 * 60 * 60)) % 60) % 24));
   const minutes = showWith0(Math.floor((ms / (1000 * 60)) % 60));
   const seconds = showWith0(Math.floor((ms / 1000) % 60));
 
   return showSeconds
-    ? `${
+    ? `${isNegative}${
         parseInt(hours) ? `${hours}${delim}` : `00${delim}`
       }${minutes}${delim}${seconds}`
-    : `${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
+    : `${isNegative}${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
 };
 
 // another go at simpler string formatting (counters)
