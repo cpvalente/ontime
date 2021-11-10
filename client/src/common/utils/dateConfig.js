@@ -31,15 +31,24 @@ export const stringFromMillis = (
     : `${isNegative}${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
 };
 
-// another go at simpler string formatting (counters)
-export function formatDisplay(seconds, hideZero) {
-  const format = (val) => `0${Math.floor(val)}`.slice(-2);
-  const hours = seconds / 3600;
-  const minutes = (seconds % 3600) / 60;
+/**
+ * another go at simpler string formatting (counters)
+ * @description Converts seconds to string representing time
+ * @param {number} seconds - time in seconds
+ * @param {boolean} hideZero - wether to show hours in case its 00
+ * @returns {string} String representing absolute time 00:12:02
+ */
 
-  if (hideZero && hours < 1)
-    return [minutes, seconds % 60].map(format).join(':');
-  else return [hours, minutes, seconds % 60].map(format).join(':');
+export function formatDisplay(seconds, hideZero) {
+  // handle floating point crazyness
+  const format = (val) => `0${Math.floor(val)}`.slice(-2);
+
+  let s = Math.abs(seconds);
+  const hours = (s / 3600) % 24;
+  const minutes = (s % 3600) / 60;
+
+  if (hideZero && hours < 1) return [minutes, s % 60].join(':');
+  else return [hours, minutes, s % 60].map(format).join(':');
 }
 
 // millis to seconds
