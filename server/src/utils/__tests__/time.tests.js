@@ -1,4 +1,4 @@
-import { stringFromMillis } from '../../src/utils/time';
+import { stringFromMillis } from '../time';
 
 const t1 = { val: null, result: '...' };
 test('test stringFromMillis() on null values', () => {
