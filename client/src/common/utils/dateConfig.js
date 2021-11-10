@@ -60,12 +60,19 @@ export function formatDisplay(seconds, hideZero) {
 
 // millis to seconds
 export const millisToSeconds = (millis) => {
-  return Math.floor(millis / 1000);
+  return millis < 0 ? Math.ceil(millis / 1000) : Math.floor(millis / 1000);
 };
+
+/**
+ * @description Converts milliseconds to seconds
+ * @param {number} millis - time in seconds
+ * @param {boolean} hideZero - wether to show hours in case its 00
+ * @returns {number} Amount in seconds
+ */
 
 // millis to minutes
 export const millisToMinutes = (millis) => {
-  return Math.floor(millis / 60000);
+  return millis < 0 ? Math.ceil(millis / 60000) : Math.floor(millis / 60000);
 };
 
 // timeStringToMillis
