@@ -1,6 +1,11 @@
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 
+const mts = 1000; // millis to seconds
+const mtm = 1000 * 60; // millis to minutes
+const mth = 1000 * 60 * 60; // millis to hours
+const mtd = 1000 * 60 * 60 * 24; // millis to days
+
 /**
  * @description Converts milliseconds to string representing time
  * @param {number} ms - time in milliseconds
@@ -20,9 +25,9 @@ export const stringFromMillis = (
   if (ms === null || isNaN(ms)) return ifNull;
   const isNegative = ms < 0 ? '-' : '';
   const showWith0 = (value) => (value < 10 ? `0${value}` : value);
-  const hours = showWith0(Math.floor(((ms / (1000 * 60 * 60)) % 60) % 24));
-  const minutes = showWith0(Math.floor((ms / (1000 * 60)) % 60));
-  const seconds = showWith0(Math.floor((ms / 1000) % 60));
+  const hours = showWith0(Math.floor(((ms / mth) % 60) % 24));
+  const minutes = showWith0(Math.floor((ms / mtm) % 60));
+  const seconds = showWith0(Math.floor((ms / mts) % 60));
 
   return showSeconds
     ? `${isNegative}${
@@ -60,7 +65,7 @@ export function formatDisplay(seconds, hideZero) {
 
 // millis to seconds
 export const millisToSeconds = (millis) => {
-  return millis < 0 ? Math.ceil(millis / 1000) : Math.floor(millis / 1000);
+  return millis < 0 ? Math.ceil(millis / mts) : Math.floor(millis / mts);
 };
 
 /**
@@ -72,7 +77,7 @@ export const millisToSeconds = (millis) => {
 
 // millis to minutes
 export const millisToMinutes = (millis) => {
-  return millis < 0 ? Math.ceil(millis / 60000) : Math.floor(millis / 60000);
+  return millis < 0 ? Math.ceil(millis / mtm) : Math.floor(millis / mtm);
 };
 
 /**
@@ -85,8 +90,8 @@ export const millisToMinutes = (millis) => {
 export const timeStringToMillis = (string) => {
   if (typeof string !== 'string') return 0;
   const time = string.split(':');
-  if (time.length === 2) return Math.abs(time[0]) * 3600000 + time[1];
+  if (time.length === 2) return Math.abs(time[0]) * mth + time[1];
   if (time.length === 3)
-    return Math.abs(time[0]) * 3600000 + time[1] * 60000 + time[2] * 1000;
+    return Math.abs(time[0]) * mth + time[1] * mtm + time[2] * mts;
   else return 0;
 };
