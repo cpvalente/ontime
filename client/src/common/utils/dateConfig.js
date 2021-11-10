@@ -75,8 +75,18 @@ export const millisToMinutes = (millis) => {
   return millis < 0 ? Math.ceil(millis / 60000) : Math.floor(millis / 60000);
 };
 
+/**
+ * @description Converts timestring  to milliseconds
+ * @param {string} string - time string "23:00:12"
+ * @returns {number} Amount in milliseconds
+ */
+
 // timeStringToMillis
 export const timeStringToMillis = (string) => {
-  let time = string.split(':');
-  return time[0] * 3600000 + time[1] * 60000;
+  if (typeof string !== 'string') return 0;
+  const time = string.split(':');
+  if (time.length === 2) return Math.abs(time[0]) * 3600000 + time[1];
+  if (time.length === 3)
+    return Math.abs(time[0]) * 3600000 + time[1] * 60000 + time[2] * 1000;
+  else return 0;
 };
