@@ -16,7 +16,7 @@ export default function EditableTimer(props) {
   useEffect(() => {
     if (time == null) return;
     try {
-      setValue(stringFromMillis(time + delay, false));
+      setValue(stringFromMillis(time + delay));
     } catch (error) {
       showErrorToast('Error parsing date', error.text);
     }
@@ -34,7 +34,7 @@ export default function EditableTimer(props) {
     if (value === '') return false;
 
     // Time now and time submitedVal
-    const original = stringFromMillis(time + delay, false);
+    const original = stringFromMillis(time + delay);
 
     // check if time is different from before
     if (value === original) return false;
@@ -56,11 +56,11 @@ export default function EditableTimer(props) {
       onChange={(v) => setValue(v)}
       onSubmit={(v) => validateValue(v)}
       value={value}
-      placeholder='--:--'
+      placeholder='--:--:--'
       className={delay > 0 ? style.delayedEditable : style.editable}
     >
       <EditablePreview />
-      <EditableInput type='time' min='00:00' max='23:59' />
+      <EditableInput type='time' step='1' min='00:00:00' max='23:59:00' />
     </Editable>
   );
 }
