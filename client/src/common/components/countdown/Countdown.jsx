@@ -3,11 +3,12 @@ import { formatDisplay } from 'common/utils/dateConfig';
 import styles from './Countdown.module.css';
 
 const Countdown = ({ time, small, negative, hideZeroHours }) => {
-  let display = '-- : -- : --';
-
   // prepare display string
-  if (time != null && !isNaN(time))
-    display = formatDisplay(Math.abs(time), hideZeroHours);
+  const display =
+    time != null && !isNaN(time)
+      ? formatDisplay(time, hideZeroHours)
+      : '-- : -- : --';
+
   const colour = negative ? '#ff7597' : '#fffffa';
 
   return (

@@ -45,14 +45,14 @@ export const stringFromMillis = (
  */
 
 export function formatDisplay(seconds, hideZero) {
-  // handle floating point crazyness
+  // add an extra 0 if necessary
   const format = (val) => `0${Math.floor(val)}`.slice(-2);
 
-  let s = Math.abs(seconds);
-  const hours = (s / 3600) % 24;
-  const minutes = (s % 3600) / 60;
+  const s = Math.abs(seconds);
+  const hours = Math.floor((s / 3600) % 24);
+  const minutes = Math.floor((s % 3600) / 60);
 
-  if (hideZero && hours < 1) return [minutes, s % 60].join(':');
+  if (hideZero && hours < 1) return [minutes, s % 60].map(format).join(':');
   else return [hours, minutes, s % 60].map(format).join(':');
 }
 
