@@ -242,3 +242,143 @@ describe('test that roll loads selection in right order', () => {
     expect(state).toStrictEqual(expected);
   });
 });
+
+// test getSelectionByRoll()
+describe('test that roll behaviour with overlapping times', () => {
+  const eventlist = [
+    {
+      id: 1,
+      timeStart: 10,
+      timeEnd: 10,
+      isPublic: false,
+    },
+    {
+      id: 2,
+      timeStart: 10,
+      timeEnd: 20,
+      isPublic: true,
+    },
+    {
+      id: 3,
+      timeStart: 10,
+      timeEnd: 30,
+      isPublic: false,
+    },
+  ];
+
+  it('if timer is at 0', () => {
+    const now = 0;
+    const expected = {
+      nowIndex: null,
+      nowId: null,
+      publicIndex: null,
+      nextIndex: 0,
+      publicNextIndex: 1,
+      timers: null,
+      timeToNext: 10,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+  it('if timer is at 10', () => {
+    const now = 10;
+    const expected = {
+      nowIndex: 1,
+      nowId: 2,
+      publicIndex: 1,
+      nextIndex: 2,
+      publicNextIndex: null,
+      timers: {
+        _finishAt: 20,
+        _startedAt: 10,
+        current: 10,
+        duration: 10,
+      },
+      timeToNext: 0,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+  it('if timer is at 15', () => {
+    const now = 15;
+    const expected = {
+      nowIndex: 1,
+      nowId: 2,
+      publicIndex: 1,
+      nextIndex: 2,
+      publicNextIndex: null,
+      timers: {
+        _startedAt: 10,
+        _finishAt: 20,
+        current: 5,
+        duration: 10,
+      },
+      timeToNext: -5,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+  it('if timer is at 20', () => {
+    const now = 20;
+    const expected = {
+      nowIndex: 2,
+      nowId: 3,
+      publicIndex: 1,
+      nextIndex: null,
+      publicNextIndex: null,
+      timers: {
+        _startedAt: 10,
+        _finishAt: 30,
+        current: 10,
+        duration: 20,
+      },
+      timeToNext: null,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+  it('if timer is at 25', () => {
+    const now = 25;
+    const expected = {
+      nowIndex: 2,
+      nowId: 3,
+      publicIndex: 1,
+      nextIndex: null,
+      publicNextIndex: null,
+      timers: {
+        _startedAt: 10,
+        _finishAt: 30,
+        current: 5,
+        duration: 20,
+      },
+      timeToNext: null,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+  it('if timer is at 31', () => {
+    const now = 31;
+    const expected = {
+      nowIndex: null,
+      nowId: null,
+      publicIndex: null,
+      nextIndex: null,
+      publicNextIndex: null,
+      timers: null,
+      timeToNext: null,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+});
