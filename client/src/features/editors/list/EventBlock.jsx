@@ -8,7 +8,7 @@ import EditableText from 'common/input/EditableText';
 import ActionButtons from './ActionButtons';
 import PublicIconBtn from 'common/components/buttons/PublicIconBtn';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
-import { millisToMinutes } from 'common/dateConfig';
+import { millisToMinutes } from 'common/utils/dateConfig';
 import style from './EventBlock.module.css';
 import { SelectCollapse, HandleCollapse } from 'app/context/collapseAtom';
 import { useAtom } from 'jotai';

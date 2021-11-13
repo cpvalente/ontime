@@ -1,4 +1,4 @@
-import { stringFromMillis } from 'common/dateConfig';
+import { stringFromMillis } from 'common/utils/dateConfig';
 import style from './Paginator.module.css';
 export default function TodayItem(props) {
   const { selected, timeStart, timeEnd, title, backstageEvent } = props;

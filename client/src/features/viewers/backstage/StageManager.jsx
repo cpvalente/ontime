@@ -1,5 +1,5 @@
 import QRCode from 'react-qr-code';
-import { formatDisplay } from 'common/dateConfig';
+import { formatDisplay } from 'common/utils/dateConfig';
 import style from './StageManager.module.css';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
