@@ -37,6 +37,9 @@ export const getSelectionByRoll = (arr, now) => {
   // Order events by startTime
   const orderedEvents = sortArrayByProperty(arr, 'timeStart');
 
+  // flags: select first event if several overlapping
+  let nowFound = false;
+
   // exit early if we are past the events
   const lastEventEnd = orderedEvents[orderedEvents.length - 1].timeEnd;
   if (now > lastEventEnd) {
@@ -57,7 +60,7 @@ export const getSelectionByRoll = (arr, now) => {
     const normalEnd =
       e.timeEnd < e.timeStart ? (e.timeEnd += this.DAYMS) : e.timeEnd;
 
-    if (normalEnd < now) {
+    if (normalEnd <= now) {
       // event ran already
 
       // public event might not be the one running
@@ -65,7 +68,7 @@ export const getSelectionByRoll = (arr, now) => {
         publicTime = normalEnd;
         publicIndex = arr.findIndex((a) => a.id === e.id);
       }
-    } else if (normalEnd >= now && now >= e.timeStart) {
+    } else if (normalEnd > now && now >= e.timeStart && !nowFound) {
       // event is running
 
       // it could also be public
@@ -84,6 +87,7 @@ export const getSelectionByRoll = (arr, now) => {
         duration: normalEnd - e.timeStart,
         current: normalEnd - now,
       };
+      nowFound = true;
     } else if (normalEnd > now) {
       // event will run
 
@@ -93,18 +97,14 @@ export const getSelectionByRoll = (arr, now) => {
       // look for next events
       // check how far the start is from now
       const wait = e.timeStart - now;
-      if (wait > 0) {
-        if (nextIndex === null || wait < timeToNext) {
-          timeToNext = wait;
-          nextIndex = arr.findIndex((a) => a.id === e.id);
-        }
-        if (
-          (publicNextIndex === null || wait < publicTimeToNext) &&
-          e.isPublic
-        ) {
-          publicTimeToNext = wait;
-          publicNextIndex = arr.findIndex((a) => a.id === e.id);
-        }
+
+      if (nextIndex === null || wait < timeToNext) {
+        timeToNext = wait;
+        nextIndex = arr.findIndex((a) => a.id === e.id);
+      }
+      if ((publicNextIndex === null || wait < publicTimeToNext) && e.isPublic) {
+        publicTimeToNext = wait;
+        publicNextIndex = arr.findIndex((a) => a.id === e.id);
       }
     }
   }

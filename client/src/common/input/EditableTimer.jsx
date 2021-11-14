@@ -28,14 +28,17 @@ export default function EditableTimer(props) {
     // Check if there is anything there
     if (value === '') return false;
 
+    // ensure we have seconds
+    const val = value.split(':').length === 3 ? value : `${value}:00`;
+
     // Time now and time submitedVal
     const original = stringFromMillis(time + delay, true);
 
     // check if time is different from before
-    if (value === original) return false;
+    if (val === original) return false;
 
     // convert to millis object
-    const millis = timeStringToMillis(value);
+    const millis = timeStringToMillis(val);
 
     // validate with parent
     if (!validate(name, millis)) return false;
@@ -52,11 +55,16 @@ export default function EditableTimer(props) {
       onSubmit={(v) => validateValue(v)}
       onCancel={() => setValue(stringFromMillis(time + delay, true))}
       value={value}
-      placeholder='--:--:--'
       className={delay > 0 ? style.delayedEditable : style.editable}
     >
       <EditablePreview />
-      <EditableInput type='time' step='1' min='00:00:00' max='23:59:00' />
+      <EditableInput
+        type='time'
+        placeholder='--:--:--'
+        min='00:00:00'
+        max='23:59:59'
+        step='1'
+      />
     </Editable>
   );
 }
