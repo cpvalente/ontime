@@ -30,6 +30,7 @@
   grid-template-columns: 2em 2em auto auto 1fr auto 3.7em;
   grid-template-areas: 'drag indi time time text more btns';
   justify-content: center;
+  align-items: center;
 }
 
 .expanded {
@@ -59,6 +60,7 @@
   align-self: flex-start;
   font-size: 0.75em;
   overflow: hidden;
+  min-height: 3em;
   min-width: 0;
   justify-content: center;
 }
@@ -95,6 +97,7 @@
 
 .time {
   grid-area: time;
+  align-self: center;
 }
 
 .start {
@@ -136,7 +139,6 @@
 
 .titleContainer {
   grid-area: text;
-  height: 100%;
 
   background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -146,6 +148,13 @@
 
   white-space: nowrap;
   overflow: hidden;
+}
+
+.collapsed .titleContasiner {
+  height: fit-content;
+}
+.expanded .titleContainer {
+  height: 100%;
 }
 
 .oscLabel {
@@ -165,6 +174,7 @@
   color: #fff;
   grid-area: more;
   margin-top: 0.2em;
+  align-self: baseline;
 }
 
 .moreExpanded {
