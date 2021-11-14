@@ -93,7 +93,7 @@ function createWindow() {
     width: 1920,
     height: 1000,
     minWidth: 575,
-    minHeight: 385,
+    minHeight: 405,
     maxWidth: 1920,
     maxHeight: 1440,
     backgroundColor: '#202020',
