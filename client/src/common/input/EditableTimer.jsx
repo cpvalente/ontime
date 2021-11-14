@@ -46,9 +46,20 @@ export default function EditableTimer(props) {
     return true;
   };
 
+  const handleChange = (v) => {
+    // if empty
+    if (v === '00:00:00') {
+      setValue(v);
+    } else {
+      // make sure it has seconds 00:00:00
+      const val = v.split(':').length === 3 ? v : `${v}:00`;
+      setValue(val);
+    }
+  };
+
   return (
     <Editable
-      onChange={(v) => setValue(v)}
+      onChange={(v) => handleChange(v)}
       onSubmit={(v) => validateValue(v)}
       onCancel={() => setValue(stringFromMillis(time + delay, true))}
       value={value}
