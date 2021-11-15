@@ -1,7 +1,6 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-[![Documentation in Gitbook](https://badges.aleen42.com/src/gitbook_2.svg)](https://cpvalente.gitbook.io/ontime/)
-
+[https://cpvalente.gitbook.io/ontime/](https://badges.aleen42.com/src/gitbook_2.svg)]
 
 Download the latest releases here
 - [Windows](https://gitreleases.dev/gh/cpvalente/ontime/latest/ontime-win64.exe)
