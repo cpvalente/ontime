@@ -8,7 +8,7 @@
 
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: 40px 48em auto 1fr;
+  grid-template-columns: 40px 48em auto auto;
   grid-template-areas:
     'sett even play info'
     'sett even mess info';
@@ -114,6 +114,8 @@ h1 {
 
 .info {
   grid-area: info;
+  min-width: 17em;
+  max-width: 32em;
 }
 
 .messages {
