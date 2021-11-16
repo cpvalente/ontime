@@ -46,6 +46,7 @@
   background-color: rgba(255, 255, 255, 0.05);
   padding: 1vh 2vw;
   border-radius: 1vw;
+  max-width: 100%;
 }
 
 .nowContainer {
