@@ -9,9 +9,9 @@ Ontime is an application for managing event rundowns and running stage timers.
 
 It allows a center application to be able to distribute event information in the local network. This minimises needs for using Media Server outputs or expensive video distribution while allowing easy integration in workflows including OBS and d3.
 
-![App Window](https://github.com/cpvalente/ontime/blob/master/01_app.png)
+![App Window](https://github.com/cpvalente/ontime/blob/master/.github/01_app.png)
 
-![Views](https://github.com/cpvalente/ontime/blob/master/02_screentypes.png)
+![Views](https://github.com/cpvalente/ontime/blob/master/.github/02_screentypes.png)
 
 ## Using Ontime
 Once installed and running, ontime starts a background server that is the heart of all processes.
