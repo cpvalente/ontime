@@ -55,7 +55,6 @@
   font-size: 4vh;
 }
 
-
 /* =================== TITLES ===================*/
 
 .infoContainer > div {
@@ -111,6 +110,8 @@
   display: grid;
   grid-template-rows: 5vh 1fr 3vh;
   height: 100%;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 /* =================== MAIN ===================*/

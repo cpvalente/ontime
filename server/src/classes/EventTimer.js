@@ -608,7 +608,10 @@ export class EventTimer extends Timer {
         if (this.state === 'roll') {
           this.rollLoad();
         }
-      } else if ('title' in e || 'subtitle' in e || 'presenter') {
+      }
+
+      // load titles
+      if ('title' in e || 'subtitle' in e || 'presenter' in e) {
         // TODO: should be more selective on the need to load titles
         this._loadTitlesNext();
         this._loadTitlesNow();

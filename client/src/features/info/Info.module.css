@@ -33,6 +33,15 @@
   color: #2b6cb0;
 }
 
+.collapsedTitle {
+  font-size: inherit;
+
+  padding-left: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .labelContainer {
   white-space: nowrap;
   overflow: hidden;

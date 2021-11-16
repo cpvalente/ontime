@@ -17,6 +17,9 @@ export default function InfoTitle(props) {
     <div className={style.container}>
       <div className={roll ? style.headerRoll : style.header}>
         {title}
+        {collapsed && (
+          <span className={style.collapsedTitle}>{data.title}</span>
+        )}
         <Icon
           className={collapsed ? style.moreCollapsed : style.moreExpanded}
           as={FiChevronUp}

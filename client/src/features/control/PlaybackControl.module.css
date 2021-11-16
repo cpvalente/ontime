@@ -20,13 +20,15 @@
     'ind clk clk btn'
     '... sta fin btn';
   grid-template-rows: 1fr auto;
-  grid-template-columns: 1.5em 2fr 2fr 22%;
+  grid-template-columns: 1.5em 2fr 2fr 6em;
   gap: 5px;
   justify-items: start;
 }
 
 .timer {
   grid-area: clk;
+  white-space: nowrap;
+  max-width: 300px;
 }
 
 .indicators {
