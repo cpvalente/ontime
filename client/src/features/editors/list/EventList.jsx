@@ -1,7 +1,6 @@
 import style from './List.module.css';
-import { createRef, useEffect, useMemo, useState } from 'react';
+import { createRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
-import tinykeys from 'tinykeys';
 import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -19,37 +18,86 @@ export default function EventList(props) {
   const cursorRef = createRef();
 
   // Handle keyboard shortcuts
+  const handleKeyPress = useCallback(
+    (e) => {
+      // Check if the alt key is pressed
+      if (e.altKey) {
+        // Arrow down
+        if (e.keyCode === 40) {
+          if (cursor == null) setCursor(0);
+          else if (cursor < events.length - 1) setCursor(cursor + 1);
+        }
+        // Arrow up
+        if (e.keyCode === 38) {
+          if (cursor == null) setCursor(0);
+          else if (cursor > 0) setCursor(cursor - 1);
+        }
+        // E
+        if (e.key === 'e' || e.key === 'E') {
+          e.preventDefault();
+          if (cursor == null) return;
+          eventsHandler('add', { type: 'event', order: cursor + 1 });
+        }
+        // D
+        if (e.key === 'd' || e.key === 'D') {
+          e.preventDefault();
+          if (cursor == null) return;
+          eventsHandler('add', { type: 'delay', order: cursor + 1 });
+        }
+        // B
+        if (e.key === 'b' || e.key === 'B') {
+          e.preventDefault();
+          if (cursor == null) return;
+          eventsHandler('add', { type: 'block', order: cursor + 1 });
+        }
+      }
+    },
+    [cursor, events, eventsHandler]
+  );
+
   useEffect(() => {
-    let unsubscribe = tinykeys(window, {
-      'Alt+ArrowDown': () => {
-        if (cursor == null) setCursor(0);
-        else if (cursor < events.length - 1) setCursor(cursor + 1);
-      },
-      'Alt+ArrowUp': () => {
-        if (cursor == null) setCursor(0);
-        else if (cursor > 0) setCursor(cursor - 1);
-      },
-      'Alt+KeyE': (event) => {
-        event.preventDefault();
-        if (cursor == null) return;
-        eventsHandler('add', { type: 'event', order: cursor + 1 });
-      },
-      'Alt+KeyD': (event) => {
-        event.preventDefault();
-        if (cursor == null) return;
-        eventsHandler('add', { type: 'delay', order: cursor + 1 });
-      },
-      'Alt+KeyB': (event) => {
-        event.preventDefault();
-        if (cursor == null) return;
-        eventsHandler('add', { type: 'block', order: cursor + 1 });
-      },
-    });
+    // attach the event listener
+    document.addEventListener('keydown', handleKeyPress);
+
     if (cursor > events.length - 1) setCursor(events.length - 1);
+
+    // remove the event listener
     return () => {
-      unsubscribe();
+      document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [cursor, events, eventsHandler]);
+  }, [handleKeyPress, cursor, events]);
+
+  // useEffect(() => {
+  //   let unsubscribe = tinykeys(window, {
+  //     'Alt+ArrowDown': () => {
+  //       if (cursor == null) setCursor(0);
+  //       else if (cursor < events.length - 1) setCursor(cursor + 1);
+  //     },
+  //     'Alt+ArrowUp': () => {
+  //       if (cursor == null) setCursor(0);
+  //       else if (cursor > 0) setCursor(cursor - 1);
+  //     },
+  //     'Alt+KeyE': (event) => {
+  //       event.preventDefault();
+  //       if (cursor == null) return;
+  //       eventsHandler('add', { type: 'event', order: cursor + 1 });
+  //     },
+  //     'Alt+KeyD': (event) => {
+  //       event.preventDefault();
+  //       if (cursor == null) return;
+  //       eventsHandler('add', { type: 'delay', order: cursor + 1 });
+  //     },
+  //     'Alt+KeyB': (event) => {
+  //       event.preventDefault();
+  //       if (cursor == null) return;
+  //       eventsHandler('add', { type: 'block', order: cursor + 1 });
+  //     },
+  //   });
+  //   if (cursor > events.length - 1) setCursor(events.length - 1);
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // }, [cursor, events, eventsHandler]);
 
   // handle incoming messages
   useEffect(() => {
