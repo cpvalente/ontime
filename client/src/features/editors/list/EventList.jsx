@@ -67,38 +67,6 @@ export default function EventList(props) {
     };
   }, [handleKeyPress, cursor, events]);
 
-  // useEffect(() => {
-  //   let unsubscribe = tinykeys(window, {
-  //     'Alt+ArrowDown': () => {
-  //       if (cursor == null) setCursor(0);
-  //       else if (cursor < events.length - 1) setCursor(cursor + 1);
-  //     },
-  //     'Alt+ArrowUp': () => {
-  //       if (cursor == null) setCursor(0);
-  //       else if (cursor > 0) setCursor(cursor - 1);
-  //     },
-  //     'Alt+KeyE': (event) => {
-  //       event.preventDefault();
-  //       if (cursor == null) return;
-  //       eventsHandler('add', { type: 'event', order: cursor + 1 });
-  //     },
-  //     'Alt+KeyD': (event) => {
-  //       event.preventDefault();
-  //       if (cursor == null) return;
-  //       eventsHandler('add', { type: 'delay', order: cursor + 1 });
-  //     },
-  //     'Alt+KeyB': (event) => {
-  //       event.preventDefault();
-  //       if (cursor == null) return;
-  //       eventsHandler('add', { type: 'block', order: cursor + 1 });
-  //     },
-  //   });
-  //   if (cursor > events.length - 1) setCursor(events.length - 1);
-  //   return () => {
-  //     unsubscribe();
-  //   };
-  // }, [cursor, events, eventsHandler]);
-
   // handle incoming messages
   useEffect(() => {
     if (socket == null) return;
