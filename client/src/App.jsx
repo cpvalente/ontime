@@ -1,10 +1,9 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useCallback, useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import './App.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import SocketProvider from 'app/context/socketContext';
 import withSocket from 'features/viewers/ViewWrapper';
-import tinykeys from 'tinykeys';
 
 const Editor = lazy(() => import('features/editors/Editor'));
 const PresenterView = lazy(() =>
@@ -37,21 +36,30 @@ const SLowerThird = withSocket(Lower);
 const SPip = withSocket(Pip);
 
 function App() {
-  useEffect(() => {
-    let unsubscribe = tinykeys(window, {
-      'Alt+t': () => {
+  // Handle keyboard shortcuts
+  const handleKeyPress = useCallback((e) => {
+    // check if the alt key is pressed
+    if (e.altKey) {
+      if (e.key === 't' || e.key === 'T') {
         // if we are in electron
         if (window.process?.type === undefined) return;
         if (window.process.type === 'renderer') {
           // ask to see debug
           window.ipcRenderer.send('set-window', 'show-dev');
         }
-      },
-    });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // attach the event listener
+    document.addEventListener('keydown', handleKeyPress);
+
+    // remove the event listener
     return () => {
-      unsubscribe();
+      document.removeEventListener('keydown', handleKeyPress);
     };
-  });
+  }, [handleKeyPress]);
 
   return (
     <SocketProvider>

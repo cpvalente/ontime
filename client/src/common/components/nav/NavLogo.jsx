@@ -1,8 +1,7 @@
 import { Link, Redirect } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import tinykeys from 'tinykeys';
+import { useState, useEffect, useCallback } from 'react';
 import navlogo from 'assets/images/logos/LOGO-72.png';
 import style from './NavLogo.module.css';
 
@@ -14,16 +13,22 @@ export default function NavLogo() {
   };
 
   // Handle keyboard shortcuts
-  useEffect(() => {
-    let unsubscribe = tinykeys(window, {
-      Space: () => {
-        setShowNav((s) => !s);
-      },
-    });
-    return () => {
-      unsubscribe();
-    };
+  const handleKeyPress = useCallback((e) => {
+    // Space bar
+    if (e.keyCode === 32) {
+      setShowNav((s) => !s);
+    }
   }, []);
+
+  useEffect(() => {
+    // attach the event listener
+    document.addEventListener('keydown', handleKeyPress);
+
+    // remove the event listener
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
 
   return (
     <motion.div
