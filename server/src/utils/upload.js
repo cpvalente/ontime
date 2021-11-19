@@ -24,15 +24,20 @@ const storage = multer.diskStorage({
   },
 });
 
-// filter only json
-const filterJson = (req, file, cb) => {
-  if (file.mimetype.includes('application/json')) {
+// filter allowed types json
+const jsonMime = 'application/json';
+const excelMime =
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+const filterAllowed = (req, file, cb) => {
+  console.log(file);
+  if (file.mimetype.includes(jsonMime) || file.mimetype.includes(excelMime)) {
     cb(null, true);
   } else {
     cb(null, false);
   }
 };
 
-const uploadJson = multer({ storage: storage, fileFilter: filterJson });
-
-export default uploadJson.single('jsondb');
+export const uploadFile = multer({
+  storage: storage,
+  fileFilter: filterAllowed,
+}).single('userFile');

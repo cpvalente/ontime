@@ -127,6 +127,8 @@ const upload = async (file, req, res) => {
     return;
   }
 
+  console.log(file);
+
   try {
     // get file
     const rawdata = fs.readFileSync(file);
