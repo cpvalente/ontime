@@ -1,4 +1,4 @@
-export const dbModel = {
+export const dbModelv1 = {
   events: [],
   event: {
     title: '',

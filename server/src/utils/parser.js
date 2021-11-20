@@ -4,8 +4,7 @@ import {
   delay as delayDef,
   block as blockDef,
 } from '../models/eventsDefinition.js';
-import { dbModel } from '../models/dataModel.js';
-import { db } from '../app.js';
+import { dbModelv1 } from '../models/dataModel.js';
 import { generateId } from './generate_id.js';
 
 export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
@@ -99,12 +98,12 @@ export const parsev1 = async (jsonData) => {
     const e = jsonData.event;
     // filter known properties
     const event = {
-      ...dbModel.event,
-      title: e.title || dbModel.event.title,
-      url: e.url || dbModel.event.url,
-      publicInfo: e.publicInfo || dbModel.event.publicInfo,
-      backstageInfo: e.backstageInfo || dbModel.event.backstageInfo,
-      endMessage: e.endMessage || dbModel.event.endMessage,
+      ...dbModelv1.event,
+      title: e.title || dbModelv1.event.title,
+      url: e.url || dbModelv1.event.url,
+      publicInfo: e.publicInfo || dbModelv1.event.publicInfo,
+      backstageInfo: e.backstageInfo || dbModelv1.event.backstageInfo,
+      endMessage: e.endMessage || dbModelv1.event.endMessage,
     };
 
     // write to db
@@ -128,7 +127,7 @@ export const parsev1 = async (jsonData) => {
 
       // write to db
       returnData.settings = {
-        ...dbModel.settings,
+        ...dbModelv1.settings,
         ...settings,
       };
     }
