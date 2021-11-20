@@ -9,9 +9,9 @@
     "multer": "^1.4.2",
     "nanoid": "^3.1.22",
     "node-osc": "6.1.10",
+    "node-xlsx": "^0.17.2",
     "passport": "~0.4.1",
     "passport-local": "~1.0.0",
-    "read-excel-file": "^5.2.24",
     "socket.io": "^4.3.1",
     "universal-analytics": "^0.4.23"
   },
