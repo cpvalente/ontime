@@ -2,8 +2,7 @@
 import { db, data } from '../app.js';
 
 // utils
-import { customAlphabet } from 'nanoid';
-const nanoid = customAlphabet('1234567890abcdef', 4);
+import { generateId } from '../utils/generate_id.js';
 import {
   event as eventDef,
   delay as delayDef,
@@ -98,7 +97,7 @@ export const eventsPost = async (req, res) => {
 
   // ensure structure
   let newEvent = {};
-  req.body.id = nanoid();
+  req.body.id = generateId();
 
   switch (req.body.type) {
     case 'event':
