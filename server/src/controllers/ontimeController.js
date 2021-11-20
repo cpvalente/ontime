@@ -29,6 +29,10 @@ export const dbDownload = async (req, res) => {
   });
 };
 
+/**
+ * @description Controller for POST request to /ontime/db
+ * @returns none
+ */
 const upload = async (file, req, res) => {
   if (!fs.existsSync(file)) {
     res.status(500).send({ message: 'Upload failed' });
@@ -37,6 +41,7 @@ const upload = async (file, req, res) => {
 
   try {
     const result = await fileHandler(file);
+
     if (result?.error) {
       res.status(400).send({ message: result.message });
     } else if (result.message === 'success') {
@@ -51,12 +56,11 @@ const upload = async (file, req, res) => {
         if (result.data?.settings != null) {
           data.settings = result.data.settings;
         }
-        // data.events = result.data.events;
         db.write();
       }
       res.sendStatus(200);
     } else {
-      res.status(400).send({ message: 'Failed parsing, unknown' });
+      res.status(400).send({ message: 'Failed parsing, no data' });
     }
   } catch (error) {
     res.status(400).send({ message: `Failed parsing ${error}` });

@@ -26,7 +26,7 @@ import { Client } from 'node-osc';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import { dbModel } from './models/dataModel.js';
+import { dbModelv1 as dbModel } from './models/dataModel.js';
 import ua from 'universal-analytics';
 
 // Read data from JSON file, this will set db.data content

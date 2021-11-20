@@ -7,6 +7,9 @@ import {
 import { dbModelv1 } from '../models/dataModel.js';
 import { generateId } from './generate_id.js';
 
+export const EXCEL_MIME =
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+export const JSON_MIME = 'application/json';
 export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
 
 /**
@@ -17,20 +20,26 @@ export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
 export const fileHandler = async (file) => {
   // check which file type are we dealing with
 
-  // if json check version
-  const rawdata = fs.readFileSync(file);
-  const uploadedJson = JSON.parse(rawdata);
-  let res = {};
+  if (file.endsWith('.xlsx')) {
+    console.log('excel!');
+  }
 
-  if (uploadedJson.settings.version === 1) {
-    try {
-      res.data = await parsev1(uploadedJson);
-      res.message = 'success';
-    } catch (error) {
-      res = { error: true, message: `Error parsing file: ${error}` };
+  if (file.endsWith('.json')) {
+    // if json check version
+    const rawdata = fs.readFileSync(file);
+    const uploadedJson = JSON.parse(rawdata);
+    let res = {};
+
+    if (uploadedJson.settings.version === 1) {
+      try {
+        res.data = await parsev1(uploadedJson);
+        res.message = 'success';
+      } catch (error) {
+        res = { error: true, message: `Error parsing file: ${error}` };
+      }
+    } else {
+      res = { error: true, message: 'Error parsing file, version unknown' };
     }
-  } else {
-    res = { error: true, message: 'Error parsing file, version unknown' };
   }
 
   // delete file
