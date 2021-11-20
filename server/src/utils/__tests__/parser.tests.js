@@ -1,5 +1,5 @@
 import jest from 'jest-mock';
-import { parsev1 } from '../parser.js';
+import { parseJsonv1 } from '../parser.js';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -104,7 +104,7 @@ describe('test json parser with valid def', () => {
   let parseResponse;
 
   beforeEach(async () => {
-    parseResponse = await parsev1(testData);
+    parseResponse = await parseJsonv1(testData);
   });
 
   it('has 7 events', () => {
@@ -162,7 +162,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parsev1(testData);
+    const parseResponse = await parseJsonv1(testData);
     expect(parseResponse.events[0].id).toBeDefined();
   });
 
@@ -183,7 +183,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parsev1(testData);
+    const parseResponse = await parseJsonv1(testData);
     expect(console.log).toHaveBeenCalledWith(
       'ERROR: ID colision on import, skipping'
     );
@@ -205,7 +205,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parsev1(testData);
+    const parseResponse = await parseJsonv1(testData);
     expect(console.log).toHaveBeenCalledWith(
       'ERROR: undefined event type, skipping'
     );
@@ -221,7 +221,7 @@ describe('test parser edge cases', () => {
       },
     };
 
-    await parsev1(testData);
+    await parseJsonv1(testData);
     expect(console.log).toHaveBeenCalledWith(
       'ERROR: unknown app version, skipping'
     );

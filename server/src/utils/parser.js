@@ -28,11 +28,10 @@ export const fileHandler = async (file) => {
     // if json check version
     const rawdata = fs.readFileSync(file);
     const uploadedJson = JSON.parse(rawdata);
-    let res = {};
 
     if (uploadedJson.settings.version === 1) {
       try {
-        res.data = await parsev1(uploadedJson);
+        res.data = await parseJsonv1(uploadedJson);
         res.message = 'success';
       } catch (error) {
         res = { error: true, message: `Error parsing file: ${error}` };
@@ -50,10 +49,11 @@ export const fileHandler = async (file) => {
 
 /**
  * @description JSON parser function for v1 of data system
- * @argument file - reference to file
+ * @argument jsonData - JSON object to be parsed
  * @returns {object} - parsed object
  */
-export const parsev1 = async (jsonData) => {
+
+export const parseJsonv1 = async (jsonData) => {
   let numEntries = 0;
   let returnData = {};
   if ('events' in jsonData) {
