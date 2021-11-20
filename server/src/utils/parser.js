@@ -24,10 +24,9 @@ export const fileHandler = async (file) => {
   // check which file type are we dealing with
 
   if (file.endsWith('.xlsx')) {
-    console.log('excel!');
     try {
       const excelData = xlsx
-        .parse(file)
+        .parse(file, { cellDates: true })
         .find(
           ({ name }) =>
             name.toLowerCase() === 'ontime' ||
@@ -35,8 +34,9 @@ export const fileHandler = async (file) => {
         );
 
       // we only look at worksheets called ontime or event schedule
-      if (excelData) {
-        parseExcelv1(excelData);
+      if (excelData?.data) {
+        res.data = parseExcelv1(excelData.data);
+        res.message = 'success';
       } else {
         console.log('Error: No sheets found named ontime or event schedule');
         res = {
@@ -78,7 +78,107 @@ export const fileHandler = async (file) => {
  * @returns {object} - parsed object
  */
 export const parseExcelv1 = async (excelData) => {
-  console.log(excelData);
+  let eventData = {
+    title: '',
+    url: '',
+  };
+
+  let events = [];
+  let timeStartIndex = null;
+  let timeEndIndex = null;
+  let titleIndex = null;
+  let presenterIndex = null;
+  let subtitleIndex = null;
+  let isPublicIndex = null;
+  let notesIndex = null;
+
+  excelData
+    .filter((e) => e.length > 0)
+    .forEach((row) => {
+      let eventTitleNext = false;
+      let eventUrlNext = false;
+      let event = {};
+
+      row.forEach((column, j) => {
+        // check flags
+        if (eventTitleNext) {
+          eventData.title = column;
+          eventTitleNext = false;
+        } else if (eventUrlNext) {
+          eventData.url = column;
+          eventUrlNext = false;
+        } else if (j === timeStartIndex) {
+          event.timeStart = column;
+        } else if (j === timeEndIndex) {
+          event.timeEnd = column;
+        } else if (j === titleIndex) {
+          event.title = column;
+        } else if (j === presenterIndex) {
+          event.presenter = column;
+        } else if (j === subtitleIndex) {
+          event.subtitle = column;
+        } else if (j === isPublicIndex) {
+          // whether column is not empty
+          event.isPublic = column !== '';
+        } else if (j === notesIndex) {
+          event.note = column;
+        } else {
+          if (typeof column === 'string') {
+            // look for keywords
+            // need to make sure it is a string first
+            switch (column.toLowerCase()) {
+              case 'event name':
+                eventTitleNext = true;
+                break;
+              case 'event url':
+                eventUrlNext = true;
+                break;
+              case 'time start':
+              case 'start':
+                timeStartIndex = j;
+                break;
+              case 'time end':
+              case 'end':
+              case 'finish':
+                timeEndIndex = j;
+                break;
+              case 'event title':
+              case 'title':
+                titleIndex = j;
+                break;
+              case 'presenter name':
+              case 'speaker':
+              case 'presenter':
+                presenterIndex = j;
+                break;
+              case 'event subtitle':
+              case 'subtitle':
+                subtitleIndex = j;
+                break;
+              case 'is public? (x)':
+              case 'is public':
+              case 'public':
+                isPublicIndex = j;
+                break;
+              case 'notes':
+                notesIndex = j;
+                break;
+              default:
+                break;
+            }
+          }
+        }
+      });
+      if (Object.keys(event).length > 0) {
+        // if any data was found, push to array
+        // take care of it in the next step
+        events.push(event);
+      }
+    });
+
+  console.log('========================');
+  console.log(eventData);
+  console.log(events);
 };
 
 /**
