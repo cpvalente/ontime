@@ -1,4 +1,5 @@
 import fs from 'fs';
+import xlsx from 'node-xlsx';
 import {
   event as eventDef,
   delay as delayDef,
@@ -18,10 +19,34 @@ export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
  * @return {object} - parse result message
  */
 export const fileHandler = async (file) => {
+  let res = {};
+
   // check which file type are we dealing with
 
   if (file.endsWith('.xlsx')) {
     console.log('excel!');
+    try {
+      const excelData = xlsx
+        .parse(file)
+        .find(
+          ({ name }) =>
+            name.toLowerCase() === 'ontime' ||
+            name.toLowerCase() === 'event schedule'
+        );
+
+      // we only look at worksheets called ontime or event schedule
+      if (excelData) {
+        parseExcelv1(excelData);
+      } else {
+        console.log('Error: No sheets found named ontime or event schedule');
+        res = {
+          error: true,
+          message: `No sheets found named ontime or event schedule`,
+        };
+      }
+    } catch (error) {
+      res = { error: true, message: `Error parsing file: ${error}` };
+    }
   }
 
   if (file.endsWith('.json')) {
@@ -45,6 +70,15 @@ export const fileHandler = async (file) => {
   deleteFile(file);
 
   return res;
+};
+
+/**
+ * @description Excel array parser
+ * @argument excelData - array with excel sheet
+ * @returns {object} - parsed object
+ */
+export const parseExcelv1 = async (excelData) => {
+  console.log(excelData);
 };
 
 /**
