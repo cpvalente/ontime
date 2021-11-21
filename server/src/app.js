@@ -27,21 +27,37 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbModelv1 as dbModel } from './models/dataModel.js';
+import { parseJsonv1 as parseJson } from './utils/parser.js';
 import ua from 'universal-analytics';
 
-// Read data from JSON file, this will set db.data content
-await db.read();
+// validate JSON before attempting read
+let isValid = true;
+try {
+  isValid = JSON.parse(file);
+} catch (error) {
+  isValid = false;
+}
+
+if (isValid) {
+  console.log('reading this');
+  // Read data from JSON file, this will set db.data content
+  await db.read();
+}
 
 // If file.json doesn't exist, db.data will be null
 // Set default data
 // db.data ||= { events: [] }; NODE v15 - v16
-if (db.data == null) {
+if (db.data == null || !isValid) {
   db.data = dbModel;
-  db.write();
+  await db.write();
 }
 
 // get data
-export const data = db.data;
+// there is also the case of the db being corrupt
+// try to parse the data
+export const data = await parseJson(db.data);
+db.data = data;
+await db.write();
 
 // Import Routes
 import { router as eventsRouter } from './routes/eventsRouter.js';
@@ -107,7 +123,6 @@ app.use((err, req, res, next) => {
  */
 
 const s = data.settings;
-
 const oscIP = s.oscOutIP || config.osc.ipOut;
 const oscOutPort = s.oscOutPort || config.osc.portOut;
 const oscInPort = s.oscInPort || config.osc.port;
