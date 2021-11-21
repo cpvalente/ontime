@@ -195,32 +195,19 @@ export const parseJsonv1 = async (jsonData) => {
     let events = [];
     let ids = [];
     for (const e of jsonData.events) {
+      // doublecheck unique ids
+      if (ids.indexOf(e?.id) !== -1) {
+        console.log('ERROR: ID colision on import, skipping');
+        continue;
+      }
+
       if (e.type === 'event') {
-        // ensure id is defined and unique
-        const id = e.id || generateId();
-
-        // doublecheck unique ids
-        if (ids.indexOf(e.id) !== -1) {
-          console.log('ERROR: ID colision on import, skipping');
-          continue;
+        let event = validateEventv1(e);
+        if (event != null) {
+          events.push(event);
+          ids.push(event.id);
+          numEntries++;
         }
-        ids.push(id);
-
-        // make sure all properties exits
-        // dont load any extra properties than the ones known
-        events.push({
-          ...eventDef,
-          title: e.title || eventDef.title,
-          subtitle: e.subtitle || eventDef.subtitle,
-          presenter: e.presenter || eventDef.presenter,
-          note: e.note || eventDef.note,
-          timeStart: e.timeStart || eventDef.timeStart,
-          timeEnd: e.timeEnd || eventDef.timeEnd,
-          isPublic: e.isPublic || eventDef.isPublic,
-          id,
-          type: 'event',
-        });
-        numEntries++;
       } else if (e.type === 'delay') {
         events.push({ ...delayDef, duration: e.duration });
         numEntries++;
@@ -277,6 +264,38 @@ export const parseJsonv1 = async (jsonData) => {
   }
 
   return returnData;
+};
+
+/**
+ * @description Enforces formatting for events
+ * @param {object} eventArgs - attributes of event
+ * @returns {object|null} - formatted object or null in case is invalid
+ */
+
+export const validateEventv1 = (eventArgs) => {
+  // ensure id is defined and unique
+  const id = eventArgs.id || generateId();
+  let event = null;
+
+  // return if object is empty
+  if (Object.keys(eventArgs).length > 0) {
+    // make sure all properties exits
+    // dont load any extra properties than the ones known
+    event = {
+      ...eventDef,
+      title: eventArgs.title || eventDef.title,
+      subtitle: eventArgs.subtitle || eventDef.subtitle,
+      presenter: eventArgs.presenter || eventDef.presenter,
+      note: eventArgs.note || eventDef.note,
+      timeStart: eventArgs.timeStart || eventDef.timeStart,
+      timeEnd: eventArgs.timeEnd || eventDef.timeEnd,
+      isPublic: eventArgs.isPublic || eventDef.isPublic,
+      id,
+      type: 'event',
+    };
+  }
+
+  return event;
 };
 
 /**
