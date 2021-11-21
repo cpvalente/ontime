@@ -15,7 +15,7 @@ export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
 
 /**
  * @description Middleware function that checks file type and calls relevant parser
- * @argument file - reference to file
+ * @argument {string} file - reference to file
  * @return {object} - parse result message
  */
 export const fileHandler = async (file) => {
@@ -74,7 +74,7 @@ export const fileHandler = async (file) => {
 
 /**
  * @description Excel array parser
- * @argument excelData - array with excel sheet
+ * @argument {array} excelData - array with excel sheet
  * @returns {object} - parsed object
  */
 export const parseExcelv1 = async (excelData) => {
@@ -183,7 +183,7 @@ export const parseExcelv1 = async (excelData) => {
 
 /**
  * @description JSON parser function for v1 of data system
- * @argument jsonData - JSON object to be parsed
+ * @argument {object} jsonData - json data JSON object to be parsed
  * @returns {object} - parsed object
  */
 
@@ -305,7 +305,7 @@ export const validateEventv1 = (eventArgs) => {
 
 /**
  * @description Delete file from system
- * @argument file - reference to file
+ * @argument {string} file - reference to file
  */
 const deleteFile = async (file) => {
   // delete a file
