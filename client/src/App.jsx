@@ -4,6 +4,7 @@ import './App.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import SocketProvider from 'app/context/socketContext';
 import withSocket from 'features/viewers/ViewWrapper';
+import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 
 const Editor = lazy(() => import('features/editors/Editor'));
 const PresenterView = lazy(() =>
@@ -65,22 +66,24 @@ function App() {
     <SocketProvider>
       <QueryClientProvider client={queryClient}>
         <div className='App'>
-          <Suspense fallback={null}>
-            <Switch>
-              <Route exact path='/' component={SSpeaker} />
-              <Route exact path='/sm' component={SStageManager} />
-              <Route exact path='/speaker' component={SSpeaker} />
-              <Route exact path='/stage' component={SSpeaker} />
-              <Route exact path='/speakersimple' component={SSpeakerSimple} />
-              <Route exact path='/editor' component={Editor} />
-              <Route exact path='/public' component={SPublic} />
-              <Route exact path='/pip' component={SPip} />
-              {/* Lower cannot have fallback */}
-              <Route exact path='/lower' component={SLowerThird} />
-              {/* Send to default if nothing found */}
-              <Route component={SSpeaker} />
-            </Switch>
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <Switch>
+                <Route exact path='/' component={SSpeaker} />
+                <Route exact path='/sm' component={SStageManager} />
+                <Route exact path='/speaker' component={SSpeaker} />
+                <Route exact path='/stage' component={SSpeaker} />
+                <Route exact path='/speakersimple' component={SSpeakerSimple} />
+                <Route exact path='/editor' component={Editor} />
+                <Route exact path='/public' component={SPublic} />
+                <Route exact path='/pip' component={SPip} />
+                {/* Lower cannot have fallback */}
+                <Route exact path='/lower' component={SLowerThird} />
+                {/* Send to default if nothing found */}
+                <Route component={SSpeaker} />
+              </Switch>
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </QueryClientProvider>
     </SocketProvider>
