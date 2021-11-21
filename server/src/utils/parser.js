@@ -328,3 +328,16 @@ const deleteFile = async (file) => {
     }
   });
 };
+
+/**
+ * @description Delete file from system
+ * @argument {string} file - reference to file
+ */
+export const validateFile = (file) => {
+  try {
+    JSON.parse(fs.readFileSync(file));
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
