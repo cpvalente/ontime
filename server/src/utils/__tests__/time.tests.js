@@ -1,4 +1,5 @@
-import { stringFromMillis } from '../time.js';
+import { describe } from 'jest-circus';
+import { excelDateStringToMillis, stringFromMillis } from '../time.js';
 
 describe('test string to milis function', () => {
   it('test with null values', () => {
@@ -54,5 +55,23 @@ describe('test string to milis function', () => {
   it('test with -86401000 (-24 hours and 1 second)', () => {
     const t = { val: -86401000, result: '-00:00:01' };
     expect(stringFromMillis(t.val)).toBe(t.result);
+  });
+});
+
+describe('test excel date parser', () => {
+  it('parses the given dates correctly', () => {
+    const d1 = '1899-12-30T08:00:00.000Z';
+    const d2 = '1899-12-30T08:30:00.000Z';
+
+    const d1Millis = 28800000;
+    const d2Millis = 30600000;
+
+    expect(excelDateStringToMillis(d1)).toBe(d1Millis);
+    expect(excelDateStringToMillis(d2)).toBe(d2Millis);
+  });
+
+  it.only('handles an invalid date string', () => {
+    const s = 'hello';
+    expect(excelDateStringToMillis(s)).toBe(null);
   });
 });
