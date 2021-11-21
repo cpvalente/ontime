@@ -1,16 +1,16 @@
 import { generateId } from '../generate_id.js';
 
 describe('generate a valid id', () => {
-  it('generates a 4 digit id', () => {
+  it('generates a 5 digit id', () => {
     const id = generateId();
-    expect(id.length).toBe(4);
+    expect(id.length).toBe(5);
   });
 });
 
-describe('generate 500', () => {
+describe('generate 100', () => {
   it('all ids are unique', () => {
     let ids = [];
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 100; i++) {
       ids.push(generateId());
     }
 
