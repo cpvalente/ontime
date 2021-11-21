@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   fetchAllEvents,
   requestPatch,
@@ -26,6 +26,7 @@ export default function EventListWrapper() {
     EVENTS_TABLE,
     fetchAllEvents
   );
+  const [events, setEvents] = useState(null);
 
   const addEvent = useMutation(requestPost, {
     // we optimistically update here
@@ -327,11 +328,17 @@ export default function EventListWrapper() {
     [data]
   );
 
+  // Front end should handle bad arguments
+  useEffect(() => {
+    if (data == null) return;
+    setEvents(data.filter((d) => Object.keys(d).length > 0));
+  }, [data]);
+
   return (
     <>
       <EventListMenu eventsHandler={eventsHandler} />
-      {status === 'success' ? (
-        <EventList events={data} eventsHandler={eventsHandler} />
+      {status === 'success' && events != null ? (
+        <EventList events={events} eventsHandler={eventsHandler} />
       ) : (
         <Empty text='Connecting to server' />
       )}
