@@ -188,6 +188,11 @@ export const parseExcelv1 = async (excelData) => {
  */
 
 export const parseJsonv1 = async (jsonData) => {
+  if (!jsonData || typeof jsonData !== 'object') {
+    console.log('ERROR: Invalid JSON format');
+    return -1;
+  }
+
   let numEntries = 0;
   let returnData = {};
   if ('events' in jsonData) {

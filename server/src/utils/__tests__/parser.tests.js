@@ -1,5 +1,6 @@
 import jest from 'jest-mock';
 import { parseJsonv1 } from '../parser.js';
+import { dbModelv1 as dbModel } from '../../models/dataModel.js';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -225,5 +226,118 @@ describe('test parser edge cases', () => {
     expect(console.log).toHaveBeenCalledWith(
       'ERROR: unknown app version, skipping'
     );
+  });
+});
+
+describe('test corrupt data', () => {
+  it('handles some empty events', async () => {
+    const emptyEvents = {
+      events: [
+        {},
+        {},
+        {},
+        {
+          title: 'Test Event 1',
+          type: 'event',
+          id: '1',
+        },
+        {
+          title: 'Test Event 2',
+          type: 'event',
+          id: '2',
+        },
+        {},
+        {},
+        {},
+      ],
+      event: {
+        title: 'All about Carlos demo event',
+        url: 'www.carlosvalente.com',
+        publicInfo: 'WiFi: demoproject \nPassword: ontimeproject',
+        backstageInfo: 'WiFi: demobackstage\nPassword: ontimeproject',
+        endMessage: '',
+      },
+      settings: {
+        app: 'ontime',
+        version: 1,
+        serverPort: 4001,
+        oscInPort: 8888,
+        oscOutPort: 9999,
+        oscOutIP: '127.0.0.1',
+        oscEnabled: false,
+        lock: false,
+      },
+    };
+
+    const parsedDef = await parseJsonv1(emptyEvents);
+    expect(parsedDef.events.length).toBe(2);
+  });
+
+  it('handles all empty events', async () => {
+    const emptyEvents = {
+      events: [{}, {}, {}, {}, {}, {}, {}, {}],
+      event: {
+        title: 'All about Carlos demo event',
+        url: 'www.carlosvalente.com',
+        publicInfo: 'WiFi: demoproject \nPassword: ontimeproject',
+        backstageInfo: 'WiFi: demobackstage\nPassword: ontimeproject',
+        endMessage: '',
+      },
+      settings: {
+        app: 'ontime',
+        version: 1,
+        serverPort: 4001,
+        oscInPort: 8888,
+        oscOutPort: 9999,
+        oscOutIP: '127.0.0.1',
+        oscEnabled: false,
+        lock: false,
+      },
+    };
+
+    const parsedDef = await parseJsonv1(emptyEvents);
+    expect(parsedDef.events.length).toBe(0);
+  });
+
+  it('handles missing event data', async () => {
+    const emptyEventData = {
+      events: [{}, {}, {}, {}, {}, {}, {}, {}],
+      event: {},
+      settings: {
+        app: 'ontime',
+        version: 1,
+        serverPort: 4001,
+        oscInPort: 8888,
+        oscOutPort: 9999,
+        oscOutIP: '127.0.0.1',
+        oscEnabled: false,
+        lock: false,
+      },
+    };
+
+    const parsedDef = await parseJsonv1(emptyEventData);
+    expect(parsedDef.event).toStrictEqual(dbModel.event);
+  });
+
+  it('handles missing settings', async () => {
+    const missingSettings = {
+      events: [{}, {}, {}, {}, {}, {}, {}, {}],
+      event: {},
+      settings: {
+        app: 'ontime',
+        version: 1,
+      },
+    };
+
+    const parsedDef = await parseJsonv1(missingSettings);
+    expect(parsedDef.settings).toStrictEqual(dbModel.settings);
+  });
+
+  it('fails with invalid JSON', async () => {
+    console.log = jest.fn();
+    const invalidJSON = 'some random dataset';
+    const parsedDef = await parseJsonv1(invalidJSON);
+    expect(console.log).toHaveBeenCalledWith('ERROR: Invalid JSON format');
+    expect(parsedDef).toBe(-1);
   });
 });
