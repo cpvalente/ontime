@@ -34,7 +34,7 @@ export const stringFromMillis = (
 };
 
 /**
- * @description Converts an excel UTC date to milliseconds
+ * @description Converts an excel date to milliseconds
  * @argument {string} excelDate - excel string date
  * @returns {number} - time in millisenconds
  */
@@ -42,9 +42,9 @@ export const excelDateStringToMillis = (excelDate) => {
   const date = new Date(excelDate);
 
   if (date instanceof Date && !isNaN(date)) {
-    const h = date.getUTCHours();
-    const m = date.getUTCMinutes();
-    const s = date.getUTCSeconds();
+    const h = date.getHours();
+    const m = date.getMinutes();
+    const s = date.getSeconds();
 
     return h * mth + m * mtm + s * mts;
   }

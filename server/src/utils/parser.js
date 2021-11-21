@@ -7,6 +7,7 @@ import {
 } from '../models/eventsDefinition.js';
 import { dbModelv1 } from '../models/dataModel.js';
 import { generateId } from './generate_id.js';
+import { excelDateStringToMillis } from './time.js';
 
 export const EXCEL_MIME =
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -35,7 +36,8 @@ export const fileHandler = async (file) => {
 
       // we only look at worksheets called ontime or event schedule
       if (excelData?.data) {
-        res.data = parseExcelv1(excelData.data);
+        const dataFromExcel = await parseExcelv1(excelData.data);
+        res.data = await parseJsonv1(dataFromExcel);
         res.message = 'success';
       } else {
         console.log('Error: No sheets found named ontime or event schedule');
@@ -52,7 +54,13 @@ export const fileHandler = async (file) => {
   if (file.endsWith('.json')) {
     // if json check version
     const rawdata = fs.readFileSync(file);
-    const uploadedJson = JSON.parse(rawdata);
+    let uploadedJson = null;
+
+    try {
+      uploadedJson = JSON.parse(rawdata);
+    } catch (error) {
+      return { error: true, message: 'Error parsing JSON file' };
+    }
 
     if (uploadedJson.settings.version === 1) {
       try {
@@ -108,9 +116,9 @@ export const parseExcelv1 = async (excelData) => {
           eventData.url = column;
           eventUrlNext = false;
         } else if (j === timeStartIndex) {
-          event.timeStart = column;
+          event.timeStart = excelDateStringToMillis(column);
         } else if (j === timeEndIndex) {
-          event.timeEnd = column;
+          event.timeEnd = excelDateStringToMillis(column);
         } else if (j === titleIndex) {
           event.title = column;
         } else if (j === presenterIndex) {
@@ -172,13 +180,18 @@ export const parseExcelv1 = async (excelData) => {
       if (Object.keys(event).length > 0) {
         // if any data was found, push to array
         // take care of it in the next step
-        events.push(event);
+        events.push({ ...event, type: 'event' });
       }
     });
 
-  console.log('========================');
-  console.log(eventData);
-  console.log(events);
+  return {
+    events,
+    event: eventData,
+    settings: {
+      app: 'ontime',
+      version: 1,
+    },
+  };
 };
 
 /**
