@@ -341,3 +341,83 @@ describe('test corrupt data', () => {
     expect(parsedDef).toBe(-1);
   });
 });
+
+describe('test event validator', () => {
+  // a valid event contains
+  // title type string
+  // subtittle type string
+  // presenter type string
+  // note type string
+  // timeStart type string
+  // timeEnd type string
+  // isPublic type boolean
+  // id type string
+  // type type string
+});
+
+// describe('test parseExcel function', () => {});
+
+const testdata = {
+  name: 'Event Schedule',
+  data: [
+    ['Ontime ┬À Schedule Template'],
+    [],
+    ['Event Name', 'Test Event'],
+    ['Event URL', 'www.carlosvalente.com'],
+    [],
+    [],
+    [
+      'Time Start',
+      'Time End',
+      'Event Title',
+      'Presenter Name',
+      'Event Subtitle',
+      'Is Public? (x)',
+      'Notes',
+    ],
+    [
+      '1899-12-30T07:00:00.000Z',
+      '1899-12-30T08:00:10.000Z',
+      'Guest Welcome',
+      'Carlos',
+      'Getting things started',
+      'x',
+      'Ballyhoo',
+    ],
+    [
+      '1899-12-30T08:00:00.000Z',
+      '1899-12-30T08:30:00.000Z',
+      'A song from the hearth',
+      'Still Carlos',
+      'Derailing early',
+      '<1 empty item>',
+      'Rainbow chase',
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+  ],
+};

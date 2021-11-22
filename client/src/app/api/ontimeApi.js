@@ -46,8 +46,6 @@ export const downloadEvents = async () => {
 };
 
 export const uploadEvents = async (file) => {
-  console.log(file);
-
   const formData = new FormData();
   formData.append('userFile', file); // appending file
   await axios
