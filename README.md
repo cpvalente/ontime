@@ -70,13 +70,13 @@ Almost reaching a feature set that we can call v1. Before that:
 - [ ] URL Aliases (define configurable aliases to ease onsite setup)
 - [ ] Logging view
 - [ ] Reach Schedule: way to speedup timer to meet a deadline
+- [ ] Excel Import
+- [ ] vMix integration
 
 ### Issues
 The app is still in pre-release and there are a few issues, mainly concerning style.
 This will be receiving attention as we near v1 release
 
-### iOS
-- [ ] Views do not render in iOS devices. this is being prioritized and will be fixed soon
 #### Style
 - [ ] App appears visually broken: Please ensure that windows settings have no display zoom (it is 125% by default)
 - [ ] app needs improvement on handling zoomed interfaces
