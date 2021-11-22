@@ -654,7 +654,7 @@ export class EventTimer extends Timer {
   }
 
   loadEventById(eventId) {
-    let eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
+    const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
 
     if (eventIndex === -1) return;
     this.pause();
@@ -662,7 +662,7 @@ export class EventTimer extends Timer {
   }
 
   loadEventByIndex(eventIndex) {
-    if (eventIndex === -1 || index > this.numEvents) return;
+    if (eventIndex === -1 || eventIndex > this.numEvents) return;
     this.pause();
     this.loadEvent(eventIndex, 'load', true);
   }

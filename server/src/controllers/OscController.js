@@ -71,7 +71,7 @@ export const initiateOSC = (config) => {
       case 'delay':
         console.log('calling delay with', args);
         try {
-          let t = parseInt(args);
+          const t = parseInt(args);
           if (isNaN(t)) {
             console.error(`OSC IN: delay time not recognised ${args}`);
             return;
@@ -84,13 +84,13 @@ export const initiateOSC = (config) => {
       case 'goto':
         console.log('calling goto with', args);
         try {
-          let eventIndex = parseInt(args);
+          const eventIndex = parseInt(args);
           if (isNaN(eventIndex) || eventIndex <= 0 || eventIndex == null) {
             console.error(
               `OSC IN: event index not recognised or out of range ${eventIndex}`
             );
           }
-          global.timer.loadEventByIndex(eventIndex - 1, undefined, true);
+          global.timer.loadEventByIndex(eventIndex - 1);
         } catch (error) {
           console.log('error calling goto: ', error);
         }
