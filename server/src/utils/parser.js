@@ -299,15 +299,31 @@ export const validateEventv1 = (eventArgs) => {
   if (Object.keys(eventArgs).length > 0) {
     // make sure all properties exits
     // dont load any extra properties than the ones known
+
+    const e = eventArgs;
+    const d = eventDef;
+
     event = {
-      ...eventDef,
-      title: eventArgs.title || eventDef.title,
-      subtitle: eventArgs.subtitle || eventDef.subtitle,
-      presenter: eventArgs.presenter || eventDef.presenter,
-      note: eventArgs.note || eventDef.note,
-      timeStart: eventArgs.timeStart || eventDef.timeStart,
-      timeEnd: eventArgs.timeEnd || eventDef.timeEnd,
-      isPublic: eventArgs.isPublic || eventDef.isPublic,
+      ...d,
+
+      title: e.title != null ? toString(e.title) || d.title : d.title,
+      subtitle:
+        e.subtitle != null ? toString(e.subtitle) || d.subtitle : d.subtitle,
+      presenter:
+        e.subtitle != null ? toString(e.presenter) || d.presenter : d.presenter,
+      note: e.subtitle != null ? toString(e.note) || d.note : d.note,
+      timeStart:
+        e.timeStart != null && typeof e.timeStart === 'number'
+          ? e.timeStart
+          : d.timeStart,
+      timeEnd:
+        e.timeEnd != null && typeof e.timeEnd === 'number'
+          ? e.timeEnd
+          : d.timeEnd,
+      isPublic:
+        e.isPublic != null && typeof e.isPublic === 'boolean'
+          ? e.isPublic
+          : d.isPublic,
       id,
       type: 'event',
     };

@@ -1,5 +1,5 @@
 import jest from 'jest-mock';
-import { parseJsonv1 } from '../parser.js';
+import { parseJsonv1, validateEventv1 } from '../parser.js';
 import { dbModelv1 as dbModel } from '../../models/dataModel.js';
 
 describe('test json parser with valid def', () => {
@@ -343,16 +343,67 @@ describe('test corrupt data', () => {
 });
 
 describe('test event validator', () => {
-  // a valid event contains
-  // title type string
-  // subtittle type string
-  // presenter type string
-  // note type string
-  // timeStart type string
-  // timeEnd type string
-  // isPublic type boolean
-  // id type string
-  // type type string
+  it('validates a good object', () => {
+    const event = {
+      title: 'test',
+    };
+    const validated = validateEventv1(event);
+
+    expect(validated).toEqual(
+      expect.objectContaining({
+        title: expect.any(String),
+        subtitle: expect.any(String),
+        presenter: expect.any(String),
+        note: expect.any(String),
+        timeStart: expect.any(Number),
+        timeEnd: expect.any(Number),
+        isPublic: expect.any(Boolean),
+        revision: expect.any(Number),
+        type: expect.any(String),
+        id: expect.any(String),
+      })
+    );
+  });
+
+  it('fails an empty object', () => {
+    const event = {};
+    const validated = validateEventv1(event);
+    expect(validated).toEqual(null);
+  });
+
+  it('makes objects strings', () => {
+    const event = {
+      title: 2,
+      subtitle: true,
+      presenter: 3.2,
+      note: '1899-12-30T08:00:10.000Z',
+    };
+    const validated = validateEventv1(event);
+    expect(typeof validated.title).toEqual('string');
+    expect(typeof validated.subtitle).toEqual('string');
+    expect(typeof validated.presenter).toEqual('string');
+    expect(typeof validated.note).toEqual('string');
+  });
+
+  it('enforces numbers on times', () => {
+    const event = {
+      timeStart: false,
+      timeEnd: '2',
+    };
+    const validated = validateEventv1(event);
+    expect(typeof validated.timeStart).toEqual('number');
+    expect(validated.timeStart).toEqual(0);
+    expect(typeof validated.timeEnd).toEqual('number');
+    expect(validated.timeEnd).toEqual(0);
+  });
+
+  it('handles bad objects', () => {
+    const event = {
+      title: {},
+    };
+    const validated = validateEventv1(event);
+    expect(typeof validated.title).toEqual('string');
+  });
 });
 
 // describe('test parseExcel function', () => {});
