@@ -285,6 +285,18 @@ export const parseJsonv1 = async (jsonData) => {
 };
 
 /**
+ * @description Ensures variable is string, it skips object types
+ * @param {any} val - variable to convert
+ * @param {string} fallback = '' - fallback value
+ * @returns {string} - value as string or fallback if not possibe
+ */
+export const makeString = (val, fallback = '') => {
+  if (typeof val === 'string') return val;
+  else if (val == null || val.constructor === Object) return fallback;
+  else return val.toString();
+};
+
+/**
  * @description Enforces formatting for events
  * @param {object} eventArgs - attributes of event
  * @returns {object|null} - formatted object or null in case is invalid
