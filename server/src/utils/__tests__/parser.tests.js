@@ -1,6 +1,12 @@
 import jest from 'jest-mock';
-import { parseJsonv1, validateEventv1 } from '../parser.js';
+import {
+  makeString,
+  parseExcelv1,
+  parseJsonv1,
+  validateEventv1,
+} from '../parser.js';
 import { dbModelv1 as dbModel } from '../../models/dataModel.js';
+import { describe } from 'jest-circus';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -406,69 +412,96 @@ describe('test event validator', () => {
   });
 });
 
-// describe('test parseExcel function', () => {});
+describe('test makeString function', () => {
+  it('converts variables to string', () => {
+    let val = 2;
+    let expected = '2';
+    let converted = makeString(val);
+    expect(converted).toBe(expected);
 
-const testdata = {
-  name: 'Event Schedule',
-  data: [
-    ['Ontime ┬À Schedule Template'],
-    [],
-    ['Event Name', 'Test Event'],
-    ['Event URL', 'www.carlosvalente.com'],
-    [],
-    [],
-    [
-      'Time Start',
-      'Time End',
-      'Event Title',
-      'Presenter Name',
-      'Event Subtitle',
-      'Is Public? (x)',
-      'Notes',
-    ],
-    [
-      '1899-12-30T07:00:00.000Z',
-      '1899-12-30T08:00:10.000Z',
-      'Guest Welcome',
-      'Carlos',
-      'Getting things started',
-      'x',
-      'Ballyhoo',
-    ],
-    [
-      '1899-12-30T08:00:00.000Z',
-      '1899-12-30T08:30:00.000Z',
-      'A song from the hearth',
-      'Still Carlos',
-      'Derailing early',
-      '<1 empty item>',
-      'Rainbow chase',
-    ],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-  ],
-};
+    val = 2.22222222;
+    expected = '2.22222222';
+    converted = makeString(val);
+    expect(converted).toBe(expected);
+
+    val = ['testing'];
+    expected = 'testing';
+    converted = makeString(val);
+    expect(converted).toBe(expected);
+
+    val = { doing: 'testing' };
+    expected = 'testing';
+    converted = makeString(val, 'fallback');
+    expect(converted).toBe('fallback');
+  });
+});
+
+describe('test parseExcel function', () => {
+  it('parses the example file', async () => {
+    const testdata = [
+      ['Ontime ┬À Schedule Template'],
+      [],
+      ['Event Name', 'Test Event'],
+      ['Event URL', 'www.carlosvalente.com'],
+      [],
+      [],
+      [
+        'Time Start',
+        'Time End',
+        'Event Title',
+        'Presenter Name',
+        'Event Subtitle',
+        'Is Public? (x)',
+        'Notes',
+      ],
+      [
+        '1899-12-30T07:00:00.000Z',
+        '1899-12-30T08:00:10.000Z',
+        'Guest Welcome',
+        'Carlos',
+        'Getting things started',
+        'x',
+        'Ballyhoo',
+      ],
+      [
+        '1899-12-30T08:00:00.000Z',
+        '1899-12-30T08:30:00.000Z',
+        'A song from the hearth',
+        'Still Carlos',
+        'Derailing early',
+        '',
+        'Rainbow chase',
+      ],
+      [],
+    ];
+
+    const expectedParsedEvents = [
+      {
+        timeStart: 28800000,
+        timeEnd: 32410000,
+        title: 'Guest Welcome',
+        presenter: 'Carlos',
+        subtitle: 'Getting things started',
+        isPublic: true,
+        note: 'Ballyhoo',
+        type: 'event',
+      },
+      {
+        timeStart: 32400000,
+        timeEnd: 34200000,
+        title: 'A song from the hearth',
+        presenter: 'Still Carlos',
+        subtitle: 'Derailing early',
+        isPublic: false,
+        note: 'Rainbow chase',
+        type: 'event',
+      },
+    ];
+
+    const parsedData = await parseExcelv1(testdata);
+
+    expect(parsedData.events).toBeDefined();
+    expect(parsedData.events).toStrictEqual(expectedParsedEvents);
+    expect(parsedData.events).toStrictEqual(expectedParsedEvents);
+  });
+});

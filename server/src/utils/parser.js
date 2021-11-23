@@ -318,12 +318,10 @@ export const validateEventv1 = (eventArgs) => {
     event = {
       ...d,
 
-      title: e.title != null ? toString(e.title) || d.title : d.title,
-      subtitle:
-        e.subtitle != null ? toString(e.subtitle) || d.subtitle : d.subtitle,
-      presenter:
-        e.subtitle != null ? toString(e.presenter) || d.presenter : d.presenter,
-      note: e.subtitle != null ? toString(e.note) || d.note : d.note,
+      title: makeString(e.title, d.title),
+      subtitle: makeString(e.subtitle, d.subtitle),
+      presenter: makeString(e.presenter, d.presenter),
+      note: makeString(e.note, d.note),
       timeStart:
         e.timeStart != null && typeof e.timeStart === 'number'
           ? e.timeStart
