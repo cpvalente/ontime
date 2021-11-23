@@ -57,6 +57,9 @@ export default function MenuBar(props) {
     } catch (error) {
       console.log(error);
     }
+
+    // reset input value
+    hiddenFileInput.current.value = '';
   };
 
   const handleIPC = (action) => {
