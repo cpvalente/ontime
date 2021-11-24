@@ -1,5 +1,5 @@
 import express from 'express';
-import uploadJson from '../utils/upload.js';
+import { uploadFile } from '../utils/upload.js';
 export const router = express.Router();
 
 import {
@@ -14,10 +14,10 @@ import {
 router.get('/db', dbDownload);
 
 // create route between controller and '/ontime/db' endpoint
-router.post('/db', uploadJson, dbUpload);
+router.post('/db', uploadFile, dbUpload);
 
 // create route between controller and '/ontime/info' endpoint
-router.get('/info', uploadJson, getInfo);
+router.get('/info', uploadFile, getInfo);
 
 // create route between controller and '/ontime/info' endpoint
 router.post('/info', postInfo);

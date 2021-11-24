@@ -33,14 +33,33 @@ export default function MenuBar(props) {
 
   const handleUpload = (event) => {
     const fileUploaded = event.target.files[0];
-
     if (fileUploaded == null) return;
+    console.log(fileUploaded);
+
+    // Limit file size to 1MB
+    if (fileUploaded.size > 1000000) {
+      console.log('Error: File size limit (1MB) exceeded');
+      return;
+    }
+
+    // Check file extension
+    if (fileUploaded.name.endsWith('.xlsx')) {
+      console.log('excel file');
+    } else if (fileUploaded.name.endsWith('.json')) {
+      console.log('json file');
+    } else {
+      console.log('Error: File type unknown');
+      return;
+    }
 
     try {
       uploaddb.mutate(fileUploaded);
     } catch (error) {
       console.log(error);
     }
+
+    // reset input value
+    hiddenFileInput.current.value = '';
   };
 
   const handleIPC = (action) => {
@@ -102,7 +121,7 @@ export default function MenuBar(props) {
         style={{ display: 'none' }}
         ref={hiddenFileInput}
         onChange={handleUpload}
-        accept='.json'
+        accept='.json, .xlsx'
       />
       <UploadIconBtn
         style={{ fontSize: '1.5em' }}

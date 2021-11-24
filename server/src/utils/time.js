@@ -1,3 +1,7 @@
+const mts = 1000; // millis to seconds
+const mtm = 1000 * 60; // millis to minutes
+const mth = 1000 * 60 * 60; // millis to hours
+
 /**
  * @description Converts milliseconds to string representing time
  * @param {number} ms - time in milliseconds
@@ -18,13 +22,31 @@ export const stringFromMillis = (
   const millis = Math.abs(ms);
 
   const showWith0 = (value) => (value < 10 ? `0${value}` : value);
-  const hours = showWith0(Math.floor(((millis / (1000 * 60 * 60)) % 60) % 24));
-  const minutes = showWith0(Math.floor((millis / (1000 * 60)) % 60));
-  const seconds = showWith0(Math.floor((millis / 1000) % 60));
+  const hours = showWith0(Math.floor(((millis / mth) % 60) % 24));
+  const minutes = showWith0(Math.floor((millis / mtm) % 60));
+  const seconds = showWith0(Math.floor((millis / mts) % 60));
 
   return showSeconds
     ? `${isNegative}${
         parseInt(hours) ? `${hours}${delim}` : `00${delim}`
       }${minutes}${delim}${seconds}`
     : `${isNegative}${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
+};
+
+/**
+ * @description Converts an excel date to milliseconds
+ * @argument {string} excelDate - excel string date
+ * @returns {number} - time in millisenconds
+ */
+export const excelDateStringToMillis = (excelDate) => {
+  const date = new Date(excelDate);
+
+  if (date instanceof Date && !isNaN(date)) {
+    const h = date.getHours();
+    const m = date.getMinutes();
+    const s = date.getSeconds();
+
+    return h * mth + m * mtm + s * mts;
+  }
+  return null;
 };

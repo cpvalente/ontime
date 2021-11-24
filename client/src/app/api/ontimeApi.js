@@ -47,7 +47,7 @@ export const downloadEvents = async () => {
 
 export const uploadEvents = async (file) => {
   const formData = new FormData();
-  formData.append('jsondb', file); // appending file
+  formData.append('userFile', file); // appending file
   await axios
     .post(ontimeURL + '/db', formData, {
       headers: {
