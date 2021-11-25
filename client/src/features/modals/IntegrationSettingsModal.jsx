@@ -13,7 +13,7 @@ import { APP_TABLE } from 'app/api/apiConstants';
 import { showErrorToast } from 'common/helpers/toastManager';
 import style from './Modals.module.scss';
 
-export default function IntegrationSettings() {
+export default function IntegrationSettingsModal() {
   const { data, status } = useFetch(APP_TABLE, getInfo);
   const [formData, setFormData] = useState(ontimePlaceholderInfo);
   const [changed, setChanged] = useState(false);

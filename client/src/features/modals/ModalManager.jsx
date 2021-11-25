@@ -10,7 +10,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/tabs';
 import EventSettingsModal from './EventSettingsModal';
 import AppSettingsModal from './AppSettingsModal';
 import AliasesModal from './AliasesModal';
-import IntegrationSettings from './IntegrationSettings';
+import IntegrationSettingsModal from './IntegrationSettingsModal';
 
 export default function ModalManager(props) {
   const { isOpen, onClose } = props;
@@ -45,7 +45,7 @@ export default function ModalManager(props) {
               <AliasesModal />
             </TabPanel>
             <TabPanel>
-              <IntegrationSettings />
+              <IntegrationSettingsModal />
             </TabPanel>
           </TabPanels>
         </Tabs>
