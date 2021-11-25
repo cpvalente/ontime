@@ -1,9 +1,4 @@
-//////////////////////////////////// variables
-
-$light-bg: #2b6cb0;
-$light-bg-transparent: #2b6cb055;
-$light-text: #2b6cb022;
-$accent: #ff7597;
+@use '../../styles/variables' as *;
 
 //////////////////////////////////// main
 
