@@ -1,5 +1,11 @@
 import { ModalBody } from '@chakra-ui/modal';
-import { FormLabel, FormControl, Input, Button } from '@chakra-ui/react';
+import {
+  FormLabel,
+  FormControl,
+  Input,
+  Button,
+  Switch,
+} from '@chakra-ui/react';
 import { getInfo, ontimePlaceholderInfo, postInfo } from 'app/api/ontimeApi';
 import { useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
@@ -7,7 +13,7 @@ import { APP_TABLE } from 'app/api/apiConstants';
 import { showErrorToast } from 'common/helpers/toastManager';
 import style from './Modals.module.scss';
 
-export default function AppSettingsModal() {
+export default function IntegrationSettings() {
   const { data, status } = useFetch(APP_TABLE, getInfo);
   const [formData, setFormData] = useState(ontimePlaceholderInfo);
   const [changed, setChanged] = useState(false);
@@ -64,67 +70,16 @@ export default function AppSettingsModal() {
           {status === 'success' && (
             <>
               <p className={style.notes}>
-                Options related to the application
+                Integrate with with third party over an HTTP API
                 <br />
                 !!! Changes take effect after app restart !!!
               </p>
-
-              <FormControl id='serverPort'>
-                <FormLabel htmlFor='serverPort'>
-                  Viewer Port
-                  <span className={style.notes}>Port to access viewers</span>
-                </FormLabel>
-                <Input
-                  size='sm'
-                  name='title'
-                  placeholder='4001'
-                  autoComplete='off'
-                  value={4001}
-                  readOnly
-                  style={{ width: '6em', textAlign: 'center' }}
-                />
-                <span className={style.notes}>(Read Only Value)</span>
-              </FormControl>
-              <FormControl id='oscInPort'>
-                <FormLabel htmlFor='oscInPort'>
-                  OSC In Port
-                  <span className={style.notes}>
-                    <br />
-                    App Control - Default 8888
-                  </span>
-                </FormLabel>
-                <Input
-                  size='sm'
-                  name='oscInPort'
-                  placeholder='8888'
-                  autoComplete='off'
-                  type='number'
-                  value={formData.oscInPort}
-                  min='1024'
-                  max='65535'
-                  onChange={(event) => {
-                    setChanged(true);
-                    setFormData({
-                      ...formData,
-                      oscInPort: parseInt(event.target.value),
-                    });
-                  }}
-                  isDisabled={submitting}
-                  style={{ width: '6em', textAlign: 'center' }}
-                />
-              </FormControl>
               <div className={style.modalInline}>
-                <FormControl id='oscOutIP' width='auto'>
-                  <FormLabel htmlFor='oscOutIP'>
-                    OSC Out Target IP
-                    <span className={style.notes}>
-                      <br />
-                      App Feedback - Default 127.0.0.1
-                    </span>
-                  </FormLabel>
+                <FormControl id='targetIp' width='auto'>
+                  <FormLabel htmlFor='targetIp'>Target IP Address</FormLabel>
                   <Input
                     size='sm'
-                    name='oscOutIP'
+                    name='targetIp'
                     placeholder='127.0.0.1'
                     autoComplete='off'
                     value={formData.oscOutIP}
@@ -136,38 +91,96 @@ export default function AppSettingsModal() {
                       });
                     }}
                     isDisabled={submitting}
-                    style={{ width: '12em', textAlign: 'right' }}
+                    style={{ width: '10em', textAlign: 'right' }}
                   />
                 </FormControl>
-                <FormControl id='oscOutPort' width='auto'>
-                  <FormLabel htmlFor='oscOutPort'>
-                    OSC Out Port
-                    <span className={style.notes}>
-                      <br />
-                      Default 9999
-                    </span>
+                <FormControl id='targetPort'>
+                  <FormLabel htmlFor='targetPort'>
+                    Target Port
+                    <span className={style.notes}>Default 8088</span>
                   </FormLabel>
                   <Input
                     size='sm'
-                    name='oscOutPort'
-                    placeholder='9999'
+                    name='targetPort'
+                    placeholder='8088'
                     autoComplete='off'
                     type='number'
-                    value={formData.oscOutPort}
+                    value={formData.oscInPort}
                     min='1024'
                     max='65535'
                     onChange={(event) => {
                       setChanged(true);
                       setFormData({
                         ...formData,
-                        oscOutPort: parseInt(event.target.value),
+                        oscInPort: parseInt(event.target.value),
                       });
                     }}
                     isDisabled={submitting}
-                    style={{ width: '6em', textAlign: 'left' }}
+                    style={{ width: '5em', textAlign: 'center' }}
                   />
                 </FormControl>
+
+                <FormControl id='enable' width='auto'>
+                  <FormLabel htmlFor='enable'>Enable</FormLabel>
+                  <Switch id='enable' />
+                </FormControl>
               </div>
+              <div className={style.highNotes}>
+                <p className={style.flexNote}>
+                  Add below HTTP messages that ontime will end at every trigger
+                  of the event app cycle <br />
+                  You can also use the variables below inline with the defined
+                  URL to pass data directly from ontime to a third party
+                  application
+                </p>
+                <ul>
+                  <li>
+                    <b>$timer</b> - Current running title
+                  </li>
+                  <li>
+                    <b>$title</b> - Current running title
+                  </li>
+                  <li>
+                    <b>$presenter</b> - Current running title
+                  </li>
+                  <li>
+                    <b>$subtitle</b> - Current running title
+                  </li>
+                  <li>
+                    <b>$next-title</b> - Current running title
+                  </li>
+                  <li>
+                    <b>$next-presenter</b> - Current running title
+                  </li>
+                  <li>
+                    <b>$next-subtitle</b> - Current running title
+                  </li>
+                </ul>
+              </div>
+              <h2>Ontime Lifecycle</h2>
+              <h3>
+                On Load
+                <span className={style.notes}>When a new event loads</span>
+              </h3>
+
+              <h3>
+                On Start
+                <span className={style.notes}>
+                  When an timer starts playing
+                </span>
+              </h3>
+              <h3>
+                On Update
+                <span className={style.notes}>At every clock tick</span>
+              </h3>
+              <h3>
+                On Pause
+                <span className={style.notes}>When a timer pauses</span>
+              </h3>
+              <h3>
+                On Stop
+                <span className={style.notes}>When an event is unloaded</span>
+              </h3>
             </>
           )}
           <div className={style.submitContainer}>

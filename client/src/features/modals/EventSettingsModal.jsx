@@ -10,7 +10,7 @@ import { fetchEvent, postEvent } from 'app/api/eventApi';
 import { useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { EVENT_TABLE } from 'app/api/apiConstants';
-import style from './Modals.module.css';
+import style from './Modals.module.scss';
 
 export default function SettingsModal() {
   const { data, status } = useFetch(EVENT_TABLE, fetchEvent);
@@ -160,14 +160,16 @@ export default function SettingsModal() {
               </FormControl>
             </>
           )}
-          <Button
-            colorScheme='blue'
-            type='submit'
-            isLoading={submitting}
-            disabled={!changed}
-          >
-            Save
-          </Button>
+          <div className={style.submitContainer}>
+            <Button
+              colorScheme='blue'
+              type='submit'
+              isLoading={submitting}
+              disabled={!changed}
+            >
+              Save
+            </Button>
+          </div>
         </ModalBody>
       </form>
     </>

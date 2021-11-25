@@ -1,60 +1,81 @@
+//////////////////////////////////// variables
+
+$light-bg: #2b6cb0;
+$light-bg-transparent: #2b6cb055;
+$light-text: #2b6cb022;
+$accent: #ff7597;
+
+//////////////////////////////////// main
+
 .modalBody {
   font-weight: 400;
+
+  .notes {
+    font-weight: 400;
+    color: $light-bg;
+  }
+
+  .separator {
+    border: 1px solid $light-bg-transparent;
+    width: 50%;
+    margin: 0.5em auto;
+  }
+
+  .modalInline {
+    display: flex;
+    gap: 2em;
+  }
+
+  .submitContainer {
+    display: flex;
+    flex-direction: row-reverse;
+
+    button {
+      margin-top: 1em;
+    }
+  }
 }
 
 .modalBody > * {
   margin-top: 0.5em;
 }
 
-.modalBody > button {
-  margin-top: 1em;
-}
-
-.notes {
-  font-weight: 400;
-  color: #2b6cb0;
-}
-
-p.notes {
+//////////////////////////////////// notes
+p {
+  &.notes {
   text-align: center;
-  border-color: #2b6cb055;
+  border-color: $light-bg-transparent;
   border-width: 0 2px;
   font-size: 0.9em;
   margin-bottom: 1em;
+  }
 }
 
-span.notes {
-  font-size: 0.8em;
-  padding-left: 0.4em;
-}
-
-.modalInline {
-  display: flex;
-  gap: 2em;
+span {
+  &.notes {
+    font-size: 0.8em;
+    padding-left: 0.4em;
+  }
 }
 
 .highNotes {
-  background-color: #2b6cb022;
+  background-color: $light-text;
   margin: 1em 0;
   padding: 0.3em;
-}
 
-.flexNote {
+  .flexNote {
   font-size: 0.9em;
   padding-bottom: 0.3em;
+  }
 }
 
-a::after {
-  content: '  \2197';
-  color: #ff7597;
-}
-
-a:hover {
-  color: #ff7597;
-}
-
-.separator {
-  border: 1px solid #2b6cb055;
-  width: 50%;
-  margin: 0.5em auto;
+// Define style for a link
+a {
+  &::after {
+    content: '  \2197';
+    color: $accent;
+  }
+  &:hover {
+    color: $accent;
+  }
 }

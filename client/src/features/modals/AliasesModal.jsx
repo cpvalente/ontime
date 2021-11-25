@@ -1,4 +1,4 @@
-import { IconButton } from '@chakra-ui/button';
+import { Button, IconButton } from '@chakra-ui/button';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
@@ -6,7 +6,7 @@ import { fetchEvent } from 'app/api/eventApi';
 import { useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { EVENT_TABLE } from 'app/api/apiConstants';
-import style from './Modals.module.css';
+import style from './Modals.module.scss';
 
 export default function AliasesModal() {
   const { data, status, isError } = useFetch(EVENT_TABLE, fetchEvent);
@@ -34,7 +34,7 @@ export default function AliasesModal() {
             !!! Feature is not yet implemented !!!
           </p>
 
-          <span> Default URLs </span>
+          <span>Default URLs</span>
 
           <div className={style.highNotes}>
             <p className={style.flexNote}>
@@ -83,7 +83,7 @@ export default function AliasesModal() {
             </p>
           </div>
 
-          <span> Manage custom aliases</span>
+          <span>Manage custom aliases</span>
           <div className={style.modalInline}>
             <Input
               size='sm'
@@ -144,6 +144,16 @@ export default function AliasesModal() {
               colorScheme='blue'
               disabled
             />
+          </div>
+          <div className={style.submitContainer}>
+            <Button
+              colorScheme='blue'
+              type='submit'
+              isLoading={submitting}
+              disabled={true}
+            >
+              Save
+            </Button>
           </div>
         </ModalBody>
       </form>
