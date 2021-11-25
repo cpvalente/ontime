@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSocket } from 'app/context/socketContext';
-import style from './Info.module.css';
+import style from './Info.module.scss';
 import InfoTitle from './InfoTitle';
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';

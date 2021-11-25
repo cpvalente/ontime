@@ -66,7 +66,7 @@ export default function AppSettingsModal() {
               <p className={style.notes}>
                 Options related to the application
                 <br />
-                !!! Changes take effect after app restart !!!
+                🔥 Changes take effect after app restart 🔥
               </p>
 
               <FormControl id='serverPort'>

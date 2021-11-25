@@ -5,6 +5,12 @@ import {
   Input,
   Button,
   Switch,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionIcon,
+  AccordionPanel,
+  Box,
 } from '@chakra-ui/react';
 import { getInfo, ontimePlaceholderInfo, postInfo } from 'app/api/ontimeApi';
 import { useEffect, useState } from 'react';
@@ -72,7 +78,7 @@ export default function IntegrationSettingsModal() {
               <p className={style.notes}>
                 Integrate with with third party over an HTTP API
                 <br />
-                !!! Changes take effect after app restart !!!
+                🔥 Changes take effect after app restart 🔥
               </p>
               <div className={style.modalInline}>
                 <FormControl id='targetIp' width='auto'>
@@ -125,62 +131,148 @@ export default function IntegrationSettingsModal() {
                   <Switch id='enable' />
                 </FormControl>
               </div>
-              <div className={style.highNotes}>
-                <p className={style.flexNote}>
-                  Add below HTTP messages that ontime will end at every trigger
-                  of the event app cycle <br />
-                  You can also use the variables below inline with the defined
-                  URL to pass data directly from ontime to a third party
-                  application
-                </p>
-                <ul>
-                  <li>
-                    <b>$timer</b> - Current running title
-                  </li>
-                  <li>
-                    <b>$title</b> - Current running title
-                  </li>
-                  <li>
-                    <b>$presenter</b> - Current running title
-                  </li>
-                  <li>
-                    <b>$subtitle</b> - Current running title
-                  </li>
-                  <li>
-                    <b>$next-title</b> - Current running title
-                  </li>
-                  <li>
-                    <b>$next-presenter</b> - Current running title
-                  </li>
-                  <li>
-                    <b>$next-subtitle</b> - Current running title
-                  </li>
-                </ul>
-              </div>
-              <h2>Ontime Lifecycle</h2>
-              <h3>
-                On Load
-                <span className={style.notes}>When a new event loads</span>
-              </h3>
+              <Accordion allowToggle>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        Help
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4} className={style.highNotes}>
+                    <p>
+                      Add HTTP messages that ontime will send during the app
+                      lifecycle
+                    </p>
+                    <p>
+                      You can also use the variables below, inline with the
+                      defined URL, to pass data directly from ontime
+                    </p>
+                    <table>
+                      <tr>
+                        <td className={style.noteItem}>$timer</td>
+                        <td>Current running timer</td>
+                      </tr>
+                      <tr>
+                        <td className={style.noteItem}>$title</td>
+                        <td>Current title</td>
+                      </tr>
+                      <tr>
+                        <td className={style.noteItem}>$presenter</td>
+                        <td>Current presenter</td>
+                      </tr>
+                      <tr>
+                        <td className={style.noteItem}>$subtitle</td>
+                        <td>Current subtitle</td>
+                      </tr>
+                      <tr>
+                        <td className={style.noteItem}>$next-title</td>
+                        <td>Next title</td>
+                      </tr>
+                      <tr>
+                        <td className={style.noteItem}>$next-presenter</td>
+                        <td>Next presenter</td>
+                      </tr>
+                      <tr>
+                        <td className={style.noteItem}>$next-subtitle</td>
+                        <td>Next subtitle</td>
+                      </tr>
+                    </table>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
 
-              <h3>
-                On Start
-                <span className={style.notes}>
-                  When an timer starts playing
-                </span>
-              </h3>
-              <h3>
-                On Update
-                <span className={style.notes}>At every clock tick</span>
-              </h3>
-              <h3>
-                On Pause
-                <span className={style.notes}>When a timer pauses</span>
-              </h3>
-              <h3>
-                On Stop
-                <span className={style.notes}>When an event is unloaded</span>
-              </h3>
+              <h2>Ontime Lifecycle</h2>
+              <Accordion allowToggle>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        On Load
+                        <span className={style.notes}>
+                          When a new event loads
+                        </span>
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <div className={style.highNotes}>
+                      <p className={style.flexNote}>s</p>
+                    </div>
+                  </AccordionPanel>
+                </AccordionItem>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        On Start
+                        <span className={style.notes}>
+                          When an timer starts / resumes
+                        </span>
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <div className={style.highNotes}>
+                      <p className={style.flexNote}>s</p>
+                    </div>
+                  </AccordionPanel>
+                </AccordionItem>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        On Update
+                        <span className={style.notes}>At every clock tick</span>
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <div className={style.highNotes}>
+                      <p className={style.flexNote}>s</p>
+                    </div>
+                  </AccordionPanel>
+                </AccordionItem>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        On Pause
+                        <span className={style.notes}>When a timer pauses</span>
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <div className={style.highNotes}>
+                      <p className={style.flexNote}>s</p>
+                    </div>
+                  </AccordionPanel>
+                </AccordionItem>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        On Stop
+                        <span className={style.notes}>
+                          When an event is unloaded
+                        </span>
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <div className={style.highNotes}>
+                      <p className={style.flexNote}>s</p>
+                    </div>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
             </>
           )}
           <div className={style.submitContainer}>

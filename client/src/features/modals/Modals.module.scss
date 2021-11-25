@@ -29,6 +29,7 @@
       margin-top: 1em;
     }
   }
+
 }
 
 .modalBody > * {
@@ -57,10 +58,21 @@ span {
   background-color: $light-text;
   margin: 1em 0;
   padding: 0.3em;
+  font-size: 0.9em;
+
+  table {
+    margin-top: 0.3em;
+  }
+
+  .noteItem {
+    user-select: text;
+    font-weight: 700;
+    padding-right: 2em;
+  }
 
   .flexNote {
-  font-size: 0.9em;
-  padding-bottom: 0.3em;
+    user-select: text;
+    padding-bottom: 0.3em;
   }
 }
 

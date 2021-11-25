@@ -31,7 +31,7 @@ export default function AliasesModal() {
           <p className={style.notes}>
             Configure easy to use URL Aliases
             <br />
-            !!! Feature is not yet implemented !!!
+            ❄️ Feature is not yet implemented ❄️
           </p>
 
           <span>Default URLs</span>

@@ -122,6 +122,7 @@ export default function SettingsModal() {
                   name='backstageInfo'
                   placeholder='Information to be shown on backstage screens'
                   autoComplete='off'
+                  resize={false}
                   value={formData.backstageInfo}
                   onChange={(event) => {
                     setChanged(true);

@@ -1,0 +1,11 @@
+//////////////////////////////////// general app style
+
+// no decoration on lists
+ul {
+  list-style-type: none;
+}
+
+// no resizing on text areas
+textarea {
+  resize: none !important;
+}
