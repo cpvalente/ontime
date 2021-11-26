@@ -5,14 +5,13 @@ import {
   Input,
   Button,
   Switch,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionIcon,
-  AccordionPanel,
-  Box,
 } from '@chakra-ui/react';
-import { getInfo, ontimePlaceholderInfo, postInfo } from 'app/api/ontimeApi';
+import {
+  getInfo,
+  httpPlaceholder,
+  ontimeVars,
+  postInfo,
+} from 'app/api/ontimeApi';
 import { useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { APP_TABLE } from 'app/api/apiConstants';
@@ -21,17 +20,26 @@ import style from './Modals.module.scss';
 
 export default function IntegrationSettingsModal() {
   const { data, status } = useFetch(APP_TABLE, getInfo);
-  const [formData, setFormData] = useState(ontimePlaceholderInfo);
+  const [formData, setFormData] = useState(httpPlaceholder);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const ready = status === 'success';
+  const integrationInputProps = {
+    size: 'sm',
+    autoComplete: 'off',
+    isDisabled: submitting || !ready,
+  };
 
   useEffect(() => {
     if (data == null) return;
 
     setFormData({
-      oscInPort: data.oscInPort,
-      oscOutPort: data.oscOutPort,
-      oscOutIP: data.oscOutIP,
+      onLoad: data?.onLoad,
+      onStart: data?.onStart,
+      onUpdate: data?.onUpdate,
+      onPause: data?.onPause,
+      onStop: data?.onStop,
     });
   }, [data]);
 
@@ -41,21 +49,6 @@ export default function IntegrationSettingsModal() {
     const f = formData;
     let e = { status: false, message: '' };
 
-    // Validate fields
-    if (f.oscInPort < 1024 || f.oscInPort > 65535) {
-      // Port in incorrect range
-      e.status = true;
-      e.message += 'OSC IN Port in incorrect range (1024 - 65535)';
-    } else if (f.oscOutPort < 1024 || f.oscOutPort > 65535) {
-      // Port in incorrect range
-      e.status = true;
-      e.message += 'OSC OUT Port in incorrect range (1024 - 65535)';
-    } else if (f.oscInPort === f.oscOutPort) {
-      // Cant use the same port
-      e.status = true;
-      e.message += 'OSC IN and OUT Ports cant be the same';
-    }
-
     // set fields with error
     if (e.status) {
       showErrorToast('Invalid Input', e.message);
@@ -63,7 +56,7 @@ export default function IntegrationSettingsModal() {
     }
 
     // Post here
-    postInfo(formData);
+    postInfo(f);
 
     setChanged(false);
     setSubmitting(false);
@@ -72,215 +65,230 @@ export default function IntegrationSettingsModal() {
   return (
     <>
       <form onSubmit={submitHandler}>
-        <ModalBody className={style.modalBody}>
-          {status === 'success' && (
-            <>
-              <p className={style.notes}>
-                Integrate with with third party over an HTTP API
-                <br />
-                🔥 Changes take effect after app restart 🔥
+        <ModalBody
+          className={ready ? style.modalBody : style.modalBodyDisabled}
+        >
+          <>
+            <p className={style.notes}>
+              Integrate with third party over an HTTP API
+              <br />
+              🔥 Changes take effect after app restart 🔥
+            </p>
+            <div className={style.highNotes}>
+              <p>
+                Add HTTP messages that ontime will send during the app lifecycle
               </p>
-              <div className={style.modalInline}>
-                <FormControl id='targetIp' width='auto'>
-                  <FormLabel htmlFor='targetIp'>Target IP Address</FormLabel>
-                  <Input
-                    size='sm'
-                    name='targetIp'
-                    placeholder='127.0.0.1'
-                    autoComplete='off'
-                    value={formData.oscOutIP}
-                    onChange={(event) => {
-                      setChanged(true);
-                      setFormData({
-                        ...formData,
-                        oscOutIP: event.target.value,
-                      });
-                    }}
-                    isDisabled={submitting}
-                    style={{ width: '10em', textAlign: 'right' }}
-                  />
-                </FormControl>
-                <FormControl id='targetPort'>
-                  <FormLabel htmlFor='targetPort'>
-                    Target Port
-                    <span className={style.notes}>Default 8088</span>
-                  </FormLabel>
-                  <Input
-                    size='sm'
-                    name='targetPort'
-                    placeholder='8088'
-                    autoComplete='off'
-                    type='number'
-                    value={formData.oscInPort}
-                    min='1024'
-                    max='65535'
-                    onChange={(event) => {
-                      setChanged(true);
-                      setFormData({
-                        ...formData,
-                        oscInPort: parseInt(event.target.value),
-                      });
-                    }}
-                    isDisabled={submitting}
-                    style={{ width: '5em', textAlign: 'center' }}
-                  />
-                </FormControl>
+              <p>
+                You can use the variables below to pass data directly from
+                ontime eg:
+                <span className={style.emNote}>
+                  http://127.0.0.1:8088/API/?setHeadline=<b>$title</b>
+                  &setSub=<b>$presenter</b>
+                </span>
+              </p>
 
-                <FormControl id='enable' width='auto'>
-                  <FormLabel htmlFor='enable'>Enable</FormLabel>
-                  <Switch id='enable' />
-                </FormControl>
-              </div>
-              <Accordion allowToggle>
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex='1' textAlign='left'>
-                        Help
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4} className={style.highNotes}>
-                    <p>
-                      Add HTTP messages that ontime will send during the app
-                      lifecycle
-                    </p>
-                    <p>
-                      You can also use the variables below, inline with the
-                      defined URL, to pass data directly from ontime
-                    </p>
-                    <table>
-                      <tr>
-                        <td className={style.noteItem}>$timer</td>
-                        <td>Current running timer</td>
-                      </tr>
-                      <tr>
-                        <td className={style.noteItem}>$title</td>
-                        <td>Current title</td>
-                      </tr>
-                      <tr>
-                        <td className={style.noteItem}>$presenter</td>
-                        <td>Current presenter</td>
-                      </tr>
-                      <tr>
-                        <td className={style.noteItem}>$subtitle</td>
-                        <td>Current subtitle</td>
-                      </tr>
-                      <tr>
-                        <td className={style.noteItem}>$next-title</td>
-                        <td>Next title</td>
-                      </tr>
-                      <tr>
-                        <td className={style.noteItem}>$next-presenter</td>
-                        <td>Next presenter</td>
-                      </tr>
-                      <tr>
-                        <td className={style.noteItem}>$next-subtitle</td>
-                        <td>Next subtitle</td>
-                      </tr>
-                    </table>
-                  </AccordionPanel>
-                </AccordionItem>
-              </Accordion>
+              <table>
+                {ontimeVars.map((v) => (
+                  <tr>
+                    <td className={style.noteItem}>{v.name}</td>
+                    <td>{v.description}</td>
+                  </tr>
+                ))}
+              </table>
+            </div>
 
-              <h2>Ontime Lifecycle</h2>
-              <Accordion allowToggle>
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex='1' textAlign='left'>
-                        On Load
-                        <span className={style.notes}>
-                          When a new event loads
-                        </span>
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    <div className={style.highNotes}>
-                      <p className={style.flexNote}>s</p>
-                    </div>
-                  </AccordionPanel>
-                </AccordionItem>
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex='1' textAlign='left'>
-                        On Start
-                        <span className={style.notes}>
-                          When an timer starts / resumes
-                        </span>
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    <div className={style.highNotes}>
-                      <p className={style.flexNote}>s</p>
-                    </div>
-                  </AccordionPanel>
-                </AccordionItem>
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex='1' textAlign='left'>
-                        On Update
-                        <span className={style.notes}>At every clock tick</span>
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    <div className={style.highNotes}>
-                      <p className={style.flexNote}>s</p>
-                    </div>
-                  </AccordionPanel>
-                </AccordionItem>
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex='1' textAlign='left'>
-                        On Pause
-                        <span className={style.notes}>When a timer pauses</span>
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    <div className={style.highNotes}>
-                      <p className={style.flexNote}>s</p>
-                    </div>
-                  </AccordionPanel>
-                </AccordionItem>
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex='1' textAlign='left'>
-                        On Stop
-                        <span className={style.notes}>
-                          When an event is unloaded
-                        </span>
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    <div className={style.highNotes}>
-                      <p className={style.flexNote}>s</p>
-                    </div>
-                  </AccordionPanel>
-                </AccordionItem>
-              </Accordion>
-            </>
-          )}
+            <h2>Ontime Lifecycle</h2>
+            <div className={style.accordion}>
+              <FormLabel>
+                On Load
+                <span className={style.notes}>When a new event loads</span>
+              </FormLabel>
+              <FormControl id='onLoad' className={style.modalInline}>
+                <Input
+                  {...integrationInputProps}
+                  name='onLoadURL'
+                  value={formData?.onLoad?.url}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onLoad: {
+                        ...formData.onLoad,
+                        url: event.target.value,
+                      },
+                    });
+                  }}
+                />
+                <Switch
+                  colorScheme='green'
+                  id='onLoadEnable'
+                  value={formData?.onLoad?.enabled}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onLoad: {
+                        ...formData.onLoad,
+                        enabled: event.target.value,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+              <FormLabel>
+                On Start
+                <span className={style.notes}>
+                  When an timer starts / resumes
+                </span>
+              </FormLabel>
+              <FormControl id='onStart' className={style.modalInline}>
+                <Input
+                  {...integrationInputProps}
+                  name='onStartURL'
+                  value={formData?.onStart?.url}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onStart: {
+                        ...formData.onStart,
+                        url: event.target.value,
+                      },
+                    });
+                  }}
+                />
+                <Switch
+                  colorScheme='green'
+                  id='onStartEnable'
+                  value={formData?.onStart?.enabled}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onStart: {
+                        ...formData.onStart,
+                        enabled: event.target.value,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+              <FormLabel>
+                On Update
+                <span className={style.notes}>At every clock tick</span>
+              </FormLabel>
+              <FormControl id='onUpdate' className={style.modalInline}>
+                <Input
+                  {...integrationInputProps}
+                  name='onUpdateURL'
+                  value={formData?.onUpdate?.url}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onUpdate: {
+                        ...formData.onUpdate,
+                        url: event.target.value,
+                      },
+                    });
+                  }}
+                />
+                <Switch
+                  colorScheme='green'
+                  id='onUpdateEnable'
+                  value={formData?.onUpdate?.enabled}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onUpdate: {
+                        ...formData.onUpdate,
+                        enabled: event.target.value,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+              <FormLabel>
+                On Pause
+                <span className={style.notes}>When a timer pauses</span>
+              </FormLabel>
+              <FormControl id='onPause' className={style.modalInline}>
+                <Input
+                  {...integrationInputProps}
+                  name='onPauseURL'
+                  value={formData?.onPause?.url}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onPause: {
+                        ...formData.onPause,
+                        url: event.target.value,
+                      },
+                    });
+                  }}
+                />
+                <Switch
+                  colorScheme='green'
+                  id='onPauseEnable'
+                  value={formData?.onPause?.enabled}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onPause: {
+                        ...formData.onPause,
+                        enabled: event.target.value,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+              <FormLabel>
+                On Stop
+                <span className={style.notes}>When an event is unloaded</span>
+              </FormLabel>
+              <FormControl id='onStop' className={style.modalInline}>
+                <Input
+                  {...integrationInputProps}
+                  name='onStopURL'
+                  value={formData?.onStop?.url}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onStop: {
+                        ...formData.onStop,
+                        url: event.target.value,
+                      },
+                    });
+                  }}
+                />
+                <Switch
+                  colorScheme='green'
+                  id='onStopEnable'
+                  value={formData?.onStop?.enabled}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onStop: {
+                        ...formData.onStop,
+                        enabled: event.target.value,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+            </div>
+          </>
           <div className={style.submitContainer}>
             <Button
               colorScheme='blue'
               type='submit'
               isLoading={submitting}
-              disabled={!changed}
+              disabled={!changed || !ready}
             >
               Save
             </Button>

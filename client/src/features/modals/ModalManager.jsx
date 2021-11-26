@@ -29,10 +29,10 @@ export default function ModalManager(props) {
 
         <Tabs size='sm' isLazy>
           <TabList>
-            <Tab>Event Settings</Tab>
-            <Tab>Application Settings</Tab>
-            <Tab>URL Aliases</Tab>
-            <Tab>3rd Party Integration</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>Event Data</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>Application Settings</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>URL Aliases</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>Integration</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>

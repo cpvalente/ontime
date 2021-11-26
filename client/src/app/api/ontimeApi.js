@@ -10,6 +10,60 @@ export const ontimePlaceholderInfo = {
   oscOutIP: '',
 };
 
+export const httpPlaceholder = {
+  onLoad: {
+    url: '',
+    enabled: false,
+  },
+  onStart: {
+    url: '',
+    enabled: false,
+  },
+  onUpdate: {
+    url: '',
+    enabled: false,
+  },
+  onPause: {
+    url: '',
+    enabled: false,
+  },
+  onStop: {
+    url: '',
+    enabled: false,
+  },
+};
+
+export const ontimeVars = [
+  {
+    name: '$timer',
+    description: 'Current running timer',
+  },
+  {
+    name: '$title',
+    description: 'Current title',
+  },
+  {
+    name: '$presenter',
+    description: 'Current presenter',
+  },
+  {
+    name: '$subtitle',
+    description: 'Current subtitle',
+  },
+  {
+    name: '$next-title',
+    description: 'Next title',
+  },
+  {
+    name: '$next-presenter',
+    description: 'Next presenter',
+  },
+  {
+    name: '$next-subtitle',
+    description: 'Next subtitle',
+  },
+];
+
 export const getInfo = async () => {
   const res = await axios.get(ontimeURL + '/info');
   return res.data;

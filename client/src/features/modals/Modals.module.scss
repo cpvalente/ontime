@@ -2,7 +2,8 @@
 
 //////////////////////////////////// main
 
-.modalBody {
+.modalBody,
+.modalBodyDisabled {
   font-weight: 400;
 
   .notes {
@@ -19,6 +20,7 @@
   .modalInline {
     display: flex;
     gap: 2em;
+    align-items: center;
   }
 
   .submitContainer {
@@ -32,7 +34,8 @@
 
 }
 
-.modalBody > * {
+.modalBody > *,
+.modalBodyDisabled > * {
   margin-top: 0.5em;
 }
 
@@ -61,6 +64,8 @@ span {
   font-size: 0.9em;
 
   table {
+    background-color: $light-text;
+    width: 100%;
     margin-top: 0.3em;
   }
 
@@ -73,6 +78,11 @@ span {
   .flexNote {
     user-select: text;
     padding-bottom: 0.3em;
+  }
+
+  .emNote {
+    display: block;
+    background-color: #fffc;
   }
 }
 
