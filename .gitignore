@@ -33,3 +33,9 @@ _SS/
 db backup.json
 server/src/data/db.json
 server/src/models/db.json
+
+# webstorm stuff
+.idea/modules.xml
+.idea/ontime.iml
+.idea/vcs.xml
+.idea/inspectionProfiles/Project_Default.xml
