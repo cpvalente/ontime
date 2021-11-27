@@ -1,6 +1,10 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useEffect, useState } from 'react';
-import { stringFromMillis, timeStringToMillis } from '../utils/dateConfig';
+import {
+  isTimeString,
+  stringFromMillis,
+  timeStringToMillis,
+} from '../utils/dateConfig';
 import { showErrorToast } from '../helpers/toastManager';
 import style from './EditableTimer.module.css';
 
@@ -27,6 +31,9 @@ export default function EditableTimer(props) {
   const handleSubmit = (value) => {
     // Check if there is anything there
     if (value === '') return false;
+
+    // check if its valid time string
+    if (!isTimeString(value)) return false;
 
     // ensure we have seconds
     const val = value.split(':').length === 3 ? value : `${value}:00`;
@@ -58,13 +65,7 @@ export default function EditableTimer(props) {
       className={delay > 0 ? style.delayedEditable : style.editable}
     >
       <EditablePreview />
-      <EditableInput
-        type='time'
-        placeholder='--:--:--'
-        min='00:00:00'
-        max='23:59:59'
-        step='1'
-      />
+      <EditableInput type='text' placeholder='--:--:--' />
     </Editable>
   );
 }
