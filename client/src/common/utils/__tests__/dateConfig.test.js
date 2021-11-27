@@ -213,4 +213,34 @@ describe('test timeStringToMillis function', () => {
     const t = { val: '1:00:00', result: 3600000 };
     expect(timeStringToMillis(t.val)).toBe(t.result);
   });
+
+  it('test with 1', () => {
+    const t = { val: '1', result: 1000 };
+    expect(timeStringToMillis(t.val)).toBe(t.result);
+  });
+
+  it('test with 120', () => {
+    const t = { val: '120', result: 120000 };
+    expect(timeStringToMillis(t.val)).toBe(t.result);
+  });
+
+  it('test with 56', () => {
+    const t = { val: '56', result: 56000 };
+    expect(timeStringToMillis(t.val)).toBe(t.result);
+  });
+
+  it('test with 2:3', () => {
+    const t = { val: '2:3', result: 123000 };
+    expect(timeStringToMillis(t.val)).toBe(t.result);
+  });
+
+  it('test with 02:3', () => {
+    const t = { val: '02:3', result: 123000 };
+    expect(timeStringToMillis(t.val)).toBe(t.result);
+  });
+
+  it('test with 2:03', () => {
+    const t = { val: '2:03', result: 123000 };
+    expect(timeStringToMillis(t.val)).toBe(t.result);
+  });
 });
