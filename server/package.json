@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "0.3.2",
+  "version": "0.4.1",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -25,6 +25,7 @@
   },
   "scripts": {
     "nodestart": "NODE_ENV=development node src/app.js",
+    "prep":  "cp data/db.json src/data/db.json",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
     "pack": "electron-builder --dir",
