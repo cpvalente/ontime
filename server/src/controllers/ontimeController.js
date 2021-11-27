@@ -95,9 +95,13 @@ const getNetworkInterfaces = () => {
 export const getInfo = async (req, res) => {
   const version = data.settings.version;
   const serverPort = data.settings.serverPort;
-  const oscInPort = data.settings.oscInPort;
-  const oscOutPort = data.settings.oscOutPort;
-  const oscOutIP = data.settings.oscOutIP;
+
+  const osc = {
+    port: data.osc.port,
+    portOut: data.osc.portOut,
+    targetIP: data.osc.targetIP,
+    enabled: data.osc.enabled,
+  };
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
@@ -108,9 +112,7 @@ export const getInfo = async (req, res) => {
     networkInterfaces: ni,
     version,
     serverPort,
-    oscInPort,
-    oscOutPort,
-    oscOutIP,
+    osc,
   });
 };
 
@@ -124,6 +126,31 @@ export const postInfo = async (req, res) => {
   // TODO: validate data
   try {
     data.settings = { ...data.settings, ...req.body };
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+    console.log(error);
+  }
+};
+
+// Create controller for POST request to '/ontime/osc'
+// Returns -
+export const getOSC = async (req, res) => {
+  // send object with network information
+  res.status(200).send(data.osc);
+};
+
+// Create controller for POST request to '/ontime/osc'
+// Returns ACK message
+export const postOSC = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  // TODO: validate data
+  try {
+    data.osc = { ...data.osc, ...req.body };
     await db.write();
     res.sendStatus(200);
   } catch (error) {

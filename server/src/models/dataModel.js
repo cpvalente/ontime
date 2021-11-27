@@ -11,10 +11,12 @@ export const dbModelv1 = {
     app: 'ontime',
     version: 1,
     serverPort: 4001,
-    oscInPort: 8888,
-    oscOutPort: 9999,
-    oscOutIP: '127.0.0.1',
-    oscEnabled: false,
-    lock: false,
+    lock: null,
+  },
+  osc: {
+    port: 8888,
+    portOut: 9999,
+    targetIP: '127.0.0.1',
+    enabled: true,
   },
 };

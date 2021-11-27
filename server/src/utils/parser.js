@@ -271,11 +271,9 @@ export const parseJsonv1 = async (jsonData) => {
     if (s.app == null || s.version == null) {
       console.log('ERROR: unknown app version, skipping');
     } else {
-      let settings = {};
-
-      if (s.oscInPort) settings.oscInPort = s.oscInPort;
-      if (s.oscOutPort) settings.oscOutPort = s.oscOutPort;
-      if (s.oscOutIP) settings.oscOutIP = s.oscOutIP;
+      let settings = {
+        lock: s.lock || null,
+      };
 
       // write to db
       returnData.settings = {
@@ -283,6 +281,24 @@ export const parseJsonv1 = async (jsonData) => {
         ...settings,
       };
     }
+  }
+
+  // Import OSC settings if any
+  if ('osc' in jsonData) {
+    console.log('Found OSC definition, importing...');
+    const s = jsonData.osc;
+    let osc = {};
+
+    if (s.port) osc.port = s.port;
+    if (s.portOut) osc.portOut = s.portOut;
+    if (s.targetIP) osc.targetIP = s.targetIP;
+    if (s.enabled) osc.enabled = s.enabled;
+
+    // write to db
+    returnData.osc = {
+      ...dbModelv1.osc,
+      ...osc,
+    };
   }
 
   return returnData;

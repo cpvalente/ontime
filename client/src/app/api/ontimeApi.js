@@ -3,11 +3,17 @@ import { ontimeURL } from './apiConstants';
 
 export const ontimePlaceholderInfo = {
   networkInterfaces: [],
-  version: '',
-  serverPort: 4001,
-  oscInPort: '',
-  oscOutPort: '',
-  oscOutIP: '',
+  settings: {
+    version: '',
+    serverPort: 4001,
+  },
+};
+
+export const oscPlaceholderSettings = {
+  port: '',
+  portOut: '',
+  targetIP: '',
+  enabled: true,
 };
 
 export const httpPlaceholder = {
@@ -71,6 +77,16 @@ export const getInfo = async () => {
 
 export const postInfo = async (data) => {
   const res = await axios.post(ontimeURL + '/info', data);
+  return res;
+};
+
+export const getOSC = async () => {
+  const res = await axios.get(ontimeURL + '/osc');
+  return res.data;
+};
+
+export const postOSC = async (data) => {
+  const res = await axios.post(ontimeURL + '/osc', data);
   return res;
 };
 

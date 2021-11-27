@@ -267,11 +267,7 @@ describe('test corrupt data', () => {
         app: 'ontime',
         version: 1,
         serverPort: 4001,
-        oscInPort: 8888,
-        oscOutPort: 9999,
-        oscOutIP: '127.0.0.1',
-        oscEnabled: false,
-        lock: false,
+        lock: null,
       },
     };
 
@@ -293,11 +289,7 @@ describe('test corrupt data', () => {
         app: 'ontime',
         version: 1,
         serverPort: 4001,
-        oscInPort: 8888,
-        oscOutPort: 9999,
-        oscOutIP: '127.0.0.1',
-        oscEnabled: false,
-        lock: false,
+        lock: null,
       },
     };
 
@@ -313,11 +305,7 @@ describe('test corrupt data', () => {
         app: 'ontime',
         version: 1,
         serverPort: 4001,
-        oscInPort: 8888,
-        oscOutPort: 9999,
-        oscOutIP: '127.0.0.1',
-        oscEnabled: false,
-        lock: false,
+        lock: null,
       },
     };
 
@@ -477,8 +465,8 @@ describe('test parseExcel function', () => {
 
     const expectedParsedEvents = [
       {
-        timeStart: 28800000,
-        timeEnd: 32410000,
+        timeStart: 25200000,
+        timeEnd: 28810000,
         title: 'Guest Welcome',
         presenter: 'Carlos',
         subtitle: 'Getting things started',
@@ -487,8 +475,8 @@ describe('test parseExcel function', () => {
         type: 'event',
       },
       {
-        timeStart: 32400000,
-        timeEnd: 34200000,
+        timeStart: 28800000,
+        timeEnd: 30600000,
         title: 'A song from the hearth',
         presenter: 'Still Carlos',
         subtitle: 'Derailing early',
