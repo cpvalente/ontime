@@ -35,23 +35,20 @@ export default function EditableTimer(props) {
     // check if its valid time string
     if (!isTimeString(value)) return false;
 
-    // ensure we have seconds
-    const val = value.split(':').length === 3 ? value : `${value}:00`;
+    // convert entered value to milliseconds
+    const newValMillis = timeStringToMillis(value);
 
     // Time now and time submitedVal
-    const original = stringFromMillis(time + delay, true);
+    const originalMillis = time + delay;
 
     // check if time is different from before
-    if (val === original) return false;
-
-    // convert to millis object
-    const millis = timeStringToMillis(val);
+    if (newValMillis === originalMillis) return false;
 
     // validate with parent
-    if (!validate(name, millis)) return false;
+    if (!validate(name, newValMillis)) return false;
 
     // update entry
-    actionHandler('update', { field: name, value: millis });
+    actionHandler('update', { field: name, value: newValMillis });
 
     return true;
   };
