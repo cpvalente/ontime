@@ -90,8 +90,31 @@ export const millisToMinutes = (millis) => {
 export const timeStringToMillis = (string) => {
   if (typeof string !== 'string') return 0;
   const time = string.split(':');
-  if (time.length === 2) return Math.abs(time[0]) * mth + time[1];
+  if (time.length === 1) return Math.abs(time[0] * mts);
+  if (time.length === 2) return Math.abs(time[0]) * mtm + time[1] * mts;
   if (time.length === 3)
     return Math.abs(time[0]) * mth + time[1] * mtm + time[2] * mts;
   else return 0;
+};
+
+/**
+ * @description Validates a time string
+ * @param {string} string - time string "23:00:12"
+ * @returns {boolean} string represents time
+ */
+
+// isTimeString
+export const isTimeString = (string) => {
+  // ^                   # Start of string
+  // (?:                 # Try to match...
+  //  (?:                #  Try to match...
+  //   ([01]?\d|2[0-3]): #   HH:
+  //  )?                 #  (optionally).
+  //  ([0-5]?\d):        #  MM: (required)
+  // )?                  # (entire group optional, so either HH:MM:, MM: or nothing)
+  // ([0-5]?\d)          # SS (required)
+  // $                   # End of string
+
+  const regex = /^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$/;
+  return regex.test(string);
 };

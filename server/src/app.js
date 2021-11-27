@@ -34,7 +34,6 @@ import ua from 'universal-analytics';
 let isValid = validateFile(file);
 
 if (isValid) {
-  console.log('reading this');
   // Read data from JSON file, this will set db.data content
   await db.read();
 }

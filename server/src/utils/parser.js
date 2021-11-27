@@ -227,10 +227,14 @@ export const parseJsonv1 = async (jsonData) => {
           numEntries++;
         }
       } else if (e.type === 'delay') {
-        events.push({ ...delayDef, duration: e.duration });
+        events.push({
+          ...delayDef,
+          duration: e.duration,
+          id: e.id || generateId(),
+        });
         numEntries++;
       } else if (e.type === 'block') {
-        events.push({ ...blockDef });
+        events.push({ ...blockDef, id: e.id || generateId() });
         numEntries++;
       } else {
         console.log('ERROR: undefined event type, skipping');

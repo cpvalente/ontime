@@ -1,6 +1,10 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useEffect, useState } from 'react';
-import { stringFromMillis, timeStringToMillis } from '../utils/dateConfig';
+import {
+  isTimeString,
+  stringFromMillis,
+  timeStringToMillis,
+} from '../utils/dateConfig';
 import { showErrorToast } from '../helpers/toastManager';
 import style from './EditableTimer.module.css';
 
@@ -28,23 +32,23 @@ export default function EditableTimer(props) {
     // Check if there is anything there
     if (value === '') return false;
 
-    // ensure we have seconds
-    const val = value.split(':').length === 3 ? value : `${value}:00`;
+    // check if its valid time string
+    if (!isTimeString(value)) return false;
+
+    // convert entered value to milliseconds
+    const newValMillis = timeStringToMillis(value);
 
     // Time now and time submitedVal
-    const original = stringFromMillis(time + delay, true);
+    const originalMillis = time + delay;
 
     // check if time is different from before
-    if (val === original) return false;
-
-    // convert to millis object
-    const millis = timeStringToMillis(val);
+    if (newValMillis === originalMillis) return false;
 
     // validate with parent
-    if (!validate(name, millis)) return false;
+    if (!validate(name, newValMillis)) return false;
 
     // update entry
-    actionHandler('update', { field: name, value: millis });
+    actionHandler('update', { field: name, value: newValMillis });
 
     return true;
   };
@@ -58,13 +62,7 @@ export default function EditableTimer(props) {
       className={delay > 0 ? style.delayedEditable : style.editable}
     >
       <EditablePreview />
-      <EditableInput
-        type='time'
-        placeholder='--:--:--'
-        min='00:00:00'
-        max='23:59:59'
-        step='1'
-      />
+      <EditableInput type='text' placeholder='--:--:--' />
     </Editable>
   );
 }
