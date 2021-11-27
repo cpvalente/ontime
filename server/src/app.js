@@ -117,12 +117,12 @@ app.use((err, req, res, next) => {
  *
  */
 
-const s = data.settings;
-const oscIP = s.oscOutIP || config.osc.ipOut;
-const oscOutPort = s.oscOutPort || config.osc.portOut;
-const oscInPort = s.oscInPort || config.osc.port;
+const osc = data.osc;
+const oscIP = osc.targetIP || config.osc.targetIP;
+const oscOutPort = osc.portOut || config.osc.portOut;
+const oscInPort = osc.port || config.osc.port;
 
-const serverPort = s.serverPort || config.server.port;
+const serverPort = data.settings.serverPort || config.server.port;
 
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
