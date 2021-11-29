@@ -1,4 +1,10 @@
 /**
+ * Utility variable: 24 hour in milliseconds .
+ * @type {number}
+ */
+export const DAY_TO_MS = 86400000;
+
+/**
  * @description Sorts an array of objects by given property
  * @param {array} arr - array to be sorted
  * @param {string} property - property to compare

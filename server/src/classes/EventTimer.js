@@ -1,6 +1,6 @@
 import { Timer } from './Timer.js';
 import { Server } from 'socket.io';
-import { getSelectionByRoll } from './classUtils.js';
+import {DAY_TO_MS, getSelectionByRoll} from './classUtils.js';
 
 /*
  * EventTimer adds functions specific to APP
@@ -11,8 +11,23 @@ import { getSelectionByRoll } from './classUtils.js';
  */
 
 export class EventTimer extends Timer {
-  // AUX
-  DAYMS = 86400000;
+
+  // Keep track of Timer lifecycle
+  // idle: before it is initialised
+  // load: when a new event is loaded
+  // update: every update call cycle (1 x second)
+  // stop: when the timer is stopped
+  // finish: when a timer finishes
+  cycleState = {
+    idle: 'idle',
+    onLoad: 'onLoad',
+    onStart: 'onStart',
+    onUpdate: 'onUpdate',
+    onPause: 'onPause',
+    onStop: 'onStop',
+    onFinish: 'onFinish',
+  };
+  ontimeCycle = 'idle';
 
   // Socket IO Object
   io = null;
@@ -231,7 +246,38 @@ export class EventTimer extends Timer {
     this.io.emit(address, payload);
   }
 
+  /**
+   * @description Runs at the start and ends of every cycle,
+   * and checks what actions are to be taken according to
+   * ontimeCycle
+   */
+  runCycle() {
+    switch (this.ontimeCycle) {
+      case "idle":
+        break;
+      case "onLoad":
+        break;
+      case "onStart":
+        break;
+      case "onUpdate":
+        break;
+      case "onPause":
+        break;
+      case "onStop":
+        break;
+      case "onFinish":
+        // finished an event
+        break;
+      default:
+        console.log(`ERROR: Unhandled cycle ${this.ontimeCycle}`)
+    }
+  }
+
   update() {
+
+    // update lifecycle
+    this.runCycle()
+
     // if there is nothing selected, do nothing
     if (this.selectedEventId == null && this.state !== 'roll') return;
     const now = this._getCurrentTime();
@@ -256,7 +302,7 @@ export class EventTimer extends Timer {
         this.secondaryTimer <= 0 && this.secondaryTimer !== null;
 
       if (currentRunning) {
-        // finished an event
+        // update lifecycle: onFinish
         this.sendOSC('finished');
         this._finishedFlag = true;
       }
@@ -279,9 +325,13 @@ export class EventTimer extends Timer {
       if (this._finishedAt === null) {
         this._finishedAt = now;
       }
+      // update lifecycle: onFinish
       this.sendOSC('finished');
       this._finishedFlag = true;
     }
+
+    // update lifecycle
+    this.runCycle()
   }
 
   _setterManager(action, payload) {
@@ -678,7 +728,7 @@ export class EventTimer extends Timer {
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
     let end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
     // in case the end is earlier than start, we assume is the day after
-    if (end < start) end += this.DAYMS;
+    if (end < start) end += DAY_TO_MS;
 
     // time stuff changes on wheter we keep the running clock
 
