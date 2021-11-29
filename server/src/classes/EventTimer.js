@@ -252,21 +252,40 @@ export class EventTimer extends Timer {
    * ontimeCycle
    */
   runCycle() {
+    // update lifecycle: onFinish
+//    this.ontimeCycle = this.cycleState.onStart;
     switch (this.ontimeCycle) {
       case "idle":
         break;
       case "onLoad":
+        // broadcast change
+        this.broadcastState(false);
         break;
       case "onStart":
+        // broadcast current state
+        this.broadcastState(false);
+        // send OSC
+        this.sendOSC('play');
         break;
       case "onUpdate":
         break;
       case "onPause":
+        // broadcast current state
+        this.broadcastState(false);
+        // send OSC
+        this.sendOSC('pause');
         break;
       case "onStop":
+        // broadcast change
+        this.broadcastState(false);
+        // send OSC
+        this.sendOSC('stop');
+        // update lifecycle: idle
+        this.ontimeCycle = this.cycleState.idle;
         break;
       case "onFinish":
         // finished an event
+        this.sendOSC('finished');
         break;
       default:
         console.log(`ERROR: Unhandled cycle ${this.ontimeCycle}`)
@@ -274,13 +293,15 @@ export class EventTimer extends Timer {
   }
 
   update() {
-
-    // update lifecycle
-    this.runCycle()
-
     // if there is nothing selected, do nothing
     if (this.selectedEventId == null && this.state !== 'roll') return;
     const now = this._getCurrentTime();
+    const isUpdating = (this.state === 'start' || this.state === 'roll');
+
+    if (isUpdating) {
+      // update lifecycle: onUpdate
+       this.ontimeCycle = this.cycleState.onUpdate;
+    }
 
     // only implement roll here
     if (this.state !== 'roll') {
@@ -303,31 +324,29 @@ export class EventTimer extends Timer {
 
       if (currentRunning) {
         // update lifecycle: onFinish
-        this.sendOSC('finished');
-        this._finishedFlag = true;
+        this.ontimeCycle = this.cycleState.onFinish;
       }
 
       if (currentRunning || secondaryRunning) {
         // look for events
         this.rollLoad();
-
         // broadcast state without recalculating timer
-        this.broadcastState(false);
+        // this.broadcastState(false);
       }
     }
 
+
     // if event is finished
     if (
-      this.current <= 0 &&
-      (this.state === 'start' || this.state === 'roll') &&
-      !this._finishedFlag
+      this.current <= 0
+      && isUpdating
+      && this.ontimeCycle !== this.cycleState.onFinish
     ) {
       if (this._finishedAt === null) {
         this._finishedAt = now;
       }
       // update lifecycle: onFinish
-      this.sendOSC('finished');
-      this._finishedFlag = true;
+      this.ontimeCycle = this.cycleState.onFinish;
     }
 
     // update lifecycle
@@ -569,8 +588,8 @@ export class EventTimer extends Timer {
     this._eventlist = [];
     this.numEvents = 0;
 
-    // broadcast change
-    this.broadcastState();
+    // update lifecycle: onStop
+    this.ontimeCycle = this.cycleState.onStop;
   }
 
   setupWithEventList(eventlist) {
@@ -630,8 +649,6 @@ export class EventTimer extends Timer {
       const type = this._startedAt != null ? 'reload' : 'load';
       this.loadEvent(eventIndex, type);
     }
-
-    this.broadcastState();
   }
 
   updateSingleEvent(id, entry) {
@@ -669,8 +686,6 @@ export class EventTimer extends Timer {
     } catch (error) {
       console.log(error);
     }
-
-    this.broadcastState();
   }
 
   deleteId(eventId) {
@@ -699,8 +714,6 @@ export class EventTimer extends Timer {
     } else if (eventId === this.selectedPublicEventId) {
       this._loadTitlesNow();
     }
-
-    this.broadcastState();
   }
 
   loadEventById(eventId) {
@@ -721,7 +734,7 @@ export class EventTimer extends Timer {
   // load timers
   // load selectedEventIndex
   // load titles
-  loadEvent(eventIndex, type = 'load', broadcastChange = 'false') {
+  loadEvent(eventIndex, type = 'load') {
     const e = this._eventlist[eventIndex];
     if (e == null) return;
 
@@ -730,7 +743,7 @@ export class EventTimer extends Timer {
     // in case the end is earlier than start, we assume is the day after
     if (end < start) end += DAY_TO_MS;
 
-    // time stuff changes on wheter we keep the running clock
+    // time stuff changes on whether we keep the running clock
 
     if (type === 'load') {
       this._resetTimers();
@@ -754,9 +767,8 @@ export class EventTimer extends Timer {
     // look for event after
     this._loadTitlesNext();
 
-    if (broadcastChange)
-      // broadcast current state
-      this.broadcastState();
+    // update lifecycle: onLoad
+    this.ontimeCycle = this.cycleState.onLoad;
   }
 
   _loadTitlesNow() {
@@ -1006,11 +1018,8 @@ export class EventTimer extends Timer {
     // call super
     super.start();
 
-    // broadcast current state
-    this.broadcastState();
-
-    // send OSC
-    this.sendOSC('play');
+    // update lifecycle: onStart
+    this.ontimeCycle = this.cycleState.onStart;
   }
 
   pause() {
@@ -1020,28 +1029,25 @@ export class EventTimer extends Timer {
     // call super
     super.pause();
 
-    // broadcast current state
-    this.broadcastState();
+    // update lifecycle: onPause
+    this.ontimeCycle = this.cycleState.onPause;
 
-    // send OSC
-    this.sendOSC('pause');
   }
 
   stop() {
     // call super
     super.stop();
 
-    // broadcast current state
-    this.broadcastState();
-
-    // send OSC
-    this.sendOSC('stop');
+    // update lifecycle: onPause
+    this.ontimeCycle = this.cycleState.onStop;
   }
 
   increment(amount) {
     // call super
     super.increment(amount);
 
+    // increment is unhandled by lifecyle
+    // broadcast here
     // broadcast current state
     this.broadcastState();
   }
