@@ -197,10 +197,11 @@ export const parseExcelv1 = async (excelData) => {
 /**
  * @description JSON parser function for v1 of data system
  * @argument {object} jsonData - json data JSON object to be parsed
+ * @argument {boolean} [enforce=false] - flag, tells to create an object anyway
  * @returns {object} - parsed object
  */
 
-export const parseJsonv1 = async (jsonData) => {
+export const parseJsonv1 = async (jsonData, enforce=false) => {
   if (!jsonData || typeof jsonData !== 'object') {
     console.log('ERROR: Invalid JSON format');
     return -1;
@@ -213,9 +214,9 @@ export const parseJsonv1 = async (jsonData) => {
     let events = [];
     let ids = [];
     for (const e of jsonData.events) {
-      // doublecheck unique ids
+      // double check unique ids
       if (ids.indexOf(e?.id) !== -1) {
-        console.log('ERROR: ID colision on import, skipping');
+        console.log('ERROR: ID collision on import, skipping');
         continue;
       }
 
@@ -243,13 +244,17 @@ export const parseJsonv1 = async (jsonData) => {
     // write to db
     returnData.events = events;
     console.log(`Uploaded file with ${numEntries} entries`);
+  } else if (enforce) {
+    returnData.events = [];
+    console.log(`Created events object in db`);
   }
 
   if ('event' in jsonData) {
     console.log('Found event data, importing...');
     const e = jsonData.event;
-    // filter known properties
-    const event = {
+
+    // filter known properties and write to db
+    returnData.event = {
       ...dbModelv1.event,
       title: e.title || dbModelv1.event.title,
       url: e.url || dbModelv1.event.url,
@@ -257,9 +262,9 @@ export const parseJsonv1 = async (jsonData) => {
       backstageInfo: e.backstageInfo || dbModelv1.event.backstageInfo,
       endMessage: e.endMessage || dbModelv1.event.endMessage,
     };
-
-    // write to db
-    returnData.event = event;
+  } else if (enforce) {
+    returnData.event = dbModelv1.event;
+    console.log(`Created event object in db`);
   }
 
   // Settings handled partially
@@ -281,6 +286,9 @@ export const parseJsonv1 = async (jsonData) => {
         ...settings,
       };
     }
+  } else if (enforce) {
+    returnData.settings = dbModelv1.settings;
+    console.log(`Created settings object in db`);
   }
 
   // Import OSC settings if any
@@ -299,6 +307,9 @@ export const parseJsonv1 = async (jsonData) => {
       ...dbModelv1.osc,
       ...osc,
     };
+  } else if (enforce) {
+    returnData.osc = dbModelv1.osc;
+    console.log(`Created osc object in db`);
   }
 
   return returnData;

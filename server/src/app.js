@@ -48,8 +48,8 @@ if (db.data == null || !isValid) {
 
 // get data
 // there is also the case of the db being corrupt
-// try to parse the data
-export const data = await parseJson(db.data);
+// try to parse the data, make sure that all fields exist (enforce)
+export const data = await parseJson(db.data, true);
 db.data = data;
 await db.write();
 
@@ -85,7 +85,7 @@ app.use('/ontime', ontimeRouter);
 // serve react
 app.use(
   express.static(
-    path.join(__dirname, env == 'prod' ? '../' : '../../', 'client/build')
+    path.join(__dirname, env === 'prod' ? '../' : '../../', 'client/build')
   )
 );
 
@@ -93,7 +93,7 @@ app.get('*', (req, res) => {
   res.sendFile(
     path.resolve(
       __dirname,
-      env == 'prod' ? '../' : '../../',
+      env === 'prod' ? '../' : '../../',
       'client',
       'build',
       'index.html'
@@ -111,15 +111,15 @@ app.use((err, req, res, next) => {
  * ----------------
  *
  * Configuration of services comes from app general config
- * It can be overriden here by the settings in the db
- * It can also be overriden on call
+ * It can be overridden here by the settings in the db
+ * It can also be overridden on call
  *
  */
 
 const osc = data.osc;
-const oscIP = osc.targetIP || config.osc.targetIP;
-const oscOutPort = osc.portOut || config.osc.portOut;
-const oscInPort = osc.port || config.osc.port;
+const oscIP = osc?.targetIP || config.osc.targetIP;
+const oscOutPort = osc?.portOut || config.osc.portOut;
+const oscInPort = osc?.port || config.osc.port;
 
 const serverPort = data.settings.serverPort || config.server.port;
 
@@ -176,7 +176,7 @@ export const startServer = async (overrideConfig = null) => {
 export const shutdown = async () => {
   console.log('Node service shutdown');
 
-  user.event('NODE', 'shutdown', 'requesting node shutfown').send();
+  user.event('NODE', 'shutdown', 'requesting node shutdown').send();
 
   // shutdown express server
   server.close();
