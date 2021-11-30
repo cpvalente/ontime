@@ -248,11 +248,12 @@ export class EventTimer extends Timer {
 
   /**
    * @description Interface for triggering playback actions
-   * @param {string} newState - state to be triggered
+   * @param {string} action - state to be triggered
+   * @returns {boolean} Whether action was called
    */
-  trigger(newState) {
+  trigger(action) {
     let reply = true;
-    switch (newState) {
+    switch (action) {
       case 'start':
         // Call action and force update
         this.start();
@@ -414,28 +415,6 @@ export class EventTimer extends Timer {
   _setterManager(action, payload) {
     switch (action) {
       /*******************************************/
-      // playstate
-      case 'set-playstate':
-        // check state is defined
-        if (payload === 'start') this.start();
-        else if (payload === 'pause') this.pause();
-        else if (payload === 'stop') this.stop();
-        else if (payload === 'previous') this.previous();
-        else if (payload === 'next') this.next();
-        else if (payload === 'reload') this.reload();
-        else if (payload === 'unload') this.unload();
-        else if (payload === 'roll') this.roll();
-
-        // TODO: Cleanup
-        // here tdo this.broadcastState;
-        // remove broadcast from functions
-        this.broadcastThis('playstate', this.state);
-        this.broadcastThis('selected-id', this.selectedEventId);
-        this.broadcastThis('titles', this.titles);
-
-        break;
-
-      /*******************************************/
       // Presenter message
       case 'set-presenter-text':
         this.presenter.text = payload;
@@ -539,7 +518,7 @@ export class EventTimer extends Timer {
       /*******************************************/
       // playstate
       socket.on('set-playstate', (data) => {
-        this._setterManager('set-playstate', data);
+        this.trigger(data);
       });
 
       socket.on('get-playstate', () => {
@@ -774,18 +753,28 @@ export class EventTimer extends Timer {
     }
   }
 
+  /**
+   * @description loads an event with a given Id
+   * @param eventId - ID of event in eventlist
+   */
   loadEventById(eventId) {
     const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
 
     if (eventIndex === -1) return;
     this.pause();
     this.loadEvent(eventIndex, 'load', true);
+    this.update();
   }
 
+  /**
+   * @description loads an event with a given index
+   * @param eventIndex - Index of event in eventlist
+   */
   loadEventByIndex(eventIndex) {
     if (eventIndex === -1 || eventIndex > this.numEvents) return;
     this.pause();
     this.loadEvent(eventIndex, 'load', true);
+    this.update();
   }
 
   // Loads a given event
@@ -1107,6 +1096,7 @@ export class EventTimer extends Timer {
     // increment is unhandled by lifecyle
     // broadcast here
     // broadcast current state
+    this.update();
     this.broadcastState();
   }
 
