@@ -9,14 +9,6 @@ import {
   block as blockDef,
 } from '../models/eventsDefinition.js';
 
-function _getEventsCount() {
-  return Array.from(data.events).length;
-}
-
-function _pushNew(entry) {
-  return data.events.push(entry).write();
-}
-
 async function _insertAt(entry, index) {
   // get events
   let events = data.events;
@@ -26,7 +18,7 @@ async function _insertAt(entry, index) {
   // Remove order field from object
   delete entry.order;
 
-  // Insert at beggining
+  // Insert at beginning
   if (order === 0) {
     events.unshift(entry);
   }
@@ -47,7 +39,7 @@ async function _insertAt(entry, index) {
 }
 
 async function _removeById(eventId) {
-  data.events = Array.from(data.events).filter((e) => e.id != eventId);
+  data.events = Array.from(data.events).filter((e) => e.id !== eventId);
   await db.write();
 }
 
@@ -122,7 +114,7 @@ export const eventsPost = async (req, res) => {
     const index = newEvent.order || 0;
 
     // add new event in place
-    _insertAt(newEvent, index);
+    await _insertAt(newEvent, index);
 
     // update timers
     _updateTimers();
@@ -160,7 +152,7 @@ export const eventsPut = async (req, res) => {
     const e = data.events[eventIndex];
     data.events[eventIndex] = { ...e, ...req.body };
     data.events[eventIndex].revision++;
-    db.write();
+    await db.write();
 
     // update timer
     _updateTimersSingle(eventId, req.body);
@@ -176,7 +168,7 @@ export const eventsPut = async (req, res) => {
 // Returns -
 export const eventsPatch = async (req, res) => {
   // Code is the same as put, call that
-  eventsPut(req, res);
+  await eventsPut(req, res);
 };
 
 export const eventsReorder = async (req, res) => {
@@ -207,7 +199,7 @@ export const eventsReorder = async (req, res) => {
 
     // save events
     data.events = events;
-    db.write();
+    await db.write();
 
     // TODO: would it be more efficient to reorder at timer?
     // update timer
@@ -273,7 +265,7 @@ export const eventsApplyDelay = async (req, res) => {
 
     // update events
     data.events = events;
-    db.write();
+    await db.write();
 
     // update timer
     _updateTimers();
@@ -297,7 +289,7 @@ export const eventsDelete = async (req, res) => {
 
   try {
     // remove new event
-    _removeById(req.params.eventId);
+    await _removeById(req.params.eventId);
 
     // update timer
     _deleteTimerId(req.params.eventId);
@@ -316,7 +308,7 @@ export const eventsDeleteAll = async (req, res) => {
   try {
     // set with nothing
     data.events = [];
-    db.write();
+    await db.write();
 
     // update timer object
     global.timer.clearEventList();

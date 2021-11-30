@@ -645,6 +645,9 @@ export class EventTimer extends Timer {
 
     // load first event
     this.loadEvent(0);
+
+    // update clients
+    this.update();
   }
 
   updateEventList(eventlist) {
@@ -686,6 +689,9 @@ export class EventTimer extends Timer {
       const type = this._startedAt != null ? 'reload' : 'load';
       this.loadEvent(eventIndex, type);
     }
+
+    // update clients
+    this.update()
   }
 
   updateSingleEvent(id, entry) {
@@ -723,6 +729,9 @@ export class EventTimer extends Timer {
     } catch (error) {
       console.log(error);
     }
+
+    // update clients
+    this.update()
   }
 
   deleteId(eventId) {
@@ -751,6 +760,9 @@ export class EventTimer extends Timer {
     } else if (eventId === this.selectedPublicEventId) {
       this._loadTitlesNow();
     }
+
+    // update clients
+    this.update()
   }
 
   /**
