@@ -247,6 +247,63 @@ export class EventTimer extends Timer {
   }
 
   /**
+   * @description Interface for triggering playback actions
+   * @param {string} newState - state to be triggered
+   */
+  trigger(newState) {
+    let reply = true;
+    switch (newState) {
+      case 'start':
+        // Call action and force update
+        this.start();
+        this.update();
+        break;
+      case 'pause':
+        // Call action and force update
+        this.pause();
+        this.update();
+        break;
+      case 'stop':
+        // Call action and force update
+        this.stop();
+        this.update();
+        break;
+      case 'roll':
+        // Call action and force update
+        this.roll();
+        this.update();
+        break;
+      case 'previous':
+        // Call action and force update
+        this.previous();
+        this.update();
+        break;
+      case 'next':
+        // Call action and force update
+        this.next();
+        this.update();
+        break;
+      case 'unload':
+        // Call action and force update
+        this.unload();
+        this.update();
+        break;
+      case 'reload':
+        // Call action and force update
+        this.reload();
+        this.update();
+        break;
+      default:
+        // Error, disable flag
+        console.log('ERROR: Unhandled action triggered')
+        reply = false;
+        break;
+    }
+    return reply;
+  }
+
+
+  /**
    * @description Runs at the start and ends of every cycle,
    * and checks what actions are to be taken according to
    * ontimeCycle
