@@ -140,10 +140,7 @@ export class Timer {
   }
 
   // getObject
-  getObject(update = true) {
-    // update timer
-    if (update) this.update();
-
+  getObject() {
     // update timetag
     this.timeTag = stringFromMillis(this.current);
 
@@ -169,7 +166,7 @@ export class Timer {
     // do we need to change
     if (this.state === 'start') return;
     else if (this._startedAt == null) {
-      // it hasnt started yet
+      // it hasn't started yet
       const now = this._getCurrentTime();
       // set start time as now
       this._startedAt = now;

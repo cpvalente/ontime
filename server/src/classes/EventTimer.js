@@ -95,7 +95,7 @@ export class EventTimer extends Timer {
 
     // set recurrent emits
     this._interval = setInterval(
-      () => this.broadcastTimer(),
+      () => this.update(),
       config.timer.refresh
     );
 
@@ -225,8 +225,8 @@ export class EventTimer extends Timer {
   }
 
   // broadcast state
-  broadcastState(update = true) {
-    this.io.emit('timer', this.getObject(update));
+  broadcastState() {
+    this.io.emit('timer', this.getObject());
     this.io.emit('playstate', this.state);
     this.io.emit('selected', {
       id: this.selectedEventId,
@@ -259,25 +259,27 @@ export class EventTimer extends Timer {
         break;
       case "onLoad":
         // broadcast change
-        this.broadcastState(false);
+        this.broadcastState();
         break;
       case "onStart":
         // broadcast current state
-        this.broadcastState(false);
+        this.broadcastState();
         // send OSC
         this.sendOSC('play');
         break;
       case "onUpdate":
+        // broadcast current state
+        this.broadcastState();
         break;
       case "onPause":
         // broadcast current state
-        this.broadcastState(false);
+        this.broadcastState();
         // send OSC
         this.sendOSC('pause');
         break;
       case "onStop":
         // broadcast change
-        this.broadcastState(false);
+        this.broadcastState();
         // send OSC
         this.sendOSC('stop');
         // update lifecycle: idle
@@ -300,7 +302,7 @@ export class EventTimer extends Timer {
 
     if (isUpdating) {
       // update lifecycle: onUpdate
-       this.ontimeCycle = this.cycleState.onUpdate;
+      this.ontimeCycle = this.cycleState.onUpdate;
     }
 
     // only implement roll here
@@ -334,7 +336,6 @@ export class EventTimer extends Timer {
         // this.broadcastState(false);
       }
     }
-
 
     // if event is finished
     if (
