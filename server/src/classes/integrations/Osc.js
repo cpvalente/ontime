@@ -1,4 +1,6 @@
 /** Class contains logic towards outgoing OSC communications. */
+import {Message} from 'node-osc';
+
 export class OSCIntegration {
 
   ADDRESS = '/ontime';
@@ -64,19 +66,19 @@ export class OSCIntegration {
     switch (payload) {
       case 'overtime':
         // Whether timer is negative
-        this.oscClient.send(this.ADDRESS + '/overtime', payload, (err) => {
+        this.oscClient.send(`${this.ADDRESS}/overtime`, payload, (err) => {
           if (err) console.error(err);
         });
         break;
       case 'title':
         // Send Title of current event
-        this.oscClient.send(this.ADDRESS + '/title', payload, (err) => {
+        this.oscClient.send(`${this.ADDRESS}/title`, payload, (err) => {
           if (err) console.error(err);
         });
         break;
       case 'presenter':
         // Send presenter data on current event
-        this.oscClient.send(this.ADDRESS + '/presenter', payload, (err) => {
+        this.oscClient.send(`${this.ADDRESS}/presenter`, payload, (err) => {
           if (err) console.error(err);
         });
         break;
@@ -84,7 +86,9 @@ export class OSCIntegration {
       default:
         // catch all for messages, allows to add new messages
         // but should be used with the integrations definition
-        this.oscClient.send(this.ADDRESS, messageType, (err) => {
+        const message = new Message(`${this.ADDRESS}/${messageType}`)
+        if (payload != null) message.append(payload)
+        this.oscClient.send(message, (err) => {
           if (err) console.error(err);
         });
         break;

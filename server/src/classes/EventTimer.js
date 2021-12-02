@@ -1,6 +1,7 @@
-import { Timer } from './Timer.js';
-import { Server } from 'socket.io';
+import {Timer} from './Timer.js';
+import {Server} from 'socket.io';
 import {DAY_TO_MS, getSelectionByRoll} from './classUtils.js';
+import {OSCIntegration} from './integrations/Osc.js';
 
 /*
  * EventTimer adds functions specific to APP
@@ -21,6 +22,7 @@ export class EventTimer extends Timer {
   cycleState = {
     idle: 'idle',
     onLoad: 'onLoad',
+    armed: 'armed',
     onStart: 'onStart',
     onUpdate: 'onUpdate',
     onPause: 'onPause',
@@ -28,12 +30,14 @@ export class EventTimer extends Timer {
     onFinish: 'onFinish',
   };
   ontimeCycle = 'idle';
+  prevCycle = null;
+  lastUpdate = null;
 
   // Socket IO Object
   io = null;
 
-  // OSC Client
-  oscClient = null;
+  // OSC Object
+  osc = null;
 
   _numClients = 0;
   _interval = null;
@@ -93,6 +97,10 @@ export class EventTimer extends Timer {
       },
     });
 
+    // initialise osc object
+    this.osc = new OSCIntegration();
+    this.osc.init(oscClient);
+
     // set recurrent emits
     this._interval = setInterval(
       () => this.update(),
@@ -101,127 +109,23 @@ export class EventTimer extends Timer {
 
     // listen to new connections
     this._listenToConnections();
-
-    // set oscClient
-    this.updateOSCClient(oscClient);
-  }
-
-  /**
-   * @description Updates the osc client used in the object
-   * @param {object} oscClient
-   */
-  updateOSCClient(oscClient) {
-    this.oscClient = oscClient;
-  }
-
-  /**
-   * @description Sends osc value from predefined messages
-   * @param {string} event - message to be sent
-   */
-  sendOSC(event) {
-    if (this.oscClient == null) return;
-
-    const add = '/ontime';
-    const play = 'play';
-    const pause = 'pause';
-    const stop = 'stop';
-    const prev = 'prev';
-    const next = 'next';
-    const reload = 'reload';
-    const finished = 'finished';
-    const time = this.timeTag;
-    const overtime = this.current > 0 ? 0 : 1;
-    const title = this.titles?.titleNow || '';
-    const presenter = this.titles?.presenterNow || '';
-
-    switch (event) {
-      case 'time':
-        // Send Timetag Message
-        this.oscClient.send(add + '/time', time, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'finished':
-        // Runs when timer reaches 0
-        this.oscClient.send(add, finished, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'overtime':
-        // Whether timer is negative
-        this.oscClient.send(add + '/overtime', overtime, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'titles':
-        // Send Title of current event
-        this.oscClient.send(add + '/title', title, (err) => {
-          if (err) console.error(err);
-        });
-
-        // Send presenter data on current event
-        this.oscClient.send(add + '/presenter', presenter, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'play':
-        // Play Message
-        this.oscClient.send(add, play, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'pause':
-        // Pause Message
-        this.oscClient.send(add, pause, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'stop':
-        // Stop Message
-        this.oscClient.send(add, stop, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'prev':
-        this.oscClient.send(add, prev, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'next':
-        this.oscClient.send(add, next, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-      case 'reload':
-        this.oscClient.send(add, reload, (err) => {
-          if (err) console.error(err);
-        });
-        break;
-
-      default:
-        break;
-    }
   }
 
   /**
    * @description Shutdown process
    */
   shutdown() {
-    console.log('Closing socket server');
+    console.log('Shutting down integrations')
+    console.log('... Closing socket server');
     this.io.close();
+    console.log('... Closing osc server');
+    this.osc.shutdown();
   }
 
   // send current timer
   broadcastTimer() {
     // through websockets
     this.io.emit('timer', this.getObject());
-
-    // through OSC, only if running
-    if (this.state === 'start' || this.state === 'roll') {
-      this.sendOSC('time');
-      this.sendOSC('overtime');
-      this.sendOSC('titles');
-    }
   }
 
   // broadcast state
@@ -310,102 +214,134 @@ export class EventTimer extends Timer {
    * ontimeCycle
    */
   runCycle() {
-    // update lifecycle: onFinish
-//    this.ontimeCycle = this.cycleState.onStart;
     switch (this.ontimeCycle) {
       case "idle":
+        break;
+      case "armed":
         break;
       case "onLoad":
         // broadcast change
         this.broadcastState();
+        // update lifecycle: armed
+        this.ontimeCycle = this.cycleState.armed;
         break;
       case "onStart":
         // broadcast current state
         this.broadcastState();
         // send OSC
-        this.sendOSC('play');
+        this.osc.send(this.osc.implemented.play);
+        // update lifecycle: onUpdate
+        this.ontimeCycle = this.cycleState.onUpdate;
         break;
       case "onUpdate":
         // broadcast current state
-        this.broadcastState();
+        this.broadcastTimer();
+        // through OSC, only if running
+        if (this.state === 'start' || this.state === 'roll') {
+          this.osc.send(this.osc.implemented.time, this.timeTag);
+          this.osc.send(this.osc.implemented.overtime, this.current > 0 ? 0 : 1);
+          this.osc.send(this.osc.implemented.title, this.titles?.titleNow || '');
+        }
         break;
       case "onPause":
         // broadcast current state
         this.broadcastState();
         // send OSC
-        this.sendOSC('pause');
+        this.osc.send(this.osc.implemented.pause);
+        // update lifecycle: armed
+        this.ontimeCycle = this.cycleState.armed;
+
         break;
       case "onStop":
         // broadcast change
         this.broadcastState();
         // send OSC
-        this.sendOSC('stop');
+        this.osc.send(this.osc.implemented.stop);
         // update lifecycle: idle
         this.ontimeCycle = this.cycleState.idle;
         break;
       case "onFinish":
         // finished an event
-        this.sendOSC('finished');
+        this.osc.send(this.osc.implemented.finished);
         break;
       default:
-        console.log(`ERROR: Unhandled cycle ${this.ontimeCycle}`)
+        console.log(`ERROR: Unhandled cycle: ${this.ontimeCycle}`)
     }
+
+    // reset cycle
+    this.prevCycle = this.ontimeCycle;
   }
 
   update() {
+
     // if there is nothing selected, do nothing
-    if (this.selectedEventId == null && this.state !== 'roll') return;
-    const now = this._getCurrentTime();
-    const isUpdating = (this.state === 'start' || this.state === 'roll');
+    if (this.selectedEventId != null) {
 
-    if (isUpdating) {
-      // update lifecycle: onUpdate
-      this.ontimeCycle = this.cycleState.onUpdate;
-    }
+      const now = this._getCurrentTime();
 
-    // only implement roll here
-    if (this.state !== 'roll') {
-      super.update();
-    } else {
-      // update timer as usual
-      this.clock = now;
-      if (this.selectedEventId && this.current > 0) {
-        // something is running, update
-        this.current = this._finishAt - now;
-      } else if (this.secondaryTimer > 0) {
-        // waiting to start, update secondary
-        this.secondaryTimer = this._secondaryTarget - now;
+      const isUpdating = (this.state === 'start' || this.state === 'roll');
+      if (isUpdating) {
+        // ensure we go through onStart cycle
+        if (this.ontimeCycle === this.cycleState.onStart
+          && this.ontimeCycle !== this.prevCycle) {
+          this.runCycle();
+        }
       }
 
-      // look for event if none is loaded
-      const currentRunning = this.current <= 0 && this.current !== null;
-      const secondaryRunning =
-        this.secondaryTimer <= 0 && this.secondaryTimer !== null;
+      const isRollStarted = (this.state === 'roll' && this.ontimeCycle === this.cycleState.idle);
+      if (isRollStarted) {
+        // update lifecycle: onUpdate
+        this.ontimeCycle = this.cycleState.onStart;
+        // ensure we go through onStart cycle
+        this.runCycle();
+      }
 
-      if (currentRunning) {
+      // only implement roll here, rest implemented in super
+      if (this.state !== 'roll') {
+        super.update();
+      } else {
+        // update timer as usual
+        this.clock = now;
+        if (this.selectedEventId && this.current > 0) {
+          // something is running, update
+          this.current = this._finishAt - now;
+
+          // update lifecycle: onUpdate
+          this.ontimeCycle = this.cycleState.onUpdate;
+
+        } else if (this.secondaryTimer > 0) {
+          // waiting to start, update secondary
+          this.secondaryTimer = this._secondaryTarget - now;
+        }
+
+        // look for event if none is loaded
+        const currentRunning = this.current <= 0 && this.current !== null;
+        const secondaryRunning =
+          this.secondaryTimer <= 0 && this.secondaryTimer !== null;
+
+        if (currentRunning) {
+          // update lifecycle: onFinish
+          this.ontimeCycle = this.cycleState.onFinish;
+        }
+
+        if (currentRunning || secondaryRunning) {
+          // look for events
+          this.rollLoad();
+        }
+      }
+
+      // if event is finished
+      if (
+        this.current <= 0
+        && isUpdating
+        && this.ontimeCycle !== this.cycleState.onFinish
+      ) {
+        if (this._finishedAt === null) {
+          this._finishedAt = now;
+        }
         // update lifecycle: onFinish
         this.ontimeCycle = this.cycleState.onFinish;
       }
-
-      if (currentRunning || secondaryRunning) {
-        // look for events
-        this.rollLoad();
-        // broadcast state without recalculating timer
-        // this.broadcastState(false);
-      }
-    }
-
-    // if event is finished
-    if (
-      this.current <= 0
-      && isUpdating
-      && this.ontimeCycle !== this.cycleState.onFinish
-    ) {
-      if (this._finishedAt === null) {
-        this._finishedAt = now;
-      }
-      // update lifecycle: onFinish
-      this.ontimeCycle = this.cycleState.onFinish;
     }
 
     // update lifecycle
@@ -701,7 +637,7 @@ export class EventTimer extends Timer {
 
     // update event in memory
     const e = this._eventlist[eventIndex];
-    this._eventlist[eventIndex] = { ...e, ...entry };
+    this._eventlist[eventIndex] = {...e, ...entry};
 
     try {
       // check if entry is running
@@ -1114,6 +1050,7 @@ export class EventTimer extends Timer {
 
   rollLoad() {
     const now = this._getCurrentTime();
+    let prevLoaded = this.selectedEventId;
 
     // maybe roll has already been loaded
     if (this.secondaryTimer === null) {
@@ -1189,6 +1126,13 @@ export class EventTimer extends Timer {
     if (publicIndex !== null) {
       this._loadThisTitles(this._eventlist[publicIndex], 'now-public');
     }
+
+    if (prevLoaded !== this.selectedEventId) {
+      // update lifecycle: onLoad
+      this.ontimeCycle = this.cycleState.onLoad;
+      // ensure we go through onLoad cycle
+      this.runCycle();
+    }
   }
 
   roll() {
@@ -1201,6 +1145,7 @@ export class EventTimer extends Timer {
     // load into event
     this.rollLoad();
 
+    // broadcast change
     this.broadcastState();
   }
 
@@ -1215,7 +1160,7 @@ export class EventTimer extends Timer {
     }
 
     // send OSC
-    this.sendOSC('prev');
+    this.osc.send(this.osc.implemented.previous);
 
     // change playstate
     this.pause();
@@ -1238,7 +1183,7 @@ export class EventTimer extends Timer {
     }
 
     // send OSC
-    this.sendOSC('next');
+    this.osc.send(this.osc.implemented.next);
 
     // change playstate
     this.pause();
@@ -1264,11 +1209,11 @@ export class EventTimer extends Timer {
   }
 
   reload() {
-    // reset playstate
+    // change playstate
     this.pause();
 
     // send OSC
-    this.sendOSC('reload');
+    this.osc.send(this.osc.implemented.reload);
 
     // reload data
     this.loadEvent(this.selectedEventIndex);

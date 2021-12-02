@@ -58,7 +58,7 @@ export const initiateOSC = (config) => {
       case 'unload':
       case 'stop':
         console.log('calling unload');
-        global.timer.trigger('stop');
+        global.timer.trigger('unload');
         break;
       case 'reload':
         console.log('calling reload');
