@@ -7,10 +7,7 @@ export class OSCIntegration {
 
   /**
    * Create a class instance
-   * @param {number} x - The x value.
-   * @param {number} y - The y value.
-   * @param {number} width - The width of the dot, in pixels.
-   */
+   * */
   constructor() {
     // OSC Client
     this.oscClient = null;
@@ -38,7 +35,7 @@ export class OSCIntegration {
 
   /**
    * @description Initializes oscClient
-   * @param {object} oscClient
+   * @param {object} oscClient - oscClient object
    */
   init(oscClient) {
     this.oscClient = oscClient;
