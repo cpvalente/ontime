@@ -22,7 +22,6 @@ const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
 // dependencies
-import { Client } from 'node-osc';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -138,17 +137,6 @@ export const startOSCServer = async (overrideConfig = null) => {
   initiateOSC(oscSettings);
 };
 
-// Start OSC Client
-let oscClient = null;
-
-export const startOSCClient = async (overrideConfig = null) => {
-  // Setup default port
-  const port = overrideConfig?.port || oscOutPort;
-  console.log('initialise OSC Client on port: ', port);
-
-  oscClient = new Client(oscIP, oscOutPort);
-};
-
 // create HTTP server
 const server = http.createServer(app);
 
@@ -166,8 +154,14 @@ export const startServer = async (overrideConfig = null) => {
   const returnMessage = `HTTP Server is listening on port ${port}`;
   server.listen(port, '0.0.0.0', () => console.log(returnMessage));
 
+  // OSC Config
+  const oscConfig = {
+    ip: oscIP,
+    port: overrideConfig?.port || oscOutPort
+  }
+
   // init timer
-  global.timer = new EventTimer(server, oscClient, config);
+  global.timer = new EventTimer(server, config.timer, oscConfig);
   global.timer.setupWithEventList(data.events);
 
   return returnMessage;
@@ -183,9 +177,6 @@ export const shutdown = async () => {
 
   // shutdown OSC Server
   shutdownOSCServer();
-
-  // shutdown OSC Client
-  oscClient.close();
 
   // shutdown timer
   global.timer.shutdown();

@@ -1,5 +1,5 @@
 /** Class contains logic towards outgoing OSC communications. */
-import {Message} from 'node-osc';
+import {Client, Message} from 'node-osc';
 
 export class OSCIntegration {
 
@@ -35,10 +35,17 @@ export class OSCIntegration {
 
   /**
    * @description Initializes oscClient
-   * @param {object} oscClient - oscClient object
+   * @param {object} oscConfig - oscClient object
    */
-  init(oscClient) {
-    this.oscClient = oscClient;
+  init(oscConfig) {
+    const {ip, port} = oscConfig;
+    try {
+      this.oscClient = new Client(ip, port);
+      console.log(`Initialise OSC Client at ${ip}:${port}`);
+    } catch (error) {
+      this.oscClient = null;
+      console.log(`Failed initialising OSC Client: ${error}`);
+    }
   }
 
   /**

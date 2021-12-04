@@ -88,14 +88,10 @@ export class Timer {
     const isTimeOver = this.current <= 0;
     const isUpdating = (this.state !== 'pause');
 
-    console.log('hhhh', this.current, this.state)
-    if (isTimeOver && isUpdating) {
+    if (isTimeOver && isUpdating && this._finishedAt == null) {
       if (this._finishedAt === null) this._finishedAt = now;
       this._finishedFlag = true;
-      console.log('FINISH!')
     }
-
-
   }
 
   // helpers

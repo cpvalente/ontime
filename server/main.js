@@ -17,18 +17,15 @@ let loaded = 'Nothing loaded';
 let isQuitting = false;
 
 const nodePath =
-  env != 'prod'
+  env !== 'prod'
     ? path.join('file://', __dirname, 'src/app.js')
     : path.join('file://', __dirname, '../', 'extraResources', 'src/app.js');
 
 (async () => {
   try {
-    const { startServer, startOSCServer, startOSCClient } = await import(
+    const { startServer, startOSCServer } = await import(
       nodePath
     );
-    // Start OSC Client (Feedback)
-    await startOSCClient();
-
     // Start express server
     loaded = await startServer();
 
@@ -140,7 +137,7 @@ app.whenReady().then(() => {
   setTimeout(() => {
     // Load page served by node
     const reactApp =
-      env == 'prod'
+      env === 'prod'
         ? 'http://localhost:4001/editor'
         : 'http://localhost:3000/editor';
 

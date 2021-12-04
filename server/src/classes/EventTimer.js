@@ -83,7 +83,8 @@ export class EventTimer extends Timer {
   numEvents = null;
   _eventlist = null;
 
-  constructor(httpServer, oscClient, config) {
+  constructor(httpServer, timerConfig, oscConfig ) {
+
     // call super constructor
     super();
 
@@ -97,14 +98,16 @@ export class EventTimer extends Timer {
       },
     });
 
+    console.log('initialise OSC Client on port: ', oscConfig.port);
+
     // initialise osc object
     this.osc = new OSCIntegration();
-    this.osc.init(oscClient);
+    this.osc.init(oscConfig);
 
     // set recurrent emits
     this._interval = setInterval(
       () => this.runCycle(),
-      config.timer.refresh
+      timerConfig?.refresh || 1000
     );
 
     // listen to new connections
@@ -301,6 +304,7 @@ export class EventTimer extends Timer {
     if (this._finishedFlag) {
       // update lifecycle: onFinish and call cycle
       this.ontimeCycle = this.cycleState.onFinish;
+      this._finishedFlag = false;
       this.runCycle();
     }
 
@@ -995,6 +999,9 @@ export class EventTimer extends Timer {
   }
 
   start() {
+    // do we need to change
+    if (this.state === 'start') return;
+
     // if there is nothing selected, no nothing
     if (this.selectedEventId == null) return;
 
@@ -1006,6 +1013,9 @@ export class EventTimer extends Timer {
   }
 
   pause() {
+    // do we need to change
+    if (this.state === 'pause') return;
+
     // if there is nothing selected, no nothing
     if (this.selectedEventId == null) return;
 
@@ -1014,10 +1024,12 @@ export class EventTimer extends Timer {
 
     // update lifecycle: onPause
     this.ontimeCycle = this.cycleState.onPause;
-
   }
 
   stop() {
+    // do we need to change
+    if (this.state === 'stop') return;
+
     // call super
     super.stop();
 
@@ -1138,6 +1150,9 @@ export class EventTimer extends Timer {
     // check that we have events to run
     if (this.numEvents < 1) return;
 
+    // maybe this is the first event?
+    if (this.selectedEventIndex === 0) return;
+
     // if there is no event running, go to first
     if (this.selectedEventIndex == null) {
       this.loadEvent(0);
@@ -1160,6 +1175,9 @@ export class EventTimer extends Timer {
   next() {
     // check that we have events to run
     if (this.numEvents < 1) return;
+
+    // maybe this is the last event?
+    if (this.selectedEventIndex === this.numEvents - 1) return;
 
     // if there is no event running, go to first
     if (this.selectedEventIndex == null) {
