@@ -103,7 +103,7 @@ export class EventTimer extends Timer {
 
     // set recurrent emits
     this._interval = setInterval(
-      () => this.update(),
+      () => this.runCycle(),
       config.timer.refresh
     );
 
@@ -161,42 +161,42 @@ export class EventTimer extends Timer {
       case 'start':
         // Call action and force update
         this.start();
-        this.update();
+        this.runCycle();
         break;
       case 'pause':
         // Call action and force update
         this.pause();
-        this.update();
+        this.runCycle();
         break;
       case 'stop':
         // Call action and force update
         this.stop();
-        this.update();
+        this.runCycle();
         break;
       case 'roll':
         // Call action and force update
         this.roll();
-        this.update();
+        this.runCycle();
         break;
       case 'previous':
         // Call action and force update
         this.previous();
-        this.update();
+        this.runCycle();
         break;
       case 'next':
         // Call action and force update
         this.next();
-        this.update();
+        this.runCycle();
         break;
       case 'unload':
         // Call action and force update
         this.unload();
-        this.update();
+        this.runCycle();
         break;
       case 'reload':
         // Call action and force update
         this.reload();
-        this.update();
+        this.runCycle();
         break;
       default:
         // Error, disable flag
@@ -209,15 +209,18 @@ export class EventTimer extends Timer {
 
 
   /**
-   * @description Runs at the start and ends of every cycle,
-   * and checks what actions are to be taken according to
-   * ontimeCycle
+   * @description State machine checks what actions need to
+   * happen at every app cycle
    */
   runCycle() {
     switch (this.ontimeCycle) {
       case "idle":
         break;
       case "armed":
+        // if we come from roll, see if we can start
+        if (this.state === 'roll') {
+          this.update();
+        }
         break;
       case "onLoad":
         // broadcast change
@@ -234,6 +237,8 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.onUpdate;
         break;
       case "onUpdate":
+        // call update
+        this.update();
         // broadcast current state
         this.broadcastTimer();
         // through OSC, only if running
@@ -261,8 +266,12 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.idle;
         break;
       case "onFinish":
+        // broadcast change
+        this.broadcastState();
         // finished an event
         this.osc.send(this.osc.implemented.finished);
+        // update lifecycle: onUpdate
+        this.ontimeCycle = this.cycleState.onUpdate;
         break;
       default:
         console.log(`ERROR: Unhandled cycle: ${this.ontimeCycle}`)
@@ -275,77 +284,54 @@ export class EventTimer extends Timer {
   update() {
 
     // if there is nothing selected, do nothing
-    if (this.selectedEventId != null) {
+    if (this.selectedEventId == null) return;
 
-      const now = this._getCurrentTime();
-
-      const isUpdating = (this.state === 'start' || this.state === 'roll');
-      if (isUpdating) {
-        // ensure we go through onStart cycle
-        if (this.ontimeCycle === this.cycleState.onStart
-          && this.ontimeCycle !== this.prevCycle) {
-          this.runCycle();
-        }
-      }
-
-      const isRollStarted = (this.state === 'roll' && this.ontimeCycle === this.cycleState.idle);
-      if (isRollStarted) {
-        // update lifecycle: onUpdate
+    // Have we skipped onStart?
+    if (this.state === 'start' || this.state === 'roll') {
+      if (this.ontimeCycle === this.cycleState.armed) {
+        // update lifecycle: onStart
         this.ontimeCycle = this.cycleState.onStart;
-        // ensure we go through onStart cycle
         this.runCycle();
-      }
-
-      // only implement roll here, rest implemented in super
-      if (this.state !== 'roll') {
-        super.update();
-      } else {
-        // update timer as usual
-        this.clock = now;
-        if (this.selectedEventId && this.current > 0) {
-          // something is running, update
-          this.current = this._finishAt - now;
-
-          // update lifecycle: onUpdate
-          this.ontimeCycle = this.cycleState.onUpdate;
-
-        } else if (this.secondaryTimer > 0) {
-          // waiting to start, update secondary
-          this.secondaryTimer = this._secondaryTarget - now;
-        }
-
-        // look for event if none is loaded
-        const currentRunning = this.current <= 0 && this.current !== null;
-        const secondaryRunning =
-          this.secondaryTimer <= 0 && this.secondaryTimer !== null;
-
-        if (currentRunning) {
-          // update lifecycle: onFinish
-          this.ontimeCycle = this.cycleState.onFinish;
-        }
-
-        if (currentRunning || secondaryRunning) {
-          // look for events
-          this.rollLoad();
-        }
-      }
-
-      // if event is finished
-      if (
-        this.current <= 0
-        && isUpdating
-        && this.ontimeCycle !== this.cycleState.onFinish
-      ) {
-        if (this._finishedAt === null) {
-          this._finishedAt = now;
-        }
-        // update lifecycle: onFinish
-        this.ontimeCycle = this.cycleState.onFinish;
       }
     }
 
-    // update lifecycle
-    this.runCycle()
+    // update default functions
+    super.update();
+
+    if (this._finishedFlag) {
+      // update lifecycle: onFinish and call cycle
+      this.ontimeCycle = this.cycleState.onFinish;
+      this.runCycle();
+    }
+
+    // only implement roll here, rest implemented in super
+    if (this.state === 'roll') {
+      // update timer as usual
+      if (this.selectedEventId && this.current > 0) {
+        // something is running, update
+        this.current = this._finishAt - this.clock;
+
+      } else if (this.secondaryTimer > 0) {
+        // waiting to start, update secondary
+        this.secondaryTimer = this._secondaryTarget - this.clock;
+      }
+
+      // look for event if none is loaded
+      const currentRunning = this.current <= 0 && this.current !== null;
+      const secondaryRunning =
+        this.secondaryTimer <= 0 && this.secondaryTimer !== null;
+
+      if (currentRunning) {
+        // update lifecycle: onFinish
+        this.ontimeCycle = this.cycleState.onFinish;
+        this.runCycle();
+      }
+
+      if (currentRunning || secondaryRunning) {
+        // look for events
+        this.rollLoad();
+      }
+    }
   }
 
   _setterManager(action, payload) {
@@ -582,8 +568,8 @@ export class EventTimer extends Timer {
     // load first event
     this.loadEvent(0);
 
-    // update clients
-    this.update();
+    // run cycle
+    this.runCycle();
   }
 
   updateEventList(eventlist) {
@@ -626,8 +612,8 @@ export class EventTimer extends Timer {
       this.loadEvent(eventIndex, type);
     }
 
-    // update clients
-    this.update()
+    // run cycle
+    this.runCycle();
   }
 
   updateSingleEvent(id, entry) {
@@ -666,8 +652,8 @@ export class EventTimer extends Timer {
       console.log(error);
     }
 
-    // update clients
-    this.update()
+    // run cycle
+    this.runCycle();
   }
 
   deleteId(eventId) {
@@ -697,8 +683,8 @@ export class EventTimer extends Timer {
       this._loadTitlesNow();
     }
 
-    // update clients
-    this.update()
+    // run cycle
+    this.runCycle();
   }
 
   /**
@@ -711,7 +697,8 @@ export class EventTimer extends Timer {
     if (eventIndex === -1) return;
     this.pause();
     this.loadEvent(eventIndex, 'load', true);
-    this.update();
+    // run cycle
+    this.runCycle();
   }
 
   /**
@@ -722,7 +709,8 @@ export class EventTimer extends Timer {
     if (eventIndex === -1 || eventIndex > this.numEvents) return;
     this.pause();
     this.loadEvent(eventIndex, 'load', true);
-    this.update();
+    // run cycle
+    this.runCycle();
   }
 
   // Loads a given event
@@ -1041,11 +1029,8 @@ export class EventTimer extends Timer {
     // call super
     super.increment(amount);
 
-    // increment is unhandled by lifecyle
-    // broadcast here
-    // broadcast current state
-    this.update();
-    this.broadcastState();
+    // run cycle
+    this.runCycle();
   }
 
   rollLoad() {

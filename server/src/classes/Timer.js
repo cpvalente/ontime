@@ -71,20 +71,31 @@ export class Timer {
         if (this._startedAt != null) {
           // update current timer
           this.current =
-            this._startedAt +
-            this.duration +
-            this._pausedTotal +
-            this._pausedInterval -
-            now;
+            this._startedAt
+            + this.duration
+            + this._pausedTotal
+            + this._pausedInterval
+            - now;
         }
         break;
       case 'stop':
         // nothing here yet
         break;
       default:
-        console.error('Timer: no playstate on update call', this.state);
         break;
     }
+    // is event finished?
+    const isTimeOver = this.current <= 0;
+    const isUpdating = (this.state !== 'pause');
+
+    console.log('hhhh', this.current, this.state)
+    if (isTimeOver && isUpdating) {
+      if (this._finishedAt === null) this._finishedAt = now;
+      this._finishedFlag = true;
+      console.log('FINISH!')
+    }
+
+
   }
 
   // helpers
