@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -15,17 +15,19 @@
     "electron": "^13.6.1",
     "electron-builder": "^22.11.3",
     "eslint": "^7.26.0",
-    "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "jest": "^27.0.4"
+    "jest": "^27.0.4",
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1"
   },
   "scripts": {
     "nodestart": "NODE_ENV=development node src/app.js",
-    "setdb":  "cp data/db.json src/data/db.json",
+    "build": "webpack",
+    "setdb": "cp data/db.json src/data/db.json",
     "clean": "rm -rf ../client/build/ && rm -rf ../client/node_modules && rm -rf src/node_modules && rm -rf ./node_modules && rm -rf ./dist",
     "prep": "yarn clean && yarn setdb",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
