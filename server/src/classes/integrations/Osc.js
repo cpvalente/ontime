@@ -5,9 +5,6 @@ export class OSCIntegration {
 
   ADDRESS = '/ontime';
 
-  /**
-   * Create a class instance
-   * */
   constructor() {
     // OSC Client
     this.oscClient = null;
@@ -36,12 +33,14 @@ export class OSCIntegration {
   /**
    * @description Initializes oscClient
    * @param {object} oscConfig - oscClient object
+   * @param {string} oscConfig.ip - oscClient object
+   * @param {number} oscConfig.port - OSC Destination Port
    */
   init(oscConfig) {
     const {ip, port} = oscConfig;
     try {
       this.oscClient = new Client(ip, port);
-      console.log(`Initialise OSC Client at ${ip}:${port}`);
+      console.log(`Initialised OSC Client at ${ip}:${port}`);
     } catch (error) {
       this.oscClient = null;
       console.log(`Failed initialising OSC Client: ${error}`);
@@ -53,18 +52,16 @@ export class OSCIntegration {
    * @param {string} messageType - message to be sent
    * @param {string} [payload] - optional payload required in some message types
    */
-  send(messageType, payload) {
+  async send(messageType, payload) {
     if (this.oscClient == null) {
       console.log('OSC ERROR: Client not initialised');
       return;
     }
 
     if (messageType == null) {
-      console.log('OSC ERROR: Message undefinde');
+      console.log('OSC ERROR: Message undefined');
       return;
     }
-
-    console.log('sending osc', messageType, payload)
 
     // only specify special cases
     switch (payload) {
@@ -75,18 +72,21 @@ export class OSCIntegration {
         });
         break;
       case 'title':
-        // Send Title of current event
-        this.oscClient.send(`${this.ADDRESS}/title`, payload, (err) => {
-          if (err) console.error(err);
-        });
+        if (payload != null && payload !== "") {
+          // Send Title of current event
+          this.oscClient.send(`${this.ADDRESS}/title`, payload, (err) => {
+            if (err) console.error(err);
+          });
+        }
         break;
       case 'presenter':
-        // Send presenter data on current event
-        this.oscClient.send(`${this.ADDRESS}/presenter`, payload, (err) => {
-          if (err) console.error(err);
-        });
+        if (payload != null && payload !== "") {
+          // Send presenter data on current event
+          this.oscClient.send(`${this.ADDRESS}/presenter`, payload, (err) => {
+            if (err) console.error(err);
+          });
+        }
         break;
-
       default:
         // catch all for messages, allows to add new messages
         // but should be used with the integrations definition
@@ -102,5 +102,6 @@ export class OSCIntegration {
   shutdown() {
     // Shutdown client object
     this.oscClient.close();
+    this.oscClient = null;
   }
 }
