@@ -29,7 +29,7 @@ export class HTTPIntegration {
 
   /**
    * @description Initializes oscClient
-   * @param {object} httpConfig - oscClient object
+   * @param {object} httpConfig - Http configurations options
    */
   init(httpConfig) {
 

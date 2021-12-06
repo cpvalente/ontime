@@ -32,7 +32,7 @@ export class OSCIntegration {
 
   /**
    * @description Initializes oscClient
-   * @param {object} oscConfig - oscClient object
+   * @param {object} oscConfig - oscClient configuration options
    * @param {string} oscConfig.ip - oscClient object
    * @param {number} oscConfig.port - OSC Destination Port
    */

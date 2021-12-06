@@ -2,6 +2,7 @@ import {Timer} from './Timer.js';
 import {Server} from 'socket.io';
 import {DAY_TO_MS, getSelectionByRoll} from './classUtils.js';
 import {OSCIntegration} from './integrations/Osc.js';
+import {HTTPIntegration} from "./integrations/Http.js";
 
 /*
  * EventTimer adds functions specific to APP
@@ -103,6 +104,9 @@ export class EventTimer extends Timer {
     // initialise osc object
     this.osc = new OSCIntegration();
     this.osc.init(oscConfig);
+
+    // initialise http object
+    this.http = new HTTPIntegration();
 
     // set recurrent emits
     this._interval = setInterval(
