@@ -97,8 +97,7 @@ export default function IntegrationSettingsModal() {
               </table>
             </div>
 
-            <h2>Ontime Lifecycle</h2>
-            <div className={style.accordion}>
+            <>
               <FormLabel>
                 On Load
                 <span className={style.notes}>When a new event loads</span>
@@ -281,7 +280,43 @@ export default function IntegrationSettingsModal() {
                   }}
                 />
               </FormControl>
-            </div>
+              <FormLabel>
+                On Finish
+                <span className={style.notes}>When an event is finished</span>
+              </FormLabel>
+              <FormControl id='onFinish' className={style.modalInline}>
+                <Input
+                  {...integrationInputProps}
+                  name='onFinishURL'
+                  value={formData?.onFinish?.url}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onStop: {
+                        ...formData.onFinish,
+                        url: event.target.value,
+                      },
+                    });
+                  }}
+                />
+                <Switch
+                  colorScheme='green'
+                  id='onFinishEnable'
+                  value={formData?.onFinish?.enabled}
+                  onChange={(event) => {
+                    setChanged(true);
+                    setFormData({
+                      ...formData,
+                      onStop: {
+                        ...formData.onStop,
+                        enabled: event.target.value,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+            </>
           </>
           <div className={style.submitContainer}>
             <Button

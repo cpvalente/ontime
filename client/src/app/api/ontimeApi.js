@@ -37,6 +37,10 @@ export const httpPlaceholder = {
     url: '',
     enabled: false,
   },
+  onFinish: {
+    url: '',
+    enabled: false,
+  },
 };
 
 export const ontimeVars = [
