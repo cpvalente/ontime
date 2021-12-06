@@ -19,4 +19,35 @@ export const dbModelv1 = {
     targetIP: '127.0.0.1',
     enabled: true,
   },
+  http: {
+    user: null,
+    pwd: null,
+    messages: {
+      onLoad: {
+        url: '',
+        enabled: false,
+      },
+      onStart:  {
+        url: '',
+        enabled: false,
+      },
+      onUpdate: {
+        url: '',
+        enabled: false,
+      },
+      onPause:  {
+        url: '',
+        enabled: false,
+      },
+      onStop:  {
+        url: '',
+        enabled: false,
+      },
+      onFinish:  {
+        url: '',
+        enabled: false,
+      },
+    },
+    enabled: true,
+  },
 };
