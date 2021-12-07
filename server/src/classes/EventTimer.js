@@ -1,8 +1,9 @@
 import {Timer} from './Timer.js';
 import {Server} from 'socket.io';
-import {DAY_TO_MS, getSelectionByRoll} from './classUtils.js';
+import {DAY_TO_MS, getSelectionByRoll, replacePlaceholder} from './classUtils.js';
 import {OSCIntegration} from './integrations/Osc.js';
 import {HTTPIntegration} from "./integrations/Http.js";
+import {cleanURL} from "../utils/url";
 
 /*
  * EventTimer adds functions specific to APP
@@ -84,7 +85,7 @@ export class EventTimer extends Timer {
   numEvents = null;
   _eventlist = null;
 
-  constructor(httpServer, timerConfig, oscConfig ) {
+  constructor(httpServer, timerConfig, oscConfig, httpConfig) {
 
     // call super constructor
     super();
@@ -107,6 +108,8 @@ export class EventTimer extends Timer {
 
     // initialise http object
     this.http = new HTTPIntegration();
+    this.http.init(httpConfig);
+    this.httpMessages = httpConfig.messages;
 
     // set recurrent emits
     this._interval = setInterval(
@@ -220,6 +223,9 @@ export class EventTimer extends Timer {
    * happen at every app cycle
    */
   runCycle() {
+    const h = this.httpMessages?.messages;
+    let httpMessage = null;
+
     switch (this.ontimeCycle) {
       case "idle":
         break;
@@ -232,6 +238,14 @@ export class EventTimer extends Timer {
       case "onLoad":
         // broadcast change
         this.broadcastState();
+
+        // check integrations - http
+        if (h?.onLoad?.enabled) {
+          if (h?.onLoad?.url != null || h?.onLoad?.url !== '') {
+            httpMessage = h?.onLoad?.url;
+          }
+        }
+
         // update lifecycle: armed
         this.ontimeCycle = this.cycleState.armed;
         break;
@@ -240,6 +254,14 @@ export class EventTimer extends Timer {
         this.broadcastState();
         // send OSC
         this.osc.send(this.osc.implemented.play);
+
+        // check integrations - http
+        if (h?.onLoad?.enabled) {
+          if (h?.onLoad?.url != null || h?.onStart?.url !== '') {
+            httpMessage = h?.onStart?.url;
+          }
+        }
+
         // update lifecycle: onUpdate
         this.ontimeCycle = this.cycleState.onUpdate;
         break;
@@ -254,12 +276,28 @@ export class EventTimer extends Timer {
           this.osc.send(this.osc.implemented.overtime, this.current > 0 ? 0 : 1);
           this.osc.send(this.osc.implemented.title, this.titles?.titleNow || '');
         }
+
+        // check integrations - http
+        if (h?.onLoad?.enabled) {
+          if (h?.onLoad?.url != null || h?.onUpdate?.url !== '') {
+            httpMessage = h?.onUpdate?.url;
+          }
+        }
+
         break;
       case "onPause":
         // broadcast current state
         this.broadcastState();
         // send OSC
         this.osc.send(this.osc.implemented.pause);
+
+        // check integrations - http
+        if (h?.onLoad?.enabled) {
+          if (h?.onLoad?.url != null || h?.onPause?.url !== '') {
+            httpMessage = h?.onPause?.url;
+          }
+        }
+
         // update lifecycle: armed
         this.ontimeCycle = this.cycleState.armed;
 
@@ -269,6 +307,14 @@ export class EventTimer extends Timer {
         this.broadcastState();
         // send OSC
         this.osc.send(this.osc.implemented.stop);
+
+        // check integrations - http
+        if (h?.onLoad?.enabled) {
+          if (h?.onLoad?.url != null || h?.onStop?.url !== '') {
+            httpMessage = h?.onStop?.url;
+          }
+        }
+
         // update lifecycle: idle
         this.ontimeCycle = this.cycleState.idle;
         break;
@@ -277,11 +323,34 @@ export class EventTimer extends Timer {
         this.broadcastState();
         // finished an event
         this.osc.send(this.osc.implemented.finished);
+
+        // check integrations - http
+        if (h?.onLoad?.enabled) {
+          if (h?.onLoad?.url != null || h?.onFinish?.url !== '') {
+            httpMessage = h?.onFinish?.url;
+          }
+        }
+
         // update lifecycle: onUpdate
         this.ontimeCycle = this.cycleState.onUpdate;
         break;
       default:
         console.log(`ERROR: Unhandled cycle: ${this.ontimeCycle}`)
+    }
+
+    // send http message if any
+    if (httpMessage != null) {
+      const v = {
+        '$timer': this.timeTag,
+        '$title': this.titles.titleNow,
+        '$presenter': this.titles.presenterNow,
+        '$subtitle': this.titles.subtitleNow,
+        '$next-title': this.titles.titleNext,
+        '$next-presenter': this.titles.presenterNext,
+        '$next-subtitle': this.titles.subtitleNext,
+      }
+      const m = cleanURL(replacePlaceholder(httpMessage, v));
+      this.http.send(m)
     }
 
     // reset cycle
