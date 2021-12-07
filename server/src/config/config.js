@@ -15,4 +15,9 @@ export const config = {
     targetIP: '127.0.0.1',
     enabled: true,
   },
+  http: {
+    user: '',
+    pwd: '',
+    enabled: true,
+  },
 };

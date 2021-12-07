@@ -161,7 +161,7 @@ export const startServer = async (overrideConfig = null) => {
   }
 
   // init timer
-  global.timer = new EventTimer(server, config.timer, oscConfig);
+  global.timer = new EventTimer(server, config.timer, oscConfig, data.http);
   global.timer.setupWithEventList(data.events);
 
   return returnMessage;
