@@ -6,7 +6,6 @@ import {
   validateEventv1,
 } from '../parser.js';
 import { dbModelv1 as dbModel } from '../../models/dataModel.js';
-import { describe } from 'jest-circus';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -133,6 +132,7 @@ describe('test json parser with valid def', () => {
       revision: 0,
       id: '4b31',
     };
+    expect(first).toStrictEqual(expected);
   });
 
   it('loaded event settings', () => {
@@ -192,7 +192,7 @@ describe('test parser edge cases', () => {
 
     const parseResponse = await parseJsonv1(testData);
     expect(console.log).toHaveBeenCalledWith(
-      'ERROR: ID colision on import, skipping'
+      'ERROR: ID collision on import, skipping'
     );
     expect(parseResponse?.events.length).toBe(1);
   });
@@ -418,7 +418,6 @@ describe('test makeString function', () => {
     expect(converted).toBe(expected);
 
     val = { doing: 'testing' };
-    expected = 'testing';
     converted = makeString(val, 'fallback');
     expect(converted).toBe('fallback');
   });

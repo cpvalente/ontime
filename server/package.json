@@ -38,6 +38,9 @@
     "dist-mac": "electron-builder --publish=never  --x64 --mac",
     "dist-all": "electron-builder -mw"
   },
+  "jest": {
+    "testPathIgnorePatterns": ["dist"]
+  },
   "build": {
     "productName": "ontime",
     "appId": "no.lightdev.ontime",
