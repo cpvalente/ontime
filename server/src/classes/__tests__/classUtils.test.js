@@ -1,4 +1,4 @@
-import { getSelectionByRoll, sortArrayByProperty } from '../classUtils.js';
+import {getSelectionByRoll, replacePlaceholder, sortArrayByProperty} from '../classUtils.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -380,5 +380,67 @@ describe('test that roll behaviour with overlapping times', () => {
 
     const state = getSelectionByRoll(eventlist, now);
     expect(state).toStrictEqual(expected);
+  });
+});
+
+// test replacePlaceholder()
+describe('test that it replaces data correctly', () => {
+  const values = {
+    $timer: "timer",
+    $title: "title",
+    $presenter: "presenter",
+    $subtitle: "subtitle",
+    "$next-title": "next title",
+    "$next-presenter": "next presenter",
+    "$next-subtitle": "next subtitle"
+  };
+
+  it('replaces timer', () => {
+    const test = '___1232132 $timer';
+    const expected = '___1232132 timer';
+    const s = replacePlaceholder(test, values)
+    expect(s).toBe(expected);
+  });
+
+  it('replaces title', () => {
+    const test = '___1232132 $title';
+    const expected = '___1232132 title';
+    const s = replacePlaceholder(test, values)
+    expect(s).toBe(expected);
+  });
+
+  it('replaces presenter', () => {
+    const test = '___1232132 $presenter';
+    const expected = '___1232132 presenter';
+    const s = replacePlaceholder(test, values)
+    expect(s).toBe(expected);
+  });
+  
+  it('replaces subtitle', () => {
+    const test = '___1232132 $subtitle';
+    const expected = '___1232132 subtitle';
+    const s = replacePlaceholder(test, values)
+    expect(s).toBe(expected);
+  });
+  
+  it('replaces next next title', () => {
+    const test = '___1232132 $next-title';
+    const expected = '___1232132 next title';
+    const s = replacePlaceholder(test, values)
+    expect(s).toBe(expected);
+  });
+  
+  it('replaces next presenter', () => {
+    const test = '___1232132 $next-presenter';
+    const expected = '___1232132 next presenter';
+    const s = replacePlaceholder(test, values)
+    expect(s).toBe(expected);
+  });
+  
+  it('replaces next subtitle', () => {
+    const test = '___1232132 $next-subtitle';
+    const expected = '___1232132 next subtitle';
+    const s = replacePlaceholder(test, values)
+    expect(s).toBe(expected);
   });
 });

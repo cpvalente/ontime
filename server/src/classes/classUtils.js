@@ -18,6 +18,21 @@ export const sortArrayByProperty = (arr, property) => {
 };
 
 /**
+ * @description Replaces placeholder variables in string with given data
+ * @param {string} str - string to analyse
+ * @param {object} values - map of variables: values to use
+ * @returns {string} finished string
+ */
+
+export const replacePlaceholder = (str, values) => {
+  for (let [k, v] of Object.entries(values)) {
+    str = str.replace(k, v);
+    console.log(k, v);
+  }
+  return str;
+};
+
+/**
  * @description Used in roll mode, returns selection variables from array
  * @param {array} arr - event list
  * @param {number} now - time now in millis
