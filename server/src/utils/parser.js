@@ -327,7 +327,7 @@ export const parseJsonv1 = async (jsonData, enforce=false) => {
       ...http,
     };
   } else if (enforce) {
-    returnData.osc = dbModelv1.http;
+    returnData.http = dbModelv1.http;
     console.log(`Created http object in db`);
   }
 
