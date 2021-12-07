@@ -7,25 +7,6 @@ export class HTTPIntegration {
     // nothing to do here
   }
 
-  /**
-   * @description Returns list of implemented messages
-   * @returns {object} implemented messages
-   */
-  get implemented() {
-    return {
-      play: 'play',
-      pause: 'pause',
-      stop: 'stop',
-      previous: 'prev',
-      next: 'next',
-      reload: 'reload',
-      finished: 'finished',
-      time: 'time',
-      overtime: 'overtime',
-      title: 'title',
-      presenter:'presenter',
-    }
-  }
 
   /**
    * @description Initializes oscClient
