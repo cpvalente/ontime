@@ -16,7 +16,7 @@ export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
 
 /**
  * @description Middleware function that checks file type and calls relevant parser
- * @argument {string} file - reference to file
+ * @param {string} file - reference to file
  * @return {object} - parse result message
  */
 export const fileHandler = async (file) => {
@@ -82,7 +82,7 @@ export const fileHandler = async (file) => {
 
 /**
  * @description Excel array parser
- * @argument {array} excelData - array with excel sheet
+ * @param {array} excelData - array with excel sheet
  * @returns {object} - parsed object
  */
 export const parseExcelv1 = async (excelData) => {
@@ -196,8 +196,8 @@ export const parseExcelv1 = async (excelData) => {
 
 /**
  * @description JSON parser function for v1 of data system
- * @argument {object} jsonData - json data JSON object to be parsed
- * @argument {boolean} [enforce=false] - flag, tells to create an object anyway
+ * @param {object} jsonData - json data JSON object to be parsed
+ * @param {boolean} [enforce=false] - flag, tells to create an object anyway
  * @returns {object} - parsed object
  */
 
@@ -312,6 +312,25 @@ export const parseJsonv1 = async (jsonData, enforce=false) => {
     console.log(`Created osc object in db`);
   }
 
+  // Import HTTP settings if any
+  if ('http' in jsonData) {
+    console.log('Found HTTP definition, importing...');
+    const h = jsonData.osc;
+    let http = {};
+
+    if (h.user) http.user = h.user;
+    if (h.pwd) http.pwd = h.pwd;
+
+    // write to db
+    returnData.http = {
+      ...dbModelv1.http,
+      ...http,
+    };
+  } else if (enforce) {
+    returnData.osc = dbModelv1.http;
+    console.log(`Created http object in db`);
+  }
+
   return returnData;
 };
 
@@ -319,7 +338,7 @@ export const parseJsonv1 = async (jsonData, enforce=false) => {
  * @description Ensures variable is string, it skips object types
  * @param {any} val - variable to convert
  * @param {string} [fallback=''] - fallback value
- * @returns {string} - value as string or fallback if not possibe
+ * @returns {string} - value as string or fallback if not possible
  */
 export const makeString = (val, fallback = '') => {
   if (typeof val === 'string') return val;
@@ -375,7 +394,7 @@ export const validateEventv1 = (eventArgs) => {
 
 /**
  * @description Delete file from system
- * @argument {string} file - reference to file
+ * @param {string} file - reference to file
  */
 const deleteFile = async (file) => {
   // delete a file
@@ -388,7 +407,8 @@ const deleteFile = async (file) => {
 
 /**
  * @description Delete file from system
- * @argument {string} file - reference to file
+ * @param {string} file - reference to file
+ * @returns {boolean} - whether file is valid JSON
  */
 export const validateFile = (file) => {
   try {
