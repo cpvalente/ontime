@@ -61,7 +61,7 @@ export default function StudioClock() {
                 key = {i}
                 className={i <= hoursNow ? style.hours__active : style.hours}
                 style={{
-                  transform: `rotate(${360/12*i-90}deg) translateX(250px)`
+                  transform: `rotate(${360/12*i-90}deg) translateX(380px)`
                 }}/>
             )
           )}
@@ -70,7 +70,7 @@ export default function StudioClock() {
                 key={i}
                 className={i <= minutesNow ? style.min__active : style.min}
                 style={{
-                  transform: `rotate(${360/60*i-90}deg) translateX(280px)`
+                  transform: `rotate(${360/60*i-90}deg) translateX(415px)`
                 }}/>
             )
           )}

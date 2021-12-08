@@ -18,22 +18,33 @@
   display: grid;
   grid-template-columns: 60vw 40vw;
   grid-template-areas: "clck schd";
-  gap: 0.5em;
-
 }
 
+@media only screen and (max-width: 1450px) {
+  .container {
+    display: grid;
+    grid-template-areas: "clck";
+    grid-template-columns: 100%;
+    place-content: center;
+  }
+  .scheduleContainer{
+    display: none;
+  }
+}
 /* =============== CLOCK STUFF ==================*/
 
+$size: 900px;
+$size-indicator: 16px;
+
 .clockContainer {
-  aspect-ratio: 1;
   display: grid;
   place-content: center;
   grid-area: clck;
-  width: 600px;
-  height: 600px;
+  width: $size;
+  height: $size;
   text-align: center;
   position: relative;
-  margin: 0 auto;
+  margin: auto;
 }
 
 .indicators {
@@ -42,35 +53,52 @@
   height: 100%;
 }
 
-.hours,
 .min,
-.hours__active,
 .min__active {
   border-radius: 50%;
   background: #380000;
   min-height: 12px;
-  width: 12px;
+  width:12px;
   position: absolute;
   top: calc(50% - 6px);
   left: calc(50% - 6px);
+
+}
+.hours,
+.hours__active{
+  border-radius: 50%;
+  background: #380000;
+  min-height:$size-indicator;
+  width: $size-indicator;
+  position: absolute;
+  top: calc(50% - 8px);
+  left: calc(50% - 8px);
+}
+
+.min__active,
+.hours__active {
+  box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
 }
 
 .decorator,
 .decorator__active,
 .decorator__next {
-    border-radius: 50%;
-    background: #380000;
-    min-height: 12px;
-  max-height: 12px;
-    width: 12px;
-  }
+  border-radius: 50%;
+  background: #380000;
+  min-height: $size-indicator;
+  max-height: $size-indicator;
+  width: $size-indicator;
+
+}
 
 .decorator__active {
-  background: #ab0000;
+  background: #0ff;
+  box-shadow: 0 0 10px 2px rgba(0,255,255,0.25);
 }
 
 .decorator__next{
-  background: #0ff;
+  background: #ab0000;
+  box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
 }
 
 .hours__active,
@@ -79,47 +107,59 @@
 }
 
 .time {
-  margin-top: 0.5em;
+  margin-top: calc(50% - 125px);
   color: #f00;
-  font-size: 15vw;
+  font-size: 275px;
+  line-height: 0.8em;
+  text-shadow: rgb(150,0,0) 0 0 20px;
 }
 
 .nextTitle {
-  color: #0ff5;
-  font-size: 5vw;
+  color: rgb(0, 152, 152);
+  font-size: 75px;
+  line-height: 0.8em;
 }
 
 .nextCountdown {
   color: #0ff;
-  font-size: 7vw;
+  font-size: 100px;
+  line-height: 1em;
+  text-shadow: rgb(0,100,100) 0 0 20px;
+
 }
 
 .scheduleContainer {
   grid-area: schd;
+  margin: 50px 0;
 }
 
 .onAir {
   color: #f00;
-  font-size: 8vw;
-  font-stretch: expanded;
+  font-size: 150px;
+  letter-spacing: 0.05em;
+  text-shadow: rgb(150,0,0) 0 0 20px;
+
 }
 
 ul {
-  color: #0ff5;
-  line-height: 1.6em;
+  color: rgb(0, 152, 152);
+  line-height: 1.3em;
   list-style: none;
+  font-size: 40px;
 }
 
 li {
   display: flex;
   align-items: center;
-  gap:1em;
+  gap: 20px;
 }
 
 .now {
   color: #0ff;
+  text-shadow: rgb(0,100,100) 0 0 20px;
 }
 
 .next {
   color: #f00;
+  text-shadow: rgb(100,0,0) 0 0 20px;
 }
