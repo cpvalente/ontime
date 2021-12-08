@@ -1,0 +1,98 @@
+@font-face {
+  font-family: "digital-clock-font";
+  src: url("https://www.1001fonts.com/download/font/digital-7.mono.ttf");
+}
+
+.container {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100%;
+  padding-top: 1vw;
+
+  background: #111;
+  font-family: digital-clock-font, monospace;
+  text-transform: uppercase;
+
+  display: grid;
+  grid-template-columns: 60vw 40vw;
+  grid-template-areas: "clck schd";
+  gap: 0.5em;
+
+}
+
+/* =============== CLOCK STUFF ==================*/
+
+.clockContainer {
+  aspect-ratio: 1;
+  display: grid;
+  place-content: center;
+  grid-area: clck;
+  width: 600px;
+  height: 600px;
+  text-align: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.indicators {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.hours,
+.min {
+  border-radius: 50%;
+  background: #380000;
+  min-height: 20px;
+  width: 20px;
+  position: absolute;
+  top: calc(50% - 10px);
+  left: calc(50% - 10px);
+}
+
+.hours--active,
+.min--active {
+  background: #ab0000;
+}
+
+.time {
+  margin-top: 0.5em;
+  color: #f00;
+  font-size: 15vw;
+}
+
+.nextTitle {
+  color: #0ff5;
+  font-size: 5vw;
+}
+
+.nextCountdown {
+  color: #0ff;
+  font-size: 7vw;
+}
+
+.scheduleContainer {
+  grid-area: schd;
+}
+
+.onAir {
+  color: #f00;
+  font-size: 8vw;
+  font-stretch: expanded;
+}
+
+ul {
+  color: #0ff5;
+  line-height: 1.6em;
+}
+
+.now {
+  color: #0ff;
+}
+
+.next {
+  color: #f00;
+}
