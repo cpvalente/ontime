@@ -43,18 +43,38 @@
 }
 
 .hours,
-.min {
+.min,
+.hours__active,
+.min__active {
   border-radius: 50%;
   background: #380000;
-  min-height: 20px;
-  width: 20px;
+  min-height: 12px;
+  width: 12px;
   position: absolute;
-  top: calc(50% - 10px);
-  left: calc(50% - 10px);
+  top: calc(50% - 6px);
+  left: calc(50% - 6px);
 }
 
-.hours--active,
-.min--active {
+.decorator,
+.decorator__active,
+.decorator__next {
+    border-radius: 50%;
+    background: #380000;
+    min-height: 12px;
+  max-height: 12px;
+    width: 12px;
+  }
+
+.decorator__active {
+  background: #ab0000;
+}
+
+.decorator__next{
+  background: #0ff;
+}
+
+.hours__active,
+.min__active {
   background: #ab0000;
 }
 
@@ -87,6 +107,13 @@
 ul {
   color: #0ff5;
   line-height: 1.6em;
+  list-style: none;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  gap:1em;
 }
 
 .now {

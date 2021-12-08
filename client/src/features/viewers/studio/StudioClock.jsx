@@ -6,6 +6,8 @@ import style from "./StudioClock.module.scss";
 export default function StudioClock() {
 
   const time = '23:45'
+  const hoursNow = 11;
+  const minutesNow = 45;
   const nextTitle = 'Race Start';
   const nextCountdown = '-00:25:34';
   const onAir = 'ON AIR';
@@ -44,8 +46,8 @@ export default function StudioClock() {
   ];
   const now = 'Start Grid Walk';
   const next = 'Race Start';
-  const hoursIndicators = [...Array(12).keys()]
-  const minutesIndicators = [...Array(60).keys()]
+  const hoursIndicators = [...Array(12).keys()];
+  const minutesIndicators = [...Array(60).keys()];
 
   return (
     <div className={style.container}>
@@ -57,18 +59,18 @@ export default function StudioClock() {
           {hoursIndicators.map(i => (
               <div
                 key = {i}
-                className={style.hours}
+                className={i <= hoursNow ? style.hours__active : style.hours}
                 style={{
-                  transform: `rotate(${360/12*i}deg) translateX(250px)`
+                  transform: `rotate(${360/12*i-90}deg) translateX(250px)`
                 }}/>
             )
           )}
           {minutesIndicators.map(i => (
               <div
                 key={i}
-                className={style.min}
+                className={i <= minutesNow ? style.min__active : style.min}
                 style={{
-                  transform: `rotate(${360/60*i}deg) translateX(280px)`
+                  transform: `rotate(${360/60*i-90}deg) translateX(280px)`
                 }}/>
             )
           )}
@@ -80,7 +82,7 @@ export default function StudioClock() {
           <ul>
             {schedule.map((m) => (
               <li key={m.title} className={m.title === now ? style.now : m.title === next ? style.next : ''}>
-                {`${m.time} - ${m.title}`}
+               <div className={m.title === now ? style.decorator__active : m.title === next ? style.decorator__next : style.decorator}/>{`${m.time} - ${m.title}`}
               </li>
               ))
             }
