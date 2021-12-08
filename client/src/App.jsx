@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import SocketProvider from 'app/context/socketContext';
 import withSocket from 'features/viewers/ViewWrapper';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
+import StudioClock from "./features/viewers/studio/StudioClock";
 
 const Editor = lazy(() => import('features/editors/Editor'));
 const PresenterView = lazy(() =>
@@ -77,6 +78,7 @@ function App() {
                 <Route exact path='/editor' component={Editor} />
                 <Route exact path='/public' component={SPublic} />
                 <Route exact path='/pip' component={SPip} />
+                <Route exact path='/studio' component={StudioClock} />
                 {/* Lower cannot have fallback */}
                 <Route exact path='/lower' component={SLowerThird} />
                 {/* Send to default if nothing found */}
