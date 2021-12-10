@@ -2,9 +2,10 @@
 // https://www.1001fonts.com/digital-dream-font.html
 
 import style from "./StudioClock.module.scss";
+import useFitText from "use-fit-text";
 
 export default function StudioClock() {
-
+  const { fontSize, ref } = useFitText({maxFontSize:500});
   const time = '23:45'
   const hoursNow = 11;
   const minutesNow = 45;
@@ -53,7 +54,13 @@ export default function StudioClock() {
     <div className={style.container}>
       <div className={style.clockContainer}>
         <div className={style.time}>{time}</div>
-        <div className={style.nextTitle}>{nextTitle}</div>
+        <div
+          ref={ref}
+          className={style.nextTitle}
+          style={{fontSize, height:'100px', width:'100%', maxWidth:'680px'}}
+        >
+          {nextTitle}
+        </div>
         <div className={style.nextCountdown}>{nextCountdown}</div>
         <div className={style.indicators}>
           {hoursIndicators.map(i => (

@@ -43,7 +43,7 @@
     margin: auto;
 
     .time {
-      margin-top: calc(50% - 150px);
+      margin-top: 175px;
       color: $red-active;
       font-size: 275px;
       line-height: 0.8em;
@@ -51,8 +51,7 @@
     }
     .nextTitle {
       color:$cyan-idle;
-      font-size: 75px;
-      line-height: 0.8em;
+      line-height: 100px;
     }
     .nextCountdown {
       color: $cyan-active;
