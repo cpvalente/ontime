@@ -18,6 +18,137 @@
   display: grid;
   grid-template-columns: 60vw 40vw;
   grid-template-areas: "clck schd";
+
+
+  /* =============== CLOCK STUFF ==================*/
+
+  $clock-size: 900px;
+  $size-hours: 20px;
+  $half-hours: 10px;
+  $size-min: 18px;
+  $half-min: 9px;
+  $red-active: #c53030;
+  $red-idle: darken($red-active, 30%);
+  $cyan-active: #0ff;
+  $cyan-idle: #0aa;
+
+  .clockContainer {
+    display: grid;
+    place-content: center;
+    grid-area: clck;
+    width: $clock-size;
+    height: $clock-size;
+    text-align: center;
+    position: relative;
+    margin: auto;
+
+    .time {
+      margin-top: calc(50% - 150px);
+      color: $red-active;
+      font-size: 275px;
+      line-height: 0.8em;
+      text-shadow: rgb(180,0,0) 0 0 20px;
+    }
+    .nextTitle {
+      color:$cyan-idle;
+      font-size: 75px;
+      line-height: 0.8em;
+    }
+    .nextCountdown {
+      color: $cyan-active;
+      font-size: 100px;
+      line-height: 1em;
+      text-shadow: rgb(0,100,100) 0 0 20px;
+    }
+
+    .indicators {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+
+      .min,
+      .min__active,
+      .hours,
+      .hours__active {
+        border-radius: 50%;
+        position: absolute;
+        background: $red-idle;
+      }
+      .min,
+      .min__active {
+        min-height: $size-min;
+        width: $size-min;
+        top: calc(50% - #{$half_min});
+        left: calc(50% - #{$half_min});
+      }
+      .hours,
+      .hours__active{
+        min-height:$size-hours;
+        width: $size-hours;
+        top: calc(50% - #{$half_hours});
+        left: calc(50% - #{$half_hours});
+      }
+      .min__active,
+      .hours__active {
+        background: $red-active;
+        box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
+      }
+    }
+  }
+
+  /* ============= SCHEDULE STUFF =================*/
+
+  .scheduleContainer {
+    grid-area: schd;
+    margin: 50px 0;
+
+    .onAir {
+      color: $red-active;
+      font-size: 190px;
+      line-height: 0.9em;
+      letter-spacing: 0.05em;
+      text-shadow: rgb(150,0,0) 0 0 20px;
+    }
+    .schedule {
+
+      ul {
+        color: $cyan-idle;
+        line-height: 1.3em;
+        list-style: none;
+        font-size: 40px;
+      }
+      li {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .now {
+        color: $cyan-active;
+        text-shadow: rgb(0,100,100) 0 0 20px;
+      }
+      .next {
+        color: $red-active;
+        text-shadow: rgb(100,0,0) 0 0 20px;
+      }
+      .decorator,
+      .decorator__active,
+      .decorator__next {
+        border-radius: 50%;
+        background: $red-idle;
+        min-height: $size-hours;
+        max-height: $size-hours;
+        width: $size-hours;
+      }
+      .decorator__active {
+        background: $cyan-active;
+        box-shadow: 0 0 10px 2px rgba(0,255,255,0.25);
+      }
+      .decorator__next{
+        background: $red-active;
+        box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
+      }
+    }
+  }
 }
 
 @media only screen and (max-width: 1450px) {
@@ -30,142 +161,4 @@
   .scheduleContainer{
     display: none;
   }
-}
-/* =============== CLOCK STUFF ==================*/
-
-$clock-size: 900px;
-$size-hours: 20px;
-$half-hours: 10px;
-$size-min: 18px;
-$half-min: 9px;
-$red-active: #c53030;
-$red-idle: darken($red-active, 30%);
-$cyan-active: #0ff;
-$cyan-idle: #0aa;
-
-.clockContainer {
-  display: grid;
-  place-content: center;
-  grid-area: clck;
-  width: $clock-size;
-  height: $clock-size;
-  text-align: center;
-  position: relative;
-  margin: auto;
-}
-
-.indicators {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.min,
-.min__active {
-  border-radius: 50%;
-  background: $red-idle;
-  min-height: $size-min;
-  width: $size-min;
-  position: absolute;
-  top: calc(50% - #{$half_min});
-  left: calc(50% - #{$half_min});
-}
-
-.hours,
-.hours__active{
-  border-radius: 50%;
-  background: $red-idle;
-  min-height:$size-hours;
-  width: $size-hours;
-  position: absolute;
-  top: calc(50% - #{$half_hours});
-  left: calc(50% - #{$half_hours});
-}
-
-.min__active,
-.hours__active {
-  box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
-}
-
-.decorator,
-.decorator__active,
-.decorator__next {
-  border-radius: 50%;
-  background: $red-idle;
-  min-height: $size-hours;
-  max-height: $size-hours;
-  width: $size-hours;
-
-}
-
-.decorator__active {
-  background: $cyan-active;
-  box-shadow: 0 0 10px 2px rgba(0,255,255,0.25);
-}
-
-.decorator__next{
-  background: $red-active;
-  box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
-}
-
-.hours__active,
-.min__active {
-  background: $red-active;
-}
-
-.time {
-  margin-top: calc(50% - 150px);
-  color: $red-active;
-  font-size: 275px;
-  line-height: 0.8em;
-  text-shadow: rgb(180,0,0) 0 0 20px;
-}
-
-.nextTitle {
-  color:$cyan-idle;
-  font-size: 75px;
-  line-height: 0.8em;
-}
-
-.nextCountdown {
-  color: $cyan-active;
-  font-size: 100px;
-  line-height: 1em;
-  text-shadow: rgb(0,100,100) 0 0 20px;
-}
-
-.scheduleContainer {
-  grid-area: schd;
-  margin: 50px 0;
-}
-
-.onAir {
-  color: $red-active;
-  font-size: 190px;
-  line-height: 0.9em;
-  letter-spacing: 0.05em;
-  text-shadow: rgb(150,0,0) 0 0 20px;
-}
-
-ul {
-  color: $cyan-idle;
-  line-height: 1.3em;
-  list-style: none;
-  font-size: 40px;
-}
-
-li {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.now {
-  color: $cyan-active;
-  text-shadow: rgb(0,100,100) 0 0 20px;
-}
-
-.next {
-  color: $red-active;
-  text-shadow: rgb(100,0,0) 0 0 20px;
 }
