@@ -51,5 +51,7 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "sass": "^1.44.0"
+  }
 }
