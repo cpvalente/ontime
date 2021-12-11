@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Link, Redirect } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -5,7 +6,8 @@ import { useState, useEffect, useCallback } from 'react';
 import navlogo from 'assets/images/logos/LOGO-72.png';
 import style from './NavLogo.module.scss';
 
-export default function NavLogo() {
+export default function NavLogo(props) {
+  const {isHidden} = props;
   const [showNav, setShowNav] = useState(false);
 
   const handleClick = () => {
@@ -30,9 +32,10 @@ export default function NavLogo() {
     };
   }, [handleKeyPress]);
 
+  const baseOpacity = (isHidden) ? 0 : 0.5
   return (
     <motion.div
-      initial={{ opacity: 0.5 }}
+      initial={{ opacity: baseOpacity }}
       whileHover={{ opacity: 1 }}
       className={style.navContainer}
     >
@@ -103,4 +106,8 @@ export default function NavLogo() {
       </AnimatePresence>
     </motion.div>
   );
+}
+
+NavLogo.propTypes = {
+  isHidden: PropTypes.bool,
 }
