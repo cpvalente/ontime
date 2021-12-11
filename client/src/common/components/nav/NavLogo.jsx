@@ -51,12 +51,12 @@ export default function NavLogo() {
             className={showNav ? style.nav : style.navHidden}
           >
             <Link
-              to='/speaker'
+              to='/presenter'
               className={style.navItem}
               tabIndex={1}
-              onKeyDownCapture={() => <Redirect push to='/speaker' />}
+              onKeyDownCapture={() => <Redirect push to='/presenter' />}
             >
-              Speaker
+              Presenter
             </Link>
             <Link
               to='/sm'

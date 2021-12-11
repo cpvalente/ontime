@@ -31,8 +31,8 @@ const queryClient = new QueryClient();
 //   broadcastChannel: 'ontime',
 // });
 
-const SSpeaker = withSocket(PresenterView);
-const SSpeakerSimple = withSocket(PresenterSimple);
+const SPresenter = withSocket(PresenterView);
+const SPresenterSimple = withSocket(PresenterSimple);
 const SStageManager = withSocket(StageManager);
 const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
@@ -72,11 +72,12 @@ function App() {
           <ErrorBoundary>
             <Suspense fallback={null}>
               <Switch>
-                <Route exact path='/' component={SSpeaker} />
+                <Route exact path='/' component={SPresenter} />
                 <Route exact path='/sm' component={SStageManager} />
-                <Route exact path='/speaker' component={SSpeaker} />
-                <Route exact path='/stage' component={SSpeaker} />
-                <Route exact path='/speakersimple' component={SSpeakerSimple} />
+                <Route exact path='/speaker' component={SPresenter} />
+                <Route exact path='/presenter' component={SPresenter} />
+                <Route exact path='/stage' component={SPresenter} />
+                <Route exact path='/presentersimple' component={SPresenterSimple} />
                 <Route exact path='/editor' component={Editor} />
                 <Route exact path='/public' component={SPublic} />
                 <Route exact path='/pip' component={SPip} />
@@ -84,7 +85,7 @@ function App() {
                 {/* Lower cannot have fallback */}
                 <Route exact path='/lower' component={SLowerThird} />
                 {/* Send to default if nothing found */}
-                <Route component={SSpeaker} />
+                <Route component={SPresenter} />
               </Switch>
             </Suspense>
           </ErrorBoundary>
