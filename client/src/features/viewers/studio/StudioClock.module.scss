@@ -54,14 +54,19 @@
       color:$cyan-idle;
       line-height: 100px;
     }
-    .nextCountdown {
+    .nextCountdown,
+    .nextCountdown__overtime{
       color: $cyan-active;
       font-size: 100px;
       line-height: 1em;
       text-shadow: rgb(0,100,100) 0 0 20px;
     }
-
-    .indicators {
+    .nextCountdown::before {
+      content: '-';
+    }
+    .nextCountdown__overtime {
+    }
+      .indicators {
       position: absolute;
       width: 100%;
       height: 100%;

@@ -5,6 +5,7 @@ import style from "./StudioClock.module.scss";
 import useFitText from "use-fit-text";
 import NavLogo from "../../../common/components/nav/NavLogo";
 import {useEffect} from "react";
+import {formatDisplay} from "../../../common/utils/dateConfig";
 
 export default function StudioClock(props) {
   const {title, time} = props;
@@ -13,7 +14,7 @@ export default function StudioClock(props) {
   const hoursNow = clockNow.split(':')[0] || 0;
   const minutesNow = clockNow.split(':')[1] || 0;
   const nextTitle = title.titleNext;
-  const nextCountdown = '-00:25:34';
+  const nextCountdown =formatDisplay(time.running);
   const onAir = true;
   const schedule = [
     {
@@ -71,7 +72,7 @@ export default function StudioClock(props) {
         >
           {nextTitle}
         </div>
-        <div className={style.nextCountdown}>{nextCountdown}</div>
+        <div className={time.running > 0 ? style.nextCountdown: style.nextCountdown__overtime}>{nextCountdown}</div>
         <div className={style.indicators}>
           {hoursIndicators.map(i => (
               <div
