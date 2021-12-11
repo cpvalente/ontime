@@ -139,8 +139,8 @@ export class Timer {
     return this.duration - this.current;
   }
 
-  // getObject
-  getObject(update = true) {
+  // get time object
+  getTimes(update = true) {
     // update timer
     if (update) this.update();
 
