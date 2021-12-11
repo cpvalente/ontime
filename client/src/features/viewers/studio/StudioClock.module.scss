@@ -9,14 +9,14 @@
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
   height: 100%;
-  padding-top: 1vw;
 
   background: #111;
   font-family: digital-clock, monospace;
   text-transform: uppercase;
 
   display: grid;
-  grid-template-columns: 60vw 40vw;
+  grid-template-columns: 1000px 1fr;
+  gap: 50px;
   grid-template-areas: "clck schd";
 
 
@@ -100,6 +100,7 @@
   .scheduleContainer {
     grid-area: schd;
     margin: 50px 0;
+    padding-right: 50px;
 
     .onAir {
       color: $red-active;
@@ -132,6 +133,7 @@
       .decorator,
       .decorator__active,
       .decorator__next {
+        aspect-ratio: 1;
         border-radius: 50%;
         background: $red-idle;
         min-height: $size-hours;
@@ -150,7 +152,7 @@
   }
 }
 
-@media only screen and (max-width: 1450px) {
+@media only screen and (max-width: 1600px) {
   .container {
     display: grid;
     grid-template-areas: "clck";

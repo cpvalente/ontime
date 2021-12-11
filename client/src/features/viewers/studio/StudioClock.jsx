@@ -38,7 +38,7 @@ export default function StudioClock() {
     },
     {
       time: '16:10',
-      title: 'Race Finish'
+      title: 'what is th emost reasonably ling title we can have? maybe something'
     },
     {
       time: '16:30',
