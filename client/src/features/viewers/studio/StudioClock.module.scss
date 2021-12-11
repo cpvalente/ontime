@@ -8,17 +8,15 @@
   box-sizing: border-box; /* reset */
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
-  height: 100%;
+  height: 100vh;
+  padding: 1vw;
 
   background: #111;
-  font-family: digital-clock, monospace;
-  text-transform: uppercase;
 
   display: grid;
   grid-template-columns: 1000px 1fr;
   gap: 50px;
   grid-template-areas: "clck schd";
-
 
   /* =============== CLOCK STUFF ==================*/
 
@@ -41,6 +39,9 @@
     text-align: center;
     position: relative;
     margin: auto;
+    font-family: digital-clock, monospace;
+    text-transform: uppercase;
+
 
     .time {
       margin-top: 175px;
@@ -101,6 +102,9 @@
     grid-area: schd;
     margin: 50px 0;
     padding-right: 50px;
+    font-family: digital-clock, monospace;
+    text-transform: uppercase;
+
 
     .onAir {
       color: $red-active;

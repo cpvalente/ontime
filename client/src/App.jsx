@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import SocketProvider from 'app/context/socketContext';
 import withSocket from 'features/viewers/ViewWrapper';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
-import StudioClock from "./features/viewers/studio/StudioClock";
 
 const Editor = lazy(() => import('features/editors/Editor'));
 const PresenterView = lazy(() =>
@@ -23,6 +22,8 @@ const Lower = lazy(() =>
 );
 const Pip = lazy(() => import('features/viewers/production/Pip'));
 
+const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
+
 const queryClient = new QueryClient();
 // Seemed to cause issues
 // broadcastQueryClient({
@@ -36,6 +37,7 @@ const SStageManager = withSocket(StageManager);
 const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
 const SPip = withSocket(Pip);
+const SStudio = withSocket(StudioClock);
 
 function App() {
   // Handle keyboard shortcuts
@@ -78,7 +80,7 @@ function App() {
                 <Route exact path='/editor' component={Editor} />
                 <Route exact path='/public' component={SPublic} />
                 <Route exact path='/pip' component={SPip} />
-                <Route exact path='/studio' component={StudioClock} />
+                <Route exact path='/studio' component={SStudio} />
                 {/* Lower cannot have fallback */}
                 <Route exact path='/lower' component={SLowerThird} />
                 {/* Send to default if nothing found */}

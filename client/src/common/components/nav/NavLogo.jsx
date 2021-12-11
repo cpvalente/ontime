@@ -3,7 +3,7 @@ import { Image } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState, useEffect, useCallback } from 'react';
 import navlogo from 'assets/images/logos/LOGO-72.png';
-import style from './NavLogo.module.css';
+import style from './NavLogo.module.scss';
 
 export default function NavLogo() {
   const [showNav, setShowNav] = useState(false);
@@ -89,6 +89,14 @@ export default function NavLogo() {
               onKeyDownCapture={() => <Redirect push to='/pip' />}
             >
               PIP
+            </Link>
+            <Link
+              to='/studio'
+              className={style.navItem}
+              tabIndex={5}
+              onKeyDownCapture={() => <Redirect push to='/studio' />}
+            >
+              Studio Clock
             </Link>
           </motion.div>
         )}

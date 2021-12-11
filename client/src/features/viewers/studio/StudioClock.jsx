@@ -3,6 +3,7 @@
 
 import style from "./StudioClock.module.scss";
 import useFitText from "use-fit-text";
+import NavLogo from "../../../common/components/nav/NavLogo";
 
 export default function StudioClock() {
   const { fontSize, ref } = useFitText({maxFontSize:500});
@@ -52,6 +53,7 @@ export default function StudioClock() {
 
   return (
     <div className={style.container}>
+      <NavLogo />
       <div className={style.clockContainer}>
         <div className={style.time}>{time}</div>
         <div
