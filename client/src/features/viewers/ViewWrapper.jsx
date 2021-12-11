@@ -10,13 +10,9 @@ const withSocket = (Component) => {
   const WrappedComponent = (props) => {
     const {
       data: eventsData,
-      status: eventsDataStatus,
-      isError: eventsDataIsError,
     } = useFetch(EVENTS_TABLE, fetchAllEvents);
     const {
       data: genData,
-      status: genDataStatus,
-      isError: genDataIsError,
     } = useFetch(EVENT_TABLE, fetchEvent);
 
     const [publicEvents, setPublicEvents] = useState([]);
@@ -224,6 +220,7 @@ const withSocket = (Component) => {
       ...timer,
       finished: playback === 'start' && timer.running <= 0 && timer.startedAt,
       clock: stringFromMillis(timer.clock),
+      clockNoSeconds: stringFromMillis(timer.clock, false),
       playstate: playback,
     };
 

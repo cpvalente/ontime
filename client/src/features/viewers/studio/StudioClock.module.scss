@@ -106,12 +106,19 @@
     text-transform: uppercase;
 
 
-    .onAir {
+    .onAir,
+    .onAir__idle{
       color: $red-active;
       font-size: 190px;
       line-height: 0.9em;
       letter-spacing: 0.05em;
+    }
+    .onAir {
+      color: $red-active;
       text-shadow: rgb(150,0,0) 0 0 20px;
+    }
+    .onAir__idle {
+      color: $red-idle
     }
     .schedule {
 

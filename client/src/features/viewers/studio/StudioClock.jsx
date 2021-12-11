@@ -4,15 +4,17 @@
 import style from "./StudioClock.module.scss";
 import useFitText from "use-fit-text";
 import NavLogo from "../../../common/components/nav/NavLogo";
+import {useEffect} from "react";
 
-export default function StudioClock() {
+export default function StudioClock(props) {
+  const {title, time} = props;
   const { fontSize, ref } = useFitText({maxFontSize:500});
-  const time = '23:45'
-  const hoursNow = 11;
-  const minutesNow = 45;
-  const nextTitle = 'Race Start';
+  const clockNow = time.clockNoSeconds;
+  const hoursNow = clockNow.split(':')[0] || 0;
+  const minutesNow = clockNow.split(':')[1] || 0;
+  const nextTitle = title.titleNext;
   const nextCountdown = '-00:25:34';
-  const onAir = 'ON AIR';
+  const onAir = true;
   const schedule = [
     {
       time: '22:40',
@@ -51,11 +53,17 @@ export default function StudioClock() {
   const hoursIndicators = [...Array(12).keys()];
   const minutesIndicators = [...Array(60).keys()];
 
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Studio Clock';
+  }, []);
+
+
   return (
     <div className={style.container}>
       <NavLogo />
       <div className={style.clockContainer}>
-        <div className={style.time}>{time}</div>
+        <div className={style.time}>{clockNow}</div>
         <div
           ref={ref}
           className={style.nextTitle}
@@ -86,7 +94,7 @@ export default function StudioClock() {
         </div>
       </div>
       <div className={style.scheduleContainer}>
-        <div className={style.onAir}>{onAir}</div>
+        <div className={onAir ? style.onAir : style.onAir__idle}>ON AIR</div>
         <div className={style.schedule}>
           <ul>
             {schedule.map((m) => (
