@@ -54,9 +54,10 @@ export const trimEventlist = (events, selectedId, limit) => {
  * @description Returns list of events formatted to be displayed
  * @param {Object[]} events - given events
  * @param {string} selectedId - id of currently selected event
+ * @param {boolean} [showEnd] - whether to show the end time
  * @returns {Object[]} Formatted list of events [{time: -, title: -, isNow, isNext}]
  */
-export const formatEventList = (events, selectedId) => {
+export const formatEventList = (events, selectedId, showEnd = false) => {
   if (events == null) return [];
 
   const givenEvents = [...events];
@@ -71,7 +72,7 @@ export const formatEventList = (events, selectedId) => {
 
     const o = {
       id: g.id,
-      time: `${start} - ${end}`,
+      time: showEnd ? `${start} - ${end}` : start,
       title: g.title,
       isNow,
       isNext,

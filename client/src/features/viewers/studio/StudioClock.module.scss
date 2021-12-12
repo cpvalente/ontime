@@ -50,21 +50,29 @@
       line-height: 0.8em;
       text-shadow: rgb(180,0,0) 0 0 20px;
     }
+    .nextTitle:after,
+    .nextCountdown:after,
+    .nextCountdown__overtime:after {
+      content: '\200b';
+    }
     .nextTitle {
       color:$cyan-idle;
       line-height: 100px;
     }
     .nextCountdown,
-    .nextCountdown__overtime{
-      color: $cyan-active;
+    .nextCountdown__overtime {
       font-size: 100px;
       line-height: 1em;
+    }
+    .nextCountdown {
+      color: $cyan-active;
       text-shadow: rgb(0,100,100) 0 0 20px;
     }
     .nextCountdown::before {
       content: '-';
     }
     .nextCountdown__overtime {
+      color: darken($red-active, 10%);
     }
       .indicators {
       position: absolute;
@@ -114,6 +122,7 @@
     .onAir,
     .onAir__idle{
       color: $red-active;
+      padding-bottom: 50px;
       font-size: 190px;
       line-height: 0.9em;
       letter-spacing: 0.05em;

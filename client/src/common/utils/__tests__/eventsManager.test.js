@@ -336,12 +336,14 @@ describe('test formatEvents function', () => {
     const selectedId = 'otherEvent';
     const expected = [
       {
+        id: '5946',
         time: '08:00 - 08:30',
         title: 'Welcome to Ontime',
         isNow: false,
         isNext: false,
       },
       {
+        id: '8ee5',
         time: '09:40 - 09:50',
         title: 'Unless recalled by the OSC address',
         isNow: false,
@@ -350,7 +352,7 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId);
+    const parsed = formatEventList(testEvent, selectedId, true);
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -358,12 +360,14 @@ describe('test formatEvents function', () => {
     const selectedId = '5946';
     const expected = [
       {
+        id: '5946',
         time: '08:00 - 08:30',
         title: 'Welcome to Ontime',
         isNow: true,
         isNext: false,
       },
       {
+        id: '8ee5',
         time: '09:40 - 09:50',
         title: 'Unless recalled by the OSC address',
         isNow: false,
@@ -372,7 +376,7 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId);
+    const parsed = formatEventList(testEvent, selectedId, true);
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -380,12 +384,14 @@ describe('test formatEvents function', () => {
     const selectedId = '8ee5';
     const expected = [
       {
+        id: '5946',
         time: '08:00 - 08:30',
         title: 'Welcome to Ontime',
         isNow: false,
         isNext: false,
       },
       {
+        id: '8ee5',
         time: '09:40 - 09:50',
         title: 'Unless recalled by the OSC address',
         isNow: true,
@@ -394,7 +400,7 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId);
+    const parsed = formatEventList(testEvent, selectedId, true);
     expect(parsed).toStrictEqual(expected);
   });
 })
