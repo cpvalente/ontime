@@ -334,6 +334,7 @@ describe('test formatEvents function', () => {
 
   test ('it parses correctly', () => {
     const selectedId = 'otherEvent';
+    const nextId = 'notHere';
     const expected = [
       {
         id: '5946',
@@ -352,12 +353,13 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId, true);
     expect(parsed).toStrictEqual(expected);
   });
 
   test ('it handles selected correctly', () => {
     const selectedId = '5946';
+    const nextId = '8ee5';
     const expected = [
       {
         id: '5946',
@@ -376,12 +378,14 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId,true);
     expect(parsed).toStrictEqual(expected);
   });
 
   test ('it handles next correctly', () => {
     const selectedId = '8ee5';
+    const nextId = 'notHere';
+
     const expected = [
       {
         id: '5946',
@@ -400,7 +404,7 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId, true);
     expect(parsed).toStrictEqual(expected);
   });
 })

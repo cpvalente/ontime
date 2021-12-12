@@ -54,6 +54,7 @@ const withSocket = (Component) => {
       presenterNext: '',
     });
     const [selectedId, setSelectedId] = useState(null);
+    const [nextId, setNextId] = useState(null);
     const [publicSelectedId, setPublicSelectedId] = useState(null);
     const [general, setGeneral] = useState({
       title: '',
@@ -108,7 +109,9 @@ const withSocket = (Component) => {
       socket.on('publicselected-id', (data) => {
         setPublicSelectedId(data);
       });
-
+      socket.on('next-id', (data) => {
+        setNextId(data);
+      });
       // Ask for up to date data
       socket.emit('get-messages');
 
@@ -127,6 +130,7 @@ const withSocket = (Component) => {
 
       // Ask for up selected
       socket.emit('get-selected-id');
+      socket.emit('get-next-id');
 
       // Clear listeners
       return () => {
@@ -138,6 +142,7 @@ const withSocket = (Component) => {
         socket.off('titles');
         socket.off('publictitles');
         socket.off('selected-id');
+        socket.emit('get-next-id');
       };
     }, [socket]);
 
@@ -237,6 +242,7 @@ const withSocket = (Component) => {
         backstageEvents={backstageEvents}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
+        nextId={nextId}
         general={general}
       />
     );

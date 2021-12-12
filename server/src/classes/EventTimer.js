@@ -63,6 +63,7 @@ export class EventTimer extends Timer {
   nextPublicEventId = null;
   numEvents = null;
   _eventlist = null;
+  onAir = false;
 
   constructor(httpServer, oscClient, config) {
     // call super constructor
@@ -224,6 +225,7 @@ export class EventTimer extends Timer {
     this.io.emit('publicnext-id', this.nextPublicEventId);
     this.io.emit('titles', this.titles);
     this.io.emit('publictitles', this.titlesPublic);
+    this.io.emit('onAir', this.onAir);
   }
 
   // broadcast message
@@ -417,6 +419,10 @@ export class EventTimer extends Timer {
 
       socket.on('get-playstate', () => {
         socket.emit('playstate', this.state);
+      });
+
+      socket.on('get-onAir', () => {
+        socket.emit('onAir', this.onAir);
       });
 
       /*******************************************/
@@ -947,6 +953,14 @@ export class EventTimer extends Timer {
       ------------------------------
       numClients      = ${this._numClients}
     `;
+  }
+
+  /**
+   * @description Set onAir property of timer
+   * @param {boolean} onAir - whether flag is active
+   */
+  set onAir(onAir) {
+    this.onAir = onAir;
   }
 
   start() {

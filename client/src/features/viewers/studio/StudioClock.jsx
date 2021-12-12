@@ -6,7 +6,7 @@ import {formatDisplay} from "../../../common/utils/dateConfig";
 import {formatEventList, trimEventlist} from "../../../common/utils/eventsManager";
 
 export default function StudioClock(props) {
-  const { title, time, backstageEvents, selectedId } = props;
+  const { title, time, backstageEvents, selectedId, nextId } = props;
   const { fontSize, ref } = useFitText({maxFontSize:500});
   const [hoursNow, minutesNow] = time.clockNoSeconds.split(':');
   const [schedule, setSchedule] = useState([]);
@@ -29,10 +29,10 @@ export default function StudioClock(props) {
     const events = backstageEvents.filter((e) => e.type === 'event');
 
     let e = trimEventlist(events, selectedId, MAX_TITLES);
-    e = formatEventList(e, selectedId);
+    e = formatEventList(e, selectedId, nextId);
     setSchedule(e);
 
-  }, [backstageEvents, selectedId])
+  }, [backstageEvents, selectedId, nextId])
 
   return (
     <div className={style.container}>
