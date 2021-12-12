@@ -129,11 +129,12 @@
 
       ul {
         color: $cyan-idle;
-        line-height: 1.3em;
+        line-height: 1em;
         list-style: none;
         font-size: 40px;
       }
       li {
+        padding-bottom: 0.5em;
         display: flex;
         align-items: center;
         gap: 20px;

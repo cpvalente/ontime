@@ -1,78 +1,52 @@
-// https://github.com/cpvalente/ontime/issues/42
-// https://www.1001fonts.com/digital-dream-font.html
-
 import style from "./StudioClock.module.scss";
 import useFitText from "use-fit-text";
 import NavLogo from "../../../common/components/nav/NavLogo";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {formatDisplay} from "../../../common/utils/dateConfig";
+import {formatEventList, trimEventlist} from "../../../common/utils/eventsManager";
 
 export default function StudioClock(props) {
-  const {title, time} = props;
+  const { title, time, backstageEvents, selectedId } = props;
   const { fontSize, ref } = useFitText({maxFontSize:500});
-  const clockNow = time.clockNoSeconds;
-  const hoursNow = clockNow.split(':')[0] || 0;
-  const minutesNow = clockNow.split(':')[1] || 0;
-  const nextTitle = title.titleNext;
-  const nextCountdown =formatDisplay(time.running);
+  const [hoursNow, minutesNow] = time.clockNoSeconds.split(':');
+  const [schedule, setSchedule] = useState([]);
+
   const onAir = true;
-  const schedule = [
-    {
-      time: '22:40',
-      title: 'Pre Show'
-    },
-    {
-      time: '23:00',
-      title: 'Studio Talk'
-    },
-    {
-      time: '23:10',
-      title: 'Garage Walk'
-    },
-    {
-      time: '23:25',
-      title: 'Studio Walk'
-    },
-    {
-      time: '23:35',
-      title: 'Start Grid Walk'
-    },    {
-      time: '00:10',
-      title: 'Race Start'
-    },
-    {
-      time: '16:10',
-      title: 'what is th emost reasonably ling title we can have? maybe something'
-    },
-    {
-      time: '16:30',
-      title: 'Prize Podium'
-    },
-  ];
-  const now = 'Start Grid Walk';
-  const next = 'Race Start';
   const hoursIndicators = [...Array(12).keys()];
   const minutesIndicators = [...Array(60).keys()];
+  const MAX_TITLES = 8;
 
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
   }, []);
 
+  // Prepare event list
+  // Todo: useMemo()
+  useEffect(() => {
+    if (backstageEvents == null) return;
+
+    const events = backstageEvents.filter((e) => e.type === 'event');
+
+    let e = trimEventlist(events, selectedId, MAX_TITLES);
+    e = formatEventList(e, selectedId);
+    setSchedule(e);
+
+  }, [backstageEvents, selectedId])
 
   return (
     <div className={style.container}>
       <NavLogo />
       <div className={style.clockContainer}>
-        <div className={style.time}>{clockNow}</div>
+        <div className={style.time}>{time.clockNoSeconds}</div>
         <div
           ref={ref}
           className={style.nextTitle}
           style={{fontSize, height:'100px', width:'100%', maxWidth:'680px'}}
         >
-          {nextTitle}
+          {title.titleNext}
         </div>
-        <div className={time.running > 0 ? style.nextCountdown: style.nextCountdown__overtime}>{nextCountdown}</div>
+        <div className={time.running > 0 ? style.nextCountdown: style.nextCountdown__overtime}>{formatDisplay(time.running)}</div>
         <div className={style.indicators}>
           {hoursIndicators.map(i => (
               <div
@@ -98,9 +72,9 @@ export default function StudioClock(props) {
         <div className={onAir ? style.onAir : style.onAir__idle}>ON AIR</div>
         <div className={style.schedule}>
           <ul>
-            {schedule.map((m) => (
-              <li key={m.title} className={m.title === now ? style.now : m.title === next ? style.next : ''}>
-               <div className={m.title === now ? style.decorator__active : m.title === next ? style.decorator__next : style.decorator}/>{`${m.time} - ${m.title}`}
+            {schedule.map((s) => (
+              <li key={s.id} className={s.isNow ? style.now : s.isNext ? style.next : ''}>
+               <div className={s.isNow ? style.decorator__active : s.isNext ? style.decorator__next : style.decorator}/>{`${s.time} ${s.title}`}
               </li>
               ))
             }
