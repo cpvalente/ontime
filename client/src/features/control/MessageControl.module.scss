@@ -1,0 +1,54 @@
+.messageContainer,
+.onAirToggle {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  display: flex;
+  gap: 0.5em;
+  padding: 0.5em;
+
+}
+
+.messageContainer {
+  flex-direction: column;
+
+  .inputItems {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1em;
+  }
+  .label {
+    padding: 0;
+    margin: 0;
+    font-size: 0.9em;
+    color: #ccc;
+  }
+  .inline {
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .padleft {
+    padding-left: 0.5em;
+  }
+}
+
+.onAirToggle {
+  margin-top: 1em;
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  line-height: 3em;
+
+  .onAirLabel {
+    font-size: 1.2em;
+  }
+  .oscLabel {
+    color: #4bffabcc;
+    font-size: 0.8em;
+    float: right;
+    padding-right: 1em;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
