@@ -1,6 +1,6 @@
 import { Timer } from './Timer.js';
 import { Server } from 'socket.io';
-import { getSelectionByRoll } from './classUtils.js';
+import {DAYMS, getSelectionByRoll} from './classUtils.js';
 
 /*
  * EventTimer adds functions specific to APP
@@ -11,9 +11,6 @@ import { getSelectionByRoll } from './classUtils.js';
  */
 
 export class EventTimer extends Timer {
-  // AUX
-  DAYMS = 86400000;
-
   // Socket IO Object
   io = null;
 
@@ -689,7 +686,7 @@ export class EventTimer extends Timer {
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
     let end = e.timeEnd == null || e.timeEnd === '' ? 0 : e.timeEnd;
     // in case the end is earlier than start, we assume is the day after
-    if (end < start) end += this.DAYMS;
+    if (end < start) end += DAYMS;
 
     // time stuff changes on wheter we keep the running clock
 

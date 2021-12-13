@@ -70,7 +70,7 @@ describe('test excel date parser', () => {
     expect(excelDateStringToMillis(d2)).toBe(d2Millis);
   });
 
-  it.only('handles an invalid date string', () => {
+  it('handles an invalid date string', () => {
     const s = 'hello';
     expect(excelDateStringToMillis(s)).toBe(null);
   });

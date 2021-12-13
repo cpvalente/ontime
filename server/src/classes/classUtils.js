@@ -1,3 +1,5 @@
+export const DAYMS = 86400000;
+
 /**
  * @description Sorts an array of objects by given property
  * @param {array} arr - array to be sorted

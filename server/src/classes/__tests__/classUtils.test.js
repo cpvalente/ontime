@@ -382,3 +382,66 @@ describe('test that roll behaviour with overlapping times', () => {
     expect(state).toStrictEqual(expected);
   });
 });
+
+// test getSelectionByRoll() on issue #58
+describe('test that roll behaviour multi day event edge cases', () => {
+
+  it('if the start time is the day after end time, and start time is earlier than now', () => {
+    const now = 66600000;     // 19:30
+    const eventlist = [
+      {
+        id: 1,
+        timeStart: 66000000,  // 19:20
+        timeEnd: 54600000,    // 16:10
+        isPublic: false,
+      }
+    ];
+    const expected = {
+      nowIndex: 0,
+      nowId: 1,
+      publicIndex: null,
+      nextIndex: null,
+      publicNextIndex: null,
+      timers: {
+        _startedAt: eventlist[0].timeStart,
+        _finishAt: eventlist[0].timeEnd,
+        current: now-eventlist[0].timeStart,
+        duration: DAYMS - eventlist[0].timeStart + eventlist[0].timeEnd,
+      },
+      timeToNext: DAYMS - now + eventlist[0].timeEnd,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+  it('ff the start time is the day after end time, and both are later than now', () => {
+    const now = 66840000;     // 19:34
+    const eventlist = [
+      {
+        id: 1,
+        timeStart: 67200000,  // 19:40
+        timeEnd: 66900000,    // 19:35
+        isPublic: false,
+      }
+    ];
+    const expected = {
+      nowIndex: 0,
+      nowId: 1,
+      publicIndex: null,
+      nextIndex: null,
+      publicNextIndex: null,
+      timers: {
+        _startedAt: eventlist[0].timeStart,
+        _finishAt: eventlist[0].timeEnd,
+        current: now-eventlist[0].timeStart,
+        duration: DAYMS - eventlist[0].timeStart + eventlist[0].timeEnd,
+      },
+      timeToNext: eventlist[0].timeStart - now,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+});
