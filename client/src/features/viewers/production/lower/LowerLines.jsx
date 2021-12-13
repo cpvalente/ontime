@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import style from './LowerLines.module.css';
+import NavLogo from "../../../../common/components/nav/NavLogo";
 
 export default function LowerLines(props) {
   const { lower, title, options } = props;
@@ -126,6 +127,9 @@ export default function LowerLines(props) {
         fontSize: `${sizeMultiplier}vh`,
       }}
     >
+
+      <NavLogo isHidden />
+
       <AnimatePresence>
         {showLower && (
           <motion.div

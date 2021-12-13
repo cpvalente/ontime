@@ -1,0 +1,190 @@
+@font-face {
+  font-family: "digital-clock";
+  src: local('digital-7'), url('./../../../assets/fonts/digital-7.mono.ttf') format('truetype') ;
+}
+
+.container {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100vh;
+  padding: 1vw;
+
+  background: #111;
+
+  display: grid;
+  grid-template-columns: 1000px 1fr;
+  gap: 50px;
+  grid-template-areas: "clck schd";
+
+  /* =============== CLOCK STUFF ==================*/
+
+  $clock-size: 900px;
+  $size-hours: 20px;
+  $half-hours: 10px;
+  $size-min: 18px;
+  $half-min: 9px;
+  $red-active: #c53030;
+  $red-idle: darken($red-active, 30%);
+  $cyan-active: #0ff;
+  $cyan-idle: #0aa;
+
+  .clockContainer {
+    display: grid;
+    place-content: center;
+    grid-area: clck;
+    width: $clock-size;
+    height: $clock-size;
+    text-align: center;
+    position: relative;
+    margin: auto;
+    font-family: digital-clock, monospace;
+    text-transform: uppercase;
+
+
+    .time {
+      margin-top: 175px;
+      color: $red-active;
+      font-size: 275px;
+      line-height: 0.8em;
+      text-shadow: rgb(180,0,0) 0 0 20px;
+    }
+    .nextTitle:after,
+    .nextCountdown:after,
+    .nextCountdown__overtime:after {
+      content: '\200b';
+    }
+    .nextTitle {
+      color:$cyan-idle;
+      line-height: 100px;
+    }
+    .nextCountdown,
+    .nextCountdown__overtime {
+      font-size: 100px;
+      line-height: 1em;
+    }
+    .nextCountdown {
+      color: $cyan-active;
+      text-shadow: rgb(0,100,100) 0 0 20px;
+    }
+    .nextCountdown::before {
+      content: '-';
+    }
+    .nextCountdown__overtime {
+      color: darken($red-active, 10%);
+    }
+      .indicators {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+
+      .min,
+      .min__active,
+      .hours,
+      .hours__active {
+        border-radius: 50%;
+        position: absolute;
+        background: $red-idle;
+      }
+      .min,
+      .min__active {
+        min-height: $size-min;
+        width: $size-min;
+        top: calc(50% - #{$half_min});
+        left: calc(50% - #{$half_min});
+      }
+      .hours,
+      .hours__active{
+        min-height:$size-hours;
+        width: $size-hours;
+        top: calc(50% - #{$half_hours});
+        left: calc(50% - #{$half_hours});
+      }
+      .min__active,
+      .hours__active {
+        background: $red-active;
+        box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
+      }
+    }
+  }
+
+  /* ============= SCHEDULE STUFF =================*/
+
+  .scheduleContainer {
+    grid-area: schd;
+    margin: 50px 0;
+    padding-right: 50px;
+    font-family: digital-clock, monospace;
+    text-transform: uppercase;
+
+
+    .onAir,
+    .onAir__idle{
+      padding-bottom: 50px;
+      font-size: 190px;
+      line-height: 0.9em;
+      letter-spacing: 0.05em;
+    }
+    .onAir {
+      color: $red-active;
+      text-shadow: rgb(150,0,0) 0 0 20px;
+    }
+    .onAir__idle {
+      color: $red-idle;
+    }
+    .schedule {
+
+      ul {
+        color: $cyan-idle;
+        line-height: 1em;
+        list-style: none;
+        font-size: 40px;
+      }
+      li {
+        padding-bottom: 0.5em;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .now {
+        color: $cyan-active;
+        text-shadow: rgb(0,100,100) 0 0 20px;
+      }
+      .next {
+        color: $red-active;
+        text-shadow: rgb(100,0,0) 0 0 20px;
+      }
+      .decorator,
+      .decorator__active,
+      .decorator__next {
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: $red-idle;
+        min-height: $size-hours;
+        max-height: $size-hours;
+        width: $size-hours;
+      }
+      .decorator__active {
+        background: $cyan-active;
+        box-shadow: 0 0 10px 2px rgba(0,255,255,0.25);
+      }
+      .decorator__next{
+        background: $red-active;
+        box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 1600px) {
+  .container {
+    display: grid;
+    grid-template-areas: "clck";
+    grid-template-columns: 100%;
+    place-content: center;
+  }
+  .scheduleContainer{
+    display: none;
+  }
+}

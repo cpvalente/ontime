@@ -10,13 +10,9 @@ const withSocket = (Component) => {
   const WrappedComponent = (props) => {
     const {
       data: eventsData,
-      status: eventsDataStatus,
-      isError: eventsDataIsError,
     } = useFetch(EVENTS_TABLE, fetchAllEvents);
     const {
       data: genData,
-      status: genDataStatus,
-      isError: genDataIsError,
     } = useFetch(EVENT_TABLE, fetchEvent);
 
     const [publicEvents, setPublicEvents] = useState([]);
@@ -58,6 +54,7 @@ const withSocket = (Component) => {
       presenterNext: '',
     });
     const [selectedId, setSelectedId] = useState(null);
+    const [nextId, setNextId] = useState(null);
     const [publicSelectedId, setPublicSelectedId] = useState(null);
     const [general, setGeneral] = useState({
       title: '',
@@ -67,6 +64,7 @@ const withSocket = (Component) => {
       endMessage: '',
     });
     const [playback, setPlayback] = useState(null);
+    const [onAir, setOnAir] = useState(false);
 
     // Ask for update on load
     useEffect(() => {
@@ -96,6 +94,9 @@ const withSocket = (Component) => {
       socket.on('playstate', (data) => {
         setPlayback(data);
       });
+      socket.on('onAir', (data) => {
+        setOnAir(data);
+      });
 
       // Handle titles
       socket.on('titles', (data) => {
@@ -112,6 +113,9 @@ const withSocket = (Component) => {
       socket.on('publicselected-id', (data) => {
         setPublicSelectedId(data);
       });
+      socket.on('next-id', (data) => {
+        setNextId(data);
+      });
 
       // Ask for up to date data
       socket.emit('get-messages');
@@ -124,6 +128,7 @@ const withSocket = (Component) => {
 
       // ask for playstate
       socket.emit('get-playstate');
+      socket.emit('get-onAir')
 
       // Ask for up titles
       socket.emit('get-titles');
@@ -131,6 +136,7 @@ const withSocket = (Component) => {
 
       // Ask for up selected
       socket.emit('get-selected-id');
+      socket.emit('get-next-id');
 
       // Clear listeners
       return () => {
@@ -139,9 +145,11 @@ const withSocket = (Component) => {
         socket.off('messages-lower');
         socket.off('timer');
         socket.off('playstate');
+        socket.off('onAir');
         socket.off('titles');
         socket.off('publictitles');
         socket.off('selected-id');
+        socket.emit('next-id');
       };
     }, [socket]);
 
@@ -224,6 +232,7 @@ const withSocket = (Component) => {
       ...timer,
       finished: playback === 'start' && timer.running <= 0 && timer.startedAt,
       clock: stringFromMillis(timer.clock),
+      clockNoSeconds: stringFromMillis(timer.clock, false),
       playstate: playback,
     };
 
@@ -240,7 +249,9 @@ const withSocket = (Component) => {
         backstageEvents={backstageEvents}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
+        nextId={nextId}
         general={general}
+        onAir={onAir}
       />
     );
   };

@@ -7,6 +7,12 @@ const playbackController = require('../controllers/playbackController');
 // create route between controller and '/playback/' endpoint
 router.get('/', playbackController.pbGet);
 
+// create route between controller and '/playback/onAir' endpoint
+router.get('/onAir', playbackController.onAir);
+
+// create route between controller and '/playback/offAir' endpoint
+router.get('/offAir', playbackController.offAir);
+
 // create route between controller and '/playback/start' endpoint
 router.get('/start', playbackController.pbStart);
 
