@@ -964,8 +964,10 @@ export class EventTimer extends Timer {
    * @description Set onAir property of timer
    * @param {boolean} onAir - whether flag is active
    */
-  set onAir(onAir) {
+  setonAir(onAir) {
     this.onAir = onAir;
+    // broadcast change
+    this.broadcastThis('onAir', onAir);
   }
 
   start() {
