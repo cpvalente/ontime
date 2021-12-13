@@ -8,7 +8,7 @@ export const pbGet = async (req, res) => {
 // Turns onAir flag to true
 export const onAir = async (req, res) => {
   console.log('Setting onAir to true');
-  global.timer.onAir = true;
+  global.timer.setonAir(true);
   res.sendStatus(200);
 };
 
@@ -16,7 +16,7 @@ export const onAir = async (req, res) => {
 // Turns onAir flag to true
 export const offAir = async (req, res) => {
   console.log('Setting onAir to false');
-  global.timer.onAir = false;
+  global.timer.setonAir(false);
   res.sendStatus(200);
 };
 
