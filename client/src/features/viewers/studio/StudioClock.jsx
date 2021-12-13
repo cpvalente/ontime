@@ -6,12 +6,11 @@ import {formatDisplay} from "../../../common/utils/dateConfig";
 import {formatEventList, trimEventlist} from "../../../common/utils/eventsManager";
 
 export default function StudioClock(props) {
-  const { title, time, backstageEvents, selectedId, nextId } = props;
+  const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
   const { fontSize, ref } = useFitText({maxFontSize:500});
   const [hoursNow, minutesNow] = time.clockNoSeconds.split(':');
   const [schedule, setSchedule] = useState([]);
 
-  const onAir = true;
   const hoursIndicators = [...Array(12).keys()];
   const minutesIndicators = [...Array(60).keys()];
   const MAX_TITLES = 8;
@@ -32,7 +31,7 @@ export default function StudioClock(props) {
     e = formatEventList(e, selectedId, nextId);
     setSchedule(e);
 
-  }, [backstageEvents, selectedId, nextId])
+  }, [backstageEvents, selectedId, nextId]);
 
   return (
     <div className={style.container}>

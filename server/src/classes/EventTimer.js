@@ -421,6 +421,11 @@ export class EventTimer extends Timer {
         socket.emit('playstate', this.state);
       });
 
+      socket.on('set-onAir', (data) => {
+        this.onAir = data;
+        this.broadcastThis('onAir', this.onAir);
+      });
+
       socket.on('get-onAir', () => {
         socket.emit('onAir', this.onAir);
       });

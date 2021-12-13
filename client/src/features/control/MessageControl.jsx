@@ -50,7 +50,7 @@ export default function MessageControl() {
     text: '',
     visible: false,
   });
-  const [onAir, setonAir] = useState(null);
+  const [onAir, setonAir] = useState(false);
 
   useEffect(() => {
     if (socket == null) return;
@@ -109,7 +109,9 @@ export default function MessageControl() {
       case 'toggle-lower-visible':
         socket.emit('set-lower-visible', !lower.visible);
         break;
-
+      case 'toggle-onAir':
+        socket.emit('set-onAir', !onAir);
+        break;
       default:
         break;
     }
@@ -144,12 +146,15 @@ export default function MessageControl() {
         />
       </div>
       <div className={style.onAirToggle}>
-        <span className={style.onAirLabel}>
+        <Switch
+          colorScheme='green'
+          size='md'
+          isChecked={onAir}
+          onChange={() => messageControl('toggle-onAir')}>
           On Air?
-        </span>
-        <Switch colorScheme='green' size='md' isChecked={onAir} />
+        </Switch>
         <span className={style.oscLabel}>
-          {`/ontime/onAir << OSC >> /ontime/offAir`}
+          {`/ontime/offAir << OSC >> /ontime/onAir`}
         </span>
       </div>
     </>

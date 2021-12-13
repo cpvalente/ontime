@@ -121,7 +121,6 @@
 
     .onAir,
     .onAir__idle{
-      color: $red-active;
       padding-bottom: 50px;
       font-size: 190px;
       line-height: 0.9em;
@@ -132,7 +131,7 @@
       text-shadow: rgb(150,0,0) 0 0 20px;
     }
     .onAir__idle {
-      color: $red-idle
+      color: $red-idle;
     }
     .schedule {
 
