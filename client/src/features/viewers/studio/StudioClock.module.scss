@@ -1,6 +1,6 @@
 @font-face {
   font-family: "digital-clock";
-  src: local('digital-7'), url('./../../../assets/fonts/digital-7.mono.ttf') format('truetype') ;
+  src: local('digital-7'), url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype') ;
 }
 
 .container {
@@ -41,7 +41,6 @@
     margin: auto;
     font-family: digital-clock, monospace;
     text-transform: uppercase;
-
 
     .time {
       margin-top: 175px;
@@ -125,7 +124,6 @@
     }
     .onAir {
       color: $red-active;
-      text-shadow: rgb(150,0,0) 0 0 20px;
     }
     .onAir__idle {
       color: $red-idle;
@@ -145,10 +143,10 @@
         gap: 20px;
       }
       .now {
-        color: $red-active;
+        color: $cyan-active;
       }
       .next {
-        color: $cyan-active;
+        color: $red-active;
       }
     }
   }
