@@ -125,7 +125,6 @@
     }
     .onAir {
       color: $red-active;
-      text-shadow: rgb(150,0,0) 0 0 20px;
     }
     .onAir__idle {
       color: $red-idle;
@@ -145,10 +144,10 @@
         gap: 20px;
       }
       .now {
-        color: $red-active;
+        color: $cyan-active;
       }
       .next {
-        color: $cyan-active;
+        color: $red-active;
       }
     }
   }
