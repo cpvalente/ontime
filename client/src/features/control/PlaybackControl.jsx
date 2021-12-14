@@ -1,4 +1,4 @@
-import style from './PlaybackControl.module.css';
+import style from './PlaybackControl.module.scss';
 import { useEffect, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import PlaybackButtons from './PlaybackButtons';
