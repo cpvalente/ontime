@@ -1,6 +1,6 @@
 @font-face {
   font-family: "digital-clock";
-  src: local('digital-7'), url('./../../../assets/fonts/digital-7.mono.ttf') format('truetype') ;
+  src: local('digital-7'), url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype') ;
 }
 
 .container {
@@ -41,7 +41,6 @@
     margin: auto;
     font-family: digital-clock, monospace;
     text-transform: uppercase;
-
 
     .time {
       margin-top: 175px;
