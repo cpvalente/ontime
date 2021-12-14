@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import style from './PlaybackControl.module.css';
+import style from './PlaybackControl.module.scss';
 import StartIconBtn from 'common/components/buttons/StartIconBtn';
 import PauseIconBtn from 'common/components/buttons/PauseIconBtn';
 import PrevIconBtn from 'common/components/buttons/PrevIconBtn';

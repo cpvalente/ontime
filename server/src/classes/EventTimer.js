@@ -234,9 +234,21 @@ export class EventTimer extends Timer {
   }
 
   update() {
-    // if there is nothing selected, do nothing
-    if (this.selectedEventId == null && this.state !== 'roll') return;
     const now = this._getCurrentTime();
+
+    // if there is nothing selected, update only clock
+    if (this.selectedEventId == null && this.state !== 'roll') {
+      this.clock = now;
+      this.broadcastThis('timer', {
+        clock: now,
+        running: Timer.toSeconds(this.current),
+        secondary: Timer.toSeconds(this.secondaryTimer),
+        durationSeconds: Timer.toSeconds(this.duration),
+        expectedFinish: this._getExpectedFinish(),
+        startedAt: this._startedAt,
+      });
+      return;
+    }
 
     // only implement roll here
     if (this.state !== 'roll') {
