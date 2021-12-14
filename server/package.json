@@ -27,7 +27,7 @@
     "nodestart": "NODE_ENV=development node src/app.js",
     "setdb":  "cp data/db.json src/data/db.json",
     "clean": "rm -rf ../client/build/ && rm -rf ../client/node_modules && rm -rf src/node_modules && rm -rf ./node_modules && rm -rf ./dist",
-    "prep": "yarn clean && yarn prep",
+    "prep": "yarn clean && yarn setdb",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
     "pack": "electron-builder --dir",
