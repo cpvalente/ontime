@@ -6,13 +6,13 @@ import {formatDisplay} from "../../../common/utils/dateConfig";
 import {formatEventList, trimEventlist} from "../../../common/utils/eventsManager";
 
 export default function StudioClock(props) {
-  const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
-  const { fontSize, ref } = useFitText({maxFontSize:500});
-  const [hoursNow, minutesNow] = time.clockNoSeconds.split(':');
+  const {title, time, backstageEvents, selectedId, nextId, onAir} = props;
+  const {fontSize, ref} = useFitText({maxFontSize: 500});
+  const [, , secondsNow] = time.clock.split(':');
   const [schedule, setSchedule] = useState([]);
 
-  const hoursIndicators = [...Array(12).keys()];
-  const minutesIndicators = [...Array(60).keys()];
+  const activeIndicators = [...Array(12).keys()];
+  const secondsIndicators = [...Array(60).keys()];
   const MAX_TITLES = 8;
 
   // Set window title
@@ -35,35 +35,35 @@ export default function StudioClock(props) {
 
   return (
     <div className={style.container}>
-      <NavLogo />
+      <NavLogo/>
       <div className={style.clockContainer}>
         <div className={style.time}>{time.clockNoSeconds}</div>
         <div
           ref={ref}
           className={style.nextTitle}
-          style={{fontSize, height:'100px', width:'100%', maxWidth:'680px'}}
+          style={{fontSize, height: '100px', width: '100%', maxWidth: '680px'}}
         >
           {title.titleNext}
         </div>
-          <div className={time.running > 0 ? style.nextCountdown: style.nextCountdown__overtime}>
-            {selectedId != null && formatDisplay(time.running)}
-          </div>
+        <div className={time.running > 0 ? style.nextCountdown : style.nextCountdown__overtime}>
+          {selectedId != null && formatDisplay(time.running)}
+        </div>
         <div className={style.indicators}>
-          {hoursIndicators.map(i => (
+          {activeIndicators.map(i => (
               <div
-                key = {i}
-                className={i <= hoursNow ? style.hours__active : style.hours}
+                key={i}
+                className={style.hours__active}
                 style={{
-                  transform: `rotate(${360/12*i-90}deg) translateX(380px)`
+                  transform: `rotate(${360 / 12 * i - 90}deg) translateX(380px)`
                 }}/>
             )
           )}
-          {minutesIndicators.map(i => (
+          {secondsIndicators.map(i => (
               <div
                 key={i}
-                className={i <= minutesNow ? style.min__active : style.min}
+                className={i <= secondsNow ? style.min__active : style.min}
                 style={{
-                  transform: `rotate(${360/60*i-90}deg) translateX(415px)`
+                  transform: `rotate(${360 / 60 * i - 90}deg) translateX(415px)`
                 }}/>
             )
           )}
@@ -75,9 +75,9 @@ export default function StudioClock(props) {
           <ul>
             {schedule.map((s) => (
               <li key={s.id} className={s.isNow ? style.now : s.isNext ? style.next : ''}>
-               <div className={s.isNow ? style.decorator__active : s.isNext ? style.decorator__next : style.decorator}/>{`${s.time} ${s.title}`}
+                {`${s.time} ${s.title}`}
               </li>
-              ))
+            ))
             }
           </ul>
         </div>
