@@ -1,4 +1,4 @@
-import { getSelectionByRoll, sortArrayByProperty } from '../classUtils.js';
+import {DAYMS, getSelectionByRoll, normaliseEndTime, sortArrayByProperty} from '../classUtils.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -244,6 +244,7 @@ describe('test that roll loads selection in right order', () => {
 });
 
 // test getSelectionByRoll()
+
 describe('test that roll behaviour with overlapping times', () => {
   const eventlist = [
     {
@@ -383,6 +384,7 @@ describe('test that roll behaviour with overlapping times', () => {
   });
 });
 
+
 // test getSelectionByRoll() on issue #58
 describe('test that roll behaviour multi day event edge cases', () => {
 
@@ -405,17 +407,17 @@ describe('test that roll behaviour multi day event edge cases', () => {
       timers: {
         _startedAt: eventlist[0].timeStart,
         _finishAt: eventlist[0].timeEnd,
-        current: now-eventlist[0].timeStart,
+        current: eventlist[0].timeEnd + DAYMS - now,
         duration: DAYMS - eventlist[0].timeStart + eventlist[0].timeEnd,
       },
-      timeToNext: DAYMS - now + eventlist[0].timeEnd,
+      timeToNext: null,
     };
 
     const state = getSelectionByRoll(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
-  it('ff the start time is the day after end time, and both are later than now', () => {
+  it('if the start time is the day after end time, and both are later than now', () => {
     const now = 66840000;     // 19:34
     const eventlist = [
       {
@@ -426,22 +428,44 @@ describe('test that roll behaviour multi day event edge cases', () => {
       }
     ];
     const expected = {
-      nowIndex: 0,
-      nowId: 1,
+      nowIndex: null,
+      nowId: null,
       publicIndex: null,
-      nextIndex: null,
+      nextIndex: 0,
       publicNextIndex: null,
-      timers: {
-        _startedAt: eventlist[0].timeStart,
-        _finishAt: eventlist[0].timeEnd,
-        current: now-eventlist[0].timeStart,
-        duration: DAYMS - eventlist[0].timeStart + eventlist[0].timeEnd,
-      },
+      timers: null,
       timeToNext: eventlist[0].timeStart - now,
     };
 
     const state = getSelectionByRoll(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
+});
 
+// test normaliseEndTime() on issue #58
+test('test typical scenarios', () => {
+
+  const t1 = {
+    start: 10,
+    end: 20,
+  }
+  const t1_expected = 20;
+
+  expect(normaliseEndTime(t1.start, t1.end)).toBe(t1_expected);
+
+  const t2 = {
+    start: 10+DAYMS,
+    end: 20,
+  }
+  const t2_expected = 20+DAYMS;
+
+  expect(normaliseEndTime(t2.start, t2.end)).toBe(t2_expected);
+
+  const t3 = {
+    start: 10,
+    end: 10,
+  }
+  const t3_expected = 10;
+
+  expect(normaliseEndTime(t3.start, t3.end)).toBe(t3_expected);
 });
