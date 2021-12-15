@@ -24,29 +24,6 @@ export class Timer {
 
   constructor() {}
 
-  // call setup separately
-  setupWithSeconds(seconds, autoStart = false) {
-    // aux
-    const now = this._getCurrentTime();
-    this.clock = now;
-
-    // populate targets
-    this.duration = seconds * 1000;
-    this._finishAt = now + seconds * 1000;
-
-    // start counting
-    this._startedAt = now;
-
-    if (autoStart) {
-      this.state = 'start';
-    } else {
-      this._pausedAt = now;
-      this._pausedInterval = 0;
-    }
-    this._pausedTotal = 0;
-    this.update();
-  }
-
   // update()
   update() {
     // get current time
