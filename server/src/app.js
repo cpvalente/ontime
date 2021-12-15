@@ -57,6 +57,7 @@ await db.write();
 import { router as eventsRouter } from './routes/eventsRouter.js';
 import { router as eventRouter } from './routes/eventRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
+import { router as playbackRouter } from './routes/playbackRouter.js';
 
 // Global Objects
 import { EventTimer } from './classes/EventTimer.js';
@@ -81,11 +82,12 @@ app.use('/uploads', express.static('uploads'));
 app.use('/events', eventsRouter);
 app.use('/event', eventRouter);
 app.use('/ontime', ontimeRouter);
+app.use('/playback', playbackRouter);
 
 // serve react
 app.use(
   express.static(
-    path.join(__dirname, env == 'prod' ? '../' : '../../', 'client/build')
+    path.join(__dirname, env === 'prod' ? '../' : '../../', 'client/build')
   )
 );
 
@@ -93,7 +95,7 @@ app.get('*', (req, res) => {
   res.sendFile(
     path.resolve(
       __dirname,
-      env == 'prod' ? '../' : '../../',
+      env === 'prod' ? '../' : '../../',
       'client',
       'build',
       'index.html'

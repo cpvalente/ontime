@@ -1,9 +1,9 @@
-import style from './PlaybackControl.module.css';
+import style from './PlaybackControl.module.scss';
 import Countdown from 'common/components/countdown/Countdown';
-import { stringFromMillis } from 'common/utils/dateConfig';
-import { Tooltip } from '@chakra-ui/react';
-import { Button } from '@chakra-ui/button';
-import { memo } from 'react';
+import {stringFromMillis} from 'common/utils/dateConfig';
+import {Tooltip} from '@chakra-ui/react';
+import {Button} from '@chakra-ui/button';
+import {memo} from 'react';
 
 const areEqual = (prevProps, nextProps) => {
   return (
@@ -16,7 +16,7 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const PlaybackTimer = (props) => {
-  const { timer, playback, handleIncrement } = props;
+  const {timer, playback, handleIncrement} = props;
   const started = stringFromMillis(timer.startedAt, true);
   const finish = stringFromMillis(timer.expectedFinish, true);
   const isNegative = timer.running < 0;
@@ -28,7 +28,7 @@ const PlaybackTimer = (props) => {
     width: '2.9em',
     colorScheme: 'whiteAlpha',
     variant: 'outline',
-    _focus: { boxShadow: 'none' },
+    _focus: {boxShadow: 'none'},
   };
 
   return (
@@ -36,12 +36,12 @@ const PlaybackTimer = (props) => {
       <div className={style.timeContainer}>
         <div className={style.indicators}>
           <Tooltip label='Roll mode active'>
-            <div className={isRolling ? style.indRollActive : style.indRoll} />
+            <div className={isRolling ? style.indRollActive : style.indRoll}/>
           </Tooltip>
           <div
             className={isNegative ? style.indNegativeActive : style.indNegative}
           />
-          <div className={style.indDelay} />
+          <div className={style.indDelay}/>
         </div>
         <div className={style.timer}>
           <Countdown
@@ -51,7 +51,7 @@ const PlaybackTimer = (props) => {
           />
         </div>
         {isWaiting ? (
-          <div className={style.start}>
+          <div className={style.roll}>
             <span className={style.rolltag}>Roll: Countdown to start</span>
             <span className={style.time}>{''}</span>
           </div>

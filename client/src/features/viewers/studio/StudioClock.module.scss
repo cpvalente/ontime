@@ -1,6 +1,6 @@
 @font-face {
   font-family: "digital-clock";
-  src: local('digital-7'), url('./../../../assets/fonts/digital-7.mono.ttf') format('truetype') ;
+  src: local('digital-7'), url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype') ;
 }
 
 .container {
@@ -11,7 +11,7 @@
   height: 100vh;
   padding: 1vw;
 
-  background: #111;
+  background: #000;
 
   display: grid;
   grid-template-columns: 1000px 1fr;
@@ -26,7 +26,7 @@
   $size-min: 18px;
   $half-min: 9px;
   $red-active: #c53030;
-  $red-idle: darken($red-active, 30%);
+  $red-idle: #300000;
   $cyan-active: #0ff;
   $cyan-idle: #0aa;
 
@@ -42,13 +42,11 @@
     font-family: digital-clock, monospace;
     text-transform: uppercase;
 
-
     .time {
       margin-top: 175px;
       color: $red-active;
-      font-size: 275px;
+      font-size: 300px;
       line-height: 0.8em;
-      text-shadow: rgb(180,0,0) 0 0 20px;
     }
     .nextTitle:after,
     .nextCountdown:after,
@@ -118,17 +116,14 @@
     font-family: digital-clock, monospace;
     text-transform: uppercase;
 
-
     .onAir,
     .onAir__idle{
       padding-bottom: 50px;
-      font-size: 190px;
+      font-size: 170px;
       line-height: 0.9em;
-      letter-spacing: 0.05em;
     }
     .onAir {
       color: $red-active;
-      text-shadow: rgb(150,0,0) 0 0 20px;
     }
     .onAir__idle {
       color: $red-idle;
@@ -149,29 +144,9 @@
       }
       .now {
         color: $cyan-active;
-        text-shadow: rgb(0,100,100) 0 0 20px;
       }
       .next {
         color: $red-active;
-        text-shadow: rgb(100,0,0) 0 0 20px;
-      }
-      .decorator,
-      .decorator__active,
-      .decorator__next {
-        aspect-ratio: 1;
-        border-radius: 50%;
-        background: $red-idle;
-        min-height: $size-hours;
-        max-height: $size-hours;
-        width: $size-hours;
-      }
-      .decorator__active {
-        background: $cyan-active;
-        box-shadow: 0 0 10px 2px rgba(0,255,255,0.25);
-      }
-      .decorator__next{
-        background: $red-active;
-        box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
       }
     }
   }
