@@ -469,3 +469,4 @@ test('test typical scenarios', () => {
 
   expect(normaliseEndTime(t3.start, t3.end)).toBe(t3_expected);
 });
+
