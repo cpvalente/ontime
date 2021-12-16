@@ -67,7 +67,9 @@ export class Timer {
   // helpers
   static toSeconds(millis) {
     if (millis == null) return null;
-    return Math.floor(Math.max(millis * 0.001), 0);
+
+    return Math.ceil(millis * 0.001);
+
   }
 
   // get current time in epoc
