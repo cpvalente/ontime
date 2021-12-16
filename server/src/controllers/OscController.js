@@ -38,6 +38,12 @@ export const initiateOSC = (config) => {
 
     // get second part (command)
     switch (path.toLowerCase()) {
+      case 'onair':
+        global.timer.setonAir(true);
+        break;
+      case 'offair':
+        global.timer.setonAir(false);
+        break;
       case 'start':
       case 'play':
         console.log('calling play');

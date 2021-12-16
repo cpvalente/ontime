@@ -82,6 +82,7 @@ export class Timer {
         // nothing here yet
         break;
       default:
+        console.error('Timer: no playstate on update call', this.state);
         break;
     }
     // is event finished?
@@ -97,7 +98,7 @@ export class Timer {
   // helpers
   static toSeconds(millis) {
     if (millis == null) return null;
-    return Math.floor(Math.max(millis * 0.001), 0);
+    return Math.ceil(millis * 0.001);
   }
 
   // get current time in epoc
@@ -146,8 +147,11 @@ export class Timer {
     return this.duration - this.current;
   }
 
-  // getObject
-  getObject() {
+  // get time object
+  getTimes(update = true) {
+    // update timer
+    if (update) this.update();
+
     // update timetag
     this.timeTag = stringFromMillis(this.current);
 

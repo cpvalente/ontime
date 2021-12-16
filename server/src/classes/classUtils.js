@@ -1,8 +1,17 @@
+
 /**
  * Utility variable: 24 hour in milliseconds .
  * @type {number}
  */
 export const DAY_TO_MS = 86400000;
+
+/**
+ * @description handle events that span over midnight
+ * @param {number} start - When does the event start
+ * @param {number} end  - When does the event end
+ * @returns {number} normalised time
+ */
+export const normaliseEndTime = (start, end) => (end < start ? end + DAY_TO_MS : end);
 
 /**
  * @description Sorts an array of objects by given property
@@ -62,8 +71,9 @@ export const getSelectionByRoll = (arr, now) => {
   let nowFound = false;
 
   // exit early if we are past the events
-  const lastEventEnd = orderedEvents[orderedEvents.length - 1].timeEnd;
-  if (now > lastEventEnd) {
+  const lastEvent = orderedEvents[orderedEvents.length - 1];
+  const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
+  if (now > lastNormalEnd) {
     return {
       nowIndex,
       nowId,
@@ -78,8 +88,7 @@ export const getSelectionByRoll = (arr, now) => {
   // loop through events, look for where we should be
   for (const e of orderedEvents) {
     // When does the event end (handle midnight)
-    const normalEnd =
-      e.timeEnd < e.timeStart ? (e.timeEnd += this.DAYMS) : e.timeEnd;
+    const normalEnd = normaliseEndTime(e.timeStart, e.timeEnd);
 
     if (normalEnd <= now) {
       // event ran already
@@ -104,7 +113,7 @@ export const getSelectionByRoll = (arr, now) => {
       // set timers
       timers = {
         _startedAt: e.timeStart,
-        _finishAt: normalEnd,
+        _finishAt: e.timeEnd,
         duration: normalEnd - e.timeStart,
         current: normalEnd - now,
       };
@@ -139,3 +148,4 @@ export const getSelectionByRoll = (arr, now) => {
     timeToNext,
   };
 };
+

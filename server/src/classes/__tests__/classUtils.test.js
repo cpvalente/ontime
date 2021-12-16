@@ -1,4 +1,4 @@
-import {getSelectionByRoll, replacePlaceholder, sortArrayByProperty} from '../classUtils.js';
+import {DAYMS, getSelectionByRoll, replacePlaceholder, normaliseEndTime, sortArrayByProperty} from '../classUtils.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -415,28 +415,28 @@ describe('test that it replaces data correctly', () => {
     const s = replacePlaceholder(test, values)
     expect(s).toBe(expected);
   });
-  
+
   it('replaces subtitle', () => {
     const test = '___1232132 $subtitle';
     const expected = '___1232132 subtitle';
     const s = replacePlaceholder(test, values)
     expect(s).toBe(expected);
   });
-  
+
   it('replaces next next title', () => {
     const test = '___1232132 $next-title';
     const expected = '___1232132 next title';
     const s = replacePlaceholder(test, values)
     expect(s).toBe(expected);
   });
-  
+
   it('replaces next presenter', () => {
     const test = '___1232132 $next-presenter';
     const expected = '___1232132 next presenter';
     const s = replacePlaceholder(test, values)
     expect(s).toBe(expected);
   });
-  
+
   it('replaces next subtitle', () => {
     const test = '___1232132 $next-subtitle';
     const expected = '___1232132 next subtitle';
@@ -444,3 +444,90 @@ describe('test that it replaces data correctly', () => {
     expect(s).toBe(expected);
   });
 });
+
+
+// test getSelectionByRoll() on issue #58
+describe('test that roll behaviour multi day event edge cases', () => {
+
+  it('if the start time is the day after end time, and start time is earlier than now', () => {
+    const now = 66600000;     // 19:30
+    const eventlist = [
+      {
+        id: 1,
+        timeStart: 66000000,  // 19:20
+        timeEnd: 54600000,    // 16:10
+        isPublic: false,
+      }
+    ];
+    const expected = {
+      nowIndex: 0,
+      nowId: 1,
+      publicIndex: null,
+      nextIndex: null,
+      publicNextIndex: null,
+      timers: {
+        _startedAt: eventlist[0].timeStart,
+        _finishAt: eventlist[0].timeEnd,
+        current: eventlist[0].timeEnd + DAYMS - now,
+        duration: DAYMS - eventlist[0].timeStart + eventlist[0].timeEnd,
+      },
+      timeToNext: null,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+  it('if the start time is the day after end time, and both are later than now', () => {
+    const now = 66840000;     // 19:34
+    const eventlist = [
+      {
+        id: 1,
+        timeStart: 67200000,  // 19:40
+        timeEnd: 66900000,    // 19:35
+        isPublic: false,
+      }
+    ];
+    const expected = {
+      nowIndex: null,
+      nowId: null,
+      publicIndex: null,
+      nextIndex: 0,
+      publicNextIndex: null,
+      timers: null,
+      timeToNext: eventlist[0].timeStart - now,
+    };
+
+    const state = getSelectionByRoll(eventlist, now);
+    expect(state).toStrictEqual(expected);
+  });
+});
+
+// test normaliseEndTime() on issue #58
+test('test typical scenarios', () => {
+
+  const t1 = {
+    start: 10,
+    end: 20,
+  }
+  const t1_expected = 20;
+
+  expect(normaliseEndTime(t1.start, t1.end)).toBe(t1_expected);
+
+  const t2 = {
+    start: 10+DAYMS,
+    end: 20,
+  }
+  const t2_expected = 20+DAYMS;
+
+  expect(normaliseEndTime(t2.start, t2.end)).toBe(t2_expected);
+
+  const t3 = {
+    start: 10,
+    end: 10,
+  }
+  const t3_expected = 10;
+
+  expect(normaliseEndTime(t3.start, t3.end)).toBe(t3_expected);
+});
+

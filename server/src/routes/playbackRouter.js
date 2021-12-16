@@ -1,32 +1,51 @@
 import express from 'express';
 export const router = express.Router();
 
-// import event controller
-const playbackController = require('../controllers/playbackController');
+// import playback controllers
+import {
+  pbGet,
+  onAir,
+  offAir,
+  pbStart,
+  pbPause,
+  pbStop,
+  pbRoll,
+  pbPrevious,
+  pbNext,
+  pbUnload,
+  pbReload
+} from '../controllers/playbackController.js';
 
 // create route between controller and '/playback/' endpoint
-router.get('/', playbackController.pbGet);
+router.get('/', pbGet);
+
+// create route between controller and '/playback/onAir' endpoint
+router.get('/onAir', onAir);
+
+// create route between controller and '/playback/offAir' endpoint
+router.get('/offAir', offAir);
 
 // create route between controller and '/playback/start' endpoint
-router.get('/start', playbackController.pbStart);
+router.get('/start', pbStart);
+router.get('/play', pbStart);
 
 // create route between controller and '/playback/pause' endpoint
-router.get('/pause', playbackController.pbPause);
+router.get('/pause', pbPause);
 
 // create route between controller and '/playback/stop' endpoint
-router.get('/stop', playbackController.pbStop);
+router.get('/stop', pbStop);
 
 // create route between controller and '/playback/roll' endpoint
-router.get('/roll', playbackController.pbRoll);
+router.get('/roll', pbRoll);
 
 // create route between controller and '/playback/previous' endpoint
-router.get('/previous', playbackController.pbPrevious);
+router.get('/previous', pbPrevious);
 
 // create route between controller and '/playback/next' endpoint
-router.get('/next', playbackController.pbNext);
+router.get('/next', pbNext);
 
 // create route between controller and '/playback/unload' endpoint
-router.get('/unload', playbackController.pbUnload);
+router.get('/unload', pbUnload);
 
 // create route between controller and '/playback/reload' endpoint
-router.get('/reload', playbackController.pbReload);
+router.get('/reload', pbReload);

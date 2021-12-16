@@ -40,11 +40,11 @@ export const stringFromMillis = (
  * another go at simpler string formatting (counters)
  * @description Converts seconds to string representing time
  * @param {number} seconds - time in seconds
- * @param {boolean} hideZero - wether to show hours in case its 00
+ * @param {boolean} [hideZero] - whether to show hours in case its 00
  * @returns {string} String representing absolute time 00:12:02
  */
 
-export function formatDisplay(seconds, hideZero) {
+export function formatDisplay(seconds, hideZero=false) {
   // add an extra 0 if necessary
   const format = (val) => `0${Math.floor(val)}`.slice(-2);
 
@@ -59,7 +59,6 @@ export function formatDisplay(seconds, hideZero) {
 /**
  * @description Converts milliseconds to seconds
  * @param {number} millis - time in seconds
- * @param {boolean} hideZero - wether to show hours in case its 00
  * @returns {number} Amount in seconds
  */
 
@@ -71,7 +70,6 @@ export const millisToSeconds = (millis) => {
 /**
  * @description Converts milliseconds to seconds
  * @param {number} millis - time in seconds
- * @param {boolean} hideZero - wether to show hours in case its 00
  * @returns {number} Amount in seconds
  */
 

@@ -6,6 +6,7 @@ import NavLogo from 'common/components/nav/NavLogo';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from 'common/components/views/TitleSide';
+import {getEventsWithDelay} from "../../../common/utils/eventsManager";
 
 export default function StageManager(props) {
   const { publ, title, time, backstageEvents, selectedId, general } = props;
@@ -20,23 +21,9 @@ export default function StageManager(props) {
   useEffect(() => {
     if (backstageEvents == null) return;
 
-    let events = [...backstageEvents];
+    setFilteredEvents(getEventsWithDelay(backstageEvents));
 
-    // Add running delay
-    let delay = 0;
-    for (const e of events) {
-      if (e.type === 'block') delay = 0;
-      else if (e.type === 'delay') delay = delay + e.duration;
-      else if (e.type === 'event' && delay > 0) {
-        e.timeStart += delay;
-        e.timeEnd += delay;
-      }
-    }
-
-    // filter just events
-    let filtered = events.filter((e) => e.type === 'event');
-
-    setFilteredEvents(filtered);
+    console.log('hhh', getEventsWithDelay(backstageEvents))
   }, [backstageEvents]);
 
   // Format messages

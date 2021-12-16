@@ -11,7 +11,7 @@ export default function PresenterView(props) {
 
   // Set window title
   useEffect(() => {
-    document.title = 'ontime - Speaker Screen';
+    document.title = 'ontime - Presenter Screen';
   }, []);
 
   const showOverlay = pres.text !== '' && pres.visible;

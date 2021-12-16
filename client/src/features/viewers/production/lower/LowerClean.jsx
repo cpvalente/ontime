@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import style from './LowerClean.module.css';
+import NavLogo from "../../../../common/components/nav/NavLogo";
 
 export default function LowerClean(props) {
   const { lower, title, options } = props;
@@ -86,6 +87,9 @@ export default function LowerClean(props) {
         fontSize: `${sizeMultiplier}vh`,
       }}
     >
+
+      <NavLogo isHidden />
+
       <AnimatePresence>
         {showLower && (
           <motion.div

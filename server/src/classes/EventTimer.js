@@ -3,7 +3,7 @@ import {Server} from 'socket.io';
 import {DAY_TO_MS, getSelectionByRoll, replacePlaceholder} from './classUtils.js';
 import {OSCIntegration} from './integrations/Osc.js';
 import {HTTPIntegration} from "./integrations/Http.js";
-import {cleanURL} from "../utils/url";
+import {cleanURL} from "../utils/url.js";
 
 /*
  * EventTimer adds functions specific to APP
@@ -84,6 +84,7 @@ export class EventTimer extends Timer {
   nextPublicEventId = null;
   numEvents = null;
   _eventlist = null;
+  onAir = false;
 
   constructor(httpServer, timerConfig, oscConfig, httpConfig) {
 
@@ -135,12 +136,12 @@ export class EventTimer extends Timer {
   // send current timer
   broadcastTimer() {
     // through websockets
-    this.io.emit('timer', this.getObject());
+    this.io.emit('timer', this.getTimes());
   }
 
   // broadcast state
-  broadcastState() {
-    this.io.emit('timer', this.getObject());
+  broadcastState(update = true) {
+    this.io.emit('timer', this.getTimes(update));
     this.io.emit('playstate', this.state);
     this.io.emit('selected', {
       id: this.selectedEventId,
@@ -153,6 +154,7 @@ export class EventTimer extends Timer {
     this.io.emit('publicnext-id', this.nextPublicEventId);
     this.io.emit('titles', this.titles);
     this.io.emit('publictitles', this.titlesPublic);
+    this.io.emit('onAir', this.onAir);
   }
 
   // broadcast message
@@ -207,6 +209,14 @@ export class EventTimer extends Timer {
         // Call action and force update
         this.reload();
         this.runCycle();
+        break;
+      case 'onAir':
+        // Call action
+        this.setonAir(true);
+        break;
+      case 'offAir':
+        // Call action and force update
+        this.setonAir(false);
         break;
       default:
         // Error, disable flag
@@ -350,7 +360,7 @@ export class EventTimer extends Timer {
         '$next-subtitle': this.titles.subtitleNext,
       }
       const m = cleanURL(replacePlaceholder(httpMessage, v));
-      this.http.send(m)
+      this.http.send(m);
     }
 
     // reset cycle
@@ -359,9 +369,20 @@ export class EventTimer extends Timer {
 
   update() {
 
-    // if there is nothing selected, do nothing
-    if (this.selectedEventId == null) return;
-
+    // if there is nothing selected, update clock
+    const now = this._getCurrentTime();
+    if (this.selectedEventId == null && this.state !== 'roll') {
+      this.clock = now;
+      this.broadcastThis('timer', {
+        clock: now,
+        running: Timer.toSeconds(this.current),
+        secondary: Timer.toSeconds(this.secondaryTimer),
+        durationSeconds: Timer.toSeconds(this.duration),
+        expectedFinish: this._getExpectedFinish(),
+        startedAt: this._startedAt,
+      });
+      return;
+    }
     // Have we skipped onStart?
     if (this.state === 'start' || this.state === 'roll') {
       if (this.ontimeCycle === this.cycleState.armed) {
@@ -381,6 +402,7 @@ export class EventTimer extends Timer {
       this.runCycle();
     }
 
+    // todo: revise end states in roll
     // only implement roll here, rest implemented in super
     if (this.state === 'roll') {
       // update timer as usual
@@ -464,7 +486,7 @@ export class EventTimer extends Timer {
       );
 
       // send state
-      socket.emit('timer', this.getObject());
+      socket.emit('timer', this.getTimes());
       socket.emit('playstate', this.state);
       socket.emit('selected-id', this.selectedEventId);
       socket.emit('next-id', this.nextEventId);
@@ -490,7 +512,7 @@ export class EventTimer extends Timer {
       /*******************************************/
       // general playback state
       socket.on('get-state', () => {
-        socket.emit('timer', this.getObject());
+        socket.emit('timer', this.getTimes());
         socket.emit('playstate', this.state);
         socket.emit('selected-id', this.selectedEventId);
         socket.emit('next-id', this.nextEventId);
@@ -505,7 +527,7 @@ export class EventTimer extends Timer {
       });
 
       socket.on('get-timer', () => {
-        socket.emit('timer', this.getObject());
+        socket.emit('timer', this.getTimes());
       });
 
       socket.on('increment-timer', (data) => {
@@ -522,6 +544,15 @@ export class EventTimer extends Timer {
 
       socket.on('get-playstate', () => {
         socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-onAir', (data) => {
+        this.onAir = data;
+        this.broadcastThis('onAir', this.onAir);
+      });
+
+      socket.on('get-onAir', () => {
+        socket.emit('onAir', this.onAir);
       });
 
       /*******************************************/
@@ -700,7 +731,7 @@ export class EventTimer extends Timer {
 
     // update event in memory
     const e = this._eventlist[eventIndex];
-    this._eventlist[eventIndex] = {...e, ...entry};
+    this._eventlist[eventIndex] = { ...e, ...entry };
 
     try {
       // check if entry is running
@@ -1069,6 +1100,16 @@ export class EventTimer extends Timer {
       ------------------------------
       numClients      = ${this._numClients}
     `;
+  }
+
+  /**
+   * @description Set onAir property of timer
+   * @param {boolean} onAir - whether flag is active
+   */
+  setonAir(onAir) {
+    this.onAir = onAir;
+    // broadcast change
+    this.broadcastThis('onAir', onAir);
   }
 
   start() {
