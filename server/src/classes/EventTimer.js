@@ -330,7 +330,7 @@ export class EventTimer extends Timer {
         break;
       case "onFinish":
         // broadcast change
-        this.broadcastState();
+        this.broadcastState(false);
         // finished an event
         this.osc.send(this.osc.implemented.finished);
 
