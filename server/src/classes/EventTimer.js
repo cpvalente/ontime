@@ -411,7 +411,8 @@ export class EventTimer extends Timer {
       const u = {
         selectedEventId: this.selectedEventId,
         current: this.current,
-        _finishAt: this._finishAt,
+        // safeguard on midnight rollover
+        _finishAt: this._finishAt >= this._startedAt ? this._finishAt : this._finishAt + DAY_TO_MS,
         clock: this.clock,
         secondaryTimer: this.secondaryTimer,
         _secondaryTarget: this._secondaryTarget,
@@ -424,7 +425,6 @@ export class EventTimer extends Timer {
 
       if (isFinished) {
         // update lifecycle: onFinish
-        console.log('2')
         this.ontimeCycle = this.cycleState.onFinish;
         this.runCycle();
       }
