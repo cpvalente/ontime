@@ -233,6 +233,7 @@ export class EventTimer extends Timer {
    * happen at every app cycle
    */
   runCycle() {
+    console.log('cycle',this.ontimeCycle)
     const h = this.httpMessages?.messages;
     let httpMessage = null;
 
@@ -1254,6 +1255,9 @@ export class EventTimer extends Timer {
 
     // set state
     this.state = 'roll';
+
+    // update lifecycle: armed
+    this.ontimeCycle = this.cycleState.armed;
 
     // load into event
     this.rollLoad();
