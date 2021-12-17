@@ -1,4 +1,4 @@
-import {DAYMS, getSelectionByRoll, replacePlaceholder, normaliseEndTime, sortArrayByProperty} from '../classUtils.js';
+import {DAY_TO_MS, getSelectionByRoll, replacePlaceholder, normaliseEndTime, sortArrayByProperty} from '../classUtils.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -468,8 +468,8 @@ describe('test that roll behaviour multi day event edge cases', () => {
       timers: {
         _startedAt: eventlist[0].timeStart,
         _finishAt: eventlist[0].timeEnd,
-        current: eventlist[0].timeEnd + DAYMS - now,
-        duration: DAYMS - eventlist[0].timeStart + eventlist[0].timeEnd,
+        current: eventlist[0].timeEnd + DAY_TO_MS - now,
+        duration: DAY_TO_MS - eventlist[0].timeStart + eventlist[0].timeEnd,
       },
       timeToNext: null,
     };
@@ -515,10 +515,10 @@ test('test typical scenarios', () => {
   expect(normaliseEndTime(t1.start, t1.end)).toBe(t1_expected);
 
   const t2 = {
-    start: 10+DAYMS,
+    start: 10+DAY_TO_MS,
     end: 20,
   }
-  const t2_expected = 20+DAYMS;
+  const t2_expected = 20+DAY_TO_MS;
 
   expect(normaliseEndTime(t2.start, t2.end)).toBe(t2_expected);
 

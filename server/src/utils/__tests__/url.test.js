@@ -22,7 +22,7 @@ describe('url is correctly formatted', () => {
   });
 
   it('only contains allowed characters', () => {
-    const test = 'http://<>[]{}|\^%';
+    const test = 'http://<>[]{}|\^';
     const expected = 'http://';
     expect(cleanURL(test)).toBe(expected);
   });

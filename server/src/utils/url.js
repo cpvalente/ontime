@@ -12,7 +12,7 @@ export const cleanURL = (url)  => {
   r = r.split(' ').join('%20');
 
   // contain only allowed characters
-  r = r.replace(/([^\x00-\x7F]|[@\s<>\[\]{}|\\^%])+/g, '')
+  r = r.replace(/([^\x00-\x7F]|[@\s<>\[\]{}|\\^])+/g, '')
 
   // starts with http://
   if (!r.startsWith('http://')) r = `http://${r}`
