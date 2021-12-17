@@ -70,7 +70,9 @@
     },
     "files": [
       "**/*",
-      "assets/"
+      "assets/",
+      "!**/{yarn.lock,yarn-error.log}",
+      "!**/{test,tests,__test__,__tests__,mock,mocks,__mock__,__mocks__}"
     ],
     "directories": {
       "buildResources": "./assets/"
@@ -80,14 +82,18 @@
         "from": "../client/build",
         "to": "extraResources/client/build",
         "filter": [
-          "**/*"
+          "**/*",
+          "!**/{yarn.lock,yarn-error.log}",
+          "!**/{test,tests,__test__,__tests__,mock,mocks,__mock__,__mocks__}"
         ]
       },
       {
         "from": "src",
         "to": "extraResources/src",
         "filter": [
-          "**/*"
+          "**/*",
+          "!**/{yarn.lock,yarn-error.log}",
+          "!**/{test,tests,__test__,__tests__,mock,mocks,__mock__,__mocks__}"
         ]
       }
     ]
