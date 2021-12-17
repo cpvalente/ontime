@@ -402,10 +402,9 @@ export class EventTimer extends Timer {
       this.runCycle();
     }
 
-    // todo: revise end states in roll
     // only implement roll here, rest implemented in super
     if (this.state === 'roll') {
-      let u = {
+      const u = {
         selectedEventId: this.selectedEventId,
         current: this.current,
         _finishAt: this._finishAt,

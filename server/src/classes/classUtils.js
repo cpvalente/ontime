@@ -172,31 +172,34 @@ export const updateRoll = (currentTimers) => {
   // whether runCycle should be called
   let isFinished = false;
 
-  // update timer as usual
-  if (selectedEventId && current > 0) {
-    // something is running, update
+  if (selectedEventId && current >= 0) {
+    // if we have something selected and a timer, we are running
+    // this is true because roll never goes into negative times
+
+    // update timer
     updatedTimer = _finishAt - clock;
-  } else if (secondaryTimer > 0) {
-    // waiting to start, update secondary
+    if (updatedTimer < 0) {
+      isFinished = true;
+    }
+  } else if (secondaryTimer >= 0) {
+    // if secondaryTimer is running we are in waiting to roll
+
+    // update secondary
     updatedSecondaryTimer = _secondaryTarget - clock;
   }
 
-  // look for event if none is loaded
-  const currentRunning = current <= 0 && current !== null;
+  // if nothing is running, we need to find out if
+  // a) we just finished an event (finished was set to true)
+  // b) we need to look for events
+  // this could be caused by a secondary timer or event finished
   const secondaryRunning =
-    secondaryTimer <= 0 && secondaryTimer !== null;
+    updatedSecondaryTimer <= 0 && updatedSecondaryTimer != null;
 
-  if (currentRunning) {
-    // event is finished
-    isFinished = true;
-  }
-
-  if (currentRunning || secondaryRunning) {
+  if (isFinished || secondaryRunning) {
     // look for events
     doRollLoad = true;
   }
 
   return {updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished};
-
 }
 
