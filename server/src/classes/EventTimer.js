@@ -282,9 +282,11 @@ export class EventTimer extends Timer {
         this.broadcastTimer();
         // through OSC, only if running
         if (this.state === 'start' || this.state === 'roll') {
-          this.osc.send(this.osc.implemented.time, this.timeTag);
-          this.osc.send(this.osc.implemented.overtime, this.current > 0 ? 0 : 1);
-          this.osc.send(this.osc.implemented.title, this.titles?.titleNow || '');
+          if (this.current != null && this.secondaryTimer == null) {
+            this.osc.send(this.osc.implemented.time, this.timeTag);
+            this.osc.send(this.osc.implemented.overtime, this.current > 0 ? 0 : 1);
+            this.osc.send(this.osc.implemented.title, this.titles?.titleNow || '');
+          }
         }
 
         // check integrations - http
@@ -329,6 +331,7 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.idle;
         break;
       case "onFinish":
+        console.log('onFinish')
         // broadcast change
         this.broadcastState(false);
         // finished an event
@@ -397,6 +400,7 @@ export class EventTimer extends Timer {
 
     if (this._finishedFlag) {
       // update lifecycle: onFinish and call cycle
+      console.log('1')
       this.ontimeCycle = this.cycleState.onFinish;
       this._finishedFlag = false;
       this.runCycle();
@@ -420,6 +424,7 @@ export class EventTimer extends Timer {
 
       if (isFinished) {
         // update lifecycle: onFinish
+        console.log('2')
         this.ontimeCycle = this.cycleState.onFinish;
         this.runCycle();
       }

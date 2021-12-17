@@ -181,6 +181,8 @@ export const updateRoll = (currentTimers) => {
     if (updatedTimer < 0) {
       isFinished = true;
     }
+    console.log(updatedTimer, isFinished, _finishAt)
+
   } else if (secondaryTimer >= 0) {
     // if secondaryTimer is running we are in waiting to roll
 

@@ -52,6 +52,7 @@ export class Timer {
     // get current time
     const now = this._getCurrentTime();
     this.clock = now;
+    let checkFinish = false;
 
     // check playstate
     switch (this.state) {
@@ -63,6 +64,8 @@ export class Timer {
         this.current =
           this._startedAt + this.duration + this._pausedTotal - now;
 
+        // enable flag
+        checkFinish = true;
         break;
       case 'pause':
         // update paused time
@@ -77,21 +80,26 @@ export class Timer {
             + this._pausedInterval
             - now;
         }
+
+        // enable flag
+        checkFinish = true;
         break;
       case 'stop':
         // nothing here yet
-        break;
-      default:
-        console.error('Timer: no playstate on update call', this.state);
+        // enable flag
+        checkFinish = true;
         break;
     }
-    // is event finished?
-    const isTimeOver = this.current <= 0;
-    const isUpdating = (this.state !== 'pause');
 
-    if (isTimeOver && isUpdating && this._finishedAt == null) {
-      if (this._finishedAt === null) this._finishedAt = now;
-      this._finishedFlag = true;
+    if (checkFinish) {
+      // is event finished?
+      const isTimeOver = this.current <= 0;
+      const isUpdating = (this.state !== 'pause');
+
+      if (isTimeOver && isUpdating && this._finishedAt == null) {
+        if (this._finishedAt === null) this._finishedAt = now;
+        this._finishedFlag = true;
+      }
     }
   }
 
