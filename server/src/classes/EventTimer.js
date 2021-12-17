@@ -1,6 +1,6 @@
 import {Timer} from './Timer.js';
 import {Server} from 'socket.io';
-import {DAY_TO_MS, getSelectionByRoll, replacePlaceholder} from './classUtils.js';
+import {DAY_TO_MS, getSelectionByRoll, replacePlaceholder, updateRoll} from './classUtils.js';
 import {OSCIntegration} from './integrations/Osc.js';
 import {HTTPIntegration} from "./integrations/Http.js";
 import {cleanURL} from "../utils/url.js";
@@ -405,29 +405,27 @@ export class EventTimer extends Timer {
     // todo: revise end states in roll
     // only implement roll here, rest implemented in super
     if (this.state === 'roll') {
-      // update timer as usual
-      if (this.selectedEventId && this.current > 0) {
-        // something is running, update
-        this.current = this._finishAt - this.clock;
-
-      } else if (this.secondaryTimer > 0) {
-        // waiting to start, update secondary
-        this.secondaryTimer = this._secondaryTarget - this.clock;
+      let u = {
+        selectedEventId: this.selectedEventId,
+        current: this.current,
+        _finishAt: this._finishAt,
+        clock: this.clock,
+        secondaryTimer: this.secondaryTimer,
+        _secondaryTarget: this._secondaryTarget,
       }
 
-      // look for event if none is loaded
-      const currentRunning = this.current <= 0 && this.current !== null;
-      const secondaryRunning =
-        this.secondaryTimer <= 0 && this.secondaryTimer !== null;
+      const {updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished} = updateRoll(u);
 
-      if (currentRunning) {
+      this.current = updatedTimer;
+      this.secondaryTimer = updatedSecondaryTimer;
+
+      if (isFinished) {
         // update lifecycle: onFinish
         this.ontimeCycle = this.cycleState.onFinish;
         this.runCycle();
       }
 
-      if (currentRunning || secondaryRunning) {
-        // look for events
+      if (doRollLoad) {
         this.rollLoad();
       }
     }

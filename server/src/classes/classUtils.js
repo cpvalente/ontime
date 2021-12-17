@@ -149,3 +149,54 @@ export const getSelectionByRoll = (arr, now) => {
   };
 };
 
+/**
+ * @description Implements update functions for roll mode
+ * @param {object} currentTimers
+ * @param {object} currentTimers.selectedEventId - Id of currently selected event
+ * @param {object} currentTimers.current - Running timer
+ * @param {object} currentTimers._finishAt - Expected finish time
+ * @param {object} currentTimers.clock - time now
+ * @param {object} currentTimers.secondaryTimer - secondary timer
+ * @param {object} currentTimers._secondaryTarget - finish time of secondary timer
+ * @returns {object} object with selection variables
+ */
+export const updateRoll = (currentTimers) => {
+
+  const {selectedEventId,current,_finishAt,clock,secondaryTimer,_secondaryTarget} = currentTimers;
+
+  // timers
+  let updatedTimer = current;
+  let updatedSecondaryTimer = secondaryTimer;
+  // whether rollLoad should be called
+  let doRollLoad = false;
+  // whether runCycle should be called
+  let isFinished = false;
+
+  // update timer as usual
+  if (selectedEventId && current > 0) {
+    // something is running, update
+    updatedTimer = _finishAt - clock;
+  } else if (secondaryTimer > 0) {
+    // waiting to start, update secondary
+    updatedSecondaryTimer = _secondaryTarget - clock;
+  }
+
+  // look for event if none is loaded
+  const currentRunning = current <= 0 && current !== null;
+  const secondaryRunning =
+    secondaryTimer <= 0 && secondaryTimer !== null;
+
+  if (currentRunning) {
+    // event is finished
+    isFinished = true;
+  }
+
+  if (currentRunning || secondaryRunning) {
+    // look for events
+    doRollLoad = true;
+  }
+
+  return {updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished};
+
+}
+
