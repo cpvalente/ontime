@@ -1,22 +1,29 @@
-import {DAY_TO_MS, getSelectionByRoll, replacePlaceholder, normaliseEndTime, sortArrayByProperty} from '../classUtils.js';
+import {
+  DAY_TO_MS,
+  getSelectionByRoll,
+  replacePlaceholder,
+  normaliseEndTime,
+  sortArrayByProperty,
+  updateRoll
+} from '../classUtils.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
   it('sort array 1-5', () => {
     const arr1 = [
-      { timeStart: 1 },
-      { timeStart: 5 },
-      { timeStart: 3 },
-      { timeStart: 2 },
-      { timeStart: 4 },
+      {timeStart: 1},
+      {timeStart: 5},
+      {timeStart: 3},
+      {timeStart: 2},
+      {timeStart: 4},
     ];
 
     const arr1Expected = [
-      { timeStart: 1 },
-      { timeStart: 2 },
-      { timeStart: 3 },
-      { timeStart: 4 },
-      { timeStart: 5 },
+      {timeStart: 1},
+      {timeStart: 2},
+      {timeStart: 3},
+      {timeStart: 4},
+      {timeStart: 5},
     ];
 
     const sorted = sortArrayByProperty(arr1, 'timeStart');
@@ -25,21 +32,21 @@ describe('sort simple arrays of objects', () => {
 
   it('sort array 1-5 with null', () => {
     const arr1 = [
-      { timeStart: 1 },
-      { timeStart: 5 },
-      { timeStart: 3 },
-      { timeStart: 2 },
-      { timeStart: 4 },
-      { timeStart: null },
+      {timeStart: 1},
+      {timeStart: 5},
+      {timeStart: 3},
+      {timeStart: 2},
+      {timeStart: 4},
+      {timeStart: null},
     ];
 
     const arr1Expected = [
-      { timeStart: null },
-      { timeStart: 1 },
-      { timeStart: 2 },
-      { timeStart: 3 },
-      { timeStart: 4 },
-      { timeStart: 5 },
+      {timeStart: null},
+      {timeStart: 1},
+      {timeStart: 2},
+      {timeStart: 3},
+      {timeStart: 4},
+      {timeStart: 5},
     ];
 
     const sorted = sortArrayByProperty(arr1, 'timeStart');
@@ -515,10 +522,10 @@ test('test typical scenarios', () => {
   expect(normaliseEndTime(t1.start, t1.end)).toBe(t1_expected);
 
   const t2 = {
-    start: 10+DAY_TO_MS,
+    start: 10 + DAY_TO_MS,
     end: 20,
   }
-  const t2_expected = 20+DAY_TO_MS;
+  const t2_expected = 20 + DAY_TO_MS;
 
   expect(normaliseEndTime(t2.start, t2.end)).toBe(t2_expected);
 
@@ -531,3 +538,94 @@ test('test typical scenarios', () => {
   expect(normaliseEndTime(t3.start, t3.end)).toBe(t3_expected);
 });
 
+
+// test updateRoll()
+describe('typical scenarios', () => {
+
+  it('it updates running events correctly', () => {
+    const timers = {
+      selectedEventId: 1,
+      current: 10,
+      _finishAt: 15,
+      clock: 11,
+      secondaryTimer: null,
+      _secondaryTarget: null,
+    };
+
+    const expected = {
+      updatedTimer: timers._finishAt - timers.clock,
+      updatedSecondaryTimer: null,
+      doRollLoad: false,
+      isFinished: false,
+    };
+
+    expect(updateRoll(timers)).toStrictEqual(expected);
+
+    // test that it can jump time
+    timers._finishAt = 1000;
+    timers.clock = 600;
+    expected.updatedTimer = timers._finishAt - timers.clock;
+
+    expect(updateRoll(timers)).toStrictEqual(expected);
+  });
+
+  it('it updates secondary timer', () => {
+    const timers = {
+      selectedEventId: null,
+      current: null,
+      _finishAt: null,
+      clock: 11,
+      secondaryTimer: 1,
+      _secondaryTarget: 15,
+    };
+
+    const expected = {
+      updatedTimer: null,
+      updatedSecondaryTimer: timers._secondaryTarget - timers.clock,
+      doRollLoad: false,
+      isFinished: false,
+    };
+
+    expect(updateRoll(timers)).toStrictEqual(expected);
+  });
+
+  it('flags an event end', () => {
+    const timers = {
+      selectedEventId: 1,
+      current: 10,
+      _finishAt: 11,
+      clock: 12,
+      secondaryTimer: null,
+      _secondaryTarget: null,
+    };
+
+    const expected = {
+      updatedTimer: timers._finishAt - timers.clock,
+      updatedSecondaryTimer: null,
+      doRollLoad: true,
+      isFinished: true,
+    };
+
+    expect(updateRoll(timers)).toStrictEqual(expected);
+  });
+
+  it('secondary events do not trigger event ends', () => {
+    const timers = {
+      selectedEventId: null,
+      current: null,
+      _finishAt: null,
+      clock: 16,
+      secondaryTimer: 1,
+      _secondaryTarget: 15,
+    };
+
+    const expected = {
+      updatedTimer: null,
+      updatedSecondaryTimer: timers._secondaryTarget - timers.clock,
+      doRollLoad: true,
+      isFinished: false,
+    };
+
+    expect(updateRoll(timers)).toStrictEqual(expected);
+  });
+});
