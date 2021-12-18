@@ -32,7 +32,7 @@ export default function ModalManager(props) {
             <Tab style={{ fontSize: '0.9em' }}>Event Data</Tab>
             <Tab style={{ fontSize: '0.9em' }}>Application Settings</Tab>
             <Tab style={{ fontSize: '0.9em' }}>URL Aliases</Tab>
-            <Tab style={{ fontSize: '0.9em' }}>Integration</Tab>
+            {/*<Tab style={{ fontSize: '0.9em' }}>Integration</Tab>*/}
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -44,9 +44,9 @@ export default function ModalManager(props) {
             <TabPanel>
               <AliasesModal />
             </TabPanel>
-            <TabPanel>
-              <IntegrationSettingsModal />
-            </TabPanel>
+            {/*<TabPanel>*/}
+            {/*  <IntegrationSettingsModal />*/}
+            {/*</TabPanel>*/}
           </TabPanels>
         </Tabs>
       </ModalContent>
