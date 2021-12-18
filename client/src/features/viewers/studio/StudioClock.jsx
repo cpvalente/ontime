@@ -3,7 +3,11 @@ import useFitText from "use-fit-text";
 import NavLogo from "../../../common/components/nav/NavLogo";
 import {useEffect, useState} from "react";
 import {formatDisplay} from "../../../common/utils/dateConfig";
-import {formatEventList, trimEventlist} from "../../../common/utils/eventsManager";
+import {
+  formatEventList,
+  getEventsWithDelay,
+  trimEventlist
+} from "../../../common/utils/eventsManager";
 
 export default function StudioClock(props) {
   const {title, time, backstageEvents, selectedId, nextId, onAir} = props;
@@ -25,8 +29,8 @@ export default function StudioClock(props) {
   useEffect(() => {
     if (backstageEvents == null) return;
 
-    const events = backstageEvents.filter((e) => e.type === 'event');
-
+    const delayed = getEventsWithDelay(backstageEvents);
+    const events = delayed.filter((e) => e.type === 'event');
     const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
     const formatted = formatEventList(trimmed, selectedId, nextId);
     setSchedule(formatted);
