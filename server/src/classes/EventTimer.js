@@ -233,7 +233,6 @@ export class EventTimer extends Timer {
    * happen at every app cycle
    */
   runCycle() {
-    console.log('cycle',this.ontimeCycle)
     const h = this.httpMessages?.messages;
     let httpMessage = null;
 
@@ -367,6 +366,9 @@ export class EventTimer extends Timer {
       this.http.send(m);
     }
 
+    // update
+    this.update();
+
     // reset cycle
     this.prevCycle = this.ontimeCycle;
   }
@@ -387,6 +389,7 @@ export class EventTimer extends Timer {
       });
       return;
     }
+
     // Have we skipped onStart?
     if (this.state === 'start' || this.state === 'roll') {
       if (this.ontimeCycle === this.cycleState.armed) {
@@ -401,7 +404,6 @@ export class EventTimer extends Timer {
 
     if (this._finishedFlag) {
       // update lifecycle: onFinish and call cycle
-      console.log('1')
       this.ontimeCycle = this.cycleState.onFinish;
       this._finishedFlag = false;
       this.runCycle();
