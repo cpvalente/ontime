@@ -27,9 +27,9 @@ export default function StudioClock(props) {
 
     const events = backstageEvents.filter((e) => e.type === 'event');
 
-    let e = trimEventlist(events, selectedId, MAX_TITLES);
-    e = formatEventList(e, selectedId, nextId);
-    setSchedule(e);
+    const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
+    const formatted = formatEventList(trimmed, selectedId, nextId);
+    setSchedule(formatted);
 
   }, [backstageEvents, selectedId, nextId]);
 

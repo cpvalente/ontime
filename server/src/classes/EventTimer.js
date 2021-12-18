@@ -383,7 +383,9 @@ export class EventTimer extends Timer {
 
     // if there is nothing selected, update clock
     const now = this._getCurrentTime();
-    if (this.selectedEventId == null && this.state !== 'roll') {
+
+    // if we are not updating, send the timers
+    if (this.ontimeCycle !== this.cycleState.onUpdate) {
       this.clock = now;
       this.broadcastThis('timer', {
         clock: now,
