@@ -262,8 +262,11 @@ export class EventTimer extends Timer {
       case "onStart":
         // broadcast current state
         this.broadcastState();
-        // send OSC
-        this.osc.send(this.osc.implemented.play);
+        // send OSC if there is something running
+        // _finish at is only set when an event is loaded
+        if (this._finishAt > 0) {
+          this.osc.send(this.osc.implemented.play);
+        }
 
         // check integrations - http
         if (h?.onLoad?.enabled) {
@@ -317,8 +320,11 @@ export class EventTimer extends Timer {
       case "onStop":
         // broadcast change
         this.broadcastState();
-        // send OSC
-        this.osc.send(this.osc.implemented.stop);
+
+        // send OSC if something was actually stopped
+        if (this.prevCycle === this.cycleState.onUpdate) {
+          this.osc.send(this.osc.implemented.stop);
+        }
 
         // check integrations - http
         if (h?.onLoad?.enabled) {
