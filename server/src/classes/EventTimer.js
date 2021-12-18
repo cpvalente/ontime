@@ -395,7 +395,6 @@ export class EventTimer extends Timer {
         expectedFinish: this._getExpectedFinish(),
         startedAt: this._startedAt,
       });
-      return;
     }
 
     // Have we skipped onStart?
@@ -412,12 +411,13 @@ export class EventTimer extends Timer {
 
     if (this._finishedFlag) {
       // update lifecycle: onFinish and call cycle
+
       this.ontimeCycle = this.cycleState.onFinish;
       this._finishedFlag = false;
       this.runCycle();
     }
 
-    // only implement roll here, rest implemented in super
+      // only implement roll here, rest implemented in super
     if (this.state === 'roll') {
       const u = {
         selectedEventId: this.selectedEventId,

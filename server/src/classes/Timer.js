@@ -86,8 +86,6 @@ export class Timer {
         break;
       case 'stop':
         // nothing here yet
-        // enable flag
-        checkFinish = true;
         break;
     }
 

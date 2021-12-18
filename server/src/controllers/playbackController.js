@@ -8,7 +8,7 @@ export const pbGet = async (req, res) => {
 // Turns onAir flag to true
 export const onAir = async (req, res) => {
   console.log('Setting onAir to true');
-  global.timer.trigger(onAir) ? res.sendStatus(200) : res.sendStatus(400);
+  global.timer.trigger('onAir') ? res.sendStatus(200) : res.sendStatus(400);
 };
 
 // Create controller for GET request to '/playback/onAir'
