@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import SocketProvider from 'app/context/socketContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import Info from './Info';
+import Info from '../Info';
 
 const queryClient = new QueryClient();
 

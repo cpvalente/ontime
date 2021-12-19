@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import SocketProvider from 'app/context/socketContext';
-import MessageControl from './MessageControl';
+import MessageControl from '../MessageControl';
 
 // need to inject the socket provider to make component
 // render without failing
