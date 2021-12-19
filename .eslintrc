@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest",
+    "prettier"
+  ],
+  "plugins": ["react", "testing-library", "jest", "prettier"],
+  "rules": {
+  }
+}
