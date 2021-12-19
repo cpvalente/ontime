@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ],
+  "plugins": ["react", "testing-library", "jest"],
+  "rules": {
+    "jest/no-mocks-import": "warn"
+  }
+}
