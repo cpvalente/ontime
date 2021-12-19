@@ -41,6 +41,9 @@ export class EventTimer extends Timer {
   // OSC Object
   osc = null;
 
+  // HTTP Client Object
+  http = null;
+
   _numClients = 0;
   _interval = null;
 
@@ -86,10 +89,20 @@ export class EventTimer extends Timer {
   _eventlist = null;
   onAir = false;
 
+  /**
+   * Instantiates an event timer object
+   * @param httpServer
+   * @param timerConfig
+   * @param [oscConfig]
+   * @param [httpConfig]
+   */
   constructor(httpServer, timerConfig, oscConfig, httpConfig) {
 
     // call super constructor
     super();
+
+    // initialise class variables
+    this.numEvents = 0;
 
     // initialise socketIO server
     this.io = new Server(httpServer, {
@@ -101,16 +114,21 @@ export class EventTimer extends Timer {
       },
     });
 
-    console.log('initialise OSC Client on port: ', oscConfig.port);
-
+    // Todo: extract
     // initialise osc object
-    this.osc = new OSCIntegration();
-    this.osc.init(oscConfig);
+    if (oscConfig != null) {
+      console.log('initialise OSC Client on port: ', oscConfig?.port);
+      this.osc = new OSCIntegration();
+      this.osc.init(oscConfig);
+    }
 
+    // Todo: extract
     // initialise http object
-    this.http = new HTTPIntegration();
-    this.http.init(httpConfig);
-    this.httpMessages = httpConfig.messages;
+    if (httpConfig != null) {
+      this.http = new HTTPIntegration();
+      this.http.init(httpConfig);
+      this.httpMessages = httpConfig.messages;
+    }
 
     // set recurrent emits
     this._interval = setInterval(
@@ -168,44 +186,53 @@ export class EventTimer extends Timer {
    * @returns {boolean} Whether action was called
    */
   trigger(action) {
+    // Todo: reply should come from status change
     let reply = true;
     switch (action) {
       case 'start':
+        if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.start();
         this.runCycle();
         break;
       case 'pause':
+        if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.pause();
         this.runCycle();
         break;
       case 'stop':
+        if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.stop();
         this.runCycle();
         break;
       case 'roll':
+        if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.roll();
         this.runCycle();
         break;
       case 'previous':
+        if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.previous();
         this.runCycle();
         break;
       case 'next':
+        if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.next();
         this.runCycle();
         break;
       case 'unload':
+        if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.unload();
         this.runCycle();
         break;
       case 'reload':
+        if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.reload();
         this.runCycle();
@@ -582,6 +609,10 @@ export class EventTimer extends Timer {
         socket.emit('selected-id', this.selectedEventId);
       });
 
+      socket.on('get-numevents', () => {
+        socket.emit('numevents', this.numEvents);
+      });
+
       socket.on('get-next-id', () => {
         socket.emit('next-id', this.nextEventId);
       });
@@ -670,6 +701,9 @@ export class EventTimer extends Timer {
 
     // update lifecycle: onStop
     this.ontimeCycle = this.cycleState.onStop;
+
+    // update clients
+    this.broadcastThis('numevents', this.numEvents);
   }
 
   setupWithEventList(eventlist) {
@@ -688,6 +722,9 @@ export class EventTimer extends Timer {
 
     // load first event
     this.loadEvent(0);
+
+    // update clients
+    this.broadcastThis('numevents', this.numEvents);
 
     // run cycle
     this.runCycle();
@@ -733,6 +770,9 @@ export class EventTimer extends Timer {
       this.loadEvent(eventIndex, type);
     }
 
+    // update clients
+    this.broadcastThis('numevents', this.numEvents);
+
     // run cycle
     this.runCycle();
   }
@@ -773,6 +813,9 @@ export class EventTimer extends Timer {
       console.log(error);
     }
 
+    // update clients
+    this.broadcastThis('numevents', this.numEvents);
+
     // run cycle
     this.runCycle();
   }
@@ -803,6 +846,9 @@ export class EventTimer extends Timer {
     } else if (eventId === this.selectedPublicEventId) {
       this._loadTitlesNow();
     }
+
+    // update clients
+    this.broadcastThis('numevents', this.numEvents);
 
     // run cycle
     this.runCycle();
@@ -1263,6 +1309,8 @@ export class EventTimer extends Timer {
     // do we need to change
     if (this.state === 'roll') return;
 
+    if (this.numEvents === 0 || this.numEvents == null) return;
+
     // set state
     this.state = 'roll';
 
@@ -1342,6 +1390,8 @@ export class EventTimer extends Timer {
   }
 
   reload() {
+    if (this.numEvents === 0 || this.numEvents == null) return;
+
     // change playstate
     this.pause();
 

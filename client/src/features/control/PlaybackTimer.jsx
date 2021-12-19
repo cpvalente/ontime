@@ -4,24 +4,27 @@ import {stringFromMillis} from 'common/utils/dateConfig';
 import {Tooltip} from '@chakra-ui/react';
 import {Button} from '@chakra-ui/button';
 import {memo} from 'react';
+import PropTypes from "prop-types";
 
 const areEqual = (prevProps, nextProps) => {
   return (
-    prevProps.timer.running === nextProps.timer.running &&
-    prevProps.timer.expectedFinish === nextProps.timer.expectedFinish &&
-    prevProps.timer.startedAt === nextProps.timer.startedAt &&
-    prevProps.playback === nextProps.playback &&
-    prevProps.timer.secondary === nextProps.timer.secondary
+    prevProps.timer.running === nextProps.timer.running
+    && prevProps.timer.expectedFinish === nextProps.timer.expectedFinish
+    && prevProps.timer.startedAt === nextProps.timer.startedAt
+    && prevProps.playback === nextProps.playback
+    && prevProps.timer.secondary === nextProps.timer.secondary
+    && prevProps.selectedId === nextProps.selectedId
   );
 };
 
 const PlaybackTimer = (props) => {
-  const {timer, playback, handleIncrement} = props;
+  const {timer, playback, handleIncrement, selectedId} = props;
   const started = stringFromMillis(timer.startedAt, true);
   const finish = stringFromMillis(timer.expectedFinish, true);
   const isNegative = timer.running < 0;
   const isRolling = playback === 'roll';
   const isWaiting = timer.secondary > 0 && timer.running == null;
+  const disableButtons = (selectedId == null || isRolling);
 
   const incrementProps = {
     size: 'sm',
@@ -70,28 +73,28 @@ const PlaybackTimer = (props) => {
         <div className={style.btn}>
           <Button
             {...incrementProps}
-            disabled={isRolling}
+            disabled={disableButtons}
             onClick={() => handleIncrement(-1)}
           >
             -1
           </Button>
           <Button
             {...incrementProps}
-            disabled={isRolling}
+            disabled={disableButtons}
             onClick={() => handleIncrement(1)}
           >
             +1
           </Button>
           <Button
             {...incrementProps}
-            disabled={isRolling}
+            disabled={disableButtons}
             onClick={() => handleIncrement(-5)}
           >
             -5
           </Button>
           <Button
             {...incrementProps}
-            disabled={isRolling}
+            disabled={disableButtons}
             onClick={() => handleIncrement(5)}
           >
             +5
@@ -103,3 +106,10 @@ const PlaybackTimer = (props) => {
 };
 
 export default memo(PlaybackTimer, areEqual);
+
+PlaybackTimer.propTypes = {
+  timer: PropTypes.object.isRequired,
+  playback: PropTypes.string,
+  handleIncrement: PropTypes.func.isRequired,
+  selectedId: PropTypes.string,
+};

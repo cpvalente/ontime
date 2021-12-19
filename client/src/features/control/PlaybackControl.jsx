@@ -15,6 +15,7 @@ export default function PlaybackControl() {
     secondary: null,
   });
   const [selectedId, setSelectedId] = useState(null);
+  const [numEvents, setNumEvents] = useState(0);
 
   const resetTimer = () => {
     setTimer({
@@ -32,6 +33,7 @@ export default function PlaybackControl() {
     socket.emit('get-timer');
     socket.emit('get-playstate');
     socket.emit('get-selected-id');
+    socket.emit('get-numevents');
 
     // Handle playstate
     socket.on('playstate', (data) => {
@@ -48,11 +50,16 @@ export default function PlaybackControl() {
       setSelectedId(data);
     });
 
+    socket.on('numevents', (data) => {
+      setNumEvents(data);
+    });
+
     // Clear listener
     return () => {
       socket.off('playstate');
       socket.off('timer');
       socket.off('selected-id');
+      socket.off('numevents');
     };
   }, [socket]);
 
@@ -93,11 +100,13 @@ export default function PlaybackControl() {
       <PlaybackTimer
         timer={timer}
         playback={playback}
+        selectedId={selectedId}
         handleIncrement={(amount) => socket.emit('increment-timer', amount)}
       />
       <PlaybackButtons
         playback={playback}
         selectedId={selectedId}
+        noEvents={numEvents < 1}
         playbackControl={playbackControl}
       />
     </div>
