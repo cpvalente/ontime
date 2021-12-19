@@ -52,6 +52,8 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/react-hooks": "^7.0.2",
+    "react-test-renderer": "^17.0.2",
     "sass": "^1.44.0"
   }
 }
