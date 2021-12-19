@@ -1385,6 +1385,9 @@ export class EventTimer extends Timer {
     // reset selected
     this._resetSelection();
 
+    // broadcast state
+    this.broadcastState();
+
     // reset playstate
     this.stop();
   }

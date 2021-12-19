@@ -31,7 +31,7 @@ const Playback = (props) => {
       <PauseIconBtn
         active={playback === 'pause'}
         clickhandler={() => playbackControl('pause')}
-        disabled={!selectedId || isRolling || noEvents}
+        disabled={!selectedId || isRolling || noEvents || playback !== 'start'}
       />
       <RollIconBtn
         active={playback === 'roll'}
