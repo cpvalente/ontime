@@ -121,3 +121,21 @@ ul > li {
   transform: scaleY(1);
   transition: transform 0.3s;
 }
+
+.toggleBar {
+  display: flex;
+  font-size: 0.8em;
+  justify-content: space-around;
+
+  div {padding: 0 14px;}
+
+}
+
+.client { background: #222; }
+.client__active { background: #34efd8; }
+.server { background: #222; }
+.server__active { background: #5bde37; }
+.playback { background: #222; }
+.playback__active {  background: #1c8cfd; }
+.integrations { background: #222; }
+.integrations__active { background: #d341ff; }

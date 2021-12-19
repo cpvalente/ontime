@@ -1,34 +1,60 @@
-import { Icon } from '@chakra-ui/react';
 import { useState } from 'react';
-import { FiChevronUp } from 'react-icons/fi';
-import style from './Info.module.css';
+import style from './Info.module.scss';
+import CollapseBar from "../../common/components/collapseBar/CollapseBar";
 
 export default function InfoLogger(props) {
   const [collapsed, setCollapsed] = useState(false);
 
   const { logData } = props;
 
+  const data = [
+    {
+      time: '10:32:12',
+      type: 'info',
+      origin: 'SERVER',
+      msg: 'New socket client (total: 3)'
+    },
+    {
+      time: '10:32:10',
+      type: 'info',
+      origin: 'PLAYBACK',
+      msg: 'Play'
+    },
+    {
+      time: '10:31:10',
+      type: 'info',
+      origin: 'PLAYBACK',
+      msg: 'Next'
+    },
+    {
+      time: '10:31:10',
+      type: 'info',
+      origin: 'SERVER',
+      msg: 'Server Disconnected'
+    }
+  ];
+
   return (
     <div className={style.container}>
-      <div className={style.header}>
-        Log
-        <Icon
-          className={collapsed ? style.moreCollapsed : style.moreExpanded}
-          as={FiChevronUp}
-          onClick={() => setCollapsed((c) => !c)}
-        />
-      </div>
+      <CollapseBar title={'Log'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
       {!collapsed && (
-        <ul className={style.log}>
-          <li className={style.info}>10:35:23 [PLAYBACK] Next</li>
-          <li className={style.client}>
-            10:32:10 [CLIENT] New socket client (total: 3)
-          </li>
-          <li className={style.info}>10:28:23 [PLAYBACK] Next</li>
-          <li className={style.info}>10:25:23 [PLAYBACK] Play</li>
-          <li className={style.info}>10:23:13 [SERVER] Server Reconnected</li>
-          <li className={style.error}>10:23:10 [SERVER] Server Disconnected</li>
-        </ul>
+        <>
+          <div className={style.toggleBar}>
+            <div className={style.client}>CLIENT</div>
+            <div className={style.server}>SERVER</div>
+            <div className={style.integrations}>PLAYBACK</div>
+            <div className={style.integrations}>INTEGRATIONS</div>
+          </div>
+          <table className={style.log}>
+            {data.map((d) => (
+              <tr>
+                <td>{d.time}</td>
+                <td>{d.origin}</td>
+                <td>{d.msg}</td>
+              </tr>
+            ))}
+          </table>
+        </>
       )}
     </div>
   );

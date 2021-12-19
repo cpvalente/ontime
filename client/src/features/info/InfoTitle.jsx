@@ -1,7 +1,7 @@
 import { Icon } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FiChevronUp } from 'react-icons/fi';
-import style from './Info.module.css';
+import style from './Info.module.scss';
 
 export default function InfoTitle(props) {
   const [collapsed, setCollapsed] = useState(false);

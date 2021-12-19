@@ -8,7 +8,7 @@
 
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: 40px 48em auto auto;
+  grid-template-columns: 40px 48em 31em auto;
   grid-template-areas:
     'sett even play info'
     'sett even mess info';

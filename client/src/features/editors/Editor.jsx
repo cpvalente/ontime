@@ -1,7 +1,7 @@
 import { lazy, useEffect } from 'react';
 import { Box } from '@chakra-ui/layout';
 import { useDisclosure } from '@chakra-ui/hooks';
-import styles from './Editor.module.css';
+import styles from './Editor.module.scss';
 import MenuBar from 'features/menu/MenuBar';
 import ModalManager from 'features/modals/ModalManager';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
