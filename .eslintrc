@@ -1,8 +1,7 @@
 {
   "extends": [
-    "prettier"
+    "eslint:recommended"
   ],
-  "plugins": ["testing-library", "jest", "prettier"],
   "rules": {
   }
 }
