@@ -387,7 +387,6 @@ export class EventTimer extends Timer {
       /*******************************/
       // keep track of connections
       this._numClients++;
-      const name = getRandomName();
       this._clientNames[socket.id] = getRandomName();
       const m = `${this._numClients} Clients with new connection: ${this._clientNames[socket.id]}`;
       this.logger.info(this.ORIGIN, m);
@@ -1071,7 +1070,7 @@ export class EventTimer extends Timer {
     // nothing to play, unload
     if (nowIndex === null && nextIndex === null) {
       this.unload();
-      console.log('Roll: no events found');
+      this.logger.warn(this.ORIGIN, 'Roll: no events found')
       return;
     }
 
@@ -1097,8 +1096,9 @@ export class EventTimer extends Timer {
       // Set running timers
       if (nowIndex === null) {
         // only warn the first time
-        if (this.secondaryTimer === null)
-          console.log('Roll: waiting for event start');
+        if (this.secondaryTimer === null) {
+          this.logger.info(this.ORIGIN, 'Roll: waiting for event start');
+        }
 
         // reset running timer
         // ??? should this not have been reset?

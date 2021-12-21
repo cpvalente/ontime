@@ -7,9 +7,7 @@ export const shutdownOSCServer = () => {
 };
 
 export const initiateOSC = (config) => {
-  oscServer = new Server(config.port, '0.0.0.0', () => {
-    console.log(`OSC Server is listening on port ${config.port}`);
-  });
+  oscServer = new Server(config.port, '0.0.0.0');
 
   // error
   oscServer.on('error', console.error);
