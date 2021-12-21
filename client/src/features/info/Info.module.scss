@@ -1,4 +1,6 @@
-.container {
+@use '../../main' as *;
+
+@mixin container {
   margin-top: 1em;
   display: flex;
   flex-direction: column;
@@ -8,9 +10,13 @@
   padding: 8px;
 }
 
+.container {
+  @include container;
+}
+
 .main {
   font-size: 0.9em;
-  color: #ff7597;
+  color: $ontime-pink;
   display: flex;
   justify-content: space-between;
 }
@@ -20,17 +26,17 @@
   padding: 0;
   margin: 0;
   font-size: 0.9em;
-  color: #ccc;
+  color: $header-gray;
   display: flex;
   justify-content: space-between;
 }
 
 .header {
-  color: #ccc;
+  color: $header-gray;
 }
 
 .headerRoll {
-  color: #2b6cb0;
+  color: $ontime-roll;
 }
 
 .collapsedTitle {
@@ -57,7 +63,7 @@
 
 .label {
   font-size: 0.9em;
-  color: #aaa;
+  color: $label-gray;
 }
 
 .label::after {
@@ -70,40 +76,20 @@
 }
 
 .notes {
-  color: #d69e2e;
+  color: $notes-color;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .if {
   font-size: 0.8em;
-  color: #4bffabcc;
-  background-color: rgba(0, 0, 0, 0.13);
-  border-radius: 2px;
-  padding: 0 0.5em;
-  margin: 0 0.5em;
+  color: $ontime-accent;
+  @include container-bg;
 }
 
 ul > li {
   font-size: 0.9em;
   color: #fff;
-}
-
-.log {
-  overflow-y: scroll;
-  height: 30vh;
-}
-
-.info {
-  color: #fff;
-}
-
-.error {
-  color: red;
-}
-
-.client {
-  color: lightblue;
 }
 
 .moreExpanded,
@@ -121,21 +107,3 @@ ul > li {
   transform: scaleY(1);
   transition: transform 0.3s;
 }
-
-.toggleBar {
-  display: flex;
-  font-size: 0.8em;
-  justify-content: space-around;
-
-  div {padding: 0 14px;}
-
-}
-
-.client { background: #222; }
-.client__active { background: #34efd8; }
-.server { background: #222; }
-.server__active { background: #5bde37; }
-.playback { background: #222; }
-.playback__active {  background: #1c8cfd; }
-.integrations { background: #222; }
-.integrations__active { background: #d341ff; }

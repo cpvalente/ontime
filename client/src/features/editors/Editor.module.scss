@@ -110,12 +110,23 @@ h1 {
 
 .editor {
   grid-area: even;
+
+  .content {
+    height: calc(100% - 3em);
+    overflow: hidden;
+  }
 }
 
 .info {
   grid-area: info;
   min-width: 17em;
-  max-width: 32em;
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 3em);
+    overflow: hidden;
+  }
 }
 
 .messages {

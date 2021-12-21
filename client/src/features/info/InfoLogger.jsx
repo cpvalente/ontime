@@ -1,36 +1,42 @@
 import { useState } from 'react';
-import style from './Info.module.scss';
+import style from './InfoLogger.module.scss';
 import CollapseBar from "../../common/components/collapseBar/CollapseBar";
 
 export default function InfoLogger(props) {
   const [collapsed, setCollapsed] = useState(false);
+  // Todo: save in local storage
+  const [showClient, setShowClient] = useState(true);
+  const [showServer, setShowServer] = useState(true);
+  const [showPlayback, setShowPlayback] = useState(true);
+  const [showRx, setShowRx] = useState(true);
+  const [showTx, setShowTx] = useState(true);
 
   const { logData } = props;
 
   const data = [
     {
       time: '10:32:12',
-      type: 'info',
+      level: 'error',
       origin: 'SERVER',
       msg: 'New socket client (total: 3)'
     },
     {
       time: '10:32:10',
-      type: 'info',
+      level: 'info',
       origin: 'PLAYBACK',
       msg: 'Play'
     },
     {
       time: '10:31:10',
-      type: 'info',
+      level: 'error',
       origin: 'PLAYBACK',
       msg: 'Next'
     },
     {
       time: '10:31:10',
-      type: 'info',
+      level: 'warn',
       origin: 'SERVER',
-      msg: 'Server Disconnected'
+      msg: 'Server disconnected'
     }
   ];
 
@@ -40,20 +46,43 @@ export default function InfoLogger(props) {
       {!collapsed && (
         <>
           <div className={style.toggleBar}>
-            <div className={style.client}>CLIENT</div>
-            <div className={style.server}>SERVER</div>
-            <div className={style.integrations}>PLAYBACK</div>
-            <div className={style.integrations}>INTEGRATIONS</div>
+            <div
+              onClick={() => setShowClient((s) => !s)}
+              className={showClient && style.active}>
+              CLIENT
+            </div>
+            <div
+              onClick={() => setShowServer((s) => !s)}
+              className={showServer && style.active}>
+              SERVER
+            </div>
+            <div
+              onClick={() => setShowPlayback((s) => !s)}
+              className={showPlayback && style.active}>
+              PLAYBACK
+            </div>
+            <div
+              onClick={() => setShowRx((s) => !s)}
+              className={showRx && style.active}>
+              RX
+            </div>
+            <div
+              onClick={() => setShowTx((s) => !s)}
+              className={showTx && style.active}>
+              TX
+            </div>
           </div>
-          <table className={style.log}>
-            {data.map((d) => (
-              <tr>
-                <td>{d.time}</td>
-                <td>{d.origin}</td>
-                <td>{d.msg}</td>
-              </tr>
-            ))}
-          </table>
+            <ul className={style.log}>
+              {data.map((d) => (
+                <li key={`${d.time}-${d.msg}`} className={d.level === 'info' ? style.info : d.level === 'warn' ? style.warn : d.level === 'error' ? style.error : ''}>
+                  <div
+                    className={style.time}
+                  >{d.time}</div>
+                  <div className={style.origin}>{d.origin}</div>
+                  <div className={style.msg}>{d.msg}</div>
+                </li>
+              ))}
+            </ul>
         </>
       )}
     </div>
