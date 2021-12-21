@@ -7,22 +7,22 @@
 import { stringFromMillis } from '../utils/time.js';
 
 export class Timer {
-  clock = null;
-  duration = null;
-  current = null;
-  timeTag = null;
-  secondaryTimer = null;
-  _secondaryTarget = null;
-  _finishAt = null;
-  _finishedAt = null;
-  _finishedFlag = false;
-  _startedAt = null;
-  _pausedAt = null;
-  _pausedInterval = null;
-  _pausedTotal = null;
-  state = 'stop';
-
-  constructor() {}
+  constructor() {
+    this.clock = null;
+    this.duration = null;
+    this.current = null;
+    this.timeTag = null;
+    this.secondaryTimer = null;
+    this._secondaryTarget = null;
+    this._finishAt = null;
+    this._finishedAt = null;
+    this._finishedFlag = false;
+    this._startedAt = null;
+    this._pausedAt = null;
+    this._pausedInterval = null;
+    this._pausedTotal = null;
+    this.state = 'stop';
+  }
 
   // update()
   update() {

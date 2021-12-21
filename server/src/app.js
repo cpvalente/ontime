@@ -128,6 +128,7 @@ const serverPort = s.serverPort || config.server.port;
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import {Server} from "socket.io";
+import {SocketLogger} from "./classes/SocketLogger.js";
 
 export const startOSCServer = async (overrideConfig = null) => {
   // Setup default port
@@ -152,17 +153,8 @@ export const startOSCClient = async (overrideConfig = null) => {
   oscClient = new Client(oscIP, oscOutPort);
 };
 
-// create HTTP server
-const server = http.createServer(app);
-// initialise socketIO server
-const socketIo = new Server(server, {
-  cors: {
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  },
-});
+let server = null;
+let socketIo = null;
 
 export const startServer = async (overrideConfig = null) => {
   // Setup default port
@@ -174,12 +166,26 @@ export const startServer = async (overrideConfig = null) => {
    */
   const port = 4001;
 
+  // create HTTP server
+  server = http.createServer(app);
+  // initialise socketIO server
+  socketIo = new Server(server, {
+    cors: {
+      origin: '*',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+    },
+  });
+
+  const logger = new SocketLogger(socketIo);
+
   // Start server
   const returnMessage = `HTTP Server is listening on port ${port}`;
   server.listen(port, '0.0.0.0', () => console.log(returnMessage));
 
   // init timer
-  global.timer = new EventTimer(socketIo, oscClient, config);
+  global.timer = new EventTimer(logger, socketIo, oscClient, config);
   global.timer.setupWithEventList(data.events);
 
   return returnMessage;
@@ -190,9 +196,6 @@ export const shutdown = async () => {
 
   user.event('NODE', 'shutdown', 'requesting node shutdown').send();
 
-  // shutdown express server
-  server.close();
-
   // shutdown OSC Server
   shutdownOSCServer();
 
@@ -201,4 +204,10 @@ export const shutdown = async () => {
 
   // shutdown timer
   global.timer.shutdown();
+
+  // shutdown socketIo
+  socketIo.close();
+
+  // shutdown express server
+  server.close();
 };

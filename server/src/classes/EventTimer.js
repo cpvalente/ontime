@@ -1,5 +1,4 @@
 import { Timer } from './Timer.js';
-import { Server } from 'socket.io';
 import {DAYMS, getSelectionByRoll} from './classUtils.js';
 
 /*
@@ -13,6 +12,10 @@ import {DAYMS, getSelectionByRoll} from './classUtils.js';
 export class EventTimer extends Timer {
   // Socket IO Object
   io = null;
+
+  // Logger Object
+  ORIGIN = 'SERVER';
+  logger = null;
 
   // OSC Client
   oscClient = null;
@@ -62,10 +65,11 @@ export class EventTimer extends Timer {
   _eventlist = null;
   onAir = false;
 
-  constructor(socketIo, oscClient, config) {
+  constructor(logger, socketIo, oscClient, config) {
     // call super constructor
     super();
 
+    this.logger = logger;
     this.io = socketIo;
 
     // set recurrent emits
@@ -109,67 +113,91 @@ export class EventTimer extends Timer {
     const title = this.titles?.titleNow || '';
     const presenter = this.titles?.presenterNow || '';
 
+    const origin = 'TX';
+
     switch (event) {
       case 'time':
         // Send Timetag Message
-        this.oscClient.send(add + '/time', time, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add + '/time', time, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'finished':
         // Runs when timer reaches 0
-        this.oscClient.send(add, finished, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add, finished, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'overtime':
         // Whether timer is negative
-        this.oscClient.send(add + '/overtime', overtime, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add + '/overtime', overtime, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'titles':
         // Send Title of current event
-        this.oscClient.send(add + '/title', title, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add + '/title', title, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
 
         // Send presenter data on current event
-        this.oscClient.send(add + '/presenter', presenter, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add + '/presenter', presenter, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'play':
         // Play Message
-        this.oscClient.send(add, play, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add, play, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'pause':
         // Pause Message
-        this.oscClient.send(add, pause, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add, pause, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'stop':
         // Stop Message
-        this.oscClient.send(add, stop, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add, stop, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'prev':
-        this.oscClient.send(add, prev, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add, prev, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'next':
-        this.oscClient.send(add, next, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add, next, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
       case 'reload':
-        this.oscClient.send(add, reload, (err) => {
-          if (err) console.error(err);
+        this.oscClient.send(add, reload, (error) => {
+          if (error) {
+            this.logger.error(origin, 'error')
+          }
         });
         break;
 
@@ -182,8 +210,7 @@ export class EventTimer extends Timer {
    * @description Shutdown process
    */
   shutdown() {
-    console.log('Closing socket server');
-    this.io.close();
+    this.logger.info(this.ORIGIN, 'Event Timer Shutdown')
   }
 
   // send current timer
@@ -357,9 +384,8 @@ export class EventTimer extends Timer {
       /*******************************/
       // keep track of connections
       this._numClients++;
-      console.log(
-        `EventTimer: ${this._numClients} Clients with new connection: ${socket.id}`
-      );
+      const m = `${this._numClients} Clients with new connection: ${socket.id}`;
+      this.logger.info(this.ORIGIN, m);
 
       // send state
       socket.emit('timer', this.getTimes());
@@ -375,9 +401,8 @@ export class EventTimer extends Timer {
       /********************************/
       socket.on('disconnect', () => {
         this._numClients--;
-        console.log(
-          `EventTimer: Client disconnected, total now: ${this._numClients}`
-        );
+        const m = `${this._numClients} Clients with disconnection: ${socket.id}`;
+        this.logger.info(this.ORIGIN, m);
       });
 
       /***************************************/
@@ -629,7 +654,7 @@ export class EventTimer extends Timer {
         this._loadTitlesNow();
       }
     } catch (error) {
-      console.log(error);
+      this.logger.error(this.ORIGIN, 'error')
     }
 
     this.broadcastState();
