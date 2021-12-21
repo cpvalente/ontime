@@ -62,19 +62,11 @@ export class EventTimer extends Timer {
   _eventlist = null;
   onAir = false;
 
-  constructor(httpServer, oscClient, config) {
+  constructor(socketIo, oscClient, config) {
     // call super constructor
     super();
 
-    // initialise socketIO server
-    this.io = new Server(httpServer, {
-      cors: {
-        origin: '*',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        preflightContinue: false,
-        optionsSuccessStatus: 204,
-      },
-    });
+    this.io = socketIo;
 
     // set recurrent emits
     this._interval = setInterval(

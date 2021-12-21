@@ -127,6 +127,7 @@ const serverPort = s.serverPort || config.server.port;
 
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
+import {Server} from "socket.io";
 
 export const startOSCServer = async (overrideConfig = null) => {
   // Setup default port
@@ -153,6 +154,15 @@ export const startOSCClient = async (overrideConfig = null) => {
 
 // create HTTP server
 const server = http.createServer(app);
+// initialise socketIO server
+const socketIo = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  },
+});
 
 export const startServer = async (overrideConfig = null) => {
   // Setup default port
@@ -169,7 +179,7 @@ export const startServer = async (overrideConfig = null) => {
   server.listen(port, '0.0.0.0', () => console.log(returnMessage));
 
   // init timer
-  global.timer = new EventTimer(server, oscClient, config);
+  global.timer = new EventTimer(socketIo, oscClient, config);
   global.timer.setupWithEventList(data.events);
 
   return returnMessage;
@@ -178,7 +188,7 @@ export const startServer = async (overrideConfig = null) => {
 export const shutdown = async () => {
   console.log('Node service shutdown');
 
-  user.event('NODE', 'shutdown', 'requesting node shutfown').send();
+  user.event('NODE', 'shutdown', 'requesting node shutdown').send();
 
   // shutdown express server
   server.close();
