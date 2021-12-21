@@ -1,5 +1,6 @@
 import { Timer } from './Timer.js';
 import {DAYMS, getSelectionByRoll} from './classUtils.js';
+import getRandomName from "../utils/getRandomName.js";
 
 /*
  * EventTimer adds functions specific to APP
@@ -12,6 +13,8 @@ import {DAYMS, getSelectionByRoll} from './classUtils.js';
 export class EventTimer extends Timer {
   // Socket IO Object
   io = null;
+  _numClients = 0;
+  _clientNames = null;
 
   // Logger Object
   ORIGIN = 'SERVER';
@@ -20,7 +23,6 @@ export class EventTimer extends Timer {
   // OSC Client
   oscClient = null;
 
-  _numClients = 0;
   _interval = null;
 
   presenter = {
@@ -71,6 +73,7 @@ export class EventTimer extends Timer {
 
     this.logger = logger;
     this.io = socketIo;
+    this._clientNames = {};
 
     // set recurrent emits
     this._interval = setInterval(
@@ -384,7 +387,9 @@ export class EventTimer extends Timer {
       /*******************************/
       // keep track of connections
       this._numClients++;
-      const m = `${this._numClients} Clients with new connection: ${socket.id}`;
+      const name = getRandomName();
+      this._clientNames[socket.id] = getRandomName();
+      const m = `${this._numClients} Clients with new connection: ${this._clientNames[socket.id]}`;
       this.logger.info(this.ORIGIN, m);
 
       // send state
@@ -401,7 +406,8 @@ export class EventTimer extends Timer {
       /********************************/
       socket.on('disconnect', () => {
         this._numClients--;
-        const m = `${this._numClients} Clients with disconnection: ${socket.id}`;
+        const m = `${this._numClients} Clients with disconnection: ${this._clientNames[socket.id]}`;
+        delete this._clientNames[socket.id];
         this.logger.info(this.ORIGIN, m);
       });
 

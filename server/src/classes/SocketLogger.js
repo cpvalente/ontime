@@ -16,7 +16,7 @@ export class SocketLogger {
   _push(msg) {
     this.messsageStack.unshift();
     this.socketIo.emit('logger', msg);
-    console.log(`[${msg.level}] ${msg.origin}: ${msg.text}`);
+    console.log(`[${msg.level}] \t ${msg.origin} \t ${msg.text}`);
     if (this.messsageStack.length > 100) {
       this.messsageStack.pop();
     }
