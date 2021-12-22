@@ -4,6 +4,7 @@ import {DAY_TO_MS, getSelectionByRoll, replacePlaceholder, updateRoll} from './c
 import {OSCIntegration} from './integrations/Osc.js';
 import {HTTPIntegration} from "./integrations/Http.js";
 import {cleanURL} from "../utils/url.js";
+import getRandomName from '../utils/getRandomName';
 
 /*
  * EventTimer adds functions specific to APP
@@ -37,6 +38,9 @@ export class EventTimer extends Timer {
 
   // Socket IO Object
   io = null;
+  messageStack = null;
+  MAX_MESSAGES = 100;
+  _clientNames = null;
 
   // OSC Object
   osc = null;
@@ -113,6 +117,8 @@ export class EventTimer extends Timer {
         optionsSuccessStatus: 204,
       },
     });
+    this.messageStack = [];
+    this._clientNames = {};
 
     // Todo: extract
     // initialise osc object
@@ -521,9 +527,9 @@ export class EventTimer extends Timer {
       /*******************************/
       // keep track of connections
       this._numClients++;
-      console.log(
-        `EventTimer: ${this._numClients} Clients with new connection: ${socket.id}`
-      );
+      this._clientNames[socket.id] = getRandomName();
+      const m = `${this._numClients} Clients with new connection: ${this._clientNames[socket.id]}`;
+      console.log(m);
 
       // send state
       socket.emit('timer', this.getTimes());
@@ -539,9 +545,9 @@ export class EventTimer extends Timer {
       /********************************/
       socket.on('disconnect', () => {
         this._numClients--;
-        console.log(
-          `EventTimer: Client disconnected, total now: ${this._numClients}`
-        );
+        const m = `${this._numClients} Clients with disconnection: ${this._clientNames[socket.id]}`;
+        delete this._clientNames[socket.id];
+        console.log(m);
       });
 
       /***************************************/
@@ -1404,4 +1410,76 @@ export class EventTimer extends Timer {
     // reload data
     this.loadEvent(this.selectedEventIndex);
   }
+
+  /****************************************************************************/
+  /**
+   * Logger logic
+   * -------------
+   *
+   * This should be separate of event timer, left here for convenience
+   *
+   */
+
+  /**
+   * Utility method, sends message and pushes into stack
+   * @param {object} msg
+   * @param {string} msg.time
+   * @param {string} msg.level
+   * @param {string} msg.origin
+   * @param {string} msg.text
+   */
+  _push(msg) {
+    this.messageStack.unshift();
+    this.io.emit('logger', msg);
+    console.log(`[${msg.level}] \t ${msg.origin} \t ${msg.text}`);
+    if (this.messageStack.length > this.MAX_MESSAGES) {
+      this.messageStack.pop();
+    }
+  }
+
+  /**
+   * Sends a message with level LOG
+   * @param {string} origin
+   * @param {string} text
+   */
+  info(origin, text) {
+    const message = {
+      time: '' + Math.random() * 10,
+      level: 'INFO',
+      origin,
+      text,
+    };
+    this._push(message);
+  }
+
+  /**
+   * Sends a message with level WARN
+   * @param {string} origin
+   * @param {string} text
+   */
+  warn(origin, text) {
+    const message = {
+      time: '' + Math.random() * 10,
+      level: 'WARN',
+      origin,
+      text,
+    };
+    this._push(message);
+  }
+
+  /**
+   * Sends a message with level ERROR
+   * @param {string} origin
+   * @param {string} text
+   */
+  error(origin, text) {
+    const message = {
+      time: '' + Math.random() * 10,
+      level: 'ERROR',
+      origin,
+      text,
+    };
+    this._push(message);
+  }
 }
+
