@@ -15,11 +15,11 @@ export default function Info() {
     titleNext: '',
     subtitleNext: '',
     presenterNext: '',
-    noteNext: '',
+    noteNext: ''
   });
   const [selected, setSelected] = useState('No events');
   const [playback, setPlayback] = useState(null);
-  const logData = [];
+  const [logData, setLogData] = useState([]);
 
   // handle incoming messages
   useEffect(() => {
@@ -53,28 +53,36 @@ export default function Info() {
       }
     });
 
+    // Ask for selection data
+    socket.emit('get-logger');
+
+    socket.on('logger', (data) => {
+      console.log('dddd', data);
+      setLogData((l) => [...l, data]);
+    });
+
     // Clear listener
     return () => {
       socket.off('titles');
       socket.off('selected');
       socket.off('playstate');
+      socket.off('logger');
     };
   }, [socket]);
 
-  // TODO: Put this in use effect
   // prepare data
   const titlesNow = {
     title: titles.titleNow,
     subtitle: titles.subtitleNow,
     presenter: titles.presenterNow,
-    note: titles.noteNow,
+    note: titles.noteNow
   };
 
   const titlesNext = {
     title: titles.titleNext,
     subtitle: titles.subtitleNext,
     presenter: titles.presenterNext,
-    note: titles.noteNext,
+    note: titles.noteNext
   };
 
   return (
@@ -83,7 +91,7 @@ export default function Info() {
         <span>{`Running on port 4001`}</span>
         <span>{selected}</span>
       </div>
-      {/* <InfoLogger logData={logData} /> */}
+      <InfoLogger logData={logData} />
       <InfoNif />
       <InfoTitle title={'Now'} data={titlesNow} roll={playback === 'roll'} />
       <InfoTitle title={'Next'} data={titlesNext} roll={playback === 'roll'} />
