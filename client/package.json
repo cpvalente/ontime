@@ -9,7 +9,7 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "axios": "^0.21.1",
+    "axios": "^0.24.0",
     "framer-motion": "^4.1.6",
     "jotai": "^0.16.5",
     "react": "17.0.2",
@@ -18,10 +18,10 @@
     "react-fast-compare": "^3.2.0",
     "react-icons": "^4.3.1",
     "react-qr-code": "^2.0.2",
-    "react-query": "^3.13.5",
+    "react-query": "^3.34.5",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.3",
+    "react-scripts": "5.0.0",
     "socket.io-client": "^4.3.2",
     "typeface-open-sans": "^1.1.13",
     "use-fit-text": "^2.4.0",
@@ -32,12 +32,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -52,6 +46,8 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/react-hooks": "^7.0.2",
+    "react-test-renderer": "^17.0.2",
     "sass": "^1.44.0"
   }
 }
