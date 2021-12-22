@@ -153,7 +153,7 @@ export const startServer = async (overrideConfig = null) => {
   const port = 4001;
 
   // Start server
-  const returnMessage = `HTTP Server is listening on port ${port}`;
+  const returnMessage = `Ontime is listening on port ${port}`;
   server.listen(port, '0.0.0.0', () => console.log(returnMessage));
 
   // OSC Config
