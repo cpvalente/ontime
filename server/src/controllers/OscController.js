@@ -47,32 +47,32 @@ export const initiateOSC = (config) => {
       case 'start':
       case 'play':
         console.log('calling play');
-        global.timer.start();
+        global.timer.trigger('start');
         break;
       case 'pause':
         console.log('calling pause');
-        global.timer.pause();
+        global.timer.trigger('pause');
         break;
       case 'prev':
         console.log('calling prev');
-        global.timer.previous();
+        global.timer.trigger('previous');
         break;
       case 'next':
         console.log('calling next');
-        global.timer.next();
+        global.timer.trigger('next');
         break;
       case 'unload':
       case 'stop':
         console.log('calling unload');
-        global.timer.unload();
+        global.timer.trigger('unload');
         break;
       case 'reload':
         console.log('calling reload');
-        global.timer.reload();
+        global.timer.trigger('reload');
         break;
       case 'roll':
         console.log('calling roll');
-        global.timer.roll();
+        global.timer.trigger('roll');
         break;
       case 'delay':
         console.log('calling delay with', args);

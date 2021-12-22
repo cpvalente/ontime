@@ -4,7 +4,7 @@ import { FiChevronUp } from 'react-icons/fi';
 import { APP_TABLE } from 'app/api/apiConstants';
 import { getInfo, ontimePlaceholderInfo } from 'app/api/ontimeApi';
 import { useFetch } from 'app/hooks/useFetch';
-import style from './Info.module.css';
+import style from './Info.module.scss';
 
 export default function InfoNif() {
   const { data, status } = useFetch(APP_TABLE, getInfo, {

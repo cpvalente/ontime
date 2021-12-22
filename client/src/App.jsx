@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import './App.css';
+import './App.scss';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import SocketProvider from 'app/context/socketContext';
 import withSocket from 'features/viewers/ViewWrapper';

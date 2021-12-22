@@ -22,7 +22,6 @@ const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
 // dependencies
-import { Client } from 'node-osc';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -48,8 +47,8 @@ if (db.data == null || !isValid) {
 
 // get data
 // there is also the case of the db being corrupt
-// try to parse the data
-export const data = await parseJson(db.data);
+// try to parse the data, make sure that all fields exist (enforce)
+export const data = await parseJson(db.data, true);
 db.data = data;
 await db.write();
 
@@ -113,17 +112,17 @@ app.use((err, req, res, next) => {
  * ----------------
  *
  * Configuration of services comes from app general config
- * It can be overriden here by the settings in the db
- * It can also be overriden on call
+ * It can be overridden here by the settings in the db
+ * It can also be overridden on call
  *
  */
 
-const s = data.settings;
-const oscIP = s.oscOutIP || config.osc.ipOut;
-const oscOutPort = s.oscOutPort || config.osc.portOut;
-const oscInPort = s.oscInPort || config.osc.port;
+const osc = data.osc;
+const oscIP = osc?.targetIP || config.osc.targetIP;
+const oscOutPort = osc?.portOut || config.osc.portOut;
+const oscInPort = osc?.port || config.osc.port;
 
-const serverPort = s.serverPort || config.server.port;
+const serverPort = data.settings.serverPort || config.server.port;
 
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
@@ -138,17 +137,6 @@ export const startOSCServer = async (overrideConfig = null) => {
 
   // Start OSC Server
   initiateOSC(oscSettings);
-};
-
-// Start OSC Client
-let oscClient = null;
-
-export const startOSCClient = async (overrideConfig = null) => {
-  // Setup default port
-  const port = overrideConfig?.port || oscOutPort;
-  console.log('initialise OSC Client on port: ', port);
-
-  oscClient = new Client(oscIP, oscOutPort);
 };
 
 // create HTTP server
@@ -168,8 +156,14 @@ export const startServer = async (overrideConfig = null) => {
   const returnMessage = `HTTP Server is listening on port ${port}`;
   server.listen(port, '0.0.0.0', () => console.log(returnMessage));
 
+  // OSC Config
+  const oscConfig = {
+    ip: oscIP,
+    port: overrideConfig?.port || oscOutPort
+  }
+
   // init timer
-  global.timer = new EventTimer(server, oscClient, config);
+  global.timer = new EventTimer(server, config.timer, oscConfig, data.http);
   global.timer.setupWithEventList(data.events);
 
   return returnMessage;
@@ -178,16 +172,13 @@ export const startServer = async (overrideConfig = null) => {
 export const shutdown = async () => {
   console.log('Node service shutdown');
 
-  user.event('NODE', 'shutdown', 'requesting node shutfown').send();
+  user.event('NODE', 'shutdown', 'requesting node shutdown').send();
 
   // shutdown express server
   server.close();
 
   // shutdown OSC Server
   shutdownOSCServer();
-
-  // shutdown OSC Client
-  oscClient.close();
 
   // shutdown timer
   global.timer.shutdown();

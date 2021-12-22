@@ -1,4 +1,3 @@
-import { describe } from 'jest-circus';
 import { excelDateStringToMillis, stringFromMillis } from '../time.js';
 
 describe('test string to milis function', () => {
@@ -60,12 +59,15 @@ describe('test string to milis function', () => {
 
 describe('test excel date parser', () => {
   it('parses the given dates correctly', () => {
+    const d0 = '1899-12-30T00:00:00.000Z';
     const d1 = '1899-12-30T08:00:00.000Z';
     const d2 = '1899-12-30T08:30:00.000Z';
 
+    const d0Millis = 0;
     const d1Millis = 28800000;
     const d2Millis = 30600000;
 
+    expect(excelDateStringToMillis(d0)).toBe(d0Millis);
     expect(excelDateStringToMillis(d1)).toBe(d1Millis);
     expect(excelDateStringToMillis(d2)).toBe(d2Millis);
   });

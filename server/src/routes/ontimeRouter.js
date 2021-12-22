@@ -8,6 +8,8 @@ import {
   getInfo,
   postInfo,
   dbPathToUpload,
+  getOSC,
+  postOSC,
 } from '../controllers/ontimeController.js';
 
 // create route between controller and '/ontime/db' endpoint
@@ -17,10 +19,16 @@ router.get('/db', dbDownload);
 router.post('/db', uploadFile, dbUpload);
 
 // create route between controller and '/ontime/info' endpoint
-router.get('/info', uploadFile, getInfo);
+router.get('/info', getInfo);
 
 // create route between controller and '/ontime/info' endpoint
 router.post('/info', postInfo);
+
+// create route between controller and '/ontime/osc' endpoint
+router.get('/osc', getOSC);
+
+// create route between controller and '/ontime/osc' endpoint
+router.post('/osc', postOSC);
 
 // create route between controller and '/ontime/dbpath' endpoint
 router.post('/dbpath', dbPathToUpload);

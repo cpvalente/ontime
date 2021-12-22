@@ -16,7 +16,7 @@ export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
 
 /**
  * @description Middleware function that checks file type and calls relevant parser
- * @argument {string} file - reference to file
+ * @param {string} file - reference to file
  * @return {object} - parse result message
  */
 export const fileHandler = async (file) => {
@@ -82,7 +82,7 @@ export const fileHandler = async (file) => {
 
 /**
  * @description Excel array parser
- * @argument {array} excelData - array with excel sheet
+ * @param {array} excelData - array with excel sheet
  * @returns {object} - parsed object
  */
 export const parseExcelv1 = async (excelData) => {
@@ -196,11 +196,12 @@ export const parseExcelv1 = async (excelData) => {
 
 /**
  * @description JSON parser function for v1 of data system
- * @argument {object} jsonData - json data JSON object to be parsed
+ * @param {object} jsonData - json data JSON object to be parsed
+ * @param {boolean} [enforce=false] - flag, tells to create an object anyway
  * @returns {object} - parsed object
  */
 
-export const parseJsonv1 = async (jsonData) => {
+export const parseJsonv1 = async (jsonData, enforce=false) => {
   if (!jsonData || typeof jsonData !== 'object') {
     console.log('ERROR: Invalid JSON format');
     return -1;
@@ -213,9 +214,9 @@ export const parseJsonv1 = async (jsonData) => {
     let events = [];
     let ids = [];
     for (const e of jsonData.events) {
-      // doublecheck unique ids
+      // double check unique ids
       if (ids.indexOf(e?.id) !== -1) {
-        console.log('ERROR: ID colision on import, skipping');
+        console.log('ERROR: ID collision on import, skipping');
         continue;
       }
 
@@ -243,13 +244,17 @@ export const parseJsonv1 = async (jsonData) => {
     // write to db
     returnData.events = events;
     console.log(`Uploaded file with ${numEntries} entries`);
+  } else if (enforce) {
+    returnData.events = [];
+    console.log(`Created events object in db`);
   }
 
   if ('event' in jsonData) {
     console.log('Found event data, importing...');
     const e = jsonData.event;
-    // filter known properties
-    const event = {
+
+    // filter known properties and write to db
+    returnData.event = {
       ...dbModelv1.event,
       title: e.title || dbModelv1.event.title,
       url: e.url || dbModelv1.event.url,
@@ -257,9 +262,9 @@ export const parseJsonv1 = async (jsonData) => {
       backstageInfo: e.backstageInfo || dbModelv1.event.backstageInfo,
       endMessage: e.endMessage || dbModelv1.event.endMessage,
     };
-
-    // write to db
-    returnData.event = event;
+  } else if (enforce) {
+    returnData.event = dbModelv1.event;
+    console.log(`Created event object in db`);
   }
 
   // Settings handled partially
@@ -271,11 +276,9 @@ export const parseJsonv1 = async (jsonData) => {
     if (s.app == null || s.version == null) {
       console.log('ERROR: unknown app version, skipping');
     } else {
-      let settings = {};
-
-      if (s.oscInPort) settings.oscInPort = s.oscInPort;
-      if (s.oscOutPort) settings.oscOutPort = s.oscOutPort;
-      if (s.oscOutIP) settings.oscOutIP = s.oscOutIP;
+      let settings = {
+        lock: s.lock || null,
+      };
 
       // write to db
       returnData.settings = {
@@ -283,6 +286,49 @@ export const parseJsonv1 = async (jsonData) => {
         ...settings,
       };
     }
+  } else if (enforce) {
+    returnData.settings = dbModelv1.settings;
+    console.log(`Created settings object in db`);
+  }
+
+  // Import OSC settings if any
+  if ('osc' in jsonData) {
+    console.log('Found OSC definition, importing...');
+    const s = jsonData.osc;
+    let osc = {};
+
+    if (s.port) osc.port = s.port;
+    if (s.portOut) osc.portOut = s.portOut;
+    if (s.targetIP) osc.targetIP = s.targetIP;
+    if (s.enabled) osc.enabled = s.enabled;
+
+    // write to db
+    returnData.osc = {
+      ...dbModelv1.osc,
+      ...osc,
+    };
+  } else if (enforce) {
+    returnData.osc = dbModelv1.osc;
+    console.log(`Created osc object in db`);
+  }
+
+  // Import HTTP settings if any
+  if ('http' in jsonData) {
+    console.log('Found HTTP definition, importing...');
+    const h = jsonData.osc;
+    let http = {};
+
+    if (h.user) http.user = h.user;
+    if (h.pwd) http.pwd = h.pwd;
+
+    // write to db
+    returnData.http = {
+      ...dbModelv1.http,
+      ...http,
+    };
+  } else if (enforce) {
+    returnData.http = dbModelv1.http;
+    console.log(`Created http object in db`);
   }
 
   return returnData;
@@ -292,7 +338,7 @@ export const parseJsonv1 = async (jsonData) => {
  * @description Ensures variable is string, it skips object types
  * @param {any} val - variable to convert
  * @param {string} [fallback=''] - fallback value
- * @returns {string} - value as string or fallback if not possibe
+ * @returns {string} - value as string or fallback if not possible
  */
 export const makeString = (val, fallback = '') => {
   if (typeof val === 'string') return val;
@@ -348,7 +394,7 @@ export const validateEventv1 = (eventArgs) => {
 
 /**
  * @description Delete file from system
- * @argument {string} file - reference to file
+ * @param {string} file - reference to file
  */
 const deleteFile = async (file) => {
   // delete a file
@@ -361,7 +407,8 @@ const deleteFile = async (file) => {
 
 /**
  * @description Delete file from system
- * @argument {string} file - reference to file
+ * @param {string} file - reference to file
+ * @returns {boolean} - whether file is valid JSON
  */
 export const validateFile = (file) => {
   try {

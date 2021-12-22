@@ -21,10 +21,10 @@ export default function StageManager(props) {
   useEffect(() => {
     if (backstageEvents == null) return;
 
-    setFilteredEvents(getEventsWithDelay(backstageEvents));
+    const f = getEventsWithDelay(backstageEvents)
 
-    console.log('hhh', getEventsWithDelay(backstageEvents))
-  }, [backstageEvents]);
+    setFilteredEvents(f);
+    }, [backstageEvents]);
 
   // Format messages
 

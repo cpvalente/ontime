@@ -1,13 +1,17 @@
-export const DAYMS = 86400000;
+
+/**
+ * Utility variable: 24 hour in milliseconds .
+ * @type {number}
+ */
+export const DAY_TO_MS = 86400000;
 
 /**
  * @description handle events that span over midnight
- * @param {num} start - When does the event start
- * @param {num} end  - When does the event end
- * @returns {num} normalised time
+ * @param {number} start - When does the event start
+ * @param {number} end  - When does the event end
+ * @returns {number} normalised time
  */
-export const normaliseEndTime = (start, end) => (end < start ? end + DAYMS : end);
-
+export const normaliseEndTime = (start, end) => (end < start ? end + DAY_TO_MS : end);
 
 /**
  * @description Sorts an array of objects by given property
@@ -20,6 +24,21 @@ export const sortArrayByProperty = (arr, property) => {
   return [...arr].sort((a, b) => {
     return a[property] - b[property];
   });
+};
+
+/**
+ * @description Replaces placeholder variables in string with given data
+ * @param {string} str - string to analyse
+ * @param {object} values - map of variables: values to use
+ * @returns {string} finished string
+ */
+
+export const replacePlaceholder = (str, values) => {
+  for (let [k, v] of Object.entries(values)) {
+    str = str.replace(k, v);
+    console.log(k, v);
+  }
+  return str;
 };
 
 /**
@@ -129,4 +148,60 @@ export const getSelectionByRoll = (arr, now) => {
     timeToNext,
   };
 };
+
+/**
+ * @description Implements update functions for roll mode
+ * @param {object} currentTimers
+ * @param {object} currentTimers.selectedEventId - Id of currently selected event
+ * @param {object} currentTimers.current - Running timer
+ * @param {object} currentTimers._finishAt - Expected finish time
+ * @param {object} currentTimers.clock - time now
+ * @param {object} currentTimers.secondaryTimer - secondary timer
+ * @param {object} currentTimers._secondaryTarget - finish time of secondary timer
+ * @returns {object} object with selection variables
+ */
+export const updateRoll = (currentTimers) => {
+
+  const {selectedEventId,current,_finishAt,clock,secondaryTimer,_secondaryTarget} = currentTimers;
+
+  // timers
+  let updatedTimer = current;
+  let updatedSecondaryTimer = secondaryTimer;
+  // whether rollLoad should be called
+  let doRollLoad = false;
+  // whether runCycle should be called
+  let isFinished = false;
+
+  if (selectedEventId && current >= 0) {
+    // if we have something selected and a timer, we are running
+    // this is true because roll never goes into negative times
+
+    // update timer
+    updatedTimer = _finishAt - clock;
+    if (updatedTimer < 0) {
+      isFinished = true;
+    }
+    console.log(updatedTimer, isFinished, _finishAt)
+
+  } else if (secondaryTimer >= 0) {
+    // if secondaryTimer is running we are in waiting to roll
+
+    // update secondary
+    updatedSecondaryTimer = _secondaryTarget - clock;
+  }
+
+  // if nothing is running, we need to find out if
+  // a) we just finished an event (finished was set to true)
+  // b) we need to look for events
+  // this could be caused by a secondary timer or event finished
+  const secondaryRunning =
+    updatedSecondaryTimer <= 0 && updatedSecondaryTimer != null;
+
+  if (isFinished || secondaryRunning) {
+    // look for events
+    doRollLoad = true;
+  }
+
+  return {updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished};
+}
 

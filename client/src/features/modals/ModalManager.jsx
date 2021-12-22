@@ -10,6 +10,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/tabs';
 import EventSettingsModal from './EventSettingsModal';
 import AppSettingsModal from './AppSettingsModal';
 import AliasesModal from './AliasesModal';
+import IntegrationSettingsModal from './IntegrationSettingsModal';
 
 export default function ModalManager(props) {
   const { isOpen, onClose } = props;
@@ -19,6 +20,7 @@ export default function ModalManager(props) {
       onClose={onClose}
       closeOnOverlayClick={false}
       motionPreset={'slideInBottom'}
+      size='lg'
     >
       <ModalOverlay />
       <ModalContent>
@@ -27,9 +29,10 @@ export default function ModalManager(props) {
 
         <Tabs size='sm' isLazy>
           <TabList>
-            <Tab>Event Settings</Tab>
-            <Tab>Application Settings</Tab>
-            <Tab>URL Aliases</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>Event Data</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>Application Settings</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>URL Aliases</Tab>
+            {/*<Tab style={{ fontSize: '0.9em' }}>Integration</Tab>*/}
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -41,6 +44,9 @@ export default function ModalManager(props) {
             <TabPanel>
               <AliasesModal />
             </TabPanel>
+            {/*<TabPanel>*/}
+            {/*  <IntegrationSettingsModal />*/}
+            {/*</TabPanel>*/}
           </TabPanels>
         </Tabs>
       </ModalContent>

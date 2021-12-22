@@ -33,6 +33,9 @@
     "dist-mac": "electron-builder --publish=never  --x64 --mac",
     "dist-all": "electron-builder -mw"
   },
+  "jest": {
+    "testPathIgnorePatterns": ["dist"]
+  },
   "build": {
     "productName": "ontime",
     "appId": "no.lightdev.ontime",
@@ -64,7 +67,9 @@
     },
     "files": [
       "**/*",
-      "assets/"
+      "assets/",
+      "!**/{yarn.lock,yarn-error.log}",
+      "!**/{test,tests,__test__,__tests__,mock,mocks,__mock__,__mocks__}"
     ],
     "directories": {
       "buildResources": "./assets/"
@@ -74,14 +79,18 @@
         "from": "../client/build",
         "to": "extraResources/client/build",
         "filter": [
-          "**/*"
+          "**/*",
+          "!**/{yarn.lock,yarn-error.log}",
+          "!**/{test,tests,__test__,__tests__,mock,mocks,__mock__,__mocks__}"
         ]
       },
       {
         "from": "src",
         "to": "extraResources/src",
         "filter": [
-          "**/*"
+          "**/*",
+          "!**/{yarn.lock,yarn-error.log}",
+          "!**/{test,tests,__test__,__tests__,mock,mocks,__mock__,__mocks__}"
         ]
       }
     ]

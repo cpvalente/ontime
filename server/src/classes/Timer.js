@@ -24,11 +24,35 @@ export class Timer {
 
   constructor() {}
 
+  // call setup separately
+  setupWithSeconds(seconds, autoStart = false) {
+    // aux
+    const now = this._getCurrentTime();
+    this.clock = now;
+
+    // populate targets
+    this.duration = seconds * 1000;
+    this._finishAt = now + seconds * 1000;
+
+    // start counting
+    this._startedAt = now;
+
+    if (autoStart) {
+      this.state = 'start';
+    } else {
+      this._pausedAt = now;
+      this._pausedInterval = 0;
+    }
+    this._pausedTotal = 0;
+    this.update();
+  }
+
   // update()
   update() {
     // get current time
     const now = this._getCurrentTime();
     this.clock = now;
+    let checkFinish = false;
 
     // check playstate
     switch (this.state) {
@@ -40,6 +64,8 @@ export class Timer {
         this.current =
           this._startedAt + this.duration + this._pausedTotal - now;
 
+        // enable flag
+        checkFinish = true;
         break;
       case 'pause':
         // update paused time
@@ -48,28 +74,37 @@ export class Timer {
         if (this._startedAt != null) {
           // update current timer
           this.current =
-            this._startedAt +
-            this.duration +
-            this._pausedTotal +
-            this._pausedInterval -
-            now;
+            this._startedAt
+            + this.duration
+            + this._pausedTotal
+            + this._pausedInterval
+            - now;
         }
+
+        // enable flag
+        checkFinish = true;
         break;
       case 'stop':
         // nothing here yet
         break;
-      default:
-        console.error('Timer: no playstate on update call', this.state);
-        break;
+    }
+
+    if (checkFinish) {
+      // is event finished?
+      const isTimeOver = this.current <= 0;
+      const isUpdating = (this.state !== 'pause');
+
+      if (isTimeOver && isUpdating && this._finishedAt == null) {
+        if (this._finishedAt === null) this._finishedAt = now;
+        this._finishedFlag = true;
+      }
     }
   }
 
   // helpers
   static toSeconds(millis) {
     if (millis == null) return null;
-
     return Math.ceil(millis * 0.001);
-
   }
 
   // get current time in epoc
@@ -148,7 +183,7 @@ export class Timer {
     // do we need to change
     if (this.state === 'start') return;
     else if (this._startedAt == null) {
-      // it hasnt started yet
+      // it hasn't started yet
       const now = this._getCurrentTime();
       // set start time as now
       this._startedAt = now;

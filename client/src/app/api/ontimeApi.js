@@ -3,12 +3,76 @@ import { ontimeURL } from './apiConstants';
 
 export const ontimePlaceholderInfo = {
   networkInterfaces: [],
-  version: '',
-  serverPort: 4001,
-  oscInPort: '',
-  oscOutPort: '',
-  oscOutIP: '',
+  settings: {
+    version: '',
+    serverPort: 4001,
+  },
 };
+
+export const oscPlaceholderSettings = {
+  port: '',
+  portOut: '',
+  targetIP: '',
+  enabled: true,
+};
+
+export const httpPlaceholder = {
+  onLoad: {
+    url: '',
+    enabled: false,
+  },
+  onStart: {
+    url: '',
+    enabled: false,
+  },
+  onUpdate: {
+    url: '',
+    enabled: false,
+  },
+  onPause: {
+    url: '',
+    enabled: false,
+  },
+  onStop: {
+    url: '',
+    enabled: false,
+  },
+  onFinish: {
+    url: '',
+    enabled: false,
+  },
+};
+
+export const ontimeVars = [
+  {
+    name: '$timer',
+    description: 'Current running timer',
+  },
+  {
+    name: '$title',
+    description: 'Current title',
+  },
+  {
+    name: '$presenter',
+    description: 'Current presenter',
+  },
+  {
+    name: '$subtitle',
+    description: 'Current subtitle',
+  },
+  {
+    name: '$next-title',
+    description: 'Next title',
+  },
+  {
+    name: '$next-presenter',
+    description: 'Next presenter',
+  },
+  {
+    name: '$next-subtitle',
+    description: 'Next subtitle',
+  },
+];
 
 export const getInfo = async () => {
   const res = await axios.get(ontimeURL + '/info');
@@ -17,6 +81,16 @@ export const getInfo = async () => {
 
 export const postInfo = async (data) => {
   const res = await axios.post(ontimeURL + '/info', data);
+  return res;
+};
+
+export const getOSC = async () => {
+  const res = await axios.get(ontimeURL + '/osc');
+  return res.data;
+};
+
+export const postOSC = async (data) => {
+  const res = await axios.post(ontimeURL + '/osc', data);
   return res;
 };
 

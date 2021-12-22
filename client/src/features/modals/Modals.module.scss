@@ -1,0 +1,99 @@
+@use '../../styles/variables' as *;
+
+//////////////////////////////////// main
+
+.modalBody,
+.modalBodyDisabled {
+  font-weight: 400;
+
+  .notes {
+    font-weight: 400;
+    color: $light-bg;
+  }
+
+  .separator {
+    border: 1px solid $light-bg-transparent;
+    width: 50%;
+    margin: 0.5em auto;
+  }
+
+  .modalInline {
+    display: flex;
+    gap: 2em;
+    align-items: center;
+  }
+
+  .submitContainer {
+    display: flex;
+    flex-direction: row-reverse;
+
+    button {
+      margin-top: 1em;
+    }
+  }
+
+}
+
+.modalBody > *,
+.modalBodyDisabled > * {
+  margin-top: 0.5em;
+}
+
+//////////////////////////////////// notes
+p {
+  &.notes {
+  text-align: center;
+  border-color: $light-bg-transparent;
+  border-width: 0 2px;
+  font-size: 0.9em;
+  margin-bottom: 1em;
+  }
+}
+
+span {
+  &.notes {
+    font-size: 0.8em;
+    padding-left: 0.4em;
+  }
+}
+
+.highNotes {
+  background-color: $light-text;
+  margin: 1em 0;
+  padding: 0.3em;
+  font-size: 0.9em;
+
+  table {
+    background-color: $light-text;
+    width: 100%;
+    margin-top: 0.3em;
+  }
+
+  .noteItem {
+    user-select: text;
+    font-weight: 700;
+    padding-right: 2em;
+  }
+
+  .flexNote {
+    user-select: text;
+    padding-bottom: 0.3em;
+  }
+
+  .emNote {
+    user-select: text;
+    display: block;
+    background-color: #fffc;
+  }
+}
+
+// Define style for a link
+a {
+  &::after {
+    content: '  \2197';
+    color: $accent;
+  }
+  &:hover {
+    color: $accent;
+  }
+}

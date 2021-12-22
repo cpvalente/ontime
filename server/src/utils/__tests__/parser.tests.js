@@ -6,7 +6,6 @@ import {
   validateEventv1,
 } from '../parser.js';
 import { dbModelv1 as dbModel } from '../../models/dataModel.js';
-import { describe } from 'jest-circus';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -133,6 +132,7 @@ describe('test json parser with valid def', () => {
       revision: 0,
       id: '4b31',
     };
+    expect(first).toStrictEqual(expected);
   });
 
   it('loaded event settings', () => {
@@ -192,7 +192,7 @@ describe('test parser edge cases', () => {
 
     const parseResponse = await parseJsonv1(testData);
     expect(console.log).toHaveBeenCalledWith(
-      'ERROR: ID colision on import, skipping'
+      'ERROR: ID collision on import, skipping'
     );
     expect(parseResponse?.events.length).toBe(1);
   });
@@ -267,11 +267,7 @@ describe('test corrupt data', () => {
         app: 'ontime',
         version: 1,
         serverPort: 4001,
-        oscInPort: 8888,
-        oscOutPort: 9999,
-        oscOutIP: '127.0.0.1',
-        oscEnabled: false,
-        lock: false,
+        lock: null,
       },
     };
 
@@ -293,11 +289,7 @@ describe('test corrupt data', () => {
         app: 'ontime',
         version: 1,
         serverPort: 4001,
-        oscInPort: 8888,
-        oscOutPort: 9999,
-        oscOutIP: '127.0.0.1',
-        oscEnabled: false,
-        lock: false,
+        lock: null,
       },
     };
 
@@ -313,11 +305,7 @@ describe('test corrupt data', () => {
         app: 'ontime',
         version: 1,
         serverPort: 4001,
-        oscInPort: 8888,
-        oscOutPort: 9999,
-        oscOutIP: '127.0.0.1',
-        oscEnabled: false,
-        lock: false,
+        lock: null,
       },
     };
 
@@ -430,7 +418,6 @@ describe('test makeString function', () => {
     expect(converted).toBe(expected);
 
     val = { doing: 'testing' };
-    expected = 'testing';
     converted = makeString(val, 'fallback');
     expect(converted).toBe('fallback');
   });
@@ -477,8 +464,8 @@ describe('test parseExcel function', () => {
 
     const expectedParsedEvents = [
       {
-        timeStart: 28800000,
-        timeEnd: 32410000,
+        timeStart: 25200000,
+        timeEnd: 28810000,
         title: 'Guest Welcome',
         presenter: 'Carlos',
         subtitle: 'Getting things started',
@@ -487,8 +474,8 @@ describe('test parseExcel function', () => {
         type: 'event',
       },
       {
-        timeStart: 32400000,
-        timeEnd: 34200000,
+        timeStart: 28800000,
+        timeEnd: 30600000,
         title: 'A song from the hearth',
         presenter: 'Still Carlos',
         subtitle: 'Derailing early',

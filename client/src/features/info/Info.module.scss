@@ -84,14 +84,15 @@
   margin: 0 0.5em;
 }
 
-ul > li {
-  font-size: 0.9em;
-  color: #fff;
-}
-
 .log {
   overflow-y: scroll;
   height: 30vh;
+
+    ul > li {
+    font-size: 0.9em;
+    color: #fff;
+  }
+
 }
 
 .info {

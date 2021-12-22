@@ -1,26 +1,21 @@
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, FormControl, Input, Button } from '@chakra-ui/react';
-import { getInfo, ontimePlaceholderInfo, postInfo } from 'app/api/ontimeApi';
+import { getOSC, oscPlaceholderSettings, postOSC } from 'app/api/ontimeApi';
 import { useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
-import { APP_TABLE } from 'app/api/apiConstants';
+import { OSC_SETTINGS } from 'app/api/apiConstants';
 import { showErrorToast } from 'common/helpers/toastManager';
-import style from './Modals.module.css';
+import style from './Modals.module.scss';
 
 export default function AppSettingsModal() {
-  const { data, status } = useFetch(APP_TABLE, getInfo);
-  const [formData, setFormData] = useState(ontimePlaceholderInfo);
+  const { data, status } = useFetch(OSC_SETTINGS, getOSC);
+  const [formData, setFormData] = useState(oscPlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (data == null) return;
-
-    setFormData({
-      oscInPort: data.oscInPort,
-      oscOutPort: data.oscOutPort,
-      oscOutIP: data.oscOutIP,
-    });
+    setFormData({ ...data });
   }, [data]);
 
   const submitHandler = async (event) => {
@@ -30,15 +25,15 @@ export default function AppSettingsModal() {
     let e = { status: false, message: '' };
 
     // Validate fields
-    if (f.oscInPort < 1024 || f.oscInPort > 65535) {
+    if (f.port < 1024 || f.port > 65535) {
       // Port in incorrect range
       e.status = true;
       e.message += 'OSC IN Port in incorrect range (1024 - 65535)';
-    } else if (f.oscOutPort < 1024 || f.oscOutPort > 65535) {
+    } else if (f.portOut < 1024 || f.portOut > 65535) {
       // Port in incorrect range
       e.status = true;
       e.message += 'OSC OUT Port in incorrect range (1024 - 65535)';
-    } else if (f.oscInPort === f.oscOutPort) {
+    } else if (f.port === f.portOut) {
       // Cant use the same port
       e.status = true;
       e.message += 'OSC IN and OUT Ports cant be the same';
@@ -51,7 +46,7 @@ export default function AppSettingsModal() {
     }
 
     // Post here
-    postInfo(formData);
+    postOSC(formData);
 
     setChanged(false);
     setSubmitting(false);
@@ -66,7 +61,7 @@ export default function AppSettingsModal() {
               <p className={style.notes}>
                 Options related to the application
                 <br />
-                !!! Changes take effect after app restart !!!
+                🔥 Changes take effect after app restart 🔥
               </p>
 
               <FormControl id='serverPort'>
@@ -85,8 +80,8 @@ export default function AppSettingsModal() {
                 />
                 <span className={style.notes}>(Read Only Value)</span>
               </FormControl>
-              <FormControl id='oscInPort'>
-                <FormLabel htmlFor='oscInPort'>
+              <FormControl id='port'>
+                <FormLabel htmlFor='port'>
                   OSC In Port
                   <span className={style.notes}>
                     <br />
@@ -95,18 +90,18 @@ export default function AppSettingsModal() {
                 </FormLabel>
                 <Input
                   size='sm'
-                  name='oscInPort'
+                  name='port'
                   placeholder='8888'
                   autoComplete='off'
                   type='number'
-                  value={formData.oscInPort}
+                  value={formData.port}
                   min='1024'
                   max='65535'
                   onChange={(event) => {
                     setChanged(true);
                     setFormData({
                       ...formData,
-                      oscInPort: parseInt(event.target.value),
+                      port: parseInt(event.target.value),
                     });
                   }}
                   isDisabled={submitting}
@@ -114,8 +109,8 @@ export default function AppSettingsModal() {
                 />
               </FormControl>
               <div className={style.modalInline}>
-                <FormControl id='oscOutIP' width='auto'>
-                  <FormLabel htmlFor='oscOutIP'>
+                <FormControl id='targetIP' width='auto'>
+                  <FormLabel htmlFor='targetIP'>
                     OSC Out Target IP
                     <span className={style.notes}>
                       <br />
@@ -124,23 +119,23 @@ export default function AppSettingsModal() {
                   </FormLabel>
                   <Input
                     size='sm'
-                    name='oscOutIP'
+                    name='targetIP'
                     placeholder='127.0.0.1'
                     autoComplete='off'
-                    value={formData.oscOutIP}
+                    value={formData.targetIP}
                     onChange={(event) => {
                       setChanged(true);
                       setFormData({
                         ...formData,
-                        oscOutIP: event.target.value,
+                        targetIP: event.target.value,
                       });
                     }}
                     isDisabled={submitting}
                     style={{ width: '12em', textAlign: 'right' }}
                   />
                 </FormControl>
-                <FormControl id='oscOutPort' width='auto'>
-                  <FormLabel htmlFor='oscOutPort'>
+                <FormControl id='portOut' width='auto'>
+                  <FormLabel htmlFor='portOut'>
                     OSC Out Port
                     <span className={style.notes}>
                       <br />
@@ -149,18 +144,18 @@ export default function AppSettingsModal() {
                   </FormLabel>
                   <Input
                     size='sm'
-                    name='oscOutPort'
+                    name='portOut'
                     placeholder='9999'
                     autoComplete='off'
                     type='number'
-                    value={formData.oscOutPort}
+                    value={formData.portOut}
                     min='1024'
                     max='65535'
                     onChange={(event) => {
                       setChanged(true);
                       setFormData({
                         ...formData,
-                        oscOutPort: parseInt(event.target.value),
+                        portOut: parseInt(event.target.value),
                       });
                     }}
                     isDisabled={submitting}
@@ -170,14 +165,16 @@ export default function AppSettingsModal() {
               </div>
             </>
           )}
-          <Button
-            colorScheme='blue'
-            type='submit'
-            isLoading={submitting}
-            disabled={!changed}
-          >
-            Save
-          </Button>
+          <div className={style.submitContainer}>
+            <Button
+              colorScheme='blue'
+              type='submit'
+              isLoading={submitting}
+              disabled={!changed}
+            >
+              Save
+            </Button>
+          </div>
         </ModalBody>
       </form>
     </>
