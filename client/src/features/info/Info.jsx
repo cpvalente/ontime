@@ -19,7 +19,7 @@ export default function Info() {
   });
   const [selected, setSelected] = useState('No events');
   const [playback, setPlayback] = useState(null);
-  const logData = [];
+  const [logData, setLogData] = useState([])
 
   // handle incoming messages
   useEffect(() => {
@@ -51,6 +51,14 @@ export default function Info() {
         }/${data.total != null ? data.total : '-'}`;
         setSelected(formatedCurrent);
       }
+
+      // Ask for selection data
+      socket.emit('get-logger');
+
+      socket.on('logger', (data) => {
+        console.log('dddd', data)
+        setLogData((l) => [...l, data]);
+      });
     });
 
     // Clear listener
@@ -58,6 +66,8 @@ export default function Info() {
       socket.off('titles');
       socket.off('selected');
       socket.off('playstate');
+      socket.off('logger');
+
     };
   }, [socket]);
 

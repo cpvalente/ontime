@@ -1,8 +1,13 @@
+import { io } from "socket.io-client";
+
 export class SocketLogger {
-  constructor(socketIo) {
+  constructor(server) {
     // initialise socketIO server
-    this.socketIo = socketIo;
-    this.messsageStack = [];
+    // this.socketIo = socketIo;
+    this.socketIo = io();
+
+    this.messageStack = [];
+    this.MAX_MESSAGES = 100;
   }
 
   /**
@@ -14,11 +19,11 @@ export class SocketLogger {
    * @param {string} msg.text
    */
   _push(msg) {
-    this.messsageStack.unshift();
+    this.messageStack.unshift();
     this.socketIo.emit('logger', msg);
     console.log(`[${msg.level}] \t ${msg.origin} \t ${msg.text}`);
-    if (this.messsageStack.length > 100) {
-      this.messsageStack.pop();
+    if (this.messageStack.length > this.MAX_MESSAGES) {
+      this.messageStack.pop();
     }
   }
 
@@ -29,7 +34,7 @@ export class SocketLogger {
    */
   info(origin, text) {
     const message = {
-      time: '10:32:12',
+      time: '' + Math.random() * 10,
       level: 'INFO',
       origin,
       text,
@@ -44,7 +49,7 @@ export class SocketLogger {
    */
   warn(origin, text) {
     const message = {
-      time: '10:32:12',
+      time: '' + Math.random() * 10,
       level: 'WARN',
       origin,
       text,
@@ -59,7 +64,7 @@ export class SocketLogger {
    */
   error(origin, text) {
     const message = {
-      time: '10:32:12',
+      time: '' + Math.random() * 10,
       level: 'ERROR',
       origin,
       text,

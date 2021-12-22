@@ -157,7 +157,7 @@ export const startServer = async (overrideConfig = null) => {
     },
   });
 
-  logger = new SocketLogger(socketIo);
+  logger = new SocketLogger(server);
 
   // Start server
   const returnMessage = `HTTP Server is listening on port ${port}`;

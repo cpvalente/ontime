@@ -381,6 +381,9 @@ export class EventTimer extends Timer {
 
   _listenToConnections() {
     this.io.on('connection', (socket) => {
+
+      socket.removeAllListeners()
+
       /*******************************/
       /***  HANDLE NEW CONNECTION  ***/
       /***  ---------------------  ***/

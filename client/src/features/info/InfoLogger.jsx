@@ -3,6 +3,7 @@ import style from './InfoLogger.module.scss';
 import CollapseBar from "../../common/components/collapseBar/CollapseBar";
 
 export default function InfoLogger(props) {
+  const { logData } = props;
   const [collapsed, setCollapsed] = useState(false);
   // Todo: save in local storage
   const [showClient, setShowClient] = useState(true);
@@ -11,35 +12,7 @@ export default function InfoLogger(props) {
   const [showRx, setShowRx] = useState(true);
   const [showTx, setShowTx] = useState(true);
 
-  const { logData } = props;
-
-  const data = [
-    {
-      time: '10:32:12',
-      level: 'error',
-      origin: 'SERVER',
-      msg: 'New socket client (total: 3)'
-    },
-    {
-      time: '10:32:10',
-      level: 'info',
-      origin: 'PLAYBACK',
-      msg: 'Play'
-    },
-    {
-      time: '10:31:10',
-      level: 'error',
-      origin: 'PLAYBACK',
-      msg: 'Next'
-    },
-    {
-      time: '10:31:10',
-      level: 'warn',
-      origin: 'SERVER',
-      msg: 'Server disconnected'
-    }
-  ];
-
+  console.log(logData)
   return (
     <div className={style.container}>
       <CollapseBar title={'Log'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
@@ -73,13 +46,13 @@ export default function InfoLogger(props) {
             </div>
           </div>
             <ul className={style.log}>
-              {data.map((d) => (
-                <li key={`${d.time}-${d.msg}`} className={d.level === 'info' ? style.info : d.level === 'warn' ? style.warn : d.level === 'error' ? style.error : ''}>
+              {logData.map((d) => (
+                <li key={`${d.time}-${d.text}`} className={d.level === 'info' ? style.info : d.level === 'warn' ? style.warn : d.level === 'error' ? style.error : ''}>
                   <div
                     className={style.time}
                   >{d.time}</div>
                   <div className={style.origin}>{d.origin}</div>
-                  <div className={style.msg}>{d.msg}</div>
+                  <div className={style.msg}>{d.text}</div>
                 </li>
               ))}
             </ul>
