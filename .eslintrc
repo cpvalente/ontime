@@ -1,8 +1,13 @@
 {
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
+  "env": {
+    "es6": true,
+    "jest": true
+  },
   "extends": [
-    "prettier"
+    "eslint:recommended"
   ],
-  "plugins": ["testing-library", "jest", "prettier"],
-  "rules": {
-  }
+  "rules": {}
 }
