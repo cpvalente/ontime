@@ -1,34 +1,62 @@
-import { Icon } from '@chakra-ui/react';
 import { useState } from 'react';
-import { FiChevronUp } from 'react-icons/fi';
-import style from './Info.module.scss';
+import style from './InfoLogger.module.scss';
+import CollapseBar from "../../common/components/collapseBar/CollapseBar";
 
 export default function InfoLogger(props) {
-  const [collapsed, setCollapsed] = useState(false);
-
   const { logData } = props;
+  const [collapsed, setCollapsed] = useState(false);
+  // Todo: save in local storage
+  const [showClient, setShowClient] = useState(true);
+  const [showServer, setShowServer] = useState(true);
+  const [showPlayback, setShowPlayback] = useState(true);
+  const [showRx, setShowRx] = useState(true);
+  const [showTx, setShowTx] = useState(true);
 
+  console.log(logData)
   return (
     <div className={style.container}>
-      <div className={style.header}>
-        Log
-        <Icon
-          className={collapsed ? style.moreCollapsed : style.moreExpanded}
-          as={FiChevronUp}
-          onClick={() => setCollapsed((c) => !c)}
-        />
-      </div>
+      <CollapseBar title={'Log'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
       {!collapsed && (
-        <ul className={style.log}>
-          <li className={style.info}>10:35:23 [PLAYBACK] Next</li>
-          <li className={style.client}>
-            10:32:10 [CLIENT] New socket client (total: 3)
-          </li>
-          <li className={style.info}>10:28:23 [PLAYBACK] Next</li>
-          <li className={style.info}>10:25:23 [PLAYBACK] Play</li>
-          <li className={style.info}>10:23:13 [SERVER] Server Reconnected</li>
-          <li className={style.error}>10:23:10 [SERVER] Server Disconnected</li>
-        </ul>
+        <>
+          <div className={style.toggleBar}>
+            <div
+              onClick={() => setShowClient((s) => !s)}
+              className={showClient && style.active}>
+              CLIENT
+            </div>
+            <div
+              onClick={() => setShowServer((s) => !s)}
+              className={showServer && style.active}>
+              SERVER
+            </div>
+            <div
+              onClick={() => setShowPlayback((s) => !s)}
+              className={showPlayback && style.active}>
+              PLAYBACK
+            </div>
+            <div
+              onClick={() => setShowRx((s) => !s)}
+              className={showRx && style.active}>
+              RX
+            </div>
+            <div
+              onClick={() => setShowTx((s) => !s)}
+              className={showTx && style.active}>
+              TX
+            </div>
+          </div>
+          <ul className={style.log}>
+            {logData.map((d) => (
+              <li key={`${d.time}-${d.text}`} className={d.level === 'info' ? style.info : d.level === 'warn' ? style.warn : d.level === 'error' ? style.error : ''}>
+                <div
+                  className={style.time}
+                >{d.time}</div>
+                <div className={style.origin}>{d.origin}</div>
+                <div className={style.msg}>{d.text}</div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

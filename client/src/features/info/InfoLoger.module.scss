@@ -1,0 +1,81 @@
+@use 'Info.module' as *;
+@use '../../main' as *;
+
+.container {
+  @include container;
+  min-height: 50%;
+  max-height: 80%;
+}
+
+.log {
+  height: 70%;
+  max-height: 100%;
+  overflow-y: scroll;
+  font-size: 0.8em;
+  user-select:text;
+  @include container-bg;
+
+  li {
+    display: flex;
+    margin-bottom: 2px;
+
+    .time {
+      width: 13%;
+    }
+    .origin {
+      width: 18%;
+    }
+    .msg {
+      width: 70%;
+    }
+  }
+
+  li.info {
+    color: #aaa;
+  }
+  li.warn {
+    color: #dd6b20;
+  }
+  li.error {
+    color: #f00;
+  }
+
+  .entry:hover {
+    color: #ddd;
+  }
+}
+
+
+.info {
+  color: #fff;
+}
+
+.error {
+  color: red;
+}
+
+.client {
+  color: lightblue;
+}
+
+.toggleBar {
+  display: flex;
+  font-size: 0.7em;
+  justify-content: flex-start;
+  gap: 1em;
+  padding: 0.5em 0;
+  font-weight: 600;
+
+  div {
+    padding: 2px 8px;
+    background: #0002;
+    border: 1px solid #fff1;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  div.active {
+    background: $ontime-accent;
+    color: darken($ontime-accent, 70%);
+  }
+}
