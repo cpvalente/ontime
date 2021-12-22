@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -14,7 +14,7 @@
   "devDependencies": {
     "electron": "^13.6.1",
     "electron-builder": "^22.11.3",
-    "eslint": "^7.26.0",
+    "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.0.4",
@@ -34,7 +34,9 @@
     "dist-all": "electron-builder -mw"
   },
   "jest": {
-    "testPathIgnorePatterns": ["dist"]
+    "testPathIgnorePatterns": [
+      "dist"
+    ]
   },
   "build": {
     "productName": "ontime",

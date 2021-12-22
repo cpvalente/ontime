@@ -15,7 +15,9 @@
     "socket.io": "^4.3.1",
     "universal-analytics": "^0.4.23"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^8.5.0"
+  },
   "scripts": {
     "nodestart": "nodemon app.js",
     "start": "node app.js"
