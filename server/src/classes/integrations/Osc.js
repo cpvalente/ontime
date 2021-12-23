@@ -38,10 +38,16 @@ export class OSCIntegration {
     const { ip, port } = oscConfig;
     try {
       this.oscClient = new Client(ip, port);
-      console.log(`Initialised OSC Client at ${ip}:${port}`);
+      return {
+        success: true,
+        message: `Initialised OSC Client at ${ip}:${port}`,
+      };
     } catch (error) {
       this.oscClient = null;
-      console.log(`Failed initialising OSC Client: ${error}`);
+      return {
+        success: true,
+        message: `Failed initialising OSC Client: ${error}`,
+      };
     }
   }
 
@@ -53,7 +59,7 @@ export class OSCIntegration {
   async send(messageType, payload) {
     const reply = {
       success: true,
-      message: 'Message sent',
+      message: 'OSC Message sent',
     };
 
     if (this.oscClient == null) {
