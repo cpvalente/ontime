@@ -1,14 +1,18 @@
 @use 'Info.module' as *;
 @use '../../main' as *;
 
-.container {
+.container,
+.container__expanded{
   @include container;
-  min-height: 50%;
   max-height: 80%;
 }
 
+.container__expanded {
+  min-height: 50%;
+}
+
 .log {
-  height: 70%;
+  height: 75%;
   max-height: 100%;
   overflow-y: scroll;
   font-size: 0.8em;
@@ -77,5 +81,9 @@
   div.active {
     background: $ontime-accent;
     color: darken($ontime-accent, 70%);
+  }
+
+  .clear {
+    border: 1px solid rgba($ontime-pink, 0.5);
   }
 }

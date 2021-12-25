@@ -4,7 +4,7 @@ import CollapseBar from "../../common/components/collapseBar/CollapseBar";
 import { LoggingContext } from '../../app/context/LoggingContext';
 
 export default function InfoLogger() {
-  const { logData } = useContext(LoggingContext);
+  const { logData, clearLog } = useContext(LoggingContext);
   const [data, setData] = useState([]);
   const [collapsed, setCollapsed] = useState(false);
   // Todo: save in local storage
@@ -16,7 +16,6 @@ export default function InfoLogger() {
   const [showUser, setShowUser] = useState(true);
 
   useEffect(() => {
-    console.log('NEW LOG DATA')
     const matchers = [];
     if (showUser) {
       matchers.push('USER');
@@ -54,7 +53,7 @@ export default function InfoLogger() {
   }
 
   return (
-    <div className={style.container}>
+    <div className={collapsed ? style.container : style.container__expanded}>
       <CollapseBar title={'Log'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
       {!collapsed && (
         <>
@@ -95,10 +94,15 @@ export default function InfoLogger() {
               className={(showTx) ? style.active : null}>
               TX
             </div>
+            <div
+              onClick={clearLog}
+              className={style.clear}>
+              Clear
+            </div>
           </div>
           <ul className={style.log}>
             {data.map((d) => (
-              <li key={`${d.time}-${d.text}`} className={d.level === 'INFO' ? style.info : d.level === 'WARN' ? style.warn : d.level === 'ERROR' ? style.error : ''}>
+              <li key={d.id} className={d.level === 'INFO' ? style.info : d.level === 'WARN' ? style.warn : d.level === 'ERROR' ? style.error : ''}>
                 <div
                   className={style.time}
                 >{d.time}</div>
