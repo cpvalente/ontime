@@ -1,18 +1,58 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import style from './InfoLogger.module.scss';
 import CollapseBar from "../../common/components/collapseBar/CollapseBar";
+import { LoggingContext } from '../../app/context/LoggingContext';
 
-export default function InfoLogger(props) {
-  const { logData } = props;
+export default function InfoLogger() {
+  const { logData } = useContext(LoggingContext);
+  const [data, setData] = useState([]);
   const [collapsed, setCollapsed] = useState(false);
   // Todo: save in local storage
   const [showClient, setShowClient] = useState(true);
   const [showServer, setShowServer] = useState(true);
-  const [showPlayback, setShowPlayback] = useState(true);
   const [showRx, setShowRx] = useState(true);
   const [showTx, setShowTx] = useState(true);
+  const [showPlayback, setShowPlayback] = useState(true);
+  const [showUser, setShowUser] = useState(true);
 
-  console.log(logData)
+  useEffect(() => {
+    console.log('NEW LOG DATA')
+    const matchers = [];
+    if (showUser) {
+      matchers.push('USER');
+    }
+    if (showClient) {
+      matchers.push('CLIENT');
+    }
+    if (showServer) {
+      matchers.push('SERVER');
+    }
+    if (showRx) {
+      matchers.push('RX');
+    }
+    if (showTx) {
+      matchers.push('TX');
+    }
+    if (showPlayback) {
+      matchers.push('PLAYBACK');
+    }
+
+    const d = logData.filter((d) => (
+      matchers.some((m) => d.origin === m)
+    ))
+
+    setData(d);
+  },[logData, showUser, showClient, showServer, showPlayback, showRx, showTx])
+
+  const disableOthers = (toEnable) => {
+    toEnable === 'USER' ? setShowUser(true) : setShowUser(false);
+    toEnable === 'CLIENT' ? setShowClient(true) : setShowClient(false);
+    toEnable === 'SERVER' ? setShowServer(true) : setShowServer(false);
+    toEnable === 'RX' ? setShowRx(true) : setShowRx(false);
+    toEnable === 'TX' ? setShowTx(true) : setShowTx(false);
+    toEnable === 'PLAYBACK' ? setShowPlayback(true) : setShowPlayback(false);
+  }
+
   return (
     <div className={style.container}>
       <CollapseBar title={'Log'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
@@ -20,34 +60,45 @@ export default function InfoLogger(props) {
         <>
           <div className={style.toggleBar}>
             <div
+              onClick={() => setShowUser((s) => !s)}
+              onAuxClick={() => disableOthers('USER')}
+              className={(showUser) ? style.active : null}>
+              USER
+            </div>
+            <div
               onClick={() => setShowClient((s) => !s)}
-              className={showClient && style.active}>
+              onAuxClick={() => disableOthers('CLIENT')}
+              className={(showClient) ? style.active : null}>
               CLIENT
             </div>
             <div
               onClick={() => setShowServer((s) => !s)}
-              className={showServer && style.active}>
+              onAuxClick={() => disableOthers('SERVER')}
+              className={(showServer) ? style.active : null}>
               SERVER
             </div>
             <div
               onClick={() => setShowPlayback((s) => !s)}
-              className={showPlayback && style.active}>
-              PLAYBACK
+              onAuxClick={() => disableOthers('PLAYBACK')}
+              className={(showPlayback) ? style.active : null}>
+              Playback
             </div>
             <div
               onClick={() => setShowRx((s) => !s)}
-              className={showRx && style.active}>
+              onAuxClick={() => disableOthers('RX')}
+              className={(showRx) ? style.active : null}>
               RX
             </div>
             <div
               onClick={() => setShowTx((s) => !s)}
-              className={showTx && style.active}>
+              onAuxClick={() => disableOthers('TX')}
+              className={(showTx) ? style.active : null}>
               TX
             </div>
           </div>
           <ul className={style.log}>
-            {logData.map((d) => (
-              <li key={`${d.time}-${d.text}`} className={d.level === 'info' ? style.info : d.level === 'warn' ? style.warn : d.level === 'error' ? style.error : ''}>
+            {data.map((d) => (
+              <li key={`${d.time}-${d.text}`} className={d.level === 'INFO' ? style.info : d.level === 'WARN' ? style.warn : d.level === 'ERROR' ? style.error : ''}>
                 <div
                   className={style.time}
                 >{d.time}</div>

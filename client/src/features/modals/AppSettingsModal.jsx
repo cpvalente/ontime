@@ -1,14 +1,15 @@
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, FormControl, Input, Button } from '@chakra-ui/react';
 import { getOSC, oscPlaceholderSettings, postOSC } from 'app/api/ontimeApi';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { OSC_SETTINGS } from 'app/api/apiConstants';
-import { showErrorToast } from 'common/helpers/toastManager';
 import style from './Modals.module.scss';
+import { LoggingContext } from '../../app/context/LoggingContext';
 
 export default function AppSettingsModal() {
   const { data, status } = useFetch(OSC_SETTINGS, getOSC);
+  const { emitError } = useContext(LoggingContext);
   const [formData, setFormData] = useState(oscPlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -41,7 +42,7 @@ export default function AppSettingsModal() {
 
     // set fields with error
     if (e.status) {
-      showErrorToast('Invalid Input', e.message);
+      emitError(`Invalid Input: ${e.message}`);
       return;
     }
 

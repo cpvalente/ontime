@@ -7,6 +7,22 @@ const mth = 1000 * 60 * 60; // millis to hours
 const mtd = 1000 * 60 * 60 * 24; // millis to days
 
 /**
+ * Returns current time in milliseconds
+ * @returns {number}
+ */
+export const nowInMillis = () => {
+  const now = new Date();
+
+  // extract milliseconds since midnight
+  let elapsed = now.getHours() * 3600000;
+  elapsed += now.getMinutes() * 60000;
+  elapsed += now.getSeconds() * 1000;
+  elapsed += now.getMilliseconds();
+
+  return elapsed;
+};
+
+/**
  * @description Converts milliseconds to string representing time
  * @param {number} ms - time in milliseconds
  * @param {boolean} showSeconds - wether to show the seconds

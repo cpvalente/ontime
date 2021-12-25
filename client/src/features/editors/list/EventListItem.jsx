@@ -1,8 +1,8 @@
 import DelayBlock from './DelayBlock';
 import BlockBlock from './BlockBlock';
 import EventBlock from './EventBlock';
-import { showErrorToast } from 'common/helpers/toastManager';
-import { memo } from 'react';
+import { memo, useContext } from 'react';
+import { LoggingContext } from '../../../app/context/LoggingContext';
 
 const areEqual = (prevProps, nextProps) => {
   return (
@@ -26,6 +26,7 @@ const EventListItem = (props) => {
     delay,
     ...rest
   } = props;
+  const { emitError } = useContext(LoggingContext);
 
   // Create / delete new events
   const actionHandler = (action, payload) => {
@@ -59,7 +60,7 @@ const EventListItem = (props) => {
           // request update in parent
           eventsHandler('patch', newData);
         } else {
-          showErrorToast('Field Error: ' + field);
+          emitError(`Unknown field: ${field}`);
         }
         break;
       default:

@@ -5,6 +5,7 @@ import styles from './Editor.module.scss';
 import MenuBar from 'features/menu/MenuBar';
 import ModalManager from 'features/modals/ModalManager';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
+import { LoggingProvider } from '../../app/context/LoggingContext';
 
 const EventListWrapper = lazy(() =>
   import('features/editors/list/EventListWrapper')
@@ -22,7 +23,7 @@ export default function Editor() {
   }, []);
 
   return (
-    <>
+    <LoggingProvider>
       <ModalManager isOpen={isOpen} onClose={onClose} />
 
       <div className={styles.mainContainer}>
@@ -68,6 +69,6 @@ export default function Editor() {
           </div>
         </Box>
       </div>
-    </>
+    </LoggingProvider>
   );
 }

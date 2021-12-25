@@ -19,7 +19,6 @@ export default function Info() {
   });
   const [selected, setSelected] = useState('No events');
   const [playback, setPlayback] = useState(null);
-  const [logData, setLogData] = useState([]);
 
   // handle incoming messages
   useEffect(() => {
@@ -53,20 +52,11 @@ export default function Info() {
       }
     });
 
-    // Ask for selection data
-    socket.emit('get-logger');
-
-    socket.on('logger', (data) => {
-      console.log('dddd', data);
-      setLogData((l) => [...l, data]);
-    });
-
     // Clear listener
     return () => {
       socket.off('titles');
       socket.off('selected');
       socket.off('playstate');
-      socket.off('logger');
     };
   }, [socket]);
 
@@ -91,10 +81,10 @@ export default function Info() {
         <span>{`Running on port 4001`}</span>
         <span>{selected}</span>
       </div>
-      <InfoLogger logData={logData} />
       <InfoNif />
       <InfoTitle title={'Now'} data={titlesNow} roll={playback === 'roll'} />
       <InfoTitle title={'Next'} data={titlesNext} roll={playback === 'roll'} />
+      <InfoLogger />
     </>
   );
 }

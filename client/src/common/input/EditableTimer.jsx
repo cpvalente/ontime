@@ -1,15 +1,16 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   isTimeString,
   stringFromMillis,
   timeStringToMillis,
 } from '../utils/dateConfig';
-import { showErrorToast } from '../helpers/toastManager';
 import style from './EditableTimer.module.css';
+import { LoggingContext } from '../../app/context/LoggingContext';
 
 export default function EditableTimer(props) {
   const { name, actionHandler, time, delay, validate } = props;
+  const { emitError } = useContext(LoggingContext);
   const [value, setValue] = useState('');
 
   // prepare time fields
@@ -18,9 +19,9 @@ export default function EditableTimer(props) {
     try {
       setValue(stringFromMillis(time + delay));
     } catch (error) {
-      showErrorToast('Error parsing date', error.text);
+      emitError(`Unable to parse date: ${error.text}`);
     }
-  }, [time, delay]);
+  }, [time, delay, emitError]);
 
   const validateValue = (value) => {
     const success = handleSubmit(value);
