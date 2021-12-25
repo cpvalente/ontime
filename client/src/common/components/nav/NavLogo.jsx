@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState, useEffect, useCallback } from 'react';
@@ -57,7 +57,6 @@ export default function NavLogo(props) {
               to='/presenter'
               className={style.navItem}
               tabIndex={1}
-              onKeyDownCapture={() => <Redirect push to='/presenter' />}
             >
               Presenter
             </Link>
@@ -65,7 +64,6 @@ export default function NavLogo(props) {
               to='/sm'
               className={style.navItem}
               tabIndex={2}
-              onKeyDownCapture={() => <Redirect push to='/sm' />}
             >
               Backstage
             </Link>
@@ -73,7 +71,6 @@ export default function NavLogo(props) {
               to='/public'
               className={style.navItem}
               tabIndex={3}
-              onKeyDownCapture={() => <Redirect push to='/public' />}
             >
               Public
             </Link>
@@ -81,7 +78,6 @@ export default function NavLogo(props) {
               to='/lower'
               className={style.navItem}
               tabIndex={4}
-              onKeyDownCapture={() => <Redirect push to='/lower' />}
             >
               Lower Thirds
             </Link>
@@ -89,7 +85,6 @@ export default function NavLogo(props) {
               to='/pip'
               className={style.navItem}
               tabIndex={4}
-              onKeyDownCapture={() => <Redirect push to='/pip' />}
             >
               PIP
             </Link>
@@ -97,7 +92,6 @@ export default function NavLogo(props) {
               to='/studio'
               className={style.navItem}
               tabIndex={5}
-              onKeyDownCapture={() => <Redirect push to='/studio' />}
             >
               Studio Clock
             </Link>

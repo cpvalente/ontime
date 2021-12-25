@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import './App.scss';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import SocketProvider from 'app/context/socketContext';
@@ -21,7 +21,6 @@ const Lower = lazy(() =>
   import('features/viewers/production/lower/LowerWrapper')
 );
 const Pip = lazy(() => import('features/viewers/production/Pip'));
-
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 
 const queryClient = new QueryClient();
@@ -71,22 +70,22 @@ function App() {
         <div className='App'>
           <ErrorBoundary>
             <Suspense fallback={null}>
-              <Switch>
-                <Route exact path='/' component={SPresenter} />
-                <Route exact path='/sm' component={SStageManager} />
-                <Route exact path='/speaker' component={SPresenter} />
-                <Route exact path='/presenter' component={SPresenter} />
-                <Route exact path='/stage' component={SPresenter} />
-                <Route exact path='/presentersimple' component={SPresenterSimple} />
-                <Route exact path='/editor' component={Editor} />
-                <Route exact path='/public' component={SPublic} />
-                <Route exact path='/pip' component={SPip} />
-                <Route exact path='/studio' component={SStudio} />
-                {/* Lower cannot have fallback */}
-                <Route exact path='/lower' component={SLowerThird} />
+              <Routes>
+                <Route path='/' element={<SPresenter />}/>
+                <Route path='/sm' element={<SStageManager />}/>
+                <Route path='/speaker' element={<SPresenter />}/>
+                <Route path='/presenter' element={<SPresenter />}/>
+                <Route path='/stage' element={<SPresenter />}/>
+                <Route path='/presentersimple' element={<SPresenterSimple />}/>
+                <Route path='/editor' element={<Editor />}/>
+                <Route path='/public' element={<SPublic />}/>
+                <Route path='/pip' element={<SPip />}/>
+                <Route path='/studio' element={<SStudio /> }/>
+                {/*/!* Lower cannot have fallback *!/*/}
+                <Route path='/lower' element={<SLowerThird /> }/>
                 {/* Send to default if nothing found */}
-                <Route component={SPresenter} />
-              </Switch>
+                <Route path='*' element={<SPresenter />} />
+              </Routes>
             </Suspense>
           </ErrorBoundary>
         </div>
