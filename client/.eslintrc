@@ -5,6 +5,8 @@
   ],
   "plugins": ["react", "testing-library", "jest"],
   "rules": {
-    "jest/no-mocks-import": "warn"
+    "jest/no-mocks-import": "warn",
+    "no-useless-concat": "warn",
+    "prefer-template": "warn"
   }
 }

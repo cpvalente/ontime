@@ -7,22 +7,11 @@
 import { stringFromMillis } from '../utils/time.js';
 
 export class Timer {
-  clock = null;
-  duration = null;
-  current = null;
-  timeTag = null;
-  secondaryTimer = null;
-  _secondaryTarget = null;
-  _finishAt = null;
-  _finishedAt = null;
-  _finishedFlag = false;
-  _startedAt = null;
-  _pausedAt = null;
-  _pausedInterval = null;
-  _pausedTotal = null;
-  state = 'stop';
-
-  constructor() {}
+  constructor() {
+    this.clock = null;
+    this._resetTimers(true);
+    this.state = 'stop';
+  }
 
   // call setup separately
   setupWithSeconds(seconds, autoStart = false) {
@@ -74,11 +63,11 @@ export class Timer {
         if (this._startedAt != null) {
           // update current timer
           this.current =
-            this._startedAt
-            + this.duration
-            + this._pausedTotal
-            + this._pausedInterval
-            - now;
+            this._startedAt +
+            this.duration +
+            this._pausedTotal +
+            this._pausedInterval -
+            now;
         }
 
         // enable flag
@@ -92,13 +81,14 @@ export class Timer {
     if (checkFinish) {
       // is event finished?
       const isTimeOver = this.current <= 0;
-      const isUpdating = (this.state !== 'pause');
+      const isUpdating = this.state !== 'pause';
 
       if (isTimeOver && isUpdating && this._finishedAt == null) {
         if (this._finishedAt === null) this._finishedAt = now;
         this._finishedFlag = true;
       }
     }
+    this.timeTag = stringFromMillis(this.current);
   }
 
   // helpers
@@ -136,6 +126,7 @@ export class Timer {
   _resetTimers(total = false) {
     if (total) this.duration = null;
     this.current = this.duration;
+    this.timeTag = null;
     this.running = null;
     this.secondaryTimer = null;
     this._secondaryTarget = null;
@@ -153,14 +144,11 @@ export class Timer {
     return this.duration - this.current;
   }
 
-  // get time object
-  getTimes(update = true) {
-    // update timer
-    if (update) this.update();
-
-    // update timetag
-    this.timeTag = stringFromMillis(this.current);
-
+  /**
+   * Builds time object
+   * @returns {{running: number, secondary: number, expectedFinish: number, durationSeconds: number, startedAt: null, clock: null}}
+   */
+  getTimeObject() {
     return {
       clock: this.clock,
       running: Timer.toSeconds(this.current),

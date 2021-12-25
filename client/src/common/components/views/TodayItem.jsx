@@ -1,4 +1,4 @@
-import { stringFromMillis } from 'common/utils/dateConfig';
+import { stringFromMillis } from 'ontime-server/utils/time';
 import style from './Paginator.module.css';
 export default function TodayItem(props) {
   const { selected, timeStart, timeEnd, title, backstageEvent } = props;
@@ -19,7 +19,7 @@ export default function TodayItem(props) {
         }`}
       >{`${start} · ${end}`}</div>
       <div className={style.entryTitle}>{title}</div>
-      {backstageEvent && <div className={style.backstageInd}></div>}
+      {backstageEvent && <div className={style.backstageInd}/>}
     </div>
   );
 }

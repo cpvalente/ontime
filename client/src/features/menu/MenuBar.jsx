@@ -9,10 +9,12 @@ import QuitIconBtn from './buttons/QuitIconBtn';
 import style from './MenuBar.module.css';
 import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
-import { useRef } from 'react';
+import { useContext, useRef } from 'react';
+import { LoggingContext } from '../../app/context/LoggingContext';
 
 export default function MenuBar(props) {
   const { onOpen } = props;
+  const { emitError } = useContext(LoggingContext);
   const hiddenFileInput = useRef(null);
   const queryClient = useQueryClient();
   const uploaddb = useMutation(uploadEvents, {
@@ -34,28 +36,24 @@ export default function MenuBar(props) {
   const handleUpload = (event) => {
     const fileUploaded = event.target.files[0];
     if (fileUploaded == null) return;
-    console.log(fileUploaded);
 
     // Limit file size to 1MB
     if (fileUploaded.size > 1000000) {
-      console.log('Error: File size limit (1MB) exceeded');
+      emitError('Error: File size limit (1MB) exceeded')
       return;
     }
 
     // Check file extension
-    if (fileUploaded.name.endsWith('.xlsx')) {
-      console.log('excel file');
-    } else if (fileUploaded.name.endsWith('.json')) {
-      console.log('json file');
-    } else {
-      console.log('Error: File type unknown');
+    if (! fileUploaded.name.endsWith('.xlsx')
+    || !fileUploaded.name.endsWith('.json')) {
+      emitError('Error: File type unknown')
       return;
     }
 
     try {
       uploaddb.mutate(fileUploaded);
     } catch (error) {
-      console.log(error);
+      emitError(`Failed uploading file: ${error}`)
     }
 
     // reset input value

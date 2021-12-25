@@ -119,7 +119,7 @@ app.whenReady().then(() => {
   createWindow();
 
   // register global shortcuts
-  // (available regardless of wheter app is in focus)
+  // (available regardless of whether app is in focus)
   // bring focus to window
   globalShortcut.register('Alt+1', () => {
     win.show();

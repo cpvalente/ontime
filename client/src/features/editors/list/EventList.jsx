@@ -1,4 +1,4 @@
-import style from './List.module.css';
+import style from './List.module.scss';
 import { createRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import Empty from 'common/state/Empty';

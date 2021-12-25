@@ -12,14 +12,15 @@ import {
   ontimeVars,
   postInfo,
 } from 'app/api/ontimeApi';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { APP_TABLE } from 'app/api/apiConstants';
-import { showErrorToast } from 'common/helpers/toastManager';
 import style from './Modals.module.scss';
+import { LoggingContext } from '../../app/context/LoggingContext';
 
 export default function IntegrationSettingsModal() {
   const { data, status } = useFetch(APP_TABLE, getInfo);
+  const { emitError } = useContext(LoggingContext);
   const [formData, setFormData] = useState(httpPlaceholder);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +52,7 @@ export default function IntegrationSettingsModal() {
 
     // set fields with error
     if (e.status) {
-      showErrorToast('Invalid Input', e.message);
+      emitError(`Invalid Input: ${e.message}`);
       return;
     }
 

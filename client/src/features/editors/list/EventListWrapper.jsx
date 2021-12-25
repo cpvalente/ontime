@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import {
   fetchAllEvents,
   requestPatch,
@@ -12,16 +12,17 @@ import {
 } from 'app/api/eventsApi.js';
 import EventList from './EventList';
 import EventListMenu from 'features/menu/EventListMenu.jsx';
-import { showErrorToast } from 'common/helpers/toastManager';
 import { useFetch } from 'app/hooks/useFetch.js';
 import Empty from 'common/state/Empty';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
 import { BatchOperation } from 'app/context/collapseAtom';
 import { useAtom } from 'jotai';
+import { LoggingContext } from '../../../app/context/LoggingContext';
 
 export default function EventListWrapper() {
   const [, setCollapsed] = useAtom(BatchOperation);
   const queryClient = useQueryClient();
+  const { emitError } = useContext(LoggingContext);
   const { data, status, isError, refetch } = useFetch(
     EVENTS_TABLE,
     fetchAllEvents
@@ -230,9 +231,9 @@ export default function EventListWrapper() {
   // Show toasts on errors
   useEffect(() => {
     if (isError) {
-      showErrorToast('Error fetching data');
+      emitError('Error fetching data');
     }
-  }, [isError]);
+  }, [emitError, isError]);
 
   // Events API
   const eventsHandler = useCallback(
@@ -242,35 +243,35 @@ export default function EventListWrapper() {
           try {
             await addEvent.mutateAsync(payload);
           } catch (error) {
-            showErrorToast('Error creating event', error.message);
+            emitError(`Error fetching data: ${error.message}`);
           }
           break;
         case 'update':
           try {
             await updateEvent.mutateAsync(payload);
           } catch (error) {
-            showErrorToast('Error updating event', error.message);
+            emitError(`Error updating event: ${error.message}`);
           }
           break;
         case 'patch':
           try {
             await patchEvent.mutateAsync(payload);
           } catch (error) {
-            showErrorToast('Error updating event', error.message);
+            emitError(`Error updating event: ${error.message}`);
           }
           break;
         case 'delete':
           try {
             await deleteEvent.mutateAsync(payload);
           } catch (error) {
-            showErrorToast('Error deleting event', error.message);
+            emitError(`Error deleting event: ${error.message}`);
           }
           break;
         case 'reorder':
           try {
             await reorderEvent.mutateAsync(payload);
           } catch (error) {
-            showErrorToast('Error reordering event', error.message);
+            emitError(`Error re-ordering event: ${error.message}`);
           }
           break;
         case 'applyDelay':
@@ -293,13 +294,13 @@ export default function EventListWrapper() {
               // delete block after, if any
               if (blockAfter) await deleteEvent.mutateAsync(blockAfter);
             } catch (error) {
-              showErrorToast('Error applying delay', error.message);
+              emitError(`Error applying delay: ${error.message}`);
             }
           } else {
             try {
               await applyDelay.mutateAsync(payload.id);
             } catch (error) {
-              showErrorToast('Error applying delay', error.message);
+              emitError(`Error applying delay: ${error.message}`);
             }
           }
           break;
@@ -317,11 +318,11 @@ export default function EventListWrapper() {
           try {
             await deleteAllEvents.mutateAsync();
           } catch (error) {
-            showErrorToast('Error deleting events', error.message);
+            emitError(`Error deleting events: ${error.message}`);
           }
           break;
         default:
-          showErrorToast('Unrecognised request', action);
+          emitError(`Unhandled request: ${action}`);
           break;
       }
     },

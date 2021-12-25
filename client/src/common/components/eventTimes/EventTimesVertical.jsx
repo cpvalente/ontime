@@ -1,6 +1,7 @@
 import EditableTimer from 'common/input/EditableTimer';
-import { showWarningToast } from 'common/helpers/toastManager';
-import { stringFromMillis } from 'common/utils/dateConfig';
+import { stringFromMillis } from 'ontime-server/utils/time';
+import { useContext } from 'react';
+import { LoggingContext } from '../../../app/context/LoggingContext';
 
 const label = {
   fontSize: '0.75em',
@@ -83,6 +84,8 @@ const Times = (props) => {
 
 export default function EventTimesVertical(props) {
   const { delay, timeStart, timeEnd, duration } = props;
+  const { emitWarning } = useContext(LoggingContext);
+
   const handleValidate = (entry, v) => {
     // we dont enforce validation here
 
@@ -90,32 +93,36 @@ export default function EventTimesVertical(props) {
     if (timeStart === 0) return true;
 
     let validate = { value: true, catch: '' };
-    if (entry === 'timeStart' && v > timeEnd)
+    if (entry === 'timeStart' && v > timeEnd) {
       validate.catch = 'Start time later than end time';
-    else if (entry === 'timeEnd' && v < timeStart)
+    } else if (entry === 'timeEnd' && v < timeStart) {
       validate.catch = 'End time earlier than start time';
+    }
 
-    if (validate.catch !== '')
-      showWarningToast('Time Input Warning', validate.catch);
+    if (validate.catch !== '') {
+      emitWarning(`Time Input Warning: ${validate.catch}`);
+    }
     return validate.value;
   };
 
-  return (delay != null) & (delay > 0) ? (
-    <TimesDelayed
-      handleValidate={handleValidate}
-      actionHandler={props.actionHandler}
-      delay={delay}
-      timeStart={timeStart}
-      timeEnd={timeEnd}
-      duration={duration}
-    />
-  ) : (
-    <Times
-      handleValidate={handleValidate}
-      actionHandler={props.actionHandler}
-      timeStart={timeStart}
-      timeEnd={timeEnd}
-      duration={duration}
-    />
-  );
+  return (
+    (delay != null) && (delay > 0) ? (
+      <TimesDelayed
+        handleValidate={handleValidate}
+        actionHandler={props.actionHandler}
+        delay={delay}
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        duration={duration}
+      />
+    ) : (
+      <Times
+        handleValidate={handleValidate}
+        actionHandler={props.actionHandler}
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        duration={duration}
+      />
+    )
+  )
 }

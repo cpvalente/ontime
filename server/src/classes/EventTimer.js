@@ -1,110 +1,85 @@
-import {Timer} from './Timer.js';
-import {Server} from 'socket.io';
-import {DAY_TO_MS, getSelectionByRoll, replacePlaceholder, updateRoll} from './classUtils.js';
-import {OSCIntegration} from './integrations/Osc.js';
-import {HTTPIntegration} from "./integrations/Http.js";
-import {cleanURL} from "../utils/url.js";
+import { Timer } from './Timer.js';
+import { Server } from 'socket.io';
+import {
+  DAY_TO_MS,
+  getSelectionByRoll,
+  replacePlaceholder,
+  updateRoll,
+} from './classUtils.js';
+import { OSCIntegration } from './integrations/Osc.js';
+import { HTTPIntegration } from './integrations/Http.js';
+import { cleanURL } from '../utils/url.js';
+import getRandomName from '../utils/getRandomName.js';
+import { stringFromMillis } from '../utils/time.js';
+import { generateId } from '../utils/generate_id.js';
 
 /*
- * EventTimer adds functions specific to APP
- * namely:
- * - Presenter message, text and status
- * - Public message, text and status
- *
+ * Class EventTimer adds functions specific to APP
+ * @extends Timer
  */
 
 export class EventTimer extends Timer {
-
-  // Keep track of Timer lifecycle
-  // idle: before it is initialised
-  // load: when a new event is loaded
-  // update: every update call cycle (1 x second)
-  // stop: when the timer is stopped
-  // finish: when a timer finishes
-  cycleState = {
-    idle: 'idle',
-    onLoad: 'onLoad',
-    armed: 'armed',
-    onStart: 'onStart',
-    onUpdate: 'onUpdate',
-    onPause: 'onPause',
-    onStop: 'onStop',
-    onFinish: 'onFinish',
-  };
-  ontimeCycle = 'idle';
-  prevCycle = null;
-  lastUpdate = null;
-
-  // Socket IO Object
-  io = null;
-
-  // OSC Object
-  osc = null;
-
-  // HTTP Client Object
-  http = null;
-
-  _numClients = 0;
-  _interval = null;
-
-  presenter = {
-    text: '',
-    visible: false,
-  };
-  public = {
-    text: '',
-    visible: false,
-  };
-  lower = {
-    text: '',
-    visible: false,
-  };
-
-  titlesPublic = {
-    titleNow: null,
-    subtitleNow: null,
-    presenterNow: null,
-    titleNext: null,
-    subtitleNext: null,
-    presenterNext: null,
-  };
-
-  titles = {
-    titleNow: null,
-    subtitleNow: null,
-    presenterNow: null,
-    noteNow: null,
-    titleNext: null,
-    subtitleNext: null,
-    presenterNext: null,
-    noteNext: null,
-  };
-
-  selectedEventIndex = null;
-  selectedEventId = null;
-  nextEventId = null;
-  selectedPublicEventId = null;
-  nextPublicEventId = null;
-  numEvents = null;
-  _eventlist = null;
-  onAir = false;
-
   /**
    * Instantiates an event timer object
-   * @param httpServer
-   * @param timerConfig
-   * @param [oscConfig]
-   * @param [httpConfig]
+   * @param {object} httpServer
+   * @param {object} timerConfig
+   * @param {object} [oscConfig]
+   * @param {object} [httpConfig]
    */
   constructor(httpServer, timerConfig, oscConfig, httpConfig) {
-
     // call super constructor
     super();
 
-    // initialise class variables
+    this.cycleState = {
+      /* idle: before it is initialised */
+      idle: 'idle',
+      /* onLoad: when a new event is loaded */
+      onLoad: 'onLoad',
+      /* armed: when a new event is loaded but hasn't started */
+      armed: 'armed',
+      onStart: 'onStart',
+      /* update: every update call cycle (1 x second) */
+      onUpdate: 'onUpdate',
+      onPause: 'onPause',
+      onStop: 'onStop',
+      onFinish: 'onFinish',
+    };
+    this.ontimeCycle = 'idle';
+    this.prevCycle = null;
+
+    // OSC Object
+    this.osc = null;
+
+    // HTTP Client Object
+    this.http = null;
+
+    this._numClients = 0;
+    this._interval = null;
+
+    this.presenter = {
+      text: '',
+      visible: false,
+    };
+    this.public = {
+      text: '',
+      visible: false,
+    };
+    this.lower = {
+      text: '',
+      visible: false,
+    };
+
+    // call general title reset
+    this._resetSelection();
+
     this.numEvents = 0;
+    this._eventlist = null;
+    this.onAir = false;
 
     // initialise socketIO server
+    this.messageStack = [];
+    this.MAX_MESSAGES = 100;
+    this._clientNames = {};
     this.io = new Server(httpServer, {
       cors: {
         origin: '*',
@@ -114,22 +89,6 @@ export class EventTimer extends Timer {
       },
     });
 
-    // Todo: extract
-    // initialise osc object
-    if (oscConfig != null) {
-      console.log('initialise OSC Client on port: ', oscConfig?.port);
-      this.osc = new OSCIntegration();
-      this.osc.init(oscConfig);
-    }
-
-    // Todo: extract
-    // initialise http object
-    if (httpConfig != null) {
-      this.http = new HTTPIntegration();
-      this.http.init(httpConfig);
-      this.httpMessages = httpConfig.messages;
-    }
-
     // set recurrent emits
     this._interval = setInterval(
       () => this.runCycle(),
@@ -138,28 +97,65 @@ export class EventTimer extends Timer {
 
     // listen to new connections
     this._listenToConnections();
+
+    if (oscConfig != null) {
+      this._initOscClient(oscConfig);
+    }
+
+    if (httpConfig != null) {
+      this._initHTTPClient(httpConfig);
+    }
   }
 
   /**
    * @description Shutdown process
    */
   shutdown() {
-    console.log('Shutting down integrations')
-    console.log('... Closing socket server');
+    this.info('SERVER', 'Shutting down ontime');
+    this.info('TX', '... Closing socket server');
     this.io.close();
-    console.log('... Closing osc server');
+    this.info('TX', '... Closing OSC Client');
     this.osc.shutdown();
+    this.info('TX', '... Closing HTTP Client');
+    this.http.shutdown();
   }
 
-  // send current timer
+  /**
+   * Initialises OSC Integration object
+   * @param {object} oscConfig
+   * @private
+   */
+  _initOscClient(oscConfig) {
+    this.osc = new OSCIntegration();
+    const r = this.osc.init(oscConfig);
+    r.success ? this.info('TX', r.message) : this.error('TX', r.message);
+  }
+
+  /**
+   * Initialises HTTP Integration object
+   * @param {object} httpConfig
+   * @private
+   */
+  _initHTTPClient(httpConfig) {
+    this.info('TX', `Initialise HTTP Client on port`);
+    this.http = new HTTPIntegration();
+    this.http.init(httpConfig);
+    this.httpMessages = httpConfig.messages;
+  }
+
+  /**
+   * Sends time object over websockets
+   */
   broadcastTimer() {
     // through websockets
-    this.io.emit('timer', this.getTimes());
+    this.io.emit('timer', this.getTimeObject());
   }
 
-  // broadcast state
-  broadcastState(update = true) {
-    this.io.emit('timer', this.getTimes(update));
+  /**
+   * Broadcasts complete object state
+   */
+  broadcastState() {
+    this.broadcastTimer();
     this.io.emit('playstate', this.state);
     this.io.emit('selected', {
       id: this.selectedEventId,
@@ -168,6 +164,7 @@ export class EventTimer extends Timer {
     });
     this.io.emit('selected-id', this.selectedEventId);
     this.io.emit('next-id', this.nextEventId);
+    this.io.emit('numevents', this.numEvents);
     this.io.emit('publicselected-id', this.selectedPublicEventId);
     this.io.emit('publicnext-id', this.nextPublicEventId);
     this.io.emit('titles', this.titles);
@@ -175,7 +172,11 @@ export class EventTimer extends Timer {
     this.io.emit('onAir', this.onAir);
   }
 
-  // broadcast message
+  /**
+   * Broadcast given message
+   * @param {string} address - socket io address
+   * @param {any} payload - message body
+   */
   broadcastThis(address, payload) {
     this.io.emit(address, payload);
   }
@@ -192,68 +193,72 @@ export class EventTimer extends Timer {
       case 'start':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Start');
         this.start();
-        this.runCycle();
         break;
       case 'pause':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Pause');
         this.pause();
-        this.runCycle();
         break;
       case 'stop':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Stop');
         this.stop();
-        this.runCycle();
         break;
       case 'roll':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Roll');
         this.roll();
-        this.runCycle();
         break;
       case 'previous':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Previous');
         this.previous();
-        this.runCycle();
         break;
       case 'next':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Next');
         this.next();
-        this.runCycle();
         break;
       case 'unload':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Events unloaded');
         this.unload();
-        this.runCycle();
         break;
       case 'reload':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Reloaded event');
         this.reload();
-        this.runCycle();
         break;
       case 'onAir':
         // Call action
+        this.info('PLAYBACK', 'Going On Air');
         this.setonAir(true);
         break;
       case 'offAir':
         // Call action and force update
+        this.info('PLAYBACK', 'Going Off Air');
         this.setonAir(false);
         break;
       default:
         // Error, disable flag
-        console.log('ERROR: Unhandled action triggered')
+        this.error('RX', `Unhandled action triggered ${action}`);
         reply = false;
         break;
     }
+
+    // update state
+    this.runCycle();
     return reply;
   }
-
 
   /**
    * @description State machine checks what actions need to
@@ -264,18 +269,19 @@ export class EventTimer extends Timer {
     let httpMessage = null;
 
     switch (this.ontimeCycle) {
-      case "idle":
+      case 'idle':
         break;
-      case "armed":
+      case 'armed':
         // if we come from roll, see if we can start
         if (this.state === 'roll') {
           this.update();
         }
         break;
-      case "onLoad":
+      case 'onLoad':
         // broadcast change
         this.broadcastState();
 
+        // Todo: wrap in reusable function
         // check integrations - http
         if (h?.onLoad?.enabled) {
           if (h?.onLoad?.url != null || h?.onLoad?.url !== '') {
@@ -286,13 +292,13 @@ export class EventTimer extends Timer {
         // update lifecycle: armed
         this.ontimeCycle = this.cycleState.armed;
         break;
-      case "onStart":
+      case 'onStart':
         // broadcast current state
         this.broadcastState();
         // send OSC if there is something running
         // _finish at is only set when an event is loaded
         if (this._finishAt > 0) {
-          this.osc.send(this.osc.implemented.play);
+          this.sendOsc(this.osc.implemented.play);
         }
 
         // check integrations - http
@@ -305,7 +311,7 @@ export class EventTimer extends Timer {
         // update lifecycle: onUpdate
         this.ontimeCycle = this.cycleState.onUpdate;
         break;
-      case "onUpdate":
+      case 'onUpdate':
         // call update
         this.update();
         // broadcast current state
@@ -313,9 +319,15 @@ export class EventTimer extends Timer {
         // through OSC, only if running
         if (this.state === 'start' || this.state === 'roll') {
           if (this.current != null && this.secondaryTimer == null) {
-            this.osc.send(this.osc.implemented.time, this.timeTag);
-            this.osc.send(this.osc.implemented.overtime, this.current > 0 ? 0 : 1);
-            this.osc.send(this.osc.implemented.title, this.titles?.titleNow || '');
+            this.sendOsc(this.osc.implemented.time, this.timeTag);
+            this.sendOsc(
+              this.osc.implemented.overtime,
+              this.current > 0 ? 0 : 1
+            );
+            this.sendOsc(
+              this.osc.implemented.title,
+              this.titles?.titleNow || ''
+            );
           }
         }
 
@@ -327,11 +339,11 @@ export class EventTimer extends Timer {
         }
 
         break;
-      case "onPause":
+      case 'onPause':
         // broadcast current state
         this.broadcastState();
         // send OSC
-        this.osc.send(this.osc.implemented.pause);
+        this.sendOsc(this.osc.implemented.pause);
 
         // check integrations - http
         if (h?.onLoad?.enabled) {
@@ -344,13 +356,13 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.armed;
 
         break;
-      case "onStop":
+      case 'onStop':
         // broadcast change
         this.broadcastState();
 
         // send OSC if something was actually stopped
         if (this.prevCycle === this.cycleState.onUpdate) {
-          this.osc.send(this.osc.implemented.stop);
+          this.sendOsc(this.osc.implemented.stop);
         }
 
         // check integrations - http
@@ -363,12 +375,11 @@ export class EventTimer extends Timer {
         // update lifecycle: idle
         this.ontimeCycle = this.cycleState.idle;
         break;
-      case "onFinish":
-        console.log('onFinish')
+      case 'onFinish':
         // broadcast change
-        this.broadcastState(false);
+        this.broadcastState();
         // finished an event
-        this.osc.send(this.osc.implemented.finished);
+        this.sendOsc(this.osc.implemented.finished);
 
         // check integrations - http
         if (h?.onLoad?.enabled) {
@@ -381,20 +392,20 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.onUpdate;
         break;
       default:
-        console.log(`ERROR: Unhandled cycle: ${this.ontimeCycle}`)
+        this.error('SERVER', `Unhandled cycle: ${this.ontimeCycle}`);
     }
 
     // send http message if any
     if (httpMessage != null) {
       const v = {
-        '$timer': this.timeTag,
-        '$title': this.titles.titleNow,
-        '$presenter': this.titles.presenterNow,
-        '$subtitle': this.titles.subtitleNow,
+        $timer: this.timeTag,
+        $title: this.titles.titleNow,
+        $presenter: this.titles.presenterNow,
+        $subtitle: this.titles.subtitleNow,
         '$next-title': this.titles.titleNext,
         '$next-presenter': this.titles.presenterNext,
         '$next-subtitle': this.titles.subtitleNext,
-      }
+      };
       const m = cleanURL(replacePlaceholder(httpMessage, v));
       this.http.send(m);
     }
@@ -407,7 +418,6 @@ export class EventTimer extends Timer {
   }
 
   update() {
-
     // if there is nothing selected, update clock
     const now = this._getCurrentTime();
 
@@ -444,19 +454,23 @@ export class EventTimer extends Timer {
       this.runCycle();
     }
 
-      // only implement roll here, rest implemented in super
+    // only implement roll here, rest implemented in super
     if (this.state === 'roll') {
       const u = {
         selectedEventId: this.selectedEventId,
         current: this.current,
         // safeguard on midnight rollover
-        _finishAt: this._finishAt >= this._startedAt ? this._finishAt : this._finishAt + DAY_TO_MS,
+        _finishAt:
+          this._finishAt >= this._startedAt
+            ? this._finishAt
+            : this._finishAt + DAY_TO_MS,
         clock: this.clock,
         secondaryTimer: this.secondaryTimer,
         _secondaryTarget: this._secondaryTarget,
-      }
+      };
 
-      const {updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished} = updateRoll(u);
+      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } =
+        updateRoll(u);
 
       this.current = updatedTimer;
       this.secondaryTimer = updatedSecondaryTimer;
@@ -473,7 +487,13 @@ export class EventTimer extends Timer {
     }
   }
 
-  _setterManager(action, payload) {
+  /**
+   * Set titles and broadcast change
+   * @param {string} action
+   * @param {any} payload
+   * @private
+   */
+  _setTitles(action, payload) {
     switch (action) {
       /*******************************************/
       // Presenter message
@@ -513,6 +533,10 @@ export class EventTimer extends Timer {
     }
   }
 
+  /**
+   * Handle socket io connections
+   * @private
+   */
   _listenToConnections() {
     this.io.on('connection', (socket) => {
       /*******************************/
@@ -521,12 +545,14 @@ export class EventTimer extends Timer {
       /*******************************/
       // keep track of connections
       this._numClients++;
-      console.log(
-        `EventTimer: ${this._numClients} Clients with new connection: ${socket.id}`
-      );
+      this._clientNames[socket.id] = getRandomName();
+      const m = `${this._numClients} Clients with new connection: ${
+        this._clientNames[socket.id]
+      }`;
+      this.info('CLIENT', m);
 
       // send state
-      socket.emit('timer', this.getTimes());
+      socket.emit('timer', this.getTimeObject());
       socket.emit('playstate', this.state);
       socket.emit('selected-id', this.selectedEventId);
       socket.emit('next-id', this.nextEventId);
@@ -539,9 +565,11 @@ export class EventTimer extends Timer {
       /********************************/
       socket.on('disconnect', () => {
         this._numClients--;
-        console.log(
-          `EventTimer: Client disconnected, total now: ${this._numClients}`
-        );
+        const m = `${this._numClients} Clients with disconnection: ${
+          this._clientNames[socket.id]
+        }`;
+        delete this._clientNames[socket.id];
+        this.info('CLIENT', m);
       });
 
       /***************************************/
@@ -552,7 +580,7 @@ export class EventTimer extends Timer {
       /*******************************************/
       // general playback state
       socket.on('get-state', () => {
-        socket.emit('timer', this.getTimes());
+        socket.emit('timer', this.getTimeObject());
         socket.emit('playstate', this.state);
         socket.emit('selected-id', this.selectedEventId);
         socket.emit('next-id', this.nextEventId);
@@ -567,7 +595,7 @@ export class EventTimer extends Timer {
       });
 
       socket.on('get-timer', () => {
-        socket.emit('timer', this.getTimes());
+        socket.emit('timer', this.getTimeObject());
       });
 
       socket.on('increment-timer', (data) => {
@@ -651,11 +679,11 @@ export class EventTimer extends Timer {
 
       // Presenter message
       socket.on('set-presenter-text', (data) => {
-        this._setterManager('set-presenter-text', data);
+        this._setTitles('set-presenter-text', data);
       });
 
       socket.on('set-presenter-visible', (data) => {
-        this._setterManager('set-presenter-visible', data);
+        this._setTitles('set-presenter-visible', data);
       });
 
       socket.on('get-presenter', () => {
@@ -664,11 +692,11 @@ export class EventTimer extends Timer {
       /*******************************************/
       // Public message
       socket.on('set-public-text', (data) => {
-        this._setterManager('set-public-text', data);
+        this._setTitles('set-public-text', data);
       });
 
       socket.on('set-public-visible', (data) => {
-        this._setterManager('set-public-visible', data);
+        this._setTitles('set-public-visible', data);
       });
 
       socket.on('get-public', () => {
@@ -678,11 +706,11 @@ export class EventTimer extends Timer {
       /*******************************************/
       // Lower third message
       socket.on('set-lower-text', (data) => {
-        this._setterManager('set-lower-text', data);
+        this._setTitles('set-lower-text', data);
       });
 
       socket.on('set-lower-visible', (data) => {
-        this._setterManager('set-lower-visible', data);
+        this._setTitles('set-lower-visible', data);
       });
 
       socket.on('get-lower', () => {
@@ -691,6 +719,9 @@ export class EventTimer extends Timer {
     });
   }
 
+  /**
+   * Deletes running event list from object
+   */
   clearEventList() {
     // unload events
     this.unload();
@@ -706,6 +737,10 @@ export class EventTimer extends Timer {
     this.broadcastThis('numevents', this.numEvents);
   }
 
+  /**
+   * Adds an event list to object
+   * @param {array} eventlist
+   */
   setupWithEventList(eventlist) {
     if (!Array.isArray(eventlist) || eventlist.length < 1) return;
 
@@ -717,19 +752,23 @@ export class EventTimer extends Timer {
     this._eventlist = events;
     this.numEvents = numEvents;
 
-    // list may be empty
+    // list may contain no events
     if (numEvents < 1) return;
 
     // load first event
     this.loadEvent(0);
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastState();
 
     // run cycle
     this.runCycle();
   }
 
+  /**
+   * Updates event list in object
+   * @param {array} eventlist
+   */
   updateEventList(eventlist) {
     // filter only events
     const events = eventlist.filter((e) => e.type === 'event');
@@ -771,12 +810,17 @@ export class EventTimer extends Timer {
     }
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastState();
 
     // run cycle
     this.runCycle();
   }
 
+  /**
+   * Updates a single id in the object list
+   * @param {string} id
+   * @param {object} entry - new event object
+   */
   updateSingleEvent(id, entry) {
     // find object in events
     const eventIndex = this._eventlist.findIndex((e) => e.id === id);
@@ -810,16 +854,20 @@ export class EventTimer extends Timer {
         this._loadTitlesNow();
       }
     } catch (error) {
-      console.log(error);
+      this.error('SERVER', error);
     }
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastState();
 
     // run cycle
     this.runCycle();
   }
 
+  /**
+   * Deleted an event from the list by its id
+   * @param {string} eventId
+   */
   deleteId(eventId) {
     // find object in events
     const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
@@ -848,7 +896,7 @@ export class EventTimer extends Timer {
     }
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastState();
 
     // run cycle
     this.runCycle();
@@ -856,34 +904,35 @@ export class EventTimer extends Timer {
 
   /**
    * @description loads an event with a given Id
-   * @param eventId - ID of event in eventlist
+   * @param {string} eventId - ID of event in eventlist
    */
   loadEventById(eventId) {
     const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
 
     if (eventIndex === -1) return;
     this.pause();
-    this.loadEvent(eventIndex, 'load', true);
+    this.loadEvent(eventIndex, 'load');
     // run cycle
     this.runCycle();
   }
 
   /**
    * @description loads an event with a given index
-   * @param eventIndex - Index of event in eventlist
+   * @param {number} eventIndex - Index of event in eventlist
    */
   loadEventByIndex(eventIndex) {
     if (eventIndex === -1 || eventIndex > this.numEvents) return;
     this.pause();
-    this.loadEvent(eventIndex, 'load', true);
+    this.loadEvent(eventIndex, 'load');
     // run cycle
     this.runCycle();
   }
 
-  // Loads a given event
-  // load timers
-  // load selectedEventIndex
-  // load titles
+  /**
+   * Loads a given event by index
+   * @param {object} eventIndex
+   * @param {string} [type='load'] - 'load' or 'reload', whether we are keeping running time
+   */
   loadEvent(eventIndex, type = 'load') {
     const e = this._eventlist[eventIndex];
     if (e == null) return;
@@ -894,7 +943,6 @@ export class EventTimer extends Timer {
     if (end < start) end += DAY_TO_MS;
 
     // time stuff changes on whether we keep the running clock
-
     if (type === 'load') {
       this._resetTimers();
 
@@ -1092,75 +1140,6 @@ export class EventTimer extends Timer {
     this.nextPublicEventId = null;
   }
 
-  print() {
-    return `
-      Timer
-      =========
-
-      Playback
-      ------------------------------
-      state           = ${this.state}
-      current         = ${this.current}
-      duration        = ${this.duration}
-      secondaryTimer  = ${this.secondaryTimer}
-
-      Events
-      ------------------------------
-      numEvents             = ${this.numEvents}
-      selectedEventIndex    = ${this.selectedEventIndex}
-      selectedEventId       = ${this.selectedEventId}
-      nextEventId           = ${this.nextEventId}
-      selectedPublicEventId = ${this.selectedPublicEventId}
-      nextPublicEventId     = ${this.nextPublicEventId}
-
-      Private Titles
-      ------------------------------
-      NowID           = ${this.selectedEventId}
-      NextID          = ${this.nextEventId}
-      Title Now       = ${this.titles.titleNow}
-      Subtitle Now    = ${this.titles.subtitleNow}
-      Presenter Now   = ${this.titles.presenterNow}
-      Note Now        = ${this.titles.noteNow}
-      Title Next      = ${this.titles.titleNext}
-      Subtitle Next   = ${this.titles.subtitleNext}
-      Presenter Next  = ${this.titles.presenterNext}
-      Note Next       = ${this.titles.noteNext}
-
-      Public Titles
-      ------------------------------
-      NowID           = ${this.selectedPublicEventId}
-      NextID          = ${this.nextPublicEventId}
-      Title Now       = ${this.titlesPublic.titleNow}
-      Subtitle Now    = ${this.titlesPublic.subtitleNow}
-      Presenter Now   = ${this.titlesPublic.presenterNow}
-      Title Next      = ${this.titlesPublic.titleNext}
-      Subtitle Next   = ${this.titlesPublic.subtitleNext}
-      Presenter Next  = ${this.titlesPublic.presenterNext}
-
-      Messages
-      ------------------------------
-      presenter text  = ${this.presenter.text}
-      presenter vis   = ${this.presenter.visible}
-      public text     = ${this.public.text}
-      public vis      = ${this.public.visible}
-      lower text      = ${this.lower.text}
-      lower vis       = ${this.lower.visible}
-
-      Private
-      ------------------------------
-      finishAt        = ${this._finishAt}
-      finished        = ${this._finishedAt}
-      startedAt       = ${this._startedAt}
-      pausedAt        = ${this._pausedAt}
-      pausedInterval  = ${this._pausedInterval}
-      pausedTotal     = ${this._pausedTotal}
-
-      Socket
-      ------------------------------
-      numClients      = ${this._numClients}
-    `;
-  }
-
   /**
    * @description Set onAir property of timer
    * @param {boolean} onAir - whether flag is active
@@ -1241,7 +1220,7 @@ export class EventTimer extends Timer {
     // nothing to play, unload
     if (nowIndex === null && nextIndex === null) {
       this.unload();
-      console.log('Roll: no events found');
+      this.warning('SERVER', 'Roll: no events found');
       return;
     }
 
@@ -1267,8 +1246,9 @@ export class EventTimer extends Timer {
       // Set running timers
       if (nowIndex === null) {
         // only warn the first time
-        if (this.secondaryTimer === null)
-          console.log('Roll: waiting for event start');
+        if (this.secondaryTimer === null) {
+          this.info('SERVER', 'Roll: waiting for event start');
+        }
 
         // reset running timer
         // ??? should this not have been reset?
@@ -1319,9 +1299,6 @@ export class EventTimer extends Timer {
 
     // load into event
     this.rollLoad();
-
-    // broadcast change
-    this.broadcastState();
   }
 
   previous() {
@@ -1338,7 +1315,7 @@ export class EventTimer extends Timer {
     }
 
     // send OSC
-    this.osc.send(this.osc.implemented.previous);
+    this.sendOsc(this.osc.implemented.previous);
 
     // change playstate
     this.pause();
@@ -1364,7 +1341,7 @@ export class EventTimer extends Timer {
     }
 
     // send OSC
-    this.osc.send(this.osc.implemented.next);
+    this.sendOsc(this.osc.implemented.next);
 
     // change playstate
     this.pause();
@@ -1399,9 +1376,94 @@ export class EventTimer extends Timer {
     this.pause();
 
     // send OSC
-    this.osc.send(this.osc.implemented.reload);
+    this.sendOsc(this.osc.implemented.reload);
 
     // reload data
     this.loadEvent(this.selectedEventIndex);
+  }
+
+  /****************************************************************************/
+  /**
+   * Logger logic
+   * -------------
+   *
+   * This should be separate of event timer, left here for convenience
+   *
+   */
+
+  /**
+   * Utility method, sends message and pushes into stack
+   * @param {string} level
+   * @param {string} origin
+   * @param {string} text
+   */
+  _push(level, origin, text) {
+    const m = {
+      id: generateId(),
+      level,
+      origin,
+      text,
+      time: stringFromMillis(this._getCurrentTime()),
+    };
+
+    this.messageStack.unshift(m);
+    this.io.emit('logger', m);
+
+    if (process.env.NODE_ENV !== 'prod') {
+      console.log(`[${m.level}] \t ${m.origin} \t ${m.text}`);
+    }
+
+    if (this.messageStack.length > this.MAX_MESSAGES) {
+      this.messageStack.pop();
+    }
+  }
+
+  /**
+   * Sends a message with level LOG
+   * @param {string} origin
+   * @param {string} text
+   */
+  info(origin, text) {
+    this._push('INFO', origin, text);
+  }
+
+  /**
+   * Sends a message with level WARN
+   * @param {string} origin
+   * @param {string} text
+   */
+  warning(origin, text) {
+    this._push('WARN', origin, text);
+  }
+
+  /**
+   * Sends a message with level ERROR
+   * @param {string} origin
+   * @param {string} text
+   */
+  error(origin, text) {
+    this._push('ERROR', origin, text);
+  }
+
+  /****************************************************************************/
+  /**
+   * Integrations
+   * -------------
+   *
+   * Code related to integrations
+   *
+   */
+
+  /**
+   * Calls OSC send message and resolves reply to logger
+   * @param {string} message
+   * @param {any} [payload]
+   */
+  async sendOsc(message, payload = undefined) {
+    // Todo: add disabled osc check
+    const reply = await this.osc.send(message, payload);
+    if (!reply.success) {
+      this.error('TX', reply.message);
+    }
   }
 }

@@ -130,7 +130,6 @@ export const postInfo = async (req, res) => {
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
-    console.log(error);
   }
 };
 

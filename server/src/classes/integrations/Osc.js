@@ -1,12 +1,10 @@
 /** Class contains logic towards outgoing OSC communications. */
-import {Client, Message} from 'node-osc';
+import { Client, Message } from 'node-osc';
 
 export class OSCIntegration {
-
-  ADDRESS = '/ontime';
-
   constructor() {
     // OSC Client
+    this.ADDRESS = '/ontime';
     this.oscClient = null;
   }
 
@@ -26,8 +24,8 @@ export class OSCIntegration {
       time: 'time',
       overtime: 'overtime',
       title: 'title',
-      presenter:'presenter',
-    }
+      presenter: 'presenter',
+    };
   }
 
   /**
@@ -37,13 +35,19 @@ export class OSCIntegration {
    * @param {number} oscConfig.port - OSC Destination Port
    */
   init(oscConfig) {
-    const {ip, port} = oscConfig;
+    const { ip, port } = oscConfig;
     try {
       this.oscClient = new Client(ip, port);
-      console.log(`Initialised OSC Client at ${ip}:${port}`);
+      return {
+        success: true,
+        message: `Initialised OSC Client at ${ip}:${port}`,
+      };
     } catch (error) {
       this.oscClient = null;
-      console.log(`Failed initialising OSC Client: ${error}`);
+      return {
+        success: true,
+        message: `Failed initialising OSC Client: ${error}`,
+      };
     }
   }
 
@@ -53,14 +57,21 @@ export class OSCIntegration {
    * @param {string} [payload] - optional payload required in some message types
    */
   async send(messageType, payload) {
+    const reply = {
+      success: true,
+      message: 'OSC Message sent',
+    };
+
     if (this.oscClient == null) {
-      console.log('OSC ERROR: Client not initialised');
-      return;
+      reply.success = false;
+      reply.message = 'Client not initialised';
+      return reply;
     }
 
     if (messageType == null) {
-      console.log('OSC ERROR: Message undefined');
-      return;
+      reply.success = false;
+      reply.message = 'Message undefined';
+      return reply;
     }
 
     // only specify special cases
@@ -68,35 +79,58 @@ export class OSCIntegration {
       case 'overtime':
         // Whether timer is negative
         this.oscClient.send(`${this.ADDRESS}/overtime`, payload, (err) => {
-          if (err) console.error(err);
+          if (err) {
+            reply.success = false;
+            reply.message = err;
+          }
         });
         break;
+
       case 'title':
-        if (payload != null && payload !== "") {
+        if (payload != null && payload !== '') {
           // Send Title of current event
           this.oscClient.send(`${this.ADDRESS}/title`, payload, (err) => {
-            if (err) console.error(err);
+            if (err) {
+              reply.success = false;
+              reply.message = err;
+            }
           });
+        } else {
+          reply.success = false;
+          reply.message = 'Missing message data';
         }
         break;
+
       case 'presenter':
-        if (payload != null && payload !== "") {
+        if (payload != null && payload !== '') {
           // Send presenter data on current event
           this.oscClient.send(`${this.ADDRESS}/presenter`, payload, (err) => {
-            if (err) console.error(err);
+            if (err) {
+              reply.success = false;
+              reply.message = err;
+            }
           });
+        } else {
+          reply.success = false;
+          reply.message = 'Missing message data';
         }
         break;
+
       default:
         // catch all for messages, allows to add new messages
         // but should be used with the integrations definition
-        const message = new Message(`${this.ADDRESS}/${messageType}`)
-        if (payload != null) message.append(payload)
+        // eslint-disable-next-line no-case-declarations
+        const message = new Message(`${this.ADDRESS}/${messageType}`);
+        if (payload != null) message.append(payload);
         this.oscClient.send(message, (err) => {
-          if (err) console.error(err);
+          if (err) {
+            reply.success = false;
+            reply.message = err;
+          }
         });
         break;
     }
+    return reply;
   }
 
   shutdown() {

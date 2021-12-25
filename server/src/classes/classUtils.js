@@ -1,4 +1,3 @@
-
 /**
  * Utility variable: 24 hour in milliseconds .
  * @type {number}
@@ -11,7 +10,8 @@ export const DAY_TO_MS = 86400000;
  * @param {number} end  - When does the event end
  * @returns {number} normalised time
  */
-export const normaliseEndTime = (start, end) => (end < start ? end + DAY_TO_MS : end);
+export const normaliseEndTime = (start, end) =>
+  end < start ? end + DAY_TO_MS : end;
 
 /**
  * @description Sorts an array of objects by given property
@@ -36,7 +36,6 @@ export const sortArrayByProperty = (arr, property) => {
 export const replacePlaceholder = (str, values) => {
   for (let [k, v] of Object.entries(values)) {
     str = str.replace(k, v);
-    console.log(k, v);
   }
   return str;
 };
@@ -72,7 +71,10 @@ export const getSelectionByRoll = (arr, now) => {
 
   // exit early if we are past the events
   const lastEvent = orderedEvents[orderedEvents.length - 1];
-  const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
+  const lastNormalEnd = normaliseEndTime(
+    lastEvent.timeStart,
+    lastEvent.timeEnd
+  );
   if (now > lastNormalEnd) {
     return {
       nowIndex,
@@ -128,7 +130,7 @@ export const getSelectionByRoll = (arr, now) => {
       // check how far the start is from now
       const wait = e.timeStart - now;
 
-      if (nextIndex === null || wait < timeToNext) {
+      if (nextIndex == null || wait < timeToNext) {
         timeToNext = wait;
         nextIndex = arr.findIndex((a) => a.id === e.id);
       }
@@ -161,8 +163,14 @@ export const getSelectionByRoll = (arr, now) => {
  * @returns {object} object with selection variables
  */
 export const updateRoll = (currentTimers) => {
-
-  const {selectedEventId,current,_finishAt,clock,secondaryTimer,_secondaryTarget} = currentTimers;
+  const {
+    selectedEventId,
+    current,
+    _finishAt,
+    clock,
+    secondaryTimer,
+    _secondaryTarget,
+  } = currentTimers;
 
   // timers
   let updatedTimer = current;
@@ -181,8 +189,6 @@ export const updateRoll = (currentTimers) => {
     if (updatedTimer < 0) {
       isFinished = true;
     }
-    console.log(updatedTimer, isFinished, _finishAt)
-
   } else if (secondaryTimer >= 0) {
     // if secondaryTimer is running we are in waiting to roll
 
@@ -202,6 +208,5 @@ export const updateRoll = (currentTimers) => {
     doRollLoad = true;
   }
 
-  return {updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished};
-}
-
+  return { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished };
+};

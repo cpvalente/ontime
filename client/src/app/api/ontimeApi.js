@@ -75,28 +75,26 @@ export const ontimeVars = [
 ];
 
 export const getInfo = async () => {
-  const res = await axios.get(ontimeURL + '/info');
+  const res = await axios.get(`${ontimeURL}/info`);
   return res.data;
 };
 
 export const postInfo = async (data) => {
-  const res = await axios.post(ontimeURL + '/info', data);
-  return res;
+  return await axios.post(`${ontimeURL}/info`, data);
 };
 
 export const getOSC = async () => {
-  const res = await axios.get(ontimeURL + '/osc');
+  const res = await axios.get(`${ontimeURL}/osc`);
   return res.data;
 };
 
 export const postOSC = async (data) => {
-  const res = await axios.post(ontimeURL + '/osc', data);
-  return res;
+  return await axios.post(`${ontimeURL}/osc`, data);
 };
 
 export const downloadEvents = async () => {
   await axios({
-    url: ontimeURL + '/db',
+    url: `${ontimeURL}/db`,
     method: 'GET',
     responseType: 'blob', // important
   }).then((response) => {
@@ -123,15 +121,13 @@ export const uploadEvents = async (file) => {
   const formData = new FormData();
   formData.append('userFile', file); // appending file
   await axios
-    .post(ontimeURL + '/db', formData, {
+    .post(`${ontimeURL}/db`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    })
-    .then((res) => console.log(res.data))
-    .catch((err) => console.error(err));
+    });
 };
 
 export const uploadEventsWithPath = async (filepath) => {
-  await axios.post(ontimeURL + '/dbpath', { path: filepath });
+  await axios.post(`${ontimeURL}/dbpath`, { path: filepath });
 };

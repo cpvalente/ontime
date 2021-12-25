@@ -1,10 +1,9 @@
-import { Icon } from '@chakra-ui/react';
 import { useState } from 'react';
-import { FiChevronUp } from 'react-icons/fi';
 import { APP_TABLE } from 'app/api/apiConstants';
 import { getInfo, ontimePlaceholderInfo } from 'app/api/ontimeApi';
 import { useFetch } from 'app/hooks/useFetch';
 import style from './Info.module.scss';
+import CollapseBar from '../../common/components/collapseBar/CollapseBar';
 
 export default function InfoNif() {
   const { data, status } = useFetch(APP_TABLE, getInfo, {
@@ -22,16 +21,8 @@ export default function InfoNif() {
   };
 
   return (
-    <div className={style.container}>
-      <div className={style.header}>
-        Network Info
-        <Icon
-          className={collapsed ? style.moreCollapsed : style.moreExpanded}
-          as={FiChevronUp}
-          onClick={() => setCollapsed((c) => !c)}
-        />
-      </div>
-
+  <div className={style.container}>
+    <CollapseBar title={'Network Info'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
       {!collapsed && (
         <div>
           {status === 'success' && (

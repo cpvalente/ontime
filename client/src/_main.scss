@@ -1,0 +1,15 @@
+$ontime-accent: #4bffabcc;
+$ontime-pink: #ff7597;
+$ontime-roll: #2b6cb0;
+
+$notes-color: #d69e2e;
+
+$header-gray: #ccc;
+$label-gray: #aaa;
+
+@mixin container-bg {
+  background-color: rgba(0, 0, 0, 0.13);
+  border-radius: 2px;
+  padding: 0 0.5em;
+  margin: 0 0.5em;
+}
