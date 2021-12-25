@@ -11,38 +11,34 @@ import { HTTPIntegration } from './integrations/Http.js';
 import { cleanURL } from '../utils/url.js';
 import getRandomName from '../utils/getRandomName.js';
 import { stringFromMillis } from '../utils/time.js';
+import { generateId } from '../utils/generate_id.js';
 
 /*
- * EventTimer adds functions specific to APP
- * namely:
- * - Presenter message, text and status
- * - Public message, text and status
- *
+ * Class EventTimer adds functions specific to APP
+ * @extends Timer
  */
 
 export class EventTimer extends Timer {
   /**
    * Instantiates an event timer object
-   * @param httpServer
-   * @param timerConfig
-   * @param [oscConfig]
-   * @param [httpConfig]
+   * @param {object} httpServer
+   * @param {object} timerConfig
+   * @param {object} [oscConfig]
+   * @param {object} [httpConfig]
    */
   constructor(httpServer, timerConfig, oscConfig, httpConfig) {
     // call super constructor
     super();
 
-    // Keep track of Timer lifecycle
-    // idle: before it is initialised
-    // load: when a new event is loaded
-    // update: every update call cycle (1 x second)
-    // stop: when the timer is stopped
-    // finish: when a timer finishes
     this.cycleState = {
+      /* idle: before it is initialised */
       idle: 'idle',
+      /* onLoad: when a new event is loaded */
       onLoad: 'onLoad',
+      /* armed: when a new event is loaded but hasn't started */
       armed: 'armed',
       onStart: 'onStart',
+      /* update: every update call cycle (1 x second) */
       onUpdate: 'onUpdate',
       onPause: 'onPause',
       onStop: 'onStop',
@@ -50,13 +46,6 @@ export class EventTimer extends Timer {
     };
     this.ontimeCycle = 'idle';
     this.prevCycle = null;
-    this.lastUpdate = null;
-
-    // Socket IO Object
-    this.io = null;
-    this.messageStack = [];
-    this.MAX_MESSAGES = 100;
-    this._clientNames = {};
 
     // OSC Object
     this.osc = null;
@@ -80,39 +69,17 @@ export class EventTimer extends Timer {
       visible: false,
     };
 
-    this.titlesPublic = {
-      titleNow: null,
-      subtitleNow: null,
-      presenterNow: null,
-      titleNext: null,
-      subtitleNext: null,
-      presenterNext: null,
-    };
+    // call general title reset
+    this._resetSelection();
 
-    this.titles = {
-      titleNow: null,
-      subtitleNow: null,
-      presenterNow: null,
-      noteNow: null,
-      titleNext: null,
-      subtitleNext: null,
-      presenterNext: null,
-      noteNext: null,
-    };
-
-    this.selectedEventIndex = null;
-    this.selectedEventId = null;
-    this.nextEventId = null;
-    this.selectedPublicEventId = null;
-    this.nextPublicEventId = null;
-    this.numEvents = null;
+    this.numEvents = 0;
     this._eventlist = null;
     this.onAir = false;
 
-    // initialise class variables
-    this.numEvents = 0;
-
     // initialise socketIO server
+    this.messageStack = [];
+    this.MAX_MESSAGES = 100;
+    this._clientNames = {};
     this.io = new Server(httpServer, {
       cors: {
         origin: '*',
@@ -155,11 +122,10 @@ export class EventTimer extends Timer {
 
   /**
    * Initialises OSC Integration object
-   * @param oscConfig
+   * @param {object} oscConfig
    * @private
    */
   _initOscClient(oscConfig) {
-    this.info('TX', `Initialise OSC Client on port: ${oscConfig?.port}`);
     this.osc = new OSCIntegration();
     const r = this.osc.init(oscConfig);
     r.success ? this.info('TX', r.message) : this.error('TX', r.message);
@@ -167,25 +133,29 @@ export class EventTimer extends Timer {
 
   /**
    * Initialises HTTP Integration object
-   * @param httpConfig
+   * @param {object} httpConfig
    * @private
    */
   _initHTTPClient(httpConfig) {
-    this.info('TX', `Initialise HTTP Client on port: ${httpConfig}`);
+    this.info('TX', `Initialise HTTP Client on port`);
     this.http = new HTTPIntegration();
     this.http.init(httpConfig);
     this.httpMessages = httpConfig.messages;
   }
 
-  // send current timer
+  /**
+   * Sends time object over websockets
+   */
   broadcastTimer() {
     // through websockets
     this.io.emit('timer', this.getTimeObject());
   }
 
-  // broadcast state
+  /**
+   * Broadcasts complete object state
+   */
   broadcastState() {
-    this.io.emit('timer', this.getTimeObject());
+    this.broadcastTimer();
     this.io.emit('playstate', this.state);
     this.io.emit('selected', {
       id: this.selectedEventId,
@@ -194,6 +164,7 @@ export class EventTimer extends Timer {
     });
     this.io.emit('selected-id', this.selectedEventId);
     this.io.emit('next-id', this.nextEventId);
+    this.io.emit('numevents', this.numEvents);
     this.io.emit('publicselected-id', this.selectedPublicEventId);
     this.io.emit('publicnext-id', this.nextPublicEventId);
     this.io.emit('titles', this.titles);
@@ -201,7 +172,11 @@ export class EventTimer extends Timer {
     this.io.emit('onAir', this.onAir);
   }
 
-  // broadcast message
+  /**
+   * Broadcast given message
+   * @param {string} address - socket io address
+   * @param {any} payload - message body
+   */
   broadcastThis(address, payload) {
     this.io.emit(address, payload);
   }
@@ -512,7 +487,13 @@ export class EventTimer extends Timer {
     }
   }
 
-  _setterManager(action, payload) {
+  /**
+   * Set titles and broadcast change
+   * @param {string} action
+   * @param {any} payload
+   * @private
+   */
+  _setTitles(action, payload) {
     switch (action) {
       /*******************************************/
       // Presenter message
@@ -552,6 +533,10 @@ export class EventTimer extends Timer {
     }
   }
 
+  /**
+   * Handle socket io connections
+   * @private
+   */
   _listenToConnections() {
     this.io.on('connection', (socket) => {
       /*******************************/
@@ -694,11 +679,11 @@ export class EventTimer extends Timer {
 
       // Presenter message
       socket.on('set-presenter-text', (data) => {
-        this._setterManager('set-presenter-text', data);
+        this._setTitles('set-presenter-text', data);
       });
 
       socket.on('set-presenter-visible', (data) => {
-        this._setterManager('set-presenter-visible', data);
+        this._setTitles('set-presenter-visible', data);
       });
 
       socket.on('get-presenter', () => {
@@ -707,11 +692,11 @@ export class EventTimer extends Timer {
       /*******************************************/
       // Public message
       socket.on('set-public-text', (data) => {
-        this._setterManager('set-public-text', data);
+        this._setTitles('set-public-text', data);
       });
 
       socket.on('set-public-visible', (data) => {
-        this._setterManager('set-public-visible', data);
+        this._setTitles('set-public-visible', data);
       });
 
       socket.on('get-public', () => {
@@ -721,11 +706,11 @@ export class EventTimer extends Timer {
       /*******************************************/
       // Lower third message
       socket.on('set-lower-text', (data) => {
-        this._setterManager('set-lower-text', data);
+        this._setTitles('set-lower-text', data);
       });
 
       socket.on('set-lower-visible', (data) => {
-        this._setterManager('set-lower-visible', data);
+        this._setTitles('set-lower-visible', data);
       });
 
       socket.on('get-lower', () => {
@@ -734,6 +719,9 @@ export class EventTimer extends Timer {
     });
   }
 
+  /**
+   * Deletes running event list from object
+   */
   clearEventList() {
     // unload events
     this.unload();
@@ -749,6 +737,10 @@ export class EventTimer extends Timer {
     this.broadcastThis('numevents', this.numEvents);
   }
 
+  /**
+   * Adds an event list to object
+   * @param {array} eventlist
+   */
   setupWithEventList(eventlist) {
     if (!Array.isArray(eventlist) || eventlist.length < 1) return;
 
@@ -760,19 +752,23 @@ export class EventTimer extends Timer {
     this._eventlist = events;
     this.numEvents = numEvents;
 
-    // list may be empty
+    // list may contain no events
     if (numEvents < 1) return;
 
     // load first event
     this.loadEvent(0);
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastState();
 
     // run cycle
     this.runCycle();
   }
 
+  /**
+   * Updates event list in object
+   * @param {array} eventlist
+   */
   updateEventList(eventlist) {
     // filter only events
     const events = eventlist.filter((e) => e.type === 'event');
@@ -814,12 +810,17 @@ export class EventTimer extends Timer {
     }
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastState();
 
     // run cycle
     this.runCycle();
   }
 
+  /**
+   * Updates a single id in the object list
+   * @param {string} id
+   * @param {object} entry - new event object
+   */
   updateSingleEvent(id, entry) {
     // find object in events
     const eventIndex = this._eventlist.findIndex((e) => e.id === id);
@@ -857,12 +858,16 @@ export class EventTimer extends Timer {
     }
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastState();
 
     // run cycle
     this.runCycle();
   }
 
+  /**
+   * Deleted an event from the list by its id
+   * @param {string} eventId
+   */
   deleteId(eventId) {
     // find object in events
     const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
@@ -891,7 +896,7 @@ export class EventTimer extends Timer {
     }
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastState();
 
     // run cycle
     this.runCycle();
@@ -899,34 +904,35 @@ export class EventTimer extends Timer {
 
   /**
    * @description loads an event with a given Id
-   * @param eventId - ID of event in eventlist
+   * @param {string} eventId - ID of event in eventlist
    */
   loadEventById(eventId) {
     const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
 
     if (eventIndex === -1) return;
     this.pause();
-    this.loadEvent(eventIndex, 'load', true);
+    this.loadEvent(eventIndex, 'load');
     // run cycle
     this.runCycle();
   }
 
   /**
    * @description loads an event with a given index
-   * @param eventIndex - Index of event in eventlist
+   * @param {number} eventIndex - Index of event in eventlist
    */
   loadEventByIndex(eventIndex) {
     if (eventIndex === -1 || eventIndex > this.numEvents) return;
     this.pause();
-    this.loadEvent(eventIndex, 'load', true);
+    this.loadEvent(eventIndex, 'load');
     // run cycle
     this.runCycle();
   }
 
-  // Loads a given event
-  // load timers
-  // load selectedEventIndex
-  // load titles
+  /**
+   * Loads a given event by index
+   * @param {object} eventIndex
+   * @param {string} [type='load'] - 'load' or 'reload', whether we are keeping running time
+   */
   loadEvent(eventIndex, type = 'load') {
     const e = this._eventlist[eventIndex];
     if (e == null) return;
@@ -937,7 +943,6 @@ export class EventTimer extends Timer {
     if (end < start) end += DAY_TO_MS;
 
     // time stuff changes on whether we keep the running clock
-
     if (type === 'load') {
       this._resetTimers();
 
@@ -1133,75 +1138,6 @@ export class EventTimer extends Timer {
     this.nextEventId = null;
     this.selectedPublicEventId = null;
     this.nextPublicEventId = null;
-  }
-
-  print() {
-    return `
-      Timer
-      =========
-
-      Playback
-      ------------------------------
-      state           = ${this.state}
-      current         = ${this.current}
-      duration        = ${this.duration}
-      secondaryTimer  = ${this.secondaryTimer}
-
-      Events
-      ------------------------------
-      numEvents             = ${this.numEvents}
-      selectedEventIndex    = ${this.selectedEventIndex}
-      selectedEventId       = ${this.selectedEventId}
-      nextEventId           = ${this.nextEventId}
-      selectedPublicEventId = ${this.selectedPublicEventId}
-      nextPublicEventId     = ${this.nextPublicEventId}
-
-      Private Titles
-      ------------------------------
-      NowID           = ${this.selectedEventId}
-      NextID          = ${this.nextEventId}
-      Title Now       = ${this.titles.titleNow}
-      Subtitle Now    = ${this.titles.subtitleNow}
-      Presenter Now   = ${this.titles.presenterNow}
-      Note Now        = ${this.titles.noteNow}
-      Title Next      = ${this.titles.titleNext}
-      Subtitle Next   = ${this.titles.subtitleNext}
-      Presenter Next  = ${this.titles.presenterNext}
-      Note Next       = ${this.titles.noteNext}
-
-      Public Titles
-      ------------------------------
-      NowID           = ${this.selectedPublicEventId}
-      NextID          = ${this.nextPublicEventId}
-      Title Now       = ${this.titlesPublic.titleNow}
-      Subtitle Now    = ${this.titlesPublic.subtitleNow}
-      Presenter Now   = ${this.titlesPublic.presenterNow}
-      Title Next      = ${this.titlesPublic.titleNext}
-      Subtitle Next   = ${this.titlesPublic.subtitleNext}
-      Presenter Next  = ${this.titlesPublic.presenterNext}
-
-      Messages
-      ------------------------------
-      presenter text  = ${this.presenter.text}
-      presenter vis   = ${this.presenter.visible}
-      public text     = ${this.public.text}
-      public vis      = ${this.public.visible}
-      lower text      = ${this.lower.text}
-      lower vis       = ${this.lower.visible}
-
-      Private
-      ------------------------------
-      finishAt        = ${this._finishAt}
-      finished        = ${this._finishedAt}
-      startedAt       = ${this._startedAt}
-      pausedAt        = ${this._pausedAt}
-      pausedInterval  = ${this._pausedInterval}
-      pausedTotal     = ${this._pausedTotal}
-
-      Socket
-      ------------------------------
-      numClients      = ${this._numClients}
-    `;
   }
 
   /**
@@ -1463,14 +1399,20 @@ export class EventTimer extends Timer {
    */
   _push(level, origin, text) {
     const m = {
+      id: generateId(),
       level,
       origin,
       text,
       time: stringFromMillis(this._getCurrentTime()),
     };
+
     this.messageStack.unshift(m);
     this.io.emit('logger', m);
-    console.log(`[${m.level}] \t ${m.origin} \t ${m.text}`);
+
+    if (process.env.NODE_ENV !== 'prod') {
+      console.log(`[${m.level}] \t ${m.origin} \t ${m.text}`);
+    }
+
     if (this.messageStack.length > this.MAX_MESSAGES) {
       this.messageStack.pop();
     }

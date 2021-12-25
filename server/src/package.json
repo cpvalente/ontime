@@ -1,4 +1,5 @@
 {
+  "name": "ontime-server",
   "type": "module",
   "dependencies": {
     "body-parser": "~1.19.0",

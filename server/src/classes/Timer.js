@@ -9,18 +9,7 @@ import { stringFromMillis } from '../utils/time.js';
 export class Timer {
   constructor() {
     this.clock = null;
-    this.duration = null;
-    this.current = null;
-    this.timeTag = null;
-    this.secondaryTimer = null;
-    this._secondaryTarget = null;
-    this._finishAt = null;
-    this._finishedAt = null;
-    this._finishedFlag = false;
-    this._startedAt = null;
-    this._pausedAt = null;
-    this._pausedInterval = null;
-    this._pausedTotal = null;
+    this._resetTimers(true);
     this.state = 'stop';
   }
 
@@ -137,6 +126,7 @@ export class Timer {
   _resetTimers(total = false) {
     if (total) this.duration = null;
     this.current = this.duration;
+    this.timeTag = null;
     this.running = null;
     this.secondaryTimer = null;
     this._secondaryTarget = null;

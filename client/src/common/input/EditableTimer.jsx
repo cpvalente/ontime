@@ -2,9 +2,9 @@ import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useContext, useEffect, useState } from 'react';
 import {
   isTimeString,
-  stringFromMillis,
   timeStringToMillis,
 } from '../utils/dateConfig';
+import { stringFromMillis } from 'ontime-server/utils/time';
 import style from './EditableTimer.module.css';
 import { LoggingContext } from '../../app/context/LoggingContext';
 

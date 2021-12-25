@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { fetchAllEvents } from 'app/api/eventsApi';
 import { fetchEvent } from 'app/api/eventApi';
 import { useSocket } from 'app/context/socketContext';
-import { stringFromMillis } from 'common/utils/dateConfig';
+import { stringFromMillis } from 'ontime-server/utils/time';
 import { useFetch } from 'app/hooks/useFetch';
 import { EVENTS_TABLE, EVENT_TABLE } from 'app/api/apiConstants';
 

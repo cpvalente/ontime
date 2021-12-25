@@ -1,12 +1,14 @@
 import { useSocket } from './socketContext';
 import { createContext, useCallback, useEffect, useState } from 'react';
-import { nowInMillis, stringFromMillis } from '../../common/utils/dateConfig';
+import { generateId } from 'ontime-server/utils/generate_id';
+import { nowInMillis, stringFromMillis } from 'ontime-server/utils/time';
 
 export const LoggingContext = createContext({
   logData: [],
   emitInfo: () => undefined,
   emitWarning: () => undefined,
-  emitError: () => undefined
+  emitError: () => undefined,
+  clearLog: () => undefined
 });
 
 export const LoggingProvider = (props) => {
@@ -41,6 +43,7 @@ export const LoggingProvider = (props) => {
   const _send = useCallback((text, level) => {
     if (socket != null) {
       const m = {
+        id: generateId(),
         origin,
         time: stringFromMillis(nowInMillis()),
         level,
@@ -79,8 +82,15 @@ export const LoggingProvider = (props) => {
     _send(text, 'ERROR');
   }, [_send]);
 
+  /**
+   * Clears running log
+   */
+  const clearLog = useCallback(() => {
+    setLogData([])
+  }, []);
+
   return (
-    <LoggingContext.Provider value = {{ emitInfo, logData, emitWarning, emitError }}>
+    <LoggingContext.Provider value = {{ emitInfo, logData, emitWarning, emitError, clearLog }}>
       {props.children}
     </LoggingContext.Provider>
   )

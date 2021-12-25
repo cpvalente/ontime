@@ -4,53 +4,7 @@ export const timeFormatSeconds = 'HH:mm:ss';
 const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
 const mth = 1000 * 60 * 60; // millis to hours
-const mtd = 1000 * 60 * 60 * 24; // millis to days
 
-/**
- * Returns current time in milliseconds
- * @returns {number}
- */
-export const nowInMillis = () => {
-  const now = new Date();
-
-  // extract milliseconds since midnight
-  let elapsed = now.getHours() * 3600000;
-  elapsed += now.getMinutes() * 60000;
-  elapsed += now.getSeconds() * 1000;
-  elapsed += now.getMilliseconds();
-
-  return elapsed;
-};
-
-/**
- * @description Converts milliseconds to string representing time
- * @param {number} ms - time in milliseconds
- * @param {boolean} showSeconds - wether to show the seconds
- * @param {string} delim - character between HH MM SS
- * @param {string} ifNull - what to return if value is null
- * @returns {string} String representing time 00:12:02
- */
-
-// This is shared and tested in backend in time.js
-export const stringFromMillis = (
-  ms,
-  showSeconds = true,
-  delim = ':',
-  ifNull = '...'
-) => {
-  if (ms === null || isNaN(ms)) return ifNull;
-  const isNegative = ms < 0 ? '-' : '';
-  const showWith0 = (value) => (value < 10 ? `0${value}` : value);
-  const hours = showWith0(Math.floor(((ms / mth) % 60) % 24));
-  const minutes = showWith0(Math.floor((ms / mtm) % 60));
-  const seconds = showWith0(Math.floor((ms / mts) % 60));
-
-  return showSeconds
-    ? `${isNegative}${
-        parseInt(hours) ? `${hours}${delim}` : `00${delim}`
-      }${minutes}${delim}${seconds}`
-    : `${isNegative}${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
-};
 
 /**
  * another go at simpler string formatting (counters)
@@ -95,7 +49,7 @@ export const millisToMinutes = (millis) => {
 };
 
 /**
- * @description Converts timestring  to milliseconds
+ * @description Converts timestring to milliseconds
  * @param {string} string - time string "23:00:12"
  * @returns {number} Amount in milliseconds
  */
