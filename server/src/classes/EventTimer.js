@@ -218,54 +218,64 @@ export class EventTimer extends Timer {
       case 'start':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Start');
         this.start();
         break;
       case 'pause':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Pause');
         this.pause();
         break;
       case 'stop':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Stop');
         this.stop();
         break;
       case 'roll':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Roll');
         this.roll();
         break;
       case 'previous':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Previous');
         this.previous();
         break;
       case 'next':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Play Mode Next');
         this.next();
         break;
       case 'unload':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Events unloaded');
         this.unload();
         break;
       case 'reload':
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
+        this.info('PLAYBACK', 'Reloaded event');
         this.reload();
         break;
       case 'onAir':
         // Call action
+        this.info('PLAYBACK', 'Going On Air');
         this.setonAir(true);
         break;
       case 'offAir':
         // Call action and force update
+        this.info('PLAYBACK', 'Going Off Air');
         this.setonAir(false);
         break;
       default:
         // Error, disable flag
-        this.error('SERVER', `Unhandled action triggered ${action}`);
+        this.error('RX', `Unhandled action triggered ${action}`);
         reply = false;
         break;
     }
