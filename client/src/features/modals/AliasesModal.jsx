@@ -23,6 +23,7 @@ export default function AliasesModal() {
   const smLink = 'http://localhost:4001/sm';
   const publicLink = 'http://localhost:4001/public';
   const pipLink = 'http://localhost:4001/pip';
+  const studioLink = 'http://localhost:4001/studio';
 
   return (
     <>
@@ -79,6 +80,17 @@ export default function AliasesModal() {
                 className={style.label}
               >
                 {pipLink}
+              </a>
+            </p>
+            <p className={style.flexNote}>
+              Studio Clock<br />
+              <a
+                href={studioLink}
+                target='_blank'
+                rel='noreferrer'
+                className={style.label}
+              >
+                {studioLink}
               </a>
             </p>
           </div>
