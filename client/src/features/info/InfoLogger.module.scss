@@ -9,11 +9,11 @@
 
 .container__expanded {
   min-height: 50%;
+  height: 100%
 }
 
 .log {
-  height: 75%;
-  max-height: 100%;
+  height: 100%;
   overflow-y: scroll;
   font-size: 0.8em;
   user-select:text;

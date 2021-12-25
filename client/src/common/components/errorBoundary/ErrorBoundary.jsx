@@ -1,6 +1,9 @@
 import React from 'react';
+import { LoggingContext } from '../../../app/context/LoggingContext';
 
 class ErrorBoundary extends React.Component {
+  static contextType = LoggingContext;
+
   constructor(props) {
     super(props);
     this.state = { error: null, errorInfo: null };
@@ -17,15 +20,11 @@ class ErrorBoundary extends React.Component {
       errorInfo: info,
     });
     // TODO: Log the error to an error reporting service
-    this.logErrorToServices(error.toString(), info.componentStack);
+    this.context.emitError(error.toString());
   }
-
-  // A fake logging service.
-  logErrorToServices = console.log;
 
   render() {
     if (this.state.errorMessage) {
-      // You can render any custom fallback UI
       return <p>:/</p>;
     }
     return this.props.children;

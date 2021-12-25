@@ -50,7 +50,6 @@ export const LoggingProvider = (props) => {
         text
       }
       setLogData((l) => [m, ...l]);
-      console.log(logData)
       socket.emit('logger', m);
     }
     if (logData.length > MAX_MESSAGES) {
