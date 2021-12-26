@@ -1,17 +1,17 @@
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, FormControl, Input, Button, PinInput, PinInputField } from '@chakra-ui/react';
-import { getOSC, oscPlaceholderSettings } from 'app/api/ontimeApi';
+import { getSettings, oscPlaceholderSettings, postSettings } from 'app/api/ontimeApi';
 import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
-import { OSC_SETTINGS } from 'app/api/apiConstants';
+import { APP_SETTINGS } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { IconButton } from '@chakra-ui/button';
 import { FiEye } from 'react-icons/fi';
 
 export default function AppSettingsModal() {
-  const { data, status } = useFetch(OSC_SETTINGS, getOSC);
-  const { emitError } = useContext(LoggingContext);
+  const { data, status } = useFetch(APP_SETTINGS, getSettings);
+  const { emitError, emitWarning } = useContext(LoggingContext);
   const [formData, setFormData] = useState(oscPlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -19,7 +19,9 @@ export default function AppSettingsModal() {
 
   useEffect(() => {
     if (data == null) return;
-    setFormData({ ...data });
+    setFormData({
+      pinCode: data.pinCode
+    });
   }, [data]);
 
   const submitHandler = async (event) => {
@@ -37,17 +39,17 @@ export default function AppSettingsModal() {
         e.status = true;
         e.message += 'App pincode added';
       }
-
     }
 
     // set fields with error
-    if (e.status) {
+    if (!e.status) {
       emitError(`Invalid Input: ${e.message}`);
       return;
     }
 
     // Post here
-    // postOSC(formData);
+    postSettings(formData);
+    emitWarning(e.message);
 
     setChanged(false);
     setSubmitting(false);
@@ -86,10 +88,16 @@ export default function AppSettingsModal() {
               </FormLabel>
               <div className={style.pin}>
                 <PinInput
+                  type='alphanumeric'
                   size='sm'
                   defaultValue=''
-                  value='1234'
+                  value={formData.pinCode}
                   mask={hidePin}
+                  onChange={(value) => {
+                    console.log(value)
+                    setChanged(true);
+                    setFormData({ ...formData, pinCode: value });
+                  }}
                   isDisabled={disableModal}
                 >
                   <PinInputField />

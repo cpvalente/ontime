@@ -278,6 +278,7 @@ export const parseJsonv1 = async (jsonData, enforce=false) => {
     } else {
       let settings = {
         lock: s.lock || null,
+        pinCode: s.pinCode || null,
       };
 
       // write to db

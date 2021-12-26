@@ -9,6 +9,10 @@ export const ontimePlaceholderInfo = {
   },
 };
 
+export const ontimePlaceholderSettings = {
+  pinCode: null,
+};
+
 export const oscPlaceholderSettings = {
   port: '',
   portOut: '',
@@ -73,6 +77,15 @@ export const ontimeVars = [
     description: 'Next subtitle',
   },
 ];
+
+export const getSettings = async () => {
+  const res = await axios.get(`${ontimeURL}/settings`);
+  return res.data;
+};
+
+export const postSettings = async (data) => {
+  return await axios.post(`${ontimeURL}/settings`, data);
+};
 
 export const getInfo = async () => {
   const res = await axios.get(`${ontimeURL}/info`);

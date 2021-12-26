@@ -122,6 +122,7 @@
     "oscOutPort": 9999,
     "oscOutIP": "127.0.0.1",
     "oscEnabled": true,
-    "lock": false
+    "lock": false,
+    "pinCode": null
   }
 }

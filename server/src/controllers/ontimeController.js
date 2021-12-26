@@ -117,6 +117,44 @@ export const getInfo = async (req, res) => {
 };
 
 // Create controller for POST request to '/ontime/info'
+// Returns -
+export const getSettings = async (req, res) => {
+  const version = data.settings.version;
+  const serverPort = data.settings.serverPort;
+  const pinCode = data.settings.pinCode
+
+  // send object with network information
+  res.status(200).send({
+    version,
+    serverPort,
+    pinCode
+  });
+};
+
+// Create controller for POST request to '/ontime/settings'
+// Returns ACK message
+export const postSettings = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  try {
+    let pin = data.settings.pinCode;
+    if (typeof req.body?.pinCode === 'string' && req.body?.pinCode.length <=4) {
+      pin = req.body?.pinCode;
+    }
+    data.settings = {
+      ...data.settings,
+      pinCode: pin };
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+
+// Create controller for POST request to '/ontime/info'
 // Returns ACK message
 export const postInfo = async (req, res) => {
   if (!req.body) {
