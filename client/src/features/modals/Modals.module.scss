@@ -1,26 +1,60 @@
-@use '../../styles/variables' as *;
+@use '../../styles/main' as *;
 
 //////////////////////////////////// main
 
-.modalBody,
-.modalBodyDisabled {
+.modalBody {
   font-weight: 400;
 
   .notes {
     font-weight: 400;
     color: $light-bg;
+    padding: 1.5em 0;
   }
 
-  .separator {
-    border: 1px solid $light-bg-transparent;
-    width: 50%;
-    margin: 0.5em auto;
+  .modalFields {
+    min-height: 45vh;
+    max-height: 45vh;
+    overflow-y: auto;
+    scrollbar-color: rgba($light-bg, 0.35) rgba($light-bg, 0.15);
+
+    label {
+      //font-weight: 400;
+      font-size: 0.8em;
+    }
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: rgba($light-bg, 0.15);
+    border-radius: 4px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: rgba($light-bg, 0.35);
+    border-radius: 4px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background:  rgba($light-bg, 0.45);
   }
 
   .modalInline {
     display: flex;
     gap: 2em;
     align-items: center;
+    padding: 0 0.5em;
+  }
+
+  .pin {
+    display: flex;
+    gap: 0.5em;
+    border-radius: 50%;
+
+    input {
+      border-radius: 50%;
+    }
   }
 
   .submitContainer {
@@ -34,8 +68,7 @@
 
 }
 
-.modalBody > *,
-.modalBodyDisabled > * {
+.modalBody > * {
   margin-top: 0.5em;
 }
 
@@ -52,7 +85,7 @@ p {
 
 span {
   &.notes {
-    font-size: 0.8em;
+    font-size: 0.9em;
     padding-left: 0.4em;
   }
 }
@@ -84,16 +117,5 @@ span {
     user-select: text;
     display: block;
     background-color: #fffc;
-  }
-}
-
-// Define style for a link
-a {
-  &::after {
-    content: '  \2197';
-    color: $accent;
-  }
-  &:hover {
-    color: $accent;
   }
 }

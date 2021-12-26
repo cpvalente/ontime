@@ -29,7 +29,7 @@ export default function Editor() {
       <div className={styles.mainContainer}>
         <Box id='settings' className={styles.settings}>
           <ErrorBoundary>
-            <MenuBar onOpen={onOpen} />
+            <MenuBar onOpen={onOpen} isOpen={isOpen} />
           </ErrorBoundary>
         </Box>
 

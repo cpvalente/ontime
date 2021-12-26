@@ -1,0 +1,9 @@
+//////////////////////////////////// general app elements
+
+@mixin container-bg {
+  background-color: rgba(0, 0, 0, 0.13);
+  border-radius: 2px;
+  padding: 0 0.5em;
+  margin: 0 0.5em;
+}
+
