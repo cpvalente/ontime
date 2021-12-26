@@ -1,6 +1,10 @@
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, FormControl, Input, Button, PinInput, PinInputField } from '@chakra-ui/react';
-import { getSettings, oscPlaceholderSettings, postSettings } from 'app/api/ontimeApi';
+import {
+  getSettings,
+  ontimePlaceholderSettings,
+  postSettings
+} from 'app/api/ontimeApi';
 import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { APP_SETTINGS } from 'app/api/apiConstants';
@@ -12,7 +16,7 @@ import { FiEye } from 'react-icons/fi';
 export default function AppSettingsModal() {
   const { data, status } = useFetch(APP_SETTINGS, getSettings);
   const { emitError, emitWarning } = useContext(LoggingContext);
-  const [formData, setFormData] = useState(oscPlaceholderSettings);
+  const [formData, setFormData] = useState(ontimePlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [hidePin, setHidePin] = useState(true);
@@ -31,14 +35,12 @@ export default function AppSettingsModal() {
     let e = { status: false, message: '' };
 
     // Validate fields
-    if (f.pinCode) {
-      if (f.pinCode === '') {
-        e.status = true;
-        e.message += 'App pincode removed';
-      } else {
-        e.status = true;
-        e.message += 'App pincode added';
-      }
+    if (f.pinCode === '' || f.pinCode == null) {
+      e.status = true;
+      e.message += 'App pincode removed';
+    } else {
+      e.status = true;
+      e.message += 'App pincode added';
     }
 
     // set fields with error
@@ -93,12 +95,11 @@ export default function AppSettingsModal() {
                   defaultValue=''
                   value={formData.pinCode}
                   mask={hidePin}
+                  isDisabled={disableModal}
                   onChange={(value) => {
-                    console.log(value)
                     setChanged(true);
                     setFormData({ ...formData, pinCode: value });
                   }}
-                  isDisabled={disableModal}
                 >
                   <PinInputField />
                   <PinInputField />

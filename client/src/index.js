@@ -5,16 +5,26 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { AppContextProvider } from './app/context/AppContext';
+import SocketProvider from './app/context/socketContext';
 
 // Load Open Sans typeface
 require('typeface-open-sans');
+const queryClient = new QueryClient();
 
 ReactDOM.render(
   <React.StrictMode>
     <ChakraProvider resetCSS>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <SocketProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppContextProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </AppContextProvider>
+        </QueryClientProvider>
+      </SocketProvider>
     </ChakraProvider>
   </React.StrictMode>,
   document.getElementById('root')

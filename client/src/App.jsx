@@ -1,10 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.scss';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import SocketProvider from 'app/context/socketContext';
 import withSocket from 'features/viewers/ViewWrapper';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
+import ProtectRoute from './common/components/protectRoute/ProtectRoute';
 
 const Editor = lazy(() => import('features/editors/Editor'));
 const PresenterView = lazy(() =>
@@ -22,13 +21,6 @@ const Lower = lazy(() =>
 );
 const Pip = lazy(() => import('features/viewers/production/Pip'));
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
-
-const queryClient = new QueryClient();
-// Seemed to cause issues
-// broadcastQueryClient({
-//   queryClient,
-//   broadcastChannel: 'ontime',
-// });
 
 const SPresenter = withSocket(PresenterView);
 const SPresenterSimple = withSocket(PresenterSimple);
@@ -65,32 +57,33 @@ function App() {
   }, [handleKeyPress]);
 
   return (
-    <SocketProvider>
-      <QueryClientProvider client={queryClient}>
-        <div className='App'>
-          <ErrorBoundary>
-            <Suspense fallback={null}>
-              <Routes>
-                <Route path='/' element={<SPresenter />}/>
-                <Route path='/sm' element={<SStageManager />}/>
-                <Route path='/speaker' element={<SPresenter />}/>
-                <Route path='/presenter' element={<SPresenter />}/>
-                <Route path='/stage' element={<SPresenter />}/>
-                <Route path='/presentersimple' element={<SPresenterSimple />}/>
-                <Route path='/editor' element={<Editor />}/>
-                <Route path='/public' element={<SPublic />}/>
-                <Route path='/pip' element={<SPip />}/>
-                <Route path='/studio' element={<SStudio /> }/>
-                {/*/!* Lower cannot have fallback *!/*/}
-                <Route path='/lower' element={<SLowerThird /> }/>
-                {/* Send to default if nothing found */}
-                <Route path='*' element={<SPresenter />} />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </div>
-      </QueryClientProvider>
-    </SocketProvider>
+    <div className='App'>
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path='/' element={<SPresenter />} />
+            <Route path='/sm' element={<SStageManager />} />
+            <Route path='/speaker' element={<SPresenter />} />
+            <Route path='/presenter' element={<SPresenter />} />
+            <Route path='/stage' element={<SPresenter />} />
+            <Route path='/presentersimple' element={<SPresenterSimple />} />
+            <Route path='/public' element={<SPublic />} />
+            <Route path='/pip' element={<SPip />} />
+            <Route path='/studio' element={<SStudio />} />
+            {/*/!* Lower cannot have fallback *!/*/}
+            <Route path='/lower' element={<SLowerThird />} />
+            {/*/!* Protected Routes *!/*/}
+            <Route path='/editor' element={
+              <ProtectRoute>
+                <Editor />
+              </ProtectRoute>
+            } />
+            {/* Send to default if nothing found */}
+            <Route path='*' element={<SPresenter />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
+    </div>
   );
 }
 

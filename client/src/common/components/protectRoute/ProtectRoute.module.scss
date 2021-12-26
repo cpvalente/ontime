@@ -1,0 +1,47 @@
+@use '../../../styles/main' as *;
+@use '../../../styles/mixins' as *;
+
+.container {
+  background: #222;
+
+  display: grid;
+  place-content: center;
+  height: 100vh;
+  padding-bottom: 30vh;
+
+  color: $ontime-pink;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 200;
+  text-align: center;
+  font-size: 3vw;
+}
+
+.pin,
+.pin__failed {
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+
+  input {
+    border-radius: 50%;
+  }
+
+  button {
+    margin-left: 20px;
+  }
+}
+
+.pin__failed {
+  input {
+    animation: colourFade 1.5s ease;
+  }
+}
+
+@keyframes colourFade {
+  from {
+    background: $ontime-pink;
+  }
+  to {
+    background: rgba($ontime-pink, 0);
+  }
+}
