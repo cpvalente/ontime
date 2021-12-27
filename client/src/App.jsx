@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.scss';
 import withSocket from 'features/viewers/ViewWrapper';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
@@ -31,6 +31,9 @@ const SPip = withSocket(Pip);
 const SStudio = withSocket(StudioClock);
 
 function App() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback((e) => {
     // check if the alt key is pressed
@@ -55,6 +58,19 @@ function App() {
       document.removeEventListener('keydown', handleKeyPress);
     };
   }, [handleKeyPress]);
+
+  // navigate if is alias route
+  useEffect(() => {
+    const dynamicRoutes = [
+      {alias: '/testing', path: '/lower', params: '?bg=ff2&text=f00&size=0.6&transition=5'}
+    ]
+
+    for (const d of dynamicRoutes) {
+      if (location.pathname === d.alias) {
+        navigate(`${d.path}/${d.params}`);
+      }
+    }
+  }, [location, navigate])
 
   return (
     <div className='App'>
