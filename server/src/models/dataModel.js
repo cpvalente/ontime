@@ -14,6 +14,7 @@ export const dbModelv1 = {
     lock: null,
     pinCode: null,
   },
+  aliases: [],
   osc: {
     port: 8888,
     portOut: 9999,
