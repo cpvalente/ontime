@@ -21,7 +21,7 @@ export default function ModalManager(props) {
       onClose={onClose}
       closeOnOverlayClick={false}
       motionPreset={'slideInBottom'}
-      size='lg'
+      size='xl'
       scrollBehavior='inside'
     >
       <ModalOverlay />
