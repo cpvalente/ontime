@@ -62,12 +62,12 @@ function App() {
   // navigate if is alias route
   useEffect(() => {
     const dynamicRoutes = [
-      {alias: '/testing', path: '/lower', params: '?bg=ff2&text=f00&size=0.6&transition=5'}
+      {alias: 'testing', pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5'}
     ]
-
+    console.log(location.pathname)
     for (const d of dynamicRoutes) {
       if (location.pathname === d.alias) {
-        navigate(`${d.path}/${d.params}`);
+        navigate(`/${d.path}/${d.params}`);
       }
     }
   }, [location, navigate])

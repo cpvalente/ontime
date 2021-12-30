@@ -9,41 +9,58 @@ import { EVENT_TABLE } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
 import { viewerLinks } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
+import { validateAlias } from '../../app/utils/aliases';
 
 const dynamicRoutes = [
   {
     id: 1,
     enabled: true,
-    alias: '/testing',
-    path: '/lower',
-    params: '?bg=ff2&text=f00&size=0.6&transition=5'
+    alias: 'testing',
+    pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5'
   },
   {
     id: 2,
     enabled: true,
-    alias: '/testing2',
-    path: '/lower',
-    params: '?bg=ff2&text=f00&size=0.6&transition=5'
+    alias: 'testing2',
+    pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5'
   }
 ];
 
 export default function AliasesModal() {
   const { emitError } = useContext(LoggingContext);
   const { data, status, isError } = useFetch(EVENT_TABLE, fetchEvent);
+  const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [aliases, setAliases] = useState(dynamicRoutes);
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    // NOTHING HERE YET
-  };
+    setSubmitting(true);
 
-  const validate = (input) => {
-    // remove any portions before / like localhost:4001/IWANTTHIS
-    // aliases cannot be the same
-    // URLs cannot be the same
-    // cannot use around /editor
-    // cap to like 20 URLs
+    const validatedAliases = [...aliases];
+    let errors = false;
+    for (const alias of validatedAliases) {
+      const isValid = validateAlias(alias.pathAndParams);
+      if (!isValid.status) {
+        alias.error = isValid.message;
+        errors = true;
+      } else {
+        alias.error = undefined;
+      }
+    }
+    console.log('setting aliases', validatedAliases);
+    setAliases(validatedAliases);
+    if (errors) {
+      console.log('errors');
+      // do nothing?
+    } else {
+      // submit logic
+      console.log('noErrrors');
+
+    }
+    setChanged(false);
+    setSubmitting(false);
+
   };
 
   /**
@@ -84,6 +101,13 @@ export default function AliasesModal() {
     const aliasesState = [...aliases];
     for (const a of aliasesState) {
       if (a.id === id) {
+        if (isEnabled) {
+          const isRepeated = aliases.some((r) => a.alias === r.alias && r.enabled);
+          if (isRepeated) {
+            emitError('There is already an alias with this name');
+            break;
+          }
+        }
         a.enabled = isEnabled;
         break;
       }
@@ -96,7 +120,23 @@ export default function AliasesModal() {
    */
   const revert = () => {
     setAliases(dynamicRoutes);
+    setChanged(false);
   };
+
+  /**
+   * Handles change of input field in local state
+   * @param {number} index - index of item in array
+   * @param {string} field - object parameter to update
+   * @param {string} value - new object parameter value
+   */
+  const handleChange = (index, field, value) => {
+    const temp = [...aliases];
+    temp[index][field] = value;
+    setAliases(temp);
+    setChanged(true);
+  };
+
+  console.log(aliases);
 
   return (
     <>
@@ -115,6 +155,7 @@ export default function AliasesModal() {
                   target='_blank'
                   rel='noreferrer'
                   className={style.flexNote}
+                  key={l.link}
                 >
                   {`${l.label} - ${l.link}`}
                 </a>
@@ -134,8 +175,8 @@ export default function AliasesModal() {
                   <td className={style.labelNote}>Page URL</td>
                 </tr>
                 <tr>
-                  <td>/mylower</td>
-                  <td>/lower/?bg=ff2&text=f00&size=0.6&transition=5</td>
+                  <td>mylower</td>
+                  <td>lower/?bg=ff2&text=f00&size=0.6&transition=5</td>
                 </tr>
                 </tbody>
               </table>
@@ -149,8 +190,8 @@ export default function AliasesModal() {
                   <td className={style.labelNote}>Page URL</td>
                 </tr>
                 <tr>
-                  <td>/thirdfloor</td>
-                  <td>/public</td>
+                  <td>thirdfloor</td>
+                  <td>public</td>
                 </tr>
                 </tbody>
               </table>
@@ -166,67 +207,66 @@ export default function AliasesModal() {
                 onClick={() => addNew()}
               />
             </div>
-            {aliases.map((d) => (
-              <div className={style.inlineAlias} key={d.id}>
-                <Input
-                  size='sm'
-                  variant='flushed'
-                  name='Alias'
-                  placeholder='URL Alias'
-                  autoComplete='off'
-                  value={d.alias}
-                  onChange={(event) => {
-                    // Nothing here yet
-                  }}
-                />
-                <Input
-                  size='sm'
-                  fontSize={'0.75em'}
-                  variant='flushed'
-                  name='URL'
-                  placeholder='URL (portion after ontime Port)'
-                  autoComplete='off'
-                  value={`${d.path}/${d.params}`}
-                  onChange={(event) => {
-                    // Nothing here yet
-                  }}
-                />
-                <IconButton
-                  size='xs'
-                  icon={<FiSun />}
-                  colorScheme='blue'
-                  variant={d.enabled ? null : 'outline'}
-                  onClick={() => setEnabled(d.id, !d.enabled)}
-                />
-                <IconButton
-                  size='xs'
-                  icon={<FiMinus />}
-                  colorScheme='red'
-                  onClick={() => deleteAlias(d.id)}
-                />
-              </div>
+            {aliases.map((d, index) => (
+              <>
+                <div className={style.inlineAlias} key={d.id}>
+                  <Input
+                    size='sm'
+                    variant='flushed'
+                    name='Alias'
+                    placeholder='URL Alias'
+                    autoComplete='off'
+                    value={d.alias}
+                    onChange={(event) => handleChange(index, 'alias', event.target.value)}
+                  />
+                  <Input
+                    size='sm'
+                    fontSize={'0.75em'}
+                    variant='flushed'
+                    name='URL'
+                    placeholder='URL (portion after ontime Port)'
+                    autoComplete='off'
+                    value={d.pathAndParams}
+                    isInvalid={d.error}
+                    onChange={(event) => handleChange(index, 'pathAndParams', event.target.value)}
+                  />
+                  <IconButton
+                    size='xs'
+                    icon={<FiSun />}
+                    colorScheme='blue'
+                    variant={d.enabled ? null : 'outline'}
+                    onClick={() => setEnabled(d.id, !d.enabled)}
+                  />
+                  <IconButton
+                    size='xs'
+                    icon={<FiMinus />}
+                    colorScheme='red'
+                    onClick={() => deleteAlias(d.id)}
+                  />
+                </div>
+                {d.error ? <span className={style.error}>{d.error}</span> : null}
+              </>
             ))}
           </div>
+          <div className={style.submitContainer}>
+            <Button
+              type='submit'
+              isDisabled={submitting || !changed}
+              variant='ghosted'
+              onClick={() => revert()}
+            >
+              Revert
+            </Button>
+            <Button
+              colorScheme='blue'
+              type='submit'
+              isLoading={submitting}
+              disabled={!changed}
+            >
+              Save
+            </Button>
+          </div>
         </form>
-        <div className={style.submitContainer}>
-          <Button
-            type='submit'
-            isLoading={submitting}
-            variant='ghosted'
-            onClick={() => revert()}
-          >
-            Revert
-          </Button>
-          <Button
-            colorScheme='blue'
-            type='submit'
-            isLoading={submitting}
-            disabled={true}
-            onClick={() => validate()}
-          >
-            Save
-          </Button>
-        </div>
       </ModalBody>
     </>
   );

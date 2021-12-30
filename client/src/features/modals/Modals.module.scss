@@ -32,6 +32,10 @@
       gap: 8px;
       align-items: center;
     }
+    .error {
+      font-size: 0.8em;
+      color: $error-red;
+    }
 
     .inlineAliasPlaceholder {
       grid-template-columns: 25% 1fr 10%;
