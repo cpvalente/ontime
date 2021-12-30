@@ -1,5 +1,6 @@
 import express from 'express';
 import { uploadFile } from '../utils/upload.js';
+
 export const router = express.Router();
 
 import {
@@ -11,7 +12,9 @@ import {
   getOSC,
   postOSC,
   getSettings,
-  postSettings
+  postSettings,
+  getAliases,
+  postAliases,
 } from '../controllers/ontimeController.js';
 
 // create route between controller and '/ontime/db' endpoint
@@ -25,6 +28,12 @@ router.get('/settings', getSettings);
 
 // create route between controller and '/ontime/settings' endpoint
 router.post('/settings', postSettings);
+
+// create route between controller and '/ontime/aliases' endpoint
+router.get('/aliases', getAliases);
+
+// create route between controller and '/ontime/aliases' endpoint
+router.post('/aliases', postAliases);
 
 // create route between controller and '/ontime/info' endpoint
 router.get('/info', getInfo);

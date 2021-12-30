@@ -116,7 +116,31 @@ export const getInfo = async (req, res) => {
   });
 };
 
-// Create controller for POST request to '/ontime/info'
+// Create controller for POST request to '/ontime/aliases'
+// Returns -
+export const getAliases = async (req, res) => {
+  // send aliases array
+  res.status(200).send(data.aliases);
+};
+
+// Create controller for POST request to '/ontime/aliases'
+// Returns ACK message
+export const postAliases = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  // TODO: validate data
+  try {
+    data.aliases = { ...req.body };
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+// Create controller for POST request to '/ontime/settings'
 // Returns -
 export const getSettings = async (req, res) => {
   const version = data.settings.version;
@@ -134,7 +158,6 @@ export const getSettings = async (req, res) => {
 // Create controller for POST request to '/ontime/settings'
 // Returns ACK message
 export const postSettings = async (req, res) => {
-  console.log('here', req.body);
   if (!req.body) {
     res.status(400).send('No object found in request');
     return;
