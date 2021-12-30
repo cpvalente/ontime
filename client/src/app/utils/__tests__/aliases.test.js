@@ -3,6 +3,8 @@ import { validateAlias } from '../aliases';
 describe('An alias fails if incorrect', () => {
 
   const testsToFail = [
+    // no empty
+    '',
     // no https, http or www
     'https://www.test.com',
     'http://www.test.com',
@@ -17,7 +19,7 @@ describe('An alias fails if incorrect', () => {
   ];
 
   testsToFail.forEach((t) => (
-      test(t, () => {
+      test(`${t}`, () => {
         expect(validateAlias(t).status).toBeFalsy();
       })
     )

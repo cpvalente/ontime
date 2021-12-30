@@ -7,7 +7,12 @@ export const validateAlias = (alias) => {
 
   const valid = { status: true, message: 'ok' };
 
-  if (alias.includes('http') || alias.includes('https') || alias.includes('www')) {
+  if (alias === '') {
+    // cannot be empty
+    valid.status = false;
+    valid.message = 'Alias not defined';
+  }
+  else if (alias.includes('http') || alias.includes('https') || alias.includes('www')) {
     // cannot contain http, https or www
     valid.status = false;
     valid.message = 'Alias is not an url and cannot include http, https, www';
