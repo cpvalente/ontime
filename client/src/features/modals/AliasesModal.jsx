@@ -1,5 +1,5 @@
 import { Button, IconButton } from '@chakra-ui/button';
-import { FiMinus, FiInfo, FiSun } from 'react-icons/fi';
+import { FiInfo, FiMinus, FiSun } from 'react-icons/fi';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
 import { getAliases, postAliases } from '../../app/api/ontimeApi';
@@ -11,6 +11,7 @@ import { viewerLinks } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
 import { Tooltip } from '@chakra-ui/tooltip';
+import SubmitContainer from './SubmitContainer';
 
 export default function AliasesModal() {
   const { data, status, refetch } = useFetch(ALIASES, getAliases);
@@ -18,11 +19,9 @@ export default function AliasesModal() {
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [aliases, setAliases] = useState([]);
-  const [initialData, setInitialData] = useState([]);
 
   useEffect(() => {
     if (data == null) return;
-    setInitialData([...data]);
     if (changed) return;
     setAliases([...data]);
   }, [changed, data]);
@@ -75,8 +74,7 @@ export default function AliasesModal() {
       id: Math.floor(Math.random() * 1000),
       enabled: false,
       alias: '',
-      path: '',
-      params: '',
+      pathAndParams: '',
     };
     setAliases((prevState) => [...prevState, emptyAlias]);
     setChanged(true);
@@ -125,9 +123,9 @@ export default function AliasesModal() {
   /**
    * Reverts local state equals to server state
    */
-  const revert = () => {
-    setAliases([...initialData]);
+  const revert = async () => {
     setChanged(false);
+    await refetch();
   };
 
   /**
@@ -142,8 +140,6 @@ export default function AliasesModal() {
     setAliases(temp);
     setChanged(true);
   };
-
-  console.log({ aliases }, { data });
 
   return (
     <>
@@ -221,8 +217,8 @@ export default function AliasesModal() {
               <span className={style.labelNote}>Alias</span>
               <span className={style.labelNote}>Page URL</span>
             </div>
-            {aliases.map((d, index) => (
-              <div key={d.id}>
+            {aliases.map((alias, index) => (
+              <div key={alias.id}>
                 <div className={style.inlineAlias}>
                   <Input
                     size='sm'
@@ -230,8 +226,8 @@ export default function AliasesModal() {
                     name='Alias'
                     placeholder='URL Alias'
                     autoComplete='off'
-                    value={d.alias}
-                    isInvalid={d.aliasError}
+                    value={alias.alias}
+                    isInvalid={alias.aliasError}
                     onChange={(event) =>
                       handleChange(index, 'alias', event.target.value)
                     }
@@ -243,15 +239,18 @@ export default function AliasesModal() {
                     name='URL'
                     placeholder='URL (portion after ontime Port)'
                     autoComplete='off'
-                    value={d.pathAndParams}
-                    isInvalid={d.urlError}
+                    value={alias.pathAndParams}
+                    isInvalid={alias.urlError}
                     onChange={(event) =>
                       handleChange(index, 'pathAndParams', event.target.value)
                     }
                   />
-                  <Tooltip label='Test URL' openDelay={500}>
+                  <Tooltip
+                    label={`Test /${alias.pathAndParams}`}
+                    openDelay={500}
+                  >
                     <a
-                      href={`http://localhost:4001/${d.pathAndParams}`}
+                      href={`http://localhost:4001/${alias.pathAndParams}`}
                       target='_blank'
                       rel='noreferrer'
                     />
@@ -261,8 +260,8 @@ export default function AliasesModal() {
                       size='xs'
                       icon={<FiSun />}
                       colorScheme='blue'
-                      variant={d.enabled ? null : 'outline'}
-                      onClick={() => setEnabled(d.id, !d.enabled)}
+                      variant={alias.enabled ? null : 'outline'}
+                      onClick={() => setEnabled(alias.id, !alias.enabled)}
                     />
                   </Tooltip>
                   <Tooltip label='Delete alias' openDelay={500}>
@@ -270,14 +269,14 @@ export default function AliasesModal() {
                       size='xs'
                       icon={<FiMinus />}
                       colorScheme='red'
-                      onClick={() => deleteAlias(d.id)}
+                      onClick={() => deleteAlias(alias.id)}
                     />
                   </Tooltip>
                 </div>
-                {d.aliasError || d.urlError ? (
+                {alias.aliasError || alias.urlError ? (
                   <div className={style.inlineAlias}>
-                    <span className={style.error}>{d.aliasError}</span>
-                    <span className={style.error}>{d.urlError}</span>
+                    <span className={style.error}>{alias.aliasError}</span>
+                    <span className={style.error}>{alias.urlError}</span>
                   </div>
                 ) : null}
               </div>
@@ -287,37 +286,22 @@ export default function AliasesModal() {
               className={style.inlineAliasPlaceholder}
               style={{ padding: '0.5em 0' }}
             >
-              <Tooltip label='Add new alias' openDelay={500}>
-                <Button
-                  size='xs'
-                  colorScheme='blue'
-                  variant='outline'
-                  onClick={() => addNew()}
-                >
-                  Add new
-                </Button>
-              </Tooltip>
-
+              <Button
+                size='xs'
+                colorScheme='blue'
+                variant='outline'
+                onClick={() => addNew()}
+              >
+                Add new
+              </Button>
             </div>
           </div>
-          <div className={style.submitContainer}>
-            <Button
-              type='submit'
-              isDisabled={submitting || !changed}
-              variant='ghosted'
-              onClick={() => revert()}
-            >
-              Revert
-            </Button>
-            <Button
-              colorScheme='blue'
-              type='submit'
-              isLoading={submitting}
-              disabled={!changed || status !== 'success'}
-            >
-              Save
-            </Button>
-          </div>
+          <SubmitContainer
+            revert={revert}
+            submitting={submitting}
+            changed={changed}
+            status={status}
+          />
         </form>
       </ModalBody>
     </>

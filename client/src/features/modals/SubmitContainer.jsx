@@ -1,0 +1,35 @@
+import style from './Modals.module.scss';
+import { Button } from '@chakra-ui/button';
+import PropTypes from 'prop-types';
+
+export default function SubmitContainer(props) {
+  const { submitting, changed, revert, status } = props;
+
+  return (
+    <div className={style.submitContainer}>
+      <Button
+        type='submit'
+        isDisabled={submitting || !changed}
+        variant='ghosted'
+        onClick={() => revert()}
+      >
+        Revert
+      </Button>
+      <Button
+        colorScheme='blue'
+        type='submit'
+        isLoading={submitting}
+        disabled={!changed || status !== 'success'}
+      >
+        Save
+      </Button>
+    </div>
+  );
+}
+
+SubmitContainer.propTypes = {
+  submitting: PropTypes.bool,
+  changed: PropTypes.bool,
+  status: PropTypes.string,
+  revert: PropTypes.func.isRequired,
+};
