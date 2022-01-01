@@ -1,9 +1,15 @@
 import { ModalBody } from '@chakra-ui/modal';
-import { FormLabel, FormControl, Input, Button, PinInput, PinInputField } from '@chakra-ui/react';
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  PinInput,
+  PinInputField,
+} from '@chakra-ui/react';
 import {
   getSettings,
   ontimePlaceholderSettings,
-  postSettings
+  postSettings,
 } from 'app/api/ontimeApi';
 import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
@@ -12,24 +18,34 @@ import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { IconButton } from '@chakra-ui/button';
 import { FiEye } from 'react-icons/fi';
+import SubmitContainer from './SubmitContainer';
+import { inputProps } from './modalHelper';
 
 export default function AppSettingsModal() {
-  const { data, status } = useFetch(APP_SETTINGS, getSettings);
+  const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
   const { emitError, emitWarning } = useContext(LoggingContext);
   const [formData, setFormData] = useState(ontimePlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [hidePin, setHidePin] = useState(true);
 
+  /**
+   * Set formdata from server state
+   */
   useEffect(() => {
     if (data == null) return;
+    if (changed) return;
     setFormData({
-      pinCode: data.pinCode
+      pinCode: data.pinCode,
     });
-  }, [data]);
+  }, [changed, data]);
 
+  /**
+   * Validate and submit data
+   */
   const submitHandler = async (event) => {
     event.preventDefault();
+    setSubmitting(true);
 
     const f = formData;
     let e = { status: false, message: '' };
@@ -37,24 +53,43 @@ export default function AppSettingsModal() {
     // Validate fields
     if (f.pinCode === '' || f.pinCode == null) {
       e.status = true;
-      e.message += 'App pincode removed';
+      e.message += 'App pin code removed';
     } else {
       e.status = true;
-      e.message += 'App pincode added';
+      e.message += 'App pin code added';
     }
 
     // set fields with error
     if (!e.status) {
       emitError(`Invalid Input: ${e.message}`);
-      return;
+    } else {
+      await postSettings(formData);
+      await refetch();
+      emitWarning(e.message);
+      setChanged(false);
     }
 
-    // Post here
-    postSettings(formData);
-    emitWarning(e.message);
-
-    setChanged(false);
     setSubmitting(false);
+  };
+
+  /**
+   * Reverts local state equals to server state
+   */
+  const revert = async () => {
+    setChanged(false);
+    await refetch();
+  };
+
+  /**
+   * Handles change of input field in local state
+   * @param {string} field - object parameter to update
+   * @param {string} value - new object parameter value
+   */
+  const handleChange = (field, value) => {
+    const temp = { ...formData };
+    temp[field] = value;
+    setFormData(temp);
+    setChanged(true);
   };
 
   const disableModal = status !== 'success';
@@ -62,7 +97,8 @@ export default function AppSettingsModal() {
   return (
     <ModalBody className={style.modalBody}>
       <p className={style.notes}>
-        Options related to the application<br />
+        Options related to the application
+        <br />
         🔥 Changes take effect after app restart 🔥
       </p>
       <form onSubmit={submitHandler}>
@@ -72,12 +108,14 @@ export default function AppSettingsModal() {
             <FormControl id='serverPort'>
               <FormLabel htmlFor='serverPort'>
                 Viewer Port
-                <span className={style.notes}><br />Ontime is available at port</span>
+                <span className={style.labelNote}>
+                  <br />
+                  Ontime is available at port
+                </span>
               </FormLabel>
               <Input
-                size='sm'
+                {...inputProps}
                 name='title'
-                autoComplete='off'
                 value={4001}
                 disabled
                 style={{ width: '6em', textAlign: 'center' }}
@@ -86,20 +124,20 @@ export default function AppSettingsModal() {
             <FormControl id='editorPin'>
               <FormLabel htmlFor='editorPin'>
                 Editor Pincode
-                <span className={style.notes}><br />Protect the editor with a Pincode</span>
+                <span className={style.labelNote}>
+                  <br />
+                  Protect the editor with a Pincode
+                </span>
               </FormLabel>
               <div className={style.pin}>
                 <PinInput
+                  {...inputProps}
                   type='alphanumeric'
-                  size='sm'
                   defaultValue=''
                   value={formData.pinCode}
                   mask={hidePin}
                   isDisabled={disableModal}
-                  onChange={(value) => {
-                    setChanged(true);
-                    setFormData({ ...formData, pinCode: value });
-                  }}
+                  onChange={(value) => handleChange('pinCode', value)}
                 >
                   <PinInputField />
                   <PinInputField />
@@ -111,7 +149,7 @@ export default function AppSettingsModal() {
                   colorScheme='blue'
                   variant='ghost'
                   icon={<FiEye />}
-                  aria-label='Editor Pincode'
+                  aria-label='Editor pin code'
                   onMouseDown={() => setHidePin(false)}
                   onMouseUp={() => setHidePin(true)}
                   isDisabled={disableModal}
@@ -120,18 +158,13 @@ export default function AppSettingsModal() {
             </FormControl>
           </div>
         </div>
-        <div className={style.submitContainer}>
-          <Button
-            colorScheme='blue'
-            type='submit'
-            isLoading={submitting}
-            disabled={!changed}
-          >
-            Save
-          </Button>
-        </div>
+        <SubmitContainer
+          revert={revert}
+          submitting={submitting}
+          changed={changed}
+          status={status}
+        />
       </form>
     </ModalBody>
-  )
-    ;
+  );
 }

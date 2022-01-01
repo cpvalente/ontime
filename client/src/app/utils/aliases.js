@@ -10,16 +10,16 @@ export const validateAlias = (alias) => {
   if (alias === '' || alias == null) {
     // cannot be empty
     valid.status = false;
-    valid.message = 'Alias not defined';
+    valid.message = 'should not be empty';
   } else if (alias.includes('http') || alias.includes('https') || alias.includes('www')) {
     // cannot contain http, https or www
     valid.status = false;
-    valid.message = 'Alias is not an url and cannot include http, https, www';
+    valid.message = 'should not include http, https, www';
   } else if (alias.includes('127.0.0.1') || alias.includes('localhost') || alias.includes('0.0.0.0')) {
     // aliases cannot contain hostname
     valid.status = false;
-    valid.message = 'Alias should not include hostname';
-  } else if (alias.startsWith('editor')) {
+    valid.message = 'should not include hostname';
+  } else if (alias.includes('editor')) {
     // no editor
     valid.status = false;
     valid.message = 'No aliases to editor page allowed';

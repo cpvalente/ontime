@@ -38,7 +38,7 @@
     }
 
     .inlineAliasPlaceholder {
-      grid-template-columns: 25% 1fr 10%;
+      grid-template-columns: 20% 1fr 4em;
 
       .placeholder {
         background: $light-text;
@@ -69,7 +69,11 @@
     display: flex;
     gap: 2em;
     align-items: center;
-    padding: 0 0.5em;
+    padding: 0 0.5em 0.5em 0.5em;
+  }
+
+  .spacedEntry {
+    padding: 0 0.5em 0.5em 0.5em;
   }
 
   .pin {
@@ -118,12 +122,14 @@ span {
   margin: 1em 0;
   padding: 0.5em;
   font-size: 0.8em;
+  border-radius: 2px;
 
   table {
     background-color: #fff;
     border-left: 4px solid lighten($ontime-pink, 5%);
     width: 100%;
     margin: 0.5em 0;
+    border-radius: 2px;
 
     :first-child {
       padding-left: 1em;
@@ -156,6 +162,10 @@ span {
 .labelNote {
   color: $light-bg;
   padding-right: 1em;
+}
+
+.labelNoteInline {
+  color: $light-bg;
 }
 
 .inlineFlex {

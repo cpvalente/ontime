@@ -20,12 +20,18 @@ export default function AliasesModal() {
   const [submitting, setSubmitting] = useState(false);
   const [aliases, setAliases] = useState([]);
 
+  /**
+   * Set formdata from server state
+   */
   useEffect(() => {
     if (data == null) return;
     if (changed) return;
     setAliases([...data]);
   }, [changed, data]);
 
+  /**
+   * Validate and submit data
+   */
   const submitHandler = async (event) => {
     event.preventDefault();
     setSubmitting(true);
@@ -55,9 +61,9 @@ export default function AliasesModal() {
     if (!errors) {
       await postAliases(aliases);
       await refetch();
+      setChanged(false);
     }
 
-    setChanged(false);
     setSubmitting(false);
   };
 
@@ -142,168 +148,167 @@ export default function AliasesModal() {
   };
 
   return (
-    <>
-      <ModalBody className={style.modalBody}>
-        <p className={style.notes}>
-          Configure easy to use URL Aliases
-          <br />
-          🔥 Changes take effect on save 🔥
-        </p>
-        <form onSubmit={submitHandler}>
-          <div className={style.modalFields}>
-            <div className={style.hSeparator}>Default URLs</div>
-            <div className={style.blockNotes}>
-              {viewerLinks.map((l) => (
-                <a
-                  href={l.link}
-                  target='_blank'
-                  rel='noreferrer'
-                  className={style.flexNote}
-                  key={l.link}
-                >
-                  {`${l.label} - ${l.link}`}
-                </a>
-              ))}
-            </div>
-            <div className={style.hSeparator}>Custom Aliases</div>
-            <div className={style.blockNotes}>
-              <span className={style.inlineFlex}>
-                <FiInfo color='#2b6cb0' fontSize={'2em'} />
-                URL aliases are useful in two main scenarios
-              </span>
-              <span className={style.labelNote}>Complicated URLs</span>
-              <br />
-              eg. a lower third url with some custom parameters
-              <table>
-                <tbody>
-                  <tr>
-                    <td className={style.labelNote} style={{ width: '30%' }}>
-                      Alias
-                    </td>
-                    <td className={style.labelNote}>Page URL</td>
-                  </tr>
-                  <tr>
-                    <td>mylower</td>
-                    <td>lower/?bg=ff2&text=f00&size=0.6&transition=5</td>
-                  </tr>
-                </tbody>
-              </table>
-              <br />
-              <span className={style.labelNote}>
-                URLs to be changed dynamically
-              </span>
-              <br />
-              eg. an unattended screen that you would need to change route from
-              the app
-              <table>
-                <tbody>
-                  <tr>
-                    <td className={style.labelNote} style={{ width: '30%' }}>
-                      Alias
-                    </td>
-                    <td className={style.labelNote}>Page URL</td>
-                  </tr>
-                  <tr>
-                    <td>thirdfloor</td>
-                    <td>public</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div
-              className={style.inlineAliasPlaceholder}
-              style={{ padding: '0.5em 0' }}
-            >
-              <span className={style.labelNote}>Alias</span>
-              <span className={style.labelNote}>Page URL</span>
-            </div>
-            {aliases.map((alias, index) => (
-              <div key={alias.id}>
-                <div className={style.inlineAlias}>
-                  <Input
-                    size='sm'
-                    variant='flushed'
-                    name='Alias'
-                    placeholder='URL Alias'
-                    autoComplete='off'
-                    value={alias.alias}
-                    isInvalid={alias.aliasError}
-                    onChange={(event) =>
-                      handleChange(index, 'alias', event.target.value)
-                    }
-                  />
-                  <Input
-                    size='sm'
-                    fontSize={'0.75em'}
-                    variant='flushed'
-                    name='URL'
-                    placeholder='URL (portion after ontime Port)'
-                    autoComplete='off'
-                    value={alias.pathAndParams}
-                    isInvalid={alias.urlError}
-                    onChange={(event) =>
-                      handleChange(index, 'pathAndParams', event.target.value)
-                    }
-                  />
-                  <Tooltip
-                    label={`Test /${alias.pathAndParams}`}
-                    openDelay={500}
-                  >
-                    <a
-                      href={`http://localhost:4001/${alias.pathAndParams}`}
-                      target='_blank'
-                      rel='noreferrer'
-                    />
-                  </Tooltip>
-                  <Tooltip label='Enable alias' openDelay={500}>
-                    <IconButton
-                      size='xs'
-                      icon={<FiSun />}
-                      colorScheme='blue'
-                      variant={alias.enabled ? null : 'outline'}
-                      onClick={() => setEnabled(alias.id, !alias.enabled)}
-                    />
-                  </Tooltip>
-                  <Tooltip label='Delete alias' openDelay={500}>
-                    <IconButton
-                      size='xs'
-                      icon={<FiMinus />}
-                      colorScheme='red'
-                      onClick={() => deleteAlias(alias.id)}
-                    />
-                  </Tooltip>
-                </div>
-                {alias.aliasError || alias.urlError ? (
-                  <div className={style.inlineAlias}>
-                    <span className={style.error}>{alias.aliasError}</span>
-                    <span className={style.error}>{alias.urlError}</span>
-                  </div>
-                ) : null}
-              </div>
-            ))}
-
-            <div
-              className={style.inlineAliasPlaceholder}
-              style={{ padding: '0.5em 0' }}
-            >
-              <Button
-                size='xs'
-                colorScheme='blue'
-                variant='outline'
-                onClick={() => addNew()}
+    <ModalBody className={style.modalBody}>
+      <p className={style.notes}>
+        Configure easy to use URL Aliases
+        <br />
+        🔥 Changes take effect on save 🔥
+      </p>
+      <form onSubmit={submitHandler}>
+        <div className={style.modalFields}>
+          <div className={style.hSeparator}>Default URLs</div>
+          <div className={style.blockNotes}>
+            {viewerLinks.map((l) => (
+              <a
+                href={l.link}
+                target='_blank'
+                rel='noreferrer'
+                className={style.flexNote}
+                key={l.link}
               >
-                Add new
-              </Button>
-            </div>
+                {`${l.label} - ${l.link}`}
+              </a>
+            ))}
           </div>
-          <SubmitContainer
-            revert={revert}
-            submitting={submitting}
-            changed={changed}
-            status={status}
-          />
-        </form>
-      </ModalBody>
-    </>
+          <div className={style.hSeparator}>Custom Aliases</div>
+          <div className={style.blockNotes}>
+            <span className={style.inlineFlex}>
+              <FiInfo color='#2b6cb0' fontSize={'2em'} />
+              URL aliases are useful in two main scenarios
+            </span>
+            <span className={style.labelNote}>Complicated URLs</span>
+            <br />
+            eg. a lower third url with some custom parameters
+            <table>
+              <tbody>
+                <tr>
+                  <td className={style.labelNote} style={{ width: '30%' }}>
+                    Alias
+                  </td>
+                  <td className={style.labelNote}>Page URL</td>
+                </tr>
+                <tr>
+                  <td>mylower</td>
+                  <td>lower/?bg=ff2&text=f00&size=0.6&transition=5</td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <span className={style.labelNote}>
+              URLs to be changed dynamically
+            </span>
+            <br />
+            eg. an unattended screen that you would need to change route from
+            the app
+            <table>
+              <tbody>
+                <tr>
+                  <td className={style.labelNote} style={{ width: '30%' }}>
+                    Alias
+                  </td>
+                  <td className={style.labelNote}>Page URL</td>
+                </tr>
+                <tr>
+                  <td>thirdfloor</td>
+                  <td>public</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            className={style.inlineAliasPlaceholder}
+            style={{ padding: '0.5em 0' }}
+          >
+            <span className={style.labelNote}>Alias</span>
+            <span className={style.labelNote}>Page URL</span>
+          </div>
+          {aliases.map((alias, index) => (
+            <div key={alias.id}>
+              <div className={style.inlineAlias}>
+                <Input
+                  size='sm'
+                  variant='flushed'
+                  name='Alias'
+                  placeholder='URL Alias'
+                  autoComplete='off'
+                  value={alias.alias}
+                  isInvalid={alias.aliasError}
+                  onChange={(event) =>
+                    handleChange(index, 'alias', event.target.value)
+                  }
+                />
+                <Input
+                  size='sm'
+                  fontSize={'0.75em'}
+                  variant='flushed'
+                  name='URL'
+                  placeholder='URL (portion after ontime Port)'
+                  autoComplete='off'
+                  value={alias.pathAndParams}
+                  isInvalid={alias.urlError}
+                  onChange={(event) =>
+                    handleChange(index, 'pathAndParams', event.target.value)
+                  }
+                />
+                <Tooltip label={`Test /${alias.pathAndParams}`} openDelay={500}>
+                  <a
+                    href={`http://localhost:4001/${alias.pathAndParams}`}
+                    target='_blank'
+                    rel='noreferrer'
+                  />
+                </Tooltip>
+                <Tooltip label='Enable alias' openDelay={500}>
+                  <IconButton
+                    size='xs'
+                    icon={<FiSun />}
+                    colorScheme='blue'
+                    variant={alias.enabled ? null : 'outline'}
+                    onClick={() => setEnabled(alias.id, !alias.enabled)}
+                  />
+                </Tooltip>
+                <Tooltip label='Delete alias' openDelay={500}>
+                  <IconButton
+                    size='xs'
+                    icon={<FiMinus />}
+                    colorScheme='red'
+                    onClick={() => deleteAlias(alias.id)}
+                  />
+                </Tooltip>
+              </div>
+              {alias.aliasError ? (
+                <div
+                  className={style.error}
+                >{`Alias error: ${alias.aliasError}`}</div>
+              ) : null}
+              {alias.urlError ? (
+                <div
+                  className={style.error}
+                >{`URL error: ${alias.urlError}`}</div>
+              ) : null}
+            </div>
+          ))}
+
+          <div
+            className={style.inlineAliasPlaceholder}
+            style={{ padding: '0.5em 0' }}
+          >
+            <Button
+              size='xs'
+              colorScheme='blue'
+              variant='outline'
+              onClick={() => addNew()}
+            >
+              Add new
+            </Button>
+          </div>
+        </div>
+        <SubmitContainer
+          revert={revert}
+          submitting={submitting}
+          changed={changed}
+          status={status}
+        />
+      </form>
+    </ModalBody>
   );
 }

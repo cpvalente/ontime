@@ -13,6 +13,14 @@ export const ontimePlaceholderSettings = {
   pinCode: null,
 };
 
+export const eventPlaceholderSettings = {
+  title: '',
+  url: '',
+  publicInfo: '',
+  backstageInfo: '',
+  endMessage: '',
+};
+
 export const oscPlaceholderSettings = {
   port: '',
   portOut: '',
