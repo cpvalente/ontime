@@ -10,6 +10,7 @@ import style from './Modals.module.scss';
 import { viewerLinks } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
+import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function AliasesModal() {
   const { data, status, refetch } = useFetch(ALIASES, getAliases);
@@ -17,7 +18,7 @@ export default function AliasesModal() {
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [aliases, setAliases] = useState([]);
-  const [initialData, setInitialData] = useState([])
+  const [initialData, setInitialData] = useState([]);
 
   useEffect(() => {
     if (data == null) return;
@@ -248,19 +249,30 @@ export default function AliasesModal() {
                       handleChange(index, 'pathAndParams', event.target.value)
                     }
                   />
-                  <IconButton
-                    size='xs'
-                    icon={<FiSun />}
-                    colorScheme='blue'
-                    variant={d.enabled ? null : 'outline'}
-                    onClick={() => setEnabled(d.id, !d.enabled)}
-                  />
-                  <IconButton
-                    size='xs'
-                    icon={<FiMinus />}
-                    colorScheme='red'
-                    onClick={() => deleteAlias(d.id)}
-                  />
+                  <Tooltip label='Test URL' openDelay={500}>
+                    <a
+                      href={`http://localhost:4001/${d.pathAndParams}`}
+                      target='_blank'
+                      rel='noreferrer'
+                    />
+                  </Tooltip>
+                  <Tooltip label='Enable alias' openDelay={500}>
+                    <IconButton
+                      size='xs'
+                      icon={<FiSun />}
+                      colorScheme='blue'
+                      variant={d.enabled ? null : 'outline'}
+                      onClick={() => setEnabled(d.id, !d.enabled)}
+                    />
+                  </Tooltip>
+                  <Tooltip label='Delete alias' openDelay={500}>
+                    <IconButton
+                      size='xs'
+                      icon={<FiMinus />}
+                      colorScheme='red'
+                      onClick={() => deleteAlias(d.id)}
+                    />
+                  </Tooltip>
                 </div>
                 {d.aliasError || d.urlError ? (
                   <div className={style.inlineAlias}>
@@ -275,14 +287,17 @@ export default function AliasesModal() {
               className={style.inlineAliasPlaceholder}
               style={{ padding: '0.5em 0' }}
             >
-              <Button
-                size='xs'
-                colorScheme='blue'
-                variant='outline'
-                onClick={() => addNew()}
-              >
-                Add new
-              </Button>
+              <Tooltip label='Add new alias' openDelay={500}>
+                <Button
+                  size='xs'
+                  colorScheme='blue'
+                  variant='outline'
+                  onClick={() => addNew()}
+                >
+                  Add new
+                </Button>
+              </Tooltip>
+
             </div>
           </div>
           <div className={style.submitContainer}>

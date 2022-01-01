@@ -28,7 +28,7 @@
     .inlineAlias,
     .inlineAliasPlaceholder {
       display: grid;
-      grid-template-columns: 25% 1fr 5% 5%;
+      grid-template-columns: 25% 1fr 3% 5% 5%;
       gap: 8px;
       align-items: center;
     }
@@ -127,6 +127,10 @@ span {
 
     :first-child {
       padding-left: 1em;
+    }
+
+    td {
+      user-select: text;
     }
   }
 

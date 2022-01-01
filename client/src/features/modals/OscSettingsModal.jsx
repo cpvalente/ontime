@@ -16,11 +16,13 @@ export default function OscSettingsModal() {
 
   useEffect(() => {
     if (data == null) return;
+    if (changed) return;
     setFormData({ ...data });
-  }, [data]);
+  }, [changed, data]);
 
   const submitHandler = async (event) => {
     event.preventDefault();
+    setSubmitting(true);
 
     const f = formData;
     let e = { status: false, message: '' };
@@ -47,7 +49,7 @@ export default function OscSettingsModal() {
     }
 
     // Post here
-    postOSC(formData);
+    await postOSC(formData);
 
     setChanged(false);
     setSubmitting(false);
@@ -86,7 +88,7 @@ export default function OscSettingsModal() {
                     setChanged(true);
                     setFormData({
                       ...formData,
-                      port: parseInt(event.target.value)
+                      port: parseInt(event.target.value),
                     });
                   }}
                   isDisabled={submitting}
@@ -112,7 +114,7 @@ export default function OscSettingsModal() {
                       setChanged(true);
                       setFormData({
                         ...formData,
-                        targetIP: event.target.value
+                        targetIP: event.target.value,
                       });
                     }}
                     isDisabled={submitting}
@@ -140,7 +142,7 @@ export default function OscSettingsModal() {
                       setChanged(true);
                       setFormData({
                         ...formData,
-                        portOut: parseInt(event.target.value)
+                        portOut: parseInt(event.target.value),
                       });
                     }}
                     isDisabled={submitting}
