@@ -121,7 +121,6 @@ export const getInfo = async (req, res) => {
 // Returns -
 export const getAliases = async (req, res) => {
   // send aliases array
-  console.log(data.aliases)
   res.status(200).send(data.aliases);
 };
 
@@ -139,7 +138,7 @@ export const postAliases = async (req, res) => {
       newAliases.push({
         id: generateId(),
         enabled: a.enabled,
-        aalias: a.alias,
+        alias: a.alias,
         pathAndParams: a.pathAndParams,
       });
     });
