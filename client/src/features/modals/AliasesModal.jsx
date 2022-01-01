@@ -11,32 +11,19 @@ import { viewerLinks } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
 
-const dynamicRoutes = [
-  {
-    id: 1,
-    enabled: true,
-    alias: 'testing',
-    pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5',
-  },
-  {
-    id: 2,
-    enabled: true,
-    alias: 'testing2',
-    pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5',
-  },
-];
-
 export default function AliasesModal() {
-  const { data, status } = useFetch(ALIASES, getAliases);
+  const { data, status, refetch } = useFetch(ALIASES, getAliases);
   const { emitError } = useContext(LoggingContext);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [aliases, setAliases] = useState([]);
+  const [initialData, setInitialData] = useState([])
 
   useEffect(() => {
     if (data == null) return;
+    setInitialData([...data]);
     if (changed) return;
-    setAliases({ ...data });
+    setAliases([...data]);
   }, [changed, data]);
 
   const submitHandler = async (event) => {
@@ -67,6 +54,7 @@ export default function AliasesModal() {
 
     if (!errors) {
       await postAliases(aliases);
+      await refetch();
     }
 
     setChanged(false);
@@ -109,7 +97,6 @@ export default function AliasesModal() {
    */
   const setEnabled = (id, isEnabled) => {
     const aliasesState = [...aliases];
-    console.log('1', aliasesState);
     for (const a of aliasesState) {
       if (a.id === id) {
         if (isEnabled) {
@@ -130,8 +117,6 @@ export default function AliasesModal() {
         break;
       }
     }
-    console.log('2', aliasesState);
-
     setChanged(true);
     setAliases(aliasesState);
   };
@@ -140,7 +125,7 @@ export default function AliasesModal() {
    * Reverts local state equals to server state
    */
   const revert = () => {
-    setAliases(dynamicRoutes);
+    setAliases([...initialData]);
     setChanged(false);
   };
 
@@ -157,7 +142,7 @@ export default function AliasesModal() {
     setChanged(true);
   };
 
-  console.log(aliases);
+  console.log({ aliases }, { data });
 
   return (
     <>
@@ -174,8 +159,8 @@ export default function AliasesModal() {
               {viewerLinks.map((l) => (
                 <a
                   href={l.link}
-                  target="_blank"
-                  rel="noreferrer"
+                  target='_blank'
+                  rel='noreferrer'
                   className={style.flexNote}
                   key={l.link}
                 >
@@ -186,7 +171,7 @@ export default function AliasesModal() {
             <div className={style.hSeparator}>Custom Aliases</div>
             <div className={style.blockNotes}>
               <span className={style.inlineFlex}>
-                <FiInfo color="#2b6cb0" fontSize={'2em'} />
+                <FiInfo color='#2b6cb0' fontSize={'2em'} />
                 URL aliases are useful in two main scenarios
               </span>
               <span className={style.labelNote}>Complicated URLs</span>
@@ -236,14 +221,14 @@ export default function AliasesModal() {
               <span className={style.labelNote}>Page URL</span>
             </div>
             {aliases.map((d, index) => (
-              <>
-                <div className={style.inlineAlias} key={d.id}>
+              <div key={d.id}>
+                <div className={style.inlineAlias}>
                   <Input
-                    size="sm"
-                    variant="flushed"
-                    name="Alias"
-                    placeholder="URL Alias"
-                    autoComplete="off"
+                    size='sm'
+                    variant='flushed'
+                    name='Alias'
+                    placeholder='URL Alias'
+                    autoComplete='off'
                     value={d.alias}
                     isInvalid={d.aliasError}
                     onChange={(event) =>
@@ -251,12 +236,12 @@ export default function AliasesModal() {
                     }
                   />
                   <Input
-                    size="sm"
+                    size='sm'
                     fontSize={'0.75em'}
-                    variant="flushed"
-                    name="URL"
-                    placeholder="URL (portion after ontime Port)"
-                    autoComplete="off"
+                    variant='flushed'
+                    name='URL'
+                    placeholder='URL (portion after ontime Port)'
+                    autoComplete='off'
                     value={d.pathAndParams}
                     isInvalid={d.urlError}
                     onChange={(event) =>
@@ -264,35 +249,36 @@ export default function AliasesModal() {
                     }
                   />
                   <IconButton
-                    size="xs"
+                    size='xs'
                     icon={<FiSun />}
-                    colorScheme="blue"
+                    colorScheme='blue'
                     variant={d.enabled ? null : 'outline'}
                     onClick={() => setEnabled(d.id, !d.enabled)}
                   />
                   <IconButton
-                    size="xs"
+                    size='xs'
                     icon={<FiMinus />}
-                    colorScheme="red"
+                    colorScheme='red'
                     onClick={() => deleteAlias(d.id)}
                   />
                 </div>
                 {d.aliasError || d.urlError ? (
-                  <div className={style.inlineAlias} key={`${d.id}-error`}>
+                  <div className={style.inlineAlias}>
                     <span className={style.error}>{d.aliasError}</span>
                     <span className={style.error}>{d.urlError}</span>
                   </div>
                 ) : null}
-              </>
+              </div>
             ))}
+
             <div
               className={style.inlineAliasPlaceholder}
               style={{ padding: '0.5em 0' }}
             >
               <Button
-                size="xs"
-                colorScheme="blue"
-                variant="outline"
+                size='xs'
+                colorScheme='blue'
+                variant='outline'
                 onClick={() => addNew()}
               >
                 Add new
@@ -301,18 +287,18 @@ export default function AliasesModal() {
           </div>
           <div className={style.submitContainer}>
             <Button
-              type="submit"
+              type='submit'
               isDisabled={submitting || !changed}
-              variant="ghosted"
+              variant='ghosted'
               onClick={() => revert()}
             >
               Revert
             </Button>
             <Button
-              colorScheme="blue"
-              type="submit"
+              colorScheme='blue'
+              type='submit'
               isLoading={submitting}
-              disabled={!changed}
+              disabled={!changed || status !== 'success'}
             >
               Save
             </Button>
