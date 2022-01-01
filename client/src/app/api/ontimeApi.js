@@ -96,6 +96,15 @@ export const postInfo = async (data) => {
   return await axios.post(`${ontimeURL}/info`, data);
 };
 
+export const getAliases = async () => {
+  const res = await axios.get(`${ontimeURL}/aliases`);
+  return res.data;
+};
+
+export const postAliases = async (data) => {
+  return await axios.post(`${ontimeURL}/aliases`, data);
+};
+
 export const getOSC = async () => {
   const res = await axios.get(`${ontimeURL}/osc`);
   return res.data;

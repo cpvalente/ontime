@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { db, data } from '../app.js';
 import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
+import { generateId } from '../utils/generate_id.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -120,6 +121,7 @@ export const getInfo = async (req, res) => {
 // Returns -
 export const getAliases = async (req, res) => {
   // send aliases array
+  console.log(data.aliases)
   res.status(200).send(data.aliases);
 };
 
@@ -132,7 +134,16 @@ export const postAliases = async (req, res) => {
   }
   // TODO: validate data
   try {
-    data.aliases = { ...req.body };
+    const newAliases = [];
+    req.body.forEach((a) => {
+      newAliases.push({
+        id: generateId(),
+        enabled: a.enabled,
+        aalias: a.alias,
+        pathAndParams: a.pathAndParams,
+      });
+    });
+    data.aliases = newAliases;
     await db.write();
     res.sendStatus(200);
   } catch (error) {

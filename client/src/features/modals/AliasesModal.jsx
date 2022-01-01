@@ -1,11 +1,11 @@
 import { Button, IconButton } from '@chakra-ui/button';
-import { FiPlus, FiMinus, FiInfo, FiSun } from 'react-icons/fi';
+import { FiMinus, FiInfo, FiSun } from 'react-icons/fi';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
-import { fetchEvent } from 'app/api/eventApi';
-import { useContext, useState } from 'react';
+import { getAliases, postAliases } from '../../app/api/ontimeApi';
+import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
-import { EVENT_TABLE } from 'app/api/apiConstants';
+import { ALIASES } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
 import { viewerLinks } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
@@ -16,22 +16,28 @@ const dynamicRoutes = [
     id: 1,
     enabled: true,
     alias: 'testing',
-    pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5'
+    pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5',
   },
   {
     id: 2,
     enabled: true,
     alias: 'testing2',
-    pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5'
-  }
+    pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5',
+  },
 ];
 
 export default function AliasesModal() {
+  const { data, status } = useFetch(ALIASES, getAliases);
   const { emitError } = useContext(LoggingContext);
-  const { data, status, isError } = useFetch(EVENT_TABLE, fetchEvent);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [aliases, setAliases] = useState(dynamicRoutes);
+  const [aliases, setAliases] = useState([]);
+
+  useEffect(() => {
+    if (data == null) return;
+    if (changed) return;
+    setAliases({ ...data });
+  }, [changed, data]);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -40,27 +46,31 @@ export default function AliasesModal() {
     const validatedAliases = [...aliases];
     let errors = false;
     for (const alias of validatedAliases) {
-      const isValid = validateAlias(alias.pathAndParams);
-      if (!isValid.status) {
-        alias.error = isValid.message;
+      // validate url
+      const isURLValid = validateAlias(alias.pathAndParams);
+      if (!isURLValid.status) {
+        alias.urlError = isURLValid.message;
         errors = true;
       } else {
-        alias.error = undefined;
+        alias.urlError = undefined;
+      }
+      // validate alias
+      const isAliasValid = validateAlias(alias.alias);
+      if (!isAliasValid.status) {
+        alias.aliasError = isAliasValid.message;
+        errors = true;
+      } else {
+        alias.aliasError = undefined;
       }
     }
-    console.log('setting aliases', validatedAliases);
     setAliases(validatedAliases);
-    if (errors) {
-      console.log('errors');
-      // do nothing?
-    } else {
-      // submit logic
-      console.log('noErrrors');
 
+    if (!errors) {
+      await postAliases(aliases);
     }
+
     setChanged(false);
     setSubmitting(false);
-
   };
 
   /**
@@ -77,11 +87,10 @@ export default function AliasesModal() {
       enabled: false,
       alias: '',
       path: '',
-      params: ''
+      params: '',
     };
-    setAliases(
-      prevState => [...prevState, emptyAlias]
-    );
+    setAliases((prevState) => [...prevState, emptyAlias]);
+    setChanged(true);
   };
 
   /**
@@ -89,7 +98,8 @@ export default function AliasesModal() {
    * @param {string} id - id of alias to delete
    */
   const deleteAlias = (id) => {
-    setAliases(prevState => [...prevState.filter((a) => a.id !== id)]);
+    setAliases((prevState) => [...prevState.filter((a) => a.id !== id)]);
+    setChanged(true);
   };
 
   /**
@@ -99,10 +109,18 @@ export default function AliasesModal() {
    */
   const setEnabled = (id, isEnabled) => {
     const aliasesState = [...aliases];
+    console.log('1', aliasesState);
     for (const a of aliasesState) {
       if (a.id === id) {
         if (isEnabled) {
-          const isRepeated = aliases.some((r) => a.alias === r.alias && r.enabled);
+          if (a.alias === '' || a.pathAndParams === '') {
+            emitError('Alias incomplete');
+            break;
+          }
+
+          const isRepeated = aliases.some(
+            (r) => a.alias === r.alias && r.enabled
+          );
           if (isRepeated) {
             emitError('There is already an alias with this name');
             break;
@@ -112,6 +130,9 @@ export default function AliasesModal() {
         break;
       }
     }
+    console.log('2', aliasesState);
+
+    setChanged(true);
     setAliases(aliasesState);
   };
 
@@ -142,7 +163,8 @@ export default function AliasesModal() {
     <>
       <ModalBody className={style.modalBody}>
         <p className={style.notes}>
-          Configure easy to use URL Aliases<br />
+          Configure easy to use URL Aliases
+          <br />
           🔥 Changes take effect on save 🔥
         </p>
         <form onSubmit={submitHandler}>
@@ -152,8 +174,8 @@ export default function AliasesModal() {
               {viewerLinks.map((l) => (
                 <a
                   href={l.link}
-                  target='_blank'
-                  rel='noreferrer'
+                  target="_blank"
+                  rel="noreferrer"
                   className={style.flexNote}
                   key={l.link}
                 >
@@ -161,105 +183,134 @@ export default function AliasesModal() {
                 </a>
               ))}
             </div>
-            <div className={style.hSeparator}>
-              Custom Aliases
-            </div>
+            <div className={style.hSeparator}>Custom Aliases</div>
             <div className={style.blockNotes}>
-              <span className={style.inlineFlex}><FiInfo color='#2b6cb0' fontSize={'2em'} />URL aliases are useful in two main scenarios</span>
-              <span className={style.labelNote}>Complicated URLs</span><br />
+              <span className={style.inlineFlex}>
+                <FiInfo color="#2b6cb0" fontSize={'2em'} />
+                URL aliases are useful in two main scenarios
+              </span>
+              <span className={style.labelNote}>Complicated URLs</span>
+              <br />
               eg. a lower third url with some custom parameters
               <table>
                 <tbody>
-                <tr>
-                  <td className={style.labelNote} style={{ width: '30%' }}>Alias</td>
-                  <td className={style.labelNote}>Page URL</td>
-                </tr>
-                <tr>
-                  <td>mylower</td>
-                  <td>lower/?bg=ff2&text=f00&size=0.6&transition=5</td>
-                </tr>
+                  <tr>
+                    <td className={style.labelNote} style={{ width: '30%' }}>
+                      Alias
+                    </td>
+                    <td className={style.labelNote}>Page URL</td>
+                  </tr>
+                  <tr>
+                    <td>mylower</td>
+                    <td>lower/?bg=ff2&text=f00&size=0.6&transition=5</td>
+                  </tr>
                 </tbody>
               </table>
               <br />
-              <span className={style.labelNote}>URLs to be changed dynamically</span><br />
-              eg. an unattended screen that you would need to change route from the app
+              <span className={style.labelNote}>
+                URLs to be changed dynamically
+              </span>
+              <br />
+              eg. an unattended screen that you would need to change route from
+              the app
               <table>
                 <tbody>
-                <tr>
-                  <td className={style.labelNote} style={{ width: '30%' }}>Alias</td>
-                  <td className={style.labelNote}>Page URL</td>
-                </tr>
-                <tr>
-                  <td>thirdfloor</td>
-                  <td>public</td>
-                </tr>
+                  <tr>
+                    <td className={style.labelNote} style={{ width: '30%' }}>
+                      Alias
+                    </td>
+                    <td className={style.labelNote}>Page URL</td>
+                  </tr>
+                  <tr>
+                    <td>thirdfloor</td>
+                    <td>public</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
-            <div className={style.inlineAliasPlaceholder} style={{ padding: '0.5em 0' }}>
+            <div
+              className={style.inlineAliasPlaceholder}
+              style={{ padding: '0.5em 0' }}
+            >
               <span className={style.labelNote}>Alias</span>
               <span className={style.labelNote}>Page URL</span>
-              <IconButton
-                size='xs'
-                icon={<FiPlus />}
-                colorScheme='blue'
-                variant='outline'
-                onClick={() => addNew()}
-              />
             </div>
             {aliases.map((d, index) => (
               <>
                 <div className={style.inlineAlias} key={d.id}>
                   <Input
-                    size='sm'
-                    variant='flushed'
-                    name='Alias'
-                    placeholder='URL Alias'
-                    autoComplete='off'
+                    size="sm"
+                    variant="flushed"
+                    name="Alias"
+                    placeholder="URL Alias"
+                    autoComplete="off"
                     value={d.alias}
-                    onChange={(event) => handleChange(index, 'alias', event.target.value)}
+                    isInvalid={d.aliasError}
+                    onChange={(event) =>
+                      handleChange(index, 'alias', event.target.value)
+                    }
                   />
                   <Input
-                    size='sm'
+                    size="sm"
                     fontSize={'0.75em'}
-                    variant='flushed'
-                    name='URL'
-                    placeholder='URL (portion after ontime Port)'
-                    autoComplete='off'
+                    variant="flushed"
+                    name="URL"
+                    placeholder="URL (portion after ontime Port)"
+                    autoComplete="off"
                     value={d.pathAndParams}
-                    isInvalid={d.error}
-                    onChange={(event) => handleChange(index, 'pathAndParams', event.target.value)}
+                    isInvalid={d.urlError}
+                    onChange={(event) =>
+                      handleChange(index, 'pathAndParams', event.target.value)
+                    }
                   />
                   <IconButton
-                    size='xs'
+                    size="xs"
                     icon={<FiSun />}
-                    colorScheme='blue'
+                    colorScheme="blue"
                     variant={d.enabled ? null : 'outline'}
                     onClick={() => setEnabled(d.id, !d.enabled)}
                   />
                   <IconButton
-                    size='xs'
+                    size="xs"
                     icon={<FiMinus />}
-                    colorScheme='red'
+                    colorScheme="red"
                     onClick={() => deleteAlias(d.id)}
                   />
                 </div>
-                {d.error ? <span className={style.error}>{d.error}</span> : null}
+                {d.aliasError || d.urlError ? (
+                  <div className={style.inlineAlias} key={`${d.id}-error`}>
+                    <span className={style.error}>{d.aliasError}</span>
+                    <span className={style.error}>{d.urlError}</span>
+                  </div>
+                ) : null}
               </>
             ))}
+            <div
+              className={style.inlineAliasPlaceholder}
+              style={{ padding: '0.5em 0' }}
+            >
+              <Button
+                size="xs"
+                colorScheme="blue"
+                variant="outline"
+                onClick={() => addNew()}
+              >
+                Add new
+              </Button>
+            </div>
           </div>
           <div className={style.submitContainer}>
             <Button
-              type='submit'
+              type="submit"
               isDisabled={submitting || !changed}
-              variant='ghosted'
+              variant="ghosted"
               onClick={() => revert()}
             >
               Revert
             </Button>
             <Button
-              colorScheme='blue'
-              type='submit'
+              colorScheme="blue"
+              type="submit"
               isLoading={submitting}
               disabled={!changed}
             >
