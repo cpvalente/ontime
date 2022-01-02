@@ -13,7 +13,7 @@
   "main": "main.js",
   "devDependencies": {
     "electron": "^13.6.1",
-    "electron-builder": "^22.11.3",
+    "electron-builder": "^22.14.5",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
@@ -24,6 +24,7 @@
     "nodestart": "NODE_ENV=development node src/app.js",
     "setdb": "cp data/db.json src/data/db.json",
     "clean": "rm -rf ../client/build/ && rm -rf ../client/node_modules && rm -rf src/node_modules && rm -rf ./node_modules && rm -rf ./dist",
+    "cheat": "rm src/node_modules/ontime-utils && cp -R utils src/node_modules/ontime-utils",
     "prep": "yarn clean && yarn setdb",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
@@ -89,6 +90,15 @@
       {
         "from": "src",
         "to": "extraResources/src",
+        "filter": [
+          "**/*",
+          "!**/{yarn.lock,yarn-error.log}",
+          "!**/{test,tests,__test__,__tests__,mock,mocks,__mock__,__mocks__}"
+        ]
+      },
+      {
+        "from": "utils",
+        "to": "extraResources/utils",
         "filter": [
           "**/*",
           "!**/{yarn.lock,yarn-error.log}",
