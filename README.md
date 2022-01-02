@@ -21,8 +21,11 @@ From here, any device in the same network with a browser is able to render the v
 You can then use the ontime logo in the top right corner to select the desired view (event in the lower thirds view, where it is hidden).
 
 In case of unattended machines or automations, it is possible to use different URL to recall individual views
+and extend with using the URL aliases feature
 
 ```
+For the presentation views...
+-------------------------------------------------------------
 IP.ADDRESS:4001           > Web server default to presenter timer view
 IP.ADDRESS:4001/preseter  > Presenter / Stage timer view
 IP.ADDRESS:4001/sm        > Stage Manager / Backstage view
@@ -30,6 +33,11 @@ IP.ADDRESS:4001/public    > Public / Foyer view
 IP.ADDRESS:4001/pip       > Picture in Picture view
 IP.ADDRESS:4001/lower     > Lower Thirds
 IP.ADDRESS:4001/studio    > Studio Clock
+
+...and for the editor (the control interface, same as the app)
+-------------------------------------------------------------
+IP.ADDRESS:4001/studio    > Studio Clock
+
 ```
 
 More documentation available [here](https://cpvalente.gitbook.io/ontime/)
@@ -47,6 +55,9 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
 - [x] Open Sound Control (OSC) Control and Feedback
 - [x] Roll mode: run independently using the system clock
 - [x] Import event list from Excel
+- [x] URL Aliases (define configurable aliases to ease onsite setup)
+- [x] Logging view
+- [x] Edit anywhere: run ontime in your local network and use any machine to reach the editor page (same as app)
 
 ## Unopinionated
 We are not interested in forcing workflows and have made ontime, so it is flexible to whichever way you would like to work.
@@ -77,8 +88,6 @@ These will be implemented in a development friendly order unless there is user d
 - [ ] Companion module
 - [ ] Lower Third Manager
 - [ ] Note only event
-- [ ] URL Aliases (define configurable aliases to ease onsite setup)
-- [ ] Logging view
 - [ ] Reach Schedule: way to speedup timer to meet a deadline
 - [ ] vMix integration
 
