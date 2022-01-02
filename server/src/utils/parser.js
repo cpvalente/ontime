@@ -6,8 +6,8 @@ import {
   block as blockDef,
 } from '../models/eventsDefinition.js';
 import { dbModelv1 } from '../models/dataModel.js';
-import { generateId } from './generate_id.js';
-import { excelDateStringToMillis } from './time.js';
+import { generateId } from 'ontime-utils/generate_id.js';
+import { excelDateStringToMillis } from 'ontime-utils/time.js';
 
 export const EXCEL_MIME =
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';

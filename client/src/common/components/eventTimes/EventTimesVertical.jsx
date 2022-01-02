@@ -1,5 +1,5 @@
 import EditableTimer from 'common/input/EditableTimer';
-import { stringFromMillis } from 'ontime-server/utils/time';
+import { stringFromMillis } from 'ontime-utils/time';
 import { useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 

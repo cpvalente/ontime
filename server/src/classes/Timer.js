@@ -4,7 +4,7 @@
  *
  */
 
-import { stringFromMillis } from '../utils/time.js';
+import { stringFromMillis } from 'ontime-utils/time.js';
 
 export class Timer {
   constructor() {

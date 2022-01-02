@@ -4,7 +4,7 @@ import {
   isTimeString,
   timeStringToMillis,
 } from '../utils/dateConfig';
-import { stringFromMillis } from 'ontime-server/utils/time';
+import { stringFromMillis } from 'ontime-utils/time';
 import style from './EditableTimer.module.css';
 import { LoggingContext } from '../../app/context/LoggingContext';
 

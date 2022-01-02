@@ -1,7 +1,7 @@
 import { useSocket } from './socketContext';
 import { createContext, useCallback, useEffect, useState } from 'react';
-import { generateId } from 'ontime-server/utils/generate_id';
-import { nowInMillis, stringFromMillis } from 'ontime-server/utils/time';
+import { generateId } from 'ontime-utils/generate_id';
+import { nowInMillis, stringFromMillis } from 'ontime-utils/time';
 
 export const LoggingContext = createContext({
   logData: [],

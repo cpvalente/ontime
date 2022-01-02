@@ -11,6 +11,7 @@
     "nanoid": "^3.1.30",
     "node-osc": "6.1.11",
     "node-xlsx": "^0.17.2",
+    "ontime-utils": "link: ../server/utils/",
     "passport": "~0.4.1",
     "passport-local": "~1.0.0",
     "socket.io": "4.4.0",

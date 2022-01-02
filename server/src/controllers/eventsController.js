@@ -2,7 +2,7 @@
 import { db, data } from '../app.js';
 
 // utils
-import { generateId } from '../utils/generate_id.js';
+import { generateId } from 'ontime-utils/generate_id.js';
 import {
   event as eventDef,
   delay as delayDef,
