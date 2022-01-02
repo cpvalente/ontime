@@ -65,6 +65,7 @@ function App() {
     for (const d of data) {
       if (`/${d.alias}` === location.pathname && d.enabled) {
         navigate(`/${d.pathAndParams}`);
+        break;
       }
     }
   }, [data, location, navigate]);
