@@ -12,6 +12,7 @@ import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
 import { Tooltip } from '@chakra-ui/tooltip';
 import SubmitContainer from './SubmitContainer';
+import handleLink from '../../common/utils/handleLink';
 
 export default function AliasesModal() {
   const { data, status, refetch } = useFetch(ALIASES, getAliases);
@@ -19,6 +20,7 @@ export default function AliasesModal() {
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [aliases, setAliases] = useState([]);
+  const host = window.location.host;
 
   /**
    * Set formdata from server state
@@ -165,6 +167,7 @@ export default function AliasesModal() {
                 rel='noreferrer'
                 className={style.flexNote}
                 key={l.link}
+                onClick={() => handleLink(`${host}/${l.link}`)}
               >
                 {`${l.label} - ${l.link}`}
               </a>
@@ -189,7 +192,7 @@ export default function AliasesModal() {
                 </tr>
                 <tr>
                   <td>mylower</td>
-                  <td>lower/?bg=ff2&text=f00&size=0.6&transition=5</td>
+                  <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
                 </tr>
               </tbody>
             </table>
@@ -252,9 +255,13 @@ export default function AliasesModal() {
                 />
                 <Tooltip label={`Test /${alias.pathAndParams}`} openDelay={500}>
                   <a
-                    href={`http://localhost:4001/${alias.pathAndParams}`}
+                    href='#!'
                     target='_blank'
                     rel='noreferrer'
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleLink(`http://${host}/${alias.pathAndParams}`);
+                    }}
                   />
                 </Tooltip>
                 <Tooltip label='Enable alias' openDelay={500}>
