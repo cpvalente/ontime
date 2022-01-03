@@ -17,7 +17,7 @@
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.0.4",
+    "jest": "^27.4.5",
     "prettier": "^2.5.1"
   },
   "scripts": {
@@ -35,6 +35,8 @@
     "dist-all": "electron-builder -mw"
   },
   "jest": {
+    "testEnvironment": "node",
+    "testRunner": "jasmine2",
     "testPathIgnorePatterns": [
       "dist"
     ]

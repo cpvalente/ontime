@@ -1,20 +1,28 @@
 import { generateId } from '../generate_id.js';
 
-describe('generate a valid id', () => {
-  it('generates a 5 digit id', () => {
-    const id = generateId();
-    expect(id.length).toBe(5);
-  });
+test('generate a valid 5 digit id', () => {
+  const id = generateId();
+  expect(id.length).toBe(5);
 });
 
-describe('generate 100', () => {
-  it('all ids are unique', () => {
-    let ids = [];
-    for (let i = 0; i < 100; i++) {
-      ids.push(generateId());
-    }
+test('generate 100 with less than 110 attempts', () => {
+  const ids = new Set();
+  let attempts = 1;
+  while (ids.size < 100) {
+    ids.add(generateId());
+    attempts++;
+  }
 
-    const unique = [...new Set(ids)];
-    expect(ids.length).toBe(unique.length);
-  });
+  expect(attempts).toBeLessThan(105);
+});
+
+describe('generate 1000 with less than 1020 attempts', () => {
+  const ids = new Set();
+  let attempts = 1;
+  while (ids.size < 1000) {
+    ids.add(generateId());
+    attempts++;
+  }
+
+  expect(attempts).toBeLessThan(1020);
 });

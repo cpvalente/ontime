@@ -1,6 +1,6 @@
 import { excelDateStringToMillis, stringFromMillis } from '../time.js';
 
-describe('test string to milis function', () => {
+describe('test string to millis function', () => {
   it('test with null values', () => {
     const t = { val: null, result: '...' };
     expect(stringFromMillis(t.val)).toBe(t.result);
@@ -74,6 +74,6 @@ describe('test excel date parser', () => {
 
   it('handles an invalid date string', () => {
     const s = 'hello';
-    expect(excelDateStringToMillis(s)).toBe(null);
+    expect(excelDateStringToMillis(s)).toBe(0);
   });
 });

@@ -1,23 +1,17 @@
-import {EventTimer} from "../EventTimer";
+import { EventTimer } from '../EventTimer';
 import http from 'http';
-import express from "express";
+import express from 'express';
 
 // Create server
 const app = express();
 const server = http.createServer(app);
 
-
 // necessary config
-const timerConfig = {refresh: 1000};
+const timerConfig = { refresh: 1000 };
 
-beforeEach(async () => {
-  server.listen(0, '0.0.0.0');
-});
-
-afterEach(async () => {
+afterAll(async () => {
   await server.close();
 });
-
 
 test('object instantiates correctly', async () => {
   const t = new EventTimer(server, timerConfig);
@@ -41,16 +35,15 @@ test('object instantiates correctly', async () => {
   // and its own properties
   expect(t.ontimeCycle).toBe('idle');
   expect(t.prevCycle).toBeNull();
-  expect(t.lastUpdate).toBeNull();
   expect(t.io).not.toBeNull();
   expect(t.osc).toBeNull();
   expect(t.http).toBeNull();
   expect(t._numClients).toBe(0);
   expect(t._interval).not.toBeNull();
-  expect(t.presenter).toStrictEqual({text: '', visible: false});
-  expect(t.public).toStrictEqual({text: '', visible: false});
-  expect(t.lower).toStrictEqual({text: '', visible: false});
-  expect(t.lower).toStrictEqual({text: '', visible: false});
+  expect(t.presenter).toStrictEqual({ text: '', visible: false });
+  expect(t.public).toStrictEqual({ text: '', visible: false });
+  expect(t.lower).toStrictEqual({ text: '', visible: false });
+  expect(t.lower).toStrictEqual({ text: '', visible: false });
 
   const expectTitlesPublic = {
     titleNow: null,
@@ -78,19 +71,20 @@ test('object instantiates correctly', async () => {
   expect(t.numEvents).toBe(0);
   expect(t._eventlist).toBeNull();
   expect(t.onAir).toBeFalsy();
-});
 
+  t.shutdown();
+});
 
 describe('test triggers behaviour', () => {
   const t = new EventTimer(server, timerConfig);
 
-  it('ignores bad commands', () => {
+  test('ignores bad commands', async(done) => {
     const success = t.trigger('test');
     expect(success).toBeFalsy();
-  })
+    done();
+  });
 
-  it('does not allow triggering events with an empty list', () => {
-
+  test('does not allow triggering events with an empty list', async(done) => {
     expect(t.numEvents).toBe(0);
 
     expect(t.trigger('start')).toBeFalsy();
@@ -106,10 +100,10 @@ describe('test triggers behaviour', () => {
     expect(t.onAir).toBeTruthy();
     expect(t.trigger('offAir')).toBeTruthy();
     expect(t.onAir).toBeFalsy();
+    done();
   });
 
-  it('...and is consistent by calling the class methods', () => {
-
+  test('...and is consistent by calling the class methods', async (done) => {
     expect(t.numEvents).toBe(0);
     expect(t.state).toBe('stop');
 
@@ -133,5 +127,8 @@ describe('test triggers behaviour', () => {
 
     t.reload();
     expect(t.state).toBe('stop');
+    done();
   });
-})
+
+  t.shutdown();
+});

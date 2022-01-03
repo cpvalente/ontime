@@ -111,13 +111,20 @@ export class EventTimer extends Timer {
    * @description Shutdown process
    */
   shutdown() {
+    clearInterval(this._interval);
     this.info('SERVER', 'Shutting down ontime');
-    this.info('TX', '... Closing socket server');
-    this.io.close();
-    this.info('TX', '... Closing OSC Client');
-    this.osc.shutdown();
-    this.info('TX', '... Closing HTTP Client');
-    this.http.shutdown();
+    if (this.io != null) {
+      this.info('TX', '... Closing socket server');
+      this.io.close();
+    }
+    if (this.osc != null) {
+      this.info('TX', '... Closing OSC Client');
+      this.osc.shutdown();
+    }
+    if (this.http != null) {
+      this.info('TX', '... Closing HTTP Client');
+      this.http.shutdown();
+    }
   }
 
   /**
