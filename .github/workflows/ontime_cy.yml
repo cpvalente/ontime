@@ -12,34 +12,51 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Build and test with node
+      - name: Use Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '14.x'
 
       # Utils server
-      - name: Install utils dependencies
+      - name: Utils - Install dependencies
         run: yarn install
-      - run: yarn link
+        working-directory: ./server/utils
+
+      - name: Utils - run link command
+        run: yarn link
         working-directory: ./server/utils
 
       # React
-      - name: Install React dependencies
-        run: pwd
-      - run: yarn link ontime-utils
-      - run: yarn install
-      - run: yarn build
-      - run: yarn test
+      - name: React - Link to utils
+        run: yarn link ontime-utils
+        working-directory: ./client
+
+      - name: React - Install dependencies
+        run: yarn install
+        working-directory: ./client
+
+      - name: React - Run tests
+        run: yarn test
+        working-directory: ./client
+
+      - name: React - Build project
+        run: yarn build
         working-directory: ./client
 
       # Node server
-      - name: Install nodejs dependencies
+      - name: React - Link to utils
         run: yarn link ontime-utils
-      - run: yarn install
+        working-directory: ./server/src
+
+      - name: Server - Install dependencies
+        run: yarn install
         working-directory: ./server/src
 
       # App
-      - name: Install Electron dependencies
+      - name: Electron - Install dependencies
         run: yarn install
-      - run: yarn test
+        working-directory: ./server
+
+      - name: Electron - Run tests
+        run: yarn test
         working-directory: ./server
