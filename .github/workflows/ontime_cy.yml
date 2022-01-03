@@ -16,7 +16,29 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14.x'
+
+      # Utils server
+      - name: Install utils dependencies
+        run: yarn install
+      - run: yarn link
+        working-directory: ./server/utils
+
+      # React
+      - name: Install React dependencies
+        run: yarn link ontime-utils
       - run: yarn install
       - run: yarn build
+      - run: yarn test
+        working-directory: ./client
+
+      # Node server
+      - name: Install nodejs dependencies
+        run: yarn link ontime-utils
+      - run: yarn install
+        working-directory: ./server/src
+
+      # App
+      - name: Install Electron dependencies
+        run: yarn install
       - run: yarn test
         working-directory: ./server
