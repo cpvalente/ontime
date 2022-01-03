@@ -25,7 +25,8 @@ jobs:
 
       # React
       - name: Install React dependencies
-        run: yarn link ontime-utils
+        run: pwd
+      - run: yarn link ontime-utils
       - run: yarn install
       - run: yarn build
       - run: yarn test
