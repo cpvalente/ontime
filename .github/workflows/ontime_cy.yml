@@ -38,7 +38,7 @@ jobs:
         working-directory: ./client
 
       - name: React - Run tests
-        run: yarn test
+        run: yarn test:pipeline
         working-directory: ./client
 
       - name: React - Build project

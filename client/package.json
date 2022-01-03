@@ -31,7 +31,7 @@
     "start": "set BROWSER=none&&react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "pipeline-test": "react-scripts test --watchAll=false --runInBand --detectOpenHandles --forceExit ",
+    "test:pipeline": "react-scripts test --watchAll=false --runInBand --detectOpenHandles --forceExit ",
     "eject": "react-scripts eject"
   },
   "browserslist": {
