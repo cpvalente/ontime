@@ -10,8 +10,8 @@ import { OSCIntegration } from './integrations/Osc.js';
 import { HTTPIntegration } from './integrations/Http.js';
 import { cleanURL } from '../utils/url.js';
 import getRandomName from '../utils/getRandomName.js';
-import { stringFromMillis } from '../utils/time.js';
-import { generateId } from '../utils/generate_id.js';
+import { stringFromMillis } from 'ontime-utils/time.js';
+import { generateId } from 'ontime-utils/generate_id.js';
 
 /*
  * Class EventTimer adds functions specific to APP
@@ -111,13 +111,20 @@ export class EventTimer extends Timer {
    * @description Shutdown process
    */
   shutdown() {
+    clearInterval(this._interval);
     this.info('SERVER', 'Shutting down ontime');
-    this.info('TX', '... Closing socket server');
-    this.io.close();
-    this.info('TX', '... Closing OSC Client');
-    this.osc.shutdown();
-    this.info('TX', '... Closing HTTP Client');
-    this.http.shutdown();
+    if (this.io != null) {
+      this.info('TX', '... Closing socket server');
+      this.io.close();
+    }
+    if (this.osc != null) {
+      this.info('TX', '... Closing OSC Client');
+      this.osc.shutdown();
+    }
+    if (this.http != null) {
+      this.info('TX', '... Closing HTTP Client');
+      this.http.shutdown();
+    }
   }
 
   /**

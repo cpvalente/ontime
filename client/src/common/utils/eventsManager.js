@@ -1,4 +1,4 @@
-import { stringFromMillis } from 'ontime-server/utils/time';
+import { stringFromMillis } from 'ontime-utils/time';
 
 /**
  * @description From a list of events, returns only events of type event with calculated delays

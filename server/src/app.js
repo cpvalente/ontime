@@ -1,6 +1,7 @@
 // get environment vars
 import 'dotenv/config';
 import { sessionId, user } from './utils/analytics.js';
+
 user.screenview('Node service', 'ontime').send();
 user.event('NODE', 'started', 'starting node service').send();
 
@@ -12,6 +13,7 @@ import { Low, JSONFile } from 'lowdb';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -26,7 +28,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbModelv1 as dbModel } from './models/dataModel.js';
-import { parseJsonv1 as parseJson, validateFile } from './utils/parser.js';
+import { parseJson_v1 as parseJson, validateFile } from './utils/parser.js';
 import ua from 'universal-analytics';
 
 // validate JSON before attempting read
@@ -86,8 +88,8 @@ app.use('/playback', playbackRouter);
 // serve react
 app.use(
   express.static(
-    path.join(__dirname, env === 'prod' ? '../' : '../../', 'client/build')
-  )
+    path.join(__dirname, env === 'prod' ? '../' : '../../', 'client/build'),
+  ),
 );
 
 app.get('*', (req, res) => {
@@ -97,8 +99,8 @@ app.get('*', (req, res) => {
       env === 'prod' ? '../' : '../../',
       'client',
       'build',
-      'index.html'
-    )
+      'index.html',
+    ),
   );
 });
 
@@ -159,8 +161,8 @@ export const startServer = async (overrideConfig = null) => {
   // OSC Config
   const oscConfig = {
     ip: oscIP,
-    port: overrideConfig?.port || oscOutPort
-  }
+    port: overrideConfig?.port || oscOutPort,
+  };
 
   // init timer
   global.timer = new EventTimer(server, config.timer, oscConfig, data.http);

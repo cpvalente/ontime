@@ -8,9 +8,10 @@ import {
 } from '@chakra-ui/modal';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/tabs';
 import EventSettingsModal from './EventSettingsModal';
-import AppSettingsModal from './AppSettingsModal';
+import OscSettingsModal from './OscSettingsModal';
 import AliasesModal from './AliasesModal';
 import IntegrationSettingsModal from './IntegrationSettingsModal';
+import AppSettingsModal from './AppSettingsModal';
 
 export default function ModalManager(props) {
   const { isOpen, onClose } = props;
@@ -20,7 +21,8 @@ export default function ModalManager(props) {
       onClose={onClose}
       closeOnOverlayClick={false}
       motionPreset={'slideInBottom'}
-      size='lg'
+      size='xl'
+      scrollBehavior='inside'
     >
       <ModalOverlay />
       <ModalContent>
@@ -29,20 +31,24 @@ export default function ModalManager(props) {
 
         <Tabs size='sm' isLazy>
           <TabList>
+            <Tab style={{ fontSize: '0.9em' }}>App Settings</Tab>
             <Tab style={{ fontSize: '0.9em' }}>Event Data</Tab>
-            <Tab style={{ fontSize: '0.9em' }}>Application Settings</Tab>
             <Tab style={{ fontSize: '0.9em' }}>URL Aliases</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>OSC</Tab>
             {/*<Tab style={{ fontSize: '0.9em' }}>Integration</Tab>*/}
           </TabList>
           <TabPanels>
             <TabPanel>
-              <EventSettingsModal />
-            </TabPanel>
-            <TabPanel>
               <AppSettingsModal />
             </TabPanel>
             <TabPanel>
+              <EventSettingsModal />
+            </TabPanel>
+            <TabPanel>
               <AliasesModal />
+            </TabPanel>
+            <TabPanel>
+              <OscSettingsModal />
             </TabPanel>
             {/*<TabPanel>*/}
             {/*  <IntegrationSettingsModal />*/}

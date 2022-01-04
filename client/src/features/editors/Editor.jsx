@@ -24,12 +24,14 @@ export default function Editor() {
 
   return (
     <LoggingProvider>
-      <ModalManager isOpen={isOpen} onClose={onClose} />
+      <ErrorBoundary>
+        <ModalManager isOpen={isOpen} onClose={onClose} />
+      </ErrorBoundary>
 
       <div className={styles.mainContainer}>
         <Box id='settings' className={styles.settings}>
           <ErrorBoundary>
-            <MenuBar onOpen={onOpen} />
+            <MenuBar onOpen={onOpen} isOpen={isOpen} />
           </ErrorBoundary>
         </Box>
 

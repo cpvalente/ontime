@@ -1,6 +1,6 @@
 import style from './PlaybackControl.module.scss';
 import Countdown from 'common/components/countdown/Countdown';
-import { stringFromMillis } from 'ontime-server/utils/time';
+import { stringFromMillis } from 'ontime-utils/time';
 import {Tooltip} from '@chakra-ui/react';
 import {Button} from '@chakra-ui/button';
 import {memo} from 'react';

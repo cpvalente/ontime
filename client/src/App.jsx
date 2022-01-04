@@ -1,17 +1,16 @@
 import { lazy, Suspense, useCallback, useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.scss';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import SocketProvider from 'app/context/socketContext';
 import withSocket from 'features/viewers/ViewWrapper';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
+import ProtectRoute from './common/components/protectRoute/ProtectRoute';
+import { useFetch } from './app/hooks/useFetch';
+import { ALIASES } from './app/api/apiConstants';
+import { getAliases } from './app/api/ontimeApi';
 
 const Editor = lazy(() => import('features/editors/Editor'));
 const PresenterView = lazy(() =>
   import('features/viewers/presenter/PresenterView')
-);
-const PresenterSimple = lazy(() =>
-  import('features/viewers/presenter/PresenterSimple')
 );
 const StageManager = lazy(() =>
   import('features/viewers/backstage/StageManager')
@@ -21,18 +20,9 @@ const Lower = lazy(() =>
   import('features/viewers/production/lower/LowerWrapper')
 );
 const Pip = lazy(() => import('features/viewers/production/Pip'));
-
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 
-const queryClient = new QueryClient();
-// Seemed to cause issues
-// broadcastQueryClient({
-//   queryClient,
-//   broadcastChannel: 'ontime',
-// });
-
 const SPresenter = withSocket(PresenterView);
-const SPresenterSimple = withSocket(PresenterSimple);
 const SStageManager = withSocket(StageManager);
 const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
@@ -40,6 +30,10 @@ const SPip = withSocket(Pip);
 const SStudio = withSocket(StudioClock);
 
 function App() {
+  const { data } = useFetch(ALIASES, getAliases);
+  const location = useLocation();
+  const navigate = useNavigate();
+
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback((e) => {
     // check if the alt key is pressed
@@ -65,33 +59,47 @@ function App() {
     };
   }, [handleKeyPress]);
 
+  // navigate if is alias route
+  useEffect(() => {
+    if (data == null) return;
+    for (const d of data) {
+      if (`/${d.alias}` === location.pathname && d.enabled) {
+        navigate(`/${d.pathAndParams}`);
+        break;
+      }
+    }
+  }, [data, location, navigate]);
+
   return (
-    <SocketProvider>
-      <QueryClientProvider client={queryClient}>
-        <div className='App'>
-          <ErrorBoundary>
-            <Suspense fallback={null}>
-              <Switch>
-                <Route exact path='/' component={SPresenter} />
-                <Route exact path='/sm' component={SStageManager} />
-                <Route exact path='/speaker' component={SPresenter} />
-                <Route exact path='/presenter' component={SPresenter} />
-                <Route exact path='/stage' component={SPresenter} />
-                <Route exact path='/presentersimple' component={SPresenterSimple} />
-                <Route exact path='/editor' component={Editor} />
-                <Route exact path='/public' component={SPublic} />
-                <Route exact path='/pip' component={SPip} />
-                <Route exact path='/studio' component={SStudio} />
-                {/* Lower cannot have fallback */}
-                <Route exact path='/lower' component={SLowerThird} />
-                {/* Send to default if nothing found */}
-                <Route component={SPresenter} />
-              </Switch>
-            </Suspense>
-          </ErrorBoundary>
-        </div>
-      </QueryClientProvider>
-    </SocketProvider>
+    <div className='App'>
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path='/' element={<SPresenter />} />
+            <Route path='/sm' element={<SStageManager />} />
+            <Route path='/speaker' element={<SPresenter />} />
+            <Route path='/presenter' element={<SPresenter />} />
+            <Route path='/stage' element={<SPresenter />} />
+            <Route path='/public' element={<SPublic />} />
+            <Route path='/pip' element={<SPip />} />
+            <Route path='/studio' element={<SStudio />} />
+            {/*/!* Lower cannot have fallback *!/*/}
+            <Route path='/lower' element={<SLowerThird />} />
+            {/*/!* Protected Routes *!/*/}
+            <Route
+              path='/editor'
+              element={
+                <ProtectRoute>
+                  <Editor />
+                </ProtectRoute>
+              }
+            />
+            {/* Send to default if nothing found */}
+            <Route path='*' element={<SPresenter />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
+    </div>
   );
 }
 

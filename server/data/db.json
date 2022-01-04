@@ -118,10 +118,21 @@
     "app": "ontime",
     "version": 1,
     "serverPort": 4001,
-    "oscInPort": 8888,
-    "oscOutPort": 9999,
-    "oscOutIP": "127.0.0.1",
-    "oscEnabled": true,
-    "lock": false
-  }
+    "lock": null,
+    "pinCode": "1234"
+  },
+  "osc": {
+    "port": 8888,
+    "portOut": 9999,
+    "targetIP": "127.0.0.1",
+    "enabled": true
+  },
+  "aliases": [
+    {
+      "id": "0b0b3",
+      "enabled": true,
+      "alias": "test",
+      "pathAndParams": "lower?bg=ff2&text=f00&size=0.6&transition=5"
+    }
+  ]
 }

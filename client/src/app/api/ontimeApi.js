@@ -9,6 +9,18 @@ export const ontimePlaceholderInfo = {
   },
 };
 
+export const ontimePlaceholderSettings = {
+  pinCode: null,
+};
+
+export const eventPlaceholderSettings = {
+  title: '',
+  url: '',
+  publicInfo: '',
+  backstageInfo: '',
+  endMessage: '',
+};
+
 export const oscPlaceholderSettings = {
   port: '',
   portOut: '',
@@ -74,6 +86,15 @@ export const ontimeVars = [
   },
 ];
 
+export const getSettings = async () => {
+  const res = await axios.get(`${ontimeURL}/settings`);
+  return res.data;
+};
+
+export const postSettings = async (data) => {
+  return await axios.post(`${ontimeURL}/settings`, data);
+};
+
 export const getInfo = async () => {
   const res = await axios.get(`${ontimeURL}/info`);
   return res.data;
@@ -81,6 +102,15 @@ export const getInfo = async () => {
 
 export const postInfo = async (data) => {
   return await axios.post(`${ontimeURL}/info`, data);
+};
+
+export const getAliases = async () => {
+  const res = await axios.get(`${ontimeURL}/aliases`);
+  return res.data;
+};
+
+export const postAliases = async (data) => {
+  return await axios.post(`${ontimeURL}/aliases`, data);
 };
 
 export const getOSC = async () => {

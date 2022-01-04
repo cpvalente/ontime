@@ -6,14 +6,15 @@ import SettingsIconBtn from './buttons/SettingsIconBtn';
 import MaxIconBtn from './buttons/MaxIconBtn';
 import MinIconBtn from './buttons/MinIconBtn';
 import QuitIconBtn from './buttons/QuitIconBtn';
-import style from './MenuBar.module.css';
+import style from './MenuBar.module.scss';
 import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
 import { useContext, useRef } from 'react';
 import { LoggingContext } from '../../app/context/LoggingContext';
+import PropTypes from 'prop-types';
 
 export default function MenuBar(props) {
-  const { onOpen } = props;
+  const { isOpen, onOpen } = props;
   const { emitError } = useContext(LoggingContext);
   const hiddenFileInput = useRef(null);
   const queryClient = useQueryClient();
@@ -31,6 +32,10 @@ export default function MenuBar(props) {
     if (hiddenFileInput && hiddenFileInput.current) {
       hiddenFileInput.current.click();
     }
+  };
+
+  const buttonStyle = {
+    fontSize: '1.5em'
   };
 
   const handleUpload = (event) => {
@@ -93,25 +98,27 @@ export default function MenuBar(props) {
     <>
       <QuitIconBtn size='lg' clickhandler={() => handleIPC('shutdown')} />
       <MaxIconBtn
-        style={{ fontSize: '1.5em' }}
+        style={{ ...buttonStyle }}
         size='lg'
         clickhandler={() => handleIPC('max')}
       />
       <MinIconBtn
-        style={{ fontSize: '1.5em' }}
+        style={{ ...buttonStyle }}
         size='lg'
         clickhandler={() => handleIPC('min')}
       />
       <div className={style.gap} />
       <HelpIconBtn
-        style={{ fontSize: '1.5em' }}
+        style={{ ...buttonStyle }}
         size='lg'
         clickhandler={() => handleIPC('help')}
       />
       <SettingsIconBtn
-        style={{ fontSize: '1.5em' }}
+        style={{...buttonStyle}}
         size='lg'
+        className={isOpen ? style.open : ''}
         clickhandler={onOpen}
+        isRound
       />
       <div className={style.gap} />
       <input
@@ -122,15 +129,21 @@ export default function MenuBar(props) {
         accept='.json, .xlsx'
       />
       <UploadIconBtn
-        style={{ fontSize: '1.5em' }}
+        style={{ ...buttonStyle }}
         size='lg'
         clickhandler={handleClick}
       />
       <DownloadIconBtn
-        style={{ fontSize: '1.5em' }}
+        style={{ ...buttonStyle }}
         size='lg'
         clickhandler={handleDownload}
       />
     </>
   );
 }
+
+MenuBar.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onOpen: PropTypes.func.isRequired,
+};
+

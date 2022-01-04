@@ -1,5 +1,6 @@
 @use 'Info.module' as *;
-@use '../../main' as *;
+@use '../../styles/main' as *;
+@use '../../styles/mixins' as *;
 
 .container,
 .container__expanded{

@@ -1,11 +1,11 @@
 import getRandomName from '../getRandomName.js';
 
-test('generates 500 unique names', () => {
-  let names = [];
-  for (let i = 0; i < 500; i++) {
-    names.push(getRandomName());
+test('generates 100 unique names', () => {
+  const names = new Set();
+  let attempts = 1;
+  while (names.size < 100) {
+    names.add(getRandomName());
+    attempts++;
   }
-
-  const unique = [...new Set(names)];
-  expect(names.length).toBe(unique.length);
+  expect(attempts).toBeLessThan(105);
 });

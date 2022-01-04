@@ -1,4 +1,22 @@
-//////////////////////////////////// general app style
+//////////////////////////////////// general app colours
+
+$ontime-accent: #4bffabcc;
+$ontime-pink: #ff7597;
+$ontime-roll: #2b6cb0;
+
+$notes-color: #d69e2e;
+
+$header-gray: #ccc;
+$label-gray: #aaa;
+$bg-gray: #f4f4f8;
+
+$light-bg: #2b6cb0;
+$light-bg-transparent: #2b6cb055;
+$light-text: #2b6cb022;
+
+$error-red: #E53E3E;
+
+//////////////////////////////////// general app element overriders
 
 // no decoration on lists
 ul {
@@ -8,4 +26,29 @@ ul {
 // no resizing on text areas
 textarea {
   resize: none !important;
+}
+
+// Define style for a link
+a {
+  &::after {
+    content: '  \2197';
+    color: $ontime-pink;
+  }
+  &:hover {
+    color: $ontime-pink;
+  }
+}
+
+// horizontal separator
+.hSeparator {
+  width: 100%;
+  border-bottom: 1px solid $light-text;
+  margin: 1em auto;
+  display: flex;
+  align-items: center;
+}
+
+// inline vertical separator
+.vSpan {
+  margin: 0 0.5em;
 }

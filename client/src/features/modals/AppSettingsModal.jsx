@@ -1,183 +1,170 @@
 import { ModalBody } from '@chakra-ui/modal';
-import { FormLabel, FormControl, Input, Button } from '@chakra-ui/react';
-import { getOSC, oscPlaceholderSettings, postOSC } from 'app/api/ontimeApi';
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  PinInput,
+  PinInputField,
+} from '@chakra-ui/react';
+import {
+  getSettings,
+  ontimePlaceholderSettings,
+  postSettings,
+} from 'app/api/ontimeApi';
 import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
-import { OSC_SETTINGS } from 'app/api/apiConstants';
+import { APP_SETTINGS } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
+import { IconButton } from '@chakra-ui/button';
+import { FiEye } from 'react-icons/fi';
+import SubmitContainer from './SubmitContainer';
+import { inputProps } from './modalHelper';
 
 export default function AppSettingsModal() {
-  const { data, status } = useFetch(OSC_SETTINGS, getOSC);
-  const { emitError } = useContext(LoggingContext);
-  const [formData, setFormData] = useState(oscPlaceholderSettings);
+  const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
+  const { emitError, emitWarning } = useContext(LoggingContext);
+  const [formData, setFormData] = useState(ontimePlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [hidePin, setHidePin] = useState(true);
 
+  /**
+   * Set formdata from server state
+   */
   useEffect(() => {
     if (data == null) return;
-    setFormData({ ...data });
-  }, [data]);
+    if (changed) return;
+    setFormData({
+      pinCode: data.pinCode,
+    });
+  }, [changed, data]);
 
+  /**
+   * Validate and submit data
+   */
   const submitHandler = async (event) => {
     event.preventDefault();
+    setSubmitting(true);
 
     const f = formData;
     let e = { status: false, message: '' };
 
     // Validate fields
-    if (f.port < 1024 || f.port > 65535) {
-      // Port in incorrect range
+    if (f.pinCode === '' || f.pinCode == null) {
       e.status = true;
-      e.message += 'OSC IN Port in incorrect range (1024 - 65535)';
-    } else if (f.portOut < 1024 || f.portOut > 65535) {
-      // Port in incorrect range
+      e.message += 'App pin code removed';
+    } else {
       e.status = true;
-      e.message += 'OSC OUT Port in incorrect range (1024 - 65535)';
-    } else if (f.port === f.portOut) {
-      // Cant use the same port
-      e.status = true;
-      e.message += 'OSC IN and OUT Ports cant be the same';
+      e.message += 'App pin code added';
     }
 
     // set fields with error
-    if (e.status) {
+    if (!e.status) {
       emitError(`Invalid Input: ${e.message}`);
-      return;
+    } else {
+      await postSettings(formData);
+      await refetch();
+      emitWarning(e.message);
+      setChanged(false);
     }
 
-    // Post here
-    postOSC(formData);
-
-    setChanged(false);
     setSubmitting(false);
   };
 
-  return (
-    <>
-      <form onSubmit={submitHandler}>
-        <ModalBody className={style.modalBody}>
-          {status === 'success' && (
-            <>
-              <p className={style.notes}>
-                Options related to the application
-                <br />
-                🔥 Changes take effect after app restart 🔥
-              </p>
+  /**
+   * Reverts local state equals to server state
+   */
+  const revert = async () => {
+    setChanged(false);
+    await refetch();
+  };
 
-              <FormControl id='serverPort'>
-                <FormLabel htmlFor='serverPort'>
-                  Viewer Port
-                  <span className={style.notes}>Port to access viewers</span>
-                </FormLabel>
-                <Input
+  /**
+   * Handles change of input field in local state
+   * @param {string} field - object parameter to update
+   * @param {string} value - new object parameter value
+   */
+  const handleChange = (field, value) => {
+    const temp = { ...formData };
+    temp[field] = value;
+    setFormData(temp);
+    setChanged(true);
+  };
+
+  const disableModal = status !== 'success';
+
+  return (
+    <ModalBody className={style.modalBody}>
+      <p className={style.notes}>
+        Options related to the application
+        <br />
+        🔥 Changes take effect after app restart 🔥
+      </p>
+      <form onSubmit={submitHandler}>
+        <div className={style.modalFields}>
+          <div className={style.hSeparator}>General App Settings</div>
+          <div className={style.modalInline}>
+            <FormControl id='serverPort'>
+              <FormLabel htmlFor='serverPort'>
+                Viewer Port
+                <span className={style.labelNote}>
+                  <br />
+                  Ontime is available at port
+                </span>
+              </FormLabel>
+              <Input
+                {...inputProps}
+                name='title'
+                value={4001}
+                disabled
+                style={{ width: '6em', textAlign: 'center' }}
+              />
+            </FormControl>
+            <FormControl id='editorPin'>
+              <FormLabel htmlFor='editorPin'>
+                Editor Pincode
+                <span className={style.labelNote}>
+                  <br />
+                  Protect the editor with a Pincode
+                </span>
+              </FormLabel>
+              <div className={style.pin}>
+                <PinInput
+                  {...inputProps}
+                  type='alphanumeric'
+                  defaultValue=''
+                  value={formData.pinCode}
+                  mask={hidePin}
+                  isDisabled={disableModal}
+                  onChange={(value) => handleChange('pinCode', value)}
+                >
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                </PinInput>
+                <IconButton
                   size='sm'
-                  name='title'
-                  placeholder='4001'
-                  autoComplete='off'
-                  value={4001}
-                  readOnly
-                  style={{ width: '6em', textAlign: 'center' }}
+                  colorScheme='blue'
+                  variant='ghost'
+                  icon={<FiEye />}
+                  aria-label='Editor pin code'
+                  onMouseDown={() => setHidePin(false)}
+                  onMouseUp={() => setHidePin(true)}
+                  isDisabled={disableModal}
                 />
-                <span className={style.notes}>(Read Only Value)</span>
-              </FormControl>
-              <FormControl id='port'>
-                <FormLabel htmlFor='port'>
-                  OSC In Port
-                  <span className={style.notes}>
-                    <br />
-                    App Control - Default 8888
-                  </span>
-                </FormLabel>
-                <Input
-                  size='sm'
-                  name='port'
-                  placeholder='8888'
-                  autoComplete='off'
-                  type='number'
-                  value={formData.port}
-                  min='1024'
-                  max='65535'
-                  onChange={(event) => {
-                    setChanged(true);
-                    setFormData({
-                      ...formData,
-                      port: parseInt(event.target.value),
-                    });
-                  }}
-                  isDisabled={submitting}
-                  style={{ width: '6em', textAlign: 'center' }}
-                />
-              </FormControl>
-              <div className={style.modalInline}>
-                <FormControl id='targetIP' width='auto'>
-                  <FormLabel htmlFor='targetIP'>
-                    OSC Out Target IP
-                    <span className={style.notes}>
-                      <br />
-                      App Feedback - Default 127.0.0.1
-                    </span>
-                  </FormLabel>
-                  <Input
-                    size='sm'
-                    name='targetIP'
-                    placeholder='127.0.0.1'
-                    autoComplete='off'
-                    value={formData.targetIP}
-                    onChange={(event) => {
-                      setChanged(true);
-                      setFormData({
-                        ...formData,
-                        targetIP: event.target.value,
-                      });
-                    }}
-                    isDisabled={submitting}
-                    style={{ width: '12em', textAlign: 'right' }}
-                  />
-                </FormControl>
-                <FormControl id='portOut' width='auto'>
-                  <FormLabel htmlFor='portOut'>
-                    OSC Out Port
-                    <span className={style.notes}>
-                      <br />
-                      Default 9999
-                    </span>
-                  </FormLabel>
-                  <Input
-                    size='sm'
-                    name='portOut'
-                    placeholder='9999'
-                    autoComplete='off'
-                    type='number'
-                    value={formData.portOut}
-                    min='1024'
-                    max='65535'
-                    onChange={(event) => {
-                      setChanged(true);
-                      setFormData({
-                        ...formData,
-                        portOut: parseInt(event.target.value),
-                      });
-                    }}
-                    isDisabled={submitting}
-                    style={{ width: '6em', textAlign: 'left' }}
-                  />
-                </FormControl>
               </div>
-            </>
-          )}
-          <div className={style.submitContainer}>
-            <Button
-              colorScheme='blue'
-              type='submit'
-              isLoading={submitting}
-              disabled={!changed}
-            >
-              Save
-            </Button>
+            </FormControl>
           </div>
-        </ModalBody>
+        </div>
+        <SubmitContainer
+          revert={revert}
+          submitting={submitting}
+          changed={changed}
+          status={status}
+        />
       </form>
-    </>
+    </ModalBody>
   );
 }

@@ -12,7 +12,9 @@ export const dbModelv1 = {
     version: 1,
     serverPort: 4001,
     lock: null,
+    pinCode: null,
   },
+  aliases: [],
   osc: {
     port: 8888,
     portOut: 9999,
@@ -27,7 +29,7 @@ export const dbModelv1 = {
         url: '',
         enabled: false,
       },
-      onStart:  {
+      onStart: {
         url: '',
         enabled: false,
       },
@@ -35,15 +37,15 @@ export const dbModelv1 = {
         url: '',
         enabled: false,
       },
-      onPause:  {
+      onPause: {
         url: '',
         enabled: false,
       },
-      onStop:  {
+      onStop: {
         url: '',
         enabled: false,
       },
-      onFinish:  {
+      onFinish: {
         url: '',
         enabled: false,
       },

@@ -1,0 +1,11 @@
+{
+  "name": "ontime-utils",
+  "type": "module",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ontime app utility functions",
+  "dependencies": {
+    "nanoid": "^3.1.30"
+  },
+  "devDependencies": {}
+}

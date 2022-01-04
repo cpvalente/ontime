@@ -1,4 +1,5 @@
-@use '../../main' as *;
+@use '../../styles/main' as *;
+@use '../../styles/mixins' as *;
 
 @mixin container {
   margin-top: 1em;

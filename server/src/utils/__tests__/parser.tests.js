@@ -1,9 +1,10 @@
 import jest from 'jest-mock';
 import {
   makeString,
-  parseExcelv1,
-  parseJsonv1,
-  validateEventv1,
+  parseAliases_v1,
+  parseExcel_v1,
+  parseJson_v1,
+  validateEvent_v1,
 } from '../parser.js';
 import { dbModelv1 as dbModel } from '../../models/dataModel.js';
 
@@ -110,7 +111,7 @@ describe('test json parser with valid def', () => {
   let parseResponse;
 
   beforeEach(async () => {
-    parseResponse = await parseJsonv1(testData);
+    parseResponse = await parseJson_v1(testData);
   });
 
   it('has 7 events', () => {
@@ -169,7 +170,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parseJsonv1(testData);
+    const parseResponse = await parseJson_v1(testData);
     expect(parseResponse.events[0].id).toBeDefined();
   });
 
@@ -190,7 +191,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parseJsonv1(testData);
+    const parseResponse = await parseJson_v1(testData);
     expect(console.log).toHaveBeenCalledWith(
       'ERROR: ID collision on import, skipping'
     );
@@ -212,7 +213,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parseJsonv1(testData);
+    const parseResponse = await parseJson_v1(testData);
     expect(console.log).toHaveBeenCalledWith(
       'ERROR: undefined event type, skipping'
     );
@@ -228,7 +229,7 @@ describe('test parser edge cases', () => {
       },
     };
 
-    await parseJsonv1(testData);
+    await parseJson_v1(testData);
     expect(console.log).toHaveBeenCalledWith(
       'ERROR: unknown app version, skipping'
     );
@@ -271,7 +272,7 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJsonv1(emptyEvents);
+    const parsedDef = await parseJson_v1(emptyEvents);
     expect(parsedDef.events.length).toBe(2);
   });
 
@@ -293,7 +294,7 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJsonv1(emptyEvents);
+    const parsedDef = await parseJson_v1(emptyEvents);
     expect(parsedDef.events.length).toBe(0);
   });
 
@@ -309,7 +310,7 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJsonv1(emptyEventData);
+    const parsedDef = await parseJson_v1(emptyEventData);
     expect(parsedDef.event).toStrictEqual(dbModel.event);
   });
 
@@ -323,14 +324,14 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJsonv1(missingSettings);
+    const parsedDef = await parseJson_v1(missingSettings);
     expect(parsedDef.settings).toStrictEqual(dbModel.settings);
   });
 
   it('fails with invalid JSON', async () => {
     console.log = jest.fn();
     const invalidJSON = 'some random dataset';
-    const parsedDef = await parseJsonv1(invalidJSON);
+    const parsedDef = await parseJson_v1(invalidJSON);
     expect(console.log).toHaveBeenCalledWith('ERROR: Invalid JSON format');
     expect(parsedDef).toBe(-1);
   });
@@ -341,7 +342,7 @@ describe('test event validator', () => {
     const event = {
       title: 'test',
     };
-    const validated = validateEventv1(event);
+    const validated = validateEvent_v1(event);
 
     expect(validated).toEqual(
       expect.objectContaining({
@@ -361,7 +362,7 @@ describe('test event validator', () => {
 
   it('fails an empty object', () => {
     const event = {};
-    const validated = validateEventv1(event);
+    const validated = validateEvent_v1(event);
     expect(validated).toEqual(null);
   });
 
@@ -372,7 +373,7 @@ describe('test event validator', () => {
       presenter: 3.2,
       note: '1899-12-30T08:00:10.000Z',
     };
-    const validated = validateEventv1(event);
+    const validated = validateEvent_v1(event);
     expect(typeof validated.title).toEqual('string');
     expect(typeof validated.subtitle).toEqual('string');
     expect(typeof validated.presenter).toEqual('string');
@@ -384,7 +385,7 @@ describe('test event validator', () => {
       timeStart: false,
       timeEnd: '2',
     };
-    const validated = validateEventv1(event);
+    const validated = validateEvent_v1(event);
     expect(typeof validated.timeStart).toEqual('number');
     expect(validated.timeStart).toEqual(0);
     expect(typeof validated.timeEnd).toEqual('number');
@@ -395,7 +396,7 @@ describe('test event validator', () => {
     const event = {
       title: {},
     };
-    const validated = validateEventv1(event);
+    const validated = validateEvent_v1(event);
     expect(typeof validated.title).toEqual('string');
   });
 });
@@ -485,10 +486,34 @@ describe('test parseExcel function', () => {
       },
     ];
 
-    const parsedData = await parseExcelv1(testdata);
+    const parsedData = await parseExcel_v1(testdata);
 
     expect(parsedData.events).toBeDefined();
     expect(parsedData.events).toStrictEqual(expectedParsedEvents);
     expect(parsedData.events).toStrictEqual(expectedParsedEvents);
   });
+});
+
+describe('test aliases import', () => {
+  it('imports a well defined alias', () => {});
+  const testData = {
+    events: [],
+    settings: {
+      app: 'ontime',
+      version: 1,
+    },
+    aliases: [
+      {
+        enabled: false,
+        alias: 'testalias',
+        pathAndParams: 'testpathAndParams',
+      },
+    ],
+  };
+
+  const parsed = parseAliases_v1(testData, true);
+  expect(parsed.length).toBe(1);
+
+  // generates missing id
+  expect(parsed[0].id).toBeDefined();
 });

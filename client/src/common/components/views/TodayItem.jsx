@@ -1,4 +1,4 @@
-import { stringFromMillis } from 'ontime-server/utils/time';
+import { stringFromMillis } from 'ontime-utils/time';
 import style from './Paginator.module.css';
 export default function TodayItem(props) {
   const { selected, timeStart, timeEnd, title, backstageEvent } = props;

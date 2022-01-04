@@ -7,13 +7,14 @@
     "express": "~4.17.1",
     "express-session": "~1.17.1",
     "lowdb": "3.0.0",
-    "multer": "^1.4.2",
-    "nanoid": "^3.1.22",
-    "node-osc": "6.1.10",
+    "multer": "^1.4.4",
+    "nanoid": "^3.1.30",
+    "node-osc": "6.1.11",
     "node-xlsx": "^0.17.2",
+    "ontime-utils": "link: ../server/utils/",
     "passport": "~0.4.1",
     "passport-local": "~1.0.0",
-    "socket.io": "^4.3.1",
+    "socket.io": "4.4.0",
     "universal-analytics": "^0.4.23"
   },
   "devDependencies": {

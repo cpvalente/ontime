@@ -1,6 +1,7 @@
 import { memo, useEffect, useState } from 'react';
 import LowerClean from './LowerClean';
 import LowerLines from './LowerLines';
+import { useSearchParams } from 'react-router-dom';
 const isEqual = require('react-fast-compare');
 
 const areEqual = (prevProps, nextProps) => {
@@ -12,6 +13,7 @@ const areEqual = (prevProps, nextProps) => {
 
 const Lower = (props) => {
   const { title } = props;
+  const [searchParams,] = useSearchParams();
   const [titles, setTitles] = useState({
     titleNow: '',
     titleNext: '',
@@ -61,61 +63,59 @@ const Lower = (props) => {
   // eg. http://localhost:3000/lower?bg=ff2&text=f00&size=0.6&transition=5
   // Check for user options
   useEffect(() => {
-    // get parameters
-    const params = new URLSearchParams(props.location.search);
     // create aux
     let options = {};
 
     // preset: selector
     // Should be a number 1-n
-    let p = parseInt(params.get('preset'));
+    let p = parseInt(searchParams.get('preset'));
     if (!isNaN(p)) setPreset(p);
 
     // size: multiplier
     // Should be a number 0.0-n
-    let s = params.get('size');
+    let s = searchParams.get('size');
     if (s) options.size = s;
 
     // transitionIn: seconds
     // Should be a number 0-n
-    let t = parseInt(params.get('transition'));
+    let t = parseInt(searchParams.get('transition'));
     if (!isNaN(t)) options.transitionIn = t;
 
     // textColour: string
     // Should be a hex string '#ffffff'
-    let c = params.get('text');
+    let c = searchParams.get('text');
     if (c) options.textColour = `#${c}`;
 
     // bgColour: string
     // Should be a hex string '#ffffff'
-    let b = params.get('bg');
+    let b = searchParams.get('bg');
     if (b) options.bgColour = `#${b}`;
 
     // key: string
     // Should be a hex string '#00FF00' with key colour
-    let k = params.get('key');
+    let k = searchParams.get('key');
     if (k) options.keyColour = `#${k}`;
 
     // fadeOut: seconds
     // Should be a number 0-n
-    let f = parseInt(params.get('fadeout'));
+    let f = parseInt(searchParams.get('fadeout'));
     if (!isNaN(f)) options.fadeOut = f;
 
     // x: pixels
     // Should be a number 0-n
-    let x = parseInt(params.get('x'));
+    let x = parseInt(searchParams.get('x'));
     if (!isNaN(x)) options.posX = x;
 
     // y: pixels
     // Should be a number 0-n
-    let y = parseInt(params.get('y'));
+    let y = parseInt(searchParams.get('y'));
     if (!isNaN(y)) options.posY = y;
 
     setLowerOptions({
       ...options,
       set: true,
     });
-  }, [props.location.search]);
+  }, [searchParams]);
 
   // Defer rendering until we have data ready
   if (!lowerOptions.set) return null;

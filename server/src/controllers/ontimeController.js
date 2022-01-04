@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { db, data } from '../app.js';
 import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
+import { generateId } from 'ontime-utils/generate_id.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -114,6 +115,81 @@ export const getInfo = async (req, res) => {
     serverPort,
     osc,
   });
+};
+
+// Create controller for POST request to '/ontime/aliases'
+// Returns -
+export const getAliases = async (req, res) => {
+  // send aliases array
+  res.status(200).send(data.aliases);
+};
+
+// Create controller for POST request to '/ontime/aliases'
+// Returns ACK message
+export const postAliases = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  // TODO: validate data
+  try {
+    const newAliases = [];
+    req.body.forEach((a) => {
+      newAliases.push({
+        id: generateId(),
+        enabled: a.enabled,
+        alias: a.alias,
+        pathAndParams: a.pathAndParams,
+      });
+    });
+    data.aliases = newAliases;
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+// Create controller for POST request to '/ontime/settings'
+// Returns -
+export const getSettings = async (req, res) => {
+  const version = data.settings.version;
+  const serverPort = data.settings.serverPort;
+  const pinCode = data.settings.pinCode;
+
+  // send object with network information
+  res.status(200).send({
+    version,
+    serverPort,
+    pinCode,
+  });
+};
+
+// Create controller for POST request to '/ontime/settings'
+// Returns ACK message
+export const postSettings = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  try {
+    let pin = data.settings.pinCode;
+    if (typeof req.body?.pinCode === 'string') {
+      if (req.body?.pinCode.length === 0) {
+        pin = null;
+      } else if (req.body?.pinCode.length <= 4) {
+        pin = req.body?.pinCode;
+      }
+    }
+    data.settings = {
+      ...data.settings,
+      pinCode: pin,
+    };
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
 };
 
 // Create controller for POST request to '/ontime/info'

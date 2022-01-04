@@ -1,4 +1,4 @@
-import { clamp } from 'app/utils';
+import { clamp } from 'app/utils/math';
 import styles from './MyProgressBar.module.css';
 
 export default function MyProgressBar(props) {
