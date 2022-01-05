@@ -1,16 +1,17 @@
-import {Editable, EditableInput, EditablePreview} from '@chakra-ui/editable';
-import {Switch} from "@chakra-ui/react";
-import {useEffect, useState} from 'react';
-import {useSocket} from 'app/context/socketContext';
+import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
+import { Switch } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { useSocket } from 'app/context/socketContext';
 import VisibleIconBtn from 'common/components/buttons/VisibleIconBtn';
 import style from './MessageControl.module.scss';
+import { Tooltip } from '@chakra-ui/tooltip';
 
 const inputProps = {
   size: 'sm',
 };
 
 const InputRow = (props) => {
-  const {label, placeholder, text, visible} = props;
+  const { label, placeholder, text, visible } = props;
 
   return (
     <>
@@ -23,8 +24,8 @@ const InputRow = (props) => {
           className={style.inline}
           color={text === '' ? '#666' : 'inherit'}
         >
-          <EditablePreview className={style.padleft}/>
-          <EditableInput className={style.padleft}/>
+          <EditablePreview className={style.padleft} />
+          <EditableInput className={style.padleft} />
         </Editable>
         <VisibleIconBtn
           active={visible || undefined}
@@ -57,17 +58,17 @@ export default function MessageControl() {
 
     // Handle presenter messages
     socket.on('messages-presenter', (data) => {
-      setPres({...data});
+      setPres({ ...data });
     });
 
     // Handle public messages
     socket.on('messages-public', (data) => {
-      setPubl({...data});
+      setPubl({ ...data });
     });
 
     // Handle lower third messages
     socket.on('messages-lower', (data) => {
-      setLower({...data});
+      setLower({ ...data });
     });
 
     // Handle lower third messages
@@ -146,13 +147,16 @@ export default function MessageControl() {
         />
       </div>
       <div className={style.onAirToggle}>
-        <Switch
-          colorScheme='green'
-          size='md'
-          isChecked={onAir}
-          onChange={() => messageControl('toggle-onAir')}>
-          On Air?
-        </Switch>
+        <Tooltip label='Toggle Enable/Disable onAir' openDelay={500 }>
+          <Switch
+            colorScheme='green'
+            size='md'
+            isChecked={onAir}
+            onChange={() => messageControl('toggle-onAir')}
+          >
+            On Air?
+          </Switch>
+        </Tooltip>
         <span className={style.oscLabel}>
           {`/ontime/offAir << OSC >> /ontime/onAir`}
         </span>

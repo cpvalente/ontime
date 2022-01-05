@@ -1,6 +1,7 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
-import { FiPlus, FiMinusCircle, FiClock } from 'react-icons/fi';
+import { FiClock, FiMinusCircle, FiPlus } from 'react-icons/fi';
+import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function ActionButtons(props) {
   const { showAdd, showDelay, showBlock, actionHandler } = props;
@@ -12,16 +13,18 @@ export default function ActionButtons(props) {
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
-      <MenuButton
-        as={IconButton}
-        aria-label='Options'
-        size='xs'
-        icon={<FiPlus />}
-        _expanded={{ bg: 'orange.300', color: 'white' }}
-        _focus={{ boxShadow: 'none' }}
-        backgroundColor={'orange.200'}
-        color={'orange.500'}
-      />
+      <Tooltip label={'Add ...'} delay={500}>
+        <MenuButton
+          as={IconButton}
+          aria-label='Options'
+          size='xs'
+          icon={<FiPlus />}
+          _expanded={{ bg: 'orange.300', color: 'white' }}
+          _focus={{ boxShadow: 'none' }}
+          backgroundColor={'orange.200'}
+          color={'orange.500'}
+        />
+      </Tooltip>
       <MenuList style={menuStyle}>
         <MenuItem
           icon={<FiPlus />}
