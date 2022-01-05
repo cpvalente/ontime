@@ -40,6 +40,7 @@ export default function MenuBar(props) {
 
   const handleUpload = (event) => {
     const fileUploaded = event.target.files[0];
+    console.log('1', fileUploaded)
     if (fileUploaded == null) return;
 
     // Limit file size to 1MB
@@ -48,17 +49,18 @@ export default function MenuBar(props) {
       return;
     }
 
-    // Check file extension
-    if (! fileUploaded.name.endsWith('.xlsx')
-    || !fileUploaded.name.endsWith('.json')) {
-      emitError('Error: File type unknown')
-      return;
-    }
+    console.log('2', ! fileUploaded.name.endsWith('.xlsx')
+      || !fileUploaded.name.endsWith('.json'))
 
-    try {
-      uploaddb.mutate(fileUploaded);
-    } catch (error) {
-      emitError(`Failed uploading file: ${error}`)
+    // Check file extension
+    if (fileUploaded.name.endsWith('.xlsx') || fileUploaded.name.endsWith('.json')) {
+      try {
+        uploaddb.mutate(fileUploaded);
+      } catch (error) {
+        emitError(`Failed uploading file: ${error}`)
+      }
+    } else {
+      emitError('Error: File type unknown')
     }
 
     // reset input value
