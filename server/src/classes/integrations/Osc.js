@@ -24,6 +24,7 @@ export class OSCIntegration {
       time: 'time',
       overtime: 'overtime',
       title: 'title',
+      eventNumber: 'eventNumber',
       presenter: 'presenter',
     };
   }
@@ -90,6 +91,21 @@ export class OSCIntegration {
         if (payload != null && payload !== '') {
           // Send Title of current event
           this.oscClient.send(`${this.ADDRESS}/title`, payload, (err) => {
+            if (err) {
+              reply.success = false;
+              reply.message = err;
+            }
+          });
+        } else {
+          reply.success = false;
+          reply.message = 'Missing message data';
+        }
+        break;
+
+      case 'eventNumber':
+        if (payload != null && payload !== '') {
+          // Send event number of current event
+          this.oscClient.send(`${this.ADDRESS}/eventNuber`, payload, (err) => {
             if (err) {
               reply.success = false;
               reply.message = err;

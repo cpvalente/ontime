@@ -335,6 +335,10 @@ export class EventTimer extends Timer {
               this.osc.implemented.title,
               this.titles?.titleNow || ''
             );
+            this.sendOsc(
+              this.osc.implemented.eventNumber,
+              this.selectedEventIndex || 0
+            );
           }
         }
 
@@ -1390,6 +1394,7 @@ export class EventTimer extends Timer {
   }
 
   /****************************************************************************/
+
   /**
    * Logger logic
    * -------------
@@ -1453,6 +1458,7 @@ export class EventTimer extends Timer {
   }
 
   /****************************************************************************/
+
   /**
    * Integrations
    * -------------
