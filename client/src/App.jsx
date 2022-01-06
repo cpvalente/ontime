@@ -36,6 +36,8 @@ function App() {
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback((e) => {
+    // handle held key
+    if (e.repeat) return;
     // check if the alt key is pressed
     if (e.altKey) {
       if (e.key === 't' || e.key === 'T') {

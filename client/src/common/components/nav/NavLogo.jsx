@@ -16,6 +16,8 @@ export default function NavLogo(props) {
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback((e) => {
+    // handle held key
+    if (e.repeat) return;
     // Space bar
     if (e.keyCode === 32) {
       setShowNav((s) => !s);

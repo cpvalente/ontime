@@ -20,8 +20,10 @@ export default function EventList(props) {
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
     (e) => {
+      // handle held key
+      if (e.repeat) return;
       // Check if the alt key is pressed
-      if (e.altKey) {
+      if (e.altKey && (!e.ctrlKey || !e.shiftKey)) {
         // Arrow down
         if (e.keyCode === 40) {
           if (cursor == null) setCursor(0);
