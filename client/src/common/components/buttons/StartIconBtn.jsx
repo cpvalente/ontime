@@ -5,7 +5,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 export default function StartIconBtn(props) {
   const { clickhandler, active, ...rest } = props;
   return (
-    <Tooltip label='Start Timer' openDelay={500} shouldWrapChildren={props.disabled}>
+    <Tooltip label='Start timer' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
         icon={<FiPlay />}
         colorScheme='green'

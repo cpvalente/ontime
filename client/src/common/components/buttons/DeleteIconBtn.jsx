@@ -13,7 +13,7 @@ export default function DeleteIconBtn(props) {
   };
 
   return (
-    <Tooltip label={'Delete'}>
+    <Tooltip label='Delete'>
       <IconButton
         size={props.size || 'xs'}
         icon={<FiMinus />}

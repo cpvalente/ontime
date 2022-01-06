@@ -13,7 +13,7 @@ export default function MenuActionButtons(props) {
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
-      <Tooltip label={'Add / Delete ...'}>
+      <Tooltip label='Add / Delete ...'>
         <MenuButton
           as={IconButton}
           aria-label='Create Menu'

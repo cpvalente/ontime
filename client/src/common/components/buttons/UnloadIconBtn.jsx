@@ -5,7 +5,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 export default function UnloadIconBtn(props) {
   const { clickhandler, ...rest } = props;
   return (
-    <Tooltip label='Unload Event' openDelay={500} shouldWrapChildren={props.disabled}>
+    <Tooltip label='Unload event' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
         icon={<FiSquare />}
         colorScheme='red'

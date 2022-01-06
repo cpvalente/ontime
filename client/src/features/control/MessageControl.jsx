@@ -147,7 +147,7 @@ export default function MessageControl() {
         />
       </div>
       <div className={style.onAirToggle}>
-        <Tooltip label='Toggle Enable/Disable onAir' openDelay={500 }>
+        <Tooltip label={onAir ? 'Disable On Air mode' : 'Enable On Air mode'} openDelay={500}>
           <Switch
             colorScheme='green'
             size='md'

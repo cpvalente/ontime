@@ -5,7 +5,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 export default function RollIconBtn(props) {
   const { clickhandler, active, ...rest } = props;
   return (
-    <Tooltip label='Roll Mode' openDelay={500} shouldWrapChildren={props.disabled}>
+    <Tooltip label='Roll mode' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
         icon={<FiClock />}
         colorScheme='blue'

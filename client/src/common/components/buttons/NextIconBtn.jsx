@@ -5,7 +5,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 export default function NextIconBtn(props) {
   const { clickhandler, ...rest } = props;
   return (
-    <Tooltip label='Next Event' openDelay={500} shouldWrapChildren={props.disabled}>
+    <Tooltip label='Next event' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
         icon={<FiSkipForward />}
         colorScheme='whiteAlpha'

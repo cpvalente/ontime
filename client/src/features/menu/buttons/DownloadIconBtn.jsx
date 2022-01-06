@@ -5,7 +5,7 @@ import { FiDownload } from 'react-icons/fi';
 export default function DownloadIconBtn(props) {
   const { clickhandler, ...rest } = props;
   return (
-    <Tooltip label='Export Event List'>
+    <Tooltip label='Export event list'>
       <IconButton
         size={props.size || 'xs'}
         icon={<FiDownload />}

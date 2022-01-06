@@ -5,7 +5,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 export default function VisibleIconBtn(props) {
   const { actionHandler, active, ...rest } = props;
   return (
-    <Tooltip label='Toggle Enable/Disable message' openDelay={500}>
+    <Tooltip label={active ? 'Make invisible' : 'Make visible'} openDelay={500}>
       <IconButton
         size={props.size || 'xs'}
         icon={<FiSun />}

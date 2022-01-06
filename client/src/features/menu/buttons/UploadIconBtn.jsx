@@ -5,7 +5,7 @@ import { FiUpload } from 'react-icons/fi';
 export default function UploadIconBtn(props) {
   const { clickhandler, ...rest } = props;
   return (
-    <Tooltip label='Import Event List'>
+    <Tooltip label='Import event list'>
       <IconButton
         size={props.size || 'xs'}
         icon={<FiUpload />}

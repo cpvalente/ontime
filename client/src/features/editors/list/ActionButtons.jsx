@@ -13,7 +13,7 @@ export default function ActionButtons(props) {
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
-      <Tooltip label={'Add ...'} delay={500}>
+      <Tooltip label='Add ...' delay={500}>
         <MenuButton
           as={IconButton}
           aria-label='Options'

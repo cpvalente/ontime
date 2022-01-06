@@ -5,7 +5,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 export default function PauseIconBtn(props) {
   const { clickhandler, active, ...rest } = props;
   return (
-    <Tooltip label='Pause Timer' openDelay={500} shouldWrapChildren={props.disabled}>
+    <Tooltip label='Pause timer' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
         icon={<FiPause />}
         colorScheme='orange'
