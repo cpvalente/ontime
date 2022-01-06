@@ -57,6 +57,7 @@ export default function OscSettingsModal() {
     } else {
       // Post here
       await postOSC(formData);
+      await refetch();
       setChanged(false);
     }
     setSubmitting(false);
