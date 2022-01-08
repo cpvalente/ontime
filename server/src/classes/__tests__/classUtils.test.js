@@ -398,7 +398,7 @@ describe('test that it replaces data correctly', () => {
     $presenter: 'presenter',
     $subtitle: 'subtitle',
     '$next-title': 'next title',
-    '$next-presenter': 'next timer',
+    '$next-presenter': 'next presenter',
     '$next-subtitle': 'next subtitle',
   };
 
@@ -416,9 +416,9 @@ describe('test that it replaces data correctly', () => {
     expect(s).toBe(expected);
   });
 
-  it('replaces timer', () => {
-    const test = '___1232132 $timer';
-    const expected = '___1232132 timer';
+  it('replaces presenter', () => {
+    const test = '___1232132 $presenter';
+    const expected = '___1232132 presenter';
     const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });
@@ -437,9 +437,9 @@ describe('test that it replaces data correctly', () => {
     expect(s).toBe(expected);
   });
 
-  it('replaces next timer', () => {
-    const test = '___1232132 $next-timer';
-    const expected = '___1232132 next timer';
+  it('replaces next presenter', () => {
+    const test = '___1232132 $next-presenter';
+    const expected = '___1232132 next presenter';
     const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });

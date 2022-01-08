@@ -43,7 +43,8 @@
     "testEnvironment": "node",
     "testRunner": "jasmine2",
     "testPathIgnorePatterns": [
-      "dist"
+      "dist",
+      "cypress"
     ]
   },
   "build": {
