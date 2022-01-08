@@ -338,6 +338,10 @@ export class EventTimer extends Timer {
               this.osc.implemented.title,
               this.titles?.titleNow || ''
             );
+            this.sendOsc(
+              this.osc.implemented.presenter,
+              this.titles?.presenterNow || ''
+            );
           }
         }
 

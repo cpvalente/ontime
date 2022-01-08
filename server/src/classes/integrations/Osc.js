@@ -114,7 +114,7 @@ export class OSCIntegration {
       case 'eventNumber':
         if (payload != null && payload !== '') {
           // Send event number of current event
-          this.oscClient.send(`${this.ADDRESS}/eventNuber`, payload, (err) => {
+          this.oscClient.send(`${this.ADDRESS}/eventNumber`, payload, (err) => {
             if (err) {
               reply.success = false;
               reply.message = err;
