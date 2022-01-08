@@ -56,6 +56,7 @@ const Lower = (props) => {
         clearTimeout(timeout);
       }
     };
+    // eslint-disable-next-line
   }, [title.titleNow, title.subtitleNow, title.presenterNow]);
 
   // TODO: sanitize data

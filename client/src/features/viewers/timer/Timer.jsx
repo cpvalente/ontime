@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Countdown from 'common/components/countdown/Countdown';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
 import NavLogo from 'common/components/nav/NavLogo';
@@ -8,11 +9,26 @@ import style from './Timer.module.scss';
 
 export default function Timer(props) {
   const { general, pres, title, time } = props;
+  const [elapsed, setElapsed] = useState(true);
+  const [searchParams] = useSearchParams();
 
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Timer';
   }, []);
+
+  // eg. http://localhost:3000/timer?progress=up
+  // Check for user options
+  useEffect(() => {
+    // progress: selector
+    // Should be 'up' or 'down'
+    const progress = searchParams.get('progress');
+    if (progress === 'up') {
+      setElapsed(true);
+    } else if (progress === 'down') {
+      setElapsed(false);
+    }
+  }, [searchParams]);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
@@ -79,7 +95,11 @@ export default function Timer(props) {
             isPlaying ? style.progressContainer : style.progressContainerPaused
           }
         >
-          <MyProgressBar now={normalisedTime} complete={time.durationSeconds} />
+          <MyProgressBar
+            now={normalisedTime}
+            complete={time.durationSeconds}
+            showElapsed={elapsed}
+          />
         </div>
       )}
 
