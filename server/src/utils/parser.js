@@ -154,7 +154,7 @@ export const parseExcel_v1 = async (excelData) => {
               case 'title':
                 titleIndex = j;
                 break;
-              case 'presenter name':
+              case 'timer name':
               case 'speaker':
               case 'presenter':
                 presenterIndex = j;

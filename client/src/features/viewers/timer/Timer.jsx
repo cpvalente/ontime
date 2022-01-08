@@ -4,14 +4,14 @@ import Countdown from 'common/components/countdown/Countdown';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
 import NavLogo from 'common/components/nav/NavLogo';
 import TitleCard from 'common/components/views/TitleCard';
-import style from './PresenterView.module.css';
+import style from './Timer.module.scss';
 
-export default function PresenterView(props) {
+export default function Timer(props) {
   const { general, pres, title, time } = props;
 
   // Set window title
   useEffect(() => {
-    document.title = 'ontime - Presenter Screen';
+    document.title = 'ontime - Timer';
   }, []);
 
   const showOverlay = pres.text !== '' && pres.visible;

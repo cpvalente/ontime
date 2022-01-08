@@ -1,3 +1,5 @@
+@use '../../../styles/main' as *;
+
 .container__gray,
 .container__grayFinished {
   margin: 0;
@@ -5,9 +7,9 @@
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
 
-  background: radial-gradient(circle, #202020 0%, #121212 80%);
+  background: radial-gradient(circle, $bg-black-gradient 0%, $bg-black 80%);
   height: 100vh;
-  color: #fffd;
+  color: $title-white;
   display: grid;
   grid-template-columns: 1fr 1fr 5vw 1fr 1fr;
   grid-template-rows: auto 1fr auto minmax(25vh, auto);
@@ -20,25 +22,11 @@
   padding: 1vw;
 }
 
-.container__graySimple,
-.container__grayFinishedSimple {
-  background: radial-gradient(circle, #202020 0%, #121212 80%);
-  height: 100vh;
-  color: #fffd;
-  display: grid;
-  grid-template-columns: 1fr 1fr 5vw 1fr 1fr;
-  grid-template-rows: auto 1fr 30vh;
-  grid-template-areas:
-    ' clck .... .... .... ....'
-    ' timr timr timr timr timr'
-    ' prog prog prog prog prog';
-  gap: 1vw;
-}
-
 .label {
   font-size: 1.3vw;
-  color: #ff7597;
+  color: $ontime-pink;
 }
+
 /* =================== TITLES ===================*/
 
 .nowContainer,
@@ -52,6 +40,7 @@
 .nowContainer {
   grid-area: now;
 }
+
 .nextContainer {
   grid-area: next;
 }
@@ -71,7 +60,7 @@
   font-size: 12vw;
   line-height: 18vw;
   font-weight: 600;
-  color: #ff6969;
+  color: $ontime-pink-variant;
   padding: 0;
 }
 
@@ -95,7 +84,7 @@
 }
 
 .container__grayFinished {
-  border: 1vw solid #ff6969;
+  border: 1vw solid $ontime-pink-variant;
 }
 
 /* =================== OVERLAY ===================*/

@@ -37,6 +37,15 @@ export class OSCIntegration {
    */
   init(oscConfig) {
     const { ip, port } = oscConfig;
+    const validateType = typeof ip !== 'string' || typeof port !== 'number';
+    const validateNull = ip == null || port == null;
+
+    if (validateType || validateNull) {
+      return {
+        success: false,
+        message: `Config options incorrect`,
+      };
+    }
     try {
       this.oscClient = new Client(ip, port);
       return {
@@ -46,7 +55,7 @@ export class OSCIntegration {
     } catch (error) {
       this.oscClient = null;
       return {
-        success: true,
+        success: false,
         message: `Failed initialising OSC Client: ${error}`,
       };
     }
@@ -119,7 +128,7 @@ export class OSCIntegration {
 
       case 'presenter':
         if (payload != null && payload !== '') {
-          // Send presenter data on current event
+          // Send timer data on current event
           this.oscClient.send(`${this.ADDRESS}/presenter`, payload, (err) => {
             if (err) {
               reply.success = false;

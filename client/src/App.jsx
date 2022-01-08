@@ -9,9 +9,14 @@ import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
 
 const Editor = lazy(() => import('features/editors/Editor'));
-const PresenterView = lazy(() =>
-  import('features/viewers/presenter/PresenterView')
+
+const TimerView = lazy(() =>
+  import('features/viewers/timer/Timer')
 );
+const MinimalTimerView = lazy(() =>
+  import('features/viewers/timer/MinimalTimer')
+);
+
 const StageManager = lazy(() =>
   import('features/viewers/backstage/StageManager')
 );
@@ -22,7 +27,8 @@ const Lower = lazy(() =>
 const Pip = lazy(() => import('features/viewers/production/Pip'));
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 
-const SPresenter = withSocket(PresenterView);
+const STimer = withSocket(TimerView);
+const SMinimalTimer = withSocket(MinimalTimerView);
 const SStageManager = withSocket(StageManager);
 const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
@@ -77,11 +83,15 @@ function App() {
       <ErrorBoundary>
         <Suspense fallback={null}>
           <Routes>
-            <Route path='/' element={<SPresenter />} />
+            <Route path='/' element={<STimer />} />
             <Route path='/sm' element={<SStageManager />} />
-            <Route path='/speaker' element={<SPresenter />} />
-            <Route path='/presenter' element={<SPresenter />} />
-            <Route path='/stage' element={<SPresenter />} />
+            <Route path='/speaker' element={<STimer />} />
+            <Route path='/presenter' element={<STimer />} />
+            <Route path='/stage' element={<STimer />} />
+            <Route path='/timer' element={<STimer />} />
+            <Route path='/minimal' element={<SMinimalTimer />} />
+            <Route path='/minimalTimer' element={<SMinimalTimer />} />
+            <Route path='/simpleTimer' element={<SMinimalTimer />} />
             <Route path='/public' element={<SPublic />} />
             <Route path='/pip' element={<SPip />} />
             <Route path='/studio' element={<SStudio />} />
@@ -97,7 +107,7 @@ function App() {
               }
             />
             {/* Send to default if nothing found */}
-            <Route path='*' element={<SPresenter />} />
+            <Route path='*' element={<STimer />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>

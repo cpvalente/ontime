@@ -56,44 +56,51 @@ export default function NavLogo(props) {
             className={showNav ? style.nav : style.navHidden}
           >
             <Link
-              to='/presenter'
+              to='/timer'
               className={style.navItem}
               tabIndex={1}
             >
-              Presenter
+              Timer
+            </Link>
+            <Link
+              to='/minimal'
+              className={style.navItem}
+              tabIndex={2}
+            >
+              Minimal Timer
             </Link>
             <Link
               to='/sm'
               className={style.navItem}
-              tabIndex={2}
+              tabIndex={3}
             >
               Backstage
             </Link>
             <Link
               to='/public'
               className={style.navItem}
-              tabIndex={3}
+              tabIndex={4}
             >
               Public
             </Link>
             <Link
               to='/lower'
               className={style.navItem}
-              tabIndex={4}
+              tabIndex={5}
             >
               Lower Thirds
             </Link>
             <Link
               to='/pip'
               className={style.navItem}
-              tabIndex={4}
+              tabIndex={6}
             >
               PIP
             </Link>
             <Link
               to='/studio'
               className={style.navItem}
-              tabIndex={5}
+              tabIndex={7}
             >
               Studio Clock
             </Link>

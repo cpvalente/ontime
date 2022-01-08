@@ -56,8 +56,8 @@ export default function MessageControl() {
   useEffect(() => {
     if (socket == null) return;
 
-    // Handle presenter messages
-    socket.on('messages-presenter', (data) => {
+    // Handle timer messages
+    socket.on('messages-timer', (data) => {
       setPres({ ...data });
     });
 
@@ -84,7 +84,7 @@ export default function MessageControl() {
     // Clear listeners
     return () => {
       socket.off('messages-public');
-      socket.off('messages-presenter');
+      socket.off('messages-timer');
       socket.off('messages-lower');
       socket.off('onAir');
     };
@@ -93,10 +93,10 @@ export default function MessageControl() {
   const messageControl = async (action, payload) => {
     switch (action) {
       case 'pres-text':
-        socket.emit('set-presenter-text', payload);
+        socket.emit('set-timer-text', payload);
         break;
       case 'toggle-pres-visible':
-        socket.emit('set-presenter-visible', !pres.visible);
+        socket.emit('set-timer-visible', !pres.visible);
         break;
       case 'publ-text':
         socket.emit('set-public-text', payload);
