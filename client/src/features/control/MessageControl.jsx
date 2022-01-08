@@ -1,10 +1,9 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { Switch } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import VisibleIconBtn from 'common/components/buttons/VisibleIconBtn';
+import OnAirIconBtn from '../../common/components/buttons/OnAirIconBtn';
 import style from './MessageControl.module.scss';
-import { Tooltip } from '@chakra-ui/tooltip';
 
 const inputProps = {
   size: 'sm',
@@ -147,16 +146,13 @@ export default function MessageControl() {
         />
       </div>
       <div className={style.onAirToggle}>
-        <Tooltip label={onAir ? 'Disable On Air mode' : 'Enable On Air mode'} openDelay={500}>
-          <Switch
-            colorScheme='green'
-            size='md'
-            isChecked={onAir}
-            onChange={() => messageControl('toggle-onAir')}
-          >
-            On Air?
-          </Switch>
-        </Tooltip>
+        <OnAirIconBtn
+          className={style.btn}
+          active={onAir}
+          size='md'
+          actionHandler={() => messageControl('toggle-onAir')}
+        />
+        <span className={style.onAirLabel}>On Air</span>
         <span className={style.oscLabel}>
           {`/ontime/offAir << OSC >> /ontime/onAir`}
         </span>
