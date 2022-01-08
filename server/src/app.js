@@ -123,6 +123,7 @@ const osc = data.osc;
 const oscIP = osc?.targetIP || config.osc.targetIP;
 const oscOutPort = osc?.portOut || config.osc.portOut;
 const oscInPort = osc?.port || config.osc.port;
+const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.inputEnabled;
 
 const serverPort = data.settings.serverPort || config.server.port;
 
@@ -130,14 +131,19 @@ const serverPort = data.settings.serverPort || config.server.port;
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 
 export const startOSCServer = async (overrideConfig = null) => {
+
+  if (!oscInEnabled) {
+    global.timer.info('RX', 'OSC Input Disabled')
+    return;
+  }
+
   // Setup default port
   const oscSettings = {
     port: overrideConfig?.port || oscInPort,
-    ipOut: oscIP,
-    portOut: oscOutPort,
   };
 
   // Start OSC Server
+  global.timer.info('RX', `Starting OSC Server on port: ${oscInPort}`)
   initiateOSC(oscSettings);
 };
 

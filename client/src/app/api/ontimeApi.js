@@ -25,7 +25,7 @@ export const oscPlaceholderSettings = {
   port: '',
   portOut: '',
   targetIP: '',
-  enabled: true,
+  enabled: false,
 };
 
 export const httpPlaceholder = {
