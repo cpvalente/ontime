@@ -67,4 +67,4 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           working-directory: ./server
-          start: cd ./server && yarn cypress
+          start: yarn cypress
