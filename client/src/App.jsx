@@ -84,14 +84,18 @@ function App() {
         <Suspense fallback={null}>
           <Routes>
             <Route path='/' element={<STimer />} />
-            <Route path='/sm' element={<SStageManager />} />
             <Route path='/speaker' element={<STimer />} />
             <Route path='/presenter' element={<STimer />} />
             <Route path='/stage' element={<STimer />} />
             <Route path='/timer' element={<STimer />} />
+
             <Route path='/minimal' element={<SMinimalTimer />} />
             <Route path='/minimalTimer' element={<SMinimalTimer />} />
             <Route path='/simpleTimer' element={<SMinimalTimer />} />
+
+            <Route path='/sm' element={<SStageManager />} />
+            <Route path='/backstage' element={<SStageManager />} />
+
             <Route path='/public' element={<SPublic />} />
             <Route path='/pip' element={<SPip />} />
             <Route path='/studio' element={<SStudio />} />
