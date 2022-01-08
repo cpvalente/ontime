@@ -1,9 +1,9 @@
 import fs from 'fs';
 import xlsx from 'node-xlsx';
 import {
-  event as eventDef,
-  delay as delayDef,
   block as blockDef,
+  delay as delayDef,
+  event as eventDef,
 } from '../models/eventsDefinition.js';
 import { dbModelv1 } from '../models/dataModel.js';
 import { generateId } from 'ontime-utils/generate_id.js';
@@ -183,7 +183,6 @@ export const parseExcel_v1 = async (excelData) => {
         events.push({ ...event, type: 'event' });
       }
     });
-
   return {
     events,
     event: eventData,

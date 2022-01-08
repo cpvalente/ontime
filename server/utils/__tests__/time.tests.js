@@ -62,14 +62,18 @@ describe('test excel date parser', () => {
     const d0 = '1899-12-30T00:00:00.000Z';
     const d1 = '1899-12-30T08:00:00.000Z';
     const d2 = '1899-12-30T08:30:00.000Z';
+    const d3 = '1899-12-30T23:30:00.000Z';
 
-    const d0Millis = 0;
-    const d1Millis = 28800000;
-    const d2Millis = 30600000;
+    // adding 3600000 because I am an hour ahead of UTC
+    const d0Millis = 3600000;
+    const d1Millis = 28800000 + 3600000;
+    const d2Millis = 30600000 + 3600000;
+    const d3Millis = 1800000;
 
     expect(excelDateStringToMillis(d0)).toBe(d0Millis);
     expect(excelDateStringToMillis(d1)).toBe(d1Millis);
     expect(excelDateStringToMillis(d2)).toBe(d2Millis);
+    expect(excelDateStringToMillis(d3)).toBe(d3Millis);
   });
 
   it('handles an invalid date string', () => {
