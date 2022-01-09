@@ -33,7 +33,7 @@
     "start": "NODE_ENV=development electron .",
     "start:server": "nodemon --experimental-modules --es-module-specifier-resolution=node src/app.js",
     "cy:run": "cypress run",
-    "cypress": "start-server-and-test start:server http://localhost:4001 cy:run",
+    "cypress": "start-server-and-test start http://localhost:4001 cy:run",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "dist-win": "electron-builder --publish=never  --x64 --win",
