@@ -19,6 +19,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.4.5",
+    "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "start-server-and-test": "^1.14.0"
   },
