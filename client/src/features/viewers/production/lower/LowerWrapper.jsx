@@ -7,7 +7,7 @@ const isEqual = require('react-fast-compare');
 const areEqual = (prevProps, nextProps) => {
   return (
     isEqual(prevProps.title, nextProps.title) &&
-    isEqual(prevProps.lower && nextProps.lower)
+    isEqual(prevProps.lower, nextProps.lower)
   );
 };
 
