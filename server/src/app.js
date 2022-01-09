@@ -162,7 +162,7 @@ export const startServer = async (overrideConfig = null) => {
 
   // Start server
   const returnMessage = `Ontime is listening on port ${port}`;
-  server.listen(port, '0.0.0.0', () => console.log(returnMessage));
+  server.listen(port, '0.0.0.0');
 
   // OSC Config
   const oscConfig = {
@@ -173,7 +173,7 @@ export const startServer = async (overrideConfig = null) => {
   // init timer
   global.timer = new EventTimer(server, config.timer, oscConfig, data.http);
   global.timer.setupWithEventList(data.events);
-
+  global.timer.info('SERVER', returnMessage);
   return returnMessage;
 };
 

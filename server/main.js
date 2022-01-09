@@ -23,9 +23,7 @@ const nodePath =
 
 (async () => {
   try {
-    const { startServer, startOSCServer } = await import(
-      nodePath
-    );
+    const { startServer, startOSCServer } = await import(nodePath);
     // Start express server
     loaded = await startServer();
 
@@ -61,7 +59,6 @@ if (!lock) {
     'An instance if the App is already running.'
   );
   app.quit();
-  return;
 } else {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     // Someone tried to run a second instance, we should focus our window.
@@ -191,6 +188,15 @@ app.whenReady().then(() => {
 
   const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
   tray.setContextMenu(trayContextMenu);
+
+  // on tray click event, show main window
+  tray.on('click', function (e) {
+    if (!win.isVisible()) {
+      win.show();
+    }
+    win.focus();
+  });
+
 });
 
 // unregister shortcuts before quitting
