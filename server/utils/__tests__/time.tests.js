@@ -1,5 +1,4 @@
 import { excelDateStringToMillis, stringFromMillis } from '../time.js';
-import dayjs from 'dayjs';
 
 describe('test string to millis function', () => {
   it('test with null values', () => {

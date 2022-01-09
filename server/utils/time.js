@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-
 const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
 const mth = 1000 * 60 * 60; // millis to hours
