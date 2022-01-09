@@ -56,7 +56,7 @@ jobs:
 
       # App
       - name: Electron - Install dependencies
-        run: yarn install
+        run: yarn install && yarn setdb
         working-directory: ./server
 
       - name: Electron - Run tests
