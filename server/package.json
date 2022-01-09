@@ -21,7 +21,8 @@
     "jest": "^27.4.5",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
-    "start-server-and-test": "^1.14.0"
+    "start-server-and-test": "^1.14.0",
+    "supertest": "^6.1.6"
   },
   "scripts": {
     "nodestart": "NODE_ENV=development node src/app.js",

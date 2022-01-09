@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // get database
-import { db, data } from '../app.js';
+import { data, db } from '../app.js';
 import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
 import { generateId } from 'ontime-utils/generate_id.js';

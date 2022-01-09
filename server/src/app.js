@@ -191,3 +191,5 @@ export const shutdown = async () => {
   // shutdown timer
   global.timer.shutdown();
 };
+
+export { server, app };
