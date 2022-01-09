@@ -1482,4 +1482,19 @@ export class EventTimer extends Timer {
       this.error('TX', reply.message);
     }
   }
+
+  /**
+   * Builds sync object
+   * @returns {{running: number, timer: (null|string|*), presenter: null, playback: string, clock: null, title: null}}
+   */
+  poll() {
+    return {
+      clock: this.clock,
+      running: Timer.toSeconds(this.current),
+      timer: this.timeTag,
+      playback: this.state,
+      title: this.titles.titleNow,
+      presenter: this.titles.presenterNow,
+    };
+  }
 }

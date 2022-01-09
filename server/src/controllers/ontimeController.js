@@ -15,6 +15,19 @@ function getEventTitle() {
   return data.event.title;
 }
 
+// Create controller for GET request to '/ontime/poll'
+// Returns data for current state
+export const poll = async (req, res) => {
+  try {
+    const s = global.timer.poll();
+    res.status(200).send(s);
+  } catch (error) {
+    res.status(500).send({
+      message: `Could not get sync data: ${error}`,
+    });
+  }
+};
+
 // Create controller for GET request to '/ontime/db'
 // Returns -
 export const dbDownload = async (req, res) => {

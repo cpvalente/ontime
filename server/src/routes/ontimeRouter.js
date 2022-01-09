@@ -15,7 +15,11 @@ import {
   postSettings,
   getAliases,
   postAliases,
+  poll,
 } from '../controllers/ontimeController.js';
+
+// create route between controller and '/ontime/sync' endpoint
+router.get('/poll', poll);
 
 // create route between controller and '/ontime/db' endpoint
 router.get('/db', dbDownload);
