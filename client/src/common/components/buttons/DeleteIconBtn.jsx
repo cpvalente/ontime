@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { useState } from 'react';
-import { FiMinus } from 'react-icons/fi';
+import { IoRemove } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function DeleteIconBtn(props) {
@@ -16,7 +16,7 @@ export default function DeleteIconBtn(props) {
     <Tooltip label='Delete'>
       <IconButton
         size={props.size || 'xs'}
-        icon={<FiMinus />}
+        icon={<IoRemove />}
         colorScheme='red'
         onClick={handleClick}
         _focus={{ boxShadow: 'none' }}

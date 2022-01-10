@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiRefreshCcw } from 'react-icons/fi';
+import { IoReload } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function ReloadIconButton(props) {
@@ -7,7 +7,7 @@ export default function ReloadIconButton(props) {
   return (
     <Tooltip label='Reload event' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
-        icon={<FiRefreshCcw />}
+        icon={<IoReload size='22px' />}
         colorScheme='whiteAlpha'
         backgroundColor='#ffffff05'
         variant='outline'

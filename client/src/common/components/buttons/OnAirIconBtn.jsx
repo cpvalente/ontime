@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiMic, FiMicOff } from 'react-icons/fi';
+import { IoMicSharp, IoMicOffOutline } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function OnAirIconBtn(props) {
@@ -8,7 +8,7 @@ export default function OnAirIconBtn(props) {
     <Tooltip label={active ? 'Go Off Air' : 'Go On Air'} openDelay={500}>
       <IconButton
         size={props.size || 'xs'}
-        icon={active ? <FiMic /> : <FiMicOff />}
+        icon={active ? <IoMicSharp size='24px' /> : <IoMicOffOutline size='24px' />}
         colorScheme='blue'
         variant={active ? 'solid' : 'outline'}
         onClick={() =>

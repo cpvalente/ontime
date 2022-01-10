@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiSkipForward } from 'react-icons/fi';
+import { IoPlaySkipForward } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function NextIconBtn(props) {
@@ -7,7 +7,7 @@ export default function NextIconBtn(props) {
   return (
     <Tooltip label='Next event' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
-        icon={<FiSkipForward />}
+        icon={<IoPlaySkipForward size='22px' />}
         colorScheme='whiteAlpha'
         backgroundColor='#ffffff11'
         variant='outline'

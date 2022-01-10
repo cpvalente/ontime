@@ -8,7 +8,7 @@ import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import SubmitContainer from './SubmitContainer';
 import { inputProps, portInputProps } from './modalHelper';
-import { FiInfo } from 'react-icons/fi';
+import { IoInformationCircleOutline } from 'react-icons/io5';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
 
 // currently defined endpoints
@@ -240,7 +240,7 @@ export default function OscSettingsModal() {
           </div>
           <div className={style.blockNotes}>
             <span className={style.inlineFlex}>
-              <FiInfo color='#2b6cb0' fontSize={'2em'} />
+              <IoInformationCircleOutline color='#2b6cb0' fontSize={'2em'} />
               OSC Feedback messages
             </span>
             <span>

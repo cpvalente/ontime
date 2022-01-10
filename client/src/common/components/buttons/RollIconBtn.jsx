@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiClock } from 'react-icons/fi';
+import { IoTimeOutline } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function RollIconBtn(props) {
@@ -7,7 +7,7 @@ export default function RollIconBtn(props) {
   return (
     <Tooltip label='Roll mode' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
-        icon={<FiClock />}
+        icon={<IoTimeOutline size='24px' />}
         colorScheme='blue'
         variant={active ? 'solid' : 'outline'}
         onClick={clickhandler}

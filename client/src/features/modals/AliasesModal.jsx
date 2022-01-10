@@ -1,5 +1,5 @@
 import { Button, IconButton } from '@chakra-ui/button';
-import { FiInfo, FiMinus, FiSun } from 'react-icons/fi';
+import { IoInformationCircleOutline, IoRemove, IoSunny } from 'react-icons/io5';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
 import { getAliases, postAliases } from '../../app/api/ontimeApi';
@@ -176,7 +176,7 @@ export default function AliasesModal() {
           <div className={style.hSeparator}>Custom Aliases</div>
           <div className={style.blockNotes}>
             <span className={style.inlineFlex}>
-              <FiInfo color='#2b6cb0' fontSize={'2em'} />
+              <IoInformationCircleOutline color='#2b6cb0' fontSize={'2em'} />
               URL aliases are useful in two main scenarios
             </span>
             <span className={style.labelNote}>Complicated URLs</span>
@@ -267,7 +267,7 @@ export default function AliasesModal() {
                 <Tooltip label='Enable alias' openDelay={500}>
                   <IconButton
                     size='xs'
-                    icon={<FiSun />}
+                    icon={<IoSunny />}
                     colorScheme='blue'
                     variant={alias.enabled ? null : 'outline'}
                     onClick={() => setEnabled(alias.id, !alias.enabled)}
@@ -276,7 +276,7 @@ export default function AliasesModal() {
                 <Tooltip label='Delete alias' openDelay={500}>
                   <IconButton
                     size='xs'
-                    icon={<FiMinus />}
+                    icon={<IoRemove />}
                     colorScheme='red'
                     onClick={() => deleteAlias(alias.id)}
                   />

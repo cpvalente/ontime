@@ -1,4 +1,4 @@
-import { FiX, FiCheck } from 'react-icons/fi';
+import { IoCloseSharp, IoCheckmarkSharp } from 'react-icons/io5';
 import { Button } from '@chakra-ui/button';
 
 export default function EnableBtn(props) {
@@ -6,7 +6,7 @@ export default function EnableBtn(props) {
   return (
     <Button
       size={props.size || 'xs'}
-      leftIcon={active ? <FiCheck /> : <FiX />}
+      leftIcon={active ? <IoCheckmarkSharp /> : <IoCloseSharp />}
       colorScheme='blue'
       variant={active ? 'solid' : 'outline'}
       onClick={actionHandler}

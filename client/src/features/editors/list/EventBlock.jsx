@@ -1,5 +1,6 @@
 import Icon from '@chakra-ui/icon';
-import { FiChevronUp, FiMoreVertical } from 'react-icons/fi';
+import { FiChevronUp } from 'react-icons/fi';
+import { IoReorderTwo } from 'react-icons/io5';
 import { useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
@@ -10,12 +11,11 @@ import PublicIconBtn from 'common/components/buttons/PublicIconBtn';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import style from './EventBlock.module.css';
-import { SelectCollapse, HandleCollapse } from 'app/context/collapseAtom';
+import { HandleCollapse, SelectCollapse } from 'app/context/collapseAtom';
 import { useAtom } from 'jotai';
 
 const ExpandedBlock = (props) => {
-  const { provided, data, eventIndex, next, delay, delayValue, actionHandler } =
-    props;
+  const { provided, data, eventIndex, next, delay, delayValue, actionHandler } = props;
 
   const oscid = data.id.length > 4 ? '...' : data.id;
 
@@ -28,14 +28,12 @@ const ExpandedBlock = (props) => {
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
-        <FiMoreVertical />
+        <IoReorderTwo />
       </span>
 
       <div className={style.indicators}>
         <span className={next ? style.next : style.nextDisabled}>Next</span>
-        {delayValue != null && (
-          <span className={style.delayValue}>+ {delayValue}</span>
-        )}
+        {delayValue != null && <span className={style.delayValue}>+ {delayValue}</span>}
       </div>
       <div className={style.timeExpanded}>
         <EventTimesVertical
@@ -53,25 +51,19 @@ const ExpandedBlock = (props) => {
           label='Title'
           defaultValue={data.title}
           placeholder='Add Title'
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'title', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'title', value: v })}
         />
         <EditableText
           label='Presenter'
           defaultValue={data.presenter}
           placeholder='Add Presenter name'
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'presenter', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'presenter', value: v })}
         />
         <EditableText
           label='Subtitle'
           defaultValue={data.subtitle}
           placeholder='Add Subtitle'
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'subtitle', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'subtitle', value: v })}
         />
         <EditableText
           label='Note'
@@ -79,9 +71,7 @@ const ExpandedBlock = (props) => {
           placeholder='Add Note'
           style={{ color: '#d69e2e' }}
           maxchar={160}
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'note', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'note', value: v })}
         />
         <span className={style.oscLabel}>
           {`/ontime/goto ${eventIndex + 1}  << OSC >> /ontime/gotoid ${oscid}`}
@@ -89,12 +79,7 @@ const ExpandedBlock = (props) => {
       </div>
       <div className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
-        <ActionButtons
-          showAdd
-          showDelay
-          showBlock
-          actionHandler={actionHandler}
-        />
+        <ActionButtons showAdd showDelay showBlock actionHandler={actionHandler} />
         <DeleteIconBtn actionHandler={actionHandler} />
       </div>
     </>
@@ -107,14 +92,12 @@ const CollapsedBlock = (props) => {
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
-        <FiMoreVertical />
+        <IoReorderTwo />
       </span>
 
       <div className={style.indicators}>
         <span className={next ? style.next : style.nextDisabled}>Next</span>
-        {delayValue != null && (
-          <span className={style.delayValue}>+ {delayValue}</span>
-        )}
+        {delayValue != null && <span className={style.delayValue}>+ {delayValue}</span>}
       </div>
       <EventTimes
         actionHandler={actionHandler}
@@ -128,19 +111,12 @@ const CollapsedBlock = (props) => {
           label='Title'
           defaultValue={data.title}
           placeholder='Add Title'
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'title', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'title', value: v })}
         />
       </div>
       <div className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
-        <ActionButtons
-          showAdd
-          showDelay
-          showBlock
-          actionHandler={actionHandler}
-        />
+        <ActionButtons showAdd showDelay showBlock actionHandler={actionHandler} />
       </div>
     </>
   );
@@ -148,9 +124,7 @@ const CollapsedBlock = (props) => {
 
 export default function EventBlock(props) {
   const { data, selected, delay, index, eventIndex, actionHandler } = props;
-  const [collapsed] = useAtom(
-    useMemo(() => SelectCollapse(data.id), [data.id])
-  );
+  const [collapsed] = useAtom(useMemo(() => SelectCollapse(data.id), [data.id]));
   const [, setCollapsed] = useAtom(HandleCollapse);
 
   // TODO: should this go inside useEffect()
@@ -169,11 +143,7 @@ export default function EventBlock(props) {
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
-        <div
-          className={classSelect}
-          {...provided.draggableProps}
-          ref={provided.innerRef}
-        >
+        <div className={classSelect} {...provided.draggableProps} ref={provided.innerRef}>
           <Icon
             className={collapsed ? style.moreCollapsed : style.moreExpanded}
             as={FiChevronUp}

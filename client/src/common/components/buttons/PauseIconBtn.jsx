@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiPause } from 'react-icons/fi';
+import { IoPause } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function PauseIconBtn(props) {
@@ -7,7 +7,7 @@ export default function PauseIconBtn(props) {
   return (
     <Tooltip label='Pause timer' openDelay={500} shouldWrapChildren={props.disabled}>
       <IconButton
-        icon={<FiPause />}
+        icon={<IoPause size='24px' />}
         colorScheme='orange'
         variant={active ? 'solid' : 'outline'}
         onClick={clickhandler}
