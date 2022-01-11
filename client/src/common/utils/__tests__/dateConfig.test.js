@@ -3,7 +3,7 @@ import {
   isTimeString,
   millisToMinutes,
   millisToSeconds,
-  timeHelper,
+  forgivingStringToMillis,
   timeStringToMillis,
 } from '../dateConfig';
 
@@ -276,7 +276,7 @@ describe('test timeHelper() function handles separators', () => {
   const ts = ['1:2:3:10', '2,10', '2.10'];
   for (const s of ts) {
     test(`it handles ${s}`, () => {
-      expect(typeof timeHelper(s)).toBe('number');
+      expect(typeof forgivingStringToMillis(s)).toBe('number');
     });
   }
 });
@@ -298,7 +298,7 @@ describe('test timeHelper() parses strings correctly', () => {
 
   for (const s of ts) {
     test(`it handles ${s.value}`, () => {
-      expect(timeHelper(s.value)).toBe(s.expect);
+      expect(forgivingStringToMillis(s.value)).toBe(s.expect);
     });
   }
 });

@@ -2,6 +2,7 @@ import EditableTimer from 'common/input/EditableTimer';
 import { stringFromMillis } from 'ontime-utils/time';
 import { useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
+import { validateTimes } from '../../../app/entryValidator';
 
 const label = {
   fontSize: '0.75em',
@@ -86,23 +87,26 @@ export default function EventTimesVertical(props) {
   const { delay, timeStart, timeEnd, duration } = props;
   const { emitWarning } = useContext(LoggingContext);
 
-  const handleValidate = (entry, v) => {
-    // we dont enforce validation here
-
-    if (v == null || timeStart == null || timeEnd == null) return true;
+  const handleValidate = (entry, val) => {
+    if (val == null || timeStart == null || timeEnd == null) return true;
     if (timeStart === 0) return true;
 
-    let validate = { value: true, catch: '' };
-    if (entry === 'timeStart' && v > timeEnd) {
-      validate.catch = 'Start time later than end time';
-    } else if (entry === 'timeEnd' && v < timeStart) {
-      validate.catch = 'End time earlier than start time';
+    let start = timeStart;
+    let end = timeEnd;
+    if (entry === 'timeStart') {
+      start = val
+    } else if (entry === 'timeEnd') {
+      end = val;
+    } else {
+      return;
     }
 
-    if (validate.catch !== '') {
-      emitWarning(`Time Input Warning: ${validate.catch}`);
+    const valid = validateTimes(start, end);
+    // give warning but not enforce validation
+    if (!valid.value) {
+      emitWarning(`Time Input Warning: ${valid.catch}`);
     }
-    return validate.value;
+    return valid.value;
   };
 
   return (

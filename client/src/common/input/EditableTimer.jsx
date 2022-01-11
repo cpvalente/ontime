@@ -1,9 +1,6 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useContext, useEffect, useState } from 'react';
-import {
-  isTimeString,
-  timeStringToMillis,
-} from '../utils/dateConfig';
+import { forgivingStringToMillis } from '../utils/dateConfig';
 import { stringFromMillis } from 'ontime-utils/time';
 import style from './EditableTimer.module.css';
 import { LoggingContext } from '../../app/context/LoggingContext';
@@ -33,13 +30,10 @@ export default function EditableTimer(props) {
     // Check if there is anything there
     if (value === '') return false;
 
-    // check if its valid time string
-    if (!isTimeString(value)) return false;
-
     // convert entered value to milliseconds
-    const newValMillis = timeStringToMillis(value);
+    const newValMillis = forgivingStringToMillis(value);
 
-    // Time now and time submitedVal
+    // Time now and time submittedVal
     const originalMillis = time + delay;
 
     // check if time is different from before

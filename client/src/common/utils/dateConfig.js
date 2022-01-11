@@ -89,9 +89,8 @@ const parse = (valueAsString) => {
  * @param string - time string
  * @returns {number} - time string in millis
  */
-export const timeHelper = (string) => {
+export const forgivingStringToMillis = (string) => {
   let millis = 0;
-
 
   // split string at known separators    : , .
   const separatorRegex = /[\s,:.]+/;

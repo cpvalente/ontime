@@ -1,27 +1,32 @@
 import EditableTimer from 'common/input/EditableTimer';
 import { useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
+import { validateTimes } from '../../../app/entryValidator';
 
 export default function EventTimes(props) {
   const { actionHandler, delay, timeStart, timeEnd } = props;
   const { emitWarning } = useContext(LoggingContext);
 
-  const handleValidate = (entry, v) => {
-    // we dont enforce validation here
-
-    if (v == null || timeStart == null || timeEnd == null) return true;
+  const handleValidate = (entry, val) => {
+    if (val == null || timeStart == null || timeEnd == null) return true;
     if (timeStart === 0) return true;
 
-    let validate = { value: true, catch: '' };
-    if (entry === 'timeStart' && v > timeEnd) {
-      validate.catch = 'Start time later than end time';
-    } else if (entry === 'timeEnd' && v < timeStart) {
-      validate.catch = 'End time earlier than start time';
+    let start = timeStart;
+    let end = timeEnd;
+    if (entry === 'timeStart') {
+      start = val;
+    } else if (entry === 'timeEnd') {
+      end = val;
+    } else {
+      return;
     }
 
-    if (validate.catch !== '')
-      emitWarning(`Time Input Warning: ${validate.catch}`);
-    return validate.value;
+    const valid = validateTimes(start, end);
+    // give warning but not enforce validation
+    if (!valid.value) {
+      emitWarning(`Time Input Warning: ${valid.catch}`);
+    }
+    return valid.value;
   };
 
   return (
