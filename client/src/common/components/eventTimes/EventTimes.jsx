@@ -4,7 +4,7 @@ import { LoggingContext } from '../../../app/context/LoggingContext';
 import { validateTimes } from '../../../app/entryValidator';
 
 export default function EventTimes(props) {
-  const { actionHandler, delay, timeStart, timeEnd } = props;
+  const { actionHandler, delay, timeStart, timeEnd, previousEnd } = props;
   const { emitWarning } = useContext(LoggingContext);
 
   const handleValidate = (entry, val) => {
@@ -37,6 +37,7 @@ export default function EventTimes(props) {
         actionHandler={actionHandler}
         time={timeStart}
         delay={delay}
+        previousEnd={previousEnd}
       />
       <EditableTimer
         name='timeEnd'
@@ -44,6 +45,7 @@ export default function EventTimes(props) {
         actionHandler={actionHandler}
         time={timeEnd}
         delay={delay}
+        previousEnd={previousEnd}
       />
     </>
   );

@@ -15,7 +15,7 @@ import { HandleCollapse, SelectCollapse } from 'app/context/collapseAtom';
 import { useAtom } from 'jotai';
 
 const ExpandedBlock = (props) => {
-  const { provided, data, eventIndex, next, delay, delayValue, actionHandler } = props;
+  const { provided, data, eventIndex, next, delay, delayValue, previousEnd, actionHandler } = props;
 
   const oscid = data.id.length > 4 ? '...' : data.id;
 
@@ -42,6 +42,7 @@ const ExpandedBlock = (props) => {
           timeEnd={data.timeEnd}
           duration={duration}
           delay={delay}
+          previousEnd={previousEnd}
           className={style.time}
         />
       </div>
@@ -87,7 +88,7 @@ const ExpandedBlock = (props) => {
 };
 
 const CollapsedBlock = (props) => {
-  const { provided, data, next, delay, delayValue, actionHandler } = props;
+  const { provided, data, next, delay, delayValue, previousEnd, actionHandler } = props;
 
   return (
     <>
@@ -104,6 +105,7 @@ const CollapsedBlock = (props) => {
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}
         delay={delay}
+        previousEnd={previousEnd}
         className={style.time}
       />
       <div className={style.titleContainer}>
@@ -123,7 +125,7 @@ const CollapsedBlock = (props) => {
 };
 
 export default function EventBlock(props) {
-  const { data, selected, delay, index, eventIndex, actionHandler } = props;
+  const { data, selected, delay, index, eventIndex, previousEnd, actionHandler } = props;
   const [collapsed] = useAtom(useMemo(() => SelectCollapse(data.id), [data.id]));
   const [, setCollapsed] = useAtom(HandleCollapse);
 
@@ -156,6 +158,7 @@ export default function EventBlock(props) {
               next={props.next}
               delay={delay}
               delayValue={delayValue}
+              previousEnd={previousEnd}
               actionHandler={actionHandler}
             />
           ) : (
@@ -166,6 +169,7 @@ export default function EventBlock(props) {
               next={props.next}
               delay={delay}
               delayValue={delayValue}
+              previousEnd={previousEnd}
               actionHandler={actionHandler}
             />
           )}

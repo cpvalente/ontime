@@ -10,7 +10,8 @@ const areEqual = (prevProps, nextProps) => {
     prevProps.selected === nextProps.selected &&
     prevProps.next === nextProps.next &&
     prevProps.index === nextProps.index &&
-    prevProps.delay === nextProps.delay
+    prevProps.delay === nextProps.delay &&
+    prevProps.previousEnd === nextProps.previousEnd
   );
 };
 
@@ -24,6 +25,7 @@ const EventListItem = (props) => {
     next,
     eventsHandler,
     delay,
+    previousEnd,
     ...rest
   } = props;
   const { emitError } = useContext(LoggingContext);
@@ -79,6 +81,7 @@ const EventListItem = (props) => {
           next={next}
           actionHandler={actionHandler}
           delay={delay}
+          previousEnd={previousEnd}
         />
       );
     case 'block':

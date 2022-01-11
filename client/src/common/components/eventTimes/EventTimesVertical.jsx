@@ -10,8 +10,7 @@ const label = {
 };
 
 const TimesDelayed = (props) => {
-  const { handleValidate, actionHandler, delay, timeStart, timeEnd, duration } =
-    props;
+  const { handleValidate, actionHandler, delay, timeStart, timeEnd, duration } = props;
 
   const scheduledStart = stringFromMillis(timeStart, false);
   const scheduledEnd = stringFromMillis(timeEnd, false);
@@ -84,7 +83,7 @@ const Times = (props) => {
 };
 
 export default function EventTimesVertical(props) {
-  const { delay, timeStart, timeEnd, duration } = props;
+  const { delay, timeStart, timeEnd, duration, previousEnd } = props;
   const { emitWarning } = useContext(LoggingContext);
 
   const handleValidate = (entry, val) => {
@@ -94,7 +93,7 @@ export default function EventTimesVertical(props) {
     let start = timeStart;
     let end = timeEnd;
     if (entry === 'timeStart') {
-      start = val
+      start = val;
     } else if (entry === 'timeEnd') {
       end = val;
     } else {
@@ -109,24 +108,24 @@ export default function EventTimesVertical(props) {
     return valid.value;
   };
 
-  return (
-    (delay != null) && (delay > 0) ? (
-      <TimesDelayed
-        handleValidate={handleValidate}
-        actionHandler={props.actionHandler}
-        delay={delay}
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        duration={duration}
-      />
-    ) : (
-      <Times
-        handleValidate={handleValidate}
-        actionHandler={props.actionHandler}
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        duration={duration}
-      />
-    )
-  )
+  return delay != null && delay > 0 ? (
+    <TimesDelayed
+      handleValidate={handleValidate}
+      actionHandler={props.actionHandler}
+      delay={delay}
+      timeStart={timeStart}
+      timeEnd={timeEnd}
+      duration={duration}
+      previousEnd={previousEnd}
+    />
+  ) : (
+    <Times
+      handleValidate={handleValidate}
+      actionHandler={props.actionHandler}
+      timeStart={timeStart}
+      timeEnd={timeEnd}
+      duration={duration}
+      previousEnd={previousEnd}
+    />
+  );
 }

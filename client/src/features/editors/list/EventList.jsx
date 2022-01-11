@@ -147,6 +147,8 @@ export default function EventList(props) {
 
   let cumulativeDelay = 0;
   let eventIndex = -1;
+  let previousEnd = 0;
+  let thisEnd = 0;
 
   return (
     <div className={style.eventContainer}>
@@ -169,6 +171,8 @@ export default function EventList(props) {
                   cumulativeDelay = 0;
                 } else if (e.type === 'event') {
                   eventIndex++;
+                  previousEnd = thisEnd;
+                  thisEnd = e.timeEnd;
                 }
 
                 return (
@@ -186,6 +190,7 @@ export default function EventList(props) {
                       next={nextId === e.id}
                       eventsHandler={eventsHandler}
                       delay={cumulativeDelay}
+                      previousEnd={previousEnd}
                     />
                   </div>
                 );

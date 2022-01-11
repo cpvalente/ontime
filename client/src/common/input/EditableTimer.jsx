@@ -6,7 +6,7 @@ import style from './EditableTimer.module.css';
 import { LoggingContext } from '../../app/context/LoggingContext';
 
 export default function EditableTimer(props) {
-  const { name, actionHandler, time, delay, validate } = props;
+  const { name, actionHandler, time, delay, validate, previousEnd } = props;
   const { emitError } = useContext(LoggingContext);
   const [value, setValue] = useState('');
 
@@ -30,17 +30,21 @@ export default function EditableTimer(props) {
     // Check if there is anything there
     if (value === '') return false;
 
+    let newValMillis = 0;
+
     // check for known aliases
     if (value === 'p' || value === 'prev' || value === 'previous') {
       // string to pass should be the time of the end before
-    }
-
-    if (value.startsWith('+')) {
+      newValMillis = previousEnd;
+      console.log('HERE', previousEnd)
+    } else if (value.startsWith('+')) {
       // string to pass should add to the end before
+      const val = value.substring(1);
+      newValMillis = previousEnd + forgivingStringToMillis(val);
+    } else {
+      // convert entered value to milliseconds
+      newValMillis = forgivingStringToMillis(value);
     }
-
-    // convert entered value to milliseconds
-    const newValMillis = forgivingStringToMillis(value);
 
     // Time now and time submittedVal
     const originalMillis = time + delay;
