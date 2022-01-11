@@ -50,7 +50,7 @@ const TimesDelayed = (props) => {
 };
 
 const Times = (props) => {
-  const { handleValidate, actionHandler, timeStart, timeEnd, duration } = props;
+  const { handleValidate, actionHandler, timeStart, timeEnd, duration, previousEnd } = props;
 
   return (
     <>
@@ -61,6 +61,7 @@ const Times = (props) => {
         actionHandler={actionHandler}
         time={timeStart}
         delay={0}
+        previousEnd={previousEnd}
       />
       <span style={label}>End</span>
       <EditableTimer
@@ -69,6 +70,7 @@ const Times = (props) => {
         actionHandler={actionHandler}
         time={timeEnd}
         delay={0}
+        previousEnd={previousEnd}
       />
       <span style={label}>Duration</span>
       <EditableTimer
@@ -77,6 +79,7 @@ const Times = (props) => {
         actionHandler={actionHandler}
         time={duration}
         delay={0}
+        previousEnd={previousEnd}
       />
     </>
   );

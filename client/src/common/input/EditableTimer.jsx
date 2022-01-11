@@ -25,6 +25,7 @@ export default function EditableTimer(props) {
     if (success) setValue(value);
     else setValue(stringFromMillis(time + delay, true));
   };
+  console.log('>>>>>>>>>>>>>>>', previousEnd)
 
   const handleSubmit = (value) => {
     // Check if there is anything there
@@ -35,8 +36,11 @@ export default function EditableTimer(props) {
     // check for known aliases
     if (value === 'p' || value === 'prev' || value === 'previous') {
       // string to pass should be the time of the end before
-      newValMillis = previousEnd;
-      console.log('HERE', previousEnd)
+      if (previousEnd != null) {
+        newValMillis = previousEnd;
+      } else {
+        newValMillis = 0;
+      }
     } else if (value.startsWith('+')) {
       // string to pass should add to the end before
       const val = value.substring(1);
