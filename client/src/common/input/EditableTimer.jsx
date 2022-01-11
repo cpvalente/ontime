@@ -30,6 +30,15 @@ export default function EditableTimer(props) {
     // Check if there is anything there
     if (value === '') return false;
 
+    // check for known aliases
+    if (value === 'p' || value === 'prev' || value === 'previous') {
+      // string to pass should be the time of the end before
+    }
+
+    if (value.startsWith('+')) {
+      // string to pass should add to the end before
+    }
+
     // convert entered value to milliseconds
     const newValMillis = forgivingStringToMillis(value);
 

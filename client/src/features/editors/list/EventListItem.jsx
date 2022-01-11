@@ -1,6 +1,6 @@
-import DelayBlock from './DelayBlock';
-import BlockBlock from './BlockBlock';
-import EventBlock from './EventBlock';
+import DelayBlock from '../DelayBlock/DelayBlock';
+import BlockBlock from '../BlockBlock/BlockBlock';
+import EventBlock from '../EventBlock/EventBlock';
 import { memo, useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 

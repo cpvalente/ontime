@@ -6,7 +6,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
 import EventTimesVertical from 'common/components/eventTimes/EventTimesVertical';
 import EditableText from 'common/input/EditableText';
-import ActionButtons from './ActionButtons';
+import ActionButtons from '../list/ActionButtons';
 import PublicIconBtn from 'common/components/buttons/PublicIconBtn';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import { millisToMinutes } from 'common/utils/dateConfig';
