@@ -1,7 +1,9 @@
 import {
   formatDisplay,
+  isTimeString,
   millisToMinutes,
   millisToSeconds,
+  timeHelper,
   timeStringToMillis,
 } from '../dateConfig';
 
@@ -243,4 +245,60 @@ describe('test timeStringToMillis function', () => {
     const t = { val: '2:03', result: 123000 };
     expect(timeStringToMillis(t.val)).toBe(t.result);
   });
+});
+
+describe('test isTimeString() function', () => {
+  test('it validates time strings', () => {
+    const ts = ['2', '2:10', '2:10:22'];
+    for (const s of ts) {
+      expect(isTimeString(s)).toBe(true);
+    }
+  });
+
+  test('it fails overloaded times', () => {
+    const ts = ['70', '89:10', '26:10:22'];
+    for (const s of ts) {
+      expect(isTimeString(s)).toBe(false);
+    }
+  });
+});
+
+describe('test isTimeString() function handle different separators', () => {
+  const ts = ['2:10', '2,10', '2.10'];
+  for (const s of ts) {
+    test(`it handles ${s}`, () => {
+      expect(isTimeString(s)).toBe(true);
+    });
+  }
+});
+
+describe('test timeHelper() function handles separators', () => {
+  const ts = ['1:2:3:10', '2,10', '2.10'];
+  for (const s of ts) {
+    test(`it handles ${s}`, () => {
+      expect(typeof timeHelper(s)).toBe('number');
+    });
+  }
+});
+
+describe('test timeHelper() parses strings correctly', () => {
+  const ts = [
+    { value: '', expect: 0 },
+    { value: '0', expect: 0 },
+    { value: '-0', expect: 0 },
+    { value: '1', expect: 60 * 1000 },
+    { value: '-1', expect: 60 * 1000 },
+    { value: '1.2', expect: 60 * 1000 + 2 * 1000 },
+    { value: '1.70', expect: 60 * 1000 + 70 * 1000 },
+    { value: '1.1.1', expect: 60 * 60 * 1000 + 60 * 1000 + 1000 },
+    { value: '12.1.1', expect: 12 * 60 * 60 * 1000 + 60 * 1000 + 1000 },
+    { value: '12.55.1', expect: 12 * 60 * 60 * 1000 + 55 * 60 * 1000 + 1000 },
+    { value: '12.55.40', expect: 12 * 60 * 60 * 1000 + 55 * 60 * 1000 + 40 * 1000 },
+  ];
+
+  for (const s of ts) {
+    test(`it handles ${s.value}`, () => {
+      expect(timeHelper(s.value)).toBe(s.expect);
+    });
+  }
 });
