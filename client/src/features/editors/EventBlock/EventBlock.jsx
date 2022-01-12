@@ -1,6 +1,6 @@
 import Icon from '@chakra-ui/icon';
 import { FiChevronUp } from 'react-icons/fi';
-import { IoReorderTwo } from 'react-icons/io5';
+import { FiMoreVertical  } from 'react-icons/io5';
 import { useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
@@ -29,7 +29,7 @@ const ExpandedBlock = (props) => {
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
-        <IoReorderTwo />
+        <FiMoreVertical  />
       </span>
 
       <div className={style.indicators}>
@@ -102,11 +102,10 @@ ExpandedBlock.propTypes = {
 const CollapsedBlock = (props) => {
   const { provided, data, next, delay, delayValue, previousEnd, actionHandler } = props;
 
-  console.log({ delay }, { delayValue });
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
-        <IoReorderTwo />
+        <FiMoreVertical  />
       </span>
 
       <div className={style.indicators}>
