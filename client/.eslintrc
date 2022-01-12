@@ -8,5 +8,6 @@
     "jest/no-mocks-import": "warn",
     "no-useless-concat": "warn",
     "prefer-template": "warn"
+
   }
 }

@@ -20,8 +20,10 @@ export default function EventList(props) {
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
     (e) => {
+      // handle held key
+      if (e.repeat) return;
       // Check if the alt key is pressed
-      if (e.altKey) {
+      if (e.altKey && (!e.ctrlKey || !e.shiftKey)) {
         // Arrow down
         if (e.keyCode === 40) {
           if (cursor == null) setCursor(0);
@@ -145,6 +147,8 @@ export default function EventList(props) {
 
   let cumulativeDelay = 0;
   let eventIndex = -1;
+  let previousEnd = 0;
+  let thisEnd = 0;
 
   return (
     <div className={style.eventContainer}>
@@ -167,6 +171,8 @@ export default function EventList(props) {
                   cumulativeDelay = 0;
                 } else if (e.type === 'event') {
                   eventIndex++;
+                  previousEnd = thisEnd;
+                  thisEnd = e.timeEnd;
                 }
 
                 return (
@@ -184,6 +190,7 @@ export default function EventList(props) {
                       next={nextId === e.id}
                       eventsHandler={eventsHandler}
                       delay={cumulativeDelay}
+                      previousEnd={previousEnd}
                     />
                   </div>
                 );

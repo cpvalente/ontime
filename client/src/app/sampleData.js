@@ -2,7 +2,7 @@ const dummy = new Date();
 
 export const sampleData = {
   presenterMessage: {
-    text: 'Only the presenter sees this',
+    text: 'Only the timer sees this',
     active: false,
   },
   publicMessage: {

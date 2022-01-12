@@ -1,8 +1,8 @@
-import {Editable, EditableInput, EditablePreview} from '@chakra-ui/editable';
-import {Switch} from "@chakra-ui/react";
-import {useEffect, useState} from 'react';
-import {useSocket} from 'app/context/socketContext';
+import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
+import { useEffect, useState } from 'react';
+import { useSocket } from 'app/context/socketContext';
 import VisibleIconBtn from 'common/components/buttons/VisibleIconBtn';
+import OnAirIconBtn from '../../common/components/buttons/OnAirIconBtn';
 import style from './MessageControl.module.scss';
 
 const inputProps = {
@@ -10,7 +10,7 @@ const inputProps = {
 };
 
 const InputRow = (props) => {
-  const {label, placeholder, text, visible} = props;
+  const { label, placeholder, text, visible } = props;
 
   return (
     <>
@@ -23,8 +23,8 @@ const InputRow = (props) => {
           className={style.inline}
           color={text === '' ? '#666' : 'inherit'}
         >
-          <EditablePreview className={style.padleft}/>
-          <EditableInput className={style.padleft}/>
+          <EditablePreview className={style.padleft} />
+          <EditableInput className={style.padleft} />
         </Editable>
         <VisibleIconBtn
           active={visible || undefined}
@@ -55,19 +55,19 @@ export default function MessageControl() {
   useEffect(() => {
     if (socket == null) return;
 
-    // Handle presenter messages
-    socket.on('messages-presenter', (data) => {
-      setPres({...data});
+    // Handle timer messages
+    socket.on('messages-timer', (data) => {
+      setPres({ ...data });
     });
 
     // Handle public messages
     socket.on('messages-public', (data) => {
-      setPubl({...data});
+      setPubl({ ...data });
     });
 
     // Handle lower third messages
     socket.on('messages-lower', (data) => {
-      setLower({...data});
+      setLower({ ...data });
     });
 
     // Handle lower third messages
@@ -83,7 +83,7 @@ export default function MessageControl() {
     // Clear listeners
     return () => {
       socket.off('messages-public');
-      socket.off('messages-presenter');
+      socket.off('messages-timer');
       socket.off('messages-lower');
       socket.off('onAir');
     };
@@ -92,10 +92,10 @@ export default function MessageControl() {
   const messageControl = async (action, payload) => {
     switch (action) {
       case 'pres-text':
-        socket.emit('set-presenter-text', payload);
+        socket.emit('set-timer-text', payload);
         break;
       case 'toggle-pres-visible':
-        socket.emit('set-presenter-visible', !pres.visible);
+        socket.emit('set-timer-visible', !pres.visible);
         break;
       case 'publ-text':
         socket.emit('set-public-text', payload);
@@ -146,13 +146,13 @@ export default function MessageControl() {
         />
       </div>
       <div className={style.onAirToggle}>
-        <Switch
-          colorScheme='green'
+        <OnAirIconBtn
+          className={style.btn}
+          active={onAir}
           size='md'
-          isChecked={onAir}
-          onChange={() => messageControl('toggle-onAir')}>
-          On Air?
-        </Switch>
+          actionHandler={() => messageControl('toggle-onAir')}
+        />
+        <span className={style.onAirLabel}>On Air</span>
         <span className={style.oscLabel}>
           {`/ontime/offAir << OSC >> /ontime/onAir`}
         </span>

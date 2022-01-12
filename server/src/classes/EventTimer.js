@@ -306,8 +306,11 @@ export class EventTimer extends Timer {
         // _finish at is only set when an event is loaded
         if (this._finishAt > 0) {
           this.sendOsc(this.osc.implemented.play);
+          this.sendOsc(
+            this.osc.implemented.eventNumber,
+            this.selectedEventIndex || 0
+          );
         }
-
         // check integrations - http
         if (h?.onLoad?.enabled) {
           if (h?.onLoad?.url != null || h?.onStart?.url !== '') {
@@ -334,6 +337,10 @@ export class EventTimer extends Timer {
             this.sendOsc(
               this.osc.implemented.title,
               this.titles?.titleNow || ''
+            );
+            this.sendOsc(
+              this.osc.implemented.presenter,
+              this.titles?.presenterNow || ''
             );
           }
         }
@@ -504,13 +511,13 @@ export class EventTimer extends Timer {
     switch (action) {
       /*******************************************/
       // Presenter message
-      case 'set-presenter-text':
+      case 'set-timer-text':
         this.presenter.text = payload;
-        this.broadcastThis('messages-presenter', this.presenter);
+        this.broadcastThis('messages-timer', this.presenter);
         break;
-      case 'set-presenter-visible':
+      case 'set-timer-visible':
         this.presenter.visible = payload;
-        this.broadcastThis('messages-presenter', this.presenter);
+        this.broadcastThis('messages-timer', this.presenter);
         break;
 
       /*******************************************/
@@ -679,22 +686,22 @@ export class EventTimer extends Timer {
 
       // Messages
       socket.on('get-messages', () => {
-        this.broadcastThis('messages-presenter', this.presenter);
+        this.broadcastThis('messages-timer', this.presenter);
         this.broadcastThis('messages-public', this.public);
         this.broadcastThis('messages-lower', this.lower);
       });
 
       // Presenter message
-      socket.on('set-presenter-text', (data) => {
-        this._setTitles('set-presenter-text', data);
+      socket.on('set-timer-text', (data) => {
+        this._setTitles('set-timer-text', data);
       });
 
-      socket.on('set-presenter-visible', (data) => {
-        this._setTitles('set-presenter-visible', data);
+      socket.on('set-timer-visible', (data) => {
+        this._setTitles('set-timer-visible', data);
       });
 
-      socket.on('get-presenter', () => {
-        this.broadcastThis('messages-presenter', this.presenter);
+      socket.on('get-timer', () => {
+        this.broadcastThis('messages-timer', this.presenter);
       });
       /*******************************************/
       // Public message
@@ -1390,6 +1397,7 @@ export class EventTimer extends Timer {
   }
 
   /****************************************************************************/
+
   /**
    * Logger logic
    * -------------
@@ -1453,6 +1461,7 @@ export class EventTimer extends Timer {
   }
 
   /****************************************************************************/
+
   /**
    * Integrations
    * -------------
@@ -1472,5 +1481,20 @@ export class EventTimer extends Timer {
     if (!reply.success) {
       this.error('TX', reply.message);
     }
+  }
+
+  /**
+   * Builds sync object
+   * @returns {{running: number, timer: (null|string|*), presenter: null, playback: string, clock: null, title: null}}
+   */
+  poll() {
+    return {
+      clock: this.clock,
+      running: Timer.toSeconds(this.current),
+      timer: this.timeTag,
+      playback: this.state,
+      title: this.titles.titleNow,
+      presenter: this.titles.presenterNow,
+    };
   }
 }

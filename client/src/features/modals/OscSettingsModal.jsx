@@ -8,7 +8,70 @@ import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import SubmitContainer from './SubmitContainer';
 import { inputProps, portInputProps } from './modalHelper';
+import { IoInformationCircleOutline } from 'react-icons/io5';
+import EnableBtn from '../../common/components/buttons/EnableBtn';
 
+// currently defined endpoints
+// temporary
+const oscCycleEndpoints = [
+  {
+    title: 'On Event Start',
+    message: '/ontime/eventNumber',
+    value: '8 | int',
+  },
+  {
+    title: 'On Update',
+    message: '/ontime/time',
+    value: '10:12:12 | string',
+  },
+  {
+    title: 'On Update',
+    message: '/ontime/overtime',
+    value: '0-1 | int',
+  },
+  {
+    title: 'On Update',
+    message: '/ontime/title',
+    value: 'Title of running event | string',
+  },
+  {
+    title: 'On Finish',
+    message: '/ontime/finished',
+    value: '-',
+  },
+];
+const oscTriggerEndpoints = [
+  {
+    title: 'On Start',
+    message: '/ontime/play',
+    value: '-',
+  },
+  {
+    title: 'On Pause',
+    message: '/ontime/pause',
+    value: '-',
+  },
+  {
+    title: 'On Previous',
+    message: '/ontime/prev',
+    value: '-',
+  },
+  {
+    title: 'On Next',
+    message: '/ontime/next',
+    value: '-',
+  },
+  {
+    title: 'On Reload',
+    message: '/ontime/reload',
+    value: '-',
+  },
+  {
+    title: 'On Stop',
+    message: '/ontime/stop',
+    value: '-',
+  },
+];
 
 export default function OscSettingsModal() {
   const { data, status, refetch } = useFetch(OSC_SETTINGS, getOSC);
@@ -57,6 +120,7 @@ export default function OscSettingsModal() {
     } else {
       // Post here
       await postOSC(formData);
+      await refetch();
       setChanged(false);
     }
     setSubmitting(false);
@@ -91,25 +155,44 @@ export default function OscSettingsModal() {
       </p>
       <form onSubmit={submitHandler}>
         <div className={style.modalFields}>
-          <div className={style.hSeparator}>OSC Input (control)</div>
-          <div className={style.spacedEntry}>
-            <FormLabel htmlFor='port'>
-              OSC In Port
-              <span className={style.labelNote}>
-                <br />
-                Open port for 3rd party control over OSC - Default 8888
-              </span>
-            </FormLabel>
-            <Input
-              {...portInputProps}
-              name='port'
-              placeholder='8888'
-              value={formData.port}
-              onChange={(event) =>
-                handleChange('port', parseInt(event.target.value))
-              }
-              style={{ width: '6em', textAlign: 'center' }}
-            />
+          <div className={style.hSeparator}>
+            OSC Input (Control ontime over OSC)
+          </div>
+          <div className={style.modalInline}>
+            <FormControl id='oscInEnabled'>
+              <FormLabel htmlFor='oscInEnabled'>
+                OSC Enable
+                <span className={style.labelNote}>
+                  <br />
+                  Enable / Disable control
+                </span>
+              </FormLabel>
+              <EnableBtn
+                active={formData.enabled}
+                text={formData.enabled ? 'OSC IN Enabled' : 'OSC IN Disabled'}
+                actionHandler={() => handleChange('enabled', !formData.enabled)}
+                onClick={() => console.log('yay')}
+              />
+            </FormControl>
+            <FormControl id='portIn'>
+              <FormLabel htmlFor='portIn'>
+                OSC In Port
+                <span className={style.labelNote}>
+                  <br />
+                  Port - Default 8888
+                </span>
+              </FormLabel>
+              <Input
+                {...portInputProps}
+                name='port'
+                placeholder='8888'
+                value={formData.port}
+                onChange={(event) =>
+                  handleChange('port', parseInt(event.target.value))
+                }
+                style={{ width: '6em', textAlign: 'center' }}
+              />
+            </FormControl>
           </div>
           <div className={style.hSeparator}>OSC Output (feedback)</div>
           <div className={style.modalInline}>
@@ -154,6 +237,48 @@ export default function OscSettingsModal() {
                 style={{ width: '6em', textAlign: 'left' }}
               />
             </FormControl>
+          </div>
+          <div className={style.blockNotes}>
+            <span className={style.inlineFlex}>
+              <IoInformationCircleOutline color='#2b6cb0' fontSize={'2em'} />
+              OSC Feedback messages
+            </span>
+            <span>
+              In future OSC feedback will be user defined. <br />
+              For now this is the list of OSC messages sent from ontime
+            </span>
+            <table>
+              <tbody>
+                <tr>
+                  <td className={style.labelNote} style={{ width: '30%' }}>
+                    Cycle
+                  </td>
+                  <td className={style.labelNote}>Message</td>
+                  <td className={style.labelNote}>Value (example | type)</td>
+                </tr>
+                {oscCycleEndpoints.map((e) => (
+                  <tr key={e.message}>
+                    <td>{e.title}</td>
+                    <td>{e.message}</td>
+                    <td>{e.value}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <td className={style.labelNote} style={{ width: '30%' }}>
+                    Trigger
+                  </td>
+                  <td className={style.labelNote}>Message</td>
+                  <td className={style.labelNote}>Value (example | type)</td>
+                </tr>
+                {oscTriggerEndpoints.map((e) => (
+                  <tr key={e.message}>
+                    <td>{e.title}</td>
+                    <td>{e.message}</td>
+                    <td>{e.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
         <SubmitContainer

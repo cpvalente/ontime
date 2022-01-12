@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // get database
-import { db, data } from '../app.js';
+import { data, db } from '../app.js';
 import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
 import { generateId } from 'ontime-utils/generate_id.js';
@@ -14,6 +14,19 @@ const __dirname = path.dirname(__filename);
 function getEventTitle() {
   return data.event.title;
 }
+
+// Create controller for GET request to '/ontime/poll'
+// Returns data for current state
+export const poll = async (req, res) => {
+  try {
+    const s = global.timer.poll();
+    res.status(200).send(s);
+  } catch (error) {
+    res.status(500).send({
+      message: `Could not get sync data: ${error}`,
+    });
+  }
+};
 
 // Create controller for GET request to '/ontime/db'
 // Returns -

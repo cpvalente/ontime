@@ -1,7 +1,7 @@
 // Create controller for GET request to '/playback'
 // Returns ACK message
 export const pbGet = async (req, res) => {
-  res.send(global.timer.playState);
+  res.send({ playback: global.timer.state });
 };
 
 // Create controller for GET request to '/playback/onAir'

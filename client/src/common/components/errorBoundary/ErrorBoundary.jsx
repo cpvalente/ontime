@@ -19,7 +19,6 @@ class ErrorBoundary extends React.Component {
       error: error,
       errorInfo: info,
     });
-    // TODO: Log the error to an error reporting service
     this.context.emitError(error.toString());
   }
 

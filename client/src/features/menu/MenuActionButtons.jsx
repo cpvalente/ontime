@@ -1,7 +1,8 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
-import { FiTrash2, FiPlus, FiClock, FiMinusCircle } from 'react-icons/fi';
+import { FiClock, FiMinusCircle, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { Divider } from '@chakra-ui/layout';
+import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function MenuActionButtons(props) {
   const { actionHandler } = props;
@@ -12,16 +13,18 @@ export default function MenuActionButtons(props) {
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
-      <MenuButton
-        as={IconButton}
-        aria-label='Create Menu'
-        size={props.size || 'xs'}
-        icon={<FiPlus />}
-        _expanded={{ bg: 'orange.300', color: 'white' }}
-        _focus={{ boxShadow: 'none' }}
-        backgroundColor={'orange.200'}
-        color={'orange.500'}
-      />
+      <Tooltip label='Add / Delete ...'>
+        <MenuButton
+          as={IconButton}
+          aria-label='Create Menu'
+          size={props.size || 'xs'}
+          icon={<FiPlus />}
+          _expanded={{ bg: 'orange.300', color: 'white' }}
+          _focus={{ boxShadow: 'none' }}
+          backgroundColor={'orange.200'}
+          color={'orange.500'}
+        />
+      </Tooltip>
       <MenuList style={menuStyle}>
         <MenuItem icon={<FiPlus />} onClick={() => actionHandler('event')}>
           Add Event first

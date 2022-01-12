@@ -25,7 +25,7 @@ export const oscPlaceholderSettings = {
   port: '',
   portOut: '',
   targetIP: '',
-  enabled: true,
+  enabled: false,
 };
 
 export const httpPlaceholder = {
@@ -66,7 +66,7 @@ export const ontimeVars = [
   },
   {
     name: '$presenter',
-    description: 'Current presenter',
+    description: 'Current timer',
   },
   {
     name: '$subtitle',
@@ -78,7 +78,7 @@ export const ontimeVars = [
   },
   {
     name: '$next-presenter',
-    description: 'Next presenter',
+    description: 'Next timer',
   },
   {
     name: '$next-subtitle',

@@ -1,12 +1,12 @@
 // get database
-import { db, data } from '../app.js';
+import { data, db } from '../app.js';
 
 // utils
 import { generateId } from 'ontime-utils/generate_id.js';
 import {
-  event as eventDef,
-  delay as delayDef,
   block as blockDef,
+  delay as delayDef,
+  event as eventDef,
 } from '../models/eventsDefinition.js';
 
 async function _insertAt(entry, index) {
@@ -73,9 +73,14 @@ export const eventsGetAll = async (req, res) => {
 // Create controller for GET request to '/events/:eventId'
 // Returns -
 export const eventsGetById = async (req, res) => {
-  const e = data.events.find({ id: req.params.eventId }).value();
-  console.log('event by id', e);
-  res.json(e);
+  const id = req.params?.eventId;
+
+  if (id == null) {
+    res.status(400).send(`No eventId found in request`);
+  } else {
+    const event = data.events.find((e) => e.id === id);
+    res.json(event);
+  }
 };
 
 // Create controller for POST request to '/events/'
@@ -89,23 +94,24 @@ export const eventsPost = async (req, res) => {
 
   // ensure structure
   let newEvent = {};
-  req.body.id = generateId();
+  let id = req.body.id;
+  if (data.events.find((e) => e.id === id)) {
+    id = generateId();
+  }
 
   switch (req.body.type) {
     case 'event':
-      newEvent = { ...eventDef, ...req.body };
+      newEvent = { ...eventDef, ...req.body, id };
       break;
     case 'delay':
-      newEvent = { ...delayDef, ...req.body };
+      newEvent = { ...delayDef, ...req.body, id };
       break;
     case 'block':
-      newEvent = { ...blockDef, ...req.body };
+      newEvent = { ...blockDef, ...req.body, id };
       break;
 
     default:
-      res
-        .status(400)
-        .send(`Object type missing or unrecognised: ${req.body.type}`);
+      res.status(400).send(`Object type missing or unrecognised: ${req.body.type}`);
       break;
   }
 

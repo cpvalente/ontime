@@ -13,7 +13,7 @@ import {
   pbPrevious,
   pbNext,
   pbUnload,
-  pbReload
+  pbReload,
 } from '../controllers/playbackController.js';
 
 // create route between controller and '/playback/' endpoint

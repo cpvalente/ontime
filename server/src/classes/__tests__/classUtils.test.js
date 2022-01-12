@@ -4,26 +4,26 @@ import {
   replacePlaceholder,
   normaliseEndTime,
   sortArrayByProperty,
-  updateRoll
+  updateRoll,
 } from '../classUtils.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
   it('sort array 1-5', () => {
     const arr1 = [
-      {timeStart: 1},
-      {timeStart: 5},
-      {timeStart: 3},
-      {timeStart: 2},
-      {timeStart: 4},
+      { timeStart: 1 },
+      { timeStart: 5 },
+      { timeStart: 3 },
+      { timeStart: 2 },
+      { timeStart: 4 },
     ];
 
     const arr1Expected = [
-      {timeStart: 1},
-      {timeStart: 2},
-      {timeStart: 3},
-      {timeStart: 4},
-      {timeStart: 5},
+      { timeStart: 1 },
+      { timeStart: 2 },
+      { timeStart: 3 },
+      { timeStart: 4 },
+      { timeStart: 5 },
     ];
 
     const sorted = sortArrayByProperty(arr1, 'timeStart');
@@ -32,21 +32,21 @@ describe('sort simple arrays of objects', () => {
 
   it('sort array 1-5 with null', () => {
     const arr1 = [
-      {timeStart: 1},
-      {timeStart: 5},
-      {timeStart: 3},
-      {timeStart: 2},
-      {timeStart: 4},
-      {timeStart: null},
+      { timeStart: 1 },
+      { timeStart: 5 },
+      { timeStart: 3 },
+      { timeStart: 2 },
+      { timeStart: 4 },
+      { timeStart: null },
     ];
 
     const arr1Expected = [
-      {timeStart: null},
-      {timeStart: 1},
-      {timeStart: 2},
-      {timeStart: 3},
-      {timeStart: 4},
-      {timeStart: 5},
+      { timeStart: null },
+      { timeStart: 1 },
+      { timeStart: 2 },
+      { timeStart: 3 },
+      { timeStart: 4 },
+      { timeStart: 5 },
     ];
 
     const sorted = sortArrayByProperty(arr1, 'timeStart');
@@ -393,78 +393,76 @@ describe('test that roll behaviour with overlapping times', () => {
 // test replacePlaceholder()
 describe('test that it replaces data correctly', () => {
   const values = {
-    $timer: "timer",
-    $title: "title",
-    $presenter: "presenter",
-    $subtitle: "subtitle",
-    "$next-title": "next title",
-    "$next-presenter": "next presenter",
-    "$next-subtitle": "next subtitle"
+    $timer: 'timer',
+    $title: 'title',
+    $presenter: 'presenter',
+    $subtitle: 'subtitle',
+    '$next-title': 'next title',
+    '$next-presenter': 'next presenter',
+    '$next-subtitle': 'next subtitle',
   };
 
   it('replaces timer', () => {
     const test = '___1232132 $timer';
     const expected = '___1232132 timer';
-    const s = replacePlaceholder(test, values)
+    const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });
 
   it('replaces title', () => {
     const test = '___1232132 $title';
     const expected = '___1232132 title';
-    const s = replacePlaceholder(test, values)
+    const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });
 
   it('replaces presenter', () => {
     const test = '___1232132 $presenter';
     const expected = '___1232132 presenter';
-    const s = replacePlaceholder(test, values)
+    const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });
 
   it('replaces subtitle', () => {
     const test = '___1232132 $subtitle';
     const expected = '___1232132 subtitle';
-    const s = replacePlaceholder(test, values)
+    const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });
 
   it('replaces next next title', () => {
     const test = '___1232132 $next-title';
     const expected = '___1232132 next title';
-    const s = replacePlaceholder(test, values)
+    const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });
 
   it('replaces next presenter', () => {
     const test = '___1232132 $next-presenter';
     const expected = '___1232132 next presenter';
-    const s = replacePlaceholder(test, values)
+    const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });
 
   it('replaces next subtitle', () => {
     const test = '___1232132 $next-subtitle';
     const expected = '___1232132 next subtitle';
-    const s = replacePlaceholder(test, values)
+    const s = replacePlaceholder(test, values);
     expect(s).toBe(expected);
   });
 });
 
-
 // test getSelectionByRoll() on issue #58
 describe('test that roll behaviour multi day event edge cases', () => {
-
   it('if the start time is the day after end time, and start time is earlier than now', () => {
-    const now = 66600000;     // 19:30
+    const now = 66600000; // 19:30
     const eventlist = [
       {
         id: 1,
-        timeStart: 66000000,  // 19:20
-        timeEnd: 54600000,    // 16:10
+        timeStart: 66000000, // 19:20
+        timeEnd: 54600000, // 16:10
         isPublic: false,
-      }
+      },
     ];
     const expected = {
       nowIndex: 0,
@@ -486,14 +484,14 @@ describe('test that roll behaviour multi day event edge cases', () => {
   });
 
   it('if the start time is the day after end time, and both are later than now', () => {
-    const now = 66840000;     // 19:34
+    const now = 66840000; // 19:34
     const eventlist = [
       {
         id: 1,
-        timeStart: 67200000,  // 19:40
-        timeEnd: 66900000,    // 19:35
+        timeStart: 67200000, // 19:40
+        timeEnd: 66900000, // 19:35
         isPublic: false,
-      }
+      },
     ];
     const expected = {
       nowIndex: null,
@@ -512,11 +510,10 @@ describe('test that roll behaviour multi day event edge cases', () => {
 
 // test normaliseEndTime() on issue #58
 test('test typical scenarios', () => {
-
   const t1 = {
     start: 10,
     end: 20,
-  }
+  };
   const t1_expected = 20;
 
   expect(normaliseEndTime(t1.start, t1.end)).toBe(t1_expected);
@@ -524,7 +521,7 @@ test('test typical scenarios', () => {
   const t2 = {
     start: 10 + DAY_TO_MS,
     end: 20,
-  }
+  };
   const t2_expected = 20 + DAY_TO_MS;
 
   expect(normaliseEndTime(t2.start, t2.end)).toBe(t2_expected);
@@ -532,16 +529,14 @@ test('test typical scenarios', () => {
   const t3 = {
     start: 10,
     end: 10,
-  }
+  };
   const t3_expected = 10;
 
   expect(normaliseEndTime(t3.start, t3.end)).toBe(t3_expected);
 });
 
-
 // test updateRoll()
 describe('typical scenarios', () => {
-
   it('it updates running events correctly', () => {
     const timers = {
       selectedEventId: 1,

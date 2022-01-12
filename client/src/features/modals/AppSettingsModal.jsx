@@ -99,7 +99,7 @@ export default function AppSettingsModal() {
       <p className={style.notes}>
         Options related to the application
         <br />
-        🔥 Changes take effect after app restart 🔥
+        🔥 Changes take effect on save 🔥
       </p>
       <form onSubmit={submitHandler}>
         <div className={style.modalFields}>

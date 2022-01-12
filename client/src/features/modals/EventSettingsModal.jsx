@@ -39,6 +39,7 @@ export default function SettingsModal() {
     setSubmitting(true);
 
     await postEvent(formData);
+    await refetch();
 
     setChanged(false);
     setSubmitting(false);

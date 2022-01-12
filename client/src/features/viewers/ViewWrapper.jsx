@@ -4,16 +4,12 @@ import { fetchEvent } from 'app/api/eventApi';
 import { useSocket } from 'app/context/socketContext';
 import { stringFromMillis } from 'ontime-utils/time';
 import { useFetch } from 'app/hooks/useFetch';
-import { EVENTS_TABLE, EVENT_TABLE } from 'app/api/apiConstants';
+import { EVENT_TABLE, EVENTS_TABLE } from 'app/api/apiConstants';
 
 const withSocket = (Component) => {
-  const WrappedComponent = (props) => {
-    const {
-      data: eventsData,
-    } = useFetch(EVENTS_TABLE, fetchAllEvents);
-    const {
-      data: genData,
-    } = useFetch(EVENT_TABLE, fetchEvent);
+  return (props) => {
+    const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents);
+    const { data: genData } = useFetch(EVENT_TABLE, fetchEvent);
 
     const [publicEvents, setPublicEvents] = useState([]);
     const [backstageEvents, setBackstageEvents] = useState([]);
@@ -70,8 +66,8 @@ const withSocket = (Component) => {
     useEffect(() => {
       if (socket == null) return;
 
-      // Handle presenter messages
-      socket.on('messages-presenter', (data) => {
+      // Handle timer messages
+      socket.on('messages-timer', (data) => {
         setPres({ ...data });
       });
 
@@ -121,14 +117,14 @@ const withSocket = (Component) => {
       socket.emit('get-messages');
 
       // Ask for up to data
-      socket.emit('get-presenter');
+      socket.emit('get-timer');
 
       // ask for timer
       socket.emit('get-timer');
 
       // ask for playstate
       socket.emit('get-playstate');
-      socket.emit('get-onAir')
+      socket.emit('get-onAir');
 
       // Ask for up titles
       socket.emit('get-titles');
@@ -141,7 +137,7 @@ const withSocket = (Component) => {
       // Clear listeners
       return () => {
         socket.off('messages-public');
-        socket.off('messages-presenter');
+        socket.off('messages-timer');
         socket.off('messages-lower');
         socket.off('timer');
         socket.off('playstate');
@@ -255,8 +251,6 @@ const withSocket = (Component) => {
       />
     );
   };
-
-  return WrappedComponent;
 };
 
 export default withSocket;

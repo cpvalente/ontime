@@ -1,0 +1,37 @@
+import { useEffect } from 'react';
+import { formatDisplay } from '../../../common/utils/dateConfig';
+import NavLogo from '../../../common/components/nav/NavLogo';
+import style from './MinimalTimer.module.scss';
+
+export default function MinimalTimer(props) {
+  const { pres, time } = props;
+
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Minimal Timer';
+  }, []);
+
+  const showOverlay = pres.text !== '' && pres.visible;
+  const isPlaying = time.playstate !== 'pause';
+  const timer = formatDisplay(time.running, true);
+  const clean = timer.replaceAll(':', '');
+
+  return (
+    <div className={time.finished ? style.containerFinished : style.container}>
+      <div
+        className={
+          showOverlay ? style.messageOverlayActive : style.messageOverlay
+        }
+      >
+        <div className={style.message}>{pres.text}</div>
+      </div>
+      <NavLogo />
+      <div
+        style={{ fontSize: `${89 / (clean.length - 1)}vw` }}
+        className={isPlaying ? style.timer : style.timerPaused}
+      >
+        {time.running < 0 ? `-${timer}` : timer}
+      </div>
+    </div>
+  );
+}

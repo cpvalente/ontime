@@ -5,17 +5,17 @@ import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
 import EventTimesVertical from 'common/components/eventTimes/EventTimesVertical';
 import EditableText from 'common/input/EditableText';
-import ActionButtons from './ActionButtons';
+import ActionButtons from '../list/ActionButtons';
 import PublicIconBtn from 'common/components/buttons/PublicIconBtn';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import style from './EventBlock.module.css';
-import { SelectCollapse, HandleCollapse } from 'app/context/collapseAtom';
+import { HandleCollapse, SelectCollapse } from 'app/context/collapseAtom';
 import { useAtom } from 'jotai';
+import PropTypes from 'prop-types';
 
 const ExpandedBlock = (props) => {
-  const { provided, data, eventIndex, next, delay, delayValue, actionHandler } =
-    props;
+  const { provided, data, eventIndex, next, delay, delayValue, previousEnd, actionHandler } = props;
 
   const oscid = data.id.length > 4 ? '...' : data.id;
 
@@ -28,14 +28,12 @@ const ExpandedBlock = (props) => {
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
-        <FiMoreVertical />
+        <FiMoreVertical  />
       </span>
 
       <div className={style.indicators}>
         <span className={next ? style.next : style.nextDisabled}>Next</span>
-        {delayValue != null && (
-          <span className={style.delayValue}>+ {delayValue}</span>
-        )}
+        {delayValue != null && <span className={style.delayValue}>+ {delayValue}</span>}
       </div>
       <div className={style.timeExpanded}>
         <EventTimesVertical
@@ -44,6 +42,7 @@ const ExpandedBlock = (props) => {
           timeEnd={data.timeEnd}
           duration={duration}
           delay={delay}
+          previousEnd={previousEnd}
           className={style.time}
         />
       </div>
@@ -53,25 +52,19 @@ const ExpandedBlock = (props) => {
           label='Title'
           defaultValue={data.title}
           placeholder='Add Title'
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'title', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'title', value: v })}
         />
         <EditableText
           label='Presenter'
           defaultValue={data.presenter}
           placeholder='Add Presenter name'
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'presenter', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'presenter', value: v })}
         />
         <EditableText
           label='Subtitle'
           defaultValue={data.subtitle}
           placeholder='Add Subtitle'
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'subtitle', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'subtitle', value: v })}
         />
         <EditableText
           label='Note'
@@ -79,9 +72,7 @@ const ExpandedBlock = (props) => {
           placeholder='Add Note'
           style={{ color: '#d69e2e' }}
           maxchar={160}
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'note', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'note', value: v })}
         />
         <span className={style.oscLabel}>
           {`/ontime/goto ${eventIndex + 1}  << OSC >> /ontime/gotoid ${oscid}`}
@@ -89,38 +80,43 @@ const ExpandedBlock = (props) => {
       </div>
       <div className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
-        <ActionButtons
-          showAdd
-          showDelay
-          showBlock
-          actionHandler={actionHandler}
-        />
+        <ActionButtons showAdd showDelay showBlock actionHandler={actionHandler} />
         <DeleteIconBtn actionHandler={actionHandler} />
       </div>
     </>
   );
 };
 
+ExpandedBlock.propTypes = {
+  provided: PropTypes.any.isRequired,
+  data: PropTypes.object.isRequired,
+  eventIndex: PropTypes.number.isRequired,
+  next: PropTypes.bool.isRequired,
+  delay: PropTypes.number,
+  delayValue: PropTypes.number,
+  previousEnd: PropTypes.number.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+};
+
 const CollapsedBlock = (props) => {
-  const { provided, data, next, delay, delayValue, actionHandler } = props;
+  const { provided, data, next, delay, delayValue, previousEnd, actionHandler } = props;
 
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
-        <FiMoreVertical />
+        <FiMoreVertical  />
       </span>
 
       <div className={style.indicators}>
         <span className={next ? style.next : style.nextDisabled}>Next</span>
-        {delayValue != null && (
-          <span className={style.delayValue}>+ {delayValue}</span>
-        )}
+        {delayValue != null && <span className={style.delayValue}>+ {delayValue}</span>}
       </div>
       <EventTimes
         actionHandler={actionHandler}
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}
         delay={delay}
+        previousEnd={previousEnd}
         className={style.time}
       />
       <div className={style.titleContainer}>
@@ -128,33 +124,32 @@ const CollapsedBlock = (props) => {
           label='Title'
           defaultValue={data.title}
           placeholder='Add Title'
-          submitHandler={(v) =>
-            actionHandler('update', { field: 'title', value: v })
-          }
+          submitHandler={(v) => actionHandler('update', { field: 'title', value: v })}
         />
       </div>
       <div className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
-        <ActionButtons
-          showAdd
-          showDelay
-          showBlock
-          actionHandler={actionHandler}
-        />
+        <ActionButtons showAdd showDelay showBlock actionHandler={actionHandler} />
       </div>
     </>
   );
 };
 
+CollapsedBlock.propTypes = {
+  provided: PropTypes.any.isRequired,
+  data: PropTypes.object.isRequired,
+  next: PropTypes.bool.isRequired,
+  delay: PropTypes.any,
+  delayValue: PropTypes.any,
+  previousEnd: PropTypes.number.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+};
+
 export default function EventBlock(props) {
-  const { data, selected, delay, index, eventIndex, actionHandler } = props;
-  const [collapsed] = useAtom(
-    useMemo(() => SelectCollapse(data.id), [data.id])
-  );
+  const { data, selected, delay, index, eventIndex, previousEnd, actionHandler } = props;
+  const [collapsed] = useAtom(useMemo(() => SelectCollapse(data.id), [data.id]));
   const [, setCollapsed] = useAtom(HandleCollapse);
 
-  // TODO: should this go inside useEffect()
-  // Would I then need to add this to state?
   const isSelected = selected ? style.active : '';
   const isCollapsed = collapsed ? style.collapsed : style.expanded;
   const classSelect = `${style.event} ${isCollapsed} ${isSelected}`;
@@ -169,11 +164,7 @@ export default function EventBlock(props) {
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
-        <div
-          className={classSelect}
-          {...provided.draggableProps}
-          ref={provided.innerRef}
-        >
+        <div className={classSelect} {...provided.draggableProps} ref={provided.innerRef}>
           <Icon
             className={collapsed ? style.moreCollapsed : style.moreExpanded}
             as={FiChevronUp}
@@ -186,6 +177,7 @@ export default function EventBlock(props) {
               next={props.next}
               delay={delay}
               delayValue={delayValue}
+              previousEnd={previousEnd}
               actionHandler={actionHandler}
             />
           ) : (
@@ -196,6 +188,7 @@ export default function EventBlock(props) {
               next={props.next}
               delay={delay}
               delayValue={delayValue}
+              previousEnd={previousEnd}
               actionHandler={actionHandler}
             />
           )}
@@ -204,3 +197,13 @@ export default function EventBlock(props) {
     </Draggable>
   );
 }
+
+EventBlock.propTypes = {
+  data: PropTypes.object.isRequired,
+  selected: PropTypes.bool.isRequired,
+  delay: PropTypes.number,
+  index: PropTypes.number.isRequired,
+  eventIndex: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+};

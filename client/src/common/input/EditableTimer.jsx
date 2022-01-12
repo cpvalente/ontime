@@ -1,15 +1,13 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useContext, useEffect, useState } from 'react';
-import {
-  isTimeString,
-  timeStringToMillis,
-} from '../utils/dateConfig';
+import { forgivingStringToMillis } from '../utils/dateConfig';
 import { stringFromMillis } from 'ontime-utils/time';
 import style from './EditableTimer.module.css';
 import { LoggingContext } from '../../app/context/LoggingContext';
+import PropTypes from 'prop-types';
 
 export default function EditableTimer(props) {
-  const { name, actionHandler, time, delay, validate } = props;
+  const { name, actionHandler, time, delay, validate, previousEnd } = props;
   const { emitError } = useContext(LoggingContext);
   const [value, setValue] = useState('');
 
@@ -33,13 +31,26 @@ export default function EditableTimer(props) {
     // Check if there is anything there
     if (value === '') return false;
 
-    // check if its valid time string
-    if (!isTimeString(value)) return false;
+    let newValMillis;
 
-    // convert entered value to milliseconds
-    const newValMillis = timeStringToMillis(value);
+    // check for known aliases
+    if (value === 'p' || value === 'prev' || value === 'previous') {
+      // string to pass should be the time of the end before
+      if (previousEnd != null) {
+        newValMillis = previousEnd;
+      } else {
+        newValMillis = 0;
+      }
+    } else if (value.startsWith('+')) {
+      // string to pass should add to the end before
+      const val = value.substring(1);
+      newValMillis = previousEnd + forgivingStringToMillis(val);
+    } else {
+      // convert entered value to milliseconds
+      newValMillis = forgivingStringToMillis(value);
+    }
 
-    // Time now and time submitedVal
+    // Time now and time submittedVal
     const originalMillis = time + delay;
 
     // check if time is different from before
@@ -67,3 +78,12 @@ export default function EditableTimer(props) {
     </Editable>
   );
 }
+
+EditableTimer.propTypes = {
+  name: PropTypes.string.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+  time: PropTypes.number.isRequired,
+  delay: PropTypes.number.isRequired,
+  validate: PropTypes.func.isRequired,
+  previousEnd: PropTypes.number.isRequired,
+};

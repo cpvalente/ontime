@@ -1,6 +1,6 @@
-import DelayBlock from './DelayBlock';
-import BlockBlock from './BlockBlock';
-import EventBlock from './EventBlock';
+import DelayBlock from '../DelayBlock/DelayBlock';
+import BlockBlock from '../BlockBlock/BlockBlock';
+import EventBlock from '../EventBlock/EventBlock';
 import { memo, useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 
@@ -10,7 +10,8 @@ const areEqual = (prevProps, nextProps) => {
     prevProps.selected === nextProps.selected &&
     prevProps.next === nextProps.next &&
     prevProps.index === nextProps.index &&
-    prevProps.delay === nextProps.delay
+    prevProps.delay === nextProps.delay &&
+    prevProps.previousEnd === nextProps.previousEnd
   );
 };
 
@@ -24,6 +25,7 @@ const EventListItem = (props) => {
     next,
     eventsHandler,
     delay,
+    previousEnd,
     ...rest
   } = props;
   const { emitError } = useContext(LoggingContext);
@@ -79,6 +81,7 @@ const EventListItem = (props) => {
           next={next}
           actionHandler={actionHandler}
           delay={delay}
+          previousEnd={previousEnd}
         />
       );
     case 'block':

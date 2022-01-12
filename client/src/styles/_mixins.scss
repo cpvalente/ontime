@@ -1,5 +1,11 @@
 //////////////////////////////////// general app elements
 
+@mixin main-container {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
 @mixin container-bg {
   background-color: rgba(0, 0, 0, 0.13);
   border-radius: 2px;
@@ -7,3 +13,9 @@
   margin: 0 0.5em;
 }
 
+@mixin osc-label {
+  color: #4bffabcc;
+  font-size: 0.8em;
+  -webkit-user-select: text;
+  user-select: text;
+}

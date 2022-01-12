@@ -2,6 +2,7 @@
 
 $ontime-accent: #4bffabcc;
 $ontime-pink: #ff7597;
+$ontime-pink-variant: #ff6969;
 $ontime-roll: #2b6cb0;
 
 $notes-color: #d69e2e;
@@ -15,6 +16,11 @@ $light-bg-transparent: #2b6cb055;
 $light-text: #2b6cb022;
 
 $error-red: #E53E3E;
+
+$title-white: #fffd;
+$bg-black: #121212;
+$bg-black-gradient: #202020;
+
 
 //////////////////////////////////// general app element overriders
 
@@ -34,6 +40,7 @@ a {
     content: '  \2197';
     color: $ontime-pink;
   }
+
   &:hover {
     color: $ontime-pink;
   }

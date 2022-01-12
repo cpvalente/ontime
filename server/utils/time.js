@@ -57,7 +57,7 @@ export const stringFromMillis = (
 export const excelDateStringToMillis = (excelDate) => {
   const date = new Date(excelDate);
   if (date instanceof Date && !isNaN(date)) {
-    const h = date.getUTCHours();
+    const h = date.getHours();
     const m = date.getMinutes();
     const s = date.getSeconds();
 

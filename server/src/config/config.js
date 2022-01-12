@@ -13,7 +13,7 @@ export const config = {
     port: 8888,
     portOut: 9999,
     targetIP: '127.0.0.1',
-    enabled: true,
+    inputEnabled: true,
   },
   http: {
     user: '',
