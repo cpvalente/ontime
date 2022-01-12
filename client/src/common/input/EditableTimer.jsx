@@ -4,6 +4,7 @@ import { forgivingStringToMillis } from '../utils/dateConfig';
 import { stringFromMillis } from 'ontime-utils/time';
 import style from './EditableTimer.module.css';
 import { LoggingContext } from '../../app/context/LoggingContext';
+import PropTypes from 'prop-types';
 
 export default function EditableTimer(props) {
   const { name, actionHandler, time, delay, validate, previousEnd } = props;
@@ -25,13 +26,12 @@ export default function EditableTimer(props) {
     if (success) setValue(value);
     else setValue(stringFromMillis(time + delay, true));
   };
-  console.log('>>>>>>>>>>>>>>>', previousEnd)
 
   const handleSubmit = (value) => {
     // Check if there is anything there
     if (value === '') return false;
 
-    let newValMillis = 0;
+    let newValMillis;
 
     // check for known aliases
     if (value === 'p' || value === 'prev' || value === 'previous') {
@@ -78,3 +78,12 @@ export default function EditableTimer(props) {
     </Editable>
   );
 }
+
+EditableTimer.propTypes = {
+  name: PropTypes.string.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+  time: PropTypes.number.isRequired,
+  delay: PropTypes.number.isRequired,
+  validate: PropTypes.func.isRequired,
+  previousEnd: PropTypes.number.isRequired,
+};

@@ -13,6 +13,7 @@ import { millisToMinutes } from 'common/utils/dateConfig';
 import style from './EventBlock.module.css';
 import { HandleCollapse, SelectCollapse } from 'app/context/collapseAtom';
 import { useAtom } from 'jotai';
+import PropTypes from 'prop-types';
 
 const ExpandedBlock = (props) => {
   const { provided, data, eventIndex, next, delay, delayValue, previousEnd, actionHandler } = props;
@@ -87,9 +88,21 @@ const ExpandedBlock = (props) => {
   );
 };
 
+ExpandedBlock.propTypes = {
+  provided: PropTypes.any.isRequired,
+  data: PropTypes.object.isRequired,
+  eventIndex: PropTypes.number.isRequired,
+  next: PropTypes.bool.isRequired,
+  delay: PropTypes.number,
+  delayValue: PropTypes.number,
+  previousEnd: PropTypes.number.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+};
+
 const CollapsedBlock = (props) => {
   const { provided, data, next, delay, delayValue, previousEnd, actionHandler } = props;
 
+  console.log({ delay }, { delayValue });
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
@@ -124,13 +137,21 @@ const CollapsedBlock = (props) => {
   );
 };
 
+CollapsedBlock.propTypes = {
+  provided: PropTypes.any.isRequired,
+  data: PropTypes.object.isRequired,
+  next: PropTypes.bool.isRequired,
+  delay: PropTypes.any,
+  delayValue: PropTypes.any,
+  previousEnd: PropTypes.number.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+};
+
 export default function EventBlock(props) {
   const { data, selected, delay, index, eventIndex, previousEnd, actionHandler } = props;
   const [collapsed] = useAtom(useMemo(() => SelectCollapse(data.id), [data.id]));
   const [, setCollapsed] = useAtom(HandleCollapse);
 
-  // TODO: should this go inside useEffect()
-  // Would I then need to add this to state?
   const isSelected = selected ? style.active : '';
   const isCollapsed = collapsed ? style.collapsed : style.expanded;
   const classSelect = `${style.event} ${isCollapsed} ${isSelected}`;
@@ -178,3 +199,13 @@ export default function EventBlock(props) {
     </Draggable>
   );
 }
+
+EventBlock.propTypes = {
+  data: PropTypes.object.isRequired,
+  selected: PropTypes.bool.isRequired,
+  delay: PropTypes.number,
+  index: PropTypes.number.isRequired,
+  eventIndex: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+};

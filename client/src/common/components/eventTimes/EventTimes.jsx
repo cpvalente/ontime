@@ -2,6 +2,7 @@ import EditableTimer from 'common/input/EditableTimer';
 import { useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { validateTimes } from '../../../app/entryValidator';
+import PropTypes from 'prop-types';
 
 export default function EventTimes(props) {
   const { actionHandler, delay, timeStart, timeEnd, previousEnd } = props;
@@ -50,3 +51,11 @@ export default function EventTimes(props) {
     </>
   );
 }
+
+EventTimes.propTypes = {
+  actionHandler: PropTypes.func.isRequired,
+  delay: PropTypes.number.isRequired,
+  timeStart: PropTypes.number.isRequired,
+  timeEnd: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number.isRequired,
+};

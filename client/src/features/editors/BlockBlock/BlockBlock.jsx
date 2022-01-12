@@ -3,6 +3,7 @@ import { FiMoreVertical } from 'react-icons/fi';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import ActionButtons from '../list/ActionButtons';
 import style from './BlockBlock.module.css';
+import PropTypes from 'prop-types';
 
 export default function BlockBlock(props) {
   const { index, data, actionHandler } = props;
@@ -27,3 +28,10 @@ export default function BlockBlock(props) {
     </Draggable>
   );
 }
+
+
+BlockBlock.propTypes = {
+  index: PropTypes.number.isRequired,
+  data: PropTypes.object.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+};

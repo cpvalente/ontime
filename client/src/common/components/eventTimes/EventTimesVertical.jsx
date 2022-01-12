@@ -3,6 +3,7 @@ import { stringFromMillis } from 'ontime-utils/time';
 import { useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { validateTimes } from '../../../app/entryValidator';
+import PropTypes from 'prop-types';
 
 const label = {
   fontSize: '0.75em',
@@ -10,7 +11,7 @@ const label = {
 };
 
 const TimesDelayed = (props) => {
-  const { handleValidate, actionHandler, delay, timeStart, timeEnd, duration } = props;
+  const { handleValidate, actionHandler, delay, timeStart, timeEnd, duration, previousEnd } = props;
 
   const scheduledStart = stringFromMillis(timeStart, false);
   const scheduledEnd = stringFromMillis(timeEnd, false);
@@ -26,6 +27,7 @@ const TimesDelayed = (props) => {
         actionHandler={actionHandler}
         time={timeStart}
         delay={delay}
+        previousEnd={previousEnd}
       />
       <span style={label}>
         End <span>{scheduledEnd}</span>
@@ -36,6 +38,7 @@ const TimesDelayed = (props) => {
         actionHandler={actionHandler}
         time={timeEnd}
         delay={delay}
+        previousEnd={previousEnd}
       />
       <span style={label}>Duration</span>
       <EditableTimer
@@ -44,9 +47,20 @@ const TimesDelayed = (props) => {
         actionHandler={actionHandler}
         time={duration}
         delay={0}
+        previousEnd={previousEnd}
       />
     </>
   );
+};
+
+TimesDelayed.propTypes = {
+  handleValidate: PropTypes.func.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+  delay: PropTypes.number.isRequired,
+  timeStart: PropTypes.number.isRequired,
+  timeEnd: PropTypes.number.isRequired,
+  duration: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number.isRequired,
 };
 
 const Times = (props) => {
@@ -83,6 +97,15 @@ const Times = (props) => {
       />
     </>
   );
+};
+
+Times.propTypes = {
+  handleValidate: PropTypes.func.isRequired,
+  actionHandler: PropTypes.func.isRequired,
+  timeStart: PropTypes.number.isRequired,
+  timeEnd: PropTypes.number.isRequired,
+  duration: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number.isRequired,
 };
 
 export default function EventTimesVertical(props) {
@@ -132,3 +155,11 @@ export default function EventTimesVertical(props) {
     />
   );
 }
+
+EventTimesVertical.propTypes = {
+  delay: PropTypes.number.isRequired,
+  timeStart: PropTypes.number.isRequired,
+  timeEnd: PropTypes.number.isRequired,
+  duration: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number.isRequired,
+};
