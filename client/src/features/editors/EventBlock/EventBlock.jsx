@@ -1,6 +1,5 @@
 import Icon from '@chakra-ui/icon';
-import { FiChevronUp } from 'react-icons/fi';
-import { FiMoreVertical  } from 'react-icons/io5';
+import { FiChevronUp, FiMoreVertical } from 'react-icons/fi';
 import { useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
