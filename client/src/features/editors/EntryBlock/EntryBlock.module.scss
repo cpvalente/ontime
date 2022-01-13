@@ -1,0 +1,88 @@
+.create {
+  margin: 0.2em 0;
+  padding: 0.2em 0.5em;
+  box-sizing: border-box;
+
+  width: 100%;
+  border-radius: 8px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
+
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5%;
+
+  height: 3em;
+
+  .createEvent,
+  .createDelay,
+  .createBlock {
+    width: auto;
+    padding: 0 16px;
+    height: 24px;
+    text-align: center;
+    vertical-align: center;
+    font-weight: 600;
+    line-height: 21px;
+    border-radius: 8px;
+    opacity: 0.6;
+
+
+
+    &:hover {
+      opacity: 1;
+    }
+
+    .keyboard {
+      margin-left: 4px;
+      padding: 0 4px;
+      color: #ccc;
+      border-radius: 2px;
+      font-family: Monospaced, sans-serif;
+      background-color: rgba(0, 0, 0, 0.24);
+    }
+  }
+
+  .createEvent {
+    border: 1px solid blue;
+    color: lighten(blue, 40%);
+  }
+
+  .createDelay {
+    border: 1px solid orange;
+    color: lighten(orange, 30%);
+  }
+
+  .createBlock {
+    border: 1px solid mediumpurple;
+    color: lighten(mediumpurple, 20%);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    opacity: 0.6;
+  }
+}
+
+
+//.create {
+//  height:5px;
+//  justify-items: center;
+//  transition: height 0.3s ease-in;
+//
+//  * {
+//    display: none;
+//  }
+//}
+//
+//.create:hover {
+//  display: flex;
+//
+//  height: 2.5em;
+//  border: 1px solid white;
+//  transition: height 0.3s ease-in;
+//}

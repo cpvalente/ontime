@@ -6,6 +6,7 @@ import EventListItem from './EventListItem';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { useAtom } from 'jotai';
 import { SelectSetting } from 'app/context/settingsAtom';
+import EntryBlock from '../EntryBlock/EntryBlock';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
@@ -101,6 +102,7 @@ export default function EventList(props) {
       block: 'nearest',
       inline: 'start',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor]);
 
   // if selected event
@@ -123,6 +125,7 @@ export default function EventList(props) {
       // move cursor
       setCursor(gotoIndex);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, cursorSettings]);
 
   if (events.length < 1) {
@@ -155,11 +158,7 @@ export default function EventList(props) {
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <Droppable droppableId='eventlist'>
           {(provided) => (
-            <div
-              className={style.list}
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
+            <div className={style.list} {...provided.droppableProps} ref={provided.innerRef}>
               {events.map((e, index) => {
                 if (index === 0) {
                   cumulativeDelay = 0;
@@ -176,23 +175,26 @@ export default function EventList(props) {
                 }
 
                 return (
-                  <div
-                    ref={cursor === index ? cursorRef : undefined}
-                    key={e.id}
-                    className={cursor === index ? style.cursor : undefined}
-                  >
-                    <EventListItem
-                      type={e.type}
-                      index={index}
-                      eventIndex={eventIndex}
-                      data={e}
-                      selected={selectedId === e.id}
-                      next={nextId === e.id}
-                      eventsHandler={eventsHandler}
-                      delay={cumulativeDelay}
-                      previousEnd={previousEnd}
-                    />
-                  </div>
+                  <>
+                    <div
+                      ref={cursor === index ? cursorRef : undefined}
+                      key={e.id}
+                      className={cursor === index ? style.cursor : undefined}
+                    >
+                      <EventListItem
+                        type={e.type}
+                        index={index}
+                        eventIndex={eventIndex}
+                        data={e}
+                        selected={selectedId === e.id}
+                        next={nextId === e.id}
+                        eventsHandler={eventsHandler}
+                        delay={cumulativeDelay}
+                        previousEnd={previousEnd}
+                      />
+                    </div>
+                    <EntryBlock showKbd />
+                  </>
                 );
               })}
               {provided.placeholder}
