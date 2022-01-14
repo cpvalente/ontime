@@ -1,11 +1,6 @@
 import { Timer } from './Timer.js';
 import { Server } from 'socket.io';
-import {
-  DAY_TO_MS,
-  getSelectionByRoll,
-  replacePlaceholder,
-  updateRoll,
-} from './classUtils.js';
+import { DAY_TO_MS, getSelectionByRoll, replacePlaceholder, updateRoll } from './classUtils.js';
 import { OSCIntegration } from './integrations/Osc.js';
 import { HTTPIntegration } from './integrations/Http.js';
 import { cleanURL } from '../utils/url.js';
@@ -90,10 +85,7 @@ export class EventTimer extends Timer {
     });
 
     // set recurrent emits
-    this._interval = setInterval(
-      () => this.runCycle(),
-      timerConfig?.refresh || 1000
-    );
+    this._interval = setInterval(() => this.runCycle(), timerConfig?.refresh || 1000);
 
     // listen to new connections
     this._listenToConnections();
@@ -306,10 +298,7 @@ export class EventTimer extends Timer {
         // _finish at is only set when an event is loaded
         if (this._finishAt > 0) {
           this.sendOsc(this.osc.implemented.play);
-          this.sendOsc(
-            this.osc.implemented.eventNumber,
-            this.selectedEventIndex || 0
-          );
+          this.sendOsc(this.osc.implemented.eventNumber, this.selectedEventIndex || 0);
         }
         // check integrations - http
         if (h?.onLoad?.enabled) {
@@ -330,18 +319,9 @@ export class EventTimer extends Timer {
         if (this.state === 'start' || this.state === 'roll') {
           if (this.current != null && this.secondaryTimer == null) {
             this.sendOsc(this.osc.implemented.time, this.timeTag);
-            this.sendOsc(
-              this.osc.implemented.overtime,
-              this.current > 0 ? 0 : 1
-            );
-            this.sendOsc(
-              this.osc.implemented.title,
-              this.titles?.titleNow || ''
-            );
-            this.sendOsc(
-              this.osc.implemented.presenter,
-              this.titles?.presenterNow || ''
-            );
+            this.sendOsc(this.osc.implemented.overtime, this.current > 0 ? 0 : 1);
+            this.sendOsc(this.osc.implemented.title, this.titles?.titleNow || '');
+            this.sendOsc(this.osc.implemented.presenter, this.titles?.presenterNow || '');
           }
         }
 
@@ -474,17 +454,13 @@ export class EventTimer extends Timer {
         selectedEventId: this.selectedEventId,
         current: this.current,
         // safeguard on midnight rollover
-        _finishAt:
-          this._finishAt >= this._startedAt
-            ? this._finishAt
-            : this._finishAt + DAY_TO_MS,
+        _finishAt: this._finishAt >= this._startedAt ? this._finishAt : this._finishAt + DAY_TO_MS,
         clock: this.clock,
         secondaryTimer: this.secondaryTimer,
         _secondaryTarget: this._secondaryTarget,
       };
 
-      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } =
-        updateRoll(u);
+      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(u);
 
       this.current = updatedTimer;
       this.secondaryTimer = updatedSecondaryTimer;
@@ -560,9 +536,7 @@ export class EventTimer extends Timer {
       // keep track of connections
       this._numClients++;
       this._clientNames[socket.id] = getRandomName();
-      const m = `${this._numClients} Clients with new connection: ${
-        this._clientNames[socket.id]
-      }`;
+      const m = `${this._numClients} Clients with new connection: ${this._clientNames[socket.id]}`;
       this.info('CLIENT', m);
 
       // send state
@@ -579,9 +553,7 @@ export class EventTimer extends Timer {
       /********************************/
       socket.on('disconnect', () => {
         this._numClients--;
-        const m = `${this._numClients} Clients with disconnection: ${
-          this._clientNames[socket.id]
-        }`;
+        const m = `${this._numClients} Clients with disconnection: ${this._clientNames[socket.id]}`;
         delete this._clientNames[socket.id];
         this.info('CLIENT', m);
       });
@@ -807,9 +779,7 @@ export class EventTimer extends Timer {
     } else if (this.selectedEventId != null) {
       // handle reload selected
       // Look for event (order might have changed)
-      const eventIndex = this._eventlist.findIndex(
-        (e) => e.id === this.selectedEventId
-      );
+      const eventIndex = this._eventlist.findIndex((e) => e.id === this.selectedEventId);
 
       // Maybe is missing
       if (eventIndex === -1) {
@@ -849,10 +819,7 @@ export class EventTimer extends Timer {
       if (e.id === this.selectedEventId) {
         // handle reload selected
         // Reload data if running
-        let type =
-          this.selectedEventId === id && this._startedAt != null
-            ? 'reload'
-            : 'load';
+        let type = this.selectedEventId === id && this._startedAt != null ? 'reload' : 'load';
         this.loadEvent(this.selectedEventIndex, type);
       } else if (e.id === this.nextEventId) {
         // roll needs to recalculate
@@ -898,9 +865,7 @@ export class EventTimer extends Timer {
     }
 
     // update selected event index
-    this.selectedEventIndex = this._eventlist.findIndex(
-      (e) => e.id === this.selectedEventId
-    );
+    this.selectedEventIndex = this._eventlist.findIndex((e) => e.id === this.selectedEventId);
 
     // reload titles if necessary
     if (eventId === this.nextEventId || eventId === this.nextPublicEventId) {
@@ -1005,10 +970,7 @@ export class EventTimer extends Timer {
 
       // iterate backwards to find it
       for (let i = this.selectedEventIndex; i >= 0; i--) {
-        if (
-          this._eventlist[i].type === 'event' &&
-          this._eventlist[i].isPublic
-        ) {
+        if (this._eventlist[i].type === 'event' && this._eventlist[i].isPublic) {
           this._loadThisTitles(this._eventlist[i], 'now-public');
           break;
         }
@@ -1221,15 +1183,8 @@ export class EventTimer extends Timer {
       this._resetSelection();
     }
 
-    const {
-      nowIndex,
-      nowId,
-      publicIndex,
-      nextIndex,
-      publicNextIndex,
-      timers,
-      timeToNext,
-    } = getSelectionByRoll(this._eventlist, now);
+    const { nowIndex, nowId, publicIndex, nextIndex, publicNextIndex, timers, timeToNext } =
+      getSelectionByRoll(this._eventlist, now);
 
     // nothing to play, unload
     if (nowIndex === null && nextIndex === null) {
@@ -1334,8 +1289,7 @@ export class EventTimer extends Timer {
     // change playstate
     this.pause();
 
-    const gotoEvent =
-      this.selectedEventIndex > 0 ? this.selectedEventIndex - 1 : 0;
+    const gotoEvent = this.selectedEventIndex > 0 ? this.selectedEventIndex - 1 : 0;
 
     if (gotoEvent === this.selectedEventIndex) return;
     this.loadEvent(gotoEvent);

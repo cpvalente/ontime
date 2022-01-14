@@ -1,15 +1,16 @@
 import { memo } from 'react';
 import { formatDisplay } from 'common/utils/dateConfig';
+import PropTypes from 'prop-types';
 import styles from './Countdown.module.css';
 
-const Countdown = ({ time, small, negative, hideZeroHours }) => {
+const Countdown = ({ time, small, isNegative, hideZeroHours }) => {
   // prepare display string
   const display =
     time != null && !isNaN(time)
       ? formatDisplay(time, hideZeroHours)
       : '-- : -- : --';
 
-  const colour = negative ? '#ff7597' : '#fffffa';
+  const colour = isNegative ? '#ff7597' : '#fffffa';
 
   return (
     <div
@@ -22,3 +23,10 @@ const Countdown = ({ time, small, negative, hideZeroHours }) => {
 };
 
 export default memo(Countdown);
+
+Countdown.propTypes = {
+  time: PropTypes.number.isRequired,
+  small: PropTypes.bool,
+  isNegative: PropTypes.bool,
+  hideZeroHour: PropTypes.bool,
+};
