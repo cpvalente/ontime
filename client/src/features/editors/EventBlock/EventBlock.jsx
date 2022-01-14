@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 const ExpandedBlock = (props) => {
   const { provided, data, eventIndex, next, delay, delayValue, previousEnd, actionHandler } = props;
 
-  const oscid = data.id.length > 4 ? '...' : data.id;
+  const oscid = data?.id || '...';
 
   // if end is before, assume is the day after
   const duration =

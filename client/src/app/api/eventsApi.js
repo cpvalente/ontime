@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { eventsURL } from '../api/apiConstants';
+import { eventsURL } from './apiConstants';
 
 export const fetchAllEvents = async () => {
   const res = await axios.get(eventsURL);
@@ -7,38 +7,31 @@ export const fetchAllEvents = async () => {
 };
 
 export const requestPost = async (data) => {
-  const res = await axios.post(eventsURL, data);
-  return res;
+  return await axios.post(eventsURL, data);
 };
 
 export const requestPut = async (data) => {
-  const res = await axios.put(eventsURL, data);
-  return res;
+  return await axios.put(eventsURL, data);
 };
 
 export const requestPatch = async (data) => {
-  const res = await axios.patch(eventsURL, data);
-  return res;
+  return await axios.patch(eventsURL, data);
 };
 
 export const requestReorder = async (data) => {
   const action = 'reorder';
-  const res = await axios.patch(eventsURL + '/' + action, data);
-  return res;
+  return await axios.patch(eventsURL + '/' + action, data);
 };
 
 export const requestApplyDelay = async (eventId) => {
   const action = 'applydelay';
-  const res = await axios.patch(eventsURL + '/' + action + '/' + eventId);
-  return res;
+  return await axios.patch(eventsURL + '/' + action + '/' + eventId);
 };
 
 export const requestDelete = async (eventId) => {
-  const res = await axios.delete(eventsURL + '/' + eventId);
-  return res;
+  return await axios.delete(eventsURL + '/' + eventId);
 };
 
 export const requestDeleteAll = async () => {
-  const res = await axios.delete(eventsURL + '/all');
-  return res;
+  return await axios.delete(eventsURL + '/all');
 };
