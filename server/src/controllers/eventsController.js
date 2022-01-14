@@ -94,10 +94,7 @@ export const eventsPost = async (req, res) => {
 
   // ensure structure
   let newEvent = {};
-  let id = req.body.id;
-  if (data.events.find((e) => e.id === id)) {
-    id = generateId();
-  }
+  const id = generateId();
 
   switch (req.body.type) {
     case 'event':
