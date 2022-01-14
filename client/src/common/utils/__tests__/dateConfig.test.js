@@ -6,6 +6,7 @@ import {
   forgivingStringToMillis,
   timeStringToMillis,
 } from '../dateConfig';
+import { stringFromMillis } from 'ontime-utils/time';
 
 describe('test string from formatDisplay function', () => {
   it('test with null values', () => {
@@ -46,6 +47,13 @@ describe('test string from formatDisplay function', () => {
   it('test with -86401 (-24 hours and 1 second)', () => {
     const t = { val: -86401, result: '00:00:01' };
     expect(formatDisplay(t.val, false)).toBe(t.result);
+  });
+});
+
+describe('test formatDisplay handles partial secs', () => {
+  it('test with 1795829', () => {
+    const t = { val: 1795829, result: '00:29:55' };
+    expect(stringFromMillis(t.val)).toBe(t.result);
   });
 });
 
@@ -94,22 +102,22 @@ describe('test string from formatDisplay function with hidezero', () => {
 describe('test millisToSeconds function', () => {
   it('test with null values', () => {
     const t = { val: null, result: 0 };
-    expect(millisToSeconds(t.val, false)).toBe(t.result);
+    expect(millisToSeconds(t.val)).toBe(t.result);
   });
 
   it('test with valid millis', () => {
     const t = { val: 3600000, result: 3600 };
-    expect(millisToSeconds(t.val, false)).toBe(t.result);
+    expect(millisToSeconds(t.val)).toBe(t.result);
   });
 
   it('test with negative millis', () => {
     const t = { val: -3600000, result: -3600 };
-    expect(millisToSeconds(t.val, false)).toBe(t.result);
+    expect(millisToSeconds(t.val)).toBe(t.result);
   });
 
   it('test  with 0', () => {
     const t = { val: 0, result: 0 };
-    expect(millisToSeconds(t.val, false)).toBe(t.result);
+    expect(millisToSeconds(t.val)).toBe(t.result);
   });
 
   it('test with -0', () => {

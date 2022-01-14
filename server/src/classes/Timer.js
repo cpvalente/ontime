@@ -50,8 +50,7 @@ export class Timer {
         if (this._startedAt == null) this._startedAt = now;
 
         // update current timer
-        this.current =
-          this._startedAt + this.duration + this._pausedTotal - now;
+        this.current = this._startedAt + this.duration + this._pausedTotal - now;
 
         // enable flag
         checkFinish = true;
@@ -93,8 +92,8 @@ export class Timer {
 
   // helpers
   static toSeconds(millis) {
-    if (millis == null) return null;
-    return Math.ceil(millis * 0.001);
+    if (millis == null) return 0;
+    return millis < 0 ? Math.ceil(millis * 0.001) : Math.floor(millis * 0.001);
   }
 
   // get current time in epoc
@@ -151,6 +150,7 @@ export class Timer {
   getTimeObject() {
     return {
       clock: this.clock,
+      isNegative: this.current < 0,
       running: Timer.toSeconds(this.current),
       secondary: Timer.toSeconds(this.secondaryTimer),
       durationSeconds: Timer.toSeconds(this.duration),

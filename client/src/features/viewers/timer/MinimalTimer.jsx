@@ -18,11 +18,7 @@ export default function MinimalTimer(props) {
 
   return (
     <div className={time.finished ? style.containerFinished : style.container}>
-      <div
-        className={
-          showOverlay ? style.messageOverlayActive : style.messageOverlay
-        }
-      >
+      <div className={showOverlay ? style.messageOverlayActive : style.messageOverlay}>
         <div className={style.message}>{pres.text}</div>
       </div>
       <NavLogo />
@@ -30,7 +26,7 @@ export default function MinimalTimer(props) {
         style={{ fontSize: `${89 / (clean.length - 1)}vw` }}
         className={isPlaying ? style.timer : style.timerPaused}
       >
-        {time.running < 0 ? `-${timer}` : timer}
+        {time.isNegative ? `-${timer}` : timer}
       </div>
     </div>
   );

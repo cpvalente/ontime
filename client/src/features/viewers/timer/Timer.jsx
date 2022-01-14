@@ -37,7 +37,11 @@ export default function Timer(props) {
   // show timer if end message is empty
   const endMessage =
     general.endMessage == null || general.endMessage === '' ? (
-      <Countdown time={time.running} hideZeroHours negative />
+      <Countdown
+        time={time.running}
+        isNegative={time.isNegative}
+        hideZeroHours
+      />
     ) : (
       general.endMessage
     );

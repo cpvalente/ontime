@@ -49,7 +49,7 @@ export default function StudioClock(props) {
         >
           {title.titleNext}
         </div>
-        <div className={time.running > 0 ? style.nextCountdown : style.nextCountdown__overtime}>
+        <div className={time.isNegative ? style.nextCountdown : style.nextCountdown__overtime}>
           {selectedId != null && formatDisplay(time.running)}
         </div>
         <div className={style.indicators}>

@@ -27,7 +27,6 @@ export default function StageManager(props) {
     }, [backstageEvents]);
 
   // Format messages
-
   const showPubl = publ.text !== '' && publ.visible;
 
   let stageTimer;
@@ -35,7 +34,7 @@ export default function StageManager(props) {
     stageTimer = '- - : - -';
   } else {
     stageTimer = formatDisplay(Math.abs(time.running), true);
-    if (time.running < 0) stageTimer = `-${stageTimer}`;
+    if (time.isNegative) stageTimer = `-${stageTimer}`;
   }
 
   // motion
