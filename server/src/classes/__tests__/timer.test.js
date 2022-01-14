@@ -1,4 +1,4 @@
-import {Timer} from "../Timer";
+import { Timer } from '../Timer';
 
 test('object instantiates correctly', () => {
   const t = new Timer();
@@ -21,15 +21,15 @@ test('object instantiates correctly', () => {
 
 test('convert between mills and seconds correctly', () => {
   expect(Timer.toSeconds(10000)).toBe(10);
-  expect(Timer.toSeconds(9016)).toBe(10);
-  expect(Timer.toSeconds(8016)).toBe(9);
-  expect(Timer.toSeconds(7010)).toBe(8);
-  expect(Timer.toSeconds(6006)).toBe(7);
-  expect(Timer.toSeconds(4999)).toBe(5);
-  expect(Timer.toSeconds(2995)).toBe(3);
-  expect(Timer.toSeconds(1991)).toBe(2);
-  expect(Timer.toSeconds(992)).toBe(1);
-  expect(Timer.toSeconds(127)).toBe(1);
+  expect(Timer.toSeconds(9016)).toBe(9);
+  expect(Timer.toSeconds(8016)).toBe(8);
+  expect(Timer.toSeconds(7010)).toBe(7);
+  expect(Timer.toSeconds(6006)).toBe(6);
+  expect(Timer.toSeconds(4999)).toBe(4);
+  expect(Timer.toSeconds(2995)).toBe(2);
+  expect(Timer.toSeconds(1991)).toBe(1);
+  expect(Timer.toSeconds(992)).toBe(0);
+  expect(Timer.toSeconds(127)).toBe(0);
   expect(Timer.toSeconds(0)).toBe(0);
   expect(Timer.toSeconds(-0)).toBe(-0);
   expect(Timer.toSeconds(-127)).toBe(-0);
@@ -41,4 +41,14 @@ test('convert between mills and seconds correctly', () => {
   expect(Timer.toSeconds(-7010)).toBe(-7);
   expect(Timer.toSeconds(-8016)).toBe(-8);
   expect(Timer.toSeconds(-10000)).toBe(-10);
+});
+
+test('converting between millis to seconds handles partials correctly', () => {
+  const finish = 82162001;
+  const now = 80364519;
+  const runningMs = finish - now;
+  expect(Timer.toSeconds(runningMs)).toBe(1797);
+
+  expect(Timer.toSeconds(1800000)).toBe(1800);
+  expect(Timer.toSeconds(1799761)).toBe(1799);
 });

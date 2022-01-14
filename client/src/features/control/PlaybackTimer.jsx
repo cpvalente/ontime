@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 const areEqual = (prevProps, nextProps) => {
   return (
     prevProps.timer.running === nextProps.timer.running &&
+    prevProps.timer.isNegative === nextProps.timer.isNegative &&
     prevProps.timer.expectedFinish === nextProps.timer.expectedFinish &&
     prevProps.timer.startedAt === nextProps.timer.startedAt &&
     prevProps.playback === nextProps.playback &&
@@ -21,7 +22,6 @@ const PlaybackTimer = (props) => {
   const { timer, playback, handleIncrement, selectedId } = props;
   const started = stringFromMillis(timer.startedAt, true);
   const finish = stringFromMillis(timer.expectedFinish, true);
-  const isNegative = timer.running < 0;
   const isRolling = playback === 'roll';
   const isWaiting = timer.secondary > 0 && timer.running == null;
   const disableButtons = selectedId == null || isRolling;
@@ -42,15 +42,15 @@ const PlaybackTimer = (props) => {
             <div className={isRolling ? style.indRollActive : style.indRoll} />
           </Tooltip>
           <div
-            className={isNegative ? style.indNegativeActive : style.indNegative}
+            className={timer.isNegative ? style.indNegativeActive : style.indNegative}
           />
           <div className={style.indDelay} />
         </div>
         <div className={style.timer}>
           <Countdown
             time={isWaiting ? timer.secondary : timer.running}
+            isNegative={timer.isNegative}
             small
-            negative={isNegative}
           />
         </div>
         {isWaiting ? (

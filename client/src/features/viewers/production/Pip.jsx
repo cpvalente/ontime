@@ -52,7 +52,7 @@ export default function Pip(props) {
   const showInfo =
     general.backstageInfo !== '' && general.backstageInfo != null;
   let stageTimer = formatDisplay(Math.abs(time.running), true);
-  if (time.running < 0) stageTimer = `-${stageTimer}`;
+  if (time.isNegative) stageTimer = `-${stageTimer}`;
 
   return (
     <div className={style.container__gray}>

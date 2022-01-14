@@ -57,6 +57,17 @@ describe('test string to millis function', () => {
   });
 });
 
+describe('test stringFromMillis handles partial secs', () => {
+  it('test with 1795829', () => {
+    const t = { val: 1795829, result: '00:29:55' };
+    expect(stringFromMillis(t.val)).toBe(t.result);
+  });
+  it('test with 1797482', () => {
+    const t = { val: 1797482, result: '00:29:57' };
+    expect(stringFromMillis(t.val)).toBe(t.result);
+  });
+});
+
 describe('test excel date parser', () => {
   it('handles an invalid date string', () => {
     const s = 'hello';
