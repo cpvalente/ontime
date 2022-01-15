@@ -1,9 +1,28 @@
 import { Tooltip } from '@chakra-ui/tooltip';
 import { Checkbox } from '@chakra-ui/react';
 import style from './EntryBlock.module.scss';
+import { useContext, useEffect, useState } from 'react';
+import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 
 export default function EntryBlock(props) {
   const { showKbd } = props;
+  const {
+    starTimeIsLastEnd,
+    defaultPrivate,
+  } = useContext(LocalEventSettingsContext);
+  const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
+  const [doPrivate, setPrivate] = useState(defaultPrivate);
+
+  useEffect(() => {
+    setStartTime(starTimeIsLastEnd)
+  }, [starTimeIsLastEnd])
+
+  useEffect(() => {
+    setPrivate(defaultPrivate)
+  }, [defaultPrivate])
+
+  console.log('>>>>>>>>>>>', starTimeIsLastEnd,defaultPrivate )
+
   return (
     <div className={style.create}>
       <Tooltip label='Add Event' openDelay={300}>
@@ -22,10 +41,20 @@ export default function EntryBlock(props) {
         </span>
       </Tooltip>
       <div className={style.options}>
-        <Checkbox size='sm' colorScheme='white'>
+        <Checkbox
+          size='sm'
+          colorScheme='white'
+          checked={doStartTime}
+          onChange={(e) => setStartTime(e.target.value)}
+        >
           Start time is last end
         </Checkbox>
-        <Checkbox size='sm' colorScheme='white'>
+        <Checkbox
+          size='sm'
+          colorScheme='white'
+          checked={doPrivate}
+          onChange={(e) => setPrivate(e.target.value)}
+        >
           Default private
         </Checkbox>
       </div>

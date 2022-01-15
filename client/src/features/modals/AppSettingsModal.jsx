@@ -1,16 +1,6 @@
 import { ModalBody } from '@chakra-ui/modal';
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  PinInput,
-  PinInputField,
-} from '@chakra-ui/react';
-import {
-  getSettings,
-  ontimePlaceholderSettings,
-  postSettings,
-} from 'app/api/ontimeApi';
+import { Checkbox, FormControl, FormLabel, Input, PinInput, PinInputField } from '@chakra-ui/react';
+import { getSettings, ontimePlaceholderSettings, postSettings } from 'app/api/ontimeApi';
 import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { APP_SETTINGS } from 'app/api/apiConstants';
@@ -20,6 +10,7 @@ import { IconButton } from '@chakra-ui/button';
 import { FiEye } from 'react-icons/fi';
 import SubmitContainer from './SubmitContainer';
 import { inputProps } from './modalHelper';
+import { LocalEventSettingsContext } from '../../app/context/LocalEventSettingsContext';
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
@@ -29,6 +20,14 @@ export default function AppSettingsModal() {
   const [submitting, setSubmitting] = useState(false);
   const [hidePin, setHidePin] = useState(true);
 
+  const {
+    showQuickEntry,
+    setShowQuickEntry,
+    starTimeIsLastEnd,
+    setStarTimeIsLastEnd,
+    defaultPrivate,
+    setDefaultPrivate,
+  } = useContext(LocalEventSettingsContext);
   /**
    * Set formdata from server state
    */
@@ -156,6 +155,27 @@ export default function AppSettingsModal() {
                 />
               </div>
             </FormControl>
+          </div>
+          <div className={style.hSeparator}>Event List Settings</div>
+          <div className={style.modalColumn}>
+            <Checkbox
+              isChecked={showQuickEntry}
+              onChange={(e) => setShowQuickEntry(e.target.checked)}
+            >
+              <label>Show quick entry on hover</label>
+            </Checkbox>
+            <Checkbox
+              isChecked={starTimeIsLastEnd}
+              onChange={(e) => setStarTimeIsLastEnd(e.target.checked)}
+            >
+              <label>Start time is last end</label>
+            </Checkbox>
+            <Checkbox
+              isChecked={defaultPrivate}
+              onChange={(e) => setDefaultPrivate(e.target.checked)}
+            >
+              <label>Event default private</label>
+            </Checkbox>
           </div>
         </div>
         <SubmitContainer

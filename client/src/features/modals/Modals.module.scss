@@ -72,6 +72,13 @@
     padding: 0 0.5em 0.5em 0.5em;
   }
 
+  .modalColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 0.5em 0.5em 0.5em;
+  }
+
   .spacedEntry {
     padding: 0 0.5em 0.5em 0.5em;
   }
