@@ -6,22 +6,17 @@ import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettin
 
 export default function EntryBlock(props) {
   const { showKbd } = props;
-  const {
-    starTimeIsLastEnd,
-    defaultPrivate,
-  } = useContext(LocalEventSettingsContext);
+  const { starTimeIsLastEnd, defaultPrivate } = useContext(LocalEventSettingsContext);
   const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
   const [doPrivate, setPrivate] = useState(defaultPrivate);
 
   useEffect(() => {
-    setStartTime(starTimeIsLastEnd)
-  }, [starTimeIsLastEnd])
+    setStartTime(starTimeIsLastEnd);
+  }, [starTimeIsLastEnd]);
 
   useEffect(() => {
-    setPrivate(defaultPrivate)
-  }, [defaultPrivate])
-
-  console.log('>>>>>>>>>>>', starTimeIsLastEnd,defaultPrivate )
+    setPrivate(defaultPrivate);
+  }, [defaultPrivate]);
 
   return (
     <div className={style.create}>
@@ -43,17 +38,17 @@ export default function EntryBlock(props) {
       <div className={style.options}>
         <Checkbox
           size='sm'
-          colorScheme='white'
-          checked={doStartTime}
-          onChange={(e) => setStartTime(e.target.value)}
+          colorScheme='blue'
+          isChecked={doStartTime}
+          onChange={(e) => setStartTime(e.target.checked)}
         >
           Start time is last end
         </Checkbox>
         <Checkbox
           size='sm'
-          colorScheme='white'
-          checked={doPrivate}
-          onChange={(e) => setPrivate(e.target.value)}
+          colorScheme='blue'
+          isChecked={doPrivate}
+          onChange={(e) => setPrivate(e.target.checked)}
         >
           Default private
         </Checkbox>
