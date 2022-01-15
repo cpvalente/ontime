@@ -193,7 +193,7 @@ export default function EventList(props) {
                         previousEnd={previousEnd}
                       />
                     </div>
-                    <EntryBlock showKbd />
+                    <EntryBlock showKbd index={index} eventsHandler={eventsHandler} />
                   </>
                 );
               })}
