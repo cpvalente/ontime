@@ -2,7 +2,7 @@
 
 
 Download the latest releases here
-- [Windows](https://gitreleases.dev/gh/cpvalente/ontime/latest/ontime-win64.exe)
+- [Windows](https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe)
 
 # Ontime
 Ontime is an application for managing event rundowns and running stage timers.
