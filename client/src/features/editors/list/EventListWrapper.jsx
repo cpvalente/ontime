@@ -2,13 +2,13 @@ import { useMutation, useQueryClient } from 'react-query';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import {
   fetchAllEvents,
+  requestApplyDelay,
+  requestDelete,
+  requestDeleteAll,
   requestPatch,
   requestPost,
   requestPut,
-  requestDelete,
-  requestDeleteAll,
   requestReorder,
-  requestApplyDelay,
 } from 'app/api/eventsApi.js';
 import EventList from './EventList';
 import EventListMenu from 'features/menu/EventListMenu.jsx';
@@ -23,10 +23,7 @@ export default function EventListWrapper() {
   const [, setCollapsed] = useAtom(BatchOperation);
   const queryClient = useQueryClient();
   const { emitError } = useContext(LoggingContext);
-  const { data, status, isError, refetch } = useFetch(
-    EVENTS_TABLE,
-    fetchAllEvents
-  );
+  const { data, status, isError, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const [events, setEvents] = useState(null);
 
   const addEvent = useMutation(requestPost, {
@@ -72,10 +69,7 @@ export default function EventListWrapper() {
       queryClient.cancelQueries([EVENTS_TABLE, newEvent.id]);
 
       // Snapshot the previous value
-      const previousEvent = queryClient.getQueryData([
-        EVENTS_TABLE,
-        newEvent.id,
-      ]);
+      const previousEvent = queryClient.getQueryData([EVENTS_TABLE, newEvent.id]);
 
       // optimistically update object
       queryClient.setQueryData([EVENTS_TABLE, newEvent.id], newEvent);
@@ -86,10 +80,7 @@ export default function EventListWrapper() {
 
     // Mutation fails, rollback undos optimist update
     onError: (error, newEvent, context) => {
-      queryClient.setQueryData(
-        [EVENTS_TABLE, context.newEvent.id],
-        context.previousEvent
-      );
+      queryClient.setQueryData([EVENTS_TABLE, context.newEvent.id], context.previousEvent);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -105,10 +96,7 @@ export default function EventListWrapper() {
       queryClient.cancelQueries([EVENTS_TABLE, newEvent.id]);
 
       // Snapshot the previous value
-      const previousEvent = queryClient.getQueryData([
-        EVENTS_TABLE,
-        newEvent.id,
-      ]);
+      const previousEvent = queryClient.getQueryData([EVENTS_TABLE, newEvent.id]);
 
       // optimistically update object
       queryClient.setQueryData([EVENTS_TABLE, newEvent.id], newEvent);
@@ -119,10 +107,7 @@ export default function EventListWrapper() {
 
     // Mutation fails, rollback undos optimist update
     onError: (error, newEvent, context) => {
-      queryClient.setQueryData(
-        [EVENTS_TABLE, context.newEvent.id],
-        context.previousEvent
-      );
+      queryClient.setQueryData([EVENTS_TABLE, context.newEvent.id], context.previousEvent);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -237,11 +222,16 @@ export default function EventListWrapper() {
 
   // Events API
   const eventsHandler = useCallback(
-    async (action, payload) => {
+    async (action, payload, options = undefined) => {
       switch (action) {
         case 'add':
           try {
-            await addEvent.mutateAsync(payload);
+            let newEvent = { ...payload };
+            // there is an option to pass an index of an array to use as start time
+            if (options?.startIsLastEnd !== undefined) {
+              newEvent.timeStart = data[options.startIsLastEnd].timeEnd || 0;
+            }
+            await addEvent.mutateAsync(newEvent);
           } catch (error) {
             emitError(`Error fetching data: ${error.message}`);
           }
@@ -326,6 +316,7 @@ export default function EventListWrapper() {
           break;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [data]
   );
 

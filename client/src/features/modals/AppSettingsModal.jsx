@@ -25,8 +25,8 @@ export default function AppSettingsModal() {
     setShowQuickEntry,
     starTimeIsLastEnd,
     setStarTimeIsLastEnd,
-    defaultPrivate,
-    setDefaultPrivate,
+    defaultPublic,
+    setDefaultPublic,
   } = useContext(LocalEventSettingsContext);
   /**
    * Set formdata from server state
@@ -171,10 +171,10 @@ export default function AppSettingsModal() {
               <label>Start time is last end</label>
             </Checkbox>
             <Checkbox
-              isChecked={defaultPrivate}
-              onChange={(e) => setDefaultPrivate(e.target.checked)}
+              isChecked={defaultPublic}
+              onChange={(e) => setDefaultPublic(e.target.checked)}
             >
-              <label>Event default private</label>
+              <label>Event default public</label>
             </Checkbox>
           </div>
         </div>

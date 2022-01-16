@@ -173,12 +173,10 @@ export default function EventList(props) {
                   previousEnd = thisEnd;
                   thisEnd = e.timeEnd;
                 }
-
                 return (
-                  <>
+                  <div key={e.id}>
                     <div
                       ref={cursor === index ? cursorRef : undefined}
-                      key={e.id}
                       className={cursor === index ? style.cursor : undefined}
                     >
                       <EventListItem
@@ -194,7 +192,7 @@ export default function EventList(props) {
                       />
                     </div>
                     <EntryBlock showKbd index={index} eventsHandler={eventsHandler} />
-                  </>
+                  </div>
                 );
               })}
               {provided.placeholder}

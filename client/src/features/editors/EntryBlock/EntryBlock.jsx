@@ -6,24 +6,30 @@ import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettin
 
 export default function EntryBlock(props) {
   const { showKbd, index, eventsHandler } = props;
-  const { starTimeIsLastEnd, defaultPrivate } = useContext(LocalEventSettingsContext);
+  const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
-  const [doPrivate, setPrivate] = useState(defaultPrivate);
+  const [doPublic, setPublic] = useState(defaultPublic);
 
   useEffect(() => {
     setStartTime(starTimeIsLastEnd);
   }, [starTimeIsLastEnd]);
 
   useEffect(() => {
-    setPrivate(defaultPrivate);
-  }, [defaultPrivate]);
+    setPublic(defaultPublic);
+  }, [defaultPublic]);
 
   return (
     <div className={style.create}>
       <Tooltip label='Add Event' openDelay={300}>
         <span
           className={style.createEvent}
-          onClick={() => eventsHandler('add', { type: 'event', order: index + 1 })}
+          onClick={() =>
+            eventsHandler(
+              'add',
+              { type: 'event', order: index + 1, isPublic: doPublic },
+              { startIsLastEnd: index }
+            )
+          }
         >
           E{showKbd && <span className={style.keyboard}>Alt + E</span>}
         </span>
@@ -56,10 +62,10 @@ export default function EntryBlock(props) {
         <Checkbox
           size='sm'
           colorScheme='blue'
-          isChecked={doPrivate}
-          onChange={(e) => setPrivate(e.target.checked)}
+          isChecked={doPublic}
+          onChange={(e) => setPublic(e.target.checked)}
         >
-          Default private
+          Default public
         </Checkbox>
       </div>
     </div>
