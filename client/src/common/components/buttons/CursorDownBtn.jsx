@@ -1,15 +1,15 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiTarget } from 'react-icons/fi';
+import { IoCaretDown } from 'react-icons/io5';
 
-export default function LockIconBtn(props) {
+export default function CursorDownBtn(props) {
   const { clickhandler, active, ref } = props;
   return (
-    <Tooltip label='Lock cursor to current'>
-        <IconButton
+    <Tooltip label='Move cursor down Alt + ↓'>
+      <IconButton
         ref={ref}
         size={props.size || 'xs'}
-        icon={<FiTarget />}
+        icon={<IoCaretDown />}
         color={active ? 'pink.100' : 'pink.300'}
         borderColor={active ? undefined : 'pink.300'}
         backgroundColor={active ? 'pink.400' : undefined}
