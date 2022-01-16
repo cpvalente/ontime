@@ -1,5 +1,9 @@
-import { useMutation, useQueryClient } from 'react-query';
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
+import { EVENTS_TABLE } from 'app/api/apiConstants';
+import { BatchOperation } from 'app/context/collapseAtom';
+import { useAtom } from 'jotai';
+import { LoggingContext } from '../../../app/context/LoggingContext';
 import {
   fetchAllEvents,
   requestApplyDelay,
@@ -10,14 +14,10 @@ import {
   requestPut,
   requestReorder,
 } from 'app/api/eventsApi.js';
+import { useFetch } from 'app/hooks/useFetch.js';
 import EventList from './EventList';
 import EventListMenu from 'features/menu/EventListMenu.jsx';
-import { useFetch } from 'app/hooks/useFetch.js';
 import Empty from 'common/state/Empty';
-import { EVENTS_TABLE } from 'app/api/apiConstants';
-import { BatchOperation } from 'app/context/collapseAtom';
-import { useAtom } from 'jotai';
-import { LoggingContext } from '../../../app/context/LoggingContext';
 
 export default function EventListWrapper() {
   const [, setCollapsed] = useAtom(BatchOperation);

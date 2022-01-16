@@ -1,17 +1,16 @@
-import { memo, useMemo } from 'react';
+import { memo, useContext } from 'react';
 import { Divider } from '@chakra-ui/react';
-import style from './EventListMenu.module.css';
+import { CursorContext } from '../../app/context/CursorContext';
 import MenuActionButtons from './MenuActionButtons';
 import CollapseBtn from 'common/components/buttons/CollapseBtn';
-import { SelectSetting, HandleOptions } from 'app/context/settingsAtom';
-import { useAtom } from 'jotai';
 import CursorUpBtn from '../../common/components/buttons/CursorUpBtn';
 import CursorDownBtn from '../../common/components/buttons/CursorDownBtn';
 import CursorLockedBtn from 'common/components/buttons/CursorLockedBtn';
+import style from './EventListMenu.module.css';
 
 const EventListMenu = ({ eventsHandler }) => {
-  const [cursorSettings] = useAtom(useMemo(() => SelectSetting('cursor'), []));
-  const [, SetOption] = useAtom(HandleOptions);
+  const { isCursorLocked, toggleCursorLocked, moveCursorUp, moveCursorDown } =
+    useContext(CursorContext);
 
   const actionHandler = (action) => {
     switch (action) {
@@ -24,12 +23,14 @@ const EventListMenu = ({ eventsHandler }) => {
       case 'block':
         eventsHandler('add', { type: action, order: 0 });
         break;
+      case 'cursorUp':
+        moveCursorUp();
+        break;
+      case 'cursorDown':
+        moveCursorDown();
+        break;
       case 'togglelock':
-        let newSet = 'locked';
-        if (cursorSettings === 'locked') {
-          newSet = 'unlocked';
-        }
-        SetOption({ cursor: newSet });
+        toggleCursorLocked();
         break;
       case 'deleteall':
         eventsHandler('deleteall');
@@ -41,17 +42,14 @@ const EventListMenu = ({ eventsHandler }) => {
 
   return (
     <div className={style.headerButtons}>
-      <CollapseBtn
-        size='sm'
-        clickhandler={() => eventsHandler('collapseall')}
-      />
+      <CollapseBtn size='sm' clickhandler={() => eventsHandler('collapseall')} />
       <Divider orientation='vertical' />
-      <CursorUpBtn size='sm' clickhandler={() => eventsHandler('expandall')} />
-      <CursorDownBtn size='sm' clickhandler={() => eventsHandler('expandall')} />
+      <CursorUpBtn size='sm' clickhandler={() => actionHandler('cursorUp')} />
+      <CursorDownBtn size='sm' clickhandler={() => actionHandler('cursorDown')} />
       <CursorLockedBtn
         size='sm'
         clickhandler={() => actionHandler('togglelock')}
-        active={cursorSettings === 'locked'}
+        active={isCursorLocked}
       />
       <Divider orientation='vertical' />
       <MenuActionButtons actionHandler={actionHandler} size='sm' />

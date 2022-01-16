@@ -14,7 +14,6 @@ export default function EventList(props) {
   const [selectedId, setSelectedId] = useState(null);
   const [nextId, setNextId] = useState(null);
   const cursorRef = createRef();
-  console.log('>>>>>>>>>>>',isCursorLocked)
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -106,7 +105,7 @@ export default function EventList(props) {
   // or cursor settings changed
   useEffect(() => {
     // and if we are locked
-    if (isCursorLocked || selectedId == null) return;
+    if (!isCursorLocked || selectedId == null) return;
 
     // move cursor
     let gotoIndex = -1;
