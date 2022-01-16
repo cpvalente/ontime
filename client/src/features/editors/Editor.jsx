@@ -7,6 +7,7 @@ import ModalManager from 'features/modals/ModalManager';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import { LoggingProvider } from '../../app/context/LoggingContext';
 import { LocalEventSettingsProvider } from '../../app/context/LocalEventSettingsContext';
+import { CursorProvider } from '../../app/context/CursorContext';
 
 const EventListWrapper = lazy(() => import('features/editors/list/EventListWrapper'));
 const PlaybackControl = lazy(() => import('features/control/PlaybackControl'));
@@ -29,20 +30,22 @@ export default function Editor() {
         </ErrorBoundary>
 
         <div className={styles.mainContainer}>
-          <Box id='settings' className={styles.settings}>
-            <ErrorBoundary>
-              <MenuBar onOpen={onOpen} isOpen={isOpen} />
-            </ErrorBoundary>
-          </Box>
-
-          <Box className={styles.editor}>
-            <h1>Event List</h1>
-            <div className={styles.content}>
+          <CursorProvider>
+            <Box id='settings' className={styles.settings}>
               <ErrorBoundary>
-                <EventListWrapper />
+                <MenuBar onOpen={onOpen} isOpen={isOpen} />
               </ErrorBoundary>
-            </div>
-          </Box>
+            </Box>
+
+            <Box className={styles.editor}>
+              <h1>Event List</h1>
+              <div className={styles.content}>
+                <ErrorBoundary>
+                  <EventListWrapper />
+                </ErrorBoundary>
+              </div>
+            </Box>
+          </CursorProvider>
 
           <Box className={styles.messages}>
             <h1>Display Messages</h1>

@@ -1,22 +1,20 @@
 import style from './List.module.scss';
-import { createRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { createRef, useCallback, useContext, useEffect, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { useAtom } from 'jotai';
-import { SelectSetting } from 'app/context/settingsAtom';
 import EntryBlock from '../EntryBlock/EntryBlock';
+import { CursorContext } from '../../../app/context/CursorContext';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
+  const { cursor, moveCursorUp, moveCursorDown, setCursor, isCursorLocked } = useContext(CursorContext);
   const socket = useSocket();
   const [selectedId, setSelectedId] = useState(null);
   const [nextId, setNextId] = useState(null);
-  const [cursor, setCursor] = useState(0);
-  const [cursorSettings] = useAtom(useMemo(() => SelectSetting('cursor'), []));
-
   const cursorRef = createRef();
+  console.log('>>>>>>>>>>>',isCursorLocked)
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -27,13 +25,11 @@ export default function EventList(props) {
       if (e.altKey && (!e.ctrlKey || !e.shiftKey)) {
         // Arrow down
         if (e.keyCode === 40) {
-          if (cursor == null) setCursor(0);
-          else if (cursor < events.length - 1) setCursor(cursor + 1);
+          if (cursor < events.length - 1) moveCursorDown();
         }
         // Arrow up
         if (e.keyCode === 38) {
-          if (cursor == null) setCursor(0);
-          else if (cursor > 0) setCursor(cursor - 1);
+          if (cursor > 0) moveCursorUp();
         }
         // E
         if (e.key === 'e' || e.key === 'E') {
@@ -55,8 +51,9 @@ export default function EventList(props) {
         }
       }
     },
-    [cursor, events, eventsHandler]
+    [cursor, events.length, eventsHandler, moveCursorDown, moveCursorUp]
   );
+
 
   useEffect(() => {
     // attach the event listener
@@ -68,7 +65,7 @@ export default function EventList(props) {
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [handleKeyPress, cursor, events]);
+  }, [handleKeyPress, cursor, events, setCursor]);
 
   // handle incoming messages
   useEffect(() => {
@@ -109,7 +106,7 @@ export default function EventList(props) {
   // or cursor settings changed
   useEffect(() => {
     // and if we are locked
-    if (cursorSettings !== 'locked' || selectedId == null) return;
+    if (isCursorLocked || selectedId == null) return;
 
     // move cursor
     let gotoIndex = -1;
@@ -126,7 +123,7 @@ export default function EventList(props) {
       setCursor(gotoIndex);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, cursorSettings]);
+  }, [selectedId, isCursorLocked]);
 
   if (events.length < 1) {
     return <Empty text='No Events' />;
