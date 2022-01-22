@@ -20,18 +20,18 @@ export const requestPatch = async (data) => {
 
 export const requestReorder = async (data) => {
   const action = 'reorder';
-  return await axios.patch(eventsURL + '/' + action, data);
+  return await axios.patch(`${eventsURL}/${action}`, data);
 };
 
 export const requestApplyDelay = async (eventId) => {
   const action = 'applydelay';
-  return await axios.patch(eventsURL + '/' + action + '/' + eventId);
+  return await axios.patch(`${eventsURL}/${action}/${eventId}`);
 };
 
 export const requestDelete = async (eventId) => {
-  return await axios.delete(eventsURL + '/' + eventId);
+  return await axios.delete(`${eventsURL}/${eventId}`);
 };
 
 export const requestDeleteAll = async () => {
-  return await axios.delete(eventsURL + '/all');
+  return await axios.delete(`${eventsURL}/all`);
 };

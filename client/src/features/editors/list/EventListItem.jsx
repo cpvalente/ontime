@@ -3,6 +3,7 @@ import BlockBlock from '../BlockBlock/BlockBlock';
 import EventBlock from '../EventBlock/EventBlock';
 import { memo, useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
+import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 
 const areEqual = (prevProps, nextProps) => {
   return (
@@ -29,12 +30,21 @@ const EventListItem = (props) => {
     ...rest
   } = props;
   const { emitError } = useContext(LoggingContext);
+  const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
 
   // Create / delete new events
   const actionHandler = (action, payload) => {
     switch (action) {
       case 'event':
-        eventsHandler('add', { type: 'event', order: index + 1 });
+        eventsHandler(
+          'add',
+          {
+            type: 'event',
+            order: index + 1,
+            isPublic: defaultPublic,
+          },
+          { startIsLastEnd: starTimeIsLastEnd ? index : undefined }
+        );
         break;
       case 'delay':
         eventsHandler('add', { type: 'delay', order: index + 1 });
@@ -85,9 +95,7 @@ const EventListItem = (props) => {
         />
       );
     case 'block':
-      return (
-        <BlockBlock index={index} data={data} actionHandler={actionHandler} />
-      );
+      return <BlockBlock index={index} data={data} actionHandler={actionHandler} />;
     case 'delay':
       return (
         <DelayBlock

@@ -1,16 +1,6 @@
 import { ModalBody } from '@chakra-ui/modal';
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  PinInput,
-  PinInputField,
-} from '@chakra-ui/react';
-import {
-  getSettings,
-  ontimePlaceholderSettings,
-  postSettings,
-} from 'app/api/ontimeApi';
+import { Checkbox, FormControl, FormLabel, Input, PinInput, PinInputField } from '@chakra-ui/react';
+import { getSettings, ontimePlaceholderSettings, postSettings } from 'app/api/ontimeApi';
 import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { APP_SETTINGS } from 'app/api/apiConstants';
@@ -20,6 +10,7 @@ import { IconButton } from '@chakra-ui/button';
 import { FiEye } from 'react-icons/fi';
 import SubmitContainer from './SubmitContainer';
 import { inputProps } from './modalHelper';
+import { LocalEventSettingsContext } from '../../app/context/LocalEventSettingsContext';
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
@@ -28,6 +19,19 @@ export default function AppSettingsModal() {
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [hidePin, setHidePin] = useState(true);
+
+  const {
+    showQuickEntry,
+    setShowQuickEntry,
+    starTimeIsLastEnd,
+    setStarTimeIsLastEnd,
+    defaultPublic,
+    setDefaultPublic,
+  } = useContext(LocalEventSettingsContext);
+
+  const [doShowQuickEntry, setDoShowQuickEntry] = useState(showQuickEntry);
+  const [doStarTimeIsLastEnd, setDoStarTimeIsLastEnd] = useState(starTimeIsLastEnd);
+  const [doDefaultPublic, setDoDefaultPublic] = useState(defaultPublic);
 
   /**
    * Set formdata from server state
@@ -41,35 +45,62 @@ export default function AppSettingsModal() {
   }, [changed, data]);
 
   /**
+   * Set formdata from context
+   */
+  useEffect(() => {
+    if (showQuickEntry == null) return;
+    setDoShowQuickEntry(showQuickEntry);
+  }, [showQuickEntry]);
+
+  useEffect(() => {
+    if (starTimeIsLastEnd == null) return;
+    setDoStarTimeIsLastEnd(starTimeIsLastEnd);
+  }, [starTimeIsLastEnd]);
+
+  useEffect(() => {
+    if (defaultPublic == null) return;
+    setDoDefaultPublic(defaultPublic);
+  }, [defaultPublic]);
+
+  /**
    * Validate and submit data
    */
   const submitHandler = async (event) => {
     event.preventDefault();
     setSubmitting(true);
 
+    // set context
+    setShowQuickEntry(doShowQuickEntry);
+    setStarTimeIsLastEnd(doStarTimeIsLastEnd);
+    setDefaultPublic(doDefaultPublic);
+
     const f = formData;
-    let e = { status: false, message: '' };
 
-    // Validate fields
-    if (f.pinCode === '' || f.pinCode == null) {
-      e.status = true;
-      e.message += 'App pin code removed';
-    } else {
-      e.status = true;
-      e.message += 'App pin code added';
+    // we might not have changed this
+    if (f.pinCode !== data.pinCode) {
+      let e = { status: false, message: '' };
+
+      // Validate fields
+      if (f.pinCode === '' || f.pinCode == null) {
+        e.status = true;
+        e.message += 'App pin code removed';
+      } else {
+        e.status = true;
+        e.message += 'App pin code added';
+      }
+
+      // set fields with error
+      if (!e.status) {
+        emitError(`Invalid Input: ${e.message}`);
+      } else {
+        await postSettings(formData);
+        await refetch();
+        emitWarning(e.message);
+        setChanged(false);
+      }
     }
-
-    // set fields with error
-    if (!e.status) {
-      emitError(`Invalid Input: ${e.message}`);
-    } else {
-      await postSettings(formData);
-      await refetch();
-      emitWarning(e.message);
-      setChanged(false);
-    }
-
     setSubmitting(false);
+    setChanged(false);
   };
 
   /**
@@ -78,6 +109,11 @@ export default function AppSettingsModal() {
   const revert = async () => {
     setChanged(false);
     await refetch();
+
+    // set from context
+    setDoShowQuickEntry(showQuickEntry);
+    setDoStarTimeIsLastEnd(starTimeIsLastEnd);
+    setDoDefaultPublic(defaultPublic);
   };
 
   /**
@@ -89,6 +125,13 @@ export default function AppSettingsModal() {
     const temp = { ...formData };
     temp[field] = value;
     setFormData(temp);
+    setChanged(true);
+  };
+
+  /**
+   * Sets changed flag to true
+   */
+  const handleContextChange = () => {
     setChanged(true);
   };
 
@@ -156,6 +199,36 @@ export default function AppSettingsModal() {
                 />
               </div>
             </FormControl>
+          </div>
+          <div className={style.hSeparator}>Create Event Default Settings</div>
+          <div className={style.modalColumn}>
+            <Checkbox
+              isChecked={doShowQuickEntry}
+              onChange={(e) => {
+                setDoShowQuickEntry(e.target.checked);
+                handleContextChange();
+              }}
+            >
+              Show quick entry on hover
+            </Checkbox>
+            <Checkbox
+              isChecked={doStarTimeIsLastEnd}
+              onChange={(e) => {
+                setDoStarTimeIsLastEnd(e.target.checked);
+                handleContextChange();
+              }}
+            >
+              Start time is last end
+            </Checkbox>
+            <Checkbox
+              isChecked={doDefaultPublic}
+              onChange={(e) => {
+                setDoDefaultPublic(e.target.checked);
+                handleContextChange();
+              }}
+            >
+              Event default public
+            </Checkbox>
           </div>
         </div>
         <SubmitContainer

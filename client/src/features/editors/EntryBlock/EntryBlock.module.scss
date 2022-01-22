@@ -1,0 +1,92 @@
+@use '../../../styles/main' as *;
+
+.create {
+  padding: 0 0.5em;
+  box-sizing: border-box;
+
+  width: 100%;
+  border-radius: 8px;
+  font-size: 12px;
+
+  position: relative;
+  height: 20px;
+  margin: -8px 0;
+  transition: height 0.1s ease;
+
+  * {
+    display: none;
+  }
+
+  &:hover {
+    opacity: 1;
+    height: calc(2.5em + 20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5%;
+    transition: height 0.15s ease;
+
+    * {
+      display: flex;
+    }
+  }
+
+  .createEvent,
+  .createDelay,
+  .createBlock {
+    width: auto;
+    padding: 0 16px;
+    height: 24px;
+    text-align: center;
+    vertical-align: center;
+    font-weight: 600;
+    line-height: 21px;
+    border-radius: 4px;
+    opacity: 0.6;
+
+    .keyboard {
+      margin-left: 4px;
+      padding: 0 4px;
+      color: #ccc;
+      border-radius: 2px;
+      font-family: Monospaced, sans-serif;
+      background-color: rgba(0, 0, 0, 0.24);
+    }
+  }
+
+  .createEvent {
+    border: 1px solid #2b6cb0;
+    color: lighten(#2b6cb0, 30%);
+
+    &:hover {
+      background-color: #2b6cb0;
+      opacity: 1;
+    }
+  }
+
+  .createDelay {
+    border: 1px solid #ecc94b;;
+    color: lighten(#ecc94b, 30%);
+
+    &:hover {
+      background-color: #ecc94b;
+      opacity: 1;
+    }
+  }
+
+  .createBlock {
+    border: 1px solid #805ad5;
+    color: lighten(#805ad5, 30%);
+
+    &:hover {
+      background-color: #805ad5;
+      opacity: 1;
+    }
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    opacity: 0.65;
+  }
+}

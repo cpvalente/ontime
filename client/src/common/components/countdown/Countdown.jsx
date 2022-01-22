@@ -25,7 +25,7 @@ const Countdown = ({ time, small, isNegative, hideZeroHours }) => {
 export default memo(Countdown);
 
 Countdown.propTypes = {
-  time: PropTypes.number.isRequired,
+  time: PropTypes.number,
   small: PropTypes.bool,
   isNegative: PropTypes.bool,
   hideZeroHour: PropTypes.bool,

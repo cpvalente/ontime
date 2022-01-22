@@ -1,21 +1,22 @@
 import style from './List.module.scss';
-import { createRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { createRef, useCallback, useContext, useEffect, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { useAtom } from 'jotai';
-import { SelectSetting } from 'app/context/settingsAtom';
+import EntryBlock from '../EntryBlock/EntryBlock';
+import { CursorContext } from '../../../app/context/CursorContext';
+import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;
+  const { cursor, moveCursorUp, moveCursorDown, setCursor, isCursorLocked } =
+    useContext(CursorContext);
   const socket = useSocket();
   const [selectedId, setSelectedId] = useState(null);
   const [nextId, setNextId] = useState(null);
-  const [cursor, setCursor] = useState(0);
-  const [cursorSettings] = useAtom(useMemo(() => SelectSetting('cursor'), []));
-
   const cursorRef = createRef();
+  const { showQuickEntry } = useContext(LocalEventSettingsContext);
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -26,13 +27,11 @@ export default function EventList(props) {
       if (e.altKey && (!e.ctrlKey || !e.shiftKey)) {
         // Arrow down
         if (e.keyCode === 40) {
-          if (cursor == null) setCursor(0);
-          else if (cursor < events.length - 1) setCursor(cursor + 1);
+          if (cursor < events.length - 1) moveCursorDown();
         }
         // Arrow up
         if (e.keyCode === 38) {
-          if (cursor == null) setCursor(0);
-          else if (cursor > 0) setCursor(cursor - 1);
+          if (cursor > 0) moveCursorUp();
         }
         // E
         if (e.key === 'e' || e.key === 'E') {
@@ -54,7 +53,7 @@ export default function EventList(props) {
         }
       }
     },
-    [cursor, events, eventsHandler]
+    [cursor, events.length, eventsHandler, moveCursorDown, moveCursorUp]
   );
 
   useEffect(() => {
@@ -67,7 +66,7 @@ export default function EventList(props) {
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [handleKeyPress, cursor, events]);
+  }, [handleKeyPress, cursor, events, setCursor]);
 
   // handle incoming messages
   useEffect(() => {
@@ -101,13 +100,14 @@ export default function EventList(props) {
       block: 'nearest',
       inline: 'start',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor]);
 
   // if selected event
   // or cursor settings changed
   useEffect(() => {
     // and if we are locked
-    if (cursorSettings !== 'locked' || selectedId == null) return;
+    if (!isCursorLocked || selectedId == null) return;
 
     // move cursor
     let gotoIndex = -1;
@@ -123,7 +123,8 @@ export default function EventList(props) {
       // move cursor
       setCursor(gotoIndex);
     }
-  }, [selectedId, cursorSettings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, isCursorLocked]);
 
   if (events.length < 1) {
     return <Empty text='No Events' />;
@@ -155,11 +156,7 @@ export default function EventList(props) {
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <Droppable droppableId='eventlist'>
           {(provided) => (
-            <div
-              className={style.list}
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
+            <div className={style.list} {...provided.droppableProps} ref={provided.innerRef}>
               {events.map((e, index) => {
                 if (index === 0) {
                   cumulativeDelay = 0;
@@ -174,24 +171,34 @@ export default function EventList(props) {
                   previousEnd = thisEnd;
                   thisEnd = e.timeEnd;
                 }
-
                 return (
-                  <div
-                    ref={cursor === index ? cursorRef : undefined}
-                    key={e.id}
-                    className={cursor === index ? style.cursor : undefined}
-                  >
-                    <EventListItem
-                      type={e.type}
-                      index={index}
-                      eventIndex={eventIndex}
-                      data={e}
-                      selected={selectedId === e.id}
-                      next={nextId === e.id}
-                      eventsHandler={eventsHandler}
-                      delay={cumulativeDelay}
-                      previousEnd={previousEnd}
-                    />
+                  <div key={e.id}>
+                    {index === 0 && showQuickEntry && (
+                      <EntryBlock index={-1} eventsHandler={eventsHandler} />
+                    )}
+                    <div
+                      ref={cursor === index ? cursorRef : undefined}
+                      className={cursor === index ? style.cursor : undefined}
+                    >
+                      <EventListItem
+                        type={e.type}
+                        index={index}
+                        eventIndex={eventIndex}
+                        data={e}
+                        selected={selectedId === e.id}
+                        next={nextId === e.id}
+                        eventsHandler={eventsHandler}
+                        delay={cumulativeDelay}
+                        previousEnd={previousEnd}
+                      />
+                    </div>
+                    {showQuickEntry && (
+                      <EntryBlock
+                        showKbd={index === cursor}
+                        index={index}
+                        eventsHandler={eventsHandler}
+                      />
+                    )}
                   </div>
                 );
               })}

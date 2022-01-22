@@ -5,7 +5,7 @@ import ActionButtons from '../list/ActionButtons';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import ApplyIconBtn from 'common/components/buttons/ApplyIconBtn';
 import DelayInput from 'common/input/DelayInput';
-import style from './DelayBlock.module.css';
+import style from './DelayBlock.module.scss';
 import PropTypes from 'prop-types';
 
 export default function DelayBlock(props) {

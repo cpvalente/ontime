@@ -7,8 +7,17 @@
 }
 
 .block {
-  display: 'block';
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+
+  *:nth-of-type(2) {
+    flex: 1;
+    width: 20em;
+  }
+
 }
 
 .inline {
