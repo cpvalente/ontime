@@ -26,17 +26,17 @@ and extend with using the URL aliases feature
 ```
 For the presentation views...
 -------------------------------------------------------------
-IP.ADDRESS:4001           > Web server default to presenter timer view
-IP.ADDRESS:4001/preseter  > Presenter / Stage timer view
-IP.ADDRESS:4001/sm        > Stage Manager / Backstage view
-IP.ADDRESS:4001/public    > Public / Foyer view
-IP.ADDRESS:4001/pip       > Picture in Picture view
-IP.ADDRESS:4001/lower     > Lower Thirds
-IP.ADDRESS:4001/studio    > Studio Clock
+IP.ADDRESS:4001            > Web server default to presenter timer view
+IP.ADDRESS:4001/presenter  > Presenter / Stage timer view
+IP.ADDRESS:4001/sm         > Stage Manager / Backstage view
+IP.ADDRESS:4001/public     > Public / Foyer view
+IP.ADDRESS:4001/pip        > Picture in Picture view
+IP.ADDRESS:4001/lower      > Lower Thirds
+IP.ADDRESS:4001/studio     > Studio Clock
 
 ...and for the editor (the control interface, same as the app)
 -------------------------------------------------------------
-IP.ADDRESS:4001/studio    > Studio Clock
+IP.ADDRESS:4001/studio     > Studio Clock
 
 ```
 
