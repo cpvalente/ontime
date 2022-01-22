@@ -27,7 +27,7 @@ export default function EntryBlock(props) {
             eventsHandler(
               'add',
               { type: 'event', order: index + 1, isPublic: doPublic },
-              { startIsLastEnd: index }
+              { startIsLastEnd: doStartTime ? index : undefined }
             )
           }
         >

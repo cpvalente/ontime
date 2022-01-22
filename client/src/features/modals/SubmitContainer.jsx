@@ -8,7 +8,6 @@ export default function SubmitContainer(props) {
   return (
     <div className={style.submitContainer}>
       <Button
-        type='submit'
         isDisabled={submitting || !changed}
         variant='ghosted'
         onClick={() => revert()}

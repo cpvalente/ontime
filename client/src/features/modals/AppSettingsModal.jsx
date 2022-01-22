@@ -28,6 +28,11 @@ export default function AppSettingsModal() {
     defaultPublic,
     setDefaultPublic,
   } = useContext(LocalEventSettingsContext);
+
+  const [doShowQuickEntry, setDoShowQuickEntry] = useState(showQuickEntry);
+  const [doStarTimeIsLastEnd, setDoStarTimeIsLastEnd] = useState(starTimeIsLastEnd);
+  const [doDefaultPublic, setDoDefaultPublic] = useState(defaultPublic);
+
   /**
    * Set formdata from server state
    */
@@ -40,35 +45,62 @@ export default function AppSettingsModal() {
   }, [changed, data]);
 
   /**
+   * Set formdata from context
+   */
+  useEffect(() => {
+    if (showQuickEntry == null) return;
+    setDoShowQuickEntry(showQuickEntry);
+  }, [showQuickEntry]);
+
+  useEffect(() => {
+    if (starTimeIsLastEnd == null) return;
+    setDoStarTimeIsLastEnd(starTimeIsLastEnd);
+  }, [starTimeIsLastEnd]);
+
+  useEffect(() => {
+    if (defaultPublic == null) return;
+    setDoDefaultPublic(defaultPublic);
+  }, [defaultPublic]);
+
+  /**
    * Validate and submit data
    */
   const submitHandler = async (event) => {
     event.preventDefault();
     setSubmitting(true);
 
+    // set context
+    setShowQuickEntry(doShowQuickEntry);
+    setStarTimeIsLastEnd(doStarTimeIsLastEnd);
+    setDefaultPublic(doDefaultPublic);
+
     const f = formData;
-    let e = { status: false, message: '' };
 
-    // Validate fields
-    if (f.pinCode === '' || f.pinCode == null) {
-      e.status = true;
-      e.message += 'App pin code removed';
-    } else {
-      e.status = true;
-      e.message += 'App pin code added';
+    // we might not have changed this
+    if (f.pinCode !== data.pinCode) {
+      let e = { status: false, message: '' };
+
+      // Validate fields
+      if (f.pinCode === '' || f.pinCode == null) {
+        e.status = true;
+        e.message += 'App pin code removed';
+      } else {
+        e.status = true;
+        e.message += 'App pin code added';
+      }
+
+      // set fields with error
+      if (!e.status) {
+        emitError(`Invalid Input: ${e.message}`);
+      } else {
+        await postSettings(formData);
+        await refetch();
+        emitWarning(e.message);
+        setChanged(false);
+      }
     }
-
-    // set fields with error
-    if (!e.status) {
-      emitError(`Invalid Input: ${e.message}`);
-    } else {
-      await postSettings(formData);
-      await refetch();
-      emitWarning(e.message);
-      setChanged(false);
-    }
-
     setSubmitting(false);
+    setChanged(false);
   };
 
   /**
@@ -77,6 +109,11 @@ export default function AppSettingsModal() {
   const revert = async () => {
     setChanged(false);
     await refetch();
+
+    // set from context
+    setDoShowQuickEntry(showQuickEntry);
+    setDoStarTimeIsLastEnd(starTimeIsLastEnd);
+    setDoDefaultPublic(defaultPublic);
   };
 
   /**
@@ -88,6 +125,13 @@ export default function AppSettingsModal() {
     const temp = { ...formData };
     temp[field] = value;
     setFormData(temp);
+    setChanged(true);
+  };
+
+  /**
+   * Sets changed flag to true
+   */
+  const handleContextChange = () => {
     setChanged(true);
   };
 
@@ -156,25 +200,34 @@ export default function AppSettingsModal() {
               </div>
             </FormControl>
           </div>
-          <div className={style.hSeparator}>Event List Settings</div>
+          <div className={style.hSeparator}>Create Event Default Settings</div>
           <div className={style.modalColumn}>
             <Checkbox
-              isChecked={showQuickEntry}
-              onChange={(e) => setShowQuickEntry(e.target.checked)}
+              isChecked={doShowQuickEntry}
+              onChange={(e) => {
+                setDoShowQuickEntry(e.target.checked);
+                handleContextChange();
+              }}
             >
-              <label>Show quick entry on hover</label>
+              Show quick entry on hover
             </Checkbox>
             <Checkbox
-              isChecked={starTimeIsLastEnd}
-              onChange={(e) => setStarTimeIsLastEnd(e.target.checked)}
+              isChecked={doStarTimeIsLastEnd}
+              onChange={(e) => {
+                setDoStarTimeIsLastEnd(e.target.checked);
+                handleContextChange();
+              }}
             >
-              <label>Start time is last end</label>
+              Start time is last end
             </Checkbox>
             <Checkbox
-              isChecked={defaultPublic}
-              onChange={(e) => setDefaultPublic(e.target.checked)}
+              isChecked={doDefaultPublic}
+              onChange={(e) => {
+                setDoDefaultPublic(e.target.checked);
+                handleContextChange();
+              }}
             >
-              <label>Event default public</label>
+              Event default public
             </Checkbox>
           </div>
         </div>
