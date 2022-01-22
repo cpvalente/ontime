@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiChevronsDown } from 'react-icons/fi';
+import { FiCheck } from 'react-icons/fi';
 
 export default function ApplyIconBtn(props) {
   const { clickhandler, ...rest } = props;
@@ -8,7 +8,7 @@ export default function ApplyIconBtn(props) {
     <Tooltip label='Apply delays'>
       <IconButton
         size={props.size || 'xs'}
-        icon={<FiChevronsDown />}
+        icon={<FiCheck />}
         colorScheme='orange'
         onClick={clickhandler}
         _focus={{ boxShadow: 'none' }}

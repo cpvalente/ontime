@@ -8,7 +8,7 @@ const inputProps = {
   backgroundColor: 'rgba(0,0,0,0.05)',
   color: '#fff',
   border: '1px solid #ecc94b55',
-  borderRadius: '4px',
+  borderRadius: '8px',
   placeholder: '-',
   textAlign: 'center',
 };

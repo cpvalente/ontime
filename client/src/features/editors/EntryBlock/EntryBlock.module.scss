@@ -1,17 +1,35 @@
+@use '../../../styles/main' as *;
+
 .create {
-  margin: 0.2em 0;
   padding: 0 0.5em;
   box-sizing: border-box;
 
   width: 100%;
   border-radius: 8px;
   font-size: 12px;
-  background-color: rgba(0, 0, 0, 0.05);
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5%;
+  position: relative;
+  height: 20px;
+  margin: -8px 0;
+  transition: height 0.1s ease;
+
+  * {
+    display: none;
+  }
+
+  &:hover {
+    opacity: 1;
+    height: calc(2.5em + 20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5%;
+    transition: height 0.15s ease;
+
+    * {
+      display: flex;
+    }
+  }
 
   .createEvent,
   .createDelay,
@@ -23,14 +41,8 @@
     vertical-align: center;
     font-weight: 600;
     line-height: 21px;
-    border-radius: 8px;
+    border-radius: 4px;
     opacity: 0.6;
-
-
-
-    &:hover {
-      opacity: 1;
-    }
 
     .keyboard {
       margin-left: 4px;
@@ -43,18 +55,33 @@
   }
 
   .createEvent {
-    border: 1px solid blue;
-    color: lighten(blue, 40%);
+    border: 1px solid #2b6cb0;
+    color: lighten(#2b6cb0, 30%);
+
+    &:hover {
+      background-color: #2b6cb0;
+      opacity: 1;
+    }
   }
 
   .createDelay {
-    border: 1px solid orange;
-    color: lighten(orange, 30%);
+    border: 1px solid #ecc94b;;
+    color: lighten(#ecc94b, 30%);
+
+    &:hover {
+      background-color: #ecc94b;
+      opacity: 1;
+    }
   }
 
   .createBlock {
-    border: 1px solid mediumpurple;
-    color: lighten(mediumpurple, 20%);
+    border: 1px solid #805ad5;
+    color: lighten(#805ad5, 30%);
+
+    &:hover {
+      background-color: #805ad5;
+      opacity: 1;
+    }
   }
 
   .options {
@@ -63,22 +90,3 @@
     opacity: 0.65;
   }
 }
-
-
-//.create {
-//  height:5px;
-//  justify-items: center;
-//  transition: height 0.3s ease-in;
-//
-//  * {
-//    display: none;
-//  }
-//}
-//
-//.create:hover {
-//  display: flex;
-//
-//  height: 2.5em;
-//  border: 1px solid white;
-//  transition: height 0.3s ease-in;
-//}

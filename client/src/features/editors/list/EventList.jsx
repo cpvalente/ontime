@@ -171,6 +171,9 @@ export default function EventList(props) {
                 }
                 return (
                   <div key={e.id}>
+                    {index === 0 && (
+                      <EntryBlock index={-1} eventsHandler={eventsHandler} />
+                    )}
                     <div
                       ref={cursor === index ? cursorRef : undefined}
                       className={cursor === index ? style.cursor : undefined}
@@ -187,7 +190,7 @@ export default function EventList(props) {
                         previousEnd={previousEnd}
                       />
                     </div>
-                    <EntryBlock showKbd index={index} eventsHandler={eventsHandler} />
+                    <EntryBlock showKbd={index === cursor} index={index} eventsHandler={eventsHandler} />
                   </div>
                 );
               })}

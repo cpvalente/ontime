@@ -1,6 +1,6 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useEffect, useState } from 'react';
-import style from './EditableText.module.css';
+import style from './EditableText.module.scss';
 
 export default function EditableText(props) {
   const { label, defaultValue, placeholder, submitHandler, ...rest } = props;
@@ -33,10 +33,7 @@ export default function EditableText(props) {
         className={style.inline}
         {...rest}
       >
-        <EditablePreview
-          color={text === '' ? '#666' : 'inherit'}
-          maxWidth='75%'
-        />
+        <EditablePreview color={text === '' ? '#666' : 'inherit'} maxWidth='75%' />
         <EditableInput overflowX='hidden' maxWidth='75%' />
       </Editable>
     </div>

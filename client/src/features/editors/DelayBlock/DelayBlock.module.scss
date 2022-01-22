@@ -1,3 +1,5 @@
+@use '../../../styles/main' as *;
+
 /* ============= COMMON ============= */
 
 .delay {
@@ -7,7 +9,7 @@
   width: 100%;
   border-radius: 8px;
   font-size: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: $block-border;
 
   display: grid;
   grid-template-columns: 2em 1fr auto;
@@ -17,7 +19,7 @@
   align-items: baseline;
   gap: 0.5em;
 
-  background-color: #ecc94b;
+  background-color: $block-delay-color;
   background: linear-gradient(
     180deg,
     rgba(214, 158, 46, 0.4) 0%,
@@ -30,7 +32,7 @@
 
 .drag {
   grid-area: drag;
-  color: rgba(255, 255, 255, 0.67);
+  color: $block-icon-drag;
   align-self: center;
 }
 

@@ -1,3 +1,4 @@
+@use '../../../styles/main' as *;
 /* ============= COMMON ============= */
 
 .block {
@@ -8,7 +9,7 @@
   width: 100%;
   border-radius: 8px;
   font-size: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: $block-border;
 
   display: grid;
   grid-template-columns: 2em auto;
@@ -16,7 +17,7 @@
   align-items: baseline;
   gap: 0.5em;
 
-  background-color: #805ad5;
+  background-color: $block-block-color;
   background: linear-gradient(
     0deg,
     rgba(107, 70, 193, 0.4) 0%,
@@ -34,7 +35,6 @@
 
 /* ============== ACTION ================ */
 .actionOverlay {
-  display: flex;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
