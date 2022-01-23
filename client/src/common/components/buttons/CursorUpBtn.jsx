@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { IoCaretUp } from 'react-icons/io5';
+import { IoCaretUp } from '@react-icons/all-files/io5/IoCaretUp';
 
 export default function CursorUpBtn(props) {
   const { clickhandler, active, ref } = props;

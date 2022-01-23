@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { IoTimeOutline } from 'react-icons/io5';
+import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function RollIconBtn(props) {

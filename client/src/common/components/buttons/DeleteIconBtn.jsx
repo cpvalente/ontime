@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { useState } from 'react';
-import { IoRemove } from 'react-icons/io5';
+import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function DeleteIconBtn(props) {

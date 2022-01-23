@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { IoSunny } from 'react-icons/io5';
+import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function VisibleIconBtn(props) {

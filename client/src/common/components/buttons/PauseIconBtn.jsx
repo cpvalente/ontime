@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { IoPause } from 'react-icons/io5';
+import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function PauseIconBtn(props) {

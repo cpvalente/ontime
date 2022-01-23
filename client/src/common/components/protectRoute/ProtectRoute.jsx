@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import style from './ProtectRoute.module.scss';
 import { PinInput, PinInputField } from '@chakra-ui/react';
 import { IconButton } from '@chakra-ui/button';
-import { FiCheck } from 'react-icons/fi';
+import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { AppContext } from '../../../app/context/AppContext';
 import { useContext, useEffect, useState } from 'react';
 

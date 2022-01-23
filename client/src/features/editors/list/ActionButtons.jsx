@@ -1,6 +1,8 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
-import { FiClock, FiMinusCircle, FiPlus } from 'react-icons/fi';
+import { FiClock } from '@react-icons/all-files/fi/FiClock';
+import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
+import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function ActionButtons(props) {
@@ -26,19 +28,11 @@ export default function ActionButtons(props) {
         />
       </Tooltip>
       <MenuList style={menuStyle}>
-        <MenuItem
-          icon={<FiPlus />}
-          onClick={() => actionHandler('event')}
-          isDisabled={!showAdd}
-        >
+        <MenuItem icon={<FiPlus />} onClick={() => actionHandler('event')} isDisabled={!showAdd}>
           Add Event after
         </MenuItem>
 
-        <MenuItem
-          icon={<FiClock />}
-          onClick={() => actionHandler('delay')}
-          isDisabled={!showDelay}
-        >
+        <MenuItem icon={<FiClock />} onClick={() => actionHandler('delay')} isDisabled={!showDelay}>
           Add Delay after
         </MenuItem>
         <MenuItem

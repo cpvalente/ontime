@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { IoStop } from 'react-icons/io5';
+import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function UnloadIconBtn(props) {

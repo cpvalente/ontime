@@ -65,13 +65,15 @@ export default function EditableTimer(props) {
     return true;
   };
 
+  const isDelayed = (delay != null && delay !== 0)
+
   return (
     <Editable
       onChange={(v) => setValue(v)}
       onSubmit={(v) => validateValue(v)}
       onCancel={() => setValue(stringFromMillis(time + delay, true))}
       value={value}
-      className={delay > 0 ? style.delayedEditable : style.editable}
+      className={isDelayed ? style.delayedEditable : style.editable}
     >
       <EditablePreview />
       <EditableInput type='text' placeholder='--:--:--' />

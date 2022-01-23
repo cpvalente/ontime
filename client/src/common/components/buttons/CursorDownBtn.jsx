@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { IoCaretDown } from 'react-icons/io5';
+import { IoCaretDown } from '@react-icons/all-files/io5/IoCaretDown';
 
 export default function CursorDownBtn(props) {
   const { clickhandler, active, ref } = props;

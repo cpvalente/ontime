@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiMinusCircle } from 'react-icons/fi';
+import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 
 export default function BlockIconBtn(props) {
   const { clickhandler, ...rest } = props;

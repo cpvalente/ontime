@@ -8,7 +8,7 @@ import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import SubmitContainer from './SubmitContainer';
 import { inputProps, portInputProps } from './modalHelper';
-import { IoInformationCircleOutline } from 'react-icons/io5';
+import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
 
 // currently defined endpoints
@@ -155,9 +155,7 @@ export default function OscSettingsModal() {
       </p>
       <form onSubmit={submitHandler}>
         <div className={style.modalFields}>
-          <div className={style.hSeparator}>
-            OSC Input (Control ontime over OSC)
-          </div>
+          <div className={style.hSeparator}>OSC Input (Control ontime over OSC)</div>
           <div className={style.modalInline}>
             <FormControl id='oscInEnabled'>
               <FormLabel htmlFor='oscInEnabled'>
@@ -187,9 +185,7 @@ export default function OscSettingsModal() {
                 name='port'
                 placeholder='8888'
                 value={formData.port}
-                onChange={(event) =>
-                  handleChange('port', parseInt(event.target.value))
-                }
+                onChange={(event) => handleChange('port', parseInt(event.target.value))}
                 style={{ width: '6em', textAlign: 'center' }}
               />
             </FormControl>
@@ -211,9 +207,7 @@ export default function OscSettingsModal() {
                 placeholder='127.0.0.1'
                 autoComplete='off'
                 value={formData.targetIP}
-                onChange={(event) =>
-                  handleChange('targetIP', event.target.value)
-                }
+                onChange={(event) => handleChange('targetIP', event.target.value)}
                 isDisabled={submitting}
                 style={{ width: '12em', textAlign: 'right' }}
               />
@@ -231,9 +225,7 @@ export default function OscSettingsModal() {
                 name='portOut'
                 placeholder='9999'
                 value={formData.portOut}
-                onChange={(event) =>
-                  handleChange('portOut', parseInt(event.target.value))
-                }
+                onChange={(event) => handleChange('portOut', parseInt(event.target.value))}
                 style={{ width: '6em', textAlign: 'left' }}
               />
             </FormControl>

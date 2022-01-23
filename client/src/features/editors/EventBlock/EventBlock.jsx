@@ -1,5 +1,6 @@
 import Icon from '@chakra-ui/icon';
-import { FiChevronUp, FiMoreVertical } from 'react-icons/fi';
+import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
+import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
 import { useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
@@ -28,12 +29,12 @@ const ExpandedBlock = (props) => {
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
-        <FiMoreVertical  />
+        <FiMoreVertical />
       </span>
 
       <div className={style.indicators}>
         <span className={next ? style.next : style.nextDisabled}>Next</span>
-        {delayValue != null && <span className={style.delayValue}>+ {delayValue}</span>}
+        {delayValue != null && <span className={style.delayValue}>{delayValue}</span>}
       </div>
       <div className={style.timeExpanded}>
         <EventTimesVertical
@@ -93,7 +94,7 @@ ExpandedBlock.propTypes = {
   eventIndex: PropTypes.number.isRequired,
   next: PropTypes.bool.isRequired,
   delay: PropTypes.number,
-  delayValue: PropTypes.number,
+  delayValue: PropTypes.string,
   previousEnd: PropTypes.number.isRequired,
   actionHandler: PropTypes.func.isRequired,
 };
@@ -104,12 +105,12 @@ const CollapsedBlock = (props) => {
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
-        <FiMoreVertical  />
+        <FiMoreVertical />
       </span>
 
       <div className={style.indicators}>
         <span className={next ? style.next : style.nextDisabled}>Next</span>
-        {delayValue != null && <span className={style.delayValue}>+ {delayValue}</span>}
+        {delayValue != null && <span className={style.delayValue}>{delayValue}</span>}
       </div>
       <EventTimes
         actionHandler={actionHandler}
@@ -140,7 +141,7 @@ CollapsedBlock.propTypes = {
   data: PropTypes.object.isRequired,
   next: PropTypes.bool.isRequired,
   delay: PropTypes.any,
-  delayValue: PropTypes.any,
+  delayValue: PropTypes.string,
   previousEnd: PropTypes.number.isRequired,
   actionHandler: PropTypes.func.isRequired,
 };
@@ -155,8 +156,10 @@ export default function EventBlock(props) {
   const classSelect = `${style.event} ${isCollapsed} ${isSelected}`;
 
   // Calculate delay in min
-  const delayValue = delay > 0 ? millisToMinutes(delay) : null;
-
+  let delayValue = null;
+  if (delay != null && delay !== 0) {
+    delayValue = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
+  }
   const handleCollapse = (isCollapsed) => {
     setCollapsed({ [data.id]: isCollapsed });
   };

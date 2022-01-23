@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiUpload } from 'react-icons/fi';
+import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
 
 export default function UploadIconBtn(props) {
   const { clickhandler, ...rest } = props;
