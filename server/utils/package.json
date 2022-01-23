@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "description": "ontime app utility functions",
   "dependencies": {
-    "nanoid": "^3.1.30"
+    "nanoid": "^3.2.0"
   },
   "devDependencies": {}
 }
