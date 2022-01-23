@@ -134,7 +134,7 @@ export default function EventTimesVertical(props) {
     return valid.value;
   };
 
-  return delay != null && delay > 0 ? (
+  return delay != null && delay !== 0 ? (
     <TimesDelayed
       handleValidate={handleValidate}
       actionHandler={props.actionHandler}
