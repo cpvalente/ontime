@@ -9,21 +9,14 @@ import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
 
 const Editor = lazy(() => import('features/editors/Editor'));
+const Table = lazy(() => import('features/table/Table'));
 
-const TimerView = lazy(() =>
-  import('features/viewers/timer/Timer')
-);
-const MinimalTimerView = lazy(() =>
-  import('features/viewers/timer/MinimalTimer')
-);
+const TimerView = lazy(() => import('features/viewers/timer/Timer'));
+const MinimalTimerView = lazy(() => import('features/viewers/timer/MinimalTimer'));
 
-const StageManager = lazy(() =>
-  import('features/viewers/backstage/StageManager')
-);
+const StageManager = lazy(() => import('features/viewers/backstage/StageManager'));
 const Public = lazy(() => import('features/viewers/foh/Public'));
-const Lower = lazy(() =>
-  import('features/viewers/production/lower/LowerWrapper')
-);
+const Lower = lazy(() => import('features/viewers/production/lower/LowerWrapper'));
 const Pip = lazy(() => import('features/viewers/production/Pip'));
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 
@@ -34,6 +27,18 @@ const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
 const SPip = withSocket(Pip);
 const SStudio = withSocket(StudioClock);
+
+const ProtectedEditor = () => (
+  <ProtectRoute>
+    <Editor />
+  </ProtectRoute>
+);
+
+const ProtectedTable = () => (
+  <ProtectRoute>
+    <Table />
+  </ProtectRoute>
+);
 
 function App() {
   const { data } = useFetch(ALIASES, getAliases);
@@ -101,15 +106,11 @@ function App() {
             <Route path='/studio' element={<SStudio />} />
             {/*/!* Lower cannot have fallback *!/*/}
             <Route path='/lower' element={<SLowerThird />} />
+
             {/*/!* Protected Routes *!/*/}
-            <Route
-              path='/editor'
-              element={
-                <ProtectRoute>
-                  <Editor />
-                </ProtectRoute>
-              }
-            />
+            <Route path='/editor' element={<ProtectedEditor />} />
+            <Route path='/table' element={<ProtectedTable />} />
+
             {/* Send to default if nothing found */}
             <Route path='*' element={<STimer />} />
           </Routes>
