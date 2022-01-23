@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/button';
-import { FiTarget } from 'react-icons/fi';
+import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 
 export default function CurrentBtn(props) {
   const { clickhandler, active } = props;

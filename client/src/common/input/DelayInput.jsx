@@ -1,6 +1,8 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { clamp } from '../../app/utils/math';
 import style from './TimeInput.module.css';
+import PropTypes from 'prop-types';
 
 const inputProps = {
   width: 20,
@@ -14,40 +16,42 @@ const inputProps = {
 };
 
 export default function DelayInput(props) {
-  const [value, setValue] = useState(props.value);
+  const { actionHandler, value } = props;
+  const [_value, setValue] = useState(value);
 
   useEffect(() => {
-    if (props.value == null) return;
-    setValue(props.value);
-  }, [props.value]);
-
-  const handleChange = (val) => {
-    if (val <= 666) setValue(val);
-  };
+    if (value == null) return;
+    setValue(value);
+  }, [value]);
 
   const handleSubmit = (val) => {
-    if (val === props.value) return;
+    if (val === value) return;
     if (val === '') setValue(0);
-    if (val >= 0 && val <= 60) {
-      // convert to ms and updates
-      props.actionHandler('update', { field: 'duration', value: val * 60000 });
-    } else {
-      props.actionHandler('update', { field: 'duration', value: 3600000 });
-    }
+
+    // convert to ms and updates
+    const msVal = clamp(val, -60, 60) * 60000;
+    actionHandler('update', { field: 'duration', value: msVal });
   };
+
+  const labelText = `minutes ${value >= 0 ? 'delayed' : 'ahead'}`;
 
   return (
     <div className={style.timeInput}>
       <Editable
         {...inputProps}
-        value={value}
-        onChange={(v) => handleChange(v)}
+        value={_value}
+        onChange={(v) => setValue(v)}
         onSubmit={(v) => handleSubmit(v)}
       >
         <EditablePreview />
-        <EditableInput type='number' min='0' max='60' />
+        <EditableInput type='number' min='-60' max='60' />
       </Editable>
-      <span className={style.label}>{'minutes'}</span>
+      <span className={style.label}>{labelText}</span>
     </div>
   );
 }
+
+DelayInput.propTypes = {
+  actionHandler: PropTypes.func,
+  value: PropTypes.number,
+};

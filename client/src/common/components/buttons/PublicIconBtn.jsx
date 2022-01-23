@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiUsers } from 'react-icons/fi';
+import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 
 export default function PublicIconBtn(props) {
   const { actionHandler, active, ...rest } = props;

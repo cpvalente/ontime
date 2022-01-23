@@ -18,6 +18,14 @@ const areEqual = (prevProps, nextProps) => {
   );
 };
 
+const incrementProps = {
+  size: 'sm',
+  width: '2.9em',
+  colorScheme: 'whiteAlpha',
+  variant: 'outline',
+  _focus: { boxShadow: 'none' },
+};
+
 const PlaybackTimer = (props) => {
   const { timer, playback, handleIncrement, selectedId } = props;
   const started = stringFromMillis(timer.startedAt, true);
@@ -25,14 +33,6 @@ const PlaybackTimer = (props) => {
   const isRolling = playback === 'roll';
   const isWaiting = timer.secondary > 0 && timer.running == null;
   const disableButtons = selectedId == null || isRolling;
-
-  const incrementProps = {
-    size: 'sm',
-    width: '2.9em',
-    colorScheme: 'whiteAlpha',
-    variant: 'outline',
-    _focus: { boxShadow: 'none' },
-  };
 
   return (
     <>

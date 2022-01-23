@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiSettings } from 'react-icons/fi';
+import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 
 export default function SettingsIconBtn(props) {
   const { clickhandler, ...rest } = props;

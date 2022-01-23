@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiTarget } from 'react-icons/fi';
+import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 
 export default function CursorLockedBtn(props) {
   const { clickhandler, active, ref } = props;

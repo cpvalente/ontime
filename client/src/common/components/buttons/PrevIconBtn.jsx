@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { IoPlaySkipBack } from 'react-icons/io5';
+import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function PrevIconBtn(props) {

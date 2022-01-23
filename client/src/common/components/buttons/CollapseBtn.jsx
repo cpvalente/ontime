@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiChevronsUp } from 'react-icons/fi';
+import { FiChevronsUp } from '@react-icons/all-files/fi/FiChevronsUp';
 
 export default function CollapseBtn(props) {
   const { clickhandler } = props;

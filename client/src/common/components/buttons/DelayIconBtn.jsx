@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiClock } from 'react-icons/fi';
+import { FiClock } from '@react-icons/all-files/fi/FiClock';
 
 export default function DelayIconBtn(props) {
   const { clickhandler, ...rest } = props;

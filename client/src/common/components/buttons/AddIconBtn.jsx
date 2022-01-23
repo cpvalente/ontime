@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { FiPlus } from 'react-icons/fi';
+import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
 
 export default function AddIconBtn(props) {
   const { clickhandler, ...rest } = props;

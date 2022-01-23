@@ -1,6 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiChevronsDown } from 'react-icons/fi';
+import { FiChevronsDown } from '@react-icons/all-files/fi/FiChevronsDown';
 
 export default function ExpandBtn(props) {
   const { clickhandler } = props;

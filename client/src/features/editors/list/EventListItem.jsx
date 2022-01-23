@@ -1,7 +1,7 @@
 import DelayBlock from '../DelayBlock/DelayBlock';
 import BlockBlock from '../BlockBlock/BlockBlock';
 import EventBlock from '../EventBlock/EventBlock';
-import { memo, useContext } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 
@@ -33,52 +33,55 @@ const EventListItem = (props) => {
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
 
   // Create / delete new events
-  const actionHandler = (action, payload) => {
-    switch (action) {
-      case 'event':
-        eventsHandler(
-          'add',
-          {
-            type: 'event',
-            order: index + 1,
-            isPublic: defaultPublic,
-          },
-          { startIsLastEnd: starTimeIsLastEnd ? index : undefined }
-        );
-        break;
-      case 'delay':
-        eventsHandler('add', { type: 'delay', order: index + 1 });
-        break;
-      case 'block':
-        eventsHandler('add', { type: 'block', order: index + 1 });
-        break;
-      case 'delete':
-        eventsHandler('delete', data.id);
-        break;
-      case 'update':
-        // Handles and filters update requests
-        const { field, value } = payload;
-        if (field === 'durationOverride') {
-          // duration defines timeEnd
-          let end = (data.timeStart += value);
-          const newData = { id: data.id, timeEnd: end };
+  const actionHandler = useCallback(
+    (action, payload) => {
+      switch (action) {
+        case 'event':
+          eventsHandler(
+            'add',
+            {
+              type: 'event',
+              order: index + 1,
+              isPublic: defaultPublic,
+            },
+            { startIsLastEnd: starTimeIsLastEnd ? index : undefined }
+          );
+          break;
+        case 'delay':
+          eventsHandler('add', { type: 'delay', order: index + 1 });
+          break;
+        case 'block':
+          eventsHandler('add', { type: 'block', order: index + 1 });
+          break;
+        case 'delete':
+          eventsHandler('delete', data.id);
+          break;
+        case 'update':
+          // Handles and filters update requests
+          const { field, value } = payload;
+          if (field === 'durationOverride') {
+            // duration defines timeEnd
+            let end = (data.timeStart += value);
+            const newData = { id: data.id, timeEnd: end };
 
-          // request update in parent
-          eventsHandler('patch', newData);
-        } else if (field in data) {
-          // create object with new field
-          const newData = { id: data.id, [field]: value };
+            // request update in parent
+            eventsHandler('patch', newData);
+          } else if (field in data) {
+            // create object with new field
+            const newData = { id: data.id, [field]: value };
 
-          // request update in parent
-          eventsHandler('patch', newData);
-        } else {
-          emitError(`Unknown field: ${field}`);
-        }
-        break;
-      default:
-        break;
-    }
-  };
+            // request update in parent
+            eventsHandler('patch', newData);
+          } else {
+            emitError(`Unknown field: ${field}`);
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    [data, defaultPublic, emitError, eventsHandler, index, starTimeIsLastEnd]
+  );
 
   switch (type) {
     case 'event':

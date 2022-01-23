@@ -7,6 +7,7 @@ import CursorUpBtn from '../../common/components/buttons/CursorUpBtn';
 import CursorDownBtn from '../../common/components/buttons/CursorDownBtn';
 import CursorLockedBtn from 'common/components/buttons/CursorLockedBtn';
 import style from './EventListMenu.module.css';
+import ExpandBtn from '../../common/components/buttons/ExpandBtn';
 
 const EventListMenu = ({ eventsHandler }) => {
   const { isCursorLocked, toggleCursorLocked, moveCursorUp, moveCursorDown } =
@@ -42,6 +43,7 @@ const EventListMenu = ({ eventsHandler }) => {
 
   return (
     <div className={style.headerButtons}>
+      <ExpandBtn size='sm' clickhandler={() => eventsHandler('expandall')} />
       <CollapseBtn size='sm' clickhandler={() => eventsHandler('collapseall')} />
       <Divider orientation='vertical' />
       <CursorUpBtn size='sm' clickhandler={() => actionHandler('cursorUp')} />
