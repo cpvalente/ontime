@@ -9,7 +9,7 @@ import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
 
 const Editor = lazy(() => import('features/editors/Editor'));
-const Table = lazy(() => import('features/table/Table'));
+const Table = lazy(() => import('features/table/TableWrapper'));
 
 const TimerView = lazy(() => import('features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('features/viewers/timer/MinimalTimer'));

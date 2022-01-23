@@ -1,0 +1,117 @@
+@use '../../styles/main' as *;
+
+
+.tableWrapper,
+.tableWrapper__dark {
+  width: 100vw;
+  height: 100vh;
+  padding: 2vh 2vw;
+
+  font-family: "Open Sans", sans-serif;
+
+  .tableHeader {
+    width: 100%;
+    display: grid;
+    grid-template-areas:
+      'name running time actions'
+      'now running time actions';
+    grid-template-columns: 1fr 10em 10em auto;
+    border: 1px solid $ontime-pink;
+    border-radius: 4px;
+    align-items: center;
+    padding: 0.25em 1em;
+
+    margin-bottom: 2em;
+
+    .headerName {
+      grid-area: name;
+      font-size: 1.5em;
+    }
+
+    .headerNow {
+      grid-area: now;
+      font-size: 1.25em;
+    }
+
+    .headerRunning {
+      grid-area: running;
+      text-align: center;
+    }
+
+    .headerClock {
+      grid-area: time;
+      text-align: center;
+    }
+
+    .headerActions {
+      grid-area: actions;
+      display: flex;
+      gap: 8px;
+      font-size: 1.5em;
+      padding-left: 10vw;
+      color: darken($ontime-pink, 8%);
+    }
+  }
+
+  .tableSettings {
+    width: 100%;
+    border: 1px solid $ontime-pink;
+    margin-bottom: 2em;
+    padding: 0.5em 1em;
+    display: flex;
+    gap: 8px;
+  }
+
+  table {
+    width: 100%;
+    border: 1px solid $ontime-pink;
+    border-radius: 4px;
+
+    border-collapse: separate;
+    border-spacing: 4px;
+
+    text-align: left;
+    vertical-align: top;
+  }
+
+  td {
+    background-color: #aaaaaa;
+    border-radius: 4px;
+  }
+
+  td:hover {
+    background-color: $ontime-pink;
+  }
+}
+
+.tableWrapper {
+  background-color: #fefefe;
+  color: black;
+
+  * {
+    background-color: #fefefe;
+  }
+}
+
+.tableWrapper__dark {
+  background-color: #121212;
+  color: white;
+
+  * {
+    background-color: #1c1c1c;
+  }
+}
+
+.timer {
+  font-size: 1.7em;
+  letter-spacing: 1px;
+  line-height: 1.2em;
+  font-weight: 200;
+}
+
+.label {
+  color: $ontime-pink;
+  font-size: 0.8em;
+  font-weight: 200;
+  line-height: 0.75em;
+}
