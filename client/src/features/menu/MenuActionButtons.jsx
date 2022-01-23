@@ -1,6 +1,9 @@
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
-import { FiClock, FiMinusCircle, FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiClock } from '@react-icons/all-files/fi/FiClock';
+import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
+import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
+import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
 import { Divider } from '@chakra-ui/layout';
 import { Tooltip } from '@chakra-ui/tooltip';
 
@@ -32,18 +35,11 @@ export default function MenuActionButtons(props) {
         <MenuItem icon={<FiClock />} onClick={() => actionHandler('delay')}>
           Add Delay first
         </MenuItem>
-        <MenuItem
-          icon={<FiMinusCircle />}
-          onClick={() => actionHandler('block')}
-        >
+        <MenuItem icon={<FiMinusCircle />} onClick={() => actionHandler('block')}>
           Add Block first
         </MenuItem>
         <Divider />
-        <MenuItem
-          icon={<FiTrash2 />}
-          onClick={() => actionHandler('deleteall')}
-          color='red.500'
-        >
+        <MenuItem icon={<FiTrash2 />} onClick={() => actionHandler('deleteall')} color='red.500'>
           Delete All
         </MenuItem>
       </MenuList>

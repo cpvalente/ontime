@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/modal';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { useRef, useState } from 'react';
-import { FiPower } from 'react-icons/fi';
+import { FiPower } from '@react-icons/all-files/fi/FiPower';
 
 export default function QuitIconBtn(props) {
   const { clickhandler, ...rest } = props;

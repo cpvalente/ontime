@@ -1,5 +1,7 @@
 import { Button, IconButton } from '@chakra-ui/button';
-import { IoInformationCircleOutline, IoRemove, IoSunny } from 'react-icons/io5';
+import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
+import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
+import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
 import { getAliases, postAliases } from '../../app/api/ontimeApi';
@@ -112,9 +114,7 @@ export default function AliasesModal() {
             break;
           }
 
-          const isRepeated = aliases.some(
-            (r) => a.alias === r.alias && r.enabled
-          );
+          const isRepeated = aliases.some((r) => a.alias === r.alias && r.enabled);
           if (isRepeated) {
             emitError('There is already an alias with this name');
             break;
@@ -197,12 +197,9 @@ export default function AliasesModal() {
               </tbody>
             </table>
             <br />
-            <span className={style.labelNote}>
-              URLs to be changed dynamically
-            </span>
+            <span className={style.labelNote}>URLs to be changed dynamically</span>
             <br />
-            eg. an unattended screen that you would need to change route from
-            the app
+            eg. an unattended screen that you would need to change route from the app
             <table>
               <tbody>
                 <tr>
@@ -218,10 +215,7 @@ export default function AliasesModal() {
               </tbody>
             </table>
           </div>
-          <div
-            className={style.inlineAliasPlaceholder}
-            style={{ padding: '0.5em 0' }}
-          >
+          <div className={style.inlineAliasPlaceholder} style={{ padding: '0.5em 0' }}>
             <span className={style.labelNote}>Alias</span>
             <span className={style.labelNote}>Page URL</span>
           </div>
@@ -236,9 +230,7 @@ export default function AliasesModal() {
                   autoComplete='off'
                   value={alias.alias}
                   isInvalid={alias.aliasError}
-                  onChange={(event) =>
-                    handleChange(index, 'alias', event.target.value)
-                  }
+                  onChange={(event) => handleChange(index, 'alias', event.target.value)}
                 />
                 <Input
                   size='sm'
@@ -249,9 +241,7 @@ export default function AliasesModal() {
                   autoComplete='off'
                   value={alias.pathAndParams}
                   isInvalid={alias.urlError}
-                  onChange={(event) =>
-                    handleChange(index, 'pathAndParams', event.target.value)
-                  }
+                  onChange={(event) => handleChange(index, 'pathAndParams', event.target.value)}
                 />
                 <Tooltip label={`Test /${alias.pathAndParams}`} openDelay={500}>
                   <a
@@ -283,28 +273,16 @@ export default function AliasesModal() {
                 </Tooltip>
               </div>
               {alias.aliasError ? (
-                <div
-                  className={style.error}
-                >{`Alias error: ${alias.aliasError}`}</div>
+                <div className={style.error}>{`Alias error: ${alias.aliasError}`}</div>
               ) : null}
               {alias.urlError ? (
-                <div
-                  className={style.error}
-                >{`URL error: ${alias.urlError}`}</div>
+                <div className={style.error}>{`URL error: ${alias.urlError}`}</div>
               ) : null}
             </div>
           ))}
 
-          <div
-            className={style.inlineAliasPlaceholder}
-            style={{ padding: '0.5em 0' }}
-          >
-            <Button
-              size='xs'
-              colorScheme='blue'
-              variant='outline'
-              onClick={() => addNew()}
-            >
+          <div className={style.inlineAliasPlaceholder} style={{ padding: '0.5em 0' }}>
+            <Button size='xs' colorScheme='blue' variant='outline' onClick={() => addNew()}>
               Add new
             </Button>
           </div>

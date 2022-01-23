@@ -1,5 +1,6 @@
 import { IconButton } from '@chakra-ui/button';
-import { IoMicSharp, IoMicOffOutline } from 'react-icons/io5';
+import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
+import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function OnAirIconBtn(props) {
@@ -11,9 +12,7 @@ export default function OnAirIconBtn(props) {
         icon={active ? <IoMicSharp size='24px' /> : <IoMicOffOutline size='24px' />}
         colorScheme='blue'
         variant={active ? 'solid' : 'outline'}
-        onClick={() =>
-          actionHandler('update', { field: 'isPublic', value: !active })
-        }
+        onClick={() => actionHandler('update', { field: 'isPublic', value: !active })}
         _focus={{ boxShadow: 'none' }}
         {...rest}
       />

@@ -7,7 +7,7 @@ import { APP_SETTINGS } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { IconButton } from '@chakra-ui/button';
-import { FiEye } from 'react-icons/fi';
+import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import SubmitContainer from './SubmitContainer';
 import { inputProps } from './modalHelper';
 import { LocalEventSettingsContext } from '../../app/context/LocalEventSettingsContext';

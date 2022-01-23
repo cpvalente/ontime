@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { IoArrowUndo } from 'react-icons/io5';
+import { IoArrowUndo } from '@react-icons/all-files/io5/IoArrowUndo';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function ReloadIconButton(props) {

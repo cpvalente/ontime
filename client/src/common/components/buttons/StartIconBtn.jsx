@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button';
-import { IoPlay } from 'react-icons/io5';
+import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function StartIconBtn(props) {

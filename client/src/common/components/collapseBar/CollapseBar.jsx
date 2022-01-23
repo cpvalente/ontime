@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import style from "../../../features/info/Info.module.scss";
 import {Icon} from "@chakra-ui/react";
-import {FiChevronUp} from "react-icons/fi";
+import {FiChevronUp} from "@react-icons/all-files/fi/FiChevronUp";
 
 export default function CollapseBar(props) {
   const {title = 'Collapse bar', isCollapsed = false, onClick}= props;

@@ -11,7 +11,7 @@ import { useFetch } from 'app/hooks/useFetch';
 import { APP_TABLE } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
-import { FiInfo } from 'react-icons/fi';
+import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
 import SubmitContainer from './SubmitContainer';
 import { inputProps } from './modalHelper';
 
