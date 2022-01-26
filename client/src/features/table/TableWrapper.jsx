@@ -22,7 +22,7 @@ const makeTable = (data) => {
       isPublic: 'Is Public?',
       col9: 'Light',
       col10: 'Cam',
-      col11: 'VDO',
+      col11: 'Video',
       col12: 'Audio',
       colour: 'Colour',
     },
@@ -43,7 +43,7 @@ const ontimeColumns = () => {
     { Header: 'Is Public?', accessor: 'isPublic' },
     { Header: 'Light', accessor: 'col9' },
     { Header: 'Cam', accessor: 'col10' },
-    { Header: 'VDO', accessor: 'col11' },
+    { Header: 'Video', accessor: 'col11' },
     { Header: 'Audio', accessor: 'col12' },
     { Header: 'Colour', accessor: 'colour' },
   ];
