@@ -9,7 +9,7 @@
 
   font-family: "Open Sans", sans-serif;
 
-  .tableHeader {
+  .header {
     width: 100%;
     display: grid;
     grid-template-areas:
@@ -62,7 +62,7 @@
     gap: 8px;
   }
 
-  table {
+  .tableContainer {
     width: 100%;
     border: 1px solid $ontime-pink;
     border-radius: 4px;
@@ -72,15 +72,40 @@
 
     text-align: left;
     vertical-align: top;
-  }
+    padding: 16px;
 
-  td {
-    background-color: #aaaaaa;
-    border-radius: 4px;
-  }
+    .indexColumn {
+      font-size: 0.95em;
+      font-weight: 200;
+      text-align: right;
+    }
 
-  td:hover {
-    background-color: $ontime-pink;
+    .rowHeader {
+      font-weight: 200;
+
+      .headerCell {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 4px;
+      }
+    }
+
+    .row,
+    .rowHeader {
+      display: flex;
+      gap: 4px;
+      padding-top: 4px;
+
+      .column {
+        border-radius: 4px;
+        padding: 4px;
+      }
+
+      .column:hover {
+        background-color: $ontime-pink;
+      }
+    }
   }
 }
 
@@ -91,6 +116,10 @@
   * {
     background-color: #fefefe;
   }
+
+  .column {
+    background-color: #f6f6f6;
+  }
 }
 
 .tableWrapper__dark {
@@ -99,6 +128,10 @@
 
   * {
     background-color: #1c1c1c;
+  }
+
+  .column {
+    background-color: #323232;
   }
 }
 

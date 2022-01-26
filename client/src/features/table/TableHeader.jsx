@@ -43,10 +43,8 @@ export default function TableHeader(props) {
     };
   }, [socket]);
 
-  console.log(timer.running);
-
   return (
-    <div className={style.tableHeader}>
+    <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
       <div className={style.headerNow}>{now}</div>
       <div className={style.headerRunning}>

@@ -31,21 +31,20 @@ const makeTable = (data) => {
 
 const ontimeColumns = () => {
   return [
-    { Header: '#', accessor: '#' },
-    { Header: 'Type', accessor: 'type' },
-    { Header: 'Start Time', accessor: 'timeStart' },
-    { Header: 'End Time', accessor: 'timeEnd' },
-    { Header: 'Duration', accessor: 'duration' },
-    { Header: 'Title', accessor: 'title' },
-    { Header: 'Sub', accessor: 'subtitle' },
-    { Header: 'Presenter', accessor: 'presenter' },
-    { Header: 'Notes', accessor: 'note' },
-    { Header: 'Is Public?', accessor: 'isPublic' },
-    { Header: 'Light', accessor: 'col9' },
-    { Header: 'Cam', accessor: 'col10' },
-    { Header: 'Video', accessor: 'col11' },
-    { Header: 'Audio', accessor: 'col12' },
-    { Header: 'Colour', accessor: 'colour' },
+    { header: 'Type', accessor: 'type' },
+    { header: 'Start Time', accessor: 'timeStart' },
+    { header: 'End Time', accessor: 'timeEnd' },
+    { header: 'Duration', accessor: 'duration' },
+    { header: 'Title', accessor: 'title' },
+    { header: 'Sub', accessor: 'subtitle' },
+    { header: 'Presenter', accessor: 'presenter' },
+    { header: 'Notes', accessor: 'note' },
+    { header: 'Is Public?', accessor: 'isPublic' },
+    { header: 'Light', accessor: 'col9' },
+    { header: 'Cam', accessor: 'col10' },
+    { header: 'Video', accessor: 'col11' },
+    { header: 'Audio', accessor: 'col12' },
+    { header: 'Colour', accessor: 'colour' },
   ];
 };
 
