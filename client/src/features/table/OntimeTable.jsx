@@ -8,65 +8,67 @@ export default function OnTimeTable({ columns, data }) {
   return (
     <div className={style.tableContainer}>
       <div className={style.rowHeader}>
-        <div style={{ width: '1%' }} className={style.indexColumn}>
+        <div className={style.indexColumn} style={{ maxWidth: '1.5em' }}>
           #
         </div>
         {columns.map((c) => (
-          <div style={{ width: `${99 / 14}%` }} key={c.accessor} className={style.headerCell}>
+          <div style={{ maxWidth: c.width }} key={c.accessor} className={style.headerCell}>
             {c.header}
             <FiCheck />
           </div>
         ))}
       </div>
-      {data.map((d, index) => (
-        <div className={style.row} key={d.id}>
-          <div className={style.indexColumn} style={{ width: '1%' }}>
-            {index + 1}
+      <div className={style.tableBody}>
+        {data.map((d, index) => (
+          <div className={index === 3 ? style.rowNow : style.row} key={d.id}>
+            <div className={style.indexColumn} style={{ maxWidth: '1.5em' }}>
+              {index * 1}
+            </div>
+            <div className={style.column} style={{ maxWidth: '1.5em' }}>
+              {d.type === 'event' ? 'E' : d.type === 'block' ? 'B' : 'D'}
+            </div>
+            <div className={style.column} style={{ maxWidth: '6em' }}>
+              {stringFromMillis(d.timeStart)}
+            </div>
+            <div className={style.column} style={{ maxWidth: '6em' }}>
+              {stringFromMillis(d.timeEnd)}
+            </div>
+            <div className={style.column} style={{ maxWidth: '6em' }}>
+              {stringFromMillis(d.duration)}
+            </div>
+            <div className={style.column} style={{ maxWidth: '10em' }}>
+              {d.title}
+            </div>
+            <div className={style.column} style={{ maxWidth: '10em' }}>
+              {d.subtitle}
+            </div>
+            <div className={style.column} style={{ maxWidth: '10em' }}>
+              {d.presenter}
+            </div>
+            <div className={style.column} style={{ maxWidth: '10em' }}>
+              {d.note}
+            </div>
+            <div className={style.column} style={{ maxWidth: '2em' }}>
+              <PublicIconBtn active={d.isPublic} />
+            </div>
+            <div className={style.column} style={{ maxWidth: 'auto' }}>
+              ' - '
+            </div>
+            <div className={style.column} style={{ maxWidth: 'auto' }}>
+              ' - '
+            </div>
+            <div className={style.column} style={{ maxWidth: 'auto' }}>
+              ' - '
+            </div>
+            <div className={style.column} style={{ maxWidth: 'auto' }}>
+              ' - '
+            </div>
+            <div className={style.column} style={{ maxWidth: '5em' }}>
+              #FFFFFF
+            </div>
           </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            {d.type}
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            {stringFromMillis(d.timeStart)}
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            {stringFromMillis(d.timeEnd)}
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            {stringFromMillis(d.duration)}
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            {d.title}
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            {d.subtitle}
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            {d.presenter}
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            {d.note}
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            <PublicIconBtn active={d.isPublic} />
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            ' - '
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            ' - '
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            ' - '
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            ' - '
-          </div>
-          <div className={style.column} style={{ width: `${99 / 14}%` }}>
-            ' - '
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

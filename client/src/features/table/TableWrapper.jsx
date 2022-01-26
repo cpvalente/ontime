@@ -31,20 +31,20 @@ const makeTable = (data) => {
 
 const ontimeColumns = () => {
   return [
-    { header: 'Type', accessor: 'type' },
-    { header: 'Start Time', accessor: 'timeStart' },
-    { header: 'End Time', accessor: 'timeEnd' },
-    { header: 'Duration', accessor: 'duration' },
-    { header: 'Title', accessor: 'title' },
-    { header: 'Sub', accessor: 'subtitle' },
-    { header: 'Presenter', accessor: 'presenter' },
-    { header: 'Notes', accessor: 'note' },
-    { header: 'Is Public?', accessor: 'isPublic' },
-    { header: 'Light', accessor: 'col9' },
-    { header: 'Cam', accessor: 'col10' },
-    { header: 'Video', accessor: 'col11' },
-    { header: 'Audio', accessor: 'col12' },
-    { header: 'Colour', accessor: 'colour' },
+    { width: '1.5em', header: 'Type', accessor: 'type' },
+    { width: '6em', header: 'Start Time', accessor: 'timeStart' },
+    { width: '6em', header: 'End Time', accessor: 'timeEnd' },
+    { width: '6em', header: 'Duration', accessor: 'duration' },
+    { width: '10em', header: 'Title', accessor: 'title' },
+    { width: '10em', header: 'Subtitle', accessor: 'subtitle' },
+    { width: '10em', header: 'Presenter', accessor: 'presenter' },
+    { width: '10em', header: 'Notes', accessor: 'note' },
+    { width: '2em', header: 'Is Public?', accessor: 'isPublic' },
+    { width: 'auto', header: 'Light', accessor: 'col9' },
+    { width: 'auto', header: 'Cam', accessor: 'col10' },
+    { width: 'auto', header: 'Video', accessor: 'col11' },
+    { width: 'auto', header: 'Audio', accessor: 'col12' },
+    { width: '5em', header: 'Colour', accessor: 'colour' },
   ];
 };
 
@@ -63,7 +63,7 @@ export default function TableWrapper() {
         <TableHeader setShowSettings={setShowSettings} setDark={setDark} now='Title Now' />
         {showSettings && (
           <div className={style.tableSettings}>
-            <Checkbox colorScheme='pink'>Events only</Checkbox>
+            <Checkbox>Events only</Checkbox>
             <Checkbox>Start Time</Checkbox>
             <Checkbox>End Time</Checkbox>
             <Checkbox>Duration</Checkbox>

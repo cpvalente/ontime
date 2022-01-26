@@ -8,6 +8,7 @@ import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { FiPrinter } from '@react-icons/all-files/fi/FiPrinter';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
+import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { useSocket } from '../../app/context/socketContext';
 import { useEffect, useState } from 'react';
 import { stringFromMillis } from 'ontime-utils/time';
@@ -59,9 +60,13 @@ export default function TableHeader(props) {
       </div>
       <div className={style.headerActions}>
         <FiTarget />
+        <span style={{paddingRight: '4px'}} />
         <IoReload />
+        <FiSave />
+        <span style={{paddingRight: '4px'}} />
         <FiDownload />
         <FiPrinter />
+        <span style={{paddingRight: '4px'}} />
         <FiSettings onClick={() => setShowSettings((prev) => !prev)} />
         <IoMoon onClick={() => setDark((prev) => !prev)} />
       </div>

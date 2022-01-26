@@ -5,11 +5,21 @@
 .tableWrapper__dark {
   width: 100vw;
   height: 100vh;
-  padding: 2vh 2vw;
+  padding: 32px 32px;
+  display: grid;
+
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+          'header'
+          'settings'
+          'table';
+
+  gap: 16px;
 
   font-family: "Open Sans", sans-serif;
 
   .header {
+    grid-area: header;
     width: 100%;
     display: grid;
     grid-template-areas:
@@ -20,8 +30,6 @@
     border-radius: 4px;
     align-items: center;
     padding: 0.25em 1em;
-
-    margin-bottom: 2em;
 
     .headerName {
       grid-area: name;
@@ -54,16 +62,18 @@
   }
 
   .tableSettings {
+    grid-area: settings;
     width: 100%;
     border: 1px solid $ontime-pink;
-    margin-bottom: 2em;
     padding: 0.5em 1em;
     display: flex;
     gap: 8px;
   }
 
   .tableContainer {
+    grid-area: table;
     width: 100%;
+    height: 100%;
     border: 1px solid $ontime-pink;
     border-radius: 4px;
 
@@ -74,6 +84,11 @@
     vertical-align: top;
     padding: 16px;
 
+    .tableBody {
+      height: 100%;
+      overflow: scroll;
+    }
+
     .indexColumn {
       font-size: 0.95em;
       font-weight: 200;
@@ -82,6 +97,7 @@
 
     .rowHeader {
       font-weight: 200;
+
 
       .headerCell {
         display: flex;
@@ -92,18 +108,31 @@
     }
 
     .row,
+    .rowNow,
     .rowHeader {
       display: flex;
       gap: 4px;
       padding-top: 4px;
 
+      .headerCell {
+        padding: 4px;
+        flex-grow: 1;
+      }
+
       .column {
         border-radius: 4px;
         padding: 4px;
+        flex-grow: 1;
       }
 
       .column:hover {
         background-color: $ontime-pink;
+      }
+    }
+
+    .rowNow {
+      .column {
+        background-color: #4bffab99;
       }
     }
   }
@@ -147,4 +176,8 @@
   font-size: 0.8em;
   font-weight: 200;
   line-height: 0.75em;
+}
+
+svg {
+  background-color: inherit !important;
 }
