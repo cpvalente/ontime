@@ -15,7 +15,13 @@ export default function EditableText(props) {
   const handleSubmit = (submitedVal) => {
     // No need to update if it hasnt changed
     if (submitedVal === defaultValue) return;
-    submitHandler(submitedVal);
+    // submit a cleaned up version of the string
+    const cleanVal = submitedVal.trim();
+    submitHandler(cleanVal);
+
+    if (cleanVal !== submitedVal) {
+      setText(cleanVal);
+    }
   };
 
   const handleChange = (val) => {
