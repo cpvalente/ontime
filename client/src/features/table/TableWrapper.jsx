@@ -12,8 +12,26 @@ const makeTable = (data) => {
   return data;
 };
 
+const extractVisible = (data) => {
+  const propertyArray = [];
+  for (const d of data) {
+    if (d.visible) {
+      propertyArray.push(d.accessor);
+    }
+  }
+  return propertyArray;
+};
+
 const filterObjects = (data, accessorsToShow) => {
-  return data;
+  const filteredData = [];
+  for (const d of data) {
+    let o = { id: d.id };
+    for (const a of accessorsToShow) {
+      o[a] = d[a];
+    }
+    filteredData.push(o);
+  }
+  return filteredData;
 };
 
 const ontimeColumns = () => {
@@ -27,10 +45,10 @@ const ontimeColumns = () => {
     { filterable: true, visible: true, width: '10em', header: 'Presenter', accessor: 'presenter' },
     { filterable: true, visible: true, width: '10em', header: 'Notes', accessor: 'note' },
     { filterable: true, visible: true, width: '2em', header: 'Is Public?', accessor: 'isPublic' },
-    { filterable: true, visible: true, width: 'auto', header: 'Light', accessor: 'col9' },
-    { filterable: true, visible: true, width: 'auto', header: 'Cam', accessor: 'col10' },
-    { filterable: true, visible: true, width: 'auto', header: 'Video', accessor: 'col11' },
-    { filterable: true, visible: true, width: 'auto', header: 'Audio', accessor: 'col12' },
+    { filterable: true, visible: true, width: 'auto', header: 'Light', accessor: 'light' },
+    { filterable: true, visible: true, width: 'auto', header: 'Cam', accessor: 'cam' },
+    { filterable: true, visible: true, width: 'auto', header: 'Video', accessor: 'video' },
+    { filterable: true, visible: true, width: 'auto', header: 'Audio', accessor: 'audio' },
     { filterable: true, visible: true, width: '5em', header: 'Colour', accessor: 'colour' },
   ];
 };
@@ -67,7 +85,8 @@ export default function TableWrapper() {
 
   if (data == null) return <span>loading</span>;
   else {
-    const dataToShow = filterObjects(data, columns);
+    const accessors = extractVisible(columns);
+    const dataToShow = filterObjects(data, accessors);
     return (
       <div className={dark ? style.tableWrapper__dark : style.tableWrapper}>
         <TableHeader setShowSettings={setShowSettings} setDark={setDark} now='Title Now' />
