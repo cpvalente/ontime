@@ -9,10 +9,8 @@ import { dbModelv1 } from '../models/dataModel.js';
 import { generateId } from 'ontime-utils/generate_id.js';
 import { excelDateStringToMillis } from 'ontime-utils/time.js';
 
-export const EXCEL_MIME =
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
-export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
 export const MAX_EVENTS = 99;
 
 /**
@@ -30,9 +28,7 @@ export const fileHandler = async (file) => {
       const excelData = xlsx
         .parse(file, { cellDates: true })
         .find(
-          ({ name }) =>
-            name.toLowerCase() === 'ontime' ||
-            name.toLowerCase() === 'event schedule'
+          ({ name }) => name.toLowerCase() === 'ontime' || name.toLowerCase() === 'event schedule'
         );
 
       // we only look at worksheets called ontime or event schedule
@@ -238,6 +234,18 @@ export const makeString = (val, fallback = '') => {
 };
 
 /**
+ * @description validates a duration value against options
+ * @param {number} timeStart
+ * @param {number} timeEnd
+ * @returns {number}
+ */
+export const validateDuration = (timeStart, timeEnd) => {
+  // Todo: this would go into a switch statement when expanded
+  // Durations must be positive
+  return Math.max(timeEnd - timeStart, 0);
+};
+
+/**
  * @description Enforces formatting for events
  * @param {object} eventArgs - attributes of event
  * @returns {object|null} - formatted object or null in case is invalid
@@ -255,26 +263,30 @@ export const validateEvent_v1 = (eventArgs) => {
 
     const e = eventArgs;
     const d = eventDef;
+    const start =
+      e.timeStart != null && typeof e.timeStart === 'number' ? e.timeStart : d.timeStart;
+    const end = e.timeEnd != null && typeof e.timeEnd === 'number' ? e.timeEnd : d.timeEnd;
 
     event = {
       ...d,
-
       title: makeString(e.title, d.title),
       subtitle: makeString(e.subtitle, d.subtitle),
       presenter: makeString(e.presenter, d.presenter),
+      timeStart: start,
+      timeEnd: end,
+      timeType: 'start-end',
+      duration: validateDuration(start, end),
+      isPublic: e.isPublic != null && typeof e.isPublic === 'boolean' ? e.isPublic : d.isPublic,
       note: makeString(e.note, d.note),
-      timeStart:
-        e.timeStart != null && typeof e.timeStart === 'number'
-          ? e.timeStart
-          : d.timeStart,
-      timeEnd:
-        e.timeEnd != null && typeof e.timeEnd === 'number'
-          ? e.timeEnd
-          : d.timeEnd,
-      isPublic:
-        e.isPublic != null && typeof e.isPublic === 'boolean'
-          ? e.isPublic
-          : d.isPublic,
+      light: makeString(e.light, d.light),
+      cam: makeString(e.cam, d.cam),
+      video: makeString(e.video, d.video),
+      audio: makeString(e.audio, d.audio),
+      // deciding not to validate colour
+      // this adds flexibility to the user to write hex codes, rgb,
+      // but also colour names like blue and red
+      // CSS.supports is only available in frontend
+      colour: makeString(e.colour, d.colour),
       id,
       type: 'event',
     };

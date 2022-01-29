@@ -5,6 +5,8 @@ export const event = {
   note: '',
   timeStart: 0,
   timeEnd: 0,
+  timeType: 'start-end',
+  duration: 0,
   isPublic: false,
   light: '',
   cam: '',

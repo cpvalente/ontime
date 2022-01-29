@@ -4,6 +4,7 @@ import {
   parseAliases_v1,
   parseExcel_v1,
   parseJson_v1,
+  validateDuration,
   validateEvent_v1,
 } from '../parser.js';
 import { dbModelv1 as dbModel } from '../../models/dataModel.js';
@@ -18,7 +19,14 @@ describe('test json parser with valid def', () => {
         note: '',
         timeStart: 31500000,
         timeEnd: 32400000,
+        timeType: 'start-end',
+        duration: 32400000 - 31500000,
         isPublic: false,
+        light: '',
+        cam: '',
+        video: '',
+        audio: '',
+        colour: '',
         type: 'event',
         revision: 0,
         id: '4b31',
@@ -30,7 +38,14 @@ describe('test json parser with valid def', () => {
         note: '',
         timeStart: 32400000,
         timeEnd: 36000000,
+        timeType: 'start-end',
+        duration: 36000000 - 32400000,
         isPublic: true,
+        light: '',
+        cam: '',
+        video: '',
+        audio: '',
+        colour: '',
         type: 'event',
         revision: 0,
         id: 'f24d',
@@ -42,7 +57,14 @@ describe('test json parser with valid def', () => {
         note: '',
         timeStart: 32400000,
         timeEnd: 37200000,
+        timeType: 'start-end',
+        duration: 37200000 - 32400000,
         isPublic: false,
+        light: '',
+        cam: '',
+        video: '',
+        audio: '',
+        colour: '',
         type: 'event',
         revision: 0,
         id: 'bbc5',
@@ -54,7 +76,14 @@ describe('test json parser with valid def', () => {
         note: '',
         timeStart: 37200000,
         timeEnd: 39000000,
+        timeType: 'start-end',
+        duration: 39000000 - 37200000,
         isPublic: true,
+        light: '',
+        cam: '',
+        video: '',
+        audio: '',
+        colour: '',
         type: 'event',
         revision: 0,
         id: '5b3e',
@@ -66,7 +95,14 @@ describe('test json parser with valid def', () => {
         note: '',
         timeStart: 39600000,
         timeEnd: 45000000,
+        timeType: 'start-end',
+        duration: 37200000 - 32400000,
         isPublic: false,
+        light: '',
+        cam: '',
+        video: '',
+        audio: '',
+        colour: '',
         type: 'event',
         revision: 0,
         id: '8e2c',
@@ -78,7 +114,14 @@ describe('test json parser with valid def', () => {
         note: '',
         timeStart: 46800000,
         timeEnd: 50400000,
+        timeType: 'start-end',
+        duration: 37200000 - 32400000,
         isPublic: true,
+        light: '',
+        cam: '',
+        video: '',
+        audio: '',
+        colour: '',
         type: 'event',
         revision: 0,
         id: '08e9',
@@ -90,7 +133,14 @@ describe('test json parser with valid def', () => {
         note: '',
         timeStart: 54000000,
         timeEnd: 57600000,
+        timeType: 'start-end',
+        duration: 37200000 - 32400000,
         isPublic: true,
+        light: '',
+        cam: '',
+        video: '',
+        audio: '',
+        colour: '',
         type: 'event',
         revision: 0,
         id: 'e25a',
@@ -128,7 +178,14 @@ describe('test json parser with valid def', () => {
       note: '',
       timeStart: 31500000,
       timeEnd: 32400000,
+      timeType: 'start-end',
+      duration: 32400000 - 31500000,
       isPublic: false,
+      light: '',
+      cam: '',
+      video: '',
+      audio: '',
+      colour: '',
       type: 'event',
       revision: 0,
       id: '4b31',
@@ -192,9 +249,7 @@ describe('test parser edge cases', () => {
     };
 
     const parseResponse = await parseJson_v1(testData);
-    expect(console.log).toHaveBeenCalledWith(
-      'ERROR: ID collision on import, skipping'
-    );
+    expect(console.log).toHaveBeenCalledWith('ERROR: ID collision on import, skipping');
     expect(parseResponse?.events.length).toBe(1);
   });
 
@@ -214,10 +269,7 @@ describe('test parser edge cases', () => {
     };
 
     const parseResponse = await parseJson_v1(testData);
-    expect(console.log).toHaveBeenCalledWith(
-      'ERROR: undefined event type, skipping'
-    );
-
+    expect(console.log).toHaveBeenCalledWith('ERROR: undefined event type, skipping');
     expect(parseResponse?.events.length).toBe(0);
   });
 
@@ -230,9 +282,7 @@ describe('test parser edge cases', () => {
     };
 
     await parseJson_v1(testData);
-    expect(console.log).toHaveBeenCalledWith(
-      'ERROR: unknown app version, skipping'
-    );
+    expect(console.log).toHaveBeenCalledWith('ERROR: unknown app version, skipping');
   });
 });
 
@@ -499,25 +549,57 @@ describe('test parseExcel function', () => {
 });
 
 describe('test aliases import', () => {
-  it('imports a well defined alias', () => {});
-  const testData = {
-    events: [],
-    settings: {
-      app: 'ontime',
-      version: 1,
-    },
-    aliases: [
-      {
-        enabled: false,
-        alias: 'testalias',
-        pathAndParams: 'testpathAndParams',
+  it('imports a well defined alias', () => {
+    const testData = {
+      events: [],
+      settings: {
+        app: 'ontime',
+        version: 1,
       },
-    ],
-  };
+      aliases: [
+        {
+          enabled: false,
+          alias: 'testalias',
+          pathAndParams: 'testpathAndParams',
+        },
+      ],
+    };
 
-  const parsed = parseAliases_v1(testData, true);
-  expect(parsed.length).toBe(1);
+    const parsed = parseAliases_v1(testData);
+    expect(parsed.length).toBe(1);
 
-  // generates missing id
-  expect(parsed[0].id).toBeDefined();
+    // generates missing id
+    expect(parsed[0].id).toBeDefined();
+  });
+});
+
+describe('test validateDuration()', () => {
+  describe('handles valid inputs', () => {
+    const valid = [
+      { test: 'zero values', timeStart: 0, timeEnd: 0 },
+      { test: 'end after start', timeStart: 0, timeEnd: 1 },
+    ];
+
+    valid.forEach((t) => {
+      it(t.test, () => {
+        const d = validateDuration(t.timeStart, t.timeEnd);
+        expect(d).toBe(t.timeEnd - t.timeStart);
+      });
+    });
+  });
+
+  describe('handles edge cases', () => {
+    // edge cases
+    const testData = [
+      { test: 'negative 0', timeStart: -0, timeEnd: -0, expected: 0 },
+      { test: 'end before start', timeStart: 2, timeEnd: 1, expected: 0 },
+    ];
+
+    testData.forEach((t) => {
+      it(t.test, () => {
+        const d = validateDuration(t.timeStart, t.timeEnd);
+        expect(d).toBe(t.expected);
+      });
+    });
+  });
 });
