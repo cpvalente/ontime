@@ -20,12 +20,6 @@ const ExpandedBlock = (props) => {
 
   const oscid = data?.id || '...';
 
-  // if end is before, assume is the day after
-  const duration =
-    data.timeStart > data.timeEnd
-      ? data.timeEnd + 86400000 - data.timeStart
-      : data.timeEnd - data.timeStart;
-
   return (
     <>
       <span className={style.drag} {...provided.dragHandleProps}>
@@ -41,7 +35,7 @@ const ExpandedBlock = (props) => {
           actionHandler={actionHandler}
           timeStart={data.timeStart}
           timeEnd={data.timeEnd}
-          duration={duration}
+          duration={data.duration}
           delay={delay}
           previousEnd={previousEnd}
           className={style.time}

@@ -32,6 +32,16 @@ const EventListItem = (props) => {
   const { emitError } = useContext(LoggingContext);
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
 
+  /**
+   * @description calculates duration from given options
+   * @param {number} start
+   * @param {number} end
+   * @returns {number}
+   */
+  const calculateDuration = useCallback(
+    (start, end) => (start > end ? end + 86400000 - start : end - start),
+    []
+  );
   // Create / delete new events
   const actionHandler = useCallback(
     (action, payload) => {
@@ -59,16 +69,27 @@ const EventListItem = (props) => {
         case 'update':
           // Handles and filters update requests
           const { field, value } = payload;
+          const newData = { id: data.id };
+
           if (field === 'durationOverride') {
             // duration defines timeEnd
-            let end = (data.timeStart += value);
-            const newData = { id: data.id, timeEnd: end };
+            newData.timeEnd = data.timeStart += value;
 
+            // request update in parent
+            eventsHandler('patch', newData);
+          } else if (field === 'timeStart') {
+            newData.duration = calculateDuration(value, data.timeEnd);
+            newData.timeStart = value;
+            // request update in parent
+            eventsHandler('patch', newData);
+          } else if (field === 'timeEnd') {
+            newData.duration = calculateDuration(data.timeStart, value);
+            newData.timeEnd = value;
             // request update in parent
             eventsHandler('patch', newData);
           } else if (field in data) {
             // create object with new field
-            const newData = { id: data.id, [field]: value };
+            newData[field] = value;
 
             // request update in parent
             eventsHandler('patch', newData);
