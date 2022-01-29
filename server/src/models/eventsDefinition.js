@@ -6,6 +6,11 @@ export const event = {
   timeStart: 0,
   timeEnd: 0,
   isPublic: false,
+  light: '',
+  cam: '',
+  video: '',
+  audio: '',
+  colour: '',
   type: 'event',
   revision: 0,
 };
