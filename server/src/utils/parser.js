@@ -13,6 +13,7 @@ export const EXCEL_MIME =
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 export const ALLOWED_TYPES = ['JSON', 'EXCEL'];
+export const MAX_EVENTS = 99;
 
 /**
  * @description Middleware function that checks file type and calls relevant parser
@@ -321,6 +322,12 @@ export const parseEvents_v1 = (data) => {
     let events = [];
     let ids = [];
     for (const e of data.events) {
+      // cap number of events
+      if (events.length >= MAX_EVENTS) {
+        console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
+        break;
+      }
+
       // double check unique ids
       if (ids.indexOf(e?.id) !== -1) {
         console.log('ERROR: ID collision on import, skipping');
