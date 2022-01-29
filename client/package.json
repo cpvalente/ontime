@@ -7,7 +7,7 @@
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@react-icons/all-files": "^4.1.0",
-    "axios": "^0.24.0",
+    "axios": "^0.25.0",
     "framer-motion": "^4.1.6",
     "jotai": "^0.16.5",
     "ontime-utils": "link: ../server/utils/",
