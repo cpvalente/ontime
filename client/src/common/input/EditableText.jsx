@@ -1,25 +1,25 @@
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useEffect, useState } from 'react';
 import style from './EditableText.module.scss';
+import PropTypes from 'prop-types';
 
 export default function EditableText(props) {
-  const { label, defaultValue, placeholder, submitHandler, ...rest } = props;
+  const { label, defaultValue, placeholder, submitHandler, maxchar = 40, ...rest } = props;
   const [text, setText] = useState(defaultValue || '');
-  const maxchar = props.maxchar || 40;
 
   useEffect(() => {
     if (defaultValue == null) setText('');
     else setText(defaultValue);
   }, [defaultValue]);
 
-  const handleSubmit = (submitedVal) => {
+  const handleSubmit = (submittedVal) => {
     // No need to update if it hasnt changed
-    if (submitedVal === defaultValue) return;
+    if (submittedVal === defaultValue) return;
     // submit a cleaned up version of the string
-    const cleanVal = submitedVal.trim();
+    const cleanVal = submittedVal.trim();
     submitHandler(cleanVal);
 
-    if (cleanVal !== submitedVal) {
+    if (cleanVal !== submittedVal) {
       setText(cleanVal);
     }
   };
@@ -45,3 +45,11 @@ export default function EditableText(props) {
     </div>
   );
 }
+
+EditableText.propTypes = {
+  label: PropTypes.string,
+  defaultValue: PropTypes.string,
+  placeholder: PropTypes.string,
+  submitHandler: PropTypes.func.isRequired,
+  maxchar: PropTypes.number,
+};

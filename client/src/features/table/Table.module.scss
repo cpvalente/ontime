@@ -17,6 +17,7 @@
   gap: 16px;
 
   font-family: "Open Sans", sans-serif;
+  font-size: 16px;
 
   .header {
     grid-area: header;
@@ -89,15 +90,12 @@
     }
 
     .indexColumn {
-      font-size: 0.95em;
       font-weight: 200;
       text-align: right;
     }
 
     .rowHeader {
       font-weight: 200;
-
-
       .headerCell {
         display: flex;
         align-items: center;

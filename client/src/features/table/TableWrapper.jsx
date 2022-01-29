@@ -34,22 +34,24 @@ const filterObjects = (data, accessorsToShow) => {
   return filteredData;
 };
 
+// Todo: note fields should be type text-area,
+// this is pending the support from chakra-ui component
 const ontimeColumns = () => {
   return [
-    { filterable: false, visible: true, width: '1.5em', header: 'Type', accessor: 'type' },
-    { filterable: true, visible: true, width: '6em', header: 'Start', accessor: 'timeStart' },
-    { filterable: true, visible: true, width: '6em', header: 'End', accessor: 'timeEnd' },
-    { filterable: true, visible: true, width: '6em', header: 'Duration', accessor: 'duration' },
-    { filterable: true, visible: true, width: '10em', header: 'Title', accessor: 'title' },
-    { filterable: true, visible: true, width: '10em', header: 'Subtitle', accessor: 'subtitle' },
-    { filterable: true, visible: true, width: '10em', header: 'Presenter', accessor: 'presenter' },
-    { filterable: true, visible: true, width: '10em', header: 'Notes', accessor: 'note' },
-    { filterable: true, visible: true, width: '2em', header: 'Is Public?', accessor: 'isPublic' },
-    { filterable: true, visible: true, width: 'auto', header: 'Light', accessor: 'light' },
-    { filterable: true, visible: true, width: 'auto', header: 'Cam', accessor: 'cam' },
-    { filterable: true, visible: true, width: 'auto', header: 'Video', accessor: 'video' },
-    { filterable: true, visible: true, width: 'auto', header: 'Audio', accessor: 'audio' },
-    { filterable: true, visible: true, width: '5em', header: 'Colour', accessor: 'colour' },
+    { filterable: false, visible: true, type: 'short', width: '2.6rem', header: 'Type', accessor: 'type' },
+    { filterable: true, visible: true, type: 'bool', width: '4rem', header: 'Public', accessor: 'isPublic' },
+    { filterable: true, visible: true, type: 'millis', width: '5rem', header: 'Start', accessor: 'timeStart' },
+    { filterable: true, visible: true, type: 'millis', width: '5rem', header: 'End', accessor: 'timeEnd' },
+    { filterable: true, visible: true, type: 'millis', width: '5rem', header: 'Duration', accessor: 'duration' },
+    { filterable: true, visible: true, type: 'string', width: '15rem', header: 'Title', accessor: 'title' },
+    { filterable: true, visible: true, type: 'string', width: '10rem', header: 'Subtitle', accessor: 'subtitle' },
+    { filterable: true, visible: true, type: 'string', width: '10rem', header: 'Presenter', accessor: 'presenter' },
+    { filterable: true, visible: true, type: 'editable', width: '10rem', header: 'Notes', accessor: 'note' },
+    { filterable: true, visible: true, type: 'editable', maxchar: 40, width: 'auto', header: 'Light', accessor: 'light' },
+    { filterable: true, visible: true, type: 'editable', maxchar: 40, width: 'auto', header: 'Cam', accessor: 'cam' },
+    { filterable: true, visible: true, type: 'editable', maxchar: 40, width: 'auto', header: 'Video', accessor: 'video' },
+    { filterable: true, visible: true, type: 'editable', maxchar: 40, width: 'auto', header: 'Audio', accessor: 'audio' },
+    { filterable: true, visible: true, type: 'editable', maxchar: 7, width: '5rem', header: 'Colour', accessor: 'colour' },
   ];
 };
 
@@ -91,7 +93,7 @@ export default function TableWrapper() {
       <div className={dark ? style.tableWrapper__dark : style.tableWrapper}>
         <TableHeader setShowSettings={setShowSettings} setDark={setDark} now='Title Now' />
         {showSettings && <TableFilter columns={columns} handleHide={handleHideField} />}
-        <OnTimeTable columns={columns} data={dataToShow} handleHide={handleHideField} />
+        <OnTimeTable columns={columns} filter={accessors} data={dataToShow} handleHide={handleHideField} />
       </div>
     );
   }
