@@ -1,5 +1,6 @@
 import style from './Table.module.scss';
 import { Checkbox } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
 export default function TableFilter({ columns, handleHide }) {
   return (
@@ -17,4 +18,9 @@ export default function TableFilter({ columns, handleHide }) {
         ))}
     </div>
   );
+}
+
+TableFilter.propTypes = {
+  columns: PropTypes.object.isRequired,
+  handleHide: PropTypes.func.isRequired
 }

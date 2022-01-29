@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
-import OnTimeTable from './OntimeTable';
+import OntimeTable from './OntimeTable';
 import TableHeader from './TableHeader';
 import style from './Table.module.scss';
 import { useSocket } from '../../app/context/socketContext';
@@ -47,10 +47,10 @@ const ontimeColumns = () => {
     { filterable: true, visible: true, type: 'string', width: '10rem', header: 'Subtitle', accessor: 'subtitle' },
     { filterable: true, visible: true, type: 'string', width: '10rem', header: 'Presenter', accessor: 'presenter' },
     { filterable: true, visible: true, type: 'editable', width: '10rem', header: 'Notes', accessor: 'note' },
-    { filterable: true, visible: true, type: 'editable', maxchar: 40, width: 'auto', header: 'Light', accessor: 'light' },
-    { filterable: true, visible: true, type: 'editable', maxchar: 40, width: 'auto', header: 'Cam', accessor: 'cam' },
-    { filterable: true, visible: true, type: 'editable', maxchar: 40, width: 'auto', header: 'Video', accessor: 'video' },
-    { filterable: true, visible: true, type: 'editable', maxchar: 40, width: 'auto', header: 'Audio', accessor: 'audio' },
+    { filterable: true, visible: true, type: 'textArea', maxchar: 40, width: 'auto', header: 'Light', accessor: 'light' },
+    { filterable: true, visible: true, type: 'textArea', maxchar: 40, width: 'auto', header: 'Cam', accessor: 'cam' },
+    { filterable: true, visible: true, type: 'textArea', maxchar: 40, width: 'auto', header: 'Video', accessor: 'video' },
+    { filterable: true, visible: true, type: 'textArea', maxchar: 40, width: 'auto', header: 'Audio', accessor: 'audio' },
     { filterable: true, visible: true, type: 'editable', maxchar: 7, width: '5rem', header: 'Colour', accessor: 'colour' },
   ];
 };
@@ -93,7 +93,7 @@ export default function TableWrapper() {
       <div className={dark ? style.tableWrapper__dark : style.tableWrapper}>
         <TableHeader setShowSettings={setShowSettings} setDark={setDark} now='Title Now' />
         {showSettings && <TableFilter columns={columns} handleHide={handleHideField} />}
-        <OnTimeTable columns={columns} filter={accessors} data={dataToShow} handleHide={handleHideField} />
+        <OntimeTable columns={columns} filter={accessors} data={dataToShow} handleHide={handleHideField} />
       </div>
     );
   }

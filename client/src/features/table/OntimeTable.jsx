@@ -3,10 +3,11 @@ import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { Tooltip } from '@chakra-ui/tooltip';
 import style from './Table.module.scss';
 import { stringFromMillis } from 'ontime-utils/time';
+import { Textarea } from '@chakra-ui/react';
 import EditableText from '../../common/input/EditableText';
+import PropTypes from 'prop-types';
 
-export default function OnTimeTable({ columns, filter, data, handleHide }) {
-  console.log('>>>>>>>>>>>>>>', filter);
+export default function OntimeTable({ columns, data, handleHide }) {
   /**
    * Returns appropriate render object from a given type
    * @param type
@@ -34,6 +35,9 @@ export default function OnTimeTable({ columns, filter, data, handleHide }) {
             submitHandler={() => undefined}
           />
         );
+      }
+      case 'textArea': {
+        return <Textarea size='sm' borderColor='#0001' value={value} />;
       }
       default:
         return value;
@@ -83,4 +87,10 @@ export default function OnTimeTable({ columns, filter, data, handleHide }) {
       </div>
     </div>
   );
+}
+
+OntimeTable.propTypes = {
+  columns: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  handleHide: PropTypes.func.isRequired
 }

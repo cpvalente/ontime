@@ -13,6 +13,7 @@ import { useSocket } from '../../app/context/socketContext';
 import { useEffect, useState } from 'react';
 import { stringFromMillis } from 'ontime-utils/time';
 import { formatDisplay } from '../../common/utils/dateConfig';
+import PropTypes from 'prop-types';
 
 export default function TableHeader(props) {
   const { setDark, setShowSettings, now } = props;
@@ -60,16 +61,22 @@ export default function TableHeader(props) {
       </div>
       <div className={style.headerActions}>
         <FiTarget />
-        <span style={{paddingRight: '4px'}} />
+        <span style={{ paddingRight: '4px' }} />
         <IoReload />
         <FiSave />
-        <span style={{paddingRight: '4px'}} />
+        <span style={{ paddingRight: '4px' }} />
         <FiDownload />
         <FiPrinter />
-        <span style={{paddingRight: '4px'}} />
+        <span style={{ paddingRight: '4px' }} />
         <FiSettings onClick={() => setShowSettings((prev) => !prev)} />
         <IoMoon onClick={() => setDark((prev) => !prev)} />
       </div>
     </div>
   );
 }
+
+TableHeader.propTypes = {
+  setDark: PropTypes.func.isRequired,
+  setShowSettings: PropTypes.func.isRequired,
+  now: PropTypes.string,
+};
