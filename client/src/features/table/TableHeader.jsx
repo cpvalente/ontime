@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { stringFromMillis } from 'ontime-utils/time';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import PropTypes from 'prop-types';
+import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function TableHeader(props) {
   const { setDark, setShowSettings, now } = props;
@@ -60,16 +61,44 @@ export default function TableHeader(props) {
         <span className={style.timer}>{stringFromMillis(timer.clock)}</span>
       </div>
       <div className={style.headerActions}>
-        <FiTarget />
+        <Tooltip openDelay={300} label='Scroll to current'>
+          <span>
+            <FiTarget />
+          </span>
+        </Tooltip>
         <span style={{ paddingRight: '4px' }} />
-        <IoReload />
-        <FiSave />
+        <Tooltip openDelay={300} label='Reload data'>
+          <span>
+            <IoReload />
+          </span>
+        </Tooltip>
+        <Tooltip openDelay={300} label='Save changes'>
+          <span>
+            <FiSave />
+          </span>
+        </Tooltip>
         <span style={{ paddingRight: '4px' }} />
-        <FiDownload />
-        <FiPrinter />
+        <Tooltip openDelay={300} label='Download events'>
+          <span>
+            <FiDownload />
+          </span>
+        </Tooltip>
+        <Tooltip openDelay={300} label='Print page'>
+          <span>
+            <FiPrinter />
+          </span>
+        </Tooltip>
         <span style={{ paddingRight: '4px' }} />
-        <FiSettings onClick={() => setShowSettings((prev) => !prev)} />
-        <IoMoon onClick={() => setDark((prev) => !prev)} />
+        <Tooltip openDelay={300} label='Show settings'>
+          <span>
+            <FiSettings onClick={() => setShowSettings((prev) => !prev)} />
+          </span>
+        </Tooltip>
+        <Tooltip openDelay={300} label='Toggle dark mode'>
+          <span>
+            <IoMoon onClick={() => setDark((prev) => !prev)} />
+          </span>
+        </Tooltip>
       </div>
     </div>
   );

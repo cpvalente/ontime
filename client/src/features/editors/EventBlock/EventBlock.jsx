@@ -89,7 +89,7 @@ ExpandedBlock.propTypes = {
   next: PropTypes.bool.isRequired,
   delay: PropTypes.number,
   delayValue: PropTypes.string,
-  previousEnd: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number,
   actionHandler: PropTypes.func.isRequired,
 };
 
@@ -201,6 +201,6 @@ EventBlock.propTypes = {
   delay: PropTypes.number,
   index: PropTypes.number.isRequired,
   eventIndex: PropTypes.number.isRequired,
-  previousEnd: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number,
   actionHandler: PropTypes.func.isRequired,
 };

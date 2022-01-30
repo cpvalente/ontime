@@ -12,6 +12,16 @@ export default function EditableTimer(props) {
   const [value, setValue] = useState('');
 
   // prepare time fields
+  const validateValue = (value) => {
+    const success = handleSubmit(value);
+    if (success) {
+      const ms = forgivingStringToMillis(value);
+      setValue(stringFromMillis(ms + delay));
+    } else {
+      setValue(stringFromMillis(time + delay));
+    }
+  };
+
   useEffect(() => {
     if (time == null) return;
     try {
@@ -20,12 +30,6 @@ export default function EditableTimer(props) {
       emitError(`Unable to parse date: ${error.text}`);
     }
   }, [time, delay, emitError]);
-
-  const validateValue = (value) => {
-    const success = handleSubmit(value);
-    if (success) setValue(value);
-    else setValue(stringFromMillis(time + delay, true));
-  };
 
   const handleSubmit = (value) => {
     // Check if there is anything there
@@ -41,7 +45,7 @@ export default function EditableTimer(props) {
       } else {
         newValMillis = 0;
       }
-    } else if (value.startsWith('+')) {
+    } else if (value.startsWith('+') || value.startsWith('p+')) {
       // string to pass should add to the end before
       const val = value.substring(1);
       newValMillis = previousEnd + forgivingStringToMillis(val);
@@ -65,7 +69,7 @@ export default function EditableTimer(props) {
     return true;
   };
 
-  const isDelayed = (delay != null && delay !== 0)
+  const isDelayed = delay != null && delay !== 0;
 
   return (
     <Editable
@@ -84,8 +88,8 @@ export default function EditableTimer(props) {
 EditableTimer.propTypes = {
   name: PropTypes.string.isRequired,
   actionHandler: PropTypes.func.isRequired,
-  time: PropTypes.number.isRequired,
-  delay: PropTypes.number.isRequired,
+  time: PropTypes.number,
+  delay: PropTypes.number,
   validate: PropTypes.func.isRequired,
-  previousEnd: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number,
 };
