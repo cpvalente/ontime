@@ -45,7 +45,7 @@ export default function EditableTimer(props) {
       } else {
         newValMillis = 0;
       }
-    } else if (value.startsWith('+') || value.startsWith('p+')) {
+    } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
       // string to pass should add to the end before
       const val = value.substring(1);
       newValMillis = previousEnd + forgivingStringToMillis(val);
