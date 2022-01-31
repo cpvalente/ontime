@@ -51,8 +51,6 @@ export default function OntimeTable({ columns, data, handleHide }) {
     }
   };
 
-  console.log('>>>>>>>>>>>>>>>>', data)
-
   return (
     <div className={style.tableContainer}>
       <div className={style.rowHeader}>

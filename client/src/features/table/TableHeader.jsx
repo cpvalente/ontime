@@ -96,7 +96,7 @@ export default function TableHeader(props) {
         </Tooltip>
         <Tooltip openDelay={300} label='Toggle dark mode'>
           <span>
-            <IoMoon onClick={() => setDark((prev) => !prev)} />
+            <IoMoon onClick={() => setDark()} />
           </span>
         </Tooltip>
       </div>
