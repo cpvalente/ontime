@@ -60,7 +60,7 @@ export default function OntimeTable({ columns, data, handleHide }) {
         {columns
           .filter((c) => c.visible)
           .map((c) => (
-            <div className={style.headerCell} style={{ minWidth: c.width }} key={c.accessor} >
+            <div className={style.headerCell} style={{ minWidth: c.width }} key={c.accessor}>
               {c.header}
               {c.filterable && (
                 <Tooltip label='Hide field' openDelay={300}>
@@ -74,17 +74,18 @@ export default function OntimeTable({ columns, data, handleHide }) {
       </div>
       <div className={style.tableBody}>
         {data.map((d, index) => (
-          <div
-            className={index === 3 ? style.rowNow : style.row}
-            key={d.id}
-          >
+          <div className={index === 3 ? style.rowNow : style.row} key={d.id}>
             <div className={style.indexColumn} style={{ width: '1em' }}>
               {index * 1}
             </div>
             {columns
               .filter((c) => c.visible)
               .map((c) => (
-                <div key={c.accessor} className={style.column} style={{ minWidth: c.width, backgroundColor: d.colour || 'none' }}>
+                <div
+                  key={c.accessor}
+                  className={style.column}
+                  style={{ minWidth: c.width, backgroundColor: d.colour || 'none' }}
+                >
                   {parseType(c.type, d[c.accessor], { maxchar: d?.maxchar, header: c.header })}
                 </div>
               ))}
