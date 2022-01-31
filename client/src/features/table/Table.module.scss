@@ -7,7 +7,8 @@
   height: 100vh;
   padding: 32px 32px;
   display: grid;
-
+  //scrollbar-width: thin;
+  //
   grid-template-rows: auto auto 1fr;
   grid-template-areas:
           'header'
@@ -83,10 +84,11 @@
     text-align: left;
     vertical-align: top;
     padding: 16px;
+    overflow: scroll;
 
     .tableBody {
-      //height: 100%;
-      overflow: scroll;
+      height: 80%;
+      //overflow: scroll;
     }
 
     .indexColumn {
@@ -96,6 +98,7 @@
 
     .rowHeader {
       font-weight: 200;
+
       .headerCell {
         display: flex;
         align-items: center;
@@ -113,17 +116,19 @@
 
       .headerCell {
         padding: 4px;
-        flex-grow: 1;
+        flex: 0 0;
+        //flex-grow: 1;
       }
 
       .column {
         border-radius: 4px;
         padding: 4px;
-        flex-grow: 1;
+        flex: 0 0;
+        //flex-grow: 1;
       }
 
       .column:hover {
-        background-color: $ontime-pink;
+        background-color: $ontime-pink !important;
       }
     }
 
@@ -141,6 +146,7 @@
 
   * {
     background-color: #fefefe;
+    scrollbar-color: $ontime-pink rgba(0, 0, 0, 0.13);
   }
 
   .column {
@@ -154,6 +160,7 @@
 
   * {
     background-color: #1c1c1c;
+    scrollbar-color: $ontime-pink rgba(255, 255, 255, 0.13);
   }
 
   .column {

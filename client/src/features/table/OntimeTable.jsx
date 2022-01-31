@@ -37,12 +37,21 @@ export default function OntimeTable({ columns, data, handleHide }) {
         );
       }
       case 'textArea': {
-        return <Textarea size='sm' borderColor='#0001' value={value} />;
+        return (
+          <Textarea
+            size='sm'
+            borderColor='#0001'
+            value={value}
+            placeholder={`${options.header} notes`}
+          />
+        );
       }
       default:
         return value;
     }
   };
+
+  console.log('>>>>>>>>>>>>>>>>', data)
 
   return (
     <div className={style.tableContainer}>
@@ -53,7 +62,7 @@ export default function OntimeTable({ columns, data, handleHide }) {
         {columns
           .filter((c) => c.visible)
           .map((c) => (
-            <div style={{ width: c.width }} key={c.accessor} className={style.headerCell}>
+            <div className={style.headerCell} style={{ minWidth: c.width }} key={c.accessor} >
               {c.header}
               {c.filterable && (
                 <Tooltip label='Hide field' openDelay={300}>
@@ -69,7 +78,6 @@ export default function OntimeTable({ columns, data, handleHide }) {
         {data.map((d, index) => (
           <div
             className={index === 3 ? style.rowNow : style.row}
-            style={{ backgroundColor: d.color || 'unset' }}
             key={d.id}
           >
             <div className={style.indexColumn} style={{ width: '1em' }}>
@@ -78,8 +86,8 @@ export default function OntimeTable({ columns, data, handleHide }) {
             {columns
               .filter((c) => c.visible)
               .map((c) => (
-                <div key={c.accessor} className={style.column} style={{ width: c.width }}>
-                  {parseType(c.type, d[c.accessor], { maxchar: d?.maxchar })}
+                <div key={c.accessor} className={style.column} style={{ minWidth: c.width, backgroundColor: d.colour || 'none' }}>
+                  {parseType(c.type, d[c.accessor], { maxchar: d?.maxchar, header: c.header })}
                 </div>
               ))}
           </div>
@@ -90,7 +98,7 @@ export default function OntimeTable({ columns, data, handleHide }) {
 }
 
 OntimeTable.propTypes = {
-  columns: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired,
-  handleHide: PropTypes.func.isRequired
-}
+  columns: PropTypes.array.isRequired,
+  data: PropTypes.array,
+  handleHide: PropTypes.func.isRequired,
+};
