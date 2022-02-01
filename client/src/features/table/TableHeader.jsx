@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function TableHeader(props) {
-  const { setDark, setShowSettings, now } = props;
+  const { refetchEvents, setDark, setShowSettings, now, loading } = props;
   const { data, status, refetch } = useFetch(EVENT_TABLE, fetchEvent);
 
   const socket = useSocket();
@@ -28,6 +28,14 @@ export default function TableHeader(props) {
     expectedFinish: null,
     secondary: null,
   });
+
+  // const refetch = () => {
+  //   refetchEvents();
+  //   refetchEvent();
+  // };
+
+  const isLoading = loading || status === 'loading';
+  console.log(isLoading)
 
   // handle incoming messages
   useEffect(() => {
@@ -62,40 +70,40 @@ export default function TableHeader(props) {
       </div>
       <div className={style.headerActions}>
         <Tooltip openDelay={300} label='Scroll to current'>
-          <span>
+          <span className={style.actionIcon}>
             <FiTarget />
           </span>
         </Tooltip>
         <span style={{ paddingRight: '4px' }} />
         <Tooltip openDelay={300} label='Reload data'>
-          <span>
-            <IoReload />
+          <span className={style.actionIcon}>
+            <IoReload onClick={() => refetch()}/>
           </span>
         </Tooltip>
         <Tooltip openDelay={300} label='Save changes'>
-          <span>
+          <span className={style.actionIcon}>
             <FiSave />
           </span>
         </Tooltip>
         <span style={{ paddingRight: '4px' }} />
         <Tooltip openDelay={300} label='Download events'>
-          <span>
+          <span className={style.actionIcon}>
             <FiDownload />
           </span>
         </Tooltip>
         <Tooltip openDelay={300} label='Print page'>
-          <span>
+          <span className={style.actionIcon}>
             <FiPrinter />
           </span>
         </Tooltip>
         <span style={{ paddingRight: '4px' }} />
         <Tooltip openDelay={300} label='Show settings'>
-          <span>
+          <span className={style.actionIcon}>
             <FiSettings onClick={() => setShowSettings((prev) => !prev)} />
           </span>
         </Tooltip>
         <Tooltip openDelay={300} label='Toggle dark mode'>
-          <span>
+          <span className={style.actionIcon}>
             <IoMoon onClick={() => setDark()} />
           </span>
         </Tooltip>
@@ -105,7 +113,13 @@ export default function TableHeader(props) {
 }
 
 TableHeader.propTypes = {
-  setDark: PropTypes.func.isRequired,
+  // set follow
+  refetchEvents: PropTypes.func.isRequired,
+  // save needs a mutation
+  // download events
+  // print
   setShowSettings: PropTypes.func.isRequired,
+  setDark: PropTypes.func.isRequired,
   now: PropTypes.string,
+  loading: PropTypes.bool,
 };

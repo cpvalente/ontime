@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
@@ -18,9 +18,12 @@ export default function TableWrapper() {
   const [theme, setTheme] = useLocalStorage('color-theme', 'dark');
   const [showSettings, setShowSettings] = useState(false);
 
+  /**
+   * @description Toggles the current value of dark mode
+   * @param {string} val - 'light' or 'dark'
+   */
   const toggleDark = useCallback(
     (val) => {
-      console.log('1', val);
       if (val === undefined) {
         if (theme === 'light') {
           setTheme('dark');
@@ -48,7 +51,7 @@ export default function TableWrapper() {
         setColumns(columnsNow);
       }
     },
-    [columns]
+    [columns, setColumns]
   );
 
   if (data == null) return <span>loading</span>;
@@ -57,8 +60,14 @@ export default function TableWrapper() {
     const dataToShow = filterObjects(data, [...accessors, 'colour']);
     return (
       <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
-        <TableHeader setShowSettings={setShowSettings} setDark={toggleDark} now='Title Now' />
-        {showSettings && <TableFilter columns={columns} handleHide={handleHideField} />}
+        <TableHeader
+          refetchEvents={refetch}
+          setShowSettings={setShowSettings}
+          setDark={toggleDark}
+          now='Title Now'
+          loading={status === 'loading'}
+        />
+        {showSettings && <TableFilter dark={theme==='dark'} columns={columns} handleHide={handleHideField} />}
         <OntimeTable
           columns={columns}
           filter={accessors}
