@@ -145,7 +145,7 @@ export default function MenuBar(props) {
 }
 
 MenuBar.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
+  isOpen: PropTypes.bool,
   onOpen: PropTypes.func.isRequired,
 };
 
