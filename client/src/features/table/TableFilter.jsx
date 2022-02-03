@@ -2,7 +2,7 @@ import style from './Table.module.scss';
 import { Checkbox } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-export default function TableFilter({ columns, handleHide }) {
+export default function TableFilter({ dark, columns, handleHide }) {
   return (
     <div className={style.tableSettings}>
       {columns
@@ -12,6 +12,7 @@ export default function TableFilter({ columns, handleHide }) {
             key={c.accessor}
             isChecked={c.visible}
             onChange={() => handleHide(c.accessor)}
+            iconColor=  {dark ? 'unset' : 'blue.800' }
           >
             {c.header}
           </Checkbox>
@@ -22,5 +23,6 @@ export default function TableFilter({ columns, handleHide }) {
 
 TableFilter.propTypes = {
   columns: PropTypes.object.isRequired,
-  handleHide: PropTypes.func.isRequired
+  handleHide: PropTypes.func.isRequired,
+  dark: PropTypes.bool
 }

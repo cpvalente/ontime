@@ -67,7 +67,8 @@
     grid-area: settings;
     width: 100%;
     border: 1px solid $ontime-pink;
-    padding: 0.5em 1em;
+    border-radius: 4px;
+    padding: 1em 1em;
     display: flex;
     gap: 32px;
   }
@@ -140,13 +141,21 @@
   }
 }
 
+
 .tableWrapper {
-  background-color: #fefefe;
+  background-color: #fcfcfc;
   color: black;
 
   * {
-    background-color: #fefefe;
+    background-color: #fcfcfc;
     scrollbar-color: $ontime-pink rgba(0, 0, 0, 0.13);
+  }
+
+  *::-webkit-scrollbar {
+    background-color: rgba(0, 0, 0, 0.07);
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: lighten($ontime-pink, 15%) ;
   }
 
   .column {

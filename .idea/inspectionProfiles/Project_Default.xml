@@ -6,8 +6,10 @@
       <option name="myIgnoreVendorSpecificProperties" value="false" />
       <option name="myCustomPropertiesList">
         <value>
-          <list size="1">
+          <list size="3">
             <item index="0" class="java.lang.String" itemvalue="scrollbar-color" />
+            <item index="1" class="java.lang.String" itemvalue="scrollbar-width" />
+            <item index="2" class="java.lang.String" itemvalue="app-region" />
           </list>
         </value>
       </option>
