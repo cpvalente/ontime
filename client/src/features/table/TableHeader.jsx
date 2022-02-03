@@ -35,7 +35,6 @@ export default function TableHeader(props) {
   // };
 
   const isLoading = loading || status === 'loading';
-  console.log(isLoading)
 
   // handle incoming messages
   useEffect(() => {

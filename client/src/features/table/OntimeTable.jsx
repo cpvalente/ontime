@@ -41,7 +41,7 @@ export default function OntimeTable({ columns, data, handleHide }) {
           <Textarea
             size='sm'
             borderColor='#0001'
-            value={value}
+            defaultValue={value}
             placeholder={`${options.header} notes`}
           />
         );
