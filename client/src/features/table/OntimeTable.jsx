@@ -7,7 +7,7 @@ import { Textarea } from '@chakra-ui/react';
 import EditableText from '../../common/input/EditableText';
 import PropTypes from 'prop-types';
 
-export default function OntimeTable({ columns, data, handleHide }) {
+export default function OntimeTable({ columns, data, handleHide, selectedId }) {
   /**
    * Returns appropriate render object from a given type
    * @param type
@@ -74,8 +74,8 @@ export default function OntimeTable({ columns, data, handleHide }) {
       </div>
       <div className={style.tableBody}>
         {data.map((d, index) => (
-          <div className={index === 3 ? style.rowNow : style.row} key={d.id}>
-            <div className={style.indexColumn} style={{ width: '1em' }}>
+          <div className={d.id === selectedId ? style.rowNow : style.row} key={d.id}>
+            <div className={d.id === selectedId ? style.indexColumnNow :style.indexColumn} style={{ width: '1em' }}>
               {index * 1}
             </div>
             {columns
@@ -100,4 +100,5 @@ OntimeTable.propTypes = {
   columns: PropTypes.array.isRequired,
   data: PropTypes.array,
   handleHide: PropTypes.func.isRequired,
+  selectedId: PropTypes.string,
 };

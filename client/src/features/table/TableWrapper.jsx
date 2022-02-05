@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
@@ -17,6 +17,7 @@ export default function TableWrapper() {
   const [columns, setColumns] = useLocalStorage('table-options', columnOptions);
   const [theme, setTheme] = useLocalStorage('color-theme', 'dark');
   const [showSettings, setShowSettings] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   /**
    * @description Toggles the current value of dark mode
@@ -54,6 +55,27 @@ export default function TableWrapper() {
     [columns, setColumns]
   );
 
+
+  /**
+   * Handle incoming data from socket
+   */
+  useEffect(() => {
+    if (socket == null) return;
+
+    // Ask for selected
+    socket.emit('get-selected');
+
+    // Handle selected
+    socket.on('selected', (data) => {
+      setSelectedId(data.id);
+    });
+
+    // Clear listener
+    return () => {
+      socket.off('selected');
+    };
+  }, [socket]);
+
   if (data == null) return <span>loading</span>;
   else {
     const accessors = extractVisible(columns);
@@ -64,7 +86,6 @@ export default function TableWrapper() {
           refetchEvents={refetch}
           setShowSettings={setShowSettings}
           setDark={toggleDark}
-          now='Title Now'
           loading={status === 'loading'}
         />
         {showSettings && <TableFilter dark={theme==='dark'} columns={columns} handleHide={handleHideField} />}
@@ -73,6 +94,7 @@ export default function TableWrapper() {
           filter={accessors}
           data={dataToShow}
           handleHide={handleHideField}
+          selectedId={selectedId}
         />
       </div>
     );

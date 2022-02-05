@@ -91,9 +91,16 @@
       //overflow: scroll;
     }
 
-    .indexColumn {
+    .indexColumn,
+    .indexColumnNow {
       font-weight: 200;
       text-align: right;
+      border-radius: 4px;
+      padding: 4px;
+    }
+
+    .indexColumnNow {
+      background-color: #4bffab99;
     }
 
     .rowHeader {
@@ -197,6 +204,9 @@ svg {
 
 .actionIcon {
   cursor: pointer;
+}
+.actionDisabled {
+  opacity: 0.2;
 }
 
 .rotate {

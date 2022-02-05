@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function TableHeader(props) {
-  const { refetchEvents, setDark, setShowSettings, now, loading } = props;
+  const { refetchEvents, setDark, setShowSettings, loading } = props;
   const { data, status, refetch } = useFetch(EVENT_TABLE, fetchEvent);
 
   const socket = useSocket();
@@ -29,6 +29,17 @@ export default function TableHeader(props) {
     secondary: null,
   });
 
+  const [titles, setTitles] = useState({
+    titleNow: '',
+    subtitleNow: '',
+    presenterNow: '',
+    noteNow: '',
+    titleNext: '',
+    subtitleNext: '',
+    presenterNext: '',
+    noteNext: '',
+  });
+
   // const refetch = () => {
   //   refetchEvents();
   //   refetchEvent();
@@ -36,11 +47,22 @@ export default function TableHeader(props) {
 
   const isLoading = loading || status === 'loading';
 
-  // handle incoming messages
+  /**
+   * Handle incoming data from socket
+   */
   useEffect(() => {
     if (socket == null) return;
 
+    // Ask for titles
+    socket.emit('get-titles');
+
+    // Ask for timer
     socket.emit('get-timer');
+
+    // Handle titles
+    socket.on('titles', (data) => {
+      setTitles(data);
+    });
 
     // Handle timer
     socket.on('timer', (data) => {
@@ -49,6 +71,7 @@ export default function TableHeader(props) {
 
     // Clear listener
     return () => {
+      socket.off('titles');
       socket.off('timer');
     };
   }, [socket]);
@@ -56,7 +79,7 @@ export default function TableHeader(props) {
   return (
     <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
-      <div className={style.headerNow}>{now}</div>
+      <div className={style.headerNow}>{titles.titleNow}</div>
       <div className={style.headerRunning}>
         <span className={style.label}>Running Timer</span>
         <br />
@@ -69,7 +92,7 @@ export default function TableHeader(props) {
       </div>
       <div className={style.headerActions}>
         <Tooltip openDelay={300} label='Scroll to current'>
-          <span className={style.actionIcon}>
+          <span className={style.actionDisabled}>
             <FiTarget />
           </span>
         </Tooltip>
@@ -80,13 +103,13 @@ export default function TableHeader(props) {
           </span>
         </Tooltip>
         <Tooltip openDelay={300} label='Save changes'>
-          <span className={style.actionIcon}>
+          <span className={style.actionDisabled}>
             <FiSave />
           </span>
         </Tooltip>
         <span style={{ paddingRight: '4px' }} />
         <Tooltip openDelay={300} label='Download events'>
-          <span className={style.actionIcon}>
+          <span className={style.actionDisabled}>
             <FiDownload />
           </span>
         </Tooltip>
@@ -116,9 +139,7 @@ TableHeader.propTypes = {
   refetchEvents: PropTypes.func.isRequired,
   // save needs a mutation
   // download events
-  // print
   setShowSettings: PropTypes.func.isRequired,
   setDark: PropTypes.func.isRequired,
-  now: PropTypes.string,
   loading: PropTypes.bool,
 };
