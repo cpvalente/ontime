@@ -6,10 +6,10 @@ import style from './Table.module.scss';
 import { stringFromMillis } from 'ontime-utils/time';
 import PropTypes from 'prop-types';
 import { requestPatch } from '../../app/api/eventsApi';
-import { useMutation } from 'react-query';
+import useMutateEvents from '../../app/hooks/useMutateEvents';
 
 export default function OntimeTable({ columns, data, handleHide, selectedId }) {
-  const mutation = useMutation(requestPatch);
+  const mutation = useMutateEvents(requestPatch);
 
   /**
    * Returns appropriate render object from a given type
@@ -35,7 +35,6 @@ export default function OntimeTable({ columns, data, handleHide, selectedId }) {
             size='sm'
             borderColor='#0001'
             defaultValue={value}
-            placeholder={`${options.header} notes`}
             onBlur={(e) => handleSubmit(options?.accessor, options?.id, e.target.value)}
           />
         );
@@ -46,23 +45,19 @@ export default function OntimeTable({ columns, data, handleHide, selectedId }) {
   };
 
   const handleSubmit = async (accessor, id, payload) => {
-    console.log('1', accessor, id, payload);
     if (accessor == null || id == null || payload == null) {
       return;
     }
 
     // check if value is the same
     const event = data.find((d) => d.id === id);
-    console.log('2', event);
     if (event === undefined) {
       return;
     }
 
-    console.log('3', event[accessor]);
     if (event[accessor] === payload) {
       return;
     }
-    console.log('4', typeof payload);
     // check if value is valid
     // as of now, the fields do not have any validation
     if (typeof payload !== 'string') {
@@ -71,13 +66,11 @@ export default function OntimeTable({ columns, data, handleHide, selectedId }) {
 
     // cleanup
     const cleanVal = payload.trim();
-    console.log('5', cleanVal);
     const mutationObject = {
       id,
       [accessor]: cleanVal,
     };
 
-    console.log('6', mutationObject)
     // submit
     try {
       await mutation.mutateAsync(mutationObject);
