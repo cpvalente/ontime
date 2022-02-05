@@ -76,7 +76,7 @@ export default function TableHeader(props) {
         <span style={{ paddingRight: '4px' }} />
         <Tooltip openDelay={300} label='Reload data'>
           <span className={style.actionIcon}>
-            <IoReload onClick={() => refetch()}/>
+            <IoReload onClick={() => refetch()} />
           </span>
         </Tooltip>
         <Tooltip openDelay={300} label='Save changes'>
@@ -92,7 +92,7 @@ export default function TableHeader(props) {
         </Tooltip>
         <Tooltip openDelay={300} label='Print page'>
           <span className={style.actionIcon}>
-            <FiPrinter />
+            <FiPrinter onClick={() => window.print()} />
           </span>
         </Tooltip>
         <span style={{ paddingRight: '4px' }} />

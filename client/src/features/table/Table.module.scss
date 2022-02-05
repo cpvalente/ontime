@@ -1,6 +1,5 @@
 @use '../../styles/main' as *;
 
-
 .tableWrapper,
 .tableWrapper__dark {
   width: 100vw;
@@ -154,8 +153,9 @@
   *::-webkit-scrollbar {
     background-color: rgba(0, 0, 0, 0.07);
   }
+
   *::-webkit-scrollbar-thumb {
-    background-color: lighten($ontime-pink, 15%) ;
+    background-color: lighten($ontime-pink, 15%);
   }
 
   .column {
@@ -201,14 +201,70 @@ svg {
 
 .rotate {
   animation: rotation infinite 1s linear;
-  color:red;
+  color: red;
 }
 
-@keyframes rotation{
-  from{
-    transform:rotate(0deg);
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
   }
-  to{
-    transform:rotate(360deg);
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media print {
+  /* No margins on build  ... */
+  body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: static;
+    font-size: 12pt !important;
+  }
+
+  /* Ensure printable colours */
+  .tableWrapper,
+  .tableWrapper__dark {
+    background-color: white;
+    color: black;
+
+    * {
+      background-color: white;
+      font-size: 12pt !important;
+    }
+
+    .column {
+      background-color: #f6f6f6;
+    }
+
+    .tableContainer {
+      overflow: visible;
+    }
+
+    /* Remove unnecessary sections */
+    .headerNow,
+    .headerRunning,
+    .headerActions,
+    .tableSettings,
+    .headerClock,
+    .actionIcon {
+      display: none !important;
+    }
+
+    /* Overload styles */
+    .rowHeader {
+      font-weight: 600 !important;
+    }
+
+    .row {
+      height: fit-content;
+    }
+  }
+
+  /* ... set page margins */
+  @page {
+    size: auto;
+    margin: 0;
   }
 }
