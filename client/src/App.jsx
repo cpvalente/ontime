@@ -110,6 +110,9 @@ function App() {
             {/*/!* Protected Routes *!/*/}
             <Route path='/editor' element={<ProtectedEditor />} />
             <Route path='/table' element={<ProtectedTable />} />
+            <Route path='/cue' element={<ProtectedTable />} />
+            <Route path='/cuesheet' element={<ProtectedTable />} />
+            <Route path='/cuelist' element={<ProtectedTable />} />
 
             {/* Send to default if nothing found */}
             <Route path='*' element={<STimer />} />

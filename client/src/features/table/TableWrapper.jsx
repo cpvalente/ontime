@@ -55,7 +55,6 @@ export default function TableWrapper() {
     [columns, setColumns]
   );
 
-
   /**
    * Handle incoming data from socket
    */
