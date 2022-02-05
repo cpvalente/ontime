@@ -96,6 +96,11 @@ export const parseExcel_v1 = async (excelData) => {
   let subtitleIndex = null;
   let isPublicIndex = null;
   let notesIndex = null;
+  let lightIndex = null;
+  let camIndex = null;
+  let videoIndex = null;
+  let audioIndex = null;
+  let colourIndex = null;
 
   excelData
     .filter((e) => e.length > 0)
@@ -124,9 +129,23 @@ export const parseExcel_v1 = async (excelData) => {
           event.subtitle = column;
         } else if (j === isPublicIndex) {
           // whether column is not empty
-          event.isPublic = column !== '';
+          let c = column;
+          if (typeof column === 'string') {
+            c = column.replace(/\s+/g, '');
+          }
+          event.isPublic = c !== '';
         } else if (j === notesIndex) {
           event.note = column;
+        } else if (j === lightIndex) {
+          event.light = column;
+        } else if (j === camIndex) {
+          event.cam = column;
+        } else if (j === videoIndex) {
+          event.video = column;
+        } else if (j === audioIndex) {
+          event.audio = column;
+        } else if (j === colourIndex) {
+          event.colour = column;
         } else {
           if (typeof column === 'string') {
             // look for keywords
@@ -167,6 +186,27 @@ export const parseExcel_v1 = async (excelData) => {
                 break;
               case 'notes':
                 notesIndex = j;
+                break;
+              case 'light':
+              case 'lx':
+                lightIndex = j;
+                break;
+              case 'cam':
+              case 'camera':
+                camIndex = j;
+                break;
+              case 'video':
+              case 'av':
+                videoIndex = j;
+                break;
+              case 'audio':
+              case 'sound':
+              case 'sfx':
+                audioIndex = j;
+                break;
+              case 'colour':
+              case 'color':
+                colourIndex = j;
                 break;
               default:
                 break;
