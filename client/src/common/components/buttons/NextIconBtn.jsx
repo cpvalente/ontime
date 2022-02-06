@@ -1,3 +1,4 @@
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { Tooltip } from '@chakra-ui/tooltip';

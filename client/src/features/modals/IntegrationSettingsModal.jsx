@@ -1,3 +1,4 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input, Switch } from '@chakra-ui/react';
 import {
@@ -6,7 +7,6 @@ import {
   ontimeVars,
   postInfo,
 } from 'app/api/ontimeApi';
-import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { APP_TABLE } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
@@ -106,7 +106,7 @@ export default function IntegrationSettingsModal() {
                   <td className={style.labelNote}>Value</td>
                 </tr>
                 {ontimeVars.map((v) => (
-                  <tr>
+                  <tr key={v.name}>
                     <td className={style.labelNote}>{v.name}</td>
                     <td>{v.description}</td>
                   </tr>

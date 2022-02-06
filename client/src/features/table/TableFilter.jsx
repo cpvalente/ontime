@@ -1,3 +1,4 @@
+import React from 'react';
 import style from './Table.module.scss';
 import { Checkbox } from '@chakra-ui/react';
 import PropTypes from 'prop-types';

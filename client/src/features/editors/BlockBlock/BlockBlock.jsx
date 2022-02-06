@@ -1,3 +1,4 @@
+import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';

@@ -1,3 +1,4 @@
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';

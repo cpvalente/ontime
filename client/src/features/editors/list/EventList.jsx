@@ -1,5 +1,5 @@
+import React, { createRef, useCallback, useContext, useEffect, useState } from 'react';
 import style from './List.module.scss';
-import { createRef, useCallback, useContext, useEffect, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import Empty from 'common/state/Empty';
 import EventListItem from './EventListItem';

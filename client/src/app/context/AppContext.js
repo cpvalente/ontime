@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
 import { useFetch } from '../hooks/useFetch';
 import { APP_SETTINGS } from '../api/apiConstants';
 import { getSettings } from '../api/ontimeApi';

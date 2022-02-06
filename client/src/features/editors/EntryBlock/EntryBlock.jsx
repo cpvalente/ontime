@@ -1,7 +1,7 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { Checkbox } from '@chakra-ui/react';
 import style from './EntryBlock.module.scss';
-import { useContext, useEffect, useState } from 'react';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 
 export default function EntryBlock(props) {

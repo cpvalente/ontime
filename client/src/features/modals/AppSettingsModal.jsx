@@ -1,7 +1,7 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { Checkbox, FormControl, FormLabel, Input, PinInput, PinInputField } from '@chakra-ui/react';
 import { getSettings, ontimePlaceholderSettings, postSettings } from 'app/api/ontimeApi';
-import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { APP_SETTINGS } from 'app/api/apiConstants';
 import style from './Modals.module.scss';

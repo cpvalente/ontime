@@ -1,7 +1,7 @@
+import React, { memo, useCallback, useContext } from 'react';
 import DelayBlock from '../DelayBlock/DelayBlock';
 import BlockBlock from '../BlockBlock/BlockBlock';
 import EventBlock from '../EventBlock/EventBlock';
-import { memo, useCallback, useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 

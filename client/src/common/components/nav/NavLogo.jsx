@@ -1,8 +1,8 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from "prop-types";
 import { Link } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState, useEffect, useCallback } from 'react';
 import navlogo from 'assets/images/logos/LOGO-72.png';
 import style from './NavLogo.module.scss';
 

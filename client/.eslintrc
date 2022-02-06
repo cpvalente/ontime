@@ -1,13 +1,82 @@
 {
   "extends": [
     "react-app",
-    "react-app/jest"
+    "react-app/jest",
+    "plugin:react/recommended"
   ],
-  "plugins": ["react", "testing-library", "jest"],
+  "plugins": [
+    "react",
+    "testing-library",
+    "jest"
+  ],
   "rules": {
     "jest/no-mocks-import": "warn",
     "no-useless-concat": "warn",
-    "prefer-template": "warn"
-
+    "prefer-template": "warn",
+    "react/jsx-no-bind": [
+      "error",
+      {
+        "ignoreRefs": true,
+        "allowArrowFunctions": true,
+        "allowFunctions": false,
+        "allowBind": false,
+        "ignoreDOMComponents": true
+      }
+    ],
+    "react/jsx-boolean-value": [
+      "error",
+      "never",
+      {
+        "always": []
+      }
+    ],
+    "react/jsx-handler-names": [
+      "off",
+      {
+        "eventHandlerPrefix": "handle",
+        "eventHandlerPropPrefix": "on"
+      }
+    ],
+    "react/no-danger": "warn",
+    "react/no-deprecated": [
+      "error"
+    ],
+    "react/jsx-no-undef": "error",
+    "react/jsx-closing-tag-location": "warn",
+    "react/jsx-no-useless-fragment": "warn",
+    "react/no-unescaped-entities": "error",
+    "react/jsx-tag-spacing": [
+      "error",
+      {
+        "closingSlash": "never",
+        "beforeSelfClosing": "always",
+        "afterOpening": "never",
+        "beforeClosing": "never"
+      }
+    ],
+    "react/jsx-space-before-closing": [
+      "off",
+      "always"
+    ],
+    "react/jsx-curly-brace-presence": [
+      "error",
+      {
+        "props": "never",
+        "children": "never"
+      }
+    ],
+    "react/destructuring-assignment": [
+      "error",
+      "always"
+    ],
+    "react/no-unsafe": "off",
+    "react/prop-types": [
+      "error",
+      {
+        "ignore": [],
+        "customValidators": [],
+        "skipUndeclared": true
+      }
+    ]
   }
 }

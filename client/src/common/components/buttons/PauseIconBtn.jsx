@@ -1,3 +1,4 @@
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { Tooltip } from '@chakra-ui/tooltip';

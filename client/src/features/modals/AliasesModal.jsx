@@ -1,3 +1,4 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, IconButton } from '@chakra-ui/button';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
@@ -5,7 +6,6 @@ import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
 import { getAliases, postAliases } from '../../app/api/ontimeApi';
-import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { ALIASES } from 'app/api/apiConstants';
 import style from './Modals.module.scss';

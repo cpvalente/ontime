@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import style from './PlaybackControl.module.scss';
 import StartIconBtn from 'common/components/buttons/StartIconBtn';

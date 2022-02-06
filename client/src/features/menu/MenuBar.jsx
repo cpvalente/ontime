@@ -1,3 +1,4 @@
+import React, { useContext, useRef } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
@@ -9,7 +10,6 @@ import QuitIconBtn from './buttons/QuitIconBtn';
 import style from './MenuBar.module.scss';
 import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
-import { useContext, useRef } from 'react';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import PropTypes from 'prop-types';
 

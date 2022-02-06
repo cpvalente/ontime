@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from 'react';
 import style from './PlaybackControl.module.scss';
-import { useEffect, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import PlaybackButtons from './PlaybackButtons';
 import PlaybackTimer from './PlaybackTimer';

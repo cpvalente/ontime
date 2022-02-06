@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
 import style from './LowerClean.module.css';
 import NavLogo from "../../../../common/components/nav/NavLogo";
 

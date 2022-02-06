@@ -1,7 +1,7 @@
+import React, { useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, Input, Textarea } from '@chakra-ui/react';
 import { fetchEvent, postEvent } from 'app/api/eventApi';
-import { useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { EVENT_TABLE } from 'app/api/apiConstants';
 import style from './Modals.module.scss';

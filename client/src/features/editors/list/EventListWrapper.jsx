@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
 import { BatchOperation } from 'app/context/collapseAtom';

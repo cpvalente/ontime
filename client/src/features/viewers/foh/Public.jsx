@@ -1,10 +1,10 @@
+import React, { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import style from './Public.module.css';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from 'common/components/views/TitleSide';
-import { useEffect } from 'react';
 
 export default function Public(props) {
   const { publ, publicTitle, time, events, publicSelectedId, general } = props;

@@ -1,4 +1,4 @@
-import { lazy, useEffect } from 'react';
+import React, { lazy, useEffect } from 'react';
 import { Box } from '@chakra-ui/layout';
 import { useDisclosure } from '@chakra-ui/hooks';
 import styles from './Editor.module.scss';

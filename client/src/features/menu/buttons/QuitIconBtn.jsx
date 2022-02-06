@@ -1,3 +1,4 @@
+import React, { useRef, useState } from 'react';
 import { Button, IconButton } from '@chakra-ui/button';
 import {
   AlertDialog,
@@ -8,7 +9,6 @@ import {
   AlertDialogOverlay,
 } from '@chakra-ui/modal';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { useRef, useState } from 'react';
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
 
 export default function QuitIconBtn(props) {

@@ -1,3 +1,4 @@
+import React from 'react';
 import { IoCloseSharp } from '@react-icons/all-files/io5/IoCloseSharp';
 import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
 import { Button } from '@chakra-ui/button';

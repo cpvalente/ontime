@@ -1,5 +1,5 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { useContext, useEffect, useState } from 'react';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 import { stringFromMillis } from 'ontime-utils/time';
 import style from './EditableTimer.module.css';

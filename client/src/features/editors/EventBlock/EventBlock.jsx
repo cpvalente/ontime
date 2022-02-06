@@ -1,7 +1,7 @@
+import React, { useMemo } from 'react';
 import Icon from '@chakra-ui/icon';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
-import { useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
 import EventTimesVertical from 'common/components/eventTimes/EventTimesVertical';

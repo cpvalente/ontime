@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Countdown from 'common/components/countdown/Countdown';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';

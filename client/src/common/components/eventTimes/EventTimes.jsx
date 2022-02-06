@@ -1,5 +1,5 @@
+import React, { useContext } from 'react';
 import EditableTimer from 'common/input/EditableTimer';
-import { useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { validateTimes } from '../../../app/entryValidator';
 import PropTypes from 'prop-types';

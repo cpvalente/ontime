@@ -1,3 +1,4 @@
+import React from 'react';
 import { stringFromMillis } from 'ontime-utils/time';
 import style from './Paginator.module.css';
 export default function TodayItem(props) {

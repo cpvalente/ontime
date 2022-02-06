@@ -1,3 +1,4 @@
+import React from 'react';
 import style from './PlaybackControl.module.scss';
 import Countdown from 'common/components/countdown/Countdown';
 import { stringFromMillis } from 'ontime-utils/time';

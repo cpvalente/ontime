@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import LowerClean from './LowerClean';
 import LowerLines from './LowerLines';
 import { useSearchParams } from 'react-router-dom';

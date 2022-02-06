@@ -1,3 +1,4 @@
+import React from 'react';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { Tooltip } from '@chakra-ui/tooltip';
@@ -92,7 +93,7 @@ export default function OntimeTable({ columns, data, handleHide, selectedId }) {
               {c.header}
               {c.filterable && (
                 <Tooltip label='Hide field' openDelay={300}>
-                  <span className={style.actionIcon} onClick={() => handleHide(c.accessor)}>
+                  <span className={style.actionIcon} onClick={handleHide(c.accessor)}>
                     <FiX />
                   </span>
                 </Tooltip>

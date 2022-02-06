@@ -1,9 +1,9 @@
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import style from './Pip.module.css';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { formatDisplay } from 'common/utils/dateConfig';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 

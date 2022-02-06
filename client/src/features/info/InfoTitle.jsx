@@ -1,5 +1,5 @@
+import React, { useState } from 'react';
 import { Icon } from '@chakra-ui/react';
-import { useState } from 'react';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import style from './Info.module.scss';
 
