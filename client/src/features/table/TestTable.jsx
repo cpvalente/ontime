@@ -1,5 +1,5 @@
 import React from 'react';
-import { useColumnOrder, useTable, useBlockLayout, useResizeColumns } from 'react-table';
+import { useBlockLayout, useColumnOrder, useResizeColumns, useTable } from 'react-table';
 import { Tooltip } from '@chakra-ui/tooltip';
 import style from './Table.module.scss';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
@@ -67,7 +67,7 @@ export const columns = [
   { Header: 'Audio', accessor: 'audio', Cell: EditableCell },
 ];
 
-export default function TestTable({ data, handleUpdate }) {
+export default function TestTable({ data, handleUpdate, selectedId }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -76,7 +76,7 @@ export default function TestTable({ data, handleUpdate }) {
     prepareRow,
     setColumnOrder,
     allColumns,
-    toggleHideColumn
+    toggleHideColumn,
   } = useTable(
     {
       columns,
@@ -86,7 +86,6 @@ export default function TestTable({ data, handleUpdate }) {
     useColumnOrder,
     useBlockLayout,
     useResizeColumns
-
   );
 
   const handleColumnReorder = () => {
@@ -105,14 +104,13 @@ export default function TestTable({ data, handleUpdate }) {
       <button onClick={() => handleColumnReorder()}>REORDER</button>
       <button onClick={() => handleColumnHide()}>HIDE COLUMN</button>
       <div>
-        {allColumns
-          .map((column) => (
-            <div key={column.id}>
-              <label>
-                <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.id}
-              </label>
-            </div>
-          ))}
+        {allColumns.map((column) => (
+          <div key={column.id}>
+            <label>
+              <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.id}
+            </label>
+          </div>
+        ))}
         <br />
       </div>
       <table {...getTableProps()}>
@@ -126,10 +124,7 @@ export default function TestTable({ data, handleUpdate }) {
                   return (
                     <th key={key} {...restColumn}>
                       {column.render('Header')}
-                      <div
-                        {...column.getResizerProps()}
-                        className={style.resizer}
-                      />
+                      <div {...column.getResizerProps()} className={style.resizer} />
                     </th>
                   );
                 })}
@@ -141,8 +136,9 @@ export default function TestTable({ data, handleUpdate }) {
           {rows.map((row) => {
             prepareRow(row);
             const { key, ...restRowProps } = row.getRowProps();
+            const selected = row.original.id === selectedId;
             return (
-              <tr key={key} {...restRowProps}>
+              <tr key={key} {...restRowProps} className={selected ? style.selected : ''}>
                 {row.cells.map((cell) => {
                   const { key, ...restCellProps } = cell.getCellProps();
                   return (
