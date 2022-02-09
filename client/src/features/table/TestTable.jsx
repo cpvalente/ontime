@@ -1,11 +1,28 @@
 import React from 'react';
-import { useTable } from 'react-table';
+import { useColumnOrder, useTable } from 'react-table';
 import { Tooltip } from '@chakra-ui/tooltip';
 import style from './Table.module.scss';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { stringFromMillis } from 'ontime-utils/time';
 import EditableCell from './EditableCell';
+
+/* eslint-disable react/display-name */
+export const columnOrder = [
+  'type',
+  'isPublic',
+  'timeStart',
+  'timeEnd',
+  'duration',
+  'title',
+  'subtitle',
+  'presenter',
+  'note',
+  'light',
+  'cam',
+  'video',
+  'audio',
+];
 
 export const columns = [
   {
@@ -31,7 +48,11 @@ export const columns = [
     accessor: 'timeStart',
     Cell: ({ cell: { value } }) => stringFromMillis(value),
   },
-  { Header: 'End', accessor: 'timeEnd', Cell: ({ cell: { value } }) => stringFromMillis(value) },
+  {
+    Header: 'End',
+    accessor: 'timeEnd',
+    Cell: ({ cell: { value } }) => stringFromMillis(value),
+  },
   {
     Header: 'Duration',
     accessor: 'duration',
@@ -48,50 +69,83 @@ export const columns = [
 ];
 
 export default function TestTable({ data, handleUpdate }) {
-  const tableInstance = useTable({
-    columns,
-    data,
-    handleUpdate,
-  });
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    setColumnOrder,
+    allColumns,
+    toggleHideColumn
+  } = useTable(
+    {
+      columns,
+      data,
+      handleUpdate,
+    },
+    useColumnOrder
+  );
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
+  const handleColumnReorder = () => {
+    setColumnOrder(columnOrder);
+  };
+  const handleColumnHide = () => {
+    toggleHideColumn('type');
+  };
+
   return (
-    <table {...getTableProps()}>
-      <thead>
-        {headerGroups.map((headerGroup) => {
-          const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
-          return (
-            <tr key={key} {...restHeaderGroupProps}>
-              {headerGroup.headers.map((column) => {
-                const { key, ...restColumn } = column.getHeaderProps();
-                return (
-                  <th key={key} {...restColumn}>
-                    {column.render('Header')}
-                  </th>
-                );
-              })}
-            </tr>
-          );
-        })}
-      </thead>
-      <tbody {...getTableBodyProps}>
-        {rows.map((row) => {
-          prepareRow(row);
-          const { key, ...restRowProps } = row.getRowProps();
-          return (
-            <tr key={key} {...restRowProps}>
-              {row.cells.map((cell) => {
-                const { key, ...restCellProps } = cell.getCellProps();
-                return (
-                  <td key={key} {...restCellProps}>
-                    {cell.render('Cell')}
-                  </td>
-                );
-              })}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <>
+      <button onClick={() => handleColumnReorder()}>REORDER</button>
+      <button onClick={() => handleColumnHide()}>HIDE COLUMN</button>
+      <div>
+        {allColumns
+          .map((column) => (
+            <div key={column.id}>
+              <label>
+                <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.id}
+              </label>
+            </div>
+          ))}
+        <br />
+      </div>
+      <table {...getTableProps()}>
+        <thead>
+          {headerGroups.map((headerGroup) => {
+            const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
+            return (
+              <tr key={key} {...restHeaderGroupProps}>
+                {headerGroup.headers.map((column) => {
+                  const { key, ...restColumn } = column.getHeaderProps();
+                  return (
+                    <th key={key} {...restColumn}>
+                      {column.render('Header')}
+                    </th>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </thead>
+        <tbody {...getTableBodyProps}>
+          {rows.map((row) => {
+            prepareRow(row);
+            const { key, ...restRowProps } = row.getRowProps();
+            return (
+              <tr key={key} {...restRowProps}>
+                {row.cells.map((cell) => {
+                  const { key, ...restCellProps } = cell.getCellProps();
+                  return (
+                    <td key={key} {...restCellProps}>
+                      {cell.render('Cell')}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
   );
 }
