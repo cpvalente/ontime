@@ -1,5 +1,5 @@
 import React from 'react';
-import { useColumnOrder, useTable } from 'react-table';
+import { useColumnOrder, useTable, useBlockLayout, useResizeColumns } from 'react-table';
 import { Tooltip } from '@chakra-ui/tooltip';
 import style from './Table.module.scss';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
@@ -7,7 +7,6 @@ import { FiX } from '@react-icons/all-files/fi/FiX';
 import { stringFromMillis } from 'ontime-utils/time';
 import EditableCell from './EditableCell';
 
-/* eslint-disable react/display-name */
 export const columnOrder = [
   'type',
   'isPublic',
@@ -84,7 +83,10 @@ export default function TestTable({ data, handleUpdate }) {
       data,
       handleUpdate,
     },
-    useColumnOrder
+    useColumnOrder,
+    useBlockLayout,
+    useResizeColumns
+
   );
 
   const handleColumnReorder = () => {
@@ -93,9 +95,13 @@ export default function TestTable({ data, handleUpdate }) {
   const handleColumnHide = () => {
     toggleHideColumn('type');
   };
+  const resetResizing = () => {
+    toggleHideColumn('type');
+  };
 
   return (
     <>
+      <button onClick={resetResizing}>RESET RESIZING</button>
       <button onClick={() => handleColumnReorder()}>REORDER</button>
       <button onClick={() => handleColumnHide()}>HIDE COLUMN</button>
       <div>
@@ -120,6 +126,10 @@ export default function TestTable({ data, handleUpdate }) {
                   return (
                     <th key={key} {...restColumn}>
                       {column.render('Header')}
+                      <div
+                        {...column.getResizerProps()}
+                        className={style.resizer}
+                      />
                     </th>
                   );
                 })}
