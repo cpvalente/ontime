@@ -122,14 +122,20 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
         <thead className={style.tableHeader}>
           {headerGroups.map((headerGroup) => {
             const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
-            console.log('"""""""""""""""""', restHeaderGroupProps, headerGroup);
             return (
               <tr key={key} {...restHeaderGroupProps}>
+                <th className={style.indexColumn}>
+                  <Tooltip label='Event Order' openDelay={300}>
+                    #
+                  </Tooltip>
+                </th>
                 {headerGroup.headers.map((column) => {
                   const { key, ...restColumn } = column.getHeaderProps();
                   return (
                     <th key={key} {...restColumn}>
-                      {column.render('Header')}
+                      <Tooltip label={column.Header} openDelay={300}>
+                        {column.render('Header')}
+                      </Tooltip>
                       <div {...column.getResizerProps()} className={style.resizer} />
                     </th>
                   );
@@ -139,12 +145,13 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
           })}
         </thead>
         <tbody {...getTableBodyProps} className={style.tableBody}>
-          {rows.map((row) => {
+          {rows.map((row, index) => {
             prepareRow(row);
             const { key, ...restRowProps } = row.getRowProps();
             const selected = row.original.id === selectedId;
             return (
               <tr key={key} {...restRowProps} className={selected ? style.selected : ''}>
+                <td className={style.indexColumn}>{index + 1}</td>
                 {row.cells.map((cell) => {
                   const { key, ...restCellProps } = cell.getCellProps();
                   return (
