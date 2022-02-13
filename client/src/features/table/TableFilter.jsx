@@ -13,7 +13,7 @@ export default function TableFilter({ dark, columns, handleHide }) {
             key={c.accessor}
             isChecked={c.visible}
             onChange={() => handleHide(c.accessor)}
-            iconColor=  {dark ? 'unset' : 'blue.800' }
+            iconColor={dark ? 'unset' : 'blue.800'}
           >
             {c.header}
           </Checkbox>
@@ -23,7 +23,7 @@ export default function TableFilter({ dark, columns, handleHide }) {
 }
 
 TableFilter.propTypes = {
-  columns: PropTypes.object.isRequired,
+  columns: PropTypes.array.isRequired,
   handleHide: PropTypes.func.isRequired,
   dark: PropTypes.bool
 }

@@ -36,35 +36,40 @@ export const columns = [
         </Tooltip>
       );
     },
+    width: 20,
   },
   {
     Header: 'Public',
     accessor: 'isPublic',
     Cell: ({ cell: { value } }) => (value != null ? <FiCheck /> : <FiX />),
+    width: 20,
   },
   {
     Header: 'Start',
     accessor: 'timeStart',
     Cell: ({ cell: { value } }) => stringFromMillis(value),
+    width: 90,
   },
   {
     Header: 'End',
     accessor: 'timeEnd',
     Cell: ({ cell: { value } }) => stringFromMillis(value),
+    width: 90,
   },
   {
     Header: 'Duration',
     accessor: 'duration',
     Cell: ({ cell: { value } }) => stringFromMillis(value),
+    width: 90,
   },
-  { Header: 'Title', accessor: 'title' },
-  { Header: 'Subtitle', accessor: 'subtitle' },
-  { Header: 'Presenter', accessor: 'presenter' },
-  { Header: 'Notes', accessor: 'note' },
-  { Header: 'Light', accessor: 'light', Cell: EditableCell },
-  { Header: 'Cam', accessor: 'cam', Cell: EditableCell },
-  { Header: 'Video', accessor: 'video', Cell: EditableCell },
-  { Header: 'Audio', accessor: 'audio', Cell: EditableCell },
+  { Header: 'Title', accessor: 'title', width: 200 },
+  { Header: 'Subtitle', accessor: 'subtitle', width: 150 },
+  { Header: 'Presenter', accessor: 'presenter', width: 150 },
+  { Header: 'Notes', accessor: 'note', width: 200 },
+  { Header: 'Light', accessor: 'light', Cell: EditableCell, width: 200 },
+  { Header: 'Cam', accessor: 'cam', Cell: EditableCell, width: 200 },
+  { Header: 'Video', accessor: 'video', Cell: EditableCell, width: 200 },
+  { Header: 'Audio', accessor: 'audio', Cell: EditableCell, width: 200 },
 ];
 
 export default function TestTable({ data, handleUpdate, selectedId }) {
@@ -103,7 +108,7 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
       <button onClick={resetResizing}>RESET RESIZING</button>
       <button onClick={() => handleColumnReorder()}>REORDER</button>
       <button onClick={() => handleColumnHide()}>HIDE COLUMN</button>
-      <div>
+      <div className={style.tableSettings}>
         {allColumns.map((column) => (
           <div key={column.id}>
             <label>
@@ -113,10 +118,11 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
         ))}
         <br />
       </div>
-      <table {...getTableProps()}>
-        <thead>
+      <table {...getTableProps()} className={style.ontimeTable}>
+        <thead className={style.tableHeader}>
           {headerGroups.map((headerGroup) => {
             const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
+            console.log('"""""""""""""""""', restHeaderGroupProps, headerGroup);
             return (
               <tr key={key} {...restHeaderGroupProps}>
                 {headerGroup.headers.map((column) => {
@@ -132,7 +138,7 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
             );
           })}
         </thead>
-        <tbody {...getTableBodyProps}>
+        <tbody {...getTableBodyProps} className={style.tableBody}>
           {rows.map((row) => {
             prepareRow(row);
             const { key, ...restRowProps } = row.getRowProps();

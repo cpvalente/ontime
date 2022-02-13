@@ -2,33 +2,36 @@
 
 .tableWrapper,
 .tableWrapper__dark {
+  font-family: "Open Sans", sans-serif;
+  font-size: 16px;
+
   width: 100vw;
   height: 100vh;
-  padding: 32px 32px;
+  padding: 2rem;
   display: grid;
   //scrollbar-width: thin;
   //
-  grid-template-rows: auto auto 1fr;
+  grid-template-columns: calc(100vw - 4rem);
   grid-template-areas:
           'header'
           'settings'
           'table';
+  gap: 1rem;
+  overflow: scroll;
 
-  gap: 16px;
-
-  font-family: "Open Sans", sans-serif;
-  font-size: 16px;
+  & > * {
+    width: 100%;
+    border: 1px solid $ontime-pink;
+    border-radius: 4px;
+  }
 
   .header {
     grid-area: header;
-    width: 100%;
     display: grid;
     grid-template-areas:
       'name running time actions'
       'now running time actions';
     grid-template-columns: 1fr 10em 10em auto;
-    border: 1px solid $ontime-pink;
-    border-radius: 4px;
     align-items: center;
     padding: 0.25em 1em;
 
@@ -64,87 +67,34 @@
 
   .tableSettings {
     grid-area: settings;
-    width: 100%;
-    border: 1px solid $ontime-pink;
-    border-radius: 4px;
-    padding: 1em 1em;
+    padding: 1rem;
     display: flex;
-    gap: 32px;
+    gap: 2rem;
   }
 
-  .tableContainer {
+  .ontimeTable {
     grid-area: table;
-    width: 100%;
-    border: 1px solid $ontime-pink;
-    border-radius: 4px;
 
     border-collapse: separate;
     border-spacing: 4px;
+    padding: 1rem;
 
-    text-align: left;
-    vertical-align: top;
-    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
     overflow: scroll;
+
+    .tableHeader {
+      background-color: #dd6b20;
+    }
 
     .tableBody {
       height: 80%;
-      //overflow: scroll;
-    }
-
-    .indexColumn,
-    .indexColumnNow {
-      font-weight: 200;
-      text-align: right;
-      border-radius: 4px;
-      padding: 4px;
-    }
-
-    .indexColumnNow {
-      background-color: #4bffab99;
-    }
-
-    .rowHeader {
-      font-weight: 200;
-
-      .headerCell {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 4px;
-      }
-    }
-
-    .row,
-    .rowNow,
-    .rowHeader {
-      display: flex;
-      gap: 4px;
-      padding-top: 4px;
-
-      .headerCell {
-        padding: 4px;
-        flex: 0 0;
-        //flex-grow: 1;
-      }
-
-      .column {
-        border-radius: 4px;
-        padding: 4px;
-        flex: 0 0;
-        //flex-grow: 1;
-      }
-
-      .column:hover {
-        background-color: $ontime-pink !important;
-      }
-    }
-
-    .rowNow {
-      .column {
-        background-color: #4bffab99;
-      }
     }
   }
+
+
 }
 
 
@@ -205,6 +155,7 @@ svg {
 .actionIcon {
   cursor: pointer;
 }
+
 .actionDisabled {
   opacity: 0.2;
 }
@@ -277,4 +228,22 @@ svg {
     size: auto;
     margin: 0;
   }
+}
+
+.resizer {
+  display: inline-block;
+  background: blue;
+  width: 10px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translateX(50%);
+  z-index: 1;
+  touch-action: none;
+}
+
+.selected {
+  background-color: red !important;
+  color: red !important;
 }
