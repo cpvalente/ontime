@@ -14,8 +14,12 @@ export default function InfoNif() {
   const baseURL = 'http://__IP__:4001';
 
   return (
-  <div className={style.container}>
-    <CollapseBar title={'Network Info'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
+    <div className={style.container}>
+      <CollapseBar
+        title='Network Info'
+        isCollapsed={collapsed}
+        onClick={() => setCollapsed((c) => !c)}
+      />
       {!collapsed && (
         <div>
           {status === 'success' && (
@@ -25,11 +29,11 @@ export default function InfoNif() {
                   <a
                     key={e.address}
                     href='#!'
-                    onClick={() =>
-                      handleLink(baseURL.replace('__IP__', e.address))
-                    }
+                    onClick={() => handleLink(baseURL.replace('__IP__', e.address))}
                     className={style.if}
-                  >{`${e.name} - ${e.address}`}</a>
+                  >
+                    {`${e.name} - ${e.address}`}
+                  </a>
                 );
               })}
             </>

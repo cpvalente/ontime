@@ -4,9 +4,9 @@ import style from './Paginator.module.css';
 import { useInterval } from 'app/hooks/useInterval';
 
 export default function Paginator(props) {
-  const { events, selectedId } = props;
-  const LIMIT_PER_PAGE = props.limit || 8;
-  const SCROLL_TIME = props.time * 1000 || 10000;
+  const { events, selectedId, limit, time } = props;
+  const LIMIT_PER_PAGE = limit || 8;
+  const SCROLL_TIME = time * 1000 || 10000;
   const [numEvents, setNumEvents] = useState(0);
   const [page, setPage] = useState([]);
   const [pages, setPages] = useState(0);
@@ -46,10 +46,7 @@ export default function Paginator(props) {
       <div className={style.nav}>
         {pages > 1 &&
           [...Array(pages)].map((p, i) => (
-            <div
-              key={i}
-              className={i === selPage ? style.navItemSelected : style.navItem}
-            />
+            <div key={i} className={i === selPage ? style.navItemSelected : style.navItem} />
           ))}
       </div>
       <div className={style.entries}>

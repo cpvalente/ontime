@@ -12,7 +12,7 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const Lower = (props) => {
-  const { title } = props;
+  const { title, lower } = props;
   const [searchParams,] = useSearchParams();
   const [titles, setTitles] = useState({
     titleNow: '',
@@ -124,15 +124,15 @@ const Lower = (props) => {
   switch (preset) {
     case 0:
       return (
-        <LowerClean lower={props.lower} title={titles} options={lowerOptions} />
+        <LowerClean lower={lower} title={titles} options={lowerOptions} />
       );
     case 1:
       return (
-        <LowerLines lower={props.lower} title={titles} options={lowerOptions} />
+        <LowerLines lower={lower} title={titles} options={lowerOptions} />
       );
     default:
       return (
-        <LowerLines lower={props.lower} title={titles} options={lowerOptions} />
+        <LowerLines lower={lower} title={titles} options={lowerOptions} />
       );
   }
 };

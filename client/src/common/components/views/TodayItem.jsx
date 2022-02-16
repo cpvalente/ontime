@@ -1,6 +1,7 @@
 import React from 'react';
 import { stringFromMillis } from 'ontime-utils/time';
 import style from './Paginator.module.css';
+
 export default function TodayItem(props) {
   const { selected, timeStart, timeEnd, title, backstageEvent } = props;
 
@@ -14,13 +15,11 @@ export default function TodayItem(props) {
   else if (selected === 2) selectStyle = style.entryFuture;
   return (
     <div className={selectStyle}>
-      <div
-        className={`${style.entryTimes} ${
-          backstageEvent ? style.backstage : undefined
-        }`}
-      >{`${start} · ${end}`}</div>
+      <div className={`${style.entryTimes} ${backstageEvent ? style.backstage : undefined}`}>
+        {`${start} · ${end}`}
+      </div>
       <div className={style.entryTitle}>{title}</div>
-      {backstageEvent && <div className={style.backstageInd}/>}
+      {backstageEvent && <div className={style.backstageInd} />}
     </div>
   );
 }

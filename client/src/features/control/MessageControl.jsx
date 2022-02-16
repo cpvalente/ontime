@@ -10,14 +10,14 @@ const inputProps = {
 };
 
 const InputRow = (props) => {
-  const { label, placeholder, text, visible } = props;
+  const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
 
   return (
     <>
       <span className={style.label}>{label}</span>
       <div className={style.inputItems}>
         <Editable
-          onChange={(event) => props.changeHandler(event)}
+          onChange={(event) => changeHandler(event)}
           value={text}
           placeholder={placeholder}
           className={style.inline}
@@ -28,7 +28,7 @@ const InputRow = (props) => {
         </Editable>
         <VisibleIconBtn
           active={visible || undefined}
-          actionHandler={props.actionHandler}
+          actionHandler={actionHandler}
           {...inputProps}
         />
       </div>

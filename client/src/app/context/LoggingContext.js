@@ -8,10 +8,10 @@ export const LoggingContext = createContext({
   emitInfo: () => undefined,
   emitWarning: () => undefined,
   emitError: () => undefined,
-  clearLog: () => undefined
+  clearLog: () => undefined,
 });
 
-export const LoggingProvider = (props) => {
+export const LoggingProvider = ({ children }) => {
   const MAX_MESSAGES = 100;
   const socket = useSocket();
   const [logData, setLogData] = useState([]);
@@ -40,57 +40,69 @@ export const LoggingProvider = (props) => {
    * @param level
    * @private
    */
-  const _send = useCallback((text, level) => {
-    if (socket != null) {
-      const m = {
-        id: generateId(),
-        origin,
-        time: stringFromMillis(nowInMillis()),
-        level,
-        text
+  const _send = useCallback(
+    (text, level) => {
+      if (socket != null) {
+        const m = {
+          id: generateId(),
+          origin,
+          time: stringFromMillis(nowInMillis()),
+          level,
+          text,
+        };
+        setLogData((l) => [m, ...l]);
+        socket.emit('logger', m);
       }
-      setLogData((l) => [m, ...l]);
-      socket.emit('logger', m);
-    }
-    if (logData.length > MAX_MESSAGES) {
-      setLogData((l) => l.pop());
-    }
-  },[logData, socket]);
+      if (logData.length > MAX_MESSAGES) {
+        setLogData((l) => l.pop());
+      }
+    },
+    [logData, socket]
+  );
 
   /**
    * Sends a message with level INFO
    * @param text
    */
-  const emitInfo = useCallback((text) => {
-    _send(text, 'INFO');
-  }, [_send]);
+  const emitInfo = useCallback(
+    (text) => {
+      _send(text, 'INFO');
+    },
+    [_send]
+  );
 
   /**
    * Sends a message with level WARN
    * @param text
    */
-  const emitWarning = useCallback((text) => {
-    _send(text, 'WARN');
-  }, [_send]);
+  const emitWarning = useCallback(
+    (text) => {
+      _send(text, 'WARN');
+    },
+    [_send]
+  );
 
   /**
    * Sends a message with level ERROR
    * @param text
    */
-  const emitError = useCallback((text) => {
-    _send(text, 'ERROR');
-  }, [_send]);
+  const emitError = useCallback(
+    (text) => {
+      _send(text, 'ERROR');
+    },
+    [_send]
+  );
 
   /**
    * Clears running log
    */
   const clearLog = useCallback(() => {
-    setLogData([])
+    setLogData([]);
   }, []);
 
   return (
-    <LoggingContext.Provider value = {{ emitInfo, logData, emitWarning, emitError, clearLog }}>
-      {props.children}
+    <LoggingContext.Provider value={{ emitInfo, logData, emitWarning, emitError, clearLog }}>
+      {children}
     </LoggingContext.Provider>
-  )
-}
+  );
+};

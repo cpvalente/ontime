@@ -13,5 +13,5 @@ const calculateServer = () => {
 export const serverURL = calculateServer();
 export const eventURL = serverURL + EVENT_TABLE;
 export const eventsURL = serverURL + EVENTS_TABLE;
-export const playbackURL = serverURL + 'playback';
-export const ontimeURL = serverURL + 'ontime';
+export const playbackURL = `${serverURL}playback`;
+export const ontimeURL = `${serverURL}ontime`;

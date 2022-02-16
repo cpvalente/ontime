@@ -1,11 +1,6 @@
-import React from 'react';
-
 /**
  * @description sets the defaults for the table, overrideable in app
  */
-import { Tooltip } from '@chakra-ui/tooltip';
-import { Badge } from '@chakra-ui/react';
-
 export const columnOptions = [
   {
     filterable: false,

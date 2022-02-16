@@ -10,7 +10,7 @@ export const CursorContext = createContext({
   moveCursorDown: () => undefined,
 });
 
-export const CursorProvider = (props) => {
+export const CursorProvider = ({ children }) => {
   const [cursor, setCursor] = useState(0);
   const [_cursorLocked, _setCursorLocked] = useLocalStorage('isCursorLocked', 'locked');
   const isCursorLocked = useMemo(() => _cursorLocked === 'locked', [_cursorLocked]);
@@ -57,7 +57,7 @@ export const CursorProvider = (props) => {
         moveCursorDown,
       }}
     >
-      {props.children}
+      {children}
     </CursorContext.Provider>
   );
 };

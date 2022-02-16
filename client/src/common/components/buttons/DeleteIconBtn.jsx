@@ -5,7 +5,7 @@ import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function DeleteIconBtn(props) {
-  const { actionHandler, ...rest } = props;
+  const { actionHandler, size, ...rest } = props;
   const [loading, setLoading] = useState(false);
 
   const handleClick = () => {
@@ -16,7 +16,7 @@ export default function DeleteIconBtn(props) {
   return (
     <Tooltip label='Delete'>
       <IconButton
-        size={props.size || 'xs'}
+        size={size || 'xs'}
         icon={<IoRemove />}
         colorScheme='red'
         onClick={handleClick}

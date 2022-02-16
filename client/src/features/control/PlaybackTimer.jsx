@@ -57,7 +57,7 @@ const PlaybackTimer = (props) => {
         {isWaiting ? (
           <div className={style.roll}>
             <span className={style.rolltag}>Roll: Countdown to start</span>
-            <span className={style.time}>{''}</span>
+            <span className={style.time}>FIX</span>
           </div>
         ) : (
           <>
@@ -73,7 +73,7 @@ const PlaybackTimer = (props) => {
         )}
         <div className={style.btn}>
           <Tooltip
-            label={'Remove 1 minute'}
+            label='Remove 1 minute'
             delay={500}
             shouldWrapChildren={disableButtons}
           >
@@ -86,7 +86,7 @@ const PlaybackTimer = (props) => {
             </Button>
           </Tooltip>
           <Tooltip
-            label={'Add 1 minute'}
+            label='Add 1 minute'
             delay={500}
             shouldWrapChildren={disableButtons}
           >
@@ -99,7 +99,7 @@ const PlaybackTimer = (props) => {
             </Button>
           </Tooltip>
           <Tooltip
-            label={'Remove 5 minutes'}
+            label='Remove 5 minutes'
             delay={500}
             shouldWrapChildren={disableButtons}
           >
@@ -112,7 +112,7 @@ const PlaybackTimer = (props) => {
             </Button>
           </Tooltip>
           <Tooltip
-            label={'Add 5 minutes'}
+            label='Add 5 minutes'
             delay={500}
             shouldWrapChildren={disableButtons}
           >

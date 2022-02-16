@@ -109,7 +109,7 @@ Times.propTypes = {
 };
 
 export default function EventTimesVertical(props) {
-  const { delay, timeStart, timeEnd, duration, previousEnd } = props;
+  const { delay, timeStart, timeEnd, duration, previousEnd, actionHandler } = props;
   const { emitWarning } = useContext(LoggingContext);
 
   /**
@@ -129,10 +129,10 @@ export default function EventTimesVertical(props) {
       start = val;
     } else if (entry === 'timeEnd') {
       end = val;
-    } else if (entry === 'durationOverride'){
+    } else if (entry === 'durationOverride') {
       return true;
     } else {
-      return false
+      return false;
     }
 
     const valid = validateTimes(start, end);
@@ -146,7 +146,7 @@ export default function EventTimesVertical(props) {
   return delay != null && delay !== 0 ? (
     <TimesDelayed
       handleValidate={handleValidate}
-      actionHandler={props.actionHandler}
+      actionHandler={actionHandler}
       delay={delay}
       timeStart={timeStart}
       timeEnd={timeEnd}
@@ -156,7 +156,7 @@ export default function EventTimesVertical(props) {
   ) : (
     <Times
       handleValidate={handleValidate}
-      actionHandler={props.actionHandler}
+      actionHandler={actionHandler}
       timeStart={timeStart}
       timeEnd={timeEnd}
       duration={duration}
@@ -171,4 +171,5 @@ EventTimesVertical.propTypes = {
   timeEnd: PropTypes.number,
   duration: PropTypes.number,
   previousEnd: PropTypes.number,
+  actionHandler: PropTypes.func.isRequired,
 };

@@ -78,12 +78,12 @@ export default function Info() {
   return (
     <>
       <div className={style.main}>
-        <span>{`Running on port 4001`}</span>
+        <span>Running on port 4001</span>
         <span>{selected}</span>
       </div>
       <InfoNif />
-      <InfoTitle title={'Now'} data={titlesNow} roll={playback === 'roll'} />
-      <InfoTitle title={'Next'} data={titlesNext} roll={playback === 'roll'} />
+      <InfoTitle title='Now' data={titlesNow} roll={playback === 'roll'} />
+      <InfoTitle title='Next' data={titlesNext} roll={playback === 'roll'} />
       <InfoLogger />
     </>
   );

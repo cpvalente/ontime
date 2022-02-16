@@ -12,7 +12,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
 
 export default function QuitIconBtn(props) {
-  const { clickhandler, ...rest } = props;
+  const { clickhandler, size, ...rest } = props;
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   const cancelRef = useRef();
@@ -26,7 +26,7 @@ export default function QuitIconBtn(props) {
     <>
       <Tooltip label='Quit Application'>
         <IconButton
-          size={props.size || 'xs'}
+          size={size || 'xs'}
           icon={<FiPower />}
           colorScheme='red'
           variant='outline'

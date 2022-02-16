@@ -4,11 +4,11 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
 
 export default function MaxIconBtn(props) {
-  const { clickhandler, ...rest } = props;
+  const { clickhandler, size, ...rest } = props;
   return (
     <Tooltip label='Show full window'>
       <IconButton
-        size={props.size || 'xs'}
+        size={size || 'xs'}
         icon={<FiMaximize />}
         colorScheme='white'
         onClick={clickhandler}

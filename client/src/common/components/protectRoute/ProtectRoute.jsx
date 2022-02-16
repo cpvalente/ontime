@@ -6,9 +6,9 @@ import { IconButton } from '@chakra-ui/button';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { AppContext } from '../../../app/context/AppContext';
 
-
-export default function ProtectRoute(props) {
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+export default function ProtectRoute({ children }) {
+  const isLocal =
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const [pin, setPin] = useState('');
   const [failed, setFailed] = useState(false);
   const { auth, validate } = useContext(AppContext);
@@ -23,7 +23,7 @@ export default function ProtectRoute(props) {
     if (!r) {
       setFailed(true);
     }
-  }
+  };
 
   return (
     <>
@@ -56,12 +56,12 @@ export default function ProtectRoute(props) {
           </div>
         </div>
       ) : (
-        props.children
+        children
       )}
     </>
   );
 }
 
 ProtectRoute.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };

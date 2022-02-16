@@ -4,12 +4,12 @@ import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function VisibleIconBtn(props) {
-  const { actionHandler, active, ...rest } = props;
+  const { actionHandler, active, size, ...rest } = props;
   return (
     <Tooltip label={active ? 'Make invisible' : 'Make visible'} openDelay={500}>
       <IconButton
-        size={props.size || 'xs'}
-        icon={<IoSunny size={'18px'}/>}
+        size={size || 'xs'}
+        icon={<IoSunny size='18px' />}
         colorScheme='blue'
         variant={active ? 'solid' : 'outline'}
         onClick={() =>

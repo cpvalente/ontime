@@ -141,7 +141,7 @@ CollapsedBlock.propTypes = {
 };
 
 export default function EventBlock(props) {
-  const { data, selected, delay, index, eventIndex, previousEnd, actionHandler } = props;
+  const { data, selected, delay, index, eventIndex, previousEnd, actionHandler, next } = props;
   const [collapsed] = useAtom(useMemo(() => SelectCollapse(data.id), [data.id]));
   const [, setCollapsed] = useAtom(HandleCollapse);
 
@@ -171,7 +171,7 @@ export default function EventBlock(props) {
             <CollapsedBlock
               provided={provided}
               data={data}
-              next={props.next}
+              next={next}
               delay={delay}
               delayValue={delayValue}
               previousEnd={previousEnd}
@@ -182,7 +182,7 @@ export default function EventBlock(props) {
               provided={provided}
               eventIndex={eventIndex}
               data={data}
-              next={props.next}
+              next={next}
               delay={delay}
               delayValue={delayValue}
               previousEnd={previousEnd}
@@ -203,4 +203,5 @@ EventBlock.propTypes = {
   eventIndex: PropTypes.number.isRequired,
   previousEnd: PropTypes.number,
   actionHandler: PropTypes.func.isRequired,
+  next: PropTypes.bool,
 };

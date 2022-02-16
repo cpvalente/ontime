@@ -176,7 +176,7 @@ export default function AliasesModal() {
           <div className={style.hSeparator}>Custom Aliases</div>
           <div className={style.blockNotes}>
             <span className={style.inlineFlex}>
-              <IoInformationCircleOutline color='#2b6cb0' fontSize={'2em'} />
+              <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
               URL aliases are useful in two main scenarios
             </span>
             <span className={style.labelNote}>Complicated URLs</span>
@@ -234,7 +234,7 @@ export default function AliasesModal() {
                 />
                 <Input
                   size='sm'
-                  fontSize={'0.75em'}
+                  fontSize='0.75em'
                   variant='flushed'
                   name='URL'
                   placeholder='URL (portion after ontime Port)'

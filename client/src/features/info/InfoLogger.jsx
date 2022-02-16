@@ -54,7 +54,7 @@ export default function InfoLogger() {
 
   return (
     <div className={collapsed ? style.container : style.container__expanded}>
-      <CollapseBar title={'Log'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
+      <CollapseBar title='Log' isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)} />
       {!collapsed && (
         <>
           <div className={style.toggleBar}>

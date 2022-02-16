@@ -232,7 +232,7 @@ export default function OscSettingsModal() {
           </div>
           <div className={style.blockNotes}>
             <span className={style.inlineFlex}>
-              <IoInformationCircleOutline color='#2b6cb0' fontSize={'2em'} />
+              <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
               OSC Feedback messages
             </span>
             <span>

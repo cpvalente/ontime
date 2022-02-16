@@ -8,7 +8,7 @@ export const useSocket = () => {
   return useContext(SocketContext);
 };
 
-function SocketProvider(props) {
+function SocketProvider({ children }) {
   const [socket, setSocket] = useState();
 
   useEffect(() => {
@@ -17,10 +17,7 @@ function SocketProvider(props) {
     return () => s.disconnect();
   }, []);
 
-  return (
-    <SocketContext.Provider value={socket}>
-      {props.children}
-    </SocketContext.Provider>
-  );
+  return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 }
+
 export default SocketProvider;

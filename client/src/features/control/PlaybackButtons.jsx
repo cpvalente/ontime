@@ -69,20 +69,20 @@ const Transport = (props) => {
 };
 
 const PlaybackButtons = (props) => {
-  const { playback, selectedId, noEvents } = props;
+  const { playback, selectedId, noEvents, playbackControl } = props;
   return (
     <>
       <Playback
         playback={playback}
         selectedId={selectedId}
         noEvents={noEvents}
-        playbackControl={props.playbackControl}
+        playbackControl={playbackControl}
       />
       <Transport
         playback={playback}
         selectedId={selectedId}
         noEvents={noEvents}
-        playbackControl={props.playbackControl}
+        playbackControl={playbackControl}
       />
     </>
   );

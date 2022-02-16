@@ -4,9 +4,9 @@ import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function PrevIconBtn(props) {
-  const { clickhandler, ...rest } = props;
+  const { clickhandler, disabled, ...rest } = props;
   return (
-    <Tooltip label='Previous event' openDelay={500} shouldWrapChildren={props.disabled}>
+    <Tooltip label='Previous event' openDelay={500} shouldWrapChildren={disabled}>
       <IconButton
         icon={<IoPlaySkipBack size='22px' />}
         colorScheme='whiteAlpha'

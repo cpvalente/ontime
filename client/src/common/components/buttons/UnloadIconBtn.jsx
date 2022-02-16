@@ -4,9 +4,9 @@ import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function UnloadIconBtn(props) {
-  const { clickhandler, ...rest } = props;
+  const { clickhandler, disabled, ...rest } = props;
   return (
-    <Tooltip label='Unload event' openDelay={500} shouldWrapChildren={props.disabled}>
+    <Tooltip label='Unload event' openDelay={500} shouldWrapChildren={disabled}>
       <IconButton
         icon={<IoStop size='22px' />}
         colorScheme='red'

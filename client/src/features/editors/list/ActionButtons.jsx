@@ -24,8 +24,8 @@ export default function ActionButtons(props) {
           icon={<FiPlus />}
           _expanded={{ bg: 'orange.300', color: 'white' }}
           _focus={{ boxShadow: 'none' }}
-          backgroundColor={'orange.200'}
-          color={'orange.500'}
+          backgroundColor='orange.200'
+          color='orange.500'
         />
       </Tooltip>
       <MenuList style={menuStyle}>
