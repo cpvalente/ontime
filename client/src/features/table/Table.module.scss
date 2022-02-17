@@ -115,9 +115,11 @@
 
     .tableBody {
       //height: 80%;
+      margin-top: 32px;
+
       tr {
         td:hover {
-          background-color: $ontime-pink !important;
+          background-color: lighten($ontime-pink, 10%) !important;
           color: black;
         }
       }
@@ -132,6 +134,7 @@
       font-weight: 200;
       text-align: right;
       width: 2em;
+      background: transparent;
     }
   }
 }
@@ -206,7 +209,7 @@ svg {
 }
 
 .actionDisabled {
-  opacity: 0.2;
+  opacity: 0.5;
 }
 
 .rotate {

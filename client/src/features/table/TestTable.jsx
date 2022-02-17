@@ -42,7 +42,7 @@ export const columns = [
     Header: 'Public',
     accessor: 'isPublic',
     Cell: ({ cell: { value } }) => (value != null ? <FiCheck /> : <FiX />),
-    width: 20,
+    width: 25,
   },
   {
     Header: 'Start',
