@@ -36,7 +36,7 @@ export const columns = [
         </Tooltip>
       );
     },
-    width: 20,
+    width: 25,
   },
   {
     Header: 'Public',
@@ -96,23 +96,23 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
   const handleColumnReorder = () => {
     setColumnOrder(columnOrder);
   };
-  const handleColumnHide = () => {
-    toggleHideColumn('type');
-  };
   const resetResizing = () => {
     toggleHideColumn('type');
   };
 
   return (
     <>
-      <button onClick={resetResizing}>RESET RESIZING</button>
-      <button onClick={() => handleColumnReorder()}>REORDER</button>
-      <button onClick={() => handleColumnHide()}>HIDE COLUMN</button>
+      <button className={style.noPrint} onClick={resetResizing}>
+        RESET RESIZING
+      </button>
+      <button className={style.noPrint} onClick={() => handleColumnReorder()}>
+        REORDER
+      </button>
       <div className={style.tableSettings}>
         {allColumns.map((column) => (
           <div key={column.id}>
             <label>
-              <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.id}
+              <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.Header}
             </label>
           </div>
         ))}
@@ -153,9 +153,13 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
               <tr key={key} {...restRowProps} className={selected ? style.selected : ''}>
                 <td className={style.indexColumn}>{index + 1}</td>
                 {row.cells.map((cell) => {
-                  const { key, ...restCellProps } = cell.getCellProps();
+                  const { key, style, ...restCellProps } = cell.getCellProps();
                   return (
-                    <td key={key} {...restCellProps}>
+                    <td
+                      key={key}
+                      style={{ ...style, backgroundColor: row.original.colour || 'none' }}
+                      {...restCellProps}
+                    >
                       {cell.render('Cell')}
                     </td>
                   );

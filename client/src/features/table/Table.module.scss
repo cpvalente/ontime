@@ -115,7 +115,6 @@
 
     .tableBody {
       //height: 80%;
-      margin-top: 32px;
 
       tr {
         td:hover {
@@ -126,7 +125,6 @@
 
       .selected > td {
         background-color: #4bffab99;
-        //color: red;
       }
     }
 
@@ -228,12 +226,9 @@ svg {
 
 @media print {
   /* No margins on build  ... */
-  body {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    position: static;
-    font-size: 12pt !important;
+
+  * {
+    font-size: 10pt;
   }
 
   /* Ensure printable colours */
@@ -244,11 +239,15 @@ svg {
 
     * {
       background-color: white;
-      font-size: 12pt !important;
     }
 
-    td, th {
+    td, th,
+    .selected > td {
       background-color: #f6f6f6;
+    }
+
+    th {
+      width: auto;
     }
 
     .tableContainer {
@@ -261,7 +260,8 @@ svg {
     .headerActions,
     .tableSettings,
     .headerClock,
-    .actionIcon {
+    .actionIcon,
+    .noPrint {
       display: none !important;
     }
 
