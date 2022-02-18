@@ -68,8 +68,12 @@
   .tableSettings {
     grid-area: settings;
     padding: 1rem;
-    display: flex;
-    gap: 2rem;
+
+    .options {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+    }
   }
 
   .ontimeTable {

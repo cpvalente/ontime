@@ -6,6 +6,7 @@ import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { stringFromMillis } from 'ontime-utils/time';
 import EditableCell from './EditableCell';
+import { Button } from '@chakra-ui/button';
 
 export const columnOrder = [
   'type',
@@ -72,7 +73,7 @@ export const columns = [
   { Header: 'Audio', accessor: 'audio', Cell: EditableCell, width: 200 },
 ];
 
-export default function TestTable({ data, handleUpdate, selectedId }) {
+export default function TestTable({ data, handleUpdate, selectedId, showSettings }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -81,7 +82,7 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
     prepareRow,
     setColumnOrder,
     allColumns,
-    toggleHideColumn,
+    resetResizing
   } = useTable(
     {
       columns,
@@ -96,28 +97,25 @@ export default function TestTable({ data, handleUpdate, selectedId }) {
   const handleColumnReorder = () => {
     setColumnOrder(columnOrder);
   };
-  const resetResizing = () => {
-    toggleHideColumn('type');
-  };
 
   return (
     <>
-      <button className={style.noPrint} onClick={resetResizing}>
-        RESET RESIZING
-      </button>
-      <button className={style.noPrint} onClick={() => handleColumnReorder()}>
-        REORDER
-      </button>
-      <div className={style.tableSettings}>
-        {allColumns.map((column) => (
-          <div key={column.id}>
-            <label>
-              <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.Header}
-            </label>
+      {showSettings && (
+        <div className={style.tableSettings}>
+          Select and order fields to show in table
+          <div className={style.options}>
+            {allColumns.map((column) => (
+              <label key={column.id}>
+                <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.Header}
+              </label>
+            ))}
           </div>
-        ))}
-        <br />
-      </div>
+          <br />
+          <Button className={style.noPrint} onClick={resetResizing}>
+            RESET RESIZING
+          </Button>
+        </div>
+      )}
       <table {...getTableProps()} className={style.ontimeTable}>
         <thead className={style.tableHeader}>
           {headerGroups.map((headerGroup) => {

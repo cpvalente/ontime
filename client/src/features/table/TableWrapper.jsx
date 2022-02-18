@@ -127,8 +127,7 @@ export default function TableWrapper() {
           setDark={toggleDark}
           loading={status === 'loading'}
         />
-        {showSettings && <TableFilter dark={theme==='dark'} columns={columns} handleHide={handleHideField} />}
-        <TestTable data={data} handleUpdate={handleUpdate} selectedId={selectedId} />
+        <TestTable data={data} handleUpdate={handleUpdate} selectedId={selectedId} showSettings={showSettings} />
         {/*<OntimeTable*/}
         {/*  columns={columns}*/}
         {/*  filter={accessors}*/}
