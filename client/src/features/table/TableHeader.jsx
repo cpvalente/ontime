@@ -17,8 +17,8 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import style from './Table.module.scss';
 
 export default function TableHeader(props) {
-  const { refetchEvents, setDark, setShowSettings, loading } = props;
-  const { data, status, refetch } = useFetch(EVENT_TABLE, fetchEvent);
+  const { setDark, setShowSettings } = props;
+  const { data } = useFetch(EVENT_TABLE, fetchEvent);
 
   const socket = useSocket();
   const [timer, setTimer] = useState({
@@ -39,13 +39,6 @@ export default function TableHeader(props) {
     presenterNext: '',
     noteNext: '',
   });
-
-  // const refetch = () => {
-  //   refetchEvents();
-  //   refetchEvent();
-  // };
-
-  const isLoading = loading || status === 'loading';
 
   /**
    * Handle incoming data from socket
@@ -91,33 +84,6 @@ export default function TableHeader(props) {
         <span className={style.timer}>{stringFromMillis(timer.clock)}</span>
       </div>
       <div className={style.headerActions}>
-        <Tooltip openDelay={300} label='Scroll to current'>
-          <span className={style.actionDisabled}>
-            <FiTarget />
-          </span>
-        </Tooltip>
-        <span style={{ paddingRight: '4px' }} />
-        <Tooltip openDelay={300} label='Reload data'>
-          <span className={style.actionIcon}>
-            <IoReload onClick={() => refetch()} />
-          </span>
-        </Tooltip>
-        <Tooltip openDelay={300} label='Save changes'>
-          <span className={style.actionDisabled}>
-            <FiSave />
-          </span>
-        </Tooltip>
-        <span style={{ paddingRight: '4px' }} />
-        <Tooltip openDelay={300} label='Download events'>
-          <span className={style.actionDisabled}>
-            <FiDownload />
-          </span>
-        </Tooltip>
-        <Tooltip openDelay={300} label='Print page'>
-          <span className={style.actionIcon}>
-            <FiPrinter onClick={() => window.print()} />
-          </span>
-        </Tooltip>
         <span style={{ paddingRight: '4px' }} />
         <Tooltip openDelay={300} label='Show settings'>
           <span className={style.actionIcon}>

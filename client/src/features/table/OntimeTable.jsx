@@ -1,141 +1,180 @@
 import React from 'react';
-import { FiX } from '@react-icons/all-files/fi/FiX';
-import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
+import { useBlockLayout, useColumnOrder, useResizeColumns, useTable } from 'react-table';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { Textarea } from '@chakra-ui/react';
 import style from './Table.module.scss';
+import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
+import { FiX } from '@react-icons/all-files/fi/FiX';
 import { stringFromMillis } from 'ontime-utils/time';
+import EditableCell from './EditableCell';
+import { Button } from '@chakra-ui/button';
 import PropTypes from 'prop-types';
-import { requestPatch } from '../../app/api/eventsApi';
-import useMutateEvents from '../../app/hooks/useMutateEvents';
 
-export default function OntimeTable({ columns, data, handleHide, selectedId }) {
-  const mutation = useMutateEvents(requestPatch);
+export const columnOrder = [
+  'type',
+  'isPublic',
+  'timeStart',
+  'timeEnd',
+  'duration',
+  'title',
+  'subtitle',
+  'presenter',
+  'note',
+  'light',
+  'cam',
+  'video',
+  'audio',
+];
 
-  /**
-   * Returns appropriate render object from a given type
-   * @param type
-   * @param value
-   * @param options
-   * @returns {JSX.Element|string|*}
-   */
-  const parseType = (type, value, options) => {
-    switch (type) {
-      case 'short': {
-        return value[0].toUpperCase();
-      }
-      case 'millis': {
-        return stringFromMillis(value);
-      }
-      case 'bool': {
-        return value ? <FiCheck /> : <FiX />;
-      }
-      case 'textArea': {
-        return (
-          <Textarea
-            size='sm'
-            borderColor='#0001'
-            defaultValue={value}
-            onBlur={(e) => handleSubmit(options?.accessor, options?.id, e.target.value)}
-          />
-        );
-      }
-      default:
-        return value;
-    }
-  };
+export const columns = [
+  {
+    Header: 'Type',
+    accessor: 'type',
+    Cell: ({ cell: { value } }) => {
+      const firstCap = value.charAt(0).toUpperCase();
+      const caps = firstCap + value.slice(1);
+      return (
+        <Tooltip label={caps} placement='right'>
+          <span className={style.badge}>{firstCap}</span>
+        </Tooltip>
+      );
+    },
+    width: 25,
+  },
+  {
+    Header: 'Public',
+    accessor: 'isPublic',
+    Cell: ({ cell: { value } }) => (value != null ? <FiCheck /> : <FiX />),
+    width: 25,
+  },
+  {
+    Header: 'Start',
+    accessor: 'timeStart',
+    Cell: ({ cell: { value } }) => stringFromMillis(value),
+    width: 90,
+  },
+  {
+    Header: 'End',
+    accessor: 'timeEnd',
+    Cell: ({ cell: { value } }) => stringFromMillis(value),
+    width: 90,
+  },
+  {
+    Header: 'Duration',
+    accessor: 'duration',
+    Cell: ({ cell: { value } }) => stringFromMillis(value),
+    width: 90,
+  },
+  { Header: 'Title', accessor: 'title', width: 200 },
+  { Header: 'Subtitle', accessor: 'subtitle', width: 150 },
+  { Header: 'Presenter', accessor: 'presenter', width: 150 },
+  { Header: 'Notes', accessor: 'note', width: 200 },
+  { Header: 'Light', accessor: 'light', Cell: EditableCell, width: 200 },
+  { Header: 'Cam', accessor: 'cam', Cell: EditableCell, width: 200 },
+  { Header: 'Video', accessor: 'video', Cell: EditableCell, width: 200 },
+  { Header: 'Audio', accessor: 'audio', Cell: EditableCell, width: 200 },
+];
 
-  const handleSubmit = async (accessor, id, payload) => {
-    if (accessor == null || id == null || payload == null) {
-      return;
-    }
+export default function OntimeTable({ data, handleUpdate, selectedId, showSettings }) {
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    setColumnOrder,
+    allColumns,
+    resetResizing,
+  } = useTable(
+    {
+      columns,
+      data,
+      handleUpdate,
+    },
+    useColumnOrder,
+    useBlockLayout,
+    useResizeColumns
+  );
 
-    // check if value is the same
-    const event = data.find((d) => d.id === id);
-    if (event === undefined) {
-      return;
-    }
-
-    if (event[accessor] === payload) {
-      return;
-    }
-    // check if value is valid
-    // as of now, the fields do not have any validation
-    if (typeof payload !== 'string') {
-      return;
-    }
-
-    // cleanup
-    const cleanVal = payload.trim();
-    const mutationObject = {
-      id,
-      [accessor]: cleanVal,
-    };
-
-    // submit
-    try {
-      await mutation.mutateAsync(mutationObject);
-    } catch (error) {
-      console.error(error);
-    }
+  const handleColumnReorder = () => {
+    setColumnOrder(columnOrder);
   };
 
   return (
-    <div className={style.tableContainer}>
-      <div className={style.rowHeader}>
-        <div className={style.indexColumn} style={{ maxWidth: '1.5em' }}>
-          #
-        </div>
-        {columns
-          .filter((c) => c.visible)
-          .map((c) => (
-            <div className={style.headerCell} style={{ minWidth: c.width }} key={c.accessor}>
-              {c.header}
-              {c.filterable && (
-                <Tooltip label='Hide field' openDelay={300}>
-                  <span className={style.actionIcon} onClick={handleHide(c.accessor)}>
-                    <FiX />
-                  </span>
-                </Tooltip>
-              )}
-            </div>
-          ))}
-      </div>
-      <div className={style.tableBody}>
-        {data.map((d, index) => (
-          <div className={d.id === selectedId ? style.rowNow : style.row} key={d.id}>
-            <div
-              className={d.id === selectedId ? style.indexColumnNow : style.indexColumn}
-              style={{ width: '1em' }}
-            >
-              {index * 1}
-            </div>
-            {columns
-              .filter((c) => c.visible)
-              .map((c) => (
-                <div
-                  key={c.accessor}
-                  className={style.column}
-                  style={{ minWidth: c.width, backgroundColor: d.colour || 'none' }}
-                >
-                  {parseType(c.type, d[c.accessor], {
-                    id: d.id,
-                    accessor: c.accessor,
-                    maxchar: d?.maxchar,
-                    header: c.header,
-                  })}
-                </div>
-              ))}
+    <>
+      {showSettings && (
+        <div className={style.tableSettings}>
+          Select and order fields to show in table
+          <div className={style.options}>
+            {allColumns.map((column) => (
+              <label key={column.id}>
+                <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.Header}
+              </label>
+            ))}
           </div>
-        ))}
-      </div>
-    </div>
+          <br />
+          <Button className={style.noPrint} onClick={resetResizing}>
+            RESET RESIZING
+          </Button>
+        </div>
+      )}
+      <table {...getTableProps()} className={style.ontimeTable}>
+        <thead className={style.tableHeader}>
+          {headerGroups.map((headerGroup) => {
+            const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
+            return (
+              <tr key={key} {...restHeaderGroupProps}>
+                <th className={style.indexColumn}>
+                  <Tooltip label='Event Order' openDelay={300}>
+                    #
+                  </Tooltip>
+                </th>
+                {headerGroup.headers.map((column) => {
+                  const { key, ...restColumn } = column.getHeaderProps();
+                  return (
+                    <th key={key} {...restColumn}>
+                      <Tooltip label={column.Header} openDelay={300}>
+                        {column.render('Header')}
+                      </Tooltip>
+                      <div {...column.getResizerProps()} className={style.resizer} />
+                    </th>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </thead>
+        <tbody {...getTableBodyProps} className={style.tableBody}>
+          {rows.map((row, index) => {
+            prepareRow(row);
+            const { key, ...restRowProps } = row.getRowProps();
+            const selected = row.original.id === selectedId;
+            return (
+              <tr key={key} {...restRowProps} className={selected ? style.selected : ''}>
+                <td className={style.indexColumn}>{index + 1}</td>
+                {row.cells.map((cell) => {
+                  const { key, style, ...restCellProps } = cell.getCellProps();
+                  return (
+                    <td
+                      key={key}
+                      style={{ ...style, backgroundColor: row.original.colour || 'none' }}
+                      {...restCellProps}
+                    >
+                      {cell.render('Cell')}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
   );
 }
 
 OntimeTable.propTypes = {
-  columns: PropTypes.array.isRequired,
   data: PropTypes.array,
-  handleHide: PropTypes.func.isRequired,
+  handleUpdate: PropTypes.func.isRequired,
   selectedId: PropTypes.string,
+  showSettings: PropTypes.bool,
 };

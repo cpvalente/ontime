@@ -6,12 +6,10 @@ import { useLocalStorage } from '../../app/hooks/useLocalStorage';
 import { columnOptions } from './defaults';
 import { extractVisible, filterObjects } from './utils';
 import { useSocket } from '../../app/context/socketContext';
-import OntimeTable from './OntimeTable';
 import TableHeader from './TableHeader';
-import TableFilter from './TableFilter';
-import style from './Table.module.scss';
-import TestTable from './TestTable';
+import OntimeTable from './OntimeTable';
 import useMutateEvents from '../../app/hooks/useMutateEvents';
+import style from './Table.module.scss';
 
 export default function TableWrapper() {
   const { data, status, isError, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
@@ -41,22 +39,6 @@ export default function TableWrapper() {
     [setTheme, theme]
   );
 
-  /**
-   * Toggles visibility of field in column
-   * @param {string} field
-   * @param {boolean} [show]
-   */
-  const handleHideField = useCallback(
-    (field, show) => {
-      const columnsNow = [...columns];
-      const index = columnsNow.findIndex((c) => c.accessor === field);
-      if (index >= 0) {
-        columnsNow[index].visible = show || !columnsNow[index].visible;
-        setColumns(columnsNow);
-      }
-    },
-    [columns, setColumns]
-  );
 
   /**
    * Handle incoming data from socket
@@ -118,7 +100,6 @@ export default function TableWrapper() {
   if (data == null) return <span>loading</span>;
   else {
     const accessors = extractVisible(columns);
-    const dataToShow = filterObjects(data, [...accessors, 'colour']);
     return (
       <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
         <TableHeader
@@ -127,14 +108,7 @@ export default function TableWrapper() {
           setDark={toggleDark}
           loading={status === 'loading'}
         />
-        <TestTable data={data} handleUpdate={handleUpdate} selectedId={selectedId} showSettings={showSettings} />
-        {/*<OntimeTable*/}
-        {/*  columns={columns}*/}
-        {/*  filter={accessors}*/}
-        {/*  data={dataToShow}*/}
-        {/*  handleHide={handleHideField}*/}
-        {/*  selectedId={selectedId}*/}
-        {/*/>*/}
+        <OntimeTable data={data} handleUpdate={handleUpdate} selectedId={selectedId} showSettings={showSettings} />
       </div>
     );
   }
