@@ -7,6 +7,7 @@
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@react-icons/all-files": "^4.1.0",
+    "autosize": "^5.0.1",
     "axios": "^0.25.0",
     "framer-motion": "4.1.17",
     "jotai": "0.16.11",

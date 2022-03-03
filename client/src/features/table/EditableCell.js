@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Textarea } from '@chakra-ui/react';
+import { AutoTextArea } from '../../common/input/AutoTextArea';
 
 /**
  * Shamelessly copied from react-table docs
- * Plugged into chakra-ui editbale component
+ * Plugged into chakra-ui editable component
  * @description Custom editable field for table component
  * @param initialValue
  * @param index
@@ -36,12 +36,14 @@ export default function EditableCell({
   }, [initialValue]);
 
   return (
-    <Textarea
+    <AutoTextArea
       size='sm'
       borderColor='#0001'
       defaultValue={value}
       onChange={onChange}
       onBlur={onBlur}
+      rows={3}
+      transition='none'
     />
   );
 }
