@@ -2,13 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
 import { EVENT_TABLE } from '../../app/api/apiConstants';
 import { fetchEvent } from '../../app/api/eventApi';
-import { FiDownload } from '@react-icons/all-files/fi/FiDownload';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
-import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
-import { FiPrinter } from '@react-icons/all-files/fi/FiPrinter';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
-import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { useSocket } from '../../app/context/socketContext';
 import { stringFromMillis } from 'ontime-utils/time';
 import { formatDisplay } from '../../common/utils/dateConfig';
@@ -69,6 +64,9 @@ export default function TableHeader(props) {
     };
   }, [socket]);
 
+  // prepare presentation variables
+  const timerNow = `${timer.running < 0 ? '-' : ''}${formatDisplay(timer.running)}`;
+
   return (
     <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
@@ -76,7 +74,7 @@ export default function TableHeader(props) {
       <div className={style.headerRunning}>
         <span className={style.label}>Running Timer</span>
         <br />
-        <span className={style.timer}>{formatDisplay(timer.running)}</span>
+        <span className={style.timer}>{timerNow}</span>
       </div>
       <div className={style.headerClock}>
         <span className={style.label}>Time Now</span>
