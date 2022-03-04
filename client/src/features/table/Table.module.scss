@@ -73,7 +73,9 @@
       display: flex;
       flex-direction: row;
       gap: 2rem;
+      padding-top: 0.5em;
     }
+
   }
 
   .ontimeTable {
@@ -285,6 +287,10 @@ svg {
     .blockCell,
     .noPrint {
       display: none !important;
+
+      * {
+        display: none !important;
+      }
     }
 
     /* Overload styles */

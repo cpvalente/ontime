@@ -11,8 +11,14 @@ import EventRow from './tableRows/EventRow';
 import DelayRow from './tableRows/DelayRow';
 import BlockRow from './tableRows/BlockRow';
 
+const buttonProps = {
+  colorScheme: 'blue',
+  size: 'sm',
+  variant: 'ghost',
+};
+
 export default function OntimeTable({ data, handleUpdate, selectedId, showSettings }) {
-  const columnOrder = useLocalStorage('table-order', defaultColumnOrder);
+  const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
   const [columnSize, setColumnSize] = useLocalStorage('table-sizes', {});
   const columns = useMemo(() => makeColumns(columnSize), [columnSize]);
 
@@ -25,6 +31,7 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     setColumnOrder,
     allColumns,
     resetResizing,
+    toggleHideAllColumns,
     state,
   } = useTable(
     {
@@ -39,6 +46,23 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
 
   const handleColumnReorder = () => {
     setColumnOrder(columnOrder);
+  };
+
+  const handleResetReordering = () => {
+    console.log('reset reordering');
+    saveColumnOrder(defaultColumnOrder)
+    setColumnOrder(defaultColumnOrder);
+  };
+
+  const handleResetResizing = () => {
+    console.log('reset resizing');
+    setColumnSize({});
+  };
+
+  const handleResetToggles = () => {
+    console.log('reset toggles');
+    // Todo: column visibility in localstorage?
+    toggleHideAllColumns(false);
   };
 
   // save column sizes to localstorage
@@ -60,7 +84,7 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     <>
       {showSettings && (
         <div className={style.tableSettings}>
-          Select and order fields to show in table
+          <h3>Select and order fields to show in table</h3>
           <div className={style.options}>
             {allColumns.map((column) => (
               <label key={column.id}>
@@ -68,10 +92,17 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
               </label>
             ))}
           </div>
-          <br />
-          <Button className={style.noPrint} onClick={resetResizing}>
-            RESET RESIZING
-          </Button>
+          <div className={style.options}>
+            <Button onClick={handleResetResizing} {...buttonProps}>
+              Reset Resizing
+            </Button>
+            <Button onClick={handleResetReordering} {...buttonProps}>
+              Reset Reordering
+            </Button>
+            <Button onClick={handleResetToggles} {...buttonProps}>
+              Reset Toggles
+            </Button>
+          </div>
         </div>
       )}
       <table {...getTableProps()} className={style.ontimeTable}>
