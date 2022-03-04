@@ -31,13 +31,13 @@ export const makeColumns = (sizes) => {
     {
       Header: 'Start',
       accessor: 'timeStart',
-      Cell: ({ cell: { value } }) => stringFromMillis(value),
+      Cell: ({ cell: { value, delayed } }) => stringFromMillis(delayed || value),
       width: sizes?.timeStart || 90,
     },
     {
       Header: 'End',
       accessor: 'timeEnd',
-      Cell: ({ cell: { value } }) => stringFromMillis(value),
+      Cell: ({ cell: { value, delayed } }) => stringFromMillis(delayed || value),
       width: sizes?.timeEnd || 90,
     },
     {
@@ -55,4 +55,4 @@ export const makeColumns = (sizes) => {
     { Header: 'Video', accessor: 'video', Cell: EditableCell, width: sizes?.video || 200 },
     { Header: 'Audio', accessor: 'audio', Cell: EditableCell, width: sizes?.audio || 200 },
   ];
-}
+};

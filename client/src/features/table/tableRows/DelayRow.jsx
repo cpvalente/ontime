@@ -1,12 +1,16 @@
 import React from 'react';
 import style from '../Table.module.scss';
+import { millisToMinutes } from '../../../common/utils/dateConfig';
 
 export default function DelayRow(props) {
   const { row } = props;
-  const { key, ...restProps } = row.getRowProps();
+  const delayVal = row.original.duration;
+  const minutesDelayed = Math.abs(millisToMinutes(delayVal));
+  const labelText = `${minutesDelayed} minutes ${delayVal >= 0 ? 'delayed' : 'ahead'}`;
+
   return (
-    <tr key={key} {...restProps}>
-      <td className={style.delayCell}>{`${row.original.duration} delay`}</td>
+    <tr {...row.getRowProps()}>
+      <td className={style.delayCell}>{labelText}</td>
     </tr>
   );
 }

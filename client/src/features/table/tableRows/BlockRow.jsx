@@ -3,9 +3,8 @@ import style from '../Table.module.scss';
 
 export default function BlockRow(props) {
   const { row } = props;
-  const { key, ...restProps } = row.getRowProps();
   return (
-    <tr key={key} {...restProps}>
+    <tr {...row.getRowProps()}>
       <td className={style.blockCell}>Delay Block</td>
     </tr>
   );

@@ -53,6 +53,8 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
 
   // keep order of events
   let eventIndex = 0;
+  // keep delay
+  let cumulativeDelay = 0;
 
   return (
     <>
@@ -105,12 +107,24 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
             const type = row.original.type;
             if (type === 'event') {
               eventIndex++;
-              return <EventRow key={key} row={row} index={eventIndex} selectedId={selectedId} />;
+              return (
+                <EventRow
+                  key={key}
+                  row={row}
+                  index={eventIndex}
+                  selectedId={selectedId}
+                  delay={cumulativeDelay}
+                />
+              );
             }
             if (type === 'delay') {
+              if (row.original.duration != null) {
+                cumulativeDelay += row.original.duration;
+              }
               return <DelayRow key={key} row={row} />;
             }
             if (type === 'block') {
+              cumulativeDelay = 0;
               return <BlockRow key={key} row={row} />;
             }
           })}
