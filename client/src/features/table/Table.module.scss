@@ -138,6 +138,22 @@
       width: 2em;
       background: transparent;
     }
+
+    .blockCell,
+    .delayCell {
+      width: 100%;
+      font-weight: 400;
+      font-size: 0.9em;
+      text-align: center;
+    }
+
+    .delayCell {
+      background-color: $block-delay-color;
+    }
+
+    .blockCell {
+      background-color: $block-block-color;
+    }
   }
 }
 
@@ -265,6 +281,8 @@ svg {
     .tableSettings,
     .headerClock,
     .actionIcon,
+    .delayCell,
+    .blockCell,
     .noPrint {
       display: none !important;
     }
