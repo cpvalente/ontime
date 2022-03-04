@@ -232,9 +232,8 @@ svg {
   opacity: 0.5;
 }
 
-.rotate {
-  animation: rotation infinite 1s linear;
-  color: red;
+.dragging {
+  background-color: red;
 }
 
 @keyframes rotation {

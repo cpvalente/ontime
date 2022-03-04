@@ -3,8 +3,6 @@ import { useFetch } from '../../app/hooks/useFetch';
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../app/api/eventsApi';
 import { useLocalStorage } from '../../app/hooks/useLocalStorage';
-import { columnOptions } from './defaults';
-import { extractVisible, filterObjects } from './utils';
 import { useSocket } from '../../app/context/socketContext';
 import TableHeader from './TableHeader';
 import OntimeTable from './OntimeTable';
@@ -15,8 +13,7 @@ export default function TableWrapper() {
   const { data, status, isError, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const mutation = useMutateEvents(requestPatch);
   const socket = useSocket();
-  const [columns, setColumns] = useLocalStorage('table-options', columnOptions);
-  const [theme, setTheme] = useLocalStorage('color-theme', 'dark');
+  const [theme, setTheme] = useLocalStorage('table-color-theme', 'dark');
   const [showSettings, setShowSettings] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
@@ -99,7 +96,6 @@ export default function TableWrapper() {
 
   if (data == null) return <span>loading</span>;
   else {
-    const accessors = extractVisible(columns);
     return (
       <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
         <TableHeader

@@ -3,6 +3,19 @@ import { useBlockLayout, useColumnOrder, useResizeColumns, useTable } from 'reac
 import { Tooltip } from '@chakra-ui/tooltip';
 import { Button } from '@chakra-ui/button';
 import PropTypes from 'prop-types';
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  horizontalListSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
 import { useLocalStorage } from '../../app/hooks/useLocalStorage';
 import { defaultColumnOrder } from './defaults';
 import { makeColumns } from './columns';
@@ -10,6 +23,7 @@ import style from './Table.module.scss';
 import EventRow from './tableRows/EventRow';
 import DelayRow from './tableRows/DelayRow';
 import BlockRow from './tableRows/BlockRow';
+import SortableCell from './SortableCell';
 
 const buttonProps = {
   colorScheme: 'blue',
@@ -44,13 +58,20 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     useResizeColumns
   );
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const handleColumnReorder = () => {
     setColumnOrder(columnOrder);
   };
 
   const handleResetReordering = () => {
     console.log('reset reordering');
-    saveColumnOrder(defaultColumnOrder)
+    saveColumnOrder(defaultColumnOrder);
     setColumnOrder(defaultColumnOrder);
   };
 
@@ -65,6 +86,26 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     toggleHideAllColumns(false);
   };
 
+  const handleOnDragEnd = (event) => {
+    const { active, over } = event;
+    console.log('handle drag end', event);
+
+    const cols = [...columnOrder];
+
+    // get index of from
+    const fromIndex = cols.findIndex((i) => i === active.id);
+
+    // get index of to
+    const toIndex = cols.findIndex((i) => i === over.id);
+
+    // reorder
+    const [reorderedItem] = cols.splice(fromIndex, 1);
+    cols.splice(toIndex, 0, reorderedItem);
+
+    saveColumnOrder(cols);
+    setColumnOrder(cols);
+  };
+
   // save column sizes to localstorage
   useEffect(() => {
     // property changes from title of column to null on resize end
@@ -77,7 +118,7 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
 
   // keep order of events
   let eventIndex = 0;
-  // keep delay
+  // keep delay (ms)
   let cumulativeDelay = 0;
 
   return (
@@ -110,24 +151,30 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
           {headerGroups.map((headerGroup) => {
             const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
             return (
-              <tr key={key} {...restHeaderGroupProps}>
-                <th className={style.indexColumn}>
-                  <Tooltip label='Event Order' openDelay={300}>
-                    #
-                  </Tooltip>
-                </th>
-                {headerGroup.headers.map((column) => {
-                  const { key, ...restColumn } = column.getHeaderProps();
-                  return (
-                    <th key={key} {...restColumn}>
-                      <Tooltip label={column.Header} openDelay={300}>
-                        {column.render('Header')}
-                      </Tooltip>
-                      <div {...column.getResizerProps()} className={style.resizer} />
-                    </th>
-                  );
-                })}
-              </tr>
+              <DndContext
+                key={key}
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleOnDragEnd}
+              >
+                <tr {...restHeaderGroupProps}>
+                  <th className={style.indexColumn}>
+                    <Tooltip label='Event Order' openDelay={300}>
+                      #
+                    </Tooltip>
+                  </th>
+                  <SortableContext
+                    key={key}
+                    items={headerGroup.headers}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {headerGroup.headers.map((column) => {
+                      const { key } = column.getHeaderProps();
+                      return <SortableCell key={key} column={column} />;
+                    })}
+                  </SortableContext>
+                </tr>
+              </DndContext>
             );
           })}
         </thead>

@@ -4,6 +4,9 @@
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^1.8.6",
+    "@dnd-kit/core": "^5.0.1",
+    "@dnd-kit/sortable": "^6.0.0",
+    "@dnd-kit/utilities": "^3.1.0",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@react-icons/all-files": "^4.1.0",
