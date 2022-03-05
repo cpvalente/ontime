@@ -69,13 +69,20 @@
     grid-area: settings;
     padding: 1rem;
 
-    .options {
+    .options,
+    .buttonRow {
       display: flex;
       flex-direction: row;
       gap: 2rem;
-      padding-top: 0.5em;
     }
 
+    .options {
+      padding-left: 2.5em;
+    }
+
+    .buttonRow {
+      padding-top: 2em;
+    }
   }
 
   .ontimeTable {

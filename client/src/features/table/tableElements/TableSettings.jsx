@@ -23,8 +23,7 @@ export default function TableSettings(props) {
           </label>
         ))}
       </div>
-      <br />
-      <div className={style.options}>
+      <div className={style.buttonRow}>
         <Button onClick={handleResetResizing} {...buttonProps}>
           Reset Resizing
         </Button>

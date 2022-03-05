@@ -28,7 +28,8 @@ import TableSettings from './tableElements/TableSettings';
 
 export default function OntimeTable({ data, handleUpdate, selectedId, showSettings }) {
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
-  const [columnSize, setColumnSize] = useLocalStorage('table-sizes', {});
+  const [columnSize, saveColumnSize] = useLocalStorage('table-sizes', {});
+  const [hiddenColumns, saveHiddenColumns] = useLocalStorage('table-hidden', {})
   const columns = useMemo(() => makeColumns(columnSize), [columnSize]);
 
   const {
@@ -39,12 +40,16 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     prepareRow,
     setColumnOrder,
     allColumns,
+    setHiddenColumns,
     toggleHideAllColumns,
     state,
   } = useTable(
     {
       columns,
       data,
+      initialState: {
+        hiddenColumns: hiddenColumns
+      },
       handleUpdate,
     },
     useColumnOrder,
@@ -74,14 +79,13 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
   }, [saveColumnOrder, setColumnOrder]);
 
   const handleResetResizing = useCallback(() => {
-    setColumnSize({});
-  }, [setColumnSize]);
+    saveColumnSize({});
+  }, [saveColumnSize]);
 
   const handleResetToggles = useCallback(() => {
-    console.log('reset toggles');
-    // Todo: column visibility in localstorage?
     toggleHideAllColumns(false);
-  }, [toggleHideAllColumns]);
+    saveHiddenColumns({})
+  }, [saveHiddenColumns, toggleHideAllColumns]);
 
   const handleOnDragEnd = (event) => {
     const { delta, active, over } = event;
@@ -106,15 +110,20 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     setColumnOrder(cols);
   };
 
-  // save column sizes to localstorage
+  // save hidden columns object to local storage
+  useEffect(() => {
+    saveHiddenColumns(state.hiddenColumns)
+  }, [saveHiddenColumns, setHiddenColumns, state.hiddenColumns])
+
+  // save column sizes to local storage
   useEffect(() => {
     // property changes from title of column to null on resize end
     if (state.columnResizing?.isResizingColumn !== null) {
       return;
     }
     const cols = state.columnResizing.columnWidths;
-    setColumnSize((prev) => ({ ...prev, ...cols }));
-  }, [setColumnSize, state.columnResizing]);
+    saveColumnSize((prev) => ({ ...prev, ...cols }));
+  }, [saveColumnSize, state.columnResizing]);
 
   // keep order of events
   let eventIndex = 0;
