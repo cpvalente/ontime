@@ -44,7 +44,6 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     prepareRow,
     setColumnOrder,
     allColumns,
-    resetResizing,
     toggleHideAllColumns,
     state,
   } = useTable(
@@ -65,18 +64,12 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     })
   );
 
-  const handleColumnReorder = () => {
-    setColumnOrder(columnOrder);
-  };
-
   const handleResetReordering = () => {
-    console.log('reset reordering');
     saveColumnOrder(defaultColumnOrder);
     setColumnOrder(defaultColumnOrder);
   };
 
   const handleResetResizing = () => {
-    console.log('reset resizing');
     setColumnSize({});
   };
 

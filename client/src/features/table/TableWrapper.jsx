@@ -10,7 +10,7 @@ import useMutateEvents from '../../app/hooks/useMutateEvents';
 import style from './Table.module.scss';
 
 export default function TableWrapper() {
-  const { data, status, isError, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
+  const { data, status, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const mutation = useMutateEvents(requestPatch);
   const socket = useSocket();
   const [theme, setTheme] = useLocalStorage('table-color-theme', 'dark');
@@ -36,7 +36,6 @@ export default function TableWrapper() {
     [setTheme, theme]
   );
 
-
   /**
    * Handle incoming data from socket
    */
@@ -59,7 +58,6 @@ export default function TableWrapper() {
 
 
   const handleUpdate = async (rowIndex, accessor, payload) => {
-    console.log('------------', rowIndex, accessor, payload)
     if (rowIndex == null || accessor == null || payload == null) {
       return;
     }

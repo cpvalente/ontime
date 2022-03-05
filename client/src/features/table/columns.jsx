@@ -1,32 +1,16 @@
 import React from 'react';
-import { Tooltip } from '@chakra-ui/tooltip';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { stringFromMillis } from 'ontime-utils/time';
 import EditableCell from './EditableCell';
-import style from './Table.module.scss';
 
 export const makeColumns = (sizes) => {
   return [
     {
-      Header: 'Type',
-      accessor: 'type',
-      Cell: ({ cell: { value } }) => {
-        const firstCap = value.charAt(0).toUpperCase();
-        const caps = firstCap + value.slice(1);
-        return (
-          <Tooltip label={caps} placement='right'>
-            <span className={style.badge}>{firstCap}</span>
-          </Tooltip>
-        );
-      },
-      width: sizes?.type || 25,
-    },
-    {
       Header: 'Public',
       accessor: 'isPublic',
       Cell: ({ cell: { value } }) => (value != null ? <FiCheck /> : <FiX />),
-      width: sizes?.isPublic || 25,
+      width: sizes?.isPublic || 50,
     },
     {
       Header: 'Start',
