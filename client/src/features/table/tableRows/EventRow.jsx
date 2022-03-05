@@ -36,6 +36,6 @@ export default function EventRow(props) {
 EventRow.propTypes = {
   row: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
-  selectedId: PropTypes.number,
+  selectedId: PropTypes.string,
   delay: PropTypes.number,
 };
