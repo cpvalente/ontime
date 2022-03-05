@@ -9,6 +9,7 @@ import { stringFromMillis } from 'ontime-utils/time';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import PropTypes from 'prop-types';
 import { Tooltip } from '@chakra-ui/tooltip';
+import PlaybackIcon from './tableElements/PlaybackIcon';
 import style from './Table.module.scss';
 
 export default function TableHeader(props) {
@@ -35,6 +36,8 @@ export default function TableHeader(props) {
     noteNext: '',
   });
 
+  const [playback, setPlayback] = useState('');
+
   /**
    * Handle incoming data from socket
    */
@@ -47,6 +50,9 @@ export default function TableHeader(props) {
     // Ask for timer
     socket.emit('get-timer');
 
+    // Ask for playback state
+    socket.emit('get-playstate');
+
     // Handle titles
     socket.on('titles', (data) => {
       setTitles(data);
@@ -57,10 +63,16 @@ export default function TableHeader(props) {
       setTimer(data);
     });
 
+    // Handle playstate
+    socket.on('playstate', (data) => {
+      setPlayback(data);
+    });
+
     // Clear listener
     return () => {
       socket.off('titles');
       socket.off('timer');
+      socket.off('playstate');
     };
   }, [socket]);
 
@@ -71,6 +83,9 @@ export default function TableHeader(props) {
     <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
       <div className={style.headerNow}>{titles.titleNow}</div>
+      <div className={style.headerPlayback}>
+        <PlaybackIcon state={playback} />
+      </div>
       <div className={style.headerRunning}>
         <span className={style.label}>Running Timer</span>
         <br />

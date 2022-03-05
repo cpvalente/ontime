@@ -29,9 +29,9 @@
     grid-area: header;
     display: grid;
     grid-template-areas:
-      'name running time actions'
-      'now running time actions';
-    grid-template-columns: 1fr 10em 10em auto;
+      'name playback running time actions'
+      'now playback running time actions';
+    grid-template-columns: 1fr 10em 10em 10em auto;
     align-items: center;
     padding: 0.25em 1em;
 
@@ -43,6 +43,14 @@
     .headerNow {
       grid-area: now;
       font-size: 1.25em;
+    }
+
+    .headerPlayback {
+      grid-area: playback;
+      display: grid;
+      place-content: center;
+      font-size: 2.6em;
+      color: $ontime-pink;
     }
 
     .headerRunning {
