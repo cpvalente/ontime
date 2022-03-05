@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useBlockLayout, useColumnOrder, useResizeColumns, useTable } from 'react-table';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { Button } from '@chakra-ui/button';
 import PropTypes from 'prop-types';
 import {
   closestCenter,
@@ -25,12 +24,7 @@ import EventRow from './tableRows/EventRow';
 import DelayRow from './tableRows/DelayRow';
 import BlockRow from './tableRows/BlockRow';
 import SortableCell from './tableElements/SortableCell';
-
-const buttonProps = {
-  colorScheme: 'blue',
-  size: 'sm',
-  variant: 'ghost',
-};
+import TableSettings from './tableElements/TableSettings';
 
 export default function OntimeTable({ data, handleUpdate, selectedId, showSettings }) {
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
@@ -74,20 +68,20 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
     })
   );
 
-  const handleResetReordering = () => {
+  const handleResetReordering = useCallback(() => {
     saveColumnOrder(defaultColumnOrder);
     setColumnOrder(defaultColumnOrder);
-  };
+  }, [saveColumnOrder, setColumnOrder]);
 
-  const handleResetResizing = () => {
+  const handleResetResizing = useCallback(() => {
     setColumnSize({});
-  };
+  }, [setColumnSize]);
 
-  const handleResetToggles = () => {
+  const handleResetToggles = useCallback(() => {
     console.log('reset toggles');
     // Todo: column visibility in localstorage?
     toggleHideAllColumns(false);
-  };
+  }, [toggleHideAllColumns]);
 
   const handleOnDragEnd = (event) => {
     const { delta, active, over } = event;
@@ -130,27 +124,12 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
   return (
     <>
       {showSettings && (
-        <div className={style.tableSettings}>
-          <h3>Select and order fields to show in table</h3>
-          <div className={style.options}>
-            {allColumns.map((column) => (
-              <label key={column.id}>
-                <input type='checkbox' {...column.getToggleHiddenProps()} /> {column.Header}
-              </label>
-            ))}
-          </div>
-          <div className={style.options}>
-            <Button onClick={handleResetResizing} {...buttonProps}>
-              Reset Resizing
-            </Button>
-            <Button onClick={handleResetReordering} {...buttonProps}>
-              Reset Reordering
-            </Button>
-            <Button onClick={handleResetToggles} {...buttonProps}>
-              Reset Toggles
-            </Button>
-          </div>
-        </div>
+        <TableSettings
+          columns={allColumns}
+          handleResetResizing={handleResetResizing}
+          handleResetReordering={handleResetReordering}
+          handleResetToggles={handleResetToggles}
+        />
       )}
       <table {...getTableProps()} className={style.ontimeTable}>
         <thead className={style.tableHeader}>
