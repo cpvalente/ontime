@@ -92,6 +92,7 @@
     overflow: scroll;
 
     th, td {
+      touch-action: auto;
       border-radius: 4px;
       padding: 4px;
       white-space: nowrap;
@@ -107,7 +108,6 @@
 
         .resizer {
           display: inline-block;
-          //background: #0001;
           width: 10px;
           height: 100%;
           position: absolute;
@@ -235,6 +235,7 @@ svg {
 
 .dragging {
   border: 1px solid $ontime-pink;
+  z-index: 10;
 }
 
 @keyframes rotation {
