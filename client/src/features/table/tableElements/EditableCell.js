@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { AutoTextArea } from '../../common/input/AutoTextArea';
+import { AutoTextArea } from '../../../common/input/AutoTextArea';
+import PropTypes from 'prop-types';
 
 /**
  * Shamelessly copied from react-table docs
  * Plugged into chakra-ui editable component
  * @description Custom editable field for table component
- * @param initialValue
- * @param index
- * @param id
- * @param handleUpdate
+ * @param props
  * @return {JSX.Element}
  * @constructor
  */
-export default function EditableCell({
-  value: initialValue,
-  row: { index },
-  column: { id },
-  handleUpdate, // This is a custom function that we supplied to our table instance
-}) {
+export default function EditableCell(props) {
+  const {
+    value: initialValue,
+    row: { index },
+    column: { id },
+    handleUpdate,
+  } = props;
+
   // We need to keep and update the state of the cell normally
   const [value, setValue] = useState(initialValue);
 
@@ -47,3 +47,10 @@ export default function EditableCell({
     />
   );
 }
+
+EditableCell.propTypes = {
+  value: PropTypes.string,
+  row: PropTypes.object,
+  column: PropTypes.object,
+  handleUpdate: PropTypes.func,
+};

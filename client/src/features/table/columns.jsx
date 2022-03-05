@@ -2,8 +2,12 @@ import React from 'react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { stringFromMillis } from 'ontime-utils/time';
-import EditableCell from './EditableCell';
+import EditableCell from './tableElements/EditableCell';
 
+/**
+ * React - Table column object
+ * @param sizes
+ */
 export const makeColumns = (sizes) => {
   return [
     {

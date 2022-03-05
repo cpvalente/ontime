@@ -1,6 +1,7 @@
 import React from 'react';
-import style from '../Table.module.scss';
+import PropTypes from 'prop-types';
 import { millisToMinutes } from '../../../common/utils/dateConfig';
+import style from '../Table.module.scss';
 
 export default function DelayRow(props) {
   const { row } = props;
@@ -14,3 +15,8 @@ export default function DelayRow(props) {
     </tr>
   );
 }
+
+DelayRow.propTypes = {
+  row: PropTypes.object.isRequired,
+};
+

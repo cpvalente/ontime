@@ -24,7 +24,7 @@ import style from './Table.module.scss';
 import EventRow from './tableRows/EventRow';
 import DelayRow from './tableRows/DelayRow';
 import BlockRow from './tableRows/BlockRow';
-import SortableCell from './SortableCell';
+import SortableCell from './tableElements/SortableCell';
 
 const buttonProps = {
   colorScheme: 'blue',

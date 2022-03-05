@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import style from '../Table.module.scss';
 
 export default function EventRow(props) {
@@ -31,3 +32,10 @@ export default function EventRow(props) {
     </tr>
   );
 }
+
+EventRow.propTypes = {
+  row: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
+  selectedId: PropTypes.number,
+  delay: PropTypes.number,
+};

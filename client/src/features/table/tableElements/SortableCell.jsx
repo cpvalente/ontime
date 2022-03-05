@@ -2,7 +2,8 @@ import React from 'react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import styles from './Table.module.scss';
+import PropTypes from 'prop-types';
+import styles from '../Table.module.scss';
 
 export default function SortableCell({ column }) {
   const { key, style, ...restColumn } = column.getHeaderProps();
@@ -35,3 +36,7 @@ export default function SortableCell({ column }) {
     </th>
   );
 }
+
+SortableCell.propTypes = {
+  column: PropTypes.object.isRequired,
+};

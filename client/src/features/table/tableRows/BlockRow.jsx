@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import style from '../Table.module.scss';
 
 export default function BlockRow(props) {
@@ -9,3 +10,7 @@ export default function BlockRow(props) {
     </tr>
   );
 }
+
+BlockRow.propTypes = {
+  row: PropTypes.object.isRequired,
+};
