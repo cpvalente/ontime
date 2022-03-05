@@ -87,9 +87,12 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
   };
 
   const handleOnDragEnd = (event) => {
-    const { active, over } = event;
-    console.log('handle drag end', event);
+    const { delta, active, over } = event;
 
+    // cancel if delta y is greater than 200
+    if (delta.y > 200) return;
+
+    // create temp object
     const cols = [...columnOrder];
 
     // get index of from

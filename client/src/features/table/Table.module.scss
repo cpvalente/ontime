@@ -233,7 +233,7 @@ svg {
 }
 
 .dragging {
-  background-color: red;
+  border: 1px solid $ontime-pink;
 }
 
 @keyframes rotation {

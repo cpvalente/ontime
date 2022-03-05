@@ -10,10 +10,18 @@ export default function SortableCell({ column }) {
     id: column.id,
   });
 
+  // prevent scaling on drag
+  const cssTransform = {
+    ...transform,
+    scaleX: 1,
+    scaleY: 1,
+  }
+
+  // build drag styles
   const dragStyle = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Transform.toString(cssTransform),
     transition,
-    ...style
+    ...style,
   };
 
   return (
