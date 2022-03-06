@@ -29,6 +29,14 @@ export default function EventRow(props) {
       <td className={style.indexColumn}>{index}</td>
       {row.cells.map((cell) => {
         const { key, style, ...restCellProps } = cell.getCellProps();
+        const dynamicStyles =
+          selected &&
+          (cell.column.Header === 'Start' ||
+            cell.column.Header === 'End' ||
+            cell.column.Header === 'Duration' ||
+            cell.column.Header === 'Public')
+            ? { ...style }
+            : { ...style, ...colours };
 
         // Inject delay value if exits
         if (delay !== 0 && delay != null) {
@@ -39,7 +47,7 @@ export default function EventRow(props) {
         }
 
         return (
-          <td key={key} style={{ ...style, ...colours }} {...restCellProps}>
+          <td key={key} style={{ ...dynamicStyles }} {...restCellProps}>
             {cell.render('Cell')}
           </td>
         );
