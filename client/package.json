@@ -12,6 +12,7 @@
     "@react-icons/all-files": "^4.1.0",
     "autosize": "^5.0.1",
     "axios": "^0.25.0",
+    "color": "^4.2.1",
     "framer-motion": "4.1.17",
     "jotai": "0.16.11",
     "ontime-utils": "link: ../server/utils/",

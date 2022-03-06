@@ -9,8 +9,7 @@
   height: 100vh;
   padding: 2rem;
   display: grid;
-  //scrollbar-width: thin;
-  //
+
   grid-template-columns: calc(100vw - 4rem);
   grid-template-areas:
           'header'
@@ -136,8 +135,6 @@
     }
 
     .tableBody {
-      //height: 80%;
-
       tr {
         td:hover {
           background-color: lighten($ontime-pink, 10%) !important;
@@ -163,6 +160,7 @@
       font-weight: 400;
       font-size: 0.9em;
       text-align: center;
+      color: black;
     }
 
     .delayCell {
@@ -182,7 +180,6 @@ $bg-theme-dark: #121212;
 $bg2-theme-dark: #1c1c1c;
 $cell-theme-dark: #323232;
 $text-theme-dark: white;
-
 
 .tableWrapper {
   background-color: $bg-theme-light;
