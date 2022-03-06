@@ -56,7 +56,6 @@ export default function TableWrapper() {
     };
   }, [socket]);
 
-
   const handleUpdate = async (rowIndex, accessor, payload) => {
     if (rowIndex == null || accessor == null || payload == null) {
       return;
@@ -92,7 +91,7 @@ export default function TableWrapper() {
     }
   };
 
-  if (data == null) return <span>loading</span>;
+  if (data == null) return <span>loading...</span>;
   else {
     return (
       <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
@@ -102,7 +101,12 @@ export default function TableWrapper() {
           setDark={toggleDark}
           loading={status === 'loading'}
         />
-        <OntimeTable data={data} handleUpdate={handleUpdate} selectedId={selectedId} showSettings={showSettings} />
+        <OntimeTable
+          data={data}
+          handleUpdate={handleUpdate}
+          selectedId={selectedId}
+          showSettings={showSettings}
+        />
       </div>
     );
   }
