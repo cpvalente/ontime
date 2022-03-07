@@ -101,6 +101,21 @@ export const parseExcel_v1 = async (excelData) => {
   let videoIndex = null;
   let audioIndex = null;
   let colourIndex = null;
+  let user0Index = null;
+  let user1Index = null;
+  let user2Index = null;
+  let user3Index = null;
+  let user4Index = null;
+  let user5Index = null;
+  let user6Index = null;
+  let user7Index = null;
+  let user8Index = null;
+  let user9Index = null;
+
+  // const user = {
+  //   identifier: 0,
+  //   index: null
+  // }
 
   excelData
     .filter((e) => e.length > 0)
@@ -146,6 +161,26 @@ export const parseExcel_v1 = async (excelData) => {
           event.audio = column;
         } else if (j === colourIndex) {
           event.colour = column;
+        } else if (j === user0Index) {
+          event.user0 = column;
+        } else if (j === user1Index) {
+          event.user1 = column;
+        } else if (j === user2Index) {
+          event.user2 = column;
+        } else if (j === user3Index) {
+          event.user3 = column;
+        } else if (j === user4Index) {
+          event.user4 = column;
+        } else if (j === user5Index) {
+          event.user5 = column;
+        } else if (j === user6Index) {
+          event.user6 = column;
+        } else if (j === user7Index) {
+          event.user7 = column;
+        } else if (j === user8Index) {
+          event.user8 = column;
+        } else if (j === user9Index) {
+          event.user9 = column;
         } else {
           if (typeof column === 'string') {
             // look for keywords
@@ -209,11 +244,40 @@ export const parseExcel_v1 = async (excelData) => {
                 colourIndex = j;
                 break;
               default:
+                // look for user defined
+                if (column.toLowerCase().startsWith('user')) {
+                  const index = column.charAt(4);
+
+                  if (index === '0') {
+                    // name is the bit after the :
+                    // data is column
+                    user0Index = j;
+                  } else if (index === '1') {
+                    user1Index = j;
+                  } else if (index === '2') {
+                    user2Index = j;
+                  } else if (index === '3') {
+                    user3Index = j;
+                  } else if (index === '4') {
+                    user4Index = j;
+                  } else if (index === '5') {
+                    user5Index = j;
+                  } else if (index === '6') {
+                    user6Index = j;
+                  } else if (index === '7') {
+                    user7Index = j;
+                  } else if (index === '8') {
+                    user8Index = j;
+                  } else if (index === '9') {
+                    user9Index = j;
+                  }
+                }
                 break;
             }
           }
         }
       });
+
       if (Object.keys(event).length > 0) {
         // if any data was found, push to array
         // take care of it in the next step
@@ -322,6 +386,16 @@ export const validateEvent_v1 = (eventArgs) => {
       cam: makeString(e.cam, d.cam),
       video: makeString(e.video, d.video),
       audio: makeString(e.audio, d.audio),
+      user0: makeString(e.user0, d.user0),
+      user1: makeString(e.user1, d.user1),
+      user2: makeString(e.user2, d.user2),
+      user3: makeString(e.user3, d.user3),
+      user4: makeString(e.user4, d.user4),
+      user5: makeString(e.user5, d.user5),
+      user6: makeString(e.user6, d.user6),
+      user7: makeString(e.user7, d.user7),
+      user8: makeString(e.user8, d.user8),
+      user9: makeString(e.user9, d.user9),
       // deciding not to validate colour
       // this adds flexibility to the user to write hex codes, rgb,
       // but also colour names like blue and red
