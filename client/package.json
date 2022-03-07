@@ -14,7 +14,6 @@
     "axios": "^0.25.0",
     "color": "^4.2.1",
     "framer-motion": "4.1.17",
-    "jotai": "0.16.11",
     "ontime-utils": "link: ../server/utils/",
     "react": "17.0.2",
     "react-beautiful-dnd": "^13.1.0",
