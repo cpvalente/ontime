@@ -321,6 +321,8 @@ export const parseJson_v1 = async (jsonData, enforce = false) => {
   returnData.http = parseHttp_v1(jsonData, enforce);
   // Import Aliases if any
   returnData.aliases = parseAliases_v1(jsonData);
+  // Import user fields if any
+  returnData.userFields = parseUserFields_v1(jsonData);
 
   return returnData;
 };
@@ -602,6 +604,7 @@ export const parseHttp_v1 = (data, enforce) => {
   }
   return newHttp;
 };
+
 /**
  * Parse aliases portion of an entry
  * @param {object} data - data object
@@ -631,4 +634,27 @@ export const parseAliases_v1 = (data) => {
     console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
   }
   return newAliases;
+};
+
+/**
+ * Parse userFields entry
+ * @param {object} data - data object
+ * @returns {object} - event object data
+ */
+export const parseUserFields_v1 = (data) => {
+  let newUserFields = dbModelv1.userFields;
+
+  if ('userFields' in data) {
+    console.log('Found User Fields definition, importing...');
+    // we will only be importing the fields we know, so look for that
+    let fieldsFound = 0;
+    for (let n in newUserFields) {
+      if (n in data.userFields) {
+        fieldsFound++;
+        newUserFields[n] = data.userFields[n];
+      }
+    }
+    console.log(`Uploaded ${fieldsFound} user fields`);
+  }
+  return { ...dbModelv1.userFields, ...newUserFields };
 };

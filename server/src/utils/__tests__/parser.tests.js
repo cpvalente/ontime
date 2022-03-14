@@ -4,10 +4,11 @@ import {
   parseAliases_v1,
   parseExcel_v1,
   parseJson_v1,
+  parseUserFields_v1,
   validateDuration,
   validateEvent_v1,
 } from '../parser.js';
-import { dbModelv1 as dbModel } from '../../models/dataModel.js';
+import { dbModelv1, dbModelv1 as dbModel } from '../../models/dataModel.js';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -570,6 +571,94 @@ describe('test aliases import', () => {
 
     // generates missing id
     expect(parsed[0].id).toBeDefined();
+  });
+});
+
+describe('test userFields import', () => {
+  const model = dbModelv1.userFields;
+  it('imports a fully defined user fields', () => {
+    const testUserFields = {
+      user0: 'test0',
+      user1: 'test1',
+      user2: 'test2',
+      user3: 'test3',
+      user4: 'test4',
+      user5: 'test5',
+      user6: 'test6',
+      user7: 'test7',
+      user8: 'test8',
+      user9: 'test9',
+    };
+
+    const testData = {
+      events: [],
+      settings: {
+        app: 'ontime',
+        version: 1,
+      },
+      userFields: testUserFields,
+    };
+
+    const parsed = parseUserFields_v1(testData);
+    expect(parsed).toStrictEqual(testUserFields);
+  });
+
+  it('imports a partially defined user fields', () => {
+    const testUserFields = {
+      user0: 'test0',
+      user1: 'test1',
+      user7: 'test7',
+      user8: 'test8',
+      user9: 'test9',
+    };
+
+    const expected = {
+      ...model,
+      ...testUserFields,
+    };
+
+    const testData = {
+      events: [],
+      settings: {
+        app: 'ontime',
+        version: 1,
+      },
+      userFields: testUserFields,
+    };
+
+    const parsed = parseUserFields_v1(testData);
+    expect(parsed).toStrictEqual(expected);
+  });
+
+  it('handles missing user fields', () => {
+    const testData = {
+      events: [],
+      settings: {
+        app: 'ontime',
+        version: 1,
+      },
+    };
+
+    const parsed = parseUserFields_v1(testData);
+    expect(parsed).toStrictEqual(model);
+    expect(parsed).toStrictEqual(model);
+  });
+
+  it('ignores badly defined fields', () => {
+    const testData = {
+      events: [],
+      settings: {
+        app: 'ontime',
+        version: 1,
+      },
+      userFields: {
+        notThis: 'this shouldng be accepted',
+        orThis: 'this neither',
+      },
+    };
+
+    const parsed = parseUserFields_v1(testData);
+    expect(parsed).toStrictEqual(model);
   });
 });
 
