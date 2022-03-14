@@ -429,7 +429,7 @@ const deleteFile = async (file) => {
  */
 export const validateFile = (file) => {
   try {
-    JSON.parse(fs.readFileSync(file));
+    JSON.parse(fs.readFileSync(file, 'utf-8'));
     return true;
   } catch (err) {
     return false;
