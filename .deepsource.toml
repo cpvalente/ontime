@@ -1,5 +1,14 @@
 version = 1
 
+test_patterns = [
+  "__mocks__/**",
+  "__tests__/**",
+  "cypress/**",
+  "*.test.*",
+  "*.mock.*",
+  "*.spec.*"
+]
+
 [[analyzers]]
 name = "javascript"
 enabled = true
