@@ -87,7 +87,7 @@ export const parseExcel_v1 = async (excelData) => {
     title: '',
     url: '',
   };
-
+  let customUserFields = {};
   let events = [];
   let timeStartIndex = null;
   let timeEndIndex = null;
@@ -183,9 +183,10 @@ export const parseExcel_v1 = async (excelData) => {
           event.user9 = column;
         } else {
           if (typeof column === 'string') {
+            const col = column.toLowerCase();
             // look for keywords
             // need to make sure it is a string first
-            switch (column.toLowerCase()) {
+            switch (col) {
               case 'event name':
                 eventTitleNext = true;
                 break;
@@ -245,31 +246,42 @@ export const parseExcel_v1 = async (excelData) => {
                 break;
               default:
                 // look for user defined
-                if (column.toLowerCase().startsWith('user')) {
+                if (col.startsWith('user')) {
                   const index = column.charAt(4);
-
-                  if (index === '0') {
-                    // name is the bit after the :
-                    // data is column
-                    user0Index = j;
-                  } else if (index === '1') {
-                    user1Index = j;
-                  } else if (index === '2') {
-                    user2Index = j;
-                  } else if (index === '3') {
-                    user3Index = j;
-                  } else if (index === '4') {
-                    user4Index = j;
-                  } else if (index === '5') {
-                    user5Index = j;
-                  } else if (index === '6') {
-                    user6Index = j;
-                  } else if (index === '7') {
-                    user7Index = j;
-                  } else if (index === '8') {
-                    user8Index = j;
-                  } else if (index === '9') {
-                    user9Index = j;
+                  // name is the bit after the :
+                  const [, name] = column.split(':');
+                  if (name !== undefined) {
+                    if (index === '0') {
+                      customUserFields.user0 = name;
+                      user0Index = j;
+                    } else if (index === '1') {
+                      customUserFields.user1 = name;
+                      user1Index = j;
+                    } else if (index === '2') {
+                      customUserFields.user2 = name;
+                      user2Index = j;
+                    } else if (index === '3') {
+                      customUserFields.user3 = name;
+                      user3Index = j;
+                    } else if (index === '4') {
+                      customUserFields.user4 = name;
+                      user4Index = j;
+                    } else if (index === '5') {
+                      customUserFields.user5 = name;
+                      user5Index = j;
+                    } else if (index === '6') {
+                      customUserFields.user6 = name;
+                      user6Index = j;
+                    } else if (index === '7') {
+                      customUserFields.user7 = name;
+                      user7Index = j;
+                    } else if (index === '8') {
+                      customUserFields.user8 = name;
+                      user8Index = j;
+                    } else if (index === '9') {
+                      customUserFields.user9 = name;
+                      user9Index = j;
+                    }
                   }
                 }
                 break;
@@ -291,6 +303,7 @@ export const parseExcel_v1 = async (excelData) => {
       app: 'ontime',
       version: 1,
     },
+    userFields: { ...dbModelv1.userFields, ...customUserFields },
   };
 };
 
