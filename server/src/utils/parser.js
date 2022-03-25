@@ -108,11 +108,6 @@ export const parseExcel_v1 = async (excelData) => {
   let user8Index = null;
   let user9Index = null;
 
-  // const user = {
-  //   identifier: 0,
-  //   index: null
-  // }
-
   excelData
     .filter((e) => e.length > 0)
     .forEach((row) => {
