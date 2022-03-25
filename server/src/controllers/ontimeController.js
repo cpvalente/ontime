@@ -176,6 +176,35 @@ export const postAliases = async (req, res) => {
   }
 };
 
+// Create controller for GET request to '/ontime/userfields'
+// Returns -
+export const getUserFields = async (req, res) => {
+  // send userFields array
+  res.status(200).send(data.userFields);
+};
+
+// Create controller for POST request to '/ontime/userfields'
+// Returns ACK message
+export const postUserFields = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  try {
+    const newUserFields = { ...data.userFields };
+    for (const field in newUserFields) {
+      if (req.body[field] !== undefined) {
+        newUserFields[field] = req.body[field];
+      }
+    }
+    data.userFields = newUserFields;
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
 // Create controller for POST request to '/ontime/settings'
 // Returns -
 export const getSettings = async (req, res) => {
