@@ -11,7 +11,13 @@ const buttonProps = {
 };
 
 export default function TableSettings(props) {
-  const { columns, handleResetResizing, handleResetReordering, handleResetToggles } = props;
+  const {
+    columns,
+    handleResetResizing,
+    handleResetReordering,
+    handleResetToggles,
+    handleClearToggles,
+  } = props;
 
   return (
     <div className={style.tableSettings}>
@@ -33,14 +39,18 @@ export default function TableSettings(props) {
         <Button onClick={handleResetToggles} {...buttonProps}>
           Reset Toggles
         </Button>
+        <Button onClick={handleClearToggles} {...buttonProps}>
+          Show All
+        </Button>
       </div>
     </div>
   );
 }
 
 TableSettings.propTypes = {
-  columns: PropTypes.object,
+  columns: PropTypes.array,
   handleResetResizing: PropTypes.func.isRequired,
   handleResetReordering: PropTypes.func.isRequired,
   handleResetToggles: PropTypes.func.isRequired,
+  handleClearToggles: PropTypes.func.isRequired,
 };

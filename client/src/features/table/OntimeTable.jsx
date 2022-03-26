@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { useLocalStorage } from '../../app/hooks/useLocalStorage';
-import { defaultColumnOrder } from './defaults';
+import { defaultColumnOrder, defaultHiddenColumns } from './defaults';
 import { makeColumns } from './columns';
 import EventRow from './tableRows/EventRow';
 import DelayRow from './tableRows/DelayRow';
@@ -35,7 +35,7 @@ export default function OntimeTable({
 }) {
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
   const [columnSize, saveColumnSize] = useLocalStorage('table-sizes', {});
-  const [hiddenColumns, saveHiddenColumns] = useLocalStorage('table-hidden', {});
+  const [hiddenColumns, saveHiddenColumns] = useLocalStorage('table-hidden', defaultHiddenColumns);
   const columns = useMemo(() => makeColumns(columnSize, userFields), [columnSize, userFields]);
 
   const {
@@ -89,8 +89,13 @@ export default function OntimeTable({
   }, [saveColumnSize]);
 
   const handleResetToggles = useCallback(() => {
+    setHiddenColumns(defaultHiddenColumns)
+    saveHiddenColumns(defaultHiddenColumns);
+  }, [saveHiddenColumns, setHiddenColumns]);
+
+  const clearToggles = useCallback(() => {
     toggleHideAllColumns(false);
-    saveHiddenColumns({});
+    saveHiddenColumns([]);
   }, [saveHiddenColumns, toggleHideAllColumns]);
 
   const handleOnDragEnd = (event) => {
@@ -119,7 +124,7 @@ export default function OntimeTable({
   // save hidden columns object to local storage
   useEffect(() => {
     saveHiddenColumns(state.hiddenColumns);
-  }, [saveHiddenColumns, setHiddenColumns, state.hiddenColumns]);
+  }, [saveHiddenColumns, state.hiddenColumns]);
 
   // save column sizes to local storage
   useEffect(() => {
@@ -144,6 +149,7 @@ export default function OntimeTable({
           handleResetResizing={handleResetResizing}
           handleResetReordering={handleResetReordering}
           handleResetToggles={handleResetToggles}
+          handleClearToggles={clearToggles}
         />
       )}
       <table {...getTableProps()} className={style.ontimeTable}>

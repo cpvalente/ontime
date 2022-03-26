@@ -10,8 +10,30 @@ export const defaultColumnOrder = [
   'subtitle',
   'presenter',
   'note',
-  'light',
-  'cam',
-  'video',
-  'audio',
+  'user0',
+  'user1',
+  'user2',
+  'user3',
+  'user4',
+  'user5',
+  'user6',
+  'user7',
+  'user8',
+  'user9',
+];
+
+/**
+ * @description set default hidden columns
+ */
+export const defaultHiddenColumns = [
+  'user0',
+  'user1',
+  'user2',
+  'user3',
+  'user4',
+  'user5',
+  'user6',
+  'user7',
+  'user8',
+  'user9',
 ];
