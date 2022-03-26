@@ -33,6 +33,7 @@ IP.ADDRESS:4001/public     > Public / Foyer view
 IP.ADDRESS:4001/pip        > Picture in Picture view
 IP.ADDRESS:4001/lower      > Lower Thirds
 IP.ADDRESS:4001/studio     > Studio Clock
+IP.ADDRESS:4001/cuesheet   > Cue Sheet
 
 ...and for the editor (the control interface, same as the app)
 -------------------------------------------------------------
@@ -48,7 +49,9 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
   - Backstage Info
   - Public Info
   - Picture in Picture
+  - Studio Clock
 - [x] Configurable realtime Lower Thirds
+- [x] Cuesheets with additional custom fields
 - [x] Send live messages to different screen types
 - [x] Ability to differentiate between backstage and public data
 - [x] Manage delays workflow
@@ -61,7 +64,6 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
 
 ## Unopinionated
 We are not interested in forcing workflows and have made ontime, so it is flexible to whichever way you would like to work.
-
 
 - [x] You do not need an order list to use the timer. Create an empty event and the OSC API works just the same
 - [x] If you want just the info screens, no need to use the timer!
