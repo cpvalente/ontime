@@ -22,7 +22,6 @@
     "react-qr-code": "2.0.3",
     "react-query": "^3.34.12",
     "react-router-dom": "^6.2.1",
-    "react-scripts": "5.0.0",
     "react-table": "^7.7.0",
     "socket.io-client": "^4.4.1",
     "typeface-open-sans": "^1.1.13",
@@ -54,6 +53,7 @@
     "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.5.0",
     "prop-types": "^15.8.1",
+    "react-scripts": "^5.0.0",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.49.0"
   }
