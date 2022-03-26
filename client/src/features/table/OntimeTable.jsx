@@ -66,12 +66,14 @@ export default function OntimeTable({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 300,
+        delay: 100,
+        tolerance: 50,
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 300,
+        delay: 100,
+        tolerance: 50,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -104,8 +106,12 @@ export default function OntimeTable({
     // cancel if delta y is greater than 200
     if (delta.y > 200) return;
 
-    // create temp object
-    const cols = [...columnOrder];
+    // create temp object and remove hidden columns
+    const cols = [...columnOrder].filter((col) => !hiddenColumns.includes(col));
+
+    if (cols === null) {
+      return;
+    }
 
     // get index of from
     const fromIndex = cols.findIndex((i) => i === active.id);
