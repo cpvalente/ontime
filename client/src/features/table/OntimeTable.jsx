@@ -19,18 +19,24 @@ import {
 import { useLocalStorage } from '../../app/hooks/useLocalStorage';
 import { defaultColumnOrder } from './defaults';
 import { makeColumns } from './columns';
-import style from './Table.module.scss';
 import EventRow from './tableRows/EventRow';
 import DelayRow from './tableRows/DelayRow';
 import BlockRow from './tableRows/BlockRow';
 import SortableCell from './tableElements/SortableCell';
 import TableSettings from './tableElements/TableSettings';
+import style from './Table.module.scss';
 
-export default function OntimeTable({ data, handleUpdate, selectedId, showSettings }) {
+export default function OntimeTable({
+  tableData,
+  userFields,
+  handleUpdate,
+  selectedId,
+  showSettings,
+}) {
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
   const [columnSize, saveColumnSize] = useLocalStorage('table-sizes', {});
-  const [hiddenColumns, saveHiddenColumns] = useLocalStorage('table-hidden', {})
-  const columns = useMemo(() => makeColumns(columnSize), [columnSize]);
+  const [hiddenColumns, saveHiddenColumns] = useLocalStorage('table-hidden', {});
+  const columns = useMemo(() => makeColumns(columnSize, userFields), [columnSize, userFields]);
 
   const {
     getTableProps,
@@ -46,9 +52,9 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
   } = useTable(
     {
       columns,
-      data,
+      data: tableData,
       initialState: {
-        hiddenColumns: hiddenColumns
+        hiddenColumns: hiddenColumns,
       },
       handleUpdate,
     },
@@ -84,7 +90,7 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
 
   const handleResetToggles = useCallback(() => {
     toggleHideAllColumns(false);
-    saveHiddenColumns({})
+    saveHiddenColumns({});
   }, [saveHiddenColumns, toggleHideAllColumns]);
 
   const handleOnDragEnd = (event) => {
@@ -112,8 +118,8 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
 
   // save hidden columns object to local storage
   useEffect(() => {
-    saveHiddenColumns(state.hiddenColumns)
-  }, [saveHiddenColumns, setHiddenColumns, state.hiddenColumns])
+    saveHiddenColumns(state.hiddenColumns);
+  }, [saveHiddenColumns, setHiddenColumns, state.hiddenColumns]);
 
   // save column sizes to local storage
   useEffect(() => {
@@ -207,7 +213,8 @@ export default function OntimeTable({ data, handleUpdate, selectedId, showSettin
 }
 
 OntimeTable.propTypes = {
-  data: PropTypes.array,
+  tableData: PropTypes.array,
+  userFields: PropTypes.object,
   handleUpdate: PropTypes.func.isRequired,
   selectedId: PropTypes.string,
   showSettings: PropTypes.bool,

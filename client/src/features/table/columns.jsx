@@ -7,8 +7,9 @@ import EditableCell from './tableElements/EditableCell';
 /**
  * React - Table column object
  * @param sizes
+ * @param userFields
  */
-export const makeColumns = (sizes) => {
+export const makeColumns = (sizes, userFields) => {
   return [
     {
       Header: 'Public',
@@ -38,15 +39,15 @@ export const makeColumns = (sizes) => {
     { Header: 'Subtitle', accessor: 'subtitle', width: sizes?.subtitle || 150 },
     { Header: 'Presenter', accessor: 'presenter', width: sizes?.presenter || 150 },
     { Header: 'Notes', accessor: 'note', width: sizes?.note || 200 },
-    { Header: 'User 0', accessor: 'user0', Cell: EditableCell, width: sizes?.user0 || 200 },
-    { Header: 'User 1', accessor: 'user1', Cell: EditableCell, width: sizes?.user1 || 200 },
-    { Header: 'User 2', accessor: 'user2', Cell: EditableCell, width: sizes?.user2 || 200 },
-    { Header: 'User 3', accessor: 'user3', Cell: EditableCell, width: sizes?.user3 || 200 },
-    { Header: 'User 4', accessor: 'user4', Cell: EditableCell, width: sizes?.user4 || 200 },
-    { Header: 'User 5', accessor: 'user5', Cell: EditableCell, width: sizes?.user5 || 200 },
-    { Header: 'User 6', accessor: 'user6', Cell: EditableCell, width: sizes?.user6 || 200 },
-    { Header: 'User 7', accessor: 'user7', Cell: EditableCell, width: sizes?.user7 || 200 },
-    { Header: 'User 8', accessor: 'user8', Cell: EditableCell, width: sizes?.user8 || 200 },
-    { Header: 'User 9', accessor: 'user9', Cell: EditableCell, width: sizes?.user9 || 200 },
+    { Header: userFields.user0 || 'User 0', accessor: 'user0', Cell: EditableCell, width: sizes?.user0 || 200 },
+    { Header: userFields.user1 || 'User 1', accessor: 'user1', Cell: EditableCell, width: sizes?.user1 || 200 },
+    { Header: userFields.user2 || 'User 2', accessor: 'user2', Cell: EditableCell, width: sizes?.user2 || 200 },
+    { Header: userFields.user3 || 'User 3', accessor: 'user3', Cell: EditableCell, width: sizes?.user3 || 200 },
+    { Header: userFields.user4 || 'User 4', accessor: 'user4', Cell: EditableCell, width: sizes?.user4 || 200 },
+    { Header: userFields.user5 || 'User 5', accessor: 'user5', Cell: EditableCell, width: sizes?.user5 || 200 },
+    { Header: userFields.user6 || 'User 6', accessor: 'user6', Cell: EditableCell, width: sizes?.user6 || 200 },
+    { Header: userFields.user7 || 'User 7', accessor: 'user7', Cell: EditableCell, width: sizes?.user7 || 200 },
+    { Header: userFields.user8 || 'User 8', accessor: 'user8', Cell: EditableCell, width: sizes?.user8 || 200 },
+    { Header: userFields.user9 || 'User 9', accessor: 'user9', Cell: EditableCell, width: sizes?.user9 || 200 },
   ];
 };

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
-import { EVENTS_TABLE } from '../../app/api/apiConstants';
+import { EVENTS_TABLE, USERFIELDS } from '../../app/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../app/api/eventsApi';
 import { useLocalStorage } from '../../app/hooks/useLocalStorage';
 import { useSocket } from '../../app/context/socketContext';
@@ -8,9 +8,11 @@ import TableHeader from './TableHeader';
 import OntimeTable from './OntimeTable';
 import useMutateEvents from '../../app/hooks/useMutateEvents';
 import style from './Table.module.scss';
+import { getUserFields } from '../../app/api/ontimeApi';
 
 export default function TableWrapper() {
-  const { data, status, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
+  const { data: tableData, status, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
+  const { data: userFields } = useFetch(USERFIELDS, getUserFields);
   const mutation = useMutateEvents(requestPatch);
   const socket = useSocket();
   const [theme, setTheme] = useLocalStorage('table-color-theme', 'dark');
@@ -62,7 +64,7 @@ export default function TableWrapper() {
     }
 
     // check if value is the same
-    const event = data[rowIndex];
+    const event = tableData[rowIndex];
     if (event == null) {
       return;
     }
@@ -91,7 +93,7 @@ export default function TableWrapper() {
     }
   };
 
-  if (data == null) return <span>loading...</span>;
+  if (typeof tableData === "undefined" || typeof userFields === "undefined") return <span>loading...</span>;
   else {
     return (
       <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
@@ -102,7 +104,8 @@ export default function TableWrapper() {
           loading={status === 'loading'}
         />
         <OntimeTable
-          data={data}
+          tableData={tableData}
+          userFields={userFields}
           handleUpdate={handleUpdate}
           selectedId={selectedId}
           showSettings={showSettings}
