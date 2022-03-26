@@ -89,7 +89,7 @@ export default function OntimeTable({
   }, [saveColumnSize]);
 
   const handleResetToggles = useCallback(() => {
-    setHiddenColumns(defaultHiddenColumns)
+    setHiddenColumns(defaultHiddenColumns);
     saveHiddenColumns(defaultHiddenColumns);
   }, [saveHiddenColumns, setHiddenColumns]);
 
