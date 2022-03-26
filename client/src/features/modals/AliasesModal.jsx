@@ -4,17 +4,17 @@ import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInforma
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import { ModalBody } from '@chakra-ui/modal';
+import { Tooltip } from '@chakra-ui/tooltip';
 import { Input } from '@chakra-ui/react';
 import { getAliases, postAliases } from '../../app/api/ontimeApi';
 import { useFetch } from 'app/hooks/useFetch';
 import { ALIASES } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
-import { viewerLinks } from '../../app/appConstants';
+import { viewerLocations } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
-import { Tooltip } from '@chakra-ui/tooltip';
 import SubmitContainer from './SubmitContainer';
-import handleLink from '../../common/utils/handleLink';
+import openLink from '../../common/utils/handleLink';
 
 export default function AliasesModal() {
   const { data, status, refetch } = useFetch(ALIASES, getAliases);
@@ -32,6 +32,17 @@ export default function AliasesModal() {
     if (changed) return;
     setAliases([...data]);
   }, [changed, data]);
+
+  /**
+   * Handles opening external links
+   * @param event
+   * @param location
+   */
+  const handleLinks = (event, location) => {
+    // we handle the link manually
+    event.preventDefault();
+    openLink(`http://${host}/${location}`);
+  };
 
   /**
    * Validate and submit data
@@ -160,16 +171,16 @@ export default function AliasesModal() {
         <div className={style.modalFields}>
           <div className={style.hSeparator}>Default URLs</div>
           <div className={style.blockNotes}>
-            {viewerLinks.map((l) => (
+            {viewerLocations.map((l) => (
               <a
                 href={l.link}
                 target='_blank'
                 rel='noreferrer'
                 className={style.flexNote}
                 key={l.link}
-                onClick={() => handleLink(`${host}/${l.link}`)}
+                onClick={(e) => handleLinks(e, l.link)}
               >
-                {`${l.label} - ${l.link}`}
+                {`${l.label} - http://${host}/${l.link}`}
               </a>
             ))}
           </div>
@@ -249,8 +260,7 @@ export default function AliasesModal() {
                     target='_blank'
                     rel='noreferrer'
                     onClick={(e) => {
-                      e.preventDefault();
-                      handleLink(`http://${host}/${alias.pathAndParams}`);
+                      handleLinks(e, `http://${host}/${alias.pathAndParams}`);
                     }}
                   />
                 </Tooltip>
