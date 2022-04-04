@@ -50,7 +50,7 @@ describe('validate routes', () => {
     cy.visit('http://localhost:4001/table');
     cy.contains('Running Timer');
 
-    cy.visit('http://localhost:4001/cue');
+    cy.visit('http://localhost:4001/cuesheet');
     cy.contains('Running Timer');
 
     cy.visit('http://localhost:4001/cuelist');
