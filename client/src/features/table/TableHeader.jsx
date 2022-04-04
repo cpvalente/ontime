@@ -37,6 +37,7 @@ export default function TableHeader(props) {
   });
 
   const [playback, setPlayback] = useState('');
+  const [selected, setSelected] = useState('');
 
   /**
    * Handle incoming data from socket
@@ -68,11 +69,24 @@ export default function TableHeader(props) {
       setPlayback(data);
     });
 
+    // Handle selection data
+    socket.on('selected', (data) => {
+      if (data.total === 0 || data.total == null) {
+        setSelected('');
+      } else {
+        const formattedCurrent = `${
+          data.index != null ? data.index + 1 : '-'
+        }/${data.total != null ? data.total : '-'}`;
+        setSelected(formattedCurrent);
+      }
+    });
+
     // Clear listener
     return () => {
       socket.off('titles');
       socket.off('timer');
       socket.off('playstate');
+      socket.off('selected');
     };
   }, [socket]);
 
@@ -84,6 +98,8 @@ export default function TableHeader(props) {
       <div className={style.headerName}>{data?.title || ''}</div>
       <div className={style.headerNow}>{titles.titleNow}</div>
       <div className={style.headerPlayback}>
+        <span className={style.label}>{selected}</span>
+        <br />
         <PlaybackIcon state={playback} />
       </div>
       <div className={style.headerRunning}>

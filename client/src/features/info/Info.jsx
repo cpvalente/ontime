@@ -45,10 +45,10 @@ export default function Info() {
       if (data.total === 0 || data.total == null) {
         setSelected('No events');
       } else {
-        const formatedCurrent = `Event ${
+        const formattedCurrent = `Event ${
           data.index != null ? data.index + 1 : '-'
         }/${data.total != null ? data.total : '-'}`;
-        setSelected(formatedCurrent);
+        setSelected(formattedCurrent);
       }
     });
 

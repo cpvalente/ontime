@@ -48,10 +48,12 @@
 
     .headerPlayback {
       grid-area: playback;
-      display: grid;
-      place-content: center;
-      font-size: 2.6em;
       color: $ontime-pink;
+      text-align: center;
+
+      svg {
+        font-size: 2em;
+      }
     }
 
     .headerRunning {
