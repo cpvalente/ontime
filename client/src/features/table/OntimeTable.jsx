@@ -191,6 +191,8 @@ export default function OntimeTable({
           })}
         </thead>
         <tbody {...getTableBodyProps} className={style.tableBody}>
+        {/*This is saving in place of a default component*/}
+        {/* eslint-disable-next-line array-callback-return */}
           {rows.map((row) => {
             prepareRow(row);
             const { key } = row.getRowProps();
