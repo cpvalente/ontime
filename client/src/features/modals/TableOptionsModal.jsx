@@ -1,17 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
 import { getUserFields, postUserFields, userFieldsPlaceholder } from '../../app/api/ontimeApi';
 import { useFetch } from 'app/hooks/useFetch';
 import { USERFIELDS } from 'app/api/apiConstants';
-import { LoggingContext } from '../../app/context/LoggingContext';
 import SubmitContainer from './SubmitContainer';
 import style from './Modals.module.scss';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
+import { handleLinks, host } from '../../common/utils/linkUtils';
 
 export default function TableOptionsModal() {
   const { data, status, refetch } = useFetch(USERFIELDS, getUserFields);
-  const { emitError } = useContext(LoggingContext);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [userFields, setUserFields] = useState(userFieldsPlaceholder);
@@ -37,7 +36,6 @@ export default function TableOptionsModal() {
     const validatedFields = { ...userFields };
     let errors = false;
     for (const field in validatedFields) {
-      console.log(field)
       validatedFields[field] = validatedFields[field].trim();
     }
 
@@ -85,12 +83,20 @@ export default function TableOptionsModal() {
           <div className={style.blockNotes}>
             <span className={style.inlineFlex}>
               <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
-              OSC Feedback messages
+              User Fields
             </span>
             <span>
               Userfields facilitate adding custom fields to an event (eg: light, sound, camera).{' '}
               <br />
-              These are available for excel imports and shown in the cuesheet
+              These are available for excel imports and shown in the{' '}
+              <a
+                target='_blank'
+                rel='noreferrer'
+                href={`http://${host}cuesheet`}
+                onClick={(e) => handleLinks(e, 'cuesheet')}
+              >
+                cuesheet
+              </a>
             </span>
           </div>
           <div className={style.inlineAliasPlaceholder} style={{ padding: '0.5em 0' }}>

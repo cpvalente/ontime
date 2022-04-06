@@ -9,12 +9,12 @@ import { Input } from '@chakra-ui/react';
 import { getAliases, postAliases } from '../../app/api/ontimeApi';
 import { useFetch } from 'app/hooks/useFetch';
 import { ALIASES } from 'app/api/apiConstants';
-import style from './Modals.module.scss';
 import { viewerLocations } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
 import SubmitContainer from './SubmitContainer';
-import openLink from '../../common/utils/handleLink';
+import { handleLinks, host, openLink } from '../../common/utils/linkUtils';
+import style from './Modals.module.scss';
 
 export default function AliasesModal() {
   const { data, status, refetch } = useFetch(ALIASES, getAliases);
@@ -22,7 +22,6 @@ export default function AliasesModal() {
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [aliases, setAliases] = useState([]);
-  const host = window.location.host;
 
   /**
    * Set formdata from server state
@@ -32,17 +31,6 @@ export default function AliasesModal() {
     if (changed) return;
     setAliases([...data]);
   }, [changed, data]);
-
-  /**
-   * Handles opening external links
-   * @param event
-   * @param location
-   */
-  const handleLinks = (event, location) => {
-    // we handle the link manually
-    event.preventDefault();
-    openLink(`http://${host}/${location}`);
-  };
 
   /**
    * Validate and submit data
@@ -195,16 +183,16 @@ export default function AliasesModal() {
             eg. a lower third url with some custom parameters
             <table>
               <tbody>
-                <tr>
-                  <td className={style.labelNote} style={{ width: '30%' }}>
-                    Alias
-                  </td>
-                  <td className={style.labelNote}>Page URL</td>
-                </tr>
-                <tr>
-                  <td>mylower</td>
-                  <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
-                </tr>
+              <tr>
+                <td className={style.labelNote} style={{ width: '30%' }}>
+                  Alias
+                </td>
+                <td className={style.labelNote}>Page URL</td>
+              </tr>
+              <tr>
+                <td>mylower</td>
+                <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
+              </tr>
               </tbody>
             </table>
             <br />
@@ -213,16 +201,16 @@ export default function AliasesModal() {
             eg. an unattended screen that you would need to change route from the app
             <table>
               <tbody>
-                <tr>
-                  <td className={style.labelNote} style={{ width: '30%' }}>
-                    Alias
-                  </td>
-                  <td className={style.labelNote}>Page URL</td>
-                </tr>
-                <tr>
-                  <td>thirdfloor</td>
-                  <td>public</td>
-                </tr>
+              <tr>
+                <td className={style.labelNote} style={{ width: '30%' }}>
+                  Alias
+                </td>
+                <td className={style.labelNote}>Page URL</td>
+              </tr>
+              <tr>
+                <td>thirdfloor</td>
+                <td>public</td>
+              </tr>
               </tbody>
             </table>
           </div>
@@ -259,9 +247,7 @@ export default function AliasesModal() {
                     href='#!'
                     target='_blank'
                     rel='noreferrer'
-                    onClick={(e) => {
-                      handleLinks(e, `http://${host}/${alias.pathAndParams}`);
-                    }}
+                    onClick={(e) => openLink(e, alias.pathAndParams)}
                   />
                 </Tooltip>
                 <Tooltip label='Enable alias' openDelay={500}>
