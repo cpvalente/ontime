@@ -5,7 +5,7 @@ import { useInterval } from 'app/hooks/useInterval';
 import PropTypes from 'prop-types';
 
 export default function Paginator(props) {
-  const { events, selectedId, limit = 8, time } = props;
+  const { events, selectedId, limit = 8, time, isBackstage } = props;
   const LIMIT_PER_PAGE = limit;
   const SCROLL_TIME = time * 1000 || 10000;
   const [numEvents, setNumEvents] = useState(0);
@@ -61,7 +61,7 @@ export default function Paginator(props) {
               timeStart={e.timeStart}
               timeEnd={e.timeEnd}
               title={e.title}
-              colour={e.colour}
+              colour={isBackstage ? e.colour : ''}
               backstageEvent={!e.isPublic}
             />
           );
@@ -76,4 +76,5 @@ Paginator.propTypes = {
   selectedId: PropTypes.string,
   limit: PropTypes.number,
   time: PropTypes.number.isRequired,
+  isBackstage: PropTypes.bool,
 };
