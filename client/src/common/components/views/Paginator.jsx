@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import TodayItem from './TodayItem';
 import style from './Paginator.module.css';
 import { useInterval } from 'app/hooks/useInterval';
+import PropTypes from 'prop-types';
 
 export default function Paginator(props) {
-  const { events, selectedId, limit, time } = props;
-  const LIMIT_PER_PAGE = limit || 8;
+  const { events, selectedId, limit = 8, time } = props;
+  const LIMIT_PER_PAGE = limit;
   const SCROLL_TIME = time * 1000 || 10000;
   const [numEvents, setNumEvents] = useState(0);
   const [page, setPage] = useState([]);
@@ -60,6 +61,7 @@ export default function Paginator(props) {
               timeStart={e.timeStart}
               timeEnd={e.timeEnd}
               title={e.title}
+              colour={e.colour}
               backstageEvent={!e.isPublic}
             />
           );
@@ -68,3 +70,10 @@ export default function Paginator(props) {
     </>
   );
 }
+
+Paginator.propTypes = {
+  events: PropTypes.array,
+  selectedId: PropTypes.string,
+  limit: PropTypes.number,
+  time: PropTypes.number.isRequired,
+};

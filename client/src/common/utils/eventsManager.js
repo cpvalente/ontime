@@ -6,7 +6,6 @@ import { stringFromMillis } from 'ontime-utils/time';
  * @returns {Object[]} Filtered events with calculated delays
  */
 export const getEventsWithDelay = (events) => {
-
   if (events == null) return [];
 
   const unfilteredEvents = [...events];
@@ -43,8 +42,11 @@ export const trimEventlist = (events, selectedId, limit) => {
   if (limit != null) {
     while (trimmedEvents.length > limit) {
       const idx = trimmedEvents.findIndex((e) => e.id === selectedId);
-      if (idx <= BEFORE) { trimmedEvents.pop(); }
-      else { trimmedEvents.shift(); }
+      if (idx <= BEFORE) {
+        trimmedEvents.pop();
+      } else {
+        trimmedEvents.shift();
+      }
     }
   }
   return trimmedEvents;
@@ -75,10 +77,9 @@ export const formatEventList = (events, selectedId, nextId, showEnd = false) => 
       title: g.title,
       isNow: g.id === selectedId,
       isNext: g.id === nextId,
+      colour: g.colour,
     });
   }
 
   return formattedEvents;
 };
-
-

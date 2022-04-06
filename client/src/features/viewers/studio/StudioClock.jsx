@@ -8,6 +8,7 @@ import {
   getEventsWithDelay,
   trimEventlist,
 } from '../../../common/utils/eventsManager';
+import PropTypes from 'prop-types';
 
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
@@ -77,7 +78,11 @@ export default function StudioClock(props) {
         <div className={style.schedule}>
           <ul>
             {schedule.map((s) => (
-              <li key={s.id} className={s.isNow ? style.now : s.isNext ? style.next : ''}>
+              <li
+                key={s.id}
+                className={s.isNow ? style.now : s.isNext ? style.next : ''}
+                style={{ borderLeft: `4px solid ${s.colour !== '' ? s.colour : 'transparent'}` }}
+              >
                 {`${s.time} ${s.title}`}
               </li>
             ))}
@@ -87,3 +92,12 @@ export default function StudioClock(props) {
     </div>
   );
 }
+
+StudioClock.propTypes = {
+  title: PropTypes.string,
+  time: PropTypes.number,
+  backstageEvents: PropTypes.array,
+  selectedId: PropTypes.string,
+  nextId: PropTypes.string,
+  onAir: PropTypes.bool,
+};
