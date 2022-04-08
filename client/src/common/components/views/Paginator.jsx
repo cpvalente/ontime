@@ -5,7 +5,7 @@ import { useInterval } from 'app/hooks/useInterval';
 import PropTypes from 'prop-types';
 
 export default function Paginator(props) {
-  const { events, selectedId, limit = 8, time, isBackstage } = props;
+  const { events, selectedId, limit = 7, time = 10, isBackstage } = props;
   const LIMIT_PER_PAGE = limit;
   const SCROLL_TIME = time * 1000 || 10000;
   const [numEvents, setNumEvents] = useState(0);
@@ -75,6 +75,6 @@ Paginator.propTypes = {
   events: PropTypes.array,
   selectedId: PropTypes.string,
   limit: PropTypes.number,
-  time: PropTypes.number.isRequired,
+  time: PropTypes.number,
   isBackstage: PropTypes.bool,
 };

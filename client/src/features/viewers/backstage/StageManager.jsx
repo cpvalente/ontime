@@ -104,7 +104,7 @@ export default function StageManager(props) {
       <div className={style.todayContainer}>
         <div className={style.label}>Today</div>
         <div className={style.entriesContainer}>
-          <Paginator selectedId={selectedId} events={filteredEvents} />
+          <Paginator selectedId={selectedId} events={filteredEvents} isBackstage />
         </div>
       </div>
 
