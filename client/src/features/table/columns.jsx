@@ -1,6 +1,5 @@
 import React from 'react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
-import { FiX } from '@react-icons/all-files/fi/FiX';
 import { stringFromMillis } from 'ontime-utils/time';
 import EditableCell from './tableElements/EditableCell';
 
@@ -14,7 +13,7 @@ export const makeColumns = (sizes, userFields) => {
     {
       Header: 'Public',
       accessor: 'isPublic',
-      Cell: ({ cell: { value } }) => (value != null ? <FiCheck /> : <FiX />),
+      Cell: ({ cell: { value } }) => (value ? <FiCheck /> :""),
       width: sizes?.isPublic || 50,
     },
     {
