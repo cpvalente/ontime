@@ -1,13 +1,19 @@
 import fs from 'fs';
 import xlsx from 'node-xlsx';
-import {
-  block as blockDef,
-  delay as delayDef,
-  event as eventDef,
-} from '../models/eventsDefinition.js';
+import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModelv1 } from '../models/dataModel.js';
 import { generateId } from 'ontime-utils/generate_id.js';
 import { excelDateStringToMillis } from 'ontime-utils/time.js';
+import { deleteFile, makeString, validateDuration } from './parserUtils.js';
+import {
+  parseAliases_v1,
+  parseEvent_v1,
+  parseEvents_v1,
+  parseHttp_v1,
+  parseOsc_v1,
+  parseSettings_v1,
+  parseUserFields_v1,
+} from './parserUtils_v1.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -73,7 +79,6 @@ export const fileHandler = async (file) => {
 
   // delete file
   await deleteFile(file);
-
   return res;
 };
 
@@ -216,7 +221,7 @@ export const parseExcel_v1 = async (excelData) => {
                   const index = column.charAt(4);
                   // name is the bit after the :
                   const [, name] = column.split(':');
-                  if (name !== undefined) {
+                  if (typeof name !== 'undefined') {
                     if (index === '0') {
                       customUserFields.user0 = name;
                       user0Index = j;
@@ -307,30 +312,6 @@ export const parseJson_v1 = async (jsonData, enforce = false) => {
 };
 
 /**
- * @description Ensures variable is string, it skips object types
- * @param {any} val - variable to convert
- * @param {string} [fallback=''] - fallback value
- * @returns {string} - value as string or fallback if not possible
- */
-export const makeString = (val, fallback = '') => {
-  if (typeof val === 'string') return val;
-  else if (val == null || val.constructor === Object) return fallback;
-  else return val.toString();
-};
-
-/**
- * @description validates a duration value against options
- * @param {number} timeStart
- * @param {number} timeEnd
- * @returns {number}
- */
-export const validateDuration = (timeStart, timeEnd) => {
-  // Todo: this would go into a switch statement when expanded
-  // Durations must be positive
-  return Math.max(timeEnd - timeStart, 0);
-};
-
-/**
  * @description Enforces formatting for events
  * @param {object} eventArgs - attributes of event
  * @returns {object|null} - formatted object or null in case is invalid
@@ -384,252 +365,4 @@ export const validateEvent_v1 = (eventArgs) => {
   }
 
   return event;
-};
-
-/**
- * @description Delete file from system
- * @param {string} file - reference to file
- */
-const deleteFile = async (file) => {
-  // delete a file
-  fs.unlink(file, (err) => {
-    if (err) {
-      console.log(err);
-    }
-  });
-};
-
-/**
- * @description Delete file from system
- * @param {string} file - reference to file
- * @returns {boolean} - whether file is valid JSON
- */
-export const validateFile = (file) => {
-  try {
-    JSON.parse(fs.readFileSync(file, 'utf-8'));
-    return true;
-  } catch (err) {
-    return false;
-  }
-};
-
-/**
- * Parse events array of an entry
- * @param {object} data - data object
- * @returns {object} - event object data
- */
-export const parseEvents_v1 = (data) => {
-  let newEvents = [];
-  if ('events' in data) {
-    console.log('Found events definition, importing...');
-    let events = [];
-    let ids = [];
-    for (const e of data.events) {
-      // cap number of events
-      if (events.length >= MAX_EVENTS) {
-        console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
-        break;
-      }
-
-      // double check unique ids
-      if (ids.indexOf(e?.id) !== -1) {
-        console.log('ERROR: ID collision on import, skipping');
-        continue;
-      }
-
-      if (e.type === 'event') {
-        let event = validateEvent_v1(e);
-        if (event != null) {
-          events.push(event);
-          ids.push(event.id);
-        }
-      } else if (e.type === 'delay') {
-        events.push({
-          ...delayDef,
-          duration: e.duration,
-          id: e.id || generateId(),
-        });
-      } else if (e.type === 'block') {
-        events.push({ ...blockDef, id: e.id || generateId() });
-      } else {
-        console.log('ERROR: undefined event type, skipping');
-      }
-    }
-    // write to db
-    newEvents = events;
-    console.log(`Uploaded file with ${events.length} entries`);
-  }
-  return newEvents;
-};
-/**
- * Parse event portion of an entry
- * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
- * @returns {object} - event object data
- */
-export const parseEvent_v1 = (data, enforce) => {
-  let newEvent = {};
-  if ('event' in data) {
-    console.log('Found event data, importing...');
-    const e = data.event;
-    // filter known properties and write to db
-    newEvent = {
-      ...dbModelv1.event,
-      title: e.title || dbModelv1.event.title,
-      url: e.url || dbModelv1.event.url,
-      publicInfo: e.publicInfo || dbModelv1.event.publicInfo,
-      backstageInfo: e.backstageInfo || dbModelv1.event.backstageInfo,
-      endMessage: e.endMessage || dbModelv1.event.endMessage,
-    };
-  } else if (enforce) {
-    newEvent = dbModelv1.event;
-    console.log(`Created event object in db`);
-  }
-  return newEvent;
-};
-
-/**
- * Parse settings portion of an entry
- * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
- * @returns {object} - event object data
- */
-export const parseSettings_v1 = (data, enforce) => {
-  let newSettings = {};
-  if ('settings' in data) {
-    console.log('Found settings definition, importing...');
-    const s = data.settings;
-
-    // skip if file definition is missing
-    if (s.app == null || s.version == null) {
-      console.log('ERROR: unknown app version, skipping');
-    } else {
-      let settings = {
-        lock: s.lock || null,
-        pinCode: s.pinCode || null,
-      };
-
-      // write to db
-      newSettings = {
-        ...dbModelv1.settings,
-        ...settings,
-      };
-    }
-  } else if (enforce) {
-    newSettings = dbModelv1.settings;
-    console.log(`Created settings object in db`);
-  }
-  return newSettings;
-};
-
-/**
- * Parse osc portion of an entry
- * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
- * @returns {object} - event object data
- */
-export const parseOsc_v1 = (data, enforce) => {
-  let newOsc = {};
-  if ('osc' in data) {
-    console.log('Found OSC definition, importing...');
-    const s = data.osc;
-    let osc = {};
-
-    if (s.port) osc.port = s.port;
-    if (s.portOut) osc.portOut = s.portOut;
-    if (s.targetIP) osc.targetIP = s.targetIP;
-    if (s.enabled !== undefined) osc.enabled = s.enabled;
-
-    // write to db
-    newOsc = {
-      ...dbModelv1.osc,
-      ...osc,
-    };
-  } else if (enforce) {
-    newOsc = dbModelv1.osc;
-    console.log(`Created OSC object in db`);
-  }
-  return newOsc;
-};
-
-/**
- * Parse Http portion of an entry
- * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
- * @returns {object} - event object data
- */
-export const parseHttp_v1 = (data, enforce) => {
-  let newHttp = {};
-  if ('http' in data) {
-    console.log('Found HTTP definition, importing...');
-    const h = data.osc;
-    let http = {};
-
-    if (h.user) http.user = h.user;
-    if (h.pwd) http.pwd = h.pwd;
-
-    // write to db
-    newHttp.http = {
-      ...dbModelv1.http,
-      ...http,
-    };
-  } else if (enforce) {
-    newHttp.http = dbModelv1.http;
-    console.log(`Created http object in db`);
-  }
-  return newHttp;
-};
-
-/**
- * Parse aliases portion of an entry
- * @param {object} data - data object
- * @returns {object} - event object data
- */
-export const parseAliases_v1 = (data) => {
-  let newAliases = [];
-  if ('aliases' in data) {
-    console.log('Found Aliases definition, importing...');
-    const ids = [];
-    for (const a of data.aliases) {
-      // double check unique ids
-      if (ids.indexOf(a?.id) !== -1) {
-        console.log('ERROR: ID collision on import, skipping');
-        continue;
-      }
-      const newAlias = {
-        id: a.id || generateId(),
-        enabled: a.enabled || false,
-        alias: a.alias || '',
-        pathAndParams: a.pathAndParams || '',
-      };
-
-      ids.push(newAlias.id);
-      newAliases.push(newAlias);
-    }
-    console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
-  }
-  return newAliases;
-};
-
-/**
- * Parse userFields entry
- * @param {object} data - data object
- * @returns {object} - event object data
- */
-export const parseUserFields_v1 = (data) => {
-  let newUserFields = dbModelv1.userFields;
-
-  if ('userFields' in data) {
-    console.log('Found User Fields definition, importing...');
-    // we will only be importing the fields we know, so look for that
-    let fieldsFound = 0;
-    for (let n in newUserFields) {
-      if (n in data.userFields) {
-        fieldsFound++;
-        newUserFields[n] = data.userFields[n];
-      }
-    }
-    console.log(`Uploaded ${fieldsFound} user fields`);
-  }
-  return { ...dbModelv1.userFields, ...newUserFields };
 };

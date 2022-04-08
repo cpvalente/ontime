@@ -1,14 +1,8 @@
 import jest from 'jest-mock';
-import {
-  makeString,
-  parseAliases_v1,
-  parseExcel_v1,
-  parseJson_v1,
-  parseUserFields_v1,
-  validateDuration,
-  validateEvent_v1,
-} from '../parser.js';
 import { dbModelv1, dbModelv1 as dbModel } from '../../models/dataModel.js';
+import { parseExcel_v1, parseJson_v1, validateEvent_v1 } from '../parser.js';
+import { makeString, validateDuration } from '../parserUtils.js';
+import { parseAliases_v1, parseUserFields_v1 } from '../parserUtils_v1.js';
 
 describe('test json parser with valid def', () => {
   const testData = {

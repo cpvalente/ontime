@@ -193,7 +193,7 @@ export const postUserFields = async (req, res) => {
   try {
     const newUserFields = { ...data.userFields };
     for (const field in newUserFields) {
-      if (req.body[field] !== undefined) {
+      if (typeof req.body[field] !== 'undefined') {
         newUserFields[field] = req.body[field];
       }
     }

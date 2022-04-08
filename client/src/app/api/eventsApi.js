@@ -7,20 +7,19 @@ export const fetchAllEvents = async () => {
 };
 
 export const requestPost = async (data) => {
-  return await axios.post(eventsURL, data);
+  await axios.post(eventsURL, data);
 };
 
 export const requestPut = async (data) => {
-  return await axios.put(eventsURL, data);
+  await axios.put(eventsURL, data);
 };
 
 export const requestPatch = async (data) => {
-  return await axios.patch(eventsURL, data);
+  await axios.patch(eventsURL, data);
 };
 
 export const requestReorder = async (data) => {
-  const action = 'reorder';
-  return await axios.patch(`${eventsURL}/${action}`, data);
+  await axios.patch(`${eventsURL}/reorder`, data);
 };
 
 export const requestApplyDelay = async (eventId) => {
@@ -29,9 +28,9 @@ export const requestApplyDelay = async (eventId) => {
 };
 
 export const requestDelete = async (eventId) => {
-  return await axios.delete(`${eventsURL}/${eventId}`);
+  await axios.delete(`${eventsURL}/${eventId}`);
 };
 
 export const requestDeleteAll = async () => {
-  return await axios.delete(`${eventsURL}/all`);
+  await axios.delete(`${eventsURL}/all`);
 };

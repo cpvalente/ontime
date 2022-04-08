@@ -53,8 +53,7 @@ function App() {
     if (e.altKey) {
       if (e.key === 't' || e.key === 'T') {
         // if we are in electron
-        if (window.process?.type === undefined) return;
-        if (window.process.type === 'renderer') {
+        if (window.process?.type === 'renderer') {
           // ask to see debug
           window.ipcRenderer.send('set-window', 'show-dev');
         }

@@ -40,7 +40,6 @@ export default function MenuBar(props) {
 
   const handleUpload = (event) => {
     const fileUploaded = event.target.files[0];
-    console.log('1', fileUploaded)
     if (fileUploaded == null) return;
 
     // Limit file size to 1MB
@@ -48,9 +47,6 @@ export default function MenuBar(props) {
       emitError('Error: File size limit (1MB) exceeded')
       return;
     }
-
-    console.log('2', ! fileUploaded.name.endsWith('.xlsx')
-      || !fileUploaded.name.endsWith('.json'))
 
     // Check file extension
     if (fileUploaded.name.endsWith('.xlsx') || fileUploaded.name.endsWith('.json')) {

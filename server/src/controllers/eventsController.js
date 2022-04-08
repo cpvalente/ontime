@@ -282,8 +282,6 @@ export const eventsApplyDelay = async (req, res) => {
 
     res.sendStatus(201);
   } catch (error) {
-    console.log('debug:', error);
-
     res.status(400).send(error);
   }
 };
@@ -306,8 +304,6 @@ export const eventsDelete = async (req, res) => {
 
     res.sendStatus(201);
   } catch (error) {
-    console.log('debug:', error);
-
     res.status(400).send(error);
   }
 };

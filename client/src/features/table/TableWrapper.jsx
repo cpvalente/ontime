@@ -93,24 +93,24 @@ export default function TableWrapper() {
     }
   };
 
-  if (typeof tableData === "undefined" || typeof userFields === "undefined") return <span>loading...</span>;
-  else {
-    return (
-      <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
-        <TableHeader
-          refetchEvents={refetch}
-          setShowSettings={setShowSettings}
-          setDark={toggleDark}
-          loading={status === 'loading'}
-        />
-        <OntimeTable
-          tableData={tableData}
-          userFields={userFields}
-          handleUpdate={handleUpdate}
-          selectedId={selectedId}
-          showSettings={showSettings}
-        />
-      </div>
-    );
+  if (typeof tableData === 'undefined' || typeof userFields === 'undefined') {
+    return <span>loading...</span>;
   }
+  return (
+    <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
+      <TableHeader
+        refetchEvents={refetch}
+        setShowSettings={setShowSettings}
+        setDark={toggleDark}
+        loading={status === 'loading'}
+      />
+      <OntimeTable
+        tableData={tableData}
+        userFields={userFields}
+        handleUpdate={handleUpdate}
+        selectedId={selectedId}
+        showSettings={showSettings}
+      />
+    </div>
+  );
 }
