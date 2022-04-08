@@ -122,6 +122,7 @@
     .tableHeader {
       position: sticky;
       top: -1em;
+      z-index: 10;
 
       th {
         font-size: 0.9em;
