@@ -10,8 +10,9 @@ test_patterns = [
 ]
 
 [[analyzers]]
-name = "javascript"
-enabled = true
+  name = "javascript"
+  enabled = true
 
   [analyzers.meta]
-  plugins = ["react"]
+    plugins = ["react"]
+    environment = ["nodejs","browser","jest"]
