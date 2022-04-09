@@ -47,7 +47,7 @@ export default function Info() {
       } else {
         const formattedCurrent = `Event ${
           data.index != null ? data.index + 1 : '-'
-        }/${data.total != null ? data.total : '-'}`;
+        }/${data.total ? data.total : '-'}`;
         setSelected(formattedCurrent);
       }
     });
