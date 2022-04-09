@@ -111,7 +111,11 @@ export default function EventListWrapper() {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: (newEvent) => {
-      queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
+      if (newEvent) {
+        queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
+      } else {
+        queryClient.invalidateQueries(EVENTS_TABLE);
+      }
     },
   });
 
