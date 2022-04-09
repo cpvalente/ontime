@@ -112,11 +112,14 @@
 
     th, td {
       touch-action: auto;
-      border-radius: 4px;
       padding: 4px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    td {
+      border-radius: 4px;
     }
 
     .tableHeader {
@@ -252,7 +255,7 @@ svg {
 
 .actionDisabled {
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .dragging {
