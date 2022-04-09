@@ -1,3 +1,4 @@
+/* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 

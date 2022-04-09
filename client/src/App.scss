@@ -8,7 +8,7 @@
 body,
 html,
 .App {
-  margin: 0px auto;
+  margin: 0 auto;
   overflow: hidden;
   overflow: clip;
   height: 100vh;
@@ -23,7 +23,8 @@ option {
 
 /* width */
 ::-webkit-scrollbar {
-  width: 0.5em;
+  width: 0.5rem;
+  height: 0.5rem;
 }
 
 /* Track */

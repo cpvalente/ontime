@@ -1,9 +1,9 @@
+import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { formatDisplay } from 'common/utils/dateConfig';
 import style from './StageManager.module.css';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
-import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from 'common/components/views/TitleSide';
 import {getEventsWithDelay} from "../../../common/utils/eventsManager";
@@ -104,7 +104,7 @@ export default function StageManager(props) {
       <div className={style.todayContainer}>
         <div className={style.label}>Today</div>
         <div className={style.entriesContainer}>
-          <Paginator selectedId={selectedId} events={filteredEvents} />
+          <Paginator selectedId={selectedId} events={filteredEvents} isBackstage />
         </div>
       </div>
 

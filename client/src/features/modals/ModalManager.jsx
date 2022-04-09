@@ -1,3 +1,4 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Modal,
@@ -10,8 +11,9 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/tabs';
 import EventSettingsModal from './EventSettingsModal';
 import OscSettingsModal from './OscSettingsModal';
 import AliasesModal from './AliasesModal';
-import IntegrationSettingsModal from './IntegrationSettingsModal';
 import AppSettingsModal from './AppSettingsModal';
+import TableOptionsModal from './TableOptionsModal';
+import IntegrationSettingsModal from './IntegrationSettingsModal';
 
 export default function ModalManager(props) {
   const { isOpen, onClose } = props;
@@ -20,7 +22,7 @@ export default function ModalManager(props) {
       isOpen={isOpen}
       onClose={onClose}
       closeOnOverlayClick={false}
-      motionPreset={'slideInBottom'}
+      motionPreset='slideInBottom'
       size='xl'
       scrollBehavior='inside'
     >
@@ -34,6 +36,7 @@ export default function ModalManager(props) {
             <Tab style={{ fontSize: '0.9em' }}>App Settings</Tab>
             <Tab style={{ fontSize: '0.9em' }}>Event Data</Tab>
             <Tab style={{ fontSize: '0.9em' }}>URL Aliases</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>Cuesheet</Tab>
             <Tab style={{ fontSize: '0.9em' }}>OSC</Tab>
             {/*<Tab style={{ fontSize: '0.9em' }}>Integration</Tab>*/}
           </TabList>
@@ -46,6 +49,9 @@ export default function ModalManager(props) {
             </TabPanel>
             <TabPanel>
               <AliasesModal />
+            </TabPanel>
+            <TabPanel>
+              <TableOptionsModal />
             </TabPanel>
             <TabPanel>
               <OscSettingsModal />

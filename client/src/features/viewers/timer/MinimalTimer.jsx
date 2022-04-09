@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import style from './MinimalTimer.module.scss';

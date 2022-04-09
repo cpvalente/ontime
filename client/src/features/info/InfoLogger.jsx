@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import style from './InfoLogger.module.scss';
 import CollapseBar from "../../common/components/collapseBar/CollapseBar";
 import { LoggingContext } from '../../app/context/LoggingContext';
@@ -54,7 +54,7 @@ export default function InfoLogger() {
 
   return (
     <div className={collapsed ? style.container : style.container__expanded}>
-      <CollapseBar title={'Log'} isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)}/>
+      <CollapseBar title='Log' isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)} />
       {!collapsed && (
         <>
           <div className={style.toggleBar}>

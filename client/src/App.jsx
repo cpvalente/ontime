@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.scss';
 import withSocket from 'features/viewers/ViewWrapper';
@@ -7,23 +7,17 @@ import ProtectRoute from './common/components/protectRoute/ProtectRoute';
 import { useFetch } from './app/hooks/useFetch';
 import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
+import { TableSettingsProvider } from './app/context/TableSettingsContext';
 
 const Editor = lazy(() => import('features/editors/Editor'));
+const Table = lazy(() => import('features/table/TableWrapper'));
 
-const TimerView = lazy(() =>
-  import('features/viewers/timer/Timer')
-);
-const MinimalTimerView = lazy(() =>
-  import('features/viewers/timer/MinimalTimer')
-);
+const TimerView = lazy(() => import('features/viewers/timer/Timer'));
+const MinimalTimerView = lazy(() => import('features/viewers/timer/MinimalTimer'));
 
-const StageManager = lazy(() =>
-  import('features/viewers/backstage/StageManager')
-);
+const StageManager = lazy(() => import('features/viewers/backstage/StageManager'));
 const Public = lazy(() => import('features/viewers/foh/Public'));
-const Lower = lazy(() =>
-  import('features/viewers/production/lower/LowerWrapper')
-);
+const Lower = lazy(() => import('features/viewers/production/lower/LowerWrapper'));
 const Pip = lazy(() => import('features/viewers/production/Pip'));
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 
@@ -34,6 +28,20 @@ const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
 const SPip = withSocket(Pip);
 const SStudio = withSocket(StudioClock);
+
+const ProtectedEditor = () => (
+  <ProtectRoute>
+    <Editor />
+  </ProtectRoute>
+);
+
+const ProtectedTable = () => (
+  <ProtectRoute>
+    <TableSettingsProvider>
+      <Table />
+    </TableSettingsProvider>
+  </ProtectRoute>
+);
 
 function App() {
   const { data } = useFetch(ALIASES, getAliases);
@@ -48,8 +56,7 @@ function App() {
     if (e.altKey) {
       if (e.key === 't' || e.key === 'T') {
         // if we are in electron
-        if (window.process?.type === undefined) return;
-        if (window.process.type === 'renderer') {
+        if (window.process?.type === 'renderer') {
           // ask to see debug
           window.ipcRenderer.send('set-window', 'show-dev');
         }
@@ -101,15 +108,13 @@ function App() {
             <Route path='/studio' element={<SStudio />} />
             {/*/!* Lower cannot have fallback *!/*/}
             <Route path='/lower' element={<SLowerThird />} />
+
             {/*/!* Protected Routes *!/*/}
-            <Route
-              path='/editor'
-              element={
-                <ProtectRoute>
-                  <Editor />
-                </ProtectRoute>
-              }
-            />
+            <Route path='/editor' element={<ProtectedEditor />} />
+            <Route path='/cuesheet' element={<ProtectedTable />} />
+            <Route path='/cuelist' element={<ProtectedTable />} />
+            <Route path='/table' element={<ProtectedTable />} />
+
             {/* Send to default if nothing found */}
             <Route path='*' element={<STimer />} />
           </Routes>

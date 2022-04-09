@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
 import { useFetch } from '../hooks/useFetch';
 import { APP_SETTINGS } from '../api/apiConstants';
 import { getSettings } from '../api/ontimeApi';
@@ -6,11 +6,11 @@ import { getSettings } from '../api/ontimeApi';
 export const AppContext = createContext({
   auth: false,
   data: {
-    pinCode: null
-  }
+    pinCode: null,
+  },
 });
 
-export const AppContextProvider = (props) => {
+export const AppContextProvider = ({ children }) => {
   const [auth, setAuth] = useState(true);
   const { data } = useFetch(APP_SETTINGS, getSettings);
 
@@ -21,17 +21,16 @@ export const AppContextProvider = (props) => {
     } else {
       setAuth(false);
     }
-  },[data])
-
-  const validate = useCallback((pin) => {
-    const correct = pin === data.pinCode;
-    setAuth(correct);
-    return correct;
   }, [data]);
 
-  return (
-    <AppContext.Provider value={{ auth, validate }}>
-      {props.children}
-    </AppContext.Provider>
+  const validate = useCallback(
+    (pin) => {
+      const correct = pin === data.pinCode;
+      setAuth(correct);
+      return correct;
+    },
+    [data]
   );
+
+  return <AppContext.Provider value={{ auth, validate }}>{children}</AppContext.Provider>;
 };

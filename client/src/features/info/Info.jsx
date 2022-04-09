@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import style from './Info.module.scss';
 import InfoTitle from './InfoTitle';
@@ -45,10 +45,10 @@ export default function Info() {
       if (data.total === 0 || data.total == null) {
         setSelected('No events');
       } else {
-        const formatedCurrent = `Event ${
+        const formattedCurrent = `Event ${
           data.index != null ? data.index + 1 : '-'
-        }/${data.total != null ? data.total : '-'}`;
-        setSelected(formatedCurrent);
+        }/${data.total ? data.total : '-'}`;
+        setSelected(formattedCurrent);
       }
     });
 
@@ -78,12 +78,12 @@ export default function Info() {
   return (
     <>
       <div className={style.main}>
-        <span>{`Running on port 4001`}</span>
+        <span>Running on port 4001</span>
         <span>{selected}</span>
       </div>
       <InfoNif />
-      <InfoTitle title={'Now'} data={titlesNow} roll={playback === 'roll'} />
-      <InfoTitle title={'Next'} data={titlesNext} roll={playback === 'roll'} />
+      <InfoTitle title='Now' data={titlesNow} roll={playback === 'roll'} />
+      <InfoTitle title='Next' data={titlesNext} roll={playback === 'roll'} />
       <InfoLogger />
     </>
   );

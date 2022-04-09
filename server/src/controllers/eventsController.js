@@ -9,6 +9,8 @@ import {
   event as eventDef,
 } from '../models/eventsDefinition.js';
 
+const MAX_EVENTS = 99;
+
 async function _insertAt(entry, index) {
   // get events
   let events = data.events;
@@ -90,6 +92,11 @@ export const eventsPost = async (req, res) => {
   if (!req.body) {
     res.status(400).send(`No object found in request`);
     return;
+  }
+
+  if (data.events.length > MAX_EVENTS) {
+    const error = `ERROR: Reached limit number of ${MAX_EVENTS} events`;
+    res.status(400).send(error);
   }
 
   // ensure structure
@@ -275,8 +282,6 @@ export const eventsApplyDelay = async (req, res) => {
 
     res.sendStatus(201);
   } catch (error) {
-    console.log('debug:', error);
-
     res.status(400).send(error);
   }
 };
@@ -299,8 +304,6 @@ export const eventsDelete = async (req, res) => {
 
     res.sendStatus(201);
   } catch (error) {
-    console.log('debug:', error);
-
     res.status(400).send(error);
   }
 };

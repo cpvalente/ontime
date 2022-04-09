@@ -1,12 +1,13 @@
+import React, { useEffect, useState } from 'react';
 import TodayItem from './TodayItem';
 import style from './Paginator.module.css';
-import { useEffect, useState } from 'react';
 import { useInterval } from 'app/hooks/useInterval';
+import PropTypes from 'prop-types';
 
 export default function Paginator(props) {
-  const { events, selectedId } = props;
-  const LIMIT_PER_PAGE = props.limit || 8;
-  const SCROLL_TIME = props.time * 1000 || 10000;
+  const { events, selectedId, limit = 7, time = 10, isBackstage } = props;
+  const LIMIT_PER_PAGE = limit;
+  const SCROLL_TIME = time * 1000 || 10000;
   const [numEvents, setNumEvents] = useState(0);
   const [page, setPage] = useState([]);
   const [pages, setPages] = useState(0);
@@ -46,10 +47,7 @@ export default function Paginator(props) {
       <div className={style.nav}>
         {pages > 1 &&
           [...Array(pages)].map((p, i) => (
-            <div
-              key={i}
-              className={i === selPage ? style.navItemSelected : style.navItem}
-            />
+            <div key={i} className={i === selPage ? style.navItemSelected : style.navItem} />
           ))}
       </div>
       <div className={style.entries}>
@@ -63,6 +61,7 @@ export default function Paginator(props) {
               timeStart={e.timeStart}
               timeEnd={e.timeEnd}
               title={e.title}
+              colour={isBackstage ? e.colour : ''}
               backstageEvent={!e.isPublic}
             />
           );
@@ -71,3 +70,11 @@ export default function Paginator(props) {
     </>
   );
 }
+
+Paginator.propTypes = {
+  events: PropTypes.array,
+  selectedId: PropTypes.string,
+  limit: PropTypes.number,
+  time: PropTypes.number,
+  isBackstage: PropTypes.bool,
+};

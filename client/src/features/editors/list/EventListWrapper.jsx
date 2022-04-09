@@ -1,8 +1,6 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
-import { BatchOperation } from 'app/context/collapseAtom';
-import { useAtom } from 'jotai';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import {
   fetchAllEvents,
@@ -18,9 +16,10 @@ import { useFetch } from 'app/hooks/useFetch.js';
 import EventList from './EventList';
 import EventListMenu from 'features/menu/EventListMenu.jsx';
 import Empty from 'common/state/Empty';
+import { CollapseContext } from '../../../app/context/CollapseContext';
 
 export default function EventListWrapper() {
-  const [, setCollapsed] = useAtom(BatchOperation);
+  const { expandAll, collapseMultiple } = useContext(CollapseContext);
   const queryClient = useQueryClient();
   const { emitError } = useContext(LoggingContext);
   const { data, status, isError, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
@@ -112,7 +111,11 @@ export default function EventListWrapper() {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: (newEvent) => {
-      queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
+      if (newEvent) {
+        queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
+      } else {
+        queryClient.invalidateQueries(EVENTS_TABLE);
+      }
     },
   });
 
@@ -231,6 +234,10 @@ export default function EventListWrapper() {
             if (options?.startIsLastEnd !== undefined) {
               newEvent.timeStart = data[options.startIsLastEnd].timeEnd || 0;
             }
+            // hard coding duration value to be as expected for now
+            // this until timeOptions gets implemented
+            // Todo: implement duration options
+            newEvent.duration = Math.max(0, newEvent.timeEnd - newEvent.timeStart) || 0;
             await addEvent.mutateAsync(newEvent);
           } catch (error) {
             emitError(`Error fetching data: ${error.message}`);
@@ -297,11 +304,12 @@ export default function EventListWrapper() {
 
         case 'collapseall':
           if (data == null) return;
-          setCollapsed({ clear: true, items: data, isCollapsed: true });
+          collapseMultiple(data);
           break;
+
         case 'expandall':
           if (data == null) return;
-          setCollapsed({ clear: true, items: data, isCollapsed: false });
+          expandAll();
           break;
 
         case 'deleteall':

@@ -1,3 +1,4 @@
+import React from 'react';
 import style from './TitleSide.module.css';
 
 export default function TitleSide(props) {

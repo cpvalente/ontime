@@ -1,9 +1,9 @@
 import {
+  forgivingStringToMillis,
   formatDisplay,
   isTimeString,
   millisToMinutes,
   millisToSeconds,
-  forgivingStringToMillis,
   timeStringToMillis,
 } from '../dateConfig';
 import { stringFromMillis } from 'ontime-utils/time';
@@ -280,33 +280,87 @@ describe('test isTimeString() function handle different separators', () => {
   }
 });
 
-describe('test timeHelper() function handles separators', () => {
-  const ts = ['1:2:3:10', '2,10', '2.10'];
-  for (const s of ts) {
-    test(`it handles ${s}`, () => {
-      expect(typeof forgivingStringToMillis(s)).toBe('number');
-    });
-  }
-});
+describe('test forgivingStringToMillis()', () => {
+  describe('function handles separators', () => {
+    const testData = [
+      { value: '1:2:3:10', expect: 3723000 },
+      { value: '2,10', expect: 130000 },
+      { value: '2.10', expect: 130000 },
+      { value: '2 10', expect: 130000 },
+    ];
 
-describe('test timeHelper() parses strings correctly', () => {
-  const ts = [
-    { value: '', expect: 0 },
-    { value: '0', expect: 0 },
-    { value: '-0', expect: 0 },
-    { value: '1', expect: 60 * 1000 },
-    { value: '-1', expect: 60 * 1000 },
-    { value: '1.2', expect: 60 * 1000 + 2 * 1000 },
-    { value: '1.70', expect: 60 * 1000 + 70 * 1000 },
-    { value: '1.1.1', expect: 60 * 60 * 1000 + 60 * 1000 + 1000 },
-    { value: '12.1.1', expect: 12 * 60 * 60 * 1000 + 60 * 1000 + 1000 },
-    { value: '12.55.1', expect: 12 * 60 * 60 * 1000 + 55 * 60 * 1000 + 1000 },
-    { value: '12.55.40', expect: 12 * 60 * 60 * 1000 + 55 * 60 * 1000 + 40 * 1000 },
-  ];
+    for (const s of testData) {
+      test(`it handles ${s.value}`, () => {
+        expect(typeof forgivingStringToMillis(s.value)).toBe('number');
+        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      });
+    }
+  });
 
-  for (const s of ts) {
-    test(`it handles ${s.value}`, () => {
-      expect(forgivingStringToMillis(s.value)).toBe(s.expect);
-    });
-  }
+  describe('function handles time with no separators', () => {
+    const testData = [
+      { value: '000000', expect: 0 },
+      { value: '000001', expect: 1000 },
+      { value: '000100', expect: 1000*60 },
+      { value: '010000', expect: 1000*60*60 },
+      { value: '230000', expect: 1000*60*60*23 },
+      { value: '121212', expect: 12*1000+12*60*1000+12*1000*60*60 },
+    ];
+
+    for (const s of testData) {
+      test(`it handles ${s.value}`, () => {
+        expect(typeof forgivingStringToMillis(s.value)).toBe('number');
+        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      });
+    }
+  });
+
+  describe('parses strings correctly', () => {
+    const ts = [
+      { value: '', expect: 0 },
+      { value: '0', expect: 0 },
+      { value: '-0', expect: 0 },
+      { value: '1', expect: 60 * 1000 },
+      { value: '-1', expect: 60 * 1000 },
+      { value: '1.2', expect: 60 * 1000 + 2 * 1000 },
+      { value: '1.70', expect: 60 * 1000 + 70 * 1000 },
+      { value: '1.1.1', expect: 60 * 60 * 1000 + 60 * 1000 + 1000 },
+      { value: '12.1.1', expect: 12 * 60 * 60 * 1000 + 60 * 1000 + 1000 },
+      { value: '12.55.1', expect: 12 * 60 * 60 * 1000 + 55 * 60 * 1000 + 1000 },
+      { value: '12.55.40', expect: 12 * 60 * 60 * 1000 + 55 * 60 * 1000 + 40 * 1000 },
+    ];
+
+    for (const s of ts) {
+      test(`it handles ${s.value}`, () => {
+        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      });
+    }
+  });
+
+  describe('handles overflows', () => {
+    const ts = [
+      // minutes overflow
+      { value: '120', expect: 1000*60*120 },
+      { value: '2.0.0', expect: 1000*60*120 },
+      { value: '99', expect: 1000*60*99 },
+      { value: '1.39.0', expect: 1000*60*99 },
+      // seconds overflow
+      { value: '0.120', expect: 120*1000 },
+      { value: '0.0.120', expect: 120*1000 },
+      { value: '0.2.0', expect: 120*1000 },
+      { value: '0.99', expect: 99*1000 },
+      { value: '0.0.99', expect: 99*1000 },
+      { value: '0.1.39', expect: 99*1000 },
+      // hours overflow
+      { value: '25.0.0', expect: 1000*60*60*25 },
+      // hours overflow
+      { value: '50.0.0', expect: 1000*60*60*50 },
+    ];
+
+    for (const s of ts) {
+      test(`it handles ${s.value}`, () => {
+        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      });
+    }
+  });
 });

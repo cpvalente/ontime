@@ -57,6 +57,17 @@ describe('When a GET request request is sent', () => {
       });
   });
 
+  test('GET /ontime/aliases returns a valid object', async () => {
+    await supertest(server)
+      .get('/ontime/userFields')
+      .expect(200)
+      .then((response) => {
+        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.body).toBeDefined();
+        expect(typeof response.body).toBe('object');
+      });
+  });
+
   test('GET /ontime/settings returns a valid object', async () => {
     await supertest(server)
       .get('/ontime/settings')

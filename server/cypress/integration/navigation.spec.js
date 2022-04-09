@@ -45,4 +45,15 @@ describe('validate routes', () => {
     cy.contains('Display Messages');
     cy.contains('Info');
   });
+
+  it('table routes', () => {
+    cy.visit('http://localhost:4001/table');
+    cy.contains('Running Timer');
+
+    cy.visit('http://localhost:4001/cuesheet');
+    cy.contains('Running Timer');
+
+    cy.visit('http://localhost:4001/cuelist');
+    cy.contains('Running Timer');
+  });
 });

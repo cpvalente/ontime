@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import React, { createContext, useState } from 'react';
 
 export const LocalEventSettingsContext = createContext({
   showQuickEntry: false,
@@ -10,7 +10,7 @@ export const LocalEventSettingsContext = createContext({
   setDefaultPublic: () => undefined,
 });
 
-export const LocalEventSettingsProvider = (props) => {
+export const LocalEventSettingsProvider = ({ children }) => {
   const [showQuickEntry, setShowQuickEntry] = useState(false);
   const [starTimeIsLastEnd, setStarTimeIsLastEnd] = useState(true);
   const [defaultPublic, setDefaultPublic] = useState(false);
@@ -26,7 +26,7 @@ export const LocalEventSettingsProvider = (props) => {
         setDefaultPublic,
       }}
     >
-      {props.children}
+      {children}
     </LocalEventSettingsContext.Provider>
   );
 };

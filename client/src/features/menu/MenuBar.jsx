@@ -1,3 +1,4 @@
+import React, { useContext, useRef } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
@@ -9,7 +10,6 @@ import QuitIconBtn from './buttons/QuitIconBtn';
 import style from './MenuBar.module.scss';
 import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
-import { useContext, useRef } from 'react';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import PropTypes from 'prop-types';
 
@@ -40,7 +40,6 @@ export default function MenuBar(props) {
 
   const handleUpload = (event) => {
     const fileUploaded = event.target.files[0];
-    console.log('1', fileUploaded)
     if (fileUploaded == null) return;
 
     // Limit file size to 1MB
@@ -48,9 +47,6 @@ export default function MenuBar(props) {
       emitError('Error: File size limit (1MB) exceeded')
       return;
     }
-
-    console.log('2', ! fileUploaded.name.endsWith('.xlsx')
-      || !fileUploaded.name.endsWith('.json'))
 
     // Check file extension
     if (fileUploaded.name.endsWith('.xlsx') || fileUploaded.name.endsWith('.json')) {
@@ -145,7 +141,7 @@ export default function MenuBar(props) {
 }
 
 MenuBar.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
+  isOpen: PropTypes.bool,
   onOpen: PropTypes.func.isRequired,
 };
 

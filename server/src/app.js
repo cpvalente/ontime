@@ -28,7 +28,8 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbModelv1 as dbModel } from './models/dataModel.js';
-import { parseJson_v1 as parseJson, validateFile } from './utils/parser.js';
+import { parseJson_v1 as parseJson } from './utils/parser.js';
+import { validateFile } from './utils/parserUtils.js';
 import ua from 'universal-analytics';
 
 // validate JSON before attempting read

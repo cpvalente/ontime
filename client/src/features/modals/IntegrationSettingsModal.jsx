@@ -1,12 +1,7 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input, Switch } from '@chakra-ui/react';
-import {
-  getInfo,
-  httpPlaceholder,
-  ontimeVars,
-  postInfo,
-} from 'app/api/ontimeApi';
-import { useContext, useEffect, useState } from 'react';
+import { getInfo, httpPlaceholder, ontimeVars, postInfo } from 'app/api/ontimeApi';
 import { useFetch } from 'app/hooks/useFetch';
 import { APP_TABLE } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
@@ -85,12 +80,11 @@ export default function IntegrationSettingsModal() {
           <div className={style.hSeparator}>Ontime event cycle</div>
           <div className={style.blockNotes}>
             <span className={style.inlineFlex}>
-              <FiInfo color='#2b6cb0' fontSize={'2em'} />
+              <FiInfo color='#2b6cb0' fontSize='2em' />
               Add HTTP messages that ontime will send during the event cycle
             </span>
             <span className={style.labelNote}>
-              You can use variables in the HTTP request URL to send data from
-              ontime
+              You can use variables in the HTTP request URL to send data from ontime
             </span>
             <span className={style.emNote}>
               http://127.0.0.1:8088/API/?setHeadline=
@@ -106,7 +100,7 @@ export default function IntegrationSettingsModal() {
                   <td className={style.labelNote}>Value</td>
                 </tr>
                 {ontimeVars.map((v) => (
-                  <tr>
+                  <tr key={v.name}>
                     <td className={style.labelNote}>{v.name}</td>
                     <td>{v.description}</td>
                   </tr>
@@ -115,7 +109,7 @@ export default function IntegrationSettingsModal() {
             </table>
           </div>
           <div className={style.hSeparator}>Send HTTP</div>
-          <FormLabel style={{paddingLeft:'0.5em'}}>
+          <FormLabel style={{ paddingLeft: '0.5em' }}>
             On Load
             <span className={style.labelNote}>
               <br />
@@ -154,7 +148,7 @@ export default function IntegrationSettingsModal() {
               }}
             />
           </div>
-          <FormLabel style={{paddingLeft:'0.5em'}}>
+          <FormLabel style={{ paddingLeft: '0.5em' }}>
             On Start
             <span className={style.labelNote}>
               <br />
@@ -193,7 +187,7 @@ export default function IntegrationSettingsModal() {
               }}
             />
           </div>
-          <FormLabel style={{paddingLeft:'0.5em'}}>
+          <FormLabel style={{ paddingLeft: '0.5em' }}>
             On Update
             <span className={style.labelNote}>
               <br />
@@ -232,7 +226,7 @@ export default function IntegrationSettingsModal() {
               }}
             />
           </FormControl>
-          <FormLabel style={{paddingLeft:'0.5em'}}>
+          <FormLabel style={{ paddingLeft: '0.5em' }}>
             On Pause
             <span className={style.labelNote}>
               <br />
@@ -271,7 +265,7 @@ export default function IntegrationSettingsModal() {
               }}
             />
           </FormControl>
-          <FormLabel style={{paddingLeft:'0.5em'}}>
+          <FormLabel style={{ paddingLeft: '0.5em' }}>
             On Stop
             <span className={style.labelNote}>
               <br />
@@ -310,7 +304,7 @@ export default function IntegrationSettingsModal() {
               }}
             />
           </FormControl>
-          <FormLabel style={{paddingLeft:'0.5em'}}>
+          <FormLabel style={{ paddingLeft: '0.5em' }}>
             On Finish
             <span className={style.labelNote}>
               <br />

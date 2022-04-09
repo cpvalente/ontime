@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+/* eslint-disable react/display-name */
+import React, { useEffect, useState } from 'react';
 import { fetchAllEvents } from 'app/api/eventsApi';
 import { fetchEvent } from 'app/api/eventApi';
 import { useSocket } from 'app/context/socketContext';

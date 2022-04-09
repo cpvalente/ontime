@@ -26,8 +26,7 @@ $bg-black-gradient: #202020;
 $block-delay-color: #ecc94b;
 $block-block-color: #805ad5;
 $block-icon-drag: rgba(255, 255, 255, 0.67);
-$block-border: 1px solid  rgba(255, 255, 255, 0.05);
-
+$block-border: 1px solid rgba(255, 255, 255, 0.05);
 
 
 //////////////////////////////////// general app element overriders
@@ -57,7 +56,7 @@ a {
 // horizontal separator
 .hSeparator {
   width: 100%;
-  border-bottom: 1px solid $light-text;
+  border-bottom: 1px solid $light-bg;
   margin: 1em auto;
   display: flex;
   align-items: center;

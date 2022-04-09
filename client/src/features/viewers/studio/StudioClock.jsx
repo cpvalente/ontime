@@ -1,17 +1,18 @@
-import style from "./StudioClock.module.scss";
-import useFitText from "use-fit-text";
-import NavLogo from "../../../common/components/nav/NavLogo";
-import {useEffect, useState} from "react";
-import {formatDisplay} from "../../../common/utils/dateConfig";
+import React, { useEffect, useState } from 'react';
+import style from './StudioClock.module.scss';
+import useFitText from 'use-fit-text';
+import NavLogo from '../../../common/components/nav/NavLogo';
+import { formatDisplay } from '../../../common/utils/dateConfig';
 import {
   formatEventList,
   getEventsWithDelay,
-  trimEventlist
-} from "../../../common/utils/eventsManager";
+  trimEventlist,
+} from '../../../common/utils/eventsManager';
+import PropTypes from 'prop-types';
 
 export default function StudioClock(props) {
-  const {title, time, backstageEvents, selectedId, nextId, onAir} = props;
-  const {fontSize, ref} = useFitText({maxFontSize: 500});
+  const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
+  const { fontSize, ref } = useFitText({ maxFontSize: 500 });
   const [, , secondsNow] = time.clock.split(':');
   const [schedule, setSchedule] = useState([]);
 
@@ -34,18 +35,17 @@ export default function StudioClock(props) {
     const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
     const formatted = formatEventList(trimmed, selectedId, nextId);
     setSchedule(formatted);
-
   }, [backstageEvents, selectedId, nextId]);
 
   return (
     <div className={style.container}>
-      <NavLogo/>
+      <NavLogo />
       <div className={style.clockContainer}>
         <div className={style.time}>{time.clockNoSeconds}</div>
         <div
           ref={ref}
           className={style.nextTitle}
-          style={{fontSize, height: '100px', width: '100%', maxWidth: '680px'}}
+          style={{ fontSize, height: '100px', width: '100%', maxWidth: '680px' }}
         >
           {title.titleNext}
         </div>
@@ -53,24 +53,24 @@ export default function StudioClock(props) {
           {selectedId != null && formatDisplay(time.running)}
         </div>
         <div className={style.indicators}>
-          {activeIndicators.map(i => (
-              <div
-                key={i}
-                className={style.hours__active}
-                style={{
-                  transform: `rotate(${360 / 12 * i - 90}deg) translateX(380px)`
-                }}/>
-            )
-          )}
-          {secondsIndicators.map(i => (
-              <div
-                key={i}
-                className={i <= secondsNow ? style.min__active : style.min}
-                style={{
-                  transform: `rotate(${360 / 60 * i - 90}deg) translateX(415px)`
-                }}/>
-            )
-          )}
+          {activeIndicators.map((i) => (
+            <div
+              key={i}
+              className={style.hours__active}
+              style={{
+                transform: `rotate(${(360 / 12) * i - 90}deg) translateX(380px)`,
+              }}
+            />
+          ))}
+          {secondsIndicators.map((i) => (
+            <div
+              key={i}
+              className={i <= secondsNow ? style.min__active : style.min}
+              style={{
+                transform: `rotate(${(360 / 60) * i - 90}deg) translateX(415px)`,
+              }}
+            />
+          ))}
         </div>
       </div>
       <div className={style.scheduleContainer}>
@@ -78,14 +78,26 @@ export default function StudioClock(props) {
         <div className={style.schedule}>
           <ul>
             {schedule.map((s) => (
-              <li key={s.id} className={s.isNow ? style.now : s.isNext ? style.next : ''}>
+              <li
+                key={s.id}
+                className={s.isNow ? style.now : s.isNext ? style.next : ''}
+                style={{ borderLeft: `4px solid ${s.colour !== '' ? s.colour : 'transparent'}` }}
+              >
                 {`${s.time} ${s.title}`}
               </li>
-            ))
-            }
+            ))}
           </ul>
         </div>
       </div>
     </div>
   );
 }
+
+StudioClock.propTypes = {
+  title: PropTypes.string,
+  time: PropTypes.number,
+  backstageEvents: PropTypes.array,
+  selectedId: PropTypes.string,
+  nextId: PropTypes.string,
+  onAir: PropTypes.bool,
+};

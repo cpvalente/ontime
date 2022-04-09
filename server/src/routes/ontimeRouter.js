@@ -16,6 +16,8 @@ import {
   getAliases,
   postAliases,
   poll,
+  getUserFields,
+  postUserFields,
 } from '../controllers/ontimeController.js';
 
 // create route between controller and '/ontime/sync' endpoint
@@ -38,6 +40,12 @@ router.get('/aliases', getAliases);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.post('/aliases', postAliases);
+
+// create route between controller and '/ontime/aliases' endpoint
+router.get('/userfields', getUserFields);
+
+// create route between controller and '/ontime/aliases' endpoint
+router.post('/userfields', postUserFields);
 
 // create route between controller and '/ontime/info' endpoint
 router.get('/info', getInfo);

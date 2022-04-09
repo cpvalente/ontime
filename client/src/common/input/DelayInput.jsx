@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
 import { clamp } from '../../app/utils/math';
 import style from './TimeInput.module.css';
 import PropTypes from 'prop-types';

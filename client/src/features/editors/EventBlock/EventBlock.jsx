@@ -1,7 +1,7 @@
+import React, { useContext, useMemo } from 'react';
 import Icon from '@chakra-ui/icon';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
-import { useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import EventTimes from 'common/components/eventTimes/EventTimes';
 import EventTimesVertical from 'common/components/eventTimes/EventTimesVertical';
@@ -10,21 +10,14 @@ import ActionButtons from '../list/ActionButtons';
 import PublicIconBtn from 'common/components/buttons/PublicIconBtn';
 import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
 import { millisToMinutes } from 'common/utils/dateConfig';
-import style from './EventBlock.module.css';
-import { HandleCollapse, SelectCollapse } from 'app/context/collapseAtom';
-import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
+import { CollapseContext } from '../../../app/context/CollapseContext';
+import style from './EventBlock.module.css';
 
 const ExpandedBlock = (props) => {
   const { provided, data, eventIndex, next, delay, delayValue, previousEnd, actionHandler } = props;
 
   const oscid = data?.id || '...';
-
-  // if end is before, assume is the day after
-  const duration =
-    data.timeStart > data.timeEnd
-      ? data.timeEnd + 86400000 - data.timeStart
-      : data.timeEnd - data.timeStart;
 
   return (
     <>
@@ -41,7 +34,7 @@ const ExpandedBlock = (props) => {
           actionHandler={actionHandler}
           timeStart={data.timeStart}
           timeEnd={data.timeEnd}
-          duration={duration}
+          duration={data.duration}
           delay={delay}
           previousEnd={previousEnd}
           className={style.time}
@@ -95,7 +88,7 @@ ExpandedBlock.propTypes = {
   next: PropTypes.bool.isRequired,
   delay: PropTypes.number,
   delayValue: PropTypes.string,
-  previousEnd: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number,
   actionHandler: PropTypes.func.isRequired,
 };
 
@@ -147,13 +140,13 @@ CollapsedBlock.propTypes = {
 };
 
 export default function EventBlock(props) {
-  const { data, selected, delay, index, eventIndex, previousEnd, actionHandler } = props;
-  const [collapsed] = useAtom(useMemo(() => SelectCollapse(data.id), [data.id]));
-  const [, setCollapsed] = useAtom(HandleCollapse);
+  const { data, selected, delay, index, eventIndex, previousEnd, actionHandler, next } = props;
+  const { isCollapsed, setCollapsed } = useContext(CollapseContext);
+  const collapsed = useMemo(() => isCollapsed(data.id), [data.id, isCollapsed]);
 
-  const isSelected = selected ? style.active : '';
-  const isCollapsed = collapsed ? style.collapsed : style.expanded;
-  const classSelect = `${style.event} ${isCollapsed} ${isSelected}`;
+  const selectedStyle = selected ? style.active : '';
+  const collapsedStyle = collapsed ? style.collapsed : style.expanded;
+  const classSelect = `${style.event} ${collapsedStyle} ${selectedStyle}`;
 
   // Calculate delay in min
   let delayValue = null;
@@ -161,7 +154,7 @@ export default function EventBlock(props) {
     delayValue = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
   }
   const handleCollapse = (isCollapsed) => {
-    setCollapsed({ [data.id]: isCollapsed });
+    setCollapsed(data.id, isCollapsed);
   };
 
   return (
@@ -177,7 +170,7 @@ export default function EventBlock(props) {
             <CollapsedBlock
               provided={provided}
               data={data}
-              next={props.next}
+              next={next}
               delay={delay}
               delayValue={delayValue}
               previousEnd={previousEnd}
@@ -188,7 +181,7 @@ export default function EventBlock(props) {
               provided={provided}
               eventIndex={eventIndex}
               data={data}
-              next={props.next}
+              next={next}
               delay={delay}
               delayValue={delayValue}
               previousEnd={previousEnd}
@@ -207,6 +200,7 @@ EventBlock.propTypes = {
   delay: PropTypes.number,
   index: PropTypes.number.isRequired,
   eventIndex: PropTypes.number.isRequired,
-  previousEnd: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number,
   actionHandler: PropTypes.func.isRequired,
+  next: PropTypes.bool,
 };

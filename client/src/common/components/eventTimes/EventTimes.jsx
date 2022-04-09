@@ -1,5 +1,5 @@
+import React, { useContext } from 'react';
 import EditableTimer from 'common/input/EditableTimer';
-import { useContext } from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { validateTimes } from '../../../app/entryValidator';
 import PropTypes from 'prop-types';
@@ -8,6 +8,13 @@ export default function EventTimes(props) {
   const { actionHandler, delay, timeStart, timeEnd, previousEnd } = props;
   const { emitWarning } = useContext(LoggingContext);
 
+  /**
+   * This code is duplicated from EventTimesVertical
+   * @description Validates a time input against its pair
+   * @param {string} entry - field to validate: timeStart, timeEnd, durationOverride
+   * @param {number} val - field value
+   * @return {boolean}
+   */
   const handleValidate = (entry, val) => {
     if (val == null || timeStart == null || timeEnd == null) return true;
     if (timeStart === 0) return true;
@@ -18,8 +25,10 @@ export default function EventTimes(props) {
       start = val;
     } else if (entry === 'timeEnd') {
       end = val;
+    } else if (entry === 'durationOverride'){
+      return true;
     } else {
-      return;
+      return false
     }
 
     const valid = validateTimes(start, end);
@@ -54,8 +63,8 @@ export default function EventTimes(props) {
 
 EventTimes.propTypes = {
   actionHandler: PropTypes.func.isRequired,
-  delay: PropTypes.number.isRequired,
-  timeStart: PropTypes.number.isRequired,
-  timeEnd: PropTypes.number.isRequired,
-  previousEnd: PropTypes.number.isRequired,
+  delay: PropTypes.number,
+  timeStart: PropTypes.number,
+  timeEnd: PropTypes.number,
+  previousEnd: PropTypes.number,
 };

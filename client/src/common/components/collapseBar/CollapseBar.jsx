@@ -1,3 +1,4 @@
+import React from 'react';
 import PropTypes from "prop-types";
 import style from "../../../features/info/Info.module.scss";
 import {Icon} from "@chakra-ui/react";

@@ -59,18 +59,31 @@ const upload = async (file, req, res) => {
     if (result?.error) {
       res.status(400).send({ message: result.message });
     } else if (result.message === 'success') {
-      if (result.data != null) {
-        if (result.data?.events != null) {
+      // explicitly write objects
+      if (typeof result.data !== 'undefined') {
+        if (typeof result.data?.events !== 'undefined') {
           data.events = result.data.events;
           global.timer.setupWithEventList(result.data?.events);
         }
-        if (result.data?.event != null) {
+        if (typeof result.data?.event !== 'undefined') {
           data.event = result.data.event;
         }
-        if (result.data?.settings != null) {
+        if (typeof result.data?.settings !== 'undefined') {
           data.settings = result.data.settings;
         }
-        db.write();
+        if (typeof result.data?.osc !== 'undefined') {
+          data.osc = result.data.osc;
+        }
+        if (typeof result.data?.http !== 'undefined') {
+          data.http = result.data.http;
+        }
+        if (typeof result.data?.aliases !== 'undefined') {
+          data.aliases = result.data.aliases;
+        }
+        if (typeof result.data?.userFields !== 'undefined') {
+          data.userFields = result.data.userFields;
+        }
+        await db.write();
       }
       res.sendStatus(200);
     } else {
@@ -156,6 +169,35 @@ export const postAliases = async (req, res) => {
       });
     });
     data.aliases = newAliases;
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+// Create controller for GET request to '/ontime/userfields'
+// Returns -
+export const getUserFields = async (req, res) => {
+  // send userFields array
+  res.status(200).send(data.userFields);
+};
+
+// Create controller for POST request to '/ontime/userfields'
+// Returns ACK message
+export const postUserFields = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  try {
+    const newUserFields = { ...data.userFields };
+    for (const field in newUserFields) {
+      if (typeof req.body[field] !== 'undefined') {
+        newUserFields[field] = req.body[field];
+      }
+    }
+    data.userFields = newUserFields;
     await db.write();
     res.sendStatus(200);
   } catch (error) {

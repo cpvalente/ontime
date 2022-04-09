@@ -1,3 +1,4 @@
+import React from 'react';
 import { clamp } from 'app/utils/math';
 import styles from './MyProgressBar.module.css';
 

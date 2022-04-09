@@ -1,7 +1,7 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input } from '@chakra-ui/react';
 import { getOSC, oscPlaceholderSettings, postOSC } from 'app/api/ontimeApi';
-import { useContext, useEffect, useState } from 'react';
 import { useFetch } from 'app/hooks/useFetch';
 import { OSC_SETTINGS } from 'app/api/apiConstants';
 import style from './Modals.module.scss';
@@ -232,7 +232,7 @@ export default function OscSettingsModal() {
           </div>
           <div className={style.blockNotes}>
             <span className={style.inlineFlex}>
-              <IoInformationCircleOutline color='#2b6cb0' fontSize={'2em'} />
+              <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
               OSC Feedback messages
             </span>
             <span>

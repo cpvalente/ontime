@@ -1,13 +1,14 @@
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiDownload } from '@react-icons/all-files/fi/FiDownload';
 
 export default function DownloadIconBtn(props) {
-  const { clickhandler, ...rest } = props;
+  const { clickhandler, size, ...rest } = props;
   return (
     <Tooltip label='Export event list'>
       <IconButton
-        size={props.size || 'xs'}
+        size={size || 'xs'}
         icon={<FiDownload />}
         colorScheme='white'
         onClick={clickhandler}

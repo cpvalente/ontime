@@ -1,13 +1,14 @@
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 
 export default function SettingsIconBtn(props) {
-  const { clickhandler, ...rest } = props;
+  const { clickhandler, size, ...rest } = props;
   return (
     <Tooltip label='Settings'>
       <IconButton
-        size={props.size || 'xs'}
+        size={size || 'xs'}
         icon={<FiSettings />}
         colorScheme='white'
         onClick={clickhandler}

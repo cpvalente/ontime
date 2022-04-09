@@ -1,14 +1,15 @@
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 
 export default function CursorLockedBtn(props) {
-  const { clickhandler, active, ref } = props;
+  const { clickhandler, active, ref, size } = props;
   return (
     <Tooltip label='Lock cursor to current'>
-        <IconButton
+      <IconButton
         ref={ref}
-        size={props.size || 'xs'}
+        size={size || 'xs'}
         icon={<FiTarget />}
         color={active ? 'pink.100' : 'pink.300'}
         borderColor={active ? undefined : 'pink.300'}

@@ -21,6 +21,19 @@ export const eventPlaceholderSettings = {
   endMessage: '',
 };
 
+export const userFieldsPlaceholder = {
+  user0: '',
+  user1: '',
+  user2: '',
+  user3: '',
+  user4: '',
+  user5: '',
+  user6: '',
+  user7: '',
+  user8: '',
+  user9: '',
+};
+
 export const oscPlaceholderSettings = {
   port: '',
   portOut: '',
@@ -92,7 +105,7 @@ export const getSettings = async () => {
 };
 
 export const postSettings = async (data) => {
-  return await axios.post(`${ontimeURL}/settings`, data);
+  await axios.post(`${ontimeURL}/settings`, data);
 };
 
 export const getInfo = async () => {
@@ -101,7 +114,7 @@ export const getInfo = async () => {
 };
 
 export const postInfo = async (data) => {
-  return await axios.post(`${ontimeURL}/info`, data);
+  await axios.post(`${ontimeURL}/info`, data);
 };
 
 export const getAliases = async () => {
@@ -110,7 +123,17 @@ export const getAliases = async () => {
 };
 
 export const postAliases = async (data) => {
-  return await axios.post(`${ontimeURL}/aliases`, data);
+  await axios.post(`${ontimeURL}/aliases`, data);
+};
+
+
+export const getUserFields = async () => {
+  const res = await axios.get(`${ontimeURL}/userfields`);
+  return res.data;
+};
+
+export const postUserFields = async (data) => {
+  await axios.post(`${ontimeURL}/userfields`, data);
 };
 
 export const getOSC = async () => {
@@ -119,7 +142,7 @@ export const getOSC = async () => {
 };
 
 export const postOSC = async (data) => {
-  return await axios.post(`${ontimeURL}/osc`, data);
+  await axios.post(`${ontimeURL}/osc`, data);
 };
 
 export const downloadEvents = async () => {

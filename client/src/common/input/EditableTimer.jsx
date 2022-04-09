@@ -1,5 +1,5 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { useContext, useEffect, useState } from 'react';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 import { stringFromMillis } from 'ontime-utils/time';
 import style from './EditableTimer.module.css';
@@ -12,6 +12,16 @@ export default function EditableTimer(props) {
   const [value, setValue] = useState('');
 
   // prepare time fields
+  const validateValue = (value) => {
+    const success = handleSubmit(value);
+    if (success) {
+      const ms = forgivingStringToMillis(value);
+      setValue(stringFromMillis(ms + delay));
+    } else {
+      setValue(stringFromMillis(time + delay));
+    }
+  };
+
   useEffect(() => {
     if (time == null) return;
     try {
@@ -21,27 +31,19 @@ export default function EditableTimer(props) {
     }
   }, [time, delay, emitError]);
 
-  const validateValue = (value) => {
-    const success = handleSubmit(value);
-    if (success) setValue(value);
-    else setValue(stringFromMillis(time + delay, true));
-  };
-
   const handleSubmit = (value) => {
     // Check if there is anything there
     if (value === '') return false;
 
-    let newValMillis;
+    let newValMillis = 0;
 
     // check for known aliases
     if (value === 'p' || value === 'prev' || value === 'previous') {
       // string to pass should be the time of the end before
       if (previousEnd != null) {
         newValMillis = previousEnd;
-      } else {
-        newValMillis = 0;
       }
-    } else if (value.startsWith('+')) {
+    } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
       // string to pass should add to the end before
       const val = value.substring(1);
       newValMillis = previousEnd + forgivingStringToMillis(val);
@@ -65,10 +67,11 @@ export default function EditableTimer(props) {
     return true;
   };
 
-  const isDelayed = (delay != null && delay !== 0)
+  const isDelayed = delay != null && delay !== 0;
 
   return (
     <Editable
+      data-testid='editable-timer'
       onChange={(v) => setValue(v)}
       onSubmit={(v) => validateValue(v)}
       onCancel={() => setValue(stringFromMillis(time + delay, true))}
@@ -76,7 +79,7 @@ export default function EditableTimer(props) {
       className={isDelayed ? style.delayedEditable : style.editable}
     >
       <EditablePreview />
-      <EditableInput type='text' placeholder='--:--:--' />
+      <EditableInput type='text' placeholder='--:--:--' data-testid='editable-timer-input' />
     </Editable>
   );
 }
@@ -84,8 +87,8 @@ export default function EditableTimer(props) {
 EditableTimer.propTypes = {
   name: PropTypes.string.isRequired,
   actionHandler: PropTypes.func.isRequired,
-  time: PropTypes.number.isRequired,
-  delay: PropTypes.number.isRequired,
+  time: PropTypes.number,
+  delay: PropTypes.number,
   validate: PropTypes.func.isRequired,
-  previousEnd: PropTypes.number.isRequired,
+  previousEnd: PropTypes.number,
 };

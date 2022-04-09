@@ -1,11 +1,12 @@
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { Tooltip } from '@chakra-ui/tooltip';
 
 export default function NextIconBtn(props) {
-  const { clickhandler, ...rest } = props;
+  const { clickhandler, disabled, ...rest } = props;
   return (
-    <Tooltip label='Next event' openDelay={500} shouldWrapChildren={props.disabled}>
+    <Tooltip label='Next event' openDelay={500} shouldWrapChildren={disabled}>
       <IconButton
         icon={<IoPlaySkipForward size='22px' />}
         colorScheme='whiteAlpha'

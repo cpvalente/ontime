@@ -1,4 +1,4 @@
-import { memo, useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import { Divider } from '@chakra-ui/react';
 import { CursorContext } from '../../app/context/CursorContext';
 import MenuActionButtons from './MenuActionButtons';

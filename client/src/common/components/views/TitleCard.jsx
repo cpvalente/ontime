@@ -1,3 +1,4 @@
+import React from 'react';
 import style from './TitleCard.module.css';
 
 export default function TitleCard(props) {

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
 import { FiClock } from '@react-icons/all-files/fi/FiClock';
@@ -23,8 +24,8 @@ export default function ActionButtons(props) {
           icon={<FiPlus />}
           _expanded={{ bg: 'orange.300', color: 'white' }}
           _focus={{ boxShadow: 'none' }}
-          backgroundColor={'orange.200'}
-          color={'orange.500'}
+          backgroundColor='orange.200'
+          color='orange.500'
         />
       </Tooltip>
       <MenuList style={menuStyle}>
