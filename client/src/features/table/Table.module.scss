@@ -41,9 +41,17 @@
       font-size: 1.5em;
     }
 
+    .headerName:after {
+      content: '\200b';
+    }
+
     .headerNow {
       grid-area: now;
       font-size: 1.25em;
+    }
+
+    .headerNow:after {
+      content: '\200b';
     }
 
     .headerPlayback {
