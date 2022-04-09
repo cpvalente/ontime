@@ -32,6 +32,7 @@ export default function OntimeTable({
   handleUpdate,
   selectedId,
   showSettings,
+  followSelected,
 }) {
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
   const [columnSize, saveColumnSize] = useLocalStorage('table-sizes', {});
@@ -142,6 +143,18 @@ export default function OntimeTable({
     saveColumnSize((prev) => ({ ...prev, ...cols }));
   }, [saveColumnSize, state.columnResizing]);
 
+  // scroll to active cue
+  useEffect(() => {
+    if (followSelected) {
+      const el = document.getElementById(selectedId);
+      el.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
+  }, [followSelected, selectedId]);
+
   // keep order of events
   let eventIndex = 0;
   // keep delay (ms)
@@ -191,8 +204,8 @@ export default function OntimeTable({
           })}
         </thead>
         <tbody {...getTableBodyProps} className={style.tableBody}>
-        {/*This is saving in place of a default component*/}
-        {/* eslint-disable-next-line array-callback-return */}
+          {/*This is saving in place of a default component*/}
+          {/* eslint-disable-next-line array-callback-return */}
           {rows.map((row) => {
             prepareRow(row);
             const { key } = row.getRowProps();
@@ -232,4 +245,5 @@ OntimeTable.propTypes = {
   handleUpdate: PropTypes.func.isRequired,
   selectedId: PropTypes.string,
   showSettings: PropTypes.bool,
+  followSelected: PropTypes.bool,
 };

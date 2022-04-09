@@ -18,6 +18,7 @@ export default function TableWrapper() {
   const [theme, setTheme] = useLocalStorage('table-color-theme', 'dark');
   const [showSettings, setShowSettings] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [followSelected, setFollowSelected] = useState(false);
 
   /**
    * @description Toggles the current value of dark mode
@@ -103,6 +104,8 @@ export default function TableWrapper() {
         setShowSettings={setShowSettings}
         setDark={toggleDark}
         loading={status === 'loading'}
+        followSelected={followSelected}
+        setFollowSelected={setFollowSelected}
       />
       <OntimeTable
         tableData={tableData}
@@ -110,6 +113,7 @@ export default function TableWrapper() {
         handleUpdate={handleUpdate}
         selectedId={selectedId}
         showSettings={showSettings}
+        followSelected={followSelected}
       />
     </div>
   );

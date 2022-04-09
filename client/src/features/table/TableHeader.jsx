@@ -11,9 +11,10 @@ import PropTypes from 'prop-types';
 import { Tooltip } from '@chakra-ui/tooltip';
 import PlaybackIcon from './tableElements/PlaybackIcon';
 import style from './Table.module.scss';
+import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 
 export default function TableHeader(props) {
-  const { setDark, setShowSettings } = props;
+  const { setDark, setShowSettings, followSelected, setFollowSelected } = props;
   const { data } = useFetch(EVENT_TABLE, fetchEvent);
 
   const socket = useSocket();
@@ -74,9 +75,9 @@ export default function TableHeader(props) {
       if (data.total === 0 || data.total == null) {
         setSelected('');
       } else {
-        const formattedCurrent = `${
-          data.index != null ? data.index + 1 : '-'
-        }/${data.total != null ? data.total : '-'}`;
+        const formattedCurrent = `${data.index != null ? data.index + 1 : '-'}/${
+          data.total != null ? data.total : '-'
+        }`;
         setSelected(formattedCurrent);
       }
     });
@@ -114,6 +115,11 @@ export default function TableHeader(props) {
       </div>
       <div className={style.headerActions}>
         <span style={{ paddingRight: '4px' }} />
+        <Tooltip openDelay={300} label='Follow selected'>
+          <span className={followSelected ? style.actionIcon : style.actionDisabled}>
+            <FiTarget onClick={() => setFollowSelected((prev) => !prev)} />
+          </span>
+        </Tooltip>
         <Tooltip openDelay={300} label='Show settings'>
           <span className={style.actionIcon}>
             <FiSettings onClick={() => setShowSettings((prev) => !prev)} />
@@ -130,11 +136,12 @@ export default function TableHeader(props) {
 }
 
 TableHeader.propTypes = {
-  // set follow
   refetchEvents: PropTypes.func.isRequired,
   // save needs a mutation
   // download events
   setShowSettings: PropTypes.func.isRequired,
   setDark: PropTypes.func.isRequired,
   loading: PropTypes.bool,
+  followSelected: PropTypes.bool,
+  setFollowSelected: PropTypes.func.isRequired,
 };

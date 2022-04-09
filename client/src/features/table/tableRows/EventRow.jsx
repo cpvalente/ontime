@@ -24,8 +24,9 @@ export default function EventRow(props) {
   const selected = row.original.id === selectedId;
   const colours = selCol(row.original.colour);
 
+
   return (
-    <tr {...row.getRowProps()} className={selected ? style.selected : ''}>
+    <tr {...row.getRowProps()} className={selected ? style.selected : ''} id={row.original.id}>
       <td className={style.indexColumn}>{index}</td>
       {row.cells.map((cell) => {
         const { key, style, ...restCellProps } = cell.getCellProps();
