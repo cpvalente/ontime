@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
+import { TableSettingsContext } from '../../app/context/TableSettingsContext';
 import { EVENT_TABLE } from '../../app/api/apiConstants';
 import { fetchEvent } from '../../app/api/eventApi';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
+import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { useSocket } from '../../app/context/socketContext';
 import { stringFromMillis } from 'ontime-utils/time';
 import { formatDisplay } from '../../common/utils/dateConfig';
-import PropTypes from 'prop-types';
 import { Tooltip } from '@chakra-ui/tooltip';
 import PlaybackIcon from './tableElements/PlaybackIcon';
 import style from './Table.module.scss';
-import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 
-export default function TableHeader(props) {
-  const { setDark, setShowSettings, followSelected, setFollowSelected } = props;
+export default function TableHeader() {
+  const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
+    useContext(TableSettingsContext);
   const { data } = useFetch(EVENT_TABLE, fetchEvent);
 
   const socket = useSocket();
@@ -76,7 +77,7 @@ export default function TableHeader(props) {
         setSelected('');
       } else {
         const formattedCurrent = `${data.index != null ? data.index + 1 : '-'}/${
-          data.total != null ? data.total : '-'
+          data.total ? data.total : '-'
         }`;
         setSelected(formattedCurrent);
       }
@@ -114,34 +115,22 @@ export default function TableHeader(props) {
         <span className={style.timer}>{stringFromMillis(timer.clock)}</span>
       </div>
       <div className={style.headerActions}>
-        <span style={{ paddingRight: '4px' }} />
         <Tooltip openDelay={300} label='Follow selected'>
           <span className={followSelected ? style.actionIcon : style.actionDisabled}>
-            <FiTarget onClick={() => setFollowSelected((prev) => !prev)} />
+            <FiTarget onClick={() => toggleFollow()} />
           </span>
         </Tooltip>
         <Tooltip openDelay={300} label='Show settings'>
-          <span className={style.actionIcon}>
-            <FiSettings onClick={() => setShowSettings((prev) => !prev)} />
+          <span className={showSettings ? style.actionIcon : style.actionDisabled}>
+            <FiSettings onClick={() => toggleSettings()} />
           </span>
         </Tooltip>
         <Tooltip openDelay={300} label='Toggle dark mode'>
           <span className={style.actionIcon}>
-            <IoMoon onClick={() => setDark()} />
+            <IoMoon onClick={() => toggleTheme()} />
           </span>
         </Tooltip>
       </div>
     </div>
   );
 }
-
-TableHeader.propTypes = {
-  refetchEvents: PropTypes.func.isRequired,
-  // save needs a mutation
-  // download events
-  setShowSettings: PropTypes.func.isRequired,
-  setDark: PropTypes.func.isRequired,
-  loading: PropTypes.bool,
-  followSelected: PropTypes.bool,
-  setFollowSelected: PropTypes.func.isRequired,
-};

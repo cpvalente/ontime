@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import { TableSettingsContext } from '../../app/context/TableSettingsContext';
 import { useBlockLayout, useColumnOrder, useResizeColumns, useTable } from 'react-table';
 import { Tooltip } from '@chakra-ui/tooltip';
 import PropTypes from 'prop-types';
@@ -26,14 +27,8 @@ import SortableCell from './tableElements/SortableCell';
 import TableSettings from './tableElements/TableSettings';
 import style from './Table.module.scss';
 
-export default function OntimeTable({
-  tableData,
-  userFields,
-  handleUpdate,
-  selectedId,
-  showSettings,
-  followSelected,
-}) {
+export default function OntimeTable({ tableData, userFields, handleUpdate, selectedId }) {
+  const { followSelected, showSettings } = useContext(TableSettingsContext);
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
   const [columnSize, saveColumnSize] = useLocalStorage('table-sizes', {});
   const [hiddenColumns, saveHiddenColumns] = useLocalStorage('table-hidden', defaultHiddenColumns);
@@ -147,11 +142,13 @@ export default function OntimeTable({
   useEffect(() => {
     if (followSelected) {
       const el = document.getElementById(selectedId);
-      el.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest',
-      });
+      if (el) {
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest',
+        });
+      }
     }
   }, [followSelected, selectedId]);
 
@@ -173,66 +170,66 @@ export default function OntimeTable({
       )}
       <table {...getTableProps()} className={style.ontimeTable}>
         <thead className={style.tableHeader}>
-          {headerGroups.map((headerGroup) => {
-            const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
-            return (
-              <DndContext
-                key={key}
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleOnDragEnd}
-              >
-                <tr {...restHeaderGroupProps}>
-                  <th className={style.indexColumn}>
-                    <Tooltip label='Event Order' openDelay={300}>
-                      #
-                    </Tooltip>
-                  </th>
-                  <SortableContext
-                    key={key}
-                    items={headerGroup.headers}
-                    strategy={horizontalListSortingStrategy}
-                  >
-                    {headerGroup.headers.map((column) => {
-                      const { key } = column.getHeaderProps();
-                      return <SortableCell key={key} column={column} />;
-                    })}
-                  </SortableContext>
-                </tr>
-              </DndContext>
-            );
-          })}
+        {headerGroups.map((headerGroup) => {
+          const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
+          return (
+            <DndContext
+              key={key}
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleOnDragEnd}
+            >
+              <tr {...restHeaderGroupProps}>
+                <th className={style.indexColumn}>
+                  <Tooltip label='Event Order' openDelay={300}>
+                    #
+                  </Tooltip>
+                </th>
+                <SortableContext
+                  key={key}
+                  items={headerGroup.headers}
+                  strategy={horizontalListSortingStrategy}
+                >
+                  {headerGroup.headers.map((column) => {
+                    const { key } = column.getHeaderProps();
+                    return <SortableCell key={key} column={column} />;
+                  })}
+                </SortableContext>
+              </tr>
+            </DndContext>
+          );
+        })}
         </thead>
         <tbody {...getTableBodyProps} className={style.tableBody}>
-          {/*This is saving in place of a default component*/}
-          {/* eslint-disable-next-line array-callback-return */}
-          {rows.map((row) => {
-            prepareRow(row);
-            const { key } = row.getRowProps();
-            const type = row.original.type;
-            if (type === 'event') {
-              eventIndex++;
-              return (
-                <EventRow
-                  key={key}
-                  row={row}
-                  index={eventIndex}
-                  selectedId={selectedId}
-                  delay={cumulativeDelay}
-                />
-              );
+        {/*This is saving in place of a default component*/}
+        {/* eslint-disable-next-line array-callback-return */}
+        {rows.map((row) => {
+          prepareRow(row);
+          const { key } = row.getRowProps();
+          const type = row.original.type;
+          if (type === 'event') {
+            eventIndex++;
+            return (
+              <EventRow
+                key={key}
+                row={row}
+                index={eventIndex}
+                selectedId={selectedId}
+                delay={cumulativeDelay}
+              />
+            );
+          }
+          if (type === 'delay') {
+            if (row.original.duration != null) {
+              cumulativeDelay += row.original.duration;
             }
-            if (type === 'delay') {
-              if (row.original.duration != null) {
-                cumulativeDelay += row.original.duration;
-              }
-              return <DelayRow key={key} row={row} />;
-            }
-            if (type === 'block') {
-              cumulativeDelay = 0;
-              return <BlockRow key={key} row={row} />;
-            }
-          })}
+            return <DelayRow key={key} row={row} />;
+          }
+          if (type === 'block') {
+            cumulativeDelay = 0;
+            return <BlockRow key={key} row={row} />;
+          }
+        })}
         </tbody>
       </table>
     </>

@@ -7,6 +7,7 @@ import ProtectRoute from './common/components/protectRoute/ProtectRoute';
 import { useFetch } from './app/hooks/useFetch';
 import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
+import { TableSettingsProvider } from './app/context/TableSettingsContext';
 
 const Editor = lazy(() => import('features/editors/Editor'));
 const Table = lazy(() => import('features/table/TableWrapper'));
@@ -36,7 +37,9 @@ const ProtectedEditor = () => (
 
 const ProtectedTable = () => (
   <ProtectRoute>
-    <Table />
+    <TableSettingsProvider>
+      <Table />
+    </TableSettingsProvider>
   </ProtectRoute>
 );
 

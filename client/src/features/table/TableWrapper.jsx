@@ -1,43 +1,22 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
+import { useSocket } from '../../app/context/socketContext';
+import { TableSettingsContext } from '../../app/context/TableSettingsContext';
 import { EVENTS_TABLE, USERFIELDS } from '../../app/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../app/api/eventsApi';
-import { useLocalStorage } from '../../app/hooks/useLocalStorage';
-import { useSocket } from '../../app/context/socketContext';
 import TableHeader from './TableHeader';
 import OntimeTable from './OntimeTable';
 import useMutateEvents from '../../app/hooks/useMutateEvents';
-import style from './Table.module.scss';
 import { getUserFields } from '../../app/api/ontimeApi';
+import style from './Table.module.scss';
 
 export default function TableWrapper() {
-  const { data: tableData, status, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
+  const { data: tableData } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const { data: userFields } = useFetch(USERFIELDS, getUserFields);
   const mutation = useMutateEvents(requestPatch);
   const socket = useSocket();
-  const [theme, setTheme] = useLocalStorage('table-color-theme', 'dark');
-  const [showSettings, setShowSettings] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [followSelected, setFollowSelected] = useState(false);
-
-  /**
-   * @description Toggles the current value of dark mode
-   * @param {string} val - 'light' or 'dark'
-   */
-  const toggleDark = useCallback(
-    (val) => {
-      if (val === undefined) {
-        if (theme === 'light') {
-          setTheme('dark');
-        } else {
-          setTheme('light');
-        }
-      } else {
-        setTheme(val);
-      }
-    },
-    [setTheme, theme]
-  );
+  const { theme } = useContext(TableSettingsContext);
 
   /**
    * Handle incoming data from socket
@@ -99,21 +78,12 @@ export default function TableWrapper() {
   }
   return (
     <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
-      <TableHeader
-        refetchEvents={refetch}
-        setShowSettings={setShowSettings}
-        setDark={toggleDark}
-        loading={status === 'loading'}
-        followSelected={followSelected}
-        setFollowSelected={setFollowSelected}
-      />
+      <TableHeader />
       <OntimeTable
         tableData={tableData}
         userFields={userFields}
         handleUpdate={handleUpdate}
         selectedId={selectedId}
-        showSettings={showSettings}
-        followSelected={followSelected}
       />
     </div>
   );
