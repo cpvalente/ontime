@@ -225,13 +225,13 @@ export default function EventListWrapper() {
 
   // Events API
   const eventsHandler = useCallback(
-    async (action, payload, options = undefined) => {
+    async (action, payload, options) => {
       switch (action) {
         case 'add':
           try {
             let newEvent = { ...payload };
             // there is an option to pass an index of an array to use as start time
-            if (options?.startIsLastEnd !== undefined) {
+            if (typeof options?.startIsLastEnd !== 'undefined') {
               newEvent.timeStart = data[options.startIsLastEnd].timeEnd || 0;
             }
             // hard coding duration value to be as expected for now

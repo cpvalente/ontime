@@ -178,7 +178,7 @@ export default function EventList(props) {
                     )}
                     <div
                       ref={cursor === index ? cursorRef : undefined}
-                      className={cursor === index ? style.cursor : undefined}
+                      className={cursor === index ? style.cursor : ''}
                     >
                       <EventListItem
                         type={e.type}

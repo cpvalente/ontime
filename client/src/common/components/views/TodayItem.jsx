@@ -19,7 +19,7 @@ export default function TodayItem(props) {
   else if (selected === 2) selectStyle = style.entryFuture;
   return (
     <div className={selectStyle} style={{ borderLeft: `4px solid ${userColour}` }}>
-      <div className={`${style.entryTimes} ${backstageEvent ? style.backstage : undefined}`}>
+      <div className={`${style.entryTimes} ${backstageEvent ? style.backstage : ''}`}>
         {`${start} · ${end}`}
       </div>
       <div className={style.entryTitle}>{title}</div>

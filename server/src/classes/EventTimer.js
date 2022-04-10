@@ -1428,7 +1428,7 @@ export class EventTimer extends Timer {
    * @param {string} message
    * @param {any} [payload]
    */
-  async sendOsc(message, payload = undefined) {
+  async sendOsc(message, payload) {
     // Todo: add disabled osc check
     const reply = await this.osc.send(message, payload);
     if (!reply.success) {
