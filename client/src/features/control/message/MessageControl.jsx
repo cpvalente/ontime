@@ -1,40 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { useSocket } from 'app/context/socketContext';
-import VisibleIconBtn from 'common/components/buttons/VisibleIconBtn';
-import OnAirIconBtn from '../../common/components/buttons/OnAirIconBtn';
+import InputRow from './InputRow';
+import OnAirIconBtn from '../../../common/components/buttons/OnAirIconBtn';
 import style from './MessageControl.module.scss';
-
-const inputProps = {
-  size: 'sm',
-};
-
-const InputRow = (props) => {
-  const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
-
-  return (
-    <>
-      <span className={style.label}>{label}</span>
-      <div className={style.inputItems}>
-        <Editable
-          onChange={(event) => changeHandler(event)}
-          value={text}
-          placeholder={placeholder}
-          className={style.inline}
-          color={text === '' ? '#666' : 'inherit'}
-        >
-          <EditablePreview className={style.padleft} />
-          <EditableInput className={style.padleft} />
-        </Editable>
-        <VisibleIconBtn
-          active={visible || undefined}
-          actionHandler={actionHandler}
-          {...inputProps}
-        />
-      </div>
-    </>
-  );
-};
 
 export default function MessageControl() {
   const socket = useSocket();

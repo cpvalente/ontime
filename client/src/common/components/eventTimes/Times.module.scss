@@ -1,0 +1,6 @@
+@use '../../../styles/main' as *;
+
+.label {
+  font-size: 0.75em;
+  color: $label-gray;
+}

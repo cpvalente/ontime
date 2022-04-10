@@ -11,8 +11,8 @@ import { CollapseProvider } from '../../app/context/CollapseContext';
 import styles from './Editor.module.scss';
 
 const EventListWrapper = lazy(() => import('features/editors/list/EventListWrapper'));
-const PlaybackControl = lazy(() => import('features/control/PlaybackControl'));
-const MessageControl = lazy(() => import('features/control/MessageControl'));
+const PlaybackControl = lazy(() => import('features/control/playback/PlaybackControl'));
+const MessageControl = lazy(() => import('features/control/message/MessageControl'));
 const Info = lazy(() => import('features/info/Info'));
 
 export default function Editor() {

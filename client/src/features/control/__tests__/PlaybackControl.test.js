@@ -1,6 +1,7 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import SocketProvider from 'app/context/socketContext';
-import PlaybackControl from '../PlaybackControl';
+import PlaybackControl from '../playback/PlaybackControl';
 
 test('check that playback control renders', async () => {
   // need to inject the socket provider to make component
