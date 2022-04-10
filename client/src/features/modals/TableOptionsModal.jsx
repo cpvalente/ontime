@@ -34,7 +34,7 @@ export default function TableOptionsModal() {
 
     // validation step makes clean string
     const validatedFields = { ...userFields };
-    let errors = false;
+    const errors = false;
     for (const field in validatedFields) {
       validatedFields[field] = validatedFields[field].trim();
     }

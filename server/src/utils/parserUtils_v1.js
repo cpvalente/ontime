@@ -12,8 +12,8 @@ export const parseEvents_v1 = (data) => {
   let newEvents = [];
   if ('events' in data) {
     console.log('Found events definition, importing...');
-    let events = [];
-    let ids = [];
+    const events = [];
+    const ids = [];
     for (const e of data.events) {
       // cap number of events
       if (events.length >= MAX_EVENTS) {
@@ -28,7 +28,7 @@ export const parseEvents_v1 = (data) => {
       }
 
       if (e.type === 'event') {
-        let event = validateEvent_v1(e);
+        const event = validateEvent_v1(e);
         if (event != null) {
           events.push(event);
           ids.push(event.id);
@@ -94,7 +94,7 @@ export const parseSettings_v1 = (data, enforce) => {
     if (s.app == null || s.version == null) {
       console.log('ERROR: unknown app version, skipping');
     } else {
-      let settings = {
+      const settings = {
         lock: s.lock || null,
         pinCode: s.pinCode || null,
       };
@@ -123,7 +123,7 @@ export const parseOsc_v1 = (data, enforce) => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
     const s = data.osc;
-    let osc = {};
+    const osc = {};
 
     if (s.port) osc.port = s.port;
     if (s.portOut) osc.portOut = s.portOut;
@@ -149,7 +149,7 @@ export const parseOsc_v1 = (data, enforce) => {
  * @returns {object} - event object data
  */
 export const parseHttp_v1 = (data, enforce) => {
-  let newHttp = {};
+  const newHttp = {};
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
     const h = data.osc;
@@ -207,13 +207,13 @@ export const parseAliases_v1 = (data) => {
  * @returns {object} - event object data
  */
 export const parseUserFields_v1 = (data) => {
-  let newUserFields = dbModelv1.userFields;
+  const newUserFields = dbModelv1.userFields;
 
   if ('userFields' in data) {
     console.log('Found User Fields definition, importing...');
     // we will only be importing the fields we know, so look for that
     let fieldsFound = 0;
-    for (let n in newUserFields) {
+    for (const n in newUserFields) {
       if (n in data.userFields) {
         fieldsFound++;
         newUserFields[n] = data.userFields[n];

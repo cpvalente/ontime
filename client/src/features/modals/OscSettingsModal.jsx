@@ -97,7 +97,7 @@ export default function OscSettingsModal() {
     setSubmitting(true);
 
     const f = formData;
-    let e = { status: false, message: '' };
+    const e = { status: false, message: '' };
 
     // Validate fields
     if (f.port < 1024 || f.port > 65535) {

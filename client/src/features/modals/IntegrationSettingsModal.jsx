@@ -45,13 +45,11 @@ export default function IntegrationSettingsModal() {
     // set fields with error
     if (e.status) {
       emitError(`Invalid Input: ${e.message}`);
-      return;
     } else {
       await postInfo(f);
       setChanged(false);
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 
   /**

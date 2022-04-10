@@ -13,9 +13,9 @@ const MAX_EVENTS = 99;
 
 async function _insertAt(entry, index) {
   // get events
-  let events = data.events;
-  let count = events.length;
-  let order = entry.order;
+  const events = data.events;
+  const count = events.length;
+  const order = entry.order;
 
   // Remove order field from object
   delete entry.order;
@@ -146,7 +146,7 @@ export const eventsPut = async (req, res) => {
     return;
   }
 
-  let eventId = req.body.id;
+  const eventId = req.body.id;
   if (!eventId) {
     res.status(400).send(`Object malformed: id missing`);
     return;
@@ -191,8 +191,8 @@ export const eventsReorder = async (req, res) => {
   const { index, from, to } = req.body;
 
   // get events
-  let events = data.events;
-  let idx = events.findIndex((e) => e.id === index, from);
+  const events = data.events;
+  const idx = events.findIndex((e) => e.id === index, from);
 
   // Check if item is at given index
   if (idx !== from) {
@@ -233,7 +233,7 @@ export const eventsApplyDelay = async (req, res) => {
 
   try {
     // get events
-    let events = data.events;
+    const events = data.events;
 
     // AUX
     let delayIndex = null;

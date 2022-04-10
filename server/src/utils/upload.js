@@ -3,6 +3,27 @@ import { existsSync, mkdirSync } from 'fs';
 import * as path from 'path';
 import { EXCEL_MIME, JSON_MIME } from './parser.js';
 
+/**
+ * @description Returns public path depending on os
+ * @return {string|*}
+ */
+function getAppDataPath() {
+  switch (process.platform) {
+    case 'darwin': {
+      return path.join(process.env.HOME, 'Library', 'Application Support', 'Ontime');
+    }
+    case 'win32': {
+      return path.join(process.env.APPDATA, 'Ontime');
+    }
+    case 'linux': {
+      return path.join(process.env.HOME, '.Ontime');
+    }
+    default: {
+      return '';
+    }
+  }
+}
+
 // Define multer storage object
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -25,7 +46,7 @@ const storage = multer.diskStorage({
     cb(null, newDestination);
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '--' + file.originalname);
+    cb(null, `${Date.now()}--${file.originalname}`);
   },
 });
 
@@ -48,24 +69,3 @@ export const uploadFile = multer({
   storage: storage,
   fileFilter: filterAllowed,
 }).single('userFile');
-
-/**
- * @description Returns public path depending on os
- * @return {string|*}
- */
-function getAppDataPath() {
-  switch (process.platform) {
-    case 'darwin': {
-      return path.join(process.env.HOME, 'Library', 'Application Support', 'Ontime');
-    }
-    case 'win32': {
-      return path.join(process.env.APPDATA, 'Ontime');
-    }
-    case 'linux': {
-      return path.join(process.env.HOME, '.Ontime');
-    }
-    default: {
-      return '';
-    }
-  }
-}

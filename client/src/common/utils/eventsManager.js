@@ -66,7 +66,7 @@ export const formatEventList = (events, selectedId, nextId, showEnd = false) => 
   const givenEvents = [...events];
 
   // format list
-  let formattedEvents = [];
+  const formattedEvents = [];
   for (const g of givenEvents) {
     const start = stringFromMillis(g.timeStart, false);
     const end = stringFromMillis(g.timeEnd, false);

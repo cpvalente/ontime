@@ -5,7 +5,7 @@
  * @returns {{catch: string, value: boolean}}
  */
 export const validateTimes = (timeStart, timeEnd) => {
-  let validate = { value: true, catch: '' };
+  const validate = { value: true, catch: '' };
   if (timeStart > timeEnd) {
     validate.catch = 'Start time later than end time';
   }

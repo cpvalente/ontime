@@ -140,13 +140,13 @@ export const downloadEvents = async () => {
     method: 'GET',
     responseType: 'blob', // important
   }).then((response) => {
-    let headerLine = response.headers['Content-Disposition'];
+    const headerLine = response.headers['Content-Disposition'];
     let filename = 'events.json';
 
     // try and get the filename from the response
     if (headerLine != null) {
-      let startFileNameIndex = headerLine.indexOf('"') + 1;
-      let endFileNameIndex = headerLine.lastIndexOf('"');
+      const startFileNameIndex = headerLine.indexOf('"') + 1;
+      const endFileNameIndex = headerLine.lastIndexOf('"');
       filename = headerLine.substring(startFileNameIndex, endFileNameIndex);
     }
 

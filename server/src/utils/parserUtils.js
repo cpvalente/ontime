@@ -9,7 +9,7 @@ import fs from 'fs';
 export const makeString = (val, fallback = '') => {
   if (typeof val === 'string') return val;
   else if (val == null || val.constructor === Object) return fallback;
-  else return val.toString();
+  return val.toString();
 };
 
 /**

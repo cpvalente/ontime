@@ -16,18 +16,16 @@ export default function Paginator(props) {
   useEffect(() => {
     if (events == null) return;
     // how many events in list
-    let n = events.length;
+    const n = events.length;
     setNumEvents(n);
 
     // how many paginated views
-    let p = Math.ceil(n / LIMIT_PER_PAGE);
-    setPages(p);
+    setPages(Math.ceil(n / LIMIT_PER_PAGE));
 
     // divide events in parts of LIMIT_PER_PAGE
     const eventStart = LIMIT_PER_PAGE * selPage;
     const eventEnd = LIMIT_PER_PAGE * (selPage + 1);
-    let e = events.slice(eventStart, eventEnd);
-    setPage(e);
+    setPage(events.slice(eventStart, eventEnd));
 
     // if array is completely in past, show depending on SCROLL_PAST
   }, [events, selPage, LIMIT_PER_PAGE]);

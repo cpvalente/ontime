@@ -78,7 +78,7 @@ export default function AppSettingsModal() {
 
     // we might not have changed this
     if (f.pinCode !== data.pinCode) {
-      let e = { status: false, message: '' };
+      const e = { status: false, message: '' };
 
       // Validate fields
       if (f.pinCode === '' || f.pinCode == null) {

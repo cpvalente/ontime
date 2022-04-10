@@ -14,10 +14,7 @@ export const requestPatch = async (data) => axios.patch(eventsURL, data);
 
 export const requestReorder = async (data) => axios.patch(`${eventsURL}/reorder`, data);
 
-export const requestApplyDelay = async (eventId) => {
-  const action = 'applydelay';
-  return await axios.patch(`${eventsURL}/${action}/${eventId}`);
-};
+export const requestApplyDelay = async (eventId) => axios.patch(`${eventsURL}/applydelay/${eventId}`);
 
 export const requestDelete = async (eventId) => axios.delete(`${eventsURL}/${eventId}`);
 

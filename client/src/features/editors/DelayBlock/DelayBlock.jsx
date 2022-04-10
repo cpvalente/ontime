@@ -16,7 +16,7 @@ export default function DelayBlock(props) {
     eventsHandler('applyDelay', { id: data.id, duration: data.duration });
   };
 
-  let delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
+  const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (

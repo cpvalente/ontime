@@ -11,25 +11,6 @@ export default function EditableTimer(props) {
   const { emitError } = useContext(LoggingContext);
   const [value, setValue] = useState('');
 
-  // prepare time fields
-  const validateValue = (value) => {
-    const success = handleSubmit(value);
-    if (success) {
-      const ms = forgivingStringToMillis(value);
-      setValue(stringFromMillis(ms + delay));
-    } else {
-      setValue(stringFromMillis(time + delay));
-    }
-  };
-
-  useEffect(() => {
-    if (time == null) return;
-    try {
-      setValue(stringFromMillis(time + delay));
-    } catch (error) {
-      emitError(`Unable to parse date: ${error.text}`);
-    }
-  }, [time, delay, emitError]);
 
   const handleSubmit = (value) => {
     // Check if there is anything there
@@ -66,6 +47,26 @@ export default function EditableTimer(props) {
 
     return true;
   };
+
+  // prepare time fields
+  const validateValue = (value) => {
+    const success = handleSubmit(value);
+    if (success) {
+      const ms = forgivingStringToMillis(value);
+      setValue(stringFromMillis(ms + delay));
+    } else {
+      setValue(stringFromMillis(time + delay));
+    }
+  };
+
+  useEffect(() => {
+    if (time == null) return;
+    try {
+      setValue(stringFromMillis(time + delay));
+    } catch (error) {
+      emitError(`Unable to parse date: ${error.text}`);
+    }
+  }, [time, delay, emitError]);
 
   const isDelayed = delay != null && delay !== 0;
 

@@ -29,7 +29,7 @@ export default function Pip(props) {
   useEffect(() => {
     if (backstageEvents == null) return;
 
-    let events = [...backstageEvents];
+    const events = [...backstageEvents];
 
     // Add running delay
     let delay = 0;
@@ -43,9 +43,7 @@ export default function Pip(props) {
     }
 
     // filter just events
-    let filtered = events.filter((e) => e.type === 'event');
-
-    setFilteredEvents(filtered);
+    setFilteredEvents(events.filter((e) => e.type === 'event'));
   }, [backstageEvents]);
 
   // Format messages
