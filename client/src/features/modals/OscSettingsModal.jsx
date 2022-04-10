@@ -169,7 +169,6 @@ export default function OscSettingsModal() {
                 active={formData.enabled}
                 text={formData.enabled ? 'OSC IN Enabled' : 'OSC IN Disabled'}
                 actionHandler={() => handleChange('enabled', !formData.enabled)}
-                onClick={() => console.log('yay')}
               />
             </FormControl>
             <FormControl id='portIn'>
