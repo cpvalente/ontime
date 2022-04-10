@@ -1,37 +1,16 @@
 import axios from 'axios';
-import { playbackURL } from '../api/apiConstants';
+import { playbackURL } from './apiConstants';
 
-export const getStart = async () => {
-  const res = await axios.get(playbackURL + '/start');
-  return res;
-};
+export const getStart = async () => axios.get(`${playbackURL}/start`);
 
-export const getPause = async () => {
-  const res = axios.get(playbackURL + '/pause');
-  return res;
-};
+export const getPause = async () => axios.get(`${playbackURL}/pause`);
 
-export const getRoll = async () => {
-  const res = axios.get(playbackURL + '/roll');
-  return res;
-};
+export const getRoll = async () => axios.get(`${playbackURL}/roll`);
 
-export const getPrevious = async () => {
-  const res = axios.get(playbackURL + '/previous');
-  return res;
-};
+export const getPrevious = async () => axios.get(`${playbackURL}/previous`);
 
-export const getNext = async () => {
-  const res = axios.get(playbackURL + '/next');
-  return res;
-};
+export const getNext = async () => axios.get(`${playbackURL}/next`);
 
-export const getUnload = async () => {
-  const res = axios.get(playbackURL + '/unload');
-  return res;
-};
+export const getUnload = async () => axios.get(`${playbackURL}/unload`);
 
-export const getReload = async () => {
-  const res = axios.get(playbackURL + '/reload');
-  return res;
-};
+export const getReload = async () => axios.get(`${playbackURL}/reload`);
