@@ -1,21 +1,26 @@
 import multer from 'multer';
-import { statSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
+import * as path from 'path';
 import { EXCEL_MIME, JSON_MIME } from './parser.js';
 
 // Define multer storage object
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    let newDestination = 'uploads/';
-    let stat = null;
-    try {
-      stat = statSync(newDestination);
-    } catch (err) {
-      mkdirSync(newDestination);
+    // get platform path
+    const appDataPath = getAppDataPath();
+    if (appDataPath === '') {
+      throw new Error('Could not resolve public folder for platform');
     }
-    if (stat && !stat.isDirectory()) {
-      throw new Error(
-        `Directory cannot be created because an inode of a different type exists at ${newDestination}`
-      );
+    // append uploads folder
+    const newDestination = path.join(appDataPath, 'uploads');
+
+    // Create directory if not exist
+    if (!existsSync(newDestination)) {
+      try {
+        mkdirSync(newDestination);
+      } catch (err) {
+        throw new Error('Could not create directory');
+      }
     }
     cb(null, newDestination);
   },
@@ -43,3 +48,24 @@ export const uploadFile = multer({
   storage: storage,
   fileFilter: filterAllowed,
 }).single('userFile');
+
+/**
+ * @description Returns public path depending on os
+ * @return {string|*}
+ */
+function getAppDataPath() {
+  switch (process.platform) {
+    case 'darwin': {
+      return path.join(process.env.HOME, 'Library', 'Application Support', 'Ontime');
+    }
+    case 'win32': {
+      return path.join(process.env.APPDATA, 'Ontime');
+    }
+    case 'linux': {
+      return path.join(process.env.HOME, '.Ontime');
+    }
+    default: {
+      return '';
+    }
+  }
+}
