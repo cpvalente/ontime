@@ -336,8 +336,11 @@ export class EventTimer extends Timer {
       case 'onPause':
         // broadcast current state
         this.broadcastState();
+
         // send OSC
-        this.sendOsc(this.osc.implemented.pause);
+        if (this.prevCycle === this.cycleState.onUpdate) {
+          this.sendOsc(this.osc.implemented.pause);
+        }
 
         // check integrations - http
         if (h?.onLoad?.enabled) {
@@ -1278,9 +1281,12 @@ export class EventTimer extends Timer {
     if (this.selectedEventIndex === 0) return;
 
     // if there is no event running, go to first
-    if (this.selectedEventIndex == null) {
+    if (!this.selectedEventIndex) {
       this.loadEvent(0);
-      return;
+    } else {
+      const gotoEvent = this.selectedEventIndex > 0 ? this.selectedEventIndex - 1 : 0;
+      if (gotoEvent === this.selectedEventIndex) return;
+      this.loadEvent(gotoEvent);
     }
 
     // send OSC
@@ -1288,11 +1294,6 @@ export class EventTimer extends Timer {
 
     // change playstate
     this.pause();
-
-    const gotoEvent = this.selectedEventIndex > 0 ? this.selectedEventIndex - 1 : 0;
-
-    if (gotoEvent === this.selectedEventIndex) return;
-    this.loadEvent(gotoEvent);
   }
 
   next() {
@@ -1303,9 +1304,15 @@ export class EventTimer extends Timer {
     if (this.selectedEventIndex === this.numEvents - 1) return;
 
     // if there is no event running, go to first
-    if (this.selectedEventIndex == null) {
+    if (!this.selectedEventIndex) {
       this.loadEvent(0);
-      return;
+    } else {
+      const gotoEvent =
+        this.selectedEventIndex < this.numEvents - 1
+          ? this.selectedEventIndex + 1
+          : this.numEvents - 1;
+      if (gotoEvent === this.selectedEventIndex) return;
+      this.loadEvent(gotoEvent);
     }
 
     // send OSC
@@ -1313,14 +1320,6 @@ export class EventTimer extends Timer {
 
     // change playstate
     this.pause();
-
-    const gotoEvent =
-      this.selectedEventIndex < this.numEvents - 1
-        ? this.selectedEventIndex + 1
-        : this.numEvents - 1;
-
-    if (gotoEvent === this.selectedEventIndex) return;
-    this.loadEvent(gotoEvent);
   }
 
   unload() {
