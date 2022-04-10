@@ -104,46 +104,35 @@ export const getSettings = async () => {
   return res.data;
 };
 
-export const postSettings = async (data) => {
-  await axios.post(`${ontimeURL}/settings`, data);
-};
+export const postSettings = async (data) => axios.post(`${ontimeURL}/settings`, data);
 
 export const getInfo = async () => {
   const res = await axios.get(`${ontimeURL}/info`);
   return res.data;
 };
 
-export const postInfo = async (data) => {
-  await axios.post(`${ontimeURL}/info`, data);
-};
+export const postInfo = async (data) => axios.post(`${ontimeURL}/info`, data);
 
 export const getAliases = async () => {
   const res = await axios.get(`${ontimeURL}/aliases`);
   return res.data;
 };
 
-export const postAliases = async (data) => {
-  await axios.post(`${ontimeURL}/aliases`, data);
-};
-
+export const postAliases = async (data) => axios.post(`${ontimeURL}/aliases`, data);
 
 export const getUserFields = async () => {
   const res = await axios.get(`${ontimeURL}/userfields`);
   return res.data;
 };
 
-export const postUserFields = async (data) => {
-  await axios.post(`${ontimeURL}/userfields`, data);
-};
+export const postUserFields = async (data) => axios.post(`${ontimeURL}/userfields`, data);
 
 export const getOSC = async () => {
   const res = await axios.get(`${ontimeURL}/osc`);
   return res.data;
 };
 
-export const postOSC = async (data) => {
-  await axios.post(`${ontimeURL}/osc`, data);
-};
+export const postOSC = async (data) => axios.post(`${ontimeURL}/osc`, data);
 
 export const downloadEvents = async () => {
   await axios({
@@ -173,14 +162,11 @@ export const downloadEvents = async () => {
 export const uploadEvents = async (file) => {
   const formData = new FormData();
   formData.append('userFile', file); // appending file
-  await axios
-    .post(`${ontimeURL}/db`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  await axios.post(`${ontimeURL}/db`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
-export const uploadEventsWithPath = async (filepath) => {
-  await axios.post(`${ontimeURL}/dbpath`, { path: filepath });
-};
+export const uploadEventsWithPath = async (filepath) => axios.post(`${ontimeURL}/dbpath`, { path: filepath });

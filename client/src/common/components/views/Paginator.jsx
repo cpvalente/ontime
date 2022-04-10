@@ -46,7 +46,7 @@ export default function Paginator(props) {
     <>
       <div className={style.nav}>
         {pages > 1 &&
-          [...Array(pages)].map((p, i) => (
+          [...Array(pages).keys()].map((i) => (
             <div key={i} className={i === selPage ? style.navItemSelected : style.navItem} />
           ))}
       </div>

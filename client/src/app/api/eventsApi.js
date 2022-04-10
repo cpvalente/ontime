@@ -6,31 +6,19 @@ export const fetchAllEvents = async () => {
   return res.data;
 };
 
-export const requestPost = async (data) => {
-  await axios.post(eventsURL, data);
-};
+export const requestPost = async (data) => axios.post(eventsURL, data);
 
-export const requestPut = async (data) => {
-  await axios.put(eventsURL, data);
-};
+export const requestPut = async (data) => axios.put(eventsURL, data);
 
-export const requestPatch = async (data) => {
-  await axios.patch(eventsURL, data);
-};
+export const requestPatch = async (data) => axios.patch(eventsURL, data);
 
-export const requestReorder = async (data) => {
-  await axios.patch(`${eventsURL}/reorder`, data);
-};
+export const requestReorder = async (data) => axios.patch(`${eventsURL}/reorder`, data);
 
 export const requestApplyDelay = async (eventId) => {
   const action = 'applydelay';
   return await axios.patch(`${eventsURL}/${action}/${eventId}`);
 };
 
-export const requestDelete = async (eventId) => {
-  await axios.delete(`${eventsURL}/${eventId}`);
-};
+export const requestDelete = async (eventId) => axios.delete(`${eventsURL}/${eventId}`);
 
-export const requestDeleteAll = async () => {
-  await axios.delete(`${eventsURL}/all`);
-};
+export const requestDeleteAll = async () => axios.delete(`${eventsURL}/all`);
