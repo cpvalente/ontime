@@ -103,9 +103,9 @@ export default function InfoLogger() {
           <ul className={style.log}>
             {data.map((d) => (
               <li key={d.id} className={d.level === 'INFO' ? style.info : d.level === 'WARN' ? style.warn : d.level === 'ERROR' ? style.error : ''}>
-                <div
-                  className={style.time}
-                >{d.time}</div>
+                <div className={style.time}>
+                  {d.time}
+                </div>
                 <div className={style.origin}>{d.origin}</div>
                 <div className={style.msg}>{d.text}</div>
               </li>

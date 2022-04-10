@@ -27,7 +27,6 @@ const EventListItem = (props) => {
     eventsHandler,
     delay,
     previousEnd,
-    ...rest
   } = props;
   const { emitError } = useContext(LoggingContext);
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
@@ -42,6 +41,7 @@ const EventListItem = (props) => {
     (start, end) => (start > end ? end + 86400000 - start : end - start),
     []
   );
+
   // Create / delete new events
   const actionHandler = useCallback(
     (action, payload) => {
@@ -101,7 +101,7 @@ const EventListItem = (props) => {
           break;
       }
     },
-    [data, defaultPublic, emitError, eventsHandler, index, starTimeIsLastEnd]
+    [calculateDuration, data, defaultPublic, emitError, eventsHandler, index, starTimeIsLastEnd]
   );
 
   switch (type) {
