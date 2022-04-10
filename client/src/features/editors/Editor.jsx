@@ -35,7 +35,7 @@ export default function Editor() {
             <CollapseProvider>
               <Box id='settings' className={styles.settings}>
                 <ErrorBoundary>
-                  <MenuBar onOpen={onOpen} isOpen={isOpen} />
+                  <MenuBar onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
                 </ErrorBoundary>
               </Box>
 
