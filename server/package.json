@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",

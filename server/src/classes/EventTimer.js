@@ -1304,7 +1304,7 @@ export class EventTimer extends Timer {
     if (this.selectedEventIndex === this.numEvents - 1) return;
 
     // if there is no event running, go to first
-    if (!this.selectedEventIndex) {
+    if (this.selectedEventIndex === null) {
       this.loadEvent(0);
     } else {
       const gotoEvent =
