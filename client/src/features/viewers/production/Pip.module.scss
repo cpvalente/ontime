@@ -1,3 +1,5 @@
+@use '../../../styles/main' as *;
+
 .container__gray,
 .container__grayFinished {
   margin: 0;
@@ -5,9 +7,9 @@
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
 
-  background: linear-gradient(90deg, #252525 0%, #121212 100%);
+  background: $bg-black;
   height: 100vh;
-  color: #fffd;
+  color: $title-white;
   font-weight: 300;
   display: grid;
   grid-template-columns: 20vw 20vw 18vw 3vw 1fr;
@@ -23,22 +25,22 @@
 
 .label {
   font-size: 1.3vw;
-  color: #ff7597;
+  color: $ontime-pink;
 }
 
 .eventTitle {
   grid-area: titl;
   font-size: 3vw;
   font-weight: 600;
-  text-decoration: underline #ff7597 0.5vh;
+  text-decoration: underline $ontime-pink 0.5vh;
   padding-top: 0.2vh;
   padding-left: 1vw;
 }
 
 .pip {
   grid-area: pip;
-  background-color: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 2555, 0.07);
+  background-color: $bg-black-100;
+  border: 1px solid $bg-black-200;
   width: 100%;
   text-align: center;
   display: grid;
@@ -50,7 +52,7 @@
 }
 
 .piptext {
-  color: rgba(255, 255, 255, 0.13);
+  color: $bg-gray-900;
   font-weight: 600;
   font-size: 4vh;
 }
@@ -64,12 +66,12 @@
 .infoContainer,
 .clockContainer,
 .countdownContainer {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: $bg-gray-1000;
   padding: 1vh 1vw;
 }
 
 .todayContainer {
-  background-color: rgba(255, 255, 255, 0.07);
+  background-color: $bg-gray-1000;
   padding: 2.5vh 2vw;
 }
 
@@ -132,5 +134,5 @@
   line-height: 3vw;
   text-align: center;
   letter-spacing: 0.25vw;
-  color: #ddd;
+  color: $clocks;
 }

@@ -1,14 +1,35 @@
 //////////////////////////////////// general app colours
 
-$ontime-accent: #4bffabcc;
+$title-white: #fffd;
+$bg-black-gradient: #202020;
+$bg-black: #121212;
+$bg-black-100: #070707;
+$bg-black-200: #1a1a1a; // container borders
+$bg-gray-1100: #232323; // container borders
+$bg-gray-1000: #262626; // container borders
+$bg-gray-900: #303030;
+$bg-gray-800: #404040;
+$bg-gray-100: #c0c0c0; // borders and whatnot
+
+$bg-overlay: rgba(0, 0, 0, 0.85);
+
+$ontime-accent: #4bffab;
+$ontime-accent-text: mix($bg-black, $ontime-accent, 10%);
 $ontime-pink: #ff7597;
 $ontime-pink-variant: #ff6969;
 $ontime-roll: #2b6cb0;
+
+//rgba(255, 255, 255, 0.13); - $bg-gray-900
+//rgba(255, 255, 255, 0.05); - $bg-gray-1000
+//rgba(255, 255, 255, 0.07) - $bg-gray-1000
+//containers - $bg-gray-1100
+
 
 $notes-color: #d69e2e;
 
 $header-gray: #ccc;
 $label-gray: #aaa;
+$clocks: #ddd;
 $bg-gray: #f4f4f8;
 
 $light-bg: #2b6cb0;
@@ -17,17 +38,12 @@ $light-text: #2b6cb022;
 
 $error-red: #E53E3E;
 
-$title-white: #fffd;
-$bg-black: #121212;
-$bg-black-gradient: #202020;
-
 
 //////////////////////////////////// block elements
 $block-delay-color: #ecc94b;
 $block-block-color: #805ad5;
-$block-icon-drag: rgba(255, 255, 255, 0.67);
-$block-border: 1px solid rgba(255, 255, 255, 0.05);
-
+$block-icon-drag: $bg-gray-100;
+$block-border: 1px solid $bg-gray-800;
 
 //////////////////////////////////// general app element overriders
 

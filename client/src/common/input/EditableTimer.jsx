@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 import { stringFromMillis } from 'ontime-utils/time';
-import style from './EditableTimer.module.css';
+import style from './EditableTimer.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import PropTypes from 'prop-types';
 
