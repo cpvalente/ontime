@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Icon } from '@chakra-ui/react';
-import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import style from './Info.module.scss';
+import CollapseBar from '../../common/components/collapseBar/CollapseBar';
 
 export default function InfoTitle(props) {
   const [collapsed, setCollapsed] = useState(false);
@@ -15,42 +14,28 @@ export default function InfoTitle(props) {
 
   return (
     <div className={style.container}>
-      <div className={roll ? style.headerRoll : style.header}>
-        {title}
-        {collapsed && (
-          <span className={style.collapsedTitle}>{data.title}</span>
-        )}
-        <Icon
-          className={collapsed ? style.moreCollapsed : style.moreExpanded}
-          as={FiChevronUp}
-          onClick={() => setCollapsed((c) => !c)}
-        />
-      </div>
-
+      <CollapseBar
+        title={title}
+        isCollapsed={collapsed}
+        onClick={() => setCollapsed((c) => !c)}
+        roll={roll}
+      />
       {!collapsed && (
         <>
           <div className={style.labelContainer}>
-            <span className={noTitl ? style.emptyLabel : style.label}>
-              Title
-            </span>
+            <span className={noTitl ? style.emptyLabel : style.label}>Title</span>
             {data.title}
           </div>
           <div className={style.labelContainer}>
-            <span className={noPres ? style.emptyLabel : style.label}>
-              Presenter
-            </span>
+            <span className={noPres ? style.emptyLabel : style.label}>Presenter</span>
             {data.presenter}
           </div>
           <div className={style.labelContainer}>
-            <span className={noSubt ? style.emptyLabel : style.label}>
-              Subtitle
-            </span>
+            <span className={noSubt ? style.emptyLabel : style.label}>Subtitle</span>
             {data.subtitle}
           </div>
           <div className={style.notes}>
-            <span className={noNote ? style.emptyLabel : style.label}>
-              Note
-            </span>
+            <span className={noNote ? style.emptyLabel : style.label}>Note</span>
             {data.note}
           </div>
         </>

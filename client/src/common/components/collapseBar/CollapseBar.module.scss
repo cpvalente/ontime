@@ -1,17 +1,34 @@
+@use '../../../styles/main' as *;
+
 .header,
-.header__roll {
+.headerRoll {
   padding: 0;
   margin: 0;
   font-size: 0.9em;
-  color: #ccc;
   display: flex;
   justify-content: space-between;
 }
 
 .header {
-  color: #ccc;
+  color: $header-gray;
 }
 
-.header__roll {
-  color: #2b6cb0;
+.headerRoll {
+  color: $ontime-roll;
+}
+
+.moreExpanded,
+.moreCollapsed {
+  cursor: pointer;
+  color: $text-white;
+}
+
+.moreExpanded {
+  transform: scaleY(-1);
+  transition: transform 0.3s;
+}
+
+.moreCollapsed {
+  transform: scaleY(1);
+  transition: transform 0.3s;
 }
