@@ -7,7 +7,7 @@ import style from './Paginator.module.scss';
 export default function Paginator(props) {
   const { events, selectedId, limit = 7, time = 10, isBackstage } = props;
   const LIMIT_PER_PAGE = limit;
-  const SCROLL_TIME = time * 1000 || 10000;
+  const SCROLL_TIME = time * 1000;
   const [numEvents, setNumEvents] = useState(0);
   const [page, setPage] = useState([]);
   const [pages, setPages] = useState(0);
