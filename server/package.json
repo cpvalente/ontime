@@ -27,7 +27,6 @@
   },
   "scripts": {
     "nodestart": "NODE_ENV=development node src/app.js",
-    "make": "mkdir -p src/data",
     "setdb": "cp data/db.json src/data/db.json",
     "clean": "rm -rf ../client/build/ && rm -rf ../client/node_modules && rm -rf src/node_modules && rm -rf ./node_modules && rm -rf ./dist",
     "cheat": "rm src/node_modules/ontime-utils && cp -R utils src/node_modules/ontime-utils",

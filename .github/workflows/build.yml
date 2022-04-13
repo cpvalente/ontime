@@ -20,20 +20,7 @@ jobs:
         with:
           node-version: '14.x'
 
-      # Utils server
-      - name: Utils - Install dependencies
-        run: yarn install
-        working-directory: ./server/utils
-
-      - name: Utils - run link command
-        run: yarn link
-        working-directory: ./server/utils
-
       # React
-      - name: React - Link to utils
-        run: yarn link ontime-utils
-        working-directory: ./client
-
       - name: React - Install dependencies
         run: yarn install
         working-directory: ./client
@@ -43,17 +30,14 @@ jobs:
         working-directory: ./client
 
       # Node server
-      - name: React - Link to utils
-        run: yarn link ontime-utils
-        working-directory: ./server/src
-
       - name: Server - Install dependencies
         run: yarn install
         working-directory: ./server/src
 
       # App
       - name: Electron - Install dependencies
-        run: yarn install && yarn make && yarn setdb
+        shell: bash
+        run: yarn install && yarn setdb
         working-directory: ./server
       - name: Electron - Inject utils
         run: yarn cheat
@@ -83,20 +67,7 @@ jobs:
         with:
           node-version: '14.x'
 
-      # Utils server
-      - name: Utils - Install dependencies
-        run: yarn install
-        working-directory: ./server/utils
-
-      - name: Utils - run link command
-        run: yarn link
-        working-directory: ./server/utils
-
       # React
-      - name: React - Link to utils
-        run: yarn link ontime-utils
-        working-directory: ./client
-
       - name: React - Install dependencies
         run: yarn install
         working-directory: ./client
@@ -106,17 +77,14 @@ jobs:
         working-directory: ./client
 
       # Node server
-      - name: React - Link to utils
-        run: yarn link ontime-utils
-        working-directory: ./server/src
-
       - name: Server - Install dependencies
         run: yarn install
         working-directory: ./server/src
 
       # App
       - name: Electron - Install dependencies
-        run: yarn install && yarn make && yarn setdb
+        shell: bash
+        run: yarn install && yarn setdb
         working-directory: ./server
       - name: Electron - Inject utils
         run: yarn cheat
@@ -134,65 +102,65 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build_linux:
-    runs-on: ubuntu-latest
-    env:
-      CI: ''
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-
-      # Utils server
-      - name: Utils - Install dependencies
-        run: yarn install
-        working-directory: ./server/utils
-
-      - name: Utils - run link command
-        run: yarn link
-        working-directory: ./server/utils
-
-      # React
-      - name: React - Link to utils
-        run: yarn link ontime-utils
-        working-directory: ./client
-
-      - name: React - Install dependencies
-        run: yarn install
-        working-directory: ./client
-
-      - name: React - Build project
-        run: yarn build
-        working-directory: ./client
-
-      # Node server
-      - name: React - Link to utils
-        run: yarn link ontime-utils
-        working-directory: ./server/src
-
-      - name: Server - Install dependencies
-        run: yarn install
-        working-directory: ./server/src
-
-      # App
-      - name: Electron - Install dependencies
-        run: yarn install && yarn make && yarn setdb
-        working-directory: ./server
-      - name: Electron - Inject utils
-        run: yarn cheat
-        working-directory: ./server
-
-      - name: Electron - Build app
-        run: yarn dist-linux
-        working-directory: ./server
-
-      # Release
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ./server/dist/ontime-win64.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  build_linux:
+#    runs-on: ubuntu-latest
+#    env:
+#      CI: ''
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Use Node.js
+#        uses: actions/setup-node@v1
+#        with:
+#          node-version: '14.x'
+#
+#       Utils server
+#      - name: Utils - Install dependencies
+#        run: yarn install
+#        working-directory: ./server/utils
+#
+#      - name: Utils - run link command
+#        run: yarn link
+#        working-directory: ./server/utils
+#
+#       React
+#      - name: React - Link to utils
+#        run: yarn link ontime-utils
+#        working-directory: ./client
+#
+#      - name: React - Install dependencies
+#        run: yarn install
+#        working-directory: ./client
+#
+#      - name: React - Build project
+#        run: yarn build
+#        working-directory: ./client
+#
+#       Node server
+#      - name: React - Link to utils
+#        run: yarn link ontime-utils
+#        working-directory: ./server/src
+#
+#      - name: Server - Install dependencies
+#        run: yarn install
+#        working-directory: ./server/src
+#
+#       App
+#      - name: Electron - Install dependencies
+#        run: yarn install && yarn make && yarn setdb
+#        working-directory: ./server
+#      - name: Electron - Inject utils
+#        run: yarn cheat
+#        working-directory: ./server
+#
+#      - name: Electron - Build app
+#        run: yarn dist-linux
+#        working-directory: ./server
+#
+#       Release
+#      - name: Release
+#        uses: softprops/action-gh-release@v1
+#        with:
+#          files: ./server/dist/ontime-win64.exe
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
