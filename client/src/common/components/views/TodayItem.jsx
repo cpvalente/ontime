@@ -1,7 +1,7 @@
 import React from 'react';
 import { stringFromMillis } from 'ontime-utils/time';
-import style from './Paginator.module.css';
 import PropTypes from 'prop-types';
+import style from './Paginator.module.scss';
 
 export default function TodayItem(props) {
   const { selected, timeStart, timeEnd, title, backstageEvent, colour } = props;

@@ -1,18 +1,21 @@
+@use '../../../styles/main' as *;
+
 .entries {
   display: flex;
   flex-direction: column;
+  max-width: calc(100% - 4vw);
 }
 
 .navItem,
 .navItemSelected {
-  background-color: rgba(255, 255, 255, 0.39);
+  background-color: $bg-gray-700;
   width: 0.7vw;
   height: 0.7vw;
   border-radius: 0.35vw;
 }
 
 .navItemSelected {
-  background-color: rgba(255, 255, 255, 0.79);
+  background-color: $bg-gray-100;
 }
 
 .nav {
@@ -37,10 +40,7 @@
 
 .entryTitle {
   align-self: center;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .entryPast,
@@ -54,30 +54,32 @@
 }
 
 .entryPast {
-  background-color: rgba(255, 255, 255, 0.01);
   font-size: 1.2vw;
 }
 
 .entryPast > .entryTitle {
-  color: #999;
+  color: $text-gray-disabled;
+}
+
+.entryNow,
+.entryFuture {
+  color: $text-white;
 }
 
 .entryFuture {
-  background-color: rgba(255, 255, 255, 0.03);
-  color: #ddd;
+  background-color: $bg-gray-950;
 }
 
 .entryNow {
-  color: #fff;
   line-height: 5vh;
-  background-color: rgba(255, 255, 255, 0.07);
-  border-bottom: 0.5vh solid #ff7597aa;
+  background-color: $bg-gray-900;
+  border-bottom: 0.5vh solid $ontime-pink;
   margin-left: -0.5em;
   padding-left: 0.5em;
 }
 
 .backstageInd {
-  color: #ff7597aa;
+  color: $ontime-pink;
   margin-left: auto;
   margin-right: -0.5vw;
 }

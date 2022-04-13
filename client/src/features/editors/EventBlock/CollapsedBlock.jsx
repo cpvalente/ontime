@@ -5,7 +5,7 @@ import EditableText from '../../../common/input/EditableText';
 import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
 import ActionButtons from '../list/ActionButtons';
 import PropTypes from 'prop-types';
-import style from './EventBlock.module.css';
+import style from './EventBlock.module.scss';
 
 export default function CollapsedBlock (props) {
   const { provided, data, next, delay, delayValue, previousEnd, actionHandler } = props;

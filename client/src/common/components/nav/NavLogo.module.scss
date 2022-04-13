@@ -1,4 +1,4 @@
-$nav-color: #fff;
+@use '../../../styles/main' as *;
 
 .navContainer {
   position: absolute;
@@ -23,8 +23,8 @@ $nav-color: #fff;
 }
 
 .navItem {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: $bg-overlay;
   padding: 0.5vh 1vw;
   border-radius: 4px;
-  color: $nav-color;
+  color: $text-white;
 }

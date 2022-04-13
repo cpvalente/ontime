@@ -3,11 +3,7 @@
 
 @mixin container {
   margin-top: 1em;
-  display: flex;
-  flex-direction: column;
-  background-color: $bg-gray-1100;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
+  @include second-container;
   padding: 8px;
 }
 
@@ -85,7 +81,9 @@
 .if {
   font-size: 0.8em;
   color: $ontime-accent;
-  @include container-bg;
+  background-color: $bg-gray-900;
+  padding: 0 0.5em;
+  margin: 0 0.5em;
 }
 
 ul > li {

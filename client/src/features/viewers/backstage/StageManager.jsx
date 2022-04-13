@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { formatDisplay } from 'common/utils/dateConfig';
-import style from './StageManager.module.css';
+import style from './StageManager.module.scss';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';

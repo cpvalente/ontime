@@ -8,11 +8,16 @@
   border-radius: 4px;
 }
 
-@mixin container-bg {
-  background-color: $bg-gray-900;
+@mixin second-container {
+  background-color: $bg-gray-1100;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+@mixin third-container {
+  background-color: $bg-black-300;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 2px;
-  padding: 0 0.5em;
-  margin: 0 0.5em;
 }
 
 @mixin osc-label {

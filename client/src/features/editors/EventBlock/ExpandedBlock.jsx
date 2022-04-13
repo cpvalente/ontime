@@ -6,7 +6,7 @@ import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
 import ActionButtons from '../list/ActionButtons';
 import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
 import PropTypes from 'prop-types';
-import style from './EventBlock.module.css';
+import style from './EventBlock.module.scss';
 
 export default function ExpandedBlock(props) {
   const { provided, data, eventIndex, next, delay, delayValue, previousEnd, actionHandler } = props;

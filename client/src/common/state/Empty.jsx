@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
-import style from './Empty.module.css';
+import style from './Empty.module.scss';
 
 export default function Empty(props) {
   const { text } = props;

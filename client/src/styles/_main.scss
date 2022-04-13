@@ -1,14 +1,18 @@
 //////////////////////////////////// general app colours
 
-$title-white: #fffd;
+
 $bg-black-gradient: #202020;
 $bg-black: #121212;
 $bg-black-100: #070707;
 $bg-black-200: #1a1a1a; // container borders
+$bg-black-300: #1f1f1f; // container text
 $bg-gray-1100: #232323; // container borders
 $bg-gray-1000: #262626; // container borders
+$bg-gray-950: #292929;
 $bg-gray-900: #303030;
 $bg-gray-800: #404040;
+$bg-gray-700: #505050;
+$bg-gray-500: #666666;
 $bg-gray-100: #c0c0c0; // borders and whatnot
 
 $bg-overlay: rgba(0, 0, 0, 0.85);
@@ -18,15 +22,26 @@ $ontime-accent-text: mix($bg-black, $ontime-accent, 10%);
 $ontime-pink: #ff7597;
 $ontime-pink-variant: #ff6969;
 $ontime-roll: #2b6cb0;
+$ontime-delay: #dd6b20;
 
+
+//rgba(255, 255, 255, 0.39); - $bg-gray-700
 //rgba(255, 255, 255, 0.13); - $bg-gray-900
 //rgba(255, 255, 255, 0.05); - $bg-gray-1000
 //rgba(255, 255, 255, 0.07) - $bg-gray-1000
-//containers - $bg-gray-1100
-
+// text input bg -
+// was rgba(255, 255, 255, 0.03)
+// container level 1 - $bg-gray-1000
+// container level 2 - $bg-gray-1100
+// container level 2 border - rgba(0, 0, 0, 0.05)
+// indent in level 2 - $bg-black-300
+// outdent in level2 - $bg-gray-950
+//////////////////////////////////// editor
 
 $notes-color: #d69e2e;
 
+$text-white: #fffffa;
+$text-gray-disabled: #999;
 $header-gray: #ccc;
 $label-gray: #aaa;
 $clocks: #ddd;
@@ -36,14 +51,46 @@ $light-bg: #2b6cb0;
 $light-bg-transparent: #2b6cb055;
 $light-text: #2b6cb022;
 
-$error-red: #E53E3E;
+$info-gray: #aaa;
+$info-gray-hover: #ddd;
+$warning-orange: #dd6b20;
+$error-red: #e53e3e;
 
+//////////////////////////////////// viewers
+$title-white: #fffd;
+$title-gray: #ddd;
+$subtitle-gray: #aaa;
 
 //////////////////////////////////// block elements
 $block-delay-color: #ecc94b;
+$block-delay-border: #d69e2e55;
 $block-block-color: #805ad5;
 $block-icon-drag: $bg-gray-100;
 $block-border: 1px solid $bg-gray-800;
+
+//////////////////////////////////// viewer cards
+@mixin card-title {
+  color: $title-gray;
+  font-weight: 600;
+}
+
+@mixin card-label {
+  font-size: 1.3vw;
+  color: $ontime-pink;
+}
+
+//////////////////////////////////// utils
+
+@mixin ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+//////////////////////////////////// custom inputs
+$input-bg: rgba(255, 255, 255, 0.03);
+$input-border: 1px solid $bg-gray-800;
+$input-delayed-border: 1px solid $block-delay-border;
 
 //////////////////////////////////// general app element overriders
 

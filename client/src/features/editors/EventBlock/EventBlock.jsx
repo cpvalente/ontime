@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { CollapseContext } from '../../../app/context/CollapseContext';
 import CollapsedBlock from './CollapsedBlock';
 import ExpandedBlock from './ExpandedBlock';
-import style from './EventBlock.module.css';
+import style from './EventBlock.module.scss';
 
 export default function EventBlock(props) {
   const { data, selected, delay, index, eventIndex, previousEnd, actionHandler, next } = props;

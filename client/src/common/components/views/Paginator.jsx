@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import TodayItem from './TodayItem';
-import style from './Paginator.module.css';
 import { useInterval } from 'app/hooks/useInterval';
 import PropTypes from 'prop-types';
+import style from './Paginator.module.scss';
 
 export default function Paginator(props) {
   const { events, selectedId, limit = 7, time = 10, isBackstage } = props;

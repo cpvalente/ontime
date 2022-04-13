@@ -1,27 +1,24 @@
+@use '../../../styles/main' as *;
+
 .label {
-  font-size: 1.3vw;
-  color: #ff7597;
+  @include card-label;
 }
 
 .title,
 .subtitle,
 .presenter {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .title {
-  color: #ddd;
+  @include card-title;
   font-size: 2.5vw;
   flex: 1;
-  font-weight: 600;
-
 }
 
 .subtitle,
 .presenter {
-  color: #aaa;
+  color: $subtitle-gray;
 }
 
 .subtitle {

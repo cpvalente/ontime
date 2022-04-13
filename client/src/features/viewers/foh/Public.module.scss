@@ -99,7 +99,7 @@
 }
 
 .nowContainer {
-  background-color: rgba(255, 255, 255, 0.09);
+  background-color: $bg-gray-950;
   grid-area: now;
   border-radius: 0 2vw 2vw 0;
 }
@@ -170,5 +170,5 @@
   line-height: 3vw;
   text-align: center;
   letter-spacing: 0.25vw;
-  color: #ddd;
+  color: $clocks;
 }

@@ -2,7 +2,7 @@
 @use '../../../styles/mixins' as *;
 
 .container {
-  background: #222;
+  background: $bg-black;
 
   display: grid;
   place-content: center;

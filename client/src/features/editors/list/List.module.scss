@@ -1,10 +1,10 @@
+@use '../../../styles/mixins' as *;
+
 .eventContainer {
+  @include second-container;
   margin-top: 1em;
   display: flex;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
   padding: 8px;
   overflow-y: scroll;
   height: 100%;
@@ -29,6 +29,5 @@
                   #0001 97%,
                   #ff7597 98%
   );
-
   border-radius: 14px;
 }

@@ -1,3 +1,5 @@
+@use '../../../styles/main' as *;
+
 .container__gray,
 .container__grayFinished {
   margin: 0;
@@ -5,9 +7,9 @@
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
 
-  background: linear-gradient(90deg, #252525 0%, #121212 100%);
+  background: $bg-black;
   height: 100vh;
-  color: #fffd;
+  color: $title-white;
   font-weight: 300;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 3vw 2fr;
@@ -25,14 +27,14 @@
 
 .label {
   font-size: 1.3vw;
-  color: #ff7597;
+  color: $ontime-pink;
 }
 
 .eventTitle {
   grid-area: titl;
   font-size: 3vw;
   font-weight: 600;
-  text-decoration: underline #ff7597 0.5vh;
+  text-decoration: underline $ontime-pink 0.5vh;
   padding-top: 0.2vh;
   padding-left: 1vw;
 }
@@ -53,7 +55,7 @@
 .nowContainer,
 .nextContainer,
 .todayContainer {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: $bg-gray-1000;
   padding: 1vh 2vw;
 
   overflow: hidden;
@@ -63,7 +65,7 @@
 .countdownContainer,
 .publicContainer,
 .publicContainerHidden {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: $bg-gray-1000;
   padding: 1vh 1vw;
 }
 
@@ -81,7 +83,7 @@
 
 .todayContainer,
 .infoContainer {
-  background-color: rgba(255, 255, 255, 0.07);
+  background-color: $bg-gray-1100;
   padding: 2.5vh 2vw;
 }
 
@@ -98,7 +100,7 @@
 }
 
 .nowContainer {
-  background-color: rgba(255, 255, 255, 0.09);
+  background-color: $bg-gray-950;
   grid-area: now;
   border-radius: 0 2vw 2vw 0;
 }
@@ -174,5 +176,5 @@
   line-height: 3vw;
   text-align: center;
   letter-spacing: 0.25vw;
-  color: #ddd;
+  color: $clocks;
 }
