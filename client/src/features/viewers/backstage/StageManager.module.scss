@@ -1,16 +1,10 @@
 @use '../../../styles/main' as *;
+@use '../../../styles/viewers' as *;
 
 .container__gray,
 .container__grayFinished {
-  margin: 0;
-  box-sizing: border-box; /* reset */
-  overflow: hidden;
-  width: 100%; /* restrict the page width to viewport */
+  @include viewer-container;
 
-  background: $bg-black;
-  height: 100vh;
-  color: $title-white;
-  font-weight: 300;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 3vw 2fr;
   grid-template-rows: 15vh 1fr 1fr 0 13vh 13vh;
@@ -25,83 +19,14 @@
   padding: 1vw;
 }
 
-.label {
-  font-size: 1.3vw;
-  color: $ontime-pink;
-}
-
 .eventTitle {
   grid-area: titl;
-  font-size: 3vw;
-  font-weight: 600;
-  text-decoration: underline $ontime-pink 0.5vh;
-  padding-top: 0.2vh;
-  padding-left: 1vw;
-}
-
-/* =================== TITLES ===================*/
-
-.infoContainer > div {
-  overflow: hidden;
-}
-
-.nextContainer > div,
-.nowContainer > div {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.nowContainer,
-.nextContainer,
-.todayContainer {
-  background-color: $bg-gray-1000;
-  padding: 1vh 2vw;
-
-  overflow: hidden;
-}
-
-.clockContainer,
-.countdownContainer,
-.publicContainer,
-.publicContainerHidden {
-  background-color: $bg-gray-1000;
-  padding: 1vh 1vw;
-}
-
-.publicContainer {
-  opacity: 1;
-  transition: 0.5s;
-  transition-property: opacity;
-}
-
-.publicContainerHidden {
-  opacity: 0;
-  transition: 0.5s;
-  transition-property: opacity;
-}
-
-.todayContainer,
-.infoContainer {
-  background-color: $bg-gray-1100;
-  padding: 2.5vh 2vw;
-}
-
-.infoContainer,
-.todayContainer,
-.publicContainer,
-.publicContainerHidden {
-  border-radius: 1vw;
-}
-
-.nowContainer,
-.nextContainer {
-  margin-left: -1vw;
+  @include viewer-event-title;
 }
 
 .nowContainer {
-  background-color: $bg-gray-950;
   grid-area: now;
+  background-color: $bg-gray-950;
   border-radius: 0 2vw 2vw 0;
 }
 
@@ -115,50 +40,13 @@
   border-radius: 0 2vw 2vw 0;
 }
 
-/* =================== SCHEDULE ===================*/
-
 .todayContainer {
   grid-area: schd;
-  display: grid;
-  grid-template-rows: 5vh 1fr 3vh;
-  margin-top: 3vh;
-  height: 95%;
-}
-
-/* =================== OVERLAY ===================*/
-
-.message {
-  font-size: 3vw;
-  line-height: 3vw;
-  padding: 0.5vh 0 0.5vh 1vw;
 }
 
 .infoContainer {
   grid-area: info;
-  display: grid;
-
-  grid-template-rows: 3vh minmax(0, 1fr);
-  grid-template-columns: 3fr 1fr;
-  grid-template-areas:
-    'titl .'
-    'binf qr';
-  gap: 0.5vw;
 }
-
-.infoMessages {
-  grid-area: binf;
-  font-size: 1.5vw;
-  line-height: 2vw;
-  white-space: pre-line;
-}
-
-.qr {
-  align-self: center;
-  justify-self: center;
-  grid-area: qr;
-}
-
-/* =================== MAIN ===================*/
 
 .clockContainer {
   grid-area: time;
@@ -168,13 +56,4 @@
 .countdownContainer {
   grid-area: clck;
   border-radius: 1vw 1vw 0 0;
-}
-
-.clock {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 3vw;
-  line-height: 3vw;
-  text-align: center;
-  letter-spacing: 0.25vw;
-  color: $clocks;
 }

@@ -1,16 +1,10 @@
 @use '../../../styles/main' as *;
+@use '../../../styles/viewers' as *;
 
 .container__gray,
 .container__grayFinished {
-  margin: 0;
-  box-sizing: border-box; /* reset */
-  overflow: hidden;
-  width: 100%; /* restrict the page width to viewport */
+  @include viewer-container;
 
-  background: $bg-black;
-  height: 100vh;
-  color: $title-white;
-  font-weight: 300;
   display: grid;
   grid-template-columns: 20vw 20vw 18vw 3vw 1fr;
   grid-template-rows: 60vh 1fr 1fr 1fr;
@@ -23,18 +17,9 @@
   padding: 1vw;
 }
 
-.label {
-  font-size: 1.3vw;
-  color: $ontime-pink;
-}
-
 .eventTitle {
   grid-area: titl;
-  font-size: 3vw;
-  font-weight: 600;
-  text-decoration: underline $ontime-pink 0.5vh;
-  padding-top: 0.2vh;
-  padding-left: 1vw;
+  @include viewer-event-title;
 }
 
 .pip {
@@ -57,12 +42,6 @@
   font-size: 4vh;
 }
 
-/* =================== TITLES ===================*/
-
-.infoContainer > div {
-  overflow: hidden;
-}
-
 .infoContainer,
 .clockContainer,
 .countdownContainer {
@@ -71,68 +50,10 @@
 }
 
 .todayContainer {
-  background-color: $bg-gray-1000;
-  padding: 2.5vh 2vw;
-}
-
-.infoContainer,
-.todayContainer {
-  border-radius: 1vw;
-}
-
-.infoContainer {
-  grid-area: info;
-  display: grid;
-
-  grid-template-rows: 3vh minmax(0, 1fr);
-  grid-template-columns: 3fr 1fr;
-  grid-template-areas:
-    'titl qr'
-    'binf qr';
-  gap: 0.5vw;
-}
-
-.infoMessages {
-  grid-area: binf;
-  font-size: 1.5vw;
-  line-height: 2vw;
-  white-space: pre-line;
-}
-
-.qr {
-  align-self: center;
-  justify-self: center;
-  grid-area: qr;
-}
-
-/* =================== SCHEDULE ===================*/
-
-.todayContainer {
   grid-area: schd;
-  display: grid;
-  grid-template-rows: 5vh 1fr 3vh;
-  height: 100%;
-  overflow: hidden;
-  max-width: 100%;
-}
-
-/* =================== MAIN ===================*/
-
-.clockContainer {
-  grid-area: time;
-  border-radius: 0 0 1vw 1vw;
 }
 
 .countdownContainer {
   grid-area: clck;
   border-radius: 1vw 1vw 0 0;
-}
-
-.clock {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 3vw;
-  line-height: 3vw;
-  text-align: center;
-  letter-spacing: 0.25vw;
-  color: $clocks;
 }
