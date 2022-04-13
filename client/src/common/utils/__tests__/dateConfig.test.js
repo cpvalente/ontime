@@ -6,7 +6,7 @@ import {
   millisToSeconds,
   timeStringToMillis,
 } from '../dateConfig';
-import { stringFromMillis } from 'ontime-utils/time';
+import { stringFromMillis } from '../time';
 
 describe('test string from formatDisplay function', () => {
   it('test with null values', () => {
