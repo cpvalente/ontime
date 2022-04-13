@@ -7,10 +7,10 @@ import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { useSocket } from '../../app/context/socketContext';
-import { stringFromMillis } from 'ontime-utils/time';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import { Tooltip } from '@chakra-ui/tooltip';
 import PlaybackIcon from './tableElements/PlaybackIcon';
+import { stringFromMillis } from '../../common/utils/time';
 import style from './Table.module.scss';
 
 export default function TableHeader() {

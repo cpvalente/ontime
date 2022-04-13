@@ -2,8 +2,6 @@ import fs from 'fs';
 import xlsx from 'node-xlsx';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModelv1 } from '../models/dataModel.js';
-import { generateId } from 'ontime-utils/generate_id.js';
-import { excelDateStringToMillis } from 'ontime-utils/time.js';
 import { deleteFile, makeString, validateDuration } from './parserUtils.js';
 import {
   parseAliases_v1,
@@ -14,6 +12,8 @@ import {
   parseSettings_v1,
   parseUserFields_v1,
 } from './parserUtils_v1.js';
+import { excelDateStringToMillis } from './time.js';
+import { generateId } from './generate_id.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';

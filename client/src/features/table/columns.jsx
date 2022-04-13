@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
-import { stringFromMillis } from 'ontime-utils/time';
 import EditableCell from './tableElements/EditableCell';
+import { stringFromMillis } from '../../common/utils/time.js';
 
 /**
  * React - Table column object

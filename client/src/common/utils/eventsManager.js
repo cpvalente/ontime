@@ -1,10 +1,11 @@
-import { stringFromMillis } from 'ontime-utils/time';
+import { stringFromMillis } from './time';
 
 /**
  * @description From a list of events, returns only events of type event with calculated delays
  * @param {Object[]} events - given events
  * @returns {Object[]} Filtered events with calculated delays
  */
+
 export const getEventsWithDelay = (events) => {
   if (events == null) return [];
 

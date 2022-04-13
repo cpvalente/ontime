@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { data, db } from '../app.js';
 import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
-import { generateId } from 'ontime-utils/generate_id.js';
+import { generateId } from '../utils/generate_id.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

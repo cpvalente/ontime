@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
-import style from './PlaybackControl.module.scss';
 import Countdown from 'common/components/countdown/Countdown';
-import { stringFromMillis } from 'ontime-utils/time';
 import { Tooltip } from '@chakra-ui/react';
 import { Button } from '@chakra-ui/button';
 import PropTypes from 'prop-types';
+import { stringFromMillis } from '../../../common/utils/time';
+import style from './PlaybackControl.module.scss';
 
 const areEqual = (prevProps, nextProps) => {
   return (

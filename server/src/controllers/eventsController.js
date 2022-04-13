@@ -2,12 +2,12 @@
 import { data, db } from '../app.js';
 
 // utils
-import { generateId } from 'ontime-utils/generate_id.js';
 import {
   block as blockDef,
   delay as delayDef,
   event as eventDef,
 } from '../models/eventsDefinition.js';
+import { generateId } from '../utils/generate_id.js';
 
 const MAX_EVENTS = 99;
 

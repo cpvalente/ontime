@@ -1,7 +1,7 @@
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
-import { generateId } from 'ontime-utils/generate_id.js';
 import { dbModelv1 } from '../models/dataModel.js';
 import { MAX_EVENTS, validateEvent_v1 } from './parser.js';
+import { generateId } from './generate_id.js';
 
 /**
  * Parse events array of an entry
