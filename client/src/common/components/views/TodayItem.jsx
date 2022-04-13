@@ -29,7 +29,7 @@ export default function TodayItem(props) {
 }
 
 TodayItem.propTypes = {
-  selected: PropTypes.bool,
+  selected: PropTypes.number,
   timeStart: PropTypes.number,
   timeEnd: PropTypes.number,
   title: PropTypes.string,
