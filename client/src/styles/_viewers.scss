@@ -133,10 +133,37 @@
 }
 
 .todayContainer {
-  display: grid;
-  grid-template-rows: 5vh 1fr 3vh;
   margin-top: 3vh;
   height: 95%;
+
+  .todayHeaderBlock {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5vh;
+
+    .navItem,
+    .navItemSelected {
+      background-color: $bg-gray-700;
+      width: 0.7vw;
+      height: 0.7vw;
+      border-radius: 0.35vw;
+    }
+
+    .navItemSelected {
+      background-color: $bg-gray-100;
+    }
+
+    .nav {
+      align-self: center;
+      justify-content: flex-end;
+      display: flex;
+      margin-bottom: 2.5vh;
+    }
+
+    .nav > div {
+      margin-left: 0.5vw;
+    }
+  }
 }
 
 .infoContainer {

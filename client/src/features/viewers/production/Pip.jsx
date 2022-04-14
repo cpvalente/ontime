@@ -12,6 +12,8 @@ export default function Pip(props) {
   const [size, setSize] = useState('');
   const ref = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState(null);
+  const [pageNumber, setPageNumber] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
 
   // calculcate pip size
   useLayoutEffect(() => {
@@ -59,15 +61,27 @@ export default function Pip(props) {
       <div className={style.eventTitle}>{general.title}</div>
 
       <div className={style.todayContainer}>
-        <div className={style.label}>Today</div>
-        <div className={style.entriesContainer}>
-          <Paginator
-            selectedId={selectedId}
-            events={filteredEvents}
-            limit={15}
-            time={20}
-          />
+        <div className={style.todayHeaderBlock}>
+          <div className={style.label}>Today</div>
+          <div className={style.nav}>
+            {pageNumber > 1 &&
+            [...Array(pageNumber).keys()].map((i) => (
+              <div
+                key={i}
+                className={i === currentPage ? style.navItemSelected : style.navItem}
+              />
+            ))}
+          </div>
         </div>
+        <Paginator
+          selectedId={selectedId}
+          events={filteredEvents}
+          isBackstage
+          limit={14}
+          time={20}
+          setCurrentPage={setCurrentPage}
+          setPageNumber={setPageNumber}
+        />
       </div>
 
       <div className={style.pip} ref={ref}>

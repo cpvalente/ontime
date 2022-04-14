@@ -1,32 +1,7 @@
 @use '../../../styles/main' as *;
 
 .entries {
-  display: flex;
-  flex-direction: column;
-  max-width: calc(100% - 4vw);
-}
-
-.navItem,
-.navItemSelected {
-  background-color: $bg-gray-700;
-  width: 0.7vw;
-  height: 0.7vw;
-  border-radius: 0.35vw;
-}
-
-.navItemSelected {
-  background-color: $bg-gray-100;
-}
-
-.nav {
-  align-self: center;
-  justify-content: flex-end;
-  display: flex;
-  margin-bottom: 2.5vh;
-}
-
-.nav > div {
-  margin-left: 0.5vw;
+  width: 100%;
 }
 
 .entryTimes {

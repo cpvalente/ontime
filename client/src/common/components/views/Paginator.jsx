@@ -5,13 +5,34 @@ import PropTypes from 'prop-types';
 import style from './Paginator.module.scss';
 
 export default function Paginator(props) {
-  const { events, selectedId, limit = 7, time = 10, isBackstage } = props;
+  const {
+    events,
+    selectedId,
+    limit = 8,
+    time = 10,
+    isBackstage,
+    setPageNumber,
+    setCurrentPage,
+  } = props;
   const LIMIT_PER_PAGE = limit;
   const SCROLL_TIME = time * 1000;
   const [numEvents, setNumEvents] = useState(0);
   const [page, setPage] = useState([]);
   const [pages, setPages] = useState(0);
   const [selPage, setSelPage] = useState(0);
+
+  // keep parent up to date
+  useEffect(() => {
+    if (setPageNumber) {
+      setPageNumber(pages);
+    }
+  }, [setPageNumber, pages]);
+
+  useEffect(() => {
+    if (setCurrentPage) {
+      setCurrentPage(selPage);
+    }
+  }, [setCurrentPage, selPage]);
 
   useEffect(() => {
     if (events == null) return;
@@ -41,31 +62,23 @@ export default function Paginator(props) {
   let selectedState = 0;
 
   return (
-    <>
-      <div className={style.nav}>
-        {pages > 1 &&
-          [...Array(pages).keys()].map((i) => (
-            <div key={i} className={i === selPage ? style.navItemSelected : style.navItem} />
-          ))}
-      </div>
-      <div className={style.entries}>
-        {page.map((e) => {
-          if (e.id === selectedId) selectedState = 1;
-          else if (selectedState === 1) selectedState = 2;
-          return (
-            <TodayItem
-              key={e.id}
-              selected={selectedState}
-              timeStart={e.timeStart}
-              timeEnd={e.timeEnd}
-              title={e.title}
-              colour={isBackstage ? e.colour : ''}
-              backstageEvent={!e.isPublic}
-            />
-          );
-        })}
-      </div>
-    </>
+    <div className={style.entries}>
+      {page.map((e) => {
+        if (e.id === selectedId) selectedState = 1;
+        else if (selectedState === 1) selectedState = 2;
+        return (
+          <TodayItem
+            key={e.id}
+            selected={selectedState}
+            timeStart={e.timeStart}
+            timeEnd={e.timeEnd}
+            title={e.title}
+            colour={isBackstage ? e.colour : ''}
+            backstageEvent={!e.isPublic}
+          />
+        );
+      })}
+    </div>
   );
 }
 
@@ -75,4 +88,6 @@ Paginator.propTypes = {
   limit: PropTypes.number,
   time: PropTypes.number,
   isBackstage: PropTypes.bool,
+  setPageNumber: PropTypes.func,
+  setCurrentPage: PropTypes.func,
 };
