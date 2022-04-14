@@ -31,7 +31,7 @@ and extend with using the URL aliases feature
 For the presentation views...
 -------------------------------------------------------------
 IP.ADDRESS:4001            > Web server default to presenter timer view
-IP.ADDRESS:4001/presenter  > Presenter / Stage timer view
+IP.ADDRESS:4001/timer      > Presenter / Stage timer view
 IP.ADDRESS:4001/sm         > Stage Manager / Backstage view
 IP.ADDRESS:4001/public     > Public / Foyer view
 IP.ADDRESS:4001/pip        > Picture in Picture view
