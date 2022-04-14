@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import style from './Public.module.scss';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from 'common/components/views/TitleSide';
+import { titleVariants } from '../common/animation';
+import style from './Public.module.scss';
 
 export default function Public(props) {
   const { publ, publicTitle, time, events, publicSelectedId, general } = props;
@@ -20,20 +21,7 @@ export default function Public(props) {
   const showPubl = publ.text !== '' && publ.visible;
 
   // motion
-  const titleVariants = {
-    hidden: {
-      x: -1500,
-    },
-    visible: {
-      x: 0,
-      transition: {
-        duration: 1,
-      },
-    },
-    exit: {
-      x: -1500,
-    },
-  };
+
   return (
     <div className={style.container__gray}>
       <NavLogo />

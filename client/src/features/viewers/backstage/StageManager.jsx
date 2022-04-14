@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { formatDisplay } from 'common/utils/dateConfig';
-import style from './StageManager.module.scss';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from 'common/components/views/TitleSide';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
+import { titleVariants } from '../common/animation';
+import style from './StageManager.module.scss';
 
 export default function StageManager(props) {
   const { publ, title, time, backstageEvents, selectedId, general } = props;
@@ -36,22 +37,6 @@ export default function StageManager(props) {
     stageTimer = formatDisplay(Math.abs(time.running), true);
     if (time.isNegative) stageTimer = `-${stageTimer}`;
   }
-
-  // motion
-  const titleVariants = {
-    hidden: {
-      x: -1500,
-    },
-    visible: {
-      x: 0,
-      transition: {
-        duration: 1,
-      },
-    },
-    exit: {
-      x: -1500,
-    },
-  };
 
   return (
     <div className={style.container__gray}>
