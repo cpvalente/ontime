@@ -127,7 +127,7 @@ export default function EventList(props) {
   }, [selectedId, isCursorLocked]);
 
   if (events.length < 1) {
-    return <Empty text='No Events' />;
+    return <Empty text='No Events' style={{marginTop: "10vh"}} />;
   }
 
   // DND

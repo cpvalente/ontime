@@ -3,6 +3,7 @@ import TodayItem from './TodayItem';
 import { useInterval } from 'app/hooks/useInterval';
 import PropTypes from 'prop-types';
 import style from './Paginator.module.scss';
+import Empty from '../../state/Empty';
 
 export default function Paginator(props) {
   const {
@@ -61,25 +62,29 @@ export default function Paginator(props) {
 
   let selectedState = 0;
 
-  return (
-    <div className={style.entries}>
-      {page.map((e) => {
-        if (e.id === selectedId) selectedState = 1;
-        else if (selectedState === 1) selectedState = 2;
-        return (
-          <TodayItem
-            key={e.id}
-            selected={selectedState}
-            timeStart={e.timeStart}
-            timeEnd={e.timeEnd}
-            title={e.title}
-            colour={isBackstage ? e.colour : ''}
-            backstageEvent={!e.isPublic}
-          />
-        );
-      })}
-    </div>
-  );
+  if (events.length < 1) {
+    return <Empty text='No events to show' />;
+  } else {
+    return (
+      <div className={style.entries}>
+        {page.map((e) => {
+          if (e.id === selectedId) selectedState = 1;
+          else if (selectedState === 1) selectedState = 2;
+          return (
+            <TodayItem
+              key={e.id}
+              selected={selectedState}
+              timeStart={e.timeStart}
+              timeEnd={e.timeEnd}
+              title={e.title}
+              colour={isBackstage ? e.colour : ''}
+              backstageEvent={!e.isPublic}
+            />
+          );
+        })}
+      </div>
+    );
+  }
 }
 
 Paginator.propTypes = {
