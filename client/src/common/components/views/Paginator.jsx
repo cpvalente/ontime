@@ -62,7 +62,7 @@ export default function Paginator(props) {
 
   let selectedState = 0;
 
-  if (events.length < 1) {
+  if (events?.length < 1) {
     return <Empty text='No events to show' />;
   } else {
     return (
