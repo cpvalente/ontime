@@ -29,7 +29,6 @@
     "nodestart": "NODE_ENV=development node src/app.js",
     "setdb": "cp data/db.json src/data/db.json",
     "clean": "rm -rf ../client/build/ && rm -rf ../client/node_modules && rm -rf src/node_modules && rm -rf ./node_modules && rm -rf ./dist",
-    "cheat": "rm src/node_modules/ontime-utils && cp -R utils src/node_modules/ontime-utils",
     "prep": "yarn clean && yarn setdb",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
@@ -109,18 +108,6 @@
           "!**/{yarn.lock,yarn-error.log}",
           "!**/{test,tests,__test__,__tests__}",
           "!**/{mock,mocks,__mock__,__mocks__}"
-        ]
-      },
-      {
-        "from": "utils",
-        "to": "extraResources/utils",
-        "filter": [
-          "**/*",
-          "!cypress/",
-          "!**/{yarn.lock,yarn-error.log}",
-          "!**/{test,tests,__test__,__tests__}",
-          "!**/{mock,mocks,__mock__,__mocks__}",
-          "!*{.spec.js,*.test.js}"
         ]
       }
     ]
