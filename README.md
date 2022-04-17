@@ -120,6 +120,14 @@ incurs an early cost and is not a priority. This is unlikely to change in future
 If you have tips on how to improve this, or would like to sponsor the code signing,
 please [open an issue so we can discuss it](https://github.com/cpvalente/ontime/issues/new)
 
+#### Safari
+
+There are some issues with Safari versions lower than 13:
+- Spacing and text styles do not render correctly
+- Table view does not work
+
+There is no plan for any further work on this since the breaking code belongs to third party libraries.
+
 # Help
 Help is underway! ... and can be viewed [here](https://cpvalente.gitbook.io/ontime/)
 
