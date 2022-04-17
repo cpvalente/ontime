@@ -12,7 +12,6 @@ export default function ExpandBtn(props) {
         icon={<FiChevronsDown />}
         colorScheme='white'
         variant='outline'
-        background='#fff1'
         onClick={clickhandler}
         _focus={{ boxShadow: 'none' }}
       />

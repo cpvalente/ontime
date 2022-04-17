@@ -1,4 +1,5 @@
 import React from 'react';
+import { VStack } from '@chakra-ui/react';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
 import EventTimesVertical from '../../../common/components/eventTimes/EventTimesVertical';
 import EditableText from '../../../common/input/EditableText';
@@ -66,11 +67,11 @@ export default function ExpandedBlock(props) {
           {`/ontime/goto ${eventIndex + 1}  << OSC >> /ontime/gotoid ${oscid}`}
         </span>
       </div>
-      <div className={style.actionOverlay}>
+      <VStack spacing='0.5em' className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
         <ActionButtons showAdd showDelay showBlock actionHandler={actionHandler} />
         <DeleteIconBtn actionHandler={actionHandler} />
-      </div>
+      </VStack>
     </>
   );
 };

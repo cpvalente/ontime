@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import style from './ProtectRoute.module.scss';
-import { PinInput, PinInputField } from '@chakra-ui/react';
+import { HStack, PinInput, PinInputField } from '@chakra-ui/react';
 import { IconButton } from '@chakra-ui/button';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { AppContext } from '../../../app/context/AppContext';
@@ -36,7 +36,7 @@ export default function ProtectRoute({ children }) {
         handleValidation();
       }
     },
-    [handleValidation]
+    [handleValidation],
   );
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function ProtectRoute({ children }) {
     return (
       <div className={style.container}>
         ontime
-        <div className={failed ? style.pin__failed : style.pin}>
+        <HStack spacing='10px' className={failed ? style.pin__failed : style.pin}>
           <PinInput
             type='alphanumeric'
             size='lg'
@@ -80,7 +80,7 @@ export default function ProtectRoute({ children }) {
             style={{ fontSize: '1.5em' }}
             onClick={() => handleValidation()}
           />
-        </div>
+        </HStack>
       </div>
     );
   }

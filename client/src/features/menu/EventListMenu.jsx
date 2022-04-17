@@ -1,5 +1,5 @@
 import React, { memo, useContext } from 'react';
-import { Divider } from '@chakra-ui/react';
+import { ButtonGroup, Divider, HStack } from '@chakra-ui/react';
 import { CursorContext } from '../../app/context/CursorContext';
 import MenuActionButtons from './MenuActionButtons';
 import CollapseBtn from 'common/components/buttons/CollapseBtn';
@@ -42,20 +42,25 @@ const EventListMenu = ({ eventsHandler }) => {
   };
 
   return (
-    <div className={style.headerButtons}>
-      <ExpandBtn size='sm' clickhandler={() => eventsHandler('expandall')} />
-      <CollapseBtn size='sm' clickhandler={() => eventsHandler('collapseall')} />
+    <HStack className={style.headerButtons}>
+      <ButtonGroup isAttached>
+        <ExpandBtn size='sm' clickhandler={() => eventsHandler('expandall')} />
+        <CollapseBtn size='sm' clickhandler={() => eventsHandler('collapseall')} />
+      </ButtonGroup>
       <Divider orientation='vertical' />
-      <CursorUpBtn size='sm' clickhandler={() => actionHandler('cursorUp')} />
-      <CursorDownBtn size='sm' clickhandler={() => actionHandler('cursorDown')} />
-      <CursorLockedBtn
-        size='sm'
-        clickhandler={() => actionHandler('togglelock')}
-        active={isCursorLocked}
-      />
+      <ButtonGroup isAttached>
+        <CursorUpBtn size='sm' clickhandler={() => actionHandler('cursorUp')} />
+        <CursorDownBtn size='sm' clickhandler={() => actionHandler('cursorDown')} />
+        <CursorLockedBtn
+          size='sm'
+          clickhandler={() => actionHandler('togglelock')}
+          active={isCursorLocked}
+          width='3em'
+        />
+      </ButtonGroup>
       <Divider orientation='vertical' />
       <MenuActionButtons actionHandler={actionHandler} size='sm' />
-    </div>
+    </HStack>
   );
 };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { HStack } from '@chakra-ui/react';
 import { Draggable } from 'react-beautiful-dnd';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
 import { millisToMinutes } from 'common/utils/dateConfig';
@@ -25,11 +26,11 @@ export default function DelayBlock(props) {
             <FiMoreVertical />
           </span>
           <DelayInput className={style.input} value={delayValue} actionHandler={actionHandler} />
-          <div className={style.actionOverlay}>
+          <HStack spacing='0.5em' className={style.actionOverlay}>
             <ApplyIconBtn clickhandler={applyDelayHandler} />
             <DeleteIconBtn actionHandler={actionHandler} />
             <ActionButtons showAdd actionHandler={actionHandler} />
-          </div>
+          </HStack>
         </div>
       )}
     </Draggable>

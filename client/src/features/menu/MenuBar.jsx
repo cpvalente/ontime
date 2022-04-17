@@ -12,6 +12,7 @@ import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import PropTypes from 'prop-types';
+import { VStack } from '@chakra-ui/react';
 
 export default function MenuBar(props) {
   const { isOpen, onOpen, onClose } = props;
@@ -123,7 +124,7 @@ export default function MenuBar(props) {
   }, [handleKeyPress]);
 
   return (
-    <>
+    <VStack>
       <QuitIconBtn size='lg' clickhandler={() => handleIPC('shutdown')} />
       <MaxIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={() => handleIPC('max')} />
       <MinIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={() => handleIPC('min')} />
@@ -146,7 +147,7 @@ export default function MenuBar(props) {
       />
       <UploadIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={handleClick} />
       <DownloadIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={handleDownload} />
-    </>
+    </VStack>
   );
 }
 

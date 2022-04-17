@@ -1,4 +1,5 @@
 import React from 'react';
+import { HStack } from '@chakra-ui/react';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
 import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import EditableText from '../../../common/input/EditableText';
@@ -36,10 +37,10 @@ export default function CollapsedBlock (props) {
           submitHandler={(v) => actionHandler('update', { field: 'title', value: v })}
         />
       </div>
-      <div className={style.actionOverlay}>
+      <HStack spacing='0.5em' className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
         <ActionButtons showAdd showDelay showBlock actionHandler={actionHandler} />
-      </div>
+      </HStack>
     </>
   );
 };
