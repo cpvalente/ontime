@@ -1,3 +1,4 @@
+@use '../../../styles/main' as *;
 @use '../../../styles/mixins' as *;
 
 .eventContainer {
@@ -21,13 +22,6 @@
 }
 
 .cursor {
-  width: 100%;
-  background: linear-gradient(
-                  180deg,
-                  #ff7597 2%,
-                  #0001 3%,
-                  #0001 97%,
-                  #ff7597 98%
-  );
+  box-shadow: 2px 2px 0 $ontime-pink;
   border-radius: 14px;
 }
