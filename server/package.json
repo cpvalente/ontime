@@ -12,7 +12,7 @@
   "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
-    "cypress": "^9.4.1",
+    "cypress": "^9.5.4",
     "electron": "13.6.7",
     "electron-builder": "^23.0.3",
     "eslint": "^8.5.0",
