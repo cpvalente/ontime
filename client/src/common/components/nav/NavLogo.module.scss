@@ -9,22 +9,24 @@
   align-items: flex-end;
   font-size: max(1vw, 16px);
   z-index: 10;
-}
 
-.logo {
-  width: max(3vw, 32px);
-  opacity: 0.5;
-}
+  .logo {
+    width: max(3vw, 32px);
+    opacity: 0.5;
+    cursor: pointer;
+  }
 
-.nav {
-  gap: 2vh;
-  display: flex;
-  flex-direction: column;
-}
+  .nav,
+  .showNav {
+    gap: 2vh;
+    display: flex;
+    flex-direction: column;
 
-.navItem {
-  background-color: $bg-overlay;
-  padding: 0.5vh 1vw;
-  border-radius: 4px;
-  color: $text-white;
+    .navItem {
+      background-color: $bg-overlay;
+      padding: 0.5vh 1vw;
+      border-radius: 4px;
+      color: $text-white;
+    }
+  }
 }
