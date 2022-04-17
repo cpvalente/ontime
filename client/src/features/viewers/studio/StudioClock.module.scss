@@ -3,6 +3,18 @@
   src: local('digital-7'), url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype') ;
 }
 
+/* =============== CLOCK STUFF ==================*/
+
+$clock-size: 90vh;
+$size-hours: min(3vh, 20px);
+$half-hours: min(1.5vh, 10px);
+$size-min: min(2.5vh, 18px);
+$half-min: min(1.25vh, 9px);
+$red-active: #c53030;
+$red-idle: #300000;
+$cyan-active: #0ff;
+$cyan-idle: #0aa;
+
 .container {
   margin: 0;
   box-sizing: border-box; /* reset */
@@ -14,66 +26,27 @@
   background: #000;
 
   display: grid;
-  grid-template-columns: 1000px 1fr;
-  gap: 50px;
+  grid-template-columns: 95vh 1fr;
+  gap: 2vw;
   grid-template-areas: "clck schd";
 
-  /* =============== CLOCK STUFF ==================*/
-
-  $clock-size: 900px;
-  $size-hours: 20px;
-  $half-hours: 10px;
-  $size-min: 18px;
-  $half-min: 9px;
-  $red-active: #c53030;
-  $red-idle: #300000;
-  $cyan-active: #0ff;
-  $cyan-idle: #0aa;
-
   .clockContainer {
-    display: grid;
-    place-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     grid-area: clck;
     width: $clock-size;
     height: $clock-size;
+    aspect-ratio: 1;
     text-align: center;
     position: relative;
-    margin: auto;
+    margin: 4vh auto;
     font-family: digital-clock, monospace;
     text-transform: uppercase;
 
-    .time {
-      margin-top: 175px;
-      color: $red-active;
-      font-size: 300px;
-      line-height: 0.8em;
-    }
-    .nextTitle:after,
-    .nextCountdown:after,
-    .nextCountdown__overtime:after {
-      content: '\200b';
-    }
-    .nextTitle {
-      color:$cyan-idle;
-      line-height: 100px;
-    }
-    .nextCountdown,
-    .nextCountdown__overtime {
-      font-size: 100px;
-      line-height: 1em;
-    }
-    .nextCountdown {
-      color: $cyan-active;
-      text-shadow: rgb(0,100,100) 0 0 20px;
-    }
-    .nextCountdown::before {
-      content: '-';
-    }
-    .nextCountdown__overtime {
-      color: darken($red-active, 10%);
-    }
-      .indicators {
+    .indicators {
       position: absolute;
+      top: 0;
       width: 100%;
       height: 100%;
 
@@ -85,6 +58,7 @@
         position: absolute;
         background: $red-idle;
       }
+
       .min,
       .min__active {
         min-height: $size-min;
@@ -92,18 +66,57 @@
         top: calc(50% - #{$half_min});
         left: calc(50% - #{$half_min});
       }
+
       .hours,
-      .hours__active{
-        min-height:$size-hours;
+      .hours__active {
+        min-height: $size-hours;
         width: $size-hours;
         top: calc(50% - #{$half_hours});
         left: calc(50% - #{$half_hours});
       }
+
       .min__active,
       .hours__active {
         background: $red-active;
-        box-shadow: 0 0 10px 2px rgba(255,0,0,0.25);
+        box-shadow: 0 0 10px 2px rgba(255, 0, 0, 0.25);
       }
+    }
+
+    .time {
+      color: $red-active;
+      font-size: calc(#{$clock-size} / 3);
+      margin-top: calc(50% - calc(#{$clock-size} / 7));
+      line-height: 0.8em;
+    }
+
+    .nextTitle:after,
+    .nextCountdown:after,
+    .nextCountdown__overtime:after {
+      content: '\200b';
+    }
+
+    .nextTitle {
+      color: $cyan-idle;
+      text-align: center;
+    }
+
+    .nextCountdown,
+    .nextCountdown__overtime {
+      font-size: 10vh;
+      line-height: 1em;
+    }
+
+    .nextCountdown {
+      color: $cyan-active;
+      text-shadow: rgb(0, 100, 100) 0 0 20px;
+    }
+
+    .nextCountdown::before {
+      content: '-';
+    }
+
+    .nextCountdown__overtime {
+      color: darken($red-active, 10%);
     }
   }
 
@@ -111,41 +124,42 @@
 
   .scheduleContainer {
     grid-area: schd;
-    margin: 50px 0;
-    padding-right: 50px;
+    margin: 4vh 0;
     font-family: digital-clock, monospace;
     text-transform: uppercase;
 
     .onAir,
-    .onAir__idle{
-      padding-bottom: 50px;
-      font-size: 170px;
+    .onAir__idle {
+      padding-bottom: 2vh;
+      font-size: 12vh;
       line-height: 0.9em;
     }
+
     .onAir {
       color: $red-active;
     }
+
     .onAir__idle {
       color: $red-idle;
     }
+
     .schedule {
 
       ul {
         color: $cyan-idle;
+        font-size: 3.75vh;
         line-height: 1em;
         list-style: none;
-        font-size: 40px;
       }
+
       li {
-        margin-bottom: 0.5em;
-        padding-left: 0.5em;
-        display: flex;
-        align-items: center;
-        gap: 20px;
+        margin-bottom: 1.5vh;
       }
+
       .now {
         color: $cyan-active;
       }
+
       .next {
         color: $red-active;
       }
@@ -153,14 +167,14 @@
   }
 }
 
-@media only screen and (max-width: 1600px) {
+@media only screen and (max-width: 1200px) {
   .container {
     display: grid;
     grid-template-areas: "clck";
     grid-template-columns: 100%;
     place-content: center;
   }
-  .scheduleContainer{
+  .scheduleContainer {
     display: none;
   }
 }

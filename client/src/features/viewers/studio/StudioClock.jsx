@@ -45,7 +45,7 @@ export default function StudioClock(props) {
         <div
           ref={ref}
           className={style.nextTitle}
-          style={{ fontSize, height: '100px', width: '100%', maxWidth: '680px' }}
+          style={{ fontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
         >
           {title.titleNext}
         </div>
@@ -58,7 +58,7 @@ export default function StudioClock(props) {
               key={i}
               className={style.hours__active}
               style={{
-                transform: `rotate(${(360 / 12) * i - 90}deg) translateX(380px)`,
+                transform: `rotate(${(360 / 12) * i - 90}deg) translateX(40vh)`,
               }}
             />
           ))}
@@ -67,7 +67,7 @@ export default function StudioClock(props) {
               key={i}
               className={i <= secondsNow ? style.min__active : style.min}
               style={{
-                transform: `rotate(${(360 / 60) * i - 90}deg) translateX(415px)`,
+                transform: `rotate(${(360 / 60) * i - 90}deg) translateX(43vh)`,
               }}
             />
           ))}
