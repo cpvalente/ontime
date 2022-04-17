@@ -18,7 +18,7 @@ export default function StudioClock(props) {
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
-  const MAX_TITLES = 8;
+  const MAX_TITLES = 10;
 
   // Set window title
   useEffect(() => {
@@ -94,8 +94,8 @@ export default function StudioClock(props) {
 }
 
 StudioClock.propTypes = {
-  title: PropTypes.string,
-  time: PropTypes.number,
+  title: PropTypes.object,
+  time: PropTypes.object,
   backstageEvents: PropTypes.array,
   selectedId: PropTypes.string,
   nextId: PropTypes.string,
