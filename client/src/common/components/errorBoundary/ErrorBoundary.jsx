@@ -1,9 +1,11 @@
 /* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
+import style from './ErrorBoundary.module.scss';
 
 class ErrorBoundary extends React.Component {
   static contextType = LoggingContext;
+  reportContent = '';
 
   constructor(props) {
     super(props);
@@ -21,11 +23,25 @@ class ErrorBoundary extends React.Component {
       errorInfo: info,
     });
     this.context.emitError(error.toString());
+    this.reportContent = `${error} ${info.componentStack}`;
   }
 
   render() {
     if (this.state.errorMessage) {
-      return <p>:/</p>;
+      return (
+        <div className={style.errorContainer}>
+          <div>
+            <p className={style.error}>:/</p>
+            <p>Something went wrong</p>
+            <p
+              className={style.report}
+              onClick={() => navigator.clipboard.writeText(this.reportContent)}
+            >
+              Copy error
+            </p>
+          </div>
+        </div>
+      );
     }
     return this.props.children;
   }
