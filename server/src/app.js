@@ -70,13 +70,13 @@ app.use(cors());
 app.options('*', cors());
 
 // Apply the rate limiting middleware to all requests
-const limiter = rateLimit({
-  windowMs: 55 * 60 * 1000, // 5 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 5 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
-app.use(limiter);
+// const limiter = rateLimit({
+//   windowMs: 55 * 60 * 1000, // 5 minutes
+//   max: 100, // Limit each IP to 100 requests per `window` (here, per 5 minutes)
+//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+// });
+// app.use(limiter);
 
 // Implement middleware
 app.use(express.urlencoded({ extended: true }));

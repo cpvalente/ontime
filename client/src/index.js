@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -13,7 +13,11 @@ import SocketProvider from './app/context/socketContext';
 require('typeface-open-sans');
 const queryClient = new QueryClient();
 
-ReactDOM.render(
+const container = document.getElementById('root');
+// create a root
+const root = createRoot(container);
+
+root.render(
   <React.StrictMode>
     <ChakraProvider resetCSS>
       <SocketProvider>
@@ -26,8 +30,7 @@ ReactDOM.render(
         </QueryClientProvider>
       </SocketProvider>
     </ChakraProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
