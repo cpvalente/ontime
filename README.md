@@ -1,7 +1,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Documentation in Gitbook](https://badges.aleen42.com/src/gitbook_2.svg)](https://cpvalente.gitbook.io/ontime/)
 
 
-Download the latest releases here
+## Download the latest releases here
 <div style="display: flex; justify-content: space-around">
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS.dmg"><img alt="Download MacOS" src="https://github.com/cpvalente/ontime/blob/master/.github/mac-download.png"/></a>
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe"><img alt="Download Windows" src="https://github.com/cpvalente/ontime/blob/master/.github/win-download.png"/></a>
@@ -41,7 +41,7 @@ IP.ADDRESS:4001/cuesheet   > Cue Sheet
 
 ...and for the editor (the control interface, same as the app)
 -------------------------------------------------------------
-IP.ADDRESS:4001/studio     > Studio Clock
+IP.ADDRESS:4001/editor
 
 ```
 
@@ -98,10 +98,6 @@ These will be implemented in a development friendly order unless there is user d
 - [ ] Lower Third Manager
 - [ ] Note only event
 - [ ] Reach Schedule: way to speedup timer to meet a deadline
-
-### For version 1
-Almost reaching a feature set that we can call v1. Before that:
-- [ ] Mac OS version
 
 ### Issues
 The app is still in pre-release and there are a few issues, mainly concerning responsiveness in
