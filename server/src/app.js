@@ -1,9 +1,5 @@
 // get environment vars
 import 'dotenv/config';
-import { sessionId, user } from './utils/analytics.js';
-
-user.screenview('Node service', 'ontime').send();
-user.event('NODE', 'started', 'starting node service').send();
 
 // import config
 import { config } from './config/config.js';
@@ -27,10 +23,10 @@ export const db = new Low(adapter);
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit'
 import { dbModelv1 as dbModel } from './models/dataModel.js';
 import { parseJson_v1 as parseJson } from './utils/parser.js';
 import { validateFile } from './utils/parserUtils.js';
-import ua from 'universal-analytics';
 
 // validate JSON before attempting read
 let isValid = validateFile(file);
@@ -73,8 +69,16 @@ app.use(cors());
 // enable pre-flight cors
 app.options('*', cors());
 
+// Apply the rate limiting middleware to all requests
+const limiter = rateLimit({
+  windowMs: 55 * 60 * 1000, // 5 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 5 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+app.use(limiter);
+
 // Implement middleware
-app.use(ua.middleware(process.env.ANALYTICS_ID, sessionId));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
@@ -179,10 +183,7 @@ export const startServer = async (overrideConfig = null) => {
 };
 
 export const shutdown = async () => {
-  console.log('Node service shutdown');
-
-  user.event('NODE', 'shutdown', 'requesting node shutdown').send();
-
+  console.log('Node service shutdown');g
   // shutdown express server
   server.close();
 
