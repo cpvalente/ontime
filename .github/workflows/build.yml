@@ -39,10 +39,6 @@ jobs:
         shell: bash
         run: yarn install && yarn setdb
         working-directory: ./server
-      - name: Electron - Inject utils
-        run: yarn cheat
-        working-directory: ./server
-
       - name: Electron - Build app
         run: yarn dist-mac
         working-directory: ./server
@@ -86,10 +82,6 @@ jobs:
         shell: bash
         run: yarn install && yarn setdb
         working-directory: ./server
-      - name: Electron - Inject utils
-        run: yarn cheat
-        working-directory: ./server
-
       - name: Electron - Build app
         run: yarn dist-mac
         working-directory: ./server
@@ -114,15 +106,6 @@ jobs:
 #        with:
 #          node-version: '14.x'
 #
-#       Utils server
-#      - name: Utils - Install dependencies
-#        run: yarn install
-#        working-directory: ./server/utils
-#
-#      - name: Utils - run link command
-#        run: yarn link
-#        working-directory: ./server/utils
-#
 #       React
 #      - name: React - Link to utils
 #        run: yarn link ontime-utils
@@ -137,10 +120,6 @@ jobs:
 #        working-directory: ./client
 #
 #       Node server
-#      - name: React - Link to utils
-#        run: yarn link ontime-utils
-#        working-directory: ./server/src
-#
 #      - name: Server - Install dependencies
 #        run: yarn install
 #        working-directory: ./server/src
@@ -149,10 +128,6 @@ jobs:
 #      - name: Electron - Install dependencies
 #        run: yarn install && yarn make && yarn setdb
 #        working-directory: ./server
-#      - name: Electron - Inject utils
-#        run: yarn cheat
-#        working-directory: ./server
-#
 #      - name: Electron - Build app
 #        run: yarn dist-linux
 #        working-directory: ./server
