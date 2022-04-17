@@ -83,7 +83,7 @@ jobs:
         run: yarn install && yarn setdb
         working-directory: ./server
       - name: Electron - Build app
-        run: yarn dist-mac
+        run: yarn dist-win
         working-directory: ./server
 
       # Release
