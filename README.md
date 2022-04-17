@@ -2,7 +2,11 @@
 
 
 Download the latest releases here
-- [Windows](https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe)
+<div style="display: flex; justify-content: space-around">
+  <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS.dmg"><img alt="Download MacOS" src="https://github.com/cpvalente/ontime/blob/master/.github/mac-download.png"/></a>
+  <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe"><img alt="Download Windows" src="https://github.com/cpvalente/ontime/blob/master/.github/win-download.png"/></a>
+  <img alt="Download Linux" src="https://github.com/cpvalente/ontime/blob/master/.github/linux-download.png"/>
+</div>
 
 # Ontime
 Ontime is an application for managing event rundowns and running stage timers.
@@ -27,7 +31,7 @@ and extend with using the URL aliases feature
 For the presentation views...
 -------------------------------------------------------------
 IP.ADDRESS:4001            > Web server default to presenter timer view
-IP.ADDRESS:4001/presenter  > Presenter / Stage timer view
+IP.ADDRESS:4001/timer      > Presenter / Stage timer view
 IP.ADDRESS:4001/sm         > Stage Manager / Backstage view
 IP.ADDRESS:4001/public     > Public / Foyer view
 IP.ADDRESS:4001/pip        > Picture in Picture view
@@ -85,25 +89,44 @@ Taking advantage of the integrations in Ontime, we currently use Ontime with:
 ### Continued development
 There are several features planned in the roadmap. 
 These will be implemented in a development friendly order unless there is user demand to bump any of them.
+- [ ] HTTP Server (vMix integration)
+- [ ] Improvement with event component design
+- [ ] New playback mode for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
 - [ ] Linux version
 - [ ] Headless version (run server only anywhere, configure from a browser locally)
 - [ ] Companion module
 - [ ] Lower Third Manager
 - [ ] Note only event
 - [ ] Reach Schedule: way to speedup timer to meet a deadline
-- [ ] vMix integration
 
 ### For version 1
 Almost reaching a feature set that we can call v1. Before that:
 - [ ] Mac OS version
 
 ### Issues
-The app is still in pre-release and there are a few issues, mainly concerning style.
-This will be receiving attention as we near v1 release
+The app is still in pre-release and there are a few issues, mainly concerning responsiveness in
+different screens. If you run into problems, please open an issue with a screenshot and your device
+resolution
 
-#### Style
-- [ ] App needs improvement on handling zoomed interfaces: Please ensure that windows settings have no display zoom (it is 125% by default)
-- [ ] Very long titles might cause interface to shift
+#### Unsigned App
+
+When installing the app you would see warning screens from the Operating System like:
+
+```Microsoft Defender SmartScreen prevented an unrecognised app from starting. Running this app might put your PC at risk.```
+or
+```Ontime can't be opened because it is from an unidentified developer```
+Long story short: Ontime app is unsigned. </br>Purchasing the certificates for both Mac and Windows
+incurs an early cost and is not a priority. This is unlikely to change in future.
+If you have tips on how to improve this, or would like to sponsor the code signing,
+please [open an issue so we can discuss it](https://github.com/cpvalente/ontime/issues/new)
+
+#### Safari
+
+There are some issues with Safari versions lower than 13:
+- Spacing and text styles do not render correctly
+- Table view does not work
+
+There is no plan for any further work on this since the breaking code belongs to third party libraries.
 
 # Help
 Help is underway! ... and can be viewed [here](https://cpvalente.gitbook.io/ontime/)

@@ -1,0 +1,64 @@
+@use '../../../styles/main' as *;
+
+.entries {
+  width: 100%;
+}
+
+.entryTimes {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 1.4vw;
+
+  min-width: 10vw;
+  opacity: 0.9;
+  letter-spacing: 0.035em;
+}
+
+.entryTitle {
+  align-self: center;
+  @include ellipsis;
+}
+
+.entryPast,
+.entryNow,
+.entryFuture {
+  display: flex;
+  font-size: 1.3vw;
+  padding: 0.2vh 1vw;
+  margin-bottom: 1.5vh;
+  border-radius: 3px;
+}
+
+.entryPast {
+  font-size: 1.2vw;
+}
+
+.entryPast > .entryTitle {
+  color: $text-gray-disabled;
+}
+
+.entryNow,
+.entryFuture {
+  color: $text-white;
+}
+
+.entryFuture {
+  background-color: $bg-gray-950;
+}
+
+.entryNow {
+  line-height: 5vh;
+  background-color: $bg-gray-900;
+  border-bottom: 0.5vh solid $ontime-pink;
+  margin-left: -0.5em;
+  padding-left: 0.5em;
+}
+
+.backstageInd {
+  color: $ontime-pink;
+  margin-left: auto;
+  margin-right: -0.5vw;
+}
+
+.backstageInd::before {
+  content: '*';
+}

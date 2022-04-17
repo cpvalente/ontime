@@ -97,7 +97,7 @@ export default function OscSettingsModal() {
     setSubmitting(true);
 
     const f = formData;
-    let e = { status: false, message: '' };
+    const e = { status: false, message: '' };
 
     // Validate fields
     if (f.port < 1024 || f.port > 65535) {
@@ -137,7 +137,7 @@ export default function OscSettingsModal() {
   /**
    * Handles change of input field in local state
    * @param {string} field - object parameter to update
-   * @param {(string | number)} value - new object parameter value
+   * @param {(string | number | boolean)} value - new object parameter value
    */
   const handleChange = (field, value) => {
     const temp = { ...formData };

@@ -4,7 +4,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 
 export default function CursorLockedBtn(props) {
-  const { clickhandler, active, ref, size } = props;
+  const { clickhandler, active, ref, size, ...rest } = props;
   return (
     <Tooltip label='Lock cursor to current'>
       <IconButton
@@ -17,6 +17,7 @@ export default function CursorLockedBtn(props) {
         variant={active ? 'solid' : 'outline'}
         onClick={clickhandler}
         _focus={{ boxShadow: 'none' }}
+        {...rest}
       />
     </Tooltip>
   );

@@ -1,10 +1,11 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap'); */
+@use '../../../styles/main' as *;
 
 /* Common */
 .countdownClock,
 .countdownClockSmall {
   font-family: 'Open Sans', sans-serif;
   line-height: 0.9;
+  color: $text-white;
 }
 
 /* Viewers */
@@ -21,5 +22,8 @@
   text-align: center;
   letter-spacing: 0.1em;
   font-weight: 600;
-  color: #fffffa;
+}
+
+.negative {
+ color: $ontime-pink;
 }

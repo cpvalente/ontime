@@ -21,7 +21,7 @@ export function formatDisplay(seconds, hideZero = false) {
   const minutes = Math.floor((s % 3600) / 60);
 
   if (hideZero && hours < 1) return [minutes, s % 60].map(format).join(':');
-  else return [hours, minutes, s % 60].map(format).join(':');
+  return [hours, minutes, s % 60].map(format).join(':');
 }
 
 /**
@@ -53,7 +53,7 @@ export const timeStringToMillis = (string) => {
   if (time.length === 1) return Math.abs(time[0] * mts);
   if (time.length === 2) return Math.abs(time[0]) * mtm + time[1] * mts;
   if (time.length === 3) return Math.abs(time[0]) * mth + time[1] * mtm + time[2] * mts;
-  else return 0;
+  return 0;
 };
 
 /**

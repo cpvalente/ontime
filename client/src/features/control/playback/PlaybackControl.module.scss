@@ -1,16 +1,16 @@
+@use '../../../styles/main' as *;
+@use '../../../styles/mixins' as *;
+
 .mainContainer {
   width: 100%;
-  display: flex;
+  display: grid;
   margin: 0 auto;
-  flex-direction: column;
   gap: 5px;
 }
 
 .timeContainer,
 .playbackContainer {
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
+  @include second-container;
   padding: 0.5em;
 }
 
@@ -43,7 +43,7 @@
 .indRoll,
 .indDelay,
 .indNegative {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: $bg-black-300;
 }
 
 .indRoll,
@@ -56,7 +56,7 @@
 }
 
 .indRollActive {
-  background-color: #2b6cb0;
+  background-color: $ontime-roll;
 }
 
 .indNegative,
@@ -67,11 +67,11 @@
 }
 
 .indNegativeActive {
-  background-color: #ff7597;
+  background-color: $ontime-pink;
 }
 
 .indDelayActive {
-  background-color: #dd6b20;
+  background-color: $ontime-delay;
 }
 
 .btn {
@@ -102,17 +102,17 @@
 }
 
 .time {
-  color: #ccc;
+  color: $header-gray;
   font-size: 1.1em;
 }
 
 .tag {
-  color: #aaa;
+  color: $label-gray;
   font-size: 0.9em;
 }
 
 .rolltag {
-  color: #2b6cb0;
+  color: $ontime-roll;
   font-size: 0.9em;
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -14,7 +14,7 @@
   "devDependencies": {
     "cypress": "^9.4.1",
     "electron": "13.6.7",
-    "electron-builder": "^22.14.5",
+    "electron-builder": "^23.0.3",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
@@ -27,10 +27,8 @@
   },
   "scripts": {
     "nodestart": "NODE_ENV=development node src/app.js",
-    "make": "mkdir -p src/data",
     "setdb": "cp data/db.json src/data/db.json",
     "clean": "rm -rf ../client/build/ && rm -rf ../client/node_modules && rm -rf src/node_modules && rm -rf ./node_modules && rm -rf ./dist",
-    "cheat": "rm src/node_modules/ontime-utils && cp -R utils src/node_modules/ontime-utils",
     "prep": "yarn clean && yarn setdb",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
@@ -110,18 +108,6 @@
           "!**/{yarn.lock,yarn-error.log}",
           "!**/{test,tests,__test__,__tests__}",
           "!**/{mock,mocks,__mock__,__mocks__}"
-        ]
-      },
-      {
-        "from": "utils",
-        "to": "extraResources/utils",
-        "filter": [
-          "**/*",
-          "!cypress/",
-          "!**/{yarn.lock,yarn-error.log}",
-          "!**/{test,tests,__test__,__tests__}",
-          "!**/{mock,mocks,__mock__,__mocks__}",
-          "!*{.spec.js,*.test.js}"
         ]
       }
     ]

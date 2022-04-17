@@ -31,7 +31,7 @@ export const CursorProvider = ({ children }) => {
    */
   const toggleCursorLocked = useCallback(
     (newValue = undefined) => {
-      if (newValue === undefined) {
+      if (typeof newValue === 'undefined') {
         if (isCursorLocked) {
           cursorLockedOff();
         } else {

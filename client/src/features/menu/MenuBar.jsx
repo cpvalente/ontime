@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
@@ -12,9 +12,10 @@ import HelpIconBtn from './buttons/HelpIconBtn';
 import UploadIconBtn from './buttons/UploadIconBtn';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import PropTypes from 'prop-types';
+import { VStack } from '@chakra-ui/react';
 
 export default function MenuBar(props) {
-  const { isOpen, onOpen } = props;
+  const { isOpen, onOpen, onClose } = props;
   const { emitError } = useContext(LoggingContext);
   const hiddenFileInput = useRef(null);
   const queryClient = useQueryClient();
@@ -35,7 +36,7 @@ export default function MenuBar(props) {
   };
 
   const buttonStyle = {
-    fontSize: '1.5em'
+    fontSize: '1.5em',
   };
 
   const handleUpload = (event) => {
@@ -44,7 +45,7 @@ export default function MenuBar(props) {
 
     // Limit file size to 1MB
     if (fileUploaded.size > 1000000) {
-      emitError('Error: File size limit (1MB) exceeded')
+      emitError('Error: File size limit (1MB) exceeded');
       return;
     }
 
@@ -53,10 +54,10 @@ export default function MenuBar(props) {
       try {
         uploaddb.mutate(fileUploaded);
       } catch (error) {
-        emitError(`Failed uploading file: ${error}`)
+        emitError(`Failed uploading file: ${error}`);
       }
     } else {
-      emitError('Error: File type unknown')
+      emitError('Error: File type unknown');
     }
 
     // reset input value
@@ -65,7 +66,7 @@ export default function MenuBar(props) {
 
   const handleIPC = (action) => {
     // Stop crashes when testing locally
-    if (window.process?.type === undefined) {
+    if (typeof window.process?.type === 'undefined') {
       if (action === 'help') {
         window.open('https://cpvalente.gitbook.io/ontime/');
       }
@@ -92,27 +93,45 @@ export default function MenuBar(props) {
     }
   };
 
+  // Handle keyboard shortcuts
+  const handleKeyPress = useCallback(
+    (e) => {
+      // handle held key
+      if (e.repeat) return;
+      // check if the alt key is pressed
+      if (e.ctrlKey) {
+        if (e.key === ',') {
+          // if we are in electron
+          if (window.process?.type === undefined) return;
+          if (window.process.type === 'renderer') {
+            // open if not open
+            isOpen ? onClose() : onOpen();
+          }
+        }
+      }
+    },
+    [isOpen, onClose, onOpen]
+  );
+
+  useEffect(() => {
+    // attach the event listener
+    document.addEventListener('keydown', handleKeyPress);
+
+    // remove the event listener
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
+
   return (
-    <>
+    <VStack>
       <QuitIconBtn size='lg' clickhandler={() => handleIPC('shutdown')} />
-      <MaxIconBtn
-        style={{ ...buttonStyle }}
-        size='lg'
-        clickhandler={() => handleIPC('max')}
-      />
-      <MinIconBtn
-        style={{ ...buttonStyle }}
-        size='lg'
-        clickhandler={() => handleIPC('min')}
-      />
+      <MaxIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={() => handleIPC('max')} />
+      <MinIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={() => handleIPC('min')} />
       <div className={style.gap} />
-      <HelpIconBtn
-        style={{ ...buttonStyle }}
-        size='lg'
-        clickhandler={() => handleIPC('help')}
-      />
+      <HelpIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={() => handleIPC('help')} />
       <SettingsIconBtn
-        style={{...buttonStyle}}
+        style={{ ...buttonStyle }}
         size='lg'
         className={isOpen ? style.open : ''}
         clickhandler={onOpen}
@@ -126,22 +145,14 @@ export default function MenuBar(props) {
         onChange={handleUpload}
         accept='.json, .xlsx'
       />
-      <UploadIconBtn
-        style={{ ...buttonStyle }}
-        size='lg'
-        clickhandler={handleClick}
-      />
-      <DownloadIconBtn
-        style={{ ...buttonStyle }}
-        size='lg'
-        clickhandler={handleDownload}
-      />
-    </>
+      <UploadIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={handleClick} />
+      <DownloadIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={handleDownload} />
+    </VStack>
   );
 }
 
 MenuBar.propTypes = {
   isOpen: PropTypes.bool,
   onOpen: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
-

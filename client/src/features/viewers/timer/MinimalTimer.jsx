@@ -14,7 +14,7 @@ export default function MinimalTimer(props) {
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
   const timer = formatDisplay(time.running, true);
-  const clean = timer.replaceAll(':', '');
+  const clean = timer.replace('/:/g', '');
 
   return (
     <div className={time.finished ? style.containerFinished : style.container}>

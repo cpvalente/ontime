@@ -127,7 +127,7 @@ export default function EventList(props) {
   }, [selectedId, isCursorLocked]);
 
   if (events.length < 1) {
-    return <Empty text='No Events' />;
+    return <Empty text='No Events' style={{marginTop: "10vh"}} />;
   }
 
   // DND
@@ -178,7 +178,7 @@ export default function EventList(props) {
                     )}
                     <div
                       ref={cursor === index ? cursorRef : undefined}
-                      className={cursor === index ? style.cursor : undefined}
+                      className={cursor === index ? style.cursor : ''}
                     >
                       <EventListItem
                         type={e.type}

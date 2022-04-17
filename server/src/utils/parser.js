@@ -2,8 +2,6 @@ import fs from 'fs';
 import xlsx from 'node-xlsx';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModelv1 } from '../models/dataModel.js';
-import { generateId } from 'ontime-utils/generate_id.js';
-import { excelDateStringToMillis } from 'ontime-utils/time.js';
 import { deleteFile, makeString, validateDuration } from './parserUtils.js';
 import {
   parseAliases_v1,
@@ -14,73 +12,12 @@ import {
   parseSettings_v1,
   parseUserFields_v1,
 } from './parserUtils_v1.js';
+import { excelDateStringToMillis } from './time.js';
+import { generateId } from './generate_id.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 export const MAX_EVENTS = 99;
-
-/**
- * @description Middleware function that checks file type and calls relevant parser
- * @param {string} file - reference to file
- * @return {object} - parse result message
- */
-export const fileHandler = async (file) => {
-  let res = {};
-
-  // check which file type are we dealing with
-
-  if (file.endsWith('.xlsx')) {
-    try {
-      const excelData = xlsx
-        .parse(file, { cellDates: true })
-        .find(
-          ({ name }) => name.toLowerCase() === 'ontime' || name.toLowerCase() === 'event schedule'
-        );
-
-      // we only look at worksheets called ontime or event schedule
-      if (excelData?.data) {
-        const dataFromExcel = await parseExcel_v1(excelData.data);
-        res.data = await parseJson_v1(dataFromExcel);
-        res.message = 'success';
-      } else {
-        console.log('Error: No sheets found named ontime or event schedule');
-        res = {
-          error: true,
-          message: `No sheets found named ontime or event schedule`,
-        };
-      }
-    } catch (error) {
-      res = { error: true, message: `Error parsing file: ${error}` };
-    }
-  }
-
-  if (file.endsWith('.json')) {
-    // if json check version
-    const rawdata = fs.readFileSync(file);
-    let uploadedJson = null;
-
-    try {
-      uploadedJson = JSON.parse(rawdata);
-    } catch (error) {
-      return { error: true, message: 'Error parsing JSON file' };
-    }
-
-    if (uploadedJson.settings.version === 1) {
-      try {
-        res.data = await parseJson_v1(uploadedJson);
-        res.message = 'success';
-      } catch (error) {
-        res = { error: true, message: `Error parsing file: ${error}` };
-      }
-    } else {
-      res = { error: true, message: 'Error parsing file, version unknown' };
-    }
-  }
-
-  // delete file
-  await deleteFile(file);
-  return res;
-};
 
 /**
  * @description Excel array parser
@@ -88,12 +25,12 @@ export const fileHandler = async (file) => {
  * @returns {object} - parsed object
  */
 export const parseExcel_v1 = async (excelData) => {
-  let eventData = {
+  const eventData = {
     title: '',
     url: '',
   };
-  let customUserFields = {};
-  let events = [];
+  const customUserFields = {};
+  const events = [];
   let timeStartIndex = null;
   let timeEndIndex = null;
   let titleIndex = null;
@@ -291,7 +228,7 @@ export const parseJson_v1 = async (jsonData, enforce = false) => {
   }
 
   // object containing the parsed data
-  let returnData = {};
+  const returnData = {};
 
   // parse Events
   returnData.events = parseEvents_v1(jsonData);
@@ -365,4 +302,67 @@ export const validateEvent_v1 = (eventArgs) => {
   }
 
   return event;
+};
+
+/**
+ * @description Middleware function that checks file type and calls relevant parser
+ * @param {string} file - reference to file
+ * @return {object} - parse result message
+ */
+export const fileHandler = async (file) => {
+  let res = {};
+
+  // check which file type are we dealing with
+
+  if (file.endsWith('.xlsx')) {
+    try {
+      const excelData = xlsx
+        .parse(file, { cellDates: true })
+        .find(
+          ({ name }) => name.toLowerCase() === 'ontime' || name.toLowerCase() === 'event schedule'
+        );
+
+      // we only look at worksheets called ontime or event schedule
+      if (excelData?.data) {
+        const dataFromExcel = await parseExcel_v1(excelData.data);
+        res.data = await parseJson_v1(dataFromExcel);
+        res.message = 'success';
+      } else {
+        console.log('Error: No sheets found named ontime or event schedule');
+        res = {
+          error: true,
+          message: `No sheets found named ontime or event schedule`,
+        };
+      }
+    } catch (error) {
+      res = { error: true, message: `Error parsing file: ${error}` };
+    }
+  }
+
+  if (file.endsWith('.json')) {
+    // if json check version
+    const rawdata = fs.readFileSync(file);
+    let uploadedJson = null;
+
+    try {
+      uploadedJson = JSON.parse(rawdata);
+    } catch (error) {
+      return { error: true, message: 'Error parsing JSON file' };
+    }
+
+    if (uploadedJson.settings.version === 1) {
+      try {
+        res.data = await parseJson_v1(uploadedJson);
+        res.message = 'success';
+      } catch (error) {
+        res = { error: true, message: `Error parsing file: ${error}` };
+      }
+    } else {
+      res = { error: true, message: 'Error parsing file, version unknown' };
+    }
+  }
+
+  // delete file
+  await deleteFile(file);
+  return res;
 };

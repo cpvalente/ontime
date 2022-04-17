@@ -17,8 +17,11 @@
   height: 100%;
   overflow-y: scroll;
   font-size: 0.8em;
-  user-select:text;
-  @include container-bg;
+  user-select: text;
+  @include third-container;
+  padding: 0 0.5em;
+  margin: 0 0.5em;
+
 
   li {
     display: flex;
@@ -36,39 +39,33 @@
   }
 
   li.info {
-    color: #aaa;
+    color: $info-gray;
   }
   li.warn {
-    color: #dd6b20;
+    color: $warning-orange;
   }
   li.error {
-    color: #f00;
+    color: $error-red;
   }
 
-  .entry:hover {
-    color: #ddd;
+  li:hover {
+    color: $info-gray-hover;
   }
 }
 
-
 .info {
-  color: #fff;
+  color: $text-white;
 }
 
 .error {
   color: red;
 }
 
-.client {
-  color: lightblue;
-}
-
 .toggleBar {
   display: flex;
   font-size: 0.7em;
   justify-content: flex-start;
-  gap: 1em;
-  padding: 0.5em 0;
+  padding: 0.5em 8px;
   font-weight: 600;
 
   div {
@@ -85,6 +82,7 @@
   }
 
   .clear {
+    margin-left: auto;
     border: 1px solid rgba($ontime-pink, 0.5);
   }
 }

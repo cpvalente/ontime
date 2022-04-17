@@ -7,7 +7,7 @@
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
 
-  background: radial-gradient(circle, $bg-black-gradient 0%, $bg-black 80%);
+  background: $bg-black;
   height: 100vh;
   color: $title-white;
   display: grid;
@@ -31,7 +31,7 @@
 
 .nowContainer,
 .nextContainer {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: $bg-gray-1000;
   padding: 1vh 2vw;
   border-radius: 1vw;
   max-width: 100%;
@@ -98,7 +98,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: $bg-overlay;
   z-index: -1;
   opacity: 0;
   transition: 0.5s;

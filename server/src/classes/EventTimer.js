@@ -5,8 +5,8 @@ import { OSCIntegration } from './integrations/Osc.js';
 import { HTTPIntegration } from './integrations/Http.js';
 import { cleanURL } from '../utils/url.js';
 import getRandomName from '../utils/getRandomName.js';
-import { stringFromMillis } from 'ontime-utils/time.js';
-import { generateId } from 'ontime-utils/generate_id.js';
+import { generateId } from '../utils/generate_id.js';
+import { stringFromMillis } from '../utils/time.js';
 
 /*
  * Class EventTimer adds functions specific to APP
@@ -764,7 +764,7 @@ export class EventTimer extends Timer {
     const numEvents = events.length;
 
     // is this the first event
-    let first = this.numEvents === 0;
+    const first = this.numEvents === 0;
 
     // set general
     this._eventlist = events;
@@ -822,7 +822,7 @@ export class EventTimer extends Timer {
       if (e.id === this.selectedEventId) {
         // handle reload selected
         // Reload data if running
-        let type = this.selectedEventId === id && this._startedAt != null ? 'reload' : 'load';
+        const type = this.selectedEventId === id && this._startedAt != null ? 'reload' : 'load';
         this.loadEvent(this.selectedEventIndex, type);
       } else if (e.id === this.nextEventId) {
         // roll needs to recalculate
@@ -1178,7 +1178,7 @@ export class EventTimer extends Timer {
 
   rollLoad() {
     const now = this._getCurrentTime();
-    let prevLoaded = this.selectedEventId;
+    const prevLoaded = this.selectedEventId;
 
     // maybe roll has already been loaded
     if (this.secondaryTimer === null) {
@@ -1428,7 +1428,7 @@ export class EventTimer extends Timer {
    * @param {string} message
    * @param {any} [payload]
    */
-  async sendOsc(message, payload = undefined) {
+  async sendOsc(message, payload) {
     // Todo: add disabled osc check
     const reply = await this.osc.send(message, payload);
     if (!reply.success) {

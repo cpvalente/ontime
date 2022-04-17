@@ -1,10 +1,11 @@
+@use '../../../styles/main' as *;
+@use '../../../styles/mixins' as *;
+
 .eventContainer {
+  @include second-container;
   margin-top: 1em;
   display: flex;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
   padding: 8px;
   overflow-y: scroll;
   height: 100%;
@@ -21,14 +22,6 @@
 }
 
 .cursor {
-  width: 100%;
-  background: linear-gradient(
-                  180deg,
-                  #ff7597 2%,
-                  #0001 3%,
-                  #0001 97%,
-                  #ff7597 98%
-  );
-
+  box-shadow: 2px 2px 0 $ontime-pink;
   border-radius: 14px;
 }

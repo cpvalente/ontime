@@ -1,19 +1,19 @@
+@use '../../../styles/main' as *;
+
 .label {
-  font-size: 1.3vw;
-  color: #ff7597;
+  @include card-label;
 }
 
 .nowTitle,
 .nextTitle {
-  color: #ddd;
-  font-weight: 600;
+  @include card-title;
 }
 
 .nowSubtitle,
 .nowPresenter,
 .nextSubtitle,
 .nextPresenter {
-  color: #aaa;
+  color: $subtitle-gray;
 }
 
 .nowTitle {

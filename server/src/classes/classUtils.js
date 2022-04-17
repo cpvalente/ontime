@@ -10,8 +10,7 @@ export const DAY_TO_MS = 86400000;
  * @param {number} end  - When does the event end
  * @returns {number} normalised time
  */
-export const normaliseEndTime = (start, end) =>
-  end < start ? end + DAY_TO_MS : end;
+export const normaliseEndTime = (start, end) => (end < start ? end + DAY_TO_MS : end);
 
 /**
  * @description Sorts an array of objects by given property
@@ -34,7 +33,7 @@ export const sortArrayByProperty = (arr, property) => {
  */
 
 export const replacePlaceholder = (str, values) => {
-  for (let [k, v] of Object.entries(values)) {
+  for (const [k, v] of Object.entries(values)) {
     str = str.replace(k, v);
   }
   return str;
@@ -71,10 +70,7 @@ export const getSelectionByRoll = (arr, now) => {
 
   // exit early if we are past the events
   const lastEvent = orderedEvents[orderedEvents.length - 1];
-  const lastNormalEnd = normaliseEndTime(
-    lastEvent.timeStart,
-    lastEvent.timeEnd
-  );
+  const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
   if (now > lastNormalEnd) {
     return {
       nowIndex,
@@ -163,14 +159,8 @@ export const getSelectionByRoll = (arr, now) => {
  * @returns {object} object with selection variables
  */
 export const updateRoll = (currentTimers) => {
-  const {
-    selectedEventId,
-    current,
-    _finishAt,
-    clock,
-    secondaryTimer,
-    _secondaryTarget,
-  } = currentTimers;
+  const { selectedEventId, current, _finishAt, clock, secondaryTimer, _secondaryTarget } =
+    currentTimers;
 
   // timers
   let updatedTimer = current;
@@ -200,8 +190,7 @@ export const updateRoll = (currentTimers) => {
   // a) we just finished an event (finished was set to true)
   // b) we need to look for events
   // this could be caused by a secondary timer or event finished
-  const secondaryRunning =
-    updatedSecondaryTimer <= 0 && updatedSecondaryTimer != null;
+  const secondaryRunning = updatedSecondaryTimer <= 0 && updatedSecondaryTimer != null;
 
   if (isFinished || secondaryRunning) {
     // look for events

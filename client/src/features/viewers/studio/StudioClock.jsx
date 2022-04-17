@@ -18,7 +18,7 @@ export default function StudioClock(props) {
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
-  const MAX_TITLES = 8;
+  const MAX_TITLES = 10;
 
   // Set window title
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function StudioClock(props) {
         <div
           ref={ref}
           className={style.nextTitle}
-          style={{ fontSize, height: '100px', width: '100%', maxWidth: '680px' }}
+          style={{ fontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
         >
           {title.titleNext}
         </div>
@@ -58,7 +58,7 @@ export default function StudioClock(props) {
               key={i}
               className={style.hours__active}
               style={{
-                transform: `rotate(${(360 / 12) * i - 90}deg) translateX(380px)`,
+                transform: `rotate(${(360 / 12) * i - 90}deg) translateX(40vh)`,
               }}
             />
           ))}
@@ -67,7 +67,7 @@ export default function StudioClock(props) {
               key={i}
               className={i <= secondsNow ? style.min__active : style.min}
               style={{
-                transform: `rotate(${(360 / 60) * i - 90}deg) translateX(415px)`,
+                transform: `rotate(${(360 / 60) * i - 90}deg) translateX(43vh)`,
               }}
             />
           ))}
@@ -94,8 +94,8 @@ export default function StudioClock(props) {
 }
 
 StudioClock.propTypes = {
-  title: PropTypes.string,
-  time: PropTypes.number,
+  title: PropTypes.object,
+  time: PropTypes.object,
   backstageEvents: PropTypes.array,
   selectedId: PropTypes.string,
   nextId: PropTypes.string,

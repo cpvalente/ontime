@@ -1,10 +1,10 @@
+import { stringFromMillis } from '../utils/time.js';
+
 /*
  * Timer implements simple countdown timer functions
  * User needs to use setup function to be able to use
  *
  */
-
-import { stringFromMillis } from 'ontime-utils/time.js';
 
 export class Timer {
   constructor() {
@@ -62,11 +62,7 @@ export class Timer {
         if (this._startedAt != null) {
           // update current timer
           this.current =
-            this._startedAt +
-            this.duration +
-            this._pausedTotal +
-            this._pausedInterval -
-            now;
+            this._startedAt + this.duration + this._pausedTotal + this._pausedInterval - now;
         }
 
         // enable flag
@@ -114,10 +110,7 @@ export class Timer {
     if (this._finishedAt) return this._finishedAt;
 
     return Math.max(
-      this._startedAt +
-        this.duration +
-        this._pausedInterval +
-        this._pausedTotal,
+      this._startedAt + this.duration + this._pausedInterval + this._pausedTotal,
       this._startedAt
     );
   }

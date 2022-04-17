@@ -1,20 +1,27 @@
+@use "./main" as *;
+
 //////////////////////////////////// general app elements
 
 @mixin main-container {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: $bg-gray-1000;
+  border: 1px solid $bg-gray-1000;
+  border-radius: 4px;
+}
+
+@mixin second-container {
+  background-color: $bg-gray-1100;
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
 
-@mixin container-bg {
-  background-color: rgba(0, 0, 0, 0.13);
+@mixin third-container {
+  background-color: $bg-black-300;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 2px;
-  padding: 0 0.5em;
-  margin: 0 0.5em;
 }
 
 @mixin osc-label {
-  color: #4bffabcc;
+  color: $ontime-accent-text;
   font-size: 0.8em;
   -webkit-user-select: text;
   user-select: text;

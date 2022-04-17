@@ -63,7 +63,7 @@ export default function PlaybackControl() {
     };
   }, [socket]);
 
-  const playbackControl = async (action, payload) => {
+  const playbackControl = async (action) => {
     switch (action) {
       case 'start':
         socket.emit('set-playstate', 'start');

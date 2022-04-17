@@ -1,7 +1,9 @@
+@use '../../styles/main'as *;
+
 .editable,
 .delayedEditable {
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: $input-bg;
+  border: $input-border;
   width: 6.5em;
   letter-spacing: 1px;
   height: fit-content;
@@ -11,5 +13,5 @@
 }
 
 .delayedEditable {
-  border: 1px solid #d69e2e55;
+  border: $input-delayed-border;
 }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -7,7 +7,7 @@ import navlogo from 'assets/images/logos/LOGO-72.png';
 import style from './NavLogo.module.scss';
 
 export default function NavLogo(props) {
-  const {isHidden} = props;
+  const { isHidden } = props;
   const [showNav, setShowNav] = useState(false);
 
   const handleClick = () => {
@@ -34,74 +34,43 @@ export default function NavLogo(props) {
     };
   }, [handleKeyPress]);
 
-  const baseOpacity = (isHidden) ? 0 : 0.5
+  const baseOpacity = isHidden ? 0 : 0.5;
+
   return (
     <motion.div
-      initial={{ opacity: baseOpacity }}
+      initial={{ opacity: showNav ? 0.5 : baseOpacity }}
       whileHover={{ opacity: 1 }}
       className={style.navContainer}
     >
-      <Image
-        alt=''
-        src={navlogo}
-        className={style.logo}
-        onClick={handleClick}
-      />
+      <Image alt='' src={navlogo} className={style.logo} onClick={handleClick} />
       <AnimatePresence>
         {showNav && (
           <motion.div
             initial={{ opacity: 0, scale: 0, y: -50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
+            whileInView={{ opacity: 1 }}
             exit={{ opacity: 0, scaleY: 0, y: -50 }}
-            className={showNav ? style.nav : style.navHidden}
+            className={style.nav}
           >
-            <Link
-              to='/timer'
-              className={style.navItem}
-              tabIndex={1}
-            >
+            <Link to='/timer' className={style.navItem} tabIndex={1}>
               Timer
             </Link>
-            <Link
-              to='/minimal'
-              className={style.navItem}
-              tabIndex={2}
-            >
+            <Link to='/minimal' className={style.navItem} tabIndex={2}>
               Minimal Timer
             </Link>
-            <Link
-              to='/sm'
-              className={style.navItem}
-              tabIndex={3}
-            >
+            <Link to='/sm' className={style.navItem} tabIndex={3}>
               Backstage
             </Link>
-            <Link
-              to='/public'
-              className={style.navItem}
-              tabIndex={4}
-            >
+            <Link to='/public' className={style.navItem} tabIndex={4}>
               Public
             </Link>
-            <Link
-              to='/lower'
-              className={style.navItem}
-              tabIndex={5}
-            >
+            <Link to='/lower' className={style.navItem} tabIndex={5}>
               Lower Thirds
             </Link>
-            <Link
-              to='/pip'
-              className={style.navItem}
-              tabIndex={6}
-            >
+            <Link to='/pip' className={style.navItem} tabIndex={6}>
               PIP
             </Link>
-            <Link
-              to='/studio'
-              className={style.navItem}
-              tabIndex={7}
-            >
+            <Link to='/studio' className={style.navItem} tabIndex={7}>
               Studio Clock
             </Link>
           </motion.div>
@@ -113,4 +82,4 @@ export default function NavLogo(props) {
 
 NavLogo.propTypes = {
   isHidden: PropTypes.bool,
-}
+};

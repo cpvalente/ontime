@@ -12,7 +12,6 @@ export default function CollapseBtn(props) {
         icon={<FiChevronsUp />}
         colorScheme='white'
         variant='outline'
-        background='#fff1'
         onClick={clickhandler}
         _focus={{ boxShadow: 'none' }}
       />

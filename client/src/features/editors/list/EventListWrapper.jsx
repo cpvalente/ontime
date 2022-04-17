@@ -39,7 +39,7 @@ export default function EventListWrapper() {
       }
 
       // optimistically update object, temp ID until refetch
-      let optimistic = [...previousEvents];
+      const optimistic = [...previousEvents];
       optimistic.splice(newEvent.order, 0, {
         ...newEvent,
         id: new Date().toISOString(),
@@ -128,8 +128,7 @@ export default function EventListWrapper() {
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
 
-      let filtered = [...previousEvents];
-      filtered.filter((e) => e.id === 'eventId');
+      const filtered = [...previousEvents].filter((e) => e.id === 'eventId')
 
       // optimistically update object
       queryClient.setQueryData(EVENTS_TABLE, filtered);
@@ -158,7 +157,7 @@ export default function EventListWrapper() {
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
 
-      let clear = [];
+      const clear = [];
 
       // optimistically update object
       queryClient.setQueryData(EVENTS_TABLE, clear);
@@ -225,13 +224,13 @@ export default function EventListWrapper() {
 
   // Events API
   const eventsHandler = useCallback(
-    async (action, payload, options = undefined) => {
+    async (action, payload, options) => {
       switch (action) {
         case 'add':
           try {
-            let newEvent = { ...payload };
+            const newEvent = { ...payload };
             // there is an option to pass an index of an array to use as start time
-            if (options?.startIsLastEnd !== undefined) {
+            if (typeof options?.startIsLastEnd !== 'undefined') {
               newEvent.timeStart = data[options.startIsLastEnd].timeEnd || 0;
             }
             // hard coding duration value to be as expected for now

@@ -20,10 +20,9 @@ export default function InfoNif() {
         isCollapsed={collapsed}
         onClick={() => setCollapsed((c) => !c)}
       />
-      {!collapsed && (
+      {!collapsed && (status === 'success') &&(
         <div>
-          {status === 'success' &&
-          data?.networkInterfaces.map((e) => (
+          {data?.networkInterfaces.map((e) => (
             <a
               key={e.address}
               href='#!'

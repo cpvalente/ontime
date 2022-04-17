@@ -54,13 +54,10 @@ let tray = null;
 // Ensure there isn't another instance of the app running already
 const lock = app.requestSingleInstanceLock();
 if (!lock) {
-  dialog.showErrorBox(
-    'Multiple instances',
-    'An instance if the App is already running.'
-  );
+  dialog.showErrorBox('Multiple instances', 'An instance if the App is already running.');
   app.quit();
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', () => {
     // Someone tried to run a second instance, we should focus our window.
     if (win) {
       if (win.isMinimized()) win.restore();
@@ -134,9 +131,7 @@ app.whenReady().then(() => {
   setTimeout(() => {
     // Load page served by node
     const reactApp =
-      env === 'prod'
-        ? 'http://localhost:4001/editor'
-        : 'http://localhost:3000/editor';
+      env === 'prod' ? 'http://localhost:4001/editor' : 'http://localhost:3000/editor';
 
     win.loadURL(reactApp).then(() => {
       win.webContents.setBackgroundThrottling(false);
@@ -190,13 +185,12 @@ app.whenReady().then(() => {
   tray.setContextMenu(trayContextMenu);
 
   // on tray click event, show main window
-  tray.on('click', function (e) {
+  tray.on('click', function () {
     if (!win.isVisible()) {
       win.show();
     }
     win.focus();
   });
-
 });
 
 // unregister shortcuts before quitting
@@ -216,7 +210,7 @@ ipcMain.on('test-message', (event, arg) => {
 });
 
 // Terminate
-ipcMain.on('shutdown', (event, arg) => {
+ipcMain.on('shutdown', () => {
   console.log('Got IPC shutdown');
 
   // terminate node service
@@ -238,8 +232,7 @@ ipcMain.on('set-window', (event, arg) => {
 
   if (arg === 'to-max') {
     // window full
-    win.setContentSize(1920, 1000);
-    win.setPosition(0, 0);
+    win.maximize();
   } else if (arg === 'to-tray') {
     // window to tray
     win.hide();

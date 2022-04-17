@@ -1,5 +1,5 @@
 import React from 'react';
-import style from './TitleSide.module.css';
+import style from './TitleSide.module.scss';
 
 export default function TitleSide(props) {
   const { type, label, title, subtitle, presenter } = props;

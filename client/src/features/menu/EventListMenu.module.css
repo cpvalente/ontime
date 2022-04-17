@@ -1,11 +1,4 @@
 .headerButtons {
-  display: flex;
-  gap: 0.5em;
   align-content: center;
   justify-content: flex-end;
-}
-
-.menu {
-  color: #000;
-  background-color: rgba(255, 255, 255, 0.67);
 }

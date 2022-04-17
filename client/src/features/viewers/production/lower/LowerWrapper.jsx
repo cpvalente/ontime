@@ -65,51 +65,51 @@ const Lower = (props) => {
   // Check for user options
   useEffect(() => {
     // create aux
-    let options = {};
+    const options = {};
 
     // preset: selector
     // Should be a number 1-n
-    let p = parseInt(searchParams.get('preset'));
+    const p = parseInt(searchParams.get('preset'));
     if (!isNaN(p)) setPreset(p);
 
     // size: multiplier
     // Should be a number 0.0-n
-    let s = searchParams.get('size');
+    const s = searchParams.get('size');
     if (s) options.size = s;
 
     // transitionIn: seconds
     // Should be a number 0-n
-    let t = parseInt(searchParams.get('transition'));
+    const t = parseInt(searchParams.get('transition'));
     if (!isNaN(t)) options.transitionIn = t;
 
     // textColour: string
     // Should be a hex string '#ffffff'
-    let c = searchParams.get('text');
+    const c = searchParams.get('text');
     if (c) options.textColour = `#${c}`;
 
     // bgColour: string
     // Should be a hex string '#ffffff'
-    let b = searchParams.get('bg');
+    const b = searchParams.get('bg');
     if (b) options.bgColour = `#${b}`;
 
     // key: string
     // Should be a hex string '#00FF00' with key colour
-    let k = searchParams.get('key');
+    const k = searchParams.get('key');
     if (k) options.keyColour = `#${k}`;
 
     // fadeOut: seconds
     // Should be a number 0-n
-    let f = parseInt(searchParams.get('fadeout'));
+    const f = parseInt(searchParams.get('fadeout'));
     if (!isNaN(f)) options.fadeOut = f;
 
     // x: pixels
     // Should be a number 0-n
-    let x = parseInt(searchParams.get('x'));
+    const x = parseInt(searchParams.get('x'));
     if (!isNaN(x)) options.posX = x;
 
     // y: pixels
     // Should be a number 0-n
-    let y = parseInt(searchParams.get('y'));
+    const y = parseInt(searchParams.get('y'));
     if (!isNaN(y)) options.posY = y;
 
     setLowerOptions({

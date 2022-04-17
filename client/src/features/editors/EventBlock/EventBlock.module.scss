@@ -1,3 +1,5 @@
+@use '../../../styles/main' as *;
+
 /* ============= COMMON ============= */
 .event {
   margin: 0.2em 0;
@@ -8,11 +10,11 @@
   border-radius: 8px;
   font-size: 15px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: $bg-gray-950;
 
   display: grid;
   gap: 0.5em;
 
-  background-color: rgba(255, 255, 255, 0.02);
 }
 
 .active {
@@ -69,7 +71,7 @@
 .nextDisabled {
   width: max-content;
   padding: 0 0.2em;
-  color: #4bffab;
+  color: $ontime-accent;
   transition: 0.3s;
 }
 
@@ -199,7 +201,6 @@
   align-content: center;
   align-self: flex-start;
   padding-top: 0.2em;
-  gap: 0.5em;
   opacity: 0.8;
   transition: linear 0.1s;
 }

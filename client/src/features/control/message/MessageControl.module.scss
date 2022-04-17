@@ -1,5 +1,5 @@
-@use '../../styles/main' as *;
-@use '../../styles/mixins' as *;
+@use '../../../styles/main' as *;
+@use '../../../styles/mixins' as *;
 
 .messageContainer,
 .onAirToggle {
@@ -22,13 +22,13 @@
     padding: 0;
     margin: 0;
     font-size: 0.9em;
-    color: #ccc;
+    color: $label-gray;
   }
 
   .inline {
     border-radius: 4px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: $input-bg;
+    border: $input-border;
   }
 
   .padleft {

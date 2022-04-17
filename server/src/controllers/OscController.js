@@ -68,10 +68,7 @@ export const initiateOSC = (config) => {
         try {
           const t = parseInt(args);
           if (isNaN(t)) {
-            global.timer.error(
-              'RX',
-              `OSC IN: delay time not recognised ${args}`
-            );
+            global.timer.error('RX', `OSC IN: delay time not recognised ${args}`);
             return;
           }
           global.timer.increment(t * 1000 * 60);
@@ -82,7 +79,7 @@ export const initiateOSC = (config) => {
       case 'goto':
         try {
           const eventIndex = parseInt(args);
-          if (isNaN(eventIndex) || eventIndex <= 0 || eventIndex == null) {
+          if (isNaN(eventIndex) || eventIndex <= 0) {
             global.timer.error(
               'RX',
               `OSC IN: event index not recognised or out of range ${eventIndex}`
@@ -96,10 +93,7 @@ export const initiateOSC = (config) => {
       case 'gotoid':
         console.log('calling gotoid with', args);
         if (args == null) {
-          global.timer.error(
-            'RX',
-            `OSC IN: event id not recognised or out of range ${args}}`
-          );
+          global.timer.error('RX', `OSC IN: event id not recognised or out of range ${args}}`);
           return;
         }
         try {

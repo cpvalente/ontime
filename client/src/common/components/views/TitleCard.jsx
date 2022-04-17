@@ -1,5 +1,5 @@
 import React from 'react';
-import style from './TitleCard.module.css';
+import style from './TitleCard.module.scss';
 
 export default function TitleCard(props) {
   const { label, title, subtitle, presenter } = props;

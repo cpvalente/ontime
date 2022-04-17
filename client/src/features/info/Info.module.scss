@@ -3,11 +3,7 @@
 
 @mixin container {
   margin-top: 1em;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
+  @include second-container;
   padding: 8px;
 }
 
@@ -73,7 +69,7 @@
 
 .emptyLabel {
   font-size: 0.8em;
-  color: #555;
+  color: $bg-gray-700;
 }
 
 .notes {
@@ -85,26 +81,12 @@
 .if {
   font-size: 0.8em;
   color: $ontime-accent;
-  @include container-bg;
+  background-color: $bg-gray-900;
+  padding: 0 0.5em;
+  margin: 0 0.5em;
 }
 
 ul > li {
   font-size: 0.9em;
-  color: #fff;
-}
-
-.moreExpanded,
-.moreCollapsed {
-  cursor: pointer;
-  color: #fff;
-}
-
-.moreExpanded {
-  transform: scaleY(-1);
-  transition: transform 0.3s;
-}
-
-.moreCollapsed {
-  transform: scaleY(1);
-  transition: transform 0.3s;
+  color: $text-white;
 }

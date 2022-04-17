@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import style from './Public.module.css';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
 import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from 'common/components/views/TitleSide';
+import { titleVariants } from '../common/animation';
+import style from './Public.module.scss';
 
 export default function Public(props) {
   const { publ, publicTitle, time, events, publicSelectedId, general } = props;
+  const [pageNumber, setPageNumber] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
 
   // Set window title
   useEffect(() => {
@@ -18,20 +21,7 @@ export default function Public(props) {
   const showPubl = publ.text !== '' && publ.visible;
 
   // motion
-  const titleVariants = {
-    hidden: {
-      x: -1500,
-    },
-    visible: {
-      x: 0,
-      transition: {
-        duration: 1,
-      },
-    },
-    exit: {
-      x: -1500,
-    },
-  };
+
   return (
     <div className={style.container__gray}>
       <NavLogo />
@@ -81,10 +71,25 @@ export default function Public(props) {
       </AnimatePresence>
 
       <div className={style.todayContainer}>
-        <div className={style.label}>Today</div>
-        <div className={style.entriesContainer}>
-          <Paginator selectedId={publicSelectedId} events={events} />
+        <div className={style.todayHeaderBlock}>
+          <div className={style.label}>Today</div>
+          <div className={style.nav}>
+            {pageNumber > 1 &&
+            [...Array(pageNumber).keys()].map((i) => (
+              <div
+                key={i}
+                className={i === currentPage ? style.navItemSelected : style.navItem}
+              />
+            ))}
+          </div>
         </div>
+        <Paginator
+          selectedId={publicSelectedId}
+          events={events}
+          isBackstage
+          setCurrentPage={setCurrentPage}
+          setPageNumber={setPageNumber}
+        />
       </div>
 
       <div
