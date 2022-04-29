@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { EVENTS_TABLE } from '../api/apiConstants';
 
+/**
+ * @description utility hook to handle mutations in events
+ * @param mutation
+ */
 export default function useMutateEvents(mutation){
   const queryClient = useQueryClient();
   return useMutation(mutation, {
