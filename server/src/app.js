@@ -128,7 +128,7 @@ import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 export const startOSCServer = async (overrideConfig = null) => {
 
   if (!oscInEnabled) {
-    global.timer.info('RX', 'OSC Input Disabled')
+    global.timer.info('RX', 'OSC Input Disabled');
     return;
   }
 
@@ -138,7 +138,7 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  global.timer.info('RX', `Starting OSC Server on port: ${oscInPort}`)
+  global.timer.info('RX', `Starting OSC Server on port: ${oscInPort}`);
   initiateOSC(oscSettings);
 };
 
