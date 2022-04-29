@@ -26,7 +26,6 @@ export const nowInMillis = () => {
  * @param {string} ifNull - what to return if value is null
  * @returns {string} String representing time 00:12:02
  */
-
 export const stringFromMillis = (
   ms,
   showSeconds = true,
@@ -37,6 +36,11 @@ export const stringFromMillis = (
   const isNegative = ms < 0 ? '-' : '';
   const millis = Math.abs(ms);
 
+  /**
+   * @description ensures value is double digit
+   * @param value
+   * @return {string|*}
+   */
   const showWith0 = (value) => (value < 10 ? `0${value}` : value);
   const hours = showWith0(Math.floor(((millis / mth) % 60) % 24));
   const minutes = showWith0(Math.floor((millis / mtm) % 60));

@@ -1,6 +1,9 @@
-/** Class contains logic towards outgoing OSC communications. */
 import { Client, Message } from 'node-osc';
 
+/**
+ * @description Class contains logic towards outgoing OSC communications
+ * @class
+ */
 export class OSCIntegration {
   constructor() {
     // OSC Client

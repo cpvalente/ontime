@@ -76,6 +76,11 @@ export const isTimeString = (string) => {
   return regex.test(string);
 };
 
+/**
+ * @description safe parse string to int
+ * @param valueAsString
+ * @return {number}
+ */
 const parse = (valueAsString) => {
   const parsed = parseInt(valueAsString, 10);
   if (isNaN(parsed)) {

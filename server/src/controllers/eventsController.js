@@ -40,11 +40,20 @@ async function _insertAt(entry, index) {
   await db.write();
 }
 
+/**
+ * @description deletes an event from the db given its id
+ * @param eventId
+ * @return {Promise<void>}
+ */
 async function _removeById(eventId) {
   data.events = Array.from(data.events).filter((e) => e.id !== eventId);
   await db.write();
 }
 
+/**
+ * @description returns all events of type event
+ * @return {unknown[]}
+ */
 function getEventEvents() {
   // return data.events.filter((e) => e.type === 'event');
   return Array.from(data.events).filter((e) => e.type === 'event');

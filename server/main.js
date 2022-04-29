@@ -39,6 +39,11 @@ const nodePath =
 const trayIcon = path.join(__dirname, './assets/background.png');
 const appIcon = path.join(__dirname, './assets/logo.png');
 
+/**
+ * @description utility function to create a notification
+ * @param title
+ * @param text
+ */
 function showNotification(title, text) {
   new Notification({
     title: title,

@@ -11,10 +11,6 @@ import { generateId } from '../utils/generate_id.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function getEventTitle() {
-  return data.event.title;
-}
-
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
 export const poll = async (req, res) => {
@@ -31,7 +27,7 @@ export const poll = async (req, res) => {
 // Create controller for GET request to '/ontime/db'
 // Returns -
 export const dbDownload = async (req, res) => {
-  const fileTitle = getEventTitle() || 'ontime events';
+  const fileTitle = data?.event?.title || 'ontime events';
   const dbFile = path.resolve(__dirname, '../', 'data/db.json');
 
   res.download(dbFile, `${fileTitle}.json`, (err) => {

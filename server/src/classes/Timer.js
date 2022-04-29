@@ -1,11 +1,9 @@
 import { stringFromMillis } from '../utils/time.js';
 
-/*
- * Timer implements simple countdown timer functions
- * User needs to use setup function to be able to use
- *
+/**
+ * @description Implements simple countdown timer functions
+ * @class
  */
-
 export class Timer {
   constructor() {
     this.clock = null;
@@ -13,7 +11,11 @@ export class Timer {
     this.state = 'stop';
   }
 
-  // call setup separately
+  /**
+   * @description initiates a timer with given seconds
+   * @param seconds
+   * @param autoStart
+   */
   setupWithSeconds(seconds, autoStart = false) {
     // aux
     const now = this._getCurrentTime();
@@ -36,7 +38,9 @@ export class Timer {
     this.update();
   }
 
-  // update()
+  /**
+   * @description updates the running timer
+   */
   update() {
     // get current time
     const now = this._getCurrentTime();
@@ -87,12 +91,21 @@ export class Timer {
   }
 
   // helpers
+  /**
+   * @description converts a value in millis to seconds
+   * @param millis
+   * @return {number}
+   */
   static toSeconds(millis) {
     if (millis == null) return 0;
     return millis < 0 ? Math.ceil(millis * 0.001) : Math.floor(millis * 0.001);
   }
 
-  // get current time in epoc
+  /**
+   * @description get current time in epoc
+   * @return {number}
+   * @private
+   */
   _getCurrentTime() {
     const now = new Date();
 
@@ -105,6 +118,11 @@ export class Timer {
     return elapsed;
   }
 
+  /**
+   * @description when is timer finishing
+   * @return {null|*|null|number}
+   * @private
+   */
   _getExpectedFinish() {
     if (this._startedAt == null) return null;
     if (this._finishedAt) return this._finishedAt;
@@ -115,6 +133,11 @@ export class Timer {
     );
   }
 
+  /**
+   * @description resets timer parameters
+   * @param total
+   * @private
+   */
   _resetTimers(total = false) {
     if (total) this.duration = null;
     this.current = this.duration;
@@ -131,13 +154,16 @@ export class Timer {
     this._pausedTotal = null;
   }
 
-  // get elapsed time
+  /**
+   * @description get elapsed time
+   * @return {number}
+   */
   getElapsed() {
     return this.duration - this.current;
   }
 
   /**
-   * Builds time object
+   * @description Builds time object
    * @returns {{running: number, secondary: number, expectedFinish: number, durationSeconds: number, startedAt: null, clock: null}}
    */
   getTimeObject() {
@@ -152,7 +178,10 @@ export class Timer {
     };
   }
 
-  // current time in seconds
+  /**
+   * @description get current time in seconds
+   * @return {number|number}
+   */
   getCurrentInSeconds() {
     // update timeStamp
     this.update();
@@ -160,6 +189,9 @@ export class Timer {
   }
 
   // playback
+  /**
+   * @description start current time
+   */
   start() {
     // do we need to change
     if (this.state === 'start') return;
@@ -185,6 +217,9 @@ export class Timer {
     this.state = 'start';
   }
 
+  /**
+   * @description pause current timer
+   */
   pause() {
     // do we need to change
     if (this.state === 'pause') return;
@@ -201,6 +236,9 @@ export class Timer {
     this.state = 'pause';
   }
 
+  /**
+   * @description stop current timer
+   */
   stop() {
     // do we need to change
     if (this.state === 'stop') return;
@@ -212,6 +250,10 @@ export class Timer {
     this.state = 'stop';
   }
 
+  /**
+   * @description increments a given amout to the timer
+   * @param amount
+   */
   increment(amount) {
     this.duration += amount;
 

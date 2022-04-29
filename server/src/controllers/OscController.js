@@ -2,10 +2,17 @@ import { Server } from 'node-osc';
 
 let oscServer = null;
 
+/**
+ * @description utilty function to shutdown osc server
+ */
 export const shutdownOSCServer = () => {
   if (oscServer != null) oscServer.close();
 };
 
+/**
+ * @description initialises OSC server
+ * @param config
+ */
 export const initiateOSC = (config) => {
   oscServer = new Server(config.port, '0.0.0.0');
 
