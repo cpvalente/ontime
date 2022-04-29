@@ -173,7 +173,7 @@ export const startServer = async (overrideConfig = null) => {
 };
 
 export const shutdown = async () => {
-  console.log('Node service shutdown');g
+  console.log('Node service shutdown');
   // shutdown express server
   server.close();
 
