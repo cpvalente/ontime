@@ -78,13 +78,13 @@ test('object instantiates correctly', async () => {
 describe('test triggers behaviour', () => {
   const t = new EventTimer(server, timerConfig);
 
-  test('ignores bad commands', async(done) => {
+  test('ignores bad commands', (done) => {
     const success = t.trigger('test');
     expect(success).toBeFalsy();
     done();
   });
 
-  test('does not allow triggering events with an empty list', async(done) => {
+  test('does not allow triggering events with an empty list', (done) => {
     expect(t.numEvents).toBe(0);
 
     expect(t.trigger('start')).toBeFalsy();
@@ -103,7 +103,7 @@ describe('test triggers behaviour', () => {
     done();
   });
 
-  test('...and is consistent by calling the class methods', async (done) => {
+  test('...and is consistent by calling the class methods', (done) => {
     expect(t.numEvents).toBe(0);
     expect(t.state).toBe('stop');
 
