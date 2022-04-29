@@ -12,7 +12,7 @@
   "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
-    "cypress": "^9.5.4",
+    "cypress": "^9.6.0",
     "electron": "13.6.7",
     "electron-builder": "^23.0.3",
     "eslint": "^8.5.0",
@@ -21,7 +21,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.4.7",
     "nodemon": "^2.0.15",
-    "prettier": "^2.5.1",
+    "prettier": "^2.6.2",
     "start-server-and-test": "^1.14.0",
     "supertest": "^6.2.2"
   },
