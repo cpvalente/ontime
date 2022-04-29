@@ -23,7 +23,6 @@ export const db = new Low(adapter);
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit'
 import { dbModelv1 as dbModel } from './models/dataModel.js';
 import { parseJson_v1 as parseJson } from './utils/parser.js';
 import { validateFile } from './utils/parserUtils.js';
@@ -68,15 +67,6 @@ app.use(cors());
 
 // enable pre-flight cors
 app.options('*', cors());
-
-// Apply the rate limiting middleware to all requests
-// const limiter = rateLimit({
-//   windowMs: 55 * 60 * 1000, // 5 minutes
-//   max: 100, // Limit each IP to 100 requests per `window` (here, per 5 minutes)
-//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-// });
-// app.use(limiter);
 
 // Implement middleware
 app.use(express.urlencoded({ extended: true }));
