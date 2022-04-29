@@ -87,9 +87,10 @@ const parse = (valueAsString) => {
 /**
  * @description Parses a time string to millis
  * @param {string} value - time string
+ * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value) => {
+export const forgivingStringToMillis = (value, fillLeft = false) => {
   let millis = 0;
 
   // split string at known separators    : , .
@@ -101,10 +102,6 @@ export const forgivingStringToMillis = (value) => {
     millis = parse(first) * mth;
     millis += parse(second) * mtm;
     millis += parse(third) * mts;
-  } else if (first != null && second != null && third == null) {
-    // if string has two sections, treat as [minutes] [seconds]
-    millis = parse(first) * mtm;
-    millis += parse(second) * mts;
   } else if (first != null && second == null && third == null) {
     // if string has one section,
     // could be a complete string like 121010 - 12:10:10
@@ -118,6 +115,18 @@ export const forgivingStringToMillis = (value) => {
     } else {
       // otherwise lets treat as [minutes]
       millis = parse(first) * mtm;
+    }
+  }
+  if (first != null && second != null && third == null) {
+    // if string has two sections
+    if (fillLeft) {
+      // treat as [hours] [minutes]
+      millis = parse(first) * mth;
+      millis += parse(second) * mtm;
+    } else {
+      // treat as [minutes] [seconds]
+      millis = parse(first) * mtm;
+      millis += parse(second) * mts;
     }
   }
   return millis;
