@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import SocketProvider from 'app/context/socketContext';
 import { QueryClient, QueryClientProvider } from 'react-query';

@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import MenuBar from '../MenuBar';
 import { queryClientMock } from '../../../__mocks__/QueryClient.mock';

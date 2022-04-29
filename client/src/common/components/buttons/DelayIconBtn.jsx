@@ -1,11 +1,12 @@
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { FiClock } from '@react-icons/all-files/fi/FiClock';
 
 export default function DelayIconBtn(props) {
-  const { clickhandler, ...rest } = props;
+  const { clickhandler, size = 'xs', ...rest } = props;
   return (
     <IconButton
-      size={props.size || 'xs'}
+      size={size}
       icon={<FiClock />}
       colorScheme='yellow'
       onClick={clickhandler}
