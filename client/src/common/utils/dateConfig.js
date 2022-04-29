@@ -90,7 +90,7 @@ const parse = (valueAsString) => {
  * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value, fillLeft = false) => {
+export const forgivingStringToMillis = (value, fillLeft = true) => {
   let millis = 0;
 
   // split string at known separators    : , .
