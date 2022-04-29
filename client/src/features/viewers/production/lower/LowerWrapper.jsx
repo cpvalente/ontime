@@ -69,7 +69,7 @@ const Lower = (props) => {
 
     // preset: selector
     // Should be a number 1-n
-    const p = parseInt(searchParams.get('preset'));
+    const p = parseInt(searchParams.get('preset'), 10);
     if (!isNaN(p)) setPreset(p);
 
     // size: multiplier
@@ -79,7 +79,7 @@ const Lower = (props) => {
 
     // transitionIn: seconds
     // Should be a number 0-n
-    const t = parseInt(searchParams.get('transition'));
+    const t = parseInt(searchParams.get('transition'), 10);
     if (!isNaN(t)) options.transitionIn = t;
 
     // textColour: string
@@ -99,17 +99,17 @@ const Lower = (props) => {
 
     // fadeOut: seconds
     // Should be a number 0-n
-    const f = parseInt(searchParams.get('fadeout'));
+    const f = parseInt(searchParams.get('fadeout'), 10);
     if (!isNaN(f)) options.fadeOut = f;
 
     // x: pixels
     // Should be a number 0-n
-    const x = parseInt(searchParams.get('x'));
+    const x = parseInt(searchParams.get('x'), 10);
     if (!isNaN(x)) options.posX = x;
 
     // y: pixels
     // Should be a number 0-n
-    const y = parseInt(searchParams.get('y'));
+    const y = parseInt(searchParams.get('y'), 10);
     if (!isNaN(y)) options.posY = y;
 
     setLowerOptions({

@@ -586,7 +586,7 @@ export class EventTimer extends Timer {
       });
 
       socket.on('increment-timer', (data) => {
-        if (isNaN(parseInt(data))) return;
+        if (isNaN(parseInt(data, 10))) return;
         if (data < -5 || data > 5) return;
         this.increment(data * 1000 * 60);
       });

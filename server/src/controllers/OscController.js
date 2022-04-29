@@ -73,7 +73,7 @@ export const initiateOSC = (config) => {
         break;
       case 'delay':
         try {
-          const t = parseInt(args);
+          const t = parseInt(args, 10);
           if (isNaN(t)) {
             global.timer.error('RX', `OSC IN: delay time not recognised ${args}`);
             return;
@@ -85,7 +85,7 @@ export const initiateOSC = (config) => {
         break;
       case 'goto':
         try {
-          const eventIndex = parseInt(args);
+          const eventIndex = parseInt(args, 10);
           if (isNaN(eventIndex) || eventIndex <= 0) {
             global.timer.error(
               'RX',

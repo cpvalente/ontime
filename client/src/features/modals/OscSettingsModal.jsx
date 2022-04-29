@@ -184,7 +184,7 @@ export default function OscSettingsModal() {
                 name='port'
                 placeholder='8888'
                 value={formData.port}
-                onChange={(event) => handleChange('port', parseInt(event.target.value))}
+                onChange={(event) => handleChange('port', parseInt(event.target.value, 10))}
                 style={{ width: '6em', textAlign: 'center' }}
               />
             </FormControl>
@@ -224,7 +224,7 @@ export default function OscSettingsModal() {
                 name='portOut'
                 placeholder='9999'
                 value={formData.portOut}
-                onChange={(event) => handleChange('portOut', parseInt(event.target.value))}
+                onChange={(event) => handleChange('portOut', parseInt(event.target.value, 10))}
                 style={{ width: '6em', textAlign: 'left' }}
               />
             </FormControl>

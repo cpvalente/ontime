@@ -44,9 +44,9 @@ export const stringFromMillis = (ms, showSeconds = true, delim = ':', ifNull = '
 
   return showSeconds
     ? `${isNegative}${
-        parseInt(hours) ? `${hours}${delim}` : `00${delim}`
+        parseInt(hours, 10) ? `${hours}${delim}` : `00${delim}`
       }${minutes}${delim}${seconds}`
-    : `${isNegative}${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
+    : `${isNegative}${parseInt(hours, 10) ? `${hours}` : '00'}${delim}${minutes}`;
 };
 
 /**
