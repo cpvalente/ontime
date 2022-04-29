@@ -3,14 +3,12 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.scss';
 import withSocket from 'features/viewers/ViewWrapper';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
-import ProtectRoute from './common/components/protectRoute/ProtectRoute';
 import { useFetch } from './app/hooks/useFetch';
 import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
-import { TableSettingsProvider } from './app/context/TableSettingsContext';
 
-const Editor = lazy(() => import('features/editors/Editor'));
-const Table = lazy(() => import('features/table/TableWrapper'));
+const Editor = lazy(() => import('features/editors/ProtectedEditor'));
+const Table = lazy(() => import('features/table/ProtectedTable'));
 
 const TimerView = lazy(() => import('features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('features/viewers/timer/MinimalTimer'));
@@ -28,20 +26,6 @@ const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
 const SPip = withSocket(Pip);
 const SStudio = withSocket(StudioClock);
-
-const ProtectedEditor = () => (
-  <ProtectRoute>
-    <Editor />
-  </ProtectRoute>
-);
-
-const ProtectedTable = () => (
-  <ProtectRoute>
-    <TableSettingsProvider>
-      <Table />
-    </TableSettingsProvider>
-  </ProtectRoute>
-);
 
 function App() {
   const { data } = useFetch(ALIASES, getAliases);
@@ -110,10 +94,10 @@ function App() {
             <Route path='/lower' element={<SLowerThird />} />
 
             {/*/!* Protected Routes *!/*/}
-            <Route path='/editor' element={<ProtectedEditor />} />
-            <Route path='/cuesheet' element={<ProtectedTable />} />
-            <Route path='/cuelist' element={<ProtectedTable />} />
-            <Route path='/table' element={<ProtectedTable />} />
+            <Route path='/editor' element={<Editor />} />
+            <Route path='/cuesheet' element={<Table />} />
+            <Route path='/cuelist' element={<Table />} />
+            <Route path='/table' element={<Table />} />
 
             {/* Send to default if nothing found */}
             <Route path='*' element={<STimer />} />
