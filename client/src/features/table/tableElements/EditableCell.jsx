@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AutoTextArea } from '../../../common/input/AutoTextArea';
 import PropTypes from 'prop-types';
 
@@ -21,31 +21,28 @@ export default function EditableCell(props) {
   // We need to keep and update the state of the cell normally
   const [value, setValue] = useState(initialValue);
 
-  const onChange = (e) => {
-    setValue(e.target.value);
-  };
+  const onChange = useCallback((e) => setValue(e.target.value), []);
 
   // We'll only update the external data when the input is blurred
-  const onBlur = () => {
-    handleUpdate(index, id, value);
-  };
+  const onBlur = useCallback(() => handleUpdate(index, id, value), [handleUpdate, id, index, value]);
 
-  // If the initialValue is changed external, sync it up with our state
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
 
-  return (
-    <AutoTextArea
-      size='sm'
-      borderColor='#0001'
-      defaultValue={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      rows={3}
-      transition='none'
-    />
-  );
+// If the initialValue is changed external, sync it up with our state
+useEffect(() => {
+  setValue(initialValue);
+}, [initialValue]);
+
+return (
+  <AutoTextArea
+    size='sm'
+    borderColor='#0001'
+    defaultValue={value}
+    onChange={onChange}
+    onBlur={onBlur}
+    rows={3}
+    transition='none'
+  />
+);
 }
 
 EditableCell.propTypes = {
