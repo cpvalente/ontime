@@ -129,7 +129,6 @@ export const parseOsc_v1 = (data, enforce) => {
     if (s.portOut) osc.portOut = s.portOut;
     if (s.targetIP) osc.targetIP = s.targetIP;
     if (typeof s.enabled !== 'undefined') osc.enabled = s.enabled;
-
     // write to db
     newOsc = {
       ...dbModelv1.osc,

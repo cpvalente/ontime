@@ -211,7 +211,6 @@ export const eventsReorder = async (req, res) => {
     data.events = events;
     await db.write();
 
-    // TODO: would it be more efficient to reorder at timer?
     // update timer
     _updateTimers();
 

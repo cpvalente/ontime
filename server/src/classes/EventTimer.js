@@ -186,7 +186,6 @@ export class EventTimer extends Timer {
    * @returns {boolean} Whether action was called
    */
   trigger(action) {
-    // Todo: reply should come from status change
     let reply = true;
     switch (action) {
       case 'start':
@@ -280,7 +279,6 @@ export class EventTimer extends Timer {
         // broadcast change
         this.broadcastState();
 
-        // Todo: wrap in reusable function
         // check integrations - http
         if (h?.onLoad?.enabled) {
           if (h?.onLoad?.url != null || h?.onLoad?.url !== '') {
@@ -833,7 +831,6 @@ export class EventTimer extends Timer {
 
       // load titles
       if ('title' in e || 'subtitle' in e || 'presenter' in e) {
-        // TODO: should be more selective on the need to load titles
         this._loadTitlesNext();
         this._loadTitlesNow();
       }
@@ -1429,7 +1426,6 @@ export class EventTimer extends Timer {
    * @param {any} [payload]
    */
   async sendOsc(message, payload) {
-    // Todo: add disabled osc check
     const reply = await this.osc.send(message, payload);
     if (!reply.success) {
       this.error('TX', reply.message);
