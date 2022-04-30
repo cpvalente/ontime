@@ -10,23 +10,24 @@ import {
 } from '@chakra-ui/modal';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
+import PropTypes from 'prop-types';
 
 export default function QuitIconBtn(props) {
-  const { clickhandler, size, ...rest } = props;
+  const { clickHandler, size = 'lg', ...rest } = props;
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   const cancelRef = useRef();
 
   const handleShutdown = () => {
     onClose();
-    clickhandler();
+    clickHandler();
   };
 
   return (
     <>
       <Tooltip label='Quit Application'>
         <IconButton
-          size={size || 'xs'}
+          size={size}
           icon={<FiPower />}
           colorScheme='red'
           variant='outline'
@@ -36,11 +37,7 @@ export default function QuitIconBtn(props) {
           {...rest}
         />
       </Tooltip>
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
@@ -48,8 +45,7 @@ export default function QuitIconBtn(props) {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              This will shutdown the program and all running servers. Are you
-              sure?
+              This will shutdown the program and all running servers. Are you sure?
             </AlertDialogBody>
 
             <AlertDialogFooter>
@@ -66,3 +62,8 @@ export default function QuitIconBtn(props) {
     </>
   );
 }
+
+QuitIconBtn.propTypes = {
+  clickHandler: PropTypes.func,
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg']),
+};
