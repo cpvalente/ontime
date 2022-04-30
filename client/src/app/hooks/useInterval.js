@@ -13,6 +13,9 @@ export const useInterval = (callback, delay) => {
   }, [callback]);
 
   useEffect(() => {
+    /**
+     * @description function to be called
+     */
     function tick() {
       savedCallback.current();
     }

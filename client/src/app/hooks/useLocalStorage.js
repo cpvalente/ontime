@@ -17,6 +17,10 @@ export const useLocalStorage = (key, initialValue) => {
     }
   });
 
+  /**
+   * @description Set value to local storage
+   * @param value
+   */
   const setValue = (value) => {
     try {
       // Allow value to be a function so we have same API as useState
