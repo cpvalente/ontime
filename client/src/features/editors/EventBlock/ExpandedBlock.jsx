@@ -1,11 +1,12 @@
 import React from 'react';
 import { VStack } from '@chakra-ui/react';
+import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
+import ActionButtons from '../../../common/components/buttons/ActionButtons';
 import EventTimesVertical from '../../../common/components/eventTimes/EventTimesVertical';
 import EditableText from '../../../common/input/EditableText';
 import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
-import ActionButtons from '../list/ActionButtons';
-import DeleteIconBtn from '../../../common/components/buttons/DeleteIconBtn';
+import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipLoadingActionBtn';
 import PropTypes from 'prop-types';
 import style from './EventBlock.module.scss';
 
@@ -70,11 +71,16 @@ export default function ExpandedBlock(props) {
       <VStack spacing='0.5em' className={style.actionOverlay}>
         <PublicIconBtn actionHandler={actionHandler} active={data.isPublic} />
         <ActionButtons showAdd showDelay showBlock actionHandler={actionHandler} />
-        <DeleteIconBtn actionHandler={actionHandler} />
+        <TooltipLoadingActionBtn
+          clickHandler={() => actionHandler('delete')}
+          icon={<IoRemove />}
+          colorScheme='red'
+          tooltip='Delete'
+        />
       </VStack>
     </>
   );
-};
+}
 
 ExpandedBlock.propTypes = {
   provided: PropTypes.any.isRequired,

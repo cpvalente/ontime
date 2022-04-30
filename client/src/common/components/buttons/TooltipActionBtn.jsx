@@ -25,4 +25,3 @@ TooltipActionBtn.propTypes = {
   size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg']),
   tooltip: PropTypes.string
 }
-

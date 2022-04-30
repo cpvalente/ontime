@@ -2,6 +2,7 @@ import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
 import { Tooltip } from '@chakra-ui/tooltip';
+import PropTypes from 'prop-types';
 
 export default function RollIconBtn(props) {
   const { clickhandler, active, disabled, ...rest } = props;
@@ -13,9 +14,14 @@ export default function RollIconBtn(props) {
         variant={active ? 'solid' : 'outline'}
         onClick={clickhandler}
         width={120}
-        _focus={{ boxShadow: 'none' }}
         {...rest}
       />
     </Tooltip>
   );
+}
+
+RollIconBtn.propTypes = {
+  clickhandler: PropTypes.func,
+  active: PropTypes.bool,
+  disabled: PropTypes.bool
 }

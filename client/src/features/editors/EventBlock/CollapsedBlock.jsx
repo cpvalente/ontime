@@ -1,10 +1,10 @@
 import React from 'react';
 import { HStack } from '@chakra-ui/react';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
+import ActionButtons from '../../../common/components/buttons/ActionButtons';
 import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import EditableText from '../../../common/input/EditableText';
 import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
-import ActionButtons from '../list/ActionButtons';
 import PropTypes from 'prop-types';
 import style from './EventBlock.module.scss';
 

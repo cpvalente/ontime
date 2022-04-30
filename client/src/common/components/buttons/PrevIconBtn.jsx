@@ -2,6 +2,7 @@ import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { Tooltip } from '@chakra-ui/tooltip';
+import PropTypes from 'prop-types';
 
 export default function PrevIconBtn(props) {
   const { clickhandler, disabled, ...rest } = props;
@@ -14,9 +15,13 @@ export default function PrevIconBtn(props) {
         variant='outline'
         onClick={clickhandler}
         width={90}
-        _focus={{ boxShadow: 'none' }}
         {...rest}
       />
     </Tooltip>
   );
 }
+
+PrevIconBtn.propTypes = {
+  clickhandler: PropTypes.func,
+  disabled: PropTypes.bool,
+};
