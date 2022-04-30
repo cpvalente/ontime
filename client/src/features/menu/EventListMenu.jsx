@@ -99,6 +99,7 @@ const EventListMenu = ({ eventsHandler }) => {
           tooltip='Lock cursor to current'
           width='3em'
           backgroundColor={isCursorLocked && 'pink.400'}
+          _hover={{ bg: 'pink.300' }}
           variant={isCursorLocked ? 'solid' : 'outline'}
         />
       </ButtonGroup>
