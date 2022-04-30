@@ -7,9 +7,10 @@ import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
 import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
 import { Divider } from '@chakra-ui/layout';
 import { Tooltip } from '@chakra-ui/tooltip';
+import PropTypes from 'prop-types';
 
 export default function MenuActionButtons(props) {
-  const { actionHandler, size } = props;
+  const { actionHandler, size = 'xs' } = props;
   const menuStyle = {
     color: '#000000',
     backgroundColor: 'rgba(255,255,255,1)',
@@ -21,7 +22,7 @@ export default function MenuActionButtons(props) {
         <MenuButton
           as={IconButton}
           aria-label='Create Menu'
-          size={size || 'xs'}
+          size={size}
           icon={<FiPlus />}
           _expanded={{ bg: 'orange.300', color: 'white' }}
           _focus={{ boxShadow: 'none' }}
@@ -47,3 +48,8 @@ export default function MenuActionButtons(props) {
     </Menu>
   );
 }
+
+MenuActionButtons.propTypes = {
+  actionHandler: PropTypes.func,
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg']),
+};
