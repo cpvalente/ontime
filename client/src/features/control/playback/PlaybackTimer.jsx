@@ -21,9 +21,8 @@ const areEqual = (prevProps, nextProps) => {
 const incrementProps = {
   size: 'sm',
   width: '2.9em',
-  colorScheme: 'whiteAlpha',
+  colorScheme: 'white',
   variant: 'outline',
-  _focus: { boxShadow: 'none' },
 };
 
 const PlaybackTimer = (props) => {
@@ -68,23 +67,43 @@ const PlaybackTimer = (props) => {
         </>
       )}
       <div className={style.btn}>
-        <Tooltip label='Remove 1 minute' delay={500} shouldWrapChildren={disableButtons}>
-          <Button {...incrementProps} disabled={disableButtons} onClick={() => handleIncrement(-1)}>
+        <Tooltip label='Remove 1 minute' openDelay={500} shouldWrapChildren={disableButtons}>
+          <Button
+            {...incrementProps}
+            disabled={disableButtons}
+            onClick={() => handleIncrement(-1)}
+            _hover={{ bg: '#ebedf0', color: '#333' }}
+          >
             -1
           </Button>
         </Tooltip>
-        <Tooltip label='Add 1 minute' delay={500} shouldWrapChildren={disableButtons}>
-          <Button {...incrementProps} disabled={disableButtons} onClick={() => handleIncrement(1)}>
+        <Tooltip label='Add 1 minute' openDelay={500} shouldWrapChildren={disableButtons}>
+          <Button
+            {...incrementProps}
+            disabled={disableButtons}
+            onClick={() => handleIncrement(1)}
+            _hover={{ bg: '#ebedf0', color: '#333' }}
+          >
             +1
           </Button>
         </Tooltip>
-        <Tooltip label='Remove 5 minutes' delay={500} shouldWrapChildren={disableButtons}>
-          <Button {...incrementProps} disabled={disableButtons} onClick={() => handleIncrement(-5)}>
+        <Tooltip label='Remove 5 minutes' openDelay={500} shouldWrapChildren={disableButtons}>
+          <Button
+            {...incrementProps}
+            disabled={disableButtons}
+            onClick={() => handleIncrement(-5)}
+            _hover={{ bg: '#ebedf0', color: '#333' }}
+          >
             -5
           </Button>
         </Tooltip>
-        <Tooltip label='Add 5 minutes' delay={500} shouldWrapChildren={disableButtons}>
-          <Button {...incrementProps} disabled={disableButtons} onClick={() => handleIncrement(5)}>
+        <Tooltip label='Add 5 minutes' openDelay={500} shouldWrapChildren={disableButtons}>
+          <Button
+            {...incrementProps}
+            disabled={disableButtons}
+            onClick={() => handleIncrement(5)}
+            _hover={{ bg: '#ebedf0', color: '#333' }}
+          >
             +5
           </Button>
         </Tooltip>

@@ -34,12 +34,14 @@ export default function DelayBlock(props) {
               icon={<FiCheck />}
               colorScheme='orange'
               tooltip='Apply delays'
+              _hover={{ bg: 'orange.400' }}
             />
             <TooltipLoadingActionBtn
               clickHandler={() => actionHandler('delete')}
               icon={<IoRemove />}
               colorScheme='red'
               tooltip='Delete'
+              _hover={{ bg: 'red.400' }}
             />
             <ActionButtons showAdd actionHandler={actionHandler} />
           </HStack>

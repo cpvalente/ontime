@@ -28,6 +28,7 @@ export default function BlockBlock(props) {
               icon={<IoRemove />}
               colorScheme='red'
               tooltip='Delete'
+              _hover={{ bg: 'red.400' }}
             />
             <ActionButtons showAdd showDelay actionHandler={actionHandler} />
           </HStack>

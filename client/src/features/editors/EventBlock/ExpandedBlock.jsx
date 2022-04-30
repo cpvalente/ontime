@@ -76,6 +76,7 @@ export default function ExpandedBlock(props) {
           icon={<IoRemove />}
           colorScheme='red'
           tooltip='Delete'
+          _hover={{ bg: 'red.400' }}
         />
       </VStack>
     </>

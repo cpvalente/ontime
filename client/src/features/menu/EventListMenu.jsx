@@ -65,12 +65,14 @@ const EventListMenu = ({ eventsHandler }) => {
           clickHandler={() => eventsHandler('expandall')}
           icon={<FiChevronsDown />}
           tooltip='Expand All'
+          _hover={{ bg: '#ebedf0', color: '#333' }}
           {...collapsingBtnProps}
         />
         <TooltipActionBtn
           clickHandler={() => eventsHandler('collapseall')}
           icon={<FiChevronsUp />}
           tooltip='Collapse All'
+          _hover={{ bg: '#ebedf0', color: '#333' }}
           {...collapsingBtnProps}
         />
       </ButtonGroup>
@@ -81,12 +83,14 @@ const EventListMenu = ({ eventsHandler }) => {
           clickHandler={() => actionHandler('cursorUp')}
           icon={<IoCaretUp />}
           tooltip='Move cursor up Alt + ↑'
+          _hover={{ bg: 'pink.400' }}
         />
         <TooltipActionBtn
           {...cursorBtnProps}
           clickHandler={() => actionHandler('cursorDown')}
           icon={<IoCaretDown />}
           tooltip='Move cursor down Alt + ↓'
+          _hover={{ bg: 'pink.400' }}
         />
         <TooltipActionBtn
           {...cursorBtnProps}
