@@ -1,4 +1,5 @@
 .headerButtons {
   align-content: center;
   justify-content: flex-end;
+  min-height: fit-content;
 }
