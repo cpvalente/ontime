@@ -17,6 +17,7 @@ import EventList from './EventList';
 import EventListMenu from 'features/menu/EventListMenu.jsx';
 import Empty from 'common/state/Empty';
 import { CollapseContext } from '../../../app/context/CollapseContext';
+import styles from '../Editor.module.scss';
 
 export default function EventListWrapper() {
   const { expandAll, collapseMultiple } = useContext(CollapseContext);
@@ -128,7 +129,7 @@ export default function EventListWrapper() {
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
 
-      const filtered = [...previousEvents].filter((e) => e.id === 'eventId')
+      const filtered = [...previousEvents].filter((e) => e.id === 'eventId');
 
       // optimistically update object
       queryClient.setQueryData(EVENTS_TABLE, filtered);
@@ -336,11 +337,13 @@ export default function EventListWrapper() {
   return (
     <>
       <EventListMenu eventsHandler={eventsHandler} />
-      {status === 'success' && events != null ? (
-        <EventList events={events} eventsHandler={eventsHandler} />
-      ) : (
-        <Empty text='Connecting to server' />
-      )}
+      <div className={styles.content}>
+        {status === 'success' && events != null ? (
+          <EventList events={events} eventsHandler={eventsHandler} />
+        ) : (
+          <Empty text='Connecting to server' />
+        )}
+      </div>
     </>
   );
 }
