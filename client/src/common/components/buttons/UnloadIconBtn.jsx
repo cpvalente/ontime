@@ -5,14 +5,14 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import PropTypes from 'prop-types';
 
 export default function UnloadIconBtn(props) {
-  const { clickhandler, disabled, ...rest } = props;
+  const { clickHandler, disabled, ...rest } = props;
   return (
     <Tooltip label='Unload event' openDelay={500} shouldWrapChildren={disabled}>
       <IconButton
         icon={<IoStop size='22px' />}
         colorScheme='red'
         variant='outline'
-        onClick={clickhandler}
+        onClick={clickHandler}
         width={90}
         {...rest}
       />
@@ -21,6 +21,6 @@ export default function UnloadIconBtn(props) {
 }
 
 UnloadIconBtn.propTypes = {
-  clickhandler: PropTypes.func,
+  clickHandler: PropTypes.func,
   disabled: PropTypes.bool,
 };

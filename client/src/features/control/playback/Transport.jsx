@@ -14,25 +14,25 @@ export default function Transport(props) {
   return (
     <div className={style.playbackContainer}>
       <TransportIconBtn
-        clickhandler={() => playbackControl('previous')}
+        clickHandler={() => playbackControl('previous')}
         disabled={isRolling || noEvents}
         tooltip='Previous event'
         icon={<IoPlaySkipBack size='22px' />}
       />
       <TransportIconBtn
-        clickhandler={() => playbackControl('next')}
+        clickHandler={() => playbackControl('next')}
         disabled={isRolling || noEvents}
         tooltip='Next event'
         icon={<IoPlaySkipForward size='22px' />}
       />
       <TransportIconBtn
-        clickhandler={() => playbackControl('reload')}
+        clickHandler={() => playbackControl('reload')}
         disabled={selectedId == null || isRolling || noEvents}
         tooltip='Reload event'
         icon={<IoArrowUndo size='22px' />}
       />
       <UnloadIconBtn
-        clickhandler={() => playbackControl('unload')}
+        clickHandler={() => playbackControl('unload')}
         disabled={(selectedId == null && !isRolling) || noEvents}
       />
     </div>
