@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext } from 'react';
-import { ButtonGroup, Divider, HStack } from '@chakra-ui/react';
+import { ButtonGroup, HStack } from '@chakra-ui/react';
 import { CursorContext } from '../../app/context/CursorContext';
 import { FiChevronsUp } from '@react-icons/all-files/fi/FiChevronsUp';
 import { FiChevronsDown } from '@react-icons/all-files/fi/FiChevronsDown';
@@ -76,7 +76,6 @@ const EventListMenu = ({ eventsHandler }) => {
           {...collapsingBtnProps}
         />
       </ButtonGroup>
-      <Divider orientation='vertical' />
       <ButtonGroup isAttached>
         <TooltipActionBtn
           {...cursorBtnProps}
@@ -103,7 +102,6 @@ const EventListMenu = ({ eventsHandler }) => {
           variant={isCursorLocked ? 'solid' : 'outline'}
         />
       </ButtonGroup>
-      <Divider orientation='vertical' />
       <MenuActionButtons actionHandler={actionHandler} size='sm' />
     </HStack>
   );
