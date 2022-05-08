@@ -68,7 +68,7 @@
       "artifactName": "ontime-win64.exe",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "allowElevation": false,
+      "allowElevation": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "deleteAppDataOnUninstall": true,
