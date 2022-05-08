@@ -18,6 +18,11 @@ export default function TableWrapper() {
   const [selectedId, setSelectedId] = useState(null);
   const { theme } = useContext(TableSettingsContext);
 
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Cuesheet';
+  }, []);
+
   /**
    * Handle incoming data from socket
    */

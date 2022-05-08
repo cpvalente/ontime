@@ -41,6 +41,8 @@ return (
     onBlur={onBlur}
     rows={3}
     transition='none'
+    spellCheck={false}
+    autoComplete={false}
   />
 );
 }
