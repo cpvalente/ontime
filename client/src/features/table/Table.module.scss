@@ -163,7 +163,7 @@
       }
 
       .selected > td {
-        background-color: #4bffab99;
+        background-color: rgba($ontime-accent, 0.8);
       }
     }
 
@@ -269,6 +269,12 @@ svg {
 .dragging {
   border: 1px solid $ontime-pink;
   z-index: 10;
+}
+
+.check {
+  font-size: 1.5em;
+  background-color: transparent !important;
+  margin: 0 auto;
 }
 
 @keyframes rotation {

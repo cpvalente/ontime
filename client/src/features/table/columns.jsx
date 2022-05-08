@@ -2,6 +2,7 @@ import React from 'react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import EditableCell from './tableElements/EditableCell';
 import { stringFromMillis } from '../../common/utils/time.js';
+import style from './Table.module.scss';
 
 /**
  * React - Table column object
@@ -13,7 +14,7 @@ export const makeColumns = (sizes, userFields) => {
     {
       Header: 'Public',
       accessor: 'isPublic',
-      Cell: ({ cell: { value } }) => (value ? <FiCheck /> :""),
+      Cell: ({ cell: { value } }) => (value ? <FiCheck className={style.check} /> : ''),
       width: sizes?.isPublic || 50,
     },
     {
