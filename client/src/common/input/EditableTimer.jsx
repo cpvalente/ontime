@@ -7,7 +7,7 @@ import { stringFromMillis } from '../utils/time';
 import style from './EditableTimer.module.scss';
 
 export default function EditableTimer(props) {
-  const { name, actionHandler, time, delay, validate, previousEnd } = props;
+  const { name, actionHandler, time = 0, delay, validate, previousEnd } = props;
   const { emitError } = useContext(LoggingContext);
   const [value, setValue] = useState('');
 
