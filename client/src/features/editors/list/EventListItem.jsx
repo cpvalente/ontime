@@ -10,6 +10,7 @@ const areEqual = (prevProps, nextProps) => {
     prevProps.data.revision === nextProps.data.revision &&
     prevProps.selected === nextProps.selected &&
     prevProps.next === nextProps.next &&
+    prevProps.index === nextProps.index &&
     prevProps.delay === nextProps.delay &&
     prevProps.previousEnd === nextProps.previousEnd
   );
@@ -57,6 +58,7 @@ const EventListItem = (props) => {
           );
           break;
         case 'delay':
+          console.log('Adding delay after', index)
           eventsHandler('add', { type: 'delay', order: index + 1 });
           break;
         case 'block':

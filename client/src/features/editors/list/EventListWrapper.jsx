@@ -237,7 +237,10 @@ export default function EventListWrapper() {
             // hard coding duration value to be as expected for now
             // this until timeOptions gets implemented
             // Todo: implement duration options
-            newEvent.duration = Math.max(0, newEvent.timeEnd - newEvent.timeStart) || 0;
+            if (newEvent.type === 'event') {
+              newEvent.duration = Math.max(0, newEvent.timeEnd - newEvent.timeStart) || 0;
+            }
+
             await addEvent.mutateAsync(newEvent);
           } catch (error) {
             emitError(`Error fetching data: ${error.message}`);
