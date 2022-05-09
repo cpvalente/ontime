@@ -8,8 +8,7 @@ import {
   event as eventDef,
 } from '../models/eventsDefinition.js';
 import { generateId } from '../utils/generate_id.js';
-
-const MAX_EVENTS = 99;
+import { MAX_EVENTS } from '../settings.js';
 
 async function _insertAt(entry, index) {
   // get events
@@ -106,6 +105,7 @@ export const eventsPost = async (req, res) => {
   if (data.events.length > MAX_EVENTS) {
     const error = `ERROR: Reached limit number of ${MAX_EVENTS} events`;
     res.status(400).send(error);
+    return;
   }
 
   // ensure structure

@@ -17,7 +17,6 @@ import { generateId } from './generate_id.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
-export const MAX_EVENTS = 255;
 
 /**
  * @description Excel array parser
