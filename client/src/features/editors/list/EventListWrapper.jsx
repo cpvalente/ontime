@@ -129,7 +129,7 @@ export default function EventListWrapper() {
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
 
-      const filtered = [...previousEvents].filter((e) => e.id === 'eventId');
+      const filtered = [...previousEvents].filter((e) => e.id !== eventId);
 
       // optimistically update object
       queryClient.setQueryData(EVENTS_TABLE, filtered);
