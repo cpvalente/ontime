@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { VStack } from '@chakra-ui/react';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
@@ -10,7 +10,19 @@ import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipL
 import PropTypes from 'prop-types';
 import style from './EventBlock.module.scss';
 
-export default function ExpandedBlock(props) {
+const areEqual = (prevProps, nextProps) => {
+  return (
+    prevProps.provided === nextProps.provided &&
+    prevProps.data.revision === nextProps.data.revision &&
+    prevProps.next === nextProps.next &&
+    prevProps.delay === nextProps.delay &&
+    prevProps.delayValue === nextProps.delayValue &&
+    prevProps.previousEnd === nextProps.previousEnd
+  );
+};
+
+
+function ExpandedBlock(props) {
   const { provided, data, eventIndex, next, delay, delayValue, previousEnd, actionHandler } = props;
 
   const oscid = data?.id || '...';
@@ -93,3 +105,5 @@ ExpandedBlock.propTypes = {
   previousEnd: PropTypes.number,
   actionHandler: PropTypes.func.isRequired,
 };
+
+export default memo(ExpandedBlock, areEqual);
