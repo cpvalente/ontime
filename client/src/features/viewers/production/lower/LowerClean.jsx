@@ -32,9 +32,6 @@ export default function LowerClean(props) {
     return () => clearTimeout(timeout);
   }, [options.fadeOut, options.transitionIn, defaults.transitionIn]);
 
-  // calculate transition times
-  useEffect(() => {});
-
   // Format messages
   const showLowerMessage = lower.text !== '' && lower.visible;
 
