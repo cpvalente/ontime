@@ -153,7 +153,7 @@ export const parseHttp_v1 = (data, enforce) => {
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
     const h = data.osc;
-    let http = {};
+    const http = {};
 
     if (h.user) http.user = h.user;
     if (h.pwd) http.pwd = h.pwd;
@@ -176,7 +176,7 @@ export const parseHttp_v1 = (data, enforce) => {
  * @returns {object} - event object data
  */
 export const parseAliases_v1 = (data) => {
-  let newAliases = [];
+  const newAliases = [];
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
     const ids = [];

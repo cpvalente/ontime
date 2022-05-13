@@ -54,7 +54,7 @@ export const parseExcel_v1 = async (excelData) => {
     .forEach((row) => {
       let eventTitleNext = false;
       let eventUrlNext = false;
-      let event = {};
+      const event = {};
 
       row.forEach((column, j) => {
         // check flags

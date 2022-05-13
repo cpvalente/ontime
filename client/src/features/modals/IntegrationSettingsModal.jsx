@@ -41,7 +41,7 @@ export default function IntegrationSettingsModal() {
       event.preventDefault();
 
       const f = formData;
-      let e = { status: false, message: '' };
+      const e = { status: false, message: '' };
 
       // set fields with error
       if (e.status) {
