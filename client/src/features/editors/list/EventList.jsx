@@ -126,26 +126,28 @@ export default function EventList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, isCursorLocked]);
 
-  if (events.length < 1) {
-    return <Empty text='No Events' style={{marginTop: "10vh"}} />;
-  }
-
   // DND
-  const handleOnDragEnd = (result) => {
-    // drop outside of area
-    if (!result.destination) return;
+  const handleOnDragEnd = useCallback(
+    (result) => {
+      // drop outside of area
+      if (!result.destination) return;
 
-    // no change
-    if (result.destination === result.source.index) return;
+      // no change
+      if (result.destination === result.source.index) return;
 
-    // Call API
-    eventsHandler('reorder', {
-      index: result.draggableId,
-      from: result.source.index,
-      to: result.destination.index,
-    });
-  };
+      // Call API
+      eventsHandler('reorder', {
+        index: result.draggableId,
+        from: result.source.index,
+        to: result.destination.index,
+      });
+    },
+    [eventsHandler]
+  );
 
+  if (events.length < 1) {
+    return <Empty text='No Events' style={{ marginTop: '10vh' }} />;
+  }
   let cumulativeDelay = 0;
   let eventIndex = -1;
   let previousEnd = 0;

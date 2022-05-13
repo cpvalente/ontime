@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input, Switch } from '@chakra-ui/react';
 import { getInfo, httpPlaceholder, ontimeVars, postInfo } from 'app/api/ontimeApi';
@@ -36,29 +36,32 @@ export default function IntegrationSettingsModal() {
   /**
    * Validate and submit data
    */
-  const submitHandler = async (event) => {
-    event.preventDefault();
+  const submitHandler = useCallback(
+    async (event) => {
+      event.preventDefault();
 
-    const f = formData;
-    let e = { status: false, message: '' };
+      const f = formData;
+      let e = { status: false, message: '' };
 
-    // set fields with error
-    if (e.status) {
-      emitError(`Invalid Input: ${e.message}`);
-    } else {
-      await postInfo(f);
-      setChanged(false);
-      setSubmitting(false);
-    }
-  };
+      // set fields with error
+      if (e.status) {
+        emitError(`Invalid Input: ${e.message}`);
+      } else {
+        await postInfo(f);
+        setChanged(false);
+        setSubmitting(false);
+      }
+    },
+    [emitError, formData]
+  );
 
   /**
    * Reverts local state equals to server state
    */
-  const revert = async () => {
+  const revert = useCallback(async () => {
     setChanged(false);
     await refetch();
-  };
+  }, [refetch]);
 
   // Todo: make change handler
   // Todo: toggle between GET / POST

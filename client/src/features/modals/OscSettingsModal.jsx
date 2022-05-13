@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input } from '@chakra-ui/react';
 import { getOSC, oscPlaceholderSettings, postOSC } from 'app/api/ontimeApi';
@@ -92,59 +92,65 @@ export default function OscSettingsModal() {
   /**
    * Validate and submit data
    */
-  const submitHandler = async (event) => {
-    event.preventDefault();
-    setSubmitting(true);
+  const submitHandler = useCallback(
+    async (event) => {
+      event.preventDefault();
+      setSubmitting(true);
 
-    const f = formData;
-    const e = { status: false, message: '' };
+      const f = formData;
+      const e = { status: false, message: '' };
 
-    // Validate fields
-    if (f.port < 1024 || f.port > 65535) {
-      // Port in incorrect range
-      e.status = true;
-      e.message += 'OSC IN Port in incorrect range (1024 - 65535)';
-    } else if (f.portOut < 1024 || f.portOut > 65535) {
-      // Port in incorrect range
-      e.status = true;
-      e.message += 'OSC OUT Port in incorrect range (1024 - 65535)';
-    } else if (f.port === f.portOut) {
-      // Cant use the same port
-      e.status = true;
-      e.message += 'OSC IN and OUT Ports cant be the same';
-    }
+      // Validate fields
+      if (f.port < 1024 || f.port > 65535) {
+        // Port in incorrect range
+        e.status = true;
+        e.message += 'OSC IN Port in incorrect range (1024 - 65535)';
+      } else if (f.portOut < 1024 || f.portOut > 65535) {
+        // Port in incorrect range
+        e.status = true;
+        e.message += 'OSC OUT Port in incorrect range (1024 - 65535)';
+      } else if (f.port === f.portOut) {
+        // Cant use the same port
+        e.status = true;
+        e.message += 'OSC IN and OUT Ports cant be the same';
+      }
 
-    // set fields with error
-    if (e.status) {
-      emitError(`Invalid Input: ${e.message}`);
-    } else {
-      // Post here
-      await postOSC(formData);
-      await refetch();
-      setChanged(false);
-    }
-    setSubmitting(false);
-  };
+      // set fields with error
+      if (e.status) {
+        emitError(`Invalid Input: ${e.message}`);
+      } else {
+        // Post here
+        await postOSC(formData);
+        await refetch();
+        setChanged(false);
+      }
+      setSubmitting(false);
+    },
+    [emitError, formData, refetch]
+  );
 
   /**
    * Reverts local state equals to server state
    */
-  const revert = async () => {
+  const revert = useCallback(async () => {
     setChanged(false);
     await refetch();
-  };
+  }, [refetch]);
 
   /**
    * Handles change of input field in local state
    * @param {string} field - object parameter to update
    * @param {(string | number | boolean)} value - new object parameter value
    */
-  const handleChange = (field, value) => {
-    const temp = { ...formData };
-    temp[field] = value;
-    setFormData(temp);
-    setChanged(true);
-  };
+  const handleChange = useCallback(
+    (field, value) => {
+      const temp = { ...formData };
+      temp[field] = value;
+      setFormData(temp);
+      setChanged(true);
+    },
+    [formData]
+  );
 
   return (
     <ModalBody className={style.modalBody}>

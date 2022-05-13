@@ -96,7 +96,7 @@ export default function OntimeTable({ tableData, userFields, handleUpdate, selec
     saveHiddenColumns([]);
   }, [saveHiddenColumns, toggleHideAllColumns]);
 
-  const handleOnDragEnd = (event) => {
+  const handleOnDragEnd = useCallback((event) => {
     const { delta, active, over } = event;
 
     // cancel if delta y is greater than 200
@@ -121,7 +121,7 @@ export default function OntimeTable({ tableData, userFields, handleUpdate, selec
 
     saveColumnOrder(cols);
     setColumnOrder(cols);
-  };
+  }, [columnOrder, hiddenColumns, saveColumnOrder, setColumnOrder]);
 
   // save hidden columns object to local storage
   useEffect(() => {
@@ -170,66 +170,66 @@ export default function OntimeTable({ tableData, userFields, handleUpdate, selec
       )}
       <table {...getTableProps()} className={style.ontimeTable}>
         <thead className={style.tableHeader}>
-        {headerGroups.map((headerGroup) => {
-          const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
-          return (
-            <DndContext
-              key={key}
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleOnDragEnd}
-            >
-              <tr {...restHeaderGroupProps}>
-                <th className={style.indexColumn}>
-                  <Tooltip label='Event Order' openDelay={300}>
-                    #
-                  </Tooltip>
-                </th>
-                <SortableContext
-                  key={key}
-                  items={headerGroup.headers}
-                  strategy={horizontalListSortingStrategy}
-                >
-                  {headerGroup.headers.map((column) => {
-                    const { key } = column.getHeaderProps();
-                    return <SortableCell key={key} column={column} />;
-                  })}
-                </SortableContext>
-              </tr>
-            </DndContext>
-          );
-        })}
+          {headerGroups.map((headerGroup) => {
+            const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
+            return (
+              <DndContext
+                key={key}
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleOnDragEnd}
+              >
+                <tr {...restHeaderGroupProps}>
+                  <th className={style.indexColumn}>
+                    <Tooltip label='Event Order' openDelay={300}>
+                      #
+                    </Tooltip>
+                  </th>
+                  <SortableContext
+                    key={key}
+                    items={headerGroup.headers}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {headerGroup.headers.map((column) => {
+                      const { key } = column.getHeaderProps();
+                      return <SortableCell key={key} column={column} />;
+                    })}
+                  </SortableContext>
+                </tr>
+              </DndContext>
+            );
+          })}
         </thead>
         <tbody {...getTableBodyProps} className={style.tableBody}>
-        {/*This is saving in place of a default component*/}
-        {/* eslint-disable-next-line array-callback-return */}
-        {rows.map((row) => {
-          prepareRow(row);
-          const { key } = row.getRowProps();
-          const type = row.original.type;
-          if (type === 'event') {
-            eventIndex++;
-            return (
-              <EventRow
-                key={key}
-                row={row}
-                index={eventIndex}
-                selectedId={selectedId}
-                delay={cumulativeDelay}
-              />
-            );
-          }
-          if (type === 'delay') {
-            if (row.original.duration != null) {
-              cumulativeDelay += row.original.duration;
+          {/*This is saving in place of a default component*/}
+          {/* eslint-disable-next-line array-callback-return */}
+          {rows.map((row) => {
+            prepareRow(row);
+            const { key } = row.getRowProps();
+            const type = row.original.type;
+            if (type === 'event') {
+              eventIndex++;
+              return (
+                <EventRow
+                  key={key}
+                  row={row}
+                  index={eventIndex}
+                  selectedId={selectedId}
+                  delay={cumulativeDelay}
+                />
+              );
             }
-            return <DelayRow key={key} row={row} />;
-          }
-          if (type === 'block') {
-            cumulativeDelay = 0;
-            return <BlockRow key={key} row={row} />;
-          }
-        })}
+            if (type === 'delay') {
+              if (row.original.duration != null) {
+                cumulativeDelay += row.original.duration;
+              }
+              return <DelayRow key={key} row={row} />;
+            }
+            if (type === 'block') {
+              cumulativeDelay = 0;
+              return <BlockRow key={key} row={row} />;
+            }
+          })}
         </tbody>
       </table>
     </>

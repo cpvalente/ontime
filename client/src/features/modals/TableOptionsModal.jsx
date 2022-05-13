@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
 import { getUserFields, postUserFields, userFieldsPlaceholder } from '../../app/api/ontimeApi';
@@ -28,7 +28,7 @@ export default function TableOptionsModal() {
   /**
    * Validate and submit data
    */
-  const submitHandler = async (event) => {
+  const submitHandler = useCallback(async (event) => {
     event.preventDefault();
     setSubmitting(true);
 
@@ -46,29 +46,29 @@ export default function TableOptionsModal() {
     }
 
     setSubmitting(false);
-  };
+  },[refetch, userFields]);
 
   /**
    * Reverts local state equals to server state
    */
-  const revert = async () => {
+  const revert = useCallback(async () => {
     setChanged(false);
     await refetch();
-  };
+  },[refetch]);
 
   /**
    * Handles change of input field in local state
    * @param {string} field - object parameter to update
    * @param {string} value - new object parameter value
    */
-  const handleChange = (field, value) => {
+  const handleChange = useCallback((field, value) => {
     if (value.length < 30) {
       const temp = { ...userFields };
       temp[field] = value;
       setUserFields(temp);
       setChanged(true);
     }
-  };
+  },[userFields]);
 
   return (
     <ModalBody className={style.modalBody}>

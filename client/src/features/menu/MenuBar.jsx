@@ -38,30 +38,33 @@ export default function MenuBar(props) {
     colorScheme: 'white',
   };
 
-  const handleUpload = (event) => {
-    const fileUploaded = event.target.files[0];
-    if (fileUploaded == null) return;
+  const handleUpload = useCallback(
+    (event) => {
+      const fileUploaded = event.target.files[0];
+      if (fileUploaded == null) return;
 
-    // Limit file size to 1MB
-    if (fileUploaded.size > 1000000) {
-      emitError('Error: File size limit (1MB) exceeded');
-      return;
-    }
-
-    // Check file extension
-    if (fileUploaded.name.endsWith('.xlsx') || fileUploaded.name.endsWith('.json')) {
-      try {
-        uploaddb.mutate(fileUploaded);
-      } catch (error) {
-        emitError(`Failed uploading file: ${error}`);
+      // Limit file size to 1MB
+      if (fileUploaded.size > 1000000) {
+        emitError('Error: File size limit (1MB) exceeded');
+        return;
       }
-    } else {
-      emitError('Error: File type unknown');
-    }
 
-    // reset input value
-    hiddenFileInput.current.value = '';
-  };
+      // Check file extension
+      if (fileUploaded.name.endsWith('.xlsx') || fileUploaded.name.endsWith('.json')) {
+        try {
+          uploaddb.mutate(fileUploaded);
+        } catch (error) {
+          emitError(`Failed uploading file: ${error}`);
+        }
+      } else {
+        emitError('Error: File type unknown');
+      }
+
+      // reset input value
+      hiddenFileInput.current.value = '';
+    },
+    [emitError, uploaddb]
+  );
 
   const handleIPC = useCallback((action) => {
     // Stop crashes when testing locally

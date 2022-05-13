@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
+/* eslint-disable jsx-a11y/anchor-has-content */
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, IconButton } from '@chakra-ui/button';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
@@ -13,7 +14,7 @@ import { viewerLocations } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
 import SubmitContainer from './SubmitContainer';
-import { handleLinks, host, openLink } from '../../common/utils/linkUtils';
+import { handleLinks, host } from '../../common/utils/linkUtils';
 import style from './Modals.module.scss';
 
 export default function AliasesModal() {
@@ -35,45 +36,48 @@ export default function AliasesModal() {
   /**
    * Validate and submit data
    */
-  const submitHandler = async (event) => {
-    event.preventDefault();
-    setSubmitting(true);
+  const submitHandler = useCallback(
+    async (event) => {
+      event.preventDefault();
+      setSubmitting(true);
 
-    const validatedAliases = [...aliases];
-    let errors = false;
-    for (const alias of validatedAliases) {
-      // validate url
-      const isURLValid = validateAlias(alias.pathAndParams);
-      if (!isURLValid.status) {
-        alias.urlError = isURLValid.message;
-        errors = true;
-      } else {
-        alias.urlError = undefined;
+      const validatedAliases = [...aliases];
+      let errors = false;
+      for (const alias of validatedAliases) {
+        // validate url
+        const isURLValid = validateAlias(alias.pathAndParams);
+        if (!isURLValid.status) {
+          alias.urlError = isURLValid.message;
+          errors = true;
+        } else {
+          alias.urlError = undefined;
+        }
+        // validate alias
+        const isAliasValid = validateAlias(alias.alias);
+        if (!isAliasValid.status) {
+          alias.aliasError = isAliasValid.message;
+          errors = true;
+        } else {
+          alias.aliasError = undefined;
+        }
       }
-      // validate alias
-      const isAliasValid = validateAlias(alias.alias);
-      if (!isAliasValid.status) {
-        alias.aliasError = isAliasValid.message;
-        errors = true;
-      } else {
-        alias.aliasError = undefined;
+      setAliases(validatedAliases);
+
+      if (!errors) {
+        await postAliases(aliases);
+        await refetch();
+        setChanged(false);
       }
-    }
-    setAliases(validatedAliases);
 
-    if (!errors) {
-      await postAliases(aliases);
-      await refetch();
-      setChanged(false);
-    }
-
-    setSubmitting(false);
-  };
+      setSubmitting(false);
+    },
+    [aliases, refetch]
+  );
 
   /**
    * Creates a new alias in state with a temporary id
    */
-  const addNew = () => {
+  const addNew = useCallback(() => {
     if (aliases.length > 20) {
       emitError('Maximum amount of aliases reacted (20)');
       return;
@@ -87,23 +91,23 @@ export default function AliasesModal() {
     };
     setAliases((prevState) => [...prevState, emptyAlias]);
     setChanged(true);
-  };
+  }, [aliases.length, emitError]);
 
   /**
    * Deletes an alias by a given id
    * @param {string} id - id of alias to delete
    */
-  const deleteAlias = (id) => {
+  const deleteAlias = useCallback((id) => {
     setAliases((prevState) => [...prevState.filter((a) => a.id !== id)]);
     setChanged(true);
-  };
+  }, []);
 
   /**
    * Sets enabled flag to true / false
    * @param {string} id - object id
    * @param {boolean} isEnabled - whether to enable / disable flag
    */
-  const setEnabled = (id, isEnabled) => {
+  const setEnabled = useCallback((id, isEnabled) => {
     const aliasesState = [...aliases];
     for (const a of aliasesState) {
       if (a.id === id) {
@@ -125,7 +129,7 @@ export default function AliasesModal() {
     }
     setChanged(true);
     setAliases(aliasesState);
-  };
+  }, [aliases, emitError]);
 
   /**
    * Reverts local state equals to server state
@@ -141,12 +145,15 @@ export default function AliasesModal() {
    * @param {string} field - object parameter to update
    * @param {string} value - new object parameter value
    */
-  const handleChange = (index, field, value) => {
-    const temp = [...aliases];
-    temp[index][field] = value;
-    setAliases(temp);
-    setChanged(true);
-  };
+  const handleChange = useCallback(
+    (index, field, value) => {
+      const temp = [...aliases];
+      temp[index][field] = value;
+      setAliases(temp);
+      setChanged(true);
+    },
+    [aliases]
+  );
 
   return (
     <ModalBody className={style.modalBody}>

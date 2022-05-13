@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { Checkbox, FormControl, FormLabel, Input, PinInput, PinInputField } from '@chakra-ui/react';
 import { getSettings, ontimePlaceholderSettings, postSettings } from 'app/api/ontimeApi';
@@ -65,48 +65,63 @@ export default function AppSettingsModal() {
   /**
    * Validate and submit data
    */
-  const submitHandler = async (event) => {
-    event.preventDefault();
-    setSubmitting(true);
+  const submitHandler = useCallback(
+    async (event) => {
+      event.preventDefault();
+      setSubmitting(true);
 
-    // set context
-    setShowQuickEntry(doShowQuickEntry);
-    setStarTimeIsLastEnd(doStarTimeIsLastEnd);
-    setDefaultPublic(doDefaultPublic);
+      // set context
+      setShowQuickEntry(doShowQuickEntry);
+      setStarTimeIsLastEnd(doStarTimeIsLastEnd);
+      setDefaultPublic(doDefaultPublic);
 
-    const f = formData;
+      const f = formData;
 
-    // we might not have changed this
-    if (f.pinCode !== data.pinCode) {
-      const e = { status: false, message: '' };
+      // we might not have changed this
+      if (f.pinCode !== data.pinCode) {
+        const e = { status: false, message: '' };
 
-      // Validate fields
-      if (f.pinCode === '' || f.pinCode == null) {
-        e.status = true;
-        e.message += 'App pin code removed';
-      } else {
-        e.status = true;
-        e.message += 'App pin code added';
+        // Validate fields
+        if (f.pinCode === '' || f.pinCode == null) {
+          e.status = true;
+          e.message += 'App pin code removed';
+        } else {
+          e.status = true;
+          e.message += 'App pin code added';
+        }
+
+        // set fields with error
+        if (!e.status) {
+          emitError(`Invalid Input: ${e.message}`);
+        } else {
+          await postSettings(formData);
+          await refetch();
+          emitWarning(e.message);
+          setChanged(false);
+        }
       }
-
-      // set fields with error
-      if (!e.status) {
-        emitError(`Invalid Input: ${e.message}`);
-      } else {
-        await postSettings(formData);
-        await refetch();
-        emitWarning(e.message);
-        setChanged(false);
-      }
-    }
-    setSubmitting(false);
-    setChanged(false);
-  };
+      setSubmitting(false);
+      setChanged(false);
+    },
+    [
+      data.pinCode,
+      doDefaultPublic,
+      doShowQuickEntry,
+      doStarTimeIsLastEnd,
+      emitError,
+      emitWarning,
+      formData,
+      refetch,
+      setDefaultPublic,
+      setShowQuickEntry,
+      setStarTimeIsLastEnd,
+    ]
+  );
 
   /**
    * Reverts local state equals to server state
    */
-  const revert = async () => {
+  const revert = useCallback(async () => {
     setChanged(false);
     await refetch();
 
@@ -114,26 +129,29 @@ export default function AppSettingsModal() {
     setDoShowQuickEntry(showQuickEntry);
     setDoStarTimeIsLastEnd(starTimeIsLastEnd);
     setDoDefaultPublic(defaultPublic);
-  };
+  }, [defaultPublic, refetch, showQuickEntry, starTimeIsLastEnd]);
 
   /**
    * Handles change of input field in local state
    * @param {string} field - object parameter to update
    * @param {string} value - new object parameter value
    */
-  const handleChange = (field, value) => {
-    const temp = { ...formData };
-    temp[field] = value;
-    setFormData(temp);
-    setChanged(true);
-  };
+  const handleChange = useCallback(
+    (field, value) => {
+      const temp = { ...formData };
+      temp[field] = value;
+      setFormData(temp);
+      setChanged(true);
+    },
+    [formData]
+  );
 
   /**
    * Sets changed flag to true
    */
-  const handleContextChange = () => {
+  const handleContextChange = useCallback(() => {
     setChanged(true);
-  };
+  }, []);
 
   const disableModal = status !== 'success';
 

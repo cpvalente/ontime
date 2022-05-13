@@ -11,7 +11,7 @@ export default function SubmitContainer(props) {
       <Button
         isDisabled={submitting || !changed}
         variant='ghosted'
-        onClick={() => revert()}
+        onClick={revert}
       >
         Revert
       </Button>

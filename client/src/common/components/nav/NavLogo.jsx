@@ -10,9 +10,9 @@ export default function NavLogo(props) {
   const { isHidden } = props;
   const [showNav, setShowNav] = useState(false);
 
-  const handleClick = () => {
-    setShowNav(!showNav);
-  };
+  const handleClick = useCallback(() => {
+    setShowNav((prev) => !prev);
+  }, []);
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback((e) => {

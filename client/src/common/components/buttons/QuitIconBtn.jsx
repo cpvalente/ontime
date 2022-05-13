@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Button, IconButton } from '@chakra-ui/button';
 import {
   AlertDialog,
@@ -18,10 +18,10 @@ export default function QuitIconBtn(props) {
   const onClose = () => setIsOpen(false);
   const cancelRef = useRef();
 
-  const handleShutdown = () => {
+  const handleShutdown = useCallback(() => {
     onClose();
     clickHandler();
-  };
+  },[clickHandler]);
 
   return (
     <>
@@ -43,11 +43,9 @@ export default function QuitIconBtn(props) {
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
               Server Shutdown
             </AlertDialogHeader>
-
             <AlertDialogBody>
               This will shutdown the program and all running servers. Are you sure?
             </AlertDialogBody>
-
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
                 Cancel

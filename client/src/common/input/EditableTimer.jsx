@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 import { LoggingContext } from '../../app/context/LoggingContext';
@@ -12,7 +12,7 @@ export default function EditableTimer(props) {
   const [value, setValue] = useState('');
 
 
-  const handleSubmit = (value) => {
+  const handleSubmit = useCallback((value) => {
     // Check if there is anything there
     if (value === '') return false;
 
@@ -46,10 +46,10 @@ export default function EditableTimer(props) {
     actionHandler('update', { field: name, value: newValMillis });
 
     return true;
-  };
+  },[actionHandler, delay, name, previousEnd, time, validate]);
 
   // prepare time fields
-  const validateValue = (value) => {
+  const validateValue = useCallback((value) => {
     const success = handleSubmit(value);
     if (success) {
       const ms = forgivingStringToMillis(value);
@@ -57,7 +57,7 @@ export default function EditableTimer(props) {
     } else {
       setValue(stringFromMillis(time + delay));
     }
-  };
+  },[delay, handleSubmit, time]);
 
   useEffect(() => {
     if (time == null) return;
