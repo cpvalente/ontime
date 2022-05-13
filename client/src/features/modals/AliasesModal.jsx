@@ -183,16 +183,16 @@ export default function AliasesModal() {
             eg. a lower third url with some custom parameters
             <table>
               <tbody>
-              <tr>
-                <td className={style.labelNote} style={{ width: '30%' }}>
-                  Alias
-                </td>
-                <td className={style.labelNote}>Page URL</td>
-              </tr>
-              <tr>
-                <td>mylower</td>
-                <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
-              </tr>
+                <tr>
+                  <td className={style.labelNote} style={{ width: '30%' }}>
+                    Alias
+                  </td>
+                  <td className={style.labelNote}>Page URL</td>
+                </tr>
+                <tr>
+                  <td>mylower</td>
+                  <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
+                </tr>
               </tbody>
             </table>
             <br />
@@ -201,20 +201,20 @@ export default function AliasesModal() {
             eg. an unattended screen that you would need to change route from the app
             <table>
               <tbody>
-              <tr>
-                <td className={style.labelNote} style={{ width: '30%' }}>
-                  Alias
-                </td>
-                <td className={style.labelNote}>Page URL</td>
-              </tr>
-              <tr>
-                <td>thirdfloor</td>
-                <td>public</td>
-              </tr>
+                <tr>
+                  <td className={style.labelNote} style={{ width: '30%' }}>
+                    Alias
+                  </td>
+                  <td className={style.labelNote}>Page URL</td>
+                </tr>
+                <tr>
+                  <td>thirdfloor</td>
+                  <td>public</td>
+                </tr>
               </tbody>
             </table>
           </div>
-          <div className={style.inlineAliasPlaceholder} style={{ padding: '0.5em 0' }}>
+          <div className={style.inlineAliasPlaceholder}>
             <span className={style.labelNote}>Alias</span>
             <span className={style.labelNote}>Page URL</span>
           </div>
@@ -252,6 +252,7 @@ export default function AliasesModal() {
                 </Tooltip>
                 <Tooltip label='Enable alias' openDelay={500}>
                   <IconButton
+                    aria-label='Enable alias'
                     size='xs'
                     icon={<IoSunny />}
                     colorScheme='blue'
@@ -261,6 +262,7 @@ export default function AliasesModal() {
                 </Tooltip>
                 <Tooltip label='Delete alias' openDelay={500}>
                   <IconButton
+                    aria-label='Delete alias'
                     size='xs'
                     icon={<IoRemove />}
                     colorScheme='red'
@@ -277,7 +279,7 @@ export default function AliasesModal() {
             </div>
           ))}
 
-          <div className={style.inlineAliasPlaceholder} style={{ padding: '0.5em 0' }}>
+          <div className={style.inlineAliasPlaceholder}>
             <Button size='xs' colorScheme='blue' variant='outline' onClick={() => addNew()}>
               Add new
             </Button>
