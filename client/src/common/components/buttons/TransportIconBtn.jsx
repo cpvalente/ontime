@@ -14,6 +14,7 @@ export default function TransportIconBtn(props) {
         _hover={{ bg: '#ebedf0', color: '#333' }}
         onClick={clickHandler}
         width={90}
+        disabled={disabled}
         {...rest}
       />
     </Tooltip>

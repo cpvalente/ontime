@@ -14,6 +14,7 @@ export default function UnloadIconBtn(props) {
         variant='outline'
         onClick={clickHandler}
         width={90}
+        disabled={disabled}
         {...rest}
       />
     </Tooltip>

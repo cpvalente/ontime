@@ -15,6 +15,7 @@ export default function PauseIconBtn(props) {
         variant={active ? 'solid' : 'outline'}
         onClick={clickhandler}
         width={120}
+        disabled={disabled}
         {...rest}
       />
     </Tooltip>

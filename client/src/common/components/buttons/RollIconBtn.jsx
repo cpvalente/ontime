@@ -14,6 +14,7 @@ export default function RollIconBtn(props) {
         variant={active ? 'solid' : 'outline'}
         onClick={clickhandler}
         width={120}
+        disabled={disabled}
         {...rest}
       />
     </Tooltip>
