@@ -72,7 +72,7 @@ const PlaybackTimer = (props) => {
             {...incrementProps}
             disabled={disableButtons}
             onClick={() => handleIncrement(-1)}
-            _hover={{ bg: '#ebedf0', color: '#333' }}
+            _hover={!disableButtons && { bg: '#ebedf0', color: '#333' }}
           >
             -1
           </Button>
@@ -82,7 +82,7 @@ const PlaybackTimer = (props) => {
             {...incrementProps}
             disabled={disableButtons}
             onClick={() => handleIncrement(1)}
-            _hover={{ bg: '#ebedf0', color: '#333' }}
+            _hover={!disableButtons && { bg: '#ebedf0', color: '#333' }}
           >
             +1
           </Button>
@@ -92,7 +92,7 @@ const PlaybackTimer = (props) => {
             {...incrementProps}
             disabled={disableButtons}
             onClick={() => handleIncrement(-5)}
-            _hover={{ bg: '#ebedf0', color: '#333' }}
+            _hover={!disableButtons && { bg: '#ebedf0', color: '#333' }}
           >
             -5
           </Button>
@@ -102,7 +102,7 @@ const PlaybackTimer = (props) => {
             {...incrementProps}
             disabled={disableButtons}
             onClick={() => handleIncrement(5)}
-            _hover={{ bg: '#ebedf0', color: '#333' }}
+            _hover={!disableButtons && { bg: '#ebedf0', color: '#333' }}
           >
             +5
           </Button>

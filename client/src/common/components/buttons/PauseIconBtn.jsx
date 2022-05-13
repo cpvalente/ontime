@@ -11,7 +11,7 @@ export default function PauseIconBtn(props) {
       <IconButton
         icon={<IoPause size='24px' />}
         colorScheme='orange'
-        _hover={{ bg: 'orange.400' }}
+        _hover={!disabled && { bg: 'orange.400' }}
         variant={active ? 'solid' : 'outline'}
         onClick={clickhandler}
         width={120}

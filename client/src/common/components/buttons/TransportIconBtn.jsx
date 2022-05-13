@@ -11,7 +11,7 @@ export default function TransportIconBtn(props) {
         icon={icon}
         colorScheme='white'
         variant='outline'
-        _hover={{ bg: '#ebedf0', color: '#333' }}
+        _hover={!disabled && { bg: '#ebedf0', color: '#333' }}
         onClick={clickHandler}
         width={90}
         disabled={disabled}
