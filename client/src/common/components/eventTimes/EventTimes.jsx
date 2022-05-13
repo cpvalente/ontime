@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import EditableTimer from 'common/input/EditableTimer';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { validateTimes } from '../../../app/entryValidator';
@@ -15,29 +15,28 @@ export default function EventTimes(props) {
    * @param {number} val - field value
    * @return {boolean}
    */
-  const handleValidate = (entry, val) => {
-    if (val == null || timeStart == null || timeEnd == null) return true;
-    if (timeStart === 0) return true;
+  const handleValidate = useCallback(
+    () => (entry, val) => {
+      if (val == null || timeStart == null || timeEnd == null) return true;
+      if (timeStart === 0) return true;
 
-    let start = timeStart;
-    let end = timeEnd;
-    if (entry === 'timeStart') {
-      start = val;
-    } else if (entry === 'timeEnd') {
-      end = val;
-    } else if (entry === 'durationOverride'){
-      return true;
-    } else {
-      return false
-    }
+      let start = timeStart;
+      let end = timeEnd;
+      if (entry === 'timeStart') {
+        start = val;
+      } else if (entry === 'timeEnd') {
+        end = val;
+      } else return entry === 'durationOverride';
 
-    const valid = validateTimes(start, end);
-    // give warning but not enforce validation
-    if (!valid.value) {
-      emitWarning(`Time Input Warning: ${valid.catch}`);
-    }
-    return valid.value;
-  };
+      const valid = validateTimes(start, end);
+      // give warning but not enforce validation
+      if (!valid.value) {
+        emitWarning(`Time Input Warning: ${valid.catch}`);
+      }
+      return valid.value;
+    },
+    [emitWarning, timeEnd, timeStart]
+  );
 
   return (
     <>
