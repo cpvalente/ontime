@@ -247,7 +247,7 @@ export default function AliasesModal() {
                     href='#!'
                     target='_blank'
                     rel='noreferrer'
-                    onClick={(e) => openLink(e, alias.pathAndParams)}
+                    onClick={(e) => handleLinks(e, alias.pathAndParams)}
                   />
                 </Tooltip>
                 <Tooltip label='Enable alias' openDelay={500}>
