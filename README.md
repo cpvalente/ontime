@@ -65,6 +65,7 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
     - Public Info
     - Picture in Picture
     - Studio Clock
+    - [Make your own?](#make-your-own-viewer) 
 - [x] Configurable realtime Lower Thirds
 - [x] Cuesheets with additional custom fields
 - [x] Send live messages to different screen types
@@ -92,7 +93,7 @@ you would like to work.
       times to 00:00 and 00:10 (**BAM**! 10 minute timer). You can quickly recall this with OSC as
       always
 
-## Integrations and Workflow
+## Rich APIs for workflow integrations
 
 The app is being currently developed to a wide user base, from broadcast to entertainment and
 conference halls.
@@ -104,6 +105,15 @@ Taking advantage of the integrations in Ontime, we currently use Ontime with:
 - `OBS`: **render views** using the Browser Module
 - `QLab`: trigger ontime using **OSC API**
 - `Companion`: trigger ontime and manipulate timer using **OSC API**
+
+### Make your own viewer
+
+Ontime broadcasts its data over websockets. This allows you to build your own viewers by leveranging
+basic knowledge of HTML + CSS + Javascript (or any other language that can run in the browser).
+
+See [this repository](https://github.com/cpvalente/ontime-viewer-template) with a small template on
+how to get you started and read the docs about
+the [Websocket API](https://app.gitbook.com/s/-Mc0giSOToAhq0ROd0CR/control-and-feedback/websocket-api)
 
 ## Roadmap
 
