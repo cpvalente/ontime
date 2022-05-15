@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { Checkbox } from '@chakra-ui/react';
-import style from './EntryBlock.module.scss';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
+import PropTypes from 'prop-types';
+import style from './EntryBlock.module.scss';
 
 export default function EntryBlock(props) {
-  const { showKbd, index, eventsHandler } = props;
+  const { showKbd, index, eventsHandler, visible } = props;
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
   const [doPublic, setPublic] = useState(defaultPublic);
@@ -19,7 +20,7 @@ export default function EntryBlock(props) {
   }, [defaultPublic]);
 
   return (
-    <div className={style.create}>
+    <div className={`${style.create} ${visible ? style.visible : ''}`}>
       <Tooltip label='Add Event' openDelay={300}>
         <span
           className={style.createEvent}
@@ -65,9 +66,16 @@ export default function EntryBlock(props) {
           isChecked={doPublic}
           onChange={(e) => setPublic(e.target.checked)}
         >
-          Default public
+          Event is public
         </Checkbox>
       </div>
     </div>
   );
 }
+
+EntryBlock.propTypes = {
+  showKbd: PropTypes.bool,
+  index: PropTypes.number,
+  eventsHandler: PropTypes.func,
+  visible: PropTypes.bool,
+};

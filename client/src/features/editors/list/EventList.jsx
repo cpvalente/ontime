@@ -194,13 +194,12 @@ export default function EventList(props) {
                         previousEnd={previousEnd}
                       />
                     </div>
-                    {showQuickEntry && (
-                      <EntryBlock
-                        showKbd={index === cursor}
-                        index={index}
-                        eventsHandler={eventsHandler}
-                      />
-                    )}
+                    <EntryBlock
+                      showKbd={index === cursor}
+                      index={index}
+                      eventsHandler={eventsHandler}
+                      visible={index === events.length - 1}
+                    />
                   </div>
                 );
               })}
