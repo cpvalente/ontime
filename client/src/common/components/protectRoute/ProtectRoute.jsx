@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import style from './ProtectRoute.module.scss';
 import { HStack, PinInput, PinInputField } from '@chakra-ui/react';
 import { IconButton } from '@chakra-ui/button';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { AppContext } from '../../../app/context/AppContext';
+import style from './ProtectRoute.module.scss';
 
 export default function ProtectRoute({ children }) {
   const isLocal =
@@ -36,7 +36,7 @@ export default function ProtectRoute({ children }) {
         handleValidation();
       }
     },
-    [handleValidation],
+    [handleValidation]
   );
 
   useEffect(() => {
@@ -51,39 +51,39 @@ export default function ProtectRoute({ children }) {
 
   if (isLocal || auth) {
     return children;
-  } else {
-    return (
-      <div className={style.container}>
-        ontime
-        <HStack spacing='10px' className={failed ? style.pin__failed : style.pin}>
-          <PinInput
-            type='alphanumeric'
-            size='lg'
-            mask
-            autoFocus
-            value={pin}
-            onChange={(value) => {
-              setFailed(false);
-              setPin(value);
-            }}
-          >
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-          </PinInput>
-          <IconButton
-            aria-label='Enter'
-            size='lg'
-            isRound
-            icon={<FiCheck />}
-            style={{ fontSize: '1.5em' }}
-            onClick={() => handleValidation()}
-          />
-        </HStack>
-      </div>
-    );
   }
+
+  return (
+    <div className={style.container}>
+      ontime
+      <HStack spacing='10px' className={failed ? style.pin__failed : style.pin}>
+        <PinInput
+          type='alphanumeric'
+          size='lg'
+          mask
+          autoFocus
+          value={pin}
+          onChange={(value) => {
+            setFailed(false);
+            setPin(value);
+          }}
+        >
+          <PinInputField />
+          <PinInputField />
+          <PinInputField />
+          <PinInputField />
+        </PinInput>
+        <IconButton
+          aria-label='Enter'
+          size='lg'
+          isRound
+          icon={<FiCheck />}
+          style={{ fontSize: '1.5em' }}
+          onClick={() => handleValidation()}
+        />
+      </HStack>
+    </div>
+  );
 }
 
 ProtectRoute.propTypes = {
