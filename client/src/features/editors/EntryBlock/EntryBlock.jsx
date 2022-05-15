@@ -31,6 +31,7 @@ export default function EntryBlock(props) {
               { startIsLastEnd: doStartTime ? index : undefined }
             )
           }
+          role='button'
         >
           E{showKbd && <span className={style.keyboard}>Alt + E</span>}
         </span>
@@ -39,6 +40,7 @@ export default function EntryBlock(props) {
         <span
           className={style.createDelay}
           onClick={() => eventsHandler('add', { type: 'delay', order: index + 1 })}
+          role='button'
         >
           D{showKbd && <span className={style.keyboard}>Alt + D</span>}
         </span>
@@ -47,6 +49,7 @@ export default function EntryBlock(props) {
         <span
           className={style.createBlock}
           onClick={() => eventsHandler('add', { type: 'block', order: index + 1 })}
+          role='button'
         >
           B{showKbd && <span className={style.keyboard}>Alt + B</span>}
         </span>

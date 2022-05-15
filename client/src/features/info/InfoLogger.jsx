@@ -66,6 +66,7 @@ export default function InfoLogger() {
               onAuxClick={() => disableOthers('USER')}
               onContextMenu={(e) => e.preventDefault()}
               className={showUser ? style.active : null}
+              role='button'
             >
               USER
             </div>
@@ -74,6 +75,7 @@ export default function InfoLogger() {
               onAuxClick={() => disableOthers('CLIENT')}
               onContextMenu={(e) => e.preventDefault()}
               className={showClient ? style.active : null}
+              role='button'
             >
               CLIENT
             </div>
@@ -82,6 +84,7 @@ export default function InfoLogger() {
               onAuxClick={() => disableOthers('SERVER')}
               onContextMenu={(e) => e.preventDefault()}
               className={showServer ? style.active : null}
+              role='button'
             >
               SERVER
             </div>
@@ -90,6 +93,7 @@ export default function InfoLogger() {
               onAuxClick={() => disableOthers('PLAYBACK')}
               onContextMenu={(e) => e.preventDefault()}
               className={showPlayback ? style.active : null}
+              role='button'
             >
               Playback
             </div>
@@ -98,6 +102,7 @@ export default function InfoLogger() {
               onAuxClick={() => disableOthers('RX')}
               onContextMenu={(e) => e.preventDefault()}
               className={showRx ? style.active : null}
+              role='button'
             >
               RX
             </div>
@@ -106,10 +111,11 @@ export default function InfoLogger() {
               onAuxClick={() => disableOthers('TX')}
               onContextMenu={(e) => e.preventDefault()}
               className={showTx ? style.active : null}
+              role='button'
             >
               TX
             </div>
-            <div onClick={clearLog} className={style.clear}>
+            <div onClick={clearLog} className={style.clear} role='button'>
               Clear
             </div>
           </HStack>
@@ -121,10 +127,10 @@ export default function InfoLogger() {
                   d.level === 'INFO'
                     ? style.info
                     : d.level === 'WARN'
-                    ? style.warn
-                    : d.level === 'ERROR'
-                    ? style.error
-                    : ''
+                      ? style.warn
+                      : d.level === 'ERROR'
+                        ? style.error
+                        : ''
                 }
               >
                 <div className={style.time}>{d.time}</div>

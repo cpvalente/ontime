@@ -35,6 +35,10 @@ export default function NavLogo(props) {
   }, [handleKeyPress]);
 
   const baseOpacity = isHidden ? 0 : 0.5;
+  const tabProps = {
+    className: style.navItem,
+    tabIndex: 0,
+  };
 
   return (
     <motion.div
@@ -52,25 +56,23 @@ export default function NavLogo(props) {
             exit={{ opacity: 0, scaleY: 0, y: -50 }}
             className={style.nav}
           >
-            <Link to='/timer' className={style.navItem} tabIndex={1}>
-              Timer
-            </Link>
-            <Link to='/minimal' className={style.navItem} tabIndex={2}>
+            <Link to='/timer' {...tabProps}>Timer</Link>
+            <Link to='/minimal' {...tabProps}>
               Minimal Timer
             </Link>
-            <Link to='/sm' className={style.navItem} tabIndex={3}>
+            <Link to='/sm' {...tabProps}>
               Backstage
             </Link>
-            <Link to='/public' className={style.navItem} tabIndex={4}>
+            <Link to='/public' {...tabProps}>
               Public
             </Link>
-            <Link to='/lower' className={style.navItem} tabIndex={5}>
+            <Link to='/lower' {...tabProps}>
               Lower Thirds
             </Link>
-            <Link to='/pip' className={style.navItem} tabIndex={6}>
+            <Link to='/pip' {...tabProps}>
               PIP
             </Link>
-            <Link to='/studio' className={style.navItem} tabIndex={7}>
+            <Link to='/studio' {...tabProps}>
               Studio Clock
             </Link>
           </motion.div>
