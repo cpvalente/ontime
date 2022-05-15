@@ -1,5 +1,6 @@
 import React from 'react';
 import { clamp } from 'app/utils/math';
+import PropTypes from 'prop-types';
 import styles from './MyProgressBar.module.scss';
 
 export default function MyProgressBar(props) {
@@ -21,4 +22,10 @@ export default function MyProgressBar(props) {
       />
     </div>
   );
+}
+
+MyProgressBar.propTypes = {
+  now: PropTypes.number,
+  complete: PropTypes.number,
+  showElapsed: PropTypes.bool,
 }

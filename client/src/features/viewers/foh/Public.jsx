@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
+import { AnimatePresence, motion } from 'framer-motion';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
-import { AnimatePresence, motion } from 'framer-motion';
 import TitleSide from 'common/components/views/TitleSide';
 import { titleVariants } from '../common/animation';
+import PropTypes from 'prop-types';
 import style from './Public.module.scss';
 
 export default function Public(props) {
@@ -124,3 +125,12 @@ export default function Public(props) {
     </div>
   );
 }
+
+Public.propTypes = {
+  publ: PropTypes.object,
+  publicTitle: PropTypes.object,
+  time: PropTypes.object,
+  events: PropTypes.object,
+  publicSelectedId: PropTypes.string,
+  general: PropTypes.object,
+};

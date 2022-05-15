@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import style from './TitleCard.module.scss';
 
 export default function TitleCard(props) {
@@ -12,4 +13,11 @@ export default function TitleCard(props) {
       <div className={style.subtitle}>{subtitle}</div>
     </>
   );
+}
+
+TitleCard.propTypes = {
+  label: PropTypes.string,
+  title: PropTypes.string,
+  subtitle: PropTypes.string,
+  presenter: PropTypes.string,
 }

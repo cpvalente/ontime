@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import style from './TitleSide.module.scss';
 
 export default function TitleSide(props) {
@@ -16,4 +17,12 @@ export default function TitleSide(props) {
       <div className={subStyle}>{subtitle}</div>
     </>
   );
+}
+
+TitleSide.propTypes = {
+  type: PropTypes.oneOf(['now', 'next']),
+  label: PropTypes.string,
+  title: PropTypes.string,
+  subtitle: PropTypes.string,
+  presenter: PropTypes.string,
 }
