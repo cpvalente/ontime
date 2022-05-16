@@ -173,6 +173,7 @@ export default function EventList(props) {
                   previousEnd = thisEnd;
                   thisEnd = e.timeEnd;
                 }
+                const isLast = index === events.length - 1;
                 return (
                   <div key={e.id}>
                     {index === 0 && showQuickEntry && (
@@ -194,12 +195,14 @@ export default function EventList(props) {
                         previousEnd={previousEnd}
                       />
                     </div>
-                    <EntryBlock
-                      showKbd={index === cursor}
-                      index={index}
-                      eventsHandler={eventsHandler}
-                      visible={index === events.length - 1}
-                    />
+                    {(showQuickEntry || isLast) && (
+                      <EntryBlock
+                        showKbd={index === cursor}
+                        index={index}
+                        eventsHandler={eventsHandler}
+                        visible={isLast}
+                      />
+                    )}
                   </div>
                 );
               })}
