@@ -214,6 +214,14 @@ ipcMain.on('test-message', (event, arg) => {
   showNotification('Test Message', 'test from react', arg);
 });
 
+// Ask for main window reload
+// Test message
+ipcMain.on('reload', (event, arg) => {
+  if (win) {
+    win.reload();
+  }
+});
+
 // Terminate
 ipcMain.on('shutdown', () => {
   console.log('Got IPC shutdown');

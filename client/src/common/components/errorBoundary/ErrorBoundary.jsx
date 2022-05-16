@@ -39,6 +39,18 @@ class ErrorBoundary extends React.Component {
             >
               Copy error
             </p>
+            <p
+              className={style.report}
+              onClick={() => {
+                if (window.process.type === "renderer") {
+                  window.ipcRenderer.send('reload');
+                } else {
+                  window.location.reload();
+                }
+              }}
+            >
+              Reload interface
+            </p>
           </div>
         </div>
       );
