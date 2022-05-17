@@ -18,15 +18,26 @@ export const AppContextProvider = ({ children }) => {
     if (data == null) return;
     if (data?.pinCode === null || data?.pinCode === '') {
       setAuth(true);
-      sessionStorage.setItem('entry', data?.pinCode);
     } else {
       setAuth(false);
     }
   }, [data]);
 
+  /**
+   * Validates a pincode
+   * @return boolean - whether the pin is valid
+   */
   const validate = useCallback(
     (pin) => {
-      const correct = pin === data.pinCode;
+      let correct;
+      if (data.pinCode === null || data.pinCode === '') {
+        correct = true;
+      } else {
+        correct = pin === data.pinCode;
+      }
+      if (correct) {
+        sessionStorage.setItem('entry', pin);
+      }
       setAuth(correct);
       return correct;
     },
