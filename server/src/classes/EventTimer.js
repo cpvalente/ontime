@@ -414,19 +414,11 @@ export class EventTimer extends Timer {
 
   update() {
     // if there is nothing selected, update clock
-    const now = this._getCurrentTime();
+    this.clock = this._getCurrentTime();
 
     // if we are not updating, send the timers
     if (this.ontimeCycle !== this.cycleState.onUpdate) {
-      this.clock = now;
-      this.broadcastThis('timer', {
-        clock: now,
-        running: Timer.toSeconds(this.current),
-        secondary: Timer.toSeconds(this.secondaryTimer),
-        durationSeconds: Timer.toSeconds(this.duration),
-        expectedFinish: this._getExpectedFinish(),
-        startedAt: this._startedAt,
-      });
+      this.io.emit('timer', this.getTimeObject());
     }
 
     // Have we skipped onStart?
