@@ -22,7 +22,11 @@ class ErrorBoundary extends React.Component {
       error: error,
       errorInfo: info,
     });
-    this.context.emitError(error.toString());
+    try {
+      this.context.emitError(error.toString());
+    } catch {
+      console.log('Unable to emit error')
+    }
     this.reportContent = `${error} ${info.componentStack}`;
   }
 
@@ -35,14 +39,18 @@ class ErrorBoundary extends React.Component {
             <p>Something went wrong</p>
             <p
               className={style.report}
-              onClick={() => navigator.clipboard.writeText(this.reportContent)}
+              onClick={() => {
+                if (navigator.clipboard) {
+                  navigator.clipboard.writeText(this.reportContent);
+                }
+              }}
             >
               Copy error
             </p>
             <p
               className={style.report}
               onClick={() => {
-                if (window.process.type === "renderer") {
+                if (window.process.type === 'renderer') {
                   window.ipcRenderer.send('reload');
                 } else {
                   window.location.reload();
