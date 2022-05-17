@@ -50,7 +50,10 @@ export default function ProtectRoute({ children }) {
   }, [handleKeyPress]);
 
   useEffect(() => {
-    validate(sessionStorage.getItem('entry'));
+    const previousEntry = sessionStorage.getItem('entry');
+    if (previousEntry) {
+      validate(previousEntry);
+    }
   }, [validate]);
 
   if (isLocal || auth) {
