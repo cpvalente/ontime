@@ -41,7 +41,17 @@ export default function EventListWrapper() {
 
       // optimistically update object, temp ID until refetch
       const optimistic = [...previousEvents];
-      optimistic.splice(newEvent.order, 0, {
+      let insertAfterIndex = 0;
+      if (newEvent.after) {
+        const index = optimistic.findIndex((event) => event.id === newEvent?.after);
+        if (index > -1) {
+          insertAfterIndex = index + 1;
+        }
+      } else if (newEvent.order) {
+        insertAfterIndex = newEvent.order;
+      }
+
+      optimistic.splice(insertAfterIndex, 0, {
         ...newEvent,
         id: new Date().toISOString(),
       });
@@ -51,7 +61,7 @@ export default function EventListWrapper() {
       return { previousEvents };
     },
 
-    // Mutation fails, rollback undos optimist update
+    // Mutation fails, rollback undoes optimist update
     onError: (error, newEvent, context) => {
       queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
     },
@@ -232,7 +242,8 @@ export default function EventListWrapper() {
             const newEvent = { ...payload };
             // there is an option to pass an index of an array to use as start time
             if (typeof options?.startIsLastEnd !== 'undefined') {
-              newEvent.timeStart = data[options.startIsLastEnd].timeEnd || 0;
+              const previousEvent = data.find((event) => event.id === options.startIsLastEnd);
+              newEvent.timeStart = previousEvent.timeEnd || 0;
             }
             // hard coding duration value to be as expected for now
             // this until timeOptions gets implemented

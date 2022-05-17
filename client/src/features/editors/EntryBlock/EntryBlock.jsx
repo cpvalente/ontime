@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import style from './EntryBlock.module.scss';
 
 export default function EntryBlock(props) {
-  const { showKbd, index, eventsHandler, visible } = props;
+  const { showKbd, previousId, eventsHandler, visible } = props;
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
   const [doPublic, setPublic] = useState(defaultPublic);
@@ -27,8 +27,8 @@ export default function EntryBlock(props) {
           onClick={() =>
             eventsHandler(
               'add',
-              { type: 'event', order: index + 1, isPublic: doPublic },
-              { startIsLastEnd: doStartTime ? index : undefined }
+              { type: 'event', after:  previousId, isPublic: doPublic },
+              { startIsLastEnd: doStartTime ? previousId : undefined }
             )
           }
           role='button'
@@ -39,7 +39,7 @@ export default function EntryBlock(props) {
       <Tooltip label='Add Delay' openDelay={300}>
         <span
           className={style.createDelay}
-          onClick={() => eventsHandler('add', { type: 'delay', order: index + 1 })}
+          onClick={() => eventsHandler('add', { type: 'delay', after: previousId })}
           role='button'
         >
           D{showKbd && <span className={style.keyboard}>Alt + D</span>}
@@ -48,7 +48,7 @@ export default function EntryBlock(props) {
       <Tooltip label='Add Block' openDelay={300}>
         <span
           className={style.createBlock}
-          onClick={() => eventsHandler('add', { type: 'block', order: index + 1 })}
+          onClick={() => eventsHandler('add', { type: 'block', after: previousId })}
           role='button'
         >
           B{showKbd && <span className={style.keyboard}>Alt + B</span>}
@@ -78,7 +78,7 @@ export default function EntryBlock(props) {
 
 EntryBlock.propTypes = {
   showKbd: PropTypes.bool,
-  index: PropTypes.number,
   eventsHandler: PropTypes.func,
   visible: PropTypes.bool,
+  previousId: PropTypes.string,
 };

@@ -177,7 +177,10 @@ export default function EventList(props) {
                 return (
                   <div key={e.id}>
                     {index === 0 && showQuickEntry && (
-                      <EntryBlock index={-1} eventsHandler={eventsHandler} />
+                      <EntryBlock
+                        index={e.id}
+                        eventsHandler={eventsHandler}
+                      />
                     )}
                     <div
                       ref={cursor === index ? cursorRef : undefined}
@@ -198,7 +201,7 @@ export default function EventList(props) {
                     {(showQuickEntry || isLast) && (
                       <EntryBlock
                         showKbd={index === cursor}
-                        index={index}
+                        previousId={e.id}
                         eventsHandler={eventsHandler}
                         visible={isLast}
                       />

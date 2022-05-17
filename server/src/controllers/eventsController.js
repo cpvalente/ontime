@@ -10,6 +10,13 @@ import {
 import { generateId } from '../utils/generate_id.js';
 import { MAX_EVENTS } from '../settings.js';
 
+/**
+ * Insets an event after a given index
+ * @param entry
+ * @param index
+ * @return {Promise<void>}
+ * @private
+ */
 async function _insertAt(entry, index) {
   // get events
   const events = data.events;
@@ -37,6 +44,11 @@ async function _insertAt(entry, index) {
   // save events
   data.events = events;
   await db.write();
+}
+
+async function _insertAfterId(entry, id) {
+  const index = [...data.events].findIndex((event) => event.id === id);
+  await _insertAt(entry, index + 1);
 }
 
 /**
@@ -130,10 +142,13 @@ export const eventsPost = async (req, res) => {
 
   try {
     // get place where event should be
-    const index = newEvent.order || 0;
-
-    // add new event in place
-    await _insertAt(newEvent, index);
+    if (newEvent.order) {
+      await _insertAt(newEvent, newEvent.order);
+    } else if (newEvent.after) {
+      await _insertAfterId(newEvent, newEvent.after);
+    } else {
+      await _insertAt(newEvent, 0);
+    }
 
     // update timers
     _updateTimers();

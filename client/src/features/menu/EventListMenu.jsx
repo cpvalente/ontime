@@ -19,13 +19,13 @@ const EventListMenu = ({ eventsHandler }) => {
     (action) => {
       switch (action) {
         case 'event':
-          eventsHandler('add', { type: action, order: 0 });
+          eventsHandler('add', { type: action });
           break;
         case 'delay':
-          eventsHandler('add', { type: action, order: 0 });
+          eventsHandler('add', { type: action });
           break;
         case 'block':
-          eventsHandler('add', { type: action, order: 0 });
+          eventsHandler('add', { type: action });
           break;
         case 'cursorUp':
           moveCursorUp();
