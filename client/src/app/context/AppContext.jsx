@@ -18,6 +18,7 @@ export const AppContextProvider = ({ children }) => {
     if (data == null) return;
     if (data?.pinCode === null || data?.pinCode === '') {
       setAuth(true);
+      sessionStorage.setItem('entry', data?.pinCode);
     } else {
       setAuth(false);
     }

@@ -49,6 +49,10 @@ export default function ProtectRoute({ children }) {
     };
   }, [handleKeyPress]);
 
+  useEffect(() => {
+    validate(sessionStorage.getItem('entry'));
+  }, [validate]);
+
   if (isLocal || auth) {
     return children;
   }
