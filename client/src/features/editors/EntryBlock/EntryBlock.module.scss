@@ -94,6 +94,12 @@
     flex-direction: column;
     opacity: 0.65;
   }
+
+  .disabled {
+    border-color: $text-gray-disabled;
+    color: $text-gray-disabled;
+    pointer-events: none;
+  }
 }
 
 .create.visible {

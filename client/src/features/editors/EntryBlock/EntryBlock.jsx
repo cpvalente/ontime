@@ -6,7 +6,14 @@ import PropTypes from 'prop-types';
 import style from './EntryBlock.module.scss';
 
 export default function EntryBlock(props) {
-  const { showKbd, previousId, eventsHandler, visible } = props;
+  const {
+    showKbd,
+    previousId,
+    eventsHandler,
+    visible,
+    disableAddDelay = true,
+    disableAddBlock,
+  } = props;
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
   const [doPublic, setPublic] = useState(defaultPublic);
@@ -38,7 +45,7 @@ export default function EntryBlock(props) {
       </Tooltip>
       <Tooltip label='Add Delay' openDelay={300}>
         <span
-          className={style.createDelay}
+          className={`${style.createDelay} ${disableAddDelay ? style.disabled : ''}`}
           onClick={() => eventsHandler('add', { type: 'delay', after: previousId })}
           role='button'
         >
@@ -47,7 +54,7 @@ export default function EntryBlock(props) {
       </Tooltip>
       <Tooltip label='Add Block' openDelay={300}>
         <span
-          className={style.createBlock}
+          className={`${style.createBlock} ${disableAddBlock ? style.disabled : ''}`}
           onClick={() => eventsHandler('add', { type: 'block', after: previousId })}
           role='button'
         >
@@ -81,4 +88,7 @@ EntryBlock.propTypes = {
   eventsHandler: PropTypes.func,
   visible: PropTypes.bool,
   previousId: PropTypes.string,
+  disableAddDelay: PropTypes.bool,
+  disableAddBlock: PropTypes.bool,
 };
+
