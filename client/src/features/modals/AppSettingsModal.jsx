@@ -13,6 +13,7 @@ import SubmitContainer from './SubmitContainer';
 import { inputProps } from './modalHelper';
 import { LocalEventSettingsContext } from '../../app/context/LocalEventSettingsContext';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
+const version = require('../../../package.json').version
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
@@ -164,6 +165,7 @@ export default function AppSettingsModal() {
         <br />
         🔥 Changes take effect on save 🔥
       </p>
+      <p className={style.notes}>{`Running ontime version ${version}`}</p>
       <form onSubmit={submitHandler}>
         <div className={style.modalFields}>
           <div className={style.hSeparator}>General App Settings</div>

@@ -2,6 +2,7 @@
 import React from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import style from './ErrorBoundary.module.scss';
+const appVersion = require('../../../../package.json').version;
 
 class ErrorBoundary extends React.Component {
   static contextType = LoggingContext;
@@ -41,7 +42,8 @@ class ErrorBoundary extends React.Component {
               className={style.report}
               onClick={() => {
                 if (navigator.clipboard) {
-                  navigator.clipboard.writeText(this.reportContent);
+                  const copyContent = `ontime version ${appVersion} \n ${this.reportContent}`;
+                  navigator.clipboard.writeText(copyContent);
                 }
               }}
             >

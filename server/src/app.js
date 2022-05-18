@@ -19,6 +19,8 @@ const file = path.join(__dirname, 'data/', config.database.filename);
 const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
+console.log(`Starting ontime version ${process.env.npm_package_version}`)
+
 // dependencies
 import express from 'express';
 import http from 'http';
