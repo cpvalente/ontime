@@ -8,9 +8,11 @@ import style from './Modals.module.scss';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { IconButton } from '@chakra-ui/button';
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
+import { FiX } from '@react-icons/all-files/fi/FiX';
 import SubmitContainer from './SubmitContainer';
 import { inputProps } from './modalHelper';
 import { LocalEventSettingsContext } from '../../app/context/LocalEventSettingsContext';
+import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
@@ -213,6 +215,16 @@ export default function AppSettingsModal() {
                   aria-label='Editor pin code'
                   onMouseDown={() => setHidePin(false)}
                   onMouseUp={() => setHidePin(true)}
+                  isDisabled={disableModal}
+                />
+                <TooltipActionBtn
+                  tooltip='Clear pincode'
+                  size='sm'
+                  colorScheme='red'
+                  variant='ghost'
+                  icon={<FiX />}
+                  onMouseDown={() => handleChange('pinCode', '')}
+                  onMouseUp={() => handleChange('pinCode', '')}
                   isDisabled={disableModal}
                 />
               </div>

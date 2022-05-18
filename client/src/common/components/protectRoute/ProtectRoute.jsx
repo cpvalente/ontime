@@ -49,14 +49,6 @@ export default function ProtectRoute({ children }) {
     };
   }, [handleKeyPress]);
 
-  useEffect(() => {
-    const previousEntry = sessionStorage.getItem('ontime-entry');
-    console.log(previousEntry)
-    if (previousEntry) {
-      validate(previousEntry);
-    }
-  }, [validate]);
-
   if (isLocal || auth) {
     return children;
   }
