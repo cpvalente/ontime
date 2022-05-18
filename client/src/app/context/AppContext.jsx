@@ -16,7 +16,7 @@ export const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (data == null) return;
-    if (data?.pinCode === null || data?.pinCode === '') {
+    if (data?.pinCode == null || data?.pinCode === '') {
       setAuth(true);
     } else {
       setAuth(false);
@@ -30,13 +30,13 @@ export const AppContextProvider = ({ children }) => {
   const validate = useCallback(
     (pin) => {
       let correct;
-      if (data.pinCode === null || data.pinCode === '') {
+      if (data?.pinCode == null || data?.pinCode === '') {
         correct = true;
       } else {
-        correct = pin === data.pinCode;
+        correct = pin === data?.pinCode;
       }
       if (correct) {
-        sessionStorage.setItem('entry', pin);
+        sessionStorage.setItem('ontime-entry', pin);
       }
       setAuth(correct);
       return correct;

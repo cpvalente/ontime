@@ -50,7 +50,8 @@ export default function ProtectRoute({ children }) {
   }, [handleKeyPress]);
 
   useEffect(() => {
-    const previousEntry = sessionStorage.getItem('entry');
+    const previousEntry = sessionStorage.getItem('ontime-entry');
+    console.log(previousEntry)
     if (previousEntry) {
       validate(previousEntry);
     }
@@ -85,7 +86,6 @@ export default function ProtectRoute({ children }) {
           size='lg'
           isRound
           icon={<FiCheck />}
-          style={{ fontSize: '1.5em' }}
           onClick={() => handleValidation()}
         />
       </HStack>
