@@ -32,6 +32,11 @@ export const stringFromMillis = (ms, showSeconds = true, delim = ':', ifNull = '
   const isNegative = ms < 0 ? '-' : '';
   const millis = Math.abs(ms);
 
+  /**
+   * @description ensures value is double digit
+   * @param value
+   * @return {string|*}
+   */
   const showWith0 = (value) => (value < 10 ? `0${value}` : value);
   const hours = showWith0(Math.floor(((millis / mth) % 60) % 24));
   const minutes = showWith0(Math.floor((millis / mtm) % 60));
@@ -39,9 +44,9 @@ export const stringFromMillis = (ms, showSeconds = true, delim = ':', ifNull = '
 
   return showSeconds
     ? `${isNegative}${
-        parseInt(hours) ? `${hours}${delim}` : `00${delim}`
+        parseInt(hours, 10) ? `${hours}${delim}` : `00${delim}`
       }${minutes}${delim}${seconds}`
-    : `${isNegative}${parseInt(hours) ? `${hours}` : '00'}${delim}${minutes}`;
+    : `${isNegative}${parseInt(hours, 10) ? `${hours}` : '00'}${delim}${minutes}`;
 };
 
 /**

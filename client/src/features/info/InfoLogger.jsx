@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { HStack } from '@chakra-ui/react';
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
 import { LoggingContext } from '../../app/context/LoggingContext';
@@ -46,14 +46,14 @@ export default function InfoLogger() {
     setData(d);
   }, [logData, showUser, showClient, showServer, showPlayback, showRx, showTx]);
 
-  const disableOthers = (toEnable) => {
+  const disableOthers = useCallback((toEnable) => {
     toEnable === 'USER' ? setShowUser(true) : setShowUser(false);
     toEnable === 'CLIENT' ? setShowClient(true) : setShowClient(false);
     toEnable === 'SERVER' ? setShowServer(true) : setShowServer(false);
     toEnable === 'RX' ? setShowRx(true) : setShowRx(false);
     toEnable === 'TX' ? setShowTx(true) : setShowTx(false);
     toEnable === 'PLAYBACK' ? setShowPlayback(true) : setShowPlayback(false);
-  };
+  }, []);
 
   return (
     <div className={collapsed ? style.container : style.container__expanded}>
@@ -64,46 +64,58 @@ export default function InfoLogger() {
             <div
               onClick={() => setShowUser((s) => !s)}
               onAuxClick={() => disableOthers('USER')}
+              onContextMenu={(e) => e.preventDefault()}
               className={showUser ? style.active : null}
+              role='button'
             >
               USER
             </div>
             <div
               onClick={() => setShowClient((s) => !s)}
               onAuxClick={() => disableOthers('CLIENT')}
+              onContextMenu={(e) => e.preventDefault()}
               className={showClient ? style.active : null}
+              role='button'
             >
               CLIENT
             </div>
             <div
               onClick={() => setShowServer((s) => !s)}
               onAuxClick={() => disableOthers('SERVER')}
+              onContextMenu={(e) => e.preventDefault()}
               className={showServer ? style.active : null}
+              role='button'
             >
               SERVER
             </div>
             <div
               onClick={() => setShowPlayback((s) => !s)}
               onAuxClick={() => disableOthers('PLAYBACK')}
+              onContextMenu={(e) => e.preventDefault()}
               className={showPlayback ? style.active : null}
+              role='button'
             >
               Playback
             </div>
             <div
               onClick={() => setShowRx((s) => !s)}
               onAuxClick={() => disableOthers('RX')}
+              onContextMenu={(e) => e.preventDefault()}
               className={showRx ? style.active : null}
+              role='button'
             >
               RX
             </div>
             <div
               onClick={() => setShowTx((s) => !s)}
               onAuxClick={() => disableOthers('TX')}
+              onContextMenu={(e) => e.preventDefault()}
               className={showTx ? style.active : null}
+              role='button'
             >
               TX
             </div>
-            <div onClick={clearLog} className={style.clear}>
+            <div onClick={clearLog} className={style.clear} role='button'>
               Clear
             </div>
           </HStack>
@@ -115,10 +127,10 @@ export default function InfoLogger() {
                   d.level === 'INFO'
                     ? style.info
                     : d.level === 'WARN'
-                    ? style.warn
-                    : d.level === 'ERROR'
-                    ? style.error
-                    : ''
+                      ? style.warn
+                      : d.level === 'ERROR'
+                        ? style.error
+                        : ''
                 }
               >
                 <div className={style.time}>{d.time}</div>

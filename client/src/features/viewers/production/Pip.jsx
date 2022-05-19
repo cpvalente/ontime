@@ -1,11 +1,12 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
-import style from './Pip.module.scss';
+import { AnimatePresence, motion } from 'framer-motion';
 import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
-import { AnimatePresence, motion } from 'framer-motion';
 import { formatDisplay } from 'common/utils/dateConfig';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
+import PropTypes from 'prop-types';
+import style from './Pip.module.scss';
 
 export default function Pip(props) {
   const { time, backstageEvents, selectedId, general } = props;
@@ -121,3 +122,10 @@ export default function Pip(props) {
     </div>
   );
 }
+
+Pip.propTypes = {
+  time: PropTypes.object,
+  backstageEvents: PropTypes.object,
+  selectedId: PropTypes.string,
+  general: PropTypes.object,
+};

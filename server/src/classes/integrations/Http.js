@@ -1,20 +1,19 @@
-/** Class contains logic towards outgoing HTTP communications. */
 import * as http from 'http';
 
+/**
+ * @description Class contains logic towards outgoing HTTP communications
+ * @class
+ */
 export class HTTPIntegration {
-
   constructor() {
     // nothing to do here
   }
-
 
   /**
    * @description Initializes oscClient
    * @param {object} httpConfig - Http configurations options
    */
-  init(httpConfig) {
-
-  }
+  init(httpConfig) {}
 
   /**
    * @description Sends http get request from predefined messages
@@ -29,8 +28,8 @@ export class HTTPIntegration {
     const options = new URL(path);
     let str = '';
 
-    const req = http.request(options, res => {
-      console.log(`statusCode: ${res.statusCode}`)
+    const req = http.request(options, (res) => {
+      console.log(`statusCode: ${res.statusCode}`);
 
       res.on('data', function (chunk) {
         str += chunk;
@@ -39,14 +38,16 @@ export class HTTPIntegration {
       res.on('end', function () {
         console.log(str);
       });
-    })
+    });
 
-    req.on('error', error => {
-      console.error(error)
-    })
+    req.on('error', (error) => {
+      console.error(error);
+    });
 
-    req.end()
+    req.end();
   }
 
-  shutdown() { /* Nothing to shutdown */  }
+  shutdown() {
+    /* Nothing to shutdown */
+  }
 }

@@ -1,9 +1,9 @@
 {
-  "name": "ontime",
-  "version": "0.1.0",
+  "name": "ontime-ui",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@chakra-ui/react": "^1.8.6",
+    "@chakra-ui/react": "^2.0.0-next.3",
     "@dnd-kit/core": "^5.0.3",
     "@dnd-kit/sortable": "^6.0.1",
     "@dnd-kit/utilities": "^3.1.0",
@@ -12,17 +12,17 @@
     "@react-icons/all-files": "^4.1.0",
     "autosize": "^5.0.1",
     "axios": "^0.25.0",
-    "color": "^4.2.1",
-    "framer-motion": "4.1.17",
-    "react": "17.0.2",
+    "color": "^4.2.3",
+    "framer-motion": "^6.3.3",
+    "react": "^18.1.0",
     "react-beautiful-dnd": "^13.1.0",
-    "react-dom": "^17.0.1",
+    "react-dom": "^18.1.0",
     "react-fast-compare": "^3.2.0",
-    "react-qr-code": "2.0.3",
-    "react-query": "^3.34.12",
-    "react-router-dom": "^6.2.1",
+    "react-qr-code": "^2.0.5",
+    "react-query": "^3.38.0",
+    "react-router-dom": "^6.3.0",
     "react-table": "^7.7.0",
-    "socket.io-client": "^4.4.1",
+    "socket.io-client": "^4.5.0",
     "typeface-open-sans": "^1.1.13",
     "use-fit-text": "^2.4.0",
     "web-vitals": "^2.1.4"
@@ -47,13 +47,13 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/react-hooks": "^7.0.2",
-    "@testing-library/user-event": "^13.5.0",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.1.1",
+    "@testing-library/react-hooks": "^8.0.0",
+    "@testing-library/user-event": "^14.1.1",
     "prop-types": "^15.8.1",
-    "react-scripts": "^5.0.0",
-    "react-test-renderer": "^17.0.2",
-    "sass": "^1.49.0"
+    "react-scripts": "^5.0.1",
+    "react-test-renderer": "^18.1.0",
+    "sass": "^1.51.0"
   }
 }

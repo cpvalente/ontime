@@ -1,11 +1,10 @@
 import React from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import VisibleIconBtn from '../../../common/components/buttons/VisibleIconBtn';
+import { Tooltip } from '@chakra-ui/tooltip';
+import { IconButton } from '@chakra-ui/button';
+import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import style from './MessageControl.module.scss';
-
-const inputProps = {
-  size: 'sm',
-};
+import PropTypes from 'prop-types';
 
 export default function InputRow(props) {
   const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
@@ -24,12 +23,26 @@ export default function InputRow(props) {
           <EditablePreview className={style.padleft} />
           <EditableInput className={style.padleft} />
         </Editable>
-        <VisibleIconBtn
-          active={visible || undefined}
-          actionHandler={actionHandler}
-          {...inputProps}
-        />
+        <Tooltip label={visible ? 'Make invisible' : 'Make visible'} openDelay={500}>
+          <IconButton
+            aria-label='Toggle visibility'
+            size='sm'
+            icon={<IoSunny size='18px' />}
+            colorScheme='blue'
+            variant={visible ? 'solid' : 'outline'}
+            onClick={() => actionHandler('update', { field: 'isPublic', value: !visible })}
+          />
+        </Tooltip>
       </div>
     </>
   );
 }
+
+InputRow.propTypes = {
+  label: PropTypes.string,
+  placeholder: PropTypes.string,
+  text: PropTypes.string,
+  visible: PropTypes.bool,
+  actionHandler: PropTypes.func.isRequired,
+  changeHandler: PropTypes.func.isRequired,
+};

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useFetch } from '../../app/hooks/useFetch';
 import { useSocket } from '../../app/context/socketContext';
 import { TableSettingsContext } from '../../app/context/TableSettingsContext';
@@ -17,6 +17,11 @@ export default function TableWrapper() {
   const socket = useSocket();
   const [selectedId, setSelectedId] = useState(null);
   const { theme } = useContext(TableSettingsContext);
+
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Cuesheet';
+  }, []);
 
   /**
    * Handle incoming data from socket
@@ -38,7 +43,7 @@ export default function TableWrapper() {
     };
   }, [socket]);
 
-  const handleUpdate = async (rowIndex, accessor, payload) => {
+  const handleUpdate = useCallback(async (rowIndex, accessor, payload) => {
     if (rowIndex == null || accessor == null || payload == null) {
       return;
     }
@@ -71,7 +76,7 @@ export default function TableWrapper() {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [mutation, tableData]);
 
   if (typeof tableData === 'undefined' || typeof userFields === 'undefined') {
     return <span>loading...</span>;

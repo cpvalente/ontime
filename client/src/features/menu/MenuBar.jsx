@@ -1,18 +1,19 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
-import { EVENTS_TABLE } from 'app/api/apiConstants';
-import DownloadIconBtn from './buttons/DownloadIconBtn';
-import SettingsIconBtn from './buttons/SettingsIconBtn';
-import MaxIconBtn from './buttons/MaxIconBtn';
-import MinIconBtn from './buttons/MinIconBtn';
-import QuitIconBtn from './buttons/QuitIconBtn';
-import style from './MenuBar.module.scss';
-import HelpIconBtn from './buttons/HelpIconBtn';
-import UploadIconBtn from './buttons/UploadIconBtn';
-import { LoggingContext } from '../../app/context/LoggingContext';
-import PropTypes from 'prop-types';
 import { VStack } from '@chakra-ui/react';
+import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
+import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
+import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
+import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
+import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
+import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
+import { FiDownload } from '@react-icons/all-files/fi/FiDownload';
+import { EVENTS_TABLE } from 'app/api/apiConstants';
+import { LoggingContext } from '../../app/context/LoggingContext';
+import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
+import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
+import PropTypes from 'prop-types';
+import style from './MenuBar.module.scss';
 
 export default function MenuBar(props) {
   const { isOpen, onOpen, onClose } = props;
@@ -25,46 +26,47 @@ export default function MenuBar(props) {
     },
   });
 
-  const handleDownload = () => {
-    downloadEvents();
-  };
-
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (hiddenFileInput && hiddenFileInput.current) {
       hiddenFileInput.current.click();
     }
-  };
+  }, [hiddenFileInput]);
 
   const buttonStyle = {
     fontSize: '1.5em',
+    size: 'lg',
+    colorScheme: 'white',
   };
 
-  const handleUpload = (event) => {
-    const fileUploaded = event.target.files[0];
-    if (fileUploaded == null) return;
+  const handleUpload = useCallback(
+    (event) => {
+      const fileUploaded = event.target.files[0];
+      if (fileUploaded == null) return;
 
-    // Limit file size to 1MB
-    if (fileUploaded.size > 1000000) {
-      emitError('Error: File size limit (1MB) exceeded');
-      return;
-    }
-
-    // Check file extension
-    if (fileUploaded.name.endsWith('.xlsx') || fileUploaded.name.endsWith('.json')) {
-      try {
-        uploaddb.mutate(fileUploaded);
-      } catch (error) {
-        emitError(`Failed uploading file: ${error}`);
+      // Limit file size to 1MB
+      if (fileUploaded.size > 1000000) {
+        emitError('Error: File size limit (1MB) exceeded');
+        return;
       }
-    } else {
-      emitError('Error: File type unknown');
-    }
 
-    // reset input value
-    hiddenFileInput.current.value = '';
-  };
+      // Check file extension
+      if (fileUploaded.name.endsWith('.xlsx') || fileUploaded.name.endsWith('.json')) {
+        try {
+          uploaddb.mutate(fileUploaded);
+        } catch (error) {
+          emitError(`Failed uploading file: ${error}`);
+        }
+      } else {
+        emitError('Error: File type unknown');
+      }
 
-  const handleIPC = (action) => {
+      // reset input value
+      hiddenFileInput.current.value = '';
+    },
+    [emitError, uploaddb]
+  );
+
+  const handleIPC = useCallback((action) => {
     // Stop crashes when testing locally
     if (typeof window.process?.type === 'undefined') {
       if (action === 'help') {
@@ -91,7 +93,7 @@ export default function MenuBar(props) {
           break;
       }
     }
-  };
+  }, []);
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -125,16 +127,32 @@ export default function MenuBar(props) {
 
   return (
     <VStack>
-      <QuitIconBtn size='lg' clickhandler={() => handleIPC('shutdown')} />
-      <MaxIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={() => handleIPC('max')} />
-      <MinIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={() => handleIPC('min')} />
+      <QuitIconBtn clickHandler={() => handleIPC('shutdown')} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<FiMaximize />}
+        clickHandler={() => handleIPC('max')}
+        tooltip='Show full window'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<FiMinimize />}
+        clickHandler={() => handleIPC('min')}
+        tooltip='Close to tray'
+      />
       <div className={style.gap} />
-      <HelpIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={() => handleIPC('help')} />
-      <SettingsIconBtn
-        style={{ ...buttonStyle }}
-        size='lg'
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<FiHelpCircle />}
+        clickHandler={() => handleIPC('help')}
+        tooltip='Help'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<FiSettings />}
         className={isOpen ? style.open : ''}
-        clickhandler={onOpen}
+        clickHandler={onOpen}
+        tooltip='Settings'
         isRound
       />
       <div className={style.gap} />
@@ -145,8 +163,18 @@ export default function MenuBar(props) {
         onChange={handleUpload}
         accept='.json, .xlsx'
       />
-      <UploadIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={handleClick} />
-      <DownloadIconBtn style={{ ...buttonStyle }} size='lg' clickhandler={handleDownload} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<FiUpload />}
+        clickHandler={handleClick}
+        tooltip='Import event list'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<FiDownload />}
+        clickHandler={downloadEvents}
+        tooltip='Export event list'
+      />
     </VStack>
   );
 }

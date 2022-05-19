@@ -41,11 +41,9 @@ export default function Editor() {
 
               <Box className={styles.editor}>
                 <h1>Event List</h1>
-                <div className={styles.content}>
-                  <ErrorBoundary>
-                    <EventListWrapper />
-                  </ErrorBoundary>
-                </div>
+                <ErrorBoundary>
+                  <EventListWrapper />
+                </ErrorBoundary>
               </Box>
             </CollapseProvider>
           </CursorProvider>

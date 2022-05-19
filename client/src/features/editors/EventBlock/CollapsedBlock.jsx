@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { HStack } from '@chakra-ui/react';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
+import ActionButtons from '../../../common/components/buttons/ActionButtons';
 import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import EditableText from '../../../common/input/EditableText';
 import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
-import ActionButtons from '../list/ActionButtons';
 import PropTypes from 'prop-types';
 import style from './EventBlock.module.scss';
 
-export default function CollapsedBlock (props) {
+const areEqual = (prevProps, nextProps) => {
+  return (
+    prevProps.provided === nextProps.provided &&
+    prevProps.data.revision === nextProps.data.revision &&
+    prevProps.next === nextProps.next &&
+    prevProps.delay === nextProps.delay &&
+    prevProps.delayValue === nextProps.delayValue &&
+    prevProps.previousEnd === nextProps.previousEnd
+  );
+};
+
+function CollapsedBlock(props) {
   const { provided, data, next, delay, delayValue, previousEnd, actionHandler } = props;
 
   return (
@@ -43,7 +54,7 @@ export default function CollapsedBlock (props) {
       </HStack>
     </>
   );
-};
+}
 
 CollapsedBlock.propTypes = {
   provided: PropTypes.any.isRequired,
@@ -54,3 +65,5 @@ CollapsedBlock.propTypes = {
   previousEnd: PropTypes.number.isRequired,
   actionHandler: PropTypes.func.isRequired,
 };
+
+export default memo(CollapsedBlock, areEqual);

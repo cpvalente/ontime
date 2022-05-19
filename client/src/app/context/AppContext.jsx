@@ -16,16 +16,35 @@ export const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (data == null) return;
-    if (data?.pinCode === null || data?.pinCode === '') {
+    const previousEntry = sessionStorage.getItem('ontime-entry');
+    if (previousEntry) {
+      if (previousEntry === data?.pinCode) {
+        setAuth(true);
+      } else {
+        sessionStorage.removeItem('ontime-entry')
+      }
+    } else if (data?.pinCode == null || data?.pinCode === '') {
       setAuth(true);
     } else {
       setAuth(false);
     }
   }, [data]);
 
+  /**
+   * Validates a pincode
+   * @return boolean - whether the pin is valid
+   */
   const validate = useCallback(
     (pin) => {
-      const correct = pin === data.pinCode;
+      let correct;
+      if (data?.pinCode == null || data?.pinCode === '') {
+        correct = true;
+      } else {
+        correct = pin === data?.pinCode;
+      }
+      if (correct) {
+        sessionStorage.setItem('ontime-entry', pin);
+      }
       setAuth(correct);
       return correct;
     },

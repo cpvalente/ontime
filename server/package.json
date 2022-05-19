@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -12,16 +12,16 @@
   "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
-    "cypress": "^9.4.1",
+    "cypress": "^9.6.0",
     "electron": "13.6.7",
     "electron-builder": "^23.0.3",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.4.7",
+    "jest": "^28.0.3",
     "nodemon": "^2.0.15",
-    "prettier": "^2.5.1",
+    "prettier": "^2.6.2",
     "start-server-and-test": "^1.14.0",
     "supertest": "^6.2.2"
   },
@@ -43,7 +43,6 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testRunner": "jasmine2",
     "testPathIgnorePatterns": [
       "dist",
       "cypress"
@@ -69,7 +68,7 @@
       "artifactName": "ontime-win64.exe",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "allowElevation": false,
+      "allowElevation": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "deleteAppDataOnUninstall": true,

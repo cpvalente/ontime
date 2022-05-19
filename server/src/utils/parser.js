@@ -17,7 +17,6 @@ import { generateId } from './generate_id.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
-export const MAX_EVENTS = 99;
 
 /**
  * @description Excel array parser
@@ -55,7 +54,7 @@ export const parseExcel_v1 = async (excelData) => {
     .forEach((row) => {
       let eventTitleNext = false;
       let eventUrlNext = false;
-      let event = {};
+      const event = {};
 
       row.forEach((column, j) => {
         // check flags

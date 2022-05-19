@@ -163,14 +163,14 @@
       }
 
       .selected > td {
-        background-color: #4bffab99;
+        background-color: rgba($ontime-accent, 0.8);
       }
     }
 
     .indexColumn {
       font-weight: 200;
       text-align: right;
-      width: 2em;
+      width: 2.5em;
       background: transparent;
     }
 
@@ -269,6 +269,12 @@ svg {
 .dragging {
   border: 1px solid $ontime-pink;
   z-index: 10;
+}
+
+.check {
+  font-size: 1.5em;
+  background-color: transparent !important;
+  margin: 0 auto;
 }
 
 @keyframes rotation {

@@ -1,11 +1,12 @@
 import React from 'react';
 import { HStack } from '@chakra-ui/react';
 import { Draggable } from 'react-beautiful-dnd';
+import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
-import DeleteIconBtn from 'common/components/buttons/DeleteIconBtn';
-import ActionButtons from '../list/ActionButtons';
-import style from './BlockBlock.module.scss';
+import ActionButtons from '../../../common/components/buttons/ActionButtons';
+import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipLoadingActionBtn';
 import PropTypes from 'prop-types';
+import style from './BlockBlock.module.scss';
 
 export default function BlockBlock(props) {
   const { index, data, actionHandler } = props;
@@ -22,7 +23,13 @@ export default function BlockBlock(props) {
             <FiMoreVertical />
           </span>
           <HStack spacing='0.5em' className={style.actionOverlay}>
-            <DeleteIconBtn actionHandler={actionHandler} />
+            <TooltipLoadingActionBtn
+              clickHandler={() => actionHandler('delete')}
+              icon={<IoRemove />}
+              colorScheme='red'
+              tooltip='Delete'
+              _hover={{ bg: 'red.400' }}
+            />
             <ActionButtons showAdd showDelay actionHandler={actionHandler} />
           </HStack>
         </div>

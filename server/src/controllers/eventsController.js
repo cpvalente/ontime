@@ -8,9 +8,15 @@ import {
   event as eventDef,
 } from '../models/eventsDefinition.js';
 import { generateId } from '../utils/generate_id.js';
+import { MAX_EVENTS } from '../settings.js';
 
-const MAX_EVENTS = 99;
-
+/**
+ * Insets an event after a given index
+ * @param entry
+ * @param index
+ * @return {Promise<void>}
+ * @private
+ */
 async function _insertAt(entry, index) {
   // get events
   const events = data.events;
@@ -40,11 +46,25 @@ async function _insertAt(entry, index) {
   await db.write();
 }
 
+async function _insertAfterId(entry, id) {
+  const index = [...data.events].findIndex((event) => event.id === id);
+  await _insertAt(entry, index + 1);
+}
+
+/**
+ * @description deletes an event from the db given its id
+ * @param eventId
+ * @return {Promise<void>}
+ */
 async function _removeById(eventId) {
   data.events = Array.from(data.events).filter((e) => e.id !== eventId);
   await db.write();
 }
 
+/**
+ * @description returns all events of type event
+ * @return {unknown[]}
+ */
 function getEventEvents() {
   // return data.events.filter((e) => e.type === 'event');
   return Array.from(data.events).filter((e) => e.type === 'event');
@@ -97,6 +117,7 @@ export const eventsPost = async (req, res) => {
   if (data.events.length > MAX_EVENTS) {
     const error = `ERROR: Reached limit number of ${MAX_EVENTS} events`;
     res.status(400).send(error);
+    return;
   }
 
   // ensure structure
@@ -121,10 +142,13 @@ export const eventsPost = async (req, res) => {
 
   try {
     // get place where event should be
-    const index = newEvent.order || 0;
-
-    // add new event in place
-    await _insertAt(newEvent, index);
+    if (newEvent.order) {
+      await _insertAt(newEvent, newEvent.order);
+    } else if (newEvent.after) {
+      await _insertAfterId(newEvent, newEvent.after);
+    } else {
+      await _insertAt(newEvent, 0);
+    }
 
     // update timers
     _updateTimers();
@@ -211,7 +235,6 @@ export const eventsReorder = async (req, res) => {
     data.events = events;
     await db.write();
 
-    // TODO: would it be more efficient to reorder at timer?
     // update timer
     _updateTimers();
 

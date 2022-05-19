@@ -2,6 +2,7 @@
 import React from 'react';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import style from './ErrorBoundary.module.scss';
+const appVersion = require('../../../../package.json').version;
 
 class ErrorBoundary extends React.Component {
   static contextType = LoggingContext;
@@ -22,7 +23,11 @@ class ErrorBoundary extends React.Component {
       error: error,
       errorInfo: info,
     });
-    this.context.emitError(error.toString());
+    try {
+      this.context.emitError(error.toString());
+    } catch {
+      console.log('Unable to emit error')
+    }
     this.reportContent = `${error} ${info.componentStack}`;
   }
 
@@ -35,9 +40,26 @@ class ErrorBoundary extends React.Component {
             <p>Something went wrong</p>
             <p
               className={style.report}
-              onClick={() => navigator.clipboard.writeText(this.reportContent)}
+              onClick={() => {
+                if (navigator.clipboard) {
+                  const copyContent = `ontime version ${appVersion} \n ${this.reportContent}`;
+                  navigator.clipboard.writeText(copyContent);
+                }
+              }}
             >
               Copy error
+            </p>
+            <p
+              className={style.report}
+              onClick={() => {
+                if (window.process.type === 'renderer') {
+                  window.ipcRenderer.send('reload');
+                } else {
+                  window.location.reload();
+                }
+              }}
+            >
+              Reload interface
             </p>
           </div>
         </div>

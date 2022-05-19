@@ -281,49 +281,35 @@ describe('test isTimeString() function handle different separators', () => {
 });
 
 describe('test forgivingStringToMillis()', () => {
-  describe('function handles separators', () => {
+  describe('function handles time with no separators', () => {
     const testData = [
-      { value: '1:2:3:10', expect: 3723000 },
-      { value: '2,10', expect: 130000 },
-      { value: '2.10', expect: 130000 },
-      { value: '2 10', expect: 130000 },
+      { value: '', expect: 0 },
+      { value: '0', expect: 0 },
+      { value: '-0', expect: 0 },
+      { value: '1', expect: 60 * 1000 },
+      { value: '-1', expect: 60 * 1000 },
+      { value: '000000', expect: 0 },
+      { value: '000001', expect: 1000 },
+      { value: '000100', expect: 1000 * 60 },
+      { value: '010000', expect: 1000 * 60 * 60 },
+      { value: '230000', expect: 1000 * 60 * 60 * 23 },
+      { value: '121212', expect: 12 * 1000 + 12 * 60 * 1000 + 12 * 1000 * 60 * 60 },
     ];
 
     for (const s of testData) {
-      test(`it handles ${s.value}`, () => {
+      test(`it handles ${s.value} to left`, () => {
         expect(typeof forgivingStringToMillis(s.value)).toBe('number');
         expect(forgivingStringToMillis(s.value)).toBe(s.expect);
       });
-    }
-  });
-
-  describe('function handles time with no separators', () => {
-    const testData = [
-      { value: '000000', expect: 0 },
-      { value: '000001', expect: 1000 },
-      { value: '000100', expect: 1000*60 },
-      { value: '010000', expect: 1000*60*60 },
-      { value: '230000', expect: 1000*60*60*23 },
-      { value: '121212', expect: 12*1000+12*60*1000+12*1000*60*60 },
-    ];
-
-    for (const s of testData) {
-      test(`it handles ${s.value}`, () => {
-        expect(typeof forgivingStringToMillis(s.value)).toBe('number');
-        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      test(`it handles ${s.value} to right`, () => {
+        expect(typeof forgivingStringToMillis(s.value, false)).toBe('number');
+        expect(forgivingStringToMillis(s.value, false)).toBe(s.expect);
       });
     }
   });
 
   describe('parses strings correctly', () => {
     const ts = [
-      { value: '', expect: 0 },
-      { value: '0', expect: 0 },
-      { value: '-0', expect: 0 },
-      { value: '1', expect: 60 * 1000 },
-      { value: '-1', expect: 60 * 1000 },
-      { value: '1.2', expect: 60 * 1000 + 2 * 1000 },
-      { value: '1.70', expect: 60 * 1000 + 70 * 1000 },
       { value: '1.1.1', expect: 60 * 60 * 1000 + 60 * 1000 + 1000 },
       { value: '12.1.1', expect: 12 * 60 * 60 * 1000 + 60 * 1000 + 1000 },
       { value: '12.55.1', expect: 12 * 60 * 60 * 1000 + 55 * 60 * 1000 + 1000 },
@@ -331,7 +317,10 @@ describe('test forgivingStringToMillis()', () => {
     ];
 
     for (const s of ts) {
-      test(`it handles ${s.value}`, () => {
+      test(`it handles ${s.value} to the left`, () => {
+        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      });
+      test(`it handles ${s.value} to the right`, () => {
         expect(forgivingStringToMillis(s.value)).toBe(s.expect);
       });
     }
@@ -340,27 +329,119 @@ describe('test forgivingStringToMillis()', () => {
   describe('handles overflows', () => {
     const ts = [
       // minutes overflow
-      { value: '120', expect: 1000*60*120 },
-      { value: '2.0.0', expect: 1000*60*120 },
-      { value: '99', expect: 1000*60*99 },
-      { value: '1.39.0', expect: 1000*60*99 },
+      { value: '120', expect: 1000 * 60 * 120 },
+      { value: '2.0.0', expect: 1000 * 60 * 120 },
+      { value: '99', expect: 1000 * 60 * 99 },
+      { value: '1.39.0', expect: 1000 * 60 * 99 },
       // seconds overflow
-      { value: '0.120', expect: 120*1000 },
-      { value: '0.0.120', expect: 120*1000 },
-      { value: '0.2.0', expect: 120*1000 },
-      { value: '0.99', expect: 99*1000 },
-      { value: '0.0.99', expect: 99*1000 },
-      { value: '0.1.39', expect: 99*1000 },
+      { value: '0.0.120', expect: 120 * 1000 },
+      { value: '0.2.0', expect: 120 * 1000 },
+      { value: '0.0.99', expect: 99 * 1000 },
+      { value: '0.1.39', expect: 99 * 1000 },
       // hours overflow
-      { value: '25.0.0', expect: 1000*60*60*25 },
+      { value: '25.0.0', expect: 1000 * 60 * 60 * 25 },
       // hours overflow
-      { value: '50.0.0', expect: 1000*60*60*50 },
+      { value: '50.0.0', expect: 1000 * 60 * 60 * 50 },
     ];
 
     for (const s of ts) {
-      test(`it handles ${s.value}`, () => {
+      test(`it handles ${s.value} to the left`, () => {
         expect(forgivingStringToMillis(s.value)).toBe(s.expect);
       });
+      test(`it handles ${s.value} to the right`, () => {
+        expect(forgivingStringToMillis(s.value, false)).toBe(s.expect);
+      });
     }
+  });
+
+
+  describe('test with fillRight (legacy)', () => {
+    describe('function handles separators', () => {
+      const testData = [
+        { value: '1:2:3:10', expect: 3723000 },
+        { value: '2,10', expect: 130000 },
+        { value: '2.10', expect: 130000 },
+        { value: '2 10', expect: 130000 },
+      ];
+
+      for (const s of testData) {
+        test(`it handles ${s.value}`, () => {
+          expect(typeof forgivingStringToMillis(s.value, false)).toBe('number');
+          expect(forgivingStringToMillis(s.value, false)).toBe(s.expect);
+        });
+      }
+    });
+
+    describe('parses strings correctly', () => {
+      const ts = [
+        { value: '1.2', expect: 60 * 1000 + 2 * 1000 },
+        { value: '1.70', expect: 60 * 1000 + 70 * 1000 },
+      ];
+
+      for (const s of ts) {
+        test(`it handles ${s.value}`, () => {
+          expect(forgivingStringToMillis(s.value, false)).toBe(s.expect);
+        });
+      }
+    });
+
+    describe('handles overflows', () => {
+      const ts = [
+        // minutes overflow
+        { value: '0.120', expect: 120 * 1000 },
+        { value: '0.99', expect: 99 * 1000 },
+      ];
+
+      for (const s of ts) {
+        test(`it handles ${s.value}`, () => {
+          expect(forgivingStringToMillis(s.value, false)).toBe(s.expect);
+        });
+      }
+    });
+  });
+
+  describe('test with fillLeft', () => {
+    describe('function handles separators', () => {
+      const testData = [
+        { value: '1:2:3:10', expect: 3723000 },
+        { value: '2,10', expect: 2 * 60 * 60 * 1000 + 60 * 10 * 1000 },
+        { value: '2.10', expect: 2 * 60 * 60 * 1000 + 60 * 10 * 1000 },
+        { value: '2 10', expect: 2 * 60 * 60 * 1000 + 60 * 10 * 1000 },
+      ];
+
+      for (const s of testData) {
+        test(`it handles ${s.value}`, () => {
+          expect(typeof forgivingStringToMillis(s.value)).toBe('number');
+          expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+        });
+      }
+    });
+
+    describe('parses strings correctly', () => {
+      const ts = [
+        { value: '1.2', expect: 60 * 60 * 1000 + 2 * 60 * 1000 },
+        { value: '1.70', expect: 60 * 60 * 1000 + 70 * 60 * 1000 },
+      ];
+
+      for (const s of ts) {
+        test(`it handles ${s.value}`, () => {
+          expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+        });
+      }
+    });
+
+    describe('handles overflows', () => {
+      const ts = [
+        // minutes overflow
+        { value: '0.120', expect: 120 * 60 * 1000 },
+        { value: '0.99', expect: 99 * 60 * 1000 },
+      ];
+
+      for (const s of ts) {
+        test(`it handles ${s.value}`, () => {
+          expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+        });
+      }
+    });
   });
 });

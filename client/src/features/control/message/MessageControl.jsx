@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSocket } from 'app/context/socketContext';
 import InputRow from './InputRow';
-import OnAirIconBtn from '../../../common/components/buttons/OnAirIconBtn';
+import { Tooltip } from '@chakra-ui/tooltip';
+import { IconButton } from '@chakra-ui/button';
+import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
+import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import style from './MessageControl.module.scss';
 
 export default function MessageControl() {
@@ -57,44 +60,47 @@ export default function MessageControl() {
     };
   }, [socket]);
 
-  const messageControl = async (action, payload) => {
-    switch (action) {
-      case 'pres-text':
-        socket.emit('set-timer-text', payload);
-        break;
-      case 'toggle-pres-visible':
-        socket.emit('set-timer-visible', !pres.visible);
-        break;
-      case 'publ-text':
-        socket.emit('set-public-text', payload);
-        break;
-      case 'toggle-publ-visible':
-        socket.emit('set-public-visible', !publ.visible);
-        break;
-      case 'lower-text':
-        socket.emit('set-lower-text', payload);
-        break;
-      case 'toggle-lower-visible':
-        socket.emit('set-lower-visible', !lower.visible);
-        break;
-      case 'toggle-onAir':
-        socket.emit('set-onAir', !onAir);
-        break;
-      default:
-        break;
-    }
-  };
+  const messageControl = useCallback(
+    (action, payload) => {
+      switch (action) {
+        case 'pres-text':
+          socket.emit('set-timer-text', payload);
+          break;
+        case 'toggle-pres-visible':
+          socket.emit('set-timer-visible', payload);
+          break;
+        case 'publ-text':
+          socket.emit('set-public-text', payload);
+          break;
+        case 'toggle-publ-visible':
+          socket.emit('set-public-visible', payload);
+          break;
+        case 'lower-text':
+          socket.emit('set-lower-text', payload);
+          break;
+        case 'toggle-lower-visible':
+          socket.emit('set-lower-visible', payload);
+          break;
+        case 'toggle-onAir':
+          socket.emit('set-onAir', payload);
+          break;
+        default:
+          break;
+      }
+    },
+    [socket]
+  );
 
   return (
     <>
       <div className={style.messageContainer}>
         <InputRow
-          label='Presenter screen message'
+          label='Timer screen message'
           placeholder='only the presenter screens see this'
           text={pres.text}
           visible={pres.visible}
           changeHandler={(event) => messageControl('pres-text', event)}
-          actionHandler={() => messageControl('toggle-pres-visible')}
+          actionHandler={() => messageControl('toggle-pres-visible', !pres.visible)}
         />
         <InputRow
           label='Public screen message'
@@ -102,7 +108,7 @@ export default function MessageControl() {
           text={publ.text}
           visible={publ.visible}
           changeHandler={(event) => messageControl('publ-text', event)}
-          actionHandler={() => messageControl('toggle-publ-visible')}
+          actionHandler={() => messageControl('toggle-publ-visible', !publ.visible)}
         />
         <InputRow
           label='Lower third message'
@@ -110,20 +116,23 @@ export default function MessageControl() {
           text={lower.text}
           visible={lower.visible}
           changeHandler={(event) => messageControl('lower-text', event)}
-          actionHandler={() => messageControl('toggle-lower-visible')}
+          actionHandler={() => messageControl('toggle-lower-visible', !lower.visible)}
         />
       </div>
       <div className={style.onAirToggle}>
-        <OnAirIconBtn
-          className={style.btn}
-          active={onAir}
-          size='md'
-          actionHandler={() => messageControl('toggle-onAir')}
-        />
+        <Tooltip label={onAir ? 'Go Off Air' : 'Go On Air'} openDelay={500}>
+          <IconButton
+            className={style.btn}
+            size='md'
+            icon={onAir ? <IoMicSharp size='24px' /> : <IoMicOffOutline size='24px' />}
+            colorScheme='blue'
+            variant={onAir ? 'solid' : 'outline'}
+            onClick={() => messageControl('toggle-onAir', !onAir)}
+            aria-label='Toggle On Air'
+          />
+        </Tooltip>
         <span className={style.onAirLabel}>On Air</span>
-        <span className={style.oscLabel}>
-          {`/ontime/offAir << OSC >> /ontime/onAir`}
-        </span>
+        <span className={style.oscLabel}>{`/ontime/offAir << OSC >> /ontime/onAir`}</span>
       </div>
     </>
   );

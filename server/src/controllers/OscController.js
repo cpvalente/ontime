@@ -2,10 +2,17 @@ import { Server } from 'node-osc';
 
 let oscServer = null;
 
+/**
+ * @description utilty function to shutdown osc server
+ */
 export const shutdownOSCServer = () => {
   if (oscServer != null) oscServer.close();
 };
 
+/**
+ * @description initialises OSC server
+ * @param config
+ */
 export const initiateOSC = (config) => {
   oscServer = new Server(config.port, '0.0.0.0');
 
@@ -66,7 +73,7 @@ export const initiateOSC = (config) => {
         break;
       case 'delay':
         try {
-          const t = parseInt(args);
+          const t = parseInt(args, 10);
           if (isNaN(t)) {
             global.timer.error('RX', `OSC IN: delay time not recognised ${args}`);
             return;
@@ -78,7 +85,7 @@ export const initiateOSC = (config) => {
         break;
       case 'goto':
         try {
-          const eventIndex = parseInt(args);
+          const eventIndex = parseInt(args, 10);
           if (isNaN(eventIndex) || eventIndex <= 0) {
             global.timer.error(
               'RX',

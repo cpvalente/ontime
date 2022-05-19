@@ -19,7 +19,7 @@ export default function LowerLines(props) {
 
     // Calculate time
     const fadeOutTime =
-      (parseInt(options.fadeOut) +
+      (parseInt(options.fadeOut, 10) +
         (options.transitionIn || defaults.transitionIn)) *
       1000;
     if (isNaN(fadeOutTime)) return;

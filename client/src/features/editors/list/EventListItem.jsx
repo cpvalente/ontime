@@ -4,6 +4,7 @@ import BlockBlock from '../BlockBlock/BlockBlock';
 import EventBlock from '../EventBlock/EventBlock';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
+import PropTypes from 'prop-types';
 
 const areEqual = (prevProps, nextProps) => {
   return (
@@ -51,17 +52,17 @@ const EventListItem = (props) => {
             'add',
             {
               type: 'event',
-              order: index + 1,
+              after: data.id,
               isPublic: defaultPublic,
             },
-            { startIsLastEnd: starTimeIsLastEnd ? index : undefined }
+            { startIsLastEnd: starTimeIsLastEnd ? data.id : undefined }
           );
           break;
         case 'delay':
-          eventsHandler('add', { type: 'delay', order: index + 1 });
+          eventsHandler('add', { type: 'delay', after: data.id });
           break;
         case 'block':
-          eventsHandler('add', { type: 'block', order: index + 1 });
+          eventsHandler('add', { type: 'block', after: data.id });
           break;
         case 'delete':
           eventsHandler('delete', data.id);
@@ -101,7 +102,7 @@ const EventListItem = (props) => {
           break;
       }
     },
-    [calculateDuration, data, defaultPublic, emitError, eventsHandler, index, starTimeIsLastEnd]
+    [calculateDuration, data, defaultPublic, emitError, eventsHandler, starTimeIsLastEnd]
   );
 
   switch (type) {
@@ -135,3 +136,15 @@ const EventListItem = (props) => {
 };
 
 export default memo(EventListItem, areEqual);
+
+EventListItem.propTypes = {
+  type: PropTypes.oneOf(['event', 'delay', 'block']),
+  index: PropTypes.number,
+  eventIndex: PropTypes.number,
+  data: PropTypes.object,
+  selected: PropTypes.bool,
+  next: PropTypes.bool,
+  eventsHandler: PropTypes.func,
+  delay: PropTypes.number,
+  previousEnd: PropTypes.number
+}

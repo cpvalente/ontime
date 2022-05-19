@@ -1,9 +1,5 @@
 // get environment vars
 import 'dotenv/config';
-import { sessionId, user } from './utils/analytics.js';
-
-user.screenview('Node service', 'ontime').send();
-user.event('NODE', 'started', 'starting node service').send();
 
 // import config
 import { config } from './config/config.js';
@@ -23,6 +19,8 @@ const file = path.join(__dirname, 'data/', config.database.filename);
 const adapter = new JSONFile(file);
 export const db = new Low(adapter);
 
+console.log(`Starting ontime version ${process.env.npm_package_version}`)
+
 // dependencies
 import express from 'express';
 import http from 'http';
@@ -30,7 +28,6 @@ import cors from 'cors';
 import { dbModelv1 as dbModel } from './models/dataModel.js';
 import { parseJson_v1 as parseJson } from './utils/parser.js';
 import { validateFile } from './utils/parserUtils.js';
-import ua from 'universal-analytics';
 
 // validate JSON before attempting read
 let isValid = validateFile(file);
@@ -74,7 +71,6 @@ app.use(cors());
 app.options('*', cors());
 
 // Implement middleware
-app.use(ua.middleware(process.env.ANALYTICS_ID, sessionId));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
@@ -134,7 +130,7 @@ import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 export const startOSCServer = async (overrideConfig = null) => {
 
   if (!oscInEnabled) {
-    global.timer.info('RX', 'OSC Input Disabled')
+    global.timer.info('RX', 'OSC Input Disabled');
     return;
   }
 
@@ -144,7 +140,7 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  global.timer.info('RX', `Starting OSC Server on port: ${oscInPort}`)
+  global.timer.info('RX', `Starting OSC Server on port: ${oscInPort}`);
   initiateOSC(oscSettings);
 };
 
@@ -180,9 +176,6 @@ export const startServer = async (overrideConfig = null) => {
 
 export const shutdown = async () => {
   console.log('Node service shutdown');
-
-  user.event('NODE', 'shutdown', 'requesting node shutdown').send();
-
   // shutdown express server
   server.close();
 

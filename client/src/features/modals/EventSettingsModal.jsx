@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, Input, Textarea } from '@chakra-ui/react';
 import { fetchEvent, postEvent } from 'app/api/eventApi';
@@ -34,36 +34,39 @@ export default function SettingsModal() {
   /**
    * Validate and submit data
    */
-  const submitHandler = async (event) => {
-    event.preventDefault();
-    setSubmitting(true);
+  const submitHandler = useCallback(
+    async (event) => {
+      event.preventDefault();
+      setSubmitting(true);
 
-    await postEvent(formData);
-    await refetch();
+      await postEvent(formData);
+      await refetch();
 
-    setChanged(false);
-    setSubmitting(false);
-  };
+      setChanged(false);
+      setSubmitting(false);
+    },
+    [formData, refetch]
+  );
 
   /**
    * Reverts local state equals to server state
    */
-  const revert = async () => {
+  const revert = useCallback(async () => {
     setChanged(false);
     await refetch();
-  };
+  }, [refetch]);
 
   /**
    * Handles change of input field in local state
    * @param {string} field - object parameter to update
    * @param {string} value - new object parameter value
    */
-  const handleChange = (field, value) => {
+  const handleChange = useCallback((field, value) => {
     const temp = { ...formData };
     temp[field] = value;
     setFormData(temp);
     setChanged(true);
-  };
+  },[formData]);
 
   return (
     <ModalBody className={style.modalBody}>
@@ -116,9 +119,7 @@ export default function SettingsModal() {
               name='pubInfo'
               placeholder='Information to be shown on public screens'
               value={formData.publicInfo}
-              onChange={(event) =>
-                handleChange('publicInfo', event.target.value)
-              }
+              onChange={(event) => handleChange('publicInfo', event.target.value)}
             />
           </div>
           <div className={style.spacedEntry}>
@@ -135,9 +136,7 @@ export default function SettingsModal() {
               placeholder='Information to be shown on backstage screens'
               resize={false}
               value={formData.backstageInfo}
-              onChange={(event) =>
-                handleChange('backstageInfo', event.target.value)
-              }
+              onChange={(event) => handleChange('backstageInfo', event.target.value)}
             />
           </div>
           <div className={style.spacedEntry}>
@@ -154,9 +153,7 @@ export default function SettingsModal() {
               name='endMessage'
               placeholder='Empty message shows elapsed time'
               value={formData.endMessage}
-              onChange={(event) =>
-                handleChange('endMessage', event.target.value)
-              }
+              onChange={(event) => handleChange('endMessage', event.target.value)}
             />
           </div>
         </div>

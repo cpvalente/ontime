@@ -39,6 +39,11 @@ const nodePath =
 const trayIcon = path.join(__dirname, './assets/background.png');
 const appIcon = path.join(__dirname, './assets/logo.png');
 
+/**
+ * @description utility function to create a notification
+ * @param title
+ * @param text
+ */
 function showNotification(title, text) {
   new Notification({
     title: title,
@@ -207,6 +212,14 @@ app.once('before-quit', () => {
 // Test message
 ipcMain.on('test-message', (event, arg) => {
   showNotification('Test Message', 'test from react', arg);
+});
+
+// Ask for main window reload
+// Test message
+ipcMain.on('reload', (event, arg) => {
+  if (win) {
+    win.reload();
+  }
 });
 
 // Terminate

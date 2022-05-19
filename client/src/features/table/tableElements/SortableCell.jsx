@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import styles from '../Table.module.scss';
 
 export default function SortableCell({ column }) {
-  const { key, style, ...restColumn } = column.getHeaderProps();
+  const { style, ...restColumn } = column.getHeaderProps();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column.id,
   });

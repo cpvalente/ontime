@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import style from './PlaybackControl.module.scss';
 import { useSocket } from 'app/context/socketContext';
 import PlaybackButtons from './PlaybackButtons';
@@ -63,37 +63,40 @@ export default function PlaybackControl() {
     };
   }, [socket]);
 
-  const playbackControl = async (action) => {
-    switch (action) {
-      case 'start':
-        socket.emit('set-playstate', 'start');
-        break;
-      case 'pause':
-        socket.emit('set-playstate', 'pause');
-        break;
-      case 'roll':
-        socket.emit('set-playstate', 'roll');
-        break;
-      case 'previous':
-        socket.emit('set-playstate', 'previous');
-        resetTimer();
-        break;
-      case 'next':
-        socket.emit('set-playstate', 'next');
-        resetTimer();
-        break;
-      case 'unload':
-        socket.emit('set-playstate', 'unload');
-        resetTimer();
-        break;
-      case 'reload':
-        socket.emit('set-playstate', 'reload');
-        resetTimer();
-        break;
-      default:
-        break;
-    }
-  };
+  const playbackControl = useCallback(
+    (action) => {
+      switch (action) {
+        case 'start':
+          socket.emit('set-playstate', 'start');
+          break;
+        case 'pause':
+          socket.emit('set-playstate', 'pause');
+          break;
+        case 'roll':
+          socket.emit('set-playstate', 'roll');
+          break;
+        case 'previous':
+          socket.emit('set-playstate', 'previous');
+          resetTimer();
+          break;
+        case 'next':
+          socket.emit('set-playstate', 'next');
+          resetTimer();
+          break;
+        case 'unload':
+          socket.emit('set-playstate', 'unload');
+          resetTimer();
+          break;
+        case 'reload':
+          socket.emit('set-playstate', 'reload');
+          resetTimer();
+          break;
+        default:
+          break;
+      }
+    },
+    [socket]
+  );
 
   return (
     <div className={style.mainContainer}>

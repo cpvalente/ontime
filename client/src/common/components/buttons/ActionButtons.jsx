@@ -5,6 +5,7 @@ import { FiClock } from '@react-icons/all-files/fi/FiClock';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
 import { Tooltip } from '@chakra-ui/tooltip';
+import PropTypes from 'prop-types';
 
 export default function ActionButtons(props) {
   const { showAdd, showDelay, showBlock, actionHandler } = props;
@@ -46,4 +47,11 @@ export default function ActionButtons(props) {
       </MenuList>
     </Menu>
   );
+}
+
+ActionButtons.propTypes = {
+  showAdd: PropTypes.bool,
+  showDelay: PropTypes.bool,
+  showBlock: PropTypes.bool,
+  actionHandler: PropTypes.func,
 }

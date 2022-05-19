@@ -1,10 +1,11 @@
 import React from 'react';
-import PrevIconBtn from '../../../common/components/buttons/PrevIconBtn';
-import NextIconBtn from '../../../common/components/buttons/NextIconBtn';
-import ReloadIconButton from '../../../common/components/buttons/ReloadIconBtn';
+import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
+import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
+import { IoArrowUndo } from '@react-icons/all-files/io5/IoArrowUndo';
 import UnloadIconBtn from '../../../common/components/buttons/UnloadIconBtn';
 import PropTypes from 'prop-types';
 import style from './PlaybackControl.module.scss';
+import TransportIconBtn from '../../../common/components/buttons/TransportIconBtn';
 
 export default function Transport(props) {
   const { playback, selectedId, playbackControl, noEvents } = props;
@@ -12,25 +13,31 @@ export default function Transport(props) {
 
   return (
     <div className={style.playbackContainer}>
-      <PrevIconBtn
-        clickhandler={() => playbackControl('previous')}
+      <TransportIconBtn
+        clickHandler={() => playbackControl('previous')}
         disabled={isRolling || noEvents}
+        tooltip='Previous event'
+        icon={<IoPlaySkipBack size='22px' />}
       />
-      <NextIconBtn
-        clickhandler={() => playbackControl('next')}
+      <TransportIconBtn
+        clickHandler={() => playbackControl('next')}
         disabled={isRolling || noEvents}
+        tooltip='Next event'
+        icon={<IoPlaySkipForward size='22px' />}
       />
-      <ReloadIconButton
-        clickhandler={() => playbackControl('reload')}
+      <TransportIconBtn
+        clickHandler={() => playbackControl('reload')}
         disabled={selectedId == null || isRolling || noEvents}
+        tooltip='Reload event'
+        icon={<IoArrowUndo size='22px' />}
       />
       <UnloadIconBtn
-        clickhandler={() => playbackControl('unload')}
+        clickHandler={() => playbackControl('unload')}
         disabled={(selectedId == null && !isRolling) || noEvents}
       />
     </div>
   );
-};
+}
 
 Transport.propTypes = {
   playback: PropTypes.string,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import style from './EditableText.module.scss';
 import PropTypes from 'prop-types';
@@ -12,7 +12,7 @@ export default function EditableText(props) {
     else setText(defaultValue);
   }, [defaultValue]);
 
-  const handleSubmit = (submittedVal) => {
+  const handleSubmit = useCallback((submittedVal) => {
     // No need to update if it hasnt changed
     if (submittedVal === defaultValue) return;
     // submit a cleaned up version of the string
@@ -22,11 +22,11 @@ export default function EditableText(props) {
     if (cleanVal !== submittedVal) {
       setText(cleanVal);
     }
-  };
+  },[defaultValue, submitHandler]);
 
-  const handleChange = (val) => {
+  const handleChange = useCallback((val) => {
     if (val.length < maxchar) setText(val);
-  };
+  },[maxchar]);
 
   return (
     <div className={style.block}>

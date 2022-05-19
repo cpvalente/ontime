@@ -186,7 +186,6 @@ export class EventTimer extends Timer {
    * @returns {boolean} Whether action was called
    */
   trigger(action) {
-    // Todo: reply should come from status change
     let reply = true;
     switch (action) {
       case 'start':
@@ -280,7 +279,6 @@ export class EventTimer extends Timer {
         // broadcast change
         this.broadcastState();
 
-        // Todo: wrap in reusable function
         // check integrations - http
         if (h?.onLoad?.enabled) {
           if (h?.onLoad?.url != null || h?.onLoad?.url !== '') {
@@ -416,19 +414,11 @@ export class EventTimer extends Timer {
 
   update() {
     // if there is nothing selected, update clock
-    const now = this._getCurrentTime();
+    this.clock = this._getCurrentTime();
 
     // if we are not updating, send the timers
     if (this.ontimeCycle !== this.cycleState.onUpdate) {
-      this.clock = now;
-      this.broadcastThis('timer', {
-        clock: now,
-        running: Timer.toSeconds(this.current),
-        secondary: Timer.toSeconds(this.secondaryTimer),
-        durationSeconds: Timer.toSeconds(this.duration),
-        expectedFinish: this._getExpectedFinish(),
-        startedAt: this._startedAt,
-      });
+      this.io.emit('timer', this.getTimeObject());
     }
 
     // Have we skipped onStart?
@@ -588,7 +578,7 @@ export class EventTimer extends Timer {
       });
 
       socket.on('increment-timer', (data) => {
-        if (isNaN(parseInt(data))) return;
+        if (isNaN(parseInt(data, 10))) return;
         if (data < -5 || data > 5) return;
         this.increment(data * 1000 * 60);
       });
@@ -833,7 +823,6 @@ export class EventTimer extends Timer {
 
       // load titles
       if ('title' in e || 'subtitle' in e || 'presenter' in e) {
-        // TODO: should be more selective on the need to load titles
         this._loadTitlesNext();
         this._loadTitlesNow();
       }
@@ -951,6 +940,10 @@ export class EventTimer extends Timer {
     this.ontimeCycle = this.cycleState.onLoad;
   }
 
+  /**
+   * @description loads given title (now)
+   * @private
+   */
   _loadTitlesNow() {
     const e = this._eventlist[this.selectedEventIndex];
     if (e == null) return;
@@ -981,6 +974,12 @@ export class EventTimer extends Timer {
     }
   }
 
+  /**
+   * @description loads given title
+   * @param e
+   * @param type
+   * @private
+   */
   _loadThisTitles(e, type) {
     if (e == null) return;
 
@@ -1049,6 +1048,10 @@ export class EventTimer extends Timer {
     }
   }
 
+  /**
+   * @description look for next titles to load
+   * @private
+   */
   _loadTitlesNext() {
     // maybe there is nothing to load
     if (this.selectedEventIndex == null) return;
@@ -1091,6 +1094,10 @@ export class EventTimer extends Timer {
     }
   }
 
+  /**
+   * @description resets selected event data
+   * @private
+   */
   _resetSelection() {
     this.titles = {
       titleNow: null,
@@ -1129,6 +1136,9 @@ export class EventTimer extends Timer {
     this.broadcastThis('onAir', onAir);
   }
 
+  /**
+   * @description start timer
+   */
   start() {
     // do we need to change
     if (this.state === 'start') return;
@@ -1143,6 +1153,9 @@ export class EventTimer extends Timer {
     this.ontimeCycle = this.cycleState.onStart;
   }
 
+  /**
+   * @description pause timer
+   */
   pause() {
     // do we need to change
     if (this.state === 'pause') return;
@@ -1157,6 +1170,9 @@ export class EventTimer extends Timer {
     this.ontimeCycle = this.cycleState.onPause;
   }
 
+  /**
+   * @description stop timer
+   */
   stop() {
     // do we need to change
     if (this.state === 'stop') return;
@@ -1168,6 +1184,10 @@ export class EventTimer extends Timer {
     this.ontimeCycle = this.cycleState.onStop;
   }
 
+  /**
+   * @description increment timer by amount
+   * @param amount
+   */
   increment(amount) {
     // call super
     super.increment(amount);
@@ -1176,6 +1196,9 @@ export class EventTimer extends Timer {
     this.runCycle();
   }
 
+  /**
+   * @description Look for current event considering local clock
+   */
   rollLoad() {
     const now = this._getCurrentTime();
     const prevLoaded = this.selectedEventId;
@@ -1336,6 +1359,9 @@ export class EventTimer extends Timer {
     this.stop();
   }
 
+  /**
+   * @description reloads current event
+   */
   reload() {
     if (this.numEvents === 0 || this.numEvents == null) return;
 
@@ -1429,7 +1455,6 @@ export class EventTimer extends Timer {
    * @param {any} [payload]
    */
   async sendOsc(message, payload) {
-    // Todo: add disabled osc check
     const reply = await this.osc.send(message, payload);
     if (!reply.success) {
       this.error('TX', reply.message);

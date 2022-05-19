@@ -2853,8 +2853,12 @@ const object = [
   'Lieuwe',
 ];
 
+/**
+ * @description returns a random name from the dictionary
+ * @return {`${string} ${string}`}
+ */
 export default function getRandomName() {
   return `${adjective[Math.floor(Math.random() * adjective.length)]} ${
     object[Math.floor(Math.random() * object.length)]
   }`;
-};
+}

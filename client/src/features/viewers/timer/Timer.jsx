@@ -5,6 +5,7 @@ import Countdown from 'common/components/countdown/Countdown';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
 import NavLogo from 'common/components/nav/NavLogo';
 import TitleCard from 'common/components/views/TitleCard';
+import PropTypes from 'prop-types';
 import style from './Timer.module.scss';
 
 export default function Timer(props) {
@@ -149,3 +150,10 @@ export default function Timer(props) {
     </div>
   );
 }
+
+Timer.propTypes = {
+  general: PropTypes.object,
+  pres: PropTypes.object,
+  title: PropTypes.object,
+  time: PropTypes.object,
+};

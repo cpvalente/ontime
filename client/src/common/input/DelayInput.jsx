@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
 import { clamp } from '../../app/utils/math';
 import style from './TimeInput.module.css';
@@ -24,14 +24,17 @@ export default function DelayInput(props) {
     setValue(value);
   }, [value]);
 
-  const handleSubmit = (val) => {
-    if (val === value) return;
-    if (val === '') setValue(0);
+  const handleSubmit = useCallback(
+    (newValue) => {
+      if (newValue === value) return;
+      if (newValue === '') setValue(0);
 
-    // convert to ms and updates
-    const msVal = clamp(val, -60, 60) * 60000;
-    actionHandler('update', { field: 'duration', value: msVal });
-  };
+      // convert to ms and updates
+      const msVal = clamp(newValue, -60, 60) * 60000;
+      actionHandler('update', { field: 'duration', value: msVal });
+    },
+    [actionHandler, value]
+  );
 
   const labelText = `minutes ${value >= 0 ? 'delayed' : 'ahead'}`;
 

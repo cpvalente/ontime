@@ -1,7 +1,8 @@
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModelv1 } from '../models/dataModel.js';
-import { MAX_EVENTS, validateEvent_v1 } from './parser.js';
+import { validateEvent_v1 } from './parser.js';
 import { generateId } from './generate_id.js';
+import { MAX_EVENTS } from '../settings.js';
 
 /**
  * Parse events array of an entry
@@ -129,7 +130,6 @@ export const parseOsc_v1 = (data, enforce) => {
     if (s.portOut) osc.portOut = s.portOut;
     if (s.targetIP) osc.targetIP = s.targetIP;
     if (typeof s.enabled !== 'undefined') osc.enabled = s.enabled;
-
     // write to db
     newOsc = {
       ...dbModelv1.osc,
@@ -153,7 +153,7 @@ export const parseHttp_v1 = (data, enforce) => {
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
     const h = data.osc;
-    let http = {};
+    const http = {};
 
     if (h.user) http.user = h.user;
     if (h.pwd) http.pwd = h.pwd;
@@ -176,7 +176,7 @@ export const parseHttp_v1 = (data, enforce) => {
  * @returns {object} - event object data
  */
 export const parseAliases_v1 = (data) => {
-  let newAliases = [];
+  const newAliases = [];
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
     const ids = [];

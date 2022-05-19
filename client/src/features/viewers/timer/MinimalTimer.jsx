@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import NavLogo from '../../../common/components/nav/NavLogo';
+import PropTypes from 'prop-types';
 import style from './MinimalTimer.module.scss';
 
 export default function MinimalTimer(props) {
@@ -31,3 +32,8 @@ export default function MinimalTimer(props) {
     </div>
   );
 }
+
+MinimalTimer.propTypes = {
+  pres: PropTypes.object,
+  time: PropTypes.object,
+};

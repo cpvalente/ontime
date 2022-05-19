@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import style from './Info.module.scss';
+import PropTypes from 'prop-types';
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+import style from './Info.module.scss';
 
 export default function InfoTitle(props) {
   const [collapsed, setCollapsed] = useState(false);
@@ -42,4 +43,10 @@ export default function InfoTitle(props) {
       )}
     </div>
   );
+}
+
+InfoTitle.propTypes = {
+  title: PropTypes.string,
+  data: PropTypes.object,
+  roll: PropTypes.bool,
 }

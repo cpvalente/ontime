@@ -19,7 +19,6 @@ export const makeString = (val, fallback = '') => {
  * @returns {number}
  */
 export const validateDuration = (timeStart, timeEnd) => {
-  // Todo: this would go into a switch statement when expanded
   // Durations must be positive
   return Math.max(timeEnd - timeStart, 0);
 };

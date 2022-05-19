@@ -1,11 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { Checkbox } from '@chakra-ui/react';
-import style from './EntryBlock.module.scss';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
+import PropTypes from 'prop-types';
+import style from './EntryBlock.module.scss';
 
 export default function EntryBlock(props) {
-  const { showKbd, index, eventsHandler } = props;
+  const {
+    showKbd,
+    previousId,
+    eventsHandler,
+    visible,
+    disableAddDelay = true,
+    disableAddBlock,
+  } = props;
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
   const [doPublic, setPublic] = useState(defaultPublic);
@@ -19,33 +27,36 @@ export default function EntryBlock(props) {
   }, [defaultPublic]);
 
   return (
-    <div className={style.create}>
+    <div className={`${style.create} ${visible ? style.visible : ''}`}>
       <Tooltip label='Add Event' openDelay={300}>
         <span
           className={style.createEvent}
           onClick={() =>
             eventsHandler(
               'add',
-              { type: 'event', order: index + 1, isPublic: doPublic },
-              { startIsLastEnd: doStartTime ? index : undefined }
+              { type: 'event', after:  previousId, isPublic: doPublic },
+              { startIsLastEnd: doStartTime ? previousId : undefined }
             )
           }
+          role='button'
         >
           E{showKbd && <span className={style.keyboard}>Alt + E</span>}
         </span>
       </Tooltip>
       <Tooltip label='Add Delay' openDelay={300}>
         <span
-          className={style.createDelay}
-          onClick={() => eventsHandler('add', { type: 'delay', order: index + 1 })}
+          className={`${style.createDelay} ${disableAddDelay ? style.disabled : ''}`}
+          onClick={() => eventsHandler('add', { type: 'delay', after: previousId })}
+          role='button'
         >
           D{showKbd && <span className={style.keyboard}>Alt + D</span>}
         </span>
       </Tooltip>
       <Tooltip label='Add Block' openDelay={300}>
         <span
-          className={style.createBlock}
-          onClick={() => eventsHandler('add', { type: 'block', order: index + 1 })}
+          className={`${style.createBlock} ${disableAddBlock ? style.disabled : ''}`}
+          onClick={() => eventsHandler('add', { type: 'block', after: previousId })}
+          role='button'
         >
           B{showKbd && <span className={style.keyboard}>Alt + B</span>}
         </span>
@@ -65,9 +76,19 @@ export default function EntryBlock(props) {
           isChecked={doPublic}
           onChange={(e) => setPublic(e.target.checked)}
         >
-          Default public
+          Event is public
         </Checkbox>
       </div>
     </div>
   );
 }
+
+EntryBlock.propTypes = {
+  showKbd: PropTypes.bool,
+  eventsHandler: PropTypes.func,
+  visible: PropTypes.bool,
+  previousId: PropTypes.string,
+  disableAddDelay: PropTypes.bool,
+  disableAddBlock: PropTypes.bool,
+};
+

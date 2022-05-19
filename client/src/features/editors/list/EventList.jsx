@@ -18,6 +18,20 @@ export default function EventList(props) {
   const cursorRef = createRef();
   const { showQuickEntry } = useContext(LocalEventSettingsContext);
 
+  const insertAtCursor = useCallback((type, cursor) => {
+    if (cursor === -1) {
+      eventsHandler('add', { type: type });
+    } else {
+      const previousEvent = events[cursor];
+      const nextEvent = events[cursor + 1];
+      if (type === 'event') {
+        eventsHandler('add', { type: type, after: previousEvent.id });
+      } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
+        eventsHandler('add', { type: type, after: previousEvent.id });
+      }
+    }
+  },[events, eventsHandler])
+
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
     (e) => {
@@ -37,23 +51,23 @@ export default function EventList(props) {
         if (e.key === 'e' || e.key === 'E') {
           e.preventDefault();
           if (cursor == null) return;
-          eventsHandler('add', { type: 'event', order: cursor + 1 });
+          insertAtCursor('event', cursor)
         }
         // D
         if (e.key === 'd' || e.key === 'D') {
           e.preventDefault();
           if (cursor == null) return;
-          eventsHandler('add', { type: 'delay', order: cursor + 1 });
+          insertAtCursor('delay', cursor)
         }
         // B
         if (e.key === 'b' || e.key === 'B') {
           e.preventDefault();
           if (cursor == null) return;
-          eventsHandler('add', { type: 'block', order: cursor + 1 });
+          insertAtCursor('block', cursor)
         }
       }
     },
-    [cursor, events.length, eventsHandler, moveCursorDown, moveCursorUp]
+    [cursor, events.length, insertAtCursor, moveCursorDown, moveCursorUp]
   );
 
   useEffect(() => {
@@ -61,6 +75,7 @@ export default function EventList(props) {
     document.addEventListener('keydown', handleKeyPress);
 
     if (cursor > events.length - 1) setCursor(events.length - 1);
+    if (events.length > 0 && cursor === -1) setCursor(0);
 
     // remove the event listener
     return () => {
@@ -126,26 +141,28 @@ export default function EventList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, isCursorLocked]);
 
-  if (events.length < 1) {
-    return <Empty text='No Events' style={{marginTop: "10vh"}} />;
-  }
-
   // DND
-  const handleOnDragEnd = (result) => {
-    // drop outside of area
-    if (!result.destination) return;
+  const handleOnDragEnd = useCallback(
+    (result) => {
+      // drop outside of area
+      if (!result.destination) return;
 
-    // no change
-    if (result.destination === result.source.index) return;
+      // no change
+      if (result.destination === result.source.index) return;
 
-    // Call API
-    eventsHandler('reorder', {
-      index: result.draggableId,
-      from: result.source.index,
-      to: result.destination.index,
-    });
-  };
+      // Call API
+      eventsHandler('reorder', {
+        index: result.draggableId,
+        from: result.source.index,
+        to: result.destination.index,
+      });
+    },
+    [eventsHandler]
+  );
 
+  if (events.length < 1) {
+    return <Empty text='No Events' style={{ marginTop: '10vh' }} />;
+  }
   let cumulativeDelay = 0;
   let eventIndex = -1;
   let previousEnd = 0;
@@ -171,10 +188,11 @@ export default function EventList(props) {
                   previousEnd = thisEnd;
                   thisEnd = e.timeEnd;
                 }
+                const isLast = index === events.length - 1;
                 return (
                   <div key={e.id}>
                     {index === 0 && showQuickEntry && (
-                      <EntryBlock index={-1} eventsHandler={eventsHandler} />
+                      <EntryBlock index={e.id} eventsHandler={eventsHandler} />
                     )}
                     <div
                       ref={cursor === index ? cursorRef : undefined}
@@ -192,11 +210,14 @@ export default function EventList(props) {
                         previousEnd={previousEnd}
                       />
                     </div>
-                    {showQuickEntry && (
+                    {(showQuickEntry || isLast) && (
                       <EntryBlock
                         showKbd={index === cursor}
-                        index={index}
+                        previousId={e.id}
                         eventsHandler={eventsHandler}
+                        visible={isLast}
+                        disableAddDelay={e.type === 'delay'}
+                        disableAddBlock={e.type === 'block'}
                       />
                     )}
                   </div>
