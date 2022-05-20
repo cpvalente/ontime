@@ -9,14 +9,18 @@ import { Low, JSONFile } from 'lowdb';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { getAppDataPath, ensureDirectory } from './utils/fileManagement.js';
 
 const env = process.env.NODE_ENV || 'prod';
 
-const file = path.join(__dirname, 'data/', config.database.filename);
-const adapter = new JSONFile(file);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const appPath = getAppDataPath();
+const dbDirectory = path.join(appPath, 'data');
+ensureDirectory(dbDirectory);
+const dbInDisk = path.join(dbDirectory, config.database.filename);
+
+const adapter = new JSONFile(dbInDisk);
 export const db = new Low(adapter);
 
 console.log(`Starting ontime version ${process.env.npm_package_version}`)
@@ -30,17 +34,17 @@ import { parseJson_v1 as parseJson } from './utils/parser.js';
 import { validateFile } from './utils/parserUtils.js';
 
 // validate JSON before attempting read
-let isValid = validateFile(file);
+let isValid = validateFile(dbInDisk);
 
 if (isValid) {
   // Read data from JSON file, this will set db.data content
   await db.read();
 }
 
+
 // If file.json doesn't exist, db.data will be null
 // Set default data
-// db.data ||= { events: [] }; NODE v15 - v16
-if (db.data == null || !isValid) {
+if (db.data === null || !isValid) {
   db.data = dbModel;
   await db.write();
 }
