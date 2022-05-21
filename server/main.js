@@ -115,6 +115,12 @@ app.whenReady().then(() => {
     app.setAppUserModelId(app.name);
   }
 
+  // allow usual quit in mac
+  if (process.platform === 'darwin') {
+    globalShortcut.register('Command+Q', () => {
+      win.send('user-request-shutdown');
+    });
+  }
   createWindow();
 
   // register global shortcuts
