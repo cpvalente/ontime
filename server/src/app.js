@@ -7,21 +7,35 @@ import { config } from './config/config.js';
 // init database
 import { Low, JSONFile } from 'lowdb';
 
-import path from 'path';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { getAppDataPath, ensureDirectory } from './utils/fileManagement.js';
+import { validateFile } from './utils/parserUtils.js';
+import { parseJson_v1 as parseJson } from './utils/parser.js';
 
 const env = process.env.NODE_ENV || 'prod';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(__filename);
 const appPath = getAppDataPath();
-const dbDirectory = path.join(appPath, 'data');
+const dbDirectory = join(appPath, 'data');
 ensureDirectory(dbDirectory);
-const dbInDisk = path.join(dbDirectory, config.database.filename);
+const dbInDisk = join(dbDirectory, config.database.filename);
 
 const adapter = new JSONFile(dbInDisk);
 export const db = new Low(adapter);
+
+if (validateFile(dbInDisk)) {
+  await db.read();
+} else {
+  db.data = dbModel;
+}
+
+// there is also the case of the structure being old or corrupt
+// try to parse the data, make sure that all fields exist (enforce)
+export const data = await parseJson(db.data, true);
+db.data = data;
+await db.write();
 
 console.log(`Starting ontime version ${process.env.npm_package_version}`)
 
@@ -30,31 +44,6 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbModelv1 as dbModel } from './models/dataModel.js';
-import { parseJson_v1 as parseJson } from './utils/parser.js';
-import { validateFile } from './utils/parserUtils.js';
-
-// validate JSON before attempting read
-let isValid = validateFile(dbInDisk);
-
-if (isValid) {
-  // Read data from JSON file, this will set db.data content
-  await db.read();
-}
-
-
-// If file.json doesn't exist, db.data will be null
-// Set default data
-if (db.data === null || !isValid) {
-  db.data = dbModel;
-  await db.write();
-}
-
-// get data
-// there is also the case of the db being corrupt
-// try to parse the data, make sure that all fields exist (enforce)
-export const data = await parseJson(db.data, true);
-db.data = data;
-await db.write();
 
 // Import Routes
 import { router as eventsRouter } from './routes/eventsRouter.js';
@@ -89,13 +78,13 @@ app.use('/playback', playbackRouter);
 // serve react
 app.use(
   express.static(
-    path.join(__dirname, env === 'prod' ? '../' : '../../', 'client/build'),
+    join(__dirname, env === 'prod' ? '../' : '../../', 'client/build'),
   ),
 );
 
 app.get('*', (req, res) => {
   res.sendFile(
-    path.resolve(
+    resolve(
       __dirname,
       env === 'prod' ? '../' : '../../',
       'client',
