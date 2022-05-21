@@ -80,8 +80,7 @@
     },
     "linux": {
       "target": "AppImage",
-      "artifactName": "ontime-linux.AppImage",
-      "icon": "icon.png"
+      "artifactName": "ontime-linux.AppImage"
     },
     "files": [
       "**/*",
