@@ -39,6 +39,7 @@
     "dist": "electron-builder",
     "dist-win": "electron-builder --publish=never  --x64 --win",
     "dist-mac": "electron-builder --publish=never  --x64 --mac",
+    "dist-linux": "electron-builder --publish=never  --x64 --linux",
     "dist-all": "electron-builder -mw"
   },
   "jest": {
@@ -79,7 +80,9 @@
     },
     "linux": {
       "target": "AppImage",
-      "artifactName": "ontime-linux.AppImage"},
+      "artifactName": "ontime-linux.AppImage",
+      "icon": "icon.png"
+    },
     "files": [
       "**/*",
       "assets/",
