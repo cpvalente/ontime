@@ -75,7 +75,7 @@ export default function MenuBar(props) {
       return;
     }
 
-    if (window.process.type === 'renderer') {
+    if (window.process?.type === 'renderer') {
       switch (action) {
         case 'min':
           window.ipcRenderer.send('set-window', 'to-tray');

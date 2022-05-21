@@ -21,7 +21,7 @@ export default function QuitIconBtn(props) {
   const cancelRef = useRef();
 
   useEffect(() => {
-    if (window.process.type === 'renderer') {
+    if (window.process?.type === 'renderer') {
       window.ipcRenderer.on('user-request-shutdown', () => {
         emitInfo('Shutdown request')
         setIsOpen(true);
