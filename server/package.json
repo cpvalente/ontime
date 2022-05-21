@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -77,6 +77,9 @@
       "installerSidebar": "ontime-install.bmp",
       "uninstallerSidebar": "ontime-uninstall.bmp"
     },
+    "linux": {
+      "target": "AppImage",
+      "artifactName": "ontime-linux.AppImage"},
     "files": [
       "**/*",
       "assets/",
