@@ -5,14 +5,16 @@ import 'dotenv/config';
 import { config } from './config/config.js';
 
 // import dependencies
-import { join, resolve } from 'path';
-
-// init database
-import loadDb from './modules/loadDb.js';
-export const { __dirname, db, data } = await loadDb();
+import { dirname, join, resolve } from 'path';
 
 // get environment
 const env = process.env.NODE_ENV || 'prod';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// init database
+import loadDb from './modules/loadDb.js';
+export const { db, data } = await loadDb(__dirname);
 
 console.log(`Starting ontime version ${process.env.npm_package_version}`)
 
@@ -95,6 +97,7 @@ const serverPort = data.settings.serverPort || config.server.port;
 
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
+import { fileURLToPath } from 'url';
 
 export const startOSCServer = async (overrideConfig = null) => {
 
