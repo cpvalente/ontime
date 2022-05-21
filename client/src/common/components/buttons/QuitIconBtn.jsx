@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Button, IconButton } from '@chakra-ui/button';
 import {
   AlertDialog,
@@ -11,17 +11,28 @@ import {
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
 import PropTypes from 'prop-types';
+import { LoggingContext } from '../../../app/context/LoggingContext';
 
 export default function QuitIconBtn(props) {
   const { clickHandler, size = 'lg', ...rest } = props;
   const [isOpen, setIsOpen] = useState(false);
+  const { emitInfo } = useContext(LoggingContext);
   const onClose = () => setIsOpen(false);
   const cancelRef = useRef();
+
+  useEffect(() => {
+    if (window.process?.type === 'renderer') {
+      window.ipcRenderer.on('user-request-shutdown', () => {
+        emitInfo('Shutdown request')
+        setIsOpen(true);
+      });
+    }
+  }, [emitInfo]);
 
   const handleShutdown = useCallback(() => {
     onClose();
     clickHandler();
-  },[clickHandler]);
+  }, [clickHandler]);
 
   return (
     <>
