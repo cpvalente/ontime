@@ -8,7 +8,7 @@ import path from 'path';
 export function ensureDirectory(directory) {
   if (!existsSync(directory)) {
     try {
-      mkdirSync(directory);
+      mkdirSync(directory, { recursive: true });
     } catch (err) {
       throw new Error(`Could not create directory: ${err}`);
     }
