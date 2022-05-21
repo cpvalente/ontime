@@ -1,7 +1,7 @@
 {
   "name": "ontime-server",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dependencies": {
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.0",
