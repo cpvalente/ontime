@@ -1,28 +1,7 @@
 import multer from 'multer';
-import { existsSync, mkdirSync } from 'fs';
 import * as path from 'path';
 import { EXCEL_MIME, JSON_MIME } from './parser.js';
-
-/**
- * @description Returns public path depending on os
- * @return {string|*}
- */
-function getAppDataPath() {
-  switch (process.platform) {
-    case 'darwin': {
-      return path.join(process.env.HOME, 'Library', 'Application Support', 'Ontime');
-    }
-    case 'win32': {
-      return path.join(process.env.APPDATA, 'Ontime');
-    }
-    case 'linux': {
-      return path.join(process.env.HOME, '.Ontime');
-    }
-    default: {
-      return '';
-    }
-  }
-}
+import { ensureDirectory, getAppDataPath } from './fileManagement.js';
 
 // Define multer storage object
 const storage = multer.diskStorage({
@@ -36,13 +15,7 @@ const storage = multer.diskStorage({
     const newDestination = path.join(appDataPath, 'uploads');
 
     // Create directory if not exist
-    if (!existsSync(newDestination)) {
-      try {
-        mkdirSync(newDestination);
-      } catch (err) {
-        throw new Error('Could not create directory');
-      }
-    }
+    ensureDirectory(newDestination);
     cb(null, newDestination);
   },
   filename: function (req, file, cb) {

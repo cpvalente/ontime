@@ -4,53 +4,14 @@ import 'dotenv/config';
 // import config
 import { config } from './config/config.js';
 
+// import dependencies
+import { dirname, join, resolve } from 'path';
 // init database
-import { Low, JSONFile } from 'lowdb';
-
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const env = process.env.NODE_ENV || 'prod';
-
-const file = path.join(__dirname, 'data/', config.database.filename);
-const adapter = new JSONFile(file);
-export const db = new Low(adapter);
-
-console.log(`Starting ontime version ${process.env.npm_package_version}`)
-
+import loadDb from './modules/loadDb.js';
 // dependencies
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import { dbModelv1 as dbModel } from './models/dataModel.js';
-import { parseJson_v1 as parseJson } from './utils/parser.js';
-import { validateFile } from './utils/parserUtils.js';
-
-// validate JSON before attempting read
-let isValid = validateFile(file);
-
-if (isValid) {
-  // Read data from JSON file, this will set db.data content
-  await db.read();
-}
-
-// If file.json doesn't exist, db.data will be null
-// Set default data
-// db.data ||= { events: [] }; NODE v15 - v16
-if (db.data == null || !isValid) {
-  db.data = dbModel;
-  await db.write();
-}
-
-// get data
-// there is also the case of the db being corrupt
-// try to parse the data, make sure that all fields exist (enforce)
-export const data = await parseJson(db.data, true);
-db.data = data;
-await db.write();
 
 // Import Routes
 import { router as eventsRouter } from './routes/eventsRouter.js';
@@ -60,6 +21,18 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 
 // Global Objects
 import { EventTimer } from './classes/EventTimer.js';
+// Start OSC server
+import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
+import { fileURLToPath } from 'url';
+
+// get environment
+const env = process.env.NODE_ENV || 'prod';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export const { db, data } = await loadDb(__dirname);
+
+console.log(`Starting ontime version ${process.env.npm_package_version}`);
 
 // Create express APP
 const app = express();
@@ -83,21 +56,11 @@ app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
 // serve react
-app.use(
-  express.static(
-    path.join(__dirname, env === 'prod' ? '../' : '../../', 'client/build'),
-  ),
-);
+app.use(express.static(join(__dirname, env === 'prod' ? '../' : '../../', 'client/build')));
 
 app.get('*', (req, res) => {
   res.sendFile(
-    path.resolve(
-      __dirname,
-      env === 'prod' ? '../' : '../../',
-      'client',
-      'build',
-      'index.html',
-    ),
+    resolve(__dirname, env === 'prod' ? '../' : '../../', 'client', 'build', 'index.html')
   );
 });
 
@@ -124,11 +87,7 @@ const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.input
 
 const serverPort = data.settings.serverPort || config.server.port;
 
-// Start OSC server
-import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
-
 export const startOSCServer = async (overrideConfig = null) => {
-
   if (!oscInEnabled) {
     global.timer.info('RX', 'OSC Input Disabled');
     return;
