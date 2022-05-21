@@ -16,6 +16,15 @@ export function ensureDirectory(directory) {
 }
 
 /**
+ * @description Whether a file exists
+ * @param directory
+ * @return {boolean}
+ */
+export function doesFileExist(directory) {
+  return existsSync(directory);
+}
+
+/**
  * @description Returns public path depending on OS
  * @return {string|*}
  */

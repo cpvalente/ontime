@@ -4,38 +4,15 @@ import 'dotenv/config';
 // import config
 import { config } from './config/config.js';
 
+// import dependencies
+import { join, resolve } from 'path';
+
 // init database
-import { Low, JSONFile } from 'lowdb';
+import loadDb from './modules/loadDb.js';
+export const { __dirname, db, data } = await loadDb();
 
-import { join, dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
-import { getAppDataPath, ensureDirectory } from './utils/fileManagement.js';
-import { validateFile } from './utils/parserUtils.js';
-import { parseJson_v1 as parseJson } from './utils/parser.js';
-
+// get environment
 const env = process.env.NODE_ENV || 'prod';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const appPath = getAppDataPath();
-const dbDirectory = join(appPath, 'data');
-ensureDirectory(dbDirectory);
-const dbInDisk = join(dbDirectory, config.database.filename);
-
-const adapter = new JSONFile(dbInDisk);
-export const db = new Low(adapter);
-
-if (validateFile(dbInDisk)) {
-  await db.read();
-} else {
-  db.data = dbModel;
-}
-
-// there is also the case of the structure being old or corrupt
-// try to parse the data, make sure that all fields exist (enforce)
-export const data = await parseJson(db.data, true);
-db.data = data;
-await db.write();
 
 console.log(`Starting ontime version ${process.env.npm_package_version}`)
 
@@ -43,7 +20,6 @@ console.log(`Starting ontime version ${process.env.npm_package_version}`)
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import { dbModelv1 as dbModel } from './models/dataModel.js';
 
 // Import Routes
 import { router as eventsRouter } from './routes/eventsRouter.js';
