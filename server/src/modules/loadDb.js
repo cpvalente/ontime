@@ -8,25 +8,6 @@ import { dbModelv1 as dbModel } from '../models/dataModel.js';
 import { parseJson_v1 as parseJson } from '../utils/parser.js';
 
 /**
- * @description Modules loads ontime db
- * @param runningDirectory
- * @return {Promise<{data: (number|*), db: Low<unknown>}>}
- */
-export default async function loadDb(runningDirectory) {
-  const dbInDisk = checkDirectories(runningDirectory);
-
-  const adapter = new JSONFile(dbInDisk);
-  const db = new Low(adapter);
-
-  const data = await parseDb(dbInDisk, db);
-
-  db.data = data;
-  await db.write();
-
-  return { db, data };
-}
-
-/**
  * @description ensures directories exist and picks available db path
  * @param runningDirectory
  * @return {string}
@@ -51,7 +32,7 @@ const checkDirectories = (runningDirectory) => {
 };
 
 /**
- * @description
+ * @description parses a json file to the adapter
  * @param fileToRead
  * @param adapterToUse
  * @return {Promise<number|*>}
@@ -63,5 +44,24 @@ const parseDb = async (fileToRead, adapterToUse) => {
     adapterToUse.data = dbModel;
   }
 
-  return await parseJson(adapterToUse.data, true);
+  return parseJson(adapterToUse.data, true);
 };
+
+/**
+ * @description Modules loads ontime db
+ * @param runningDirectory
+ * @return {Promise<{data: (number|*), db: Low<unknown>}>}
+ */
+export default async function loadDb(runningDirectory) {
+  const dbInDisk = checkDirectories(runningDirectory);
+
+  const adapter = new JSONFile(dbInDisk);
+  const db = new Low(adapter);
+
+  const data = await parseDb(dbInDisk, db);
+
+  db.data = data;
+  await db.write();
+
+  return { db, data };
+}
