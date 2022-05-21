@@ -6,18 +6,8 @@ import { config } from './config/config.js';
 
 // import dependencies
 import { dirname, join, resolve } from 'path';
-
-// get environment
-const env = process.env.NODE_ENV || 'prod';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 // init database
 import loadDb from './modules/loadDb.js';
-export const { db, data } = await loadDb(__dirname);
-
-console.log(`Starting ontime version ${process.env.npm_package_version}`)
-
 // dependencies
 import express from 'express';
 import http from 'http';
@@ -31,6 +21,18 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 
 // Global Objects
 import { EventTimer } from './classes/EventTimer.js';
+// Start OSC server
+import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
+import { fileURLToPath } from 'url';
+
+// get environment
+const env = process.env.NODE_ENV || 'prod';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export const { db, data } = await loadDb(__dirname);
+
+console.log(`Starting ontime version ${process.env.npm_package_version}`);
 
 // Create express APP
 const app = express();
@@ -54,21 +56,11 @@ app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
 // serve react
-app.use(
-  express.static(
-    join(__dirname, env === 'prod' ? '../' : '../../', 'client/build'),
-  ),
-);
+app.use(express.static(join(__dirname, env === 'prod' ? '../' : '../../', 'client/build')));
 
 app.get('*', (req, res) => {
   res.sendFile(
-    resolve(
-      __dirname,
-      env === 'prod' ? '../' : '../../',
-      'client',
-      'build',
-      'index.html',
-    ),
+    resolve(__dirname, env === 'prod' ? '../' : '../../', 'client', 'build', 'index.html')
   );
 });
 
@@ -95,12 +87,7 @@ const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.input
 
 const serverPort = data.settings.serverPort || config.server.port;
 
-// Start OSC server
-import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
-import { fileURLToPath } from 'url';
-
 export const startOSCServer = async (overrideConfig = null) => {
-
   if (!oscInEnabled) {
     global.timer.info('RX', 'OSC Input Disabled');
     return;
