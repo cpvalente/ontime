@@ -143,12 +143,25 @@ device and its screen resolution
 When installing the app you would see warning screens from the Operating System like:
 
 ```Microsoft Defender SmartScreen prevented an unrecognised app from starting. Running this app might put your PC at risk.```
+
 or
+
 ```Ontime can't be opened because it is from an unidentified developer```
+
+or in Linux
+
+```Could Not Display "ontime-linux.AppImage```
+
+You can circumvent this by allowing the execution of the app manually. 
+- In Windows: click more and select "Run Anyway"
+- in macOS: after attempting to run the installer, navigate to System Preferences ->  Security & Privacy and allow the execution of the app
+- In Linux: right-click the AppImage file -> Properties -> Permissions -> select Allow Executing File as a Program
+
 Long story short: Ontime app is unsigned. </br>Purchasing the certificates for both Mac and Windows
 would mean a recurrent expense and is not a priority. This is unlikely to change in future. If you
 have tips on how to improve this, or would like to sponsor the code signing,
 please [open an issue, so we can discuss it](https://github.com/cpvalente/ontime/issues/new)
+
 
 #### Safari
 
