@@ -6,7 +6,7 @@
 <div style="display: flex; justify-content: space-around">
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS.dmg"><img alt="Download MacOS" src="https://github.com/cpvalente/ontime/blob/master/.github/mac-download.png"/></a>
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe"><img alt="Download Windows" src="https://github.com/cpvalente/ontime/blob/master/.github/win-download.png"/></a>
-  <img alt="Download Linux" src="https://github.com/cpvalente/ontime/blob/master/.github/linux-download.png"/>
+  <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage"><img alt="Download Linux" src="https://github.com/cpvalente/ontime/blob/master/.github/linux-download.png"/></a>
 </div>
 
 # Ontime
@@ -126,7 +126,6 @@ friendly order unless there is user demand to bump any of them.
 - [ ] Improvement with event component design
 - [ ] New playback mode
   for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
-- [ ] Linux version
 - [ ] Headless version (run server only anywhere, configure from a browser locally)
 - [ ] Companion module
 - [ ] Lower Third Manager
