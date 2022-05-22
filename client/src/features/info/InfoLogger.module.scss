@@ -28,13 +28,13 @@
     margin-bottom: 2px;
 
     .time {
-      width: 13%;
+      width: 4.5em
     }
     .origin {
-      width: 18%;
+      width: 6em;
     }
     .msg {
-      width: 70%;
+      flex: 1;
     }
   }
 
@@ -63,6 +63,8 @@
 
 .toggleBar {
   display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
   font-size: 0.7em;
   justify-content: flex-start;
   padding: 0.5em 8px;
@@ -82,7 +84,6 @@
   }
 
   .clear {
-    margin-left: auto;
     border: 1px solid rgba($ontime-pink, 0.5);
   }
 }

@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { HStack } from '@chakra-ui/react';
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import style from './InfoLogger.module.scss';
@@ -60,7 +59,7 @@ export default function InfoLogger() {
       <CollapseBar title='Log' isCollapsed={collapsed} onClick={() => setCollapsed((c) => !c)} />
       {!collapsed && (
         <>
-          <HStack className={style.toggleBar}>
+          <div className={style.toggleBar}>
             <div
               onClick={() => setShowUser((s) => !s)}
               onAuxClick={() => disableOthers('USER')}
@@ -118,7 +117,7 @@ export default function InfoLogger() {
             <div onClick={clearLog} className={style.clear} role='button'>
               Clear
             </div>
-          </HStack>
+          </div>
           <ul className={style.log}>
             {data.map((d) => (
               <li

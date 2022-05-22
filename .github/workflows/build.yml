@@ -93,3 +93,46 @@ jobs:
           files: ./server/dist/ontime-win64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build_linux:
+    runs-on: ubuntu-latest
+    env:
+      CI: ''
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+
+      # React
+      - name: React - Install dependencies
+        run: yarn install
+        working-directory: ./client
+
+      - name: React - Build project
+        run: yarn build
+        working-directory: ./client
+
+      # Node server
+      - name: Server - Install dependencies
+        run: yarn install
+        working-directory: ./server/src
+
+      # App
+      - name: Electron - Install dependencies
+        shell: bash
+        run: yarn install && yarn setdb
+        working-directory: ./server
+      - name: Electron - Build app
+        run: yarn dist-linux
+        working-directory: ./server
+
+      # Release
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./server/dist/ontime-linux.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
