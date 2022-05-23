@@ -4,6 +4,8 @@ import ModalManager from 'features/modals/ModalManager';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import { LoggingProvider } from '../../app/context/LoggingContext';
 import { LocalEventSettingsProvider } from '../../app/context/LocalEventSettingsContext';
+import { Box } from '@chakra-ui/layout';
+import MenuBar from '../menu/MenuBar';
 import styles from './Editor.module.scss';
 
 const EventList = lazy(() => import('features/editors/list/EventListExport'));
@@ -26,6 +28,11 @@ export default function Editor() {
           <ModalManager isOpen={isOpen} onClose={onClose} />
         </ErrorBoundary>
         <div className={styles.mainContainer}>
+          <Box id='settings' className={styles.settings}>
+            <ErrorBoundary>
+              <MenuBar onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
+            </ErrorBoundary>
+          </Box>
           <EventList onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
           <MessageControl />
           <TimerControl />

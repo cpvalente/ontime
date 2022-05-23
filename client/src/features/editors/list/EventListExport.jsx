@@ -3,24 +3,21 @@ import { CursorProvider } from '../../../app/context/CursorContext';
 import { CollapseProvider } from '../../../app/context/CollapseContext';
 import { Box } from '@chakra-ui/layout';
 import ErrorBoundary from '../../../common/components/errorBoundary/ErrorBoundary';
-import MenuBar from '../../menu/MenuBar';
-import styles from '../Editor.module.scss';
-import PropTypes from 'prop-types';
 import EventListWrapper from './EventListWrapper';
+import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
+import { handleLinks } from '../../../common/utils/linkUtils';
+import style from '../Editor.module.scss';
 
-export default function EventListExport(props) {
-  const { onOpen, isOpen, onClose } = props;
+export default function EventListExport() {
   return (
     <CursorProvider>
       <CollapseProvider>
-        <Box id='settings' className={styles.settings}>
-          <ErrorBoundary>
-            <MenuBar onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
-          </ErrorBoundary>
-        </Box>
-
-        <Box className={styles.editor}>
+        <Box className={style.editor}>
           <h1>Event List</h1>
+          <FiArrowUpRight
+            className={style.corner}
+            onClick={(event) => handleLinks(event, 'eventlist')}
+          />
           <ErrorBoundary>
             <EventListWrapper />
           </ErrorBoundary>
@@ -29,9 +26,3 @@ export default function EventListExport(props) {
     </CursorProvider>
   );
 }
-
-EventListExport.propTypes = {
-  onOpen: PropTypes.func,
-  isOpen: PropTypes.bool,
-  onClose: PropTypes.func,
-};
