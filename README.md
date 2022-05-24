@@ -78,6 +78,8 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
 - [x] Logging view
 - [x] Edit anywhere: run ontime in your local network and use any machine to reach the editor page (
   same as app)
+- [x] Multi platform (available on Windows, MacOS and Linux)
+- [x] [Headless run](#headless-run) (run server only, configure from a browser locally)
 
 ## Unopinionated
 
@@ -115,6 +117,16 @@ See [this repository](https://github.com/cpvalente/ontime-viewer-template) with 
 how to get you started and read the docs about
 the [Websocket API](https://app.gitbook.com/s/-Mc0giSOToAhq0ROd0CR/control-and-feedback/websocket-api)
 
+### Headless run️
+You can run ontime in a docker image, the run command should:
+- expose the necessary ports (listen in Dockerfile)
+- mount a local file to persist your data (in the example: ````$(pwd)/local-data````)
+- the image name __getontime/ontime__
+
+```bash
+docker run -p 4001:4001 -p 8888:8888 -p 9999:9999 --mount type=bind,source="$(pwd)/local-data",target=/server/db getontime/ontime
+```
+
 ## Roadmap
 
 ### Continued development
@@ -126,7 +138,6 @@ friendly order unless there is user demand to bump any of them.
 - [ ] Improvement with event component design
 - [ ] New playback mode
   for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
-- [ ] Headless version (run server only anywhere, configure from a browser locally)
 - [ ] Companion module
 - [ ] Lower Third Manager
 - [ ] Note only event
