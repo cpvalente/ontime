@@ -14,9 +14,9 @@ import { parseJson_v1 as parseJson } from '../utils/parser.js';
  */
 const checkDirectories = (runningDirectory) => {
   const appPath = getAppDataPath();
-  const dbDirectory = join(appPath, 'data');
+  const dbDirectory = join(appPath, config.database.directory);
   const dbInDisk = join(dbDirectory, config.database.filename);
-  const startupDb = join(runningDirectory, 'data', config.database.filename);
+  const startupDb = join(runningDirectory, config.database.directory, config.database.filename);
   ensureDirectory(dbDirectory);
 
   // if dbInDisk doesnt exist we want to use startup db
