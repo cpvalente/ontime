@@ -29,6 +29,11 @@ export function doesFileExist(directory) {
  * @return {string|*}
  */
 export function getAppDataPath() {
+  // handle docker
+  if (process.env.ONTIME_DATA) {
+    return path.join(process.env.ONTIME_DATA);
+  }
+
   switch (process.platform) {
     case 'darwin': {
       return path.join(process.env.HOME, 'Library', 'Application Support', 'Ontime');
