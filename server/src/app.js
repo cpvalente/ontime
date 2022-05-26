@@ -107,14 +107,7 @@ export const startOSCServer = async (overrideConfig = null) => {
 const server = http.createServer(app);
 
 export const startServer = async (overrideConfig = null) => {
-  // Setup default port
-  // const port = overrideConfig?.port || serverPort;
-
-  /* Note: Port is hardcoded
-   * need to find a good solution for sharing
-   * the dynamic info with the frontend
-   */
-  const port = 4001;
+  const port = 4001; // port hardcoded
 
   // Start server
   const returnMessage = `Ontime is listening on port ${port}`;
