@@ -12,6 +12,7 @@ function SocketProvider({ children }) {
   const [socket, setSocket] = useState();
 
   useEffect(() => {
+    console.log('starting socket client', serverURL)
     const s = io(serverURL, { transports: ['websocket'] });
     setSocket(s);
     return () => s.disconnect();
