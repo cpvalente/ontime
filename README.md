@@ -118,12 +118,20 @@ how to get you started and read the docs about
 the [Websocket API](https://app.gitbook.com/s/-Mc0giSOToAhq0ROd0CR/control-and-feedback/websocket-api)
 
 ### Headless run️
-You can run ontime in a docker image, the run command should:
+You can self host and run ontime in a docker image, the run command should:
 - expose the necessary ports (listen in Dockerfile)
 - mount a local file to persist your data (in the example: ````$(pwd)/local-data````)
 - the image name __getontime/ontime__
 
+The docker image is in [available Docker Hub at getontime/ontime](https://hub.docker.com/r/getontime/ontime)
 ```bash
+docker pull getontime/ontime
+```
+
+```bash
+# Port 4001 - ontime server port
+# Port 8888 - OSC input
+# Port 9999 - OSC feedback
 docker run -p 4001:4001 -p 8888:8888 -p 9999:9999 --mount type=bind,source="$(pwd)/local-data",target=/server/db getontime/ontime
 ```
 
