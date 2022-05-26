@@ -135,6 +135,12 @@ docker pull getontime/ontime
 docker run -p 4001:4001 -p 8888:8888 -p 9999:9999 --mount type=bind,source="$(pwd)/local-data",target=/server/db getontime/ontime
 ```
 
+or if running from the docker compose
+
+```bash
+docker-compose up
+```
+
 ## Roadmap
 
 ### Continued development
