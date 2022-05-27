@@ -9,11 +9,16 @@ import { parseJson_v1 as parseJson } from '../utils/parser.js';
 
 /**
  * @description Decides which path the database is in
+ * @param ensure - whether it should create directory if it doesnt exist
  * @return {string}
  */
-export const resolveDbPath = () => {
+export const resolveDbPath = (ensure = false) => {
   const appPath = getAppDataPath();
-  return join(appPath, config.database.directory, config.database.filename);
+  const dbDirectory = join(appPath, config.database.directory);
+  if (ensure) {
+    ensureDirectory(dbDirectory);
+  }
+  return join(dbDirectory, config.database.filename);
 };
 
 /**
@@ -24,7 +29,6 @@ export const resolveDbPath = () => {
 const populateDb = (runningDirectory) => {
   const startupDb = join(runningDirectory, config.database.directory, config.database.filename);
   const dbInDisk = resolveDbPath();
-  ensureDirectory(dbInDisk);
 
   // if dbInDisk doesnt exist we want to use startup db
   if (!existsSync(dbInDisk)) {
