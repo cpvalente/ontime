@@ -1,4 +1,4 @@
-export const DEV_PORT = 3000;
+export const STATIC_PORT = 4001;
 export const EVENT_TABLE = 'event';
 export const ALIASES = 'aliases';
 export const USERFIELDS = 'userFields';
@@ -12,11 +12,10 @@ export const APP_SETTINGS = 'appSettings';
  * @return {*}
  */
 const calculateServer = () => {
-  let origin = window.location.origin;
   if (process.env?.NODE_ENV === 'development') {
-    origin = window.location.origin.replace(window.location.port, `${DEV_PORT}`);
+    return `http://localhost:${STATIC_PORT}`;
   }
-  return origin;
+  return window.location.origin;
 };
 
 export const serverURL = calculateServer();
