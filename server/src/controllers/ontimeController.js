@@ -1,15 +1,9 @@
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// get database
 import { data, db } from '../app.js';
 import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
 import { generateId } from '../utils/generate_id.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { resolveDbPath } from '../modules/loadDb.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -28,9 +22,9 @@ export const poll = async (req, res) => {
 // Returns -
 export const dbDownload = async (req, res) => {
   const fileTitle = data?.event?.title || 'ontime events';
-  const dbFile = path.resolve(__dirname, '../', 'data/db.json');
+  const dbInDisk = resolveDbPath();
 
-  res.download(dbFile, `${fileTitle}.json`, (err) => {
+  res.download(dbInDisk, `${fileTitle}.json`, (err) => {
     if (err) {
       res.status(500).send({
         message: 'Could not download the file. ' + err,
