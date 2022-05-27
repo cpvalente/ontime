@@ -8,16 +8,23 @@ import { dbModelv1 as dbModel } from '../models/dataModel.js';
 import { parseJson_v1 as parseJson } from '../utils/parser.js';
 
 /**
- * @description ensures directories exist and picks available db path
+ * @description Decides which path the database is in
+ * @return {string}
+ */
+export const resolveDbPath = () => {
+  const appPath = getAppDataPath();
+  return join(appPath, config.database.directory, config.database.filename);
+};
+
+/**
+ * @description ensures directories exist and populates database
  * @param runningDirectory
  * @return {string}
  */
-const checkDirectories = (runningDirectory) => {
-  const appPath = getAppDataPath();
-  const dbDirectory = join(appPath, config.database.directory);
-  const dbInDisk = join(dbDirectory, config.database.filename);
+const populateDb = (runningDirectory) => {
   const startupDb = join(runningDirectory, config.database.directory, config.database.filename);
-  ensureDirectory(dbDirectory);
+  const dbInDisk = resolveDbPath();
+  ensureDirectory(dbInDisk);
 
   // if dbInDisk doesnt exist we want to use startup db
   if (!existsSync(dbInDisk)) {
@@ -53,7 +60,7 @@ const parseDb = async (fileToRead, adapterToUse) => {
  * @return {Promise<{data: (number|*), db: Low<unknown>}>}
  */
 export default async function loadDb(runningDirectory) {
-  const dbInDisk = checkDirectories(runningDirectory);
+  const dbInDisk = populateDb(runningDirectory);
 
   const adapter = new JSONFile(dbInDisk);
   const db = new Low(adapter);
