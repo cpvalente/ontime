@@ -38,11 +38,23 @@ describe('validate routes', () => {
     cy.visit('http://localhost:4001/studio');
     cy.contains('ON AIR');
   });
+
   it('editor routes', () => {
     cy.visit('http://localhost:4001/editor');
     cy.contains('Event List');
     cy.contains('Timer Control');
-    cy.contains('Display Messages');
+    cy.contains('Messages Control');
+    cy.contains('Info');
+  });
+
+  it('self contained editor routes', () => {
+    cy.visit('http://localhost:4001/eventlist');
+    cy.contains('Event List');
+    cy.visit('http://localhost:4001/timercontrol');
+    cy.contains('Timer Control');
+    cy.visit('http://localhost:4001/messagecontrol');
+    cy.contains('Messages Control');
+    cy.visit('http://localhost:4001/info');
     cy.contains('Info');
   });
 
