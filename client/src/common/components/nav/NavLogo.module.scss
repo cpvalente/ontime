@@ -18,6 +18,7 @@
 
   .nav,
   .showNav {
+    margin-top: 2vh;
     gap: 2vh;
     display: flex;
     flex-direction: column;
@@ -28,5 +29,13 @@
       border-radius: 4px;
       color: $text-white;
     }
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    position: absolute;
+    top: 0.5vw;
+    right: 75px;
   }
 }
