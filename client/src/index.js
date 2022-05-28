@@ -1,6 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
@@ -8,6 +7,8 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { AppContextProvider } from './app/context/AppContext';
 import SocketProvider from './app/context/socketContext';
+import theme from './theme/theme';
+import './index.scss';
 
 // Load Open Sans typeface
 require('typeface-open-sans');
@@ -19,7 +20,7 @@ const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
-    <ChakraProvider resetCSS>
+    <ChakraProvider resetCSS theme={theme}>
       <SocketProvider>
         <QueryClientProvider client={queryClient}>
           <AppContextProvider>
