@@ -12,7 +12,7 @@ import { parseJson_v1 as parseJson } from '../utils/parser.js';
  * @param ensure - whether it should create directory if it doesnt exist
  * @return {string}
  */
-export const resolveDbPath = (ensure = false) => {
+export const resolveDbPath = (ensure = true) => {
   const appPath = getAppDataPath();
   const dbDirectory = join(appPath, config.database.directory);
   if (ensure) {
