@@ -9,11 +9,12 @@ COPY /client/build ../client/build
 COPY /server/src ./
 
 # Export default ports Main - OSC IN - OSC OUT
-EXPOSE 4001 8888 9999
+EXPOSE 4001/tcp 8888/udp 9999/udp
 ENV NODE_ENV=production
 ENV ONTIME_DATA=/server/db
 
 CMD ["yarn", "start:headless"]
 
-#docker build -t getontime/ontime .
-#docker run -p 4001:4001 --mount type=bind,source="$(pwd)/local-data",target=/server/db getontime/ontime
+# Build an run commands
+# docker build -t getontime/ontime .
+# docker run -p 4001:4001 -p 10.0.0.12:8888:8888/udp -p 0.0.0.0:9999:9999/udp --cap-add=NET_BIND_SERVICE --add-host=host.docker.internal:host-gateway --mount type=bind,source="$(pwd)/local-data",target=/server/db getontime/ontime
