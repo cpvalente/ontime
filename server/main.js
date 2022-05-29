@@ -11,7 +11,7 @@ const {
 } = require('electron');
 const path = require('path');
 
-if (process.env.NODE_ENV === 'undefined') {
+if (process.env.NODE_ENV === undefined) {
   process.env.NODE_ENV = 'production';
 }
 const env = process.env.NODE_ENV;
@@ -145,7 +145,7 @@ app.whenReady().then(() => {
   setTimeout(() => {
     // Load page served by node
     const reactApp =
-      env === 'prod' ? 'http://localhost:4001/editor' : 'http://localhost:3000/editor';
+      env === 'development' ? 'http://localhost:3000/editor' : 'http://localhost:4001/editor';
 
     win.loadURL(reactApp).then(() => {
       win.webContents.setBackgroundThrottling(false);
@@ -157,7 +157,6 @@ app.whenReady().then(() => {
       splash.destroy();
 
       // tray stuff
-      // TODO: get IP Address
       tray.setToolTip(loaded);
     });
   }, 2000);

@@ -1403,7 +1403,7 @@ export class EventTimer extends Timer {
     this.messageStack.unshift(m);
     this.io.emit('logger', m);
 
-    if (process.env.NODE_ENV !== 'prod') {
+    if (process.env.NODE_ENV !== 'production') {
       console.log(`[${m.level}] \t ${m.origin} \t ${m.text}`);
     }
 
