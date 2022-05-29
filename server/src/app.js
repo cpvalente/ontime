@@ -138,4 +138,9 @@ export const shutdown = async () => {
   global.timer.shutdown();
 };
 
+// register shutdown signals
+process.once('SIGHUP', shutdown)
+process.once('SIGINT', shutdown)
+process.once('SIGTERM', shutdown)
+
 export { server, app };
