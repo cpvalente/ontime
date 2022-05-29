@@ -1,5 +1,14 @@
 @use '../../styles/main' as *;
 
+.corner {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  cursor: pointer;
+  color: $ontime-pink;
+}
+
 .mainContainer {
   background: $bg-black;
   width: 100%;
@@ -15,6 +24,18 @@
     'sett even play info'
     'sett even mess info';
   gap: max(16px, 2vh);
+
+  .editor,
+  .playback,
+  .messages,
+  .info,
+  .settings {
+    position: relative;
+
+    .corner {
+      display: inline;
+    }
+  }
 }
 
 /* 2/3 window, hide info */
@@ -112,6 +133,7 @@ h1 {
 
 .editor {
   grid-area: even;
+  height: calc(100% - 3em);
 
   .content {
     height: calc(100% - 3em);
