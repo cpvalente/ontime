@@ -31,6 +31,7 @@ db backup.json
 server/src/preloaded-db/db.json
 server/src/models/db.json
 TODO.md
+ontime-db/
 
 # vscode stuff
 .vscode/*
