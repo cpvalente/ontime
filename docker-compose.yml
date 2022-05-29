@@ -9,5 +9,5 @@ services:
       - "8888:8888/udp"
       - "9999:9999/udp"
     volumes:
-      - './ontime-db:/server/db'
+      - "./ontime-db:/server/preloaded-db"
     restart: unless-stopped

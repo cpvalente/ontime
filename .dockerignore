@@ -4,7 +4,6 @@
 # Ignore install stuff
 **/yarn.lock
 **/yarn-error.log
-**/package.json
 
 # Ignore test files
 **/__tests__/**
