@@ -11,13 +11,16 @@ const {
 } = require('electron');
 const path = require('path');
 
-const env = process.env.NODE_ENV || 'prod';
+if (process.env.NODE_ENV === 'undefined') {
+  process.env.NODE_ENV = 'production';
+}
+const env = process.env.NODE_ENV;
 
 let loaded = 'Nothing loaded';
 let isQuitting = false;
 
 const nodePath =
-  env !== 'prod'
+  env !== 'production'
     ? path.join('file://', __dirname, 'src/app.js')
     : path.join('file://', __dirname, '../', 'extraResources', 'src/app.js');
 
