@@ -130,9 +130,8 @@ docker pull getontime/ontime
 
 ```bash
 # Port 4001 - ontime server port
-# Port 8888 - OSC input
-# Port 9999 - OSC feedback
-docker run -p 4001:4001 -p 8888:8888 -p 9999:9999 --mount type=bind,source="$(pwd)/local-data",target=/server/db getontime/ontime
+# Port 8888 - OSC input, bound to localhost IP Address 
+docker run -p 4001:4001 -p 127.0.0.1:8888:8888/udp --mount type=bind,source="$(pwd)/ontime-db",target=/server/preloaded-db getontime/ontime
 ```
 
 or if running from the docker compose
