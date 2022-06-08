@@ -16,19 +16,15 @@ export function ensureDirectory(directory) {
 }
 
 /**
- * @description Whether a file exists
- * @param directory
- * @return {boolean}
- */
-export function doesFileExist(directory) {
-  return existsSync(directory);
-}
-
-/**
  * @description Returns public path depending on OS
  * @return {string|*}
  */
 export function getAppDataPath() {
+  // handle docker
+  if (process.env.ONTIME_DATA) {
+    return path.join(process.env.ONTIME_DATA);
+  }
+
   switch (process.platform) {
     case 'darwin': {
       return path.join(process.env.HOME, 'Library', 'Application Support', 'Ontime');

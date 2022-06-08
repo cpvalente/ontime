@@ -1,0 +1,14 @@
+# Ignore config files
+.prettier*
+
+# Ignore install stuff
+**/yarn.lock
+**/yarn-error.log
+
+# Ignore test files
+**/__tests__/**
+**/**.test.js
+
+# Ignore git and cache folders
+.git
+.cache

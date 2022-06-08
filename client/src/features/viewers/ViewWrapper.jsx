@@ -154,15 +154,16 @@ const withSocket = (Component) => {
     // Filter events only to pass down
     useEffect(() => {
       if (eventsData == null) return;
-
       // filter just events with title
-      const pe = eventsData.filter(
-        (d) => d.type === 'event' && d.title !== '' && d.isPublic === true
-      );
-      setPublicEvents(pe);
+      if (Array.isArray(eventsData)) {
+        const pe = eventsData.filter(
+          (d) => d.type === 'event' && d.title !== '' && d.isPublic
+        );
+        setPublicEvents(pe);
 
-      // everything goes backstage
-      setBackstageEvents(eventsData);
+        // everything goes backstage
+        setBackstageEvents(eventsData);
+      }
     }, [eventsData]);
 
     // Set general data
@@ -178,13 +179,11 @@ const withSocket = (Component) => {
     /********************************************/
     // is there a now field?
     let showNow = true;
-    if (!titles.titleNow && !titles.subtitleNow && !titles.presenterNow)
-      showNow = false;
+    if (!titles.titleNow && !titles.subtitleNow && !titles.presenterNow) showNow = false;
 
     // is there a next field?
     let showNext = true;
-    if (!titles.titleNext && !titles.subtitleNext && !titles.presenterNext)
-      showNext = false;
+    if (!titles.titleNext && !titles.subtitleNext && !titles.presenterNext) showNext = false;
 
     const titleManager = { ...titles, showNow: showNow, showNext: showNext };
 
@@ -195,20 +194,12 @@ const withSocket = (Component) => {
     /********************************************/
     // is there a now field?
     let showPublicNow = true;
-    if (
-      !publicTitles.titleNow &&
-      !publicTitles.subtitleNow &&
-      !publicTitles.presenterNow
-    )
+    if (!publicTitles.titleNow && !publicTitles.subtitleNow && !publicTitles.presenterNow)
       showPublicNow = false;
 
     // is there a next field?
     let showPublicNext = true;
-    if (
-      !publicTitles.titleNext &&
-      !publicTitles.subtitleNext &&
-      !publicTitles.presenterNext
-    )
+    if (!publicTitles.titleNext && !publicTitles.subtitleNext && !publicTitles.presenterNext)
       showPublicNext = false;
 
     const publicTitleManager = {

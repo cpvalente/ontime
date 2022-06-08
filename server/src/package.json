@@ -22,6 +22,7 @@
   },
   "scripts": {
     "nodestart": "nodemon app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "start:headless": "NODE_ENV=production node run.js"
   }
 }

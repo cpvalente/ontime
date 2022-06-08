@@ -22,7 +22,7 @@ jobs:
 
       # React
       - name: React - Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
         working-directory: ./client
 
       - name: React - Build project
@@ -31,13 +31,13 @@ jobs:
 
       # Node server
       - name: Server - Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile --production
         working-directory: ./server/src
 
       # App
       - name: Electron - Install dependencies
         shell: bash
-        run: yarn install && yarn setdb
+        run: yarn install --frozen-lockfile && yarn setdb
         working-directory: ./server
       - name: Electron - Build app
         run: yarn dist-mac
@@ -65,7 +65,7 @@ jobs:
 
       # React
       - name: React - Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
         working-directory: ./client
 
       - name: React - Build project
@@ -74,13 +74,13 @@ jobs:
 
       # Node server
       - name: Server - Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile --production
         working-directory: ./server/src
 
       # App
       - name: Electron - Install dependencies
         shell: bash
-        run: yarn install && yarn setdb
+        run: yarn install --frozen-lockfile && yarn setdb
         working-directory: ./server
       - name: Electron - Build app
         run: yarn dist-win
@@ -108,7 +108,7 @@ jobs:
 
       # React
       - name: React - Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
         working-directory: ./client
 
       - name: React - Build project
@@ -117,7 +117,7 @@ jobs:
 
       # Node server
       - name: Server - Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile --production
         working-directory: ./server/src
 
       # App
@@ -136,3 +136,49 @@ jobs:
           files: ./server/dist/ontime-linux.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish_docker:
+    runs-on: ubuntu-latest
+    env:
+      CI: ''
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+
+      # React
+      - name: React - Install dependencies
+        run: yarn install
+        working-directory: ./client
+
+      - name: React - Build project
+        run: yarn build
+        working-directory: ./client
+
+      # Node server
+      - name: Server - Install dependencies
+        run: yarn install --frozen-lockfile --production
+        working-directory: ./server/src
+
+      # Login to docker
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Build and push
+      - name: Build and push
+        working-directory: ./
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }}

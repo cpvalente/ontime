@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  ontime:
+    container_name: ontime
+    image: getontime/ontime:test-alpine
+    ports:
+      - "4001:4001/tcp"
+      - "127.0.0.1:8888:8888/udp"
+    volumes:
+      - "./ontime-db:/server/preloaded-db"
+    restart: unless-stopped

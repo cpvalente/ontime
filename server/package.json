@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -27,7 +27,7 @@
   },
   "scripts": {
     "nodestart": "NODE_ENV=development node src/app.js",
-    "setdb": "cp data/db.json src/data/db.json",
+    "setdb": "cp demo-db/db.json src/preloaded-db/db.json",
     "clean": "rm -rf ../client/build/ && rm -rf ../client/node_modules && rm -rf src/node_modules && rm -rf ./node_modules && rm -rf ./dist",
     "prep": "yarn clean && yarn setdb",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",

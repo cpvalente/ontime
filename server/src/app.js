@@ -26,7 +26,7 @@ import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
 
 // get environment
-const env = process.env.NODE_ENV || 'prod';
+const env = process.env.NODE_ENV || 'production';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -56,11 +56,11 @@ app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
 // serve react
-app.use(express.static(join(__dirname, env === 'prod' ? '../' : '../../', 'client/build')));
+app.use(express.static(join(__dirname, env === 'production' ? '../' : '../../', 'client/build')));
 
 app.get('*', (req, res) => {
   res.sendFile(
-    resolve(__dirname, env === 'prod' ? '../' : '../../', 'client', 'build', 'index.html')
+    resolve(__dirname, env === 'production' ? '../' : '../../', 'client', 'build', 'index.html'),
   );
 });
 
@@ -107,14 +107,7 @@ export const startOSCServer = async (overrideConfig = null) => {
 const server = http.createServer(app);
 
 export const startServer = async (overrideConfig = null) => {
-  // Setup default port
-  // const port = overrideConfig?.port || serverPort;
-
-  /* Note: Port is hardcoded
-   * need to find a good solution for sharing
-   * the dynamic info with the frontend
-   */
-  const port = 4001;
+  const port = 4001; // port hardcoded
 
   // Start server
   const returnMessage = `Ontime is listening on port ${port}`;
@@ -144,5 +137,10 @@ export const shutdown = async () => {
   // shutdown timer
   global.timer.shutdown();
 };
+
+// register shutdown signals
+process.once('SIGHUP', shutdown)
+process.once('SIGINT', shutdown)
+process.once('SIGTERM', shutdown)
 
 export { server, app };

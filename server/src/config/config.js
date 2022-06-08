@@ -6,6 +6,7 @@ export const config = {
     port: 4001,
   },
   database: {
+    directory: 'preloaded-db',
     filename: 'db.json',
     tablename: 'events',
   },

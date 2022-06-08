@@ -222,7 +222,9 @@ export const downloadEvents = async () => {
       filename = headerLine.substring(startFileNameIndex, endFileNameIndex);
     }
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const url = window.URL.createObjectURL(
+      new Blob([response.data], { type: 'application/json' })
+    );
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', filename);
