@@ -33,6 +33,16 @@
 
   .padleft {
     padding-left: 0.5em;
+    border-radius: 2px;
+  }
+
+  .inputRowActive {
+    .label {
+      color: $light-bg;
+    }
+    .inline {
+      background-color: $light-bg-transparent;
+    }
   }
 }
 

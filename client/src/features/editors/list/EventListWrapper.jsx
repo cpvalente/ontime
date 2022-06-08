@@ -286,33 +286,10 @@ export default function EventListWrapper() {
           }
           break;
         case 'applyDelay':
-          // if delay <= 0 delete delay and next block
-          if (payload.duration <= 0) {
-            try {
-              // look for block after
-              let afterId = false;
-              let blockAfter = null;
-              for (const d of data) {
-                if (d.id === payload.id) afterId = true;
-                if (afterId && d.type === 'block') {
-                  blockAfter = d.id;
-                  break;
-                }
-              }
-
-              // delete delay
-              await deleteEvent.mutateAsync(payload.id);
-              // delete block after, if any
-              if (blockAfter) await deleteEvent.mutateAsync(blockAfter);
-            } catch (error) {
-              emitError(`Error applying delay: ${error.message}`);
-            }
-          } else {
-            try {
-              await applyDelay.mutateAsync(payload.id);
-            } catch (error) {
-              emitError(`Error applying delay: ${error.message}`);
-            }
+          try {
+            await applyDelay.mutateAsync(payload.id);
+          } catch (error) {
+            emitError(`Error applying delay: ${error.message}`);
           }
           break;
 

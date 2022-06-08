@@ -27,6 +27,12 @@ const SLowerThird = withSocket(Lower);
 const SPip = withSocket(Pip);
 const SStudio = withSocket(StudioClock);
 
+const FeatureWrapper = lazy(() => import('features/FeatureWrapper'));
+const EventList = lazy(() => import('features/editors/list/EventListExport'));
+const TimerControl = lazy(() => import('features/control/playback/TimerControlExport'));
+const MessageControl = lazy(() => import('features/control/message/MessageControlExport'));
+const Info = lazy(() => import('features/info/InfoExport'));
+
 function App() {
   const { data } = useFetch(ALIASES, getAliases);
   const location = useLocation();
@@ -99,6 +105,39 @@ function App() {
             <Route path='/cuelist' element={<Table />} />
             <Route path='/table' element={<Table />} />
 
+            {/*/!* Protected Routes - Elements *!/*/}
+            <Route
+              path='/eventlist'
+              element={
+                <FeatureWrapper>
+                  <EventList />
+                </FeatureWrapper>
+              }
+            />
+            <Route
+              path='/timercontrol'
+              element={
+                <FeatureWrapper>
+                  <TimerControl />
+                </FeatureWrapper>
+              }
+            />
+            <Route
+              path='/messagecontrol'
+              element={
+                <FeatureWrapper>
+                  <MessageControl />
+                </FeatureWrapper>
+              }
+            />
+            <Route
+              path='/info'
+              element={
+                <FeatureWrapper>
+                  <Info />
+                </FeatureWrapper>
+              }
+            />
             {/* Send to default if nothing found */}
             <Route path='*' element={<STimer />} />
           </Routes>

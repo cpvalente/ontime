@@ -1,19 +1,17 @@
 import React, { lazy, useEffect } from 'react';
-import { Box } from '@chakra-ui/layout';
 import { useDisclosure } from '@chakra-ui/hooks';
-import MenuBar from 'features/menu/MenuBar';
 import ModalManager from 'features/modals/ModalManager';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import { LoggingProvider } from '../../app/context/LoggingContext';
 import { LocalEventSettingsProvider } from '../../app/context/LocalEventSettingsContext';
-import { CursorProvider } from '../../app/context/CursorContext';
-import { CollapseProvider } from '../../app/context/CollapseContext';
+import { Box } from '@chakra-ui/layout';
+import MenuBar from '../menu/MenuBar';
 import styles from './Editor.module.scss';
 
-const EventListWrapper = lazy(() => import('features/editors/list/EventListWrapper'));
-const PlaybackControl = lazy(() => import('features/control/playback/PlaybackControl'));
-const MessageControl = lazy(() => import('features/control/message/MessageControl'));
-const Info = lazy(() => import('features/info/Info'));
+const EventList = lazy(() => import('features/editors/list/EventListExport'));
+const TimerControl = lazy(() => import('features/control/playback/TimerControlExport'));
+const MessageControl = lazy(() => import('features/control/message/MessageControlExport'));
+const Info = lazy(() => import('features/info/InfoExport'));
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -29,51 +27,16 @@ export default function Editor() {
         <ErrorBoundary>
           <ModalManager isOpen={isOpen} onClose={onClose} />
         </ErrorBoundary>
-
         <div className={styles.mainContainer}>
-          <CursorProvider>
-            <CollapseProvider>
-              <Box id='settings' className={styles.settings}>
-                <ErrorBoundary>
-                  <MenuBar onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
-                </ErrorBoundary>
-              </Box>
-
-              <Box className={styles.editor}>
-                <h1>Event List</h1>
-                <ErrorBoundary>
-                  <EventListWrapper />
-                </ErrorBoundary>
-              </Box>
-            </CollapseProvider>
-          </CursorProvider>
-
-          <Box className={styles.messages}>
-            <h1>Display Messages</h1>
-            <div className={styles.content}>
-              <ErrorBoundary>
-                <MessageControl />
-              </ErrorBoundary>
-            </div>
+          <Box id='settings' className={styles.settings}>
+            <ErrorBoundary>
+              <MenuBar onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
+            </ErrorBoundary>
           </Box>
-
-          <Box className={styles.playback}>
-            <h1>Timer Control</h1>
-            <div className={styles.content}>
-              <ErrorBoundary>
-                <PlaybackControl />
-              </ErrorBoundary>
-            </div>
-          </Box>
-
-          <Box className={styles.info}>
-            <h1>Info</h1>
-            <div className={styles.content}>
-              <ErrorBoundary>
-                <Info />
-              </ErrorBoundary>
-            </div>
-          </Box>
+          <EventList onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
+          <MessageControl />
+          <TimerControl />
+          <Info />
         </div>
       </LocalEventSettingsProvider>
     </LoggingProvider>

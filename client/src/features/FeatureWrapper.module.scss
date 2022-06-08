@@ -1,0 +1,10 @@
+@use '../styles/main' as *;
+
+.wrapper {
+  background: $bg-black;
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  color: $title-white;
+  padding: max(16px, 2vh);
+}
