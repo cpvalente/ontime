@@ -7,7 +7,6 @@ services:
     ports:
       - "4001:4001/tcp"
       - "10.0.0.12:8888:8888/udp"
-      - "9999:9999/udp"
     volumes:
       - "./ontime-db:/server/preloaded-db"
     restart: unless-stopped
