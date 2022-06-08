@@ -171,6 +171,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      # Prepare builder
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
       # Build and push
       - name: Build and push
