@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { APP_TABLE } from 'app/api/apiConstants';
 import { getInfo, ontimePlaceholderInfo } from 'app/api/ontimeApi';
 import { useFetch } from 'app/hooks/useFetch';
+
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
 import { openLink } from '../../common/utils/linkUtils';
+
 import style from './Info.module.scss';
 
 export default function InfoNif() {

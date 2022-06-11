@@ -1,7 +1,7 @@
 import React from 'react';
-import { IoCloseSharp } from '@react-icons/all-files/io5/IoCloseSharp';
-import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
 import { Button } from '@chakra-ui/button';
+import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
+import { IoCloseSharp } from '@react-icons/all-files/io5/IoCloseSharp';
 import PropTypes from 'prop-types';
 
 export default function EnableBtn(props) {

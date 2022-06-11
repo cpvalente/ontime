@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { millisToMinutes } from '../../../common/utils/dateConfig';
+
 import style from '../Table.module.scss';
 
 export default function DelayRow(props) {

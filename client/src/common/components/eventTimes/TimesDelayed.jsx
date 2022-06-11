@@ -1,7 +1,9 @@
 import React from 'react';
-import EditableTimer from '../../input/EditableTimer';
 import PropTypes from 'prop-types';
+
+import EditableTimer from '../../input/EditableTimer';
 import { stringFromMillis } from '../../utils/time';
+
 import style from './Times.module.scss'
 
 export default function TimesDelayed(props) {

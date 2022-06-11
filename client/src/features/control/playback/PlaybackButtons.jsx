@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import Transport from './Transport';
+
 import Playback from './Playback';
+import Transport from './Transport';
 
 const areEqual = (prevProps, nextProps) => {
   return (

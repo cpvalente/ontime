@@ -1,7 +1,8 @@
 import React, { memo, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
 import LowerClean from './LowerClean';
 import LowerLines from './LowerLines';
-import { useSearchParams } from 'react-router-dom';
 const isEqual = require('react-fast-compare');
 
 const areEqual = (prevProps, nextProps) => {

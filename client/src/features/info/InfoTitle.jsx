@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+
 import style from './Info.module.scss';
 
 export default function InfoTitle(props) {

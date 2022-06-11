@@ -1,20 +1,23 @@
 /* eslint-disable jsx-a11y/anchor-has-content */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, IconButton } from '@chakra-ui/button';
+import { ModalBody } from '@chakra-ui/modal';
+import { Input } from '@chakra-ui/react';
+import { Tooltip } from '@chakra-ui/tooltip';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
-import { ModalBody } from '@chakra-ui/modal';
-import { Tooltip } from '@chakra-ui/tooltip';
-import { Input } from '@chakra-ui/react';
-import { getAliases, postAliases } from '../../app/api/ontimeApi';
-import { useFetch } from 'app/hooks/useFetch';
 import { ALIASES } from 'app/api/apiConstants';
+import { useFetch } from 'app/hooks/useFetch';
+
+import { getAliases, postAliases } from '../../app/api/ontimeApi';
 import { viewerLocations } from '../../app/appConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
-import SubmitContainer from './SubmitContainer';
 import { handleLinks, host } from '../../common/utils/linkUtils';
+
+import SubmitContainer from './SubmitContainer';
+
 import style from './Modals.module.scss';
 
 export default function AliasesModal() {

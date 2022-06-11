@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import style from './LowerLines.module.css';
+
 import NavLogo from "../../../../common/components/nav/NavLogo";
+
+import style from './LowerLines.module.css';
 
 export default function LowerLines(props) {
   const { lower, title, options } = props;

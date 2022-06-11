@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { AnimatePresence, motion } from 'framer-motion';
-import { formatDisplay } from 'common/utils/dateConfig';
-import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
+import Paginator from 'common/components/views/Paginator';
 import TitleSide from 'common/components/views/TitleSide';
+import { formatDisplay } from 'common/utils/dateConfig';
+import { AnimatePresence, motion } from 'framer-motion';
+import PropTypes from 'prop-types';
+
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { titleVariants } from '../common/animation';
-import PropTypes from 'prop-types';
+
 import style from './StageManager.module.scss';
 
 export default function StageManager(props) {

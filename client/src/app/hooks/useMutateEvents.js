@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
+
 import { EVENTS_TABLE } from '../api/apiConstants';
 
 /**
