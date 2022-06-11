@@ -3,7 +3,7 @@ version: "3"
 services:
   ontime:
     container_name: ontime
-    image: getontime/ontime:test-alpine
+    image: getontime/ontime:latest
     ports:
       - "4001:4001/tcp"
       - "127.0.0.1:8888:8888/udp"
