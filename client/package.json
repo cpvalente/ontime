@@ -51,6 +51,7 @@
     "@testing-library/react": "^13.1.1",
     "@testing-library/react-hooks": "^8.0.0",
     "@testing-library/user-event": "^14.1.1",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "prop-types": "^15.8.1",
     "react-scripts": "^5.0.1",
     "react-test-renderer": "^18.1.0",
