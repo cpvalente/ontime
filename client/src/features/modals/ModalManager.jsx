@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Modal,
   ModalCloseButton,
@@ -8,12 +7,14 @@ import {
   ModalOverlay,
 } from '@chakra-ui/modal';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/tabs';
-import EventSettingsModal from './EventSettingsModal';
-import OscSettingsModal from './OscSettingsModal';
+import PropTypes from 'prop-types';
+
 import AliasesModal from './AliasesModal';
 import AppSettingsModal from './AppSettingsModal';
-import TableOptionsModal from './TableOptionsModal';
+import EventSettingsModal from './EventSettingsModal';
 import IntegrationSettingsModal from './IntegrationSettingsModal';
+import OscSettingsModal from './OscSettingsModal';
+import TableOptionsModal from './TableOptionsModal';
 
 export default function ModalManager(props) {
   const { isOpen, onClose } = props;

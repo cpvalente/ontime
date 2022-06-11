@@ -1,16 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useFetch } from '../../app/hooks/useFetch';
-import { TableSettingsContext } from '../../app/context/TableSettingsContext';
+import { Tooltip } from '@chakra-ui/tooltip';
+import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
+import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
+import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
+
 import { EVENT_TABLE } from '../../app/api/apiConstants';
 import { fetchEvent } from '../../app/api/eventApi';
-import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
-import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
-import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { useSocket } from '../../app/context/socketContext';
+import { TableSettingsContext } from '../../app/context/TableSettingsContext';
+import { useFetch } from '../../app/hooks/useFetch';
 import { formatDisplay } from '../../common/utils/dateConfig';
-import { Tooltip } from '@chakra-ui/tooltip';
-import PlaybackIcon from './tableElements/PlaybackIcon';
 import { stringFromMillis } from '../../common/utils/time';
+
+import PlaybackIcon from './tableElements/PlaybackIcon';
+
 import style from './Table.module.scss';
 
 export default function TableHeader() {

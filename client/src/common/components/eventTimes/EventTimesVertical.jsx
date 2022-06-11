@@ -1,9 +1,11 @@
 import React, { useCallback, useContext } from 'react';
+import PropTypes from 'prop-types';
+
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { validateTimes } from '../../../app/entryValidator';
-import PropTypes from 'prop-types';
-import TimesDelayed from './TimesDelayed';
+
 import Times from './Times';
+import TimesDelayed from './TimesDelayed';
 
 export default function EventTimesVertical(props) {
   const { delay, timeStart, timeEnd, duration, previousEnd, actionHandler } = props;

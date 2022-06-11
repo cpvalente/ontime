@@ -1,12 +1,15 @@
 import React, { createRef, useCallback, useContext, useEffect, useState } from 'react';
-import style from './List.module.scss';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { useSocket } from 'app/context/socketContext';
 import Empty from 'common/state/Empty';
-import EventListItem from './EventListItem';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import EntryBlock from '../EntryBlock/EntryBlock';
+
 import { CursorContext } from '../../../app/context/CursorContext';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
+import EntryBlock from '../EntryBlock/EntryBlock';
+
+import EventListItem from './EventListItem';
+
+import style from './List.module.scss';
 
 export default function EventList(props) {
   const { events, eventsHandler } = props;

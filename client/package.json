@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^2.0.0-next.3",
@@ -30,6 +30,7 @@
   "scripts": {
     "start": "set BROWSER=none&&react-scripts start",
     "build": "react-scripts build",
+    "lint": "eslint .",
     "test": "react-scripts test",
     "test:pipeline": "react-scripts test --watchAll=false --runInBand --detectOpenHandles --forceExit ",
     "eject": "react-scripts eject"

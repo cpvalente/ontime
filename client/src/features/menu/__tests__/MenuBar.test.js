@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import MenuBar from '../MenuBar';
-import { queryClientMock } from '../../../__mocks__/QueryClient.mock';
 import { QueryClientProvider } from 'react-query';
+import { render, screen } from '@testing-library/react';
+
+import { queryClientMock } from '../../../__mocks__/QueryClient.mock';
+import MenuBar from '../MenuBar';
 
 const onOpenHandler = jest.fn();
 const onCloseHandler = jest.fn();

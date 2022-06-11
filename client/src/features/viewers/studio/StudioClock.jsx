@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import style from './StudioClock.module.scss';
+import PropTypes from 'prop-types';
 import useFitText from 'use-fit-text';
+
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import {
@@ -8,7 +9,8 @@ import {
   getEventsWithDelay,
   trimEventlist,
 } from '../../../common/utils/eventsManager';
-import PropTypes from 'prop-types';
+
+import style from './StudioClock.module.scss';
 
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir } = props;

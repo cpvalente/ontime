@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import style from './PlaybackControl.module.scss';
 import { useSocket } from 'app/context/socketContext';
+
 import PlaybackButtons from './PlaybackButtons';
 import PlaybackTimer from './PlaybackTimer';
+
+import style from './PlaybackControl.module.scss';
 
 export default function PlaybackControl() {
   const socket = useSocket();

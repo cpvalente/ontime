@@ -1,9 +1,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { forgivingStringToMillis } from '../utils/dateConfig';
-import { LoggingContext } from '../../app/context/LoggingContext';
 import PropTypes from 'prop-types';
+
+import { LoggingContext } from '../../app/context/LoggingContext';
+import { forgivingStringToMillis } from '../utils/dateConfig';
 import { stringFromMillis } from '../utils/time';
+
 import style from './EditableTimer.module.scss';
 
 export default function EditableTimer(props) {

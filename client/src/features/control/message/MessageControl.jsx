@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSocket } from 'app/context/socketContext';
-import InputRow from './InputRow';
-import { Tooltip } from '@chakra-ui/tooltip';
 import { IconButton } from '@chakra-ui/button';
-import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
+import { Tooltip } from '@chakra-ui/tooltip';
 import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
+import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
+import { useSocket } from 'app/context/socketContext';
+
+import InputRow from './InputRow';
+
 import style from './MessageControl.module.scss';
 
 export default function MessageControl() {

@@ -1,12 +1,15 @@
 import React, { useContext, useMemo } from 'react';
+import { Draggable } from 'react-beautiful-dnd';
 import Icon from '@chakra-ui/icon';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
-import { Draggable } from 'react-beautiful-dnd';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import PropTypes from 'prop-types';
+
 import { CollapseContext } from '../../../app/context/CollapseContext';
+
 import CollapsedBlock from './CollapsedBlock';
 import ExpandedBlock from './ExpandedBlock';
+
 import style from './EventBlock.module.scss';
 
 export default function EventBlock(props) {

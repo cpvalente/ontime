@@ -1,11 +1,13 @@
 import React from 'react';
-import { HStack } from '@chakra-ui/react';
 import { Draggable } from 'react-beautiful-dnd';
-import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
+import { HStack } from '@chakra-ui/react';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
+import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
+import PropTypes from 'prop-types';
+
 import ActionButtons from '../../../common/components/buttons/ActionButtons';
 import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipLoadingActionBtn';
-import PropTypes from 'prop-types';
+
 import style from './BlockBlock.module.scss';
 
 export default function BlockBlock(props) {

@@ -1,13 +1,15 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+
 import { AppContextProvider } from './app/context/AppContext';
 import SocketProvider from './app/context/socketContext';
 import theme from './theme/theme';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
 import './index.scss';
 
 // Load Open Sans typeface

@@ -1,13 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Image } from '@chakra-ui/react';
-import { AnimatePresence, motion } from 'framer-motion';
-import navlogo from 'assets/images/logos/LOGO-72.png';
-import style from './NavLogo.module.scss';
 import { IconButton } from '@chakra-ui/button';
+import { Image } from '@chakra-ui/react';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
+import navlogo from 'assets/images/logos/LOGO-72.png';
+import { AnimatePresence, motion } from 'framer-motion';
+import PropTypes from 'prop-types';
+
 import navigatorConstants from './navigatorConstants';
+
+import style from './NavLogo.module.scss';
 
 /* Styling for action buttons */
 const navButtonStyle = {

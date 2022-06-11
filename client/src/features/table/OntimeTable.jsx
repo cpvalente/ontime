@@ -1,8 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
-import { TableSettingsContext } from '../../app/context/TableSettingsContext';
 import { useBlockLayout, useColumnOrder, useResizeColumns, useTable } from 'react-table';
 import { Tooltip } from '@chakra-ui/tooltip';
-import PropTypes from 'prop-types';
 import {
   closestCenter,
   DndContext,
@@ -17,14 +15,19 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
+import PropTypes from 'prop-types';
+
+import { TableSettingsContext } from '../../app/context/TableSettingsContext';
 import { useLocalStorage } from '../../app/hooks/useLocalStorage';
-import { defaultColumnOrder, defaultHiddenColumns } from './defaults';
-import { makeColumns } from './columns';
-import EventRow from './tableRows/EventRow';
-import DelayRow from './tableRows/DelayRow';
-import BlockRow from './tableRows/BlockRow';
+
 import SortableCell from './tableElements/SortableCell';
 import TableSettings from './tableElements/TableSettings';
+import BlockRow from './tableRows/BlockRow';
+import DelayRow from './tableRows/DelayRow';
+import EventRow from './tableRows/EventRow';
+import { makeColumns } from './columns';
+import { defaultColumnOrder, defaultHiddenColumns } from './defaults';
+
 import style from './Table.module.scss';
 
 export default function OntimeTable({ tableData, userFields, handleUpdate, selectedId }) {

@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
-import { clamp } from '../../app/utils/math';
-import style from './TimeInput.module.css';
 import PropTypes from 'prop-types';
+
+import { clamp } from '../../app/utils/math';
+
+import style from './TimeInput.module.css';
 
 const inputProps = {
   width: 20,

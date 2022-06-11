@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { AutoTextArea } from '../../../common/input/AutoTextArea';
 import PropTypes from 'prop-types';
+
+import { AutoTextArea } from '../../../common/input/AutoTextArea';
 
 /**
  * Shamelessly copied from react-table docs

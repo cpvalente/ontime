@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import Countdown from 'common/components/countdown/Countdown';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
 import NavLogo from 'common/components/nav/NavLogo';
 import TitleCard from 'common/components/views/TitleCard';
+import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+
 import style from './Timer.module.scss';
 
 export default function Timer(props) {

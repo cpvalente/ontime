@@ -1,7 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Icon } from '@chakra-ui/react';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
+import PropTypes from 'prop-types';
+
 import style from './CollapseBar.module.scss';
 
 export default function CollapseBar(props) {

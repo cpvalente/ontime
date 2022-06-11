@@ -1,8 +1,10 @@
 import React from 'react';
-import StartIconBtn from '../../../common/components/buttons/StartIconBtn';
+import PropTypes from 'prop-types';
+
 import PauseIconBtn from '../../../common/components/buttons/PauseIconBtn';
 import RollIconBtn from '../../../common/components/buttons/RollIconBtn';
-import PropTypes from 'prop-types';
+import StartIconBtn from '../../../common/components/buttons/StartIconBtn';
+
 import style from './PlaybackControl.module.scss';
 
 export default function Playback(props) {

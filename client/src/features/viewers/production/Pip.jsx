@@ -1,11 +1,12 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { AnimatePresence, motion } from 'framer-motion';
-import Paginator from 'common/components/views/Paginator';
-import NavLogo from 'common/components/nav/NavLogo';
-import { formatDisplay } from 'common/utils/dateConfig';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
+import NavLogo from 'common/components/nav/NavLogo';
+import Paginator from 'common/components/views/Paginator';
+import { formatDisplay } from 'common/utils/dateConfig';
+import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+
 import style from './Pip.module.scss';
 
 export default function Pip(props) {

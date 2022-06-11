@@ -1,11 +1,13 @@
 import React, { lazy, useEffect } from 'react';
 import { useDisclosure } from '@chakra-ui/hooks';
-import ModalManager from 'features/modals/ModalManager';
-import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
-import { LoggingProvider } from '../../app/context/LoggingContext';
-import { LocalEventSettingsProvider } from '../../app/context/LocalEventSettingsContext';
 import { Box } from '@chakra-ui/layout';
+import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
+import ModalManager from 'features/modals/ModalManager';
+
+import { LocalEventSettingsProvider } from '../../app/context/LocalEventSettingsContext';
+import { LoggingProvider } from '../../app/context/LoggingContext';
 import MenuBar from '../menu/MenuBar';
+
 import styles from './Editor.module.scss';
 
 const EventList = lazy(() => import('features/editors/list/EventListExport'));

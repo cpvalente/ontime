@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
-import { LoggingContext } from '../../../app/context/LoggingContext';
 import {
   fetchAllEvents,
   requestApplyDelay,
@@ -13,10 +12,14 @@ import {
   requestReorder,
 } from 'app/api/eventsApi.js';
 import { useFetch } from 'app/hooks/useFetch.js';
-import EventList from './EventList';
-import EventListMenu from 'features/menu/EventListMenu.jsx';
 import Empty from 'common/state/Empty';
+import EventListMenu from 'features/menu/EventListMenu.jsx';
+
 import { CollapseContext } from '../../../app/context/CollapseContext';
+import { LoggingContext } from '../../../app/context/LoggingContext';
+
+import EventList from './EventList';
+
 import styles from '../Editor.module.scss';
 
 export default function EventListWrapper() {

@@ -1,9 +1,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { HStack, PinInput, PinInputField } from '@chakra-ui/react';
 import { IconButton } from '@chakra-ui/button';
+import { HStack, PinInput, PinInputField } from '@chakra-ui/react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
+import PropTypes from 'prop-types';
+
 import { AppContext } from '../../../app/context/AppContext';
+
 import style from './ProtectRoute.module.scss';
 
 export default function ProtectRoute({ children }) {

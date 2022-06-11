@@ -1,18 +1,21 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { IconButton } from '@chakra-ui/button';
 import { ModalBody } from '@chakra-ui/modal';
 import { Checkbox, FormControl, FormLabel, Input, PinInput, PinInputField } from '@chakra-ui/react';
-import { getSettings, ontimePlaceholderSettings, postSettings } from 'app/api/ontimeApi';
-import { useFetch } from 'app/hooks/useFetch';
-import { APP_SETTINGS } from 'app/api/apiConstants';
-import style from './Modals.module.scss';
-import { LoggingContext } from '../../app/context/LoggingContext';
-import { IconButton } from '@chakra-ui/button';
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
-import SubmitContainer from './SubmitContainer';
-import { inputProps } from './modalHelper';
+import { APP_SETTINGS } from 'app/api/apiConstants';
+import { getSettings, ontimePlaceholderSettings, postSettings } from 'app/api/ontimeApi';
+import { useFetch } from 'app/hooks/useFetch';
+
 import { LocalEventSettingsContext } from '../../app/context/LocalEventSettingsContext';
+import { LoggingContext } from '../../app/context/LoggingContext';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
+
+import { inputProps } from './modalHelper';
+import SubmitContainer from './SubmitContainer';
+
+import style from './Modals.module.scss';
 const version = require('../../../package.json').version
 
 export default function AppSettingsModal() {

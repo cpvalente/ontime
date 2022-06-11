@@ -1,11 +1,13 @@
 import React, { memo } from 'react';
 import { HStack } from '@chakra-ui/react';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
+import PropTypes from 'prop-types';
+
 import ActionButtons from '../../../common/components/buttons/ActionButtons';
+import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
 import EventTimes from '../../../common/components/eventTimes/EventTimes';
 import EditableText from '../../../common/input/EditableText';
-import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
-import PropTypes from 'prop-types';
+
 import style from './EventBlock.module.scss';
 
 const areEqual = (prevProps, nextProps) => {
