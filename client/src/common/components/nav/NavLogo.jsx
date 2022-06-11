@@ -7,6 +7,7 @@ import navlogo from 'assets/images/logos/LOGO-72.png';
 import style from './NavLogo.module.scss';
 import { IconButton } from '@chakra-ui/button';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
+import navigatorConstants from './navigatorConstants';
 
 /* Styling for action buttons */
 const navButtonStyle = {
@@ -91,27 +92,14 @@ export default function NavLogo(props) {
               exit={{ opacity: 0, scaleY: 0, y: -50 }}
               className={style.nav}
             >
-              <Link to='/timer' {...tabProps}>
-                Timer
-              </Link>
-              <Link to='/minimal' {...tabProps}>
-                Minimal Timer
-              </Link>
-              <Link to='/sm' {...tabProps}>
-                Backstage
-              </Link>
-              <Link to='/public' {...tabProps}>
-                Public
-              </Link>
-              <Link to='/lower' {...tabProps}>
-                Lower Thirds
-              </Link>
-              <Link to='/pip' {...tabProps}>
-                PIP
-              </Link>
-              <Link to='/studio' {...tabProps}>
-                Studio Clock
-              </Link>
+              {navigatorConstants.map((route) => (
+                <Link
+                  to={route.url}
+                  key={route.url}
+                  {...tabProps}>
+                  {route.label}
+                </Link>
+              ))}
             </motion.div>
           </>
         )}
