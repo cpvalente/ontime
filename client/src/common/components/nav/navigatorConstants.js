@@ -6,7 +6,6 @@ const navigatorConstants = [
   { url: '/lower', label: 'Lower Thirds' },
   { url: '/pip', label: 'PiP' },
   { url: '/studio', label: 'Studio Clock' },
-  { url: '/countdown', label: 'Countdown' },
 ];
 
 export default navigatorConstants;
