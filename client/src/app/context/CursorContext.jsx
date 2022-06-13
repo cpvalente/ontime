@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useMemo, useState } from 'react';
+
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export const CursorContext = createContext({

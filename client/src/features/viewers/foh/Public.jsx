@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { AnimatePresence, motion } from 'framer-motion';
-import Paginator from 'common/components/views/Paginator';
 import NavLogo from 'common/components/nav/NavLogo';
+import Paginator from 'common/components/views/Paginator';
 import TitleSide from 'common/components/views/TitleSide';
-import { titleVariants } from '../common/animation';
+import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+
+import { titleVariants } from '../common/animation';
+
 import style from './Public.module.scss';
 
 export default function Public(props) {

@@ -1,11 +1,14 @@
 import React from 'react';
-import { CursorProvider } from '../../../app/context/CursorContext';
-import { CollapseProvider } from '../../../app/context/CollapseContext';
 import { Box } from '@chakra-ui/layout';
-import ErrorBoundary from '../../../common/components/errorBoundary/ErrorBoundary';
-import EventListWrapper from './EventListWrapper';
 import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
+
+import { CollapseProvider } from '../../../app/context/CollapseContext';
+import { CursorProvider } from '../../../app/context/CursorContext';
+import ErrorBoundary from '../../../common/components/errorBoundary/ErrorBoundary';
 import { handleLinks } from '../../../common/utils/linkUtils';
+
+import EventListWrapper from './EventListWrapper';
+
 import style from '../Editor.module.scss';
 
 export default function EventListExport() {

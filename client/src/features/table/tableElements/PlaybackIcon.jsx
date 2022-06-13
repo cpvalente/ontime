@@ -1,10 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { Tooltip } from '@chakra-ui/tooltip';
+import { IoPause } from '@react-icons/all-files/io5/IoPause';
+import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { IoStop } from '@react-icons/all-files/io5/IoStop';
+import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
+import PropTypes from 'prop-types';
 
 export default function PlaybackIcon(props) {
   const { state } = props;

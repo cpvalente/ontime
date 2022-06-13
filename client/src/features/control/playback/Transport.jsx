@@ -1,11 +1,13 @@
 import React from 'react';
+import { IoArrowUndo } from '@react-icons/all-files/io5/IoArrowUndo';
 import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
-import { IoArrowUndo } from '@react-icons/all-files/io5/IoArrowUndo';
-import UnloadIconBtn from '../../../common/components/buttons/UnloadIconBtn';
 import PropTypes from 'prop-types';
-import style from './PlaybackControl.module.scss';
+
 import TransportIconBtn from '../../../common/components/buttons/TransportIconBtn';
+import UnloadIconBtn from '../../../common/components/buttons/UnloadIconBtn';
+
+import style from './PlaybackControl.module.scss';
 
 export default function Transport(props) {
   const { playback, selectedId, playbackControl, noEvents } = props;

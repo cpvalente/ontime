@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import TodayItem from './TodayItem';
 import { useInterval } from 'app/hooks/useInterval';
 import PropTypes from 'prop-types';
+
 import Empty from '../../state/Empty';
+
+import TodayItem from './TodayItem';
+
 import style from './Paginator.module.scss';
 
 export default function Paginator(props) {

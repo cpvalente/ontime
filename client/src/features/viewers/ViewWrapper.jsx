@@ -1,10 +1,11 @@
 /* eslint-disable react/display-name */
 import React, { useEffect, useState } from 'react';
-import { fetchAllEvents } from 'app/api/eventsApi';
+import { EVENT_TABLE, EVENTS_TABLE } from 'app/api/apiConstants';
 import { fetchEvent } from 'app/api/eventApi';
+import { fetchAllEvents } from 'app/api/eventsApi';
 import { useSocket } from 'app/context/socketContext';
 import { useFetch } from 'app/hooks/useFetch';
-import { EVENT_TABLE, EVENTS_TABLE } from 'app/api/apiConstants';
+
 import { stringFromMillis } from '../../common/utils/time';
 
 const withSocket = (Component) => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@chakra-ui/button';
 import PropTypes from 'prop-types';
+
 import style from '../Table.module.scss';
 
 // reusable button styles

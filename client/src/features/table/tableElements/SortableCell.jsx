@@ -3,6 +3,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import PropTypes from 'prop-types';
+
 import styles from '../Table.module.scss';
 
 export default function SortableCell({ column }) {

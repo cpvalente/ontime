@@ -1,6 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+
 import { LoggingContext } from '../../app/context/LoggingContext';
+import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+
 import style from './InfoLogger.module.scss';
 
 export default function InfoLogger() {

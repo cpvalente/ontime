@@ -1,6 +1,8 @@
 import React from 'react';
-import ProtectRoute from '../common/components/protectRoute/ProtectRoute';
 import PropTypes from 'prop-types';
+
+import ProtectRoute from '../common/components/protectRoute/ProtectRoute';
+
 import style from './FeatureWrapper.module.scss';
 
 export default function FeatureWrapper({ children }) {

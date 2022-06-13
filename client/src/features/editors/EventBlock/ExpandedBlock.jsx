@@ -1,13 +1,15 @@
 import React, { memo } from 'react';
 import { VStack } from '@chakra-ui/react';
-import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
+import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
+import PropTypes from 'prop-types';
+
 import ActionButtons from '../../../common/components/buttons/ActionButtons';
-import EventTimesVertical from '../../../common/components/eventTimes/EventTimesVertical';
-import EditableText from '../../../common/input/EditableText';
 import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
 import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipLoadingActionBtn';
-import PropTypes from 'prop-types';
+import EventTimesVertical from '../../../common/components/eventTimes/EventTimesVertical';
+import EditableText from '../../../common/input/EditableText';
+
 import style from './EventBlock.module.scss';
 
 const areEqual = (prevProps, nextProps) => {

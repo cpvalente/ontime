@@ -1,6 +1,8 @@
 /* eslint-disable react/destructuring-assignment */
 import React from 'react';
+
 import { LoggingContext } from '../../../app/context/LoggingContext';
+
 import style from './ErrorBoundary.module.scss';
 const appVersion = require('../../../../package.json').version;
 

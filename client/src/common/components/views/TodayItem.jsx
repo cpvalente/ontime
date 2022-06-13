@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { stringFromMillis } from '../../utils/time';
+
 import style from './Paginator.module.scss';
 
 export default function TodayItem(props) {

@@ -1,11 +1,13 @@
 import React, { lazy, Suspense, useCallback, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import './App.scss';
-import withSocket from 'features/viewers/ViewWrapper';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
-import { useFetch } from './app/hooks/useFetch';
+import withSocket from 'features/viewers/ViewWrapper';
+
 import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
+import { useFetch } from './app/hooks/useFetch';
+
+import './App.scss';
 
 const Editor = lazy(() => import('features/editors/ProtectedEditor'));
 const Table = lazy(() => import('features/table/ProtectedTable'));

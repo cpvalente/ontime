@@ -1,8 +1,9 @@
 import React, { useCallback, useContext } from 'react';
 import EditableTimer from 'common/input/EditableTimer';
+import PropTypes from 'prop-types';
+
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { validateTimes } from '../../../app/entryValidator';
-import PropTypes from 'prop-types';
 
 export default function EventTimes(props) {
   const { actionHandler, delay, timeStart, timeEnd, previousEnd } = props;

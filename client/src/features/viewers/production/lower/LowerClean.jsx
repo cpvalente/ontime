@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import style from './LowerClean.module.css';
+
 import NavLogo from "../../../../common/components/nav/NavLogo";
+
+import style from './LowerClean.module.css';
 
 export default function LowerClean(props) {
   const { lower, title, options } = props;

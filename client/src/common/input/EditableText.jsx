@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import style from './EditableText.module.scss';
 import PropTypes from 'prop-types';
+
+import style from './EditableText.module.scss';
 
 export default function EditableText(props) {
   const { label, defaultValue, placeholder, submitHandler, maxchar = 40, ...rest } = props;

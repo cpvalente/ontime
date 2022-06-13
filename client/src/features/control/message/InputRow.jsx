@@ -1,9 +1,10 @@
 import React from 'react';
+import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { IconButton } from '@chakra-ui/button';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import PropTypes from 'prop-types';
+
 import style from './MessageControl.module.scss';
 
 export default function InputRow(props) {

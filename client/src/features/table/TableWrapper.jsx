@@ -1,13 +1,16 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useFetch } from '../../app/hooks/useFetch';
-import { useSocket } from '../../app/context/socketContext';
-import { TableSettingsContext } from '../../app/context/TableSettingsContext';
+
 import { EVENTS_TABLE, USERFIELDS } from '../../app/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../app/api/eventsApi';
-import TableHeader from './TableHeader';
-import OntimeTable from './OntimeTable';
-import useMutateEvents from '../../app/hooks/useMutateEvents';
 import { getUserFields } from '../../app/api/ontimeApi';
+import { useSocket } from '../../app/context/socketContext';
+import { TableSettingsContext } from '../../app/context/TableSettingsContext';
+import { useFetch } from '../../app/hooks/useFetch';
+import useMutateEvents from '../../app/hooks/useMutateEvents';
+
+import OntimeTable from './OntimeTable';
+import TableHeader from './TableHeader';
+
 import style from './Table.module.scss';
 
 export default function TableWrapper() {

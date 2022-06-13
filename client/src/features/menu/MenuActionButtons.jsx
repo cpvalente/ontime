@@ -1,12 +1,12 @@
 import React from 'react';
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { IconButton } from '@chakra-ui/button';
+import { Divider } from '@chakra-ui/layout';
+import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
+import { Tooltip } from '@chakra-ui/tooltip';
 import { FiClock } from '@react-icons/all-files/fi/FiClock';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
 import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
-import { Divider } from '@chakra-ui/layout';
-import { Tooltip } from '@chakra-ui/tooltip';
 import PropTypes from 'prop-types';
 
 export default function MenuActionButtons(props) {
