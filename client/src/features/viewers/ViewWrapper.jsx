@@ -222,6 +222,7 @@ const withSocket = (Component) => {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
       clock: stringFromMillis(timer.clock),
+      clockMs: timer.clock,
       clockNoSeconds: stringFromMillis(timer.clock, false),
       playstate: playback,
     };
