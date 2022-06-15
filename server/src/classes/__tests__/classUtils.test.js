@@ -411,22 +411,6 @@ describe('test that roll behaviour with overlapping times', () => {
     const state = getSelectionByRoll(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
-
-  it('if timer is at 31', () => {
-    const now = 31;
-    const expected = {
-      nowIndex: null,
-      nowId: null,
-      publicIndex: null,
-      nextIndex: null,
-      publicNextIndex: null,
-      timers: null,
-      timeToNext: null,
-    };
-
-    const state = getSelectionByRoll(eventlist, now);
-    expect(state).toStrictEqual(expected);
-  });
 });
 
 // test replacePlaceholder()
