@@ -62,16 +62,8 @@ export const getSelectionByRoll = (arr, now) => {
   // current timer
   let timers = null;
 
-  // Order events by startTime
-  const orderedEvents = sortArrayByProperty(arr, 'timeStart');
-
-  // flags: select first event if several overlapping
-  let nowFound = false;
-
-  // exit early if we are past the events
-  const lastEvent = orderedEvents[orderedEvents.length - 1];
-  const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
-  if (now > lastNormalEnd) {
+  // exit early if there are no events
+  if (arr.length < 1) {
     return {
       nowIndex,
       nowId,
@@ -83,59 +75,83 @@ export const getSelectionByRoll = (arr, now) => {
     };
   }
 
-  // loop through events, look for where we should be
-  for (const e of orderedEvents) {
-    // When does the event end (handle midnight)
-    const normalEnd = normaliseEndTime(e.timeStart, e.timeEnd);
+  // Order events by startTime
+  const orderedEvents = sortArrayByProperty(arr, 'timeStart');
 
-    if (normalEnd <= now) {
-      // event ran already
+  // preload first if we are past events
+  const lastEvent = orderedEvents[orderedEvents.length - 1];
+  const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
 
-      // public event might not be the one running
-      if (e.isPublic && normalEnd > publicTime) {
-        publicTime = normalEnd;
-        publicIndex = arr.findIndex((a) => a.id === e.id);
-      }
-    } else if (normalEnd > now && now >= e.timeStart && !nowFound) {
-      // event is running
+  if (now > lastNormalEnd) {
+    nextIndex = 0;
+    timeToNext = orderedEvents[0].timeStart + DAY_TO_MS - now;
 
-      // it could also be public
+    // look for next public
+    for (const e of orderedEvents) {
       if (e.isPublic) {
-        publicTime = normalEnd;
-        publicIndex = arr.findIndex((a) => a.id === e.id);
-      }
-
-      nowIndex = arr.findIndex((a) => a.id === e.id);
-      nowId = e.id;
-
-      // set timers
-      timers = {
-        _startedAt: e.timeStart,
-        _finishAt: e.timeEnd,
-        duration: normalEnd - e.timeStart,
-        current: normalEnd - now,
-      };
-      nowFound = true;
-    } else if (normalEnd > now) {
-      // event will run
-
-      // no need to look after found first
-      if (nextIndex !== null && publicNextIndex !== null) continue;
-
-      // look for next events
-      // check how far the start is from now
-      const wait = e.timeStart - now;
-
-      if (nextIndex == null || wait < timeToNext) {
-        timeToNext = wait;
-        nextIndex = arr.findIndex((a) => a.id === e.id);
-      }
-      if ((publicNextIndex === null || wait < publicTimeToNext) && e.isPublic) {
-        publicTimeToNext = wait;
         publicNextIndex = arr.findIndex((a) => a.id === e.id);
+        break;
+      }
+    }
+  } else {
+    // flags: select first event if several overlapping
+    let nowFound = false;
+
+    // loop through events, look for where we should be
+    for (const e of orderedEvents) {
+      // When does the event end (handle midnight)
+      const normalEnd = normaliseEndTime(e.timeStart, e.timeEnd);
+
+      if (normalEnd <= now) {
+        // event ran already
+
+        // public event might not be the one running
+        if (e.isPublic && normalEnd > publicTime) {
+          publicTime = normalEnd;
+          publicIndex = arr.findIndex((a) => a.id === e.id);
+        }
+      } else if (normalEnd > now && now >= e.timeStart && !nowFound) {
+        // event is running
+
+        // it could also be public
+        if (e.isPublic) {
+          publicTime = normalEnd;
+          publicIndex = arr.findIndex((a) => a.id === e.id);
+        }
+
+        nowIndex = arr.findIndex((a) => a.id === e.id);
+        nowId = e.id;
+
+        // set timers
+        timers = {
+          _startedAt: e.timeStart,
+          _finishAt: e.timeEnd,
+          duration: normalEnd - e.timeStart,
+          current: normalEnd - now,
+        };
+        nowFound = true;
+      } else if (normalEnd > now) {
+        // event will run
+
+        // no need to look after found first
+        if (nextIndex !== null && publicNextIndex !== null) continue;
+
+        // look for next events
+        // check how far the start is from now
+        const wait = e.timeStart - now;
+
+        if (nextIndex === null || wait < timeToNext) {
+          timeToNext = wait;
+          nextIndex = arr.findIndex((a) => a.id === e.id);
+        }
+        if ((publicNextIndex === null || wait < publicTimeToNext) && e.isPublic) {
+          publicTimeToNext = wait;
+          publicNextIndex = arr.findIndex((a) => a.id === e.id);
+        }
       }
     }
   }
+
   return {
     nowIndex,
     nowId,
