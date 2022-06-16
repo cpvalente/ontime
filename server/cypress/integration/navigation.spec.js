@@ -49,13 +49,28 @@ describe('validate routes', () => {
 
   it('self contained editor routes', () => {
     cy.visit('http://localhost:4001/eventlist');
-    cy.contains('Event List');
+    cy.get('.App').should('contain', 'Event List');
+    cy.get('.App').should('not.contain', 'Timer Control');
+    cy.get('.App').should('not.contain', 'Messages Control');
+    cy.get('.App').should('not.contain', 'Info');
+
     cy.visit('http://localhost:4001/timercontrol');
-    cy.contains('Timer Control');
+    cy.get('.App').should('not.contain', 'Event List');
+    cy.get('.App').should('contain', 'Timer Control');
+    cy.get('.App').should('not.contain', 'Messages Control');
+    cy.get('.App').should('not.contain', 'Info');
+
     cy.visit('http://localhost:4001/messagecontrol');
-    cy.contains('Messages Control');
+    cy.get('.App').should('not.contain', 'Event List');
+    cy.get('.App').should('not.contain', 'Timer Control');
+    cy.get('.App').should('contain', 'Messages Control');
+    cy.get('.App').should('not.contain', 'Info');
+
     cy.visit('http://localhost:4001/info');
-    cy.contains('Info');
+    cy.get('.App').should('not.contain', 'Event List');
+    cy.get('.App').should('not.contain', 'Timer Control');
+    cy.get('.App').should('not.contain', 'Messages Control');
+    cy.get('.App').should('contain', 'Info');
   });
 
   it('table routes', () => {
