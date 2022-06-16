@@ -68,8 +68,8 @@ export default function Countdown(props) {
         Following: {follow.title} <br />
         Time now: {time.clock} <br />
         Time now ms: {time.clockMs} <br />
-        Event Starts at: {stringFromMillis(follow.timeStart)} <br />
-        Event finishes at: {stringFromMillis(follow.timeEnd)} <br />
+        Start Time: {stringFromMillis(follow.timeStart)} <br />
+        End Time at: {stringFromMillis(follow.timeEnd)} <br />
         Time to start: {stringFromMillis(follow.timeStart - time.clockMs)}<br />
         Time to finish {stringFromMillis(follow.timeEnd - time.clockMs)}:<br />
         Upcoming: {(time.clockMs < follow.timeStart) ? 'true' : 'false'} <br />
