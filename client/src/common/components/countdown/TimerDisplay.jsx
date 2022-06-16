@@ -2,9 +2,9 @@ import React, { memo } from 'react';
 import { formatDisplay } from 'common/utils/dateConfig';
 import PropTypes from 'prop-types';
 
-import styles from './Countdown.module.scss';
+import styles from './TimerDisplay.module.scss';
 
-const Countdown = ({ time, small, isNegative, hideZeroHours }) => {
+const TimerDisplay = ({ time, small, isNegative, hideZeroHours }) => {
   // prepare display string
   const display =
     time != null && !isNaN(time) ? formatDisplay(time, hideZeroHours) : '-- : -- : --';
@@ -19,9 +19,9 @@ const Countdown = ({ time, small, isNegative, hideZeroHours }) => {
   );
 };
 
-export default memo(Countdown);
+export default memo(TimerDisplay);
 
-Countdown.propTypes = {
+TimerDisplay.propTypes = {
   time: PropTypes.number,
   small: PropTypes.bool,
   isNegative: PropTypes.bool,

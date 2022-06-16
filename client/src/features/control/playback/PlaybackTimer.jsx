@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Button } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/react';
-import Countdown from 'common/components/countdown/Countdown';
+import Countdown from 'common/components/countdown/TimerDisplay';
 import PropTypes from 'prop-types';
 
 import { stringFromMillis } from '../../../common/utils/time';
