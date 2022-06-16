@@ -50,9 +50,9 @@ describe('validate routes', () => {
   it('self contained editor routes', () => {
     cy.visit('http://localhost:4001/eventlist');
     cy.contains('Event List');
-    cy.not.contains('Timer Control');
-    cy.not.contains('Messages Control');
-    cy.not.contains('Info');
+    cy.get('App').should('not.contain', 'Timer Control');
+    cy.get('App').should('not.contain', 'Messages Control');
+    cy.get('App').should('not.contain', 'Info');
 
     cy.visit('http://localhost:4001/timercontrol');
     cy.not.contains('Event List');
