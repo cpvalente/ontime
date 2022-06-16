@@ -9,6 +9,12 @@
   color: $ontime-pink;
 }
 
+h1 {
+  font-size: max(1.5em, 16px);
+  color: $bg-gray-100;
+  padding-bottom: 0.25em;
+}
+
 .mainContainer {
   background: $bg-black;
   width: 100%;
@@ -36,89 +42,6 @@
       display: inline;
     }
   }
-}
-
-/* 2/3 window, hide info */
-@media (max-width: 1450px) and (min-height: 700px) {
-  .mainContainer {
-    height: 100%;
-    grid-template-rows: auto 1fr;
-    grid-template-columns: 40px 48em auto;
-    /* grid-template-areas:
-      'even play sett'
-      'even mess sett'; */
-  }
-
-  .info {
-    visibility: hidden;
-  }
-}
-
-/* 1/2 window, event list only */
-@media (max-width: 1100px) {
-  .mainContainer {
-    height: 100%;
-    grid-template-rows: 1fr auto;
-    grid-template-columns: 40px 48em;
-    /* grid-template-areas:
-      'sett even '
-      'sett play '; */
-  }
-
-  .info,
-  .messages,
-  .playback {
-    visibility: hidden;
-  }
-}
-
-/* 1/3 window, show control only */
-@media (max-width: 850px) and (min-height: 500px) {
-  .mainContainer {
-    grid-template-rows: auto 1fr;
-    grid-template-columns: 100%;
-    column-gap: 0;
-    grid-template-areas:
-      'play'
-      'mess';
-  }
-
-  .playback,
-  .messages {
-    visibility: visible;
-  }
-
-  .editor,
-  .info,
-  .settings {
-    visibility: hidden;
-  }
-}
-
-/* 1/3 corner window, playback only */
-@media (max-width: 850px) and (max-height: 500px) {
-  .mainContainer {
-    grid-template-rows: 100%;
-    grid-template-columns: 100%;
-    grid-template-areas: 'play';
-  }
-
-  .playback {
-    visibility: visible;
-  }
-
-  .editor,
-  .messages,
-  .info,
-  .settings {
-    visibility: hidden;
-  }
-}
-
-h1 {
-  font-size: max(1.5em, 16px);
-  color: $bg-gray-100;
-  padding-bottom: 0.25em;
 }
 
 .mainContainer > div {
@@ -184,15 +107,74 @@ h1 {
   padding-top: 0.5em;
 }
 
-.cornerButtonContainer {
-  position: relative;
-  top: -4.5em;
-  display: flex;
-  justify-content: flex-end;
+
+/* 2/3 window, hide info */
+@media (max-width: 1450px) and (min-width: 1101px) {
+  .mainContainer {
+    height: 100%;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 40px 48em auto;
+
+    .info {
+      visibility: hidden;
+    }
+  }
 }
 
-.buttonContainer {
-  padding-bottom: 2em;
-  display: flex;
-  justify-content: flex-end;
+/* 1/2 window, event list only */
+@media (max-width: 1100px) and (min-width: 851px){
+  .mainContainer {
+    height: 100%;
+    grid-template-rows: 1fr auto;
+    grid-template-columns: 40px 48em;
+
+    .info,
+    .messages,
+    .playback {
+      visibility: hidden;
+    }
+  }
+}
+
+/* 1/3 window, show control only */
+@media (max-width: 850px) and (min-height: 500px) {
+  .mainContainer {
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 100%;
+    column-gap: 0;
+    grid-template-areas:
+      'play'
+      'mess';
+
+    .playback,
+    .messages {
+      visibility: visible;
+    }
+
+    .editor,
+    .info,
+    .settings {
+      visibility: hidden;
+    }
+  }
+}
+
+/* 1/3 corner window, playback only */
+@media (max-width: 850px) and (max-height: 500px) {
+  .mainContainer {
+    grid-template-rows: 100%;
+    grid-template-columns: 100%;
+    grid-template-areas: 'play';
+
+    .playback {
+      visibility: visible;
+    }
+
+    .editor,
+    .messages,
+    .info,
+    .settings {
+      visibility: hidden;
+    }
+  }
 }
