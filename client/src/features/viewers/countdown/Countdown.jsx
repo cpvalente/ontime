@@ -4,14 +4,23 @@ import PropTypes from 'prop-types';
 
 import TimerDisplay from '../../../common/components/countdown/TimerDisplay';
 import NavLogo from '../../../common/components/nav/NavLogo';
+import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 
 import style from './Countdown.module.scss';
+
+const timerMessages = {
+  toStart: 'Count down to start time',
+  running: 'Event running',
+  ended: 'Event ended at',
+};
 
 export default function Countdown(props) {
   const [searchParams] = useSearchParams();
   const { backstageEvents, time } = props;
   const [follow, setFollow] = useState(null);
+  const [runningTimer, setRunningTimer] = useState(0);
+  const [runningMessage, setRunningMessage] = useState('');
 
   // Set window title
   useEffect(() => {
@@ -44,8 +53,25 @@ export default function Countdown(props) {
   }, [backstageEvents, searchParams]);
 
   useEffect(() => {
-    console.log(time);
-  }, [time]);
+    if (follow === null) {
+      return;
+    }
+
+    if (time.clockMs < follow.timeStart) {
+      // if it hasnt started, we count to start
+      setRunningMessage(timerMessages.start);
+      const t = millisToSeconds(follow.timeStart - time.clockMs);
+      setRunningTimer(t);
+    } else if (follow.timeStart <= time.clockMs && time.clockMs <= follow.timeEnd) {
+      // if it has started, we show running timer
+      setRunningMessage(timerMessages.running);
+      setRunningTimer(time.running);
+    } else {
+      // if it has ended, we show how long ago
+      setRunningMessage(timerMessages.ended);
+      setRunningTimer(follow.timeEnd);
+    }
+  }, [follow, time]);
 
   const parseTitle = useCallback((title) => {
     if (title === null || title === '' || typeof title === 'undefined') {
@@ -89,9 +115,12 @@ export default function Countdown(props) {
               <span className={style.value}>{stringFromMillis(follow.timeEnd)}</span>
             </div>
           </div>
-          <div className={style.status}>Countdown to status</div>
-          <div className={style.countdownClock}>12:00:00</div>
-          <TimerDisplay time={100} hideZeroHours />
+          <div className={style.status}>{runningMessage}</div>
+          {runningMessage === timerMessages.ended ? (
+            <span className={style.countdownClock}>{stringFromMillis(runningTimer)}</span>
+          ) : (
+            <TimerDisplay time={runningTimer} hideZeroHours />
+          )}
           <div className={style.title}>{follow.title || 'no title'}</div>
         </>
       )}
