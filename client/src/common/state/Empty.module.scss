@@ -2,16 +2,26 @@
 
 .emptyContainer {
   width: 100%;
+  height: 100%;
   text-align: center;
-}
-
-.empty {
-  width: 100%;
-  opacity: 0.3;
-}
-
-.text {
   color: $bg-black-300;
-  font-weight: 600;
-  font-size: 2em;
+
+  .empty {
+    width: 100%;
+    opacity: 0.3;
+  }
+
+  .text {
+    font-weight: 600;
+    font-size: 2em;
+  }
+
+  &.dark {
+    background: $bg-black;
+    color: $bg-gray-500;
+
+    .empty {
+      opacity: 1;
+    }
+  }
 }
