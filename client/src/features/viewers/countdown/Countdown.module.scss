@@ -1,0 +1,67 @@
+@use '../../../styles/main' as *;
+
+.container {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+
+  background: $bg-black;
+  height: 100vh;
+  color: $title-white;
+  padding: 1vw;
+
+  .eventSelect {
+    display: flex;
+    margin-top: 8vh;
+    align-items: center;
+    justify-content: center;
+    font-size: max(1.3vw, 12px);
+    flex-direction: column;
+
+    .actionTitle {
+      font-size: max(2vw, 14px);
+    }
+
+    .events {
+      margin-top: 1em;
+      overflow-y: auto;
+      height: 70vh;
+      width: 60vw;
+    }
+  }
+
+  .timers {
+    display: flex;
+    justify-content: space-evenly;
+
+    .timer {
+      text-align: center;
+
+      .label {
+        font-size: 1.3vw;
+        color: $ontime-pink;
+      }
+
+      .value {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 2vw;
+        letter-spacing: 0.3px;
+        color: #ddd;
+      }
+    }
+  }
+
+  .title {
+    font-size: 4vw;
+  }
+
+  .status {
+    font-size: 3vw;
+  }
+
+  .countdownClock {
+    font-size: 10vw;
+  }
+}
+

@@ -2,7 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
+import TimerDisplay from '../../../common/components/countdown/TimerDisplay';
+import NavLogo from '../../../common/components/nav/NavLogo';
 import { stringFromMillis } from '../../../common/utils/time';
+
+import style from './Countdown.module.scss';
 
 export default function Countdown(props) {
   const [searchParams] = useSearchParams();
@@ -17,6 +21,10 @@ export default function Countdown(props) {
   // eg. http://localhost:4001/countdown?eventId=ei0us
   // Check for user options
   useEffect(() => {
+    if (!backstageEvents) {
+      return;
+    }
+
     const eventId = searchParams.get('eventid');
     const eventIndex = searchParams.get('event');
 
@@ -47,40 +55,65 @@ export default function Countdown(props) {
     }
   }, []);
 
-  if (follow === null) {
-    return (
-      <div>
-        Choose an event to follow
-        <ul>
-          {backstageEvents.map((event, index) => (
-            <li key={event.id}>
-              <Link to={`/countdown?eventid=${event.id}`}>
-                {`${index + 1}. ${parseTitle(event.title)}`}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  } else {
-    return (
-      <div>
-        Following: {follow.title} <br />
-        Time now: {time.clock} <br />
-        Time now ms: {time.clockMs} <br />
-        Start Time: {stringFromMillis(follow.timeStart)} <br />
-        End Time at: {stringFromMillis(follow.timeEnd)} <br />
-        Time to start: {stringFromMillis(follow.timeStart - time.clockMs)}<br />
-        Time to finish {stringFromMillis(follow.timeEnd - time.clockMs)}:<br />
-        Upcoming: {(time.clockMs < follow.timeStart) ? 'true' : 'false'} <br />
-        Running: {(time.clockMs >= follow.timeStart && time.clockMs <= follow.timeEnd) ? 'true' : 'false'} <br />
-        Passed: {(time.clockMs > follow.timeEnd) ? 'true' : 'false'} <br />
-      </div>
-    );
-  }
+  return (
+    <div className={style.container}>
+      <NavLogo />
+      {follow === null ? (
+        <div className={style.eventSelect}>
+          <span className={style.actionTitle}>Select an event to follow</span>
+          <ul className={style.events}>
+            {backstageEvents
+              .filter((e) => e.type === 'event')
+              .map((event, index) => (
+                <li key={event.id}>
+                  <Link to={`/countdown?eventid=${event.id}`}>
+                    {`${index + 1}. ${parseTitle(event.title)}`}
+                  </Link>
+                </li>
+              ))}
+          </ul>
+        </div>
+      ) : (
+        <>
+          <div className={style.timers}>
+            <div className={style.timer}>
+              <div className={style.label}>Time Now</div>
+              <span className={style.value}>{time.clock}</span>
+            </div>
+            <div className={style.timer}>
+              <div className={style.label}>Start Time</div>
+              <span className={style.value}>{stringFromMillis(follow.timeStart)}</span>
+            </div>
+            <div className={style.timer}>
+              <div className={style.label}>End Time</div>
+              <span className={style.value}>{stringFromMillis(follow.timeEnd)}</span>
+            </div>
+          </div>
+          <div className={style.status}>Countdown to status</div>
+          <div className={style.countdownClock}>12:00:00</div>
+          <TimerDisplay time={100} hideZeroHours />
+          <div className={style.title}>{follow.title || 'no title'}</div>
+        </>
+      )}
+    </div>
+  );
 }
 
 Countdown.propTypes = {
   backstageEvents: PropTypes.array,
   time: PropTypes.object,
 };
+
+/*
+Following: {follow.title} <br />
+Time now: {time.clock} <br />
+Time now ms: {time.clockMs} <br />
+Start Time: {stringFromMillis(follow.timeStart)} <br />
+End Time at: {stringFromMillis(follow.timeEnd)} <br />
+Time to start: {stringFromMillis(follow.timeStart - time.clockMs)}<br />
+Time to finish {stringFromMillis(follow.timeEnd - time.clockMs)}:<br />
+Upcoming: {(time.clockMs < follow.timeStart) ? 'true' : 'false'} <br />
+Running: {(time.clockMs >= follow.timeStart && time.clockMs <= follow.timeEnd) ? 'true' : 'false'}
+<br />
+Passed: {(time.clockMs > follow.timeEnd) ? 'true' : 'false'} <br />
+*/
