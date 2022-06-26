@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Button } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/react';
-import Countdown from 'common/components/countdown/TimerDisplay';
+import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import PropTypes from 'prop-types';
 
 import { stringFromMillis } from '../../../common/utils/time';
@@ -45,7 +45,7 @@ const PlaybackTimer = (props) => {
         <div className={style.indDelay} />
       </div>
       <div className={style.timer}>
-        <Countdown
+        <TimerDisplay
           time={isWaiting ? timer.secondary : timer.running}
           isNegative={timer.isNegative}
           small
