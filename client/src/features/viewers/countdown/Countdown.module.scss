@@ -97,9 +97,10 @@
       align-self: flex-start;
       opacity: 1.0;
       transition: opacity 0.5s;
-    }
-    .countdownClock.standby{
-      opacity: 0.6;
+
+      &.standby {
+        opacity: 0.6;
+      }
     }
   }
 }
