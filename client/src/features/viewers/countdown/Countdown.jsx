@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import TimerDisplay from '../../../common/components/countdown/TimerDisplay';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
@@ -11,13 +10,14 @@ import style from './Countdown.module.scss';
 
 const timerMessages = {
   toStart: 'Count down to start time',
+  waiting: 'Waiting for event start',
   running: 'Event running',
   ended: 'Event ended at',
 };
 
 export default function Countdown(props) {
   const [searchParams] = useSearchParams();
-  const { backstageEvents, time } = props;
+  const { backstageEvents, time, selectedId } = props;
   const [follow, setFollow] = useState(null);
   const [runningTimer, setRunningTimer] = useState(0);
   const [runningMessage, setRunningMessage] = useState('');
@@ -57,21 +57,30 @@ export default function Countdown(props) {
       return;
     }
 
-    if (time.clockMs < follow.timeStart) {
-      // if it hasnt started, we count to start
-      setRunningMessage(timerMessages.start);
-      const t = millisToSeconds(follow.timeStart - time.clockMs);
-      setRunningTimer(t);
-    } else if (follow.timeStart <= time.clockMs && time.clockMs <= follow.timeEnd) {
-      // if it has started, we show running timer
+    if (selectedId === follow.id) {
+      console.log(1)
+      // check that is not running
       setRunningMessage(timerMessages.running);
       setRunningTimer(time.running);
+    } else if (time.clockMs < follow.timeStart) {
+      console.log(2)
+      // if it hasnt started, we count to start
+      setRunningMessage(timerMessages.toStart);
+      setRunningTimer(millisToSeconds(follow.timeStart - time.clockMs));
+    } else if (follow.timeStart <= time.clockMs && time.clockMs <= follow.timeEnd) {
+      console.log(3)
+      // if it has started, we show running timer
+      setRunningMessage(timerMessages.waiting);
+      setRunningTimer(time.running);
     } else {
+      console.log(4)
       // if it has ended, we show how long ago
       setRunningMessage(timerMessages.ended);
       setRunningTimer(follow.timeEnd);
     }
-  }, [follow, time]);
+  }, [follow, selectedId, time]);
+
+  console.log(runningMessage);
 
   const parseTitle = useCallback((title) => {
     if (title === null || title === '' || typeof title === 'undefined') {
@@ -100,7 +109,7 @@ export default function Countdown(props) {
           </ul>
         </div>
       ) : (
-        <>
+        <div className={style.countdownContainer}>
           <div className={style.timers}>
             <div className={style.timer}>
               <div className={style.label}>Time Now</div>
@@ -116,13 +125,9 @@ export default function Countdown(props) {
             </div>
           </div>
           <div className={style.status}>{runningMessage}</div>
-          {runningMessage === timerMessages.ended ? (
-            <span className={style.countdownClock}>{stringFromMillis(runningTimer)}</span>
-          ) : (
-            <TimerDisplay time={runningTimer} hideZeroHours />
-          )}
-          <div className={style.title}>{follow.title || 'no title'}</div>
-        </>
+          <span className={style.countdownClock}>{stringFromMillis(runningTimer)}</span>
+          <div className={style.title}>{follow.title || 'Untitled Event'}</div>
+        </div>
       )}
     </div>
   );
@@ -131,6 +136,7 @@ export default function Countdown(props) {
 Countdown.propTypes = {
   backstageEvents: PropTypes.array,
   time: PropTypes.object,
+  selectedId: PropTypes.string,
 };
 
 /*
