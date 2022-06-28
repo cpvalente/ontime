@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { formatDisplay } from '../../../common/utils/dateConfig';
+import getDelayTo from '../../../common/utils/getDelayTo';
 import { stringFromMillis } from '../../../common/utils/time';
 
 import { fetchTimerData, sanitiseTitle } from './countdown.helpers';
@@ -16,6 +17,7 @@ export default function Countdown(props) {
   const [follow, setFollow] = useState(null);
   const [runningTimer, setRunningTimer] = useState(0);
   const [runningMessage, setRunningMessage] = useState('');
+  const [delay, setDelay] = useState(0);
 
   // Set window title
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function Countdown(props) {
     const eventIndex = searchParams.get('event');
 
     let followThis = undefined;
-    const events = [...backstageEvents];
+    const events = [...backstageEvents].filter((event) => event.type === 'event');
 
     if (eventId !== null) {
       followThis = events.find((event) => event.id === eventId);
@@ -42,6 +44,9 @@ export default function Countdown(props) {
     }
     if (typeof followThis !== 'undefined') {
       setFollow(followThis);
+      let idx = backstageEvents.findIndex((event) => event.id === followThis.id);
+      const delay = getDelayTo(backstageEvents, idx);
+      setDelay(delay);
     }
   }, [backstageEvents, searchParams]);
 
@@ -56,6 +61,7 @@ export default function Countdown(props) {
   }, [follow, selectedId, time]);
 
   const standby = time.playstate !== 'start' && selectedId === follow?.id;
+  console.log(delay)
 
   return (
     <div className={style.container}>
@@ -84,15 +90,15 @@ export default function Countdown(props) {
             </div>
             <div className={style.timer}>
               <div className={style.label}>Start Time</div>
-              <span className={style.value}>{stringFromMillis(follow.timeStart)}</span>
+              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>{stringFromMillis(follow.timeStart + delay)}</span>
             </div>
             <div className={style.timer}>
               <div className={style.label}>End Time</div>
-              <span className={style.value}>{stringFromMillis(follow.timeEnd)}</span>
+              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>{stringFromMillis(follow.timeEnd + delay)}</span>
             </div>
           </div>
           <div className={style.status}>{runningMessage}</div>
-          <span className={`${style.countdownClock} ${standby ? style.standby: ''}`}>
+          <span className={`${style.countdownClock} ${standby ? style.standby : ''}`}>
             {formatDisplay(runningTimer, time.running || time.waiting)}
           </span>
           <div className={style.title}>{follow.title || 'Untitled Event'}</div>

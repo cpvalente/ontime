@@ -66,6 +66,10 @@
           font-size: max(2vw, 14px);
           letter-spacing: 0.3px;
           color: #ddd;
+
+          &.delayed {
+            color: $block-delay-color;
+          }
         }
       }
     }

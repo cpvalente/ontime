@@ -7,17 +7,19 @@
 export default function getDelayTo(events, eventIndex) {
   let delay = 0;
   let index = 0;
-  for (const event of events) {
-    if (eventIndex === index) {
-      return delay;
-    }
+  if (eventIndex >= 0) {
+    for (const event of events) {
+      if (eventIndex === index) {
+        return delay;
+      }
 
-    if (event.type === 'delay') {
-      delay += event.duration;
-    } else if (event.type === 'block') {
-      delay = 0;
+      if (event.type === 'delay') {
+        delay += event.duration;
+      } else if (event.type === 'block') {
+        delay = 0;
+      }
+      index++;
     }
-    index++;
   }
   return 0;
 }

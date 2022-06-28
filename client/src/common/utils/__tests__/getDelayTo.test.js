@@ -48,4 +48,9 @@ describe('getDelayTo function', () => {
     const notDelayed = getDelayTo(events, 3);
     expect(notDelayed).toBe(0);
   });
+  it('handles negative index (not found)', () => {
+    const events = [{ type: 'event' }, { type: 'delay', duration: 100 }, { type: 'event' }];
+    const notDelayed = getDelayTo(events, -1);
+    expect(notDelayed).toBe(0);
+  });
 });
