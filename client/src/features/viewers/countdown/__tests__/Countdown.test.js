@@ -37,7 +37,7 @@ describe('fetchTimerData() function', () => {
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.toStart);
-    expect(timer).toBe((startMockValue - timeNow) / 1000);
+    expect(timer).toBe(startMockValue - timeNow);
   });
 
   it('shows the timer of a scheduled event that hasnt started', () => {

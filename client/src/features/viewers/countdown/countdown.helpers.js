@@ -1,10 +1,10 @@
-import { millisToSeconds } from '../../../common/utils/dateConfig';
-
 /**
  * @description parses string as a title
  * @param {string|null} title
  * @return {string}
  */
+import { millisToSeconds } from '../../../common/utils/dateConfig';
+
 export const sanitiseTitle = (title) =>
   title === null || title === '' || typeof title === 'undefined' ? '{no title}' : title;
 
@@ -13,7 +13,7 @@ export const sanitiseTitle = (title) =>
  * @type {{running: string, toStart: string, waiting: string, ended: string}}
  */
 export const timerMessages = {
-  toStart: 'Count down to start time',
+  toStart: 'Time to start',
   waiting: 'Waiting for event start',
   running: 'Event running',
   ended: 'Event ended at',
@@ -31,7 +31,7 @@ export const fetchTimerData = (time, follow, selectedId) => {
 
   if (selectedId === follow.id) {
     // check that is not running
-    message = timerMessages.running;
+    message = time.playstate === 'pause' ? timerMessages.waiting : timerMessages.running;
     timer = time.running;
   } else if (time.clockMs < follow.timeStart) {
     // if it hasnt started, we count to start
@@ -44,7 +44,7 @@ export const fetchTimerData = (time, follow, selectedId) => {
   } else {
     // if it has ended, we show how long ago
     message = timerMessages.ended;
-    timer = follow.timeEnd;
+    timer = millisToSeconds(follow.timeEnd);
   }
   return { message, timer };
 };

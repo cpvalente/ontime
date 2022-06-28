@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
+import { formatDisplay } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 
 import { fetchTimerData, sanitiseTitle } from './countdown.helpers';
@@ -54,6 +55,8 @@ export default function Countdown(props) {
     setRunningTimer(timer);
   }, [follow, selectedId, time]);
 
+  const standby = time.playstate !== 'start' && selectedId === follow?.id;
+
   return (
     <div className={style.container}>
       <NavLogo />
@@ -89,7 +92,9 @@ export default function Countdown(props) {
             </div>
           </div>
           <div className={style.status}>{runningMessage}</div>
-          <span className={style.countdownClock}>{stringFromMillis(runningTimer)}</span>
+          <span className={`${style.countdownClock} ${standby ? style.standby: ''}`}>
+            {formatDisplay(runningTimer, time.running || time.waiting)}
+          </span>
           <div className={style.title}>{follow.title || 'Untitled Event'}</div>
         </div>
       )}
@@ -102,17 +107,3 @@ Countdown.propTypes = {
   time: PropTypes.object,
   selectedId: PropTypes.string,
 };
-
-/*
-Following: {follow.title} <br />
-Time now: {time.clock} <br />
-Time now ms: {time.clockMs} <br />
-Start Time: {stringFromMillis(follow.timeStart)} <br />
-End Time at: {stringFromMillis(follow.timeEnd)} <br />
-Time to start: {stringFromMillis(follow.timeStart - time.clockMs)}<br />
-Time to finish {stringFromMillis(follow.timeEnd - time.clockMs)}:<br />
-Upcoming: {(time.clockMs < follow.timeStart) ? 'true' : 'false'} <br />
-Running: {(time.clockMs >= follow.timeStart && time.clockMs <= follow.timeEnd) ? 'true' : 'false'}
-<br />
-Passed: {(time.clockMs > follow.timeEnd) ? 'true' : 'false'} <br />
-*/

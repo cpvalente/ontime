@@ -93,8 +93,13 @@
       line-height: 20vw;
       font-size: 21vw;
       text-align: center;
-      letter-spacing: 1vw;
+      letter-spacing: 0.4vw;
       align-self: flex-start;
+      opacity: 1.0;
+      transition: opacity 0.5s;
+    }
+    .countdownClock.standby{
+      opacity: 0.6;
     }
   }
 }
