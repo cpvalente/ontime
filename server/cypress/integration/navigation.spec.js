@@ -39,7 +39,9 @@ describe('validate routes', () => {
     cy.contains('ON AIR');
 
     cy.visit('http://localhost:4001/countdown');
-    cy.contains('Following');
+    cy.contains('Select an event to follow');
+
+    cy.visit('http://localhost:4001/countdown?event=0');
     cy.contains('Time Now');
     cy.contains('Start Time');
     cy.contains('End Time');
