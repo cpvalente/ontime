@@ -1,19 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
-import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 
-import style from './Countdown.module.scss';
+import { fetchTimerData, sanitiseTitle } from './countdown.helpers';
 
-const timerMessages = {
-  toStart: 'Count down to start time',
-  waiting: 'Waiting for event start',
-  running: 'Event running',
-  ended: 'Event ended at',
-};
+import style from './Countdown.module.scss';
 
 export default function Countdown(props) {
   const [searchParams] = useSearchParams();
@@ -37,18 +31,16 @@ export default function Countdown(props) {
     const eventId = searchParams.get('eventid');
     const eventIndex = searchParams.get('event');
 
+    let followThis = undefined;
+    const events = [...backstageEvents];
+
     if (eventId !== null) {
-      const events = [...backstageEvents];
-      const followThis = events.find((event) => event.id === eventId);
-      if (typeof followThis !== 'undefined') {
-        setFollow(followThis);
-      }
+      followThis = events.find((event) => event.id === eventId);
     } else if (eventIndex !== null) {
-      const events = [...backstageEvents];
-      const followThis = events[eventIndex - 1];
-      if (typeof followThis !== 'undefined') {
-        setFollow(followThis);
-      }
+      followThis = events?.[eventIndex - 1];
+    }
+    if (typeof followThis !== 'undefined') {
+      setFollow(followThis);
     }
   }, [backstageEvents, searchParams]);
 
@@ -57,38 +49,10 @@ export default function Countdown(props) {
       return;
     }
 
-    if (selectedId === follow.id) {
-      console.log(1)
-      // check that is not running
-      setRunningMessage(timerMessages.running);
-      setRunningTimer(time.running);
-    } else if (time.clockMs < follow.timeStart) {
-      console.log(2)
-      // if it hasnt started, we count to start
-      setRunningMessage(timerMessages.toStart);
-      setRunningTimer(millisToSeconds(follow.timeStart - time.clockMs));
-    } else if (follow.timeStart <= time.clockMs && time.clockMs <= follow.timeEnd) {
-      console.log(3)
-      // if it has started, we show running timer
-      setRunningMessage(timerMessages.waiting);
-      setRunningTimer(time.running);
-    } else {
-      console.log(4)
-      // if it has ended, we show how long ago
-      setRunningMessage(timerMessages.ended);
-      setRunningTimer(follow.timeEnd);
-    }
+    const { message, timer } = fetchTimerData(time, follow, selectedId);
+    setRunningMessage(message);
+    setRunningTimer(timer);
   }, [follow, selectedId, time]);
-
-  console.log(runningMessage);
-
-  const parseTitle = useCallback((title) => {
-    if (title === null || title === '' || typeof title === 'undefined') {
-      return '{no title}';
-    } else {
-      return title;
-    }
-  }, []);
 
   return (
     <div className={style.container}>
@@ -102,7 +66,7 @@ export default function Countdown(props) {
               .map((event, index) => (
                 <li key={event.id}>
                   <Link to={`/countdown?eventid=${event.id}`}>
-                    {`${index + 1}. ${parseTitle(event.title)}`}
+                    {`${index + 1}. ${sanitiseTitle(event.title)}`}
                   </Link>
                 </li>
               ))}
