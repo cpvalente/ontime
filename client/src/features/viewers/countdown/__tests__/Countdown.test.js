@@ -1,3 +1,4 @@
+import { millisToSeconds } from '../../../../common/utils/dateConfig';
 import { fetchTimerData, sanitiseTitle, timerMessages } from '../countdown.helpers';
 
 describe('sanitiseTitle() function', () => {
@@ -37,7 +38,7 @@ describe('fetchTimerData() function', () => {
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.toStart);
-    expect(timer).toBe(startMockValue - timeNow);
+    expect(timer).toBe(millisToSeconds(startMockValue - timeNow));
   });
 
   it('shows the timer of a scheduled event that hasnt started', () => {
@@ -63,6 +64,6 @@ describe('fetchTimerData() function', () => {
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.ended);
-    expect(timer).toBe(endMockValue);
+    expect(timer).toBe(millisToSeconds(endMockValue));
   });
 });
