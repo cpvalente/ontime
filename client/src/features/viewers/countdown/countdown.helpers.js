@@ -42,9 +42,26 @@ export const fetchTimerData = (time, follow, selectedId) => {
     message = timerMessages.waiting;
     timer = time.running;
   } else {
-    // if it has ended, we show how long ago
-    message = timerMessages.ended;
-    timer = millisToSeconds(follow.timeEnd);
+    if (follow.timeStart > follow.timeEnd) {
+      // ends day after
+      if (follow.timeStart > time.clockMs ) {
+        // if it hasnt started, we count to start
+        message = timerMessages.toStart;
+        timer = millisToSeconds(follow.timeStart - time.clockMs);
+      } else if (follow.timeStart <= time.clockMs) {
+        // if it has started, we show running timer
+        message = timerMessages.waiting;
+        timer = time.running;
+      } else {
+        // if it has ended, we show how long ago
+        message = timerMessages.ended;
+        timer = millisToSeconds(follow.timeEnd);
+      }
+    } else {
+      // if it has ended, we show how long ago
+      message = timerMessages.ended;
+      timer = millisToSeconds(follow.timeEnd);
+    }
   }
   return { message, timer };
 };

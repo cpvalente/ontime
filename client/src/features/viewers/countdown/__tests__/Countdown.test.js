@@ -1,3 +1,4 @@
+import { DAY_TO_MS } from '../../../../../../server/src/classes/classUtils';
 import { millisToSeconds } from '../../../../common/utils/dateConfig';
 import { fetchTimerData, sanitiseTitle, timerMessages } from '../countdown.helpers';
 
@@ -65,5 +66,44 @@ describe('fetchTimerData() function', () => {
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.ended);
     expect(timer).toBe(millisToSeconds(endMockValue));
+  });
+
+  it('handle an idle event that finishes after midnight', () => {
+    const startMockValue = 10000;
+    const endMockValue = 1000;
+    const timeNow = 15000;
+    const followId = 'testId';
+    const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
+    const time = { clockMs: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
+
+    const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
+    expect(message).toBe(timerMessages.waiting);
+    expect(timer).toBe(DAY_TO_MS + endMockValue - startMockValue);
+  });
+
+  it('handle an running event that finishes after midnight', () => {
+    const startMockValue = 10000;
+    const endMockValue = 1000;
+    const timeNow = 15000;
+    const followId = 'testId';
+    const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
+    const time = { clockMs: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
+
+    const { message, timer } = fetchTimerData(time, follow, followId);
+    expect(message).toBe(timerMessages.running);
+    expect(timer).toBe(DAY_TO_MS + endMockValue - startMockValue);
+  });
+
+  it('handle an event that finishes after midnight but hasnt started', () => {
+    const startMockValue = 10000;
+    const endMockValue = 1000;
+    const timeNow = 2000;
+    const followId = 'testId';
+    const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
+    const time = { clockMs: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
+
+    const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
+    expect(message).toBe(timerMessages.toStart);
+    expect(timer).toBe(millisToSeconds(startMockValue - timeNow));
   });
 });

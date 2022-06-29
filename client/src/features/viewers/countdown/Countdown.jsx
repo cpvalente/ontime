@@ -51,7 +51,7 @@ export default function Countdown(props) {
   }, [backstageEvents, searchParams]);
 
   useEffect(() => {
-    if (follow === null) {
+    if (!follow) {
       return;
     }
 
@@ -61,7 +61,6 @@ export default function Countdown(props) {
   }, [follow, selectedId, time]);
 
   const standby = time.playstate !== 'start' && selectedId === follow?.id;
-  console.log(delay)
 
   return (
     <div className={style.container}>
