@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
+import Empty from '../../../common/state/Empty';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { stringFromMillis } from '../../../common/utils/time';
@@ -69,15 +70,19 @@ export default function Countdown(props) {
         <div className={style.eventSelect}>
           <span className={style.actionTitle}>Select an event to follow</span>
           <ul className={style.events}>
-            {backstageEvents
-              .filter((e) => e.type === 'event')
-              .map((event, index) => (
-                <li key={event.id}>
-                  <Link to={`/countdown?eventid=${event.id}`}>
-                    {`${index + 1}. ${sanitiseTitle(event.title)}`}
-                  </Link>
-                </li>
-              ))}
+            {backstageEvents.length === 0 ? (
+              <Empty dark text='No events in database' />
+            ) : (
+              backstageEvents
+                .filter((e) => e.type === 'event')
+                .map((event, index) => (
+                  <li key={event.id}>
+                    <Link to={`/countdown?eventid=${event.id}`}>
+                      {`${index + 1}. ${sanitiseTitle(event.title)}`}
+                    </Link>
+                  </li>
+                ))
+            )}
           </ul>
         </div>
       ) : (
@@ -89,11 +94,15 @@ export default function Countdown(props) {
             </div>
             <div className={style.timer}>
               <div className={style.label}>Start Time</div>
-              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>{stringFromMillis(follow.timeStart + delay)}</span>
+              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>
+                {stringFromMillis(follow.timeStart + delay)}
+              </span>
             </div>
             <div className={style.timer}>
               <div className={style.label}>End Time</div>
-              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>{stringFromMillis(follow.timeEnd + delay)}</span>
+              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>
+                {stringFromMillis(follow.timeEnd + delay)}
+              </span>
             </div>
           </div>
           <div className={style.status}>{runningMessage}</div>
