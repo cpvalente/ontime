@@ -1,10 +1,10 @@
+import { millisToSeconds } from '../../../common/utils/dateConfig';
+
 /**
  * @description parses string as a title
  * @param {string|null} title
  * @return {string}
  */
-import { millisToSeconds } from '../../../common/utils/dateConfig';
-
 export const sanitiseTitle = (title) =>
   title === null || title === '' || typeof title === 'undefined' ? '{no title}' : title;
 
@@ -27,7 +27,8 @@ export const timerMessages = {
  * @return {{timer: number, message: string}}
  */
 export const fetchTimerData = (time, follow, selectedId) => {
-  let message, timer;
+  let message = "";
+  let timer = 0;
 
   if (selectedId === follow.id) {
     // check that is not running
