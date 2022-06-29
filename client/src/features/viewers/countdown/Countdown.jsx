@@ -45,7 +45,7 @@ export default function Countdown(props) {
     }
     if (typeof followThis !== 'undefined') {
       setFollow(followThis);
-      let idx = backstageEvents.findIndex((event) => event.id === followThis.id);
+      const idx = backstageEvents.findIndex((event) => event.id === followThis.id);
       const delay = getDelayTo(backstageEvents, idx);
       setDelay(delay);
     }
