@@ -13,6 +13,10 @@ const mth = 1000 * 60 * 60; // millis to hours
  * @returns {string} String representing absolute time 00:12:02
  */
 export function formatDisplay(seconds, hideZero = false) {
+  if (typeof seconds !== 'number') {
+    return '00:00:00';
+  }
+
   // add an extra 0 if necessary
   const format = (val) => `0${Math.floor(val)}`.slice(-2);
 

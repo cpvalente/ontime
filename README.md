@@ -80,6 +80,7 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
   same as app)
 - [x] Multi platform (available on Windows, MacOS and Linux)
 - [x] [Headless run](#headless-run) (run server only, configure from a browser locally)
+- [x] [Countdown to anything!](https://cpvalente.gitbook.io/ontime/views/countdown): ability to have a countdown to any scheduled event
 
 ## Unopinionated
 

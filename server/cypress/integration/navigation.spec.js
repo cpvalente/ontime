@@ -37,6 +37,14 @@ describe('validate routes', () => {
 
     cy.visit('http://localhost:4001/studio');
     cy.contains('ON AIR');
+
+    cy.visit('http://localhost:4001/countdown');
+    cy.contains('Select an event to follow');
+
+    cy.visit('http://localhost:4001/countdown?event=1');
+    cy.contains('Time Now');
+    cy.contains('Start Time');
+    cy.contains('End Time');
   });
 
   it('editor routes', () => {
