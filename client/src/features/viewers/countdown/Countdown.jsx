@@ -106,7 +106,7 @@ export default function Countdown(props) {
             </div>
           </div>
           <div className={style.status}>{runningMessage}</div>
-          <span className={`${style.countdownClock} ${standby ? style.standby : ''}`}>
+          <span className={`${style.countdownClock} ${standby ? style.standby : ''} ${time.finished ? style.finished : ''}`}>
             {formatDisplay(
               time.running ? runningTimer : runningTimer + millisToSeconds(delay),
               time.running || time.waiting
