@@ -105,6 +105,9 @@
       &.standby {
         opacity: 0.6;
       }
+      &.finished {
+        color: $ontime-pink-variant;
+      }
     }
   }
 }
