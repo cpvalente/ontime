@@ -14,7 +14,7 @@ const mth = 1000 * 60 * 60; // millis to hours
  */
 export function formatDisplay(seconds, hideZero = false) {
   if (typeof seconds !== 'number') {
-    return '00:00:00';
+    return hideZero ? '00:00' : '00:00:00';
   }
 
   // add an extra 0 if necessary
