@@ -10,6 +10,7 @@ on:
 jobs:
   build_mac:
     runs-on: macOS-latest
+    timeout-minutes: 20
     env:
       CI: ''
 
@@ -53,6 +54,7 @@ jobs:
 
   build_win:
     runs-on: windows-latest
+    timeout-minutes: 20
     env:
       CI: ''
 
@@ -96,6 +98,7 @@ jobs:
 
   build_linux:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       CI: ''
 
@@ -139,6 +142,7 @@ jobs:
 
   publish_docker:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       CI: ''
 
@@ -183,4 +187,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }} ${{ secrets.DOCKERHUB_USERNAME }}/ontime:latest
