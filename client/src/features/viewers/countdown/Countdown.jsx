@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
 import Empty from '../../../common/state/Empty';
-import { formatDisplay } from '../../../common/utils/dateConfig';
+import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { stringFromMillis } from '../../../common/utils/time';
 
@@ -107,7 +107,10 @@ export default function Countdown(props) {
           </div>
           <div className={style.status}>{runningMessage}</div>
           <span className={`${style.countdownClock} ${standby ? style.standby : ''}`}>
-            {formatDisplay(runningTimer, time.running || time.waiting)}
+            {formatDisplay(
+              time.running ? runningTimer : runningTimer + millisToSeconds(delay),
+              time.running || time.waiting
+            )}
           </span>
           <div className={style.title}>{follow.title || 'Untitled Event'}</div>
         </div>
