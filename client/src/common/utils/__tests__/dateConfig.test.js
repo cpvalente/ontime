@@ -64,7 +64,7 @@ describe('test formatDisplay handles partial secs', () => {
 
 describe('test string from formatDisplay function with hidezero', () => {
   it('test with null values', () => {
-    const t = { val: null, result: '00:00:00' };
+    const t = { val: null, result: '00:00' };
     expect(formatDisplay(t.val, true)).toBe(t.result);
   });
 
