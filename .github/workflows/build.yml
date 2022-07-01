@@ -23,7 +23,7 @@ jobs:
 
       # React
       - name: React - Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --network-timeout 300000
         working-directory: ./client
 
       - name: React - Build project
@@ -32,13 +32,13 @@ jobs:
 
       # Node server
       - name: Server - Install dependencies
-        run: yarn install --frozen-lockfile --production
+        run: yarn install --frozen-lockfile --production --network-timeout 300000
         working-directory: ./server/src
 
       # App
       - name: Electron - Install dependencies
         shell: bash
-        run: yarn install --frozen-lockfile && yarn setdb
+        run: yarn install --frozen-lockfile --network-timeout 300000 && yarn setdb
         working-directory: ./server
       - name: Electron - Build app
         run: yarn dist-mac
@@ -67,7 +67,7 @@ jobs:
 
       # React
       - name: React - Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --network-timeout 300000
         working-directory: ./client
 
       - name: React - Build project
@@ -76,13 +76,13 @@ jobs:
 
       # Node server
       - name: Server - Install dependencies
-        run: yarn install --frozen-lockfile --production
+        run: yarn install --frozen-lockfile --production --network-timeout 300000
         working-directory: ./server/src
 
       # App
       - name: Electron - Install dependencies
         shell: bash
-        run: yarn install --frozen-lockfile && yarn setdb
+        run: yarn install --frozen-lockfile --network-timeout 300000 && yarn setdb
         working-directory: ./server
       - name: Electron - Build app
         run: yarn dist-win
@@ -111,7 +111,7 @@ jobs:
 
       # React
       - name: React - Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --network-timeout 300000
         working-directory: ./client
 
       - name: React - Build project
@@ -120,13 +120,13 @@ jobs:
 
       # Node server
       - name: Server - Install dependencies
-        run: yarn install --frozen-lockfile --production
+        run: yarn install --frozen-lockfile --production --network-timeout 300000
         working-directory: ./server/src
 
       # App
       - name: Electron - Install dependencies
         shell: bash
-        run: yarn install && yarn setdb
+        run: yarn install --frozen-lockfile --network-timeout 300000 && yarn setdb
         working-directory: ./server
       - name: Electron - Build app
         run: yarn dist-linux
@@ -157,7 +157,7 @@ jobs:
 
       # React
       - name: React - Install dependencies
-        run: yarn install
+        run: yarn install --network-timeout 300000
         working-directory: ./client
 
       - name: React - Build project
@@ -166,7 +166,7 @@ jobs:
 
       # Node server
       - name: Server - Install dependencies
-        run: yarn install --frozen-lockfile --production
+        run: yarn install --frozen-lockfile --production --network-timeout 300000
         working-directory: ./server/src
 
       # Login to docker
