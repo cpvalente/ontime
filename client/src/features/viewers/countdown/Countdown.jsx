@@ -71,7 +71,7 @@ export default function Countdown(props) {
     [time.finished, runningMessage]
   );
 
-  console.log('render');
+  console.log(time.running);
 
   return (
     <div className={style.container}>
@@ -122,8 +122,8 @@ export default function Countdown(props) {
             }`}
           >
             {formatDisplay(
-              time.running ? runningTimer : runningTimer + millisToSeconds(delay),
-              time.running || time.waiting
+              time.running !== null ? runningTimer : runningTimer + millisToSeconds(delay),
+              time.running !== null || time.waiting
             )}
           </span>
           <div className={style.title}>{follow.title || 'Untitled Event'}</div>
