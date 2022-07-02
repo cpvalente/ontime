@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -8,7 +8,7 @@ import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { stringFromMillis } from '../../../common/utils/time';
 
-import { fetchTimerData, sanitiseTitle } from './countdown.helpers';
+import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helpers';
 
 import style from './Countdown.module.scss';
 
@@ -61,7 +61,17 @@ export default function Countdown(props) {
     setRunningTimer(timer);
   }, [follow, selectedId, time]);
 
-  const standby = time.playstate !== 'start' && selectedId === follow?.id;
+  const standby = useMemo(
+    () => time.playstate !== 'start' && selectedId === follow?.id,
+    [follow?.id, selectedId, time.playstate]
+  );
+
+  const isRunningFinished = useMemo(
+    () => time.finished && runningMessage === timerMessages.running,
+    [time.finished, runningMessage]
+  );
+
+  console.log('render');
 
   return (
     <div className={style.container}>
@@ -106,7 +116,11 @@ export default function Countdown(props) {
             </div>
           </div>
           <div className={style.status}>{runningMessage}</div>
-          <span className={`${style.countdownClock} ${standby ? style.standby : ''} ${time.finished ? style.finished : ''}`}>
+          <span
+            className={`${style.countdownClock} ${standby ? style.standby : ''} ${
+              isRunningFinished ? style.finished : ''
+            }`}
+          >
             {formatDisplay(
               time.running ? runningTimer : runningTimer + millisToSeconds(delay),
               time.running || time.waiting
