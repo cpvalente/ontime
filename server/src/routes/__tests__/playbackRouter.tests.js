@@ -122,3 +122,90 @@ describe('When a POST state change is sent', () => {
     await supertest(server).post('/playback/madeup').expect(404);
   });
 });
+
+describe('Test POST requests with payload', () => {
+  describe('Start given event', () => {
+    test('POST /playback/start with correctly given ID', async () => {
+      await supertest(server)
+        .post('/playback/start')
+        .query({
+          eventId: '4b31',
+        })
+        .expect(200);
+    });
+    test('POST /playback/start with correctly given index', async () => {
+      await supertest(server)
+        .post('/playback/start')
+        .query({
+          eventIndex: '2',
+        })
+        .expect(200);
+    });
+    test('POST /playback/start with incorrectly given ID', async () => {
+      await supertest(server)
+        .post('/playback/start')
+        .query({
+          eventId: 'doesntexist',
+        })
+        .expect(400);
+    });
+    test('POST /playback/start with incorrectly given index', async () => {
+      await supertest(server)
+        .post('/playback/start')
+        .query({
+          eventIndex: '25',
+        })
+        .expect(400);
+    });
+    test('POST /playback/start with incorrectly given index (NaN)', async () => {
+      await supertest(server)
+        .post('/playback/start')
+        .query({
+          eventIndex: 'notanumber',
+        })
+        .expect(400);
+    });
+  });
+  describe('Load given event', () => {
+    test('POST /playback/load with correctly given ID', async () => {
+      await supertest(server)
+        .post('/playback/load')
+        .query({
+          eventId: '4b31',
+        })
+        .expect(200);
+    });
+    test('POST /playback/load with correctly given index', async () => {
+      await supertest(server)
+        .post('/playback/load')
+        .query({
+          eventIndex: '2',
+        })
+        .expect(200);
+    });
+    test('POST /playback/load with incorrectly given ID', async () => {
+      await supertest(server)
+        .post('/playback/load')
+        .query({
+          eventId: 'doesntexist',
+        })
+        .expect(400);
+    });
+    test('POST /playback/load with incorrectly given index', async () => {
+      await supertest(server)
+        .post('/playback/load')
+        .query({
+          eventIndex: '25',
+        })
+        .expect(400);
+    });
+    test('POST /playback/load with incorrectly given index (NaN)', async () => {
+      await supertest(server)
+        .post('/playback/load')
+        .query({
+          eventIndex: 'notanumber',
+        })
+        .expect(400);
+    });
+  });
+});
