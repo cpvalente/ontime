@@ -71,7 +71,7 @@ export default function Countdown(props) {
     [time.finished, runningMessage]
   );
 
-  console.log(time.running);
+  const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
 
   return (
     <div className={style.container}>
@@ -122,8 +122,8 @@ export default function Countdown(props) {
             }`}
           >
             {formatDisplay(
-              time.running !== null ? runningTimer : runningTimer + millisToSeconds(delay),
-              time.running !== null || time.waiting
+              isSelected ? runningTimer : runningTimer + millisToSeconds(delay),
+              isSelected || time.waiting
             )}
           </span>
           <div className={style.title}>{follow.title || 'Untitled Event'}</div>
