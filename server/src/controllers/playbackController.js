@@ -68,6 +68,28 @@ export const pbNext = async (req, res) => {
   global.timer.trigger('next') ? res.sendStatus(200) : res.sendStatus(400);
 };
 
+// Create controller for GET request to '/playback/load'
+// Load requested event
+export const pbLoad = async (req, res) => {
+  const { eventId, eventIndex } = req.query;
+  if (eventId) {
+    global.timer.trigger('loadById', eventId)
+      ? res.sendStatus(200)
+      : res.status(400).send('Invalid event ID');
+  } else if (eventIndex) {
+    const index = Number(eventIndex);
+    if (!isNaN(index)) {
+      global.timer.trigger('loadByIndex', index - 1)
+        ? res.sendStatus(200)
+        : res.status(400).send('Invalid event index');
+    } else {
+      res.status(400).send('Invalid event index');
+    }
+  } else {
+    res.status(400).send('No event given');
+  }
+};
+
 // Create controller for GET request to '/playback/unload'
 // Unloads any events
 export const pbUnload = async (req, res) => {

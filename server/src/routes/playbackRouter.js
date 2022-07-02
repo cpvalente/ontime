@@ -12,6 +12,7 @@ import {
   pbRoll,
   pbPrevious,
   pbNext,
+  pbLoad,
   pbUnload,
   pbReload,
 } from '../controllers/playbackController.js';
@@ -42,6 +43,9 @@ router.post('/previous', pbPrevious);
 
 // create route between controller and '/playback/next' endpoint
 router.post('/next', pbNext);
+
+// create route between controller and '/playback/load' endpoint
+router.post('/load', pbLoad);
 
 // create route between controller and '/playback/unload' endpoint
 router.post('/unload', pbUnload);

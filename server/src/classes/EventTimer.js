@@ -183,7 +183,7 @@ export class EventTimer extends Timer {
   /**
    * @description Interface for triggering playback actions
    * @param {string} action - state to be triggered
-   * @param {string} [payload] - optional action payload
+   * @param {string|number} [payload] - optional action payload
    * @returns {boolean} Whether action was called
    */
   trigger(action, payload) {
@@ -253,6 +253,26 @@ export class EventTimer extends Timer {
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Next');
         this.next();
+        break;
+      }
+      case 'loadById': {
+        if (this.numEvents === 0 || this.numEvents == null) return false;
+        const loaded = this.loadEventById(payload);
+        if (loaded) {
+          this.info('PLAYBACK', `Loaded event with ID ${payload}`);
+        } else {
+          return false;
+        }
+        break;
+      }
+      case 'loadByIndex': {
+        if (this.numEvents === 0 || this.numEvents == null) return false;
+        const loaded = this.loadEventByIndex(payload);
+        if (loaded) {
+          this.info('PLAYBACK', `Loaded event with index ${payload}`);
+        } else {
+          return false;
+        }
         break;
       }
       case 'unload': {
@@ -943,7 +963,7 @@ export class EventTimer extends Timer {
    * @param {string} [type='load'] - 'load' or 'reload', whether we are keeping running time
    */
   loadEvent(eventIndex, type = 'load') {
-    const e = this._eventlist[eventIndex];
+    const e = this._eventlist?.[eventIndex];
     if (e == null) return;
 
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;
