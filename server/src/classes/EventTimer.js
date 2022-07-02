@@ -183,79 +183,115 @@ export class EventTimer extends Timer {
   /**
    * @description Interface for triggering playback actions
    * @param {string} action - state to be triggered
+   * @param {string} [payload] - optional action payload
    * @returns {boolean} Whether action was called
    */
-  trigger(action) {
-    let reply = true;
+  trigger(action, payload) {
+    let success = true;
     switch (action) {
-      case 'start':
+      case 'start': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Start');
         this.start();
         break;
-      case 'pause':
+      }
+      case 'startById': {
+        if (this.numEvents === 0 || this.numEvents == null) return false;
+        const loaded = this.loadEventById(payload);
+        if (loaded) {
+          this.info('PLAYBACK', `Loaded event with ID ${payload}`);
+          this.info('PLAYBACK', 'Play Mode Start');
+          this.start();
+        } else {
+          return false;
+        }
+        break;
+      }
+      case 'startByIndex': {
+        if (this.numEvents === 0 || this.numEvents == null) return false;
+        const loaded = this.loadEventByIndex(payload);
+        if (loaded) {
+          this.info('PLAYBACK', `Loaded event with index ${payload}`);
+          this.info('PLAYBACK', 'Play Mode Start');
+          this.start();
+        } else {
+          return false;
+        }
+        break;
+      }
+      case 'pause': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Pause');
         this.pause();
         break;
-      case 'stop':
+      }
+      case 'stop': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Stop');
         this.stop();
         break;
-      case 'roll':
+      }
+      case 'roll': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Roll');
         this.roll();
         break;
-      case 'previous':
+      }
+      case 'previous': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Previous');
         this.previous();
         break;
-      case 'next':
+      }
+      case 'next': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Next');
         this.next();
         break;
-      case 'unload':
+      }
+      case 'unload': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Events unloaded');
         this.unload();
         break;
-      case 'reload':
+      }
+      case 'reload': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Reloaded event');
         this.reload();
         break;
-      case 'onAir':
+      }
+      case 'onAir': {
         // Call action
         this.info('PLAYBACK', 'Going On Air');
         this.setonAir(true);
         break;
-      case 'offAir':
+      }
+      case 'offAir': {
         // Call action and force update
         this.info('PLAYBACK', 'Going Off Air');
         this.setonAir(false);
         break;
-      default:
+      }
+      default: {
         // Error, disable flag
         this.error('RX', `Unhandled action triggered ${action}`);
-        reply = false;
+        success = false;
         break;
+      }
     }
 
     // update state
     this.runCycle();
-    return reply;
+    return success;
   }
 
   /**
@@ -880,11 +916,12 @@ export class EventTimer extends Timer {
   loadEventById(eventId) {
     const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
 
-    if (eventIndex === -1) return;
+    if (eventIndex === -1) return false;
     this.pause();
     this.loadEvent(eventIndex, 'load');
     // run cycle
     this.runCycle();
+    return true;
   }
 
   /**
@@ -892,11 +929,12 @@ export class EventTimer extends Timer {
    * @param {number} eventIndex - Index of event in eventlist
    */
   loadEventByIndex(eventIndex) {
-    if (eventIndex === -1 || eventIndex > this.numEvents) return;
+    if (eventIndex === -1 || eventIndex > this.numEvents) return false;
     this.pause();
     this.loadEvent(eventIndex, 'load');
     // run cycle
     this.runCycle();
+    return true;
   }
 
   /**

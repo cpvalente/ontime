@@ -19,7 +19,23 @@ export const offAir = async (req, res) => {
 // Create controller for GET request to '/playback/start'
 // Starts timer object
 export const pbStart = async (req, res) => {
-  global.timer.trigger('start') ? res.sendStatus(200) : res.sendStatus(400);
+  const { eventId, eventIndex } = req.query;
+  if (eventId) {
+    global.timer.trigger('startById', eventId)
+      ? res.sendStatus(200)
+      : res.status(400).send('Invalid event ID');
+  } else if (eventIndex) {
+    const index = Number(eventIndex);
+    if (!isNaN(index)) {
+      global.timer.trigger('startByIndex', index - 1)
+        ? res.sendStatus(200)
+        : res.status(400).send('Invalid event index');
+    } else {
+      res.status(400).send('Invalid event index');
+    }
+  } else {
+    global.timer.trigger('start') ? res.sendStatus(200) : res.sendStatus(400);
+  }
 };
 
 // Create controller for GET request to '/playback/pause'
