@@ -89,7 +89,7 @@ export class OSCIntegration {
 
     // only specify special cases
     switch (payload) {
-      case 'overtime':
+      case 'overtime': {
         // Whether timer is negative
         this.oscClient.send(`${this.ADDRESS}/overtime`, payload, (err) => {
           if (err) {
@@ -98,8 +98,8 @@ export class OSCIntegration {
           }
         });
         break;
-
-      case 'title':
+      }
+      case 'title': {
         if (payload != null && payload !== '') {
           // Send Title of current event
           this.oscClient.send(`${this.ADDRESS}/title`, payload, (err) => {
@@ -113,8 +113,8 @@ export class OSCIntegration {
           reply.message = 'Missing message data';
         }
         break;
-
-      case 'eventNumber':
+      }
+      case 'eventNumber': {
         if (payload != null && payload !== '') {
           // Send event number of current event
           this.oscClient.send(`${this.ADDRESS}/eventNumber`, payload, (err) => {
@@ -128,8 +128,8 @@ export class OSCIntegration {
           reply.message = 'Missing message data';
         }
         break;
-
-      case 'presenter':
+      }
+      case 'presenter': {
         if (payload != null && payload !== '') {
           // Send timer data on current event
           this.oscClient.send(`${this.ADDRESS}/presenter`, payload, (err) => {
@@ -143,11 +143,10 @@ export class OSCIntegration {
           reply.message = 'Missing message data';
         }
         break;
-
-      default:
+      }
+      default: {
         // catch all for messages, allows to add new messages
         // but should be used with the integrations definition
-        // eslint-disable-next-line no-case-declarations
         const message = new Message(`${this.ADDRESS}/${messageType}`);
         if (payload != null) message.append(payload);
         this.oscClient.send(message, (err) => {
@@ -157,6 +156,7 @@ export class OSCIntegration {
           }
         });
         break;
+      }
     }
     return reply;
   }
