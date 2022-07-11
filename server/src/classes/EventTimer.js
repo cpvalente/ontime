@@ -609,8 +609,81 @@ export class EventTimer extends Timer {
 
       /***************************************/
       /***  TIMER STATE GETTERS / SETTERS  ***/
+      /***  ------- WEBSOCKET API -------  ***/
       /***  -----------------------------  ***/
       /***************************************/
+
+      /*******************************************/
+      socket.on('ontime-test', () => {
+        socket.emit('hello');
+      });
+
+      socket.on('set-start', () => {
+        this.trigger('start');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-startid', (data) => {
+        this.trigger('startById', data);
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-startindex', (data) => {
+        const eventIndex = Number(data);
+        if (isNaN(eventIndex)) {
+          return;
+        }
+        this.trigger('startByIndex', data);
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-pause', () => {
+        this.trigger('pause');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-stop', () => {
+        this.trigger('stop');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-reload', () => {
+        this.trigger('reload');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-previous', () => {
+        this.trigger('previous');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-next', () => {
+        this.trigger('next');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-roll', () => {
+        this.trigger('roll');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-delay', (data) => {
+        const delayTime = Number(data);
+        if (isNaN(delayTime)) {
+          return;
+        }
+        this.increment(delayTime * 1000 * 60);
+      });
+
+      socket.on('set-onAir', (data) => {
+        try {
+          const d = JSON.parse(data);
+          this.onAir = !!d;
+          this.broadcastThis('onAir', this.onAir);
+        } catch (error) {
+          this.error('RX', `Failed to parse message ${data}`);
+        }
+      });
 
       /*******************************************/
       // general playback state
@@ -647,11 +720,6 @@ export class EventTimer extends Timer {
 
       socket.on('get-playstate', () => {
         socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-onAir', (data) => {
-        this.onAir = data;
-        this.broadcastThis('onAir', this.onAir);
       });
 
       socket.on('get-onAir', () => {
