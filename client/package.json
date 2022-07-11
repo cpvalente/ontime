@@ -31,6 +31,7 @@
     "start": "set BROWSER=none&&react-scripts start",
     "build": "react-scripts build",
     "lint": "eslint .",
+    "stylelint": "npx stylelint \"**/*.scss\"\n",
     "test": "react-scripts test",
     "test:pipeline": "react-scripts test --watchAll=false --runInBand --detectOpenHandles --forceExit ",
     "eject": "react-scripts eject"
@@ -56,6 +57,9 @@
     "prop-types": "^15.8.1",
     "react-scripts": "^5.0.1",
     "react-test-renderer": "^18.1.0",
-    "sass": "^1.51.0"
+    "sass": "^1.51.0",
+    "stylelint": "^14.9.1",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-standard-scss": "^4.0.0"
   }
 }
