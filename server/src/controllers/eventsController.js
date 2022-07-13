@@ -46,6 +46,13 @@ async function _insertAt(entry, index) {
   await db.write();
 }
 
+/**
+ * @description Inserts an entry after an element with given Id
+ * @param entry
+ * @param id
+ * @return {Promise<void>}
+ * @private
+ */
 async function _insertAfterId(entry, id) {
   const index = [...data.events].findIndex((event) => event.id === id);
   await _insertAt(entry, index + 1);

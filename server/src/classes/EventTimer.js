@@ -183,79 +183,135 @@ export class EventTimer extends Timer {
   /**
    * @description Interface for triggering playback actions
    * @param {string} action - state to be triggered
+   * @param {string|number} [payload] - optional action payload
    * @returns {boolean} Whether action was called
    */
-  trigger(action) {
-    let reply = true;
+  trigger(action, payload) {
+    let success = true;
     switch (action) {
-      case 'start':
+      case 'start': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Start');
         this.start();
         break;
-      case 'pause':
+      }
+      case 'startById': {
+        if (this.numEvents === 0 || this.numEvents == null) return false;
+        const loaded = this.loadEventById(payload);
+        if (loaded) {
+          this.info('PLAYBACK', `Loaded event with ID ${payload}`);
+          this.info('PLAYBACK', 'Play Mode Start');
+          this.start();
+        } else {
+          return false;
+        }
+        break;
+      }
+      case 'startByIndex': {
+        if (this.numEvents === 0 || this.numEvents == null) return false;
+        const loaded = this.loadEventByIndex(payload);
+        if (loaded) {
+          this.info('PLAYBACK', `Loaded event with index ${payload}`);
+          this.info('PLAYBACK', 'Play Mode Start');
+          this.start();
+        } else {
+          return false;
+        }
+        break;
+      }
+      case 'pause': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Pause');
         this.pause();
         break;
-      case 'stop':
+      }
+      case 'stop': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Stop');
         this.stop();
         break;
-      case 'roll':
+      }
+      case 'roll': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Roll');
         this.roll();
         break;
-      case 'previous':
+      }
+      case 'previous': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Previous');
         this.previous();
         break;
-      case 'next':
+      }
+      case 'next': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Next');
         this.next();
         break;
-      case 'unload':
+      }
+      case 'loadById': {
+        if (this.numEvents === 0 || this.numEvents == null) return false;
+        const loaded = this.loadEventById(payload);
+        if (loaded) {
+          this.info('PLAYBACK', `Loaded event with ID ${payload}`);
+        } else {
+          return false;
+        }
+        break;
+      }
+      case 'loadByIndex': {
+        if (this.numEvents === 0 || this.numEvents == null) return false;
+        const loaded = this.loadEventByIndex(payload);
+        if (loaded) {
+          this.info('PLAYBACK', `Loaded event with index ${payload}`);
+        } else {
+          return false;
+        }
+        break;
+      }
+      case 'unload': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Events unloaded');
         this.unload();
         break;
-      case 'reload':
+      }
+      case 'reload': {
         if (this.numEvents === 0 || this.numEvents == null) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Reloaded event');
         this.reload();
         break;
-      case 'onAir':
+      }
+      case 'onAir': {
         // Call action
         this.info('PLAYBACK', 'Going On Air');
         this.setonAir(true);
         break;
-      case 'offAir':
+      }
+      case 'offAir': {
         // Call action and force update
         this.info('PLAYBACK', 'Going Off Air');
         this.setonAir(false);
         break;
-      default:
+      }
+      default: {
         // Error, disable flag
         this.error('RX', `Unhandled action triggered ${action}`);
-        reply = false;
+        success = false;
         break;
+      }
     }
 
     // update state
     this.runCycle();
-    return reply;
+    return success;
   }
 
   /**
@@ -553,8 +609,81 @@ export class EventTimer extends Timer {
 
       /***************************************/
       /***  TIMER STATE GETTERS / SETTERS  ***/
+      /***  ------- WEBSOCKET API -------  ***/
       /***  -----------------------------  ***/
       /***************************************/
+
+      /*******************************************/
+      socket.on('ontime-test', () => {
+        socket.emit('hello');
+      });
+
+      socket.on('set-start', () => {
+        this.trigger('start');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-startid', (data) => {
+        this.trigger('startById', data);
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-startindex', (data) => {
+        const eventIndex = Number(data);
+        if (isNaN(eventIndex)) {
+          return;
+        }
+        this.trigger('startByIndex', data);
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-pause', () => {
+        this.trigger('pause');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-stop', () => {
+        this.trigger('stop');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-reload', () => {
+        this.trigger('reload');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-previous', () => {
+        this.trigger('previous');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-next', () => {
+        this.trigger('next');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-roll', () => {
+        this.trigger('roll');
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-delay', (data) => {
+        const delayTime = Number(data);
+        if (isNaN(delayTime)) {
+          return;
+        }
+        this.increment(delayTime * 1000 * 60);
+      });
+
+      socket.on('set-onAir', (data) => {
+        try {
+          const d = JSON.parse(data);
+          this.onAir = !!d;
+          this.broadcastThis('onAir', this.onAir);
+        } catch (error) {
+          this.error('RX', `Failed to parse message ${data}`);
+        }
+      });
 
       /*******************************************/
       // general playback state
@@ -591,11 +720,6 @@ export class EventTimer extends Timer {
 
       socket.on('get-playstate', () => {
         socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-onAir', (data) => {
-        this.onAir = data;
-        this.broadcastThis('onAir', this.onAir);
       });
 
       socket.on('get-onAir', () => {
@@ -880,11 +1004,12 @@ export class EventTimer extends Timer {
   loadEventById(eventId) {
     const eventIndex = this._eventlist.findIndex((e) => e.id === eventId);
 
-    if (eventIndex === -1) return;
+    if (eventIndex === -1) return false;
     this.pause();
     this.loadEvent(eventIndex, 'load');
     // run cycle
     this.runCycle();
+    return true;
   }
 
   /**
@@ -892,11 +1017,12 @@ export class EventTimer extends Timer {
    * @param {number} eventIndex - Index of event in eventlist
    */
   loadEventByIndex(eventIndex) {
-    if (eventIndex === -1 || eventIndex > this.numEvents) return;
+    if (eventIndex === -1 || eventIndex > this.numEvents) return false;
     this.pause();
     this.loadEvent(eventIndex, 'load');
     // run cycle
     this.runCycle();
+    return true;
   }
 
   /**
@@ -905,7 +1031,7 @@ export class EventTimer extends Timer {
    * @param {string} [type='load'] - 'load' or 'reload', whether we are keeping running time
    */
   loadEvent(eventIndex, type = 'load') {
-    const e = this._eventlist[eventIndex];
+    const e = this._eventlist?.[eventIndex];
     if (e == null) return;
 
     const start = e.timeStart == null || e.timeStart === '' ? 0 : e.timeStart;

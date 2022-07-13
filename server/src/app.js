@@ -87,6 +87,11 @@ const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.input
 
 const serverPort = data.settings.serverPort || config.server.port;
 
+/**
+ * @description starts OSC server
+ * @param overrideConfig
+ * @return {Promise<void>}
+ */
 export const startOSCServer = async (overrideConfig = null) => {
   if (!oscInEnabled) {
     global.timer.info('RX', 'OSC Input Disabled');
@@ -106,6 +111,11 @@ export const startOSCServer = async (overrideConfig = null) => {
 // create HTTP server
 const server = http.createServer(app);
 
+/**
+ * @description Starts all necessary services
+ * @param overrideConfig
+ * @return {Promise<string>}
+ */
 export const startServer = async (overrideConfig = null) => {
   const port = 4001; // port hardcoded
 
@@ -126,6 +136,10 @@ export const startServer = async (overrideConfig = null) => {
   return returnMessage;
 };
 
+/**
+ * @description clean shutdown app services
+ * @return {Promise<void>}
+ */
 export const shutdown = async () => {
   console.log('Node service shutdown');
   // shutdown express server

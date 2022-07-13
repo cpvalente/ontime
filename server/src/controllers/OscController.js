@@ -42,36 +42,67 @@ export const initiateOSC = (config) => {
 
     // get second part (command)
     switch (path.toLowerCase()) {
-      case 'onair':
+      case 'onair': {
         global.timer.setonAir(true);
         break;
-      case 'offair':
+      }
+      case 'offair': {
         global.timer.setonAir(false);
         break;
-      case 'start':
-      case 'play':
+      }
+      case 'play': {
         global.timer.trigger('start');
         break;
-      case 'pause':
+      }
+      case 'start': {
+        try {
+          const eventIndex = Number(args);
+          if (isNaN(eventIndex)) {
+            global.timer.error('RX', `OSC IN: event index not recognised ${args}`);
+            return;
+          }
+          const success = global.timer.trigger('startByIndex', eventIndex);
+          if (!success) {
+            global.timer.error('RX', `OSC IN: event index not recognised ${args}`);
+          }
+        } catch (error) {
+          console.log('error parsing: ', error);
+        }
+        break;
+      }
+      case 'startid': {
+        const success = global.timer.trigger('startById', args);
+        if (!success) {
+          global.timer.error('RX', `OSC IN: event ID not recognised ${args}`);
+        }
+        break;
+      }
+      case 'pause': {
         global.timer.trigger('pause');
         break;
-      case 'prev':
+      }
+      case 'prev': {
         global.timer.trigger('previous');
         break;
-      case 'next':
+      }
+      case 'next': {
         global.timer.trigger('next');
         break;
+      }
       case 'unload':
-      case 'stop':
+      case 'stop': {
         global.timer.trigger('unload');
         break;
-      case 'reload':
+      }
+      case 'reload': {
         global.timer.trigger('reload');
         break;
-      case 'roll':
+      }
+      case 'roll': {
         global.timer.trigger('roll');
         break;
-      case 'delay':
+      }
+      case 'delay': {
         try {
           const t = parseInt(args, 10);
           if (isNaN(t)) {
@@ -83,7 +114,9 @@ export const initiateOSC = (config) => {
           console.log('error parsing: ', error);
         }
         break;
+      }
       case 'goto':
+      case 'load': {
         try {
           const eventIndex = parseInt(args, 10);
           if (isNaN(eventIndex) || eventIndex <= 0) {
@@ -97,8 +130,9 @@ export const initiateOSC = (config) => {
           global.timer.error('RX', `OSC IN: error calling goto ${error}`);
         }
         break;
+      }
       case 'gotoid':
-        console.log('calling gotoid with', args);
+      case 'loadid': {
         if (args == null) {
           global.timer.error('RX', `OSC IN: event id not recognised or out of range ${args}}`);
           return;
@@ -109,10 +143,12 @@ export const initiateOSC = (config) => {
           global.timer.error('RX', `OSC IN: error calling goto ${error}`);
         }
         break;
+      }
 
-      default:
+      default: {
         global.timer.warning('RX', `OSC IN: unhandled message ${path}`);
         break;
+      }
     }
   });
 };

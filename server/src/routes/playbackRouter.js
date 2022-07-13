@@ -12,6 +12,7 @@ import {
   pbRoll,
   pbPrevious,
   pbNext,
+  pbLoad,
   pbUnload,
   pbReload,
 } from '../controllers/playbackController.js';
@@ -20,32 +21,34 @@ import {
 router.get('/', pbGet);
 
 // create route between controller and '/playback/onAir' endpoint
-router.get('/onAir', onAir);
+router.post('/onAir', onAir);
 
 // create route between controller and '/playback/offAir' endpoint
-router.get('/offAir', offAir);
+router.post('/offAir', offAir);
 
 // create route between controller and '/playback/start' endpoint
-router.get('/start', pbStart);
-router.get('/play', pbStart);
+router.post('/start', pbStart);
 
 // create route between controller and '/playback/pause' endpoint
-router.get('/pause', pbPause);
+router.post('/pause', pbPause);
 
 // create route between controller and '/playback/stop' endpoint
-router.get('/stop', pbStop);
+router.post('/stop', pbStop);
 
 // create route between controller and '/playback/roll' endpoint
-router.get('/roll', pbRoll);
+router.post('/roll', pbRoll);
 
 // create route between controller and '/playback/previous' endpoint
-router.get('/previous', pbPrevious);
+router.post('/previous', pbPrevious);
 
 // create route between controller and '/playback/next' endpoint
-router.get('/next', pbNext);
+router.post('/next', pbNext);
+
+// create route between controller and '/playback/load' endpoint
+router.post('/load', pbLoad);
 
 // create route between controller and '/playback/unload' endpoint
-router.get('/unload', pbUnload);
+router.post('/unload', pbUnload);
 
 // create route between controller and '/playback/reload' endpoint
-router.get('/reload', pbReload);
+router.post('/reload', pbReload);
