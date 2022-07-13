@@ -128,7 +128,7 @@ describe('Test POST requests with payload', () => {
     test('POST /playback/start with correctly given ID', async () => {
       await supertest(server)
         .post('/playback/start')
-        .query({eventId: '4b31'})
+        .query({eventId: '5946'})
         .expect(200);
     });
     test('POST /playback/start with correctly given index', async () => {
@@ -162,11 +162,12 @@ describe('Test POST requests with payload', () => {
         .expect(400);
     });
   });
+
   describe('Load given event', () => {
     test('POST /playback/load with correctly given ID', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({eventId: '4b31'})
+        .query({eventId: '5946'})
         .expect(200);
     });
     test('POST /playback/load with correctly given index', async () => {
@@ -190,7 +191,7 @@ describe('Test POST requests with payload', () => {
     test('POST /playback/load with incorrectly given index (NaN)', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({eventIndex: 'notanumber'})
+        .query({ eventIndex: 'notanumber' })
         .expect(400);
     });
   });
