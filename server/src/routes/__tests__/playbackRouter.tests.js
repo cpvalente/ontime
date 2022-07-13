@@ -128,17 +128,13 @@ describe('Test POST requests with payload', () => {
     test('POST /playback/start with correctly given ID', async () => {
       await supertest(server)
         .post('/playback/start')
-        .query({
-          eventId: '4b31',
-        })
+        .query({eventId: '4b31'})
         .expect(200);
     });
     test('POST /playback/start with correctly given index', async () => {
       await supertest(server)
         .post('/playback/start')
-        .query({
-          eventIndex: '2',
-        })
+        .query({eventIndex: '2'})
         .expect(200);
     });
     test('POST /playback/start with incorrectly given ID', async () => {
@@ -170,41 +166,31 @@ describe('Test POST requests with payload', () => {
     test('POST /playback/load with correctly given ID', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({
-          eventId: '4b31',
-        })
+        .query({eventId: '4b31'})
         .expect(200);
     });
     test('POST /playback/load with correctly given index', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({
-          eventIndex: '2',
-        })
+        .query({eventIndex: '2'})
         .expect(200);
     });
     test('POST /playback/load with incorrectly given ID', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({
-          eventId: 'doesntexist',
-        })
+        .query({eventId: 'doesntexist'})
         .expect(400);
     });
     test('POST /playback/load with incorrectly given index', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({
-          eventIndex: '25',
-        })
+        .query({eventIndex: '25'})
         .expect(400);
     });
     test('POST /playback/load with incorrectly given index (NaN)', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({
-          eventIndex: 'notanumber',
-        })
+        .query({eventIndex: 'notanumber'})
         .expect(400);
     });
   });
