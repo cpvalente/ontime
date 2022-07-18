@@ -81,6 +81,7 @@ export default function OntimeTable({ tableData, userFields, handleUpdate, selec
   );
 
   const handleResetReordering = useCallback(() => {
+    console.log('called reset', defaultColumnOrder)
     saveColumnOrder(defaultColumnOrder);
     setColumnOrder(defaultColumnOrder);
   }, [saveColumnOrder, setColumnOrder]);
@@ -105,12 +106,7 @@ export default function OntimeTable({ tableData, userFields, handleUpdate, selec
     // cancel if delta y is greater than 200
     if (delta.y > 200) return;
 
-    // create temp object and remove hidden columns
-    const cols = [...columnOrder].filter((col) => !hiddenColumns.includes(col));
-
-    if (cols === null) {
-      return;
-    }
+    const cols = [...columnOrder];
 
     // get index of from
     const fromIndex = cols.findIndex((i) => i === active.id);
@@ -118,13 +114,17 @@ export default function OntimeTable({ tableData, userFields, handleUpdate, selec
     // get index of to
     const toIndex = cols.findIndex((i) => i === over.id);
 
+    if (toIndex === -1) {
+      return;
+    }
+
     // reorder
     const [reorderedItem] = cols.splice(fromIndex, 1);
     cols.splice(toIndex, 0, reorderedItem);
 
     saveColumnOrder(cols);
     setColumnOrder(cols);
-  }, [columnOrder, hiddenColumns, saveColumnOrder, setColumnOrder]);
+  }, [columnOrder, saveColumnOrder, setColumnOrder]);
 
   // save hidden columns object to local storage
   useEffect(() => {
