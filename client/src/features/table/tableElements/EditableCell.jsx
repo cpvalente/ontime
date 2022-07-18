@@ -43,7 +43,6 @@ return (
     rows={3}
     transition='none'
     spellCheck={false}
-    autoComplete={false}
   />
 );
 }
