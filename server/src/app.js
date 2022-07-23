@@ -36,7 +36,7 @@ console.log(`Starting ontime version ${process.env.npm_package_version}`);
 
 // Create express APP
 const app = express();
-app.disable("x-powered-by");
+app.disable('x-powered-by');
 
 // setup cors for all routes
 app.use(cors());
