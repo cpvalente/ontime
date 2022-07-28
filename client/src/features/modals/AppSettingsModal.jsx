@@ -1,7 +1,15 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { ModalBody } from '@chakra-ui/modal';
-import { Checkbox, FormControl, FormLabel, Input, PinInput, PinInputField } from '@chakra-ui/react';
+import {
+  Checkbox,
+  FormControl,
+  FormLabel,
+  Input,
+  PinInput,
+  PinInputField,
+  Select,
+} from '@chakra-ui/react';
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { APP_SETTINGS } from 'app/api/apiConstants';
@@ -16,7 +24,8 @@ import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
 import style from './Modals.module.scss';
-const version = require('../../../package.json').version
+
+const version = require('../../../package.json').version;
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
@@ -47,6 +56,7 @@ export default function AppSettingsModal() {
     if (changed) return;
     setFormData({
       pinCode: data.pinCode,
+      timeFormat: data.timeFormat,
     });
   }, [changed, data]);
 
@@ -82,10 +92,10 @@ export default function AppSettingsModal() {
       setDefaultPublic(doDefaultPublic);
 
       const f = formData;
+      const e = { status: false, message: '' };
 
       // we might not have changed this
       if (f.pinCode !== data.pinCode) {
-        const e = { status: false, message: '' };
 
         // Validate fields
         if (f.pinCode === '' || f.pinCode == null) {
@@ -95,33 +105,27 @@ export default function AppSettingsModal() {
           e.status = true;
           e.message += 'App pin code added';
         }
+      }
 
-        // set fields with error
-        if (!e.status) {
-          emitError(`Invalid Input: ${e.message}`);
-        } else {
-          await postSettings(formData);
-          await refetch();
-          emitWarning(e.message);
-          setChanged(false);
+      if (f.timeFormat !== data.timeFormat) {
+        if (f.timeFormat === '12' || f.timeFormat === '24') {
+          e.status = true;
         }
+      }
+
+      // set fields with error
+      if (!e.status) {
+        emitError(`Invalid Input: ${e.message}`);
+      } else {
+        await postSettings(formData);
+        await refetch();
+        emitWarning(e.message);
+        setChanged(false);
       }
       setSubmitting(false);
       setChanged(false);
     },
-    [
-      data.pinCode,
-      doDefaultPublic,
-      doShowQuickEntry,
-      doStarTimeIsLastEnd,
-      emitError,
-      emitWarning,
-      formData,
-      refetch,
-      setDefaultPublic,
-      setShowQuickEntry,
-      setStarTimeIsLastEnd,
-    ]
+    [data.pinCode, data.timeFormat, doDefaultPublic, doShowQuickEntry, doStarTimeIsLastEnd, emitError, emitWarning, formData, refetch, setDefaultPublic, setShowQuickEntry, setStarTimeIsLastEnd]
   );
 
   /**
@@ -233,6 +237,26 @@ export default function AppSettingsModal() {
                   isDisabled={disableModal}
                 />
               </div>
+            </FormControl>
+          </div>
+          <div className={style.modalColumn}>
+            <FormControl id='timeFormat'>
+              <FormLabel htmlFor='timeFormat'>
+                Time format
+                <span className={style.labelNote}>
+                  <br />
+                  12 / 24 hour format (viewers only for now)
+                </span>
+              </FormLabel>
+              <Select
+                size='sm'
+                value={formData.timeFormat}
+                isDisabled={disableModal}
+                onChange={(event) => handleChange('timeFormat', event.target.value)}
+              >
+                <option value='12'>12 hours eg. 11:00:10 PM</option>
+                <option value='24'>24 hours eg. 23:00:10</option>
+              </Select>
             </FormControl>
           </div>
           <div className={style.hSeparator}>Create Event Default Settings</div>
