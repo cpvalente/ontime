@@ -15,6 +15,7 @@ export default function Paginator(props) {
     limit = 8,
     time = 10,
     isBackstage,
+    format12,
     setPageNumber,
     setCurrentPage,
   } = props;
@@ -83,6 +84,7 @@ export default function Paginator(props) {
             title={e.title}
             colour={isBackstage ? e.colour : ''}
             backstageEvent={!e.isPublic}
+            format12={format12}
           />
         );
       })}
@@ -96,6 +98,7 @@ Paginator.propTypes = {
   limit: PropTypes.number,
   time: PropTypes.number,
   isBackstage: PropTypes.bool,
+  format12: PropTypes.bool,
   setPageNumber: PropTypes.func,
   setCurrentPage: PropTypes.func,
 };

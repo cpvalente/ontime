@@ -76,6 +76,14 @@ export default function Pip(props) {
       return settings.timeFormat === '12' ? time.clock12 : time.clock;
     }
   };
+  const format12 = () => {
+    if (localTimeFormat) {
+      return localTimeFormat === '12';
+    } else if (settings.timeFormat) {
+      return settings.timeFormat === '12';
+    }
+    return false;
+  };
 
   return (
     <div className={style.container__gray}>
@@ -104,6 +112,7 @@ export default function Pip(props) {
           time={20}
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
+          format12={format12()}
         />
       </div>
 

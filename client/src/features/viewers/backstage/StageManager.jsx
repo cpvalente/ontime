@@ -63,6 +63,15 @@ export default function StageManager(props) {
     }
   };
 
+  const format12 = () => {
+    if (localTimeFormat) {
+      return localTimeFormat === '12';
+    } else if (settings.timeFormat) {
+      return settings.timeFormat === '12';
+    }
+    return false;
+  };
+
   return (
     <div className={style.container__gray}>
       <NavLogo />
@@ -130,6 +139,7 @@ export default function StageManager(props) {
           isBackstage
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
+          format12={format12()}
         />
       </div>
 

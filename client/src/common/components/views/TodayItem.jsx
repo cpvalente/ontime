@@ -1,4 +1,5 @@
 import React from 'react';
+import { format, hoursToMilliseconds } from 'date-fns';
 import PropTypes from 'prop-types';
 
 import { stringFromMillis } from '../../utils/time';
@@ -6,11 +7,19 @@ import { stringFromMillis } from '../../utils/time';
 import style from './Paginator.module.scss';
 
 export default function TodayItem(props) {
-  const { selected, timeStart, timeEnd, title, backstageEvent, colour } = props;
+  const { selected, timeStart, timeEnd, title, backstageEvent, colour, format12 } = props;
 
   // Format timers
-  const start = stringFromMillis(timeStart, false) || '';
-  const end = stringFromMillis(timeEnd, false) || '';
+  const start = format12
+    ? format(timeStart - hoursToMilliseconds(1), "hh:mm")
+    : stringFromMillis(timeStart, false);
+
+  const end = format12
+    ? format(timeEnd - hoursToMilliseconds(1), "hh:mm")
+    : stringFromMillis(timeEnd, false);
+
+  //const start = stringFromMillis(timeStart, false) || '';
+  //const end = stringFromMillis(timeEnd, false) || '';
 
   // user colours
   const userColour = colour !== '' ? colour : 'transparent';
@@ -37,4 +46,5 @@ TodayItem.propTypes = {
   title: PropTypes.string,
   backstageEvent: PropTypes.bool,
   colour: PropTypes.string,
+  format12: PropTypes.bool,
 };
