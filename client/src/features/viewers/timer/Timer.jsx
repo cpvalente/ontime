@@ -13,8 +13,8 @@ export default function Timer(props) {
   const { general, pres, title, time, settings } = props;
   const [elapsed, setElapsed] = useState(true);
   const [searchParams] = useSearchParams();
+  const [localTimeFormat, setLocalTimeFormat] = useState(null);
 
-  const clock = settings.timeFormat === '24' ? time.clock : time.clock12;
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Timer';
@@ -31,23 +31,25 @@ export default function Timer(props) {
     } else if (progress === 'down') {
       setElapsed(false);
     }
+
+    // time: selector
+    // Should be 'up' or 'down'
+    const format = searchParams.get('format');
+    if (format === '12' || format === '24') {
+      setLocalTimeFormat(format);
+    }
   }, [searchParams]);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
   const normalisedTime = Math.max(time.running, 0);
-
-  // show timer if end message is empty
-  const endMessage =
-    general.endMessage == null || general.endMessage === '' ? (
-      <TimerDisplay
-        time={time.running}
-        isNegative={time.isNegative}
-        hideZeroHours
-      />
-    ) : (
-      general.endMessage
-    );
+  const clock = () => {
+    if (localTimeFormat) {
+      return localTimeFormat === '12' ? time.clock12 : time.clock;
+    } else {
+      return settings.timeFormat === '12' ? time.clock12 : time.clock;
+    }
+  };
 
   // motion
   const titleVariants = {
@@ -66,16 +68,8 @@ export default function Timer(props) {
   };
 
   return (
-    <div
-      className={
-        time.finished ? style.container__grayFinished : style.container__gray
-      }
-    >
-      <div
-        className={
-          showOverlay ? style.messageOverlayActive : style.messageOverlay
-        }
-      >
+    <div className={time.finished ? style.container__grayFinished : style.container__gray}>
+      <div className={showOverlay ? style.messageOverlayActive : style.messageOverlay}>
         <div className={style.message}>{pres.text}</div>
       </div>
 
@@ -83,12 +77,18 @@ export default function Timer(props) {
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{clock}</div>
+        <div className={style.clock}>{clock()}</div>
       </div>
 
       <div className={style.timerContainer}>
         {time.finished ? (
-          <div className={style.finished}>{endMessage}</div>
+          <div className={style.finished}>
+            {general.endMessage == null || general.endMessage === '' ? (
+              <TimerDisplay time={time.running} isNegative={time.isNegative} hideZeroHours />
+            ) : (
+              general.endMessage
+            )}
+          </div>
         ) : (
           <div className={isPlaying ? style.countdown : style.countdownPaused}>
             <TimerDisplay time={normalisedTime} hideZeroHours />
@@ -97,11 +97,7 @@ export default function Timer(props) {
       </div>
 
       {!time.finished && (
-        <div
-          className={
-            isPlaying ? style.progressContainer : style.progressContainerPaused
-          }
-        >
+        <div className={isPlaying ? style.progressContainer : style.progressContainerPaused}>
           <MyProgressBar
             now={normalisedTime}
             complete={time.durationSeconds}
