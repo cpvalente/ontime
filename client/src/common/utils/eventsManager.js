@@ -1,3 +1,5 @@
+import { format, hoursToMilliseconds } from 'date-fns';
+
 import { stringFromMillis } from './time';
 
 /**
@@ -59,9 +61,10 @@ export const trimEventlist = (events, selectedId, limit) => {
  * @param {string} selectedId - id of currently selected event
  * @param {string} nextId - id of next event
  * @param {boolean} [showEnd] - whether to show the end time
+ * @param {boolean} [format12] - whether to show in 12 hour mode
  * @returns {Object[]} Formatted list of events [{time: -, title: -, isNow, isNext}]
  */
-export const formatEventList = (events, selectedId, nextId, showEnd = false) => {
+export const formatEventList = (events, selectedId, nextId, showEnd = false, format12 = false) => {
   if (events == null) return [];
 
   const givenEvents = [...events];
@@ -69,8 +72,13 @@ export const formatEventList = (events, selectedId, nextId, showEnd = false) => 
   // format list
   const formattedEvents = [];
   for (const g of givenEvents) {
-    const start = stringFromMillis(g.timeStart, false);
-    const end = stringFromMillis(g.timeEnd, false);
+    const start = format12
+      ? format(g.timeStart - hoursToMilliseconds(1), "hh:mm aa")
+      : stringFromMillis(g.timeStart, false);
+
+    const end = format12
+      ? format(g.timeEnd - hoursToMilliseconds(1), "hh:mm aa")
+      : stringFromMillis(g.timeEnd, false);
 
     formattedEvents.push({
       id: g.id,

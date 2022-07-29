@@ -46,12 +46,23 @@ export default function StudioClock(props) {
   useEffect(() => {
     if (backstageEvents == null) return;
 
+    let format12 = false;
+    if (localTimeFormat) {
+      if (localTimeFormat === '12') {
+        format12 = true;
+      }
+    } else if (settings.timeFormat) {
+      if (settings.timeFormat === '12') {
+        format12 = true;
+      }
+    }
+
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
     const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
-    const formatted = formatEventList(trimmed, selectedId, nextId);
+    const formatted = formatEventList(trimmed, selectedId, nextId, false, format12);
     setSchedule(formatted);
-  }, [backstageEvents, selectedId, nextId]);
+  }, [backstageEvents, selectedId, nextId, localTimeFormat, settings.timeFormat]);
 
   const clock = () => {
     if (localTimeFormat) {
