@@ -1,17 +1,20 @@
 /* eslint-disable react/display-name */
 import React, { useEffect, useState } from 'react';
-import { EVENT_TABLE, EVENTS_TABLE } from 'app/api/apiConstants';
+import { APP_SETTINGS, EVENT_TABLE, EVENTS_TABLE } from 'app/api/apiConstants';
 import { fetchEvent } from 'app/api/eventApi';
 import { fetchAllEvents } from 'app/api/eventsApi';
 import { useSocket } from 'app/context/socketContext';
 import { useFetch } from 'app/hooks/useFetch';
+import { format, hoursToMilliseconds } from 'date-fns';
 
+import { getSettings, ontimePlaceholderSettings } from '../../app/api/ontimeApi';
 import { stringFromMillis } from '../../common/utils/time';
 
 const withSocket = (Component) => {
   return (props) => {
     const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents);
     const { data: genData } = useFetch(EVENT_TABLE, fetchEvent);
+    const { data: settingsData } = useFetch(APP_SETTINGS, getSettings);
 
     const [publicEvents, setPublicEvents] = useState([]);
     const [backstageEvents, setBackstageEvents] = useState([]);
@@ -62,12 +65,15 @@ const withSocket = (Component) => {
       backstageInfo: '',
       endMessage: '',
     });
+    const [settings, setSettings] = useState(ontimePlaceholderSettings);
     const [playback, setPlayback] = useState(null);
     const [onAir, setOnAir] = useState(false);
 
     // Ask for update on load
     useEffect(() => {
-      if (socket == null) return;
+      if (!socket) {
+        return;
+      }
 
       // Handle timer messages
       socket.on('messages-timer', (data) => {
@@ -154,12 +160,12 @@ const withSocket = (Component) => {
 
     // Filter events only to pass down
     useEffect(() => {
-      if (eventsData == null) return;
+      if (!eventsData) {
+        return;
+      }
       // filter just events with title
       if (Array.isArray(eventsData)) {
-        const pe = eventsData.filter(
-          (d) => d.type === 'event' && d.title !== '' && d.isPublic
-        );
+        const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
         setPublicEvents(pe);
 
         // everything goes backstage
@@ -169,9 +175,18 @@ const withSocket = (Component) => {
 
     // Set general data
     useEffect(() => {
-      if (genData == null) return;
+      if (!genData) {
+        return;
+      }
       setGeneral(genData);
     }, [genData]);
+
+    useEffect(() => {
+      if (!settingsData) {
+        return;
+      }
+      setSettings(settingsData);
+    }, [settingsData]);
 
     /********************************************/
     /***  + titleManager                      ***/
@@ -222,6 +237,7 @@ const withSocket = (Component) => {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
       clock: stringFromMillis(timer.clock),
+      clock12: format(new Date(timer.clock - hoursToMilliseconds(1)), 'hh:mm:ss a'),
       clockMs: timer.clock,
       clockNoSeconds: stringFromMillis(timer.clock, false),
       playstate: playback,
@@ -243,6 +259,7 @@ const withSocket = (Component) => {
         nextId={nextId}
         general={general}
         onAir={onAir}
+        settings={settings}
       />
     );
   };

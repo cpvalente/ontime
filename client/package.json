@@ -13,6 +13,7 @@
     "autosize": "^5.0.1",
     "axios": "^0.25.0",
     "color": "^4.2.3",
+    "date-fns": "^2.29.1",
     "framer-motion": "^6.3.3",
     "react": "^18.1.0",
     "react-beautiful-dnd": "^13.1.0",

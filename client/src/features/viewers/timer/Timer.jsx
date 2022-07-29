@@ -10,10 +10,11 @@ import PropTypes from 'prop-types';
 import style from './Timer.module.scss';
 
 export default function Timer(props) {
-  const { general, pres, title, time } = props;
+  const { general, pres, title, time, settings } = props;
   const [elapsed, setElapsed] = useState(true);
   const [searchParams] = useSearchParams();
 
+  const clock = settings.timeFormat === '24' ? time.clock : time.clock12;
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Timer';
@@ -82,7 +83,7 @@ export default function Timer(props) {
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{time.clock}</div>
+        <div className={style.clock}>{clock}</div>
       </div>
 
       <div className={style.timerContainer}>
@@ -157,4 +158,5 @@ Timer.propTypes = {
   pres: PropTypes.object,
   title: PropTypes.object,
   time: PropTypes.object,
+  settings: PropTypes.object,
 };
