@@ -12,15 +12,15 @@ import style from './Timer.module.scss';
 export default function Timer(props) {
   const { general, pres, title, time, settings } = props;
   const [elapsed, setElapsed] = useState(true);
-  const [searchParams] = useSearchParams();
   const [localTimeFormat, setLocalTimeFormat] = useState(null);
+  const [searchParams] = useSearchParams();
 
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Timer';
   }, []);
 
-  // eg. http://localhost:3000/timer?progress=up
+  // eg. http://localhost:3000/timer?progress=up&fprmat=12
   // Check for user options
   useEffect(() => {
     // progress: selector
@@ -32,8 +32,8 @@ export default function Timer(props) {
       setElapsed(false);
     }
 
-    // time: selector
-    // Should be 'up' or 'down'
+    // format: selector
+    // Should be '12' or '24'
     const format = searchParams.get('format');
     if (format === '12' || format === '24') {
       setLocalTimeFormat(format);

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import useFitText from 'use-fit-text';
 
@@ -13,10 +14,12 @@ import {
 import style from './StudioClock.module.scss';
 
 export default function StudioClock(props) {
-  const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
-  const { fontSize, ref } = useFitText({ maxFontSize: 500 });
+  const { title, time, backstageEvents, selectedId, nextId, onAir, settings } = props;
+  const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
   const [, , secondsNow] = time.clock.split(':');
   const [schedule, setSchedule] = useState([]);
+  const [localTimeFormat, setLocalTimeFormat] = useState(null);
+  const [searchParams] = useSearchParams();
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
@@ -26,6 +29,17 @@ export default function StudioClock(props) {
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
   }, []);
+
+  // eg. http://localhost:3000/studio?fprmat=12
+  // Check for user options
+  useEffect(() => {
+    // format: selector
+    // Should be '12' or '24'
+    const format = searchParams.get('format');
+    if (format === '12' || format === '24') {
+      setLocalTimeFormat(format);
+    }
+  }, [searchParams]);
 
   // Prepare event list
   // Todo: useMemo()
@@ -39,15 +53,23 @@ export default function StudioClock(props) {
     setSchedule(formatted);
   }, [backstageEvents, selectedId, nextId]);
 
+  const clock = () => {
+    if (localTimeFormat) {
+      return localTimeFormat === '12' ? time.clock12NoSeconds : time.clockNoSeconds;
+    } else {
+      return settings.timeFormat === '12' ? time.clock12NoSeconds : time.clockNoSeconds;
+    }
+  };
+
   return (
     <div className={style.container}>
       <NavLogo />
       <div className={style.clockContainer}>
-        <div className={style.time}>{time.clockNoSeconds}</div>
+        <div className={style.time}>{clock()}</div>
         <div
-          ref={ref}
+          ref={titleRef}
           className={style.nextTitle}
-          style={{ fontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
+          style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
         >
           {title.titleNext}
         </div>
@@ -102,4 +124,5 @@ StudioClock.propTypes = {
   selectedId: PropTypes.string,
   nextId: PropTypes.string,
   onAir: PropTypes.bool,
+  settings: PropTypes.object,
 };

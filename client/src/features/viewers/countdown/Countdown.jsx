@@ -13,19 +13,20 @@ import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helper
 import style from './Countdown.module.scss';
 
 export default function Countdown(props) {
-  const [searchParams] = useSearchParams();
-  const { backstageEvents, time, selectedId } = props;
+  const { backstageEvents, time, selectedId, settings } = props;
   const [follow, setFollow] = useState(null);
   const [runningTimer, setRunningTimer] = useState(0);
   const [runningMessage, setRunningMessage] = useState('');
   const [delay, setDelay] = useState(0);
+  const [localTimeFormat, setLocalTimeFormat] = useState(null);
+  const [searchParams] = useSearchParams();
 
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Countdown';
   }, []);
 
-  // eg. http://localhost:4001/countdown?eventId=ei0us
+  // eg. http://localhost:4001/countdown?eventId=ei0us&format=12
   // Check for user options
   useEffect(() => {
     if (!backstageEvents) {
@@ -48,6 +49,13 @@ export default function Countdown(props) {
       const idx = backstageEvents.findIndex((event) => event.id === followThis.id);
       const delay = getDelayTo(backstageEvents, idx);
       setDelay(delay);
+    }
+
+    // format: selector
+    // Should be '12' or '24'
+    const format = searchParams.get('format');
+    if (format === '12' || format === '24') {
+      setLocalTimeFormat(format);
     }
   }, [backstageEvents, searchParams]);
 
@@ -72,6 +80,14 @@ export default function Countdown(props) {
   );
 
   const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
+
+  const clock = () => {
+    if (localTimeFormat) {
+      return localTimeFormat === '12' ? time.clock12 : time.clock;
+    } else {
+      return settings.timeFormat === '12' ? time.clock12 : time.clock;
+    }
+  };
 
   return (
     <div className={style.container}>
@@ -100,7 +116,7 @@ export default function Countdown(props) {
           <div className={style.timers}>
             <div className={style.timer}>
               <div className={style.label}>Time Now</div>
-              <span className={style.value}>{time.clock}</span>
+              <span className={style.value}>{clock()}</span>
             </div>
             <div className={style.timer}>
               <div className={style.label}>Start Time</div>
@@ -137,4 +153,5 @@ Countdown.propTypes = {
   backstageEvents: PropTypes.array,
   time: PropTypes.object,
   selectedId: PropTypes.string,
+  settings: PropTypes.object,
 };

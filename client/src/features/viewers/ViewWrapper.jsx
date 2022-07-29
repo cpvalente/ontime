@@ -240,6 +240,7 @@ const withSocket = (Component) => {
       clock12: format(new Date(timer.clock - hoursToMilliseconds(1)), 'hh:mm:ss a'),
       clockMs: timer.clock,
       clockNoSeconds: stringFromMillis(timer.clock, false),
+      clock12NoSeconds:  format(new Date(timer.clock - hoursToMilliseconds(1)), 'hh:mm'),
       playstate: playback,
     };
 

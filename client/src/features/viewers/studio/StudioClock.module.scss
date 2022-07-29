@@ -89,6 +89,13 @@ $cyan-idle: #0aa;
       line-height: 0.8em;
     }
 
+    .timeAA {
+      color: $red-active;
+      font-size: calc(#{$clock-size} / 4.5);
+      margin-top: calc(50% - calc(#{$clock-size} / 7));
+      line-height: 0.8em;
+    }
+
     .nextTitle:after,
     .nextCountdown:after,
     .nextCountdown__overtime:after {
