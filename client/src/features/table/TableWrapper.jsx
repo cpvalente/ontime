@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-import { EVENTS_TABLE, USERFIELDS } from '../../app/api/apiConstants';
+import { APP_SETTINGS, EVENTS_TABLE, USERFIELDS } from '../../app/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../app/api/eventsApi';
-import { getUserFields } from '../../app/api/ontimeApi';
+import { getSettings, getUserFields } from '../../app/api/ontimeApi';
 import { useSocket } from '../../app/context/socketContext';
 import { TableSettingsContext } from '../../app/context/TableSettingsContext';
 import { useFetch } from '../../app/hooks/useFetch';
@@ -16,6 +16,7 @@ import style from './Table.module.scss';
 export default function TableWrapper() {
   const { data: tableData } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const { data: userFields } = useFetch(USERFIELDS, getUserFields);
+  const { data: appSettings } = useFetch(APP_SETTINGS, getSettings);
   const mutation = useMutateEvents(requestPatch);
   const socket = useSocket();
   const [selectedId, setSelectedId] = useState(null);
@@ -86,7 +87,9 @@ export default function TableWrapper() {
   }
   return (
     <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
-      <TableHeader />
+      <TableHeader
+        timeFormat={appSettings.timeFormat}
+      />
       <OntimeTable
         tableData={tableData}
         userFields={userFields}

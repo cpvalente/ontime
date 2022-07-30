@@ -3,6 +3,8 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
+import { format, hoursToMilliseconds } from 'date-fns';
+import PropTypes from 'prop-types';
 
 import { EVENT_TABLE } from '../../app/api/apiConstants';
 import { fetchEvent } from '../../app/api/eventApi';
@@ -16,7 +18,7 @@ import PlaybackIcon from './tableElements/PlaybackIcon';
 
 import style from './Table.module.scss';
 
-export default function TableHeader() {
+export default function TableHeader({timeFormat = '24'}) {
   const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
     useContext(TableSettingsContext);
   const { data } = useFetch(EVENT_TABLE, fetchEvent);
@@ -97,7 +99,9 @@ export default function TableHeader() {
 
   // prepare presentation variables
   const timerNow = `${timer.running < 0 ? '-' : ''}${formatDisplay(timer.running)}`;
-
+  const timeNow = timeFormat === '12'
+    ? format(new Date(timer.clock - hoursToMilliseconds(1)), 'hh:mm:ss a')
+    : stringFromMillis(timer.clock);
   return (
     <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
@@ -115,7 +119,7 @@ export default function TableHeader() {
       <div className={style.headerClock}>
         <span className={style.label}>Time Now</span>
         <br />
-        <span className={style.timer}>{stringFromMillis(timer.clock)}</span>
+        <span className={style.timer}>{timeNow}</span>
       </div>
       <div className={style.headerActions}>
         <Tooltip openDelay={300} label='Follow selected'>
@@ -136,4 +140,8 @@ export default function TableHeader() {
       </div>
     </div>
   );
+}
+
+TableHeader.propTypes = {
+  timeFormat: PropTypes.string,
 }
