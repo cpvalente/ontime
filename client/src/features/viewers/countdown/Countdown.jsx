@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { format, hoursToMilliseconds } from 'date-fns';
 import PropTypes from 'prop-types';
@@ -82,37 +82,43 @@ export default function Countdown(props) {
 
   const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
 
-  const clock = useCallback(() => {
+  const clock = useMemo(() => {
     if (localTimeFormat) {
       return localTimeFormat === '12' ? time.clock12 : time.clock;
     } else {
       return settings.timeFormat === '12' ? time.clock12 : time.clock;
     }
-  },[localTimeFormat, settings?.timeFormat, time?.clock, time?.clock12]);
+  }, [localTimeFormat, settings?.timeFormat, time?.clock, time?.clock12]);
 
-  const startTime = useCallback(() => {
+  const startTime = useMemo(() => {
+    if (follow?.timeStart === null) {
+      return '';
+    }
     if (localTimeFormat) {
       return localTimeFormat === '12'
-        ? format(follow.timeStart + delay - hoursToMilliseconds(1), "hh:mm aa")
+        ? format(follow.timeStart + delay - hoursToMilliseconds(1), 'hh:mm aa')
         : stringFromMillis(follow.timeStart + delay);
     } else {
       return settings.timeFormat === '12'
-        ? format(follow.timeStart + delay - hoursToMilliseconds(1), "hh:mm aa")
+        ? format(follow.timeStart + delay - hoursToMilliseconds(1), 'hh:mm aa')
         : stringFromMillis(follow.timeStart + delay);
     }
-  },[delay, follow?.timeStart, localTimeFormat, settings?.timeFormat]);
+  }, [delay, follow?.timeStart, localTimeFormat, settings?.timeFormat]);
 
-  const endTime = useCallback(() => {
+  const endTime = useMemo(() => {
+    if (follow?.timeEnd === null) {
+      return '';
+    }
     if (localTimeFormat) {
       return localTimeFormat === '12'
-        ? format(follow.timeEnd + delay - hoursToMilliseconds(1), "hh:mm aa")
+        ? format(follow.timeEnd + delay - hoursToMilliseconds(1), 'hh:mm aa')
         : stringFromMillis(follow.timeEnd + delay);
     } else {
       return settings.timeFormat === '12'
-        ? format(follow.timeEnd + delay - hoursToMilliseconds(1), "hh:mm aa")
+        ? format(follow.timeEnd + delay - hoursToMilliseconds(1), 'hh:mm aa')
         : stringFromMillis(follow.timeEnd + delay);
     }
-  },[delay, follow?.timeEnd, localTimeFormat, settings?.timeFormat]);
+  }, [delay, follow?.timeEnd, localTimeFormat, settings?.timeFormat]);
 
   return (
     <div className={style.container}>
@@ -141,19 +147,17 @@ export default function Countdown(props) {
           <div className={style.timers}>
             <div className={style.timer}>
               <div className={style.label}>Time Now</div>
-              <span className={style.value}>{clock()}</span>
+              <span className={style.value}>{clock}</span>
             </div>
             <div className={style.timer}>
               <div className={style.label}>Start Time</div>
               <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>
-                {startTime()}
+                {startTime}
               </span>
             </div>
             <div className={style.timer}>
               <div className={style.label}>End Time</div>
-              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>
-                {endTime()}
-              </span>
+              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>{endTime}</span>
             </div>
           </div>
           <div className={style.status}>{runningMessage}</div>
@@ -167,7 +171,7 @@ export default function Countdown(props) {
               isSelected || time.waiting
             )}
           </span>
-          <div className={style.title}>{follow.title || 'Untitled Event'}</div>
+          <div className={style.title}>{follow?.title || 'Untitled Event'}</div>
         </div>
       )}
     </div>

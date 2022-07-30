@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import useFitText from 'use-fit-text';
@@ -64,19 +64,19 @@ export default function StudioClock(props) {
     setSchedule(formatted);
   }, [backstageEvents, selectedId, nextId, localTimeFormat, settings.timeFormat]);
 
-  const clock = () => {
+  const clock = useMemo(() => {
     if (localTimeFormat) {
       return localTimeFormat === '12' ? time.clock12NoSeconds : time.clockNoSeconds;
     } else {
       return settings.timeFormat === '12' ? time.clock12NoSeconds : time.clockNoSeconds;
     }
-  };
+  },[localTimeFormat, settings.timeFormat, time.clock12NoSeconds, time.clockNoSeconds]);
 
   return (
     <div className={style.container}>
       <NavLogo />
       <div className={style.clockContainer}>
-        <div className={style.time}>{clock()}</div>
+        <div className={style.time}>{clock}</div>
         <div
           ref={titleRef}
           className={style.nextTitle}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
@@ -43,13 +43,14 @@ export default function Timer(props) {
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
   const normalisedTime = Math.max(time.running, 0);
-  const clock = () => {
+
+  const clock = useMemo(() => {
     if (localTimeFormat) {
       return localTimeFormat === '12' ? time.clock12 : time.clock;
     } else {
       return settings.timeFormat === '12' ? time.clock12 : time.clock;
     }
-  };
+  },[localTimeFormat, settings.timeFormat, time.clock, time.clock12]);
 
   // motion
   const titleVariants = {
@@ -77,7 +78,7 @@ export default function Timer(props) {
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{clock()}</div>
+        <div className={style.clock}>{clock}</div>
       </div>
 
       <div className={style.timerContainer}>

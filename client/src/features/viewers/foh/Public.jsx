@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import NavLogo from 'common/components/nav/NavLogo';
@@ -37,22 +37,22 @@ export default function Public(props) {
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
 
-  const clock = () => {
+  const clock = useMemo(() => {
     if (localTimeFormat) {
       return localTimeFormat === '12' ? time.clock12 : time.clock;
     } else {
       return settings.timeFormat === '12' ? time.clock12 : time.clock;
     }
-  };
+  },[localTimeFormat, settings.timeFormat, time.clock, time.clock12]);
 
-  const format12 = () => {
+  const format12 = useMemo(() => {
     if (localTimeFormat) {
       return localTimeFormat === '12';
     } else if (settings.timeFormat) {
       return settings.timeFormat === '12';
     }
     return false;
-  };
+  },[localTimeFormat, settings.timeFormat]);
 
   return (
     <div className={style.container__gray}>
@@ -121,7 +121,7 @@ export default function Public(props) {
           isBackstage
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
-          format12={format12()}
+          format12={format12}
         />
       </div>
 
@@ -136,7 +136,7 @@ export default function Public(props) {
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{clock()}</div>
+        <div className={style.clock}>{clock}</div>
       </div>
 
       <div className={style.infoContainer}>

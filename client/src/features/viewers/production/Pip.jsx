@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
@@ -69,21 +69,23 @@ export default function Pip(props) {
     general.backstageInfo !== '' && general.backstageInfo != null;
   let stageTimer = formatDisplay(Math.abs(time.running), true);
   if (time.isNegative) stageTimer = `-${stageTimer}`;
-  const clock = () => {
+
+  const clock = useMemo(() => {
     if (localTimeFormat) {
       return localTimeFormat === '12' ? time.clock12 : time.clock;
     } else {
       return settings.timeFormat === '12' ? time.clock12 : time.clock;
     }
-  };
-  const format12 = () => {
+  },[localTimeFormat, settings.timeFormat, time.clock, time.clock12]);
+
+  const format12 = useMemo(() => {
     if (localTimeFormat) {
       return localTimeFormat === '12';
     } else if (settings.timeFormat) {
       return settings.timeFormat === '12';
     }
     return false;
-  };
+  },[localTimeFormat, settings.timeFormat]);
 
   return (
     <div className={style.container__gray}>
@@ -112,7 +114,7 @@ export default function Pip(props) {
           time={20}
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
-          format12={format12()}
+          format12={format12}
         />
       </div>
 
@@ -143,7 +145,7 @@ export default function Pip(props) {
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{clock()}</div>
+        <div className={style.clock}>{clock}</div>
       </div>
 
       <div className={style.countdownContainer}>
