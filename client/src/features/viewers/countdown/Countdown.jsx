@@ -91,8 +91,8 @@ export default function Countdown(props) {
   }, [localTimeFormat, settings?.timeFormat, time?.clock, time?.clock12]);
 
   const startTime = useMemo(() => {
-    if (follow?.timeStart === null) {
-      return '';
+    if (follow === null) {
+      return '...';
     }
     if (localTimeFormat) {
       return localTimeFormat === '12'
@@ -103,11 +103,11 @@ export default function Countdown(props) {
         ? format(follow.timeStart + delay - hoursToMilliseconds(1), 'hh:mm aa')
         : stringFromMillis(follow.timeStart + delay);
     }
-  }, [delay, follow?.timeStart, localTimeFormat, settings?.timeFormat]);
+  }, [delay, follow, localTimeFormat, settings.timeFormat]);
 
   const endTime = useMemo(() => {
-    if (follow?.timeEnd === null) {
-      return '';
+    if (follow === null) {
+      return '...';
     }
     if (localTimeFormat) {
       return localTimeFormat === '12'
@@ -118,7 +118,7 @@ export default function Countdown(props) {
         ? format(follow.timeEnd + delay - hoursToMilliseconds(1), 'hh:mm aa')
         : stringFromMillis(follow.timeEnd + delay);
     }
-  }, [delay, follow?.timeEnd, localTimeFormat, settings?.timeFormat]);
+  }, [delay, follow, localTimeFormat, settings.timeFormat]);
 
   return (
     <div className={style.container}>
