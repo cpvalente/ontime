@@ -83,6 +83,7 @@ export default function MinimalTimer(props) {
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,
       }}
+      data-testid='minimal-timer'
     >
       <div className={showOverlay ? style.messageOverlayActive : style.messageOverlay}>
         <div className={style.message}>{pres.text}</div>
