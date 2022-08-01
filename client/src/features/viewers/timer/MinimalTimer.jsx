@@ -1,4 +1,4 @@
-import React  from 'react';
+import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -46,6 +46,44 @@ export default function MinimalTimer(props) {
     userOptions.size = size;
   }
 
+  // alignX: flex justification
+  // start | center | end
+  const alignX = searchParams.get('alignx');
+  if (alignX) {
+    if (alignX === 'start' || alignX === 'center' || alignX === 'end') {
+      userOptions.justifyContent = alignX;
+    }
+  }
+
+  // alignX: flex alignment
+  // start | center | end
+  const alignY = searchParams.get('aligny');
+  if (alignY) {
+    if (alignY === 'start' || alignY === 'center' || alignY === 'end') {
+      userOptions.alignItems = alignY;
+    }
+  }
+
+  // offsetX: position in pixels
+  // Should be a number 0 - 1920
+  const offsetX = searchParams.get('offsetx');
+  if (offsetX) {
+    const pixels = Number(offsetX);
+    if (!isNaN(pixels)) {
+      userOptions.left = `${pixels}px`;
+    }
+  }
+
+  // offsetX: position in pixels
+  // Should be a number 0 - 1920
+  const offsetY = searchParams.get('offsety');
+  if (offsetY) {
+    const pixels = Number(offsetY);
+    if (!isNaN(pixels)) {
+      userOptions.top = `${pixels}px`;
+    }
+  }
+
   const hideNav = searchParams.get('hidenav');
   if (hideNav) {
     userOptions.hideNav = hideNav;
@@ -62,12 +100,16 @@ export default function MinimalTimer(props) {
   const clean = timer.replace('/:/g', '');
   const finishedStyle = userOptions?.hideOvertime ? style.container : style.containerFinished;
 
+  console.log(userOptions);
+
   return (
     <div
       className={time.finished ? finishedStyle : style.container}
       style={{
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,
+        justifyContent: userOptions.justifyContent,
+        alignItems: userOptions.alignItems
       }}
       data-testid='minimal-timer'
     >
@@ -80,6 +122,8 @@ export default function MinimalTimer(props) {
         style={{
           fontSize: `${(89 / (clean.length - 1)) * userOptions.size}vw`,
           fontFamily: userOptions.font,
+          top: userOptions.top,
+          left: userOptions.left,
         }}
       >
         {time.isNegative ? `-${timer}` : timer}
