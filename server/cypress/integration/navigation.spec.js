@@ -104,7 +104,7 @@ describe('validate routes', () => {
     it('renders with defined options', () => {
       // route with options
       cy.visit(
-        'http://localhost:4001/minimal?font=arial=1&size=1.5&text=0f0&key=ff0&hideovertime=true'
+        'http://localhost:4001/minimal?font=arial=1&size=1.5&text=0f0&key=ff0&hideovertime=true&alignx=start&aligny=end&offsetx=100&offsety=-100'
       );
       cy.get('[data-testid="minimal-timer"]').should('exist');
       // ontime fallback to stage timer on errors, so we check for that
