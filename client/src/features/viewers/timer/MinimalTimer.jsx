@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React  from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -10,65 +10,51 @@ import style from './MinimalTimer.module.scss';
 export default function MinimalTimer(props) {
   const { pres, time } = props;
   const [searchParams] = useSearchParams();
-  const [userOptions, setUserOptions] = useState({});
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Minimal Timer';
-  }, []);
+  document.title = 'ontime - Minimal Timer';
 
   // get config from url: key, text, font, size, hidenav, hideovertime
   // eg. http://localhost:3000/minimal?key=f00&text=fff
   // Check for user options
-  useEffect(() => {
-    const options = {};
+  const userOptions = {};
 
-    // key: string
-    // Should be a hex string '#00FF00' with key colour
-    const key = searchParams.get('key');
-    if (key) {
-      options.keyColour = `#${key}`;
-    }
+  // key: string
+  // Should be a hex string '#00FF00' with key colour
+  const key = searchParams.get('key');
+  if (key) {
+    userOptions.keyColour = `#${key}`;
+  }
 
-    // textColour: string
-    // Should be a hex string '#ffffff'
-    const textColour = searchParams.get('text');
-    if (textColour) {
-      options.textColour = `#${textColour}`;
-    }
+  // textColour: string
+  // Should be a hex string '#ffffff'
+  const textColour = searchParams.get('text');
+  if (textColour) {
+    userOptions.textColour = `#${textColour}`;
+  }
 
-    // font: string
-    // Should be a string with a font name 'arial'
-    const font = searchParams.get('font');
-    if (font) {
-      options.font = font;
-    }
+  // font: string
+  // Should be a string with a font name 'arial'
+  const font = searchParams.get('font');
+  if (font) {
+    userOptions.font = font;
+  }
 
-    // size: multiplier
-    // Should be a number 0.0-n
-    const size = searchParams.get('size');
-    if (size) {
-      options.size = size;
-    }
+  // size: multiplier
+  // Should be a number 0.0-n
+  const size = searchParams.get('size');
+  if (size) {
+    userOptions.size = size;
+  }
 
-    const hideNav = searchParams.get('hidenav')
-    if (hideNav) {
-      options.hideNav = hideNav;
-    }
+  const hideNav = searchParams.get('hidenav');
+  if (hideNav) {
+    userOptions.hideNav = hideNav;
+  }
 
-    const hideOvertime = searchParams.get('hideovertime')
-    if (hideOvertime) {
-      options.hideOvertime = hideOvertime;
-    }
-
-    setUserOptions({
-      ...options,
-      set: true,
-    });
-  }, [searchParams]);
-
-  // Defer rendering until we have data ready
-  if (!userOptions?.set) return null;
+  const hideOvertime = searchParams.get('hideovertime');
+  if (hideOvertime) {
+    userOptions.hideOvertime = hideOvertime;
+  }
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
@@ -92,8 +78,8 @@ export default function MinimalTimer(props) {
       <div
         className={isPlaying ? style.timer : style.timerPaused}
         style={{
-          fontSize: `${(89 / (clean.length - 1) * userOptions.size)}vw`,
-          fontFamily: userOptions.font
+          fontSize: `${(89 / (clean.length - 1)) * userOptions.size}vw`,
+          fontFamily: userOptions.font,
         }}
       >
         {time.isNegative ? `-${timer}` : timer}
