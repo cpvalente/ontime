@@ -1,6 +1,6 @@
 import jest from 'jest-mock';
 import { dbModelv1, dbModelv1 as dbModel } from '../../models/dataModel.js';
-import { parseExcel_v1, parseJson_v1, validateEvent_v1 } from '../parser.js';
+import { isStringEmpty, parseExcel_v1, parseJson_v1, validateEvent_v1 } from '../parser.js';
 import { makeString, validateDuration } from '../parserUtils.js';
 import { parseAliases_v1, parseUserFields_v1 } from '../parserUtils_v1.js';
 
@@ -42,7 +42,8 @@ describe('test json parser with valid def', () => {
         timeType: 'start-end',
         duration: 36000000 - 32400000,
         isPublic: true,
-        colour: '',
+        skip: true,
+        colour: 'red',
         type: 'event',
         revision: 0,
         id: 'f24d',
@@ -92,6 +93,7 @@ describe('test json parser with valid def', () => {
         timeType: 'start-end',
         duration: 39000000 - 37200000,
         isPublic: true,
+        skip: false,
         colour: '',
         type: 'event',
         revision: 0,
@@ -208,6 +210,7 @@ describe('test json parser with valid def', () => {
       timeType: 'start-end',
       duration: 32400000 - 31500000,
       isPublic: false,
+      skip: false,
       colour: '',
       type: 'event',
       revision: 0,
@@ -224,6 +227,37 @@ describe('test json parser with valid def', () => {
       user9: '',
     };
     expect(first).toStrictEqual(expected);
+  });
+
+  it('second event is as a match', () => {
+    const second = parseResponse?.events[1];
+    const expected = {
+      title: 'Good Morning',
+      subtitle: 'Days schedule',
+      presenter: 'Carlos Valente',
+      note: '',
+      timeStart: 32400000,
+      timeEnd: 36000000,
+      timeType: 'start-end',
+      duration: 36000000 - 32400000,
+      isPublic: true,
+      skip: true,
+      colour: 'red',
+      type: 'event',
+      revision: 0,
+      id: 'f24d',
+      user0: '',
+      user1: '',
+      user2: '',
+      user3: '',
+      user4: '',
+      user5: '',
+      user6: '',
+      user7: '',
+      user8: '',
+      user9: '',
+    };
+    expect(second).toStrictEqual(expected);
   });
 
   it('loaded event settings', () => {
@@ -436,6 +470,7 @@ describe('test event validator', () => {
         timeStart: expect.any(Number),
         timeEnd: expect.any(Number),
         isPublic: expect.any(Boolean),
+        skip: expect.any(Boolean),
         revision: expect.any(Number),
         type: expect.any(String),
         id: expect.any(String),
@@ -534,6 +569,7 @@ describe('test parseExcel function', () => {
         'Presenter Name',
         'Event Subtitle',
         'Is Public? (x)',
+        'Skip? (x)',
         'Notes',
         'User0:test0',
         'User1:test1',
@@ -554,6 +590,7 @@ describe('test parseExcel function', () => {
         'Carlos',
         'Getting things started',
         'x',
+        '',
         'Ballyhoo',
         '',
         '',
@@ -577,6 +614,7 @@ describe('test parseExcel function', () => {
         'A song from the hearth',
         'Still Carlos',
         'Derailing early',
+        '',
         '',
         'Rainbow chase',
         '',
@@ -606,6 +644,7 @@ describe('test parseExcel function', () => {
         presenter: 'Carlos',
         subtitle: 'Getting things started',
         isPublic: true,
+        skip: false,
         note: 'Ballyhoo',
         user0: 'a0',
         user1: 'a1',
@@ -627,6 +666,7 @@ describe('test parseExcel function', () => {
         presenter: 'Still Carlos',
         subtitle: 'Derailing early',
         isPublic: false,
+        skip: true,
         note: 'Rainbow chase',
         user0: 'b0',
         user5: 'b5',
@@ -642,6 +682,7 @@ describe('test parseExcel function', () => {
     expect(parsedData.events.presenter).toBe(expectedParsedEvents.presenter);
     expect(parsedData.events.subtitle).toBe(expectedParsedEvents.subtitle);
     expect(parsedData.events.isPublic).toBe(expectedParsedEvents.isPublic);
+    expect(parsedData.events.skip).toBe(expectedParsedEvents.skip);
     expect(parsedData.events.note).toBe(expectedParsedEvents.note);
     expect(parsedData.events.type).toBe(expectedParsedEvents.type);
   });
@@ -788,5 +829,26 @@ describe('test validateDuration()', () => {
         expect(d).toBe(t.expected);
       });
     });
+  });
+});
+
+describe('isStringEmpty() function', () => {
+  describe('returns true with any non empty', () => {
+    const notEmpty = ['test', 'thisalso', '123', '#'];
+    for (const testValue of notEmpty) {
+      it(testValue, () => {
+        const isEmpty = isStringEmpty(testValue);
+        expect(isEmpty).toBe(false);
+      });
+    }
+  });
+  describe('returns true empty string or undefined', () => {
+    const empty = ['', ' ', undefined, null];
+    for (const testValue of empty) {
+      it(`handles ${testValue}`, () => {
+        const isEmpty = isStringEmpty(testValue);
+        expect(isEmpty).toBe(true);
+      });
+    }
   });
 });

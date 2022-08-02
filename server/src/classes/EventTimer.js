@@ -936,7 +936,20 @@ export class EventTimer extends Timer {
   updateSingleEvent(id, entry) {
     // find object in events
     const eventIndex = this._eventlist.findIndex((e) => e.id === id);
-    if (eventIndex === -1) return;
+    if (eventIndex === -1) {
+      throw 'Event not found';
+    }
+
+    // check if event is set to be skipped
+    if (entry.skip) {
+      // stop event if running
+      if (id === this.selectedEventId) {
+        this.trigger('stop');
+      }
+
+      // delete event
+      this.deleteId(id);
+    }
 
     // update event in memory
     const e = this._eventlist[eventIndex];
