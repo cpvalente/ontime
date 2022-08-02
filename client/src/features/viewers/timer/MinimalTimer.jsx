@@ -94,13 +94,16 @@ export default function MinimalTimer(props) {
     userOptions.hideOvertime = hideOvertime;
   }
 
+  const hideMessagesOverlay = searchParams.get('hidemessages');
+  if (hideMessagesOverlay) {
+    userOptions.hideMessagesOverlay = hideMessagesOverlay;
+  }
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
   const timer = formatDisplay(time.running, true);
   const clean = timer.replace('/:/g', '');
   const finishedStyle = userOptions?.hideOvertime ? style.container : style.containerFinished;
-
-  console.log(userOptions);
 
   return (
     <div
@@ -109,13 +112,15 @@ export default function MinimalTimer(props) {
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,
         justifyContent: userOptions.justifyContent,
-        alignItems: userOptions.alignItems
+        alignItems: userOptions.alignItems,
       }}
       data-testid='minimal-timer'
     >
-      <div className={showOverlay ? style.messageOverlayActive : style.messageOverlay}>
-        <div className={style.message}>{pres.text}</div>
-      </div>
+      {!hideMessagesOverlay && (
+        <div className={showOverlay ? style.messageOverlayActive : style.messageOverlay}>
+          <div className={style.message}>{pres.text}</div>
+        </div>
+      )}
       {!userOptions?.hideNav && <NavLogo />}
       <div
         className={isPlaying ? style.timer : style.timerPaused}
