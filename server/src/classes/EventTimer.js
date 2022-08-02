@@ -859,7 +859,7 @@ export class EventTimer extends Timer {
    * @param {array} eventlist
    */
   setupWithEventList(eventlist) {
-    if (!Array.isArray(eventlist) || eventlist.length < 1) return;
+    if (!Array.isArray(eventlist) || !eventlist.length) return;
 
     // filter only events
     const events = eventlist.filter((e) => e.type === 'event');
@@ -886,11 +886,11 @@ export class EventTimer extends Timer {
    * @param {array} eventlist
    */
   updateEventList(eventlist) {
-    // filter only events
-    const events = eventlist.filter((e) => e.type === 'event');
-    const numEvents = events.length;
+    if (!Array.isArray(eventlist) || !eventlist.length) return;
 
-    const noPreviousEvents = this._eventlist.length === 0;
+    // filter only events
+    const events = eventlist.filter((e) => e.type === 'event' && !e.skip);
+    const numEvents = events.length;
 
     // set general
     this._eventlist = events;
@@ -902,7 +902,7 @@ export class EventTimer extends Timer {
     }
 
     // auto load if is the there was nothing before
-    if (noPreviousEvents) {
+    if (!this._eventlist.length) {
       this.loadEvent(0);
     } else if (this.selectedEventId != null) {
       // handle reload selected
@@ -971,6 +971,71 @@ export class EventTimer extends Timer {
     // run cycle
     this.runCycle();
   }
+
+  /**
+   * @description inserts an event after a given id
+   * @param event
+   * @param previousId
+   */
+  insertEventAfterId(event, previousId) {
+    // find object in events
+    const previousIndex = this._eventlist.findIndex((e) => e.id === previousId);
+    if (previousIndex === -1) {
+      throw 'Event not found';
+    }
+
+    if (previousIndex + 1 >= this._eventlist.length) {
+      this._eventlist.push(event);
+    } else {
+      this._eventlist.splice(previousIndex + 1, 0, event);
+    }
+
+    try {
+      // check if entry is running
+      if (event.id === this.selectedEventId) {
+        // handle reload selected
+        // Reload data if running
+        const type =
+          this.selectedEventId === event.id && this._startedAt != null ? 'reload' : 'load';
+        this.loadEvent(this.selectedEventIndex, type);
+      } else if (event.id === this.nextEventId) {
+        // roll needs to recalculate
+        if (this.state === 'roll') {
+          this.rollLoad();
+        }
+      }
+
+      // load titles
+      if ('title' in event || 'subtitle' in event || 'presenter' in event) {
+        this._loadTitlesNext();
+        this._loadTitlesNow();
+      }
+    } catch (error) {
+      this.error('SERVER', error);
+    }
+
+    // update clients
+    this.broadcastState();
+
+    // run cycle
+    this.runCycle();
+  }
+
+  /**
+   * @description inserts an event in the first position of the list
+   * @param event
+   */
+  insertEventAtStart(event) {
+    // Insert at beginning
+    this._eventlist.unshift(event);
+
+    // update clients
+    this.broadcastState();
+
+    // run cycle
+    this.runCycle();
+  }
+
 
   /**
    * Deleted an event from the list by its id
