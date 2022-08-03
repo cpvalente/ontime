@@ -7,8 +7,8 @@ import { IoCaretDown } from '@react-icons/all-files/io5/IoCaretDown';
 import { IoCaretUp } from '@react-icons/all-files/io5/IoCaretUp';
 import PropTypes from 'prop-types';
 
-import { CursorContext } from '../../app/context/CursorContext';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
+import { CursorContext } from '../../common/context/CursorContext';
 
 import MenuActionButtons from './MenuActionButtons';
 

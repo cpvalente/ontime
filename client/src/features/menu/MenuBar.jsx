@@ -7,13 +7,13 @@ import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
 import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
-import { EVENTS_TABLE } from 'app/api/apiConstants';
-import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
+import { EVENTS_TABLE } from 'common/api/apiConstants';
+import { downloadEvents, uploadEvents } from 'common/api/ontimeApi';
 import PropTypes from 'prop-types';
 
-import { LoggingContext } from '../../app/context/LoggingContext';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
+import { LoggingContext } from '../../common/context/LoggingContext';
 
 import style from './MenuBar.module.scss';
 

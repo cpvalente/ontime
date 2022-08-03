@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-import { clamp } from '../../app/utils/math';
+import { clamp } from '../../utils/math';
 
 import style from './TimeInput.module.css';
 

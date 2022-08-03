@@ -1,9 +1,9 @@
 import React, { lazy, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import { ALIASES } from './app/api/apiConstants';
-import { getAliases } from './app/api/ontimeApi';
-import { useFetch } from './app/hooks/useFetch';
+import { ALIASES } from './common/api/apiConstants';
+import { getAliases } from './common/api/ontimeApi';
+import { useFetch } from './common/hooks/useFetch';
 import withSocket from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('features/editors/ProtectedEditor'));

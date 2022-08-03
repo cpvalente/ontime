@@ -1,10 +1,10 @@
 import React, { createRef, useCallback, useContext, useEffect, useState } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { useSocket } from 'app/context/socketContext';
-import Empty from 'common/state/Empty';
+import Empty from 'common/components/state/Empty';
+import { useSocket } from 'common/context/socketContext';
 
-import { CursorContext } from '../../../app/context/CursorContext';
-import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
+import { CursorContext } from '../../../common/context/CursorContext';
+import { LocalEventSettingsContext } from '../../../common/context/LocalEventSettingsContext';
 import EntryBlock from '../EntryBlock/EntryBlock';
 
 import EventListItem from './EventListItem';

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 
-import { generateId } from '../../common/utils/generate_id';
-import { nowInMillis, stringFromMillis } from '../../common/utils/time';
+import { generateId } from '../utils/generate_id';
+import { nowInMillis, stringFromMillis } from '../utils/time';
 
 import { useSocket } from './socketContext';
 

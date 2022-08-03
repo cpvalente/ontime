@@ -1,12 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-import { EVENTS_TABLE, USERFIELDS } from '../../app/api/apiConstants';
-import { fetchAllEvents, requestPatch } from '../../app/api/eventsApi';
-import { getUserFields } from '../../app/api/ontimeApi';
-import { useSocket } from '../../app/context/socketContext';
-import { TableSettingsContext } from '../../app/context/TableSettingsContext';
-import { useFetch } from '../../app/hooks/useFetch';
-import useMutateEvents from '../../app/hooks/useMutateEvents';
+import { EVENTS_TABLE, USERFIELDS } from '../../common/api/apiConstants';
+import { fetchAllEvents, requestPatch } from '../../common/api/eventsApi';
+import { getUserFields } from '../../common/api/ontimeApi';
+import { useSocket } from '../../common/context/socketContext';
+import { TableSettingsContext } from '../../common/context/TableSettingsContext';
+import { useFetch } from '../../common/hooks/useFetch';
+import useMutateEvents from '../../common/hooks/useMutateEvents';
 
 import OntimeTable from './OntimeTable';
 import TableHeader from './TableHeader';

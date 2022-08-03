@@ -4,13 +4,13 @@ import { ModalBody } from '@chakra-ui/modal';
 import { Checkbox, FormControl, FormLabel, Input, PinInput, PinInputField } from '@chakra-ui/react';
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
-import { APP_SETTINGS } from 'app/api/apiConstants';
-import { getSettings, ontimePlaceholderSettings, postSettings } from 'app/api/ontimeApi';
-import { useFetch } from 'app/hooks/useFetch';
+import { APP_SETTINGS } from 'common/api/apiConstants';
+import { getSettings, ontimePlaceholderSettings, postSettings } from 'common/api/ontimeApi';
+import { useFetch } from 'common/hooks/useFetch';
 
-import { LocalEventSettingsContext } from '../../app/context/LocalEventSettingsContext';
-import { LoggingContext } from '../../app/context/LoggingContext';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
+import { LocalEventSettingsContext } from '../../common/context/LocalEventSettingsContext';
+import { LoggingContext } from '../../common/context/LoggingContext';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';

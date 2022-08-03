@@ -4,11 +4,11 @@ import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 
-import { EVENT_TABLE } from '../../app/api/apiConstants';
-import { fetchEvent } from '../../app/api/eventApi';
-import { useSocket } from '../../app/context/socketContext';
-import { TableSettingsContext } from '../../app/context/TableSettingsContext';
-import { useFetch } from '../../app/hooks/useFetch';
+import { EVENT_TABLE } from '../../common/api/apiConstants';
+import { fetchEvent } from '../../common/api/eventApi';
+import { useSocket } from '../../common/context/socketContext';
+import { TableSettingsContext } from '../../common/context/TableSettingsContext';
+import { useFetch } from '../../common/hooks/useFetch';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import { stringFromMillis } from '../../common/utils/time';
 

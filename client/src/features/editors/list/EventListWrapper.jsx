@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { EVENTS_TABLE } from 'app/api/apiConstants';
+import { EVENTS_TABLE } from 'common/api/apiConstants';
 import {
   fetchAllEvents,
   requestApplyDelay,
@@ -10,13 +10,13 @@ import {
   requestPost,
   requestPut,
   requestReorder,
-} from 'app/api/eventsApi.js';
-import { useFetch } from 'app/hooks/useFetch.js';
-import Empty from 'common/state/Empty';
+} from 'common/api/eventsApi.js';
+import Empty from 'common/components/state/Empty';
+import { useFetch } from 'common/hooks/useFetch.js';
 import EventListMenu from 'features/menu/EventListMenu.jsx';
 
-import { CollapseContext } from '../../../app/context/CollapseContext';
-import { LoggingContext } from '../../../app/context/LoggingContext';
+import { CollapseContext } from '../../../common/context/CollapseContext';
+import { LoggingContext } from '../../../common/context/LoggingContext';
 
 import EventList from './EventList';
 

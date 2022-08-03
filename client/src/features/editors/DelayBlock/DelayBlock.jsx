@@ -4,7 +4,7 @@ import { HStack } from '@chakra-ui/react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
-import DelayInput from 'common/input/DelayInput';
+import DelayInput from 'common/components/input/DelayInput';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import PropTypes from 'prop-types';
 

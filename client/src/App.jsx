@@ -4,8 +4,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 
-import { AppContextProvider } from './app/context/AppContext';
-import SocketProvider from './app/context/socketContext';
+import { AppContextProvider } from './common/context/AppContext';
+import SocketProvider from './common/context/socketContext';
 import theme from './theme/theme';
 import AppRouter from './AppRouter';
 

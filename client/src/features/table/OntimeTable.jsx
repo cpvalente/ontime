@@ -17,8 +17,8 @@ import {
 } from '@dnd-kit/sortable';
 import PropTypes from 'prop-types';
 
-import { TableSettingsContext } from '../../app/context/TableSettingsContext';
-import { useLocalStorage } from '../../app/hooks/useLocalStorage';
+import { TableSettingsContext } from '../../common/context/TableSettingsContext';
+import { useLocalStorage } from '../../common/hooks/useLocalStorage';
 
 import SortableCell from './tableElements/SortableCell';
 import TableSettings from './tableElements/TableSettings';

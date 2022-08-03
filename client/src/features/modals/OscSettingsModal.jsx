@@ -2,12 +2,12 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
-import { OSC_SETTINGS } from 'app/api/apiConstants';
-import { getOSC, oscPlaceholderSettings, postOSC } from 'app/api/ontimeApi';
-import { useFetch } from 'app/hooks/useFetch';
+import { OSC_SETTINGS } from 'common/api/apiConstants';
+import { getOSC, oscPlaceholderSettings, postOSC } from 'common/api/ontimeApi';
+import { useFetch } from 'common/hooks/useFetch';
 
-import { LoggingContext } from '../../app/context/LoggingContext';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
+import { LoggingContext } from '../../common/context/LoggingContext';
 
 import { inputProps, portInputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
