@@ -4,8 +4,8 @@ import { Box } from '@chakra-ui/layout';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import ModalManager from 'features/modals/ModalManager';
 
-import { LocalEventSettingsProvider } from '../../app/context/LocalEventSettingsContext';
-import { LoggingProvider } from '../../app/context/LoggingContext';
+import { LocalEventSettingsProvider } from '../../common/context/LocalEventSettingsContext';
+import { LoggingProvider } from '../../common/context/LoggingContext';
 import MenuBar from '../menu/MenuBar';
 
 import styles from './Editor.module.scss';

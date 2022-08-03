@@ -2,11 +2,11 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input, Switch } from '@chakra-ui/react';
 import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
-import { APP_TABLE } from 'app/api/apiConstants';
-import { getInfo, httpPlaceholder, ontimeVars, postInfo } from 'app/api/ontimeApi';
-import { useFetch } from 'app/hooks/useFetch';
+import { APP_TABLE } from 'common/api/apiConstants';
+import { getInfo, httpPlaceholder, ontimeVars, postInfo } from 'common/api/ontimeApi';
+import { useFetch } from 'common/hooks/useFetch';
 
-import { LoggingContext } from '../../app/context/LoggingContext';
+import { LoggingContext } from '../../common/context/LoggingContext';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';

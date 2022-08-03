@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import EditableTimer from '../../input/EditableTimer';
+import EditableTimer from '../input/EditableTimer';
 
 import style from './Times.module.scss'
 

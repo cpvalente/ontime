@@ -7,13 +7,13 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
-import { ALIASES } from 'app/api/apiConstants';
-import { useFetch } from 'app/hooks/useFetch';
+import { ALIASES } from 'common/api/apiConstants';
+import { useFetch } from 'common/hooks/useFetch';
 
-import { getAliases, postAliases } from '../../app/api/ontimeApi';
-import { viewerLocations } from '../../app/appConstants';
-import { LoggingContext } from '../../app/context/LoggingContext';
-import { validateAlias } from '../../app/utils/aliases';
+import { viewerLocations } from '../../appConstants';
+import { getAliases, postAliases } from '../../common/api/ontimeApi';
+import { LoggingContext } from '../../common/context/LoggingContext';
+import { validateAlias } from '../../common/utils/aliases';
 import { handleLinks, host } from '../../common/utils/linkUtils';
 
 import SubmitContainer from './SubmitContainer';

@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, Input, Textarea } from '@chakra-ui/react';
-import { EVENT_TABLE } from 'app/api/apiConstants';
-import { fetchEvent, postEvent } from 'app/api/eventApi';
-import { useFetch } from 'app/hooks/useFetch';
+import { EVENT_TABLE } from 'common/api/apiConstants';
+import { fetchEvent, postEvent } from 'common/api/eventApi';
+import { useFetch } from 'common/hooks/useFetch';
 
-import { eventPlaceholderSettings } from '../../app/api/ontimeApi';
+import { eventPlaceholderSettings } from '../../common/api/ontimeApi';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';

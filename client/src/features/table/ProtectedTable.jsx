@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { TableSettingsProvider } from '../../app/context/TableSettingsContext';
 import ProtectRoute from '../../common/components/protectRoute/ProtectRoute';
+import { TableSettingsProvider } from '../../common/context/TableSettingsContext';
 
 import TableWrapper from './TableWrapper';
 

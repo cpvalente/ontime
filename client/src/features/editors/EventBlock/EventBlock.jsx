@@ -5,7 +5,7 @@ import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import PropTypes from 'prop-types';
 
-import { CollapseContext } from '../../../app/context/CollapseContext';
+import { CollapseContext } from '../../../common/context/CollapseContext';
 
 import CollapsedBlock from './CollapsedBlock';
 import ExpandedBlock from './ExpandedBlock';

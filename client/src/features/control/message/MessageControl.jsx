@@ -3,7 +3,7 @@ import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
-import { useSocket } from 'app/context/socketContext';
+import { useSocket } from 'common/context/socketContext';
 
 import InputRow from './InputRow';
 

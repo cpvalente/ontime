@@ -12,7 +12,7 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
 import PropTypes from 'prop-types';
 
-import { LoggingContext } from '../../../app/context/LoggingContext';
+import { LoggingContext } from '../../context/LoggingContext';
 
 export default function QuitIconBtn(props) {
   const { clickHandler, size = 'lg', ...rest } = props;
