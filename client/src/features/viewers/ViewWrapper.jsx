@@ -1,13 +1,13 @@
 /* eslint-disable react/display-name */
 import React, { useEffect, useState } from 'react';
-import { APP_SETTINGS, EVENT_TABLE, EVENTS_TABLE } from 'app/api/apiConstants';
-import { fetchEvent } from 'app/api/eventApi';
-import { fetchAllEvents } from 'app/api/eventsApi';
-import { useSocket } from 'app/context/socketContext';
-import { useFetch } from 'app/hooks/useFetch';
 import { format, hoursToMilliseconds } from 'date-fns';
 
-import { getSettings, ontimePlaceholderSettings } from '../../app/api/ontimeApi';
+import { APP_SETTINGS, EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
+import { fetchEvent } from '../../common/api/eventApi';
+import { fetchAllEvents } from '../../common/api/eventsApi';
+import { getSettings, ontimePlaceholderSettings } from '../../common/api/ontimeApi';
+import { useSocket } from '../../common/context/socketContext';
+import { useFetch } from '../../common/hooks/useFetch';
 import { stringFromMillis } from '../../common/utils/time';
 
 const withSocket = (Component) => {

@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
-import { USERFIELDS } from 'app/api/apiConstants';
-import { useFetch } from 'app/hooks/useFetch';
+import { USERFIELDS } from 'common/api/apiConstants';
+import { useFetch } from 'common/hooks/useFetch';
 
-import { getUserFields, postUserFields, userFieldsPlaceholder } from '../../app/api/ontimeApi';
+import { getUserFields, postUserFields, userFieldsPlaceholder } from '../../common/api/ontimeApi';
 import { handleLinks, host } from '../../common/utils/linkUtils';
 
 import SubmitContainer from './SubmitContainer';

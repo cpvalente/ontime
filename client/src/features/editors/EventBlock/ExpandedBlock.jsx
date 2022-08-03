@@ -8,7 +8,7 @@ import ActionButtons from '../../../common/components/buttons/ActionButtons';
 import PublicIconBtn from '../../../common/components/buttons/PublicIconBtn';
 import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipLoadingActionBtn';
 import EventTimesVertical from '../../../common/components/eventTimes/EventTimesVertical';
-import EditableText from '../../../common/input/EditableText';
+import EditableText from '../../../common/components/input/EditableText';
 
 import style from './EventBlock.module.scss';
 

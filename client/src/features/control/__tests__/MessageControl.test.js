@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import SocketProvider from 'app/context/socketContext';
+import SocketProvider from 'common/context/socketContext';
 
 import MessageControl from '../message/MessageControl';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { clamp } from 'app/utils/math';
+import { clamp } from 'common/utils/math';
 import PropTypes from 'prop-types';
 
 import styles from './MyProgressBar.module.scss';

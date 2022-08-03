@@ -1,5 +1,5 @@
 import React, { useEffect,useState } from 'react';
-import { useSocket } from 'app/context/socketContext';
+import { useSocket } from 'common/context/socketContext';
 
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';

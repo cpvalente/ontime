@@ -2,9 +2,9 @@ import React from 'react';
 import { Box } from '@chakra-ui/layout';
 import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
 
-import { CollapseProvider } from '../../../app/context/CollapseContext';
-import { CursorProvider } from '../../../app/context/CursorContext';
 import ErrorBoundary from '../../../common/components/errorBoundary/ErrorBoundary';
+import { CollapseProvider } from '../../../common/context/CollapseContext';
+import { CursorProvider } from '../../../common/context/CursorContext';
 import { handleLinks } from '../../../common/utils/linkUtils';
 
 import EventListWrapper from './EventListWrapper';

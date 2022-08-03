@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useInterval } from 'app/hooks/useInterval';
+import { useInterval } from 'common/hooks/useInterval';
 import PropTypes from 'prop-types';
 
-import Empty from '../../state/Empty';
+import Empty from '../state/Empty';
 
 import TodayItem from './TodayItem';
 

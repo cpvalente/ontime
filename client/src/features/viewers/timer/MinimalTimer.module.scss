@@ -1,14 +1,15 @@
-@use '../../../styles/main' as *;
+@use '../../../theme/main' as *;
 
 .container,
 .containerFinished {
   background: $bg-black;
   height: 100vh;
   color: $title-white;
-  display: grid;
-  place-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 1vw;
-  border: 1vw solid $bg-black;
+  border: 1vw solid transparent;
 }
 
 .containerFinished {
@@ -21,6 +22,7 @@
 .timerPaused {
   font-family: "Arial Black", sans-serif;
   font-size: 20vw;
+  position: relative;
   color: inherit;
   opacity: 1;
   transition: 0.5s;

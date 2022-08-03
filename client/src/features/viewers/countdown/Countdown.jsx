@@ -4,7 +4,7 @@ import { format, hoursToMilliseconds } from 'date-fns';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
-import Empty from '../../../common/state/Empty';
+import Empty from '../../../common/components/state/Empty';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { stringFromMillis } from '../../../common/utils/time';

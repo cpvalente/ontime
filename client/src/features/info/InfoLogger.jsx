@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-import { LoggingContext } from '../../app/context/LoggingContext';
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+import { LoggingContext } from '../../common/context/LoggingContext';
 
 import style from './InfoLogger.module.scss';
 
