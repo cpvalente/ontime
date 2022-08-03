@@ -1,4 +1,5 @@
 // Exported viewer link location
+const minimalLocation = 'minimal';
 const speakerLocation = 'speaker';
 const smLocation = 'sm';
 const publicLocation = 'public';
@@ -7,6 +8,7 @@ const studioLocation = 'studio';
 const cuesheetLocation = 'cuesheet';
 
 export const viewerLocations = [
+  { link: minimalLocation, label: 'Minimal timer' },
   { link: speakerLocation, label: 'Speaker Screen' },
   { link: smLocation, label: 'Backstage Screen' },
   { link: publicLocation, label: 'Public Screen' },
