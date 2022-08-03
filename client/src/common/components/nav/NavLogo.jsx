@@ -68,6 +68,7 @@ export default function NavLogo(props) {
       initial={{ opacity: showNav ? 0.5 : baseOpacity }}
       whileHover={{ opacity: 1 }}
       className={style.navContainer}
+      data-testid='nav-logo'
     >
       <Image alt='' src={navlogo} className={style.logo} onClick={handleClick} />
       <AnimatePresence>

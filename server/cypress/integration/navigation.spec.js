@@ -91,4 +91,33 @@ describe('validate routes', () => {
     cy.visit('http://localhost:4001/cuelist');
     cy.contains('Running Timer');
   });
+
+  describe('minimal timer and options', () => {
+    it('renders base route', () => {
+      // base route
+      cy.visit('http://localhost:4001/minimal');
+      cy.get('[data-testid="minimal-timer"]').should('exist');
+      // ontime fallsback to stage timer on errors, so we check for that
+      cy.get('.App').should('not.contain', 'Time Now');
+    });
+
+    it('renders with defined options', () => {
+      // route with options
+      cy.visit(
+        'http://localhost:4001/minimal?font=arial=1&size=1.5&text=0f0&key=ff0&hideovertime=true&alignx=start&aligny=end&offsetx=100&offsety=-100&hidemessages=true'
+      );
+      cy.get('[data-testid="minimal-timer"]').should('exist');
+      // ontime fallback to stage timer on errors, so we check for that
+      cy.get('.App').should('not.contain', 'Time Now');
+    });
+
+    it('hides nav on given option', () => {
+      // route with options for no nav
+      cy.visit('http://localhost:4001/minimal?hidenav=true');
+      cy.get('[data-testid="minimal-timer"]').should('exist');
+      // ontime fallback to stage timer on errors, so we check for that
+      cy.get('.App').should('not.contain', 'Time Now');
+      cy.get('[data-testid="nav-logo"]').should('not.exist');
+    });
+  });
 });
