@@ -1,6 +1,5 @@
 /* eslint-disable react/display-name */
 import React, { useEffect, useState } from 'react';
-import { format, hoursToMilliseconds } from 'date-fns';
 
 import { APP_SETTINGS, EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
 import { fetchEvent } from '../../common/api/eventApi';
@@ -237,10 +236,7 @@ const withSocket = (Component) => {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
       clock: stringFromMillis(timer.clock),
-      clock12: format(new Date(timer.clock - hoursToMilliseconds(1)), 'hh:mm:ss a'),
       clockMs: timer.clock,
-      clockNoSeconds: stringFromMillis(timer.clock, false),
-      clock12NoSeconds:  format(new Date(timer.clock - hoursToMilliseconds(1)), 'hh:mm'),
       playstate: playback,
     };
 

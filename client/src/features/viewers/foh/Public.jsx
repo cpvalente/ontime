@@ -7,6 +7,7 @@ import TitleSide from 'common/components/views/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';
 
 import style from './Public.module.scss';
@@ -38,12 +39,14 @@ export default function Public(props) {
   const showPubl = publ.text !== '' && publ.visible;
 
   const clock = useMemo(() => {
-    if (localTimeFormat) {
-      return localTimeFormat === '12' ? time.clock12 : time.clock;
-    } else {
-      return settings.timeFormat === '12' ? time.clock12 : time.clock;
-    }
-  },[localTimeFormat, settings.timeFormat, time.clock, time.clock12]);
+    const formatOptions = {
+      showSeconds: true,
+      format: 'hh:mm:ss aa',
+    };
+    return localTimeFormat
+      ? formatTime(time.clockMs, localTimeFormat === '12', formatOptions)
+      : formatTime(time.clockMs, settings.timeFormat === '12', formatOptions);
+  }, [localTimeFormat, settings.timeFormat, time.clockMs]);
 
   const format12 = useMemo(() => {
     if (localTimeFormat) {
@@ -52,7 +55,7 @@ export default function Public(props) {
       return settings.timeFormat === '12';
     }
     return false;
-  },[localTimeFormat, settings.timeFormat]);
+  }, [localTimeFormat, settings.timeFormat]);
 
   return (
     <div className={style.container__gray}>
@@ -107,12 +110,12 @@ export default function Public(props) {
           <div className={style.label}>Today</div>
           <div className={style.nav}>
             {pageNumber > 1 &&
-            [...Array(pageNumber).keys()].map((i) => (
-              <div
-                key={i}
-                className={i === currentPage ? style.navItemSelected : style.navItem}
-              />
-            ))}
+              [...Array(pageNumber).keys()].map((i) => (
+                <div
+                  key={i}
+                  className={i === currentPage ? style.navItemSelected : style.navItem}
+                />
+              ))}
           </div>
         </div>
         <Paginator
@@ -125,11 +128,7 @@ export default function Public(props) {
         />
       </div>
 
-      <div
-        className={
-          showPubl ? style.publicContainer : style.publicContainerHidden
-        }
-      >
+      <div className={showPubl ? style.publicContainer : style.publicContainerHidden}>
         <div className={style.label}>Public message</div>
         <div className={style.message}>{publ.text}</div>
       </div>
@@ -146,11 +145,7 @@ export default function Public(props) {
         </div>
         <div className={style.qr}>
           {general.url != null && general.url !== '' && (
-            <QRCode
-              value={general.url}
-              size={window.innerWidth / 12}
-              level='L'
-            />
+            <QRCode value={general.url} size={window.innerWidth / 12} level='L' />
           )}
         </div>
       </div>

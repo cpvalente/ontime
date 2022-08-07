@@ -10,6 +10,7 @@ import {
   getEventsWithDelay,
   trimEventlist,
 } from '../../../common/utils/eventsManager';
+import { formatTime } from '../../../common/utils/time';
 
 import style from './StudioClock.module.scss';
 
@@ -68,12 +69,10 @@ export default function StudioClock(props) {
   }, [backstageEvents, selectedId, nextId, localTimeFormat, settings.timeFormat]);
 
   const clock = useMemo(() => {
-    if (localTimeFormat) {
-      return localTimeFormat === '12' ? time.clock12NoSeconds : time.clockNoSeconds;
-    } else {
-      return settings.timeFormat === '12' ? time.clock12NoSeconds : time.clockNoSeconds;
-    }
-  }, [localTimeFormat, settings.timeFormat, time.clock12NoSeconds, time.clockNoSeconds]);
+    return localTimeFormat
+      ? formatTime(time.clockMs, localTimeFormat === '12')
+      : formatTime(time.clockMs, settings.timeFormat === '12');
+  }, [localTimeFormat, settings.timeFormat, time.clockMs]);
 
   return (
     <div className={style.container}>

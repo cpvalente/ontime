@@ -8,6 +8,8 @@ import { formatDisplay } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { formatTime } from '../../../common/utils/time';
+
 import style from './Pip.module.scss';
 
 export default function Pip(props) {
@@ -65,18 +67,19 @@ export default function Pip(props) {
   }, [backstageEvents]);
 
   // Format messages
-  const showInfo =
-    general.backstageInfo !== '' && general.backstageInfo != null;
+  const showInfo = general.backstageInfo !== '' && general.backstageInfo != null;
   let stageTimer = formatDisplay(Math.abs(time.running), true);
   if (time.isNegative) stageTimer = `-${stageTimer}`;
 
   const clock = useMemo(() => {
-    if (localTimeFormat) {
-      return localTimeFormat === '12' ? time.clock12 : time.clock;
-    } else {
-      return settings.timeFormat === '12' ? time.clock12 : time.clock;
-    }
-  },[localTimeFormat, settings.timeFormat, time.clock, time.clock12]);
+    const formatOptions = {
+      showSeconds: true,
+      format: 'hh:mm:ss aa',
+    };
+    return localTimeFormat
+      ? formatTime(time.clockMs, localTimeFormat === '12', formatOptions)
+      : formatTime(time.clockMs, settings.timeFormat === '12', formatOptions);
+  }, [localTimeFormat, settings.timeFormat, time.clockMs]);
 
   const format12 = useMemo(() => {
     if (localTimeFormat) {
@@ -85,7 +88,7 @@ export default function Pip(props) {
       return settings.timeFormat === '12';
     }
     return false;
-  },[localTimeFormat, settings.timeFormat]);
+  }, [localTimeFormat, settings.timeFormat]);
 
   return (
     <div className={style.container__gray}>
@@ -98,12 +101,12 @@ export default function Pip(props) {
           <div className={style.label}>Today</div>
           <div className={style.nav}>
             {pageNumber > 1 &&
-            [...Array(pageNumber).keys()].map((i) => (
-              <div
-                key={i}
-                className={i === currentPage ? style.navItemSelected : style.navItem}
-              />
-            ))}
+              [...Array(pageNumber).keys()].map((i) => (
+                <div
+                  key={i}
+                  className={i === currentPage ? style.navItemSelected : style.navItem}
+                />
+              ))}
           </div>
         </div>
         <Paginator
@@ -132,11 +135,7 @@ export default function Pip(props) {
             </div>
             <div className={style.qr}>
               {general.url != null && general.url !== '' && (
-                <QRCode
-                  value={general.url}
-                  size={window.innerWidth / 12}
-                  level='L'
-                />
+                <QRCode value={general.url} size={window.innerWidth / 12} level='L' />
               )}
             </div>
           </motion.div>

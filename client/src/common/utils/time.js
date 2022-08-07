@@ -28,12 +28,7 @@ export const nowInMillis = () => {
  * @param {string} ifNull - what to return if value is null
  * @returns {string} String representing time 00:12:02
  */
-export const stringFromMillis = (
-  ms,
-  showSeconds = true,
-  delim = ':',
-  ifNull = '...'
-) => {
+export const stringFromMillis = (ms, showSeconds = true, delim = ':', ifNull = '...') => {
   if (ms == null || isNaN(ms)) return ifNull;
   const isNegative = ms < 0 ? '-' : '';
   const millis = Math.abs(ms);
@@ -82,9 +77,8 @@ export const excelDateStringToMillis = (excelDate) => {
  * @return {string}
  */
 export const formatTime = (milliseconds, to12h = false, options) => {
-  const { showSeconds = false, format = 'hh:mm aa' } = options;
-
+  const { showSeconds = false, format: formatString = 'hh:mm aa' } = options || {};
   return to12h
-    ? format(milliseconds - hoursToMilliseconds(1), format)
+    ? format(milliseconds - hoursToMilliseconds(1), formatString)
     : stringFromMillis(milliseconds, showSeconds);
 };

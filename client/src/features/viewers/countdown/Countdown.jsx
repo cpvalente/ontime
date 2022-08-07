@@ -6,11 +6,11 @@ import NavLogo from '../../../common/components/nav/NavLogo';
 import Empty from '../../../common/components/state/Empty';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
+import { formatTime } from '../../../common/utils/time';
 
 import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helpers';
 
 import style from './Countdown.module.scss';
-import { formatTime } from '../../../common/utils/time';
 
 export default function Countdown(props) {
   const { backstageEvents, time, selectedId, settings } = props;
@@ -82,12 +82,14 @@ export default function Countdown(props) {
   const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
 
   const clock = useMemo(() => {
-    if (localTimeFormat) {
-      return localTimeFormat === '12' ? time.clock12 : time.clock;
-    } else {
-      return settings.timeFormat === '12' ? time.clock12 : time.clock;
-    }
-  }, [localTimeFormat, settings?.timeFormat, time?.clock, time?.clock12]);
+    const formatOptions = {
+      showSeconds: true,
+      format: 'hh:mm:ss aa',
+    };
+    return localTimeFormat
+      ? formatTime(time.clockMs, localTimeFormat === '12', formatOptions)
+      : formatTime(time.clockMs, settings.timeFormat === '12', formatOptions);
+  }, [localTimeFormat, settings.timeFormat, time.clockMs]);
 
   const startTime = useMemo(() => {
     if (follow === null) {

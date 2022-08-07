@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
+import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';
 
 import style from './StageManager.module.scss';
@@ -56,12 +57,14 @@ export default function StageManager(props) {
   }
 
   const clock = useMemo(() => {
-    if (localTimeFormat) {
-      return localTimeFormat === '12' ? time.clock12 : time.clock;
-    } else {
-      return settings.timeFormat === '12' ? time.clock12 : time.clock;
-    }
-  },[localTimeFormat, settings.timeFormat, time.clock, time.clock12]);
+    const formatOptions = {
+      showSeconds: true,
+      format: 'hh:mm:ss aa',
+    };
+    return localTimeFormat
+      ? formatTime(time.clockMs, localTimeFormat === '12', formatOptions)
+      : formatTime(time.clockMs, settings.timeFormat === '12', formatOptions);
+  }, [localTimeFormat, settings.timeFormat, time.clockMs]);
 
   const format12 = useMemo(() => {
     if (localTimeFormat) {
@@ -70,7 +73,7 @@ export default function StageManager(props) {
       return settings.timeFormat === '12';
     }
     return false;
-  },[localTimeFormat, settings.timeFormat]);
+  }, [localTimeFormat, settings.timeFormat]);
 
   return (
     <div className={style.container__gray}>

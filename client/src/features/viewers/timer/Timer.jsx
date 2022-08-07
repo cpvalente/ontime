@@ -7,6 +7,8 @@ import TitleCard from 'common/components/views/TitleCard';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { formatTime } from '../../../common/utils/time';
+
 import style from './Timer.module.scss';
 
 export default function Timer(props) {
@@ -45,12 +47,14 @@ export default function Timer(props) {
   const normalisedTime = Math.max(time.running, 0);
 
   const clock = useMemo(() => {
-    if (localTimeFormat) {
-      return localTimeFormat === '12' ? time.clock12 : time.clock;
-    } else {
-      return settings.timeFormat === '12' ? time.clock12 : time.clock;
-    }
-  },[localTimeFormat, settings.timeFormat, time.clock, time.clock12]);
+    const formatOptions = {
+      showSeconds: true,
+      format: 'hh:mm:ss aa',
+    };
+    return localTimeFormat
+      ? formatTime(time.clockMs, localTimeFormat === '12', formatOptions)
+      : formatTime(time.clockMs, settings.timeFormat === '12', formatOptions);
+  }, [localTimeFormat, settings.timeFormat, time.clockMs]);
 
   // motion
   const titleVariants = {
