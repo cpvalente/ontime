@@ -35,7 +35,7 @@ describe('fetchTimerData() function', () => {
     const startMockValue = 10000;
     const timeNow = 1000;
     const follow = { id: 'anotherevent', timeStart: startMockValue };
-    const time = { clockMs: timeNow };
+    const time = { clock: timeNow };
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.toStart);
@@ -48,7 +48,7 @@ describe('fetchTimerData() function', () => {
     const timeNow = 15000;
     const followId = 'testId';
     const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
-    const time = { clockMs: timeNow, running: endMockValue - startMockValue };
+    const time = { clock: timeNow, running: endMockValue - startMockValue };
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.waiting);
@@ -61,7 +61,7 @@ describe('fetchTimerData() function', () => {
     const timeNow = 30000;
     const followId = 'testId';
     const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
-    const time = { clockMs: timeNow, running: endMockValue - startMockValue };
+    const time = { clock: timeNow, running: endMockValue - startMockValue };
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.ended);
@@ -74,7 +74,7 @@ describe('fetchTimerData() function', () => {
     const timeNow = 15000;
     const followId = 'testId';
     const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
-    const time = { clockMs: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
+    const time = { clock: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.waiting);
@@ -87,7 +87,7 @@ describe('fetchTimerData() function', () => {
     const timeNow = 15000;
     const followId = 'testId';
     const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
-    const time = { clockMs: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
+    const time = { clock: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
 
     const { message, timer } = fetchTimerData(time, follow, followId);
     expect(message).toBe(timerMessages.running);
@@ -100,7 +100,7 @@ describe('fetchTimerData() function', () => {
     const timeNow = 2000;
     const followId = 'testId';
     const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
-    const time = { clockMs: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
+    const time = { clock: timeNow, running: DAY_TO_MS + endMockValue - startMockValue };
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(timerMessages.toStart);

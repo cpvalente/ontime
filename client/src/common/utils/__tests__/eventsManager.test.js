@@ -473,7 +473,7 @@ describe('test formatEvents function', () => {
       },
       {
         id: '8ee5',
-        time: '11:30 AM - 06:50 PM',
+        time: '11:30 AM - 06:30 PM',
         title: 'Unless recalled by the OSC address',
         isNow: false,
         isNext: false,
@@ -481,8 +481,8 @@ describe('test formatEvents function', () => {
       },
       {
         id: '8ee5',
-        time: '19:00 AM - 21:00 PM',
-        title: 'Unless recalled by the OSC address',
+        time: '07:00 PM - 09:00 PM',
+        title: 'Some other thing',
         isNow: false,
         isNext: false,
         colour: "",
