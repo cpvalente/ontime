@@ -1,3 +1,5 @@
+import { format, hoursToMilliseconds } from 'date-fns';
+
 const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
 const mth = 1000 * 60 * 60; // millis to hours
@@ -68,4 +70,21 @@ export const excelDateStringToMillis = (excelDate) => {
     return h * mth + m * mtm + s * mts;
   }
   return 0;
+};
+
+/**
+ * @description utility function to format a date in 12 or 24 hour format
+ * @param {number} milliseconds
+ * @param {boolean} [to12h]
+ * @param {object} [options]
+ * @param {boolean} [options.showSeconds]
+ * @param {string} [options.format]
+ * @return {string}
+ */
+export const formatTime = (milliseconds, to12h = false, options) => {
+  const { showSeconds = false, format = 'hh:mm aa' } = options;
+
+  return to12h
+    ? format(milliseconds - hoursToMilliseconds(1), format)
+    : stringFromMillis(milliseconds, showSeconds);
 };

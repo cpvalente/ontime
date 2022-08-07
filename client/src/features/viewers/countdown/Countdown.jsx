@@ -1,17 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { format, hoursToMilliseconds } from 'date-fns';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
 import Empty from '../../../common/components/state/Empty';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
-import { stringFromMillis } from '../../../common/utils/time';
 
 import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helpers';
 
 import style from './Countdown.module.scss';
+import { formatTime } from '../../../common/utils/time';
 
 export default function Countdown(props) {
   const { backstageEvents, time, selectedId, settings } = props;
@@ -94,30 +93,18 @@ export default function Countdown(props) {
     if (follow === null) {
       return '...';
     }
-    if (localTimeFormat) {
-      return localTimeFormat === '12'
-        ? format(follow.timeStart + delay - hoursToMilliseconds(1), 'hh:mm aa')
-        : stringFromMillis(follow.timeStart + delay);
-    } else {
-      return settings.timeFormat === '12'
-        ? format(follow.timeStart + delay - hoursToMilliseconds(1), 'hh:mm aa')
-        : stringFromMillis(follow.timeStart + delay);
-    }
+    return localTimeFormat
+      ? formatTime(follow.timeStart + delay, localTimeFormat === '12')
+      : formatTime(follow.timeStart + delay, settings.timeFormat === '12');
   }, [delay, follow, localTimeFormat, settings.timeFormat]);
 
   const endTime = useMemo(() => {
     if (follow === null) {
       return '...';
     }
-    if (localTimeFormat) {
-      return localTimeFormat === '12'
-        ? format(follow.timeEnd + delay - hoursToMilliseconds(1), 'hh:mm aa')
-        : stringFromMillis(follow.timeEnd + delay);
-    } else {
-      return settings.timeFormat === '12'
-        ? format(follow.timeEnd + delay - hoursToMilliseconds(1), 'hh:mm aa')
-        : stringFromMillis(follow.timeEnd + delay);
-    }
+    return localTimeFormat
+      ? formatTime(follow.timeEnd + delay, localTimeFormat === '12')
+      : formatTime(follow.timeEnd + delay, settings.timeFormat === '12');
   }, [delay, follow, localTimeFormat, settings.timeFormat]);
 
   return (

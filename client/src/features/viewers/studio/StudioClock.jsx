@@ -60,7 +60,10 @@ export default function StudioClock(props) {
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
     const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
-    const formatted = formatEventList(trimmed, selectedId, nextId, false, format12);
+    const formatted = formatEventList(trimmed, selectedId, nextId, {
+      showEnd: false,
+      format12,
+    });
     setSchedule(formatted);
   }, [backstageEvents, selectedId, nextId, localTimeFormat, settings.timeFormat]);
 
@@ -70,7 +73,7 @@ export default function StudioClock(props) {
     } else {
       return settings.timeFormat === '12' ? time.clock12NoSeconds : time.clockNoSeconds;
     }
-  },[localTimeFormat, settings.timeFormat, time.clock12NoSeconds, time.clockNoSeconds]);
+  }, [localTimeFormat, settings.timeFormat, time.clock12NoSeconds, time.clockNoSeconds]);
 
   return (
     <div className={style.container}>

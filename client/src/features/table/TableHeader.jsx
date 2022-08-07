@@ -3,7 +3,6 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
-import { format, hoursToMilliseconds } from 'date-fns';
 import PropTypes from 'prop-types';
 
 import { EVENT_TABLE } from '../../common/api/apiConstants';
@@ -12,13 +11,13 @@ import { useSocket } from '../../common/context/socketContext';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useFetch } from '../../common/hooks/useFetch';
 import { formatDisplay } from '../../common/utils/dateConfig';
-import { stringFromMillis } from '../../common/utils/time';
+import { formatTime } from '../../common/utils/time';
 
 import PlaybackIcon from './tableElements/PlaybackIcon';
 
 import style from './Table.module.scss';
 
-export default function TableHeader({timeFormat = '24'}) {
+export default function TableHeader({ timeFormat = '24' }) {
   const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
     useContext(TableSettingsContext);
   const { data } = useFetch(EVENT_TABLE, fetchEvent);
@@ -99,9 +98,10 @@ export default function TableHeader({timeFormat = '24'}) {
 
   // prepare presentation variables
   const timerNow = `${timer.running < 0 ? '-' : ''}${formatDisplay(timer.running)}`;
-  const timeNow = timeFormat === '12'
-    ? format(new Date(timer.clock - hoursToMilliseconds(1)), 'hh:mm:ss a')
-    : stringFromMillis(timer.clock);
+  const timeNow = formatTime(timer.clock, timeFormat === '12', {
+    showSeconds: true,
+    format: 'hh:mm:ss aa',
+  });
   return (
     <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
@@ -144,4 +144,4 @@ export default function TableHeader({timeFormat = '24'}) {
 
 TableHeader.propTypes = {
   timeFormat: PropTypes.string,
-}
+};
