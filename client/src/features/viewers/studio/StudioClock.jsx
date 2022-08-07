@@ -10,14 +10,13 @@ import {
   getEventsWithDelay,
   trimEventlist,
 } from '../../../common/utils/eventsManager';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, stringFromMillis } from '../../../common/utils/time';
 
 import style from './StudioClock.module.scss';
 
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir, settings } = props;
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
-  const [, , secondsNow] = time.clock.split(':');
   const [schedule, setSchedule] = useState([]);
   const [localTimeFormat, setLocalTimeFormat] = useState(null);
   const [searchParams] = useSearchParams();
@@ -73,6 +72,7 @@ export default function StudioClock(props) {
       ? formatTime(time.clockMs, localTimeFormat === '12')
       : formatTime(time.clockMs, settings.timeFormat === '12');
   }, [localTimeFormat, settings.timeFormat, time.clockMs]);
+  const [, , secondsNow] = stringFromMillis(time.clockMs).split(':');
 
   return (
     <div className={style.container}>

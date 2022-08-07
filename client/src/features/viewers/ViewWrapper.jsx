@@ -7,7 +7,6 @@ import { fetchAllEvents } from '../../common/api/eventsApi';
 import { getSettings, ontimePlaceholderSettings } from '../../common/api/ontimeApi';
 import { useSocket } from '../../common/context/socketContext';
 import { useFetch } from '../../common/hooks/useFetch';
-import { stringFromMillis } from '../../common/utils/time';
 
 const withSocket = (Component) => {
   return (props) => {
@@ -235,7 +234,6 @@ const withSocket = (Component) => {
     const timeManager = {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
-      clock: stringFromMillis(timer.clock),
       clockMs: timer.clock,
       playstate: playback,
     };
