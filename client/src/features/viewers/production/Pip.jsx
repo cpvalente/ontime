@@ -77,9 +77,9 @@ export default function Pip(props) {
       format: 'hh:mm:ss aa',
     };
     return localTimeFormat
-      ? formatTime(time.clockMs, localTimeFormat === '12', formatOptions)
-      : formatTime(time.clockMs, settings.timeFormat === '12', formatOptions);
-  }, [localTimeFormat, settings.timeFormat, time.clockMs]);
+      ? formatTime(time.clock, localTimeFormat === '12', formatOptions)
+      : formatTime(time.clock, settings.timeFormat === '12', formatOptions);
+  }, [localTimeFormat, settings.timeFormat, time.clock]);
 
   const format12 = useMemo(() => {
     if (localTimeFormat) {

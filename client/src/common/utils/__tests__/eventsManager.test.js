@@ -373,10 +373,9 @@ describe('test formatEvents function', () => {
         isNext: false,
         colour: "",
       },
-
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -403,7 +402,7 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -431,7 +430,65 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
-})
+
+  test('it returns 12 hour format correctly', () => {
+
+    const testData = [
+      {
+        "title": "Welcome to Ontime",
+        "timeStart": 1000 * 60 * 60 * 9, // 09:30
+        "timeEnd": 1000 * 60 * 60 * 11 + 1000 * 60 * 30, // 11:30
+        "colour": "",
+        "type": "event",
+        "id": "5946"
+      },
+      {
+        "title": "Unless recalled by the OSC address",
+        "timeStart": 1000 * 60 * 60 * 11 + 1000 * 60 * 30, // 11:30
+        "timeEnd": 1000 * 60 * 60 * 18 + 1000 * 60 * 30, // 18:30
+        "colour": "",
+        "type": "event",
+        "id": "8ee5"
+      },
+      {
+        "title": "Some other thing",
+        "timeStart": 1000 * 60 * 60 * 19, // 19:00
+        "timeEnd": 1000 * 60 * 60 * 21, // 21:00
+        "colour": "",
+        "type": "event",
+        "id": "8ee5"
+      }
+    ];
+    const expected = [
+      {
+        id: '5946',
+        time: '09:00 AM - 11:30 AM',
+        title: 'Welcome to Ontime',
+        isNow: false,
+        isNext: false,
+        colour: ""
+      },
+      {
+        id: '8ee5',
+        time: '11:30 AM - 06:50 PM',
+        title: 'Unless recalled by the OSC address',
+        isNow: false,
+        isNext: false,
+        colour: "",
+      },
+      {
+        id: '8ee5',
+        time: '19:00 AM - 21:00 PM',
+        title: 'Unless recalled by the OSC address',
+        isNow: false,
+        isNext: false,
+        colour: "",
+      },
+    ];
+    const parsed = formatEventList(testData, null, null, { showEnd: true, format12: true });
+    expect(parsed).toStrictEqual(expected);
+  })
+});

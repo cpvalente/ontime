@@ -234,7 +234,6 @@ const withSocket = (Component) => {
     const timeManager = {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
-      clockMs: timer.clock,
       playstate: playback,
     };
 

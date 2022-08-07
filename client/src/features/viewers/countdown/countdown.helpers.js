@@ -34,22 +34,22 @@ export const fetchTimerData = (time, follow, selectedId) => {
     // check that is not running
     message = time.playstate === 'pause' ? timerMessages.waiting : timerMessages.running;
     timer = time.running;
-  } else if (time.clockMs < follow.timeStart) {
+  } else if (time.clock < follow.timeStart) {
     // if it hasnt started, we count to start
     message = timerMessages.toStart;
-    timer = millisToSeconds(follow.timeStart - time.clockMs);
-  } else if (follow.timeStart <= time.clockMs && time.clockMs <= follow.timeEnd) {
+    timer = millisToSeconds(follow.timeStart - time.clock);
+  } else if (follow.timeStart <= time.clock && time.clock <= follow.timeEnd) {
     // if it has started, we show running timer
     message = timerMessages.waiting;
     timer = time.running;
   } else {
     if (follow.timeStart > follow.timeEnd) {
       // ends day after
-      if (follow.timeStart > time.clockMs ) {
+      if (follow.timeStart > time.clock ) {
         // if it hasnt started, we count to start
         message = timerMessages.toStart;
-        timer = millisToSeconds(follow.timeStart - time.clockMs);
-      } else if (follow.timeStart <= time.clockMs) {
+        timer = millisToSeconds(follow.timeStart - time.clock);
+      } else if (follow.timeStart <= time.clock) {
         // if it has started, we show running timer
         message = timerMessages.waiting;
         timer = time.running;

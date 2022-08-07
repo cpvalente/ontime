@@ -69,10 +69,10 @@ export default function StudioClock(props) {
 
   const clock = useMemo(() => {
     return localTimeFormat
-      ? formatTime(time.clockMs, localTimeFormat === '12')
-      : formatTime(time.clockMs, settings.timeFormat === '12');
-  }, [localTimeFormat, settings.timeFormat, time.clockMs]);
-  const [, , secondsNow] = stringFromMillis(time.clockMs).split(':');
+      ? formatTime(time.clock, localTimeFormat === '12')
+      : formatTime(time.clock, settings.timeFormat === '12');
+  }, [localTimeFormat, settings.timeFormat, time.clock]);
+  const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 
   return (
     <div className={style.container}>
