@@ -637,6 +637,20 @@ export class EventTimer extends Timer {
         socket.emit('playstate', this.state);
       });
 
+      socket.on('set-loadid', (data) => {
+        this.trigger('loadById', data);
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-loadindex', (data) => {
+        const eventIndex = Number(data);
+        if (isNaN(eventIndex)) {
+          return;
+        }
+        this.trigger('loadByIndex', data);
+        socket.emit('playstate', this.state);
+      });
+
       socket.on('set-pause', () => {
         this.trigger('pause');
         socket.emit('playstate', this.state);

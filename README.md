@@ -65,13 +65,14 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
     - Public Info
     - Picture in Picture
     - Studio Clock
-    - [Make your own?](#make-your-own-viewer) 
+    - [Make your own?](#make-your-own-viewer)
 - [x] Configurable realtime Lower Thirds
 - [x] Cuesheets with additional custom fields
 - [x] Send live messages to different screen types
 - [x] Ability to differentiate between backstage and public data
 - [x] Manage delays workflow
 - [x] Open Sound Control (OSC) Control and Feedback
+- [x] Integrate with hardware using Companion or one of the APIs
 - [x] Roll mode: run independently using the system clock
 - [x] Import event list from Excel
 - [x] URL Aliases (define configurable aliases to ease onsite setup)
@@ -80,7 +81,8 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
   same as app)
 - [x] Multi platform (available on Windows, MacOS and Linux)
 - [x] [Headless run](#headless-run) (run server only, configure from a browser locally)
-- [x] [Countdown to anything!](https://cpvalente.gitbook.io/ontime/views/countdown): ability to have a countdown to any scheduled event
+- [x] [Countdown to anything!](https://cpvalente.gitbook.io/ontime/views/countdown): ability to have
+  a countdown to any scheduled event
 
 ## Unopinionated
 
@@ -107,7 +109,9 @@ Taking advantage of the integrations in Ontime, we currently use Ontime with:
   webmodule
 - `OBS`: **render views** using the Browser Module
 - `QLab`: trigger ontime using **OSC API**
-- `Companion`: trigger ontime and manipulate timer using **OSC API**
+- `Companion`: Ontime has a **companion module**. Issue report and feature requests should be done
+  in
+  the [repository getontime/ontime](https://github.com/bitfocus/companion-module-getontime-ontime)
 
 ### Make your own viewer
 
@@ -119,12 +123,16 @@ how to get you started and read the docs about
 the [Websocket API](https://app.gitbook.com/s/-Mc0giSOToAhq0ROd0CR/control-and-feedback/websocket-api)
 
 ### Headless run️
+
 You can self host and run ontime in a docker image, the run command should:
+
 - expose the necessary ports (listen in Dockerfile)
 - mount a local file to persist your data (in the example: ````$(pwd)/local-data````)
 - the image name __getontime/ontime__
 
-The docker image is in [available Docker Hub at getontime/ontime](https://hub.docker.com/r/getontime/ontime)
+The docker image is
+in [available Docker Hub at getontime/ontime](https://hub.docker.com/r/getontime/ontime)
+
 ```bash
 docker pull getontime/ontime
 ```
@@ -177,16 +185,18 @@ or in Linux
 
 ```Could Not Display "ontime-linux.AppImage```
 
-You can circumvent this by allowing the execution of the app manually. 
+You can circumvent this by allowing the execution of the app manually.
+
 - In Windows: click more and select "Run Anyway"
-- in macOS: after attempting to run the installer, navigate to System Preferences ->  Security & Privacy and allow the execution of the app
-- In Linux: right-click the AppImage file -> Properties -> Permissions -> select Allow Executing File as a Program
+- in macOS: after attempting to run the installer, navigate to System Preferences ->  Security &
+  Privacy and allow the execution of the app
+- In Linux: right-click the AppImage file -> Properties -> Permissions -> select Allow Executing
+  File as a Program
 
 Long story short: Ontime app is unsigned. </br>Purchasing the certificates for both Mac and Windows
 would mean a recurrent expense and is not a priority. This is unlikely to change in future. If you
 have tips on how to improve this, or would like to sponsor the code signing,
 please [open an issue, so we can discuss it](https://github.com/cpvalente/ontime/issues/new)
-
 
 #### Safari
 
