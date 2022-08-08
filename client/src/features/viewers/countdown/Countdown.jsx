@@ -51,8 +51,8 @@ export default function Countdown(props) {
     if (typeof followThis !== 'undefined') {
       setFollow(followThis);
       const idx = backstageEvents.findIndex((event) => event.id === followThis.id);
-      const delay = getDelayTo(backstageEvents, idx);
-      setDelay(delay);
+      const delayToEvent = getDelayTo(backstageEvents, idx);
+      setDelay(delayToEvent);
     }
   }, [backstageEvents, searchParams]);
 
