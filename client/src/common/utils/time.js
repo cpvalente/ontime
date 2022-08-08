@@ -1,4 +1,4 @@
-import { format, hoursToMilliseconds } from 'date-fns';
+import { DateTime } from 'luxon';
 
 const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
@@ -60,8 +60,11 @@ export const stringFromMillis = (ms, showSeconds = true, delim = ':', ifNull = '
  * @return {string}
  */
 export const formatTime = (milliseconds, to12h = false, options) => {
-  const { showSeconds = false, format: formatString = 'hh:mm aa' } = options || {};
+  if (milliseconds === null) {
+    return '...';
+  }
+  const { showSeconds = false, format: formatString = 'hh:mm a' } = options || {};
   return to12h
-    ? format(milliseconds - hoursToMilliseconds(1), formatString)
+    ? DateTime.fromMillis(milliseconds).toUTC().toFormat(formatString)
     : stringFromMillis(milliseconds, showSeconds);
 };

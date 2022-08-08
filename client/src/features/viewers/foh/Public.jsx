@@ -41,7 +41,7 @@ export default function Public(props) {
   const clock = useMemo(() => {
     const formatOptions = {
       showSeconds: true,
-      format: 'hh:mm:ss aa',
+      format: 'hh:mm:ss a',
     };
     return localTimeFormat
       ? formatTime(time.clock, localTimeFormat === '12', formatOptions)

@@ -71,7 +71,7 @@ describe('formatTime()', () => {
     const to12h = false;
     const options = {
       showSeconds: true,
-      format: 'hh:mm:ss aa',
+      format: 'hh:mm:ss a',
     };
     const time = formatTime(ms, to12h, options);
     expect(time).toStrictEqual('01:00:00 PM');

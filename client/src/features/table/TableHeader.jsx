@@ -100,7 +100,7 @@ export default function TableHeader({ timeFormat = '24' }) {
   const timerNow = `${timer.running < 0 ? '-' : ''}${formatDisplay(timer.running)}`;
   const timeNow = formatTime(timer.clock, timeFormat === '12', {
     showSeconds: true,
-    format: 'hh:mm:ss aa',
+    format: 'hh:mm:ss a',
   });
   return (
     <div className={style.header}>

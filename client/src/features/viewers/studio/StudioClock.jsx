@@ -68,9 +68,13 @@ export default function StudioClock(props) {
   }, [backstageEvents, selectedId, nextId, localTimeFormat, settings.timeFormat]);
 
   const clock = useMemo(() => {
+    const formatOptions = {
+      showSeconds: false,
+      format: 'hh:mm'
+    }
     return localTimeFormat
-      ? formatTime(time.clock, localTimeFormat === '12')
-      : formatTime(time.clock, settings.timeFormat === '12');
+      ? formatTime(time.clock, localTimeFormat === '12', formatOptions)
+      : formatTime(time.clock, settings.timeFormat === '12', formatOptions);
   }, [localTimeFormat, settings.timeFormat, time.clock]);
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 

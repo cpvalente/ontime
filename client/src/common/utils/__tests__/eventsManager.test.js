@@ -439,7 +439,7 @@ describe('test formatEvents function', () => {
     const testData = [
       {
         "title": "Welcome to Ontime",
-        "timeStart": 1000 * 60 * 60 * 9, // 09:30
+        "timeStart": 1000 * 60 * 60 * 9, // 09:00
         "timeEnd": 1000 * 60 * 60 * 11 + 1000 * 60 * 30, // 11:30
         "colour": "",
         "type": "event",

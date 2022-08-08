@@ -31,9 +31,9 @@ const withSocket = (Component) => {
       visible: false,
     });
     const [timer, setTimer] = useState({
-      clock: null,
-      running: null,
-      isNegative: null,
+      clock: 0,
+      running: 0,
+      isNegative: false,
       startedAt: null,
       expectedFinish: null,
     });
