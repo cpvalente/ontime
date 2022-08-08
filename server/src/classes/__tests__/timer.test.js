@@ -1,5 +1,4 @@
 import { Timer } from '../Timer';
-import { formatTime } from '../../../../client/src/common/utils/time';
 
 test('object instantiates correctly', () => {
   const t = new Timer();
@@ -52,28 +51,4 @@ test('converting between millis to seconds handles partials correctly', () => {
 
   expect(Timer.toSeconds(1800000)).toBe(1800);
   expect(Timer.toSeconds(1799761)).toBe(1799);
-});
-
-describe('formatTime()', () => {
-  test('parses 24h strings', () => {
-    const ms = 13 * 60 * 60 * 1000;
-    const to12h = false;
-    const options = {
-      showSeconds: true,
-      format: 'irrelevant',
-    };
-    const time = formatTime(ms, to12h, options);
-    expect(time).toStrictEqual('13:00:00');
-  });
-
-  test('parses same string in 12h strings', () => {
-    const ms = 13 * 60 * 60 * 1000;
-    const to12h = false;
-    const options = {
-      showSeconds: true,
-      format: 'hh:mm:ss a',
-    };
-    const time = formatTime(ms, to12h, options);
-    expect(time).toStrictEqual('01:00:00 PM');
-  });
 });
