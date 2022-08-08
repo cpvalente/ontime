@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
@@ -11,10 +11,14 @@ import { formatTime } from '../../../common/utils/time';
 
 import style from './Timer.module.scss';
 
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
+
 export default function Timer(props) {
   const { general, pres, title, time, settings } = props;
   const [elapsed, setElapsed] = useState(true);
-  const [localTimeFormat, setLocalTimeFormat] = useState(null);
   const [searchParams] = useSearchParams();
 
   // Set window title
@@ -33,28 +37,16 @@ export default function Timer(props) {
     } else if (progress === 'down') {
       setElapsed(false);
     }
-
-    // format: selector
-    // Should be '12' or '24'
-    const format = searchParams.get('format');
-    if (format === '12' || format === '24') {
-      setLocalTimeFormat(format);
-    }
   }, [searchParams]);
+
+  // eg. http://localhost:3000/timer?fprmat=12
+  // Check for user options
+  const timeFormat = searchParams.get('format') || settings.timeFormat;
+  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
   const normalisedTime = Math.max(time.running, 0);
-
-  const clock = useMemo(() => {
-    const formatOptions = {
-      showSeconds: true,
-      format: 'hh:mm:ss a',
-    };
-    return localTimeFormat
-      ? formatTime(time.clock, localTimeFormat === '12', formatOptions)
-      : formatTime(time.clock, settings.timeFormat === '12', formatOptions);
-  }, [localTimeFormat, settings.timeFormat, time.clock]);
 
   // motion
   const titleVariants = {

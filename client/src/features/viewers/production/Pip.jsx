@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
@@ -12,6 +12,11 @@ import { formatTime } from '../../../common/utils/time';
 
 import style from './Pip.module.scss';
 
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
+
 export default function Pip(props) {
   const { time, backstageEvents, selectedId, general, settings } = props;
   const [size, setSize] = useState('');
@@ -19,7 +24,6 @@ export default function Pip(props) {
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  const [localTimeFormat, setLocalTimeFormat] = useState(null);
   const [searchParams] = useSearchParams();
 
   // calculate pip size
@@ -33,17 +37,6 @@ export default function Pip(props) {
   useEffect(() => {
     document.title = 'ontime - Pip';
   }, []);
-
-  // eg. http://localhost:3000/pip?fprmat=12
-  // Check for user options
-  useEffect(() => {
-    // format: selector
-    // Should be '12' or '24'
-    const format = searchParams.get('format');
-    if (format === '12' || format === '24') {
-      setLocalTimeFormat(format);
-    }
-  }, [searchParams]);
 
   // calculate delays if any
   useEffect(() => {
@@ -71,24 +64,10 @@ export default function Pip(props) {
   let stageTimer = formatDisplay(Math.abs(time.running), true);
   if (time.isNegative) stageTimer = `-${stageTimer}`;
 
-  const clock = useMemo(() => {
-    const formatOptions = {
-      showSeconds: true,
-      format: 'hh:mm:ss a',
-    };
-    return localTimeFormat
-      ? formatTime(time.clock, localTimeFormat === '12', formatOptions)
-      : formatTime(time.clock, settings.timeFormat === '12', formatOptions);
-  }, [localTimeFormat, settings.timeFormat, time.clock]);
-
-  const format12 = useMemo(() => {
-    if (localTimeFormat) {
-      return localTimeFormat === '12';
-    } else if (settings.timeFormat) {
-      return settings.timeFormat === '12';
-    }
-    return false;
-  }, [localTimeFormat, settings.timeFormat]);
+  // eg. http://localhost:3000/pip?fprmat=12
+  // Check for user options
+  const timeFormat = searchParams.get('format') || settings.timeFormat;
+  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
 
   return (
     <div className={style.container__gray}>
@@ -117,7 +96,7 @@ export default function Pip(props) {
           time={20}
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
-          format12={format12}
+          format12={timeFormat === '12'}
         />
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import NavLogo from 'common/components/nav/NavLogo';
@@ -14,29 +14,22 @@ import { titleVariants } from '../common/animation';
 
 import style from './StageManager.module.scss';
 
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
+
 export default function StageManager(props) {
   const { publ, title, time, backstageEvents, selectedId, general, settings } = props;
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  const [localTimeFormat, setLocalTimeFormat] = useState(null);
   const [searchParams] = useSearchParams();
 
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Backstage Screen';
   }, []);
-
-  // eg. http://localhost:3000/sm?fprmat=12
-  // Check for user options
-  useEffect(() => {
-    // format: selector
-    // Should be '12' or '24'
-    const format = searchParams.get('format');
-    if (format === '12' || format === '24') {
-      setLocalTimeFormat(format);
-    }
-  }, [searchParams]);
 
   // calculate delays if any
   useEffect(() => {
@@ -56,24 +49,10 @@ export default function StageManager(props) {
     if (time.isNegative) stageTimer = `-${stageTimer}`;
   }
 
-  const clock = useMemo(() => {
-    const formatOptions = {
-      showSeconds: true,
-      format: 'hh:mm:ss a',
-    };
-    return localTimeFormat
-      ? formatTime(time.clock, localTimeFormat === '12', formatOptions)
-      : formatTime(time.clock, settings.timeFormat === '12', formatOptions);
-  }, [localTimeFormat, settings.timeFormat, time.clock]);
-
-  const format12 = useMemo(() => {
-    if (localTimeFormat) {
-      return localTimeFormat === '12';
-    } else if (settings.timeFormat) {
-      return settings.timeFormat === '12';
-    }
-    return false;
-  }, [localTimeFormat, settings.timeFormat]);
+  // eg. http://localhost:3000/sm?fprmat=12
+  // Check for user options
+  const timeFormat = searchParams.get('format') || settings.timeFormat;
+  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
 
   return (
     <div className={style.container__gray}>
@@ -142,7 +121,7 @@ export default function StageManager(props) {
           isBackstage
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
-          format12={format12}
+          format12={timeFormat === '12'}
         />
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import useFitText from 'use-fit-text';
@@ -14,11 +14,15 @@ import { formatTime, stringFromMillis } from '../../../common/utils/time';
 
 import style from './StudioClock.module.scss';
 
+const formatOptions = {
+  showSeconds: false,
+  format: 'hh:mm',
+};
+
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir, settings } = props;
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
   const [schedule, setSchedule] = useState([]);
-  const [localTimeFormat, setLocalTimeFormat] = useState(null);
   const [searchParams] = useSearchParams();
 
   const activeIndicators = [...Array(12).keys()];
@@ -30,52 +34,28 @@ export default function StudioClock(props) {
     document.title = 'ontime - Studio Clock';
   }, []);
 
-  // eg. http://localhost:3000/studio?fprmat=12
-  // Check for user options
-  useEffect(() => {
-    // format: selector
-    // Should be '12' or '24'
-    const format = searchParams.get('format');
-    if (format === '12' || format === '24') {
-      setLocalTimeFormat(format);
-    }
-  }, [searchParams]);
-
   // Prepare event list
-  // Todo: useMemo()
   useEffect(() => {
     if (backstageEvents == null) return;
 
-    let format12 = false;
-    if (localTimeFormat) {
-      if (localTimeFormat === '12') {
-        format12 = true;
-      }
-    } else if (settings.timeFormat) {
-      if (settings.timeFormat === '12') {
-        format12 = true;
-      }
-    }
+    const timeFormat = searchParams.get('format') || settings.timeFormat;
 
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
     const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
     const formatted = formatEventList(trimmed, selectedId, nextId, {
       showEnd: false,
-      format12,
+      format12: timeFormat === '12',
     });
     setSchedule(formatted);
-  }, [backstageEvents, selectedId, nextId, localTimeFormat, settings.timeFormat]);
+  }, [backstageEvents, selectedId, nextId, settings.timeFormat, searchParams]);
 
-  const clock = useMemo(() => {
-    const formatOptions = {
-      showSeconds: false,
-      format: 'hh:mm'
-    }
-    return localTimeFormat
-      ? formatTime(time.clock, localTimeFormat === '12', formatOptions)
-      : formatTime(time.clock, settings.timeFormat === '12', formatOptions);
-  }, [localTimeFormat, settings.timeFormat, time.clock]);
+  // eg. http://localhost:3000/studio?fprmat=12
+  // format: selector
+  // Should be '12' or '24'
+  const timeFormat = searchParams.get('format') || settings.timeFormat;
+  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
+
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 
   return (

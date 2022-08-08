@@ -12,13 +12,17 @@ import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helper
 
 import style from './Countdown.module.scss';
 
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
+
 export default function Countdown(props) {
   const { backstageEvents, time, selectedId, settings } = props;
   const [follow, setFollow] = useState(null);
   const [runningTimer, setRunningTimer] = useState(0);
   const [runningMessage, setRunningMessage] = useState('');
   const [delay, setDelay] = useState(0);
-  const [localTimeFormat, setLocalTimeFormat] = useState(null);
   const [searchParams] = useSearchParams();
 
   // Set window title
@@ -50,13 +54,6 @@ export default function Countdown(props) {
       const delay = getDelayTo(backstageEvents, idx);
       setDelay(delay);
     }
-
-    // format: selector
-    // Should be '12' or '24'
-    const format = searchParams.get('format');
-    if (format === '12' || format === '24') {
-      setLocalTimeFormat(format);
-    }
   }, [backstageEvents, searchParams]);
 
   useEffect(() => {
@@ -81,33 +78,20 @@ export default function Countdown(props) {
 
   const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
 
-  const clock = useMemo(() => {
-    const formatOptions = {
-      showSeconds: true,
-      format: 'hh:mm:ss a',
-    };
-    return localTimeFormat
-      ? formatTime(time.clock, localTimeFormat === '12', formatOptions)
-      : formatTime(time.clock, settings.timeFormat === '12', formatOptions);
-  }, [localTimeFormat, settings.timeFormat, time.clock]);
+  // eg. http://localhost:3000/sm?fprmat=12
+  // format: selector
+  // Should be '12' or '24'
+  const timeFormat = searchParams.get('format') || settings.timeFormat;
 
-  const startTime = useMemo(() => {
-    if (follow === null) {
-      return '...';
-    }
-    return localTimeFormat
-      ? formatTime(follow.timeStart + delay, localTimeFormat === '12')
-      : formatTime(follow.timeStart + delay, settings.timeFormat === '12');
-  }, [delay, follow, localTimeFormat, settings.timeFormat]);
-
-  const endTime = useMemo(() => {
-    if (follow === null) {
-      return '...';
-    }
-    return localTimeFormat
-      ? formatTime(follow.timeEnd + delay, localTimeFormat === '12')
-      : formatTime(follow.timeEnd + delay, settings.timeFormat === '12');
-  }, [delay, follow, localTimeFormat, settings.timeFormat]);
+  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
+  const startTime =
+    follow === null
+      ? '...'
+      : formatTime(follow.timeStart + delay, timeFormat === '12', formatOptions);
+  const endTime =
+    follow === null
+      ? '...'
+      : formatTime(follow.timeEnd + delay, timeFormat === '12', formatOptions);
 
   return (
     <div className={style.container}>
