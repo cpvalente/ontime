@@ -67,8 +67,7 @@ export class EventTimer extends Timer {
     // call general title reset
     this._resetSelection();
 
-    this.numEvents = 0;
-    this._eventlist = null;
+    this._eventlist = [];
     this.onAir = false;
 
     // initialise socketIO server
@@ -154,16 +153,17 @@ export class EventTimer extends Timer {
    * Broadcasts complete object state
    */
   broadcastState() {
+    const numEvents = this._eventlist.length;
     this.broadcastTimer();
     this.io.emit('playstate', this.state);
     this.io.emit('selected', {
       id: this.selectedEventId,
       index: this.selectedEventIndex,
-      total: this.numEvents,
+      total: numEvents,
     });
     this.io.emit('selected-id', this.selectedEventId);
     this.io.emit('next-id', this.nextEventId);
-    this.io.emit('numevents', this.numEvents);
+    this.io.emit('numevents', numEvents);
     this.io.emit('publicselected-id', this.selectedPublicEventId);
     this.io.emit('publicnext-id', this.nextPublicEventId);
     this.io.emit('titles', this.titles);
@@ -188,16 +188,17 @@ export class EventTimer extends Timer {
    */
   trigger(action, payload) {
     let success = true;
+    const numEvents = this._eventlist.length;
     switch (action) {
       case 'start': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Start');
         this.start();
         break;
       }
       case 'startById': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         const loaded = this.loadEventById(payload);
         if (loaded) {
           this.info('PLAYBACK', `Loaded event with ID ${payload}`);
@@ -209,7 +210,7 @@ export class EventTimer extends Timer {
         break;
       }
       case 'startByIndex': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         const loaded = this.loadEventByIndex(payload);
         if (loaded) {
           this.info('PLAYBACK', `Loaded event with index ${payload}`);
@@ -221,42 +222,42 @@ export class EventTimer extends Timer {
         break;
       }
       case 'pause': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Pause');
         this.pause();
         break;
       }
       case 'stop': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Stop');
         this.stop();
         break;
       }
       case 'roll': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Roll');
         this.roll();
         break;
       }
       case 'previous': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Previous');
         this.previous();
         break;
       }
       case 'next': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Play Mode Next');
         this.next();
         break;
       }
       case 'loadById': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         const loaded = this.loadEventById(payload);
         if (loaded) {
           this.info('PLAYBACK', `Loaded event with ID ${payload}`);
@@ -266,7 +267,7 @@ export class EventTimer extends Timer {
         break;
       }
       case 'loadByIndex': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         const loaded = this.loadEventByIndex(payload);
         if (loaded) {
           this.info('PLAYBACK', `Loaded event with index ${payload}`);
@@ -276,14 +277,14 @@ export class EventTimer extends Timer {
         break;
       }
       case 'unload': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Events unloaded');
         this.unload();
         break;
       }
       case 'reload': {
-        if (this.numEvents === 0 || this.numEvents == null) return false;
+        if (!numEvents) return false;
         // Call action and force update
         this.info('PLAYBACK', 'Reloaded event');
         this.reload();
@@ -637,6 +638,20 @@ export class EventTimer extends Timer {
         socket.emit('playstate', this.state);
       });
 
+      socket.on('set-loadid', (data) => {
+        this.trigger('loadById', data);
+        socket.emit('playstate', this.state);
+      });
+
+      socket.on('set-loadindex', (data) => {
+        const eventIndex = Number(data);
+        if (isNaN(eventIndex)) {
+          return;
+        }
+        this.trigger('loadByIndex', data);
+        socket.emit('playstate', this.state);
+      });
+
       socket.on('set-pause', () => {
         this.trigger('pause');
         socket.emit('playstate', this.state);
@@ -732,7 +747,7 @@ export class EventTimer extends Timer {
         socket.emit('selected', {
           id: this.selectedEventId,
           index: this.selectedEventIndex,
-          total: this.numEvents,
+          total: this._eventlist.length,
         });
       });
 
@@ -741,7 +756,7 @@ export class EventTimer extends Timer {
       });
 
       socket.on('get-numevents', () => {
-        socket.emit('numevents', this.numEvents);
+        socket.emit('numevents', this._eventlist.length);
       });
 
       socket.on('get-next-id', () => {
@@ -831,13 +846,12 @@ export class EventTimer extends Timer {
 
     // set general
     this._eventlist = [];
-    this.numEvents = 0;
 
     // update lifecycle: onStop
     this.ontimeCycle = this.cycleState.onStop;
 
     // update clients
-    this.broadcastThis('numevents', this.numEvents);
+    this.broadcastThis('numevents', this._eventlist.length);
   }
 
   /**
@@ -845,7 +859,7 @@ export class EventTimer extends Timer {
    * @param {array} eventlist
    */
   setupWithEventList(eventlist) {
-    if (!Array.isArray(eventlist) || eventlist.length < 1) return;
+    if (!Array.isArray(eventlist) || !eventlist.length) return;
 
     // filter only events
     const events = eventlist.filter((e) => e.type === 'event');
@@ -853,7 +867,6 @@ export class EventTimer extends Timer {
 
     // set general
     this._eventlist = events;
-    this.numEvents = numEvents;
 
     // list may contain no events
     if (numEvents < 1) return;
@@ -873,16 +886,14 @@ export class EventTimer extends Timer {
    * @param {array} eventlist
    */
   updateEventList(eventlist) {
-    // filter only events
-    const events = eventlist.filter((e) => e.type === 'event');
-    const numEvents = events.length;
+    if (!Array.isArray(eventlist) || !eventlist.length) return;
 
-    // is this the first event
-    const first = this.numEvents === 0;
+    // filter only events
+    const events = eventlist.filter((e) => e.type === 'event' && !e.skip);
+    const numEvents = events.length;
 
     // set general
     this._eventlist = events;
-    this.numEvents = numEvents;
 
     // list may be empty
     if (numEvents < 1) {
@@ -890,8 +901,8 @@ export class EventTimer extends Timer {
       return;
     }
 
-    // auto load if is the only event
-    if (first) {
+    // auto load if is the there was nothing before
+    if (!this._eventlist.length) {
       this.loadEvent(0);
     } else if (this.selectedEventId != null) {
       // handle reload selected
@@ -925,7 +936,20 @@ export class EventTimer extends Timer {
   updateSingleEvent(id, entry) {
     // find object in events
     const eventIndex = this._eventlist.findIndex((e) => e.id === id);
-    if (eventIndex === -1) return;
+    if (eventIndex === -1) {
+      throw 'Event not found';
+    }
+
+    // check if event is set to be skipped
+    if (entry.skip) {
+      // stop event if running
+      if (id === this.selectedEventId) {
+        this.trigger('stop');
+      }
+
+      // delete event
+      this.deleteId(id);
+    }
 
     // update event in memory
     const e = this._eventlist[eventIndex];
@@ -962,6 +986,71 @@ export class EventTimer extends Timer {
   }
 
   /**
+   * @description inserts an event after a given id
+   * @param event
+   * @param previousId
+   */
+  insertEventAfterId(event, previousId) {
+    // find object in events
+    const previousIndex = this._eventlist.findIndex((e) => e.id === previousId);
+    if (previousIndex === -1) {
+      throw 'Event not found';
+    }
+
+    if (previousIndex + 1 >= this._eventlist.length) {
+      this._eventlist.push(event);
+    } else {
+      this._eventlist.splice(previousIndex + 1, 0, event);
+    }
+
+    try {
+      // check if entry is running
+      if (event.id === this.selectedEventId) {
+        // handle reload selected
+        // Reload data if running
+        const type =
+          this.selectedEventId === event.id && this._startedAt != null ? 'reload' : 'load';
+        this.loadEvent(this.selectedEventIndex, type);
+      } else if (event.id === this.nextEventId) {
+        // roll needs to recalculate
+        if (this.state === 'roll') {
+          this.rollLoad();
+        }
+      }
+
+      // load titles
+      if ('title' in event || 'subtitle' in event || 'presenter' in event) {
+        this._loadTitlesNext();
+        this._loadTitlesNow();
+      }
+    } catch (error) {
+      this.error('SERVER', error);
+    }
+
+    // update clients
+    this.broadcastState();
+
+    // run cycle
+    this.runCycle();
+  }
+
+  /**
+   * @description inserts an event in the first position of the list
+   * @param event
+   */
+  insertEventAtStart(event) {
+    // Insert at beginning
+    this._eventlist.unshift(event);
+
+    // update clients
+    this.broadcastState();
+
+    // run cycle
+    this.runCycle();
+  }
+
+
+  /**
    * Deleted an event from the list by its id
    * @param {string} eventId
    */
@@ -972,7 +1061,6 @@ export class EventTimer extends Timer {
 
     // delete event and update count
     this._eventlist.splice(eventIndex, 1);
-    this.numEvents = this._eventlist.length;
 
     // reload data if necessary
     if (eventId === this.selectedEventId) {
@@ -1017,7 +1105,7 @@ export class EventTimer extends Timer {
    * @param {number} eventIndex - Index of event in eventlist
    */
   loadEventByIndex(eventIndex) {
-    if (eventIndex === -1 || eventIndex > this.numEvents) return false;
+    if (eventIndex === -1 || eventIndex > this._eventlist.length) return false;
     this.pause();
     this.loadEvent(eventIndex, 'load');
     // run cycle
@@ -1194,11 +1282,13 @@ export class EventTimer extends Timer {
     this.titlesPublic.presenterNext = null;
     this.nextPublicEventId = null;
 
-    if (this.selectedEventIndex < this.numEvents - 1) {
+    const numEvents = this._eventlist.length;
+
+    if (this.selectedEventIndex < numEvents - 1) {
       let nextPublic = false;
       let nextPrivate = false;
 
-      for (let i = this.selectedEventIndex + 1; i < this.numEvents; i++) {
+      for (let i = this.selectedEventIndex + 1; i < numEvents; i++) {
         // check that is the right type
         if (this._eventlist[i].type === 'event') {
           // if we have not set private
@@ -1410,7 +1500,7 @@ export class EventTimer extends Timer {
     // do we need to change
     if (this.state === 'roll') return;
 
-    if (this.numEvents === 0 || this.numEvents == null) return;
+    if (!this._eventlist.length) return;
 
     // set state
     this.state = 'roll';
@@ -1424,7 +1514,7 @@ export class EventTimer extends Timer {
 
   previous() {
     // check that we have events to run
-    if (this.numEvents < 1) return;
+    if (!this._eventlist.length) return;
 
     // maybe this is the first event?
     if (this.selectedEventIndex === 0) return;
@@ -1446,20 +1536,19 @@ export class EventTimer extends Timer {
   }
 
   next() {
+    const numEvents = this._eventlist.length;
     // check that we have events to run
-    if (this.numEvents < 1) return;
+    if (!numEvents) return;
 
     // maybe this is the last event?
-    if (this.selectedEventIndex === this.numEvents - 1) return;
+    if (this.selectedEventIndex === numEvents - 1) return;
 
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
       this.loadEvent(0);
     } else {
       const gotoEvent =
-        this.selectedEventIndex < this.numEvents - 1
-          ? this.selectedEventIndex + 1
-          : this.numEvents - 1;
+        this.selectedEventIndex < numEvents - 1 ? this.selectedEventIndex + 1 : numEvents - 1;
       if (gotoEvent === this.selectedEventIndex) return;
       this.loadEvent(gotoEvent);
     }
@@ -1489,7 +1578,7 @@ export class EventTimer extends Timer {
    * @description reloads current event
    */
   reload() {
-    if (this.numEvents === 0 || this.numEvents == null) return;
+    if (!this._eventlist.length) return;
 
     // change playstate
     this.pause();
