@@ -795,11 +795,11 @@ export class EventTimer extends Timer {
       });
 
       // Presenter message
-      socket.on('set-timer-text', (data) => {
+      socket.on('set-timer-message-text', (data) => {
         this._setTitles('set-timer-text', data);
       });
 
-      socket.on('set-timer-visible', (data) => {
+      socket.on('set-timer-message-visible', (data) => {
         this._setTitles('set-timer-visible', data);
       });
 
@@ -808,11 +808,11 @@ export class EventTimer extends Timer {
       });
       /*******************************************/
       // Public message
-      socket.on('set-public-text', (data) => {
+      socket.on('set-public-message-text', (data) => {
         this._setTitles('set-public-text', data);
       });
 
-      socket.on('set-public-visible', (data) => {
+      socket.on('set-public-message-visible', (data) => {
         this._setTitles('set-public-visible', data);
       });
 
@@ -822,11 +822,11 @@ export class EventTimer extends Timer {
 
       /*******************************************/
       // Lower third message
-      socket.on('set-lower-text', (data) => {
+      socket.on('set-lower-message-text', (data) => {
         this._setTitles('set-lower-text', data);
       });
 
-      socket.on('set-lower-visible', (data) => {
+      socket.on('set-lower-message-visible', (data) => {
         this._setTitles('set-lower-visible', data);
       });
 
