@@ -3,6 +3,8 @@ import { Divider } from '@chakra-ui/layout';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
+import { IoContract } from '@react-icons/all-files/io5/IoContract';
+import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 import PropTypes from 'prop-types';
 
@@ -100,6 +102,18 @@ export default function TableHeader({ handleCSVExport }) {
   // prepare presentation variables
   const timerNow = `${timer.running < 0 ? '-' : ''}${formatDisplay(timer.running)}`;
 
+  const isFullScreen = document.fullscreenElement;
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }, []);
+
   return (
     <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
@@ -133,6 +147,15 @@ export default function TableHeader({ handleCSVExport }) {
         <Tooltip openDelay={300} label='Toggle dark mode'>
           <span className={style.actionIcon}>
             <IoMoon onClick={() => toggleTheme()} />
+          </span>
+        </Tooltip>
+        <Tooltip openDelay={300} label='Toggle Fullscreen'>
+          <span className={style.actionIcon}>
+            {isFullScreen ? (
+              <IoContract onClick={() => toggleFullscreen()} />
+            ) : (
+              <IoExpand onClick={() => toggleFullscreen()} />
+            )}
           </span>
         </Tooltip>
         <Divider />
