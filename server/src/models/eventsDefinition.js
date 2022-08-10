@@ -8,6 +8,7 @@ export const event = {
   timeType: 'start-end',
   duration: 0,
   isPublic: false,
+  skip: false,
   colour: '',
   user0: '',
   user1: '',
