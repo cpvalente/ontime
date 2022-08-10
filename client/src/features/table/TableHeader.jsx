@@ -15,6 +15,7 @@ import { TableSettingsContext } from '../../common/context/TableSettingsContext'
 import { useFetch } from '../../common/hooks/useFetch';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import { stringFromMillis } from '../../common/utils/time';
+import { tooltipDelayFast } from '../../ontimeConfig';
 
 import PlaybackIcon from './tableElements/PlaybackIcon';
 
@@ -134,22 +135,22 @@ export default function TableHeader({ handleCSVExport }) {
         <span className={style.timer}>{stringFromMillis(timer.clock)}</span>
       </div>
       <div className={style.headerActions}>
-        <Tooltip openDelay={300} label='Follow selected'>
+        <Tooltip openDelay={tooltipDelayFast} label='Follow selected'>
           <span className={followSelected ? style.actionIcon : style.actionDisabled}>
             <FiTarget onClick={() => toggleFollow()} />
           </span>
         </Tooltip>
-        <Tooltip openDelay={300} label='Show settings'>
+        <Tooltip openDelay={tooltipDelayFast} label='Show settings'>
           <span className={showSettings ? style.actionIcon : style.actionDisabled}>
             <FiSettings onClick={() => toggleSettings()} />
           </span>
         </Tooltip>
-        <Tooltip openDelay={300} label='Toggle dark mode'>
+        <Tooltip openDelay={tooltipDelayFast} label='Toggle dark mode'>
           <span className={style.actionIcon}>
             <IoMoon onClick={() => toggleTheme()} />
           </span>
         </Tooltip>
-        <Tooltip openDelay={300} label='Toggle Fullscreen'>
+        <Tooltip openDelay={tooltipDelayFast} label='Toggle Fullscreen'>
           <span className={style.actionIcon}>
             {isFullScreen ? (
               <IoContract onClick={() => toggleFullscreen()} />
@@ -159,7 +160,7 @@ export default function TableHeader({ handleCSVExport }) {
           </span>
         </Tooltip>
         <Divider />
-        <Tooltip openDelay={300} label='Export to CSV'>
+        <Tooltip openDelay={tooltipDelayFast} label='Export to CSV'>
           <span className={style.actionText} onClick={() => handleCSVExport(data)}>
             CSV
           </span>

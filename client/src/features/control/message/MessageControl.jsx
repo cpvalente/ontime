@@ -5,6 +5,8 @@ import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
 import { useSocket } from 'common/context/socketContext';
 
+import { tooltipDelayMid } from '../../../ontimeConfig';
+
 import InputRow from './InputRow';
 
 import style from './MessageControl.module.scss';
@@ -122,7 +124,7 @@ export default function MessageControl() {
         />
       </div>
       <div className={style.onAirToggle}>
-        <Tooltip label={onAir ? 'Go Off Air' : 'Go On Air'} openDelay={500}>
+        <Tooltip label={onAir ? 'Go Off Air' : 'Go On Air'} openDelay={tooltipDelayMid}>
           <IconButton
             className={style.btn}
             size='md'
