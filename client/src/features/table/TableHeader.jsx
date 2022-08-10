@@ -1,8 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { Divider } from '@chakra-ui/layout';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
+import PropTypes from 'prop-types';
 
 import { EVENT_TABLE } from '../../common/api/apiConstants';
 import { fetchEvent } from '../../common/api/eventApi';
@@ -16,7 +18,7 @@ import PlaybackIcon from './tableElements/PlaybackIcon';
 
 import style from './Table.module.scss';
 
-export default function TableHeader() {
+export default function TableHeader({ handleCSVExport }) {
   const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
     useContext(TableSettingsContext);
   const { data } = useFetch(EVENT_TABLE, fetchEvent);
@@ -133,7 +135,17 @@ export default function TableHeader() {
             <IoMoon onClick={() => toggleTheme()} />
           </span>
         </Tooltip>
+        <Divider />
+        <Tooltip openDelay={300} label='Export to CSV'>
+          <span className={style.actionText} onClick={() => handleCSVExport(data)}>
+            CSV
+          </span>
+        </Tooltip>
       </div>
     </div>
   );
 }
+
+TableHeader.propTypes = {
+  handleCSVExport: PropTypes.func.isRequired,
+};

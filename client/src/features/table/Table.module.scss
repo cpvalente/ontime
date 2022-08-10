@@ -257,12 +257,21 @@ svg {
   background-color: inherit !important;
 }
 
-.actionIcon {
+@mixin action-element() {
   cursor: pointer;
 }
 
+.actionIcon {
+  @include action-element();
+}
+
+.actionText {
+  @include action-element();
+  font-size: 0.65em;
+}
+
 .actionDisabled {
-  cursor: pointer;
+  @include action-element();
   opacity: 0.6;
 }
 
