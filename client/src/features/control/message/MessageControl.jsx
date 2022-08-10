@@ -66,22 +66,22 @@ export default function MessageControl() {
     (action, payload) => {
       switch (action) {
         case 'pres-text':
-          socket.emit('set-timer-text', payload);
+          socket.emit('set-timer-message-text', payload);
           break;
         case 'toggle-pres-visible':
-          socket.emit('set-timer-visible', payload);
+          socket.emit('set-timer-message-visible', payload);
           break;
         case 'publ-text':
-          socket.emit('set-public-text', payload);
+          socket.emit('set-public-message-text', payload);
           break;
         case 'toggle-publ-visible':
-          socket.emit('set-public-visible', payload);
+          socket.emit('set-public-message-visible', payload);
           break;
         case 'lower-text':
-          socket.emit('set-lower-text', payload);
+          socket.emit('set-lower-message-text', payload);
           break;
         case 'toggle-lower-visible':
-          socket.emit('set-lower-visible', payload);
+          socket.emit('set-lower-message-visible', payload);
           break;
         case 'toggle-onAir':
           socket.emit('set-onAir', payload);
