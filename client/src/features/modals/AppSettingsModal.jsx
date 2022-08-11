@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { ModalBody } from '@chakra-ui/modal';
 import {
@@ -81,57 +81,51 @@ export default function AppSettingsModal() {
   /**
    * Validate and submit data
    */
-  const submitHandler = useCallback(
-    async (event) => {
-      event.preventDefault();
-      setSubmitting(true);
+  const submitHandler = async (event) => {
+    event.preventDefault();
+    setSubmitting(true);
 
-      // set context
-      setShowQuickEntry(doShowQuickEntry);
-      setStarTimeIsLastEnd(doStarTimeIsLastEnd);
-      setDefaultPublic(doDefaultPublic);
+    // set context
+    setShowQuickEntry(doShowQuickEntry);
+    setStarTimeIsLastEnd(doStarTimeIsLastEnd);
+    setDefaultPublic(doDefaultPublic);
 
-      const f = formData;
-      const e = { status: false, message: '' };
+    const validation = { isValid: false };
 
-      // we might not have changed this
-      if (f.pinCode !== data.pinCode) {
-
-        // Validate fields
-        if (f.pinCode === '' || f.pinCode == null) {
-          e.status = true;
-          e.message += 'App pin code removed';
-        } else {
-          e.status = true;
-          e.message += 'App pin code added';
-        }
-      }
-
-      if (f.timeFormat !== data.timeFormat) {
-        if (f.timeFormat === '12' || f.timeFormat === '24') {
-          e.status = true;
-        }
-      }
-
-      // set fields with error
-      if (!e.status) {
-        emitError(`Invalid Input: ${e.message}`);
+    // we might not have changed this
+    if (formData.pinCode !== data.pinCode) {
+      // Validate fields
+      if (formData.pinCode === '' || formData.pinCode == null) {
+        validation.isValid = true;
+        validation.message += 'App pin code removed';
       } else {
-        await postSettings(formData);
-        await refetch();
-        emitWarning(e.message);
-        setChanged(false);
+        validation.isValid = true;
+        validation.message += 'App pin code added';
       }
-      setSubmitting(false);
-      setChanged(false);
-    },
-    [data.pinCode, data.timeFormat, doDefaultPublic, doShowQuickEntry, doStarTimeIsLastEnd, emitError, emitWarning, formData, refetch, setDefaultPublic, setShowQuickEntry, setStarTimeIsLastEnd]
-  );
+    }
+
+    if (formData.timeFormat !== data.timeFormat) {
+      if (formData.timeFormat === '12' || formData.timeFormat === '24') {
+        validation.isValid = true;
+      }
+    }
+
+    // set fields with error
+    if (!validation.isValid) {
+      emitError(`Invalid Input: ${validation.message}`);
+    } else {
+      await postSettings(formData);
+      await refetch();
+      validation?.message && emitWarning(validation.message);
+    }
+    setSubmitting(false);
+    setChanged(false);
+  };
 
   /**
    * Reverts local state equals to server state
    */
-  const revert = useCallback(async () => {
+  const revert = async () => {
     setChanged(false);
     await refetch();
 
@@ -139,29 +133,19 @@ export default function AppSettingsModal() {
     setDoShowQuickEntry(showQuickEntry);
     setDoStarTimeIsLastEnd(starTimeIsLastEnd);
     setDoDefaultPublic(defaultPublic);
-  }, [defaultPublic, refetch, showQuickEntry, starTimeIsLastEnd]);
+  };
 
   /**
    * Handles change of input field in local state
    * @param {string} field - object parameter to update
    * @param {string} value - new object parameter value
    */
-  const handleChange = useCallback(
-    (field, value) => {
-      const temp = { ...formData };
-      temp[field] = value;
-      setFormData(temp);
-      setChanged(true);
-    },
-    [formData]
-  );
-
-  /**
-   * Sets changed flag to true
-   */
-  const handleContextChange = useCallback(() => {
+  const handleChange = (field, value) => {
+    const temp = { ...formData };
+    temp[field] = value;
+    setFormData(temp);
     setChanged(true);
-  }, []);
+  };
 
   const disableModal = status !== 'success';
 
@@ -265,7 +249,7 @@ export default function AppSettingsModal() {
               isChecked={doShowQuickEntry}
               onChange={(e) => {
                 setDoShowQuickEntry(e.target.checked);
-                handleContextChange();
+                setChanged(true);
               }}
             >
               Show quick entry on hover
@@ -274,7 +258,7 @@ export default function AppSettingsModal() {
               isChecked={doStarTimeIsLastEnd}
               onChange={(e) => {
                 setDoStarTimeIsLastEnd(e.target.checked);
-                handleContextChange();
+                setChanged(true);
               }}
             >
               Start time is last end
@@ -283,7 +267,7 @@ export default function AppSettingsModal() {
               isChecked={doDefaultPublic}
               onChange={(e) => {
                 setDoDefaultPublic(e.target.checked);
-                handleContextChange();
+                setChanged(true);
               }}
             >
               Event default public
