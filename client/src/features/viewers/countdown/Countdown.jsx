@@ -30,7 +30,7 @@ export default function Countdown(props) {
     document.title = 'ontime - Countdown';
   }, []);
 
-  // eg. http://localhost:4001/countdown?eventId=ei0us&format=12
+  // eg. http://localhost:4001/countdown?eventId=ei0us
   // Check for user options
   useEffect(() => {
     if (!backstageEvents) {

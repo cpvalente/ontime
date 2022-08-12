@@ -1,10 +1,9 @@
 /* eslint-disable react/display-name */
 import React, { useEffect, useState } from 'react';
 
-import { APP_SETTINGS, EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
+import { EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
 import { fetchEvent } from '../../common/api/eventApi';
 import { fetchAllEvents } from '../../common/api/eventsApi';
-import { getSettings, ontimePlaceholderSettings } from '../../common/api/ontimeApi';
 import { useSocket } from '../../common/context/socketContext';
 import { useFetch } from '../../common/hooks/useFetch';
 
@@ -12,7 +11,6 @@ const withSocket = (Component) => {
   return (props) => {
     const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents);
     const { data: genData } = useFetch(EVENT_TABLE, fetchEvent);
-    const { data: settingsData } = useFetch(APP_SETTINGS, getSettings);
 
     const [publicEvents, setPublicEvents] = useState([]);
     const [backstageEvents, setBackstageEvents] = useState([]);
@@ -63,7 +61,6 @@ const withSocket = (Component) => {
       backstageInfo: '',
       endMessage: '',
     });
-    const [settings, setSettings] = useState(ontimePlaceholderSettings);
     const [playback, setPlayback] = useState(null);
     const [onAir, setOnAir] = useState(false);
 
@@ -179,12 +176,6 @@ const withSocket = (Component) => {
       setGeneral(genData);
     }, [genData]);
 
-    useEffect(() => {
-      if (!settingsData) {
-        return;
-      }
-      setSettings(settingsData);
-    }, [settingsData]);
 
     /********************************************/
     /***  + titleManager                      ***/
@@ -253,7 +244,6 @@ const withSocket = (Component) => {
         nextId={nextId}
         general={general}
         onAir={onAir}
-        settings={settings}
       />
     );
   };

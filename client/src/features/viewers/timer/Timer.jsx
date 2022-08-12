@@ -26,7 +26,7 @@ export default function Timer(props) {
     document.title = 'ontime - Timer';
   }, []);
 
-  // eg. http://localhost:3000/timer?progress=up&fprmat=12
+  // eg. http://localhost:3000/timer?progress=up
   // Check for user options
   useEffect(() => {
     // progress: selector
