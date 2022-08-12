@@ -15,9 +15,10 @@ import { FiX } from '@react-icons/all-files/fi/FiX';
 import { APP_SETTINGS } from 'common/api/apiConstants';
 import { getSettings, ontimePlaceholderSettings, postSettings } from 'common/api/ontimeApi';
 import { useFetch } from 'common/hooks/useFetch';
+import { useAtom } from 'jotai';
 
+import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
-import { LocalEventSettingsContext } from '../../common/context/LocalEventSettingsContext';
 import { LoggingContext } from '../../common/context/LoggingContext';
 
 import { inputProps } from './modalHelper';
@@ -35,18 +36,8 @@ export default function AppSettingsModal() {
   const [submitting, setSubmitting] = useState(false);
   const [hidePin, setHidePin] = useState(true);
 
-  const {
-    showQuickEntry,
-    setShowQuickEntry,
-    starTimeIsLastEnd,
-    setStarTimeIsLastEnd,
-    defaultPublic,
-    setDefaultPublic,
-  } = useContext(LocalEventSettingsContext);
-
-  const [doShowQuickEntry, setDoShowQuickEntry] = useState(showQuickEntry);
-  const [doStarTimeIsLastEnd, setDoStarTimeIsLastEnd] = useState(starTimeIsLastEnd);
-  const [doDefaultPublic, setDoDefaultPublic] = useState(defaultPublic);
+  const [eventSettings, saveEventSettings] = useAtom(eventSettingsAtom);
+  const [formSettings, setFormSettings] = useState(eventSettings);
 
   /**
    * Set formdata from server state
@@ -61,24 +52,6 @@ export default function AppSettingsModal() {
   }, [changed, data]);
 
   /**
-   * Set formdata from context
-   */
-  useEffect(() => {
-    if (showQuickEntry == null) return;
-    setDoShowQuickEntry(showQuickEntry);
-  }, [showQuickEntry]);
-
-  useEffect(() => {
-    if (starTimeIsLastEnd == null) return;
-    setDoStarTimeIsLastEnd(starTimeIsLastEnd);
-  }, [starTimeIsLastEnd]);
-
-  useEffect(() => {
-    if (defaultPublic == null) return;
-    setDoDefaultPublic(defaultPublic);
-  }, [defaultPublic]);
-
-  /**
    * Validate and submit data
    */
   const submitHandler = async (event) => {
@@ -86,10 +59,7 @@ export default function AppSettingsModal() {
     setSubmitting(true);
 
     // set context
-    setShowQuickEntry(doShowQuickEntry);
-    setStarTimeIsLastEnd(doStarTimeIsLastEnd);
-    setDefaultPublic(doDefaultPublic);
-
+    saveEventSettings(formSettings);
     const validation = { isValid: false };
 
     // we might not have changed this
@@ -130,9 +100,7 @@ export default function AppSettingsModal() {
     await refetch();
 
     // set from context
-    setDoShowQuickEntry(showQuickEntry);
-    setDoStarTimeIsLastEnd(starTimeIsLastEnd);
-    setDoDefaultPublic(defaultPublic);
+    setFormSettings(eventSettings);
   };
 
   /**
@@ -189,6 +157,7 @@ export default function AppSettingsModal() {
                 <PinInput
                   {...inputProps}
                   type='alphanumeric'
+                  name='pinCode'
                   defaultValue=''
                   value={formData.pinCode}
                   mask={hidePin}
@@ -234,6 +203,7 @@ export default function AppSettingsModal() {
               </FormLabel>
               <Select
                 size='sm'
+                name='timeFormat'
                 value={formData.timeFormat}
                 isDisabled={disableModal}
                 onChange={(event) => handleChange('timeFormat', event.target.value)}
@@ -246,27 +216,27 @@ export default function AppSettingsModal() {
           <div className={style.hSeparator}>Create Event Default Settings</div>
           <div className={style.modalColumn}>
             <Checkbox
-              isChecked={doShowQuickEntry}
+              isChecked={formSettings.showQuickEntry}
               onChange={(e) => {
-                setDoShowQuickEntry(e.target.checked);
+                setFormSettings((prev) => ({ ...prev, showQuickEntry: e.target.checked }));
                 setChanged(true);
               }}
             >
               Show quick entry on hover
             </Checkbox>
             <Checkbox
-              isChecked={doStarTimeIsLastEnd}
+              isChecked={formSettings.startTimeIsLastEnd}
               onChange={(e) => {
-                setDoStarTimeIsLastEnd(e.target.checked);
+                setFormSettings((prev) => ({ ...prev, startTimeIsLastEnd: e.target.checked }));
                 setChanged(true);
               }}
             >
               Start time is last end
             </Checkbox>
             <Checkbox
-              isChecked={doDefaultPublic}
+              isChecked={formSettings.defaultPublic}
               onChange={(e) => {
-                setDoDefaultPublic(e.target.checked);
+                setFormSettings((prev) => ({ ...prev, defaultPublic: e.target.checked }));
                 setChanged(true);
               }}
             >
