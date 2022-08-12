@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { useSearchParams } from 'react-router-dom';
 import NavLogo from 'common/components/nav/NavLogo';
 import Paginator from 'common/components/views/Paginator';
 import TitleSide from 'common/components/views/TitleSide';
@@ -18,10 +17,9 @@ const formatOptions = {
 };
 
 export default function Public(props) {
-  const { publ, publicTitle, time, events, publicSelectedId, general, settings } = props;
+  const { publ, publicTitle, time, events, publicSelectedId, general } = props;
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  const [searchParams] = useSearchParams();
 
   // Set window title
   useEffect(() => {
@@ -31,10 +29,7 @@ export default function Public(props) {
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
 
-  // eg. http://localhost:3000/public?fprmat=12
-  // Check for user options
-  const timeFormat = searchParams.get('format') || settings.timeFormat;
-  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className={style.container__gray}>
@@ -103,7 +98,6 @@ export default function Public(props) {
           isBackstage
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
-          format12={timeFormat === '12'}
         />
       </div>
 
@@ -139,5 +133,4 @@ Public.propTypes = {
   events: PropTypes.object,
   publicSelectedId: PropTypes.string,
   general: PropTypes.object,
-  settings: PropTypes.object,
 };

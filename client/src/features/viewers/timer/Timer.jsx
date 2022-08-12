@@ -17,7 +17,7 @@ const formatOptions = {
 };
 
 export default function Timer(props) {
-  const { general, pres, title, time, settings } = props;
+  const { general, pres, title, time } = props;
   const [elapsed, setElapsed] = useState(true);
   const [searchParams] = useSearchParams();
 
@@ -39,10 +39,7 @@ export default function Timer(props) {
     }
   }, [searchParams]);
 
-  // eg. http://localhost:3000/timer?fprmat=12
-  // Check for user options
-  const timeFormat = searchParams.get('format') || settings.timeFormat;
-  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
+  const clock = formatTime(time.clock, formatOptions);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
@@ -151,5 +148,4 @@ Timer.propTypes = {
   pres: PropTypes.object,
   title: PropTypes.object,
   time: PropTypes.object,
-  settings: PropTypes.object,
 };

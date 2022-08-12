@@ -97,10 +97,9 @@ export default function AppSettingsModal() {
    */
   const revert = async () => {
     setChanged(false);
-    await refetch();
-
     // set from context
     setFormSettings(eventSettings);
+    await refetch();
   };
 
   /**

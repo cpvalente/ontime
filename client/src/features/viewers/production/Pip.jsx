@@ -1,6 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { useSearchParams } from 'react-router-dom';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 import NavLogo from 'common/components/nav/NavLogo';
 import Paginator from 'common/components/views/Paginator';
@@ -18,13 +17,12 @@ const formatOptions = {
 };
 
 export default function Pip(props) {
-  const { time, backstageEvents, selectedId, general, settings } = props;
+  const { time, backstageEvents, selectedId, general } = props;
   const [size, setSize] = useState('');
   const pipAreaRef = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  const [searchParams] = useSearchParams();
 
   // calculate pip size
   useLayoutEffect(() => {
@@ -64,10 +62,7 @@ export default function Pip(props) {
   let stageTimer = formatDisplay(Math.abs(time.running), true);
   if (time.isNegative) stageTimer = `-${stageTimer}`;
 
-  // eg. http://localhost:3000/pip?fprmat=12
-  // Check for user options
-  const timeFormat = searchParams.get('format') || settings.timeFormat;
-  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className={style.container__gray}>
@@ -96,7 +91,6 @@ export default function Pip(props) {
           time={20}
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
-          format12={timeFormat === '12'}
         />
       </div>
 
@@ -139,5 +133,4 @@ Pip.propTypes = {
   backstageEvents: PropTypes.object,
   selectedId: PropTypes.string,
   general: PropTypes.object,
-  settings: PropTypes.object,
 };

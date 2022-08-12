@@ -18,7 +18,7 @@ const formatOptions = {
 };
 
 export default function Countdown(props) {
-  const { backstageEvents, time, selectedId, settings } = props;
+  const { backstageEvents, time, selectedId } = props;
   const [follow, setFollow] = useState(null);
   const [runningTimer, setRunningTimer] = useState(0);
   const [runningMessage, setRunningMessage] = useState('');
@@ -78,20 +78,15 @@ export default function Countdown(props) {
 
   const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
 
-  // eg. http://localhost:3000/sm?fprmat=12
-  // format: selector
-  // Should be '12' or '24'
-  const timeFormat = searchParams.get('format') || settings.timeFormat;
-
-  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
+  const clock = formatTime(time.clock, formatOptions);
   const startTime =
     follow === null
       ? '...'
-      : formatTime(follow.timeStart + delay, timeFormat === '12', formatOptions);
+      : formatTime(follow.timeStart + delay, formatOptions);
   const endTime =
     follow === null
       ? '...'
-      : formatTime(follow.timeEnd + delay, timeFormat === '12', formatOptions);
+      : formatTime(follow.timeEnd + delay, formatOptions);
 
   return (
     <div className={style.container}>

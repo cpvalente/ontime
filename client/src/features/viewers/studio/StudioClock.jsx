@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import useFitText from 'use-fit-text';
 
@@ -10,7 +9,7 @@ import {
   getEventsWithDelay,
   trimEventlist,
 } from '../../../common/utils/eventsManager';
-import { formatTime, stringFromMillis } from '../../../common/utils/time';
+import { formatTime, resolveTimeFormat, stringFromMillis } from '../../../common/utils/time';
 
 import style from './StudioClock.module.scss';
 
@@ -20,10 +19,9 @@ const formatOptions = {
 };
 
 export default function StudioClock(props) {
-  const { title, time, backstageEvents, selectedId, nextId, onAir, settings } = props;
+  const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
   const [schedule, setSchedule] = useState([]);
-  const [searchParams] = useSearchParams();
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
@@ -38,7 +36,7 @@ export default function StudioClock(props) {
   useEffect(() => {
     if (backstageEvents == null) return;
 
-    const timeFormat = searchParams.get('format') || settings.timeFormat;
+    const timeFormat = resolveTimeFormat();
 
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
@@ -48,13 +46,9 @@ export default function StudioClock(props) {
       format12: timeFormat === '12',
     });
     setSchedule(formatted);
-  }, [backstageEvents, selectedId, nextId, settings.timeFormat, searchParams]);
+  }, [backstageEvents, nextId, selectedId] );
 
-  // eg. http://localhost:3000/studio?fprmat=12
-  // format: selector
-  // Should be '12' or '24'
-  const timeFormat = searchParams.get('format') || settings.timeFormat;
-  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
+  const clock = formatTime(time.clock, formatOptions);
 
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 
@@ -121,5 +115,4 @@ StudioClock.propTypes = {
   selectedId: PropTypes.string,
   nextId: PropTypes.string,
   onAir: PropTypes.bool,
-  settings: PropTypes.object,
 };

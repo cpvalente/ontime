@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { useSearchParams } from 'react-router-dom';
 import NavLogo from 'common/components/nav/NavLogo';
 import Paginator from 'common/components/views/Paginator';
 import TitleSide from 'common/components/views/TitleSide';
@@ -20,11 +19,10 @@ const formatOptions = {
 };
 
 export default function StageManager(props) {
-  const { publ, title, time, backstageEvents, selectedId, general, settings } = props;
+  const { publ, title, time, backstageEvents, selectedId, general } = props;
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  const [searchParams] = useSearchParams();
 
   // Set window title
   useEffect(() => {
@@ -49,10 +47,7 @@ export default function StageManager(props) {
     if (time.isNegative) stageTimer = `-${stageTimer}`;
   }
 
-  // eg. http://localhost:3000/sm?fprmat=12
-  // Check for user options
-  const timeFormat = searchParams.get('format') || settings.timeFormat;
-  const clock = formatTime(time.clock, timeFormat === '12', formatOptions);
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className={style.container__gray}>
@@ -121,7 +116,6 @@ export default function StageManager(props) {
           isBackstage
           setCurrentPage={setCurrentPage}
           setPageNumber={setPageNumber}
-          format12={timeFormat === '12'}
         />
       </div>
 
@@ -162,5 +156,4 @@ StageManager.propTypes = {
   backstageEvents: PropTypes.object,
   selectedId: PropTypes.string,
   general: PropTypes.object,
-  settings: PropTypes.object,
 };

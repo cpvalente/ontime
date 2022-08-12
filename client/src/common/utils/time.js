@@ -1,5 +1,8 @@
 import { DateTime } from 'luxon';
 
+import { ontimeQueryClient } from '../../App';
+import { APP_SETTINGS } from '../api/apiConstants';
+
 const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
 const mth = 1000 * 60 * 60; // millis to hours
@@ -51,20 +54,33 @@ export const stringFromMillis = (ms, showSeconds = true, delim = ':', ifNull = '
 };
 
 /**
+ * @description Resolves format from url and store
+ * @return {string|undefined}
+ */
+export const resolveTimeFormat = () => {
+  const params = new URL(document.location).searchParams;
+  const urlOptions = params.get('format');
+  const settings = ontimeQueryClient.getQueryData(APP_SETTINGS);
+
+  return urlOptions || settings?.timeFormat;
+}
+
+/**
  * @description utility function to format a date in 12 or 24 hour format
  * @param {number} milliseconds
- * @param {boolean} [to12h]
  * @param {object} [options]
  * @param {boolean} [options.showSeconds]
  * @param {string} [options.format]
  * @return {string}
  */
-export const formatTime = (milliseconds, to12h = false, options) => {
+export const formatTime = (milliseconds, options) => {
   if (milliseconds === null) {
     return '...';
   }
+
+  const timeFormat = resolveTimeFormat();
   const { showSeconds = false, format: formatString = 'hh:mm a' } = options || {};
-  return to12h
+  return timeFormat === '12'
     ? DateTime.fromMillis(milliseconds).toUTC().toFormat(formatString)
     : stringFromMillis(milliseconds, showSeconds);
 };

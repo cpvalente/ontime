@@ -3,7 +3,6 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
-import PropTypes from 'prop-types';
 
 import { EVENT_TABLE } from '../../common/api/apiConstants';
 import { fetchEvent } from '../../common/api/eventApi';
@@ -17,7 +16,7 @@ import PlaybackIcon from './tableElements/PlaybackIcon';
 
 import style from './Table.module.scss';
 
-export default function TableHeader({ timeFormat = '24' }) {
+export default function TableHeader() {
   const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
     useContext(TableSettingsContext);
   const { data } = useFetch(EVENT_TABLE, fetchEvent);
@@ -98,7 +97,7 @@ export default function TableHeader({ timeFormat = '24' }) {
 
   // prepare presentation variables
   const timerNow = `${timer.running < 0 ? '-' : ''}${formatDisplay(timer.running)}`;
-  const timeNow = formatTime(timer.clock, timeFormat === '12', {
+  const timeNow = formatTime(timer.clock, {
     showSeconds: true,
     format: 'hh:mm:ss a',
   });
@@ -141,7 +140,3 @@ export default function TableHeader({ timeFormat = '24' }) {
     </div>
   );
 }
-
-TableHeader.propTypes = {
-  timeFormat: PropTypes.string,
-};

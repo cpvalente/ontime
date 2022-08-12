@@ -11,7 +11,7 @@ import AppRouter from './AppRouter';
 
 // Load Open Sans typeface
 require('typeface-open-sans');
-const queryClient = new QueryClient();
+export const ontimeQueryClient = new QueryClient();
 
 function App() {
 
@@ -46,7 +46,7 @@ function App() {
   return (
     <ChakraProvider resetCSS theme={theme}>
       <SocketProvider>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={ontimeQueryClient}>
           <AppContextProvider>
             <BrowserRouter>
               <div className='App'>
