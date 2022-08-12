@@ -9,7 +9,7 @@ import {
   getEventsWithDelay,
   trimEventlist,
 } from '../../../common/utils/eventsManager';
-import { formatTime, resolveTimeFormat, stringFromMillis } from '../../../common/utils/time';
+import { formatTime, stringFromMillis } from '../../../common/utils/time';
 
 import style from './StudioClock.module.scss';
 
@@ -36,14 +36,12 @@ export default function StudioClock(props) {
   useEffect(() => {
     if (backstageEvents == null) return;
 
-    const timeFormat = resolveTimeFormat();
 
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
     const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
     const formatted = formatEventList(trimmed, selectedId, nextId, {
       showEnd: false,
-      format12: timeFormat === '12',
     });
     setSchedule(formatted);
   }, [backstageEvents, nextId, selectedId] );

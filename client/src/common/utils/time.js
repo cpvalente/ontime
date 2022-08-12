@@ -63,22 +63,23 @@ export const resolveTimeFormat = () => {
   const settings = ontimeQueryClient.getQueryData(APP_SETTINGS);
 
   return urlOptions || settings?.timeFormat;
-}
+};
 
 /**
+ /**
  * @description utility function to format a date in 12 or 24 hour format
  * @param {number} milliseconds
  * @param {object} [options]
  * @param {boolean} [options.showSeconds]
  * @param {string} [options.format]
+ * @param {function} resolver
  * @return {string}
  */
-export const formatTime = (milliseconds, options) => {
+export const formatTime = (milliseconds, options, resolver = resolveTimeFormat) => {
   if (milliseconds === null) {
     return '...';
   }
-
-  const timeFormat = resolveTimeFormat();
+  const timeFormat = resolver();
   const { showSeconds = false, format: formatString = 'hh:mm a' } = options || {};
   return timeFormat === '12'
     ? DateTime.fromMillis(milliseconds).toUTC().toFormat(formatString)

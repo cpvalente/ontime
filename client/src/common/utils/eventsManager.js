@@ -60,20 +60,19 @@ export const trimEventlist = (events, selectedId, limit) => {
  * @param {string} nextId - id of next event
  * @param {object} [options]
  * @param {boolean} [options.showEnd] - whether to show the end time
- * @param {boolean} [options.format12] - whether to show in 12 hour mode
  * @returns {Object[]} Formatted list of events [{time: -, title: -, isNow, isNext}]
  */
 export const formatEventList = (events, selectedId, nextId, options) => {
   if (events == null) return [];
-  const { showEnd = false, format12 = false } = options;
+  const { showEnd = false } = options;
 
   const givenEvents = [...events];
 
   // format list
   const formattedEvents = [];
   for (const event of givenEvents) {
-    const start = formatTime(event.timeStart, format12)
-    const end = formatTime(event.timeEnd, format12);
+    const start = formatTime(event.timeStart)
+    const end = formatTime(event.timeEnd);
 
     formattedEvents.push({
       id: event.id,
