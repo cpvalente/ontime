@@ -24,7 +24,9 @@ export default function ProtectRoute({ children }) {
   }, [pin, validate]);
 
   // Set window title
-  document.title = 'ontime';
+  useEffect(() => {
+    document.title = 'ontime';
+  }, []);
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
