@@ -150,9 +150,24 @@ export class EventTimer extends Timer {
   }
 
   /**
+   * @description Broadcast data for Event List feature
+   * @private
+   */
+  _broadcastFeatureEventList() {
+    const featureData = {
+      selectedEventId: this.selectedEventId,
+      nextEventId: this.nextEventId,
+    };
+    this.io.emit('ontime-feat-eventlist', featureData);
+  }
+
+  /**
    * Broadcasts complete object state
    */
   broadcastState() {
+    // feature sync
+    this._broadcastFeatureEventList();
+
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
     this.io.emit('playstate', this.state);
@@ -834,6 +849,16 @@ export class EventTimer extends Timer {
       socket.on('get-lower', () => {
         socket.emit('messages-lower', this.lower);
       });
+
+      /* MOLECULAR ENDPOINTS
+       * =====================
+       * 1. EVENT LIST
+       * */
+
+      // 1. EVENT LIST
+      socket.on('get-ontime-feat-eventlist', () => {
+        this._broadcastFeatureEventList();
+      });
     });
   }
 
@@ -1048,7 +1073,6 @@ export class EventTimer extends Timer {
     // run cycle
     this.runCycle();
   }
-
 
   /**
    * Deleted an event from the list by its id

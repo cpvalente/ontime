@@ -6,6 +6,9 @@ export const EVENTS_TABLE = ['events'];
 export const APP_TABLE = ['appinfo'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
+
+export const FEAT_EVENTLIST = ['feat-eventList']
+
 /**
  * @description finds server path given the current location, it
  * @return {*}

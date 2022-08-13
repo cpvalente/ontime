@@ -1,10 +1,10 @@
-import React, { createRef, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createRef, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import Empty from 'common/components/state/Empty';
-import { useSocket } from 'common/context/socketContext';
 
 import { CursorContext } from '../../../common/context/CursorContext';
 import { LocalEventSettingsContext } from '../../../common/context/LocalEventSettingsContext';
+import { useEventListProvider } from '../../../common/hooks/useSocketProvider';
 import EntryBlock from '../EntryBlock/EntryBlock';
 
 import EventListItem from './EventListItem';
@@ -15,25 +15,26 @@ export default function EventList(props) {
   const { events, eventsHandler } = props;
   const { cursor, moveCursorUp, moveCursorDown, setCursor, isCursorLocked } =
     useContext(CursorContext);
-  const socket = useSocket();
-  const [selectedId, setSelectedId] = useState(null);
-  const [nextId, setNextId] = useState(null);
   const cursorRef = createRef();
   const { showQuickEntry } = useContext(LocalEventSettingsContext);
+  const data = useEventListProvider();
 
-  const insertAtCursor = useCallback((type, cursor) => {
-    if (cursor === -1) {
-      eventsHandler('add', { type: type });
-    } else {
-      const previousEvent = events[cursor];
-      const nextEvent = events[cursor + 1];
-      if (type === 'event') {
-        eventsHandler('add', { type: type, after: previousEvent.id });
-      } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
-        eventsHandler('add', { type: type, after: previousEvent.id });
+  const insertAtCursor = useCallback(
+    (type, cursor) => {
+      if (cursor === -1) {
+        eventsHandler('add', { type: type });
+      } else {
+        const previousEvent = events[cursor];
+        const nextEvent = events[cursor + 1];
+        if (type === 'event') {
+          eventsHandler('add', { type: type, after: previousEvent.id });
+        } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
+          eventsHandler('add', { type: type, after: previousEvent.id });
+        }
       }
-    }
-  },[events, eventsHandler])
+    },
+    [events, eventsHandler]
+  );
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -54,19 +55,19 @@ export default function EventList(props) {
         if (e.key === 'e' || e.key === 'E') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('event', cursor)
+          insertAtCursor('event', cursor);
         }
         // D
         if (e.key === 'd' || e.key === 'D') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('delay', cursor)
+          insertAtCursor('delay', cursor);
         }
         // B
         if (e.key === 'b' || e.key === 'B') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('block', cursor)
+          insertAtCursor('block', cursor);
         }
       }
     },
@@ -86,30 +87,6 @@ export default function EventList(props) {
     };
   }, [handleKeyPress, cursor, events, setCursor]);
 
-  // handle incoming messages
-  useEffect(() => {
-    if (socket == null) return;
-
-    // ask for playstate
-    socket.emit('get-selected');
-    socket.emit('get-next-id');
-
-    // Handle playstate
-    socket.on('selected', (data) => {
-      setSelectedId(data.id);
-    });
-
-    socket.on('next-id', (data) => {
-      setNextId(data);
-    });
-
-    // Clear listener
-    return () => {
-      socket.off('selected');
-      socket.off('next-id');
-    };
-  }, [socket]);
-
   // when cursor moves, view should follow
   useEffect(() => {
     if (cursorRef.current == null) return;
@@ -125,14 +102,14 @@ export default function EventList(props) {
   // or cursor settings changed
   useEffect(() => {
     // and if we are locked
-    if (!isCursorLocked || selectedId == null) return;
+    if (!isCursorLocked || data.selectedEventId == null) return;
 
     // move cursor
     let gotoIndex = -1;
     let found = false;
     for (const e of events) {
       gotoIndex++;
-      if (e.id === selectedId) {
+      if (e.id === data.selectedEventId) {
         found = true;
         break;
       }
@@ -142,7 +119,7 @@ export default function EventList(props) {
       setCursor(gotoIndex);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, isCursorLocked]);
+  }, [data.selectedEventId, isCursorLocked]);
 
   // DND
   const handleOnDragEnd = useCallback(
@@ -206,8 +183,8 @@ export default function EventList(props) {
                         index={index}
                         eventIndex={eventIndex}
                         data={e}
-                        selected={selectedId === e.id}
-                        next={nextId === e.id}
+                        selected={data.selectedEventId === e.id}
+                        next={data.nextEventId === e.id}
                         eventsHandler={eventsHandler}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
