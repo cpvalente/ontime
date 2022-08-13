@@ -15,7 +15,7 @@ export default function InputRow(props) {
       <span className={style.label}>{label}</span>
       <div className={style.inputItems}>
         <Editable
-          onChange={(event) => changeHandler(event)}
+          onChange={(newValue) => changeHandler(newValue)}
           value={text}
           placeholder={placeholder}
           className={style.inline}

@@ -19,6 +19,7 @@ export const useEventListProvider = () => {
 };
 
 export const useMessageControlProvider = () => {
+  const socket = useSocket();
   const { data } = useQuery(FEAT_MESSAGECONTROL, () => undefined);
   const placeholder = {
     presenter: {
@@ -35,7 +36,38 @@ export const useMessageControlProvider = () => {
     },
     onAir: false,
   };
-  return data ?? placeholder;
+
+  const returnData = data ?? placeholder;
+
+  const patch = useCallback((action, payload) => {
+    switch (action) {
+      case 'pres-text':
+        socket.emit('set-timer-message-text', payload);
+        break;
+      case 'toggle-pres-visible':
+        socket.emit('set-timer-message-visible', payload);
+        break;
+      case 'publ-text':
+        socket.emit('set-public-message-text', payload);
+        break;
+      case 'toggle-publ-visible':
+        socket.emit('set-public-message-visible', payload);
+        break;
+      case 'lower-text':
+        socket.emit('set-lower-message-text', payload);
+        break;
+      case 'toggle-lower-visible':
+        socket.emit('set-lower-message-visible', payload);
+        break;
+      case 'toggle-onAir':
+        socket.emit('set-onAir', payload);
+        break;
+      default:
+        break;
+    }
+  },[socket]);
+
+  return { data: returnData, patch };
 };
 
 export const usePlaybackControlProvider = () => {
