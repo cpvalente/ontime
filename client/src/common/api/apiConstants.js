@@ -7,9 +7,10 @@ export const APP_TABLE = ['appinfo'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 
-export const FEAT_EVENTLIST = ['feat-eventList']
-export const FEAT_MESSAGECONTROL = ['feat-messagecontrol']
-export const FEAT_PLAYBACKCONTROL = ['feat-playbackcontrol']
+export const FEAT_EVENTLIST = ['feat-eventList'];
+export const FEAT_MESSAGECONTROL = ['feat-messagecontrol'];
+export const FEAT_PLAYBACKCONTROL = ['feat-playbackcontrol'];
+export const FEAT_INFO = ['feat-info'];
 
 /**
  * @description finds server path given the current location, it

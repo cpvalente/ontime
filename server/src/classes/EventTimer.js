@@ -190,6 +190,21 @@ export class EventTimer extends Timer {
   }
 
   /**
+   * @description Broadcast data for Info feature
+   * @private
+   */
+  _broadcastFeatureInfo() {
+    const featureData = {
+      titles: this.titles,
+      playback: this.state,
+      selectedEventId: this.selectedEventId,
+      selectedEventIndex: this.selectedEventIndex,
+      numEvents: this._eventlist.length,
+    };
+    this.io.emit('ontime-feat-info', featureData);
+  }
+
+  /**
    * Broadcasts complete object state
    */
   broadcastState() {
@@ -197,6 +212,7 @@ export class EventTimer extends Timer {
     this._broadcastFeatureEventList();
     this._broadcastFeatureMessageControl();
     this._broadcastFeaturePlaybackControl();
+    this._broadcastFeatureInfo();
 
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
@@ -778,6 +794,8 @@ export class EventTimer extends Timer {
       // playstate
       socket.on('set-playstate', (data) => {
         this.trigger(data);
+        this._broadcastFeaturePlaybackControl();
+        this._broadcastFeatureInfo();
       });
 
       socket.on('get-playstate', () => {
@@ -886,6 +904,7 @@ export class EventTimer extends Timer {
        * 1. EVENT LIST
        * 2. MESSAGE CONTROL
        * 3. PLAYBACK CONTROL
+       * 4. INFO
        * */
 
       // 1. EVENT LIST
@@ -901,6 +920,11 @@ export class EventTimer extends Timer {
       // 3. PLAYBACK CONTROL
       socket.on('get-ontime-feat-playbackcontrol', () => {
         this._broadcastFeaturePlaybackControl();
+      });
+
+      // 3. INFO
+      socket.on('get-ontime-feat-info', () => {
+        this._broadcastFeatureInfo();
       });
     });
   }

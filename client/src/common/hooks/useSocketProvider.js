@@ -1,7 +1,12 @@
 import { useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { FEAT_EVENTLIST, FEAT_MESSAGECONTROL, FEAT_PLAYBACKCONTROL } from '../api/apiConstants';
+import {
+  FEAT_EVENTLIST,
+  FEAT_INFO,
+  FEAT_MESSAGECONTROL,
+  FEAT_PLAYBACKCONTROL,
+} from '../api/apiConstants';
 import { useSocket } from '../context/socketContext';
 
 export const useEventListProvider = () => {
@@ -50,11 +55,31 @@ export const usePlaybackControlProvider = () => {
 
   const resetData = useCallback(() => {
     queryClient.setQueryData(FEAT_PLAYBACKCONTROL, () => placeholder);
+  }, [placeholder, queryClient]);
+  const returnData = data ?? placeholder;
 
-  }, [placeholder, queryClient])
-  const returnData = data ?? placeholder
+  return { data: returnData, resetData };
+};
 
-  return { data: returnData, resetData}
+export const useInfoProvider = () => {
+  const { data } = useQuery(FEAT_INFO, () => undefined);
+  const placeholder = {
+    titles: {
+      titleNow: '',
+      subtitleNow: '',
+      presenterNow: '',
+      noteNow: '',
+      titleNext: '',
+      subtitleNext: '',
+      presenterNext: '',
+      noteNext: '',
+    },
+    playback: 'stop',
+    selectedEventId: null,
+    selectedEventIndex: null,
+    numEvents: 0,
+  };
+  return data ?? placeholder;
 };
 
 export const useSocketProvider = () => {
@@ -81,10 +106,16 @@ export const useSocketProvider = () => {
       queryClient.setQueryData(FEAT_PLAYBACKCONTROL, () => featureData);
     });
 
+    socket.emit('get-ontime-feat-info');
+    socket.on('ontime-feat-info', (featureData) => {
+      queryClient.setQueryData(FEAT_INFO, () => featureData);
+    });
+
     return () => {
       socket.off('ontime-feat-eventlist');
       socket.off('ontime-feat-messagecontrol');
       socket.off('ontime-feat-playbackcontrol');
+      socket.off('ontime-feat-info');
     };
   }, [queryClient, socket]);
 };
