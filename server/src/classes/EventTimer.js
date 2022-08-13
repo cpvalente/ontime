@@ -162,11 +162,26 @@ export class EventTimer extends Timer {
   }
 
   /**
+   * @description Broadcast data for Message Control feature
+   * @private
+   */
+  _broadcastFeatureMessageControl() {
+    const featureFata = {
+      presenter: this.presenter,
+      public: this.public,
+      lower: this.lower,
+      onAir: this.onAir,
+    };
+    this.io.emit('ontime-feat-messagecontrol', featureFata);
+  }
+
+  /**
    * Broadcasts complete object state
    */
   broadcastState() {
     // feature sync
     this._broadcastFeatureEventList();
+    this._broadcastFeatureMessageControl();
 
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
@@ -709,10 +724,11 @@ export class EventTimer extends Timer {
         try {
           const d = JSON.parse(data);
           this.onAir = !!d;
-          this.broadcastThis('onAir', this.onAir);
         } catch (error) {
           this.error('RX', `Failed to parse message ${data}`);
         }
+        this.broadcastThis('onAir', this.onAir);
+        this._broadcastFeatureMessageControl();
       });
 
       /*******************************************/
@@ -803,20 +819,15 @@ export class EventTimer extends Timer {
 
       /*******************************************/
 
-      // Messages
-      socket.on('get-messages', () => {
-        this.broadcastThis('messages-timer', this.presenter);
-        this.broadcastThis('messages-public', this.public);
-        this.broadcastThis('messages-lower', this.lower);
-      });
-
       // Presenter message
       socket.on('set-timer-message-text', (data) => {
         this._setTitles('set-timer-text', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('set-timer-message-visible', (data) => {
         this._setTitles('set-timer-visible', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('get-timer', () => {
@@ -826,10 +837,12 @@ export class EventTimer extends Timer {
       // Public message
       socket.on('set-public-message-text', (data) => {
         this._setTitles('set-public-text', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('set-public-message-visible', (data) => {
         this._setTitles('set-public-visible', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('get-public', () => {
@@ -840,10 +853,12 @@ export class EventTimer extends Timer {
       // Lower third message
       socket.on('set-lower-message-text', (data) => {
         this._setTitles('set-lower-text', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('set-lower-message-visible', (data) => {
         this._setTitles('set-lower-visible', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('get-lower', () => {
@@ -853,11 +868,17 @@ export class EventTimer extends Timer {
       /* MOLECULAR ENDPOINTS
        * =====================
        * 1. EVENT LIST
+       * 2. MESSAGE CONTROL
        * */
 
       // 1. EVENT LIST
       socket.on('get-ontime-feat-eventlist', () => {
         this._broadcastFeatureEventList();
+      });
+
+      // 2. MESSAGE CONTROL
+      socket.on('get-ontime-feat-messagecontrol', () => {
+        this._broadcastFeatureMessageControl();
       });
     });
   }

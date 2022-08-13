@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
 import { useSocket } from 'common/context/socketContext';
+
+import { useMessageControlProvider } from '../../../common/hooks/useSocketProvider';
 
 import InputRow from './InputRow';
 
@@ -11,56 +13,7 @@ import style from './MessageControl.module.scss';
 
 export default function MessageControl() {
   const socket = useSocket();
-  const [pres, setPres] = useState({
-    text: '',
-    visible: false,
-  });
-  const [publ, setPubl] = useState({
-    text: '',
-    visible: false,
-  });
-  const [lower, setLower] = useState({
-    text: '',
-    visible: false,
-  });
-  const [onAir, setonAir] = useState(false);
-
-  useEffect(() => {
-    if (socket == null) return;
-
-    // Handle timer messages
-    socket.on('messages-timer', (data) => {
-      setPres({ ...data });
-    });
-
-    // Handle public messages
-    socket.on('messages-public', (data) => {
-      setPubl({ ...data });
-    });
-
-    // Handle lower third messages
-    socket.on('messages-lower', (data) => {
-      setLower({ ...data });
-    });
-
-    // Handle lower third messages
-    socket.on('onAir', (data) => {
-      setonAir(data);
-    });
-
-    // Ask for up to date data
-    socket.emit('get-messages');
-    // Ask for onAir state
-    socket.emit('get-onAir');
-
-    // Clear listeners
-    return () => {
-      socket.off('messages-public');
-      socket.off('messages-timer');
-      socket.off('messages-lower');
-      socket.off('onAir');
-    };
-  }, [socket]);
+  const data = useMessageControlProvider();
 
   const messageControl = useCallback(
     (action, payload) => {
@@ -99,37 +52,37 @@ export default function MessageControl() {
         <InputRow
           label='Timer screen message'
           placeholder='only the presenter screens see this'
-          text={pres.text}
-          visible={pres.visible}
+          text={data.presenter.text}
+          visible={data.presenter.visible}
           changeHandler={(event) => messageControl('pres-text', event)}
-          actionHandler={() => messageControl('toggle-pres-visible', !pres.visible)}
+          actionHandler={() => messageControl('toggle-pres-visible', !data.presenter.visible)}
         />
         <InputRow
           label='Public screen message'
           placeholder='public screens will render this'
-          text={publ.text}
-          visible={publ.visible}
+          text={data.public.text}
+          visible={data.public.visible}
           changeHandler={(event) => messageControl('publ-text', event)}
-          actionHandler={() => messageControl('toggle-publ-visible', !publ.visible)}
+          actionHandler={() => messageControl('toggle-publ-visible', !data.public.visible)}
         />
         <InputRow
           label='Lower third message'
           placeholder='visible in lower third screen'
-          text={lower.text}
-          visible={lower.visible}
+          text={data.lower.text}
+          visible={data.lower.visible}
           changeHandler={(event) => messageControl('lower-text', event)}
-          actionHandler={() => messageControl('toggle-lower-visible', !lower.visible)}
+          actionHandler={() => messageControl('toggle-lower-visible', !data.lower.visible)}
         />
       </div>
       <div className={style.onAirToggle}>
-        <Tooltip label={onAir ? 'Go Off Air' : 'Go On Air'} openDelay={500}>
+        <Tooltip label={data.onAir ? 'Go Off Air' : 'Go On Air'} openDelay={500}>
           <IconButton
             className={style.btn}
             size='md'
-            icon={onAir ? <IoMicSharp size='24px' /> : <IoMicOffOutline size='24px' />}
+            icon={data.onAir ? <IoMicSharp size='24px' /> : <IoMicOffOutline size='24px' />}
             colorScheme='blue'
-            variant={onAir ? 'solid' : 'outline'}
-            onClick={() => messageControl('toggle-onAir', !onAir)}
+            variant={data.onAir ? 'solid' : 'outline'}
+            onClick={() => messageControl('toggle-onAir', !data.onAir)}
             aria-label='Toggle On Air'
           />
         </Tooltip>

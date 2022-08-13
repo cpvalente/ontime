@@ -1,12 +1,32 @@
 import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { FEAT_EVENTLIST } from '../api/apiConstants';
+import { FEAT_EVENTLIST, FEAT_MESSAGECONTROL } from '../api/apiConstants';
 import { useSocket } from '../context/socketContext';
 
 export const useEventListProvider = () => {
-  const queryClient = useQueryClient();
-  return queryClient.getQueryData(FEAT_EVENTLIST);
+  const { data } = useQuery(FEAT_EVENTLIST, () => undefined);
+  return data;
+};
+
+export const useMessageControlProvider = () => {
+  const { data } = useQuery(FEAT_MESSAGECONTROL, () => undefined);
+  const placeholder = {
+    presenter: {
+      text: '',
+      visible: false,
+    },
+    public: {
+      text: '',
+      visible: false,
+    },
+    lower: {
+      text: '',
+      visible: false,
+    },
+    onAir: false,
+  };
+  return data ?? placeholder;
 };
 
 export const useSocketProvider = () => {
@@ -23,8 +43,14 @@ export const useSocketProvider = () => {
       queryClient.setQueryData(FEAT_EVENTLIST, () => featureData);
     });
 
-    return() => {
-      socket.off('ontime-feat-eventlist')
-    }
+    socket.emit('get-ontime-feat-messagecontrol');
+    socket.on('ontime-feat-messagecontrol', (featureData) => {
+      queryClient.setQueryData(FEAT_MESSAGECONTROL, () => featureData);
+    });
+
+    return () => {
+      socket.off('ontime-feat-eventlist');
+      socket.off('ontime-feat-messagecontrol');
+    };
   }, [queryClient, socket]);
 };
