@@ -80,7 +80,7 @@ export const usePlaybackControlProvider = () => {
       expectedFinish: null,
       secondary: null,
     },
-    playstate: 'stop',
+    playback: 'stop',
     selectedEventId: null,
     numEvents: 0,
   };
