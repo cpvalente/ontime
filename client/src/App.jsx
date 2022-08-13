@@ -1,7 +1,8 @@
 import React, { Suspense, useCallback, useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 
 import { AppContextProvider } from './common/context/AppContext';
@@ -55,6 +56,7 @@ function App() {
                     <AppRouter />
                   </Suspense>
                 </ErrorBoundary>
+                <ReactQueryDevtools initialIsOpen={false} />
               </div>
             </BrowserRouter>
           </AppContextProvider>
