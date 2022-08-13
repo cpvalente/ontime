@@ -39,38 +39,42 @@ export const useMessageControlProvider = () => {
 
   const returnData = data ?? placeholder;
 
-  const patch = useCallback((action, payload) => {
-    switch (action) {
-      case 'pres-text':
-        socket.emit('set-timer-message-text', payload);
-        break;
-      case 'toggle-pres-visible':
-        socket.emit('set-timer-message-visible', payload);
-        break;
-      case 'publ-text':
-        socket.emit('set-public-message-text', payload);
-        break;
-      case 'toggle-publ-visible':
-        socket.emit('set-public-message-visible', payload);
-        break;
-      case 'lower-text':
-        socket.emit('set-lower-message-text', payload);
-        break;
-      case 'toggle-lower-visible':
-        socket.emit('set-lower-message-visible', payload);
-        break;
-      case 'toggle-onAir':
-        socket.emit('set-onAir', payload);
-        break;
-      default:
-        break;
-    }
-  },[socket]);
+  const patch = useCallback(
+    (action, payload) => {
+      switch (action) {
+        case 'pres-text':
+          socket.emit('set-timer-message-text', payload);
+          break;
+        case 'toggle-pres-visible':
+          socket.emit('set-timer-message-visible', payload);
+          break;
+        case 'publ-text':
+          socket.emit('set-public-message-text', payload);
+          break;
+        case 'toggle-publ-visible':
+          socket.emit('set-public-message-visible', payload);
+          break;
+        case 'lower-text':
+          socket.emit('set-lower-message-text', payload);
+          break;
+        case 'toggle-lower-visible':
+          socket.emit('set-lower-message-visible', payload);
+          break;
+        case 'toggle-onAir':
+          socket.emit('set-onAir', payload);
+          break;
+        default:
+          break;
+      }
+    },
+    [socket]
+  );
 
   return { data: returnData, patch };
 };
 
 export const usePlaybackControlProvider = () => {
+  const socket = useSocket();
   const queryClient = useQueryClient();
   const { data } = useQuery(FEAT_PLAYBACKCONTROL, () => undefined);
   const placeholder = {
@@ -88,9 +92,35 @@ export const usePlaybackControlProvider = () => {
   const resetData = useCallback(() => {
     queryClient.setQueryData(FEAT_PLAYBACKCONTROL, () => placeholder);
   }, [placeholder, queryClient]);
+
+  const setPlayback = {
+    start: () => socket.emit('set-playstate', 'start'),
+    pause: () => socket.emit('set-playstate', 'pause'),
+    roll: () => socket.emit('set-playstate', 'roll'),
+    previous: () => {
+      socket.emit('set-playstate', 'next');
+      resetData();
+    },
+    next: () => {
+      socket.emit('set-playstate', 'next');
+      resetData();
+    },
+    unload: () => {
+      socket.emit('set-playstate', 'unload');
+      resetData();
+    },
+    reload: () => {
+      socket.emit('set-playstate', 'reload');
+      resetData();
+    },
+    delay: (amount) => {
+      socket.emit('set-delay', amount)
+    }
+  }
+
   const returnData = data ?? placeholder;
 
-  return { data: returnData, resetData };
+  return { data: returnData, resetData, setPlayback };
 };
 
 export const useInfoProvider = () => {

@@ -15,18 +15,18 @@ export default function Playback(props) {
     <div className={style.playbackContainer}>
       <StartIconBtn
         active={playback === 'start'}
-        clickhandler={() => playbackControl('start')}
+        clickhandler={() => playbackControl.start()}
         disabled={!selectedId || isRolling || noEvents}
       />
       <PauseIconBtn
         active={playback === 'pause'}
-        clickhandler={() => playbackControl('pause')}
+        clickhandler={() => playbackControl.pause()}
         disabled={!selectedId || isRolling || noEvents || playback !== 'start'}
       />
       <RollIconBtn
         active={playback === 'roll'}
         disabled={playback === 'roll' || noEvents}
-        clickhandler={() => playbackControl('roll')}
+        clickhandler={() => playbackControl.roll()}
       />
     </div>
   );
@@ -35,6 +35,10 @@ export default function Playback(props) {
 Playback.propTypes = {
   playback: PropTypes.string,
   selectedId: PropTypes.string,
-  playbackControl: PropTypes.func.isRequired,
+  playbackControl: PropTypes.shape({
+    start: PropTypes.func,
+    pause: PropTypes.func,
+    roll: PropTypes.func,
+  }).isRequired,
   noEvents: PropTypes.bool.isRequired,
 };
