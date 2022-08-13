@@ -166,13 +166,27 @@ export class EventTimer extends Timer {
    * @private
    */
   _broadcastFeatureMessageControl() {
-    const featureFata = {
+    const featureData = {
       presenter: this.presenter,
       public: this.public,
       lower: this.lower,
       onAir: this.onAir,
     };
-    this.io.emit('ontime-feat-messagecontrol', featureFata);
+    this.io.emit('ontime-feat-messagecontrol', featureData);
+  }
+
+  /**
+   * @description Broadcast data for Playback Control feature
+   * @private
+   */
+  _broadcastFeaturePlaybackControl() {
+    const featureData = {
+      timer: this.getTimeObject(),
+      playback: this.state,
+      selectedEventId: this.selectedEventId,
+      numEvents: this._eventlist.length,
+    };
+    this.io.emit('ontime-feat-playbackcontrol', featureData);
   }
 
   /**
@@ -182,6 +196,7 @@ export class EventTimer extends Timer {
     // feature sync
     this._broadcastFeatureEventList();
     this._broadcastFeatureMessageControl();
+    this._broadcastFeaturePlaybackControl();
 
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
@@ -502,6 +517,7 @@ export class EventTimer extends Timer {
   update() {
     // if there is nothing selected, update clock
     this.clock = this._getCurrentTime();
+    this._broadcastFeaturePlaybackControl();
 
     // if we are not updating, send the timers
     if (this.ontimeCycle !== this.cycleState.onUpdate) {
@@ -869,6 +885,7 @@ export class EventTimer extends Timer {
        * =====================
        * 1. EVENT LIST
        * 2. MESSAGE CONTROL
+       * 3. PLAYBACK CONTROL
        * */
 
       // 1. EVENT LIST
@@ -879,6 +896,11 @@ export class EventTimer extends Timer {
       // 2. MESSAGE CONTROL
       socket.on('get-ontime-feat-messagecontrol', () => {
         this._broadcastFeatureMessageControl();
+      });
+
+      // 3. PLAYBACK CONTROL
+      socket.on('get-ontime-feat-playbackcontrol', () => {
+        this._broadcastFeaturePlaybackControl();
       });
     });
   }

@@ -1,12 +1,16 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { FEAT_EVENTLIST, FEAT_MESSAGECONTROL } from '../api/apiConstants';
+import { FEAT_EVENTLIST, FEAT_MESSAGECONTROL, FEAT_PLAYBACKCONTROL } from '../api/apiConstants';
 import { useSocket } from '../context/socketContext';
 
 export const useEventListProvider = () => {
   const { data } = useQuery(FEAT_EVENTLIST, () => undefined);
-  return data;
+  const placeholder = {
+    selectedEventId: null,
+    nextEventId: null,
+  };
+  return data ?? placeholder;
 };
 
 export const useMessageControlProvider = () => {
@@ -29,6 +33,30 @@ export const useMessageControlProvider = () => {
   return data ?? placeholder;
 };
 
+export const usePlaybackControlProvider = () => {
+  const queryClient = useQueryClient();
+  const { data } = useQuery(FEAT_PLAYBACKCONTROL, () => undefined);
+  const placeholder = {
+    timer: {
+      running: null,
+      startedAt: null,
+      expectedFinish: null,
+      secondary: null,
+    },
+    playstate: 'stop',
+    selectedEventId: null,
+    numEvents: 0,
+  };
+
+  const resetData = useCallback(() => {
+    queryClient.setQueryData(FEAT_PLAYBACKCONTROL, () => placeholder);
+
+  }, [placeholder, queryClient])
+  const returnData = data ?? placeholder
+
+  return { data: returnData, resetData}
+};
+
 export const useSocketProvider = () => {
   const queryClient = useQueryClient();
   const socket = useSocket();
@@ -48,9 +76,15 @@ export const useSocketProvider = () => {
       queryClient.setQueryData(FEAT_MESSAGECONTROL, () => featureData);
     });
 
+    socket.emit('get-ontime-feat-playbackcontrol');
+    socket.on('ontime-feat-playbackcontrol', (featureData) => {
+      queryClient.setQueryData(FEAT_PLAYBACKCONTROL, () => featureData);
+    });
+
     return () => {
       socket.off('ontime-feat-eventlist');
       socket.off('ontime-feat-messagecontrol');
+      socket.off('ontime-feat-playbackcontrol');
     };
   }, [queryClient, socket]);
 };

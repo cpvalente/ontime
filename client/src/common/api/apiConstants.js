@@ -9,6 +9,7 @@ export const APP_SETTINGS = ['appSettings'];
 
 export const FEAT_EVENTLIST = ['feat-eventList']
 export const FEAT_MESSAGECONTROL = ['feat-messagecontrol']
+export const FEAT_PLAYBACKCONTROL = ['feat-playbackcontrol']
 
 /**
  * @description finds server path given the current location, it
