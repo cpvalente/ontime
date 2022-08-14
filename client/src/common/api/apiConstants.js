@@ -11,6 +11,7 @@ export const FEAT_EVENTLIST = ['feat-eventList'];
 export const FEAT_MESSAGECONTROL = ['feat-messagecontrol'];
 export const FEAT_PLAYBACKCONTROL = ['feat-playbackcontrol'];
 export const FEAT_INFO = ['feat-info'];
+export const FEAT_CUESHEET = ['feat-cuesheet'];
 
 /**
  * @description finds server path given the current location, it

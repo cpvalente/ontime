@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+  FEAT_CUESHEET,
   FEAT_EVENTLIST,
   FEAT_INFO,
   FEAT_MESSAGECONTROL,
@@ -10,7 +11,10 @@ import {
 import { useSocket } from '../context/socketContext';
 
 export const useEventListProvider = () => {
-  const { data } = useQuery(FEAT_EVENTLIST, () => undefined);
+  const { data } = useQuery(FEAT_EVENTLIST, () => undefined, {
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
   const placeholder = useMemo(
     () => ({
       selectedEventId: null,
@@ -23,7 +27,10 @@ export const useEventListProvider = () => {
 
 export const useMessageControlProvider = () => {
   const socket = useSocket();
-  const { data } = useQuery(FEAT_MESSAGECONTROL, () => undefined);
+  const { data } = useQuery(FEAT_MESSAGECONTROL, () => undefined, {
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
   const placeholder = useMemo(
     () => ({
       presenter: {
@@ -40,7 +47,7 @@ export const useMessageControlProvider = () => {
       },
       onAir: false,
     }),
-    [],
+    []
   );
 
   const returnData = data ?? placeholder;
@@ -54,7 +61,9 @@ export const useMessageControlProvider = () => {
       lowerText: (payload) => socket.emit('set-lower-message-text', payload),
       lowerVisible: (payload) => socket.emit('set-lower-message-visible', payload),
       onAir: (payload) => socket.emit('set-onAir', payload),
-    }), [socket]);
+    }),
+    [socket]
+  );
 
   return { data: returnData, setMessage };
 };
@@ -62,7 +71,10 @@ export const useMessageControlProvider = () => {
 export const usePlaybackControlProvider = () => {
   const socket = useSocket();
   const queryClient = useQueryClient();
-  const { data } = useQuery(FEAT_PLAYBACKCONTROL, () => undefined);
+  const { data } = useQuery(FEAT_PLAYBACKCONTROL, () => undefined, {
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
   const placeholder = useMemo(
     () => ({
       timer: {
@@ -75,7 +87,7 @@ export const usePlaybackControlProvider = () => {
       selectedEventId: null,
       numEvents: 0,
     }),
-    [],
+    []
   );
 
   const resetData = useCallback(() => {
@@ -107,7 +119,7 @@ export const usePlaybackControlProvider = () => {
         socket.emit('set-delay', amount);
       },
     }),
-    [resetData, socket],
+    [resetData, socket]
   );
 
   const returnData = data ?? placeholder;
@@ -116,7 +128,10 @@ export const usePlaybackControlProvider = () => {
 };
 
 export const useInfoProvider = () => {
-  const { data } = useQuery(FEAT_INFO, () => undefined);
+  const { data } = useQuery(FEAT_INFO, () => undefined, {
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
   const placeholder = useMemo(
     () => ({
       titles: {
@@ -134,9 +149,39 @@ export const useInfoProvider = () => {
       selectedEventIndex: null,
       numEvents: 0,
     }),
-    [],
+    []
   );
   return data ?? placeholder;
+};
+
+export const useCuesheetProvider = () => {
+  const { data } = useQuery(FEAT_CUESHEET, () => undefined, {
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
+  const headerPlaceholder = useMemo(
+    () => ({
+      selectedEventId: null,
+      titleNow: '',
+      timer: {
+        running: null,
+        clock: null,
+      },
+    }),
+    []
+  );
+
+  const bodyPlaceholder = {
+    selectedEventId: null,
+  };
+  const bodyData = useMemo(() => ( {
+    selectedEventId: data?.selectedEventId,
+  }),[data?.selectedEventId]);
+
+  const returnHeaderData = data ?? headerPlaceholder;
+  const returnBodyData = bodyData ?? bodyPlaceholder;
+
+  return { bodyData: returnBodyData, headerData: returnHeaderData };
 };
 
 export const useSocketProvider = () => {
@@ -168,11 +213,17 @@ export const useSocketProvider = () => {
       queryClient.setQueryData(FEAT_INFO, () => featureData);
     });
 
+    socket.emit('get-ontime-feat-cuesheet');
+    socket.on('ontime-feat-cuesheet', (featureData) => {
+      queryClient.setQueryData(FEAT_CUESHEET, () => featureData);
+    });
+
     return () => {
       socket.off('ontime-feat-eventlist');
       socket.off('ontime-feat-messagecontrol');
       socket.off('ontime-feat-playbackcontrol');
       socket.off('ontime-feat-info');
+      socket.off('ontime-feat-cuesheet');
     };
   }, [queryClient, socket]);
 };

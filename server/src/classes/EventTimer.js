@@ -209,6 +209,21 @@ export class EventTimer extends Timer {
     this.io.emit('ontime-feat-info', featureData);
   }
 
+  _broadcastFeatureCuesheet() {
+    const featureData = {
+      playback: this.state,
+      selectedEventId: this.selectedEventId,
+      selectedEventIndex: this.selectedEventIndex,
+      numEvents: this._eventlist.length,
+      titleNow: this.titles.titleNow,
+      timer: {
+        running: this.current,
+        clock: this.clock,
+      },
+    };
+    this.io.emit('ontime-feat-cuesheet', featureData);
+  }
+
   /**
    * Broadcasts complete object state
    */
@@ -218,6 +233,7 @@ export class EventTimer extends Timer {
     this._broadcastFeatureMessageControl();
     this._broadcastFeaturePlaybackControl();
     this._broadcastFeatureInfo();
+    this._broadcastFeatureCuesheet();
 
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
@@ -884,6 +900,7 @@ export class EventTimer extends Timer {
        * 2. MESSAGE CONTROL
        * 3. PLAYBACK CONTROL
        * 4. INFO
+       * 5. CUESHEET
        * */
 
       // 1. EVENT LIST
@@ -901,9 +918,14 @@ export class EventTimer extends Timer {
         this._broadcastFeaturePlaybackControl();
       });
 
-      // 3. INFO
+      // 4. INFO
       socket.on('get-ontime-feat-info', () => {
         this._broadcastFeatureInfo();
+      });
+
+      // 5. CUE SHEET
+      socket.on('get-ontime-feat-cuesheet', () => {
+        this._broadcastFeatureCuesheet();
       });
     });
   }
