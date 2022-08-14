@@ -181,7 +181,12 @@ export class EventTimer extends Timer {
    */
   _broadcastFeaturePlaybackControl() {
     const featureData = {
-      timer: this.getTimeObject(),
+      timer: {
+        running: this.current,
+        startedAt: this._startedAt,
+        expectedFinish: this._getExpectedFinish(),
+        secondaryTimer: this.secondaryTimer,
+      },
       playback: this.state,
       selectedEventId: this.selectedEventId,
       numEvents: this._eventlist.length,

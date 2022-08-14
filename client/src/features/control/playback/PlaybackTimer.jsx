@@ -4,6 +4,7 @@ import { Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import PropTypes from 'prop-types';
 
+import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 
 import style from './PlaybackControl.module.scss';
@@ -11,11 +12,10 @@ import style from './PlaybackControl.module.scss';
 const areEqual = (prevProps, nextProps) => {
   return (
     prevProps.timer.running === nextProps.timer.running &&
-    prevProps.timer.isNegative === nextProps.timer.isNegative &&
     prevProps.timer.expectedFinish === nextProps.timer.expectedFinish &&
     prevProps.timer.startedAt === nextProps.timer.startedAt &&
     prevProps.playback === nextProps.playback &&
-    prevProps.timer.secondary === nextProps.timer.secondary &&
+    prevProps.timer.secondaryTimer === nextProps.timer.secondaryTimer &&
     prevProps.selectedId === nextProps.selectedId
   );
 };
@@ -32,8 +32,9 @@ const PlaybackTimer = (props) => {
   const started = stringFromMillis(timer.startedAt, true);
   const finish = stringFromMillis(timer.expectedFinish, true);
   const isRolling = playback === 'roll';
-  const isWaiting = timer.secondary > 0 && timer.running == null;
+  const isWaiting = timer.secondaryTimer > 0 && timer.running == null;
   const disableButtons = selectedId == null || isRolling;
+  const isOvertime = timer.running < 0;
 
   return (
     <div className={style.timeContainer}>
@@ -41,13 +42,13 @@ const PlaybackTimer = (props) => {
         <Tooltip label='Roll mode active'>
           <div className={isRolling ? style.indRollActive : style.indRoll} />
         </Tooltip>
-        <div className={timer.isNegative ? style.indNegativeActive : style.indNegative} />
+        <div className={isOvertime ? style.indNegativeActive : style.indNegative} />
         <div className={style.indDelay} />
       </div>
       <div className={style.timer}>
         <TimerDisplay
-          time={isWaiting ? timer.secondary : timer.running}
-          isNegative={timer.isNegative}
+          time={isWaiting ? millisToSeconds(timer.secondaryTimer) : millisToSeconds(timer.running)}
+          isNegative={isOvertime}
           small
         />
       </div>
