@@ -34,7 +34,7 @@ export default function Transport(props) {
         icon={<IoArrowUndo size='22px' />}
       />
       <UnloadIconBtn
-        clickHandler={() => playbackControl.unload()}
+        clickHandler={() => playbackControl.stop()}
         disabled={(selectedId == null && !isRolling) || noEvents}
       />
     </div>
@@ -48,7 +48,7 @@ Transport.propTypes = {
     previous: PropTypes.func,
     next: PropTypes.func,
     reload: PropTypes.func,
-    unload: PropTypes.func,
+    stop: PropTypes.func,
   }).isRequired,
   noEvents: PropTypes.bool.isRequired,
 };

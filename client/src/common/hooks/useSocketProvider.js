@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -11,112 +11,104 @@ import { useSocket } from '../context/socketContext';
 
 export const useEventListProvider = () => {
   const { data } = useQuery(FEAT_EVENTLIST, () => undefined);
-  const placeholder = {
-    selectedEventId: null,
-    nextEventId: null,
-  };
+  const placeholder = useMemo(
+    () => ({
+      selectedEventId: null,
+      nextEventId: null,
+    }),
+    []
+  );
   return data ?? placeholder;
 };
 
 export const useMessageControlProvider = () => {
   const socket = useSocket();
   const { data } = useQuery(FEAT_MESSAGECONTROL, () => undefined);
-  const placeholder = {
-    presenter: {
-      text: '',
-      visible: false,
-    },
-    public: {
-      text: '',
-      visible: false,
-    },
-    lower: {
-      text: '',
-      visible: false,
-    },
-    onAir: false,
-  };
+  const placeholder = useMemo(
+    () => ({
+      presenter: {
+        text: '',
+        visible: false,
+      },
+      public: {
+        text: '',
+        visible: false,
+      },
+      lower: {
+        text: '',
+        visible: false,
+      },
+      onAir: false,
+    }),
+    [],
+  );
 
   const returnData = data ?? placeholder;
 
-  const patch = useCallback(
-    (action, payload) => {
-      switch (action) {
-        case 'pres-text':
-          socket.emit('set-timer-message-text', payload);
-          break;
-        case 'toggle-pres-visible':
-          socket.emit('set-timer-message-visible', payload);
-          break;
-        case 'publ-text':
-          socket.emit('set-public-message-text', payload);
-          break;
-        case 'toggle-publ-visible':
-          socket.emit('set-public-message-visible', payload);
-          break;
-        case 'lower-text':
-          socket.emit('set-lower-message-text', payload);
-          break;
-        case 'toggle-lower-visible':
-          socket.emit('set-lower-message-visible', payload);
-          break;
-        case 'toggle-onAir':
-          socket.emit('set-onAir', payload);
-          break;
-        default:
-          break;
-      }
-    },
-    [socket]
-  );
+  const setMessage = useMemo(
+    () => ({
+      presenterText: (payload) => socket.emit('set-timer-message-text', payload),
+      presenterVisible: (payload) => socket.emit('set-timer-message-visible', payload),
+      publicText: (payload) => socket.emit('set-public-message-text', payload),
+      publicVisible: (payload) => socket.emit('set-public-message-visible', payload),
+      lowerText: (payload) => socket.emit('set-lower-message-text', payload),
+      lowerVisible: (payload) => socket.emit('set-lower-message-visible', payload),
+      onAir: (payload) => socket.emit('set-onAir', payload),
+    }), [socket]);
 
-  return { data: returnData, patch };
+  return { data: returnData, setMessage };
 };
 
 export const usePlaybackControlProvider = () => {
   const socket = useSocket();
   const queryClient = useQueryClient();
   const { data } = useQuery(FEAT_PLAYBACKCONTROL, () => undefined);
-  const placeholder = {
-    timer: {
-      running: null,
-      startedAt: null,
-      expectedFinish: null,
-      secondaryTimer: null,
-    },
-    playback: 'stop',
-    selectedEventId: null,
-    numEvents: 0,
-  };
+  const placeholder = useMemo(
+    () => ({
+      timer: {
+        running: null,
+        startedAt: null,
+        expectedFinish: null,
+        secondaryTimer: null,
+      },
+      playback: 'stop',
+      selectedEventId: null,
+      numEvents: 0,
+    }),
+    [],
+  );
 
   const resetData = useCallback(() => {
     queryClient.setQueryData(FEAT_PLAYBACKCONTROL, () => placeholder);
   }, [placeholder, queryClient]);
 
-  const setPlayback = {
-    start: () => socket.emit('set-playstate', 'start'),
-    pause: () => socket.emit('set-playstate', 'pause'),
-    roll: () => socket.emit('set-playstate', 'roll'),
-    previous: () => {
-      socket.emit('set-playstate', 'next');
-      resetData();
-    },
-    next: () => {
-      socket.emit('set-playstate', 'next');
-      resetData();
-    },
-    unload: () => {
-      socket.emit('set-playstate', 'unload');
-      resetData();
-    },
-    reload: () => {
-      socket.emit('set-playstate', 'reload');
-      resetData();
-    },
-    delay: (amount) => {
-      socket.emit('set-delay', amount)
-    }
-  }
+  const setPlayback = useMemo(
+    () => ({
+      start: () => socket.emit('set-start'),
+      pause: () => socket.emit('set-pause'),
+      roll: () => socket.emit('set-roll'),
+      previous: () => {
+        socket.emit('set-previous');
+        resetData();
+      },
+      next: () => {
+        socket.emit('set-next');
+        resetData();
+      },
+      stop: () => {
+        socket.emit('set-stop');
+        resetData();
+      },
+      reload: () => {
+        socket.emit('set-reload');
+        resetData();
+      },
+      delay: (amount) => {
+        socket.emit('set-delay', amount);
+      },
+    }),
+    [resetData, socket],
+  );
 
   const returnData = data ?? placeholder;
 
@@ -125,22 +117,25 @@ export const usePlaybackControlProvider = () => {
 
 export const useInfoProvider = () => {
   const { data } = useQuery(FEAT_INFO, () => undefined);
-  const placeholder = {
-    titles: {
-      titleNow: '',
-      subtitleNow: '',
-      presenterNow: '',
-      noteNow: '',
-      titleNext: '',
-      subtitleNext: '',
-      presenterNext: '',
-      noteNext: '',
-    },
-    playback: 'stop',
-    selectedEventId: null,
-    selectedEventIndex: null,
-    numEvents: 0,
-  };
+  const placeholder = useMemo(
+    () => ({
+      titles: {
+        titleNow: '',
+        subtitleNow: '',
+        presenterNow: '',
+        noteNow: '',
+        titleNext: '',
+        subtitleNext: '',
+        presenterNext: '',
+        noteNext: '',
+      },
+      playback: 'stop',
+      selectedEventId: null,
+      selectedEventIndex: null,
+      numEvents: 0,
+    }),
+    [],
+  );
   return data ?? placeholder;
 };
 

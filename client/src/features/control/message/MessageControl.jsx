@@ -11,7 +11,7 @@ import InputRow from './InputRow';
 import style from './MessageControl.module.scss';
 
 export default function MessageControl() {
-  const { data, patch } = useMessageControlProvider();
+  const { data, setMessage } = useMessageControlProvider();
 
   return (
     <>
@@ -21,24 +21,24 @@ export default function MessageControl() {
           placeholder='only the presenter screens see this'
           text={data.presenter.text}
           visible={data.presenter.visible}
-          changeHandler={(newValue) => patch('pres-text', newValue)}
-          actionHandler={() => patch('toggle-pres-visible', !data.presenter.visible)}
+          changeHandler={(newValue) => setMessage.presenterText(newValue)}
+          actionHandler={() => setMessage.presenterVisible(!data.presenter.visible)}
         />
         <InputRow
           label='Public screen message'
           placeholder='public screens will render this'
           text={data.public.text}
           visible={data.public.visible}
-          changeHandler={(newValue) => patch('publ-text', newValue)}
-          actionHandler={() => patch('toggle-publ-visible', !data.public.visible)}
+          changeHandler={(newValue) => setMessage.publicText(newValue)}
+          actionHandler={() => setMessage.publicVisible(!data.public.visible)}
         />
         <InputRow
           label='Lower third message'
           placeholder='visible in lower third screen'
           text={data.lower.text}
           visible={data.lower.visible}
-          changeHandler={(newValue) => patch('lower-text', newValue)}
-          actionHandler={() => patch('toggle-lower-visible', !data.lower.visible)}
+          changeHandler={(newValue) => setMessage.lowerText(newValue)}
+          actionHandler={() => setMessage.lowerVisible(!data.lower.visible)}
         />
       </div>
       <div className={style.onAirToggle}>
@@ -49,7 +49,7 @@ export default function MessageControl() {
             icon={data.onAir ? <IoMicSharp size='24px' /> : <IoMicOffOutline size='24px' />}
             colorScheme='blue'
             variant={data.onAir ? 'solid' : 'outline'}
-            onClick={() => patch('toggle-onAir', !data.onAir)}
+            onClick={() => setMessage.onAir(!data.onAir)}
             aria-label='Toggle On Air'
           />
         </Tooltip>
