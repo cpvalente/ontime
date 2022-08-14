@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
@@ -9,14 +9,27 @@ import style from './MessageControl.module.scss';
 
 export default function InputRow(props) {
   const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
+  const [inputText, setInputText] = useState(text || '');
+
+  const handleInputChange = (newValue) => {
+    setInputText(newValue);
+    changeHandler(newValue);
+  };
+
+  useEffect(() => {
+    if (text) {
+      setInputText(text);
+    }
+  }, [text]);
+
 
   return (
     <div className={visible && style.inputRowActive}>
       <span className={style.label}>{label}</span>
       <div className={style.inputItems}>
         <Editable
-          onChange={(newValue) => changeHandler(newValue)}
-          value={text}
+          onChange={(newValue) => handleInputChange(newValue)}
+          value={inputText}
           placeholder={placeholder}
           className={style.inline}
           color={text === '' ? '#666' : 'inherit'}
