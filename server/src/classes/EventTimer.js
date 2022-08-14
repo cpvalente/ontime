@@ -780,15 +780,13 @@ export class EventTimer extends Timer {
       });
 
       /*******************************************/
-      // timer
-      socket.on('get-current', () => {
-        socket.emit('current', this.getCurrentInSeconds());
-      });
 
+      // ** TO BE DEPRECATED ** //
       socket.on('get-timer', () => {
         socket.emit('timer', this.getTimeObject());
       });
 
+      // ** TO BE DEPRECATED IN FAVOR OF DELAY ** //
       socket.on('increment-timer', (data) => {
         if (isNaN(parseInt(data, 10))) return;
         if (data < -5 || data > 5) return;
@@ -825,20 +823,8 @@ export class EventTimer extends Timer {
         socket.emit('selected-id', this.selectedEventId);
       });
 
-      socket.on('get-numevents', () => {
-        socket.emit('numevents', this._eventlist.length);
-      });
-
       socket.on('get-next-id', () => {
         socket.emit('next-id', this.nextEventId);
-      });
-
-      socket.on('get-publicselected-id', () => {
-        socket.emit('publicselected-id', this.selectedPublicEventId);
-      });
-
-      socket.on('get-publicnext-id', () => {
-        socket.emit('publicnext-id', this.nextPublicEventId);
       });
 
       // title data
@@ -846,7 +832,6 @@ export class EventTimer extends Timer {
         socket.emit('titles', this.titles);
       });
 
-      // title data
       socket.on('get-publictitles', () => {
         socket.emit('publictitles', this.titlesPublic);
       });
@@ -869,9 +854,6 @@ export class EventTimer extends Timer {
         this._broadcastFeatureMessageControl();
       });
 
-      socket.on('get-timer', () => {
-        this.broadcastThis('messages-timer', this.presenter);
-      });
       /*******************************************/
       // Public message
       socket.on('set-public-message-text', (data) => {
@@ -884,10 +866,6 @@ export class EventTimer extends Timer {
         this._broadcastFeatureMessageControl();
       });
 
-      socket.on('get-public', () => {
-        socket.emit('messages-public', this.public);
-      });
-
       /*******************************************/
       // Lower third message
       socket.on('set-lower-message-text', (data) => {
@@ -898,10 +876,6 @@ export class EventTimer extends Timer {
       socket.on('set-lower-message-visible', (data) => {
         this._setTitles('set-lower-visible', data);
         this._broadcastFeatureMessageControl();
-      });
-
-      socket.on('get-lower', () => {
-        socket.emit('messages-lower', this.lower);
       });
 
       /* MOLECULAR ENDPOINTS
