@@ -150,6 +150,22 @@ export class EventTimer extends Timer {
   }
 
   /**
+   * @description Broadcast timer data
+   * @private
+   */
+  _broadcastFeatureTimer() {
+    const featureData = {
+      clock: this.clock,
+      current: this.current,
+      secondaryTimer: this.secondaryTimer,
+      duration: this.duration,
+      expectedFinish: this._getExpectedFinish(),
+      startedAt: this._startedAt,
+    };
+    this.io.emit('ontime-timer', featureData);
+  }
+
+  /**
    * @description Broadcast data for Event List feature
    * @private
    */
@@ -181,12 +197,6 @@ export class EventTimer extends Timer {
    */
   _broadcastFeaturePlaybackControl() {
     const featureData = {
-      timer: {
-        running: this.current,
-        startedAt: this._startedAt,
-        expectedFinish: this._getExpectedFinish(),
-        secondaryTimer: this.secondaryTimer,
-      },
       playback: this.state,
       selectedEventId: this.selectedEventId,
       numEvents: this._eventlist.length,
@@ -216,10 +226,6 @@ export class EventTimer extends Timer {
       selectedEventIndex: this.selectedEventIndex,
       numEvents: this._eventlist.length,
       titleNow: this.titles.titleNow,
-      timer: {
-        running: this.current,
-        clock: this.clock,
-      },
     };
     this.io.emit('ontime-feat-cuesheet', featureData);
   }
@@ -234,6 +240,7 @@ export class EventTimer extends Timer {
     this._broadcastFeaturePlaybackControl();
     this._broadcastFeatureInfo();
     this._broadcastFeatureCuesheet();
+    this._broadcastFeatureTimer();
 
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
@@ -452,6 +459,7 @@ export class EventTimer extends Timer {
         this.update();
         // broadcast current state
         this.broadcastTimer();
+        this._broadcastFeatureTimer();
         // through OSC, only if running
         if (this.state === 'start' || this.state === 'roll') {
           if (this.current != null && this.secondaryTimer == null) {
@@ -554,7 +562,8 @@ export class EventTimer extends Timer {
   update() {
     // if there is nothing selected, update clock
     this.clock = this._getCurrentTime();
-    this._broadcastFeaturePlaybackControl();
+    this._broadcastFeatureTimer();
+    this.broadcastTimer();
 
     // if we are not updating, send the timers
     if (this.ontimeCycle !== this.cycleState.onUpdate) {
@@ -901,6 +910,7 @@ export class EventTimer extends Timer {
        * 3. PLAYBACK CONTROL
        * 4. INFO
        * 5. CUESHEET
+       * 6. TIMER OBJECT
        * */
 
       // 1. EVENT LIST
@@ -926,6 +936,11 @@ export class EventTimer extends Timer {
       // 5. CUE SHEET
       socket.on('get-ontime-feat-cuesheet', () => {
         this._broadcastFeatureCuesheet();
+      });
+
+      // 6. TIMER
+      socket.on('get-ontime-timer', () => {
+        this._broadcastFeatureTimer();
       });
     });
   }

@@ -30,7 +30,7 @@ import { defaultColumnOrder, defaultHiddenColumns } from './defaults';
 
 import style from './Table.module.scss';
 
-export default function OntimeTable({ tableData, userFields, handleUpdate, selectedId }) {
+export default function OntimeTable({ tableData, userFields, selectedId, handleUpdate }) {
   const { followSelected, showSettings } = useContext(TableSettingsContext);
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
   const [columnSize, saveColumnSize] = useLocalStorage('table-sizes', {});

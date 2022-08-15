@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { usePlaybackControlProvider } from '../../../common/hooks/useSocketProvider';
+import {
+  usePlaybackControlProvider,
+  useTimerProvider,
+} from '../../../common/hooks/useSocketProvider';
 
 import PlaybackButtons from './PlaybackButtons';
 import PlaybackTimer from './PlaybackTimer';
@@ -13,7 +16,6 @@ export default function PlaybackControl() {
   return (
     <div className={style.mainContainer}>
       <PlaybackTimer
-        timer={data.timer}
         playback={data.playback}
         selectedId={data.selectedEventId}
         handleIncrement={(amount) => setPlayback.delay(amount)}

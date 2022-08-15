@@ -4,6 +4,7 @@ import { Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import PropTypes from 'prop-types';
 
+import { useTimerProvider } from '../../../common/hooks/useSocketProvider';
 import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 
@@ -11,11 +12,7 @@ import style from './PlaybackControl.module.scss';
 
 const areEqual = (prevProps, nextProps) => {
   return (
-    prevProps.timer.running === nextProps.timer.running &&
-    prevProps.timer.expectedFinish === nextProps.timer.expectedFinish &&
-    prevProps.timer.startedAt === nextProps.timer.startedAt &&
     prevProps.playback === nextProps.playback &&
-    prevProps.timer.secondaryTimer === nextProps.timer.secondaryTimer &&
     prevProps.selectedId === nextProps.selectedId
   );
 };
@@ -28,13 +25,14 @@ const incrementProps = {
 };
 
 const PlaybackTimer = (props) => {
-  const { timer, playback, handleIncrement, selectedId } = props;
-  const started = stringFromMillis(timer.startedAt, true);
-  const finish = stringFromMillis(timer.expectedFinish, true);
+  const { playback, handleIncrement, selectedId } = props;
+  const timerData = useTimerProvider();
+  const started = stringFromMillis(timerData.startedAt, true);
+  const finish = stringFromMillis(timerData.expectedFinish, true);
   const isRolling = playback === 'roll';
-  const isWaiting = timer.secondaryTimer > 0 && timer.running == null;
+  const isWaiting = timerData.secondaryTimer > 0 && timerData.current == null;
   const disableButtons = selectedId == null || isRolling;
-  const isOvertime = timer.running < 0;
+  const isOvertime = timerData.current < 0;
 
   return (
     <div className={style.timeContainer}>
@@ -47,7 +45,7 @@ const PlaybackTimer = (props) => {
       </div>
       <div className={style.timer}>
         <TimerDisplay
-          time={isWaiting ? millisToSeconds(timer.secondaryTimer) : millisToSeconds(timer.running)}
+          time={isWaiting ? millisToSeconds(timerData.secondaryTimer) : millisToSeconds(timerData.current)}
           isNegative={isOvertime}
           small
         />
@@ -118,7 +116,6 @@ const PlaybackTimer = (props) => {
 export default memo(PlaybackTimer, areEqual);
 
 PlaybackTimer.propTypes = {
-  timer: PropTypes.object.isRequired,
   playback: PropTypes.string,
   handleIncrement: PropTypes.func.isRequired,
   selectedId: PropTypes.string,

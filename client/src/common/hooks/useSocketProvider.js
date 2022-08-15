@@ -6,7 +6,7 @@ import {
   FEAT_EVENTLIST,
   FEAT_INFO,
   FEAT_MESSAGECONTROL,
-  FEAT_PLAYBACKCONTROL,
+  FEAT_PLAYBACKCONTROL, TIMER,
 } from '../api/apiConstants';
 import { useSocket } from '../context/socketContext';
 
@@ -77,12 +77,6 @@ export const usePlaybackControlProvider = () => {
   });
   const placeholder = useMemo(
     () => ({
-      timer: {
-        running: null,
-        startedAt: null,
-        expectedFinish: null,
-        secondaryTimer: null,
-      },
       playback: 'stop',
       selectedEventId: null,
       numEvents: 0,
@@ -159,30 +153,35 @@ export const useCuesheetProvider = () => {
     cacheTime: Infinity,
     staleTime: Infinity,
   });
-  const headerPlaceholder = useMemo(
+  const placeholder = useMemo(
     () => ({
       selectedEventId: null,
       titleNow: '',
-      timer: {
-        running: null,
-        clock: null,
-      },
     }),
     []
   );
 
-  const bodyPlaceholder = {
-    selectedEventId: null,
-  };
-  const bodyData = useMemo(() => ( {
-    selectedEventId: data?.selectedEventId,
-  }),[data?.selectedEventId]);
-
-  const returnHeaderData = data ?? headerPlaceholder;
-  const returnBodyData = bodyData ?? bodyPlaceholder;
-
-  return { bodyData: returnBodyData, headerData: returnHeaderData };
+  return data ?? placeholder;
 };
+
+export const useTimerProvider = () => {
+  const { data } = useQuery(TIMER, () => undefined, {
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
+  const placeholder = useMemo(
+    () => ({
+      clock: 0,
+      current: null,
+      secondaryTimer: null,
+      duration: null,
+      expectedFinish: null,
+      startedAt: null,
+    }),
+    []
+  );
+  return data ?? placeholder;
+}
 
 export const useSocketProvider = () => {
   const queryClient = useQueryClient();
@@ -218,12 +217,18 @@ export const useSocketProvider = () => {
       queryClient.setQueryData(FEAT_CUESHEET, () => featureData);
     });
 
+    socket.emit('get-ontime-timer');
+    socket.on('ontime-timer', (featureData) => {
+      queryClient.setQueryData(TIMER, () => featureData);
+    });
+
     return () => {
       socket.off('ontime-feat-eventlist');
       socket.off('ontime-feat-messagecontrol');
       socket.off('ontime-feat-playbackcontrol');
       socket.off('ontime-feat-info');
       socket.off('ontime-feat-cuesheet');
+      socket.off('ontime-timer');
     };
   }, [queryClient, socket]);
 };
