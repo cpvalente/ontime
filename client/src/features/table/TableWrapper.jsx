@@ -1,12 +1,12 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext } from 'react';
 
 import { EVENTS_TABLE, USERFIELDS } from '../../common/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../common/api/eventsApi';
 import { getUserFields } from '../../common/api/ontimeApi';
-import { useSocket } from '../../common/context/socketContext';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useFetch } from '../../common/hooks/useFetch';
 import useMutateEvents from '../../common/hooks/useMutateEvents';
+import { useCuesheetProvider } from '../../common/hooks/useSocketProvider';
 
 import OntimeTable from './OntimeTable';
 import TableHeader from './TableHeader';
@@ -14,37 +14,13 @@ import TableHeader from './TableHeader';
 import style from './Table.module.scss';
 
 export default function TableWrapper() {
-  const { data: tableData } = useFetch(EVENTS_TABLE, fetchAllEvents);
+  const { data: events } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const { data: userFields } = useFetch(USERFIELDS, getUserFields);
   const mutation = useMutateEvents(requestPatch);
-  const socket = useSocket();
-  const [selectedId, setSelectedId] = useState(null);
   const { theme } = useContext(TableSettingsContext);
+  const featureData = useCuesheetProvider();
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Cuesheet';
-  }, []);
-
-  /**
-   * Handle incoming data from socket
-   */
-  useEffect(() => {
-    if (socket == null) return;
-
-    // Ask for selected
-    socket.emit('get-selected');
-
-    // Handle selected
-    socket.on('selected', (data) => {
-      setSelectedId(data.id);
-    });
-
-    // Clear listener
-    return () => {
-      socket.off('selected');
-    };
-  }, [socket]);
+  document.title = 'ontime - Cuesheet';
 
   const handleUpdate = useCallback(async (rowIndex, accessor, payload) => {
     if (rowIndex == null || accessor == null || payload == null) {
@@ -52,7 +28,7 @@ export default function TableWrapper() {
     }
 
     // check if value is the same
-    const event = tableData[rowIndex];
+    const event = events[rowIndex];
     if (event == null) {
       return;
     }
@@ -79,19 +55,19 @@ export default function TableWrapper() {
     } catch (error) {
       console.error(error);
     }
-  }, [mutation, tableData]);
+  }, [mutation, events]);
 
-  if (typeof tableData === 'undefined' || typeof userFields === 'undefined') {
+  if (typeof events === 'undefined' || typeof userFields === 'undefined') {
     return <span>loading...</span>;
   }
   return (
     <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
-      <TableHeader />
+      <TableHeader featureData={featureData} />
       <OntimeTable
-        tableData={tableData}
+        tableData={events}
         userFields={userFields}
         handleUpdate={handleUpdate}
-        selectedId={selectedId}
+        selectedId={featureData.selectedEventId}
       />
     </div>
   );
