@@ -6,7 +6,8 @@ import {
   FEAT_EVENTLIST,
   FEAT_INFO,
   FEAT_MESSAGECONTROL,
-  FEAT_PLAYBACKCONTROL, TIMER,
+  FEAT_PLAYBACKCONTROL,
+  TIMER,
 } from '../api/apiConstants';
 import { useSocket } from '../context/socketContext';
 
@@ -85,8 +86,12 @@ export const usePlaybackControlProvider = () => {
   );
 
   const resetData = useCallback(() => {
-    queryClient.setQueryData(FEAT_PLAYBACKCONTROL, () => placeholder);
-  }, [placeholder, queryClient]);
+    queryClient.setQueryData(FEAT_PLAYBACKCONTROL, (data) => ({
+      ...data,
+      playback: 'stop',
+      selectedEventId: null,
+    }));
+  }, [queryClient]);
 
   const setPlayback = useMemo(
     () => ({
@@ -181,7 +186,7 @@ export const useTimerProvider = () => {
     []
   );
   return data ?? placeholder;
-}
+};
 
 export const useSocketProvider = () => {
   const queryClient = useQueryClient();

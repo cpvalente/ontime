@@ -422,9 +422,6 @@ export class EventTimer extends Timer {
         }
         break;
       case 'onLoad':
-        // broadcast change
-        this.broadcastState();
-
         // check integrations - http
         if (h?.onLoad?.enabled) {
           if (h?.onLoad?.url != null || h?.onLoad?.url !== '') {
@@ -436,8 +433,6 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.armed;
         break;
       case 'onStart':
-        // broadcast current state
-        this.broadcastState();
         // send OSC if there is something running
         // _finish at is only set when an event is loaded
         if (this._finishAt > 0) {
@@ -457,9 +452,6 @@ export class EventTimer extends Timer {
       case 'onUpdate':
         // call update
         this.update();
-        // broadcast current state
-        this.broadcastTimer();
-        this._broadcastFeatureTimer();
         // through OSC, only if running
         if (this.state === 'start' || this.state === 'roll') {
           if (this.current != null && this.secondaryTimer == null) {
@@ -479,9 +471,6 @@ export class EventTimer extends Timer {
 
         break;
       case 'onPause':
-        // broadcast current state
-        this.broadcastState();
-
         // send OSC
         if (this.prevCycle === this.cycleState.onUpdate) {
           this.sendOsc(this.osc.implemented.pause);
@@ -499,9 +488,6 @@ export class EventTimer extends Timer {
 
         break;
       case 'onStop':
-        // broadcast change
-        this.broadcastState();
-
         // send OSC if something was actually stopped
         if (this.prevCycle === this.cycleState.onUpdate) {
           this.sendOsc(this.osc.implemented.stop);
@@ -518,8 +504,6 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.idle;
         break;
       case 'onFinish':
-        // broadcast change
-        this.broadcastState();
         // finished an event
         this.sendOsc(this.osc.implemented.finished);
 
@@ -554,6 +538,7 @@ export class EventTimer extends Timer {
 
     // update
     this.update();
+    this.broadcastState();
 
     // reset cycle
     this.prevCycle = this.ontimeCycle;
@@ -1502,6 +1487,7 @@ export class EventTimer extends Timer {
 
     // call super
     super.stop();
+    this._resetSelection();
 
     // update lifecycle: onPause
     this.ontimeCycle = this.cycleState.onStop;
