@@ -1,9 +1,6 @@
 import React from 'react';
 
-import {
-  usePlaybackControlProvider,
-  useTimerProvider,
-} from '../../../common/hooks/useSocketProvider';
+import { usePlaybackControlProvider } from '../../../common/hooks/useSocketProvider';
 
 import PlaybackButtons from './PlaybackButtons';
 import PlaybackTimer from './PlaybackTimer';
