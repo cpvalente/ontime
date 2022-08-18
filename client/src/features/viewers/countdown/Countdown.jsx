@@ -10,7 +10,7 @@ import { stringFromMillis } from '../../../common/utils/time';
 
 import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helpers';
 
-import style from './Countdown.module.scss';
+import './Countdown.scss';
 
 export default function Countdown(props) {
   const [searchParams] = useSearchParams();
@@ -21,9 +21,7 @@ export default function Countdown(props) {
   const [delay, setDelay] = useState(0);
 
   // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Countdown';
-  }, []);
+  document.title = 'ontime - Countdown';
 
   // eg. http://localhost:4001/countdown?eventId=ei0us
   // Check for user options
@@ -72,14 +70,15 @@ export default function Countdown(props) {
   );
 
   const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
+  const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : ''
 
   return (
-    <div className={style.container}>
+    <div className='container'>
       <NavLogo />
       {follow === null ? (
-        <div className={style.eventSelect}>
-          <span className={style.actionTitle}>Select an event to follow</span>
-          <ul className={style.events}>
+        <div className='event-select'>
+          <span className='event-select__title'>Select an event to follow</span>
+          <ul className='event-select__events'>
             {backstageEvents.length === 0 ? (
               <Empty dark text='No events in database' />
             ) : (
@@ -96,29 +95,29 @@ export default function Countdown(props) {
           </ul>
         </div>
       ) : (
-        <div className={style.countdownContainer}>
-          <div className={style.timers}>
-            <div className={style.timer}>
-              <div className={style.label}>Time Now</div>
-              <span className={style.value}>{time.clock}</span>
+        <div className='countdown-container'>
+          <div className='timer-group'>
+            <div className='aux-timers'>
+              <div className='aux-timers__label'>Time Now</div>
+              <span className='aux-timers__value'>{time.clock}</span>
             </div>
-            <div className={style.timer}>
-              <div className={style.label}>Start Time</div>
-              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>
+            <div className='aux-timers'>
+              <div className='aux-timers__label'>Start Time</div>
+              <span className={`aux-timers__value ${delayedTimerStyles}`}>
                 {stringFromMillis(follow.timeStart + delay)}
               </span>
             </div>
-            <div className={style.timer}>
-              <div className={style.label}>End Time</div>
-              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>
+            <div className='aux-timers'>
+              <div className='aux-timers__label'>End Time</div>
+              <span className={`aux-timers__value ${delayedTimerStyles}`}>
                 {stringFromMillis(follow.timeEnd + delay)}
               </span>
             </div>
           </div>
-          <div className={style.status}>{runningMessage}</div>
+          <div className='status'>{runningMessage}</div>
           <span
-            className={`${style.countdownClock} ${standby ? style.standby : ''} ${
-              isRunningFinished ? style.finished : ''
+            className={`countdown-clock ${standby ? 'countdown-clock--standby' : ''} ${
+              isRunningFinished ? 'countdown-clock--finished' : ''
             }`}
           >
             {formatDisplay(
@@ -126,7 +125,7 @@ export default function Countdown(props) {
               isSelected || time.waiting
             )}
           </span>
-          <div className={style.title}>{follow.title || 'Untitled Event'}</div>
+          <div className='title'>{follow.title || 'Untitled Event'}</div>
         </div>
       )}
     </div>
