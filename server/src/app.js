@@ -56,7 +56,9 @@ app.use('/event', eventRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
-// serve react
+// serve static - css
+app.use('/external', express.static(join(__dirname, 'external')));
+// serve static - react
 app.use(express.static(join(__dirname, env === 'production' ? '../' : '../../', 'client/build')));
 
 app.get('*', (req, res) => {
