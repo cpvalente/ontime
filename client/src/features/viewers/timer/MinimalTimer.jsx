@@ -3,11 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 
-import style from './MinimalTimer.module.scss';
+import './MinimalTimer.scss'
 
 export default function MinimalTimer(props) {
+  useRuntimeStylesheet('http://localhost:4001/external/styles/override.css');
   const { pres, time } = props;
   const [searchParams] = useSearchParams();
 
@@ -103,11 +105,11 @@ export default function MinimalTimer(props) {
   const isPlaying = time.playstate !== 'pause';
   const timer = formatDisplay(time.running, true);
   const clean = timer.replace('/:/g', '');
-  const finishedStyle = userOptions?.hideOvertime ? style.container : style.containerFinished;
+  const finishedStyle = userOptions?.hideOvertime ? 'container' : 'container--finished';
 
   return (
     <div
-      className={time.finished ? finishedStyle : style.container}
+      className={time.finished ? finishedStyle : 'container'}
       style={{
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,
@@ -117,13 +119,13 @@ export default function MinimalTimer(props) {
       data-testid='minimal-timer'
     >
       {!hideMessagesOverlay && (
-        <div className={showOverlay ? style.messageOverlayActive : style.messageOverlay}>
-          <div className={style.message}>{pres.text}</div>
+        <div className={showOverlay ? 'message__overlay--active' : 'message__overlay'}>
+          <div className='message'>{pres.text}</div>
         </div>
       )}
       {!userOptions?.hideNav && <NavLogo />}
       <div
-        className={isPlaying ? style.timer : style.timerPaused}
+        className={isPlaying ? 'timer' : 'timer--paused'}
         style={{
           fontSize: `${(89 / (clean.length - 1)) * userOptions.size}vw`,
           fontFamily: userOptions.font,
