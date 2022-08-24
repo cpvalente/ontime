@@ -15,6 +15,7 @@ import EventSettingsModal from './EventSettingsModal';
 import IntegrationSettingsModal from './IntegrationSettingsModal';
 import OscSettingsModal from './OscSettingsModal';
 import TableOptionsModal from './TableOptionsModal';
+import ViewsSettingsModal from './ViewsSettingsModal';
 
 export default function ModalManager(props) {
   const { isOpen, onClose } = props;
@@ -35,6 +36,7 @@ export default function ModalManager(props) {
         <Tabs size='sm' isLazy>
           <TabList>
             <Tab style={{ fontSize: '0.9em' }}>App Settings</Tab>
+            <Tab style={{ fontSize: '0.9em' }}>Viewers</Tab>
             <Tab style={{ fontSize: '0.9em' }}>Event Data</Tab>
             <Tab style={{ fontSize: '0.9em' }}>URL Aliases</Tab>
             <Tab style={{ fontSize: '0.9em' }}>Cuesheet</Tab>
@@ -44,6 +46,9 @@ export default function ModalManager(props) {
           <TabPanels>
             <TabPanel>
               <AppSettingsModal />
+            </TabPanel>
+            <TabPanel>
+              <ViewsSettingsModal />
             </TabPanel>
             <TabPanel>
               <EventSettingsModal />

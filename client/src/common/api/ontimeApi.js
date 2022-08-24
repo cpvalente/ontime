@@ -63,6 +63,14 @@ export const oscPlaceholderSettings = {
 };
 
 /**
+ * @description placeholder information for view settings
+ * @type {{overrideCSS: boolean}}
+ */
+export const viewsPlaceholder = {
+  overrideStyles: false,
+};
+
+/**
  * @description placeholder information for httpSettings
  * @type {{onStart: {url: string, enabled: boolean}, onLoad: {url: string, enabled: boolean}, onPause: {url: string, enabled: boolean}, onFinish: {url: string, enabled: boolean}, onUpdate: {url: string, enabled: boolean}, onStop: {url: string, enabled: boolean}}}
  */
@@ -159,6 +167,21 @@ export const getInfo = async () => {
 export const postInfo = async (data) => axios.post(`${ontimeURL}/info`, data);
 
 /**
+ * @description HTTP request to retrieve view settings
+ * @return {Promise}
+ */
+export const getView = async () => {
+  const res = await axios.get(`${ontimeURL}/views`);
+  return res.data;
+};
+
+/**
+ * @description HTTP request to mutate view settings
+ * @return {Promise}
+ */
+export const postView = async (data) => axios.post(`${ontimeURL}/views`, data);
+
+/**
  * @description HTTP request to retrieve aliases
  * @return {Promise}
  */
@@ -223,9 +246,7 @@ export const downloadEvents = async () => {
       filename = headerLine.substring(startFileNameIndex, endFileNameIndex);
     }
 
-    const url = window.URL.createObjectURL(
-      new Blob([response.data], { type: 'application/json' })
-    );
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/json' }));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', filename);
@@ -252,4 +273,5 @@ export const uploadEvents = async (file) => {
  * @description HTTP request to upload events
  * @return {Promise}
  */
-export const uploadEventsWithPath = async (filepath) => axios.post(`${ontimeURL}/dbpath`, { path: filepath });
+export const uploadEventsWithPath = async (filepath) =>
+  axios.post(`${ontimeURL}/dbpath`, { path: filepath });
