@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 
 import './MinimalTimer.scss';
 
 export default function MinimalTimer(props) {
-  useRuntimeStylesheet('http://localhost:4001/external/styles/override.css');
   const { pres, time } = props;
   const [searchParams] = useSearchParams();
 
-  document.title = 'ontime - Minimal Timer';
+  useEffect(() => {
+    document.title = 'ontime - Minimal Timer';
+  }, []);
 
   // get config from url: key, text, font, size, hidenav, hideovertime
   // eg. http://localhost:3000/minimal?key=f00&text=fff
