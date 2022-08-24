@@ -6,9 +6,9 @@
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
 
-  background: $viewer-background-color;
+  background: var(--background-color-override, $viewer-background-color);
   height: 100vh;
-  color: $viewer-color;
+  color: var(--color-override, $viewer-color);
   padding: 1vw;
 
   .event-select {
@@ -58,14 +58,13 @@
 
         .aux-timers__label {
           font-size: max(1.3vw, 12px);
-          color: $accent-color;
+          color: var(--accent-color-override, $accent-color);
         }
 
         .aux-timers__value {
           font-family: 'Open Sans', sans-serif;
           font-size: max(2vw, 14px);
           letter-spacing: 0.3px;
-          color: #ddd;
 
           &.--delayed {
             color: $delay-color;
@@ -78,8 +77,8 @@
       grid-area: title;
       font-size: max(4vw, 18px);
       align-self: center;
-      color: $accent-color;
-      background-color: $viewer-outdent-bg-color;
+      color: var(--accent-color-override, $accent-color);
+      background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
       padding: 1vh 2vw;
       border-radius: 1vw;
     }
@@ -92,7 +91,7 @@
       align-self: flex-end;
     }
 
-    .countdown-clock {
+    .timer {
       grid-area: clock;
       line-height: 20vw;
       font-size: 21vw;
@@ -101,6 +100,7 @@
       align-self: flex-start;
       opacity: 1.0;
       transition: opacity 0.5s;
+      color: var(--timer-color-override, $viewer-color);
 
       &.--standby {
         opacity: 0.6;

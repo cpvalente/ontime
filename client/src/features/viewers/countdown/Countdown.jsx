@@ -20,8 +20,9 @@ export default function Countdown(props) {
   const [runningMessage, setRunningMessage] = useState('');
   const [delay, setDelay] = useState(0);
 
-  // Set window title
-  document.title = 'ontime - Countdown';
+  useEffect(() => {
+    document.title = 'ontime - Countdown';
+  }, []);
 
   // eg. http://localhost:4001/countdown?eventId=ei0us
   // Check for user options
@@ -116,8 +117,8 @@ export default function Countdown(props) {
           </div>
           <div className='status'>{runningMessage}</div>
           <span
-            className={`countdown-clock ${standby ? 'countdown-clock--standby' : ''} ${
-              isRunningFinished ? 'countdown-clock--finished' : ''
+            className={`timer ${standby ? 'timer--standby' : ''} ${
+              isRunningFinished ? 'timer--finished' : ''
             }`}
           >
             {formatDisplay(
