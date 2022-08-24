@@ -1,23 +1,32 @@
+import { useEffect, useState } from 'react';
+
 export const useRuntimeStylesheet = (pathToFile) => {
-  const fetchData = async () => {
-    let response = await fetch(pathToFile);
-    if (response.ok) {
-      console.log(response);
-      return await response.text();
-    }
-  };
+  const [shouldRender, setShouldRender] = useState(false);
 
-  const styleSheet = document.createElement('style');
-  styleSheet.rel = 'stylesheet';
-  styleSheet.setAttribute('id', 'ontime-override');
+  useEffect(() => {
+    const fetchData = async () => {
+      let response = await fetch(pathToFile);
+      if (response.ok) {
+        return await response.text();
+      }
+    };
 
-  fetchData()
-    .then((data) => {
-      styleSheet.innerHTML = data;
-    })
-    .catch((error) => {
-      console.error(`Error loading stylesheet: ${error}`);
+    setShouldRender(false);
+    const styleSheet = document.createElement('style');
+    styleSheet.rel = 'stylesheet';
+    styleSheet.setAttribute('id', 'ontime-override');
+
+    fetchData()
+      .then((data) => {
+        styleSheet.innerHTML = data;
+        document.head.append(styleSheet);
+      })
+      .catch((error) => {
+        console.error(`Error loading stylesheet: ${error}`);
+      }).finally(() => {
+      setTimeout(() => setShouldRender(true), 0);
     });
+  }, [pathToFile]);
 
-  document.head.append(styleSheet);
+  return { shouldRender };
 };
