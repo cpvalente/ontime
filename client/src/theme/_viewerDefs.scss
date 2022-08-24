@@ -1,0 +1,14 @@
+@use 'main' as *;
+
+// General styling
+$accent-color: $ontime-pink; // --accent-color-override
+$delay-color: $block-delay-color;
+
+// Main Properties of a viewer
+$viewer-background-color: $bg-black; // --background-color-override
+$viewer-color: $title-white; // --color-override
+$viewer-outdent-bg-color: $bg-gray-1000; // --outdent-background-color-override
+$viewer-overlay-bg-color: $bg-overlay;
+
+// Properties related to timer
+$timer-finished-color: $ontime-pink-variant;

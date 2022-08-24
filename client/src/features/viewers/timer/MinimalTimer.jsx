@@ -6,7 +6,7 @@ import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 
-import './MinimalTimer.scss'
+import './MinimalTimer.scss';
 
 export default function MinimalTimer(props) {
   useRuntimeStylesheet('http://localhost:4001/external/styles/override.css');
@@ -119,7 +119,7 @@ export default function MinimalTimer(props) {
       data-testid='minimal-timer'
     >
       {!hideMessagesOverlay && (
-        <div className={showOverlay ? 'message__overlay--active' : 'message__overlay'}>
+        <div className={showOverlay ? 'message-overlay--active' : 'message-overlay'}>
           <div className='message'>{pres.text}</div>
         </div>
       )}

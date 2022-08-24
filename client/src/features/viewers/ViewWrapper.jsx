@@ -1,17 +1,20 @@
 /* eslint-disable react/display-name */
 import React, { useEffect, useState } from 'react';
-import { EVENT_TABLE, EVENTS_TABLE } from 'common/api/apiConstants';
+import { EVENT_TABLE, EVENTS_TABLE, VIEW_SETTINGS } from 'common/api/apiConstants';
 import { fetchEvent } from 'common/api/eventApi';
 import { fetchAllEvents } from 'common/api/eventsApi';
 import { useSocket } from 'common/context/socketContext';
 import { useFetch } from 'common/hooks/useFetch';
 
+import { getView } from '../../common/api/ontimeApi';
+import { withStyles } from '../../common/hocs/withStyles';
 import { stringFromMillis } from '../../common/utils/time';
 
 const withSocket = (Component) => {
   return (props) => {
     const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents);
     const { data: genData } = useFetch(EVENT_TABLE, fetchEvent);
+    const { data: viewSettings } = useFetch(VIEW_SETTINGS, getView);
 
     const [publicEvents, setPublicEvents] = useState([]);
     const [backstageEvents, setBackstageEvents] = useState([]);
@@ -157,9 +160,7 @@ const withSocket = (Component) => {
       if (eventsData == null) return;
       // filter just events with title
       if (Array.isArray(eventsData)) {
-        const pe = eventsData.filter(
-          (d) => d.type === 'event' && d.title !== '' && d.isPublic
-        );
+        const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
         setPublicEvents(pe);
 
         // everything goes backstage
@@ -226,6 +227,27 @@ const withSocket = (Component) => {
       clockNoSeconds: stringFromMillis(timer.clock, false),
       playstate: playback,
     };
+
+    if (viewSettings?.overrideStyles) {
+      return withStyles(
+        <Component
+          {...props}
+          pres={pres}
+          publ={publ}
+          lower={lower}
+          title={titleManager}
+          publicTitle={publicTitleManager}
+          time={timeManager}
+          events={publicEvents}
+          backstageEvents={backstageEvents}
+          selectedId={selectedId}
+          publicSelectedId={publicSelectedId}
+          nextId={nextId}
+          general={general}
+          onAir={onAir}
+        />
+      );
+    }
 
     return (
       <Component
