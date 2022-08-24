@@ -237,6 +237,37 @@ export const postSettings = async (req, res) => {
   }
 };
 
+/**
+ * @description Get view Settings
+ * @method GET
+ */
+export const getViewSettings = async (req, res) => {
+  const overrideStyles = data.views.overrideStyles;
+  res.status(200).send({
+    overrideStyles,
+  });
+};
+
+/**
+ * @description Change view Settings
+ * @method POST
+ */
+export const postViewSettings = async (req, res) => {
+  if (!req.body) {
+    res.status(400).send('No object found in request');
+    return;
+  }
+  try {
+    data.views = {
+      doOverrideStyles: req.body?.doOverrideStyles ?? data.views.doOverrideStyles,
+    };
+    await db.write();
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
 // Create controller for POST request to '/ontime/info'
 // Returns ACK message
 export const postInfo = async (req, res) => {

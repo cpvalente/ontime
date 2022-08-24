@@ -14,6 +14,9 @@ export const dbModelv1 = {
     lock: null,
     pinCode: null,
   },
+  views: {
+    overrideStyles: false,
+  },
   aliases: [],
   userFields: {
     user0: 'user0',
