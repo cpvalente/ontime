@@ -10,7 +10,7 @@ import {
   trimEventlist,
 } from '../../../common/utils/eventsManager';
 
-import style from './StudioClock.module.scss';
+import './StudioClock.scss';
 
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
@@ -22,13 +22,10 @@ export default function StudioClock(props) {
   const secondsIndicators = [...Array(60).keys()];
   const MAX_TITLES = 10;
 
-  // Set window title
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
   }, []);
 
-  // Prepare event list
-  // Todo: useMemo()
   useEffect(() => {
     if (backstageEvents == null) return;
 
@@ -40,25 +37,25 @@ export default function StudioClock(props) {
   }, [backstageEvents, selectedId, nextId]);
 
   return (
-    <div className={style.container}>
+    <div className='container'>
       <NavLogo />
-      <div className={style.clockContainer}>
-        <div className={style.time}>{time.clockNoSeconds}</div>
+      <div className='clock-container'>
+        <div className='timer'>{time.clockNoSeconds}</div>
         <div
           ref={ref}
-          className={style.nextTitle}
+          className='next-title'
           style={{ fontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
         >
           {title.titleNext}
         </div>
-        <div className={time.isNegative ? style.nextCountdown : style.nextCountdown__overtime}>
+        <div className={time.isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
           {selectedId != null && formatDisplay(time.running)}
         </div>
-        <div className={style.indicators}>
+        <div className='clock-indicators'>
           {activeIndicators.map((i) => (
             <div
               key={i}
-              className={style.hours__active}
+              className='hours hours--active'
               style={{
                 transform: `rotate(${(360 / 12) * i - 90}deg) translateX(40vh)`,
               }}
@@ -67,7 +64,7 @@ export default function StudioClock(props) {
           {secondsIndicators.map((i) => (
             <div
               key={i}
-              className={i <= secondsNow ? style.min__active : style.min}
+              className={i <= secondsNow ? 'min min--active' : 'min'}
               style={{
                 transform: `rotate(${(360 / 60) * i - 90}deg) translateX(43vh)`,
               }}
@@ -75,14 +72,14 @@ export default function StudioClock(props) {
           ))}
         </div>
       </div>
-      <div className={style.scheduleContainer}>
-        <div className={onAir ? style.onAir : style.onAir__idle}>ON AIR</div>
-        <div className={style.schedule}>
+      <div className='schedule-container'>
+        <div className={onAir ? 'onAir' : 'onAir onAir--idle'}>ON AIR</div>
+        <div className='schedule'>
           <ul>
             {schedule.map((s) => (
               <li
                 key={s.id}
-                className={s.isNow ? style.now : s.isNext ? style.next : ''}
+                className={s.isNow ? 'now' : s.isNext ? 'next' : ''}
                 style={{ borderLeft: `4px solid ${s.colour !== '' ? s.colour : 'transparent'}` }}
               >
                 {`${s.time} ${s.title}`}
