@@ -810,7 +810,7 @@ describe('test views import', () => {
         version: 1,
       },
       views: {
-        doOverrideStyles: true,
+        overrideStyles: true,
       },
     };
     const parsed = parseViews_v1(testData);

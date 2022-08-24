@@ -242,10 +242,7 @@ export const postSettings = async (req, res) => {
  * @method GET
  */
 export const getViewSettings = async (req, res) => {
-  const overrideStyles = data.views.overrideStyles;
-  res.status(200).send({
-    overrideStyles,
-  });
+  res.status(200).send({ ...data.views });
 };
 
 /**
@@ -259,7 +256,7 @@ export const postViewSettings = async (req, res) => {
   }
   try {
     data.views = {
-      doOverrideStyles: req.body?.doOverrideStyles ?? data.views.doOverrideStyles,
+      overrideStyles: req.body?.overrideStyles ?? data.views.overrideStyles,
     };
     await db.write();
     res.sendStatus(200);
