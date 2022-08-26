@@ -15,8 +15,8 @@ const Countdown = lazy(() => import('features/viewers/countdown/Countdown'));
 
 const StageManager = lazy(() => import('features/viewers/backstage/StageManager'));
 const Public = lazy(() => import('features/viewers/foh/Public'));
-const Lower = lazy(() => import('features/viewers/production/lower/LowerWrapper'));
-const Pip = lazy(() => import('features/viewers/production/Pip'));
+const Lower = lazy(() => import('features/viewers/lower-thirds/LowerWrapper'));
+const Pip = lazy(() => import('features/viewers/picture-in-picture/Pip'));
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 
 const STimer = withSocket(TimerView);
