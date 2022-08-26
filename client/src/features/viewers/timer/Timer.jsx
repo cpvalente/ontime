@@ -72,7 +72,7 @@ export default function Timer(props) {
 
       <div className='timer-container'>
         {time.finished ? (
-          <div className='finished'>{endMessage}</div>
+          <div className='end-message'>{endMessage}</div>
         ) : (
           <div className={isPlaying ? 'countdown' : 'countdown--paused'}>
             <TimerDisplay time={normalisedTime} hideZeroHours />
@@ -81,7 +81,7 @@ export default function Timer(props) {
       </div>
 
       {!time.finished && (
-        <div className={isPlaying ? 'progress-container' : 'progress-container--paused'}>
+        <div className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}>
           <MyProgressBar
             now={normalisedTime}
             complete={time.durationSeconds}

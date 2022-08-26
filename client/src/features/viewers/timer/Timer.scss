@@ -51,7 +51,7 @@
   align-self: center;
   color: white;
 
-  .finished {
+  .end-message {
     text-align: center;
     font-size: 12vw;
     line-height: 18vw;
@@ -65,8 +65,7 @@
   opacity: 1;
 }
 
-.progress-container,
-.progress-container--paused {
+.progress-container {
   grid-area: prog;
   width: 80%;
   margin: 0 auto;
@@ -75,7 +74,7 @@
 }
 
 .countdown--paused,
-.progressContainerPaused {
+.progress-container--paused {
   opacity: 0.6;
   transition: 0.5s;
 }
