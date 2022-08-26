@@ -1,0 +1,28 @@
+@use '../../../theme/viewerDefs' as *;
+
+@mixin timer-common() {
+  font-family: 'Open Sans', sans-serif;
+  line-height: 0.9;
+  color: var(--timer-color-override, $viewer-color);
+}
+
+/* Common */
+.timer {
+  @include timer-common;
+  font-size: 21vw;
+  line-height: 21vw;
+  text-align: center;
+  letter-spacing: 1vw;
+
+  &--small {
+    @include timer-common;
+    font-size: 4em;
+    text-align: center;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+}
+
+.timer--finished {
+ color: $timer-finished-color;
+}

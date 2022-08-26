@@ -1,15 +1,14 @@
-@use '../../../theme/main' as *;
+@use '../../../theme/viewerDefs' as *;
 
-.container__gray,
-.container__grayFinished {
+.container {
   margin: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
 
-  background: $bg-black;
+  background: var(--background-color-override, $viewer-background-color);
   height: 100vh;
-  color: $title-white;
+  color: var(--color-override, $viewer-color);
   display: grid;
   grid-template-columns: 1fr 1fr 5vw 1fr 1fr;
   grid-template-rows: auto 1fr auto minmax(25vh, auto);
@@ -20,56 +19,54 @@
     ' now  now  .... next next';
   gap: 1vw;
   padding: 1vw;
-}
 
-.label {
-  font-size: 1.3vw;
-  color: $ontime-pink;
+  &--finished {
+    border: 1vw solid $timer-finished-color;
+  }
 }
 
 /* =================== TITLES ===================*/
 
-.nowContainer,
-.nextContainer {
-  background-color: $bg-gray-1000;
+.now-container,
+.next-container {
+  background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
   padding: 1vh 2vw;
   border-radius: 1vw;
   max-width: 100%;
 }
 
-.nowContainer {
+.now-container {
   grid-area: now;
 }
 
-.nextContainer {
+.next-container {
   grid-area: next;
 }
 
 /* =================== MAIN ===================*/
 
-.timerContainer,
-.timerContainerFinished {
+.timer-container {
   grid-area: timr;
   justify-self: center;
   align-self: center;
   color: white;
-}
 
-.finished {
-  text-align: center;
-  font-size: 12vw;
-  line-height: 18vw;
-  font-weight: 600;
-  color: $ontime-pink-variant;
-  padding: 0;
+  .finished {
+    text-align: center;
+    font-size: 12vw;
+    line-height: 18vw;
+    font-weight: 600;
+    color: $timer-finished-color;
+    padding: 0;
+  }
 }
 
 .countdown {
   opacity: 1;
 }
 
-.progressContainer,
-.progressContainerPaused {
+.progress-container,
+.progress-container--paused {
   grid-area: prog;
   width: 80%;
   margin: 0 auto;
@@ -77,20 +74,16 @@
   transition: 0.5s;
 }
 
-.countdownPaused,
+.countdown--paused,
 .progressContainerPaused {
   opacity: 0.6;
   transition: 0.5s;
 }
 
-.container__grayFinished {
-  border: 1vw solid $ontime-pink-variant;
-}
 
 /* =================== OVERLAY ===================*/
 
-.messageOverlay,
-.messageOverlayActive {
+.message-overlay {
   position: fixed;
   width: 100%;
   height: 100%;
@@ -98,17 +91,17 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: $bg-overlay;
+  background-color: $viewer-overlay-bg-color;
   z-index: -1;
   opacity: 0;
   transition: 0.5s;
-}
 
-.messageOverlayActive {
-  opacity: 1;
-  transition: 0.5s;
-  transition-property: opacity;
-  z-index: 2;
+  &--active {
+      opacity: 1;
+      transition: 0.5s;
+      transition-property: opacity;
+      z-index: 2;
+  }
 }
 
 .message {
@@ -128,14 +121,19 @@
 
 /* =================== MAIN ===================*/
 
-.clockContainer {
+.clock-container {
   grid-area: clck;
   padding: 1vh 2vw;
+
+  .label {
+    font-size: 1.3vw;
+    color: var(--accent-color-override, $accent-color);
+  }
+
+  .clock {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 4vw;
+    letter-spacing: 0.4vw;
+  }
 }
 
-.clock {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 4vw;
-  letter-spacing: 0.4vw;
-  color: #ddd;
-}

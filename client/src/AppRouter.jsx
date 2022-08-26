@@ -10,7 +10,7 @@ const Editor = lazy(() => import('features/editors/ProtectedEditor'));
 const Table = lazy(() => import('features/table/ProtectedTable'));
 
 const TimerView = lazy(() => import('features/viewers/timer/Timer'));
-const MinimalTimerView = lazy(() => import('features/viewers/timer/MinimalTimer'));
+const MinimalTimerView = lazy(() => import('features/viewers/minimal-timer/MinimalTimer'));
 const Countdown = lazy(() => import('features/viewers/countdown/Countdown'));
 
 const StageManager = lazy(() => import('features/viewers/backstage/StageManager'));

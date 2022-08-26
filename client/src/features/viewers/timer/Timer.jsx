@@ -7,30 +7,27 @@ import TitleCard from 'common/components/views/TitleCard';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
-import style from './Timer.module.scss';
+import './Timer.scss';
 
 export default function Timer(props) {
   const { general, pres, title, time } = props;
   const [elapsed, setElapsed] = useState(true);
   const [searchParams] = useSearchParams();
 
-  // Set window title
   useEffect(() => {
     document.title = 'ontime - Timer';
   }, []);
 
   // eg. http://localhost:3000/timer?progress=up
   // Check for user options
-  useEffect(() => {
-    // progress: selector
-    // Should be 'up' or 'down'
-    const progress = searchParams.get('progress');
-    if (progress === 'up') {
-      setElapsed(true);
-    } else if (progress === 'down') {
-      setElapsed(false);
-    }
-  }, [searchParams]);
+  // progress: selector
+  // Should be 'up' or 'down'
+  const progress = searchParams.get('progress');
+  if (progress === 'up') {
+    setElapsed(true);
+  } else if (progress === 'down') {
+    setElapsed(false);
+  }
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
@@ -39,11 +36,7 @@ export default function Timer(props) {
   // show timer if end message is empty
   const endMessage =
     general.endMessage == null || general.endMessage === '' ? (
-      <TimerDisplay
-        time={time.running}
-        isNegative={time.isNegative}
-        hideZeroHours
-      />
+      <TimerDisplay time={time.running} isNegative={time.isNegative} hideZeroHours />
     ) : (
       general.endMessage
     );
@@ -65,42 +58,30 @@ export default function Timer(props) {
   };
 
   return (
-    <div
-      className={
-        time.finished ? style.container__grayFinished : style.container__gray
-      }
-    >
-      <div
-        className={
-          showOverlay ? style.messageOverlayActive : style.messageOverlay
-        }
-      >
-        <div className={style.message}>{pres.text}</div>
+    <div className={time.finished ? 'container container--finished' : 'container'}>
+      <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
+        <div className='message'>{pres.text}</div>
       </div>
 
       <NavLogo />
 
-      <div className={style.clockContainer}>
-        <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{time.clock}</div>
+      <div className='clock-container'>
+        <div className='label'>Time Now</div>
+        <div className='clock'>{time.clock}</div>
       </div>
 
-      <div className={style.timerContainer}>
+      <div className='timer-container'>
         {time.finished ? (
-          <div className={style.finished}>{endMessage}</div>
+          <div className='finished'>{endMessage}</div>
         ) : (
-          <div className={isPlaying ? style.countdown : style.countdownPaused}>
+          <div className={isPlaying ? 'countdown' : 'countdown--paused'}>
             <TimerDisplay time={normalisedTime} hideZeroHours />
           </div>
         )}
       </div>
 
       {!time.finished && (
-        <div
-          className={
-            isPlaying ? style.progressContainer : style.progressContainerPaused
-          }
-        >
+        <div className={isPlaying ? 'progress-container' : 'progress-container--paused'}>
           <MyProgressBar
             now={normalisedTime}
             complete={time.durationSeconds}
@@ -112,7 +93,7 @@ export default function Timer(props) {
       <AnimatePresence>
         {title.showNow && (
           <motion.div
-            className={style.nowContainer}
+            className='now-container'
             key='now'
             variants={titleVariants}
             initial='hidden'
@@ -132,7 +113,7 @@ export default function Timer(props) {
       <AnimatePresence>
         {title.showNext && (
           <motion.div
-            className={style.nextContainer}
+            className='next-container'
             key='next'
             variants={titleVariants}
             initial='hidden'
