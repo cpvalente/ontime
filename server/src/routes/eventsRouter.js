@@ -27,6 +27,7 @@ router.post('/', eventsPost);
 router.put('/', eventsPut);
 
 // create route between controller and '/events/' endpoint
+// DEPRECATED
 router.patch('/', eventsPatch);
 
 // create route between controller and '/events/reorder' endpoint
