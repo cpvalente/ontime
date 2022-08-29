@@ -228,9 +228,13 @@ const withSocket = (Component) => {
       playstate: playback,
     };
 
+    /*
+    console.log(0, viewSettings?.overrideStyles);
     if (viewSettings?.overrideStyles) {
-      return withStyles(
-        <Component
+      const ComponentWithStyles = withStyles(Component);
+      console.log(1, 'with styles');
+      return (
+        <ComponentWithStyles
           {...props}
           pres={pres}
           publ={publ}
@@ -248,7 +252,8 @@ const withSocket = (Component) => {
         />
       );
     }
-
+*/
+    Component.displayName = 'ComponentWithData';
     return (
       <Component
         {...props}
