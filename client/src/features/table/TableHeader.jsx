@@ -10,7 +10,7 @@ import { useSocket } from '../../common/context/socketContext';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useFetch } from '../../common/hooks/useFetch';
 import { formatDisplay } from '../../common/utils/dateConfig';
-import { stringFromMillis } from '../../common/utils/time';
+import { formatTime } from '../../common/utils/time';
 
 import PlaybackIcon from './tableElements/PlaybackIcon';
 
@@ -97,7 +97,10 @@ export default function TableHeader() {
 
   // prepare presentation variables
   const timerNow = `${timer.running < 0 ? '-' : ''}${formatDisplay(timer.running)}`;
-
+  const timeNow = formatTime(timer.clock, {
+    showSeconds: true,
+    format: 'hh:mm:ss a',
+  });
   return (
     <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
@@ -115,7 +118,7 @@ export default function TableHeader() {
       <div className={style.headerClock}>
         <span className={style.label}>Time Now</span>
         <br />
-        <span className={style.timer}>{stringFromMillis(timer.clock)}</span>
+        <span className={style.timer}>{timeNow}</span>
       </div>
       <div className={style.headerActions}>
         <Tooltip openDelay={300} label='Follow selected'>

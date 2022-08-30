@@ -7,20 +7,27 @@ import { formatDisplay } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { formatTime } from '../../../common/utils/time';
+
 import style from './Pip.module.scss';
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
 
 export default function Pip(props) {
   const { time, backstageEvents, selectedId, general } = props;
   const [size, setSize] = useState('');
-  const ref = useRef(null);
+  const pipAreaRef = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
 
-  // calculcate pip size
+  // calculate pip size
   useLayoutEffect(() => {
-    const h = ref.current.clientHeight;
-    const w = ref.current.clientWidth;
+    const h = pipAreaRef.current.clientHeight;
+    const w = pipAreaRef.current.clientWidth;
     setSize(`${w} x ${h}`);
   }, []);
 
@@ -51,10 +58,11 @@ export default function Pip(props) {
   }, [backstageEvents]);
 
   // Format messages
-  const showInfo =
-    general.backstageInfo !== '' && general.backstageInfo != null;
+  const showInfo = general.backstageInfo !== '' && general.backstageInfo != null;
   let stageTimer = formatDisplay(Math.abs(time.running), true);
   if (time.isNegative) stageTimer = `-${stageTimer}`;
+
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className={style.container__gray}>
@@ -67,12 +75,12 @@ export default function Pip(props) {
           <div className={style.label}>Today</div>
           <div className={style.nav}>
             {pageNumber > 1 &&
-            [...Array(pageNumber).keys()].map((i) => (
-              <div
-                key={i}
-                className={i === currentPage ? style.navItemSelected : style.navItem}
-              />
-            ))}
+              [...Array(pageNumber).keys()].map((i) => (
+                <div
+                  key={i}
+                  className={i === currentPage ? style.navItemSelected : style.navItem}
+                />
+              ))}
           </div>
         </div>
         <Paginator
@@ -86,7 +94,7 @@ export default function Pip(props) {
         />
       </div>
 
-      <div className={style.pip} ref={ref}>
+      <div className={style.pip} ref={pipAreaRef}>
         <Emptyimage className={style.empty} />
         <span className={style.piptext}>{size}</span>
       </div>
@@ -100,11 +108,7 @@ export default function Pip(props) {
             </div>
             <div className={style.qr}>
               {general.url != null && general.url !== '' && (
-                <QRCode
-                  value={general.url}
-                  size={window.innerWidth / 12}
-                  level='L'
-                />
+                <QRCode value={general.url} size={window.innerWidth / 12} level='L' />
               )}
             </div>
           </motion.div>
@@ -113,7 +117,7 @@ export default function Pip(props) {
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{time.clock}</div>
+        <div className={style.clock}>{clock}</div>
       </div>
 
       <div className={style.countdownContainer}>

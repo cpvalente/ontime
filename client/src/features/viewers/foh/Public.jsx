@@ -6,9 +6,15 @@ import TitleSide from 'common/components/views/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';
 
 import style from './Public.module.scss';
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
 
 export default function Public(props) {
   const { publ, publicTitle, time, events, publicSelectedId, general } = props;
@@ -23,7 +29,7 @@ export default function Public(props) {
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
 
-  // motion
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className={style.container__gray}>
@@ -78,12 +84,12 @@ export default function Public(props) {
           <div className={style.label}>Today</div>
           <div className={style.nav}>
             {pageNumber > 1 &&
-            [...Array(pageNumber).keys()].map((i) => (
-              <div
-                key={i}
-                className={i === currentPage ? style.navItemSelected : style.navItem}
-              />
-            ))}
+              [...Array(pageNumber).keys()].map((i) => (
+                <div
+                  key={i}
+                  className={i === currentPage ? style.navItemSelected : style.navItem}
+                />
+              ))}
           </div>
         </div>
         <Paginator
@@ -95,18 +101,14 @@ export default function Public(props) {
         />
       </div>
 
-      <div
-        className={
-          showPubl ? style.publicContainer : style.publicContainerHidden
-        }
-      >
+      <div className={showPubl ? style.publicContainer : style.publicContainerHidden}>
         <div className={style.label}>Public message</div>
         <div className={style.message}>{publ.text}</div>
       </div>
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{time.clock}</div>
+        <div className={style.clock}>{clock}</div>
       </div>
 
       <div className={style.infoContainer}>
@@ -116,11 +118,7 @@ export default function Public(props) {
         </div>
         <div className={style.qr}>
           {general.url != null && general.url !== '' && (
-            <QRCode
-              value={general.url}
-              size={window.innerWidth / 12}
-              level='L'
-            />
+            <QRCode value={general.url} size={window.innerWidth / 12} level='L' />
           )}
         </div>
       </div>

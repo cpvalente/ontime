@@ -1049,7 +1049,6 @@ export class EventTimer extends Timer {
     this.runCycle();
   }
 
-
   /**
    * Deleted an event from the list by its id
    * @param {string} eventId
