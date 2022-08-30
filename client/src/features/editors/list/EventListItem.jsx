@@ -1,7 +1,11 @@
 import React, { memo, useCallback, useContext } from 'react';
+import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
-import { LocalEventSettingsContext } from '../../../common/context/LocalEventSettingsContext';
+import {
+  defaultPublicAtom,
+  startTimeIsLastEndAtom,
+} from '../../../common/atoms/LocalEventSettings';
 import { LoggingContext } from '../../../common/context/LoggingContext';
 import BlockBlock from '../BlockBlock/BlockBlock';
 import DelayBlock from '../DelayBlock/DelayBlock';
@@ -19,19 +23,11 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const EventListItem = (props) => {
-  const {
-    type,
-    index,
-    eventIndex,
-    data,
-    selected,
-    next,
-    eventsHandler,
-    delay,
-    previousEnd,
-  } = props;
+  const { type, index, eventIndex, data, selected, next, eventsHandler, delay, previousEnd } =
+    props;
   const { emitError } = useContext(LoggingContext);
-  const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
+  const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
+  const defaultPublic = useAtomValue(defaultPublicAtom);
 
   /**
    * @description calculates duration from given options
@@ -56,7 +52,7 @@ const EventListItem = (props) => {
               after: data.id,
               isPublic: defaultPublic,
             },
-            { startIsLastEnd: starTimeIsLastEnd ? data.id : undefined }
+            { startIsLastEnd: startTimeIsLastEnd ? data.id : undefined }
           );
           break;
         case 'delay':
@@ -103,7 +99,7 @@ const EventListItem = (props) => {
           break;
       }
     },
-    [calculateDuration, data, defaultPublic, emitError, eventsHandler, starTimeIsLastEnd]
+    [calculateDuration, data, defaultPublic, emitError, eventsHandler, startTimeIsLastEnd]
   );
 
   switch (type) {
@@ -147,5 +143,5 @@ EventListItem.propTypes = {
   next: PropTypes.bool,
   eventsHandler: PropTypes.func,
   delay: PropTypes.number,
-  previousEnd: PropTypes.number
-}
+  previousEnd: PropTypes.number,
+};

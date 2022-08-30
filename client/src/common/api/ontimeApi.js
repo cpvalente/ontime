@@ -19,7 +19,12 @@ export const ontimePlaceholderInfo = {
  * @type {{pinCode: null}}
  */
 export const ontimePlaceholderSettings = {
+  app: 'ontime',
+  version: 1,
+  serverPort: 4001,
+  lock: null,
   pinCode: null,
+  timeFormat: '24',
 };
 
 /**
@@ -223,9 +228,7 @@ export const downloadEvents = async () => {
       filename = headerLine.substring(startFileNameIndex, endFileNameIndex);
     }
 
-    const url = window.URL.createObjectURL(
-      new Blob([response.data], { type: 'application/json' })
-    );
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/json' }));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', filename);
@@ -252,4 +255,5 @@ export const uploadEvents = async (file) => {
  * @description HTTP request to upload events
  * @return {Promise}
  */
-export const uploadEventsWithPath = async (filepath) => axios.post(`${ontimeURL}/dbpath`, { path: filepath });
+export const uploadEventsWithPath = async (filepath) =>
+  axios.post(`${ontimeURL}/dbpath`, { path: filepath });

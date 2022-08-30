@@ -2,9 +2,10 @@ import React, { createRef, useCallback, useContext, useEffect, useState } from '
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import Empty from 'common/components/state/Empty';
 import { useSocket } from 'common/context/socketContext';
+import { useAtomValue } from 'jotai';
 
+import { showQuickEntryAtom } from '../../../common/atoms/LocalEventSettings';
 import { CursorContext } from '../../../common/context/CursorContext';
-import { LocalEventSettingsContext } from '../../../common/context/LocalEventSettingsContext';
 import EntryBlock from '../EntryBlock/EntryBlock';
 
 import EventListItem from './EventListItem';
@@ -19,21 +20,24 @@ export default function EventList(props) {
   const [selectedId, setSelectedId] = useState(null);
   const [nextId, setNextId] = useState(null);
   const cursorRef = createRef();
-  const { showQuickEntry } = useContext(LocalEventSettingsContext);
+  const showQuickEntry = useAtomValue(showQuickEntryAtom);
 
-  const insertAtCursor = useCallback((type, cursor) => {
-    if (cursor === -1) {
-      eventsHandler('add', { type: type });
-    } else {
-      const previousEvent = events[cursor];
-      const nextEvent = events[cursor + 1];
-      if (type === 'event') {
-        eventsHandler('add', { type: type, after: previousEvent.id });
-      } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
-        eventsHandler('add', { type: type, after: previousEvent.id });
+  const insertAtCursor = useCallback(
+    (type, cursor) => {
+      if (cursor === -1) {
+        eventsHandler('add', { type: type });
+      } else {
+        const previousEvent = events[cursor];
+        const nextEvent = events[cursor + 1];
+        if (type === 'event') {
+          eventsHandler('add', { type: type, after: previousEvent.id });
+        } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
+          eventsHandler('add', { type: type, after: previousEvent.id });
+        }
       }
-    }
-  },[events, eventsHandler])
+    },
+    [events, eventsHandler]
+  );
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -54,19 +58,19 @@ export default function EventList(props) {
         if (e.key === 'e' || e.key === 'E') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('event', cursor)
+          insertAtCursor('event', cursor);
         }
         // D
         if (e.key === 'd' || e.key === 'D') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('delay', cursor)
+          insertAtCursor('delay', cursor);
         }
         // B
         if (e.key === 'b' || e.key === 'B') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('block', cursor)
+          insertAtCursor('block', cursor);
         }
       }
     },

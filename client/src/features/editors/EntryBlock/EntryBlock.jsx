@@ -1,9 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Checkbox } from '@chakra-ui/react';
 import { Tooltip } from '@chakra-ui/tooltip';
+import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
-import { LocalEventSettingsContext } from '../../../common/context/LocalEventSettingsContext';
+import {
+  defaultPublicAtom,
+  startTimeIsLastEndAtom,
+} from '../../../common/atoms/LocalEventSettings';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './EntryBlock.module.scss';
@@ -17,13 +21,14 @@ export default function EntryBlock(props) {
     disableAddDelay = true,
     disableAddBlock,
   } = props;
-  const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
-  const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
+  const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
+  const defaultPublic = useAtomValue(defaultPublicAtom);
+  const [doStartTime, setStartTime] = useState(startTimeIsLastEnd);
   const [doPublic, setPublic] = useState(defaultPublic);
 
   useEffect(() => {
-    setStartTime(starTimeIsLastEnd);
-  }, [starTimeIsLastEnd]);
+    setStartTime(startTimeIsLastEnd);
+  }, [startTimeIsLastEnd]);
 
   useEffect(() => {
     setPublic(defaultPublic);
@@ -37,7 +42,7 @@ export default function EntryBlock(props) {
           onClick={() =>
             eventsHandler(
               'add',
-              { type: 'event', after:  previousId, isPublic: doPublic },
+              { type: 'event', after: previousId, isPublic: doPublic },
               { startIsLastEnd: doStartTime ? previousId : undefined }
             )
           }
@@ -69,7 +74,9 @@ export default function EntryBlock(props) {
           size='sm'
           colorScheme='blue'
           isChecked={doStartTime}
-          onChange={(e) => setStartTime(e.target.checked)}
+          onChange={(e) => {
+            setStartTime(e.target.checked);
+          }}
         >
           Start time is last end
         </Checkbox>
@@ -94,4 +101,3 @@ EntryBlock.propTypes = {
   disableAddDelay: PropTypes.bool,
   disableAddBlock: PropTypes.bool,
 };
-

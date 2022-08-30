@@ -1,4 +1,4 @@
-import { stringFromMillis } from './time';
+import { formatTime } from './time';
 
 /**
  * @description From a list of events, returns only events of type event with calculated delays
@@ -58,27 +58,29 @@ export const trimEventlist = (events, selectedId, limit) => {
  * @param {Object[]} events - given events
  * @param {string} selectedId - id of currently selected event
  * @param {string} nextId - id of next event
- * @param {boolean} [showEnd] - whether to show the end time
+ * @param {object} [options]
+ * @param {boolean} [options.showEnd] - whether to show the end time
  * @returns {Object[]} Formatted list of events [{time: -, title: -, isNow, isNext}]
  */
-export const formatEventList = (events, selectedId, nextId, showEnd = false) => {
+export const formatEventList = (events, selectedId, nextId, options) => {
   if (events == null) return [];
+  const { showEnd = false } = options;
 
   const givenEvents = [...events];
 
   // format list
   const formattedEvents = [];
-  for (const g of givenEvents) {
-    const start = stringFromMillis(g.timeStart, false);
-    const end = stringFromMillis(g.timeEnd, false);
+  for (const event of givenEvents) {
+    const start = formatTime(event.timeStart)
+    const end = formatTime(event.timeEnd);
 
     formattedEvents.push({
-      id: g.id,
+      id: event.id,
       time: showEnd ? `${start} - ${end}` : start,
-      title: g.title,
-      isNow: g.id === selectedId,
-      isNext: g.id === nextId,
-      colour: g.colour,
+      title: event.title,
+      isNow: event.id === selectedId,
+      isNext: event.id === nextId,
+      colour: event.colour,
     });
   }
 
