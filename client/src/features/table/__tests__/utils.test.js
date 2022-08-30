@@ -84,7 +84,7 @@ describe('make CSV()', () => {
   it('joins an array of arrays with commas and newlines', () => {
     const testdata = [['field'], ['after newline', 'after comma'], ['', 'after empty']];
     expect(makeCSV(testdata)).toMatchInlineSnapshot(`
-"data:text/csv;charset=utf-8field
+"data:text/csv;charset=utf-8,field
 after newline,after comma
 ,after empty
 "
