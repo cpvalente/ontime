@@ -20,6 +20,9 @@ export const parseField = (field, data) => {
       val = data;
       break;
   }
+  if (typeof data === 'undefined') {
+    return ''
+  }
   return val;
 };
 
@@ -95,12 +98,10 @@ export const makeTable = (headerData, tableData, userFields) => {
  * @return {string}
  */
 export const makeCSV = (arrayOfArrays) => {
-  console.log(arrayOfArrays);
   let csvData = 'data:text/csv;charset=utf-8';
   arrayOfArrays.forEach((rowArray) => {
     const row = rowArray.join(',');
     csvData += `${row}\n`;
   });
-  console.log(csvData);
   return csvData;
 };
