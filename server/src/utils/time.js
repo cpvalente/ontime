@@ -3,22 +3,6 @@ const mtm = 1000 * 60; // millis to minutes
 const mth = 1000 * 60 * 60; // millis to hours
 
 /**
- * Returns current time in milliseconds
- * @returns {number}
- */
-export const nowInMillis = () => {
-  const now = new Date();
-
-  // extract milliseconds since midnight
-  let elapsed = now.getHours() * 3600000;
-  elapsed += now.getMinutes() * 60000;
-  elapsed += now.getSeconds() * 1000;
-  elapsed += now.getMilliseconds();
-
-  return elapsed;
-};
-
-/**
  * @description Converts milliseconds to string representing time
  * @param {number} ms - time in milliseconds
  * @param {boolean} showSeconds - weather to show the seconds
@@ -51,17 +35,28 @@ export const stringFromMillis = (ms, showSeconds = true, delim = ':', ifNull = '
 
 /**
  * @description Converts an excel date to milliseconds
- * @argument {string} excelDate - excel string date
+ * @argument {string} date - excel string date
  * @returns {number} - time in milliseconds
  */
-export const excelDateStringToMillis = (excelDate) => {
+export const dateToMillis = (date) => {
+  const h = date.getHours();
+  const m = date.getMinutes();
+  const s = date.getSeconds();
+
+  return h * mth + m * mtm + s * mts;
+};
+
+/**
+ * @description Parses an excel date using the correct parser
+ * @param {string} excelDate
+ * @returns {number} - time in milliseconds
+
+ */
+export const parseExcelDate = (excelDate) => {
+  // attempt converting to date object
   const date = new Date(excelDate);
   if (date instanceof Date && !isNaN(date)) {
-    const h = date.getHours();
-    const m = date.getMinutes();
-    const s = date.getSeconds();
-
-    return h * mth + m * mtm + s * mts;
+    return dateToMillis(date);
   }
   return 0;
 };
