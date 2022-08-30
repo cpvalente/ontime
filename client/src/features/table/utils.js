@@ -98,7 +98,7 @@ export const makeTable = (headerData, tableData, userFields) => {
  * @return {string}
  */
 export const makeCSV = (arrayOfArrays) => {
-  let csvData = 'data:text/csv;charset=utf-8';
+  let csvData = 'data:text/csv;charset=utf-8,';
   arrayOfArrays.forEach((rowArray) => {
     const row = rowArray.join(',');
     csvData += `${row}\n`;
