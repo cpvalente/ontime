@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Divider } from '@chakra-ui/layout';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
@@ -13,6 +13,7 @@ import { fetchEvent } from '../../common/api/eventApi';
 import { useSocket } from '../../common/context/socketContext';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useFetch } from '../../common/hooks/useFetch';
+import useFullscreen from '../../common/hooks/useFullscreen';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
 import { tooltipDelayFast } from '../../ontimeConfig';
@@ -25,6 +26,7 @@ export default function TableHeader({ handleCSVExport }) {
   const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
     useContext(TableSettingsContext);
   const { data } = useFetch(EVENT_TABLE, fetchEvent);
+  const { isFullScreen, toggleFullScreen } = useFullscreen();
 
   const socket = useSocket();
   const [timer, setTimer] = useState({
@@ -107,18 +109,6 @@ export default function TableHeader({ handleCSVExport }) {
     format: 'hh:mm:ss a',
   });
 
-  const isFullScreen = document.fullscreenElement;
-
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-  }, []);
-
   return (
     <div className={style.header}>
       <div className={style.headerName}>{data?.title || ''}</div>
@@ -157,9 +147,9 @@ export default function TableHeader({ handleCSVExport }) {
         <Tooltip openDelay={tooltipDelayFast} label='Toggle Fullscreen'>
           <span className={style.actionIcon}>
             {isFullScreen ? (
-              <IoContract onClick={() => toggleFullscreen()} />
+              <IoContract onClick={() => toggleFullScreen()} />
             ) : (
-              <IoExpand onClick={() => toggleFullscreen()} />
+              <IoExpand onClick={() => toggleFullScreen()} />
             )}
           </span>
         </Tooltip>
