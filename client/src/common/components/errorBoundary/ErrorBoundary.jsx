@@ -54,7 +54,7 @@ class ErrorBoundary extends React.Component {
             <p
               className={style.report}
               onClick={() => {
-                if (window?.process?.type === 'renderer') {
+                if (window.process.type === 'renderer') {
                   window.ipcRenderer.send('reload');
                 } else {
                   window.location.reload();
