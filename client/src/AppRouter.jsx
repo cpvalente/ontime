@@ -14,7 +14,7 @@ const MinimalTimerView = lazy(() => import('features/viewers/minimal-timer/Minim
 const Countdown = lazy(() => import('features/viewers/countdown/Countdown'));
 
 const Backstage = lazy(() => import('features/viewers/backstage/Backstage'));
-const Public = lazy(() => import('features/viewers/foh/Public'));
+const Public = lazy(() => import('features/viewers/public/Public'));
 const Lower = lazy(() => import('features/viewers/lower-thirds/LowerWrapper'));
 const Pip = lazy(() => import('features/viewers/picture-in-picture/Pip'));
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));

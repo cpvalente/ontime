@@ -1,6 +1,6 @@
 @use '../../../theme/viewerDefs' as *;
 
-.container.pip {
+.container.public {
   margin: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
@@ -11,20 +11,25 @@
   font-weight: 300;
 
   display: grid;
-  grid-template-columns: 20vw 20vw 18vw 3vw 1fr;
-  grid-template-rows: 60vh 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 3vw 2fr;
+  grid-template-rows: 15vh 1fr 1fr 0 13vh 13vh;
   grid-template-areas:
-    ' pip  pip  pip  . schd'
     ' titl titl titl . schd'
-    ' info info clck . schd'
-    ' info info time . schd';
+    ' now  now  now  . schd'
+    ' next next .... . schd'
+    ' ...  .... .... . ....'
+    ' publ publ .... . info'
+    ' publ publ time . info';
   gap: 1vw;
   padding: 1vw;
 
-  .today-container,
+  .now-container,
+  .next-container,
+  .public-container,
   .info-container,
+  .timer-container,
   .clock-container,
-  .timer-container {
+  .today-container {
     background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
     padding: 1vh 1vw;
     border-radius: 1vw;
@@ -45,6 +50,14 @@
     }
   }
 
+  .now-container,
+  .next-container {
+    border-radius: 0 2vw 2vw 0;
+    margin-left: -1vw;
+    padding: 1vh 2vw;
+    overflow: hidden;
+  }
+
   .event-title {
     grid-area: titl;
     font-size: 3vw;
@@ -53,6 +66,14 @@
     text-decoration-color: var(--accent-color-override, $accent-color);
     padding-top: 0.2vh;
     padding-left: 1vw;
+  }
+
+  .now-container {
+    grid-area: now;
+  }
+
+  .next-container {
+    grid-area: next;
   }
 
   .today-container {
@@ -84,29 +105,25 @@
     }
   }
 
-  .pip {
-    grid-area: pip;
-    background-color: $pip-bg-color;
-    border: 1px solid $pip-border-color;
-    width: 100%;
-    text-align: center;
-    display: grid;
-    place-content: center;
+  .public-container {
+    grid-area: publ;
 
-    &__empty {
-      opacity: 0.5;
+    &--hidden {
+      opacity: 0;
+      transition: 0.5s;
+      transition-property: opacity;
     }
+  }
 
-    &__text {
-      color: $pip-text-color;
-      font-weight: 600;
-      font-size: 4vh;
-    }
+  .clock-container {
+    grid-area: time;
+    border-radius: 1vw;
   }
 
   .info-container {
     grid-area: info;
     display: grid;
+    padding: 2.5vh 2vw;
 
     grid-template-rows: 3vh minmax(0, 1fr);
     grid-template-columns: 3fr 1fr;
@@ -128,15 +145,5 @@
       justify-self: center;
       grid-area: qr;
     }
-  }
-
-  .clock-container {
-    grid-area: time;
-    border-radius: 0 0 1vw 1vw;
-  }
-
-  .timer-container {
-    grid-area: clck;
-    border-radius: 1vw 1vw 0 0;
   }
 }

@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 
 import { titleVariants } from '../common/animation';
 
-import style from './Public.module.scss';
+import './Public.scss';
 
 export default function Public(props) {
   const { publ, publicTitle, time, events, publicSelectedId, general } = props;
@@ -26,15 +26,15 @@ export default function Public(props) {
   // motion
 
   return (
-    <div className={style.container__gray}>
+    <div className='container public'>
       <NavLogo />
 
-      <div className={style.eventTitle}>{general.title}</div>
+      <div className='event-title'>{general.title}</div>
 
       <AnimatePresence>
         {publicTitle.showNow && (
           <motion.div
-            className={style.nowContainer}
+            className='now-container'
             key='now'
             variants={titleVariants}
             initial='hidden'
@@ -55,7 +55,7 @@ export default function Public(props) {
       <AnimatePresence>
         {publicTitle.showNext && (
           <motion.div
-            className={style.nextContainer}
+            className='next-container'
             key='next'
             variants={titleVariants}
             initial='hidden'
@@ -73,15 +73,15 @@ export default function Public(props) {
         )}
       </AnimatePresence>
 
-      <div className={style.todayContainer}>
-        <div className={style.todayHeaderBlock}>
-          <div className={style.label}>Today</div>
-          <div className={style.nav}>
+      <div className='today-container'>
+        <div className='today-header-block'>
+          <div className='label'>Today</div>
+          <div className='nav'>
             {pageNumber > 1 &&
             [...Array(pageNumber).keys()].map((i) => (
               <div
                 key={i}
-                className={i === currentPage ? style.navItemSelected : style.navItem}
+                className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
               />
             ))}
           </div>
@@ -95,26 +95,22 @@ export default function Public(props) {
         />
       </div>
 
-      <div
-        className={
-          showPubl ? style.publicContainer : style.publicContainerHidden
-        }
-      >
-        <div className={style.label}>Public message</div>
-        <div className={style.message}>{publ.text}</div>
+      <div className={showPubl ? 'public-container' : 'public-container public-container--hidden'}>
+        <div className='label'>Public message</div>
+        <div className='message'>{publ.text}</div>
       </div>
 
-      <div className={style.clockContainer}>
-        <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{time.clock}</div>
+      <div className='clock-container'>
+        <div className='label'>Time Now</div>
+        <div className='clock'>{time.clock}</div>
       </div>
 
-      <div className={style.infoContainer}>
-        <div className={style.label}>Info</div>
-        <div className={style.infoMessages}>
-          <div className={style.info}>{general.publicInfo}</div>
+      <div className='info-container'>
+        <div className='label'>Info</div>
+        <div className='info-message'>
+          <div className='info'>{general.publicInfo}</div>
         </div>
-        <div className={style.qr}>
+        <div className='qr'>
           {general.url != null && general.url !== '' && (
             <QRCode
               value={general.url}
