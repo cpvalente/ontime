@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
 import NavLogo from 'common/components/nav/NavLogo';
-import TitleCard from 'common/components/views/TitleCard';
+import TitleCard from 'common/components/title-card/TitleCard';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 

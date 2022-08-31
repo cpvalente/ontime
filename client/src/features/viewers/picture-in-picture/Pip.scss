@@ -9,6 +9,7 @@
   height: 100vh;
   color: var(--color-override, $viewer-color);
   font-weight: 300;
+
   display: grid;
   grid-template-columns: 20vw 20vw 18vw 3vw 1fr;
   grid-template-rows: 60vh 1fr 1fr 1fr;

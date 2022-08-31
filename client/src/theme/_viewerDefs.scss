@@ -7,7 +7,7 @@ $delay-color: $block-delay-color;
 // Main Properties of a viewer
 $viewer-background-color: $bg-black; // --background-color-override
 $viewer-color: $title-white; // --color-override
-$viewer-outdent-bg-color: $bg-gray-1000; // --outdent-background-color-override
+$viewer-outdent-bg-color: $bg-gray-1100; // --outdent-background-color-override
 $viewer-overlay-bg-color: $bg-overlay;
 
 // Properties related to timer
@@ -18,3 +18,11 @@ $pip-bg-color: $bg-black-100;
 $pip-border-color: $bg-black-200;
 $pip-text-color: $bg-gray-900;
 $today-item-bg: $bg-gray-700;
+
+// View specific - Titles
+$title-color: #ddd;
+$subtitle-color: #aaa;
+
+// View specific - Paginator
+$now-bg-color: $bg-gray-900;
+$future-bg-color: $bg-gray-950;

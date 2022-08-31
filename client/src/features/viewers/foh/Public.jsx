@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import NavLogo from 'common/components/nav/NavLogo';
-import Paginator from 'common/components/views/Paginator';
-import TitleSide from 'common/components/views/TitleSide';
+import Paginator from 'common/components/paginator/Paginator';
+import TitleSide from 'common/components/title-side/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
