@@ -13,7 +13,7 @@ const TimerView = lazy(() => import('features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('features/viewers/minimal-timer/MinimalTimer'));
 const Countdown = lazy(() => import('features/viewers/countdown/Countdown'));
 
-const StageManager = lazy(() => import('features/viewers/backstage/StageManager'));
+const Backstage = lazy(() => import('features/viewers/backstage/Backstage'));
 const Public = lazy(() => import('features/viewers/foh/Public'));
 const Lower = lazy(() => import('features/viewers/lower-thirds/LowerWrapper'));
 const Pip = lazy(() => import('features/viewers/picture-in-picture/Pip'));
@@ -22,7 +22,7 @@ const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 const STimer = withSocket(TimerView);
 const SMinimalTimer = withSocket(MinimalTimerView);
 const SCountdown = withSocket(Countdown);
-const SStageManager = withSocket(StageManager);
+const SBackstage = withSocket(Backstage);
 const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
 const SPip = withSocket(Pip);
@@ -64,8 +64,8 @@ export default function AppRouter() {
 
       <Route path='/countdown' element={<SCountdown />} />
 
-      <Route path='/sm' element={<SStageManager />} />
-      <Route path='/backstage' element={<SStageManager />} />
+      <Route path='/sm' element={<SBackstage />} />
+      <Route path='/backstage' element={<SBackstage />} />
 
       <Route path='/public' element={<SPublic />} />
       <Route path='/pip' element={<SPip />} />

@@ -10,9 +10,9 @@ import PropTypes from 'prop-types';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { titleVariants } from '../common/animation';
 
-import style from './StageManager.module.scss';
+import style from './Backstage.scss';
 
-export default function StageManager(props) {
+export default function Backstage(props) {
   const { publ, title, time, backstageEvents, selectedId, general } = props;
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
@@ -141,7 +141,7 @@ export default function StageManager(props) {
   );
 }
 
-StageManager.propTypes = {
+Backstage.propTypes = {
   publ: PropTypes.object,
   title: PropTypes.object,
   time: PropTypes.object,
