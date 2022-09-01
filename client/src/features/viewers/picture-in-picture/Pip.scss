@@ -1,6 +1,6 @@
 @use '../../../theme/viewerDefs' as *;
 
-.container.pip {
+.pip {
   margin: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
@@ -84,7 +84,7 @@
     }
   }
 
-  .pip {
+  .pip-placeholder {
     grid-area: pip;
     background-color: $pip-bg-color;
     border: 1px solid $pip-border-color;

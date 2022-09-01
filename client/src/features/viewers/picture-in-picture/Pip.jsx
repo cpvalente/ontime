@@ -57,7 +57,7 @@ export default function Pip(props) {
   if (time.isNegative) stageTimer = `-${stageTimer}`;
 
   return (
-    <div className='container pip'>
+    <div className='pip'>
       <NavLogo />
 
       <div className='event-title'>{general.title}</div>
@@ -86,9 +86,9 @@ export default function Pip(props) {
         />
       </div>
 
-      <div className='pip' ref={ref}>
-        <Emptyimage className='pip__empty' />
-        <span className='pip__text'>{size}</span>
+      <div className='pip-placeholder' ref={ref}>
+        <Emptyimage className='pip-placeholder__empty' />
+        <span className='pip-placeholder__text'>{size}</span>
       </div>
 
       <AnimatePresence>
