@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 import NavLogo from 'common/components/nav/NavLogo';
@@ -7,22 +7,18 @@ import { formatDisplay } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { overrideStylesURL } from '../../../ontimeConfig';
+
 import './Pip.scss';
 
 export default function Pip(props) {
-  const { time, backstageEvents, selectedId, general } = props;
-  const [size, setSize] = useState('');
+  const { time, backstageEvents, selectedId, general, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const ref = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-
-  // calculate pip size
-  useLayoutEffect(() => {
-    const h = ref.current.clientHeight;
-    const w = ref.current.clientWidth;
-    setSize(`${w} x ${h}`);
-  }, []);
 
   // Set window title
   useEffect(() => {
@@ -50,9 +46,13 @@ export default function Pip(props) {
     setFilteredEvents(events.filter((e) => e.type === 'event'));
   }, [backstageEvents]);
 
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
+
   // Format messages
-  const showInfo =
-    general.backstageInfo !== '' && general.backstageInfo != null;
+  const showInfo = general.backstageInfo !== '' && general.backstageInfo != null;
   let stageTimer = formatDisplay(Math.abs(time.running), true);
   if (time.isNegative) stageTimer = `-${stageTimer}`;
 
@@ -67,12 +67,12 @@ export default function Pip(props) {
           <div className='label'>Today</div>
           <div className='nav'>
             {pageNumber > 1 &&
-            [...Array(pageNumber).keys()].map((i) => (
-              <div
-                key={i}
-                className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
-              />
-            ))}
+              [...Array(pageNumber).keys()].map((i) => (
+                <div
+                  key={i}
+                  className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
+                />
+              ))}
           </div>
         </div>
         <Paginator
@@ -88,23 +88,16 @@ export default function Pip(props) {
 
       <div className='pip-placeholder' ref={ref}>
         <Emptyimage className='pip-placeholder__empty' />
-        <span className='pip-placeholder__text'>{size}</span>
       </div>
 
       <AnimatePresence>
         {showInfo && (
           <motion.div className='info-container'>
             <div className='label'>Info</div>
-            <div className='info-message'>
-              {general.backstageInfo}
-            </div>
+            <div className='info-message'>{general.backstageInfo}</div>
             <div className='qr'>
               {general.url != null && general.url !== '' && (
-                <QRCode
-                  value={general.url}
-                  size={window.innerWidth / 12}
-                  level='L'
-                />
+                <QRCode value={general.url} size={window.innerWidth / 12} level='L' />
               )}
             </div>
           </motion.div>
@@ -129,4 +122,5 @@ Pip.propTypes = {
   backstageEvents: PropTypes.object,
   selectedId: PropTypes.string,
   general: PropTypes.object,
+  viewSettings: PropTypes.object,
 };

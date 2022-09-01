@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { overrideStylesURL } from '../../ontimeConfig';
-
 const scriptTagId = 'ontime-override';
-export const useRuntimeStylesheet = (pathToFile = overrideStylesURL) => {
+export const useRuntimeStylesheet = (pathToFile) => {
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
@@ -14,14 +12,21 @@ export const useRuntimeStylesheet = (pathToFile = overrideStylesURL) => {
       }
     };
 
-    if (document.querySelector(`#${scriptTagId}`)) {
+    if (!pathToFile) {
+      document.getElementById(scriptTagId)?.remove();
+      setShouldRender(true);
+      return;
+    }
+
+    if (document.getElementById(scriptTagId)) {
+      setShouldRender(true);
       return;
     }
 
     setShouldRender(false);
     const styleSheet = document.createElement('style');
     styleSheet.rel = 'stylesheet';
-    styleSheet.setAttribute('id', '');
+    styleSheet.setAttribute('id', scriptTagId);
 
     fetchData()
       .then((data) => {

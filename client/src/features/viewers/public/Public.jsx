@@ -6,12 +6,15 @@ import TitleSide from 'common/components/title-side/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { overrideStylesURL } from '../../../ontimeConfig';
 import { titleVariants } from '../common/animation';
 
 import './Public.scss';
 
 export default function Public(props) {
-  const { publ, publicTitle, time, events, publicSelectedId, general } = props;
+  const { publ, publicTitle, time, events, publicSelectedId, general, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -19,6 +22,11 @@ export default function Public(props) {
   useEffect(() => {
     document.title = 'ontime - Public Screen';
   }, []);
+
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
@@ -125,4 +133,5 @@ Public.propTypes = {
   events: PropTypes.object,
   publicSelectedId: PropTypes.string,
   general: PropTypes.object,
+  viewSettings: PropTypes.object,
 };

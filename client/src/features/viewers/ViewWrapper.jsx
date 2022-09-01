@@ -7,7 +7,6 @@ import { useSocket } from 'common/context/socketContext';
 import { useFetch } from 'common/hooks/useFetch';
 
 import { getView } from '../../common/api/ontimeApi';
-import { withStyles } from '../../common/hocs/withStyles';
 import { stringFromMillis } from '../../common/utils/time';
 
 const withSocket = (Component) => {
@@ -228,31 +227,11 @@ const withSocket = (Component) => {
       playstate: playback,
     };
 
-    /*
-    console.log(0, viewSettings?.overrideStyles);
-    if (viewSettings?.overrideStyles) {
-      const ComponentWithStyles = withStyles(Component);
-      console.log(1, 'with styles');
-      return (
-        <ComponentWithStyles
-          {...props}
-          pres={pres}
-          publ={publ}
-          lower={lower}
-          title={titleManager}
-          publicTitle={publicTitleManager}
-          time={timeManager}
-          events={publicEvents}
-          backstageEvents={backstageEvents}
-          selectedId={selectedId}
-          publicSelectedId={publicSelectedId}
-          nextId={nextId}
-          general={general}
-          onAir={onAir}
-        />
-      );
+    // prevent render until we get all the data we need
+    if (!viewSettings) {
+      return null;
     }
-*/
+
     Component.displayName = 'ComponentWithData';
     return (
       <Component
@@ -267,6 +246,7 @@ const withSocket = (Component) => {
         backstageEvents={backstageEvents}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
+        viewSettings={viewSettings}
         nextId={nextId}
         general={general}
         onAir={onAir}

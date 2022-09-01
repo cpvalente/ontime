@@ -7,16 +7,25 @@ import TitleCard from 'common/components/title-card/TitleCard';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { overrideStylesURL } from '../../../ontimeConfig';
+
 import './Timer.scss';
 
 export default function Timer(props) {
-  const { general, pres, title, time } = props;
+  const { general, pres, title, time, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [elapsed, setElapsed] = useState(true);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     document.title = 'ontime - Timer';
   }, []);
+
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
   // eg. http://localhost:3000/timer?progress=up
   // Check for user options
@@ -81,7 +90,11 @@ export default function Timer(props) {
       </div>
 
       {!time.finished && (
-        <div className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}>
+        <div
+          className={
+            isPlaying ? 'progress-container' : 'progress-container progress-container--paused'
+          }
+        >
           <MyProgressBar
             now={normalisedTime}
             complete={time.durationSeconds}
@@ -138,4 +151,5 @@ Timer.propTypes = {
   pres: PropTypes.object,
   title: PropTypes.object,
   time: PropTypes.object,
+  viewSettings: PropTypes.object,
 };

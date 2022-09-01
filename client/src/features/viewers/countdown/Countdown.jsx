@@ -1,20 +1,24 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
 import Empty from '../../../common/components/state/Empty';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { stringFromMillis } from '../../../common/utils/time';
+import { overrideStylesURL } from '../../../ontimeConfig';
 
 import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helpers';
 
 import './Countdown.scss';
 
 export default function Countdown(props) {
+  const { backstageEvents, time, selectedId, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
-  const { backstageEvents, time, selectedId } = props;
+
   const [follow, setFollow] = useState(null);
   const [runningTimer, setRunningTimer] = useState(0);
   const [runningMessage, setRunningMessage] = useState('');
@@ -60,17 +64,14 @@ export default function Countdown(props) {
     setRunningTimer(timer);
   }, [follow, selectedId, time]);
 
-  const standby = useMemo(
-    () => time.playstate !== 'start' && selectedId === follow?.id,
-    [follow?.id, selectedId, time.playstate]
-  );
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
-  const isRunningFinished = useMemo(
-    () => time.finished && runningMessage === timerMessages.running,
-    [time.finished, runningMessage]
-  );
-
-  const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
+  const standby = time.playstate !== 'start' && selectedId === follow?.id;
+  const isRunningFinished = time.finished && runningMessage === timerMessages.running;
+  const isSelected = runningMessage === timerMessages.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
   return (
@@ -137,4 +138,5 @@ Countdown.propTypes = {
   backstageEvents: PropTypes.array,
   time: PropTypes.object,
   selectedId: PropTypes.string,
+  viewSettings: PropTypes.object,
 };

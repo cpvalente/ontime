@@ -7,13 +7,16 @@ import { formatDisplay } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
+import { overrideStylesURL } from '../../../ontimeConfig';
 import { titleVariants } from '../common/animation';
 
 import './Backstage.scss';
 
 export default function Backstage(props) {
-  const { publ, title, time, backstageEvents, selectedId, general } = props;
+  const { publ, title, time, backstageEvents, selectedId, general, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -29,6 +32,11 @@ export default function Backstage(props) {
     const f = getEventsWithDelay(backstageEvents);
     setFilteredEvents(f);
   }, [backstageEvents]);
+
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
@@ -94,12 +102,12 @@ export default function Backstage(props) {
           <div className='label'>Today</div>
           <div className='nav'>
             {pageNumber > 1 &&
-            [...Array(pageNumber).keys()].map((i) => (
-              <div
-                key={i}
-                className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
-              />
-            ))}
+              [...Array(pageNumber).keys()].map((i) => (
+                <div
+                  key={i}
+                  className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
+                />
+              ))}
           </div>
         </div>
         <Paginator
@@ -146,4 +154,5 @@ Backstage.propTypes = {
   backstageEvents: PropTypes.object,
   selectedId: PropTypes.string,
   general: PropTypes.object,
+  viewSettings: PropTypes.object,
 };

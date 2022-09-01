@@ -1,5 +1,9 @@
 import React, { memo, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { overrideStylesURL } from '../../../ontimeConfig';
 
 import LowerClean from './LowerClean';
 import LowerLines from './LowerLines';
@@ -11,7 +15,8 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const Lower = (props) => {
-  const { title, lower } = props;
+  const { title, lower, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
   const [titles, setTitles] = useState({
     titleNow: '',
@@ -55,6 +60,11 @@ const Lower = (props) => {
     };
     // eslint-disable-next-line
   }, [title.titleNow, title.subtitleNow, title.presenterNow]);
+
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
   // TODO: sanitize data
   // getting config from URL: preset, size, transition, bg, text, key
@@ -118,5 +128,10 @@ const Lower = (props) => {
   }
 };
 
-
 export default memo(Lower, areEqual);
+
+Lower.propTypes = {
+  title: PropTypes.object,
+  lower: PropTypes.object,
+  viewSettings: PropTypes.object,
+};

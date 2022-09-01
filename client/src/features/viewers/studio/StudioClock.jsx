@@ -3,17 +3,20 @@ import PropTypes from 'prop-types';
 import useFitText from 'use-fit-text';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import {
   formatEventList,
   getEventsWithDelay,
   trimEventlist,
 } from '../../../common/utils/eventsManager';
+import { overrideStylesURL } from '../../../ontimeConfig';
 
 import './StudioClock.scss';
 
 export default function StudioClock(props) {
-  const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
+  const { title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize, ref } = useFitText({ maxFontSize: 500 });
   const [, , secondsNow] = time.clock.split(':');
   const [schedule, setSchedule] = useState([]);
@@ -35,6 +38,11 @@ export default function StudioClock(props) {
     const formatted = formatEventList(trimmed, selectedId, nextId);
     setSchedule(formatted);
   }, [backstageEvents, selectedId, nextId]);
+
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <div className='studio-clock'>
@@ -99,4 +107,5 @@ StudioClock.propTypes = {
   selectedId: PropTypes.string,
   nextId: PropTypes.string,
   onAir: PropTypes.bool,
+  viewSettings: PropTypes.object,
 };

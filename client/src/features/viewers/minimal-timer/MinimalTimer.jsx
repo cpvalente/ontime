@@ -3,17 +3,25 @@ import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
+import { overrideStylesURL } from '../../../ontimeConfig';
 
 import './MinimalTimer.scss';
 
 export default function MinimalTimer(props) {
-  const { pres, time } = props;
+  const { pres, time, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     document.title = 'ontime - Minimal Timer';
   }, []);
+
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
   // get config from url: key, text, font, size, hidenav, hideovertime
   // eg. http://localhost:3000/minimal?key=f00&text=fff
@@ -119,13 +127,17 @@ export default function MinimalTimer(props) {
       data-testid='minimal-timer'
     >
       {!hideMessagesOverlay && (
-        <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
+        <div
+          className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}
+        >
           <div className='message'>{pres.text}</div>
         </div>
       )}
       {!userOptions?.hideNav && <NavLogo />}
       <div
-        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`}
+        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${
+          showFinished ? 'timer--finished' : ''
+        }`}
         style={{
           fontSize: `${(89 / (clean.length - 1)) * userOptions.size}vw`,
           fontFamily: userOptions.font,
@@ -142,4 +154,5 @@ export default function MinimalTimer(props) {
 MinimalTimer.propTypes = {
   pres: PropTypes.object,
   time: PropTypes.object,
+  viewSettings: PropTypes.object,
 };
