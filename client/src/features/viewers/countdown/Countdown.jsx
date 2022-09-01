@@ -71,10 +71,10 @@ export default function Countdown(props) {
   );
 
   const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
-  const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : ''
+  const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
   return (
-    <div className='container'>
+    <div className='countdown'>
       <NavLogo />
       {follow === null ? (
         <div className='event-select'>
@@ -117,7 +117,7 @@ export default function Countdown(props) {
           </div>
           <div className='status'>{runningMessage}</div>
           <span
-            className={`timer ${standby ? 'timer--standby' : ''} ${
+            className={`timer ${standby ? 'timer--paused' : ''} ${
               isRunningFinished ? 'timer--finished' : ''
             }`}
           >
