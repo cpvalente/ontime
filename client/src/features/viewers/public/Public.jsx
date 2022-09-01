@@ -26,7 +26,7 @@ export default function Public(props) {
   // motion
 
   return (
-    <div className='container public'>
+    <div className='public-screen'>
       <NavLogo />
 
       <div className='event-title'>{general.title}</div>
@@ -34,7 +34,7 @@ export default function Public(props) {
       <AnimatePresence>
         {publicTitle.showNow && (
           <motion.div
-            className='now-container'
+            className='event now'
             key='now'
             variants={titleVariants}
             initial='hidden'
@@ -55,7 +55,7 @@ export default function Public(props) {
       <AnimatePresence>
         {publicTitle.showNext && (
           <motion.div
-            className='next-container'
+            className='event next'
             key='next'
             variants={titleVariants}
             initial='hidden'
@@ -78,12 +78,12 @@ export default function Public(props) {
           <div className='label'>Today</div>
           <div className='nav'>
             {pageNumber > 1 &&
-            [...Array(pageNumber).keys()].map((i) => (
-              <div
-                key={i}
-                className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
-              />
-            ))}
+              [...Array(pageNumber).keys()].map((i) => (
+                <div
+                  key={i}
+                  className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
+                />
+              ))}
           </div>
         </div>
         <Paginator
@@ -105,18 +105,12 @@ export default function Public(props) {
         <div className='clock'>{time.clock}</div>
       </div>
 
-      <div className='info-container'>
+      <div className='info'>
         <div className='label'>Info</div>
-        <div className='info-message'>
-          <div className='info'>{general.publicInfo}</div>
-        </div>
+        <div className='info__message'>{general.publicInfo}</div>
         <div className='qr'>
           {general.url != null && general.url !== '' && (
-            <QRCode
-              value={general.url}
-              size={window.innerWidth / 12}
-              level='L'
-            />
+            <QRCode value={general.url} size={window.innerWidth / 12} level='L' />
           )}
         </div>
       </div>

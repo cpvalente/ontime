@@ -1,6 +1,6 @@
 @use '../../../theme/viewerDefs' as *;
 
-.container.public {
+.public {
   margin: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
@@ -23,10 +23,9 @@
   gap: 1vw;
   padding: 1vw;
 
-  .now-container,
-  .next-container,
+  .event,
   .public-container,
-  .info-container,
+  .info,
   .timer-container,
   .clock-container,
   .today-container {
@@ -50,12 +49,18 @@
     }
   }
 
-  .now-container,
-  .next-container {
+  .event {
     border-radius: 0 2vw 2vw 0;
     margin-left: -1vw;
     padding: 1vh 2vw;
     overflow: hidden;
+
+    &.now {
+      grid-area: now;
+    }
+    &.next {
+      grid-area: next;
+    }
   }
 
   .event-title {
@@ -66,14 +71,6 @@
     text-decoration-color: var(--accent-color-override, $accent-color);
     padding-top: 0.2vh;
     padding-left: 1vw;
-  }
-
-  .now-container {
-    grid-area: now;
-  }
-
-  .next-container {
-    grid-area: next;
   }
 
   .today-container {
@@ -120,7 +117,7 @@
     border-radius: 1vw;
   }
 
-  .info-container {
+  .info {
     grid-area: info;
     display: grid;
     padding: 2.5vh 2vw;
@@ -132,7 +129,7 @@
     'binf qr';
     gap: 0.5vw;
 
-    .info-message {
+    &__message {
       grid-area: binf;
       font-size: 1.5vw;
       line-height: 2vw;
