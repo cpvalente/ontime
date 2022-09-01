@@ -42,7 +42,7 @@ export default function Backstage(props) {
   }
 
   return (
-    <div className='container backstage'>
+    <div className='backstage'>
       <NavLogo />
 
       <div className='event-title'>{general.title}</div>
@@ -50,7 +50,7 @@ export default function Backstage(props) {
       <AnimatePresence>
         {title.showNow && (
           <motion.div
-            className='now-container'
+            className='event now'
             key='now'
             variants={titleVariants}
             initial='hidden'
@@ -71,7 +71,7 @@ export default function Backstage(props) {
       <AnimatePresence>
         {title.showNext && (
           <motion.div
-            className='next-container'
+            className='event next'
             key='next'
             variants={titleVariants}
             initial='hidden'
@@ -126,10 +126,10 @@ export default function Backstage(props) {
         <div className='timer'>{stageTimer}</div>
       </div>
 
-      <div className='info-container'>
+      <div className='info'>
         <div className='label'>Info</div>
-        <div className='info-message'>
-          <div className='info'>{general.backstageInfo}</div>
+        <div className='info__message'>
+          {general.backstageInfo}
         </div>
         <div className='qr'>
           {general.url != null && general.url !== '' && (
