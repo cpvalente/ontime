@@ -1,4 +1,5 @@
 @use '../../../theme/viewerDefs' as *;
+
 @font-face {
   font-family: "digital-clock";
   src: local('digital-7'), url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype') ;
@@ -16,7 +17,7 @@ $red-idle: #300000;
 $cyan-active: #0ff;
 $cyan-idle: #0aa;
 
-.container {
+.studio-clock {
   margin: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
@@ -70,7 +71,7 @@ $cyan-idle: #0aa;
         left: calc(50% - #{$half_min});
       }
 
-      .hours{
+      .hours {
         min-height: $size-hours;
         width: $size-hours;
         top: calc(50% - #{$half_hours});
@@ -119,19 +120,15 @@ $cyan-idle: #0aa;
     font-family: digital-clock, monospace;
     text-transform: uppercase;
 
-    .onAir,
-    .onAir--idle {
+    .onAir {
       padding-bottom: 2vh;
       font-size: 15vh;
       line-height: 0.9em;
-    }
-
-    .onAir {
       color: $red-active;
-    }
 
-    .onAir--idle {
-      color: $red-idle;
+      &--idle {
+        color: $red-idle;
+      }
     }
 
     .schedule {
@@ -159,13 +156,14 @@ $cyan-idle: #0aa;
 }
 
 @media only screen and (max-width: 1200px) {
-  .container {
+  .studio-clock {
     display: grid;
     grid-template-areas: "clck";
     grid-template-columns: 100%;
     place-content: center;
-  }
-  .schedule-container {
-    display: none;
+
+    .schedule-container {
+      display: none;
+    }
   }
 }

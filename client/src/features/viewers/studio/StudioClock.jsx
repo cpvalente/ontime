@@ -37,7 +37,7 @@ export default function StudioClock(props) {
   }, [backstageEvents, selectedId, nextId]);
 
   return (
-    <div className='container'>
+    <div className='studio-clock'>
       <NavLogo />
       <div className='clock-container'>
         <div className='timer'>{time.clockNoSeconds}</div>
