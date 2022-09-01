@@ -1,6 +1,6 @@
 @use '../../../theme/viewerDefs' as *;
 
-.container {
+.stage-timer {
   margin: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
@@ -23,116 +23,116 @@
   &--finished {
     border: 1vw solid $timer-finished-color;
   }
-}
 
-/* =================== TITLES ===================*/
 
-.now-container,
-.next-container {
-  background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
-  padding: 1vh 2vw;
-  border-radius: 1vw;
-  max-width: 100%;
-}
+  /* =================== TITLES ===================*/
 
-.now-container {
-  grid-area: now;
-}
+  .event {
+    background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
+    padding: 1vh 2vw;
+    border-radius: 1vw;
+    max-width: 100%;
 
-.next-container {
-  grid-area: next;
-}
+    &.now {
+      grid-area: now;
 
-/* =================== MAIN ===================*/
-
-.timer-container {
-  grid-area: timr;
-  justify-self: center;
-  align-self: center;
-  color: white;
-
-  .end-message {
-    text-align: center;
-    font-size: 12vw;
-    line-height: 18vw;
-    font-weight: 600;
-    color: $timer-finished-color;
-    padding: 0;
+    }
+    &.next {
+      grid-area: next;
+    }
   }
-}
 
-.countdown {
-  opacity: 1;
-}
+  /* =================== MAIN ===================*/
 
-.progress-container {
-  grid-area: prog;
-  width: 80%;
-  margin: 0 auto;
-  opacity: 1;
-  transition: 0.5s;
-}
+  .timer-container {
+    grid-area: timr;
+    justify-self: center;
+    align-self: center;
+    color: white;
 
-.countdown--paused,
-.progress-container--paused {
-  opacity: 0.6;
-  transition: 0.5s;
-}
+    .end-message {
+      text-align: center;
+      font-size: 12vw;
+      line-height: 18vw;
+      font-weight: 600;
+      color: $timer-finished-color;
+      padding: 0;
+    }
+
+    .timer {
+      opacity: 1;
+    }
+  }
+
+  .progress-container {
+    grid-area: prog;
+    width: 80%;
+    margin: 0 auto;
+    opacity: 1;
+    transition: 0.5s;
+  }
+
+  .timer--paused,
+  .progress-container--paused {
+    opacity: 0.6;
+    transition: 0.5s;
+  }
 
 
-/* =================== OVERLAY ===================*/
+  /* =================== OVERLAY ===================*/
 
-.message-overlay {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: $viewer-overlay-bg-color;
-  z-index: -1;
-  opacity: 0;
-  transition: 0.5s;
+  .message-overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: $viewer-overlay-bg-color;
+    z-index: -1;
+    opacity: 0;
+    transition: 0.5s;
 
-  &--active {
+    &--active {
       opacity: 1;
       transition: 0.5s;
       transition-property: opacity;
       z-index: 2;
-  }
-}
-
-.message {
-  width: inherit;
-  padding: 2vw;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  color: white;
-  transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  font-size: 15vw;
-  line-height: 30vh;
-  text-align: center;
-  font-weight: 600;
-}
-
-/* =================== MAIN ===================*/
-
-.clock-container {
-  grid-area: clck;
-  padding: 1vh 2vw;
-
-  .label {
-    font-size: 1.3vw;
-    color: var(--accent-color-override, $accent-color);
+    }
   }
 
-  .clock {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 4vw;
-    letter-spacing: 0.4vw;
+  .message {
+    width: inherit;
+    padding: 2vw;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: white;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    font-size: 15vw;
+    line-height: 30vh;
+    text-align: center;
+    font-weight: 600;
   }
-}
 
+  /* =================== MAIN ===================*/
+
+  .clock-container {
+    grid-area: clck;
+    padding: 1vh 2vw;
+
+    .label {
+      font-size: 1.3vw;
+      color: var(--accent-color-override, $accent-color);
+    }
+
+    .clock {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 4vw;
+      letter-spacing: 0.4vw;
+    }
+  }
+
+}

@@ -58,7 +58,7 @@ export default function Timer(props) {
   };
 
   return (
-    <div className={time.finished ? 'container container--finished' : 'container'}>
+    <div className={time.finished ? 'stage-timer stage-timer--finished' : 'stage-timer'}>
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className='message'>{pres.text}</div>
       </div>
@@ -74,7 +74,7 @@ export default function Timer(props) {
         {time.finished ? (
           <div className='end-message'>{endMessage}</div>
         ) : (
-          <div className={isPlaying ? 'countdown' : 'countdown--paused'}>
+          <div className={isPlaying ? 'timer' : 'timer--paused'}>
             <TimerDisplay time={normalisedTime} hideZeroHours />
           </div>
         )}
@@ -93,7 +93,7 @@ export default function Timer(props) {
       <AnimatePresence>
         {title.showNow && (
           <motion.div
-            className='now-container'
+            className='event now'
             key='now'
             variants={titleVariants}
             initial='hidden'
@@ -113,7 +113,7 @@ export default function Timer(props) {
       <AnimatePresence>
         {title.showNext && (
           <motion.div
-            className='next-container'
+            className='event next'
             key='next'
             variants={titleVariants}
             initial='hidden'
