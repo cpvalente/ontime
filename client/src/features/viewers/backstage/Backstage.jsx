@@ -94,12 +94,12 @@ export default function Backstage(props) {
           <div className='label'>Today</div>
           <div className='nav'>
             {pageNumber > 1 &&
-              [...Array(pageNumber).keys()].map((i) => (
-                <div
-                  key={i}
-                  className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
-                />
-              ))}
+            [...Array(pageNumber).keys()].map((i) => (
+              <div
+                key={i}
+                className={i === currentPage ? 'nav-item nav-item--selected' : 'nav-item'}
+              />
+            ))}
           </div>
         </div>
         <Paginator
@@ -128,9 +128,7 @@ export default function Backstage(props) {
 
       <div className='info'>
         <div className='label'>Info</div>
-        <div className='info__message'>
-          {general.backstageInfo}
-        </div>
+        <div className='info__message'>{general.backstageInfo}</div>
         <div className='qr'>
           {general.url != null && general.url !== '' && (
             <QRCode value={general.url} size={window.innerWidth / 12} level='L' />
