@@ -105,11 +105,11 @@ export default function MinimalTimer(props) {
   const isPlaying = time.playstate !== 'pause';
   const timer = formatDisplay(time.running, true);
   const clean = timer.replace('/:/g', '');
-  const finishedStyle = userOptions?.hideOvertime ? 'container' : 'container--finished';
+  const showFinished = time.isNegative && !userOptions?.hideOvertime;
 
   return (
     <div
-      className={time.finished ? finishedStyle : 'container'}
+      className={showFinished ? 'minimal-timer minimal-timer--finished' : 'minimal-timer'}
       style={{
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,
@@ -119,13 +119,13 @@ export default function MinimalTimer(props) {
       data-testid='minimal-timer'
     >
       {!hideMessagesOverlay && (
-        <div className={showOverlay ? 'message-overlay--active' : 'message-overlay'}>
+        <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
           <div className='message'>{pres.text}</div>
         </div>
       )}
       {!userOptions?.hideNav && <NavLogo />}
       <div
-        className={isPlaying ? 'timer' : 'timer--paused'}
+        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`}
         style={{
           fontSize: `${(89 / (clean.length - 1)) * userOptions.size}vw`,
           fontFamily: userOptions.font,
