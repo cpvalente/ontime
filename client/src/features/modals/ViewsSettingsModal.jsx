@@ -73,7 +73,7 @@ export default function ViewsSettingsModal() {
         <br />
         🔥 Changes take effect immediately 🔥
       </p>
-      <div className={style.modalFields}>
+      <form onSubmit={submitHandler}>
         <div className={style.hSeparator}>Style Options</div>
         <div className={style.blockNotes}>
           <span className={style.inlineFlex}>
@@ -92,7 +92,7 @@ export default function ViewsSettingsModal() {
             over at Gitbook
           </a>
         </div>
-        <form onSubmit={submitHandler}>
+        <div className={style.modalFields}>
           <div className={style.modalInline}>
             <FormControl>
               <FormLabel htmlFor='overrideStyles'>
@@ -117,8 +117,8 @@ export default function ViewsSettingsModal() {
             changed={changed}
             status={status}
           />
-        </form>
-      </div>
+        </div>
+      </form>
     </ModalBody>
   );
 }
