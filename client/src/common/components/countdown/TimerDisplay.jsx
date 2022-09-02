@@ -9,7 +9,7 @@ const TimerDisplay = ({ time, small, isNegative, hideZeroHours }) => {
   const display =
     time != null && !isNaN(time) ? formatDisplay(time, hideZeroHours) : '-- : -- : --';
 
-  const classes = `${small ? 'timer--small' : 'timer'}  ${isNegative ? 'timer--finished' : ''}`;
+  const classes = `timer ${small ? 'timer--small' : ''}  ${isNegative ? 'timer--finished' : ''}`;
 
   return <div className={classes}>{display}</div>;
 };
