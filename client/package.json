@@ -11,7 +11,7 @@
     "@emotion/styled": "^11.6.0",
     "@react-icons/all-files": "^4.1.0",
     "autosize": "^5.0.1",
-    "axios": "^0.25.0",
+    "axios": "^0.27.2",
     "color": "^4.2.3",
     "framer-motion": "^6.3.3",
     "react": "^18.1.0",
