@@ -223,9 +223,7 @@ export const downloadEvents = async () => {
       filename = headerLine.substring(startFileNameIndex, endFileNameIndex);
     }
 
-    const url = window.URL.createObjectURL(
-      new Blob([response.data], { type: 'application/json' })
-    );
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/json' }));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', filename);
@@ -238,18 +236,23 @@ export const downloadEvents = async () => {
  * @description HTTP request to upload events db
  * @return {Promise}
  */
-export const uploadEvents = async (file) => {
+export const uploadEvents = async (file, setProgress) => {
   const formData = new FormData();
-  formData.append('userFile', file); // appending file
+  formData.append('userFile', file);
   await axios.post(`${ontimeURL}/db`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  });
+    onUploadProgress: (progressEvent) => {
+      const complete = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+      setProgress(complete);
+    },
+  }).then(response => response.data.id);
 };
 
 /**
  * @description HTTP request to upload events
  * @return {Promise}
  */
-export const uploadEventsWithPath = async (filepath) => axios.post(`${ontimeURL}/dbpath`, { path: filepath });
+export const uploadEventsWithPath = async (filepath) =>
+  axios.post(`${ontimeURL}/dbpath`, { path: filepath });

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { ChangeEvent, useCallback, useContext, useState } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 import { Button } from '@chakra-ui/button';
 import {
   Alert,
@@ -37,20 +37,12 @@ interface UploadModalProps {
   isOpen: boolean;
 }
 
-// todo: convert uploaddb to hook and hide useMutation
-
 export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const queryClient = useQueryClient();
   const { emitError } = useContext(LoggingContext);
   const [errors, setErrors] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-
-  const uploaddb = useMutation(uploadEvents, {
-    onSettled: () => {
-      queryClient.invalidateQueries(EVENTS_TABLE);
-    },
-  });
+  const [progress, setProgress] = useState();
 
   const handleFile = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const fileUploaded = event?.target?.files?.[0];
@@ -69,9 +61,11 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const handleUpload = () => {
     if (file) {
       try {
-        uploaddb.mutate(file);
+        uploadEvents(file, setProgress).then(queryClient.invalidateQueries(EVENTS_TABLE));
       } catch (error) {
         emitError(`Failed uploading file: ${error}`);
+      } finally {
+        setFile(null);
       }
     }
     emitError('Failed uploading file');
@@ -122,7 +116,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
               </AlertDescription>
             </Alert>
           )}
-          <Progress value={80} />
+          {typeof progress !== 'undefined' && <Progress value={progress} />}
         </ModalBody>
         <ModalFooter>
           <Button disabled={!file || errors.length > 0} onClick={handleUpload}>
