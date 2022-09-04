@@ -1,9 +1,10 @@
-import React, { lazy, useEffect } from 'react';
+import { lazy, useEffect } from 'react';
 import { useDisclosure } from '@chakra-ui/hooks';
 import { Box } from '@chakra-ui/layout';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import ModalManager from 'features/modals/ModalManager';
 
+import UploadModal from '../../common/components/upload-modal/UploadModal';
 import { LocalEventSettingsProvider } from '../../common/context/LocalEventSettingsContext';
 import { LoggingProvider } from '../../common/context/LoggingContext';
 import MenuBar from '../menu/MenuBar';
@@ -17,6 +18,11 @@ const Info = lazy(() => import('features/info/InfoExport'));
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isUploadModalOpen,
+    onOpen: onUploadModalOpen,
+    onClose: onUploadModalClose,
+  } = useDisclosure();
 
   // Set window title
   useEffect(() => {
@@ -26,16 +32,22 @@ export default function Editor() {
   return (
     <LoggingProvider>
       <LocalEventSettingsProvider>
+        <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <ErrorBoundary>
           <ModalManager isOpen={isOpen} onClose={onClose} />
         </ErrorBoundary>
         <div className={styles.mainContainer}>
           <Box id='settings' className={styles.settings}>
             <ErrorBoundary>
-              <MenuBar onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
+              <MenuBar
+                onOpen={onOpen}
+                isOpen={isOpen}
+                onClose={onClose}
+                onUploadOpen={onUploadModalOpen}
+              />
             </ErrorBoundary>
           </Box>
-          <EventList onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
+          <EventList />
           <MessageControl />
           <TimerControl />
           <Info />
