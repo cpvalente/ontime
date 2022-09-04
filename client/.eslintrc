@@ -7,7 +7,6 @@
   "plugins": [
     "react",
     "testing-library",
-    "jest",
     "simple-import-sort"
   ],
   "rules": {
@@ -42,6 +41,8 @@
     "react/no-deprecated": [
       "error"
     ],
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
     "react/jsx-no-undef": "error",
     "react/jsx-closing-tag-location": "warn",
     "react/jsx-no-useless-fragment": "warn",
