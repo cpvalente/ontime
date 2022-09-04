@@ -2,18 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 
 
 export default function useFullscreen() {
-  const [isFullScreen, setFullScreen] = useState(document?.fullscreenElement);
+  const [isFullScreen, setFullScreen] = useState(document.fullscreenElement);
 
   useEffect(() => {
     const handleChange = () => {
-      setFullScreen(document?.fullscreenElement);
+      setFullScreen(document.fullscreenElement);
     };
-    document.addEventListener('fullscreenchange', handleChange, false);
-    document.addEventListener('resize', handleChange, false);
+    document.addEventListener('fullscreenchange', handleChange, { passive: true });
+    document.addEventListener('resize', handleChange, { passive: true });
 
     return () => {
-      document.removeEventListener('fullscreenchange', handleChange);
-      document.removeEventListener('resize', handleChange);
+      document.removeEventListener('fullscreenchange', handleChange, { passive: true });
+      document.removeEventListener('resize', handleChange, { passive: true });
     };  }, []);
 
   const toggleFullScreen = useCallback(() => {
@@ -24,7 +24,7 @@ export default function useFullscreen() {
         document.exitFullscreen();
       }
     }
-    setFullScreen(document?.fullscreenElement);
+    setFullScreen(document.fullscreenElement);
   }, []);
 
   return { isFullScreen, toggleFullScreen };
