@@ -3,9 +3,8 @@ import { DateTime } from 'luxon';
 import { ontimeQueryClient } from '../../App';
 import { APP_SETTINGS } from '../api/apiConstants';
 
-const mts = 1000; // millis to seconds
-const mtm = 1000 * 60; // millis to minutes
-const mth = 1000 * 60 * 60; // millis to hours
+import { mth, mtm, mts } from './timeConstants';
+
 
 /**
  * Returns current time in milliseconds

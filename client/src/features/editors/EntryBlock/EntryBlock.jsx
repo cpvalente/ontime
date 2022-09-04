@@ -8,6 +8,7 @@ import {
   defaultPublicAtom,
   startTimeIsLastEndAtom,
 } from '../../../common/atoms/LocalEventSettings';
+import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './EntryBlock.module.scss';
 
@@ -35,7 +36,7 @@ export default function EntryBlock(props) {
 
   return (
     <div className={`${style.create} ${visible ? style.visible : ''}`}>
-      <Tooltip label='Add Event' openDelay={300}>
+      <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
         <span
           className={style.createEvent}
           onClick={() =>
@@ -50,7 +51,7 @@ export default function EntryBlock(props) {
           E{showKbd && <span className={style.keyboard}>Alt + E</span>}
         </span>
       </Tooltip>
-      <Tooltip label='Add Delay' openDelay={300}>
+      <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
         <span
           className={`${style.createDelay} ${disableAddDelay ? style.disabled : ''}`}
           onClick={() => eventsHandler('add', { type: 'delay', after: previousId })}
@@ -59,7 +60,7 @@ export default function EntryBlock(props) {
           D{showKbd && <span className={style.keyboard}>Alt + D</span>}
         </span>
       </Tooltip>
-      <Tooltip label='Add Block' openDelay={300}>
+      <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
         <span
           className={`${style.createBlock} ${disableAddBlock ? style.disabled : ''}`}
           onClick={() => eventsHandler('add', { type: 'block', after: previousId })}

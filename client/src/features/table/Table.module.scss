@@ -222,6 +222,12 @@ $text-theme-dark: white;
     background-color: $cell-theme-light;
     border: 1px solid $bg-theme-light;
   }
+  .actionText:hover,
+  .actionIcon:hover,
+  .actionDisabled:hover {
+    color: black;
+    transition: 300ms;
+  }
 }
 
 .tableWrapper__dark {
@@ -236,6 +242,12 @@ $text-theme-dark: white;
   td {
     background-color: $cell-theme-dark;
     border: 1px solid $bg-theme-dark;
+  }
+  .actionText:hover,
+  .actionIcon:hover,
+  .actionDisabled:hover {
+    color: white;
+    transition: 300ms;
   }
 }
 
@@ -257,12 +269,21 @@ svg {
   background-color: inherit !important;
 }
 
-.actionIcon {
+@mixin action-element() {
   cursor: pointer;
 }
 
+.actionIcon {
+  @include action-element();
+}
+
+.actionText {
+  @include action-element();
+  font-size: 0.65em;
+}
+
 .actionDisabled {
-  cursor: pointer;
+  @include action-element();
   opacity: 0.6;
 }
 

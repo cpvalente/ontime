@@ -4,10 +4,12 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../ontimeConfig';
+
 export default function StartIconBtn(props) {
   const { clickhandler, active, disabled, ...rest } = props;
   return (
-    <Tooltip label='Start timer' openDelay={500} shouldWrapChildren={disabled}>
+    <Tooltip label='Start timer' openDelay={tooltipDelayMid} shouldWrapChildren={disabled}>
       <IconButton
         icon={<IoPlay size='24px' />}
         colorScheme='green'

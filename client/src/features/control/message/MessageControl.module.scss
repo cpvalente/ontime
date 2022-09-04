@@ -36,10 +36,15 @@
     border-radius: 2px;
   }
 
+  .fullWidth {
+    width: 100%;
+  }
+
   .inputRowActive {
     .label {
       color: $light-bg;
     }
+
     .inline {
       background-color: $light-bg-transparent;
     }

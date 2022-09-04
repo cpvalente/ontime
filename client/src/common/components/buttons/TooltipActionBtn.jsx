@@ -4,9 +4,9 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import PropTypes from 'prop-types';
 
 export default function TooltipActionBtn(props) {
-  const { clickHandler, icon, color, size='xs', tooltip, ...rest } = props;
+  const { clickHandler, icon, color, size='xs', tooltip, openDelay = 0, ...rest } = props;
   return (
-    <Tooltip label={tooltip}>
+    <Tooltip label={tooltip} openDelay={openDelay}>
       <IconButton
         aria-label={tooltip}
         size={size}
@@ -23,5 +23,6 @@ TooltipActionBtn.propTypes = {
   icon: PropTypes.element,
   color: PropTypes.string,
   size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg']),
-  tooltip: PropTypes.string
+  tooltip: PropTypes.string,
+  openDelay: PropTypes.number
 }

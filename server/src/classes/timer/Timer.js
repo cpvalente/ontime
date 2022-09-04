@@ -1,4 +1,4 @@
-import { stringFromMillis } from '../utils/time.js';
+import { stringFromMillis } from '../../utils/time.js';
 
 /**
  * @description Implements simple countdown timer functions

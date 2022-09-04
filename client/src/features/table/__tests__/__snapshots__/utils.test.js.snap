@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`makeTable() returns array of arrays with given fields 1`] = `
+Array [
+  Array [
+    "Ontime · Schedule Template",
+  ],
+  Array [
+    "Event Name",
+    "",
+  ],
+  Array [
+    "Event URL",
+    "",
+  ],
+  Array [],
+  Array [
+    "Time Start",
+    "Time End",
+    "Event Title",
+    "Presenter Name",
+    "Event Subtitle",
+    "Is Public? (x)",
+    "Notes",
+    "Colour",
+    "user0:test",
+  ],
+  Array [
+    "00:00:00",
+    "00:00:00",
+    "test title 1",
+    "",
+    "",
+    "x",
+    "",
+    "",
+    "test",
+    "test",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ],
+]
+`;

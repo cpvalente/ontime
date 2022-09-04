@@ -1,5 +1,5 @@
-import { DAY_TO_MS } from '../../../../../../server/src/classes/classUtils';
 import { millisToSeconds } from '../../../../common/utils/dateConfig';
+import { DAY_TO_MS } from '../../../../common/utils/timeConstants';
 import { fetchTimerData, sanitiseTitle, timerMessages } from '../countdown.helpers';
 
 describe('sanitiseTitle() function', () => {
