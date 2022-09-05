@@ -1,22 +1,29 @@
-import React, { createContext, useCallback, useEffect, useState } from 'react';
+// @ts-nocheck
+import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
 
 import { generateId } from '../utils/generate_id';
 import { nowInMillis, stringFromMillis } from '../utils/time';
 
 import { useSocket } from './socketContext';
 
-export const LoggingContext = createContext({
-  logData: [],
-  emitInfo: () => undefined,
-  emitWarning: () => undefined,
-  emitError: () => undefined,
-  clearLog: () => undefined,
-});
+interface LoggingProviderState {
+  logData: string[];
+  emitInfo: (text: string) => void;
+  emitWarning: (text: string) => void;
+  emitError: (text: string) => void;
+  clearLog: () => void;
+}
 
-export const LoggingProvider = ({ children }) => {
+type LoggingProviderProps = {
+  children: ReactNode
+}
+
+export const LoggingContext = createContext<LoggingProviderState | undefined>(undefined);
+
+export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   const MAX_MESSAGES = 100;
   const socket = useSocket();
-  const [logData, setLogData] = useState([]);
+  const [logData, setLogData] = useState<string[]>([]);
   const origin = 'USER';
 
   // handle incoming messages
@@ -26,7 +33,7 @@ export const LoggingProvider = ({ children }) => {
     // Ask for log data
     socket.emit('get-logger');
 
-    socket.on('logger', (data) => {
+    socket.on('logger', (data: string) => {
       setLogData((l) => [data, ...l]);
     });
 
@@ -43,7 +50,7 @@ export const LoggingProvider = ({ children }) => {
    * @private
    */
   const _send = useCallback(
-    (text, level) => {
+    (text: string, level: string) => {
       if (socket != null) {
         const m = {
           id: generateId(),
@@ -67,7 +74,7 @@ export const LoggingProvider = ({ children }) => {
    * @param text
    */
   const emitInfo = useCallback(
-    (text) => {
+    (text: string) => {
       _send(text, 'INFO');
     },
     [_send]
@@ -78,7 +85,7 @@ export const LoggingProvider = ({ children }) => {
    * @param text
    */
   const emitWarning = useCallback(
-    (text) => {
+    (text: string) => {
       _send(text, 'WARN');
     },
     [_send]
@@ -89,7 +96,7 @@ export const LoggingProvider = ({ children }) => {
    * @param text
    */
   const emitError = useCallback(
-    (text) => {
+    (text: string) => {
       _send(text, 'ERROR');
     },
     [_send]

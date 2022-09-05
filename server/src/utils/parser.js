@@ -341,6 +341,7 @@ export const fileHandler = async (file) => {
       // we only look at worksheets called ontime or event schedule
       if (excelData?.data) {
         const dataFromExcel = await parseExcel_v1(excelData.data);
+        console.log(dataFromExcel);
         res.data = await parseJson_v1(dataFromExcel);
         res.message = 'success';
       } else {
