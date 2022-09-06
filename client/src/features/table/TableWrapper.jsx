@@ -1,12 +1,12 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext,useEffect } from 'react';
 
 import { EVENTS_TABLE, USERFIELDS } from '../../common/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../common/api/eventsApi';
 import { getUserFields } from '../../common/api/ontimeApi';
-import { useSocket } from '../../common/context/socketContext';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useFetch } from '../../common/hooks/useFetch';
 import useMutateEvents from '../../common/hooks/useMutateEvents';
+import { useCuesheetProvider } from '../../common/hooks/useSocketProvider';
 
 import OntimeTable from './OntimeTable';
 import TableHeader from './TableHeader';
@@ -15,35 +15,16 @@ import { makeCSV, makeTable } from './utils';
 import style from './Table.module.scss';
 
 export default function TableWrapper() {
-  const { data: tableData } = useFetch(EVENTS_TABLE, fetchAllEvents);
+  const { data: events } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const { data: userFields } = useFetch(USERFIELDS, getUserFields);
   const mutation = useMutateEvents(requestPatch);
-  const socket = useSocket();
-  const [selectedId, setSelectedId] = useState(null);
   const { theme } = useContext(TableSettingsContext);
+  const featureData = useCuesheetProvider();
 
   // Set window title
-  document.title = 'ontime - Cuesheet';
-
-  /**
-   * Handle incoming data from socket
-   */
   useEffect(() => {
-    if (socket == null) return;
-
-    // Ask for selected
-    socket.emit('get-selected');
-
-    // Handle selected
-    socket.on('selected', (data) => {
-      setSelectedId(data.id);
-    });
-
-    // Clear listener
-    return () => {
-      socket.off('selected');
-    };
-  }, [socket]);
+    document.title = 'ontime - Cuesheet';
+  }, []);
 
   const handleUpdate = useCallback(
     async (rowIndex, accessor, payload) => {
@@ -51,11 +32,11 @@ export default function TableWrapper() {
         return;
       }
 
-      // check if value is the same
-      const event = tableData[rowIndex];
-      if (event == null) {
-        return;
-      }
+    // check if value is the same
+    const event = events[rowIndex];
+    if (event == null) {
+      return;
+    }
 
       if (event[accessor] === payload) {
         return;
@@ -73,23 +54,21 @@ export default function TableWrapper() {
         [accessor]: cleanVal,
       };
 
-      // submit
-      try {
-        await mutation.mutateAsync(mutationObject);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [mutation, tableData]
-  );
+    // submit
+    try {
+      await mutation.mutateAsync(mutationObject);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [mutation, events]);
 
   const exportHandler = useCallback(
     (headerData) => {
-      if (!headerData || !tableData || !userFields) {
+      if (!headerData || !events || !userFields) {
         return;
       }
 
-      const sheetData = makeTable(headerData, tableData, userFields);
+      const sheetData = makeTable(headerData, events, userFields);
       const csvContent = makeCSV(sheetData);
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement('a');
@@ -98,20 +77,20 @@ export default function TableWrapper() {
       document.body.appendChild(link);
       link.click();
     },
-    [tableData, userFields]
+    [events, userFields]
   );
 
-  if (typeof tableData === 'undefined' || typeof userFields === 'undefined') {
+  if (typeof events === 'undefined' || typeof userFields === 'undefined') {
     return <span>loading...</span>;
   }
   return (
     <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
-      <TableHeader handleCSVExport={exportHandler} />
+      <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
       <OntimeTable
-        tableData={tableData}
+        tableData={events}
         userFields={userFields}
         handleUpdate={handleUpdate}
-        selectedId={selectedId}
+        selectedId={featureData.selectedEventId}
       />
     </div>
   );

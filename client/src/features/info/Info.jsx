@@ -1,5 +1,6 @@
-import React, { useEffect,useState } from 'react';
-import { useSocket } from 'common/context/socketContext';
+import React from 'react';
+
+import { useInfoProvider } from '../../common/hooks/useSocketProvider';
 
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';
@@ -8,74 +9,27 @@ import InfoTitle from './InfoTitle';
 import style from './Info.module.scss';
 
 export default function Info() {
-  const socket = useSocket();
-  const [titles, setTitles] = useState({
-    titleNow: '',
-    subtitleNow: '',
-    presenterNow: '',
-    noteNow: '',
-    titleNext: '',
-    subtitleNext: '',
-    presenterNext: '',
-    noteNext: ''
-  });
-  const [selected, setSelected] = useState('No events');
-  const [playback, setPlayback] = useState(null);
+  const data = useInfoProvider();
 
-  // handle incoming messages
-  useEffect(() => {
-    if (socket == null) return;
-
-    // Ask for titles
-    socket.emit('get-titles');
-
-    // Handle titles
-    socket.on('titles', (data) => {
-      setTitles(data);
-    });
-
-    // Handle playstate
-    socket.on('playstate', (data) => {
-      setPlayback(data);
-    });
-
-    // Ask for selection data
-    socket.emit('get-selected');
-
-    // Handle selection data
-    socket.on('selected', (data) => {
-      if (data.total === 0 || data.total == null) {
-        setSelected('No events');
-      } else {
-        const formattedCurrent = `Event ${
-          data.index != null ? data.index + 1 : '-'
-        }/${data.total ? data.total : '-'}`;
-        setSelected(formattedCurrent);
-      }
-    });
-
-    // Clear listener
-    return () => {
-      socket.off('titles');
-      socket.off('selected');
-      socket.off('playstate');
-    };
-  }, [socket]);
-
-  // prepare data
   const titlesNow = {
-    title: titles.titleNow,
-    subtitle: titles.subtitleNow,
-    presenter: titles.presenterNow,
-    note: titles.noteNow
+    title: data.titles.titleNow,
+    subtitle: data.titles.subtitleNow,
+    presenter: data.titles.presenterNow,
+    note: data.titles.noteNow,
   };
 
   const titlesNext = {
-    title: titles.titleNext,
-    subtitle: titles.subtitleNext,
-    presenter: titles.presenterNext,
-    note: titles.noteNext
+    title: data.titles.titleNext,
+    subtitle: data.titles.subtitleNext,
+    presenter: data.titles.presenterNext,
+    note: data.titles.noteNext,
   };
+
+  const selected = !data.numEvents
+    ? 'No events'
+    : `Event ${data.selectedEventIndex != null ? data.selectedEventIndex + 1 : '-'}/${
+        data.numEvents ? data.numEvents : '-'
+      }`;
 
   return (
     <>
@@ -84,8 +38,8 @@ export default function Info() {
         <span>{selected}</span>
       </div>
       <InfoNif />
-      <InfoTitle title='Now' data={titlesNow} roll={playback === 'roll'} />
-      <InfoTitle title='Next' data={titlesNext} roll={playback === 'roll'} />
+      <InfoTitle title='Now' data={titlesNow} roll={data.playback === 'roll'} />
+      <InfoTitle title='Next' data={titlesNext} roll={data.playback === 'roll'} />
       <InfoLogger />
     </>
   );

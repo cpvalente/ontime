@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
 import { VStack } from '@chakra-ui/react';
 import { FiDownload } from '@react-icons/all-files/fi/FiDownload';
 import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
@@ -7,6 +6,7 @@ import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
 import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { EVENTS_TABLE } from 'common/api/apiConstants';
 import { downloadEvents, uploadEvents } from 'common/api/ontimeApi';
 import PropTypes from 'prop-types';

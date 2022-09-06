@@ -7,7 +7,6 @@
   "plugins": [
     "react",
     "testing-library",
-    "jest",
     "simple-import-sort"
   ],
   "rules": {

@@ -29,6 +29,7 @@
     border-radius: 4px;
     background-color: $input-bg;
     border: $input-border;
+    overflow-x: hidden;
   }
 
   .padleft {
@@ -42,11 +43,12 @@
 
   .inputRowActive {
     .label {
-      color: $light-bg;
+      color: $action-blue;
     }
 
     .inline {
       background-color: $light-bg-transparent;
+      border-color: $action-blue;
     }
   }
 }

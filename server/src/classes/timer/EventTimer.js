@@ -150,9 +150,98 @@ export class EventTimer extends Timer {
   }
 
   /**
+   * @description Broadcast timer data
+   * @private
+   */
+  _broadcastFeatureTimer() {
+    const featureData = {
+      clock: this.clock,
+      current: this.current,
+      secondaryTimer: this.secondaryTimer,
+      duration: this.duration,
+      expectedFinish: this._getExpectedFinish(),
+      startedAt: this._startedAt,
+    };
+    this.io.emit('ontime-timer', featureData);
+  }
+
+  /**
+   * @description Broadcast data for Event List feature
+   * @private
+   */
+  _broadcastFeatureEventList() {
+    const featureData = {
+      selectedEventId: this.selectedEventId,
+      nextEventId: this.nextEventId,
+    };
+    this.io.emit('ontime-feat-eventlist', featureData);
+  }
+
+  /**
+   * @description Broadcast data for Message Control feature
+   * @private
+   */
+  _broadcastFeatureMessageControl() {
+    const featureData = {
+      presenter: this.presenter,
+      public: this.public,
+      lower: this.lower,
+      onAir: this.onAir,
+    };
+    this.io.emit('ontime-feat-messagecontrol', featureData);
+  }
+
+  /**
+   * @description Broadcast data for Playback Control feature
+   * @private
+   */
+  _broadcastFeaturePlaybackControl() {
+    const featureData = {
+      playback: this.state,
+      selectedEventId: this.selectedEventId,
+      numEvents: this._eventlist.length,
+    };
+    this.io.emit('ontime-feat-playbackcontrol', featureData);
+  }
+
+  /**
+   * @description Broadcast data for Info feature
+   * @private
+   */
+  _broadcastFeatureInfo() {
+    const featureData = {
+      titles: this.titles,
+      playback: this.state,
+      selectedEventId: this.selectedEventId,
+      selectedEventIndex: this.selectedEventIndex,
+      numEvents: this._eventlist.length,
+    };
+    this.io.emit('ontime-feat-info', featureData);
+  }
+
+  _broadcastFeatureCuesheet() {
+    const featureData = {
+      playback: this.state,
+      selectedEventId: this.selectedEventId,
+      selectedEventIndex: this.selectedEventIndex,
+      numEvents: this._eventlist.length,
+      titleNow: this.titles.titleNow,
+    };
+    this.io.emit('ontime-feat-cuesheet', featureData);
+  }
+
+  /**
    * Broadcasts complete object state
    */
   broadcastState() {
+    // feature sync
+    this._broadcastFeatureEventList();
+    this._broadcastFeatureMessageControl();
+    this._broadcastFeaturePlaybackControl();
+    this._broadcastFeatureInfo();
+    this._broadcastFeatureCuesheet();
+    this._broadcastFeatureTimer();
+
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
     this.io.emit('playstate', this.state);
@@ -333,9 +422,6 @@ export class EventTimer extends Timer {
         }
         break;
       case 'onLoad':
-        // broadcast change
-        this.broadcastState();
-
         // check integrations - http
         if (h?.onLoad?.enabled) {
           if (h?.onLoad?.url != null || h?.onLoad?.url !== '') {
@@ -347,8 +433,6 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.armed;
         break;
       case 'onStart':
-        // broadcast current state
-        this.broadcastState();
         // send OSC if there is something running
         // _finish at is only set when an event is loaded
         if (this._finishAt > 0) {
@@ -368,8 +452,6 @@ export class EventTimer extends Timer {
       case 'onUpdate':
         // call update
         this.update();
-        // broadcast current state
-        this.broadcastTimer();
         // through OSC, only if running
         if (this.state === 'start' || this.state === 'roll') {
           if (this.current != null && this.secondaryTimer == null) {
@@ -389,9 +471,6 @@ export class EventTimer extends Timer {
 
         break;
       case 'onPause':
-        // broadcast current state
-        this.broadcastState();
-
         // send OSC
         if (this.prevCycle === this.cycleState.onUpdate) {
           this.sendOsc(this.osc.implemented.pause);
@@ -409,9 +488,6 @@ export class EventTimer extends Timer {
 
         break;
       case 'onStop':
-        // broadcast change
-        this.broadcastState();
-
         // send OSC if something was actually stopped
         if (this.prevCycle === this.cycleState.onUpdate) {
           this.sendOsc(this.osc.implemented.stop);
@@ -428,8 +504,6 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.idle;
         break;
       case 'onFinish':
-        // broadcast change
-        this.broadcastState();
         // finished an event
         this.sendOsc(this.osc.implemented.finished);
 
@@ -464,6 +538,7 @@ export class EventTimer extends Timer {
 
     // update
     this.update();
+    this.broadcastState();
 
     // reset cycle
     this.prevCycle = this.ontimeCycle;
@@ -472,6 +547,8 @@ export class EventTimer extends Timer {
   update() {
     // if there is nothing selected, update clock
     this.clock = this._getCurrentTime();
+    this._broadcastFeatureTimer();
+    this.broadcastTimer();
 
     // if we are not updating, send the timers
     if (this.ontimeCycle !== this.cycleState.onUpdate) {
@@ -694,10 +771,11 @@ export class EventTimer extends Timer {
         try {
           const d = JSON.parse(data);
           this.onAir = !!d;
-          this.broadcastThis('onAir', this.onAir);
         } catch (error) {
           this.error('RX', `Failed to parse message ${data}`);
         }
+        this.broadcastThis('onAir', this.onAir);
+        this._broadcastFeatureMessageControl();
       });
 
       /*******************************************/
@@ -712,15 +790,13 @@ export class EventTimer extends Timer {
       });
 
       /*******************************************/
-      // timer
-      socket.on('get-current', () => {
-        socket.emit('current', this.getCurrentInSeconds());
-      });
 
+      // ** TO BE DEPRECATED ** //
       socket.on('get-timer', () => {
         socket.emit('timer', this.getTimeObject());
       });
 
+      // ** TO BE DEPRECATED IN FAVOR OF DELAY ** //
       socket.on('increment-timer', (data) => {
         if (isNaN(parseInt(data, 10))) return;
         if (data < -5 || data > 5) return;
@@ -731,6 +807,8 @@ export class EventTimer extends Timer {
       // playstate
       socket.on('set-playstate', (data) => {
         this.trigger(data);
+        this._broadcastFeaturePlaybackControl();
+        this._broadcastFeatureInfo();
       });
 
       socket.on('get-playstate', () => {
@@ -755,20 +833,8 @@ export class EventTimer extends Timer {
         socket.emit('selected-id', this.selectedEventId);
       });
 
-      socket.on('get-numevents', () => {
-        socket.emit('numevents', this._eventlist.length);
-      });
-
       socket.on('get-next-id', () => {
         socket.emit('next-id', this.nextEventId);
-      });
-
-      socket.on('get-publicselected-id', () => {
-        socket.emit('publicselected-id', this.selectedPublicEventId);
-      });
-
-      socket.on('get-publicnext-id', () => {
-        socket.emit('publicnext-id', this.nextPublicEventId);
       });
 
       // title data
@@ -776,7 +842,6 @@ export class EventTimer extends Timer {
         socket.emit('titles', this.titles);
       });
 
-      // title data
       socket.on('get-publictitles', () => {
         socket.emit('publictitles', this.titlesPublic);
       });
@@ -788,51 +853,79 @@ export class EventTimer extends Timer {
 
       /*******************************************/
 
-      // Messages
-      socket.on('get-messages', () => {
-        this.broadcastThis('messages-timer', this.presenter);
-        this.broadcastThis('messages-public', this.public);
-        this.broadcastThis('messages-lower', this.lower);
-      });
-
       // Presenter message
       socket.on('set-timer-message-text', (data) => {
         this._setTitles('set-timer-text', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('set-timer-message-visible', (data) => {
         this._setTitles('set-timer-visible', data);
+        this._broadcastFeatureMessageControl();
       });
 
-      socket.on('get-timer', () => {
-        this.broadcastThis('messages-timer', this.presenter);
-      });
       /*******************************************/
       // Public message
       socket.on('set-public-message-text', (data) => {
         this._setTitles('set-public-text', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('set-public-message-visible', (data) => {
         this._setTitles('set-public-visible', data);
-      });
-
-      socket.on('get-public', () => {
-        socket.emit('messages-public', this.public);
+        this._broadcastFeatureMessageControl();
       });
 
       /*******************************************/
       // Lower third message
       socket.on('set-lower-message-text', (data) => {
         this._setTitles('set-lower-text', data);
+        this._broadcastFeatureMessageControl();
       });
 
       socket.on('set-lower-message-visible', (data) => {
         this._setTitles('set-lower-visible', data);
+        this._broadcastFeatureMessageControl();
       });
 
-      socket.on('get-lower', () => {
-        socket.emit('messages-lower', this.lower);
+      /* MOLECULAR ENDPOINTS
+       * =====================
+       * 1. EVENT LIST
+       * 2. MESSAGE CONTROL
+       * 3. PLAYBACK CONTROL
+       * 4. INFO
+       * 5. CUESHEET
+       * 6. TIMER OBJECT
+       * */
+
+      // 1. EVENT LIST
+      socket.on('get-ontime-feat-eventlist', () => {
+        this._broadcastFeatureEventList();
+      });
+
+      // 2. MESSAGE CONTROL
+      socket.on('get-ontime-feat-messagecontrol', () => {
+        this._broadcastFeatureMessageControl();
+      });
+
+      // 3. PLAYBACK CONTROL
+      socket.on('get-ontime-feat-playbackcontrol', () => {
+        this._broadcastFeaturePlaybackControl();
+      });
+
+      // 4. INFO
+      socket.on('get-ontime-feat-info', () => {
+        this._broadcastFeatureInfo();
+      });
+
+      // 5. CUE SHEET
+      socket.on('get-ontime-feat-cuesheet', () => {
+        this._broadcastFeatureCuesheet();
+      });
+
+      // 6. TIMER
+      socket.on('get-ontime-timer', () => {
+        this._broadcastFeatureTimer();
       });
     });
   }
@@ -1394,6 +1487,7 @@ export class EventTimer extends Timer {
 
     // call super
     super.stop();
+    this._resetSelection();
 
     // update lifecycle: onPause
     this.ontimeCycle = this.cycleState.onStop;
