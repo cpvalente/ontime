@@ -13,7 +13,7 @@
   grid-template-columns: 1fr 1fr 5vw 1fr 1fr;
   grid-template-rows: auto 1fr auto minmax(25vh, auto);
   grid-template-areas:
-    ' clck .... .... .... ....'
+    ' clck clck .... .... ....'
     ' timr timr timr timr timr'
     ' prog prog prog prog prog'
     ' now  now  .... next next';
