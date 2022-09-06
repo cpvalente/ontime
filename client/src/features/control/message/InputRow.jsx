@@ -5,6 +5,8 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../ontimeConfig';
+
 import style from './MessageControl.module.scss';
 
 export default function InputRow(props) {
@@ -24,7 +26,7 @@ export default function InputRow(props) {
 
 
   return (
-    <div className={visible && style.inputRowActive}>
+    <div className={`${visible ? style.inputRowActive: ''}`}>
       <span className={style.label}>{label}</span>
       <div className={style.inputItems}>
         <Editable
@@ -34,10 +36,10 @@ export default function InputRow(props) {
           className={style.inline}
           color={text === '' ? '#666' : 'inherit'}
         >
-          <EditablePreview className={style.padleft} />
+          <EditablePreview className={`${style.padleft} ${style.fullWidth}`} />
           <EditableInput className={style.padleft} />
         </Editable>
-        <Tooltip label={visible ? 'Make invisible' : 'Make visible'} openDelay={500}>
+        <Tooltip label={visible ? 'Make invisible' : 'Make visible'} openDelay={tooltipDelayMid}>
           <IconButton
             aria-label='Toggle visibility'
             size='sm'

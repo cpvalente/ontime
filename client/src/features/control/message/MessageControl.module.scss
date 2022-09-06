@@ -37,10 +37,15 @@
     border-radius: 2px;
   }
 
+  .fullWidth {
+    width: 100%;
+  }
+
   .inputRowActive {
     .label {
       color: $action-blue;
     }
+
     .inline {
       background-color: $light-bg-transparent;
       border-color: $action-blue;

@@ -6,19 +6,24 @@ import NavLogo from '../../../common/components/nav/NavLogo';
 import Empty from '../../../common/components/state/Empty';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
-import { stringFromMillis } from '../../../common/utils/time';
+import { formatTime } from '../../../common/utils/time';
 
 import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helpers';
 
 import style from './Countdown.module.scss';
 
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
+
 export default function Countdown(props) {
-  const [searchParams] = useSearchParams();
   const { backstageEvents, time, selectedId } = props;
   const [follow, setFollow] = useState(null);
   const [runningTimer, setRunningTimer] = useState(0);
   const [runningMessage, setRunningMessage] = useState('');
   const [delay, setDelay] = useState(0);
+  const [searchParams] = useSearchParams();
 
   // Set window title
   useEffect(() => {
@@ -46,8 +51,8 @@ export default function Countdown(props) {
     if (typeof followThis !== 'undefined') {
       setFollow(followThis);
       const idx = backstageEvents.findIndex((event) => event.id === followThis.id);
-      const delay = getDelayTo(backstageEvents, idx);
-      setDelay(delay);
+      const delayToEvent = getDelayTo(backstageEvents, idx);
+      setDelay(delayToEvent);
     }
   }, [backstageEvents, searchParams]);
 
@@ -72,6 +77,16 @@ export default function Countdown(props) {
   );
 
   const isSelected = useMemo(() => runningMessage === timerMessages.running, [runningMessage]);
+
+  const clock = formatTime(time.clock, formatOptions);
+  const startTime =
+    follow === null
+      ? '...'
+      : formatTime(follow.timeStart + delay, formatOptions);
+  const endTime =
+    follow === null
+      ? '...'
+      : formatTime(follow.timeEnd + delay, formatOptions);
 
   return (
     <div className={style.container}>
@@ -100,19 +115,17 @@ export default function Countdown(props) {
           <div className={style.timers}>
             <div className={style.timer}>
               <div className={style.label}>Time Now</div>
-              <span className={style.value}>{time.clock}</span>
+              <span className={style.value}>{clock}</span>
             </div>
             <div className={style.timer}>
               <div className={style.label}>Start Time</div>
               <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>
-                {stringFromMillis(follow.timeStart + delay)}
+                {startTime}
               </span>
             </div>
             <div className={style.timer}>
               <div className={style.label}>End Time</div>
-              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>
-                {stringFromMillis(follow.timeEnd + delay)}
-              </span>
+              <span className={`${style.value} ${delay > 0 ? style.delayed : ''}`}>{endTime}</span>
             </div>
           </div>
           <div className={style.status}>{runningMessage}</div>
@@ -126,7 +139,7 @@ export default function Countdown(props) {
               isSelected || time.waiting
             )}
           </span>
-          <div className={style.title}>{follow.title || 'Untitled Event'}</div>
+          <div className={style.title}>{follow?.title || 'Untitled Event'}</div>
         </div>
       )}
     </div>
@@ -137,4 +150,5 @@ Countdown.propTypes = {
   backstageEvents: PropTypes.array,
   time: PropTypes.object,
   selectedId: PropTypes.string,
+  settings: PropTypes.object,
 };

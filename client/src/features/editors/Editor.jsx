@@ -1,10 +1,9 @@
-import React, { lazy, useEffect } from 'react';
+import React, { lazy } from 'react';
 import { useDisclosure } from '@chakra-ui/hooks';
 import { Box } from '@chakra-ui/layout';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import ModalManager from 'features/modals/ModalManager';
 
-import { LocalEventSettingsProvider } from '../../common/context/LocalEventSettingsContext';
 import { LoggingProvider } from '../../common/context/LoggingContext';
 import MenuBar from '../menu/MenuBar';
 
@@ -19,28 +18,24 @@ export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Editor';
-  }, []);
+  document.title = 'ontime - Editor';
 
   return (
     <LoggingProvider>
-      <LocalEventSettingsProvider>
-        <ErrorBoundary>
-          <ModalManager isOpen={isOpen} onClose={onClose} />
-        </ErrorBoundary>
-        <div className={styles.mainContainer}>
-          <Box id='settings' className={styles.settings}>
-            <ErrorBoundary>
-              <MenuBar onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
-            </ErrorBoundary>
-          </Box>
-          <EventList onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
-          <MessageControl />
-          <TimerControl />
-          <Info />
-        </div>
-      </LocalEventSettingsProvider>
+      <ErrorBoundary>
+        <ModalManager isOpen={isOpen} onClose={onClose} />
+      </ErrorBoundary>
+      <div className={styles.mainContainer}>
+        <Box id='settings' className={styles.settings}>
+          <ErrorBoundary>
+            <MenuBar onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
+          </ErrorBoundary>
+        </Box>
+        <EventList onOpen={onOpen} isOpen={isOpen} onClose={onClose} />
+        <MessageControl />
+        <TimerControl />
+        <Info />
+      </div>
     </LoggingProvider>
   );
 }

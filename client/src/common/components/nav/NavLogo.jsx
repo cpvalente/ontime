@@ -2,10 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IconButton } from '@chakra-ui/button';
 import { Image } from '@chakra-ui/react';
+import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import navlogo from 'assets/images/logos/LOGO-72.png';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+
+import useFullscreen from '../../hooks/useFullscreen';
 
 import navigatorConstants from './navigatorConstants';
 
@@ -22,6 +25,7 @@ const navButtonStyle = {
 export default function NavLogo(props) {
   const { isHidden } = props;
   const [showNav, setShowNav] = useState(false);
+  const { isFullScreen, toggleFullScreen } = useFullscreen();
 
   const handleClick = useCallback(() => {
     setShowNav((prev) => !prev);
@@ -34,16 +38,6 @@ export default function NavLogo(props) {
     // Space bar
     if (e.keyCode === 32) {
       setShowNav((s) => !s);
-    }
-  }, []);
-
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
     }
   }, []);
 
@@ -83,8 +77,8 @@ export default function NavLogo(props) {
             >
               <IconButton
                 aria-label='Toggle Fullscreen'
-                icon={<IoExpand />}
-                onClick={toggleFullscreen}
+                icon={isFullScreen ? <IoContract /> : <IoExpand />}
+                onClick={toggleFullScreen}
                 {...navButtonStyle}
               />
             </motion.div>
@@ -96,10 +90,7 @@ export default function NavLogo(props) {
               className={style.nav}
             >
               {navigatorConstants.map((route) => (
-                <Link
-                  to={route.url}
-                  key={route.url}
-                  {...tabProps}>
+                <Link to={route.url} key={route.url} {...tabProps}>
                   {route.label}
                 </Link>
               ))}

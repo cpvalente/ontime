@@ -1,9 +1,7 @@
+import { mth, mtm, mts } from './timeConstants';
+
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
-
-const mts = 1000; // millis to seconds
-const mtm = 1000 * 60; // millis to minutes
-const mth = 1000 * 60 * 60; // millis to hours
 
 /**
  * another go at simpler string formatting (counters)

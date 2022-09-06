@@ -184,6 +184,7 @@ describe('test json parser with valid def', () => {
     settings: {
       app: 'ontime',
       version: 1,
+      timeFormat: '24',
     },
   };
 
@@ -386,6 +387,7 @@ describe('test corrupt data', () => {
         version: 1,
         serverPort: 4001,
         lock: null,
+        timeFormat: '24',
       },
     };
 
@@ -408,6 +410,7 @@ describe('test corrupt data', () => {
         version: 1,
         serverPort: 4001,
         lock: null,
+        timeFormat: '24',
       },
     };
 
@@ -424,6 +427,7 @@ describe('test corrupt data', () => {
         version: 1,
         serverPort: 4001,
         lock: null,
+        timeFormat: '24',
       },
     };
 

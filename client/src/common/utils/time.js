@@ -1,6 +1,10 @@
-const mts = 1000; // millis to seconds
-const mtm = 1000 * 60; // millis to minutes
-const mth = 1000 * 60 * 60; // millis to hours
+import { DateTime } from 'luxon';
+
+import { ontimeQueryClient } from '../../App';
+import { APP_SETTINGS } from '../api/apiConstants';
+
+import { mth, mtm, mts } from './timeConstants';
+
 
 /**
  * Returns current time in milliseconds
@@ -26,12 +30,7 @@ export const nowInMillis = () => {
  * @param {string} ifNull - what to return if value is null
  * @returns {string} String representing time 00:12:02
  */
-export const stringFromMillis = (
-  ms,
-  showSeconds = true,
-  delim = ':',
-  ifNull = '...'
-) => {
+export const stringFromMillis = (ms, showSeconds = true, delim = ':', ifNull = '...') => {
   if (ms == null || isNaN(ms)) return ifNull;
   const isNegative = ms < 0 ? '-' : '';
   const millis = Math.abs(ms);
@@ -54,18 +53,34 @@ export const stringFromMillis = (
 };
 
 /**
- * @description Converts an excel date to milliseconds
- * @argument {string} excelDate - excel string date
- * @returns {number} - time in milliseconds
+ * @description Resolves format from url and store
+ * @return {string|undefined}
  */
-export const excelDateStringToMillis = (excelDate) => {
-  const date = new Date(excelDate);
-  if (date instanceof Date && !isNaN(date)) {
-    const h = date.getHours();
-    const m = date.getMinutes();
-    const s = date.getSeconds();
+export const resolveTimeFormat = () => {
+  const params = new URL(document.location).searchParams;
+  const urlOptions = params.get('format');
+  const settings = ontimeQueryClient.getQueryData(APP_SETTINGS);
 
-    return h * mth + m * mtm + s * mts;
+  return urlOptions || settings?.timeFormat;
+};
+
+/**
+ /**
+ * @description utility function to format a date in 12 or 24 hour format
+ * @param {number} milliseconds
+ * @param {object} [options]
+ * @param {boolean} [options.showSeconds]
+ * @param {string} [options.format]
+ * @param {function} resolver
+ * @return {string}
+ */
+export const formatTime = (milliseconds, options, resolver = resolveTimeFormat) => {
+  if (milliseconds === null) {
+    return '...';
   }
-  return 0;
+  const timeFormat = resolver();
+  const { showSeconds = false, format: formatString = 'hh:mm a' } = options || {};
+  return timeFormat === '12'
+    ? DateTime.fromMillis(milliseconds).toUTC().toFormat(formatString)
+    : stringFromMillis(milliseconds, showSeconds);
 };

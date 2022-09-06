@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { useTimerProvider } from '../../../common/hooks/useSocketProvider';
 import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
+import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './PlaybackControl.module.scss';
 
@@ -68,7 +69,7 @@ const PlaybackTimer = (props) => {
         </>
       )}
       <div className={style.btn}>
-        <Tooltip label='Remove 1 minute' openDelay={500} shouldWrapChildren={disableButtons}>
+        <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <Button
             {...incrementProps}
             disabled={disableButtons}
@@ -78,7 +79,7 @@ const PlaybackTimer = (props) => {
             -1
           </Button>
         </Tooltip>
-        <Tooltip label='Add 1 minute' openDelay={500} shouldWrapChildren={disableButtons}>
+        <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <Button
             {...incrementProps}
             disabled={disableButtons}
@@ -88,7 +89,7 @@ const PlaybackTimer = (props) => {
             +1
           </Button>
         </Tooltip>
-        <Tooltip label='Remove 5 minutes' openDelay={500} shouldWrapChildren={disableButtons}>
+        <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <Button
             {...incrementProps}
             disabled={disableButtons}
@@ -98,7 +99,7 @@ const PlaybackTimer = (props) => {
             -5
           </Button>
         </Tooltip>
-        <Tooltip label='Add 5 minutes' openDelay={500} shouldWrapChildren={disableButtons}>
+        <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <Button
             {...incrementProps}
             disabled={disableButtons}

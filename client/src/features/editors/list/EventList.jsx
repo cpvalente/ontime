@@ -1,9 +1,10 @@
 import React, { createRef, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import Empty from 'common/components/state/Empty';
+import { useAtomValue } from 'jotai';
 
+import { showQuickEntryAtom } from '../../../common/atoms/LocalEventSettings';
 import { CursorContext } from '../../../common/context/CursorContext';
-import { LocalEventSettingsContext } from '../../../common/context/LocalEventSettingsContext';
 import { useEventListProvider } from '../../../common/hooks/useSocketProvider';
 import EntryBlock from '../EntryBlock/EntryBlock';
 
@@ -16,7 +17,7 @@ export default function EventList(props) {
   const { cursor, moveCursorUp, moveCursorDown, setCursor, isCursorLocked } =
     useContext(CursorContext);
   const cursorRef = createRef();
-  const { showQuickEntry } = useContext(LocalEventSettingsContext);
+  const showQuickEntry = useAtomValue(showQuickEntryAtom);
   const data = useEventListProvider();
 
   const insertAtCursor = useCallback(
@@ -86,6 +87,30 @@ export default function EventList(props) {
       document.removeEventListener('keydown', handleKeyPress);
     };
   }, [handleKeyPress, cursor, events, setCursor]);
+
+  // handle incoming messages
+  useEffect(() => {
+    if (socket == null) return;
+
+    // ask for playstate
+    socket.emit('get-selected');
+    socket.emit('get-next-id');
+
+    // Handle playstate
+    socket.on('selected', (data) => {
+      setSelectedId(data.id);
+    });
+
+    socket.on('next-id', (data) => {
+      setNextId(data);
+    });
+
+    // Clear listener
+    return () => {
+      socket.off('selected');
+      socket.off('next-id');
+    };
+  }, [socket]);
 
   // when cursor moves, view should follow
   useEffect(() => {

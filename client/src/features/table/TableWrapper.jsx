@@ -10,6 +10,7 @@ import { useCuesheetProvider } from '../../common/hooks/useSocketProvider';
 
 import OntimeTable from './OntimeTable';
 import TableHeader from './TableHeader';
+import { makeCSV, makeTable } from './utils';
 
 import style from './Table.module.scss';
 
@@ -20,12 +21,16 @@ export default function TableWrapper() {
   const { theme } = useContext(TableSettingsContext);
   const featureData = useCuesheetProvider();
 
-  document.title = 'ontime - Cuesheet';
+  // Set window title
+  useEffect(() => {
+    document.title = 'ontime - Cuesheet';
+  }, []);
 
-  const handleUpdate = useCallback(async (rowIndex, accessor, payload) => {
-    if (rowIndex == null || accessor == null || payload == null) {
-      return;
-    }
+  const handleUpdate = useCallback(
+    async (rowIndex, accessor, payload) => {
+      if (rowIndex == null || accessor == null || payload == null) {
+        return;
+      }
 
     // check if value is the same
     const event = events[rowIndex];
@@ -33,21 +38,21 @@ export default function TableWrapper() {
       return;
     }
 
-    if (event[accessor] === payload) {
-      return;
-    }
-    // check if value is valid
-    // as of now, the fields do not have any validation
-    if (typeof payload !== 'string') {
-      return;
-    }
+      if (event[accessor] === payload) {
+        return;
+      }
+      // check if value is valid
+      // as of now, the fields do not have any validation
+      if (typeof payload !== 'string') {
+        return;
+      }
 
-    // cleanup
-    const cleanVal = payload.trim();
-    const mutationObject = {
-      id: event.id,
-      [accessor]: cleanVal,
-    };
+      // cleanup
+      const cleanVal = payload.trim();
+      const mutationObject = {
+        id: event.id,
+        [accessor]: cleanVal,
+      };
 
     // submit
     try {
@@ -57,12 +62,30 @@ export default function TableWrapper() {
     }
   }, [mutation, events]);
 
+  const exportHandler = useCallback(
+    (headerData) => {
+      if (!headerData || !tableData || !userFields) {
+        return;
+      }
+
+      const sheetData = makeTable(headerData, tableData, userFields);
+      const csvContent = makeCSV(sheetData);
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'ontime export.csv');
+      document.body.appendChild(link);
+      link.click();
+    },
+    [tableData, userFields]
+  );
+
   if (typeof events === 'undefined' || typeof userFields === 'undefined') {
     return <span>loading...</span>;
   }
   return (
     <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
-      <TableHeader featureData={featureData} />
+      <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
       <OntimeTable
         tableData={events}
         userFields={userFields}

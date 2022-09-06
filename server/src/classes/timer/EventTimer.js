@@ -3,10 +3,10 @@ import { Server } from 'socket.io';
 import { DAY_TO_MS, getSelectionByRoll, replacePlaceholder, updateRoll } from './classUtils.js';
 import { OSCIntegration } from './integrations/Osc.js';
 import { HTTPIntegration } from './integrations/Http.js';
-import { cleanURL } from '../utils/url.js';
-import getRandomName from '../utils/getRandomName.js';
-import { generateId } from '../utils/generate_id.js';
-import { stringFromMillis } from '../utils/time.js';
+import { cleanURL } from '../../utils/url.js';
+import getRandomName from '../../utils/getRandomName.js';
+import { generateId } from '../../utils/generate_id.js';
+import { stringFromMillis } from '../../utils/time.js';
 
 /*
  * Class EventTimer adds functions specific to APP
