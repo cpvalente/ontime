@@ -7,10 +7,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { formatTime } from '../../../common/utils/time';
 import { overrideStylesURL } from '../../../ontimeConfig';
 import { titleVariants } from '../common/animation';
 
 import './Public.scss';
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
 
 export default function Public(props) {
   const { publ, publicTitle, time, events, publicSelectedId, general, viewSettings } = props;
@@ -31,7 +37,7 @@ export default function Public(props) {
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
 
-  // motion
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className='public-screen'>
@@ -110,7 +116,7 @@ export default function Public(props) {
 
       <div className='clock-container'>
         <div className='label'>Time Now</div>
-        <div className='clock'>{time.clock}</div>
+        <div className='clock'>{clock}</div>
       </div>
 
       <div className='info'>

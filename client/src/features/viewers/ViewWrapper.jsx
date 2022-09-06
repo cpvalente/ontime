@@ -7,7 +7,6 @@ import { useSocket } from 'common/context/socketContext';
 import { useFetch } from 'common/hooks/useFetch';
 
 import { getView } from '../../common/api/ontimeApi';
-import { stringFromMillis } from '../../common/utils/time';
 
 const withSocket = (Component) => {
   return (props) => {
@@ -32,9 +31,9 @@ const withSocket = (Component) => {
       visible: false,
     });
     const [timer, setTimer] = useState({
-      clock: null,
-      running: null,
-      isNegative: null,
+      clock: 0,
+      running: 0,
+      isNegative: false,
       startedAt: null,
       expectedFinish: null,
     });
@@ -69,7 +68,9 @@ const withSocket = (Component) => {
 
     // Ask for update on load
     useEffect(() => {
-      if (socket == null) return;
+      if (!socket) {
+        return;
+      }
 
       // Handle timer messages
       socket.on('messages-timer', (data) => {
@@ -156,7 +157,9 @@ const withSocket = (Component) => {
 
     // Filter events only to pass down
     useEffect(() => {
-      if (eventsData == null) return;
+      if (!eventsData) {
+        return;
+      }
       // filter just events with title
       if (Array.isArray(eventsData)) {
         const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
@@ -169,7 +172,9 @@ const withSocket = (Component) => {
 
     // Set general data
     useEffect(() => {
-      if (genData == null) return;
+      if (!genData) {
+        return;
+      }
       setGeneral(genData);
     }, [genData]);
 
@@ -221,9 +226,6 @@ const withSocket = (Component) => {
     const timeManager = {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
-      clock: stringFromMillis(timer.clock),
-      clockMs: timer.clock,
-      clockNoSeconds: stringFromMillis(timer.clock, false),
       playstate: playback,
     };
 

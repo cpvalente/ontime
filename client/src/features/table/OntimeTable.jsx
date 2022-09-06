@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
+import { tooltipDelayFast } from '../../ontimeConfig';
 
 import SortableCell from './tableElements/SortableCell';
 import TableSettings from './tableElements/TableSettings';
@@ -30,7 +31,7 @@ import { defaultColumnOrder, defaultHiddenColumns } from './defaults';
 
 import style from './Table.module.scss';
 
-export default function OntimeTable({ tableData, userFields, handleUpdate, selectedId }) {
+export default function OntimeTable({ tableData, userFields, selectedId, handleUpdate }) {
   const { followSelected, showSettings } = useContext(TableSettingsContext);
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
   const [columnSize, saveColumnSize] = useLocalStorage('table-sizes', {});
@@ -184,7 +185,7 @@ export default function OntimeTable({ tableData, userFields, handleUpdate, selec
               >
                 <tr {...restHeaderGroupProps}>
                   <th className={style.indexColumn}>
-                    <Tooltip label='Event Order' openDelay={300}>
+                    <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
                       #
                     </Tooltip>
                   </th>

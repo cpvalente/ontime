@@ -9,10 +9,16 @@ import PropTypes from 'prop-types';
 
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
+import { formatTime } from '../../../common/utils/time';
 import { overrideStylesURL } from '../../../ontimeConfig';
 import { titleVariants } from '../common/animation';
 
 import './Backstage.scss';
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
 
 export default function Backstage(props) {
   const { publ, title, time, backstageEvents, selectedId, general, viewSettings } = props;
@@ -48,6 +54,8 @@ export default function Backstage(props) {
     stageTimer = formatDisplay(Math.abs(time.running), true);
     if (time.isNegative) stageTimer = `-${stageTimer}`;
   }
+
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className='backstage'>
@@ -126,7 +134,7 @@ export default function Backstage(props) {
 
       <div className='clock-container'>
         <div className='label'>Time Now</div>
-        <div className='clock'>{time.clock}</div>
+        <div className='clock'>{clock}</div>
       </div>
 
       <div className='timer-container'>

@@ -373,10 +373,9 @@ describe('test formatEvents function', () => {
         isNext: false,
         colour: "",
       },
-
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -403,7 +402,7 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -431,7 +430,7 @@ describe('test formatEvents function', () => {
 
     ]
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, true);
+    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
-})
+});

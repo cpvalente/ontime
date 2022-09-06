@@ -5,9 +5,11 @@ import PropTypes from 'prop-types';
 import './TimerDisplay.scss';
 
 const TimerDisplay = ({ time, small, isNegative, hideZeroHours }) => {
-  // prepare display string
+
   const display =
-    time != null && !isNaN(time) ? formatDisplay(time, hideZeroHours) : '-- : -- : --';
+    (time === null || typeof time === 'undefined' || isNaN(time))
+      ? '-- : -- : --'
+      : formatDisplay(time, hideZeroHours);
 
   const classes = `timer ${small ? 'timer--small' : ''}  ${isNegative ? 'timer--finished' : ''}`;
 

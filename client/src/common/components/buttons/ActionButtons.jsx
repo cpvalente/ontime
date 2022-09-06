@@ -7,6 +7,8 @@ import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../ontimeConfig';
+
 export default function ActionButtons(props) {
   const { showAdd, showDelay, showBlock, actionHandler } = props;
 
@@ -17,7 +19,7 @@ export default function ActionButtons(props) {
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
-      <Tooltip label='Add ...' delay={500}>
+      <Tooltip label='Add ...' delay={tooltipDelayMid}>
         <MenuButton
           as={IconButton}
           aria-label='Options'

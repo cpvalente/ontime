@@ -201,12 +201,14 @@ export const getSettings = async (req, res) => {
   const version = data.settings.version;
   const serverPort = data.settings.serverPort;
   const pinCode = data.settings.pinCode;
+  const timeFormat = data.settings.timeFormat;
 
   // send object with network information
   res.status(200).send({
     version,
     serverPort,
     pinCode,
+    timeFormat,
   });
 };
 
@@ -226,9 +228,18 @@ export const postSettings = async (req, res) => {
         pin = req.body?.pinCode;
       }
     }
+
+    let timeFormat = data.settings.timeFormat;
+    if (typeof req.body?.timeFormat === 'string') {
+      if (req.body?.timeFormat === '12' || req.body?.timeFormat === '24') {
+        timeFormat = req.body.timeFormat;
+      }
+    }
+
     data.settings = {
       ...data.settings,
       pinCode: pin,
+      timeFormat: timeFormat,
     };
     await db.write();
     res.sendStatus(200);

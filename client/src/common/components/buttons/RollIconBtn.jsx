@@ -4,10 +4,12 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../ontimeConfig';
+
 export default function RollIconBtn(props) {
   const { clickhandler, active, disabled, ...rest } = props;
   return (
-    <Tooltip label='Roll mode' openDelay={500} shouldWrapChildren={disabled}>
+    <Tooltip label='Roll mode' openDelay={tooltipDelayMid} shouldWrapChildren={disabled}>
       <IconButton
         icon={<IoTimeOutline size='24px' />}
         colorScheme='blue'

@@ -3,14 +3,20 @@ import { useSearchParams } from 'react-router-dom';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
 import NavLogo from 'common/components/nav/NavLogo';
-import TitleCard from 'common/components/title-card/TitleCard';
+import TitleCard from 'common/components/views/TitleCard';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { formatTime } from '../../../common/utils/time';
 import { overrideStylesURL } from '../../../ontimeConfig';
 
 import './Timer.scss';
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
 
 export default function Timer(props) {
   const { general, pres, title, time, viewSettings } = props;
@@ -38,17 +44,10 @@ export default function Timer(props) {
     setElapsed(false);
   }
 
+  const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
   const normalisedTime = Math.max(time.running, 0);
-
-  // show timer if end message is empty
-  const endMessage =
-    general.endMessage == null || general.endMessage === '' ? (
-      <TimerDisplay time={time.running} isNegative={time.isNegative} hideZeroHours />
-    ) : (
-      general.endMessage
-    );
 
   // motion
   const titleVariants = {
@@ -76,12 +75,18 @@ export default function Timer(props) {
 
       <div className='clock-container'>
         <div className='label'>Time Now</div>
-        <div className='clock'>{time.clock}</div>
+        <div className='clock'>{clock}</div>
       </div>
 
       <div className='timer-container'>
         {time.finished ? (
-          <div className='end-message'>{endMessage}</div>
+          <div className='end-message'>
+            {general.endMessage == null || general.endMessage === '' ? (
+              <TimerDisplay time={time.running} isNegative={time.isNegative} hideZeroHours />
+            ) : (
+              general.endMessage
+            )}
+          </div>
         ) : (
           <div className={isPlaying ? 'timer' : 'timer--paused'}>
             <TimerDisplay time={normalisedTime} hideZeroHours />

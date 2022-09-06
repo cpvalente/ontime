@@ -13,7 +13,7 @@ import {
   parseUserFields_v1,
   parseViews_v1,
 } from './parserUtils_v1.js';
-import { excelDateStringToMillis } from './time.js';
+import { parseExcelDate } from './time.js';
 import { generateId } from './generate_id.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -80,9 +80,9 @@ export const parseExcel_v1 = async (excelData) => {
           eventData.url = column;
           eventUrlNext = false;
         } else if (j === timeStartIndex) {
-          event.timeStart = excelDateStringToMillis(column);
+          event.timeStart = parseExcelDate(column);
         } else if (j === timeEndIndex) {
-          event.timeEnd = excelDateStringToMillis(column);
+          event.timeEnd = parseExcelDate(column);
         } else if (j === titleIndex) {
           event.title = column;
         } else if (j === presenterIndex) {

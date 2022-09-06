@@ -98,6 +98,7 @@ export const parseSettings_v1 = (data, enforce) => {
       const settings = {
         lock: s.lock || null,
         pinCode: s.pinCode || null,
+        timeFormat: s.timeFormat || '24',
       };
 
       // write to db

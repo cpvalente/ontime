@@ -13,6 +13,7 @@ export const dbModelv1 = {
     serverPort: 4001,
     lock: null,
     pinCode: null,
+    timeFormat: '24',
   },
   views: {
     overrideStyles: false,

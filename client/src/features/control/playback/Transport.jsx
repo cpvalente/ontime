@@ -16,25 +16,25 @@ export default function Transport(props) {
   return (
     <div className={style.playbackContainer}>
       <TransportIconBtn
-        clickHandler={() => playbackControl('previous')}
+        clickHandler={() => playbackControl.previous()}
         disabled={isRolling || noEvents}
         tooltip='Previous event'
         icon={<IoPlaySkipBack size='22px' />}
       />
       <TransportIconBtn
-        clickHandler={() => playbackControl('next')}
+        clickHandler={() => playbackControl.next()}
         disabled={isRolling || noEvents}
         tooltip='Next event'
         icon={<IoPlaySkipForward size='22px' />}
       />
       <TransportIconBtn
-        clickHandler={() => playbackControl('reload')}
+        clickHandler={() => playbackControl.reload()}
         disabled={selectedId == null || isRolling || noEvents}
         tooltip='Reload event'
         icon={<IoArrowUndo size='22px' />}
       />
       <UnloadIconBtn
-        clickHandler={() => playbackControl('unload')}
+        clickHandler={() => playbackControl.stop()}
         disabled={(selectedId == null && !isRolling) || noEvents}
       />
     </div>
@@ -44,6 +44,11 @@ export default function Transport(props) {
 Transport.propTypes = {
   playback: PropTypes.string,
   selectedId: PropTypes.string,
-  playbackControl: PropTypes.func.isRequired,
+  playbackControl: PropTypes.shape({
+    previous: PropTypes.func,
+    next: PropTypes.func,
+    reload: PropTypes.func,
+    stop: PropTypes.func,
+  }).isRequired,
   noEvents: PropTypes.bool.isRequired,
 };

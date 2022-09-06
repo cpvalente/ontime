@@ -37,6 +37,6 @@ export default memo(PlaybackButtons, areEqual);
 PlaybackButtons.propTypes = {
   playback: PropTypes.string,
   selectedId: PropTypes.string,
-  playbackControl: PropTypes.func.isRequired,
+  playbackControl: PropTypes.object,
   noEvents: PropTypes.bool.isRequired,
 };

@@ -7,12 +7,17 @@ import Empty from '../../../common/components/state/Empty';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
-import { stringFromMillis } from '../../../common/utils/time';
+import { formatTime } from '../../../common/utils/time';
 import { overrideStylesURL } from '../../../ontimeConfig';
 
 import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helpers';
 
 import './Countdown.scss';
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
 
 export default function Countdown(props) {
   const { backstageEvents, time, selectedId, viewSettings } = props;
@@ -49,8 +54,8 @@ export default function Countdown(props) {
     if (typeof followThis !== 'undefined') {
       setFollow(followThis);
       const idx = backstageEvents.findIndex((event) => event.id === followThis.id);
-      const delay = getDelayTo(backstageEvents, idx);
-      setDelay(delay);
+      const delayToEvent = getDelayTo(backstageEvents, idx);
+      setDelay(delayToEvent);
     }
   }, [backstageEvents, searchParams]);
 
@@ -73,6 +78,16 @@ export default function Countdown(props) {
   const isRunningFinished = time.finished && runningMessage === timerMessages.running;
   const isSelected = runningMessage === timerMessages.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
+
+  const clock = formatTime(time.clock, formatOptions);
+  const startTime =
+    follow === null
+      ? '...'
+      : formatTime(follow.timeStart + delay, formatOptions);
+  const endTime =
+    follow === null
+      ? '...'
+      : formatTime(follow.timeEnd + delay, formatOptions);
 
   return (
     <div className='countdown'>
@@ -101,18 +116,18 @@ export default function Countdown(props) {
           <div className='timer-group'>
             <div className='aux-timers'>
               <div className='aux-timers__label'>Time Now</div>
-              <span className='aux-timers__value'>{time.clock}</span>
+              <span className='aux-timers__value'>{clock}</span>
             </div>
             <div className='aux-timers'>
               <div className='aux-timers__label'>Start Time</div>
               <span className={`aux-timers__value ${delayedTimerStyles}`}>
-                {stringFromMillis(follow.timeStart + delay)}
+                {startTime}
               </span>
             </div>
             <div className='aux-timers'>
               <div className='aux-timers__label'>End Time</div>
               <span className={`aux-timers__value ${delayedTimerStyles}`}>
-                {stringFromMillis(follow.timeEnd + delay)}
+                {endTime}
               </span>
             </div>
           </div>
@@ -127,7 +142,7 @@ export default function Countdown(props) {
               isSelected || time.waiting
             )}
           </span>
-          <div className='title'>{follow.title || 'Untitled Event'}</div>
+          <div className='title'>{follow?.title || 'Untitled Event'}</div>
         </div>
       )}
     </div>

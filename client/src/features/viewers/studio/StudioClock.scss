@@ -84,6 +84,10 @@ $cyan-idle: #0aa;
       font-size: calc(#{$clock-size} / 3);
       margin-top: calc(50% - calc(#{$clock-size} / 7));
       line-height: 0.8em;
+      &--aa {
+        font-size: calc(#{$clock-size} / 4.5);
+        margin-top: calc(50% - calc(#{$clock-size} / 7));
+      }
     }
 
     .next-title:after,

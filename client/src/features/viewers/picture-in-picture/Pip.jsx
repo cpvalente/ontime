@@ -8,9 +8,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { formatTime } from '../../../common/utils/time';
 import { overrideStylesURL } from '../../../ontimeConfig';
 
 import './Pip.scss';
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
 
 export default function Pip(props) {
   const { time, backstageEvents, selectedId, general, viewSettings } = props;
@@ -55,6 +61,8 @@ export default function Pip(props) {
   const showInfo = general.backstageInfo !== '' && general.backstageInfo != null;
   let stageTimer = formatDisplay(Math.abs(time.running), true);
   if (time.isNegative) stageTimer = `-${stageTimer}`;
+
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className='pip'>
@@ -106,7 +114,7 @@ export default function Pip(props) {
 
       <div className='clock-container'>
         <div className='label'>Time Now</div>
-        <div className='clock'>{time.clock}</div>
+        <div className='clock'>{clock}</div>
       </div>
 
       <div className='timer-container'>

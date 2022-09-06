@@ -4,6 +4,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayFast } from '../../../ontimeConfig';
+
 import styles from '../Table.module.scss';
 
 export default function SortableCell({ column }) {
@@ -29,7 +31,7 @@ export default function SortableCell({ column }) {
   return (
     <th {...restColumn} ref={setNodeRef} style={{...dragStyle}} className={isDragging ? styles.dragging: ''}>
       <div {...attributes} {...listeners}>
-        <Tooltip label={column.Header} openDelay={300}>
+        <Tooltip label={column.Header} openDelay={tooltipDelayFast}>
           {column.render('Header')}
         </Tooltip>
       </div>

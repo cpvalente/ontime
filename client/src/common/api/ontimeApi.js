@@ -19,7 +19,12 @@ export const ontimePlaceholderInfo = {
  * @type {{pinCode: null}}
  */
 export const ontimePlaceholderSettings = {
+  app: 'ontime',
+  version: 1,
+  serverPort: 4001,
+  lock: null,
   pinCode: null,
+  timeFormat: '24',
 };
 
 /**
