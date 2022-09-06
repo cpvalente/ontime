@@ -13,9 +13,9 @@ import { fetchEvent } from '../../common/api/eventApi';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useFetch } from '../../common/hooks/useFetch';
 import useFullscreen from '../../common/hooks/useFullscreen';
+import { useTimerProvider } from '../../common/hooks/useSocketProvider';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
-import { useTimerProvider } from '../../common/hooks/useSocketProvider';
 import { tooltipDelayFast } from '../../ontimeConfig';
 
 import PlaybackIcon from './tableElements/PlaybackIcon';
@@ -88,7 +88,7 @@ export default function TableHeader({handleCSVExport, featureData}) {
         </Tooltip>
         <Divider />
         <Tooltip openDelay={tooltipDelayFast} label='Export to CSV'>
-          <span className={style.actionText} onClick={() => handleCSVExport(data)}>
+          <span className={style.actionText} onClick={() => handleCSVExport(event)}>
             CSV
           </span>
         </Tooltip>

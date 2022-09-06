@@ -88,30 +88,6 @@ export default function EventList(props) {
     };
   }, [handleKeyPress, cursor, events, setCursor]);
 
-  // handle incoming messages
-  useEffect(() => {
-    if (socket == null) return;
-
-    // ask for playstate
-    socket.emit('get-selected');
-    socket.emit('get-next-id');
-
-    // Handle playstate
-    socket.on('selected', (data) => {
-      setSelectedId(data.id);
-    });
-
-    socket.on('next-id', (data) => {
-      setNextId(data);
-    });
-
-    // Clear listener
-    return () => {
-      socket.off('selected');
-      socket.off('next-id');
-    };
-  }, [socket]);
-
   // when cursor moves, view should follow
   useEffect(() => {
     if (cursorRef.current == null) return;

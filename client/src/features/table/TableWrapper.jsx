@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext,useEffect } from 'react';
 
 import { EVENTS_TABLE, USERFIELDS } from '../../common/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../common/api/eventsApi';
@@ -64,11 +64,11 @@ export default function TableWrapper() {
 
   const exportHandler = useCallback(
     (headerData) => {
-      if (!headerData || !tableData || !userFields) {
+      if (!headerData || !events || !userFields) {
         return;
       }
 
-      const sheetData = makeTable(headerData, tableData, userFields);
+      const sheetData = makeTable(headerData, events, userFields);
       const csvContent = makeCSV(sheetData);
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement('a');
@@ -77,7 +77,7 @@ export default function TableWrapper() {
       document.body.appendChild(link);
       link.click();
     },
-    [tableData, userFields]
+    [events, userFields]
   );
 
   if (typeof events === 'undefined' || typeof userFields === 'undefined') {
