@@ -22,8 +22,11 @@ const formatOptions = {
 
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+
+  // deferring rendering seems to affect styling (font and useFitText)
+  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
+
   const [schedule, setSchedule] = useState([]);
 
   const activeIndicators = [...Array(12).keys()];
@@ -47,11 +50,6 @@ export default function StudioClock(props) {
     setSchedule(formatted);
   }, [backstageEvents, nextId, selectedId] );
 
-  // defer rendering until we load stylesheets
-  if (!shouldRender) {
-    return null;
-  }
-
   const clock = formatTime(time.clock, formatOptions);
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 
@@ -59,7 +57,7 @@ export default function StudioClock(props) {
     <div className='studio-clock'>
       <NavLogo />
       <div className='clock-container'>
-        <div className='timer'>{clock}</div>
+        <div className='studio-timer'>{clock}</div>
         <div
           ref={titleRef}
           className='next-title'

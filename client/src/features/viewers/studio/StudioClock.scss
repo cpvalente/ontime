@@ -79,7 +79,7 @@ $cyan-idle: #0aa;
       }
     }
 
-    .timer {
+    .studio-timer {
       color: $red-active;
       font-size: calc(#{$clock-size} / 3);
       margin-top: calc(50% - calc(#{$clock-size} / 7));
