@@ -5,7 +5,6 @@ import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import ModalManager from 'features/modals/ModalManager';
 
 import UploadModal from '../../common/components/upload-modal/UploadModal';
-import { LocalEventSettingsProvider } from '../../common/context/LocalEventSettingsContext';
 import { LoggingProvider } from '../../common/context/LoggingContext';
 import MenuBar from '../menu/MenuBar';
 
@@ -31,9 +30,8 @@ export default function Editor() {
 
   return (
     <LoggingProvider>
-      <LocalEventSettingsProvider>
-        <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
-        <ErrorBoundary>
+      <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
+      <ErrorBoundary>
           <ModalManager isOpen={isOpen} onClose={onClose} />
         </ErrorBoundary>
         <div className={styles.mainContainer}>
@@ -52,7 +50,6 @@ export default function Editor() {
           <TimerControl />
           <Info />
         </div>
-      </LocalEventSettingsProvider>
     </LoggingProvider>
   );
 }

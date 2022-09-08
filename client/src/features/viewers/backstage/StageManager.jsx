@@ -8,9 +8,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
+import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';
 
 import style from './StageManager.module.scss';
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
 
 export default function StageManager(props) {
   const { publ, title, time, backstageEvents, selectedId, general } = props;
@@ -40,6 +46,8 @@ export default function StageManager(props) {
     stageTimer = formatDisplay(Math.abs(time.running), true);
     if (time.isNegative) stageTimer = `-${stageTimer}`;
   }
+
+  const clock = formatTime(time.clock, formatOptions);
 
   return (
     <div className={style.container__gray}>
@@ -118,7 +126,7 @@ export default function StageManager(props) {
 
       <div className={style.clockContainer}>
         <div className={style.label}>Time Now</div>
-        <div className={style.clock}>{time.clock}</div>
+        <div className={style.clock}>{clock}</div>
       </div>
 
       <div className={style.countdownContainer}>

@@ -4,18 +4,16 @@ import { Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import PropTypes from 'prop-types';
 
+import { useTimerProvider } from '../../../common/hooks/useSocketProvider';
+import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
+import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './PlaybackControl.module.scss';
 
 const areEqual = (prevProps, nextProps) => {
   return (
-    prevProps.timer.running === nextProps.timer.running &&
-    prevProps.timer.isNegative === nextProps.timer.isNegative &&
-    prevProps.timer.expectedFinish === nextProps.timer.expectedFinish &&
-    prevProps.timer.startedAt === nextProps.timer.startedAt &&
     prevProps.playback === nextProps.playback &&
-    prevProps.timer.secondary === nextProps.timer.secondary &&
     prevProps.selectedId === nextProps.selectedId
   );
 };
@@ -28,12 +26,14 @@ const incrementProps = {
 };
 
 const PlaybackTimer = (props) => {
-  const { timer, playback, handleIncrement, selectedId } = props;
-  const started = stringFromMillis(timer.startedAt, true);
-  const finish = stringFromMillis(timer.expectedFinish, true);
+  const { playback, handleIncrement, selectedId } = props;
+  const timerData = useTimerProvider();
+  const started = stringFromMillis(timerData.startedAt, true);
+  const finish = stringFromMillis(timerData.expectedFinish, true);
   const isRolling = playback === 'roll';
-  const isWaiting = timer.secondary > 0 && timer.running == null;
+  const isWaiting = timerData.secondaryTimer > 0 && timerData.current == null;
   const disableButtons = selectedId == null || isRolling;
+  const isOvertime = timerData.current < 0;
 
   return (
     <div className={style.timeContainer}>
@@ -41,13 +41,13 @@ const PlaybackTimer = (props) => {
         <Tooltip label='Roll mode active'>
           <div className={isRolling ? style.indRollActive : style.indRoll} />
         </Tooltip>
-        <div className={timer.isNegative ? style.indNegativeActive : style.indNegative} />
+        <div className={isOvertime ? style.indNegativeActive : style.indNegative} />
         <div className={style.indDelay} />
       </div>
       <div className={style.timer}>
         <TimerDisplay
-          time={isWaiting ? timer.secondary : timer.running}
-          isNegative={timer.isNegative}
+          time={isWaiting ? millisToSeconds(timerData.secondaryTimer) : millisToSeconds(timerData.current)}
+          isNegative={isOvertime}
           small
         />
       </div>
@@ -69,7 +69,7 @@ const PlaybackTimer = (props) => {
         </>
       )}
       <div className={style.btn}>
-        <Tooltip label='Remove 1 minute' openDelay={500} shouldWrapChildren={disableButtons}>
+        <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <Button
             {...incrementProps}
             disabled={disableButtons}
@@ -79,7 +79,7 @@ const PlaybackTimer = (props) => {
             -1
           </Button>
         </Tooltip>
-        <Tooltip label='Add 1 minute' openDelay={500} shouldWrapChildren={disableButtons}>
+        <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <Button
             {...incrementProps}
             disabled={disableButtons}
@@ -89,7 +89,7 @@ const PlaybackTimer = (props) => {
             +1
           </Button>
         </Tooltip>
-        <Tooltip label='Remove 5 minutes' openDelay={500} shouldWrapChildren={disableButtons}>
+        <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <Button
             {...incrementProps}
             disabled={disableButtons}
@@ -99,7 +99,7 @@ const PlaybackTimer = (props) => {
             -5
           </Button>
         </Tooltip>
-        <Tooltip label='Add 5 minutes' openDelay={500} shouldWrapChildren={disableButtons}>
+        <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <Button
             {...incrementProps}
             disabled={disableButtons}
@@ -117,7 +117,6 @@ const PlaybackTimer = (props) => {
 export default memo(PlaybackTimer, areEqual);
 
 PlaybackTimer.propTypes = {
-  timer: PropTypes.object.isRequired,
   playback: PropTypes.string,
   handleIncrement: PropTypes.func.isRequired,
   selectedId: PropTypes.string,

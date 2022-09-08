@@ -15,12 +15,12 @@
     margin-top: 1.5em;
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
   }
 
   .flexColumnLeft {
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
   }
 }

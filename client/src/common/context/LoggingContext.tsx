@@ -6,8 +6,17 @@ import { nowInMillis, stringFromMillis } from '../utils/time';
 
 import { useSocket } from './socketContext';
 
+type LOG_LEVEL = 'INFO' | 'WARN' | 'ERROR';
+type Log = {
+  id: string;
+  origin: string;
+  time: string;
+  level: LOG_LEVEL;
+  text: string;
+};
+
 interface LoggingProviderState {
-  logData: string[];
+  logData: Log[];
   emitInfo: (text: string) => void;
   emitWarning: (text: string) => void;
   emitError: (text: string) => void;
@@ -18,12 +27,22 @@ type LoggingProviderProps = {
   children: ReactNode
 }
 
-export const LoggingContext = createContext<LoggingProviderState | undefined>(undefined);
+const notInitialised = () => {
+  throw new Error("Not initialised");
+};
+
+export const LoggingContext = createContext<LoggingProviderState>({
+  logData: [],
+  emitInfo: notInitialised,
+  emitWarning: notInitialised,
+  emitError: notInitialised,
+  clearLog: notInitialised
+});
 
 export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   const MAX_MESSAGES = 100;
   const socket = useSocket();
-  const [logData, setLogData] = useState<string[]>([]);
+  const [logData, setLogData] = useState<Log[]>([]);
   const origin = 'USER';
 
   // handle incoming messages
@@ -33,7 +52,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     // Ask for log data
     socket.emit('get-logger');
 
-    socket.on('logger', (data: string) => {
+    socket.on('logger', (data: Log) => {
       setLogData((l) => [data, ...l]);
     });
 
@@ -50,9 +69,9 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    * @private
    */
   const _send = useCallback(
-    (text: string, level: string) => {
+    (text: string, level: LOG_LEVEL) => {
       if (socket != null) {
-        const m = {
+        const m: Log = {
           id: generateId(),
           origin,
           time: stringFromMillis(nowInMillis()),

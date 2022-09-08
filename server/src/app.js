@@ -20,7 +20,7 @@ import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as playbackRouter } from './routes/playbackRouter.js';
 
 // Global Objects
-import { EventTimer } from './classes/EventTimer.js';
+import { EventTimer } from './classes/timer/EventTimer.js';
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';

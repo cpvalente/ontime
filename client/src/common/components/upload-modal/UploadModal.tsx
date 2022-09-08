@@ -1,6 +1,4 @@
-// @ts-nocheck
 import { ChangeEvent, useCallback, useContext, useState } from 'react';
-import { useQueryClient } from 'react-query';
 import { Button } from '@chakra-ui/button';
 import {
   Alert,
@@ -23,6 +21,7 @@ import {
   Progress,
   Tag,
 } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { EVENTS_TABLE } from '../../api/apiConstants';
 import { uploadEvents } from '../../api/ontimeApi';
@@ -42,7 +41,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const { emitError } = useContext(LoggingContext);
   const [errors, setErrors] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState();
+  const [progress, setProgress] = useState(0);
 
   const handleFile = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const fileUploaded = event?.target?.files?.[0];
@@ -61,6 +60,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const handleUpload = () => {
     if (file) {
       try {
+        // @ts-ignore
         uploadEvents(file, setProgress).then(queryClient.invalidateQueries(EVENTS_TABLE));
       } catch (error) {
         emitError(`Failed uploading file: ${error}`);
@@ -119,7 +119,12 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
           {typeof progress !== 'undefined' && <Progress value={progress} />}
         </ModalBody>
         <ModalFooter>
-          <Button disabled={!file || errors.length > 0} onClick={handleUpload}>
+          <Button
+            colorScheme='blue'
+            disabled={!file || errors.length > 0}
+            onClick={handleUpload}
+            isLoading={progress < 0 && progress >= 100}
+          >
             Upload
           </Button>
         </ModalFooter>

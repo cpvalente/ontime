@@ -6,12 +6,14 @@ import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayFast } from '../../../ontimeConfig';
+
 export default function PlaybackIcon(props) {
   const { state } = props;
 
   if (state === 'stop') {
     return (
-      <Tooltip openDelay={300} label='Timer Stopped' shouldWrapChildren>
+      <Tooltip openDelay={tooltipDelayFast} label='Timer Stopped' shouldWrapChildren>
         <IoStop />
       </Tooltip>
     );
@@ -19,7 +21,7 @@ export default function PlaybackIcon(props) {
 
   if (state === 'start') {
     return (
-      <Tooltip openDelay={300} label='Timer Playing' shouldWrapChildren>
+      <Tooltip openDelay={tooltipDelayFast} label='Timer Playing' shouldWrapChildren>
         <IoPlay />
       </Tooltip>
     );
@@ -27,7 +29,7 @@ export default function PlaybackIcon(props) {
 
   if (state === 'pause') {
     return (
-      <Tooltip openDelay={300} label='Timer Paused' shouldWrapChildren>
+      <Tooltip openDelay={tooltipDelayFast} label='Timer Paused' shouldWrapChildren>
         <IoPause />
       </Tooltip>
     );
@@ -35,7 +37,7 @@ export default function PlaybackIcon(props) {
 
   if (state === 'roll') {
     return (
-      <Tooltip openDelay={300} label='Timer Rolling' shouldWrapChildren>
+      <Tooltip openDelay={tooltipDelayFast} label='Timer Rolling' shouldWrapChildren>
         <IoTimeOutline />
       </Tooltip>
     );

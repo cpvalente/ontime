@@ -1,30 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../ontimeConfig';
+
 import style from './MessageControl.module.scss';
 
 export default function InputRow(props) {
   const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
+  const [inputText, setInputText] = useState(text || '');
+
+  const handleInputChange = (newValue) => {
+    setInputText(newValue);
+    changeHandler(newValue);
+  };
+
+  useEffect(() => {
+    if (text) {
+      setInputText(text);
+    }
+  }, [text]);
+
 
   return (
-    <div className={visible && style.inputRowActive}>
+    <div className={`${visible ? style.inputRowActive: ''}`}>
       <span className={style.label}>{label}</span>
       <div className={style.inputItems}>
         <Editable
-          onChange={(event) => changeHandler(event)}
-          value={text}
+          onChange={(newValue) => handleInputChange(newValue)}
+          value={inputText}
           placeholder={placeholder}
           className={style.inline}
           color={text === '' ? '#666' : 'inherit'}
         >
-          <EditablePreview className={style.padleft} />
+          <EditablePreview className={`${style.padleft} ${style.fullWidth}`} />
           <EditableInput className={style.padleft} />
         </Editable>
-        <Tooltip label={visible ? 'Make invisible' : 'Make visible'} openDelay={500}>
+        <Tooltip label={visible ? 'Make invisible' : 'Make visible'} openDelay={tooltipDelayMid}>
           <IconButton
             aria-label='Toggle visibility'
             size='sm'

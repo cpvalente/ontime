@@ -9,13 +9,18 @@ import {
   getEventsWithDelay,
   trimEventlist,
 } from '../../../common/utils/eventsManager';
+import { formatTime, stringFromMillis } from '../../../common/utils/time';
 
 import style from './StudioClock.module.scss';
 
+const formatOptions = {
+  showSeconds: false,
+  format: 'hh:mm',
+};
+
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
-  const { fontSize, ref } = useFitText({ maxFontSize: 500 });
-  const [, , secondsNow] = time.clock.split(':');
+  const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
   const [schedule, setSchedule] = useState([]);
 
   const activeIndicators = [...Array(12).keys()];
@@ -28,26 +33,32 @@ export default function StudioClock(props) {
   }, []);
 
   // Prepare event list
-  // Todo: useMemo()
   useEffect(() => {
     if (backstageEvents == null) return;
+
 
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
     const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
-    const formatted = formatEventList(trimmed, selectedId, nextId);
+    const formatted = formatEventList(trimmed, selectedId, nextId, {
+      showEnd: false,
+    });
     setSchedule(formatted);
-  }, [backstageEvents, selectedId, nextId]);
+  }, [backstageEvents, nextId, selectedId] );
+
+  const clock = formatTime(time.clock, formatOptions);
+
+  const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 
   return (
     <div className={style.container}>
       <NavLogo />
       <div className={style.clockContainer}>
-        <div className={style.time}>{time.clockNoSeconds}</div>
+        <div className={style.time}>{clock}</div>
         <div
-          ref={ref}
+          ref={titleRef}
           className={style.nextTitle}
-          style={{ fontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
+          style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
         >
           {title.titleNext}
         </div>

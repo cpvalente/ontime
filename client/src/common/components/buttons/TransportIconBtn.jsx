@@ -3,10 +3,12 @@ import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../ontimeConfig';
+
 export default function TransportIconBtn(props) {
   const { clickHandler, icon, tooltip, disabled, ...rest } = props;
   return (
-    <Tooltip label={tooltip} openDelay={500} shouldWrapChildren={disabled}>
+    <Tooltip label={tooltip} openDelay={tooltipDelayMid} shouldWrapChildren={disabled}>
       <IconButton
         icon={icon}
         colorScheme='white'
