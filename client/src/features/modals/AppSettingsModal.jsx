@@ -26,6 +26,7 @@ import SubmitContainer from './SubmitContainer';
 
 import style from './Modals.module.scss';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const version = require('../../../package.json').version;
 
 export default function AppSettingsModal() {

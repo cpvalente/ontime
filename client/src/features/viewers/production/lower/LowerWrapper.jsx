@@ -1,9 +1,9 @@
 import { memo, useEffect, useState } from 'react';
+import isEqual from "react-fast-compare";
 import { useSearchParams } from 'react-router-dom';
 
 import LowerClean from './LowerClean';
 import LowerLines from './LowerLines';
-const isEqual = require('react-fast-compare');
 
 const areEqual = (prevProps, nextProps) => {
   return (

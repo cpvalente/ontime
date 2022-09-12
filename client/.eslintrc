@@ -2,12 +2,15 @@
   "extends": [
     "react-app",
     "react-app/jest",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
+  "parser": "@typescript-eslint/parser",
   "plugins": [
     "react",
     "testing-library",
-    "simple-import-sort"
+    "simple-import-sort",
+    "@typescript-eslint"
   ],
   "rules": {
     "jest/no-mocks-import": "warn",

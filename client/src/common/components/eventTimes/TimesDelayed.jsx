@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { stringFromMillis } from '../../utils/time';
 import EditableTimer from '../input/EditableTimer';
 
-import style from './Times.module.scss'
+import style from './Times.module.scss';
 
 export default function TimesDelayed(props) {
   const { handleValidate, actionHandler, delay, timeStart, timeEnd, duration, previousEnd } = props;
@@ -46,7 +46,7 @@ export default function TimesDelayed(props) {
       />
     </>
   );
-};
+}
 
 TimesDelayed.propTypes = {
   handleValidate: PropTypes.func.isRequired,
