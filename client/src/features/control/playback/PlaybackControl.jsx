@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { usePlaybackControlProvider } from '../../../common/hooks/useSocketProvider';
 
 import PlaybackButtons from './PlaybackButtons';

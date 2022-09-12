@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';

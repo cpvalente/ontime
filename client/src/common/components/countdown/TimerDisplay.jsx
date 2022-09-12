@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { formatDisplay } from 'common/utils/dateConfig';
 import PropTypes from 'prop-types';
 

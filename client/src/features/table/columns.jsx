@@ -1,4 +1,3 @@
-import React from 'react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 
 import { stringFromMillis } from '../../common/utils/time.js';

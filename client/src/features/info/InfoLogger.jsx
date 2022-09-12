@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
 import { LoggingContext } from '../../common/context/LoggingContext';

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import { VStack } from '@chakra-ui/react';
 import { FiDownload } from '@react-icons/all-files/fi/FiDownload';
 import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';

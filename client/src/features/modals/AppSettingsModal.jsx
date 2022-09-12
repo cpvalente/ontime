@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { ModalBody } from '@chakra-ui/modal';
 import {

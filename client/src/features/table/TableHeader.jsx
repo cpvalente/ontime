@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Divider } from '@chakra-ui/layout';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Textarea } from '@chakra-ui/react';
 import autosize from 'autosize/dist/autosize';
 

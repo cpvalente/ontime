@@ -1,4 +1,3 @@
-import React from 'react';
 import { Icon } from '@chakra-ui/react';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import PropTypes from 'prop-types';

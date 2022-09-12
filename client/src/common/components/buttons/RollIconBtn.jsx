@@ -1,4 +1,3 @@
-import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';

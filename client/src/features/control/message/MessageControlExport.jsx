@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box } from '@chakra-ui/layout';
 import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
 
