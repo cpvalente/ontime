@@ -181,23 +181,27 @@ export const parseAliases_v1 = (data) => {
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
     const ids = [];
-    for (const a of data.aliases) {
-      // double check unique ids
-      if (ids.indexOf(a?.id) !== -1) {
-        console.log('ERROR: ID collision on import, skipping');
-        continue;
-      }
-      const newAlias = {
-        id: a.id || generateId(),
-        enabled: a.enabled || false,
-        alias: a.alias || '',
-        pathAndParams: a.pathAndParams || '',
-      };
+    try {
+      for (const a of data.aliases) {
+        // double check unique ids
+        if (ids.indexOf(a?.id) !== -1) {
+          console.log('ERROR: ID collision on import, skipping');
+          continue;
+        }
+        const newAlias = {
+          id: a.id || generateId(),
+          enabled: a.enabled || false,
+          alias: a.alias || '',
+          pathAndParams: a.pathAndParams || '',
+        };
 
-      ids.push(newAlias.id);
-      newAliases.push(newAlias);
+        ids.push(newAlias.id);
+        newAliases.push(newAlias);
+      }
+      console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
+    } catch (error) {
+      console.log(`Error: ${error}`);
     }
-    console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
   }
   return newAliases;
 };
@@ -213,14 +217,18 @@ export const parseUserFields_v1 = (data) => {
   if ('userFields' in data) {
     console.log('Found User Fields definition, importing...');
     // we will only be importing the fields we know, so look for that
-    let fieldsFound = 0;
-    for (const n in newUserFields) {
-      if (n in data.userFields) {
-        fieldsFound++;
-        newUserFields[n] = data.userFields[n];
+    try {
+      let fieldsFound = 0;
+      for (const n in newUserFields) {
+        if (n in data.userFields) {
+          fieldsFound++;
+          newUserFields[n] = data.userFields[n];
+        }
       }
+      console.log(`Uploaded ${fieldsFound} user fields`);
+    } catch (error) {
+      console.log(`Error: ${error}`);
     }
-    console.log(`Uploaded ${fieldsFound} user fields`);
   }
   return { ...dbModelv1.userFields, ...newUserFields };
 };
