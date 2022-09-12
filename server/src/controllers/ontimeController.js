@@ -4,6 +4,7 @@ import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
 import { generateId } from '../utils/generate_id.js';
 import { resolveDbPath } from '../modules/loadDb.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -51,28 +52,16 @@ const upload = async (file, req, res) => {
     } else if (result.message === 'success') {
       // explicitly write objects
       if (typeof result.data !== 'undefined') {
-        if (typeof result.data?.events !== 'undefined') {
-          data.events = result.data.events;
-          global.timer.setupWithEventList(result.data?.events);
-        }
-        if (typeof result.data?.event !== 'undefined') {
-          data.event = result.data.event;
-        }
-        if (typeof result.data?.settings !== 'undefined') {
-          data.settings = result.data.settings;
-        }
-        if (typeof result.data?.osc !== 'undefined') {
-          data.osc = result.data.osc;
-        }
-        if (typeof result.data?.http !== 'undefined') {
-          data.http = result.data.http;
-        }
-        if (typeof result.data?.aliases !== 'undefined') {
-          data.aliases = result.data.aliases;
-        }
-        if (typeof result.data?.userFields !== 'undefined') {
-          data.userFields = result.data.userFields;
-        }
+        const mergedData = DataProvider.safeMerge(data, result.data);
+        data.events = mergedData.events;
+        data.event = mergedData.event;
+        data.settings = mergedData.settings;
+        data.osc = mergedData.osc;
+        data.http = mergedData.http;
+        data.aliases = mergedData.aliases;
+        data.userFields = mergedData.userFields;
+        console.log(data)
+        global.timer.setupWithEventList(result.data.events);
         await db.write();
       }
       res.sendStatus(200);
