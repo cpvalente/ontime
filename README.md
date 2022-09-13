@@ -166,9 +166,7 @@ friendly order unless there is user demand to bump any of them.
 
 ### Issues
 
-The app is still in pre-release and there are a few issues, mainly concerning responsiveness in
-different screens. If you run into problems, please open an issue with a screenshot and note your
-device and its screen resolution
+If you come across any bugs, [please open an issue]((https://github.com/cpvalente/ontime/issues/new)). Usually bugs get fixed pretty quickly when reported 
 
 #### Unsigned App
 
