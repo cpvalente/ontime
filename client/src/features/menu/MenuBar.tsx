@@ -1,9 +1,9 @@
 import { useCallback, useEffect } from 'react';
 import { VStack } from '@chakra-ui/react';
-import { FiDownload } from '@react-icons/all-files/fi/FiDownload';
 import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
 import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
 import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
+import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
 import { downloadEvents } from 'common/api/ontimeApi';
@@ -15,9 +15,10 @@ import useElectronEvent from '../../common/hooks/useElectronEvent';
 import style from './MenuBar.module.scss';
 
 interface MenuBarProps {
-  isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
+  isSettingsOpen: boolean;
+  onSettingsOpen: () => void;
+  onSettingsClose: () => void;
+  isUploadOpen: boolean;
   onUploadOpen: () => void;
 }
 
@@ -30,7 +31,7 @@ const buttonStyle = {
 };
 
 export default function MenuBar(props: MenuBarProps) {
-  const { isOpen, onOpen, onClose, onUploadOpen } = props;
+  const { isSettingsOpen, onSettingsOpen, onSettingsClose, isUploadOpen, onUploadOpen } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
   const actionHandler = useCallback((action: Actions) => {
@@ -73,12 +74,12 @@ export default function MenuBar(props: MenuBarProps) {
         if (event.key === ',') {
           if (isElectron) {
             // open if not open
-            isOpen ? onClose() : onOpen();
+            isSettingsOpen ? onSettingsClose() : onSettingsOpen();
           }
         }
       }
     },
-    [isElectron, isOpen, onClose, onOpen]
+    [isElectron, isSettingsOpen, onSettingsClose, onSettingsOpen]
   );
 
   useEffect(() => {
@@ -116,8 +117,8 @@ export default function MenuBar(props: MenuBarProps) {
       <TooltipActionBtn
         {...buttonStyle}
         icon={<FiSettings />}
-        className={isOpen ? style.open : ''}
-        clickHandler={onOpen}
+        className={isSettingsOpen ? style.open : ''}
+        clickHandler={onSettingsOpen}
         tooltip='Settings'
         isRound
         aria-label=''
@@ -126,13 +127,15 @@ export default function MenuBar(props: MenuBarProps) {
       <TooltipActionBtn
         {...buttonStyle}
         icon={<FiUpload />}
+        className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
-        tooltip='Import event list'
+        tooltip='Upload event list'
+        isRound
         aria-label=''
       />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiDownload />}
+        icon={<FiSave />}
         clickHandler={downloadEvents}
         tooltip='Export event list'
         aria-label=''

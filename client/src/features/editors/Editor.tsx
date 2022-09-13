@@ -16,7 +16,12 @@ const MessageControl = lazy(() => import('features/control/message/MessageContro
 const Info = lazy(() => import('features/info/InfoExport'));
 
 export default function Editor() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isSettingsOpen,
+    onOpen: onSettingsOpen,
+    onClose: onSettingsClose,
+  } = useDisclosure();
+
   const {
     isOpen: isUploadModalOpen,
     onOpen: onUploadModalOpen,
@@ -32,24 +37,25 @@ export default function Editor() {
     <LoggingProvider>
       <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
       <ErrorBoundary>
-          <ModalManager isOpen={isOpen} onClose={onClose} />
-        </ErrorBoundary>
-        <div className={styles.mainContainer}>
-          <Box id='settings' className={styles.settings}>
-            <ErrorBoundary>
-              <MenuBar
-                onOpen={onOpen}
-                isOpen={isOpen}
-                onClose={onClose}
-                onUploadOpen={onUploadModalOpen}
-              />
-            </ErrorBoundary>
-          </Box>
-          <EventList />
-          <MessageControl />
-          <TimerControl />
-          <Info />
-        </div>
+        <ModalManager isOpen={isSettingsOpen} onClose={onSettingsClose} />
+      </ErrorBoundary>
+      <div className={styles.mainContainer}>
+        <Box id='settings' className={styles.settings}>
+          <ErrorBoundary>
+            <MenuBar
+              onSettingsOpen={onSettingsOpen}
+              isSettingsOpen={isSettingsOpen}
+              onSettingsClose={onSettingsClose}
+              isUploadOpen={isUploadModalOpen}
+              onUploadOpen={onUploadModalOpen}
+            />
+          </ErrorBoundary>
+        </Box>
+        <EventList />
+        <MessageControl />
+        <TimerControl />
+        <Info />
+      </div>
     </LoggingProvider>
   );
 }
