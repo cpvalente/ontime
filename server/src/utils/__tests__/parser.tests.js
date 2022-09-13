@@ -692,7 +692,7 @@ describe('test parseExcel function', () => {
 
     const parsedData = await parseExcel_v1(testdata);
 
-    expect(parsedData.event).toBe(expectedParsedEvent);
+    expect(parsedData.event).toStrictEqual(expectedParsedEvent);
     expect(parsedData.events).toBeDefined();
     expect(parsedData.events.title).toBe(expectedParsedEvents.title);
     expect(parsedData.events.presenter).toBe(expectedParsedEvents.presenter);
