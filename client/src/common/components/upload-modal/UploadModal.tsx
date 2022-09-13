@@ -57,19 +57,18 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
     }
   }, []);
 
-  const handleUpload = () => {
+  const handleUpload = useCallback(async () => {
     if (file) {
       try {
-        // @ts-ignore
-        uploadEvents(file, setProgress).then(queryClient.invalidateQueries(EVENTS_TABLE));
+        await uploadEvents(file, setProgress);
       } catch (error) {
         emitError(`Failed uploading file: ${error}`);
       } finally {
+        await queryClient.invalidateQueries(EVENTS_TABLE);
         setFile(null);
       }
     }
-    emitError('Failed uploading file');
-  };
+  }, [emitError, file, queryClient]);
 
   return (
     <Modal
