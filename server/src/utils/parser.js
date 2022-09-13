@@ -329,7 +329,6 @@ export const fileHandler = async (file) => {
   let res = {};
 
   // check which file type are we dealing with
-
   if (file.endsWith('.xlsx')) {
     try {
       const excelData = xlsx
@@ -341,8 +340,10 @@ export const fileHandler = async (file) => {
       // we only look at worksheets called ontime or event schedule
       if (excelData?.data) {
         const dataFromExcel = await parseExcel_v1(excelData.data);
-        console.log(dataFromExcel);
-        res.data = await parseJson_v1(dataFromExcel);
+        res.data = {};
+        res.data.events = parseEvents_v1(dataFromExcel);
+        res.data.event = parseEvent_v1(dataFromExcel, true);
+        res.data.userFields = parseUserFields_v1(dataFromExcel);
         res.message = 'success';
       } else {
         console.log('Error: No sheets found named ontime or event schedule');

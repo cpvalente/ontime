@@ -51,7 +51,7 @@ const upload = async (file, req, res) => {
       res.status(400).send({ message: result.message });
     } else if (result.message === 'success') {
       // explicitly write objects
-      if (typeof result.data !== 'undefined') {
+      if (typeof result !== 'undefined') {
         const mergedData = DataProvider.safeMerge(data, result.data);
         data.events = mergedData.events;
         data.event = mergedData.event;
@@ -60,8 +60,8 @@ const upload = async (file, req, res) => {
         data.http = mergedData.http;
         data.aliases = mergedData.aliases;
         data.userFields = mergedData.userFields;
-        console.log(data)
-        global.timer.setupWithEventList(result.data.events);
+        global.timer.setupWithEventList(mergedData.events);
+
         await db.write();
       }
       res.sendStatus(200);
