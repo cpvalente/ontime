@@ -1,15 +1,11 @@
-import { ChangeEvent, useCallback, useContext, useState } from 'react';
+import { ChangeEvent, useCallback, useContext, useRef, useState } from 'react';
 import { Button } from '@chakra-ui/button';
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
   Checkbox,
   FormControl,
   FormErrorMessage,
   FormHelperText,
   FormLabel,
-  HStack,
   Input,
   Modal,
   ModalBody,
@@ -19,13 +15,14 @@ import {
   ModalHeader,
   ModalOverlay,
   Progress,
-  Tag,
 } from '@chakra-ui/react';
+import { IoCloseSharp } from '@react-icons/all-files/io5/IoCloseSharp';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { EVENTS_TABLE } from '../../api/apiConstants';
 import { uploadEvents } from '../../api/ontimeApi';
 import { LoggingContext } from '../../context/LoggingContext';
+import TooltipActionBtn from '../buttons/TooltipActionBtn';
 
 import { validateFile } from './utils';
 
@@ -42,6 +39,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const [errors, setErrors] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
+  const overrideOptionRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const fileUploaded = event?.target?.files?.[0];
@@ -60,7 +58,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const handleUpload = useCallback(async () => {
     if (file) {
       try {
-        await uploadEvents(file, setProgress);
+        await uploadEvents(file, setProgress, { onlyEvents: overrideOptionRef?.current?.checked });
       } catch (error) {
         emitError(`Failed uploading file: ${error}`);
       } finally {
@@ -97,25 +95,31 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
               </FormErrorMessage>
             )}
           </FormControl>
+          <div className={style.options}>
+            <b>Options</b>
+            <Checkbox ref={overrideOptionRef}>Import only events</Checkbox>
+            <span className={style.notes}>This will prevent overriding user settings</span>
+          </div>
           {file && (
-            <Alert status='info' variant='subtle' flexDirection='column' alignItems='start'>
-              <AlertTitle>File ready to upload</AlertTitle>
-              <AlertDescription>
-                <HStack>
-                  <Tag size='sm'>{file.name}</Tag>
-                  <Tag size='sm'>{`${(file.size / 1024).toFixed(2)}kb`}</Tag>
-                  <Tag size='sm'>{file.type}</Tag>
-                </HStack>
-                <div className={style.options}>
-                  Options
-                  <Checkbox defaultChecked isDisabled>
-                    Override existing database
-                  </Checkbox>
-                </div>
-              </AlertDescription>
-            </Alert>
+            <div className={style.info}>
+              <span>File ready to upload</span>
+              <TooltipActionBtn
+                clickHandler={() => setFile(null)}
+                tooltip='Cancel'
+                aria-label='Cancel'
+                className={style.corner}
+                size='sm'
+                variant='ghosted'
+                icon={<IoCloseSharp />}
+              />
+              <ul className={style.infoList}>
+                <li>{file.name}</li>
+                <li>{`${(file.size / 1024).toFixed(2)}kb`}</li>
+                <li>{file.type}</li>
+              </ul>
+            </div>
           )}
-          {typeof progress !== 'undefined' && <Progress value={progress} />}
+          <Progress value={progress} />
         </ModalBody>
         <ModalFooter>
           <Button

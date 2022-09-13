@@ -34,11 +34,7 @@ export const dbDownload = async (req, res) => {
   });
 };
 
-/**
- * @description Controller for POST request to /ontime/db
- * @returns none
- */
-const upload = async (file, req, res) => {
+const uploadAndParse = async (file, req, res, options) => {
   if (!fs.existsSync(file)) {
     res.status(500).send({ message: 'Upload failed' });
     return;
@@ -52,16 +48,17 @@ const upload = async (file, req, res) => {
     } else if (result.message === 'success') {
       // explicitly write objects
       if (typeof result !== 'undefined') {
-        const mergedData = DataProvider.safeMerge(data, result.data);
-        data.events = mergedData.events;
-        data.event = mergedData.event;
-        data.settings = mergedData.settings;
-        data.osc = mergedData.osc;
-        data.http = mergedData.http;
-        data.aliases = mergedData.aliases;
-        data.userFields = mergedData.userFields;
-        global.timer.setupWithEventList(mergedData.events);
-
+        if (!options.onlyEvents) {
+          const mergedData = DataProvider.safeMerge(data, result.data);
+          data.event = mergedData.event;
+          data.settings = mergedData.settings;
+          data.osc = mergedData.osc;
+          data.http = mergedData.http;
+          data.aliases = mergedData.aliases;
+          data.userFields = mergedData.userFields;
+        }
+        data.events = result.data.events || [];
+        global.timer.setupWithEventList(result.data.events || []);
         await db.write();
       }
       res.sendStatus(200);
@@ -286,9 +283,9 @@ export const dbUpload = async (req, res) => {
     res.status(400).send({ message: 'File not found' });
     return;
   }
-
+  const options = req.query;
   const file = req.file.path;
-  upload(file, req, res);
+  uploadAndParse(file, req, res, options);
 };
 
 // Create controller for POST request to '/ontime/dbpath'
@@ -298,5 +295,5 @@ export const dbPathToUpload = async (req, res) => {
     res.status(400).send({ message: 'Path to file not found' });
     return;
   }
-  upload(req.body.path, req, res);
+  uploadAndParse(req.body.path, req, res);
 };
