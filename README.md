@@ -158,12 +158,10 @@ There are several features planned in the roadmap. These will be implemented in 
 friendly order unless there is user demand to bump any of them.
 
 - [ ] HTTP Server (vMix integration)
-- [ ] Improvement with event component design
-- [ ] New playback mode
-  for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
-- [ ] Companion module
+- [ ] Improvements in event interface
+- [ ] Moderator view
+- [ ] New playback mode for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
 - [ ] Lower Third Manager
-- [ ] Note only event
 - [ ] Reach Schedule: way to speedup timer to meet a deadline
 
 ### Issues
