@@ -7,6 +7,7 @@
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS.dmg"><img alt="Download MacOS" src="https://github.com/cpvalente/ontime/blob/master/.github/mac-download.png"/></a>
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe"><img alt="Download Windows" src="https://github.com/cpvalente/ontime/blob/master/.github/win-download.png"/></a>
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage"><img alt="Download Linux" src="https://github.com/cpvalente/ontime/blob/master/.github/linux-download.png"/></a>
+  <a href="https://hub.docker.com/r/getontime/ontime"><img alt="Get from Dockerhub" src="https://github.com/cpvalente/ontime/blob/master/.github/dockerhub.png"/></a>
 </div>
 
 # Ontime
