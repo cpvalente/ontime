@@ -564,6 +564,9 @@ describe('test parseExcel function', () => {
       [],
       ['Event Name', 'Test Event'],
       ['Event URL', 'www.carlosvalente.com'],
+      ['Public Info', 'test public info'],
+      ['Backstage Info', 'test backstage info'],
+      ['End Message', 'test end message'],
       [],
       [],
       [
@@ -640,6 +643,14 @@ describe('test parseExcel function', () => {
       [],
     ];
 
+    const expectedParsedEvent = {
+      title: 'Test Event',
+      url: 'www.carlosvalente.com',
+      publicInfo: 'test public info',
+      backstageInfo: 'test backstage info',
+      endMessage: 'test end message',
+    };
+
     const expectedParsedEvents = [
       {
         timeStart: 25200000,
@@ -681,6 +692,7 @@ describe('test parseExcel function', () => {
 
     const parsedData = await parseExcel_v1(testdata);
 
+    expect(parsedData.event).toBe(expectedParsedEvent);
     expect(parsedData.events).toBeDefined();
     expect(parsedData.events.title).toBe(expectedParsedEvents.title);
     expect(parsedData.events.presenter).toBe(expectedParsedEvents.presenter);
