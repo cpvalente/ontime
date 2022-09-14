@@ -1,9 +1,8 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 
 import EditableTimer from '../input/EditableTimer';
 
-import style from './Times.module.scss'
+import style from './Times.module.scss';
 
 export default function Times(props) {
   const { handleValidate, actionHandler, timeStart, timeEnd, duration, previousEnd } = props;
@@ -39,7 +38,7 @@ export default function Times(props) {
       />
     </>
   );
-};
+}
 
 Times.propTypes = {
   handleValidate: PropTypes.func.isRequired,

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { HStack } from '@chakra-ui/react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';

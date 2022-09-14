@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import Icon from '@chakra-ui/icon';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';

@@ -1,4 +1,4 @@
-import React, { lazy } from 'react';
+import { lazy } from 'react';
 import { useDisclosure } from '@chakra-ui/hooks';
 import { Box } from '@chakra-ui/layout';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';

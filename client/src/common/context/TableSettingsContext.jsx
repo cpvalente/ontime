@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useState } from 'react';
+import { createContext, useCallback, useState } from 'react';
 
 import { useLocalStorage } from '../hooks/useLocalStorage';
 

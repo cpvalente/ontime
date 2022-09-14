@@ -2,12 +2,15 @@
   "extends": [
     "react-app",
     "react-app/jest",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
+  "parser": "@typescript-eslint/parser",
   "plugins": [
     "react",
     "testing-library",
-    "simple-import-sort"
+    "simple-import-sort",
+    "@typescript-eslint"
   ],
   "rules": {
     "jest/no-mocks-import": "warn",
@@ -41,6 +44,8 @@
     "react/no-deprecated": [
       "error"
     ],
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
     "react/jsx-no-undef": "error",
     "react/jsx-closing-tag-location": "warn",
     "react/jsx-no-useless-fragment": "warn",

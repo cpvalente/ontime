@@ -1,4 +1,3 @@
-import React from 'react';
 import { clamp } from 'common/utils/math';
 import PropTypes from 'prop-types';
 
