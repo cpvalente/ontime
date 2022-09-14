@@ -5,7 +5,7 @@
   width: 100%;
   display: grid;
   margin: 0 auto;
-  gap: 5px;
+  gap: 4px;
 }
 
 .timeContainer,
@@ -20,8 +20,8 @@
     'ind clk clk btn'
     '... sta fin btn';
   grid-template-rows: 1fr auto;
-  grid-template-columns: 1.5em 2fr 2fr 6em;
-  gap: 5px;
+  grid-template-columns: 1.5em 1fr 1fr 5em;
+  gap: 4px;
   justify-items: start;
 }
 

@@ -20,9 +20,10 @@ const areEqual = (prevProps, nextProps) => {
 
 const incrementProps = {
   size: 'sm',
-  width: '2.9em',
+  width: '2em',
   colorScheme: 'white',
   variant: 'outline',
+  fontSize: '12px',
 };
 
 const PlaybackTimer = (props) => {
