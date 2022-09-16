@@ -1,11 +1,12 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { queryClientMock } from '../../../__mocks__/QueryClient.mock';
 import MenuBar from '../MenuBar';
 
-const onOpenHandler = jest.fn();
-const onCloseHandler = jest.fn();
+const onOpenHandler = vi.fn();
+const onCloseHandler = vi.fn();
 
 const renderInMock = () => {
   render(
