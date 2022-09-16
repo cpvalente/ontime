@@ -20,14 +20,12 @@ import { useAtom } from 'jotai';
 import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
+import { version } from '../../../package.json';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
 import style from './Modals.module.scss';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const version = require('../../../package.json').version;
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);

@@ -31,13 +31,12 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "set BROWSER=none&&react-scripts start",
-    "build": "react-scripts build",
+    "start": "set BROWSER=none&&vite",
+    "build": "vite build",
     "lint": "eslint .",
     "stylelint": "npx stylelint \"**/*.scss\"\n",
-    "test": "react-scripts test",
-    "test:pipeline": "react-scripts test --watchAll=false --runInBand --detectOpenHandles --forceExit ",
-    "eject": "react-scripts eject"
+    "test": "test",
+    "test:pipeline": "test --watchAll=false --runInBand --detectOpenHandles --forceExit "
   },
   "browserslist": {
     "production": [
@@ -60,14 +59,17 @@
     "@types/node": "^18.7.16",
     "@types/react": "^18.0.19",
     "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.1.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prop-types": "^15.8.1",
-    "react-scripts": "^5.0.1",
     "react-test-renderer": "^18.1.0",
     "sass": "^1.51.0",
     "stylelint": "^14.9.1",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard-scss": "^4.0.0",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.3",
+    "vite": "^3.1.1",
+    "vite-plugin-svgr": "^2.2.1",
+    "vite-tsconfig-paths": "^3.5.0"
   }
 }

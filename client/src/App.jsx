@@ -11,7 +11,7 @@ import theme from './theme/theme';
 import AppRouter from './AppRouter';
 
 // Load Open Sans typeface
-require('typeface-open-sans');
+import('typeface-open-sans');
 export const ontimeQueryClient = new QueryClient();
 
 function App() {
