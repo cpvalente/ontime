@@ -3,17 +3,25 @@ import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
-import PropTypes from 'prop-types';
 
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './MessageControl.module.scss';
 
-export default function InputRow(props) {
-  const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
-  const [inputText, setInputText] = useState(text || '');
+interface InputRowProps {
+  label: string;
+  placeholder: string;
+  text: string;
+  visible: boolean;
+  actionHandler: (action: string, payload: object) => void;
+  changeHandler: (newValue: string) => void;
+}
 
-  const handleInputChange = (newValue) => {
+export default function InputRow(props: InputRowProps) {
+  const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
+  const [inputText, setInputText] = useState<string>(text || '');
+
+  const handleInputChange = (newValue: string) => {
     setInputText(newValue);
     changeHandler(newValue);
   };
@@ -53,12 +61,3 @@ export default function InputRow(props) {
     </div>
   );
 }
-
-InputRow.propTypes = {
-  label: PropTypes.string,
-  placeholder: PropTypes.string,
-  text: PropTypes.string,
-  visible: PropTypes.bool,
-  actionHandler: PropTypes.func.isRequired,
-  changeHandler: PropTypes.func.isRequired,
-};
