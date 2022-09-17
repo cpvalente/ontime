@@ -37,7 +37,7 @@ return (
   <AutoTextArea
     size='sm'
     borderColor='#0001'
-    defaultValue={value}
+    value={value}
     onChange={onChange}
     onBlur={onBlur}
     rows={3}
