@@ -10,7 +10,7 @@ describe('When a GET request request is sent', () => {
       .get('/playback')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(typeof response.body.playback).toBe('string');
         expect(response.body.playback).toBe('stop' || 'start' || 'pause' || 'roll');
@@ -24,7 +24,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/onAir')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -33,7 +33,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/offAir')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -42,7 +42,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/start')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -51,7 +51,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/pause')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -60,7 +60,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/stop')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -69,7 +69,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/roll')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -78,7 +78,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/previous')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -87,7 +87,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/next')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -96,7 +96,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/unload')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -105,7 +105,7 @@ describe('When a POST state change is sent', () => {
       .post('/playback/reload')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
       });
   });
 
@@ -114,7 +114,7 @@ describe('When a POST state change is sent', () => {
       .get('/playback/madeup')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(true);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(true);
       });
   });
 
@@ -128,13 +128,13 @@ describe('Test POST requests with payload', () => {
     test('POST /playback/start with correctly given ID', async () => {
       await supertest(server)
         .post('/playback/start')
-        .query({eventId: '5946'})
+        .query({ eventId: '5946' })
         .expect(200);
     });
     test('POST /playback/start with correctly given index', async () => {
       await supertest(server)
         .post('/playback/start')
-        .query({eventIndex: '2'})
+        .query({ eventIndex: '2' })
         .expect(200);
     });
     test('POST /playback/start with incorrectly given ID', async () => {
@@ -167,25 +167,25 @@ describe('Test POST requests with payload', () => {
     test('POST /playback/load with correctly given ID', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({eventId: '5946'})
+        .query({ eventId: '5946' })
         .expect(200);
     });
     test('POST /playback/load with correctly given index', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({eventIndex: '2'})
+        .query({ eventIndex: '2' })
         .expect(200);
     });
     test('POST /playback/load with incorrectly given ID', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({eventId: 'doesntexist'})
+        .query({ eventId: 'doesntexist' })
         .expect(400);
     });
     test('POST /playback/load with incorrectly given index', async () => {
       await supertest(server)
         .post('/playback/load')
-        .query({eventIndex: '25'})
+        .query({ eventIndex: '25' })
         .expect(400);
     });
     test('POST /playback/load with incorrectly given index (NaN)', async () => {

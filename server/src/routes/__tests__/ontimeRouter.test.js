@@ -10,7 +10,7 @@ describe('When a GET request request is sent', () => {
       .get('/ontime/poll')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(typeof response.body.clock).toBe('number');
         expect(typeof response.body.running).toBe('number');
@@ -26,7 +26,7 @@ describe('When a GET request request is sent', () => {
       .get('/ontime/db')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(response.headers['content-type']).toContain('json');
       });
@@ -37,7 +37,7 @@ describe('When a GET request request is sent', () => {
       .get('/ontime/info')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(typeof response.body.networkInterfaces).toBe('object');
         expect(typeof response.body.version).toBe('number');
@@ -51,7 +51,7 @@ describe('When a GET request request is sent', () => {
       .get('/ontime/aliases')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(typeof response.body).toBe('object');
       });
@@ -62,7 +62,7 @@ describe('When a GET request request is sent', () => {
       .get('/ontime/userFields')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(typeof response.body).toBe('object');
       });
@@ -73,7 +73,7 @@ describe('When a GET request request is sent', () => {
       .get('/ontime/settings')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(typeof response.body.version).toBe('number');
         expect(typeof response.body.serverPort).toBe('number');
@@ -86,7 +86,7 @@ describe('When a GET request request is sent', () => {
       .get('/ontime/osc')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(typeof response.body.port).toBe('number');
         expect(typeof response.body.portOut).toBe('number');
@@ -103,7 +103,7 @@ describe('Any other returns the app', () => {
       .expect(200)
       .then((response) => {
         expect(response.body).toBeDefined();
-        expect(response.text.includes('<!doctype html>')).toBe(true);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(true);
       });
   });
 });

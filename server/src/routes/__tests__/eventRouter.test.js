@@ -10,7 +10,7 @@ describe('When a GET request request is sent', () => {
       .get('/event')
       .expect(200)
       .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
+        expect(response.text.includes('<!DOCTYPE html>')).toBe(false);
         expect(response.body).toBeDefined();
         expect(typeof response.body.title).toBe('string');
         expect(typeof response.body.url).toBe('string');
