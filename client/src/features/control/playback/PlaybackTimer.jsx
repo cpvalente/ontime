@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { Button } from '@chakra-ui/button';
 import { Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
@@ -20,9 +20,10 @@ const areEqual = (prevProps, nextProps) => {
 
 const incrementProps = {
   size: 'sm',
-  width: '2.9em',
+  width: '2em',
   colorScheme: 'white',
   variant: 'outline',
+  fontSize: '12px',
 };
 
 const PlaybackTimer = (props) => {

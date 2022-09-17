@@ -1,4 +1,4 @@
-import React, { createRef, useCallback, useContext, useEffect } from 'react';
+import { createRef, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import Empty from 'common/components/state/Empty';
 import { useAtomValue } from 'jotai';

@@ -69,6 +69,9 @@ export const parseExcel_v1 = async (excelData) => {
     .forEach((row) => {
       let eventTitleNext = false;
       let eventUrlNext = false;
+      let publicInfoNext = false;
+      let backstageInfoNext = false;
+      let endMessageNext = false;
       const event = {};
 
       row.forEach((column, j) => {
@@ -79,6 +82,15 @@ export const parseExcel_v1 = async (excelData) => {
         } else if (eventUrlNext) {
           eventData.url = column;
           eventUrlNext = false;
+        } else if (publicInfoNext) {
+          eventData.publicInfo = column;
+          publicInfoNext = false;
+        } else if (backstageInfoNext) {
+          eventData.backstageInfo = column;
+          backstageInfoNext = false;
+        } else if (endMessageNext) {
+          eventData.endMessage = column;
+          endMessageNext = false;
         } else if (j === timeStartIndex) {
           event.timeStart = parseExcelDate(column);
         } else if (j === timeEndIndex) {
@@ -128,6 +140,15 @@ export const parseExcel_v1 = async (excelData) => {
                 break;
               case 'event url':
                 eventUrlNext = true;
+                break;
+              case 'public info':
+                publicInfoNext = true;
+                break;
+              case 'backstage info':
+                backstageInfoNext = true;
+                break;
+              case 'end message':
+                endMessageNext = true;
                 break;
               case 'time start':
               case 'start':
@@ -332,7 +353,6 @@ export const fileHandler = async (file) => {
   let res = {};
 
   // check which file type are we dealing with
-
   if (file.endsWith('.xlsx')) {
     try {
       const excelData = xlsx
@@ -344,7 +364,10 @@ export const fileHandler = async (file) => {
       // we only look at worksheets called ontime or event schedule
       if (excelData?.data) {
         const dataFromExcel = await parseExcel_v1(excelData.data);
-        res.data = await parseJson_v1(dataFromExcel);
+        res.data = {};
+        res.data.events = parseEvents_v1(dataFromExcel);
+        res.data.event = parseEvent_v1(dataFromExcel, true);
+        res.data.userFields = parseUserFields_v1(dataFromExcel);
         res.message = 'success';
       } else {
         console.log('Error: No sheets found named ontime or event schedule');

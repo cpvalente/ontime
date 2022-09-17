@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Checkbox } from '@chakra-ui/react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { useAtomValue } from 'jotai';

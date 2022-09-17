@@ -14,37 +14,41 @@ export const parseEvents_v1 = (data) => {
   if ('events' in data) {
     console.log('Found events definition, importing...');
     const events = [];
-    const ids = [];
-    for (const e of data.events) {
-      // cap number of events
-      if (events.length >= MAX_EVENTS) {
-        console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
-        break;
-      }
-
-      // double check unique ids
-      if (ids.indexOf(e?.id) !== -1) {
-        console.log('ERROR: ID collision on import, skipping');
-        continue;
-      }
-
-      if (e.type === 'event') {
-        const event = validateEvent_v1(e);
-        if (event != null) {
-          events.push(event);
-          ids.push(event.id);
+    try {
+      const ids = [];
+      for (const e of data.events) {
+        // cap number of events
+        if (events.length >= MAX_EVENTS) {
+          console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
+          break;
         }
-      } else if (e.type === 'delay') {
-        events.push({
-          ...delayDef,
-          duration: e.duration,
-          id: e.id || generateId(),
-        });
-      } else if (e.type === 'block') {
-        events.push({ ...blockDef, id: e.id || generateId() });
-      } else {
-        console.log('ERROR: undefined event type, skipping');
+
+        // double check unique ids
+        if (ids.indexOf(e?.id) !== -1) {
+          console.log('ERROR: ID collision on import, skipping');
+          continue;
+        }
+
+        if (e.type === 'event') {
+          const event = validateEvent_v1(e);
+          if (event != null) {
+            events.push(event);
+            ids.push(event.id);
+          }
+        } else if (e.type === 'delay') {
+          events.push({
+            ...delayDef,
+            duration: e.duration,
+            id: e.id || generateId(),
+          });
+        } else if (e.type === 'block') {
+          events.push({ ...blockDef, id: e.id || generateId() });
+        } else {
+          console.log('ERROR: undefined event type, skipping');
+        }
       }
+    } catch (error) {
+      console.log(`Error ${error}`);
     }
     // write to db
     newEvents = events;
@@ -73,7 +77,7 @@ export const parseEvent_v1 = (data, enforce) => {
       endMessage: e.endMessage || dbModelv1.event.endMessage,
     };
   } else if (enforce) {
-    newEvent = dbModelv1.event;
+    newEvent = { ...dbModelv1.event };
     console.log(`Created event object in db`);
   }
   return newEvent;
@@ -164,7 +168,7 @@ export const parseOsc_v1 = (data, enforce) => {
       ...osc,
     };
   } else if (enforce) {
-    newOsc = dbModelv1.osc;
+    newOsc = { ...dbModelv1.osc };
     console.log(`Created OSC object in db`);
   }
   return newOsc;
@@ -192,7 +196,7 @@ export const parseHttp_v1 = (data, enforce) => {
       ...http,
     };
   } else if (enforce) {
-    newHttp.http = dbModelv1.http;
+    newHttp.http = { ...dbModelv1.http };
     console.log(`Created http object in db`);
   }
   return newHttp;
@@ -208,23 +212,27 @@ export const parseAliases_v1 = (data) => {
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
     const ids = [];
-    for (const a of data.aliases) {
-      // double check unique ids
-      if (ids.indexOf(a?.id) !== -1) {
-        console.log('ERROR: ID collision on import, skipping');
-        continue;
-      }
-      const newAlias = {
-        id: a.id || generateId(),
-        enabled: a.enabled || false,
-        alias: a.alias || '',
-        pathAndParams: a.pathAndParams || '',
-      };
+    try {
+      for (const a of data.aliases) {
+        // double check unique ids
+        if (ids.indexOf(a?.id) !== -1) {
+          console.log('ERROR: ID collision on import, skipping');
+          continue;
+        }
+        const newAlias = {
+          id: a.id || generateId(),
+          enabled: a.enabled || false,
+          alias: a.alias || '',
+          pathAndParams: a.pathAndParams || '',
+        };
 
-      ids.push(newAlias.id);
-      newAliases.push(newAlias);
+        ids.push(newAlias.id);
+        newAliases.push(newAlias);
+      }
+      console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
+    } catch (error) {
+      console.log(`Error: ${error}`);
     }
-    console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
   }
   return newAliases;
 };
@@ -235,19 +243,23 @@ export const parseAliases_v1 = (data) => {
  * @returns {object} - event object data
  */
 export const parseUserFields_v1 = (data) => {
-  const newUserFields = dbModelv1.userFields;
+  const newUserFields = { ...dbModelv1.userFields };
 
   if ('userFields' in data) {
     console.log('Found User Fields definition, importing...');
     // we will only be importing the fields we know, so look for that
-    let fieldsFound = 0;
-    for (const n in newUserFields) {
-      if (n in data.userFields) {
-        fieldsFound++;
-        newUserFields[n] = data.userFields[n];
+    try {
+      let fieldsFound = 0;
+      for (const n in newUserFields) {
+        if (n in data.userFields) {
+          fieldsFound++;
+          newUserFields[n] = data.userFields[n];
+        }
       }
+      console.log(`Uploaded ${fieldsFound} user fields`);
+    } catch (error) {
+      console.log(`Error: ${error}`);
     }
-    console.log(`Uploaded ${fieldsFound} user fields`);
   }
-  return { ...dbModelv1.userFields, ...newUserFields };
+  return { ...newUserFields };
 };

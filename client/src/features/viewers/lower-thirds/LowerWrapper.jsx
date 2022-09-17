@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -135,3 +135,4 @@ Lower.propTypes = {
   lower: PropTypes.object,
   viewSettings: PropTypes.object,
 };
+

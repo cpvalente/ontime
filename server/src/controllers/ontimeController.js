@@ -4,6 +4,7 @@ import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
 import { generateId } from '../utils/generate_id.js';
 import { resolveDbPath } from '../modules/loadDb.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -33,11 +34,7 @@ export const dbDownload = async (req, res) => {
   });
 };
 
-/**
- * @description Controller for POST request to /ontime/db
- * @returns none
- */
-const upload = async (file, req, res) => {
+const uploadAndParse = async (file, req, res, options) => {
   if (!fs.existsSync(file)) {
     res.status(500).send({ message: 'Upload failed' });
     return;
@@ -50,29 +47,18 @@ const upload = async (file, req, res) => {
       res.status(400).send({ message: result.message });
     } else if (result.message === 'success') {
       // explicitly write objects
-      if (typeof result.data !== 'undefined') {
-        if (typeof result.data?.events !== 'undefined') {
-          data.events = result.data.events;
-          global.timer.setupWithEventList(result.data?.events);
+      if (typeof result !== 'undefined') {
+        if (!options.onlyEvents) {
+          const mergedData = DataProvider.safeMerge(data, result.data);
+          data.event = mergedData.event;
+          data.settings = mergedData.settings;
+          data.osc = mergedData.osc;
+          data.http = mergedData.http;
+          data.aliases = mergedData.aliases;
+          data.userFields = mergedData.userFields;
         }
-        if (typeof result.data?.event !== 'undefined') {
-          data.event = result.data.event;
-        }
-        if (typeof result.data?.settings !== 'undefined') {
-          data.settings = result.data.settings;
-        }
-        if (typeof result.data?.osc !== 'undefined') {
-          data.osc = result.data.osc;
-        }
-        if (typeof result.data?.http !== 'undefined') {
-          data.http = result.data.http;
-        }
-        if (typeof result.data?.aliases !== 'undefined') {
-          data.aliases = result.data.aliases;
-        }
-        if (typeof result.data?.userFields !== 'undefined') {
-          data.userFields = result.data.userFields;
-        }
+        data.events = result.data.events || [];
+        global.timer.setupWithEventList(result.data.events || []);
         await db.write();
       }
       res.sendStatus(200);
@@ -325,9 +311,9 @@ export const dbUpload = async (req, res) => {
     res.status(400).send({ message: 'File not found' });
     return;
   }
-
+  const options = req.query;
   const file = req.file.path;
-  upload(file, req, res);
+  uploadAndParse(file, req, res, options);
 };
 
 // Create controller for POST request to '/ontime/dbpath'
@@ -337,5 +323,5 @@ export const dbPathToUpload = async (req, res) => {
     res.status(400).send({ message: 'Path to file not found' });
     return;
   }
-  upload(req.body.path, req, res);
+  uploadAndParse(req.body.path, req, res);
 };

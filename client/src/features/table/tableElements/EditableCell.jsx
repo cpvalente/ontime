@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { AutoTextArea } from '../../../common/components/input/AutoTextArea';
@@ -37,7 +37,7 @@ return (
   <AutoTextArea
     size='sm'
     borderColor='#0001'
-    defaultValue={value}
+    value={value}
     onChange={onChange}
     onBlur={onBlur}
     rows={3}

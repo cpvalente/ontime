@@ -264,14 +264,21 @@ export const downloadEvents = async () => {
  * @description HTTP request to upload events db
  * @return {Promise}
  */
-export const uploadEvents = async (file) => {
+export const uploadEvents = async (file, setProgress, options) => {
   const formData = new FormData();
-  formData.append('userFile', file); // appending file
-  await axios.post(`${ontimeURL}/db`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  formData.append('userFile', file);
+  const onlyEvents = options?.onlyEvents;
+  await axios
+    .post(`${ontimeURL}/db?onlyEvents=${onlyEvents}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        const complete = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setProgress(complete);
+      },
+    })
+    .then((response) => response.data.id);
 };
 
 /**

@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-has-content */
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, IconButton } from '@chakra-ui/button';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';

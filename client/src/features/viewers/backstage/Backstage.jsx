@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import NavLogo from 'common/components/nav/NavLogo';
 import Paginator from 'common/components/paginator/Paginator';

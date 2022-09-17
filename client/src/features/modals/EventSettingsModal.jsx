@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, Input, Textarea } from '@chakra-ui/react';
 import { EVENT_TABLE } from 'common/api/apiConstants';

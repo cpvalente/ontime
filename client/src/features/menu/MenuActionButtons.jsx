@@ -1,4 +1,3 @@
-import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Divider } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';

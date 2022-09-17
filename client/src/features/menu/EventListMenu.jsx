@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import { ButtonGroup, HStack } from '@chakra-ui/react';
 import { FiChevronsDown } from '@react-icons/all-files/fi/FiChevronsDown';
 import { FiChevronsUp } from '@react-icons/all-files/fi/FiChevronsUp';
@@ -85,14 +85,14 @@ const EventListMenu = ({ eventsHandler }) => {
           clickHandler={() => actionHandler('cursorUp')}
           icon={<IoCaretUp />}
           tooltip='Move cursor up Alt + ↑'
-          _hover={{ bg: 'pink.400' }}
+          _hover={{ bg: 'pink.400', color: 'white' }}
         />
         <TooltipActionBtn
           {...cursorBtnProps}
           clickHandler={() => actionHandler('cursorDown')}
           icon={<IoCaretDown />}
           tooltip='Move cursor down Alt + ↓'
-          _hover={{ bg: 'pink.400' }}
+          _hover={{ bg: 'pink.400', color: 'white' }}
         />
         <TooltipActionBtn
           {...cursorBtnProps}
@@ -101,7 +101,8 @@ const EventListMenu = ({ eventsHandler }) => {
           tooltip='Lock cursor to current'
           width='3em'
           backgroundColor={isCursorLocked && 'pink.400'}
-          _hover={{ bg: 'pink.300' }}
+          color={isCursorLocked && 'white'}
+          _hover={{ bg: 'pink.400', color: 'white' }}
           variant={isCursorLocked ? 'solid' : 'outline'}
         />
       </ButtonGroup>

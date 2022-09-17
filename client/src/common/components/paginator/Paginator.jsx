@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useInterval } from 'common/hooks/useInterval';
 import PropTypes from 'prop-types';
 
