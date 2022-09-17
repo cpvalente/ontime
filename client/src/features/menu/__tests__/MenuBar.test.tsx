@@ -6,11 +6,13 @@ import MenuBar from '../MenuBar';
 
 const onOpenHandler = jest.fn();
 const onCloseHandler = jest.fn();
+const isOpen = false;
+const onUploadOpenHandler = jest.fn();
 
 const renderInMock = () => {
   render(
     <QueryClientProvider client={queryClientMock}>
-      <MenuBar onOpen={onOpenHandler} onClose={onCloseHandler} />
+      <MenuBar onOpen={onOpenHandler} onClose={onCloseHandler} isOpen={isOpen} onUploadOpen={onUploadOpenHandler} />
     </QueryClientProvider>
   );
 };

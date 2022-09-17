@@ -1,22 +1,47 @@
-import { createContext, useCallback, useEffect, useState } from 'react';
+import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
 
 import { generateId } from '../utils/generate_id';
 import { nowInMillis, stringFromMillis } from '../utils/time';
 
 import { useSocket } from './socketContext';
 
-export const LoggingContext = createContext({
+type LOG_LEVEL = 'INFO' | 'WARN' | 'ERROR';
+type Log = {
+  id: string;
+  origin: string;
+  time: string;
+  level: LOG_LEVEL;
+  text: string;
+};
+
+interface LoggingProviderState {
+  logData: Log[];
+  emitInfo: (text: string) => void;
+  emitWarning: (text: string) => void;
+  emitError: (text: string) => void;
+  clearLog: () => void;
+}
+
+type LoggingProviderProps = {
+  children: ReactNode
+}
+
+const notInitialised = () => {
+  throw new Error("Not initialised");
+};
+
+export const LoggingContext = createContext<LoggingProviderState>({
   logData: [],
-  emitInfo: () => undefined,
-  emitWarning: () => undefined,
-  emitError: () => undefined,
-  clearLog: () => undefined,
+  emitInfo: notInitialised,
+  emitWarning: notInitialised,
+  emitError: notInitialised,
+  clearLog: notInitialised
 });
 
-export const LoggingProvider = ({ children }) => {
+export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   const MAX_MESSAGES = 100;
   const socket = useSocket();
-  const [logData, setLogData] = useState([]);
+  const [logData, setLogData] = useState<Log[]>([]);
   const origin = 'USER';
 
   // handle incoming messages
@@ -26,7 +51,7 @@ export const LoggingProvider = ({ children }) => {
     // Ask for log data
     socket.emit('get-logger');
 
-    socket.on('logger', (data) => {
+    socket.on('logger', (data: Log) => {
       setLogData((l) => [data, ...l]);
     });
 
@@ -43,9 +68,9 @@ export const LoggingProvider = ({ children }) => {
    * @private
    */
   const _send = useCallback(
-    (text, level) => {
+    (text: string, level: LOG_LEVEL) => {
       if (socket != null) {
-        const m = {
+        const m: Log = {
           id: generateId(),
           origin,
           time: stringFromMillis(nowInMillis()),
@@ -56,7 +81,7 @@ export const LoggingProvider = ({ children }) => {
         socket.emit('logger', m);
       }
       if (logData.length > MAX_MESSAGES) {
-        setLogData((l) => l.pop());
+        setLogData((l) => l.slice(1));
       }
     },
     [logData, socket]
@@ -67,7 +92,7 @@ export const LoggingProvider = ({ children }) => {
    * @param text
    */
   const emitInfo = useCallback(
-    (text) => {
+    (text: string) => {
       _send(text, 'INFO');
     },
     [_send]
@@ -78,7 +103,7 @@ export const LoggingProvider = ({ children }) => {
    * @param text
    */
   const emitWarning = useCallback(
-    (text) => {
+    (text: string) => {
       _send(text, 'WARN');
     },
     [_send]
@@ -89,7 +114,7 @@ export const LoggingProvider = ({ children }) => {
    * @param text
    */
   const emitError = useCallback(
-    (text) => {
+    (text: string) => {
       _send(text, 'ERROR');
     },
     [_send]
