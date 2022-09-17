@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
 
 import { generateId } from '../utils/generate_id';
@@ -82,7 +81,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
         socket.emit('logger', m);
       }
       if (logData.length > MAX_MESSAGES) {
-        setLogData((l) => l.pop());
+        setLogData((l) => l.slice(1));
       }
     },
     [logData, socket]
