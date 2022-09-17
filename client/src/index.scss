@@ -32,16 +32,16 @@ option {
 /* Track */
 ::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.01);
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.23);
 }

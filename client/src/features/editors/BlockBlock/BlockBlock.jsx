@@ -1,4 +1,3 @@
-import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { HStack } from '@chakra-ui/react';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';

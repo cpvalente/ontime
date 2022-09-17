@@ -1,4 +1,4 @@
-import React, { useCallback, useContext,useEffect } from 'react';
+import { useCallback, useContext,useEffect } from 'react';
 
 import { EVENTS_TABLE, USERFIELDS } from '../../common/api/apiConstants';
 import { fetchAllEvents, requestPatch } from '../../common/api/eventsApi';

@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
 import { fetchEvent } from '../../common/api/eventApi';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { APP_TABLE } from 'common/api/apiConstants';
 import { getInfo, ontimePlaceholderInfo } from 'common/api/ontimeApi';
 import { useFetch } from 'common/hooks/useFetch';

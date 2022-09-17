@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useInfoProvider } from '../../common/hooks/useSocketProvider';
 
 import InfoLogger from './InfoLogger';

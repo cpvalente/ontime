@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';

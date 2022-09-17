@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useState } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
 
 import { APP_SETTINGS } from '../api/apiConstants';
 import { getSettings } from '../api/ontimeApi';

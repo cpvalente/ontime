@@ -1,4 +1,3 @@
-import React from 'react';
 import { IoArrowUndo } from '@react-icons/all-files/io5/IoArrowUndo';
 import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';

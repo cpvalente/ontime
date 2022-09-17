@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 import NavLogo from 'common/components/nav/NavLogo';

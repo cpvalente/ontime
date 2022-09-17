@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect } from 'react';
+import { Suspense, useCallback, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

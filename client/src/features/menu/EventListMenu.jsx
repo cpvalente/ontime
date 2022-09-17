@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import { ButtonGroup, HStack } from '@chakra-ui/react';
 import { FiChevronsDown } from '@react-icons/all-files/fi/FiChevronsDown';
 import { FiChevronsUp } from '@react-icons/all-files/fi/FiChevronsUp';

@@ -7,6 +7,7 @@
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS.dmg"><img alt="Download MacOS" src="https://github.com/cpvalente/ontime/blob/master/.github/mac-download.png"/></a>
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe"><img alt="Download Windows" src="https://github.com/cpvalente/ontime/blob/master/.github/win-download.png"/></a>
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage"><img alt="Download Linux" src="https://github.com/cpvalente/ontime/blob/master/.github/linux-download.png"/></a>
+  <a href="https://hub.docker.com/r/getontime/ontime"><img alt="Get from Dockerhub" src="https://github.com/cpvalente/ontime/blob/master/.github/dockerhub.png"/></a>
 </div>
 
 # Ontime
@@ -157,19 +158,15 @@ There are several features planned in the roadmap. These will be implemented in 
 friendly order unless there is user demand to bump any of them.
 
 - [ ] HTTP Server (vMix integration)
-- [ ] Improvement with event component design
-- [ ] New playback mode
-  for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
-- [ ] Companion module
+- [ ] Improvements in event interface
+- [ ] Moderator view
+- [ ] New playback mode for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
 - [ ] Lower Third Manager
-- [ ] Note only event
 - [ ] Reach Schedule: way to speedup timer to meet a deadline
 
 ### Issues
 
-The app is still in pre-release and there are a few issues, mainly concerning responsiveness in
-different screens. If you run into problems, please open an issue with a screenshot and note your
-device and its screen resolution
+If you come across any bugs, [please open an issue]((https://github.com/cpvalente/ontime/issues/new)). Usually bugs get fixed pretty quickly when reported 
 
 #### Unsigned App
 

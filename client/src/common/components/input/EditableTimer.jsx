@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import PropTypes from 'prop-types';
 

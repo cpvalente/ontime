@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { HStack } from '@chakra-ui/react';
 import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
 import PropTypes from 'prop-types';
