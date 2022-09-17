@@ -135,4 +135,3 @@ Lower.propTypes = {
   lower: PropTypes.object,
   viewSettings: PropTypes.object,
 };
-
