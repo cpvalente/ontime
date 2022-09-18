@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
-import { overrideStylesURL } from '../../../ontimeConfig';
 
 import './MinimalTimer.scss';
 

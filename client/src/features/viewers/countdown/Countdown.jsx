@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import Empty from '../../../common/components/state/Empty';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { formatTime } from '../../../common/utils/time';
-import { overrideStylesURL } from '../../../ontimeConfig';
 
 import { fetchTimerData, sanitiseTitle, timerMessages } from './countdown.helpers';
 

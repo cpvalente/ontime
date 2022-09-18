@@ -6,9 +6,9 @@ import TitleSide from 'common/components/title-side/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
-import { overrideStylesURL } from '../../../ontimeConfig';
 import { titleVariants } from '../common/animation';
 
 import './Public.scss';

@@ -7,10 +7,10 @@ import { formatDisplay } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
-import { overrideStylesURL } from '../../../ontimeConfig';
 import { titleVariants } from '../common/animation';
 
 import './Backstage.scss';

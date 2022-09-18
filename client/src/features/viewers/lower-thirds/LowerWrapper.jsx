@@ -2,8 +2,8 @@ import { memo, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { overrideStylesURL } from '../../../ontimeConfig';
 
 import LowerClean from './LowerClean';
 import LowerLines from './LowerLines';

@@ -19,7 +19,7 @@ export const TIMER = ['ontime-timer'];
  * @description finds server path given the current location, it
  * @return {*}
  */
-const calculateServer = () => {
+export const calculateServer = () => {
   if (process.env?.NODE_ENV === 'development') {
     return `http://localhost:${STATIC_PORT}`;
   }
@@ -31,3 +31,6 @@ export const eventURL = `${serverURL}/${EVENT_TABLE}`;
 export const eventsURL = `${serverURL}/${EVENTS_TABLE}`;
 export const playbackURL = `${serverURL}/playback`;
 export const ontimeURL = `${serverURL}/ontime`;
+
+export const stylesPath = 'external/styles/override.css';
+export const overrideStylesURL = `serverURL/${stylesPath}`;

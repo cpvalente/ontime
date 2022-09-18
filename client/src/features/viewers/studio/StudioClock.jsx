@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import useFitText from 'use-fit-text';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
@@ -11,7 +12,6 @@ import {
   trimEventlist,
 } from '../../../common/utils/eventsManager';
 import { formatTime, stringFromMillis } from '../../../common/utils/time';
-import { overrideStylesURL } from '../../../ontimeConfig';
 
 import './StudioClock.scss';
 
