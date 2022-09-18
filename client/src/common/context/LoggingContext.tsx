@@ -4,6 +4,7 @@ import { generateId } from '../utils/generate_id';
 import { nowInMillis, stringFromMillis } from '../utils/time';
 
 import { useSocket } from './socketContext';
+import useSubscription from './useSubscription';
 
 type LOG_LEVEL = 'INFO' | 'WARN' | 'ERROR';
 type Log = {
@@ -41,7 +42,8 @@ export const LoggingContext = createContext<LoggingProviderState>({
 export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   const MAX_MESSAGES = 100;
   const socket = useSocket();
-  const [logData, setLogData] = useState<Log[]>([]);
+  //const [logData, setLogData] = useState<Log[]>([]);
+  const [logData, setLogData] = useSubscription<Log[]>('logger', [])
   const origin = 'USER';
 
   // handle incoming messages

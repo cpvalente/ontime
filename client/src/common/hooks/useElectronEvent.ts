@@ -1,4 +1,3 @@
-// @ts-nocheck
 export default function useElectronEvent() {
   const isElectron = window?.process?.type === 'renderer';
 

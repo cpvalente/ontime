@@ -4,7 +4,15 @@ declare module '*.scss' {
 }
 
 declare namespace NodeJS {
-  export interface ProcessEnv {
-    type: string
+  interface Process {
+    type: string;
+  }
+}
+
+declare global {
+  interface Window {
+    ipcRenderer: {
+      send: (channel: string, args: any) => void;
+    };
   }
 }
