@@ -28,8 +28,8 @@ class ErrorBoundary extends React.Component {
     });
     try {
       this.context.emitError(error.toString());
-    } catch {
-      console.log('Unable to emit error')
+    } catch (e) {
+      console.log('Unable to emit error', error, e )
     }
     this.reportContent = `${error} ${info.componentStack}`;
   }
