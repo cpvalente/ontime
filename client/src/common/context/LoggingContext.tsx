@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
+import { createContext, ReactNode, useCallback, useEffect,useState } from 'react';
 
 import { generateId } from '../utils/generate_id';
 import { nowInMillis, stringFromMillis } from '../utils/time';
@@ -28,7 +28,7 @@ type LoggingProviderProps = {
 }
 
 const notInitialised = () => {
-  throw new Error("Not initialised");
+  throw new Error('Not initialised');
 };
 
 export const LoggingContext = createContext<LoggingProviderState>({
@@ -36,7 +36,7 @@ export const LoggingContext = createContext<LoggingProviderState>({
   emitInfo: notInitialised,
   emitWarning: notInitialised,
   emitError: notInitialised,
-  clearLog: notInitialised
+  clearLog: notInitialised,
 });
 
 export const LoggingProvider = ({ children }: LoggingProviderProps) => {
@@ -54,7 +54,8 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     socket.emit('get-logger');
 
     socket.on('logger', (data: Log) => {
-      setLogData((l) => [data, ...l]);
+      Log[]()
+      setLogData((l: Log[]) => [data, ...l]);
     });
 
     // Clear listener
@@ -86,7 +87,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
         setLogData((l) => l.slice(1));
       }
     },
-    [logData, socket]
+    [logData, socket],
   );
 
   /**
@@ -97,7 +98,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'INFO');
     },
-    [_send]
+    [_send],
   );
 
   /**
@@ -108,7 +109,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'WARN');
     },
-    [_send]
+    [_send],
   );
 
   /**
@@ -119,7 +120,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'ERROR');
     },
-    [_send]
+    [_send],
   );
 
   /**

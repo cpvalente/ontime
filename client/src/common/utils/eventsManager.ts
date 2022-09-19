@@ -1,3 +1,5 @@
+import { OntimeEvent, OntimeEventEntry } from '../application-types/event';
+
 import { formatTime } from './time';
 
 /**
@@ -6,7 +8,7 @@ import { formatTime } from './time';
  * @returns {Object[]} Filtered events with calculated delays
  */
 
-export const getEventsWithDelay = (events) => {
+export const getEventsWithDelay = (events: OntimeEventEntry[]) => {
   if (events == null) return [];
 
   const unfilteredEvents = [...events];
@@ -33,7 +35,7 @@ export const getEventsWithDelay = (events) => {
  * @param {number} limit - max number of events to return
  * @returns {Object[]} Event list with maximum <limit> objects
  */
-export const trimEventlist = (events, selectedId, limit) => {
+export const trimEventlist = (events: OntimeEventEntry[], selectedId: string, limit: number) => {
   if (events == null) return [];
 
   const BEFORE = 2;
@@ -53,6 +55,9 @@ export const trimEventlist = (events, selectedId, limit) => {
   return trimmedEvents;
 };
 
+type FormatEventListOptionsProp = {
+  showEnd?: boolean;
+}
 /**
  * @description Returns list of events formatted to be displayed
  * @param {Object[]} events - given events
@@ -62,7 +67,7 @@ export const trimEventlist = (events, selectedId, limit) => {
  * @param {boolean} [options.showEnd] - whether to show the end time
  * @returns {Object[]} Formatted list of events [{time: -, title: -, isNow, isNext}]
  */
-export const formatEventList = (events, selectedId, nextId, options) => {
+export const formatEventList = (events: OntimeEvent[], selectedId: string, nextId: string, options: FormatEventListOptionsProp) => {
   if (events == null) return [];
   const { showEnd = false } = options;
 
@@ -71,7 +76,7 @@ export const formatEventList = (events, selectedId, nextId, options) => {
   // format list
   const formattedEvents = [];
   for (const event of givenEvents) {
-    const start = formatTime(event.timeStart)
+    const start = formatTime(event.timeStart);
     const end = formatTime(event.timeEnd);
 
     formattedEvents.push({
@@ -85,4 +90,24 @@ export const formatEventList = (events, selectedId, nextId, options) => {
   }
 
   return formattedEvents;
+};
+
+/**
+ * @description Creates a safe duplicate of an event
+ * @param {object} event
+ * @return {object} clean event
+ */
+export const duplicateEvent = (event: OntimeEvent) => {
+  return {
+    type: 'event',
+    title: event.title,
+    subtitle: event.subtitle,
+    presenter: event.presenter,
+    note: event.note,
+    timeStart: event.timeStart,
+    timeEnd: event.timeEnd,
+    isPublic: event.isPublic,
+    skip: event.skip,
+    colour: event.colour,
+  };
 };

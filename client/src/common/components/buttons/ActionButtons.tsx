@@ -4,11 +4,17 @@ import { Tooltip } from '@chakra-ui/tooltip';
 import { FiClock } from '@react-icons/all-files/fi/FiClock';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
-import PropTypes from 'prop-types';
 
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
-export default function ActionButtons(props) {
+interface ActionButtonProps {
+  showAdd?: boolean;
+  showDelay?: boolean;
+  showBlock?: boolean;
+  actionHandler: (action: string) => void;
+}
+
+export default function ActionButtons(props: ActionButtonProps) {
   const { showAdd, showDelay, showBlock, actionHandler } = props;
 
   const menuStyle = {
@@ -18,7 +24,7 @@ export default function ActionButtons(props) {
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
-      <Tooltip label='Add ...' delay={tooltipDelayMid}>
+      <Tooltip label='Add ...' openDelay={tooltipDelayMid}>
         <MenuButton
           as={IconButton}
           aria-label='Options'
@@ -48,11 +54,4 @@ export default function ActionButtons(props) {
       </MenuList>
     </Menu>
   );
-}
-
-ActionButtons.propTypes = {
-  showAdd: PropTypes.bool,
-  showDelay: PropTypes.bool,
-  showBlock: PropTypes.bool,
-  actionHandler: PropTypes.func,
 }

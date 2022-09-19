@@ -4,8 +4,20 @@ import { formatTime } from '../../utils/time';
 
 import style from './Paginator.module.scss';
 
-export default function TodayItem(props) {
-  const { selected, timeStart, timeEnd, title, backstageEvent, colour } = props;
+interface TodayItemProps {
+  selected: number;
+  timeStart: number;
+  timeEnd: number;
+  title: string;
+  backstageEvent: boolean;
+  colour: string;
+  skip: boolean;
+}
+
+// Todo: apply skip CSS and selector
+export default function TodayItem(props: TodayItemProps) {
+  // @ts-ignore
+  const { selected, timeStart, timeEnd, title, backstageEvent, colour, skip } = props;
 
   // Format timers
   const start = formatTime(timeStart, { format: 'hh:mm' });

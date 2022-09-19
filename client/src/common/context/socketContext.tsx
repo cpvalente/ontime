@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { serverURL } from 'common/api/apiConstants';
 import io, { Socket } from 'socket.io-client';
@@ -26,7 +25,7 @@ export const useSocket = () => {
 };
 
 function SocketProvider({ children }: SocketProviderProps) {
-  const [socket, setSocket] = useState({} as Socket);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     const socketInstance = io(serverURL, { transports: ["websocket"] });

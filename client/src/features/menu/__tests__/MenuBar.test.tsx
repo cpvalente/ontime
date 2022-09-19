@@ -4,15 +4,21 @@ import { render, screen } from '@testing-library/react';
 import { queryClientMock } from '../../../__mocks__/QueryClient.mock';
 import MenuBar from '../MenuBar';
 
-const onOpenHandler = jest.fn();
-const onCloseHandler = jest.fn();
+const onSettingOpenHandler = jest.fn();
+const onSettingsCloseHandler = jest.fn();
 const isOpen = false;
 const onUploadOpenHandler = jest.fn();
 
 const renderInMock = () => {
   render(
     <QueryClientProvider client={queryClientMock}>
-      <MenuBar onOpen={onOpenHandler} onClose={onCloseHandler} isOpen={isOpen} onUploadOpen={onUploadOpenHandler} />
+      <MenuBar
+        isSettingsOpen={isOpen}
+        onSettingsOpen={onSettingOpenHandler}
+        onSettingsClose={onSettingsCloseHandler}
+        isUploadOpen={isOpen}
+        onUploadOpen={onUploadOpenHandler}
+      />
     </QueryClientProvider>
   );
 };

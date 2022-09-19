@@ -2,8 +2,6 @@ import { IconButton } from '@chakra-ui/button';
 import { IconButtonProps } from '@chakra-ui/react';
 import { Tooltip } from '@chakra-ui/tooltip';
 
-export type Sizes = 'xs' | 'sm' | 'md' | 'lg';
-
 interface TooltipActionBtnProps extends IconButtonProps {
   clickHandler: () => void;
   tooltip: string;
