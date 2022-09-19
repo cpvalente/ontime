@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { formatDisplay } from 'common/utils/dateConfig';
 import PropTypes from 'prop-types';
 
-import styles from './TimerDisplay.module.scss';
+import './TimerDisplay.scss';
 
 const TimerDisplay = ({ time, small, isNegative, hideZeroHours }) => {
 
@@ -11,14 +11,9 @@ const TimerDisplay = ({ time, small, isNegative, hideZeroHours }) => {
       ? '-- : -- : --'
       : formatDisplay(time, hideZeroHours);
 
-  const classes = `${small ? styles.countdownClockSmall : styles.countdownClock} 
-  ${isNegative ? styles.negative : ''}`;
+  const classes = `timer ${small ? 'timer--small' : ''}  ${isNegative ? 'timer--finished' : ''}`;
 
-  return (
-    <div className={classes}>
-      {display}
-    </div>
-  );
+  return <div className={classes}>{display}</div>;
 };
 
 export default memo(TimerDisplay);

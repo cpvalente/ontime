@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import NavLogo from "../../../../common/components/nav/NavLogo";
+import NavLogo from "../../../common/components/nav/NavLogo";
 
-import style from './LowerLines.module.css';
+import './LowerLines.scss';
 
 export default function LowerLines(props) {
   const { lower, title, options } = props;
@@ -122,7 +122,7 @@ export default function LowerLines(props) {
 
   return (
     <div
-      className={style.lowerThird}
+      className='lower-third lines'
       style={{
         backgroundColor: options.keyColour || defaults.keyColour,
         color: options.textColour || defaults.textColour,
@@ -135,7 +135,7 @@ export default function LowerLines(props) {
       <AnimatePresence>
         {showLower && (
           <motion.div
-            className={style.lowerContainer}
+            className='lower-container'
             style={{ backgroundColor: options.bgColour || defaults.bgColour }}
             variants={lowerThirdVariants}
             initial='hidden'
@@ -143,21 +143,21 @@ export default function LowerLines(props) {
             exit='exit'
           >
             <motion.div
-              className={style.titleContainer}
+              className='title-container'
               variants={titleContainerVariants}
             >
-              <motion.div className={style.title} variants={titleVariants}>
+              <motion.div className='title' variants={titleVariants}>
                 {title.titleNow}
               </motion.div>
-              <div className={style.titleDecor} />
+              <div className='title-decor' />
             </motion.div>
             <motion.div
-              className={style.subtitleContainer}
+              className='subtitle-container'
               variants={subtitleContainerVariants}
             >
-              <div className={style.subDecor} />
+              <div className='sub-decor' />
               <motion.div
-                className={style.subtitle}
+                className='subtitle'
                 variants={subtitleVariants}
               >
                 {title.presenterNow}
@@ -170,14 +170,14 @@ export default function LowerLines(props) {
       <AnimatePresence>
         {showLowerMessage && (
           <motion.div
-            className={style.messageContainer}
+            className='message-container'
             key='modal'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ scaleY: 0, opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className={style.message}>{lower.text}</div>
+            <div className='message'>{lower.text}</div>
           </motion.div>
         )}
       </AnimatePresence>

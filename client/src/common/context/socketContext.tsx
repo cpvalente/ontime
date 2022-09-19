@@ -26,7 +26,7 @@ export const useSocket = () => {
 };
 
 function SocketProvider({ children }: SocketProviderProps) {
-  const [socket, setSocket] = useState({} as Socket);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const socketInstance = io(serverURL, { transports: ["websocket"] });

@@ -1,16 +1,18 @@
 /* eslint-disable react/display-name */
 import { useEffect, useState } from 'react';
+import { EVENT_TABLE, EVENTS_TABLE, VIEW_SETTINGS } from 'common/api/apiConstants';
+import { fetchEvent } from 'common/api/eventApi';
+import { fetchAllEvents } from 'common/api/eventsApi';
+import { useSocket } from 'common/context/socketContext';
+import { useFetch } from 'common/hooks/useFetch';
 
-import { EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
-import { fetchEvent } from '../../common/api/eventApi';
-import { fetchAllEvents } from '../../common/api/eventsApi';
-import { useSocket } from '../../common/context/socketContext';
-import { useFetch } from '../../common/hooks/useFetch';
+import { getView } from '../../common/api/ontimeApi';
 
 const withSocket = (Component) => {
   return (props) => {
     const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents);
     const { data: genData } = useFetch(EVENT_TABLE, fetchEvent);
+    const { data: viewSettings } = useFetch(VIEW_SETTINGS, getView);
 
     const [publicEvents, setPublicEvents] = useState([]);
     const [backstageEvents, setBackstageEvents] = useState([]);
@@ -176,7 +178,6 @@ const withSocket = (Component) => {
       setGeneral(genData);
     }, [genData]);
 
-
     /********************************************/
     /***  + titleManager                      ***/
     /***  WRAP INFORMATION RELATED TO TITLES  ***/
@@ -228,6 +229,12 @@ const withSocket = (Component) => {
       playstate: playback,
     };
 
+    // prevent render until we get all the data we need
+    if (!viewSettings) {
+      return null;
+    }
+
+    Component.displayName = 'ComponentWithData';
     return (
       <Component
         {...props}
@@ -241,6 +248,7 @@ const withSocket = (Component) => {
         backstageEvents={backstageEvents}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
+        viewSettings={viewSettings}
         nextId={nextId}
         general={general}
         onAir={onAir}

@@ -6,6 +6,7 @@ export const EVENTS_TABLE = ['events'];
 export const APP_TABLE = ['appinfo'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
+export const VIEW_SETTINGS = ['viewSettings'];
 
 export const FEAT_EVENTLIST = ['feat-eventList'];
 export const FEAT_MESSAGECONTROL = ['feat-messagecontrol'];
@@ -18,7 +19,7 @@ export const TIMER = ['ontime-timer'];
  * @description finds server path given the current location, it
  * @return {*}
  */
-const calculateServer = () => {
+export const calculateServer = () => {
   if (process.env?.NODE_ENV === 'development') {
     return `http://localhost:${STATIC_PORT}`;
   }
@@ -30,3 +31,6 @@ export const eventURL = `${serverURL}/${EVENT_TABLE}`;
 export const eventsURL = `${serverURL}/${EVENTS_TABLE}`;
 export const playbackURL = `${serverURL}/playback`;
 export const ontimeURL = `${serverURL}/ontime`;
+
+export const stylesPath = 'external/styles/override.css';
+export const overrideStylesURL = `serverURL/${stylesPath}`;

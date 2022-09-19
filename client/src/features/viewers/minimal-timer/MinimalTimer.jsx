@@ -1,16 +1,27 @@
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 
-import style from './MinimalTimer.module.scss';
+import './MinimalTimer.scss';
 
 export default function MinimalTimer(props) {
-  const { pres, time } = props;
+  const { pres, time, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
-  document.title = 'ontime - Minimal Timer';
+  useEffect(() => {
+    document.title = 'ontime - Minimal Timer';
+  }, []);
+
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
   // get config from url: key, text, font, size, hidenav, hideovertime
   // eg. http://localhost:3000/minimal?key=f00&text=fff
@@ -102,11 +113,11 @@ export default function MinimalTimer(props) {
   const isPlaying = time.playstate !== 'pause';
   const timer = formatDisplay(time.running, true);
   const clean = timer.replace('/:/g', '');
-  const finishedStyle = userOptions?.hideOvertime ? style.container : style.containerFinished;
+  const showFinished = time.isNegative && !userOptions?.hideOvertime;
 
   return (
     <div
-      className={time.finished ? finishedStyle : style.container}
+      className={showFinished ? 'minimal-timer minimal-timer--finished' : 'minimal-timer'}
       style={{
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,
@@ -116,13 +127,17 @@ export default function MinimalTimer(props) {
       data-testid='minimal-timer'
     >
       {!hideMessagesOverlay && (
-        <div className={showOverlay ? style.messageOverlayActive : style.messageOverlay}>
-          <div className={style.message}>{pres.text}</div>
+        <div
+          className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}
+        >
+          <div className='message'>{pres.text}</div>
         </div>
       )}
       {!userOptions?.hideNav && <NavLogo />}
       <div
-        className={isPlaying ? style.timer : style.timerPaused}
+        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${
+          showFinished ? 'timer--finished' : ''
+        }`}
         style={{
           fontSize: `${(89 / (clean.length - 1)) * userOptions.size}vw`,
           fontFamily: userOptions.font,
@@ -139,4 +154,5 @@ export default function MinimalTimer(props) {
 MinimalTimer.propTypes = {
   pres: PropTypes.object,
   time: PropTypes.object,
+  viewSettings: PropTypes.object,
 };

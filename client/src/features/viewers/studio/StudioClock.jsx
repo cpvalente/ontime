@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import useFitText from 'use-fit-text';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import {
   formatEventList,
@@ -11,7 +13,7 @@ import {
 } from '../../../common/utils/eventsManager';
 import { formatTime, stringFromMillis } from '../../../common/utils/time';
 
-import style from './StudioClock.module.scss';
+import './StudioClock.scss';
 
 const formatOptions = {
   showSeconds: false,
@@ -19,15 +21,18 @@ const formatOptions = {
 };
 
 export default function StudioClock(props) {
-  const { title, time, backstageEvents, selectedId, nextId, onAir } = props;
+  const { title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
+
+  // deferring rendering seems to affect styling (font and useFitText)
+  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
+
   const [schedule, setSchedule] = useState([]);
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
   const MAX_TITLES = 10;
 
-  // Set window title
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
   }, []);
@@ -35,7 +40,6 @@ export default function StudioClock(props) {
   // Prepare event list
   useEffect(() => {
     if (backstageEvents == null) return;
-
 
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
@@ -47,29 +51,28 @@ export default function StudioClock(props) {
   }, [backstageEvents, nextId, selectedId] );
 
   const clock = formatTime(time.clock, formatOptions);
-
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 
   return (
-    <div className={style.container}>
+    <div className='studio-clock'>
       <NavLogo />
-      <div className={style.clockContainer}>
-        <div className={style.time}>{clock}</div>
+      <div className='clock-container'>
+        <div className='studio-timer'>{clock}</div>
         <div
           ref={titleRef}
-          className={style.nextTitle}
+          className='next-title'
           style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
         >
           {title.titleNext}
         </div>
-        <div className={time.isNegative ? style.nextCountdown : style.nextCountdown__overtime}>
+        <div className={time.isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
           {selectedId != null && formatDisplay(time.running)}
         </div>
-        <div className={style.indicators}>
+        <div className='clock-indicators'>
           {activeIndicators.map((i) => (
             <div
               key={i}
-              className={style.hours__active}
+              className='hours hours--active'
               style={{
                 transform: `rotate(${(360 / 12) * i - 90}deg) translateX(40vh)`,
               }}
@@ -78,7 +81,7 @@ export default function StudioClock(props) {
           {secondsIndicators.map((i) => (
             <div
               key={i}
-              className={i <= secondsNow ? style.min__active : style.min}
+              className={i <= secondsNow ? 'min min--active' : 'min'}
               style={{
                 transform: `rotate(${(360 / 60) * i - 90}deg) translateX(43vh)`,
               }}
@@ -86,14 +89,14 @@ export default function StudioClock(props) {
           ))}
         </div>
       </div>
-      <div className={style.scheduleContainer}>
-        <div className={onAir ? style.onAir : style.onAir__idle}>ON AIR</div>
-        <div className={style.schedule}>
+      <div className='schedule-container'>
+        <div className={onAir ? 'onAir' : 'onAir onAir--idle'}>ON AIR</div>
+        <div className='schedule'>
           <ul>
             {schedule.map((s) => (
               <li
                 key={s.id}
-                className={s.isNow ? style.now : s.isNext ? style.next : ''}
+                className={s.isNow ? 'now' : s.isNext ? 'next' : ''}
                 style={{ borderLeft: `4px solid ${s.colour !== '' ? s.colour : 'transparent'}` }}
               >
                 {`${s.time} ${s.title}`}
@@ -113,4 +116,5 @@ StudioClock.propTypes = {
   selectedId: PropTypes.string,
   nextId: PropTypes.string,
   onAir: PropTypes.bool,
+  viewSettings: PropTypes.object,
 };

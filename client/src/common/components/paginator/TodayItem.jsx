@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 import { formatTime } from '../../utils/time';
 
-import style from './Paginator.module.scss';
+import './Paginator.scss';
 
 export default function TodayItem(props) {
   const { selected, timeStart, timeEnd, title, backstageEvent, colour } = props;
@@ -15,16 +15,16 @@ export default function TodayItem(props) {
   const userColour = colour !== '' ? colour : 'transparent';
 
   // select styling
-  let selectStyle = style.entryPast;
-  if (selected === 1) selectStyle = style.entryNow;
-  else if (selected === 2) selectStyle = style.entryFuture;
+  let selectStyle = 'entry--past';
+  if (selected === 1) selectStyle = 'entry--now';
+  else if (selected === 2) selectStyle = 'entry--future';
   return (
-    <div className={selectStyle} style={{ borderLeft: `4px solid ${userColour}` }}>
-      <div className={`${style.entryTimes} ${backstageEvent ? style.backstage : ''}`}>
+    <div className={`entry ${selectStyle}`} style={{ borderLeft: `4px solid ${userColour}` }}>
+      <div className='entry-times'>
         {`${start} · ${end}`}
       </div>
-      <div className={style.entryTitle}>{title}</div>
-      {backstageEvent && <div className={style.backstageInd} />}
+      <div className='entry-title'>{title}</div>
+      {backstageEvent && <div className='backstage-indicator' />}
     </div>
   );
 }

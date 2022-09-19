@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import NavLogo from "../../../../common/components/nav/NavLogo";
+import NavLogo from "../../../common/components/nav/NavLogo";
 
-import style from './LowerClean.module.css';
+import './LowerClean.scss';
 
 export default function LowerClean(props) {
   const { lower, title, options } = props;
@@ -79,7 +79,7 @@ export default function LowerClean(props) {
 
   return (
     <div
-      className={style.lowerThird}
+      className='lower-third clean'
       style={{
         backgroundColor: options.keyColour || defaults.keyColour,
         color: options.textColour || defaults.textColour,
@@ -92,7 +92,7 @@ export default function LowerClean(props) {
       <AnimatePresence>
         {showLower && (
           <motion.div
-            className={style.lowerContainer}
+            className='lower-container'
             style={{
               backgroundColor: options.bgColour || defaults.bgColour,
               top: options.posY || defaults.posY,
@@ -103,10 +103,10 @@ export default function LowerClean(props) {
             animate='visible'
             exit='exit'
           >
-            <motion.div className={style.title} variants={titleVariants}>
+            <motion.div className='title' variants={titleVariants}>
               {title.titleNow}
             </motion.div>
-            <motion.div className={style.subtitle} variants={titleVariants}>
+            <motion.div className='subtitle' variants={titleVariants}>
               {title.presenterNow}
             </motion.div>
           </motion.div>
@@ -116,7 +116,7 @@ export default function LowerClean(props) {
       <AnimatePresence>
         {showLowerMessage && (
           <motion.div
-            className={style.messageContainer}
+            className='message-container'
             style={{
               backgroundColor: options.bgColour || defaults.bgColour,
             }}
@@ -126,7 +126,7 @@ export default function LowerClean(props) {
             exit={{ scaleY: 0, opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className={style.message}>{lower.text}</div>
+            <div className='message'>{lower.text}</div>
           </motion.div>
         )}
       </AnimatePresence>
