@@ -5,28 +5,31 @@ import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import {
-  PresenterMessageData,
   TimeManager,
   ViewSettings,
 } from '../../../common/models/OntimeTypes';
 import { OverridableOptions } from '../../../common/models/ViewTypes';
-import { formatDisplay } from '../../../common/utils/dateConfig';
+import { formatTime } from '../../../common/utils/time';
 
-import './MinimalTimer.scss';
+import './Clock.scss';
 
-interface MinimalTimerProps {
-  pres: PresenterMessageData;
+interface ClockProps {
   time: TimeManager;
   viewSettings: ViewSettings;
 }
 
-export default function MinimalTimer(props: MinimalTimerProps) {
-  const { pres, time, viewSettings } = props;
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
+
+export default function Clock(props: ClockProps) {
+  const { time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    document.title = 'ontime - Minimal Timer';
+    document.title = 'ontime - Clock';
   }, []);
 
   // defer rendering until we load stylesheets
@@ -119,42 +122,23 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideNav = searchParams.get('hidenav');
   userOptions.hideNav = Boolean(hideNav);
 
-  const hideOvertime = searchParams.get('hideovertime');
-  userOptions.hideOvertime = Boolean(hideOvertime);
+  const clock = formatTime(time.clock, formatOptions);
+  const clean = clock.replace('/:/g', '');
 
-  const hideMessagesOverlay = searchParams.get('hidemessages');
-  userOptions.hideMessagesOverlay = Boolean(hideMessagesOverlay);
-
-  const showOverlay = pres.text !== '' && pres.visible;
-  const isPlaying = time.playstate !== 'pause';
-  const timer = formatDisplay(time.running, true);
-  const clean = timer.replace('/:/g', '');
-  const showFinished = time.isNegative && !userOptions?.hideOvertime;
-
-  // @ts-ignore
   return (
     <div
-      className={showFinished ? 'minimal-timer minimal-timer--finished' : 'minimal-timer'}
+      className='clock-view'
       style={{
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,
         justifyContent: userOptions.justifyContent,
         alignItems: userOptions.alignItems,
       }}
-      data-testid='minimal-timer'
+      data-testid='clock-view'
     >
-      {!hideMessagesOverlay && (
-        <div
-          className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}
-        >
-          <div className='message'>{pres.text}</div>
-        </div>
-      )}
       {!userOptions?.hideNav && <NavLogo />}
       <div
-        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${
-          showFinished ? 'timer--finished' : ''
-        }`}
+        className='clock'
         style={{
           fontSize: `${(89 / (clean.length - 1)) * (userOptions.size || 1)}vw`,
           fontFamily: userOptions.font,
@@ -163,7 +147,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
           backgroundColor: userOptions.textBackground,
         }}
       >
-        {time.isNegative ? `-${timer}` : timer}
+        {clock}
       </div>
     </div>
   );
