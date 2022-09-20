@@ -12,6 +12,7 @@ const Table = lazy(() => import('features/table/ProtectedTable'));
 
 const TimerView = lazy(() => import('features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('features/viewers/minimal-timer/MinimalTimer'));
+const ClockView = lazy(() => import('features/viewers/clock/Clock'));
 const Countdown = lazy(() => import('features/viewers/countdown/Countdown'));
 
 const Backstage = lazy(() => import('features/viewers/backstage/Backstage'));
@@ -22,6 +23,7 @@ const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 
 const STimer = withSocket(TimerView);
 const SMinimalTimer = withSocket(MinimalTimerView);
+const SClock = withSocket(ClockView);
 const SCountdown = withSocket(Countdown);
 const SBackstage = withSocket(Backstage);
 const SPublic = withSocket(Public);
@@ -63,6 +65,8 @@ export default function AppRouter() {
       <Route path='/minimal' element={<SMinimalTimer />} />
       <Route path='/minimalTimer' element={<SMinimalTimer />} />
       <Route path='/simpleTimer' element={<SMinimalTimer />} />
+
+      <Route path='/clock' element={<SClock />} />
 
       <Route path='/countdown' element={<SCountdown />} />
 

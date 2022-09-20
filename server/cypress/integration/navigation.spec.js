@@ -92,6 +92,16 @@ describe('validate routes', () => {
     cy.contains('Running Timer');
   });
 
+  describe('clock view timer', () => {
+    it('renders base route', () => {
+      // base route
+      cy.visit('http://localhost:4001/clock');
+      cy.get('[data-testid="clock-view"]').should('exist');
+      // ontime fallsback to stage timer on errors, so we check for that
+      cy.get('.App').should('not.contain', 'Time Now');
+    });
+  });
+
   describe('minimal timer and options', () => {
     it('renders base route', () => {
       // base route

@@ -1,21 +1,35 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { formatDisplay } from '../../../common/utils/dateConfig';
+import {
+  TimeManager,
+  ViewSettings,
+} from '../../../common/models/OntimeTypes';
+import { OverridableOptions } from '../../../common/models/ViewTypes';
+import { formatTime } from '../../../common/utils/time';
 
-import './MinimalTimer.scss';
+import './Clock.scss';
 
-export default function MinimalTimer(props) {
-  const { pres, time, viewSettings } = props;
+interface ClockProps {
+  time: TimeManager;
+  viewSettings: ViewSettings;
+}
+
+const formatOptions = {
+  showSeconds: true,
+  format: 'hh:mm:ss a',
+};
+
+export default function Clock(props: ClockProps) {
+  const { time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    document.title = 'ontime - Minimal Timer';
+    document.title = 'ontime - Clock';
   }, []);
 
   // defer rendering until we load stylesheets
@@ -26,7 +40,9 @@ export default function MinimalTimer(props) {
   // get config from url: key, text, font, size, hidenav, hideovertime
   // eg. http://localhost:3000/minimal?key=f00&text=fff
   // Check for user options
-  const userOptions = {};
+  const userOptions: OverridableOptions = {
+    size: 1,
+  };
 
   // key: string
   // Should be a hex string '#00FF00' with key colour
@@ -42,6 +58,13 @@ export default function MinimalTimer(props) {
     userOptions.textColour = `#${textColour}`;
   }
 
+  // textBackground: string
+  // Should be a hex string '#ffffff'
+  const textBackground = searchParams.get('textbg');
+  if (textBackground) {
+    userOptions.textBackground = `#${textBackground}`;
+  }
+
   // font: string
   // Should be a string with a font name 'arial'
   const font = searchParams.get('font');
@@ -52,8 +75,10 @@ export default function MinimalTimer(props) {
   // size: multiplier
   // Should be a number 0.0-n
   const size = searchParams.get('size');
-  if (size) {
-    userOptions.size = size;
+  if (size !== null && typeof size !== 'undefined') {
+    if (!Number.isNaN(Number(size))) {
+      userOptions.size = Number(size);
+    }
   }
 
   // alignX: flex justification
@@ -95,64 +120,35 @@ export default function MinimalTimer(props) {
   }
 
   const hideNav = searchParams.get('hidenav');
-  if (hideNav) {
-    userOptions.hideNav = hideNav;
-  }
+  userOptions.hideNav = Boolean(hideNav);
 
-  const hideOvertime = searchParams.get('hideovertime');
-  if (hideOvertime) {
-    userOptions.hideOvertime = hideOvertime;
-  }
-
-  const hideMessagesOverlay = searchParams.get('hidemessages');
-  if (hideMessagesOverlay) {
-    userOptions.hideMessagesOverlay = hideMessagesOverlay;
-  }
-
-  const showOverlay = pres.text !== '' && pres.visible;
-  const isPlaying = time.playstate !== 'pause';
-  const timer = formatDisplay(time.running, true);
-  const clean = timer.replace('/:/g', '');
-  const showFinished = time.isNegative && !userOptions?.hideOvertime;
+  const clock = formatTime(time.clock, formatOptions);
+  const clean = clock.replace('/:/g', '');
 
   return (
     <div
-      className={showFinished ? 'minimal-timer minimal-timer--finished' : 'minimal-timer'}
+      className='clock-view'
       style={{
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,
         justifyContent: userOptions.justifyContent,
         alignItems: userOptions.alignItems,
       }}
-      data-testid='minimal-timer'
+      data-testid='clock-view'
     >
-      {!hideMessagesOverlay && (
-        <div
-          className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}
-        >
-          <div className='message'>{pres.text}</div>
-        </div>
-      )}
       {!userOptions?.hideNav && <NavLogo />}
       <div
-        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${
-          showFinished ? 'timer--finished' : ''
-        }`}
+        className='clock'
         style={{
-          fontSize: `${(89 / (clean.length - 1)) * userOptions.size}vw`,
+          fontSize: `${(89 / (clean.length - 1)) * (userOptions.size || 1)}vw`,
           fontFamily: userOptions.font,
           top: userOptions.top,
           left: userOptions.left,
+          backgroundColor: userOptions.textBackground,
         }}
       >
-        {time.isNegative ? `-${timer}` : timer}
+        {clock}
       </div>
     </div>
   );
 }
-
-MinimalTimer.propTypes = {
-  pres: PropTypes.object,
-  time: PropTypes.object,
-  viewSettings: PropTypes.object,
-};
