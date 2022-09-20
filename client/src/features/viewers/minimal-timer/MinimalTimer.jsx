@@ -42,6 +42,13 @@ export default function MinimalTimer(props) {
     userOptions.textColour = `#${textColour}`;
   }
 
+  // textBackground: string
+  // Should be a hex string '#ffffff'
+  const textBackground = searchParams.get('textbg');
+  if (textBackground) {
+    userOptions.textBackground = `#${textBackground}`;
+  }
+
   // font: string
   // Should be a string with a font name 'arial'
   const font = searchParams.get('font');
@@ -143,6 +150,7 @@ export default function MinimalTimer(props) {
           fontFamily: userOptions.font,
           top: userOptions.top,
           left: userOptions.left,
+          backgroundColor: userOptions.textBackground,
         }}
       >
         {time.isNegative ? `-${timer}` : timer}

@@ -23,6 +23,7 @@
     opacity: 1;
     transition: 0.5s;
     transition-property: opacity;
+    background-color: transparent;
 
     &--paused {
       opacity: 0.6;
