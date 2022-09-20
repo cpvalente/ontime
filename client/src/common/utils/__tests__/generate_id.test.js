@@ -16,7 +16,7 @@ test('generate 100 with less than 110 attempts', () => {
   expect(attempts).toBeLessThan(105);
 });
 
-describe('generate 1000 with less than 1020 attempts', () => {
+test('generate 1000 with less than 1020 attempts', () => {
   const ids = new Set();
   let attempts = 1;
   while (ids.size < 1000) {
