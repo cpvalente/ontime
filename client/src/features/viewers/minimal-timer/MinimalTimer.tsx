@@ -131,7 +131,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const clean = timer.replace('/:/g', '');
   const showFinished = time.isNegative && !userOptions?.hideOvertime;
 
-  // @ts-ignore
   return (
     <div
       className={showFinished ? 'minimal-timer minimal-timer--finished' : 'minimal-timer'}
