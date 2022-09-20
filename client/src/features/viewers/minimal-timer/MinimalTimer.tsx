@@ -1,15 +1,40 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import {
+  PresenterMessageData,
+  TimeManager,
+  ViewSettings,
+} from '../../../common/models/OntimeTypes';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 
 import './MinimalTimer.scss';
 
-export default function MinimalTimer(props) {
+interface MinimalTimerProps {
+  pres: PresenterMessageData;
+  time: TimeManager;
+  viewSettings: ViewSettings;
+}
+
+interface OverridableOptions {
+  keyColour?: string;
+  textColour?: string;
+  textBackground?: string;
+  font?: string;
+  size: number;
+  justifyContent?: 'start' | 'center' | 'end';
+  alignItems?: 'start' | 'center' | 'end';
+  left?: string;
+  top?: string;
+  hideNav?: boolean;
+  hideOvertime?: boolean;
+  hideMessagesOverlay?: boolean;
+}
+
+export default function MinimalTimer(props: MinimalTimerProps) {
   const { pres, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
@@ -26,7 +51,9 @@ export default function MinimalTimer(props) {
   // get config from url: key, text, font, size, hidenav, hideovertime
   // eg. http://localhost:3000/minimal?key=f00&text=fff
   // Check for user options
-  const userOptions = {};
+  const userOptions: OverridableOptions = {
+    size: 1,
+  };
 
   // key: string
   // Should be a hex string '#00FF00' with key colour
@@ -59,8 +86,10 @@ export default function MinimalTimer(props) {
   // size: multiplier
   // Should be a number 0.0-n
   const size = searchParams.get('size');
-  if (size) {
-    userOptions.size = size;
+  if (size !== null && typeof size !== 'undefined') {
+    if (!Number.isNaN(Number(size))) {
+      userOptions.size = Number(size);
+    }
   }
 
   // alignX: flex justification
@@ -102,19 +131,13 @@ export default function MinimalTimer(props) {
   }
 
   const hideNav = searchParams.get('hidenav');
-  if (hideNav) {
-    userOptions.hideNav = hideNav;
-  }
+  userOptions.hideNav = Boolean(hideNav);
 
   const hideOvertime = searchParams.get('hideovertime');
-  if (hideOvertime) {
-    userOptions.hideOvertime = hideOvertime;
-  }
+  userOptions.hideOvertime = Boolean(hideOvertime);
 
   const hideMessagesOverlay = searchParams.get('hidemessages');
-  if (hideMessagesOverlay) {
-    userOptions.hideMessagesOverlay = hideMessagesOverlay;
-  }
+  userOptions.hideMessagesOverlay = Boolean(hideMessagesOverlay);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playstate !== 'pause';
@@ -158,9 +181,3 @@ export default function MinimalTimer(props) {
     </div>
   );
 }
-
-MinimalTimer.propTypes = {
-  pres: PropTypes.object,
-  time: PropTypes.object,
-  viewSettings: PropTypes.object,
-};
