@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import useFitText from 'use-fit-text';
 
 import NavLogo from '../../../common/components/nav/NavLogo';
+import useFitText from '../../../common/hooks/useFitText';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import {
   formatEventList,

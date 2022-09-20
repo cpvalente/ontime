@@ -12,18 +12,14 @@
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    "eslint-config-prettier",
-    "plugin:jest/recommended"
+    "eslint-config-prettier"
   ],
   "plugins": [
     "react",
-    "jest",
     "testing-library",
     "simple-import-sort"
   ],
   "rules": {
-    "jest/no-mocks-import": "warn",
-    "jest/no-identical-title": "error",
     "no-useless-concat": "warn",
     "prefer-template": "warn",
     "react/jsx-no-bind": [

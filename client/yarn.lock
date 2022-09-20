@@ -4406,11 +4406,6 @@ requires-port@^1.0.0:
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==
 
-resize-observer-polyfill@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
-  integrity sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==
-
 resolve-from@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-4.0.0.tgz#4abcd852ad32dd7baabfe9b40e00a36db5f392e6"
@@ -5070,13 +5065,6 @@ use-callback-ref@^1.3.0:
   integrity sha512-3FT9PRuRdbB9HfXhEq35u4oZkvpJ5kuYbpqhCfmiZyReuRgpnhDlbr2ZEnnuS0RrJAPn6l23xjFg9kpDM+Ms7w==
   dependencies:
     tslib "^2.0.0"
-
-use-fit-text@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/use-fit-text/-/use-fit-text-2.4.0.tgz#d3d1cd72f6d29cfb2233ec0e0b38c6f25d319f67"
-  integrity sha512-Iy4LMrXcdxWlyZ5phntMpJMgyXGB1p3tV73y2r0QrZ6f/thPh+/QU3ie6RCXmjF8tHMs20FKMPskXeDYIla/Ww==
-  dependencies:
-    resize-observer-polyfill "^1.5.1"
 
 use-memo-one@^1.1.1:
   version "1.1.2"
