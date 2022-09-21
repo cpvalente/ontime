@@ -21,7 +21,6 @@ export default function Public(props) {
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
 
-  // Set window title
   useEffect(() => {
     document.title = 'ontime - Public Screen';
   }, []);
@@ -129,7 +128,7 @@ Public.propTypes = {
   publ: PropTypes.object,
   publicTitle: PropTypes.object,
   time: PropTypes.object,
-  events: PropTypes.object,
+  events: PropTypes.array,
   publicSelectedId: PropTypes.string,
   general: PropTypes.object,
 };

@@ -12,7 +12,7 @@ import {
   requestReorder,
 } from 'common/api/eventsApi.js';
 import Empty from 'common/components/state/Empty';
-import { useFetch } from 'common/hooks/useFetch.js';
+import { useFetch } from 'common/hooks/useFetch.ts';
 import EventListMenu from 'features/menu/EventListMenu.jsx';
 
 import { CollapseContext } from '../../../common/context/CollapseContext';

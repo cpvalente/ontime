@@ -1,21 +1,16 @@
 /* eslint-disable react/display-name */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
 import { fetchEvent } from '../../common/api/eventApi';
 import { fetchAllEvents } from '../../common/api/eventsApi';
+import { eventPlaceholderSettings } from '../../common/api/ontimeApi';
 import { useSocket } from '../../common/context/socketContext';
 import useSubscription from '../../common/context/useSubscription';
 import { useFetch } from '../../common/hooks/useFetch';
 
 const withSocket = (Component) => {
   return (props) => {
-    const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents);
-    const { data: genData } = useFetch(EVENT_TABLE, fetchEvent);
-
-    const [publicEvents, setPublicEvents] = useState([]);
-    const [backstageEvents, setBackstageEvents] = useState([]);
-
     const socket = useSocket();
     const [pres, setPres] = useState({
       text: '',
@@ -29,6 +24,17 @@ const withSocket = (Component) => {
       text: '',
       visible: false,
     });
+    const [publicSelectedId, setPublicSelectedId] = useState(null);
+
+
+    const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents, {
+      placeholderData: [],
+    });
+    const { data: genData } = useFetch(EVENT_TABLE, fetchEvent, {
+      placeholderData: eventPlaceholderSettings,
+    });
+
+
     const [timer] = useSubscription('timer', {
       clock: 0,
       running: 0,
@@ -54,14 +60,6 @@ const withSocket = (Component) => {
     });
     const [selectedId] = useSubscription('selected-id', null);
     const [nextId] = useSubscription('next-id', null);
-    const [publicSelectedId, setPublicSelectedId] = useState(null);
-    const [general, setGeneral] = useState({
-      title: '',
-      url: '',
-      publicInfo: '',
-      backstageInfo: '',
-      endMessage: '',
-    });
     const [playback] = useSubscription('playstate', null);
     const [onAir] = useSubscription('onAir', false);
 
@@ -93,9 +91,6 @@ const withSocket = (Component) => {
       // Ask for up to date data
       socket.emit('get-messages');
 
-      // ask for timer
-      socket.emit('get-timer');
-
       // Clear listeners
       return () => {
         socket.off('messages-public');
@@ -104,29 +99,14 @@ const withSocket = (Component) => {
       };
     }, [socket]);
 
-    // Filter events only to pass down
-    useEffect(() => {
-      if (!eventsData) {
-        return;
-      }
-      // filter just events with title
+
+    const publicEvents = useMemo(() => {
       if (Array.isArray(eventsData)) {
-        const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
-        setPublicEvents(pe);
-
-        // everything goes backstage
-        setBackstageEvents(eventsData);
+        return eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
+      } else {
+        return [];
       }
-    }, [eventsData]);
-
-    // Set general data
-    useEffect(() => {
-      if (!genData) {
-        return;
-      }
-      setGeneral(genData);
-    }, [genData]);
-
+    },[eventsData])
 
     /********************************************/
     /***  + titleManager                      ***/
@@ -189,11 +169,11 @@ const withSocket = (Component) => {
         publicTitle={publicTitleManager}
         time={timeManager}
         events={publicEvents}
-        backstageEvents={backstageEvents}
+        backstageEvents={eventsData}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
         nextId={nextId}
-        general={general}
+        general={genData}
         onAir={onAir}
       />
     );
