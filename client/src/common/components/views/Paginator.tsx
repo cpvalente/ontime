@@ -11,8 +11,8 @@ import style from './Paginator.module.scss';
 interface PaginatorProps {
   events: OntimeEvent[];
   selectedId: string;
-  limit: number;
-  time: number;
+  limit?: number;
+  time?: number;
   isBackstage: boolean;
   setPageNumber: (page: number) => void;
   setCurrentPage: (selectedPage: number) => void;
