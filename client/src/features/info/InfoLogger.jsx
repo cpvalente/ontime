@@ -42,6 +42,7 @@ export default function InfoLogger() {
       matchers.push('PLAYBACK');
     }
 
+    console.log('>>>>>>>>>>>>>>>>>>>>>', logData)
     const d = logData.filter((d) => matchers.some((m) => d.origin === m));
 
     setData(d);

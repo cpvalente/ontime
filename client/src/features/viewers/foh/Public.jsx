@@ -28,7 +28,6 @@ export default function Public(props) {
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
-
   const clock = formatTime(time.clock, formatOptions);
 
   return (

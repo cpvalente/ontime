@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useSocket } from './socketContext';
 
-export default function useSubscription<T>(topic: string, initialState: T) {
+export default function useSubscription<T>(topic: string, initialState: T, requestString?: string) {
   const socket = useSocket();
   const [state, setState] = useState<T>(initialState);
 
@@ -11,13 +11,17 @@ export default function useSubscription<T>(topic: string, initialState: T) {
       return;
     }
 
-    socket.emit(`get-${topic}`);
+    if (requestString) {
+      socket.emit(requestString);
+    } else {
+      socket.emit(`get-${topic}`);
+    }
     socket.on(topic, setState);
 
     return () => {
       socket.off(topic);
     };
-  }, [socket, topic]);
+  }, [requestString, socket, topic]);
 
-  return [state, setState];
+  return [state, setState] as const;
 };
