@@ -45,9 +45,10 @@ export class SocketController {
       // keep track of connections
       this.numClients++;
       this._clientNames[socket.id] = getRandomName();
-      console.log(this._clientNames);
-      const m = `${this.numClients} Clients with new connection: ${this._clientNames[socket.id]}`;
-      this.info('CLIENT', m);
+      const message = `${this.numClients} Clients with new connection: ${
+        this._clientNames[socket.id]
+      }`;
+      this.info('CLIENT', message);
 
       // send state
       socket.emit('timer', global.timer.getTimeObject());
@@ -89,13 +90,11 @@ export class SocketController {
       /*******************************************/
       socket.on('ontime-test', () => {
         socket.emit('hello', socket.id);
-        console.log(socket.id);
       });
 
       socket.on('set-start', () => {
         global.timer.trigger('start');
         socket.emit('playstate', global.timer.state);
-        console.log(socket.id);
       });
 
       socket.on('set-startid', (data) => {
