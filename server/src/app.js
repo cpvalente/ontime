@@ -6,8 +6,6 @@ import { config } from './config/config.js';
 
 // import dependencies
 import { dirname, join, resolve } from 'path';
-// init database
-import loadDb from './modules/loadDb.js';
 // dependencies
 import express from 'express';
 import http from 'http';
@@ -20,6 +18,7 @@ import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as playbackRouter } from './routes/playbackRouter.js';
 
 // Global Objects
+import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { EventTimer } from './classes/timer/EventTimer.js';
 import { SocketController } from './classes/socket/SocketController.js';
 // Start OSC server
@@ -31,7 +30,7 @@ const env = process.env.NODE_ENV || 'production';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export const { db, data } = await loadDb(__dirname);
+global.eventsProvider = new DataProvider(__dirname);
 
 console.log(`Starting ontime version ${process.env.npm_package_version}`);
 
@@ -80,6 +79,8 @@ app.use((err, req, res, next) => {
  * It can also be overridden on call
  *
  */
+
+const data = global.eventsProvider.getData();
 
 const osc = data.osc;
 const oscIP = osc?.targetIP || config.osc.targetIP;
@@ -159,8 +160,8 @@ export const shutdown = async () => {
 };
 
 // register shutdown signals
-process.once('SIGHUP', shutdown)
-process.once('SIGINT', shutdown)
-process.once('SIGTERM', shutdown)
+process.once('SIGHUP', shutdown);
+process.once('SIGINT', shutdown);
+process.once('SIGTERM', shutdown);
 
 export { server, app };
