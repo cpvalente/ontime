@@ -1,12 +1,8 @@
 import { Timer } from './Timer.js';
-import { Server } from 'socket.io';
 import { DAY_TO_MS, getSelectionByRoll, replacePlaceholder, updateRoll } from './classUtils.js';
 import { OSCIntegration } from './integrations/Osc.js';
 import { HTTPIntegration } from './integrations/Http.js';
 import { cleanURL } from '../../utils/url.js';
-import getRandomName from '../../utils/getRandomName.js';
-import { generateId } from '../../utils/generate_id.js';
-import { stringFromMillis } from '../../utils/time.js';
 
 /*
  * Class EventTimer adds functions specific to APP
@@ -48,7 +44,6 @@ export class EventTimer extends Timer {
     // HTTP Client Object
     this.http = null;
 
-    this._numClients = 0;
     this._interval = null;
 
     this.presenter = {
@@ -69,25 +64,8 @@ export class EventTimer extends Timer {
 
     this._eventlist = [];
     this.onAir = false;
-
-    // initialise socketIO server
-    this.messageStack = [];
-    this.MAX_MESSAGES = 100;
-    this._clientNames = {};
-    this.io = new Server(httpServer, {
-      cors: {
-        origin: '*',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        preflightContinue: false,
-        optionsSuccessStatus: 204,
-      },
-    });
-
     // set recurrent emits
     this._interval = setInterval(() => this.runCycle(), timerConfig?.refresh || 1000);
-
-    // listen to new connections
-    this._listenToConnections();
 
     if (oscConfig != null) {
       this._initOscClient(oscConfig);
@@ -103,17 +81,12 @@ export class EventTimer extends Timer {
    */
   shutdown() {
     clearInterval(this._interval);
-    this.info('SERVER', 'Shutting down ontime');
-    if (this.io != null) {
-      this.info('TX', '... Closing socket server');
-      this.io.close();
-    }
     if (this.osc != null) {
-      this.info('TX', '... Closing OSC Client');
+      global.socket.info('TX', '... Closing OSC Client');
       this.osc.shutdown();
     }
     if (this.http != null) {
-      this.info('TX', '... Closing HTTP Client');
+      global.socket.info('TX', '... Closing HTTP Client');
       this.http.shutdown();
     }
   }
@@ -126,7 +99,7 @@ export class EventTimer extends Timer {
   _initOscClient(oscConfig) {
     this.osc = new OSCIntegration();
     const r = this.osc.init(oscConfig);
-    r.success ? this.info('TX', r.message) : this.error('TX', r.message);
+    r.success ? global.socket.info('TX', r.message) : global.socket.error('TX', r.message);
   }
 
   /**
@@ -135,7 +108,7 @@ export class EventTimer extends Timer {
    * @private
    */
   _initHTTPClient(httpConfig) {
-    this.info('TX', `Initialise HTTP Client on port`);
+    global.socket.info('TX', `Initialise HTTP Client on port`);
     this.http = new HTTPIntegration();
     this.http.init(httpConfig);
     this.httpMessages = httpConfig.messages;
@@ -146,7 +119,7 @@ export class EventTimer extends Timer {
    */
   broadcastTimer() {
     // through websockets
-    this.io.emit('timer', this.getTimeObject());
+    global.socket.send('timer', this.getTimeObject());
   }
 
   /**
@@ -162,7 +135,7 @@ export class EventTimer extends Timer {
       expectedFinish: this._getExpectedFinish(),
       startedAt: this._startedAt,
     };
-    this.io.emit('ontime-timer', featureData);
+    global.socket.send('ontime-timer', featureData);
   }
 
   /**
@@ -174,7 +147,7 @@ export class EventTimer extends Timer {
       selectedEventId: this.selectedEventId,
       nextEventId: this.nextEventId,
     };
-    this.io.emit('ontime-feat-eventlist', featureData);
+    global.socket.send('ontime-feat-eventlist', featureData);
   }
 
   /**
@@ -188,7 +161,7 @@ export class EventTimer extends Timer {
       lower: this.lower,
       onAir: this.onAir,
     };
-    this.io.emit('ontime-feat-messagecontrol', featureData);
+    global.socket.send('ontime-feat-messagecontrol', featureData);
   }
 
   /**
@@ -201,7 +174,7 @@ export class EventTimer extends Timer {
       selectedEventId: this.selectedEventId,
       numEvents: this._eventlist.length,
     };
-    this.io.emit('ontime-feat-playbackcontrol', featureData);
+    global.socket.send('ontime-feat-playbackcontrol', featureData);
   }
 
   /**
@@ -216,7 +189,7 @@ export class EventTimer extends Timer {
       selectedEventIndex: this.selectedEventIndex,
       numEvents: this._eventlist.length,
     };
-    this.io.emit('ontime-feat-info', featureData);
+    global.socket.send('ontime-feat-info', featureData);
   }
 
   _broadcastFeatureCuesheet() {
@@ -227,7 +200,7 @@ export class EventTimer extends Timer {
       numEvents: this._eventlist.length,
       titleNow: this.titles.titleNow,
     };
-    this.io.emit('ontime-feat-cuesheet', featureData);
+    global.socket.send('ontime-feat-cuesheet', featureData);
   }
 
   /**
@@ -244,29 +217,20 @@ export class EventTimer extends Timer {
 
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
-    this.io.emit('playstate', this.state);
-    this.io.emit('selected', {
+    global.socket.send('playstate', this.state);
+    global.socket.send('selected', {
       id: this.selectedEventId,
       index: this.selectedEventIndex,
       total: numEvents,
     });
-    this.io.emit('selected-id', this.selectedEventId);
-    this.io.emit('next-id', this.nextEventId);
-    this.io.emit('numevents', numEvents);
-    this.io.emit('publicselected-id', this.selectedPublicEventId);
-    this.io.emit('publicnext-id', this.nextPublicEventId);
-    this.io.emit('titles', this.titles);
-    this.io.emit('publictitles', this.titlesPublic);
-    this.io.emit('onAir', this.onAir);
-  }
-
-  /**
-   * Broadcast given message
-   * @param {string} address - socket io address
-   * @param {any} payload - message body
-   */
-  broadcastThis(address, payload) {
-    this.io.emit(address, payload);
+    global.socket.send('selected-id', this.selectedEventId);
+    global.socket.send('next-id', this.nextEventId);
+    global.socket.send('numevents', numEvents);
+    global.socket.send('publicselected-id', this.selectedPublicEventId);
+    global.socket.send('publicnext-id', this.nextPublicEventId);
+    global.socket.send('titles', this.titles);
+    global.socket.send('publictitles', this.titlesPublic);
+    global.socket.send('onAir', this.onAir);
   }
 
   /**
@@ -282,7 +246,7 @@ export class EventTimer extends Timer {
       case 'start': {
         if (!numEvents) return false;
         // Call action and force update
-        this.info('PLAYBACK', 'Play Mode Start');
+        global.socket.info('PLAYBACK', 'Play Mode Start');
         this.start();
         break;
       }
@@ -290,8 +254,8 @@ export class EventTimer extends Timer {
         if (!numEvents) return false;
         const loaded = this.loadEventById(payload);
         if (loaded) {
-          this.info('PLAYBACK', `Loaded event with ID ${payload}`);
-          this.info('PLAYBACK', 'Play Mode Start');
+          global.socket.info('PLAYBACK', `Loaded event with ID ${payload}`);
+          global.socket.info('PLAYBACK', 'Play Mode Start');
           this.start();
         } else {
           return false;
@@ -302,8 +266,8 @@ export class EventTimer extends Timer {
         if (!numEvents) return false;
         const loaded = this.loadEventByIndex(payload);
         if (loaded) {
-          this.info('PLAYBACK', `Loaded event with index ${payload}`);
-          this.info('PLAYBACK', 'Play Mode Start');
+          global.socket.info('PLAYBACK', `Loaded event with index ${payload}`);
+          global.socket.info('PLAYBACK', 'Play Mode Start');
           this.start();
         } else {
           return false;
@@ -313,35 +277,35 @@ export class EventTimer extends Timer {
       case 'pause': {
         if (!numEvents) return false;
         // Call action and force update
-        this.info('PLAYBACK', 'Play Mode Pause');
+        global.socket.info('PLAYBACK', 'Play Mode Pause');
         this.pause();
         break;
       }
       case 'stop': {
         if (!numEvents) return false;
         // Call action and force update
-        this.info('PLAYBACK', 'Play Mode Stop');
+        global.socket.info('PLAYBACK', 'Play Mode Stop');
         this.stop();
         break;
       }
       case 'roll': {
         if (!numEvents) return false;
         // Call action and force update
-        this.info('PLAYBACK', 'Play Mode Roll');
+        global.socket.info('PLAYBACK', 'Play Mode Roll');
         this.roll();
         break;
       }
       case 'previous': {
         if (!numEvents) return false;
         // Call action and force update
-        this.info('PLAYBACK', 'Play Mode Previous');
+        global.socket.info('PLAYBACK', 'Play Mode Previous');
         this.previous();
         break;
       }
       case 'next': {
         if (!numEvents) return false;
         // Call action and force update
-        this.info('PLAYBACK', 'Play Mode Next');
+        global.socket.info('PLAYBACK', 'Play Mode Next');
         this.next();
         break;
       }
@@ -349,7 +313,7 @@ export class EventTimer extends Timer {
         if (!numEvents) return false;
         const loaded = this.loadEventById(payload);
         if (loaded) {
-          this.info('PLAYBACK', `Loaded event with ID ${payload}`);
+          global.socket.info('PLAYBACK', `Loaded event with ID ${payload}`);
         } else {
           return false;
         }
@@ -359,7 +323,7 @@ export class EventTimer extends Timer {
         if (!numEvents) return false;
         const loaded = this.loadEventByIndex(payload);
         if (loaded) {
-          this.info('PLAYBACK', `Loaded event with index ${payload}`);
+          global.socket.info('PLAYBACK', `Loaded event with index ${payload}`);
         } else {
           return false;
         }
@@ -368,32 +332,32 @@ export class EventTimer extends Timer {
       case 'unload': {
         if (!numEvents) return false;
         // Call action and force update
-        this.info('PLAYBACK', 'Events unloaded');
+        global.socket.info('PLAYBACK', 'Events unloaded');
         this.unload();
         break;
       }
       case 'reload': {
         if (!numEvents) return false;
         // Call action and force update
-        this.info('PLAYBACK', 'Reloaded event');
+        global.socket.info('PLAYBACK', 'Reloaded event');
         this.reload();
         break;
       }
       case 'onAir': {
         // Call action
-        this.info('PLAYBACK', 'Going On Air');
+        global.socket.info('PLAYBACK', 'Going On Air');
         this.setonAir(true);
         break;
       }
       case 'offAir': {
         // Call action and force update
-        this.info('PLAYBACK', 'Going Off Air');
+        global.socket.info('PLAYBACK', 'Going Off Air');
         this.setonAir(false);
         break;
       }
       default: {
         // Error, disable flag
-        this.error('RX', `Unhandled action triggered ${action}`);
+        global.socket.error('RX', `Unhandled action triggered ${action}`);
         success = false;
         break;
       }
@@ -518,7 +482,7 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.onUpdate;
         break;
       default:
-        this.error('SERVER', `Unhandled cycle: ${this.ontimeCycle}`);
+        global.socket.error('SERVER', `Unhandled cycle: ${this.ontimeCycle}`);
     }
 
     // send http message if any
@@ -546,13 +510,13 @@ export class EventTimer extends Timer {
 
   update() {
     // if there is nothing selected, update clock
-    this.clock = this._getCurrentTime();
+    this.clock = Timer.getCurrentTime();
     this._broadcastFeatureTimer();
     this.broadcastTimer();
 
     // if we are not updating, send the timers
     if (this.ontimeCycle !== this.cycleState.onUpdate) {
-      this.io.emit('timer', this.getTimeObject());
+      global.socket.send('timer', this.getTimeObject());
     }
 
     // Have we skipped onStart?
@@ -616,318 +580,38 @@ export class EventTimer extends Timer {
       // Presenter message
       case 'set-timer-text':
         this.presenter.text = payload;
-        this.broadcastThis('messages-timer', this.presenter);
+        global.socket.send('messages-timer', this.presenter);
         break;
       case 'set-timer-visible':
         this.presenter.visible = payload;
-        this.broadcastThis('messages-timer', this.presenter);
+        global.socket.send('messages-timer', this.presenter);
         break;
 
       /*******************************************/
       // Public message
       case 'set-public-text':
         this.public.text = payload;
-        this.broadcastThis('messages-public', this.public);
+        global.socket.send('messages-public', this.public);
         break;
       case 'set-public-visible':
         this.public.visible = payload;
-        this.broadcastThis('messages-public', this.public);
+        global.socket.send('messages-public', this.public);
         break;
 
       /*******************************************/
       // Lower third message
       case 'set-lower-text':
         this.lower.text = payload;
-        this.broadcastThis('messages-lower', this.lower);
+        global.socket.send('messages-lower', this.lower);
         break;
       case 'set-lower-visible':
         this.lower.visible = payload;
-        this.broadcastThis('messages-lower', this.lower);
+        global.socket.send('messages-lower', this.lower);
         break;
 
       default:
         break;
     }
-  }
-
-  /**
-   * Handle socket io connections
-   * @private
-   */
-  _listenToConnections() {
-    this.io.on('connection', (socket) => {
-      /*******************************/
-      /***  HANDLE NEW CONNECTION  ***/
-      /***  ---------------------  ***/
-      /*******************************/
-      // keep track of connections
-      this._numClients++;
-      this._clientNames[socket.id] = getRandomName();
-      const m = `${this._numClients} Clients with new connection: ${this._clientNames[socket.id]}`;
-      this.info('CLIENT', m);
-
-      // send state
-      socket.emit('timer', this.getTimeObject());
-      socket.emit('playstate', this.state);
-      socket.emit('selected-id', this.selectedEventId);
-      socket.emit('next-id', this.nextEventId);
-      socket.emit('publicselected-id', this.selectedPublicEventId);
-      socket.emit('publicnext-id', this.nextPublicEventId);
-
-      /********************************/
-      /***  HANDLE DISCONNECT USER  ***/
-      /***  ----------------------  ***/
-      /********************************/
-      socket.on('disconnect', () => {
-        this._numClients--;
-        const m = `${this._numClients} Clients with disconnection: ${this._clientNames[socket.id]}`;
-        delete this._clientNames[socket.id];
-        this.info('CLIENT', m);
-      });
-
-      /***************************************/
-      /***  TIMER STATE GETTERS / SETTERS  ***/
-      /***  ------- WEBSOCKET API -------  ***/
-      /***  -----------------------------  ***/
-      /***************************************/
-
-      /*******************************************/
-      socket.on('ontime-test', () => {
-        socket.emit('hello');
-      });
-
-      socket.on('set-start', () => {
-        this.trigger('start');
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-startid', (data) => {
-        this.trigger('startById', data);
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-startindex', (data) => {
-        const eventIndex = Number(data);
-        if (isNaN(eventIndex)) {
-          return;
-        }
-        this.trigger('startByIndex', data);
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-loadid', (data) => {
-        this.trigger('loadById', data);
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-loadindex', (data) => {
-        const eventIndex = Number(data);
-        if (isNaN(eventIndex)) {
-          return;
-        }
-        this.trigger('loadByIndex', data);
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-pause', () => {
-        this.trigger('pause');
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-stop', () => {
-        this.trigger('stop');
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-reload', () => {
-        this.trigger('reload');
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-previous', () => {
-        this.trigger('previous');
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-next', () => {
-        this.trigger('next');
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-roll', () => {
-        this.trigger('roll');
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('set-delay', (data) => {
-        const delayTime = Number(data);
-        if (isNaN(delayTime)) {
-          return;
-        }
-        this.increment(delayTime * 1000 * 60);
-      });
-
-      socket.on('set-onAir', (data) => {
-        try {
-          const d = JSON.parse(data);
-          this.onAir = !!d;
-        } catch (error) {
-          this.error('RX', `Failed to parse message ${data}`);
-        }
-        this.broadcastThis('onAir', this.onAir);
-        this._broadcastFeatureMessageControl();
-      });
-
-      /*******************************************/
-      // general playback state
-      socket.on('get-state', () => {
-        socket.emit('timer', this.getTimeObject());
-        socket.emit('playstate', this.state);
-        socket.emit('selected-id', this.selectedEventId);
-        socket.emit('next-id', this.nextEventId);
-        socket.emit('publicselected-id', this.selectedPublicEventId);
-        socket.emit('publicnext-id', this.this.nextPublicEventId);
-      });
-
-      /*******************************************/
-
-      // ** TO BE DEPRECATED ** //
-      socket.on('get-timer', () => {
-        socket.emit('timer', this.getTimeObject());
-      });
-
-      // ** TO BE DEPRECATED IN FAVOR OF DELAY ** //
-      socket.on('increment-timer', (data) => {
-        if (isNaN(parseInt(data, 10))) return;
-        if (data < -5 || data > 5) return;
-        this.increment(data * 1000 * 60);
-      });
-
-      /*******************************************/
-      // playstate
-      socket.on('set-playstate', (data) => {
-        this.trigger(data);
-        this._broadcastFeaturePlaybackControl();
-        this._broadcastFeatureInfo();
-      });
-
-      socket.on('get-playstate', () => {
-        socket.emit('playstate', this.state);
-      });
-
-      socket.on('get-onAir', () => {
-        socket.emit('onAir', this.onAir);
-      });
-
-      /*******************************************/
-      // selection data
-      socket.on('get-selected', () => {
-        socket.emit('selected', {
-          id: this.selectedEventId,
-          index: this.selectedEventIndex,
-          total: this._eventlist.length,
-        });
-      });
-
-      socket.on('get-selected-id', () => {
-        socket.emit('selected-id', this.selectedEventId);
-      });
-
-      socket.on('get-next-id', () => {
-        socket.emit('next-id', this.nextEventId);
-      });
-
-      // title data
-      socket.on('get-titles', () => {
-        socket.emit('titles', this.titles);
-      });
-
-      socket.on('get-publictitles', () => {
-        socket.emit('publictitles', this.titlesPublic);
-      });
-
-      /***********************************/
-      /***  MESSAGE GETTERS / SETTERS  ***/
-      /***  -------------------------  ***/
-      /***********************************/
-
-      /*******************************************/
-
-      // Presenter message
-      socket.on('set-timer-message-text', (data) => {
-        this._setTitles('set-timer-text', data);
-        this._broadcastFeatureMessageControl();
-      });
-
-      socket.on('set-timer-message-visible', (data) => {
-        this._setTitles('set-timer-visible', data);
-        this._broadcastFeatureMessageControl();
-      });
-
-      /*******************************************/
-      // Public message
-      socket.on('set-public-message-text', (data) => {
-        this._setTitles('set-public-text', data);
-        this._broadcastFeatureMessageControl();
-      });
-
-      socket.on('set-public-message-visible', (data) => {
-        this._setTitles('set-public-visible', data);
-        this._broadcastFeatureMessageControl();
-      });
-
-      /*******************************************/
-      // Lower third message
-      socket.on('set-lower-message-text', (data) => {
-        this._setTitles('set-lower-text', data);
-        this._broadcastFeatureMessageControl();
-      });
-
-      socket.on('set-lower-message-visible', (data) => {
-        this._setTitles('set-lower-visible', data);
-        this._broadcastFeatureMessageControl();
-      });
-
-      /* MOLECULAR ENDPOINTS
-       * =====================
-       * 1. EVENT LIST
-       * 2. MESSAGE CONTROL
-       * 3. PLAYBACK CONTROL
-       * 4. INFO
-       * 5. CUESHEET
-       * 6. TIMER OBJECT
-       * */
-
-      // 1. EVENT LIST
-      socket.on('get-ontime-feat-eventlist', () => {
-        this._broadcastFeatureEventList();
-      });
-
-      // 2. MESSAGE CONTROL
-      socket.on('get-ontime-feat-messagecontrol', () => {
-        this._broadcastFeatureMessageControl();
-      });
-
-      // 3. PLAYBACK CONTROL
-      socket.on('get-ontime-feat-playbackcontrol', () => {
-        this._broadcastFeaturePlaybackControl();
-      });
-
-      // 4. INFO
-      socket.on('get-ontime-feat-info', () => {
-        this._broadcastFeatureInfo();
-      });
-
-      // 5. CUE SHEET
-      socket.on('get-ontime-feat-cuesheet', () => {
-        this._broadcastFeatureCuesheet();
-      });
-
-      // 6. TIMER
-      socket.on('get-ontime-timer', () => {
-        this._broadcastFeatureTimer();
-      });
-    });
   }
 
   /**
@@ -944,7 +628,7 @@ export class EventTimer extends Timer {
     this.ontimeCycle = this.cycleState.onStop;
 
     // update clients
-    this.broadcastThis('numevents', this._eventlist.length);
+    global.socket.send('numevents', this._eventlist.length);
   }
 
   /**
@@ -1068,7 +752,7 @@ export class EventTimer extends Timer {
         this._loadTitlesNow();
       }
     } catch (error) {
-      this.error('SERVER', error);
+      global.socket.error('SERVER', error);
     }
 
     // update clients
@@ -1117,7 +801,7 @@ export class EventTimer extends Timer {
         this._loadTitlesNow();
       }
     } catch (error) {
-      this.error('SERVER', error);
+      global.socket.error('SERVER', error);
     }
 
     // update clients
@@ -1228,7 +912,7 @@ export class EventTimer extends Timer {
       this.selectedEventIndex = eventIndex;
       this.selectedEventId = e.id;
     } else if (type === 'reload') {
-      const now = this._getCurrentTime();
+      const now = Timer.getCurrentTime();
       const elapsed = this.getElapsed();
 
       this.duration = end - start;
@@ -1441,7 +1125,7 @@ export class EventTimer extends Timer {
   setonAir(onAir) {
     this.onAir = onAir;
     // broadcast change
-    this.broadcastThis('onAir', onAir);
+    global.socket.send('onAir', onAir);
   }
 
   /**
@@ -1509,7 +1193,7 @@ export class EventTimer extends Timer {
    * @description Look for current event considering local clock
    */
   rollLoad() {
-    const now = this._getCurrentTime();
+    const now = Timer.getCurrentTime();
     const prevLoaded = this.selectedEventId;
 
     // maybe roll has already been loaded
@@ -1524,7 +1208,7 @@ export class EventTimer extends Timer {
     // nothing to play, unload
     if (nowIndex === null && nextIndex === null) {
       this.unload();
-      this.warning('SERVER', 'Roll: no events found');
+      global.socket.warning('SERVER', 'Roll: no events found');
       return;
     }
 
@@ -1551,7 +1235,7 @@ export class EventTimer extends Timer {
       if (nowIndex === null) {
         // only warn the first time
         if (this.secondaryTimer === null) {
-          this.info('SERVER', 'Roll: waiting for event start');
+          global.socket.info('SERVER', 'Roll: waiting for event start');
         }
 
         // reset running timer
@@ -1686,70 +1370,6 @@ export class EventTimer extends Timer {
   /****************************************************************************/
 
   /**
-   * Logger logic
-   * -------------
-   *
-   * This should be separate of event timer, left here for convenience
-   *
-   */
-
-  /**
-   * Utility method, sends message and pushes into stack
-   * @param {string} level
-   * @param {string} origin
-   * @param {string} text
-   */
-  _push(level, origin, text) {
-    const m = {
-      id: generateId(),
-      level,
-      origin,
-      text,
-      time: stringFromMillis(this._getCurrentTime()),
-    };
-
-    this.messageStack.unshift(m);
-    this.io.emit('logger', m);
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`[${m.level}] \t ${m.origin} \t ${m.text}`);
-    }
-
-    if (this.messageStack.length > this.MAX_MESSAGES) {
-      this.messageStack.pop();
-    }
-  }
-
-  /**
-   * Sends a message with level LOG
-   * @param {string} origin
-   * @param {string} text
-   */
-  info(origin, text) {
-    this._push('INFO', origin, text);
-  }
-
-  /**
-   * Sends a message with level WARN
-   * @param {string} origin
-   * @param {string} text
-   */
-  warning(origin, text) {
-    this._push('WARN', origin, text);
-  }
-
-  /**
-   * Sends a message with level ERROR
-   * @param {string} origin
-   * @param {string} text
-   */
-  error(origin, text) {
-    this._push('ERROR', origin, text);
-  }
-
-  /****************************************************************************/
-
-  /**
    * Integrations
    * -------------
    *
@@ -1765,7 +1385,7 @@ export class EventTimer extends Timer {
   async sendOsc(message, payload) {
     const reply = await this.osc.send(message, payload);
     if (!reply.success) {
-      this.error('TX', reply.message);
+      global.socket.error('TX', reply.message);
     }
   }
 

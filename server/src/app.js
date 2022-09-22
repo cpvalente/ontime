@@ -21,6 +21,7 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 
 // Global Objects
 import { EventTimer } from './classes/timer/EventTimer.js';
+import { SocketController } from './classes/socket/SocketController.js';
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
@@ -95,7 +96,7 @@ const serverPort = data.settings.serverPort || config.server.port;
  */
 export const startOSCServer = async (overrideConfig = null) => {
   if (!oscInEnabled) {
-    global.timer.info('RX', 'OSC Input Disabled');
+    global.socket.info('RX', 'OSC Input Disabled');
     return;
   }
 
@@ -105,7 +106,7 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  global.timer.info('RX', `Starting OSC Server on port: ${oscInPort}`);
+  global.socket.info('RX', `Starting OSC Server on port: ${oscInPort}`);
   initiateOSC(oscSettings);
 };
 
@@ -124,6 +125,10 @@ export const startServer = async (overrideConfig = null) => {
   const returnMessage = `Ontime is listening on port ${port}`;
   server.listen(port, '0.0.0.0');
 
+  // init socket controller
+  global.socket = new SocketController(server);
+  global.socket.info('SERVER', 'Socket initialised');
+
   // OSC Config
   const oscConfig = {
     ip: oscIP,
@@ -133,7 +138,9 @@ export const startServer = async (overrideConfig = null) => {
   // init timer
   global.timer = new EventTimer(server, config.timer, oscConfig, data.http);
   global.timer.setupWithEventList(data.events);
-  global.timer.info('SERVER', returnMessage);
+
+  global.socket.info('SERVER', returnMessage);
+  global.socket.startListener();
   return returnMessage;
 };
 
@@ -146,11 +153,9 @@ export const shutdown = async () => {
   // shutdown express server
   server.close();
 
-  // shutdown OSC Server
   shutdownOSCServer();
-
-  // shutdown timer
   global.timer.shutdown();
+  global.socket.shutdown();
 };
 
 // register shutdown signals
