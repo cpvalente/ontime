@@ -1390,15 +1390,15 @@ export class EventTimer extends Timer {
   }
 
   /**
-   * Builds sync object
-   * @returns {{running: number, timer: (null|string|*), presenter: null, playback: string, clock: null, title: null}}
+   * @description Builds sync object
    */
   poll() {
     return {
-      clock: this.clock,
-      running: Timer.toSeconds(this.current),
+      currentId: this.selectedEventId,
       timer: this.timeTag,
+      clock: this.clock,
       playback: this.state,
+      currentColour: null,
       title: this.titles.titleNow,
       presenter: this.titles.presenterNow,
     };

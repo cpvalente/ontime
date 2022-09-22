@@ -176,14 +176,12 @@ export class SocketController {
       });
 
       /*******************************************/
-      // general playback state
-      socket.on('get-state', () => {
-        socket.emit('timer', global.timer.getTimeObject());
-        socket.emit('playstate', global.timer.state);
-        socket.emit('selected-id', global.timer.selectedEventId);
-        socket.emit('next-id', global.timer.nextEventId);
-        socket.emit('publicselected-id', global.timer.selectedPublicEventId);
-        socket.emit('publicnext-id', global.timer.this.nextPublicEventId);
+      // general playback state, useful for external sync
+      socket.on('ontime-poll', () => {
+        const timerPoll = global.timer.poll();
+        const isDelayed = false;
+        const colour = '';
+        socket.emit('ontime-poll', { isDelayed, colour, ...timerPoll });
       });
 
       /*******************************************/
