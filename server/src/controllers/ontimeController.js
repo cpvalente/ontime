@@ -1,13 +1,10 @@
 import fs from 'fs';
+import { data, db } from '../app.js';
 import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
 import { generateId } from '../utils/generate_id.js';
+import { resolveDbPath } from '../modules/loadDb.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
-
-const data = global.eventsProvider.getData();
-const updateDb = async (newData) => {
-  await global.eventsProvider.updateData(newData);
-};
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -26,7 +23,7 @@ export const poll = async (req, res) => {
 // Returns -
 export const dbDownload = async (req, res) => {
   const fileTitle = data?.event?.title || 'ontime events';
-  const dbInDisk = DataProvider.resolveDbPath();
+  const dbInDisk = resolveDbPath();
 
   res.download(dbInDisk, `${fileTitle}.json`, (err) => {
     if (err) {
@@ -62,7 +59,7 @@ const uploadAndParse = async (file, req, res, options) => {
         }
         data.events = result.data.events || [];
         global.timer.setupWithEventList(result.data.events || []);
-        await updateDb(data.events);
+        await db.write();
       }
       res.sendStatus(200);
     } else {
@@ -148,7 +145,7 @@ export const postAliases = async (req, res) => {
       });
     });
     data.aliases = newAliases;
-    await updateDb(data.aliases);
+    await db.write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -177,7 +174,7 @@ export const postUserFields = async (req, res) => {
       }
     }
     data.userFields = newUserFields;
-    await updateDb(data.userFields);
+    await db.write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -230,7 +227,7 @@ export const postSettings = async (req, res) => {
       pinCode: pin,
       timeFormat: timeFormat,
     };
-    await updateDb(data.settings);
+    await db.write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -258,7 +255,7 @@ export const postViewSettings = async (req, res) => {
     data.views = {
       overrideStyles: req.body?.overrideStyles ?? data.views.overrideStyles,
     };
-    await updateDb(data.views);
+    await db.write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -275,7 +272,7 @@ export const postInfo = async (req, res) => {
   // TODO: validate data
   try {
     data.settings = { ...data.settings, ...req.body };
-    await updateDb(data.settings);
+    await db.write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -299,7 +296,7 @@ export const postOSC = async (req, res) => {
   // TODO: validate data
   try {
     data.osc = { ...data.osc, ...req.body };
-    await updateDb(data.osc);
+    await db.write();
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
@@ -316,7 +313,7 @@ export const dbUpload = async (req, res) => {
   }
   const options = req.query;
   const file = req.file.path;
-  await uploadAndParse(file, req, res, options);
+  uploadAndParse(file, req, res, options);
 };
 
 // Create controller for POST request to '/ontime/dbpath'
@@ -326,5 +323,5 @@ export const dbPathToUpload = async (req, res) => {
     res.status(400).send({ message: 'Path to file not found' });
     return;
   }
-  await uploadAndParse(req.body.path, req, res);
+  uploadAndParse(req.body.path, req, res);
 };

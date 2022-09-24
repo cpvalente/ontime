@@ -1,3 +1,6 @@
+// get database
+import { data, db } from '../app.js';
+
 // utils
 import {
   block as blockDef,
@@ -7,11 +10,6 @@ import {
 import { generateId } from '../utils/generate_id.js';
 import { MAX_EVENTS } from '../settings.js';
 import { getPreviousPlayable } from '../utils/eventUtils.js';
-
-const data = global.eventsProvider.getData();
-const updateDb = async (newData) => {
-  await global.eventsProvider.updateData(newData);
-};
 
 async function _insertAndSync(newEvent) {
   if (newEvent.order) {
@@ -61,7 +59,7 @@ async function _insertAt(entry, index) {
 
   // save events
   data.events = events;
-  await updateDb(data.events);
+  await db.write();
 }
 
 /**
@@ -83,7 +81,7 @@ async function _insertAfterId(entry, id) {
  */
 async function _removeById(eventId) {
   data.events = Array.from(data.events).filter((e) => e.id !== eventId);
-  await updateDb(data.events);
+  await db.write();
 }
 
 /**
@@ -91,6 +89,7 @@ async function _removeById(eventId) {
  * @return {unknown[]}
  */
 function getEventEvents() {
+  // return data.events.filter((e) => e.type === 'event');
   return Array.from(data.events).filter((e) => e.type === 'event');
 }
 
@@ -188,7 +187,7 @@ export const eventsPost = async (req, res) => {
   }
 
   try {
-    await _insertAndSync(newEvent);
+    _insertAndSync(newEvent);
     res.sendStatus(201);
   } catch (error) {
     res.status(400).send(error);
@@ -220,7 +219,7 @@ export const eventsPut = async (req, res) => {
     const e = data.events[eventIndex];
     data.events[eventIndex] = { ...e, ...req.body };
     data.events[eventIndex].revision++;
-    await updateDb(data.events);
+    await db.write();
 
     if (data.events[eventIndex].skip) {
       _deleteTimerId(eventId);
@@ -278,7 +277,7 @@ export const eventsReorder = async (req, res) => {
 
     // save events
     data.events = events;
-    await updateDb(data.events);
+    await db.write();
 
     // update timer
     _updateTimers();
@@ -342,7 +341,7 @@ export const eventsApplyDelay = async (req, res) => {
 
     // update events
     data.events = events;
-    await updateDb(data.events);
+    await db.write();
 
     // update timer
     _updateTimers();
@@ -380,7 +379,8 @@ export const eventsDelete = async (req, res) => {
 export const eventsDeleteAll = async (req, res) => {
   try {
     // set with nothing
-    await updateDb([]);
+    data.events = [];
+    await db.write();
 
     // update timer object
     global.timer.clearEventList();
