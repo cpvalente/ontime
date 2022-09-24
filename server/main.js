@@ -1,3 +1,5 @@
+import electronConfig from './electron.config';
+
 const {
   app,
   BrowserWindow,
@@ -14,15 +16,14 @@ const path = require('path');
 if (process.env.NODE_ENV === undefined) {
   process.env.NODE_ENV = 'production';
 }
-const env = process.env.NODE_ENV;
+const isProduction = process.env.NODE_ENV === 'production';
 
 let loaded = 'Nothing loaded';
 let isQuitting = false;
 
-const nodePath =
-  env !== 'production'
-    ? path.join('file://', __dirname, 'src/app.js')
-    : path.join('file://', __dirname, '../', 'extraResources', 'src/app.js');
+const nodePath = isProduction
+  ? path.join('file://', __dirname, '../', 'extraResources', 'src/app.js')
+  : path.join('file://', __dirname, 'src/app.js');
 
 (async () => {
   try {
@@ -144,22 +145,25 @@ app.whenReady().then(() => {
   // give the nodejs server some time
   setTimeout(() => {
     // Load page served by node
-    const reactApp =
-      env === 'development' ? 'http://localhost:3000/editor' : 'http://localhost:4001/editor';
+    const reactApp = isProduction
+      ? electronConfig.reactAppUrl.production
+      : electronConfig.reactAppUrl.development;
 
     win.loadURL(reactApp).then(() => {
       win.webContents.setBackgroundThrottling(false);
 
-      // window stuff
       win.show();
       win.focus();
 
       splash.destroy();
 
-      // tray stuff
-      tray.setToolTip(loaded);
+      if (typeof loaded === 'string') {
+        tray.setToolTip(loaded);
+      } else {
+        tray.setToolTip('Initialising error: please restart ontime');
+      }
     });
-  }, 2000);
+  }, electronConfig.appIni.mainWindowWait);
 
   // Hide on close
   win.on('close', function (event) {
@@ -173,7 +177,6 @@ app.whenReady().then(() => {
   });
 
   // create tray
-  // TODO: Design better icon
   tray = new Tray(trayIcon);
 
   // Define context menu
@@ -269,7 +272,7 @@ ipcMain.on('send-to-link', (event, arg) => {
 
   // send to help URL
   if (arg === 'help') {
-    shell.openExternal('https://cpvalente.gitbook.io/ontime/');
+    shell.openExternal(electronConfig.externalUrls.help);
   } else {
     shell.openExternal(arg);
   }
