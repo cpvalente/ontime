@@ -166,7 +166,7 @@ export class SocketController {
       socket.on('set-onAir', (data) => {
         try {
           const d = JSON.parse(data);
-          this.onAir = !!d;
+          d ? global.timer.trigger('onAir') : global.timer.trigger('offAir');
         } catch (error) {
           this.error('RX', `Failed to parse message ${data}`);
         }
