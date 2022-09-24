@@ -1,5 +1,3 @@
-import electronConfig from './electron.config';
-
 const {
   app,
   BrowserWindow,
@@ -12,7 +10,7 @@ const {
   Notification,
 } = require('electron');
 const path = require('path');
-
+const electronConfig = require('./electron.config');
 if (process.env.NODE_ENV === undefined) {
   process.env.NODE_ENV = 'production';
 }

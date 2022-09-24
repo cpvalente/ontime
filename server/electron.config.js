@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   appIni: {
     mainWindowWait: 2000,
   },
