@@ -25,6 +25,7 @@ import { SocketController } from './classes/socket/SocketController.js';
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
+import { DataProvider } from './classes/data-provider/DataProvider.js';
 
 // get environment
 const env = process.env.NODE_ENV || 'production';
@@ -32,7 +33,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export const { db, data } = await loadDb(__dirname);
-
 console.log(`Starting ontime version ${process.env.npm_package_version}`);
 
 // Create express APP
@@ -81,15 +81,15 @@ app.use((err, req, res, next) => {
  *
  */
 
-const osc = data.osc;
+const { osc, settings } = DataProvider.getData();
 const oscIP = osc?.targetIP || config.osc.targetIP;
 const oscOutPort = osc?.portOut || config.osc.portOut;
 const oscInPort = osc?.port || config.osc.port;
 const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.inputEnabled;
-
-const serverPort = data.settings.serverPort || config.server.port;
+const serverPort = settings.serverPort || config.server.port;
 
 /**
+ * @description starts OSC server
  * @description starts OSC server
  * @param overrideConfig
  * @return {Promise<void>}
@@ -120,6 +120,7 @@ const server = http.createServer(app);
  */
 export const startServer = async (overrideConfig = null) => {
   const port = 4001; // port hardcoded
+  const { events, http } = DataProvider.getData();
 
   // Start server
   const returnMessage = `Ontime is listening on port ${port}`;
@@ -136,8 +137,8 @@ export const startServer = async (overrideConfig = null) => {
   };
 
   // init timer
-  global.timer = new EventTimer(server, config.timer, oscConfig, data.http);
-  global.timer.setupWithEventList(data.events);
+  global.timer = new EventTimer(server, config.timer, oscConfig, http);
+  global.timer.setupWithEventList(events);
 
   global.socket.info('SERVER', returnMessage);
   global.socket.startListener();
@@ -159,8 +160,8 @@ export const shutdown = async () => {
 };
 
 // register shutdown signals
-process.once('SIGHUP', shutdown)
-process.once('SIGINT', shutdown)
-process.once('SIGTERM', shutdown)
+process.once('SIGHUP', shutdown);
+process.once('SIGINT', shutdown);
+process.once('SIGTERM', shutdown);
 
 export { server, app };

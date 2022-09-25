@@ -49,3 +49,39 @@ export const validateFile = (file) => {
     return false;
   }
 };
+
+/**
+ * @description Verifies if object is empty
+ * @param {object} obj
+ */
+export const isEmptyObject = (obj) => {
+  if (typeof obj === 'object' && obj !== null && !Array.isArray(obj)) {
+    return Object.keys(obj).length === 0;
+  }
+  throw new Error('Variable is not an object');
+};
+
+/**
+ * @description Merges two objects, suppressing undefined keys
+ * @param {object} a
+ * @param {object} b
+ */
+export const mergeObject = (a, b) => {
+  const merged = {};
+  Object.keys({ ...a, ...b }).map((key) => {
+    merged[key] = typeof b[key] === 'undefined' ? a[key] : b[key];
+  });
+  return merged;
+};
+
+/**
+ * @description Removes undefined
+ * @param {object} obj
+ */
+export const removeUndefined = (obj) => {
+  const patched = {};
+  Object.keys({ ...obj })
+    .filter((key) => typeof obj[key] !== 'undefined')
+    .map((key) => (patched[key] = obj[key]));
+  return patched;
+};

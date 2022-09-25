@@ -1,7 +1,28 @@
 /**
- * Class Event Provider adds functions specific for handling event data
+ * Class Event Provider is a mediator for handling the local db
+ * and adds logic specific to ontime data
  */
+import { data, db } from '../../app.js';
+
 export class DataProvider {
+  static getData() {
+    return db.data;
+  }
+
+  static async setEvent(newData) {
+    data.event = { ...data.event, ...newData };
+    this.persist();
+    return data.event;
+  }
+
+  static getEvent() {
+    return db.data.event;
+  }
+
+  static async persist() {
+    await db.write();
+  }
+
   /**
    * Merges two data objects
    * @param {object} existing
