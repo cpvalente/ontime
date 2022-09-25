@@ -1,24 +1,28 @@
-// get database
-import { db, data } from '../app.js';
+import { removeUndefined } from '../utils/parserUtils.js';
+import { failEmptyObjects } from '../utils/routerUtils.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 // Create controller for GET request to 'event'
-// Returns ACK message
 export const getEvent = async (req, res) => {
-  res.json(data.event);
+  res.json(DataProvider.getEvent());
 };
 
 // Create controller for POST request to 'event'
-// Returns ACK message
 export const postEvent = async (req, res) => {
-  if (!req.body) {
-    res.status(400).send('No object found in request');
+  if (failEmptyObjects(req.body, res)) {
     return;
   }
-  // TODO: validate data
+
   try {
-    data.event = { ...data.event, ...req.body };
-    await db.write();
-    res.sendStatus(200);
+    const newEvent = removeUndefined({
+      title: req.body?.title,
+      url: req.body?.url,
+      publicInfo: req.body?.publicInfo,
+      backstageInfo: req.body?.backstageInfo,
+      endMessage: req.body?.endMessage,
+    });
+    const newData = await DataProvider.setEvent(newEvent);
+    res.status(200).send(newData);
   } catch (error) {
     res.status(400).send(error);
   }
