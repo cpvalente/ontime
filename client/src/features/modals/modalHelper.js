@@ -1,6 +1,7 @@
 export const inputProps = {
   size: 'sm',
   autoComplete: 'off',
+  variant: 'outline',
 };
 
 export const portInputProps = {
