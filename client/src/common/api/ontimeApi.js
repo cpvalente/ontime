@@ -166,12 +166,6 @@ export const getInfo = async () => {
 };
 
 /**
- * @description HTTP request to mutate application info
- * @return {Promise}
- */
-export const postInfo = async (data) => axios.post(`${ontimeURL}/info`, data);
-
-/**
  * @description HTTP request to retrieve view settings
  * @return {Promise}
  */

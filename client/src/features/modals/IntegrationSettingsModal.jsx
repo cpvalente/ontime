@@ -3,7 +3,7 @@ import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input, Switch } from '@chakra-ui/react';
 import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
 import { APP_TABLE } from 'common/api/apiConstants';
-import { getInfo, httpPlaceholder, ontimeVars, postInfo } from 'common/api/ontimeApi';
+import { getInfo, httpPlaceholder, ontimeVars } from 'common/api/ontimeApi';
 import { useFetch } from 'common/hooks/useFetch';
 
 import { LoggingContext } from '../../common/context/LoggingContext';
@@ -50,7 +50,7 @@ export default function IntegrationSettingsModal() {
       if (e.status) {
         emitError(`Invalid Input: ${e.message}`);
       } else {
-        await postInfo(f);
+        // call API endpoint here with value of f
         setChanged(false);
         setSubmitting(false);
       }
