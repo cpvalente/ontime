@@ -12,12 +12,12 @@ import { cleanURL } from '../../utils/url.js';
 export class EventTimer extends Timer {
   /**
    * Instantiates an event timer object
-   * @param {object} httpServer
+   * @param {object} socket
    * @param {object} timerConfig
    * @param {object} [oscConfig]
    * @param {object} [httpConfig]
    */
-  constructor(httpServer, timerConfig, oscConfig, httpConfig) {
+  constructor(socket, timerConfig, oscConfig, httpConfig) {
     // call super constructor
     super();
 
@@ -37,6 +37,9 @@ export class EventTimer extends Timer {
     };
     this.ontimeCycle = 'idle';
     this.prevCycle = null;
+
+    // Socket Object
+    this.socket = socket;
 
     // OSC Object
     this.osc = null;
@@ -82,11 +85,11 @@ export class EventTimer extends Timer {
   shutdown() {
     clearInterval(this._interval);
     if (this.osc != null) {
-      global.socket.info('TX', '... Closing OSC Client');
+      this.socket.info('TX', '... Closing OSC Client');
       this.osc.shutdown();
     }
     if (this.http != null) {
-      global.socket.info('TX', '... Closing HTTP Client');
+      this.socket.info('TX', '... Closing HTTP Client');
       this.http.shutdown();
     }
   }
@@ -99,7 +102,7 @@ export class EventTimer extends Timer {
   _initOscClient(oscConfig) {
     this.osc = new OSCIntegration();
     const r = this.osc.init(oscConfig);
-    r.success ? global.socket.info('TX', r.message) : global.socket.error('TX', r.message);
+    r.success ? this.socket.info('TX', r.message) : this.socket.error('TX', r.message);
   }
 
   /**
@@ -108,7 +111,7 @@ export class EventTimer extends Timer {
    * @private
    */
   _initHTTPClient(httpConfig) {
-    global.socket.info('TX', `Initialise HTTP Client on port`);
+    this.socket.info('TX', `Initialise HTTP Client on port`);
     this.http = new HTTPIntegration();
     this.http.init(httpConfig);
     this.httpMessages = httpConfig.messages;
@@ -119,7 +122,7 @@ export class EventTimer extends Timer {
    */
   broadcastTimer() {
     // through websockets
-    global.socket.send('timer', this.getTimeObject());
+    this.socket.send('timer', this.getTimeObject());
   }
 
   /**
@@ -135,7 +138,7 @@ export class EventTimer extends Timer {
       expectedFinish: this._getExpectedFinish(),
       startedAt: this._startedAt,
     };
-    global.socket.send('ontime-timer', featureData);
+    this.socket.send('ontime-timer', featureData);
   }
 
   /**
@@ -147,7 +150,7 @@ export class EventTimer extends Timer {
       selectedEventId: this.selectedEventId,
       nextEventId: this.nextEventId,
     };
-    global.socket.send('ontime-feat-eventlist', featureData);
+    this.socket.send('ontime-feat-eventlist', featureData);
   }
 
   /**
@@ -161,7 +164,7 @@ export class EventTimer extends Timer {
       lower: this.lower,
       onAir: this.onAir,
     };
-    global.socket.send('ontime-feat-messagecontrol', featureData);
+    this.socket.send('ontime-feat-messagecontrol', featureData);
   }
 
   /**
@@ -174,7 +177,7 @@ export class EventTimer extends Timer {
       selectedEventId: this.selectedEventId,
       numEvents: this._eventlist.length,
     };
-    global.socket.send('ontime-feat-playbackcontrol', featureData);
+    this.socket.send('ontime-feat-playbackcontrol', featureData);
   }
 
   /**
@@ -189,7 +192,7 @@ export class EventTimer extends Timer {
       selectedEventIndex: this.selectedEventIndex,
       numEvents: this._eventlist.length,
     };
-    global.socket.send('ontime-feat-info', featureData);
+    this.socket.send('ontime-feat-info', featureData);
   }
 
   _broadcastFeatureCuesheet() {
@@ -200,7 +203,7 @@ export class EventTimer extends Timer {
       numEvents: this._eventlist.length,
       titleNow: this.titles.titleNow,
     };
-    global.socket.send('ontime-feat-cuesheet', featureData);
+    this.socket.send('ontime-feat-cuesheet', featureData);
   }
 
   /**
@@ -217,20 +220,20 @@ export class EventTimer extends Timer {
 
     const numEvents = this._eventlist.length;
     this.broadcastTimer();
-    global.socket.send('playstate', this.state);
-    global.socket.send('selected', {
+    this.socket.send('playstate', this.state);
+    this.socket.send('selected', {
       id: this.selectedEventId,
       index: this.selectedEventIndex,
       total: numEvents,
     });
-    global.socket.send('selected-id', this.selectedEventId);
-    global.socket.send('next-id', this.nextEventId);
-    global.socket.send('numevents', numEvents);
-    global.socket.send('publicselected-id', this.selectedPublicEventId);
-    global.socket.send('publicnext-id', this.nextPublicEventId);
-    global.socket.send('titles', this.titles);
-    global.socket.send('publictitles', this.titlesPublic);
-    global.socket.send('onAir', this.onAir);
+    this.socket.send('selected-id', this.selectedEventId);
+    this.socket.send('next-id', this.nextEventId);
+    this.socket.send('numevents', numEvents);
+    this.socket.send('publicselected-id', this.selectedPublicEventId);
+    this.socket.send('publicnext-id', this.nextPublicEventId);
+    this.socket.send('titles', this.titles);
+    this.socket.send('publictitles', this.titlesPublic);
+    this.socket.send('onAir', this.onAir);
   }
 
   /**
@@ -246,7 +249,7 @@ export class EventTimer extends Timer {
       case 'start': {
         if (!numEvents) return false;
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Play Mode Start');
+        this.socket.info('PLAYBACK', 'Play Mode Start');
         this.start();
         break;
       }
@@ -254,8 +257,8 @@ export class EventTimer extends Timer {
         if (!numEvents) return false;
         const loaded = this.loadEventById(payload);
         if (loaded) {
-          global.socket.info('PLAYBACK', `Loaded event with ID ${payload}`);
-          global.socket.info('PLAYBACK', 'Play Mode Start');
+          this.socket.info('PLAYBACK', `Loaded event with ID ${payload}`);
+          this.socket.info('PLAYBACK', 'Play Mode Start');
           this.start();
         } else {
           return false;
@@ -266,8 +269,8 @@ export class EventTimer extends Timer {
         if (!numEvents) return false;
         const loaded = this.loadEventByIndex(payload);
         if (loaded) {
-          global.socket.info('PLAYBACK', `Loaded event with index ${payload}`);
-          global.socket.info('PLAYBACK', 'Play Mode Start');
+          this.socket.info('PLAYBACK', `Loaded event with index ${payload}`);
+          this.socket.info('PLAYBACK', 'Play Mode Start');
           this.start();
         } else {
           return false;
@@ -277,35 +280,35 @@ export class EventTimer extends Timer {
       case 'pause': {
         if (!numEvents) return false;
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Play Mode Pause');
+        this.socket.info('PLAYBACK', 'Play Mode Pause');
         this.pause();
         break;
       }
       case 'stop': {
         if (!numEvents) return false;
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Play Mode Stop');
+        this.socket.info('PLAYBACK', 'Play Mode Stop');
         this.stop();
         break;
       }
       case 'roll': {
         if (!numEvents) return false;
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Play Mode Roll');
+        this.socket.info('PLAYBACK', 'Play Mode Roll');
         this.roll();
         break;
       }
       case 'previous': {
         if (!numEvents) return false;
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Play Mode Previous');
+        this.socket.info('PLAYBACK', 'Play Mode Previous');
         this.previous();
         break;
       }
       case 'next': {
         if (!numEvents) return false;
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Play Mode Next');
+        this.socket.info('PLAYBACK', 'Play Mode Next');
         this.next();
         break;
       }
@@ -313,7 +316,7 @@ export class EventTimer extends Timer {
         if (!numEvents) return false;
         const loaded = this.loadEventById(payload);
         if (loaded) {
-          global.socket.info('PLAYBACK', `Loaded event with ID ${payload}`);
+          this.socket.info('PLAYBACK', `Loaded event with ID ${payload}`);
         } else {
           return false;
         }
@@ -323,7 +326,7 @@ export class EventTimer extends Timer {
         if (!numEvents) return false;
         const loaded = this.loadEventByIndex(payload);
         if (loaded) {
-          global.socket.info('PLAYBACK', `Loaded event with index ${payload}`);
+          this.socket.info('PLAYBACK', `Loaded event with index ${payload}`);
         } else {
           return false;
         }
@@ -332,32 +335,32 @@ export class EventTimer extends Timer {
       case 'unload': {
         if (!numEvents) return false;
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Events unloaded');
+        this.socket.info('PLAYBACK', 'Events unloaded');
         this.unload();
         break;
       }
       case 'reload': {
         if (!numEvents) return false;
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Reloaded event');
+        this.socket.info('PLAYBACK', 'Reloaded event');
         this.reload();
         break;
       }
       case 'onAir': {
         // Call action
-        global.socket.info('PLAYBACK', 'Going On Air');
+        this.socket.info('PLAYBACK', 'Going On Air');
         this.setonAir(true);
         break;
       }
       case 'offAir': {
         // Call action and force update
-        global.socket.info('PLAYBACK', 'Going Off Air');
+        this.socket.info('PLAYBACK', 'Going Off Air');
         this.setonAir(false);
         break;
       }
       default: {
         // Error, disable flag
-        global.socket.error('RX', `Unhandled action triggered ${action}`);
+        this.socket.error('RX', `Unhandled action triggered ${action}`);
         success = false;
         break;
       }
@@ -482,7 +485,7 @@ export class EventTimer extends Timer {
         this.ontimeCycle = this.cycleState.onUpdate;
         break;
       default:
-        global.socket.error('SERVER', `Unhandled cycle: ${this.ontimeCycle}`);
+        this.socket.error('SERVER', `Unhandled cycle: ${this.ontimeCycle}`);
     }
 
     // send http message if any
@@ -516,7 +519,7 @@ export class EventTimer extends Timer {
 
     // if we are not updating, send the timers
     if (this.ontimeCycle !== this.cycleState.onUpdate) {
-      global.socket.send('timer', this.getTimeObject());
+      this.socket.send('timer', this.getTimeObject());
     }
 
     // Have we skipped onStart?
@@ -580,33 +583,33 @@ export class EventTimer extends Timer {
       // Presenter message
       case 'set-timer-text':
         this.presenter.text = payload;
-        global.socket.send('messages-timer', this.presenter);
+        this.socket.send('messages-timer', this.presenter);
         break;
       case 'set-timer-visible':
         this.presenter.visible = payload;
-        global.socket.send('messages-timer', this.presenter);
+        this.socket.send('messages-timer', this.presenter);
         break;
 
       /*******************************************/
       // Public message
       case 'set-public-text':
         this.public.text = payload;
-        global.socket.send('messages-public', this.public);
+        this.socket.send('messages-public', this.public);
         break;
       case 'set-public-visible':
         this.public.visible = payload;
-        global.socket.send('messages-public', this.public);
+        this.socket.send('messages-public', this.public);
         break;
 
       /*******************************************/
       // Lower third message
       case 'set-lower-text':
         this.lower.text = payload;
-        global.socket.send('messages-lower', this.lower);
+        this.socket.send('messages-lower', this.lower);
         break;
       case 'set-lower-visible':
         this.lower.visible = payload;
-        global.socket.send('messages-lower', this.lower);
+        this.socket.send('messages-lower', this.lower);
         break;
 
       default:
@@ -628,7 +631,7 @@ export class EventTimer extends Timer {
     this.ontimeCycle = this.cycleState.onStop;
 
     // update clients
-    global.socket.send('numevents', this._eventlist.length);
+    this.socket.send('numevents', this._eventlist.length);
   }
 
   /**
@@ -752,7 +755,7 @@ export class EventTimer extends Timer {
         this._loadTitlesNow();
       }
     } catch (error) {
-      global.socket.error('SERVER', error);
+      this.socket.error('SERVER', error);
     }
 
     // update clients
@@ -801,7 +804,7 @@ export class EventTimer extends Timer {
         this._loadTitlesNow();
       }
     } catch (error) {
-      global.socket.error('SERVER', error);
+      this.socket.error('SERVER', error);
     }
 
     // update clients
@@ -1125,7 +1128,7 @@ export class EventTimer extends Timer {
   setonAir(onAir) {
     this.onAir = onAir;
     // broadcast change
-    global.socket.send('onAir', onAir);
+    this.socket.send('onAir', onAir);
   }
 
   /**
@@ -1208,7 +1211,7 @@ export class EventTimer extends Timer {
     // nothing to play, unload
     if (nowIndex === null && nextIndex === null) {
       this.unload();
-      global.socket.warning('SERVER', 'Roll: no events found');
+      this.socket.warning('SERVER', 'Roll: no events found');
       return;
     }
 
@@ -1235,7 +1238,7 @@ export class EventTimer extends Timer {
       if (nowIndex === null) {
         // only warn the first time
         if (this.secondaryTimer === null) {
-          global.socket.info('SERVER', 'Roll: waiting for event start');
+          this.socket.info('SERVER', 'Roll: waiting for event start');
         }
 
         // reset running timer
@@ -1385,7 +1388,7 @@ export class EventTimer extends Timer {
   async sendOsc(message, payload) {
     const reply = await this.osc.send(message, payload);
     if (!reply.success) {
-      global.socket.error('TX', reply.message);
+      this.socket.error('TX', reply.message);
     }
   }
 

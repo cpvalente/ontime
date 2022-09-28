@@ -4,12 +4,16 @@ import { generateId } from '../../utils/generate_id.js';
 import { stringFromMillis } from '../../utils/time.js';
 import { Timer } from '../timer/Timer.js';
 
-export class SocketController {
-  constructor(httpServer) {
+class SocketController {
+  constructor() {
     this.numClients = 0;
     this.messageStack = [];
     this._MAX_MESSAGES = 100;
     this._clientNames = {};
+    this.socket = null;
+  }
+
+  initServer(httpServer) {
     this.socket = new Server(httpServer, {
       cors: {
         origin: '*',
@@ -392,3 +396,5 @@ export class SocketController {
     this._push('ERROR', origin, text);
   }
 }
+
+export const socketProvider = new SocketController();

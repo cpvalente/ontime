@@ -21,7 +21,7 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 
 // Global Objects
 import { EventTimer } from './classes/timer/EventTimer.js';
-import { SocketController } from './classes/socket/SocketController.js';
+import { socketProvider } from './classes/socket/SocketController.js';
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
@@ -34,6 +34,9 @@ const __dirname = dirname(__filename);
 
 export const { db, data } = await loadDb(__dirname);
 console.log(`Starting ontime version ${process.env.npm_package_version}`);
+
+// import socket provider
+const socket = socketProvider;
 
 // Create express APP
 const app = express();
@@ -96,7 +99,7 @@ const serverPort = settings.serverPort || config.server.port;
  */
 export const startOSCServer = async (overrideConfig = null) => {
   if (!oscInEnabled) {
-    global.socket.info('RX', 'OSC Input Disabled');
+    socket.info('RX', 'OSC Input Disabled');
     return;
   }
 
@@ -106,7 +109,7 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  global.socket.info('RX', `Starting OSC Server on port: ${oscInPort}`);
+  socket.info('RX', `Starting OSC Server on port: ${oscInPort}`);
   initiateOSC(oscSettings);
 };
 
@@ -127,8 +130,8 @@ export const startServer = async (overrideConfig = null) => {
   server.listen(port, '0.0.0.0');
 
   // init socket controller
-  global.socket = new SocketController(server);
-  global.socket.info('SERVER', 'Socket initialised');
+  await socket.initServer(server);
+  socket.info('SERVER', 'Socket initialised');
 
   // OSC Config
   const oscConfig = {
@@ -137,11 +140,11 @@ export const startServer = async (overrideConfig = null) => {
   };
 
   // init timer
-  global.timer = new EventTimer(server, config.timer, oscConfig, http);
+  global.timer = new EventTimer(socket, config.timer, oscConfig, http);
   global.timer.setupWithEventList(events);
 
-  global.socket.info('SERVER', returnMessage);
-  global.socket.startListener();
+  socket.info('SERVER', returnMessage);
+  socket.startListener();
   return returnMessage;
 };
 
@@ -156,7 +159,7 @@ export const shutdown = async () => {
 
   shutdownOSCServer();
   global.timer.shutdown();
-  global.socket.shutdown();
+  socket.shutdown();
 };
 
 // register shutdown signals
