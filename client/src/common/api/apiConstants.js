@@ -19,12 +19,8 @@ export const TIMER = ['ontime-timer'];
  * @description finds server path given the current location, it
  * @return {*}
  */
-export const calculateServer = () => {
-  if (process.env?.NODE_ENV === 'development') {
-    return `http://localhost:${STATIC_PORT}`;
-  }
-  return window.location.origin;
-};
+export const calculateServer = () =>
+  import.meta.env.DEV ? `http://localhost:${STATIC_PORT}` : window.location.origin;
 
 export const serverURL = calculateServer();
 export const eventURL = `${serverURL}/${EVENT_TABLE}`;

@@ -1,11 +1,10 @@
 /* eslint-disable react/destructuring-assignment */
 import React from 'react';
 
+import { version as appVersion } from '../../../../package.json';
 import { LoggingContext } from '../../context/LoggingContext';
 
 import style from './ErrorBoundary.module.scss';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const appVersion = require('../../../../package.json').version;
 
 class ErrorBoundary extends React.Component {
   static contextType = LoggingContext;

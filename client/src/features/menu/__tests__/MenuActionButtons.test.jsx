@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
-import MenuActionButtons from "../MenuActionButtons";
+import MenuActionButtons from '../MenuActionButtons';
 
-const actionHandler = jest.fn();
+const actionHandler = vi.fn();
 const renderInMock = () => {
-  render(<MenuActionButtons actionHandler={actionHandler} />)
+  render(<MenuActionButtons actionHandler={actionHandler} />);
 };
 
 test('check that menu bar renders correctly', () => {
@@ -12,8 +13,8 @@ test('check that menu bar renders correctly', () => {
   renderInMock();
 
   const b = screen.getByRole('button', {
-    name: /create menu/i
-  })
+    name: /create menu/i,
+  });
 
   expect(b).toBeInTheDocument();
 });
