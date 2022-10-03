@@ -1,10 +1,11 @@
 import fs from 'fs';
-import { data, db } from '../app.js';
 import { networkInterfaces } from 'os';
 import { fileHandler } from '../utils/parser.js';
 import { generateId } from '../utils/generate_id.js';
 import { resolveDbPath } from '../modules/loadDb.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
+import { mergeObject } from '../utils/parserUtils.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -22,7 +23,8 @@ export const poll = async (req, res) => {
 // Create controller for GET request to '/ontime/db'
 // Returns -
 export const dbDownload = async (req, res) => {
-  const fileTitle = data?.event?.title || 'ontime events';
+  const { title } = DataProvider.getEvent();
+  const fileTitle = title || 'ontime events';
   const dbInDisk = resolveDbPath();
 
   res.download(dbInDisk, `${fileTitle}.json`, (err) => {
@@ -48,18 +50,13 @@ const uploadAndParse = async (file, req, res, options) => {
     } else if (result.message === 'success') {
       // explicitly write objects
       if (typeof result !== 'undefined') {
-        if (!options.onlyEvents) {
-          const mergedData = DataProvider.safeMerge(data, result.data);
-          data.event = mergedData.event;
-          data.settings = mergedData.settings;
-          data.osc = mergedData.osc;
-          data.http = mergedData.http;
-          data.aliases = mergedData.aliases;
-          data.userFields = mergedData.userFields;
+        const newEvents = result.data.events || [];
+        if (options.onlyEvents) {
+          await DataProvider.setEvents(newEvents);
+        } else {
+          await DataProvider.mergeIntoData(result.data);
         }
-        data.events = result.data.events || [];
-        global.timer.setupWithEventList(result.data.events || []);
-        await db.write();
+        global.timer.setupWithEventList(newEvents);
       }
       res.sendStatus(200);
     } else {
@@ -71,7 +68,7 @@ const uploadAndParse = async (file, req, res, options) => {
 };
 
 /**
- * @description Gets information on IPV4 non internal interfaces
+ * @description Gets information on IPV4 non-internal interfaces
  * @returns {array} - Array of objects {name: ip}
  */
 const getNetworkInterfaces = () => {
@@ -96,15 +93,8 @@ const getNetworkInterfaces = () => {
 // Create controller for POST request to '/ontime/info'
 // Returns -
 export const getInfo = async (req, res) => {
-  const version = data.settings.version;
-  const serverPort = data.settings.serverPort;
-
-  const osc = {
-    port: data.osc.port,
-    portOut: data.osc.portOut,
-    targetIP: data.osc.targetIP,
-    enabled: data.osc.enabled,
-  };
+  const { version, serverPort } = DataProvider.getSettings();
+  const osc = DataProvider.getOsc();
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
@@ -122,18 +112,16 @@ export const getInfo = async (req, res) => {
 // Create controller for POST request to '/ontime/aliases'
 // Returns -
 export const getAliases = async (req, res) => {
-  // send aliases array
-  res.status(200).send(data.aliases);
+  const aliases = DataProvider.getAliases();
+  res.status(200).send(aliases);
 };
 
 // Create controller for POST request to '/ontime/aliases'
 // Returns ACK message
 export const postAliases = async (req, res) => {
-  if (!req.body) {
-    res.status(400).send('No object found in request');
+  if (failIsNotArray()) {
     return;
   }
-  // TODO: validate data
   try {
     const newAliases = [];
     req.body.forEach((a) => {
@@ -144,9 +132,8 @@ export const postAliases = async (req, res) => {
         pathAndParams: a.pathAndParams,
       });
     });
-    data.aliases = newAliases;
-    await db.write();
-    res.sendStatus(200);
+    await DataProvider.setAliases(newAliases);
+    res.status(200).send(newAliases);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -155,27 +142,21 @@ export const postAliases = async (req, res) => {
 // Create controller for GET request to '/ontime/userfields'
 // Returns -
 export const getUserFields = async (req, res) => {
-  // send userFields array
-  res.status(200).send(data.userFields);
+  const userFields = DataProvider.getUserFields();
+  res.status(200).send(userFields);
 };
 
 // Create controller for POST request to '/ontime/userfields'
 // Returns ACK message
 export const postUserFields = async (req, res) => {
-  if (!req.body) {
-    res.status(400).send('No object found in request');
+  if (failEmptyObjects(req.body, res)) {
     return;
   }
   try {
-    const newUserFields = { ...data.userFields };
-    for (const field in newUserFields) {
-      if (typeof req.body[field] !== 'undefined') {
-        newUserFields[field] = req.body[field];
-      }
-    }
-    data.userFields = newUserFields;
-    await db.write();
-    res.sendStatus(200);
+    const persistedData = DataProvider.getUserFields();
+    const newData = mergeObject(persistedData, req.body);
+    await DataProvider.setUserFields(newData);
+    res.status(200).send(newData);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -184,12 +165,8 @@ export const postUserFields = async (req, res) => {
 // Create controller for POST request to '/ontime/settings'
 // Returns -
 export const getSettings = async (req, res) => {
-  const version = data.settings.version;
-  const serverPort = data.settings.serverPort;
-  const pinCode = data.settings.pinCode;
-  const timeFormat = data.settings.timeFormat;
+  const { version, serverPort, pinCode, timeFormat } = DataProvider.getSettings();
 
-  // send object with network information
   res.status(200).send({
     version,
     serverPort,
@@ -201,12 +178,12 @@ export const getSettings = async (req, res) => {
 // Create controller for POST request to '/ontime/settings'
 // Returns ACK message
 export const postSettings = async (req, res) => {
-  if (!req.body) {
-    res.status(400).send('No object found in request');
+  if (failEmptyObjects(req.body, res)) {
     return;
   }
   try {
-    let pin = data.settings.pinCode;
+    const settings = DataProvider.getSettings();
+    let pin = settings.pinCode;
     if (typeof req.body?.pinCode === 'string') {
       if (req.body?.pinCode.length === 0) {
         pin = null;
@@ -215,20 +192,20 @@ export const postSettings = async (req, res) => {
       }
     }
 
-    let timeFormat = data.settings.timeFormat;
+    let format = settings.timeFormat;
     if (typeof req.body?.timeFormat === 'string') {
       if (req.body?.timeFormat === '12' || req.body?.timeFormat === '24') {
-        timeFormat = req.body.timeFormat;
+        format = req.body.timeFormat;
       }
     }
 
-    data.settings = {
-      ...data.settings,
+    const newData = {
+      ...settings,
       pinCode: pin,
-      timeFormat: timeFormat,
+      timeFormat: format,
     };
-    await db.write();
-    res.sendStatus(200);
+    DataProvider.setSettings(newData);
+    res.status(200).send(newData);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -239,7 +216,8 @@ export const postSettings = async (req, res) => {
  * @method GET
  */
 export const getViewSettings = async (req, res) => {
-  res.status(200).send({ ...data.views });
+  const views = DataProvider.getViews();
+  res.status(200).send(views);
 };
 
 /**
@@ -247,33 +225,14 @@ export const getViewSettings = async (req, res) => {
  * @method POST
  */
 export const postViewSettings = async (req, res) => {
-  if (!req.body) {
-    res.status(400).send('No object found in request');
+  if (failEmptyObjects(req.body, res)) {
     return;
   }
-  try {
-    data.views = {
-      overrideStyles: req.body?.overrideStyles ?? data.views.overrideStyles,
-    };
-    await db.write();
-    res.sendStatus(200);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-};
 
-// Create controller for POST request to '/ontime/info'
-// Returns ACK message
-export const postInfo = async (req, res) => {
-  if (!req.body) {
-    res.status(400).send('No object found in request');
-    return;
-  }
-  // TODO: validate data
   try {
-    data.settings = { ...data.settings, ...req.body };
-    await db.write();
-    res.sendStatus(200);
+    const newData = { overrideStyles: req.body.overrideStyles };
+    DataProvider.setViews(newData);
+    res.status(200).send(newData);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -282,25 +241,22 @@ export const postInfo = async (req, res) => {
 // Create controller for POST request to '/ontime/osc'
 // Returns -
 export const getOSC = async (req, res) => {
-  // send object with network information
-  res.status(200).send(data.osc);
+  const osc = DataProvider.getOsc();
+  res.status(200).send(osc);
 };
 
 // Create controller for POST request to '/ontime/osc'
 // Returns ACK message
 export const postOSC = async (req, res) => {
-  if (!req.body) {
-    res.status(400).send('No object found in request');
+  if (failEmptyObjects(req.body, res)) {
     return;
   }
-  // TODO: validate data
+
   try {
-    data.osc = { ...data.osc, ...req.body };
-    await db.write();
-    res.sendStatus(200);
+    await DataProvider.setOsc(req.body);
+    res.send(req.body).status(200);
   } catch (error) {
     res.status(400).send(error);
-    console.log(error);
   }
 };
 
@@ -313,7 +269,7 @@ export const dbUpload = async (req, res) => {
   }
   const options = req.query;
   const file = req.file.path;
-  uploadAndParse(file, req, res, options);
+  await uploadAndParse(file, req, res, options);
 };
 
 // Create controller for POST request to '/ontime/dbpath'
@@ -323,5 +279,5 @@ export const dbPathToUpload = async (req, res) => {
     res.status(400).send({ message: 'Path to file not found' });
     return;
   }
-  uploadAndParse(req.body.path, req, res);
+  await uploadAndParse(req.body.path, req, res);
 };
