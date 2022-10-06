@@ -23,7 +23,7 @@ export const poll = async (req, res) => {
 // Create controller for GET request to '/ontime/db'
 // Returns -
 export const dbDownload = async (req, res) => {
-  const { title } = DataProvider.getEvent();
+  const { title } = DataProvider.getEventData();
   const fileTitle = title || 'ontime events';
   const dbInDisk = resolveDbPath();
 

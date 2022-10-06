@@ -4,7 +4,7 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 // Create controller for GET request to 'event'
 export const getEvent = async (req, res) => {
-  res.json(DataProvider.getEvent());
+  res.json(DataProvider.getEventData());
 };
 
 // Create controller for POST request to 'event'
@@ -21,7 +21,7 @@ export const postEvent = async (req, res) => {
       backstageInfo: req.body?.backstageInfo,
       endMessage: req.body?.endMessage,
     });
-    const newData = await DataProvider.setEvent(newEvent);
+    const newData = await DataProvider.setEventData(newEvent);
     res.status(200).send(newData);
   } catch (error) {
     res.status(400).send(error);
