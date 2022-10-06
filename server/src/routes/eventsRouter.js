@@ -13,6 +13,10 @@ import {
   eventsDeleteAll,
   eventsDelete,
 } from '../controllers/eventsController.js';
+import {
+  eventsPutValidator,
+  paramsMustHaveEventId,
+} from '../controllers/eventsController.validate.js';
 
 // create route between controller and '/events/' endpoint
 router.get('/', eventsGetAll);
@@ -24,7 +28,7 @@ router.get('/:eventId', eventsGetById);
 router.post('/', eventsPost);
 
 // create route between controller and '/events/' endpoint
-router.put('/', eventsPut);
+router.put('/', eventsPutValidator, eventsPut);
 
 // create route between controller and '/events/' endpoint
 // DEPRECATED
@@ -34,10 +38,10 @@ router.patch('/', eventsPatch);
 router.patch('/reorder/', eventsReorder);
 
 // create route between controller and '/events/applydelay/:eventId' endpoint
-router.patch('/applydelay/:eventId', eventsApplyDelay);
+router.patch('/applydelay/:eventId', paramsMustHaveEventId, eventsApplyDelay);
 
 // create route between controller and '/events/all' endpoint
 router.delete('/all', eventsDeleteAll);
 
 // create route between controller and '/events/:eventId' endpoint
-router.delete('/:eventId', eventsDelete);
+router.delete('/:eventId', paramsMustHaveEventId, eventsDelete);
