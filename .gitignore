@@ -32,6 +32,7 @@ server/src/preloaded-db/db.json
 server/src/models/db.json
 TODO.md
 ontime-db/
+ontime-external/
 
 # vscode stuff
 .vscode/*

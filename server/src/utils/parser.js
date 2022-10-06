@@ -11,6 +11,7 @@ import {
   parseOsc_v1,
   parseSettings_v1,
   parseUserFields_v1,
+  parseViews_v1,
 } from './parserUtils_v1.js';
 import { parseExcelDate } from './time.js';
 import { generateId } from './generate_id.js';
@@ -272,6 +273,8 @@ export const parseJson_v1 = async (jsonData, enforce = false) => {
   returnData.event = parseEvent_v1(jsonData, enforce);
   // Settings handled partially
   returnData.settings = parseSettings_v1(jsonData, enforce);
+  // View settings handled partially
+  returnData.views = parseViews_v1(jsonData, enforce);
   // Import OSC settings if any
   returnData.osc = parseOsc_v1(jsonData, enforce);
   // Import HTTP settings if any

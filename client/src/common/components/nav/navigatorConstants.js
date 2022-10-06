@@ -1,7 +1,8 @@
 const navigatorConstants = [
   { url: '/timer', label: 'Timer' },
+  { url: '/clock', label: 'Clock' },
   { url: '/minimal', label: 'Minimal Timer' },
-  { url: '/sm', label: 'Backstage' },
+  { url: '/backstage', label: 'Backstage' },
   { url: '/public', label: 'Public' },
   { url: '/lower', label: 'Lower Thirds' },
   { url: '/pip', label: 'PiP' },

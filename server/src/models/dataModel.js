@@ -15,6 +15,9 @@ export const dbModelv1 = {
     pinCode: null,
     timeFormat: '24',
   },
+  views: {
+    overrideStyles: false,
+  },
   aliases: [],
   userFields: {
     user0: 'user0',

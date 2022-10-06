@@ -1,24 +1,27 @@
 import express from 'express';
 import { uploadFile } from '../utils/upload.js';
-
-export const router = express.Router();
-
 import {
   dbDownload,
-  dbUpload,
-  getInfo,
-  postInfo,
   dbPathToUpload,
-  getOSC,
-  postOSC,
-  getSettings,
-  postSettings,
+  dbUpload,
   getAliases,
-  postAliases,
-  poll,
+  getInfo,
+  getOSC,
+  getSettings,
   getUserFields,
+  getViewSettings,
+  poll,
+  postAliases,
+  postInfo,
+  postOSC,
+  postSettings,
   postUserFields,
+  postViewSettings,
 } from '../controllers/ontimeController.js';
+
+import { viewValidator } from '../validation/ontimeValidator.js';
+
+export const router = express.Router();
 
 // create route between controller and '/ontime/sync' endpoint
 router.get('/poll', poll);
@@ -34,6 +37,12 @@ router.get('/settings', getSettings);
 
 // create route between controller and '/ontime/settings' endpoint
 router.post('/settings', postSettings);
+
+// create route between controller and '/ontime/views' endpoint
+router.get('/views', getViewSettings);
+
+// create route between controller and '/ontime/views' endpoint
+router.post('/views', viewValidator, postViewSettings);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/aliases', getAliases);

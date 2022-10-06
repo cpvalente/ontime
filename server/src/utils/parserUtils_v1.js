@@ -119,6 +119,33 @@ export const parseSettings_v1 = (data, enforce) => {
 };
 
 /**
+ * Parse settings portion of an entry
+ * @param {object} data - data object
+ * @param {boolean} enforce - whether to create a definition if one is missing
+ * @returns {object} - event object data
+ */
+export const parseViews_v1 = (data, enforce) => {
+  let newViews = {};
+  if ('views' in data) {
+    console.log('Found view definition, importing...');
+    const v = data.views;
+
+    const viewSettings = {
+      overrideStyles: v.overrideStyles ?? dbModelv1.views.overrideStyles,
+    };
+
+    // write to db
+    newViews = {
+      ...viewSettings,
+    };
+  } else if (enforce) {
+    newViews = dbModelv1.views;
+    console.log(`Created view object in db`);
+  }
+  return newViews;
+};
+
+/**
  * Parse osc portion of an entry
  * @param {object} data - data object
  * @param {boolean} enforce - whether to create a definition if one is missing

@@ -48,15 +48,15 @@ app.options('*', cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
-app.use('/uploads', express.static('uploads'));
-
 // Implement route endpoints
 app.use('/events', eventsRouter);
 app.use('/event', eventRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
-// serve react
+// serve static - css
+app.use('/external', express.static(join(__dirname, 'external')));
+// serve static - react
 app.use(express.static(join(__dirname, env === 'production' ? '../' : '../../', 'client/build')));
 
 app.get('*', (req, res) => {

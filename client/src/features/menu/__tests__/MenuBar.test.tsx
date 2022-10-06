@@ -1,13 +1,14 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { queryClientMock } from '../../../__mocks__/QueryClient.mock';
 import MenuBar from '../MenuBar';
 
-const onSettingOpenHandler = jest.fn();
-const onSettingsCloseHandler = jest.fn();
+const onSettingOpenHandler = vi.fn();
+const onSettingsCloseHandler = vi.fn();
+const onUploadOpenHandler = vi.fn();
 const isOpen = false;
-const onUploadOpenHandler = jest.fn();
 
 const renderInMock = () => {
   render(

@@ -194,7 +194,7 @@ export default function OscSettingsModal() {
                 placeholder='8888'
                 value={formData.port}
                 onChange={(event) => handleChange('port', parseInt(event.target.value, 10))}
-                style={{ width: '6em', textAlign: 'center' }}
+                style={{ width: '6em' }}
               />
             </FormControl>
           </div>

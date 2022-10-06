@@ -1,8 +1,18 @@
 {
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
   "extends": [
-    "react-app",
-    "react-app/jest",
-    "plugin:react/recommended"
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "eslint-config-prettier"
   ],
   "plugins": [
     "react",
@@ -10,7 +20,6 @@
     "simple-import-sort"
   ],
   "rules": {
-    "jest/no-mocks-import": "warn",
     "no-useless-concat": "warn",
     "prefer-template": "warn",
     "react/jsx-no-bind": [
@@ -81,8 +90,7 @@
       }
     ],
     "simple-import-sort/imports": "warn",
-    "simple-import-sort/exports": "warn",
-    "import/no-duplicates": "error"
+    "simple-import-sort/exports": "warn"
   },
   "overrides": [
     // override "simple-import-sort" config

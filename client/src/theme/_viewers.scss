@@ -32,58 +32,57 @@
   color: $ontime-pink;
 }
 
-.infoContainer > div {
+.info-container > div {
   overflow: hidden;
 }
 
-.nextContainer > div,
-.nowContainer > div {
+.next-container > div,
+.now-container > div {
   @include ellipsis;
 }
 
-.nowContainer,
-.nextContainer,
-.todayContainer {
+.now-container,
+.next-container,
+.today-container {
   background-color: $bg-gray-1000;
   padding: 1vh 2vw;
   overflow: hidden;
 }
 
-.clockContainer,
-.countdownContainer,
-.publicContainer,
-.publicContainerHidden {
-  background-color: $bg-gray-1000;
+.clock-container,
+.countdown-container,
+.public-container,
+.public-container--hidden {
   padding: 1vh 1vw;
 }
 
-.publicContainer {
+.public-container {
   opacity: 1;
   transition: 0.5s;
   transition-property: opacity;
 }
 
-.publicContainerHidden {
+.public-container--hidden {
   opacity: 0;
   transition: 0.5s;
   transition-property: opacity;
 }
 
-.todayContainer,
-.infoContainer {
+.today-container,
+.info-container {
   background-color: $bg-gray-1100;
   padding: 2.5vh 2vw;
 }
 
-.infoContainer,
-.todayContainer,
-.publicContainer,
-.publicContainerHidden {
+.info-container,
+.today-container,
+.public-container,
+.public-container--hidden {
   border-radius: 1vw;
 }
 
-.nowContainer,
-.nextContainer {
+.now-container,
+.next-container {
   margin-left: -1vw;
 }
 
@@ -102,7 +101,7 @@
   color: $clocks;
 }
 
-.infoContainer {
+.info-container {
   grid-area: info;
   display: grid;
 
@@ -114,14 +113,14 @@
   gap: 0.5vw;
 }
 
-.infoMessages {
+.info-messages {
   grid-area: binf;
   font-size: 1.5vw;
   line-height: 2vw;
   white-space: pre-line;
 }
 
-.clockContainer {
+.clock-container {
   grid-area: time;
   border-radius: 1vw;
 }
@@ -132,17 +131,17 @@
   padding: 0.5vh 0 0.5vh 1vw;
 }
 
-.todayContainer {
+.today-container {
   margin-top: 3vh;
   height: 95%;
 
-  .todayHeaderBlock {
+  .today-header-block {
     display: flex;
     justify-content: space-between;
     margin-bottom: 1.5vh;
 
-    .navItem,
-    .navItemSelected {
+    .nav-item,
+    .nav-item--selected {
       background-color: $bg-gray-700;
       width: 0.7vw;
       height: 0.7vw;
@@ -166,7 +165,7 @@
   }
 }
 
-.infoContainer {
+.info-container {
   display: grid;
 
   grid-template-rows: 3vh minmax(0, 1fr);
@@ -176,14 +175,14 @@
     'binf qr';
   gap: 0.5vw;
 
-  .infoMessages {
+  .info-messages {
     grid-area: binf;
     font-size: 1.5vw;
     line-height: 2vw;
     white-space: pre-line;
   }
 
-  .clockContainer {
+  .clock-container {
     grid-area: time;
     border-radius: 1vw;
   }
