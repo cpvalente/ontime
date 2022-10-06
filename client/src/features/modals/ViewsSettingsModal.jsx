@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
@@ -6,6 +6,7 @@ import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInforma
 import { VIEW_SETTINGS } from '../../common/api/apiConstants';
 import { getView, postView, viewsPlaceholder } from '../../common/api/ontimeApi';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
+import { LoggingContext } from '../../common/context/LoggingContext';
 import { useFetch } from '../../common/hooks/useFetch';
 import { openLink } from '../../common/utils/linkUtils';
 
@@ -15,6 +16,7 @@ import style from './Modals.module.scss';
 
 export default function ViewsSettingsModal() {
   const { data, status, refetch } = useFetch(VIEW_SETTINGS, getView);
+  const { emitError } = useContext(LoggingContext);
   const [formData, setFormData] = useState(viewsPlaceholder);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -35,12 +37,17 @@ export default function ViewsSettingsModal() {
     async (event) => {
       event.preventDefault();
       setSubmitting(true);
-      await postView(formData);
-      await refetch();
-      setChanged(false);
+      try {
+        await postView(formData);
+      } catch (error) {
+        emitError(`Error view settings: ${error}`)
+      } finally{
+        await refetch();
+        setChanged(false);
+      }
       setSubmitting(false);
     },
-    [formData, refetch]
+    [emitError, formData, refetch]
   );
 
   /**

@@ -86,12 +86,17 @@ export default function AppSettingsModal() {
     if (!validation.isValid) {
       emitError(`Invalid Input: ${validation.message}`);
     } else {
-      await postSettings(formData);
-      await refetch();
+      try {
+        await postSettings(formData);
+      } catch (error) {
+        emitError(`Error saving settings: ${error}`)
+      } finally {
+        await refetch();
+        setChanged(false);
+      }
       validation?.message && emitWarning(validation.message);
     }
     setSubmitting(false);
-    setChanged(false);
   };
 
   /**
