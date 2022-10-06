@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import NavLogo from 'common/components/nav/NavLogo';
-import Paginator from 'common/components/paginator/Paginator';
 import TitleSide from 'common/components/title-side/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import Paginator from '../../../common/components/views/Paginator';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';
