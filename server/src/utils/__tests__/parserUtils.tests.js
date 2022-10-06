@@ -48,6 +48,25 @@ describe('mergeObject()', () => {
       third: '',
     });
   });
+  test.skip('it only merges fields of the first object', () => {
+    const a = {
+      first: 'yes',
+      second: 'yes',
+      third: 'yes',
+    };
+    const b = {
+      first: 0,
+      second: null,
+      third: '',
+      forth: 'not-this',
+    };
+    const merged = mergeObject(a, b);
+    expect(merged).toStrictEqual({
+      first: 0,
+      second: null,
+      third: '',
+    });
+  });
 });
 
 describe('removeUndefined()', () => {
