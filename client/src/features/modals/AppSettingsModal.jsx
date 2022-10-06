@@ -60,6 +60,7 @@ export default function AppSettingsModal() {
     setSubmitting(true);
 
     // set context
+    // TODO: add fast-equals here and check if event settings have changed
     saveEventSettings(formSettings);
     const validation = { isValid: false };
 
