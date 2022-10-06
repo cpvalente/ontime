@@ -9,19 +9,93 @@ export class DataProvider {
     return data;
   }
 
-  static async setEvent(newData) {
+  static async setEventData(newData) {
     data.event = { ...data.event, ...newData };
-    this.persist();
+    await this.persist();
     return data.event;
   }
 
-  static getEvent() {
+  static getEventData() {
     return data.event;
   }
 
   static async setEvents(newData) {
     data.events = [...newData];
-    this.persist();
+    await this.persist();
+  }
+
+  static getEventById(eventId) {
+    return data.events.find((e) => e.id === eventId);
+  }
+
+  static async updateEventById(eventId, newData) {
+    const eventIndex = data.events.findIndex((e) => e.id === eventId);
+    const e = data.events[eventIndex];
+    data.events[eventIndex] = { ...e, ...newData };
+    data.events[eventIndex].revision++;
+    await this.persist();
+    return data.events[eventIndex];
+  }
+
+  static async deleteEvent(eventId) {
+    data.events = Array.from(data.events).filter((e) => e.id !== eventId);
+    await this.persist();
+  }
+
+  static getNumEvents() {
+    return data.events.length;
+  }
+
+  static async deleteAllEvents() {
+    data.events = [];
+    await db.write();
+  }
+
+  /**
+   * Insets an event after a given index
+   * @param entry
+   * @param index
+   * @return {Promise<void>}
+   * @private
+   */
+  static async insertEventAt(entry, index) {
+    // get events
+    const events = DataProvider.getEvents();
+    const count = events.length;
+    const order = entry.order;
+
+    // Remove order field from object
+    delete entry.order;
+
+    // Insert at beginning
+    if (order === 0) {
+      events.unshift(entry);
+    }
+
+    // insert at end
+    else if (order >= count) {
+      events.push(entry);
+    }
+
+    // insert in the middle
+    else {
+      events.splice(index, 0, entry);
+    }
+
+    // save events
+    await DataProvider.setEvents(events);
+  }
+
+  /**
+   * @description Inserts an entry after an element with given ID
+   * @param entry
+   * @param id
+   * @return {Promise<void>}
+   * @private
+   */
+  static async insertEventAfterId(entry, id) {
+    const index = [...data.events].findIndex((event) => event.id === id);
+    await DataProvider.insertEventAt(entry, index + 1);
   }
 
   static getSettings() {
@@ -30,7 +104,7 @@ export class DataProvider {
 
   static async setSettings(newData) {
     data.settings = { ...newData };
-    this.persist();
+    await this.persist();
   }
 
   static getOsc() {
@@ -43,7 +117,7 @@ export class DataProvider {
 
   static async setAliases(newData) {
     data.aliases = newData;
-    this.persist();
+    await this.persist();
   }
 
   static getUserFields() {
@@ -54,26 +128,30 @@ export class DataProvider {
     return { ...data.views };
   }
 
-  static setViews(newData) {
+  static async setViews(newData) {
     data.views = { ...newData };
-    this.persist();
+    await this.persist();
   }
 
   static async setUserFields(newData) {
     data.userFields = { ...newData };
-    this.persist();
+    await this.persist();
   }
 
   static async setOsc(newData) {
     data.osc = { ...newData };
-    this.persist();
+    await this.persist();
+  }
+
+  static getEvents() {
+    return [...data.events];
   }
 
   static async persist() {
     await db.write();
   }
 
-  static mergeIntoData(newData) {
+  static async mergeIntoData(newData) {
     const mergedData = DataProvider.safeMerge(data, newData);
     data.event = mergedData.event;
     data.settings = mergedData.settings;
@@ -82,7 +160,7 @@ export class DataProvider {
     data.aliases = mergedData.aliases;
     data.userFields = mergedData.userFields;
     data.events = mergedData.events;
-    this.persist();
+    await this.persist();
   }
 
   /**
