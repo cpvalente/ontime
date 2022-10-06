@@ -717,7 +717,7 @@ export class EventTimer extends Timer {
     // find object in events
     const eventIndex = this._eventlist.findIndex((e) => e.id === id);
     if (eventIndex === -1) {
-      throw 'Event not found';
+      throw new Error('Event not found');
     }
 
     // check if event is set to be skipped
