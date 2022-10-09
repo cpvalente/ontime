@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import NavLogo from 'common/components/nav/NavLogo';
-import Paginator from 'common/components/paginator/Paginator';
 import TitleSide from 'common/components/title-side/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import Paginator from '../../../common/components/views/Paginator';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';
@@ -24,7 +24,6 @@ export default function Public(props) {
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
 
-  // Set window title
   useEffect(() => {
     document.title = 'ontime - Public Screen';
   }, []);
@@ -36,7 +35,6 @@ export default function Public(props) {
 
   // Format messages
   const showPubl = publ.text !== '' && publ.visible;
-
   const clock = formatTime(time.clock, formatOptions);
 
   return (
@@ -136,7 +134,7 @@ Public.propTypes = {
   publ: PropTypes.object,
   publicTitle: PropTypes.object,
   time: PropTypes.object,
-  events: PropTypes.object,
+  events: PropTypes.array,
   publicSelectedId: PropTypes.string,
   general: PropTypes.object,
   viewSettings: PropTypes.object,

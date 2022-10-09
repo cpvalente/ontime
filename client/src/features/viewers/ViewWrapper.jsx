@@ -1,21 +1,24 @@
 /* eslint-disable react/display-name */
-import { useEffect, useState } from 'react';
-import { EVENT_TABLE, EVENTS_TABLE, VIEW_SETTINGS } from 'common/api/apiConstants';
-import { fetchEvent } from 'common/api/eventApi';
-import { fetchAllEvents } from 'common/api/eventsApi';
-import { useSocket } from 'common/context/socketContext';
-import { useFetch } from 'common/hooks/useFetch';
+import { useEffect, useMemo, useState } from 'react';
 
+import { EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
+import { fetchEvent } from '../../common/api/eventApi';
+import { fetchAllEvents } from '../../common/api/eventsApi';
+import { useSocket } from '../../common/context/socketContext';
+import { useFetch } from '../../common/hooks/useFetch';
 import { getView } from '../../common/api/ontimeApi';
+import useSubscription from '../../common/context/useSubscription';
+import { eventPlaceholderSettings } from '../../common/api/ontimeApi';
 
 const withSocket = (Component) => {
   return (props) => {
-    const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents);
-    const { data: genData } = useFetch(EVENT_TABLE, fetchEvent);
+    const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents, {
+      placeholderData: [],
+    });
+    const { data: genData } = useFetch(EVENT_TABLE, fetchEvent, {
+      placeholderData: eventPlaceholderSettings,
+    });
     const { data: viewSettings } = useFetch(VIEW_SETTINGS, getView);
-
-    const [publicEvents, setPublicEvents] = useState([]);
-    const [backstageEvents, setBackstageEvents] = useState([]);
 
     const socket = useSocket();
     const [pres, setPres] = useState({
@@ -30,14 +33,16 @@ const withSocket = (Component) => {
       text: '',
       visible: false,
     });
-    const [timer, setTimer] = useState({
+    const [publicSelectedId, setPublicSelectedId] = useState(null);
+
+    const [timer] = useSubscription('timer', {
       clock: 0,
       running: 0,
       isNegative: false,
       startedAt: null,
       expectedFinish: null,
     });
-    const [titles, setTitles] = useState({
+    const [titles] = useSubscription('titles', {
       titleNow: '',
       subtitleNow: '',
       presenterNow: '',
@@ -45,7 +50,7 @@ const withSocket = (Component) => {
       subtitleNext: '',
       presenterNext: '',
     });
-    const [publicTitles, setPublicTitles] = useState({
+    const [publicTitles] = useSubscription('publictitles', {
       titleNow: '',
       subtitleNow: '',
       presenterNow: '',
@@ -53,18 +58,10 @@ const withSocket = (Component) => {
       subtitleNext: '',
       presenterNext: '',
     });
-    const [selectedId, setSelectedId] = useState(null);
-    const [nextId, setNextId] = useState(null);
-    const [publicSelectedId, setPublicSelectedId] = useState(null);
-    const [general, setGeneral] = useState({
-      title: '',
-      url: '',
-      publicInfo: '',
-      backstageInfo: '',
-      endMessage: '',
-    });
-    const [playback, setPlayback] = useState(null);
-    const [onAir, setOnAir] = useState(false);
+    const [selectedId] = useSubscription('selected-id', null);
+    const [nextId] = useSubscription('next-id', null);
+    const [playback] = useSubscription('playstate', null);
+    const [onAir] = useSubscription('onAir', false);
 
     // Ask for update on load
     useEffect(() => {
@@ -87,96 +84,29 @@ const withSocket = (Component) => {
         setLower({ ...data });
       });
 
-      // Handle timer
-      socket.on('timer', (data) => {
-        setTimer({ ...data });
-      });
-
-      // Handle playstate
-      socket.on('playstate', (data) => {
-        setPlayback(data);
-      });
-      socket.on('onAir', (data) => {
-        setOnAir(data);
-      });
-
-      // Handle titles
-      socket.on('titles', (data) => {
-        setTitles({ ...data });
-      });
-      socket.on('publictitles', (data) => {
-        setPublicTitles({ ...data });
-      });
-
-      // Handle selected event
-      socket.on('selected-id', (data) => {
-        setSelectedId(data);
-      });
       socket.on('publicselected-id', (data) => {
         setPublicSelectedId(data);
-      });
-      socket.on('next-id', (data) => {
-        setNextId(data);
       });
 
       // Ask for up to date data
       socket.emit('get-messages');
-
-      // Ask for up to data
-      socket.emit('get-timer');
-
-      // ask for timer
-      socket.emit('get-timer');
-
-      // ask for playstate
-      socket.emit('get-playstate');
-      socket.emit('get-onAir');
-
-      // Ask for up titles
-      socket.emit('get-titles');
-      socket.emit('get-publictitles');
-
-      // Ask for up selected
-      socket.emit('get-selected-id');
-      socket.emit('get-next-id');
 
       // Clear listeners
       return () => {
         socket.off('messages-public');
         socket.off('messages-timer');
         socket.off('messages-lower');
-        socket.off('timer');
-        socket.off('playstate');
-        socket.off('onAir');
-        socket.off('titles');
-        socket.off('publictitles');
-        socket.off('selected-id');
-        socket.emit('next-id');
       };
     }, [socket]);
 
-    // Filter events only to pass down
-    useEffect(() => {
-      if (!eventsData) {
-        return;
-      }
-      // filter just events with title
+
+    const publicEvents = useMemo(() => {
       if (Array.isArray(eventsData)) {
-        const pe = eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
-        setPublicEvents(pe);
-
-        // everything goes backstage
-        setBackstageEvents(eventsData);
+        return eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
+      } else {
+        return [];
       }
-    }, [eventsData]);
-
-    // Set general data
-    useEffect(() => {
-      if (!genData) {
-        return;
-      }
-      setGeneral(genData);
-    }, [genData]);
+    },[eventsData])
 
     /********************************************/
     /***  + titleManager                      ***/
@@ -245,12 +175,12 @@ const withSocket = (Component) => {
         publicTitle={publicTitleManager}
         time={timeManager}
         events={publicEvents}
-        backstageEvents={backstageEvents}
+        backstageEvents={eventsData}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
         viewSettings={viewSettings}
         nextId={nextId}
-        general={general}
+        general={genData}
         onAir={onAir}
       />
     );

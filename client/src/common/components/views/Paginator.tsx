@@ -1,14 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useInterval } from 'common/hooks/useInterval';
-import PropTypes from 'prop-types';
 
+import { OntimeEvent } from '../../application-types/event';
 import Empty from '../state/Empty';
 
 import TodayItem from './TodayItem';
 
-import './Paginator.scss';
+import style from './Paginator.module.scss';
 
-export default function Paginator(props) {
+interface PaginatorProps {
+  events: OntimeEvent[];
+  selectedId: string;
+  limit?: number;
+  time?: number;
+  isBackstage: boolean;
+  setPageNumber: (page: number) => void;
+  setCurrentPage: (selectedPage: number) => void;
+}
+
+export default function Paginator(props: PaginatorProps) {
   const {
     events,
     selectedId,
@@ -21,9 +31,9 @@ export default function Paginator(props) {
   const LIMIT_PER_PAGE = limit;
   const SCROLL_TIME = time * 1000;
   const [numEvents, setNumEvents] = useState(0);
-  const [page, setPage] = useState([]);
-  const [pages, setPages] = useState(0);
-  const [selPage, setSelPage] = useState(0);
+  const [page, setPage] = useState<OntimeEvent[]>([]);
+  const [pages, setPages] = useState<number>(0);
+  const [selPage, setSelPage] = useState<number>(0);
 
   // keep parent up to date
   useEffect(() => {
@@ -70,7 +80,7 @@ export default function Paginator(props) {
   }
 
   return (
-    <div className='paginator entries'>
+    <div className={style.entries}>
       {page.map((e) => {
         if (e.id === selectedId) selectedState = 1;
         else if (selectedState === 1) selectedState = 2;
@@ -83,19 +93,10 @@ export default function Paginator(props) {
             title={e.title}
             colour={isBackstage ? e.colour : ''}
             backstageEvent={!e.isPublic}
+            skip={e.skip}
           />
         );
       })}
     </div>
   );
 }
-
-Paginator.propTypes = {
-  events: PropTypes.array,
-  selectedId: PropTypes.string,
-  limit: PropTypes.number,
-  time: PropTypes.number,
-  isBackstage: PropTypes.bool,
-  setPageNumber: PropTypes.func,
-  setCurrentPage: PropTypes.func,
-};

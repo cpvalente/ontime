@@ -27,7 +27,7 @@ type LoggingProviderProps = {
 }
 
 const notInitialised = () => {
-  throw new Error("Not initialised");
+  throw new Error('Not initialised');
 };
 
 export const LoggingContext = createContext<LoggingProviderState>({
@@ -35,7 +35,7 @@ export const LoggingContext = createContext<LoggingProviderState>({
   emitInfo: notInitialised,
   emitWarning: notInitialised,
   emitError: notInitialised,
-  clearLog: notInitialised
+  clearLog: notInitialised,
 });
 
 export const LoggingProvider = ({ children }: LoggingProviderProps) => {
@@ -52,7 +52,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     socket.emit('get-logger');
 
     socket.on('logger', (data: Log) => {
-      setLogData((l) => [data, ...l]);
+      setLogData((currentLog) => [data, ...currentLog]);
     });
 
     // Clear listener
@@ -70,21 +70,21 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   const _send = useCallback(
     (text: string, level: LOG_LEVEL) => {
       if (socket != null) {
-        const m: Log = {
+        const newLogMessage: Log = {
           id: generateId(),
           origin,
           time: stringFromMillis(nowInMillis()),
           level,
           text,
         };
-        setLogData((l) => [m, ...l]);
-        socket.emit('logger', m);
+        setLogData((currentLog) => [newLogMessage, ...currentLog]);
+        socket.emit('logger', newLogMessage);
       }
       if (logData.length > MAX_MESSAGES) {
-        setLogData((l) => l.slice(1));
+        setLogData((currentLog) => currentLog.slice(1));
       }
     },
-    [logData, socket]
+    [logData.length, setLogData, socket],
   );
 
   /**
@@ -95,7 +95,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'INFO');
     },
-    [_send]
+    [_send],
   );
 
   /**
@@ -106,7 +106,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'WARN');
     },
-    [_send]
+    [_send],
   );
 
   /**
@@ -117,7 +117,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'ERROR');
     },
-    [_send]
+    [_send],
   );
 
   /**
@@ -125,7 +125,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    */
   const clearLog = useCallback(() => {
     setLogData([]);
-  }, []);
+  }, [setLogData]);
 
   return (
     <LoggingContext.Provider value={{ emitInfo, logData, emitWarning, emitError, clearLog }}>

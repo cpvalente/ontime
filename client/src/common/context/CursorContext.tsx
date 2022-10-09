@@ -1,17 +1,32 @@
-import { createContext, useCallback, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
-export const CursorContext = createContext({
+interface CursorContextState {
+  cursor: number;
+  isCursorLocked: boolean;
+  toggleCursorLocked: (newValue?: boolean) => void;
+  setCursor: (index: number) => void;
+  moveCursorUp: () => void;
+  moveCursorDown: () => void;
+  moveCursorTo: (index: number) => void;
+}
+
+export const CursorContext = createContext<CursorContextState>({
   cursor: 0,
   isCursorLocked: false,
-
+  toggleCursorLocked: () => undefined,
   setCursor: () => undefined,
   moveCursorUp: () => undefined,
   moveCursorDown: () => undefined,
+  moveCursorTo: () => undefined,
 });
 
-export const CursorProvider = ({ children }) => {
+interface CursorProviderProps {
+  children: ReactNode
+}
+
+export const CursorProvider = ({ children }: CursorProviderProps) => {
   const [cursor, setCursor] = useState(0);
   const [_cursorLocked, _setCursorLocked] = useLocalStorage('isCursorLocked', 'locked');
   const isCursorLocked = useMemo(() => _cursorLocked === 'locked', [_cursorLocked]);
@@ -31,7 +46,7 @@ export const CursorProvider = ({ children }) => {
    * @param {boolean | undefined} newValue
    */
   const toggleCursorLocked = useCallback(
-    (newValue = undefined) => {
+    (newValue?: boolean) => {
       if (typeof newValue === 'undefined') {
         if (isCursorLocked) {
           cursorLockedOff();
@@ -46,6 +61,11 @@ export const CursorProvider = ({ children }) => {
     },
     [cursorLockedOff, cursorLockedOn, isCursorLocked]
   );
+  
+  // moves cursor to given index
+  const moveCursorTo = useCallback((index: number) => {
+    setCursor(index);
+  }, []);
 
   return (
     <CursorContext.Provider
@@ -56,6 +76,7 @@ export const CursorProvider = ({ children }) => {
         setCursor,
         moveCursorUp,
         moveCursorDown,
+        moveCursorTo,
       }}
     >
       {children}
