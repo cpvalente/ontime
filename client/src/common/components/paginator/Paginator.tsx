@@ -6,7 +6,7 @@ import Empty from '../state/Empty';
 
 import TodayItem from './TodayItem';
 
-import style from './Paginator.module.scss';
+import './Paginator.scss';
 
 interface PaginatorProps {
   events: OntimeEvent[];
@@ -80,7 +80,7 @@ export default function Paginator(props: PaginatorProps) {
   }
 
   return (
-    <div className={style.entries}>
+    <div className='paginator entries'>
       {page.map((e) => {
         if (e.id === selectedId) selectedState = 1;
         else if (selectedState === 1) selectedState = 2;

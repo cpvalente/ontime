@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import Paginator from '../../../common/components/views/Paginator';
+import Paginator from '../../../common/components/paginator/Paginator';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
 
