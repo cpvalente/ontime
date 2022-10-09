@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormLabel, Input, Textarea } from '@chakra-ui/react';
 import { EVENT_TABLE } from 'common/api/apiConstants';
@@ -6,6 +6,7 @@ import { fetchEvent, postEvent } from 'common/api/eventApi';
 import { useFetch } from 'common/hooks/useFetch';
 
 import { eventPlaceholderSettings } from '../../common/api/ontimeApi';
+import { LoggingContext } from '../../common/context/LoggingContext';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
@@ -14,6 +15,7 @@ import style from './Modals.module.scss';
 
 export default function SettingsModal() {
   const { data, status, refetch } = useFetch(EVENT_TABLE, fetchEvent);
+  const { emitError } = useContext(LoggingContext);
   const [formData, setFormData] = useState(eventPlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -42,13 +44,18 @@ export default function SettingsModal() {
       event.preventDefault();
       setSubmitting(true);
 
-      await postEvent(formData);
-      await refetch();
+      try {
+        await postEvent(formData);
+      } catch (error) {
+        emitError(`Error saving event settings: ${error}`)
+      } finally {
+        await refetch();
+        setChanged(false);
+      }
 
-      setChanged(false);
       setSubmitting(false);
     },
-    [formData, refetch]
+    [emitError, formData, refetch]
   );
 
   /**

@@ -12,14 +12,19 @@ import {
   getViewSettings,
   poll,
   postAliases,
-  postInfo,
   postOSC,
   postSettings,
   postUserFields,
   postViewSettings,
 } from '../controllers/ontimeController.js';
 
-import { viewValidator } from '../validation/ontimeValidator.js';
+import {
+  viewValidator,
+  validateAliases,
+  validateUserFields,
+  validateSettings,
+  validateOSC,
+} from '../controllers/ontimeController.validate.js';
 
 export const router = express.Router();
 
@@ -36,7 +41,7 @@ router.post('/db', uploadFile, dbUpload);
 router.get('/settings', getSettings);
 
 // create route between controller and '/ontime/settings' endpoint
-router.post('/settings', postSettings);
+router.post('/settings', validateSettings, postSettings);
 
 // create route between controller and '/ontime/views' endpoint
 router.get('/views', getViewSettings);
@@ -48,25 +53,22 @@ router.post('/views', viewValidator, postViewSettings);
 router.get('/aliases', getAliases);
 
 // create route between controller and '/ontime/aliases' endpoint
-router.post('/aliases', postAliases);
+router.post('/aliases', validateAliases, postAliases);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/userfields', getUserFields);
 
 // create route between controller and '/ontime/aliases' endpoint
-router.post('/userfields', postUserFields);
+router.post('/userfields', validateUserFields, postUserFields);
 
 // create route between controller and '/ontime/info' endpoint
 router.get('/info', getInfo);
-
-// create route between controller and '/ontime/info' endpoint
-router.post('/info', postInfo);
 
 // create route between controller and '/ontime/osc' endpoint
 router.get('/osc', getOSC);
 
 // create route between controller and '/ontime/osc' endpoint
-router.post('/osc', postOSC);
+router.post('/osc', validateOSC, postOSC);
 
 // create route between controller and '/ontime/dbpath' endpoint
 router.post('/dbpath', dbPathToUpload);

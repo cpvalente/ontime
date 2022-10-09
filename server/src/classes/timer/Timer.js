@@ -12,38 +12,11 @@ export class Timer {
   }
 
   /**
-   * @description initiates a timer with given seconds
-   * @param seconds
-   * @param autoStart
-   */
-  setupWithSeconds(seconds, autoStart = false) {
-    // aux
-    const now = this._getCurrentTime();
-    this.clock = now;
-
-    // populate targets
-    this.duration = seconds * 1000;
-    this._finishAt = now + seconds * 1000;
-
-    // start counting
-    this._startedAt = now;
-
-    if (autoStart) {
-      this.state = 'start';
-    } else {
-      this._pausedAt = now;
-      this._pausedInterval = 0;
-    }
-    this._pausedTotal = 0;
-    this.update();
-  }
-
-  /**
    * @description updates the running timer
    */
   update() {
     // get current time
-    const now = this._getCurrentTime();
+    const now = Timer.getCurrentTime();
     this.clock = now;
     let checkFinish = false;
 
@@ -106,7 +79,7 @@ export class Timer {
    * @return {number}
    * @private
    */
-  _getCurrentTime() {
+  static getCurrentTime() {
     const now = new Date();
 
     // extract milliseconds since midnight
@@ -178,16 +151,6 @@ export class Timer {
     };
   }
 
-  /**
-   * @description get current time in seconds
-   * @return {number|number}
-   */
-  getCurrentInSeconds() {
-    // update timeStamp
-    this.update();
-    return Timer.toSeconds(this.current);
-  }
-
   // playback
   /**
    * @description start current time
@@ -197,7 +160,7 @@ export class Timer {
     if (this.state === 'start') return;
     else if (this._startedAt == null) {
       // it hasn't started yet
-      const now = this._getCurrentTime();
+      const now = Timer.getCurrentTime();
       // set start time as now
       this._startedAt = now;
       // calculate expected finish time
@@ -230,7 +193,7 @@ export class Timer {
     }
 
     // set pause time
-    this._pausedAt = this._getCurrentTime();
+    this._pausedAt = Timer.getCurrentTime();
 
     // change state
     this.state = 'pause';
@@ -259,7 +222,7 @@ export class Timer {
 
     if (amount < 0 && Math.abs(amount) > this.current) {
       // if we will make the clock negative
-      if (this._finishedAt == null) this._finishedAt = this._getCurrentTime();
+      if (this._finishedAt == null) this._finishedAt = Timer.getCurrentTime();
     } else if (this.current < 0 && this.current + amount > 0) {
       // clock will go from negative to positive
       this._finishedAt = null;

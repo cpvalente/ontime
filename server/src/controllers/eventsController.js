@@ -1,7 +1,3 @@
-// get database
-import { data, db } from '../app.js';
-
-// utils
 import {
   block as blockDef,
   delay as delayDef,
@@ -10,78 +6,26 @@ import {
 import { generateId } from '../utils/generate_id.js';
 import { MAX_EVENTS } from '../settings.js';
 import { getPreviousPlayable } from '../utils/eventUtils.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { failEmptyObjects } from '../utils/routerUtils.js';
+import { socketProvider } from '../classes/socket/SocketController.js';
+
+// import socket provider
+const socket = socketProvider;
 
 async function _insertAndSync(newEvent) {
   if (newEvent.order) {
-    const events = data.events;
-    await _insertAt(newEvent, newEvent.order);
+    const events = DataProvider.getEvents();
+    await DataProvider.insertEventAt(newEvent, newEvent.order);
     const previousId = events?.[newEvent.order - 1]?.id;
     _insertEventInTimerAfterId(newEvent, previousId);
   } else if (newEvent.after) {
-    await _insertAfterId(newEvent, newEvent.after);
+    await DataProvider.insertEventAfterId(newEvent, newEvent.after);
     _insertEventInTimerAfterId(newEvent, newEvent.after);
   } else {
-    await _insertAt(newEvent, 0);
+    await DataProvider.insertEventAt(newEvent, 0);
     _insertEventInTimerAfterId(newEvent);
   }
-}
-
-/**
- * Insets an event after a given index
- * @param entry
- * @param index
- * @return {Promise<void>}
- * @private
- */
-async function _insertAt(entry, index) {
-  // get events
-  const events = data.events;
-  const count = events.length;
-  const order = entry.order;
-
-  // Remove order field from object
-  delete entry.order;
-
-  // Insert at beginning
-  if (order === 0) {
-    events.unshift(entry);
-  }
-
-  // insert at end
-  else if (order >= count) {
-    events.push(entry);
-  }
-
-  // insert in the middle
-  else {
-    events.splice(index, 0, entry);
-  }
-
-  // save events
-  data.events = events;
-  await db.write();
-}
-
-/**
- * @description Inserts an entry after an element with given Id
- * @param entry
- * @param id
- * @return {Promise<void>}
- * @private
- */
-async function _insertAfterId(entry, id) {
-  const index = [...data.events].findIndex((event) => event.id === id);
-  await _insertAt(entry, index + 1);
-}
-
-/**
- * @description deletes an event from the db given its id
- * @param eventId
- * @return {Promise<void>}
- */
-async function _removeById(eventId) {
-  data.events = Array.from(data.events).filter((e) => e.id !== eventId);
-  await db.write();
 }
 
 /**
@@ -90,7 +34,8 @@ async function _removeById(eventId) {
  */
 function getEventEvents() {
   // return data.events.filter((e) => e.type === 'event');
-  return Array.from(data.events).filter((e) => e.type === 'event');
+  const events = DataProvider.getEvents();
+  return Array.from(events).filter((e) => e.type === 'event');
 }
 
 // Updates timer object
@@ -112,7 +57,7 @@ function _insertEventInTimerAfterId(event, previousId) {
     try {
       global.timer.insertEventAfterId(event, previousId);
     } catch (error) {
-      global.timer.error('SERVER', `Unable to update object: ${error}`);
+      socket.error('SERVER', `Unable to update object: ${error}`);
     }
   }
 }
@@ -135,7 +80,7 @@ function _deleteTimerId(entryId) {
 // Create controller for GET request to '/events'
 // Returns -
 export const eventsGetAll = async (req, res) => {
-  res.json(data.events);
+  res.json(DataProvider.getEvents());
 };
 
 // Create controller for GET request to '/events/:eventId'
@@ -146,7 +91,7 @@ export const eventsGetById = async (req, res) => {
   if (id == null) {
     res.status(400).send(`No eventId found in request`);
   } else {
-    const event = data.events.find((e) => e.id === id);
+    const event = DataProvider.getEventById(id);
     res.json(event);
   }
 };
@@ -154,13 +99,12 @@ export const eventsGetById = async (req, res) => {
 // Create controller for POST request to '/events/'
 // Returns -
 export const eventsPost = async (req, res) => {
-  // TODO: Validate event
-  if (!req.body) {
-    res.status(400).send(`No object found in request`);
+  if (failEmptyObjects(req.body, res)) {
     return;
   }
 
-  if (data.events.length > MAX_EVENTS) {
+  const numEvents = DataProvider.getNumEvents();
+  if (numEvents > MAX_EVENTS) {
     const error = `ERROR: Reached limit number of ${MAX_EVENTS} events`;
     res.status(400).send(error);
     return;
@@ -187,7 +131,7 @@ export const eventsPost = async (req, res) => {
   }
 
   try {
-    _insertAndSync(newEvent);
+    await _insertAndSync(newEvent);
     res.sendStatus(201);
   } catch (error) {
     res.status(400).send(error);
@@ -197,41 +141,33 @@ export const eventsPost = async (req, res) => {
 // Create controller for PUT request to '/events/'
 // Returns -
 export const eventsPut = async (req, res) => {
-  // no valid params
-  if (!req.body) {
-    res.status(400).send(`No object found`);
+  if (failEmptyObjects(req.body, res)) {
     return;
   }
 
-  const eventId = req.body.id;
-  if (!eventId) {
-    res.status(400).send(`Object malformed: id missing`);
-    return;
-  }
-
-  const eventIndex = data.events.findIndex((e) => e.id === eventId);
-  if (eventIndex === -1) {
-    res.status(400).send(`No Id found found`);
+  const eventDataFromRequest = req.body;
+  const eventId = eventDataFromRequest.id;
+  const event = DataProvider.getEventById(eventId);
+  if (typeof event === 'undefined') {
+    res.status(400).send(`No event with ID found`);
     return;
   }
 
   try {
-    const e = data.events[eventIndex];
-    data.events[eventIndex] = { ...e, ...req.body };
-    data.events[eventIndex].revision++;
-    await db.write();
+    const newData = DataProvider.updateEventById(eventId, eventDataFromRequest);
 
-    if (data.events[eventIndex].skip) {
+    if (newData.skip) {
       _deleteTimerId(eventId);
-      // if it is a skip, i make sure it is deleted from timer
+      // if it is a skip, make sure it is deleted from timer
       // event id might already not exist
     } else {
       try {
-        _updateTimersSingle(eventId, req.body);
+        _updateTimersSingle(newData.id, eventDataFromRequest);
       } catch (error) {
         if (error === 'Event not found') {
-          const { id: previousId } = getPreviousPlayable(data.events, e.id);
-          _insertEventInTimerAfterId(data.events[eventIndex], previousId);
+          const events = DataProvider.getEvents();
+          const { id: previousId } = getPreviousPlayable(events, newData.id);
+          _insertEventInTimerAfterId(newData, previousId);
         }
       }
     }
@@ -250,16 +186,14 @@ export const eventsPatch = async (req, res) => {
 };
 
 export const eventsReorder = async (req, res) => {
-  // TODO: Validate event
-  if (!req.body) {
-    res.status(400).send(`No object found in request`);
+  if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   const { index, from, to } = req.body;
 
   // get events
-  const events = data.events;
+  const events = DataProvider.getEvents();
   const idx = events.findIndex((e) => e.id === index, from);
 
   // Check if item is at given index
@@ -276,8 +210,7 @@ export const eventsReorder = async (req, res) => {
     events.splice(to, 0, reorderedItem);
 
     // save events
-    data.events = events;
-    await db.write();
+    await DataProvider.setEventData(events);
 
     // update timer
     _updateTimers();
@@ -291,15 +224,9 @@ export const eventsReorder = async (req, res) => {
 // Create controller for PATCH request to '/events/applydelay/:eventId'
 // Returns -
 export const eventsApplyDelay = async (req, res) => {
-  // no valid params
-  if (!req.params.eventId) {
-    res.status(400).send(`No id found in request`);
-    return;
-  }
-
   try {
     // get events
-    const events = data.events;
+    const events = DataProvider.getEvents();
 
     // AUX
     let delayIndex = null;
@@ -340,8 +267,7 @@ export const eventsApplyDelay = async (req, res) => {
     if (blockIndex) events.splice(blockIndex - 1, 1);
 
     // update events
-    data.events = events;
-    await db.write();
+    await DataProvider.setEvents(events);
 
     // update timer
     _updateTimers();
@@ -355,20 +281,15 @@ export const eventsApplyDelay = async (req, res) => {
 // Create controller for DELETE request to '/events/:eventId'
 // Returns -
 export const eventsDelete = async (req, res) => {
-  // no valid params
-  if (!req.params.eventId) {
-    res.status(400).send(`No id found in request`);
-    return;
-  }
-
   try {
+    const eventId = req.params.eventId;
+
     // remove new event
-    await _removeById(req.params.eventId);
-
+    await DataProvider.deleteEvent(eventId);
     // update timer
-    _deleteTimerId(req.params.eventId);
+    _deleteTimerId(eventId);
 
-    res.sendStatus(201);
+    res.sendStatus(204);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -378,14 +299,9 @@ export const eventsDelete = async (req, res) => {
 // Returns -
 export const eventsDeleteAll = async (req, res) => {
   try {
-    // set with nothing
-    data.events = [];
-    await db.write();
-
-    // update timer object
+    await DataProvider.deleteAllEvents();
     global.timer.clearEventList();
-
-    res.sendStatus(201);
+    res.sendStatus(204);
   } catch (error) {
     res.status(400).send(error);
   }

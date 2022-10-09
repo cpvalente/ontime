@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { Input } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
@@ -6,6 +6,7 @@ import { USERFIELDS } from 'common/api/apiConstants';
 import { useFetch } from 'common/hooks/useFetch';
 
 import { getUserFields, postUserFields, userFieldsPlaceholder } from '../../common/api/ontimeApi';
+import { LoggingContext } from '../../common/context/LoggingContext';
 import { handleLinks, host } from '../../common/utils/linkUtils';
 
 import SubmitContainer from './SubmitContainer';
@@ -14,6 +15,7 @@ import style from './Modals.module.scss';
 
 export default function TableOptionsModal() {
   const { data, status, refetch } = useFetch(USERFIELDS, getUserFields);
+  const { emitError } = useContext(LoggingContext);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [userFields, setUserFields] = useState(userFieldsPlaceholder);
@@ -43,13 +45,17 @@ export default function TableOptionsModal() {
     }
 
     if (!errors) {
-      await postUserFields(validatedFields);
+      try {
+        await postUserFields(validatedFields);
+      } catch (error) {
+        emitError(`Error saving table options: ${error}`)
+      }
       await refetch();
       setChanged(false);
     }
 
     setSubmitting(false);
-  },[refetch, userFields]);
+  },[emitError, refetch, userFields]);
 
   /**
    * Reverts local state equals to server state

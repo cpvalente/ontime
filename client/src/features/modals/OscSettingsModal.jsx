@@ -122,10 +122,14 @@ export default function OscSettingsModal() {
       if (e.status) {
         emitError(`Invalid Input: ${e.message}`);
       } else {
-        // Post here
-        await postOSC(formData);
-        await refetch();
-        setChanged(false);
+        try {
+          await postOSC(formData);
+        } catch (error){
+          emitError(`Error setting OSC: ${error}`)
+        } finally {
+          await refetch();
+          setChanged(false);
+        }
       }
       setSubmitting(false);
     },
