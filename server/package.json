@@ -13,8 +13,8 @@
   "main": "main.js",
   "devDependencies": {
     "cypress": "^9.6.0",
-    "electron": "13.6.7",
-    "electron-builder": "^23.0.3",
+    "electron": "^21.1.0",
+    "electron-builder": "^23.6.0",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
