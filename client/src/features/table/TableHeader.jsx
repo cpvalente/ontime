@@ -102,7 +102,7 @@ TableHeader.propTypes = {
   featureData: PropTypes.shape({
     playback: PropTypes.string,
     selectedEventId: PropTypes.string,
-    selectedEventIndex: PropTypes.string,
+    selectedEventIndex: PropTypes.number,
     numEvents: PropTypes.number,
     titleNow: PropTypes.string,
   }),
