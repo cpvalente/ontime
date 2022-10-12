@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { AutoTextArea } from 'common/components/input/AutoTextArea';
+import { TableSettingsContext } from 'common/context/TableSettingsContext';
 import PropTypes from 'prop-types';
-
-import { AutoTextArea } from '../../../common/components/input/AutoTextArea';
 
 /**
  * Shamelessly copied from react-table docs
@@ -18,6 +18,7 @@ export default function EditableCell(props) {
     column: { id },
     handleUpdate,
   } = props;
+  const { theme } = useContext(TableSettingsContext);
 
   // We need to keep and update the state of the cell normally
   const [value, setValue] = useState(initialValue);
@@ -43,6 +44,7 @@ return (
     rows={3}
     transition='none'
     spellCheck={false}
+    color={theme === "dark" ? "#fffffa" : "black"}
   />
 );
 }
