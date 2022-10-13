@@ -30,7 +30,7 @@ const theme = extendTheme({
     },
     Textarea: {
       baseStyle: {
-        borderRadius: 4,
+        borderRadius: 3,
       },
       variants: {
         filled: {
