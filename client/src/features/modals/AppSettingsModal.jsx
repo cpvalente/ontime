@@ -226,7 +226,7 @@ export default function AppSettingsModal() {
                 setChanged(true);
               }}
             >
-              Show quick entry on hover
+              Show quick entry on cursor
             </Checkbox>
             <Checkbox
               isChecked={formSettings.startTimeIsLastEnd}

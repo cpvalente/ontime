@@ -1,30 +1,62 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Checkbox } from '@chakra-ui/react';
 import { Tooltip } from '@chakra-ui/tooltip';
+import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEventSettings';
+import { LoggingContext } from 'common/context/LoggingContext';
+import { useEventAction } from 'common/hooks/useEventAction';
+import { EventTypes } from 'common/models/EventTypes';
 import { useAtomValue } from 'jotai';
-import PropTypes from 'prop-types';
 
-import {
-  defaultPublicAtom,
-  startTimeIsLastEndAtom,
-} from '../../../common/atoms/LocalEventSettings';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './EntryBlock.module.scss';
 
-export default function EntryBlock(props) {
+interface EntryBlockProps {
+  showKbd: boolean;
+  previousId?: string;
+  visible?: boolean;
+  disableAddDelay?: boolean;
+  disableAddBlock: boolean;
+}
+
+export default function EntryBlock(props: EntryBlockProps) {
   const {
     showKbd,
     previousId,
-    eventsHandler,
-    visible,
+    visible = true,
     disableAddDelay = true,
     disableAddBlock,
   } = props;
+  const { addEvent } = useEventAction();
+  const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const [doStartTime, setStartTime] = useState(startTimeIsLastEnd);
   const [doPublic, setPublic] = useState(defaultPublic);
+
+  const handleCreateEvent = useCallback((eventType: EventTypes) => {
+    switch (eventType) {
+      case 'event': {
+        const newEvent = { type: 'event', after: previousId, isPublic: doPublic };
+        const options = { startIsLastEnd: doStartTime ? previousId : undefined };
+        addEvent(newEvent, options);
+        break;
+      }
+      case 'delay': {
+        addEvent({ type: 'delay', after: previousId });
+        break;
+      }
+      case 'block': {
+        addEvent({ type: 'block', after: previousId });
+        break;
+      }
+      default: {
+        emitError(`Cannot create unknown event type: ${eventType}`);
+        break;
+      }
+    }
+
+  }, [addEvent, doPublic, doStartTime, emitError, previousId]);
 
   useEffect(() => {
     setStartTime(startTimeIsLastEnd);
@@ -39,13 +71,7 @@ export default function EntryBlock(props) {
       <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
         <span
           className={style.createEvent}
-          onClick={() =>
-            eventsHandler(
-              'add',
-              { type: 'event', after: previousId, isPublic: doPublic },
-              { startIsLastEnd: doStartTime ? previousId : undefined }
-            )
-          }
+          onClick={() => handleCreateEvent('event')}
           role='button'
         >
           E{showKbd && <span className={style.keyboard}>Alt + E</span>}
@@ -54,7 +80,7 @@ export default function EntryBlock(props) {
       <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
         <span
           className={`${style.createDelay} ${disableAddDelay ? style.disabled : ''}`}
-          onClick={() => eventsHandler('add', { type: 'delay', after: previousId })}
+          onClick={() => handleCreateEvent('delay')}
           role='button'
         >
           D{showKbd && <span className={style.keyboard}>Alt + D</span>}
@@ -63,7 +89,7 @@ export default function EntryBlock(props) {
       <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
         <span
           className={`${style.createBlock} ${disableAddBlock ? style.disabled : ''}`}
-          onClick={() => eventsHandler('add', { type: 'block', after: previousId })}
+          onClick={() => handleCreateEvent('block')}
           role='button'
         >
           B{showKbd && <span className={style.keyboard}>Alt + B</span>}
@@ -74,9 +100,7 @@ export default function EntryBlock(props) {
           size='sm'
           colorScheme='blue'
           isChecked={doStartTime}
-          onChange={(e) => {
-            setStartTime(e.target.checked);
-          }}
+          onChange={(e) => setStartTime(e.target.checked)}
         >
           Start time is last end
         </Checkbox>
@@ -92,12 +116,3 @@ export default function EntryBlock(props) {
     </div>
   );
 }
-
-EntryBlock.propTypes = {
-  showKbd: PropTypes.bool,
-  eventsHandler: PropTypes.func,
-  visible: PropTypes.bool,
-  previousId: PropTypes.string,
-  disableAddDelay: PropTypes.bool,
-  disableAddBlock: PropTypes.bool,
-};
