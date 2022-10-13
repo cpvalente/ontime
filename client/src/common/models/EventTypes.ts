@@ -1,5 +1,7 @@
+export type EventTypes = 'event' | 'delay' | 'block';
+
 export interface OntimeBaseEvent {
-  type: 'block' | 'event' | 'delay';
+  type: EventTypes;
   id: string;
 }
 
