@@ -36,7 +36,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.errorMessage) {
       return (
-        <div className={style.errorContainer}>
+        <div className={style.errorContainer} data-testid="error-container">
           <div>
             <p className={style.error}>:/</p>
             <p>Something went wrong</p>

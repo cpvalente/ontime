@@ -53,6 +53,11 @@ describe('validate routes', () => {
       cy.contains('Info');
     });
 
+    it('renders lower third with no errors', () => {
+      cy.visit('http://localhost:4001/lower');
+      cy.get('[data-testid="error-container"]').should('not.exist');
+    });
+
     it('renders studio clock', () => {
       cy.visit('http://localhost:4001/studio');
       cy.contains('ON AIR');

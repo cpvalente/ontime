@@ -48,7 +48,8 @@ const uploadAndParse = async (file, req, res, options) => {
     } else if (result.message === 'success') {
       // explicitly write objects
       if (typeof result !== 'undefined') {
-        if (!options.onlyEvents) {
+        const uploadAll = options?.onlyEvents === 'false';
+        if (uploadAll) {
           const mergedData = DataProvider.safeMerge(data, result.data);
           data.event = mergedData.event;
           data.settings = mergedData.settings;
