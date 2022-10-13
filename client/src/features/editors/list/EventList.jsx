@@ -1,4 +1,4 @@
-import { createRef, useCallback, useContext, useEffect, useState } from 'react';
+import { createRef, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import {
   defaultPublicAtom,
@@ -7,13 +7,13 @@ import {
 } from 'common/atoms/LocalEventSettings';
 import Empty from 'common/components/state/Empty';
 import { CursorContext } from 'common/context/CursorContext';
-import { useSocket } from 'common/context/socketContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { useEventListProvider } from 'common/hooks/useSocketProvider';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
+import useSubscription from '../../../common/context/useSubscription';
 import EntryBlock from '../entry-block/EntryBlock';
 
 import EventListItem from './EventListItem';
@@ -30,9 +30,8 @@ export default function EventList(props) {
   const cursorRef = createRef();
   const showQuickEntry = useAtomValue(showQuickEntryAtom);
   const data = useEventListProvider();
-  const [selectedId, setSelectedId] = useState(null);
-  const [nextId, setNextId] = useState(null);
-  const socket = useSocket();
+  const [selectedId] = useSubscription('selected-id', null);
+  const [nextId] = useSubscription('next-id', null);
 
   const insertAtCursor = useCallback(
     (type, cursor) => {
@@ -134,28 +133,6 @@ export default function EventList(props) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor]);
-
-  // Todo: replace with useSubscription
-  useEffect(() => {
-    if (socket == null) return;
-
-    socket.emit('get-selected');
-    socket.emit('get-next-id');
-
-    socket.on('selected', (data) => {
-      setSelectedId(data.id);
-    });
-
-    socket.on('next-id', (data) => {
-      setNextId(data);
-    });
-
-    // Clear listener
-    return () => {
-      socket.off('selected');
-      socket.off('next-id');
-    };
-  }, [socket]);
 
   // if selected event
   // or cursor settings changed
