@@ -51,7 +51,7 @@ const uploadAndParse = async (file, req, res, options) => {
       // explicitly write objects
       if (typeof result !== 'undefined') {
         const newEvents = result.data.events || [];
-        if (options.onlyEvents) {
+        if (options?.onlyEvents === 'true') {
           await DataProvider.setEvents(newEvents);
         } else {
           await DataProvider.mergeIntoData(result.data);
