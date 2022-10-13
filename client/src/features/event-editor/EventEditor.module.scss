@@ -1,0 +1,87 @@
+@use '../../theme/main' as *;
+
+.eventEditor {
+  overflow-y: scroll;
+  max-height: 33vh;
+  gap: max(16px, 2vh);
+
+  display: grid;
+  grid-template-areas: 'timers titles';
+  grid-template-columns: auto 1fr;
+
+  .timers,
+  .titles {
+    background-color: $bg-gray-1100;
+    border-radius: 2px;
+    padding: 8px 16px;
+  }
+
+  .timers {
+    grid-area: timers;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .titles {
+    grid-area: titles;
+    display: grid;
+    grid-template-areas:
+            'left right'
+            'tag  tag';
+    grid-template-columns: 1fr 1fr;
+
+    .left,
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .left {
+      grid-area: left;
+      padding-right: 16px;
+    }
+
+    .right {
+      padding-left: 16px;
+      grid-area: right;
+      border-left: 1px solid $bg-gray-900;
+
+    }
+
+    .osc {
+      grid-area: tag;
+      font-size: 14px;
+      color: $ontime-accent;
+      text-align: right;
+      user-select: text;
+    }
+  }
+
+  .inline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .padTop {
+    margin-top: 8px;
+  }
+
+  .inputLabel {
+    font-size: 13px;
+    display: block;
+    color: $label-gray;
+
+    .delayLabel {
+      color: $text-delay;
+    }
+  }
+}
