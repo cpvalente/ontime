@@ -4,9 +4,10 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
+import { AppContextProvider } from 'common/context/AppContext';
+import { LoggingProvider } from 'common/context/LoggingContext';
+import SocketProvider from 'common/context/socketContext';
 
-import { AppContextProvider } from './common/context/AppContext';
-import SocketProvider from './common/context/socketContext';
 import theme from './theme/theme';
 import AppRouter from './AppRouter';
 
@@ -49,12 +50,14 @@ function App() {
           <AppContextProvider>
             <BrowserRouter>
               <div className='App'>
-                <ErrorBoundary>
-                  <Suspense fallback={null}>
-                    <AppRouter />
-                  </Suspense>
-                </ErrorBoundary>
-                <ReactQueryDevtools initialIsOpen={false} />
+                <LoggingProvider>
+                  <ErrorBoundary>
+                    <Suspense fallback={null}>
+                      <AppRouter />
+                    </Suspense>
+                  </ErrorBoundary>
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </LoggingProvider>
               </div>
             </BrowserRouter>
           </AppContextProvider>
