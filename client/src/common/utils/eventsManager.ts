@@ -1,4 +1,4 @@
-import { OntimeEvent, OntimeEventEntry } from '../application-types/event';
+import { OntimeEvent, OntimeEventEntry } from '../models/EventTypes';
 
 import { formatTime } from './time';
 
@@ -97,7 +97,8 @@ export const formatEventList = (events: OntimeEvent[], selectedId: string, nextI
  * @param {object} event
  * @return {object} clean event
  */
-export const duplicateEvent = (event: OntimeEvent) => {
+type DuplicatedEvent = OntimeEvent | { after?: string };
+export const duplicateEvent = (event: OntimeEvent, after?: string): DuplicatedEvent => {
   return {
     type: 'event',
     title: event.title,
@@ -109,5 +110,6 @@ export const duplicateEvent = (event: OntimeEvent) => {
     isPublic: event.isPublic,
     skip: event.skip,
     colour: event.colour,
+    after: after,
   };
 };
