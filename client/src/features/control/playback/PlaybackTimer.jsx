@@ -55,7 +55,6 @@ const PlaybackTimer = (props) => {
       {isWaiting ? (
         <div className={style.roll}>
           <span className={style.rolltag}>Roll: Countdown to start</span>
-          <span className={style.time}>FIX</span>
         </div>
       ) : (
         <>
