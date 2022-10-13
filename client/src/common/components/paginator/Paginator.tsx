@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useInterval } from 'common/hooks/useInterval';
+import { OntimeEvent } from 'common/models/EventTypes';
 
-import { OntimeEvent } from '../../application-types/event';
 import Empty from '../state/Empty';
 
 import TodayItem from './TodayItem';
