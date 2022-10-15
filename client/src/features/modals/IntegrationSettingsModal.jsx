@@ -1,6 +1,4 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { ModalBody } from '@chakra-ui/modal';
-import { FormControl, FormLabel, Input, Switch } from '@chakra-ui/react';
 import { FormControl, FormLabel, Input, ModalBody, Switch } from '@chakra-ui/react';
 import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
 import { APP_TABLE } from 'common/api/apiConstants';
@@ -56,7 +54,7 @@ export default function IntegrationSettingsModal() {
         setSubmitting(false);
       }
     },
-    [emitError, formData]
+    [emitError, formData],
   );
 
   /**
@@ -98,18 +96,18 @@ export default function IntegrationSettingsModal() {
             </span>
             <table>
               <tbody>
-                <tr>
-                  <td className={style.labelNote} style={{ width: '30%' }}>
-                    Variable
-                  </td>
-                  <td className={style.labelNote}>Value</td>
+              <tr>
+                <td className={style.labelNote} style={{ width: '30%' }}>
+                  Variable
+                </td>
+                <td className={style.labelNote}>Value</td>
+              </tr>
+              {ontimeVars.map((v) => (
+                <tr key={v.name}>
+                  <td className={style.labelNote}>{v.name}</td>
+                  <td>{v.description}</td>
                 </tr>
-                {ontimeVars.map((v) => (
-                  <tr key={v.name}>
-                    <td className={style.labelNote}>{v.name}</td>
-                    <td>{v.description}</td>
-                  </tr>
-                ))}
+              ))}
               </tbody>
             </table>
           </div>
