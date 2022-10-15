@@ -131,7 +131,6 @@ export default function EventList(props) {
       block: 'nearest',
       inline: 'start',
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor]);
 
   // if selected event
@@ -154,7 +153,6 @@ export default function EventList(props) {
       // move cursor
       moveCursorTo(gotoIndex);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.selectedEventId, isCursorLocked, moveCursorTo]);
 
   // DND
