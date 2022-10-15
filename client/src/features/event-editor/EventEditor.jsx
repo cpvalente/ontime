@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Button } from '@chakra-ui/button';
+import { Button } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { EVENTS_TABLE } from 'common/api/apiConstants';

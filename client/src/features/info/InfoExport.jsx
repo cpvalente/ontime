@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/layout';
+import { Box } from '@chakra-ui/react';
 import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
 
 import ErrorBoundary from '../../common/components/errorBoundary/ErrorBoundary';

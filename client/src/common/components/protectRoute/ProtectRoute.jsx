@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { IconButton } from '@chakra-ui/button';
-import { HStack, PinInput, PinInputField } from '@chakra-ui/react';
+import { HStack, IconButton, PinInput, PinInputField } from '@chakra-ui/react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import PropTypes from 'prop-types';
 

@@ -1,6 +1,5 @@
 import { memo } from 'react';
-import { Button } from '@chakra-ui/button';
-import { Tooltip } from '@chakra-ui/react';
+import { Button, Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import PropTypes from 'prop-types';
 

@@ -1,9 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-has-content */
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Button, IconButton } from '@chakra-ui/button';
-import { ModalBody } from '@chakra-ui/modal';
-import { Input } from '@chakra-ui/react';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Button, IconButton, Input, ModalBody, Tooltip } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';

@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { ModalBody } from '@chakra-ui/modal';
 import { FormControl, FormLabel, Input, Switch } from '@chakra-ui/react';
+import { FormControl, FormLabel, Input, ModalBody, Switch } from '@chakra-ui/react';
 import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
 import { APP_TABLE } from 'common/api/apiConstants';
 import { getInfo, httpPlaceholder, ontimeVars } from 'common/api/ontimeApi';

@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { IconButton } from '@chakra-ui/button';
-import { Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { IconButton, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { forgivingStringToMillis } from 'common/utils/dateConfig';

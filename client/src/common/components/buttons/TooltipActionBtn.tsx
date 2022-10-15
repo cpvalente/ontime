@@ -1,6 +1,4 @@
-import { IconButton } from '@chakra-ui/button';
-import { IconButtonProps } from '@chakra-ui/react';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { IconButton, IconButtonProps, Tooltip } from '@chakra-ui/react';
 
 interface TooltipActionBtnProps extends IconButtonProps {
   clickHandler: () => void;

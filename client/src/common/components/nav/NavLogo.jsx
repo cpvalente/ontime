@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IconButton } from '@chakra-ui/button';
-import { Image } from '@chakra-ui/react';
+import { IconButton, Image } from '@chakra-ui/react';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import navlogo from 'assets/images/logos/LOGO-72.png';

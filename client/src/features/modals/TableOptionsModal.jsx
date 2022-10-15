@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { ModalBody } from '@chakra-ui/modal';
-import { Input } from '@chakra-ui/react';
+import { Input, ModalBody } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { USERFIELDS } from 'common/api/apiConstants';
 import { useFetch } from 'common/hooks/useFetch';

@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { ModalBody } from '@chakra-ui/modal';
-import { FormControl, FormLabel } from '@chakra-ui/react';
+import { FormControl, FormLabel, ModalBody } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
 import { VIEW_SETTINGS } from '../../common/api/apiConstants';

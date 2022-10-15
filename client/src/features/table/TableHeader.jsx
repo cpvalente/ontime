@@ -1,6 +1,5 @@
 import { useContext } from 'react';
-import { Divider } from '@chakra-ui/layout';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Divider, Tooltip } from '@chakra-ui/react';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';

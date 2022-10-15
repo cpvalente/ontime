@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/button';
+import { Button } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 import style from '../Table.module.scss';

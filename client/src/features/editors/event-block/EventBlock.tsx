@@ -1,8 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { IconButton } from '@chakra-ui/button';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Editable, EditableInput, EditablePreview,IconButton, Tooltip } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';

@@ -1,5 +1,4 @@
-import { IconButton } from '@chakra-ui/button';
-import { Box } from '@chakra-ui/layout';
+import { Box, IconButton } from '@chakra-ui/react';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { editorEventId } from 'common/atoms/LocalEventSettings';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';

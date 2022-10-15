@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { Button } from '@chakra-ui/button';
-import { HStack } from '@chakra-ui/react';
+import { Button, HStack } from '@chakra-ui/react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';

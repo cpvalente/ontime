@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Button, IconButton } from '@chakra-ui/button';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -7,8 +6,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
-} from '@chakra-ui/modal';
-import { Tooltip } from '@chakra-ui/tooltip';
+  Button, IconButton, Tooltip,
+} from '@chakra-ui/react';
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
 import PropTypes from 'prop-types';
 
@@ -24,7 +23,7 @@ export default function QuitIconBtn(props) {
   useEffect(() => {
     if (window.process?.type === 'renderer') {
       window.ipcRenderer.on('user-request-shutdown', () => {
-        emitInfo('Shutdown request')
+        emitInfo('Shutdown request');
         setIsOpen(true);
       });
     }

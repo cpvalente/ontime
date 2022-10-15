@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Checkbox } from '@chakra-ui/react';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Checkbox, Tooltip } from '@chakra-ui/react';
 import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEventSettings';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';

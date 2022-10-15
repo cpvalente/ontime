@@ -1,6 +1,6 @@
 import { lazy, useEffect } from 'react';
 import { useDisclosure } from '@chakra-ui/hooks';
-import { Box } from '@chakra-ui/layout';
+import { Box } from '@chakra-ui/react';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import UploadModal from 'common/components/upload-modal/UploadModal';
 import ModalManager from 'features/modals/ModalManager';
