@@ -1,4 +1,10 @@
-.colourInput {
-  aspect-ratio: 1;
-  width: 200px;
+@use '../../../theme/main' as *;
+
+input[type="color"] {
+  appearance: none;
+  background-color: $action-blue;
+  cursor: pointer;
+  height: 32px;
+  width: 32px;
+  padding: 0;
 }

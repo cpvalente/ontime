@@ -30,6 +30,7 @@
   // variant
   &.selected {
     background-color: $bg-gray-900;
+    border: 1px solid $ontime-accent;
   }
 
   &.skip {
@@ -53,6 +54,7 @@
   .progressBg {
     grid-area: progb;
     border-radius: 1px;
+    background-color: $bg-black-100;
 
     // layout
     height: 100%;
@@ -62,6 +64,8 @@
       height: 100%;
       width: 0;
       border-radius: 1px 0 0 1px;
+      margin-top: 2px;
+      margin-left: 4px;
 
       // animations
       transition: 1s linear;
@@ -79,21 +83,6 @@
         background-color: red;
       }
     }
-
-    &.play {
-      // style - colour
-      border-top: 1px solid $ontime-accent;
-    }
-
-    &.pause {
-      // style - colour
-      border-top: 1px solid $ontime-paused;
-    }
-
-    &.overtime {
-      border-top: 1px solid $ontime-pink;
-    }
-
   }
 
   .binder {

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
@@ -13,11 +13,10 @@ import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { editorEventId } from 'common/atoms/LocalEventSettings';
 import TooltipActionBtn from 'common/components/buttons/TooltipActionBtn';
-import { LoggingContext } from 'common/context/LoggingContext';
-import { useSocket } from 'common/context/socketContext';
 import { getAccessibleColour } from 'common/utils/styleUtils';
 import { useAtom } from 'jotai';
 
+import { useEventProvider } from '../../../common/hooks/useSocketProvider';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../list/EventListItem';
 
@@ -53,7 +52,6 @@ interface EventBlockProps {
   colour: string,
   next: boolean,
   skip: boolean,
-  loaded: boolean,
   selected: boolean,
   actionHandler: (action: EventItemActions, payload: any) => void,
 }
@@ -72,7 +70,6 @@ export default function EventBlock(props: EventBlockProps) {
     delay,
     previousEnd,
     colour,
-    loaded,
     next,
     skip = false,
     selected,
@@ -80,12 +77,12 @@ export default function EventBlock(props: EventBlockProps) {
   } = props;
 
   const [openId, setOpenId] = useAtom(editorEventId);
-  const { emitError } = useContext(LoggingContext);
+  const { setPlayback } = useEventProvider(eventId);
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
-  const socket = useSocket();
+  // Todo: playback should come from socket
   const playback = null;
 
-  const binderColours = getAccessibleColour(colour);
+  const binderColours = colour && getAccessibleColour(colour);
   const hasDelay = delay !== 0 && delay !== null;
 
   const handleTitle = useCallback(
@@ -100,24 +97,11 @@ export default function EventBlock(props: EventBlockProps) {
       // Todo: no need for action handler
       actionHandler('update', { field: 'title', value: cleanVal });
     },
-    [actionHandler, title]
+    [actionHandler, title],
   );
 
-  const playbackActions = useCallback(
-    (action: 'play' | 'load') => {
-      switch (action) {
-        case 'play':
-          socket.emit('set-startid', eventId);
-          break;
-        case 'load':
-          socket.emit('set-loadid', eventId);
-          break;
-        default:
-          emitError(`Unhandled action: ${action}`);
-      }
-    },
-    [emitError, eventId, socket]
-  );
+  // Todo: data should come from socket
+  const progress = `${Math.random() * 100}%`;
 
   return (
     <Draggable key={eventId} draggableId={eventId} index={index}>
@@ -140,6 +124,9 @@ export default function EventBlock(props: EventBlockProps) {
             </span>
             {eventIndex}
           </div>
+          <div className={selected ? style.progressBg : ''}>
+            <div className={`${style.progressBar} ${style.play}`} style={{width: progress}}></div>
+          </div>
           <div className={style.playbackActions}>
             <TooltipActionBtn
               aria-label='Skip event'
@@ -159,7 +146,7 @@ export default function EventBlock(props: EventBlockProps) {
               disabled={skip}
               {...blockBtnStyle}
               variant={selected && playback === 'start' ? 'solid' : 'outline'}
-              clickHandler={() => playbackActions('play')}
+              clickHandler={() => setPlayback.startEvent()}
               tabIndex={-1}
             />
             <TooltipActionBtn
@@ -169,8 +156,8 @@ export default function EventBlock(props: EventBlockProps) {
               icon={<IoReload />}
               disabled={skip}
               {...blockBtnStyle}
-              variant={loaded ? 'solid' : 'outline'}
-              clickHandler={() => playbackActions('load')}
+              variant={selected ? 'solid' : 'outline'}
+              clickHandler={() => setPlayback.loadEvent()}
               tabIndex={-1}
             />
           </div>
@@ -197,7 +184,7 @@ export default function EventBlock(props: EventBlockProps) {
             <IconButton
               icon={<IoSettingsSharp />}
               aria-label='event options'
-              onClick={() => setOpenId(eventId)}
+              onClick={() => setOpenId((prev) => prev === eventId ? null : eventId)}
               {...blockBtnStyle}
               variant={openId === eventId ? 'solid' : 'outline'}
               tabIndex={-1}
