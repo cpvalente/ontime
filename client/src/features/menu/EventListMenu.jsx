@@ -11,6 +11,14 @@ import MenuActionButtons from './MenuActionButtons';
 
 import style from './EventListMenu.module.css';
 
+const cursorBtnProps = {
+  size: 'sm',
+  color: 'pink.300',
+  borderColor: 'pink.300',
+  variant: 'outline',
+  _hover: { bg: 'pink.400', color: 'white' },
+};
+
 const EventListMenu = () => {
   const { isCursorLocked, toggleCursorLocked, moveCursorUp, moveCursorDown } =
     useContext(CursorContext);
@@ -44,20 +52,8 @@ const EventListMenu = () => {
           break;
       }
     },
-    [addEvent, deleteAllEvents, moveCursorDown, moveCursorUp, toggleCursorLocked]
+    [addEvent, deleteAllEvents, moveCursorDown, moveCursorUp, toggleCursorLocked],
   );
-
-  const collapsingBtnProps = {
-    variant: 'outline',
-    size: 'sm',
-  };
-
-  const cursorBtnProps = {
-    size: 'sm',
-    color: 'pink.300',
-    borderColor: 'pink.300',
-    variant: 'outline',
-  };
 
   return (
     <HStack className={style.headerButtons}>
@@ -67,14 +63,12 @@ const EventListMenu = () => {
           clickHandler={() => actionHandler('cursorUp')}
           icon={<IoCaretUp />}
           tooltip='Move cursor up Alt + ↑'
-          _hover={{ bg: 'pink.400', color: 'white' }}
         />
         <TooltipActionBtn
           {...cursorBtnProps}
           clickHandler={() => actionHandler('cursorDown')}
           icon={<IoCaretDown />}
           tooltip='Move cursor down Alt + ↓'
-          _hover={{ bg: 'pink.400', color: 'white' }}
         />
         <TooltipActionBtn
           {...cursorBtnProps}
@@ -83,8 +77,7 @@ const EventListMenu = () => {
           tooltip='Lock cursor to current'
           width='3em'
           backgroundColor={isCursorLocked && 'pink.400'}
-          color={isCursorLocked && 'white'}
-          _hover={{ bg: 'pink.400', color: 'white' }}
+          color={isCursorLocked ? 'white' : 'pink.400'}
           variant={isCursorLocked ? 'solid' : 'outline'}
         />
       </ButtonGroup>

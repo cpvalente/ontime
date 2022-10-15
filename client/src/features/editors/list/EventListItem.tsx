@@ -1,8 +1,5 @@
 import { useCallback, useContext } from 'react';
-import {
-  defaultPublicAtom,
-  startTimeIsLastEndAtom,
-} from 'common/atoms/LocalEventSettings';
+import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEventSettings';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { OntimeEvent, OntimeEventEntry } from 'common/models/EventTypes';
@@ -142,7 +139,6 @@ export default function EventListItem(props: EventListItemProps) {
         colour={data.colour}
         next={next}
         skip={data.skip}
-        loaded={false}
         selected={selected}
         actionHandler={actionHandler}
       />

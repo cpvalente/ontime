@@ -92,8 +92,6 @@ export default function EventEditor() {
     [event?.id, updateEvent],
   );
 
-  console.log(1)
-
   if (!event) {
     return <span>Loading</span>;
   }

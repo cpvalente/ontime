@@ -143,9 +143,7 @@ export const useEventAction = () => {
   const updateEvent = useCallback(
     async (event) => {
       try {
-        console.log(1, 'updating')
         await _updateEventMutation.mutateAsync(event);
-        console.log(2, 'updated')
       } catch (error) {
         emitError(`Error updating event: ${error.message}`);
       }

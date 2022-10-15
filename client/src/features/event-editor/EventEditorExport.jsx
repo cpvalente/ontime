@@ -5,8 +5,6 @@ import { editorEventId } from 'common/atoms/LocalEventSettings';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import { useAtom } from 'jotai';
 
-import { cx } from '../../common/utils/styleUtils';
-
 import EventEditor from './EventEditor';
 
 import style from '../editors/Editor.module.scss';
