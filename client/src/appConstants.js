@@ -6,13 +6,19 @@ const publicLocation = 'public';
 const pipLocation = 'pip';
 const studioLocation = 'studio';
 const cuesheetLocation = 'cuesheet';
+const countdownLocation = 'countdown';
+const clockLocation = 'clock';
+const lowerLocation = 'lower';
 
 export const viewerLocations = [
+  { link: speakerLocation, label: 'Stage timer' },
+  { link: clockLocation, label: 'Clock' },
   { link: minimalLocation, label: 'Minimal timer' },
-  { link: speakerLocation, label: 'Speaker Screen' },
-  { link: smLocation, label: 'Backstage Screen' },
-  { link: publicLocation, label: 'Public Screen' },
+  { link: smLocation, label: 'Backstage screen' },
+  { link: publicLocation, label: 'Public screen' },
+  { link: lowerLocation, label: 'Lower thirds' },
   { link: pipLocation, label: 'Picture in Picture' },
-  { link: studioLocation, label: 'Studio Clock' },
-  { link: cuesheetLocation, label: 'Cuesheet' }
+  { link: studioLocation, label: 'Studio clock' },
+  { link: countdownLocation, label: 'Countdown' },
+  { link: cuesheetLocation, label: 'Cuesheet' },
 ];

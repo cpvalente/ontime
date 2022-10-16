@@ -14,7 +14,6 @@
   }
 
   .modalFields {
-    min-height: 45vh;
     max-height: 45vh;
     overflow-y: auto;
     scrollbar-color: rgba($light-bg, 0.35) rgba($light-bg, 0.15);
@@ -110,6 +109,18 @@
 }
 
 //////////////////////////////////// notes
+
+ul.featureList {
+  li {
+    display: flex;
+    align-items: center;
+    svg {
+      color: $ontime-accent-text;
+      margin-right: 4px;
+    }
+  }
+}
+
 p {
   &.notes {
     text-align: center;

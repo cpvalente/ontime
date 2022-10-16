@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormControl, FormLabel, ModalBody } from '@chakra-ui/react';
+import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
 import { VIEW_SETTINGS } from '../../common/api/apiConstants';
@@ -89,6 +90,16 @@ export default function ViewsSettingsModal() {
           This feature allows user defined CSS to override the application stylesheets as a way to
           customise viewers appearance.
           <br />
+          Currently the feature affects the following views<br />
+          <ul className={style.featureList}>
+            <li><IoCheckmarkSharp /> Stage timer</li>
+            <li><IoCheckmarkSharp /> Clock</li>
+            <li><IoCheckmarkSharp /> Minimal timer</li>
+            <li><IoCheckmarkSharp /> Backstage screen</li>
+            <li><IoCheckmarkSharp /> Public screen</li>
+            <li><IoCheckmarkSharp /> Picture in Picture</li>
+            <li><IoCheckmarkSharp /> Countdown</li>
+          </ul>
           Read more about it in the documentation{' '}
           <a
             href='#!'
