@@ -24,44 +24,6 @@ export const useEventAction = () => {
    * @private
    */
   const _addEventMutation = useMutation(requestPost, {
-    // we optimistically update here
-    onMutate: async (newEvent) => {
-      // cancel ongoing queries
-      await queryClient.cancelQueries(EVENTS_TABLE, { exact: true });
-
-      // Snapshot the previous value
-      let previousEvents = queryClient.getQueryData(EVENTS_TABLE);
-      if (previousEvents == null) {
-        await queryClient.invalidateQueries(EVENTS_TABLE);
-        previousEvents = queryClient.getQueryData(EVENTS_TABLE);
-      }
-
-      // optimistically update object, temp ID until refetch
-      const optimistic = [...previousEvents];
-      let insertAfterIndex = 0;
-      if (newEvent.after) {
-        const index = optimistic.findIndex((event) => event.id === newEvent?.after);
-        if (index > -1) {
-          insertAfterIndex = index + 1;
-        }
-      } else if (newEvent.order) {
-        insertAfterIndex = newEvent.order;
-      }
-
-      optimistic.splice(insertAfterIndex, 0, {
-        ...newEvent,
-        id: new Date().toISOString(),
-      });
-      queryClient.setQueryData(EVENTS_TABLE, optimistic);
-
-      // Return a context with the previous and new events
-      return { previousEvents };
-    },
-
-    // Mutation fails, rollback undoes optimist update
-    onError: (error, newEvent, context) => {
-      queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
-    },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
