@@ -123,7 +123,7 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (error, newEvent, context) => {
-      queryClient.setQueryData([EVENTS_TABLE, context.newEvent.id], context.previousEvent);
+      queryClient.setQueryData([EVENTS_TABLE_KEY, context.newEvent.id], context.previousEvent);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
