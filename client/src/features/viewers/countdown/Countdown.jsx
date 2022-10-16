@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import Empty from '../../../common/components/state/Empty';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -23,6 +25,7 @@ export default function Countdown(props) {
   const { backstageEvents, time, selectedId, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
+  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   const [follow, setFollow] = useState(null);
   const [runningTimer, setRunningTimer] = useState(0);
@@ -90,7 +93,7 @@ export default function Countdown(props) {
       : formatTime(follow.timeEnd + delay, formatOptions);
 
   return (
-    <div className='countdown'>
+    <div className={`countdown ${isMirrored ? 'mirror' : ''}`}>
       <NavLogo />
       {follow === null ? (
         <div className='event-select'>
@@ -139,7 +142,7 @@ export default function Countdown(props) {
           >
             {formatDisplay(
               isSelected ? runningTimer : runningTimer + millisToSeconds(delay),
-              isSelected || time.waiting
+              isSelected || time.waiting,
             )}
           </span>
           <div className='title'>{follow?.title || 'Untitled Event'}</div>

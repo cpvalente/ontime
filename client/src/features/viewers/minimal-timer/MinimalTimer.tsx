@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAtom } from 'jotai';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import {
@@ -24,6 +26,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const { pres, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
+  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
     document.title = 'ontime - Minimal Timer';
@@ -131,9 +134,11 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const clean = timer.replace('/:/g', '');
   const showFinished = time.isNegative && !userOptions?.hideOvertime;
 
+  const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
+
   return (
     <div
-      className={showFinished ? 'minimal-timer minimal-timer--finished' : 'minimal-timer'}
+      className={showFinished ? `${baseClasses} minimal-timer--finished` : baseClasses}
       style={{
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,

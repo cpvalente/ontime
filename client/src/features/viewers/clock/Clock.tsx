@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAtom } from 'jotai';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import {
-  TimeManager,
-  ViewSettings,
-} from '../../../common/models/OntimeTypes';
+import { TimeManager, ViewSettings } from '../../../common/models/OntimeTypes';
 import { OverridableOptions } from '../../../common/models/ViewTypes';
 import { formatTime } from '../../../common/utils/time';
 
@@ -27,6 +26,7 @@ export default function Clock(props: ClockProps) {
   const { time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
+  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
     document.title = 'ontime - Clock';
@@ -127,7 +127,7 @@ export default function Clock(props: ClockProps) {
 
   return (
     <div
-      className='clock-view'
+      className={`clock-view ${isMirrored ? 'mirror' : ''}`}
       style={{
         backgroundColor: userOptions.keyColour,
         color: userOptions.textColour,

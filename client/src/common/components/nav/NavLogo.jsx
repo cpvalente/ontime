@@ -4,10 +4,13 @@ import { IconButton } from '@chakra-ui/button';
 import { Image } from '@chakra-ui/react';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
+import { IoSync } from '@react-icons/all-files/io5/IoSync';
 import navlogo from 'assets/images/logos/LOGO-72.png';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
 
+import { mirrorViewersAtom } from '../../atoms/ViewerSettings';
 import useFullscreen from '../../hooks/useFullscreen';
 
 import navigatorConstants from './navigatorConstants';
@@ -26,6 +29,7 @@ export default function NavLogo(props) {
   const { isHidden } = props;
   const [showNav, setShowNav] = useState(false);
   const { isFullScreen, toggleFullScreen } = useFullscreen();
+  const [isMirrored, setMirrored] = useAtom(mirrorViewersAtom);
 
   const handleClick = useCallback(() => {
     setShowNav((prev) => !prev);
@@ -57,6 +61,8 @@ export default function NavLogo(props) {
     tabIndex: 0,
   };
 
+  console.log('debug', isMirrored)
+
   return (
     <motion.div
       initial={{ opacity: showNav ? 0.5 : baseOpacity }}
@@ -75,6 +81,12 @@ export default function NavLogo(props) {
               exit={{ opacity: 0, scaleX: 0 }}
               className={style.actions}
             >
+              <IconButton
+                aria-label='Mirror screen'
+                icon={<IoSync />}
+                onClick={() => setMirrored((prev) => !prev)}
+                {...navButtonStyle}
+              />
               <IconButton
                 aria-label='Toggle Fullscreen'
                 icon={isFullScreen ? <IoContract /> : <IoExpand />}
