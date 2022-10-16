@@ -30,4 +30,4 @@ export const playbackURL = `${serverURL}/playback`;
 export const ontimeURL = `${serverURL}/ontime`;
 
 export const stylesPath = 'external/styles/override.css';
-export const overrideStylesURL = `serverURL/${stylesPath}`;
+export const overrideStylesURL = `${serverURL}/${stylesPath}`;
