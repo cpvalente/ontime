@@ -1,9 +1,8 @@
 import { useCallback, useContext } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { EVENTS_TABLE } from '../api/apiConstants';
+import { EVENTS_TABLE, EVENTS_TABLE_KEY } from '../api/apiConstants';
 import {
-  fetchAllEvents,
   requestApplyDelay,
   requestDelete,
   requestDeleteAll,
@@ -13,15 +12,12 @@ import {
 } from '../api/eventsApi';
 import { LoggingContext } from '../context/LoggingContext';
 
-import { useFetch } from './useFetch';
-
 /**
  * @description Set of utilities for events
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
   const { emitError } = useContext(LoggingContext);
-  const { data, refetch } = useFetch(EVENTS_TABLE, fetchAllEvents);
 
   /**
    * @description Calls mutation to add new event
@@ -36,8 +32,7 @@ export const useEventAction = () => {
       // Snapshot the previous value
       let previousEvents = queryClient.getQueryData(EVENTS_TABLE);
       if (previousEvents == null) {
-        // TODO: could this be changed to invalidate queries?
-        refetch();
+        await queryClient.invalidateQueries(EVENTS_TABLE);
         previousEvents = queryClient.getQueryData(EVENTS_TABLE);
       }
 
@@ -59,7 +54,7 @@ export const useEventAction = () => {
       });
       queryClient.setQueryData(EVENTS_TABLE, optimistic);
 
-      // Return a context with the previous and new eventss
+      // Return a context with the previous and new events
       return { previousEvents };
     },
 
@@ -86,7 +81,8 @@ export const useEventAction = () => {
       // ************* CHECK OPTIONS
       // there is an option to pass an index of an array to use as start time
       if (typeof options?.startIsLastEnd !== 'undefined') {
-        const previousEvent = data.find((event) => event.id === options.startIsLastEnd);
+        const events = queryClient.getQueryData(EVENTS_TABLE);
+        const previousEvent = events.find((event) => event.id === options.startIsLastEnd);
         newEvent.timeStart = previousEvent.timeEnd || 0;
       }
 
@@ -102,7 +98,7 @@ export const useEventAction = () => {
         emitError(`Error fetching data: ${error.message}`);
       }
     },
-    [_addEventMutation, data, emitError]
+    [_addEventMutation, emitError],
   );
 
   /**
@@ -113,13 +109,13 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries([EVENTS_TABLE, newEvent.id]);
+      await queryClient.cancelQueries([EVENTS_TABLE_KEY, newEvent.id]);
 
       // Snapshot the previous value
-      const previousEvent = queryClient.getQueryData([EVENTS_TABLE, newEvent.id]);
+      const previousEvent = queryClient.getQueryData([EVENTS_TABLE_KEY, newEvent.id]);
 
       // optimistically update object
-      queryClient.setQueryData([EVENTS_TABLE, newEvent.id], newEvent);
+      queryClient.setQueryData([EVENTS_TABLE_KEY, newEvent.id], newEvent);
 
       // Return a context with the previous and new events
       return { previousEvent, newEvent };
@@ -131,8 +127,8 @@ export const useEventAction = () => {
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    onSettled: (newEvent) => {
-      queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
+    onSettled: async (newEvent) => {
+      await queryClient.invalidateQueries([EVENTS_TABLE_KEY, newEvent.id]);
     },
   });
 
@@ -159,7 +155,7 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries([EVENTS_TABLE, eventId]);
+      await queryClient.cancelQueries([EVENTS_TABLE_KEY, eventId]);
 
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
@@ -196,7 +192,7 @@ export const useEventAction = () => {
         emitError(`Error deleting event: ${error.message}`);
       }
     },
-    [_deleteEventMutation, emitError]
+    [_deleteEventMutation, emitError],
   );
 
   /**
@@ -266,7 +262,7 @@ export const useEventAction = () => {
         emitError(`Error applying delay: ${error.message}`);
       }
     },
-    [_applyDelayMutation, emitError]
+    [_applyDelayMutation, emitError],
   );
 
   /**
@@ -323,7 +319,7 @@ export const useEventAction = () => {
         emitError(`Error re-ordering event: ${error.message}`);
       }
     },
-    [_reorderEventMutation, emitError]
+    [_reorderEventMutation, emitError],
   );
 
   return { addEvent, updateEvent, deleteEvent, deleteAllEvents, applyDelay, reorderEvent };
