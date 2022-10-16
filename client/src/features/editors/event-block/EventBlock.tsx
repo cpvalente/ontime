@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { Editable, EditableInput, EditablePreview,IconButton, Tooltip } from '@chakra-ui/react';
+import { Editable, EditableInput, EditablePreview, IconButton, Tooltip } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
+import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoRemoveCircleSharp } from '@react-icons/all-files/io5/IoRemoveCircleSharp';
@@ -15,6 +16,7 @@ import { getAccessibleColour } from 'common/utils/styleUtils';
 import { useAtom } from 'jotai';
 
 import { useEventProvider } from '../../../common/hooks/useSocketProvider';
+import { Playstate } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../list/EventListItem';
 
@@ -36,22 +38,23 @@ const tooltipProps = {
 };
 
 interface EventBlockProps {
-  timeStart: number,
-  timeEnd: number,
-  duration: number,
-  index: number,
-  eventIndex: number,
-  eventId: string,
-  isPublic: boolean,
-  title: string,
-  note: string,
-  delay: number,
-  previousEnd: number,
-  colour: string,
-  next: boolean,
-  skip: boolean,
-  selected: boolean,
-  actionHandler: (action: EventItemActions, payload: any) => void,
+  timeStart: number;
+  timeEnd: number;
+  duration: number;
+  index: number;
+  eventIndex: number;
+  eventId: string;
+  isPublic: boolean;
+  title: string;
+  note: string;
+  delay: number;
+  previousEnd: number;
+  colour: string;
+  next: boolean;
+  skip: boolean;
+  selected: boolean;
+  playback?: Playstate;
+  actionHandler: (action: EventItemActions, payload: any) => void;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -71,14 +74,13 @@ export default function EventBlock(props: EventBlockProps) {
     next,
     skip = false,
     selected,
+    playback,
     actionHandler,
   } = props;
 
   const [openId, setOpenId] = useAtom(editorEventId);
   const { setPlayback } = useEventProvider(eventId);
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
-  // Todo: playback should come from socket
-  const playback = null;
 
   const binderColours = colour && getAccessibleColour(colour);
   const hasDelay = delay !== 0 && delay !== null;
@@ -100,6 +102,7 @@ export default function EventBlock(props: EventBlockProps) {
 
   // Todo: data should come from socket
   const progress = `${Math.random() * 100}%`;
+  const eventIsPlaying = selected && playback === 'start';
 
   return (
     <Draggable key={eventId} draggableId={eventId} index={index}>
@@ -123,7 +126,10 @@ export default function EventBlock(props: EventBlockProps) {
             {eventIndex}
           </div>
           <div className={selected ? style.progressBg : ''}>
-            <div className={`${style.progressBar} ${style.play}`} style={{width: progress}}></div>
+            <div
+              className={`${style.progressBar} ${playback ? style[playback] : ''}`}
+              style={{ width: progress }}
+            />
           </div>
           <div className={style.playbackActions}>
             <TooltipActionBtn
@@ -135,23 +141,28 @@ export default function EventBlock(props: EventBlockProps) {
               variant={skip ? 'solid' : 'outline'}
               clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
               tabIndex={-1}
+              disabled={selected}
             />
             <TooltipActionBtn
               aria-label='Start event'
               tooltip='Start event'
               openDelay={tooltipDelayMid}
-              icon={<IoPlay />}
+              icon={eventIsPlaying ? <IoPause /> : <IoPlay />}
               disabled={skip}
               {...blockBtnStyle}
-              variant={selected && playback === 'start' ? 'solid' : 'outline'}
-              clickHandler={() => setPlayback.startEvent()}
+              variant={eventIsPlaying ? 'solid' : 'outline'}
+              clickHandler={
+                eventIsPlaying
+                  ? () => setPlayback.pause()
+                  : () => setPlayback.startEvent()
+              }
               tabIndex={-1}
             />
             <TooltipActionBtn
               aria-label='Load event'
               tooltip='Load event'
               openDelay={tooltipDelayMid}
-              icon={<IoReload />}
+              icon={selected ? <IoReload /> : <IoReload />}
               disabled={skip}
               {...blockBtnStyle}
               variant={selected ? 'solid' : 'outline'}

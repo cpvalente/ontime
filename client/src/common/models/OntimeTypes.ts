@@ -1,4 +1,4 @@
-type Playstate = 'roll' | 'start' | 'pause' | 'stop';
+export type Playstate = 'roll' | 'start' | 'pause' | 'stop';
 
 export type TimeManager = {
   clock: number,

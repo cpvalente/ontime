@@ -219,6 +219,7 @@ export default function EventList(props) {
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
                         setCursor={handleSetCursor}
+                        playback={selectedId === e.id ? data.playback : undefined}
                       />
                     </div>
                     {((showQuickEntry && index === cursor) || isLast) && (

@@ -3,6 +3,7 @@ import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEve
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { OntimeEvent, OntimeEventEntry } from 'common/models/EventTypes';
+import { Playstate } from 'common/models/OntimeTypes';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { calculateDuration } from 'common/utils/timesManager';
 import { useAtomValue } from 'jotai';
@@ -28,11 +29,12 @@ interface EventListItemProps {
   next: boolean;
   delay: number;
   previousEnd: number;
+  playback: Playstate;
   setCursor: (index: number) => void;
 }
 
 export default function EventListItem(props: EventListItemProps) {
-  const { index, eventIndex, data, selected, next, delay, previousEnd, setCursor } = props;
+  const { index, eventIndex, data, selected, next, delay, previousEnd, playback, setCursor } = props;
   const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
@@ -140,6 +142,7 @@ export default function EventListItem(props: EventListItemProps) {
         next={next}
         skip={data.skip}
         selected={selected}
+        playback={playback}
         actionHandler={actionHandler}
       />
     );

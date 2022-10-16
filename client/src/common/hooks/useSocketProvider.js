@@ -20,6 +20,7 @@ export const useEventListProvider = () => {
     () => ({
       selectedEventId: null,
       nextEventId: null,
+      playback: null,
     }),
     [],
   );
@@ -194,6 +195,7 @@ export const useEventProvider = (eventId) => {
   const setPlayback = useMemo(() => ({
     loadEvent: () => socket.emit('set-loadid', eventId),
     startEvent: () => socket.emit('set-startid', eventId),
+    pause: () => socket.emit('set-pause'),
   }), [socket]);
 
   return { setPlayback };
