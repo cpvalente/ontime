@@ -8,6 +8,7 @@ import { duplicateEvent } from 'common/utils/eventsManager';
 import { calculateDuration } from 'common/utils/timesManager';
 import { useAtomValue } from 'jotai';
 
+import { CursorContext } from '../../../common/context/CursorContext';
 import BlockBlock from '../block-block/BlockBlock';
 import DelayBlock from '../delay-block/DelayBlock';
 import EventBlock from '../event-block/EventBlock';
@@ -30,15 +31,15 @@ interface EventListItemProps {
   delay: number;
   previousEnd: number;
   playback: Playstate;
-  setCursor: (index: number) => void;
 }
 
 export default function EventListItem(props: EventListItemProps) {
-  const { index, eventIndex, data, selected, next, delay, previousEnd, playback, setCursor } = props;
+  const { index, eventIndex, data, selected, next, delay, previousEnd, playback } = props;
   const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
+  const { moveCursorTo } = useContext(CursorContext);
 
   // Create / delete new events
   type FieldValue = {
@@ -49,7 +50,7 @@ export default function EventListItem(props: EventListItemProps) {
     (action: EventItemActions, payload: number | FieldValue) => {
       switch (action) {
         case 'set-cursor': {
-          setCursor(payload as number);
+          moveCursorTo(payload as number);
           break;
         }
         case 'event': {
@@ -86,15 +87,15 @@ export default function EventListItem(props: EventListItemProps) {
           const { field, value } = payload as FieldValue;
           const newData: Partial<OntimeEvent> = { id: data.id };
 
-          if (field === 'durationOverride' && data.type === "event") {
+          if (field === 'durationOverride' && data.type === 'event') {
             // duration defines timeEnd
             newData.timeEnd = data.timeStart += value as number;
             updateEvent(newData);
-          } else if (field === 'timeStart' && data.type === "event") {
+          } else if (field === 'timeStart' && data.type === 'event') {
             newData.duration = calculateDuration(value as number, data.timeEnd);
             newData.timeStart = value as number;
             updateEvent(newData);
-          } else if (field === 'timeEnd' && data.type === "event") {
+          } else if (field === 'timeEnd' && data.type === 'event') {
             newData.duration = calculateDuration(data.timeStart, value as number);
             newData.timeEnd = value as number;
             updateEvent(newData);

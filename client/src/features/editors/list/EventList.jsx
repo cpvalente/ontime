@@ -66,15 +66,10 @@ export default function EventList(props) {
     [addEvent, defaultPublic, events, startTimeIsLastEnd],
   );
 
-  const handleSetCursor = useCallback((index) => {
-    if (index >= 0 && index < events.length) {
-      moveCursorTo(index);
-    }
-  }, [events.length, moveCursorTo]);
-
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
     (e) => {
+      // handle held key
       // handle held key
       if (e.repeat) return;
       // Check if the alt key is pressed
@@ -218,7 +213,6 @@ export default function EventList(props) {
                         next={nextId === e.id}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
-                        setCursor={handleSetCursor}
                         playback={selectedId === e.id ? data.playback : undefined}
                       />
                     </div>
