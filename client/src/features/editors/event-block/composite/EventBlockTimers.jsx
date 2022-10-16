@@ -34,6 +34,7 @@ export default function EventBlockTimers(props) {
 
   const handleSubmit = useCallback(
     (field, value) => {
+      console.log('called update', field, value)
       actionHandler('update', { field, value });
     },
     [actionHandler]

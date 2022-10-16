@@ -87,7 +87,7 @@ export default function EventListItem(props: EventListItemProps) {
           const { field, value } = payload as FieldValue;
           const newData: Partial<OntimeEvent> = { id: data.id };
 
-          if (field === 'durationOverride' && data.type === 'event') {
+          if (field === 'duration' && data.type === 'event') {
             // duration defines timeEnd
             newData.timeEnd = data.timeStart += value as number;
             updateEvent(newData);
