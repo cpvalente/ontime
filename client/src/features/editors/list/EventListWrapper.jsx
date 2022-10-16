@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { EVENTS_TABLE } from 'common/api/apiConstants';
+import { EVENTS_TABLE, EVENTS_TABLE_KEY } from 'common/api/apiConstants';
 import {
   fetchAllEvents,
   requestApplyDelay,
@@ -79,13 +79,13 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      queryClient.cancelQueries([EVENTS_TABLE, newEvent.id]);
+      queryClient.cancelQueries([EVENTS_TABLE_KEY, newEvent.id]);
 
       // Snapshot the previous value
-      const previousEvent = queryClient.getQueryData([EVENTS_TABLE, newEvent.id]);
+      const previousEvent = queryClient.getQueryData([EVENTS_TABLE_KEY, newEvent.id]);
 
       // optimistically update object
-      queryClient.setQueryData([EVENTS_TABLE, newEvent.id], newEvent);
+      queryClient.setQueryData([EVENTS_TABLE_KEY, newEvent.id], newEvent);
 
       // Return a context with the previous and new todo
       return { previousEvent, newEvent };
@@ -93,12 +93,12 @@ export default function EventListWrapper() {
 
     // Mutation fails, rollback undos optimist update
     onError: (error, newEvent, context) => {
-      queryClient.setQueryData([EVENTS_TABLE, context.newEvent.id], context.previousEvent);
+      queryClient.setQueryData([EVENTS_TABLE_KEY, context.newEvent.id], context.previousEvent);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: (newEvent) => {
-      queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
+      queryClient.invalidateQueries([EVENTS_TABLE_KEY, newEvent.id]);
     },
   });
 
@@ -106,13 +106,13 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      queryClient.cancelQueries([EVENTS_TABLE, newEvent.id]);
+      queryClient.cancelQueries([EVENTS_TABLE_KEY, newEvent.id]);
 
       // Snapshot the previous value
-      const previousEvent = queryClient.getQueryData([EVENTS_TABLE, newEvent.id]);
+      const previousEvent = queryClient.getQueryData([EVENTS_TABLE_KEY, newEvent.id]);
 
       // optimistically update object
-      queryClient.setQueryData([EVENTS_TABLE, newEvent.id], newEvent);
+      queryClient.setQueryData([EVENTS_TABLE_KEY, newEvent.id], newEvent);
 
       // Return a context with the previous and new todo
       return { previousEvent, newEvent };
@@ -120,13 +120,13 @@ export default function EventListWrapper() {
 
     // Mutation fails, rollback undos optimist update
     onError: (error, newEvent, context) => {
-      queryClient.setQueryData([EVENTS_TABLE, context.newEvent.id], context.previousEvent);
+      queryClient.setQueryData([EVENTS_TABLE_KEY, context.newEvent.id], context.previousEvent);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: (newEvent) => {
       if (newEvent) {
-        queryClient.invalidateQueries([EVENTS_TABLE, newEvent.id]);
+        queryClient.invalidateQueries([EVENTS_TABLE_KEY, newEvent.id]);
       } else {
         queryClient.invalidateQueries(EVENTS_TABLE);
       }
@@ -137,7 +137,7 @@ export default function EventListWrapper() {
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
-      queryClient.cancelQueries([EVENTS_TABLE, eventId]);
+      queryClient.cancelQueries([EVENTS_TABLE_KEY, eventId]);
 
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
