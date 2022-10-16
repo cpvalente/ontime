@@ -119,7 +119,7 @@ export const getAliases = async (req, res) => {
 // Create controller for POST request to '/ontime/aliases'
 // Returns ACK message
 export const postAliases = async (req, res) => {
-  if (failIsNotArray()) {
+  if (failIsNotArray(req.body, res)) {
     return;
   }
   try {
