@@ -141,7 +141,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       className={showFinished ? `${baseClasses} minimal-timer--finished` : baseClasses}
       style={{
         backgroundColor: userOptions.keyColour,
-        color: userOptions.textColour,
         justifyContent: userOptions.justifyContent,
         alignItems: userOptions.alignItems,
       }}
@@ -160,6 +159,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
           showFinished ? 'timer--finished' : ''
         }`}
         style={{
+          color: userOptions.textColour,
           fontSize: `${(89 / (clean.length - 1)) * (userOptions.size || 1)}vw`,
           fontFamily: userOptions.font,
           top: userOptions.top,
