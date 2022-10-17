@@ -5,9 +5,11 @@ import Paginator from 'common/components/paginator/Paginator';
 import TitleSide from 'common/components/title-side/TitleSide';
 import { formatDisplay } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
@@ -26,6 +28,7 @@ export default function Backstage(props) {
   const [filteredEvents, setFilteredEvents] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   // Set window title
   useEffect(() => {
@@ -58,7 +61,7 @@ export default function Backstage(props) {
   const clock = formatTime(time.clock, formatOptions);
 
   return (
-    <div className='backstage'>
+    <div className={`backstage ${isMirrored ? 'mirror' : ''}`}>
       <NavLogo />
 
       <div className='event-title'>{general.title}</div>
