@@ -1,20 +1,17 @@
 import { EventTimer } from '../EventTimer';
-import http from 'http';
-import express from 'express';
-
-// Create server
-const app = express();
-const server = http.createServer(app);
+import jest from 'jest-mock';
 
 // necessary config
 const timerConfig = { refresh: 1000 };
 
-afterAll(async () => {
-  await server.close();
-});
+const mockSocket = {
+  error: jest.fn(),
+  send: jest.fn(),
+  info: jest.fn(),
+};
 
 test('object instantiates correctly', async () => {
-  const t = new EventTimer(server, timerConfig);
+  const t = new EventTimer(mockSocket, timerConfig);
 
   // it contains everything from Timer
   expect(t.clock).toBeNull();
@@ -38,7 +35,6 @@ test('object instantiates correctly', async () => {
   expect(t.io).not.toBeNull();
   expect(t.osc).toBeNull();
   expect(t.http).toBeNull();
-  expect(t._numClients).toBe(0);
   expect(t._interval).not.toBeNull();
   expect(t.presenter).toStrictEqual({ text: '', visible: false });
   expect(t.public).toStrictEqual({ text: '', visible: false });
@@ -76,7 +72,7 @@ test('object instantiates correctly', async () => {
 });
 
 describe('test triggers behaviour', () => {
-  const t = new EventTimer(server, timerConfig);
+  const t = new EventTimer(mockSocket, timerConfig);
 
   test('ignores bad commands', (done) => {
     const success = t.trigger('test');
