@@ -1,10 +1,11 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormControl, FormLabel, Input, ModalBody, Switch } from '@chakra-ui/react';
 import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
-import { httpPlaceholder, ontimeVars } from 'common/api/ontimeApi';
 
 import { LoggingContext } from '../../common/context/LoggingContext';
-import useInfo from '../../common/hooks/useInfo';
+import useInfo from '../../common/hooks-query/useInfo';
+import { httpPlaceholder } from '../../common/models/Http.type';
+import { ontimeVars } from '../../common/models/OntimeVars';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';

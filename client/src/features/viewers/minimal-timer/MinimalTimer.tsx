@@ -4,20 +4,18 @@ import { useSearchParams } from 'react-router-dom';
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import {
-  PresenterMessageData,
-  TimeManager,
-  ViewSettings,
-} from '../../../common/models/OntimeTypes';
+import { PresenterMessageType } from '../../../common/models/PresenterMessage.type';
+import { TimeManagerType } from '../../../common/models/TimeManaget.type';
+import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
 import { OverridableOptions } from '../../../common/models/ViewTypes';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 
 import './MinimalTimer.scss';
 
 interface MinimalTimerProps {
-  pres: PresenterMessageData;
-  time: TimeManager;
-  viewSettings: ViewSettings;
+  pres: PresenterMessageType;
+  time: TimeManagerType;
+  viewSettings: ViewSettingsType;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {

@@ -17,40 +17,54 @@ export async function fetchAllEvents(): Promise<OntimeEventEntry[]> {
  * @description HTTP request to post new event
  * @return {Promise}
  */
-export const requestPost = async (data) => axios.post(eventsURL, data);
+export async function requestPostEvent(data: OntimeEventEntry) {
+  return axios.post(eventsURL, data);
+}
 
 /**
  * @description HTTP request to put new event
  * @return {Promise}
  */
-export const requestPut = async (data) => axios.put(eventsURL, data);
+export async function requestPutEvent(data: OntimeEventEntry) {
+  return axios.put(eventsURL, data);
+}
 
 /**
  * @description HTTP request to modify event
  * @return {Promise}
  */
-export const requestPatch = async (data) => axios.patch(eventsURL, data);
+export async function requestPatchEvent(data: OntimeEventEntry) {
+  return axios.patch(eventsURL, data);
+}
 
 /**
  * @description HTTP request to reorder events
  * @return {Promise}
  */
-export const requestReorder = async (data) => axios.patch(`${eventsURL}/reorder`, data);
+export async function requestReorderEvent(data: OntimeEventEntry) {
+  return axios.patch(`${eventsURL}/reorder`, data);
+}
 
 /**
  * @description HTTP request to request application of delay
  * @return {Promise}
  */
-export const requestApplyDelay = async (eventId) => axios.patch(`${eventsURL}/applydelay/${eventId}`);
+export async function requestApplyDelay(eventId: string) {
+  return axios.patch(`${eventsURL}/applydelay/${eventId}`);
+}
 
 /**
  * @description HTTP request to delete given event
  * @return {Promise}
  */
-export const requestDelete = async (eventId) => axios.delete(`${eventsURL}/${eventId}`);
+export async function requestDelete(eventId: string) {
+  return axios.delete(`${eventsURL}/${eventId}`);
+}
 
 /**
  * @description HTTP request to delete all events
  * @return {Promise}
  */
-export const requestDeleteAll = async () => axios.delete(`${eventsURL}/all`);
+export async function requestDeleteAll() {
+  return axios.delete(`${eventsURL}/all`);
+}

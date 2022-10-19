@@ -2,9 +2,9 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormLabel, Input, ModalBody, Textarea } from '@chakra-ui/react';
 import { postEvent } from 'common/api/eventApi';
 
-import { eventPlaceholderSettings } from '../../common/api/ontimeApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
-import useEvent from '../../common/hooks/useEvent';
+import useEvent from '../../common/hooks-query/useEvent';
+import { eventDataPlaceholder } from '../../common/models/EventData.type';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
@@ -14,7 +14,7 @@ import style from './Modals.module.scss';
 export default function SettingsModal() {
   const { data, status, refetch } = useEvent();
   const { emitError } = useContext(LoggingContext);
-  const [formData, setFormData] = useState(eventPlaceholderSettings);
+  const [formData, setFormData] = useState(eventDataPlaceholder);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 

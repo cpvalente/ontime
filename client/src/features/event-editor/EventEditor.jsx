@@ -14,7 +14,7 @@ import { stringFromMillis } from 'common/utils/time';
 import { calculateDuration, validateEntry } from 'common/utils/timesManager';
 import { useAtom } from 'jotai';
 
-import useEventsList from '../../common/hooks/useEventsList';
+import useEventsList from '../../common/hooks-query/useEventsList';
 
 import style from './EventEditor.module.scss';
 

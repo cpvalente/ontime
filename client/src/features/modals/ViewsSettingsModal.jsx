@@ -6,7 +6,7 @@ import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInforma
 import { postView } from '../../common/api/ontimeApi';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
-import useSettings from '../../common/hooks/useSettings';
+import useSettings from '../../common/hooks-query/useSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
 import { openLink } from '../../common/utils/linkUtils';
 

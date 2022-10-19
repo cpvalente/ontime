@@ -12,14 +12,15 @@ import {
 } from '@chakra-ui/react';
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
-import { ontimePlaceholderSettings, postSettings } from 'common/api/ontimeApi';
+import { postSettings } from 'common/api/ontimeApi';
 import { useAtom } from 'jotai';
 
 import { version } from '../../../package.json';
 import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
-import useSettings from '../../common/hooks/useSettings';
+import useSettings from '../../common/hooks-query/useSettings';
+import { ontimePlaceholderSettings } from '../../common/models/OntimeSettings.type';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';

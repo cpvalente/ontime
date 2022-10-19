@@ -3,9 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useSocket } from '../../common/context/socketContext';
 import useSubscription from '../../common/context/useSubscription';
-import useEvent from '../../common/hooks/useEvent';
-import useEventsList from '../../common/hooks/useEventsList';
-import useViewSettings from '../../common/hooks/useViewSettings';
+import useEvent from '../../common/hooks-query/useEvent';
+import useEventsList from '../../common/hooks-query/useEventsList';
+import useViewSettings from '../../common/hooks-query/useViewSettings';
 
 const withSocket = (Component) => {
   return (props) => {
@@ -138,7 +138,7 @@ const withSocket = (Component) => {
     };
 
     /******************************************/
-    /***  + timeManager                     ***/
+    /***  + TimeManagerType                     ***/
     /***  WRAP INFORMATION RELATED TO TIME  ***/
     /***  --------------------------------  ***/
     /******************************************/
@@ -146,7 +146,7 @@ const withSocket = (Component) => {
     // inject info:
     // is timer finished
     // get clock string
-    const timeManager = {
+    const TimeManagerType = {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
       playstate: playback,
@@ -166,7 +166,7 @@ const withSocket = (Component) => {
         lower={lower}
         title={titleManager}
         publicTitle={publicTitleManager}
-        time={timeManager}
+        time={TimeManagerType}
         events={publicEvents}
         backstageEvents={eventsData}
         selectedId={selectedId}

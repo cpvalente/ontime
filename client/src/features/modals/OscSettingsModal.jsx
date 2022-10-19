@@ -5,7 +5,7 @@ import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInforma
 import { postOSC } from '../../common/api/ontimeApi';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
-import useOscSettings from '../../common/hooks/useOscSettings';
+import useOscSettings from '../../common/hooks-query/useOscSettings';
 import { oscPlaceholderSettings } from '../../common/models/OscSettings.type';
 
 import { inputProps, portInputProps } from './modalHelper';

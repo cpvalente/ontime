@@ -1,8 +1,8 @@
 import { lazy, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import useAliases from './common/hooks/useAliases';
 import { useSocketProvider } from './common/hooks/useSocketProvider';
+import useAliases from './common/hooks-query/useAliases';
 import withSocket from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('features/editors/ProtectedEditor'));

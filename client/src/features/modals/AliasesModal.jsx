@@ -8,7 +8,7 @@ import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import { viewerLocations } from '../../appConstants';
 import { postAliases } from '../../common/api/ontimeApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
-import useAliases from '../../common/hooks/useAliases';
+import useAliases from '../../common/hooks-query/useAliases';
 import { validateAlias } from '../../common/utils/aliases';
 import { handleLinks, host } from '../../common/utils/linkUtils';
 import { tooltipDelayFast } from '../../ontimeConfig';

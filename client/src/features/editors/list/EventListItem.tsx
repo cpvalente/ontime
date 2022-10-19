@@ -43,7 +43,7 @@ export default function EventListItem(props: EventListItemProps) {
 
   // Create / delete new events
   type FieldValue = {
-    field: string;
+    field: keyof OntimeEvent;
     value: unknown;
   }
   const actionHandler = useCallback(
@@ -100,8 +100,7 @@ export default function EventListItem(props: EventListItemProps) {
             newData.timeEnd = value as number;
             updateEvent(newData);
           } else if (field in data) {
-            // @ts-ignore
-            newData[field] = value;
+            newData[field] = value as never;
             updateEvent(newData);
           } else {
             emitError(`Unknown field: ${field}`);

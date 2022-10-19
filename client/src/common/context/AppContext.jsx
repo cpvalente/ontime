@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect, useState } from 'react';
 
-import useSettings from '../hooks/useSettings';
+import useSettings from '../hooks-query/useSettings';
 
 export const AppContext = createContext({
   auth: false,

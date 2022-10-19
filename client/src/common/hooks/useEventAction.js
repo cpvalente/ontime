@@ -6,9 +6,9 @@ import {
   requestApplyDelay,
   requestDelete,
   requestDeleteAll,
-  requestPost,
-  requestPut,
-  requestReorder,
+  requestPostEvent,
+  requestPutEvent,
+  requestReorderEvent,
 } from '../api/eventsApi';
 import { LoggingContext } from '../context/LoggingContext';
 
@@ -23,7 +23,7 @@ export const useEventAction = () => {
    * @description Calls mutation to add new event
    * @private
    */
-  const _addEventMutation = useMutation(requestPost, {
+  const _addEventMutation = useMutation(requestPostEvent, {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
@@ -67,7 +67,7 @@ export const useEventAction = () => {
    * @description Calls mutation to update existing event
    * @private
    */
-  const _updateEventMutation = useMutation(requestPut, {
+  const _updateEventMutation = useMutation(requestPutEvent, {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -231,7 +231,7 @@ export const useEventAction = () => {
    * @description Calls mutation to reorder an event
    * @private
    */
-  const _reorderEventMutation = useMutation(requestReorder, {
+  const _reorderEventMutation = useMutation(requestReorderEvent, {
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries

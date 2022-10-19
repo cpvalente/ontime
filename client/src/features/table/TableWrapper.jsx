@@ -1,11 +1,11 @@
 import { useCallback, useContext, useEffect } from 'react';
 
-import { requestPatch } from '../../common/api/eventsApi';
+import { requestPatchEvent } from '../../common/api/eventsApi';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
-import useEventsList from '../../common/hooks/useEventsList';
 import useMutateEvents from '../../common/hooks/useMutateEvents';
 import { useCuesheetProvider } from '../../common/hooks/useSocketProvider';
-import useUserFields from '../../common/hooks/useUserFields';
+import useEventsList from '../../common/hooks-query/useEventsList';
+import useUserFields from '../../common/hooks-query/useUserFields';
 
 import OntimeTable from './OntimeTable';
 import TableHeader from './TableHeader';
@@ -16,7 +16,7 @@ import style from './Table.module.scss';
 export default function TableWrapper() {
   const { data: events } = useEventsList();
   const { data: userFields } = useUserFields();
-  const mutation = useMutateEvents(requestPatch);
+  const mutation = useMutateEvents(requestPatchEvent);
   const { theme } = useContext(TableSettingsContext);
   const featureData = useCuesheetProvider();
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
-import useInfo from '../../common/hooks/useInfo';
+import useInfo from '../../common/hooks-query/useInfo';
 import { openLink } from '../../common/utils/linkUtils';
 
 import style from './Info.module.scss';

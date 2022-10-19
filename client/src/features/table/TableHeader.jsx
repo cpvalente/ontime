@@ -8,9 +8,9 @@ import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 import PropTypes from 'prop-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
-import useEvent from '../../common/hooks/useEvent';
 import useFullscreen from '../../common/hooks/useFullscreen';
 import { useTimerProvider } from '../../common/hooks/useSocketProvider';
+import useEvent from '../../common/hooks-query/useEvent';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
 import { tooltipDelayFast } from '../../ontimeConfig';

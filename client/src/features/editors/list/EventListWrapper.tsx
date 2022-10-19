@@ -3,7 +3,7 @@ import Empty from 'common/components/state/Empty';
 import { LoggingContext } from 'common/context/LoggingContext';
 import EventListMenu from 'features/menu/EventListMenu';
 
-import useEventsList from '../../../common/hooks/useEventsList';
+import useEventsList from '../../../common/hooks-query/useEventsList';
 
 import EventList from './EventList';
 
