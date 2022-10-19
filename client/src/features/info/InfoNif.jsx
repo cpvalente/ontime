@@ -1,17 +1,13 @@
 import { useState } from 'react';
-import { APP_TABLE } from 'common/api/apiConstants';
-import { getInfo, ontimePlaceholderInfo } from 'common/api/ontimeApi';
-import { useFetch } from 'common/hooks/useFetch';
 
 import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+import useInfo from '../../common/hooks/useInfo';
 import { openLink } from '../../common/utils/linkUtils';
 
 import style from './Info.module.scss';
 
 export default function InfoNif() {
-  const { data, status } = useFetch(APP_TABLE, getInfo, {
-    placeholderData: ontimePlaceholderInfo,
-  });
+  const { data, status } = useInfo();
   const [collapsed, setCollapsed] = useState(false);
   const baseURL = 'http://__IP__:4001';
 
