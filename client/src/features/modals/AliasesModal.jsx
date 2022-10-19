@@ -4,12 +4,11 @@ import { Button, IconButton, Input, ModalBody, Tooltip } from '@chakra-ui/react'
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
-import { ALIASES } from 'common/api/apiConstants';
-import { useFetch } from 'common/hooks/useFetch';
 
 import { viewerLocations } from '../../appConstants';
-import { getAliases, postAliases } from '../../common/api/ontimeApi';
+import { postAliases } from '../../common/api/ontimeApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
+import useAliases from '../../common/hooks/useAliases';
 import { validateAlias } from '../../common/utils/aliases';
 import { handleLinks, host } from '../../common/utils/linkUtils';
 import { tooltipDelayFast } from '../../ontimeConfig';
@@ -19,7 +18,7 @@ import SubmitContainer from './SubmitContainer';
 import style from './Modals.module.scss';
 
 export default function AliasesModal() {
-  const { data, status, refetch } = useFetch(ALIASES, getAliases);
+  const { data, status, refetch } = useAliases();
   const { emitError } = useContext(LoggingContext);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
