@@ -2,26 +2,25 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
-import { EVENTS_TABLE } from 'common/api/apiConstants';
-import { fetchAllEvents } from 'common/api/eventsApi';
 import { editorEventId } from 'common/atoms/LocalEventSettings';
 import ColourInput from 'common/components/input/ColourInput';
 import TextInput from 'common/components/input/TextInput';
 import TimeInput from 'common/components/input/TimeInput';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
-import { useFetch } from 'common/hooks/useFetch';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import getDelayTo from 'common/utils/getDelayTo';
 import { stringFromMillis } from 'common/utils/time';
 import { calculateDuration, validateEntry } from 'common/utils/timesManager';
 import { useAtom } from 'jotai';
 
+import useEventsList from '../../common/hooks/useEventsList';
+
 import style from './EventEditor.module.scss';
 
 export default function EventEditor() {
   const [openId] = useAtom(editorEventId);
-  const { data } = useFetch(EVENTS_TABLE, fetchAllEvents);
+  const { data } = useEventsList();
   const { emitWarning, emitError } = useContext(LoggingContext);
   const { updateEvent } = useEventAction();
   const [event, setEvent] = useState(null);
