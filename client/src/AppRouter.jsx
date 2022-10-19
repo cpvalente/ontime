@@ -1,9 +1,7 @@
 import { lazy, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import { ALIASES } from './common/api/apiConstants';
-import { getAliases } from './common/api/ontimeApi';
-import { useFetch } from './common/hooks/useFetch';
+import useAliases from './common/hooks/useAliases';
 import { useSocketProvider } from './common/hooks/useSocketProvider';
 import withSocket from './features/viewers/ViewWrapper';
 
@@ -39,7 +37,7 @@ const Info = lazy(() => import('features/info/InfoExport'));
 
 export default function AppRouter() {
   useSocketProvider();
-  const { data } = useFetch(ALIASES, getAliases);
+  const { data } = useAliases();
   const location = useLocation();
   const navigate = useNavigate();
 
