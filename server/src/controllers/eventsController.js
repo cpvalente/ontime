@@ -148,13 +148,14 @@ export const eventsPut = async (req, res) => {
   const eventDataFromRequest = req.body;
   const eventId = eventDataFromRequest.id;
   const event = DataProvider.getEventById(eventId);
+
   if (typeof event === 'undefined') {
     res.status(400).send(`No event with ID found`);
     return;
   }
 
   try {
-    const newData = DataProvider.updateEventById(eventId, eventDataFromRequest);
+    const newData = await DataProvider.updateEventById(eventId, eventDataFromRequest);
 
     if (newData.skip) {
       _deleteTimerId(eventId);

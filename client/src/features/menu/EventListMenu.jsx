@@ -1,34 +1,40 @@
 import { memo, useCallback, useContext } from 'react';
 import { ButtonGroup, HStack } from '@chakra-ui/react';
-import { FiChevronsDown } from '@react-icons/all-files/fi/FiChevronsDown';
-import { FiChevronsUp } from '@react-icons/all-files/fi/FiChevronsUp';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoCaretDown } from '@react-icons/all-files/io5/IoCaretDown';
 import { IoCaretUp } from '@react-icons/all-files/io5/IoCaretUp';
-import PropTypes from 'prop-types';
-
-import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
-import { CursorContext } from '../../common/context/CursorContext';
+import TooltipActionBtn from 'common/components/buttons/TooltipActionBtn';
+import { CursorContext } from 'common/context/CursorContext';
+import { useEventAction } from 'common/hooks/useEventAction';
 
 import MenuActionButtons from './MenuActionButtons';
 
 import style from './EventListMenu.module.css';
 
-const EventListMenu = ({ eventsHandler }) => {
+const cursorBtnProps = {
+  size: 'sm',
+  color: 'pink.300',
+  borderColor: 'pink.300',
+  variant: 'outline',
+  _hover: { bg: 'pink.400', color: 'white' },
+};
+
+const EventListMenu = () => {
   const { isCursorLocked, toggleCursorLocked, moveCursorUp, moveCursorDown } =
     useContext(CursorContext);
+  const { addEvent, deleteAllEvents } = useEventAction();
 
   const actionHandler = useCallback(
     (action) => {
       switch (action) {
         case 'event':
-          eventsHandler('add', { type: action });
+          addEvent({ type: action });
           break;
         case 'delay':
-          eventsHandler('add', { type: action });
+          addEvent({ type: action });
           break;
         case 'block':
-          eventsHandler('add', { type: action });
+          addEvent({ type: action });
           break;
         case 'cursorUp':
           moveCursorUp();
@@ -40,59 +46,29 @@ const EventListMenu = ({ eventsHandler }) => {
           toggleCursorLocked();
           break;
         case 'deleteall':
-          eventsHandler('deleteall');
+          deleteAllEvents();
           break;
         default:
           break;
       }
     },
-    [eventsHandler, moveCursorDown, moveCursorUp, toggleCursorLocked]
+    [addEvent, deleteAllEvents, moveCursorDown, moveCursorUp, toggleCursorLocked],
   );
-
-  const collapsingBtnProps = {
-    variant: 'outline',
-    size: 'sm',
-  };
-
-  const cursorBtnProps = {
-    size: 'sm',
-    color: 'pink.300',
-    borderColor: 'pink.300',
-    variant: 'outline',
-  };
 
   return (
     <HStack className={style.headerButtons}>
-      <ButtonGroup isAttached>
-        <TooltipActionBtn
-          clickHandler={() => eventsHandler('expandall')}
-          icon={<FiChevronsDown />}
-          tooltip='Expand All'
-          _hover={{ bg: '#ebedf0', color: '#333' }}
-          {...collapsingBtnProps}
-        />
-        <TooltipActionBtn
-          clickHandler={() => eventsHandler('collapseall')}
-          icon={<FiChevronsUp />}
-          tooltip='Collapse All'
-          _hover={{ bg: '#ebedf0', color: '#333' }}
-          {...collapsingBtnProps}
-        />
-      </ButtonGroup>
       <ButtonGroup isAttached>
         <TooltipActionBtn
           {...cursorBtnProps}
           clickHandler={() => actionHandler('cursorUp')}
           icon={<IoCaretUp />}
           tooltip='Move cursor up Alt + ↑'
-          _hover={{ bg: 'pink.400', color: 'white' }}
         />
         <TooltipActionBtn
           {...cursorBtnProps}
           clickHandler={() => actionHandler('cursorDown')}
           icon={<IoCaretDown />}
           tooltip='Move cursor down Alt + ↓'
-          _hover={{ bg: 'pink.400', color: 'white' }}
         />
         <TooltipActionBtn
           {...cursorBtnProps}
@@ -101,8 +77,7 @@ const EventListMenu = ({ eventsHandler }) => {
           tooltip='Lock cursor to current'
           width='3em'
           backgroundColor={isCursorLocked && 'pink.400'}
-          color={isCursorLocked && 'white'}
-          _hover={{ bg: 'pink.400', color: 'white' }}
+          color={isCursorLocked ? 'white' : 'pink.400'}
           variant={isCursorLocked ? 'solid' : 'outline'}
         />
       </ButtonGroup>
@@ -112,7 +87,3 @@ const EventListMenu = ({ eventsHandler }) => {
 };
 
 export default memo(EventListMenu);
-
-EventListMenu.propTypes = {
-  eventsHandler: PropTypes.func,
-};

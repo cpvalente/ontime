@@ -2,8 +2,9 @@ export const STATIC_PORT = 4001;
 export const EVENT_TABLE = ['event'];
 export const ALIASES = ['aliases'];
 export const USERFIELDS = ['userFields'];
-export const EVENTS_TABLE = ['events'];
-export const APP_TABLE = ['appinfo'];
+export const EVENTS_TABLE_KEY = 'events';
+export const EVENTS_TABLE = [EVENTS_TABLE_KEY];
+export const APP_INFO = ['appinfo'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
@@ -25,7 +26,6 @@ export const calculateServer = () =>
 export const serverURL = calculateServer();
 export const eventURL = `${serverURL}/${EVENT_TABLE}`;
 export const eventsURL = `${serverURL}/${EVENTS_TABLE}`;
-export const playbackURL = `${serverURL}/playback`;
 export const ontimeURL = `${serverURL}/ontime`;
 
 export const stylesPath = 'external/styles/override.css';

@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
-import { IconButton } from '@chakra-ui/button';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { IconButton, Tooltip } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 export default function TooltipLoadingActionBtn(props) {
@@ -10,7 +9,7 @@ export default function TooltipLoadingActionBtn(props) {
   const handleClick = useCallback(() => {
     setLoading(true);
     clickHandler();
-  },[clickHandler, setLoading]);
+  }, [clickHandler, setLoading]);
 
   return (
     <Tooltip label={tooltip} shouldWrapChildren={loading}>

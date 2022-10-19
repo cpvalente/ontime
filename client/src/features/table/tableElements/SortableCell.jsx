@@ -1,4 +1,4 @@
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Tooltip } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import PropTypes from 'prop-types';

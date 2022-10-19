@@ -50,6 +50,10 @@
     }
   }
 
+  .entry .skip {
+    text-decoration: line-through;
+  }
+
   .backstage-indicator {
     color: var(--accent-color-override, $accent-color);
     margin-left: auto;

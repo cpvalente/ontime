@@ -20,8 +20,9 @@ export const useEventListProvider = () => {
     () => ({
       selectedEventId: null,
       nextEventId: null,
+      playback: null,
     }),
-    []
+    [],
   );
   return data ?? placeholder;
 };
@@ -48,7 +49,7 @@ export const useMessageControlProvider = () => {
       },
       onAir: false,
     }),
-    []
+    [],
   );
 
   const returnData = data ?? placeholder;
@@ -63,7 +64,7 @@ export const useMessageControlProvider = () => {
       lowerVisible: (payload) => socket.emit('set-lower-message-visible', payload),
       onAir: (payload) => socket.emit('set-onAir', payload),
     }),
-    [socket]
+    [socket],
   );
 
   return { data: returnData, setMessage };
@@ -82,7 +83,7 @@ export const usePlaybackControlProvider = () => {
       selectedEventId: null,
       numEvents: 0,
     }),
-    []
+    [],
   );
 
   const resetData = useCallback(() => {
@@ -118,7 +119,7 @@ export const usePlaybackControlProvider = () => {
         socket.emit('set-delay', amount);
       },
     }),
-    [resetData, socket]
+    [resetData, socket],
   );
 
   const returnData = data ?? placeholder;
@@ -148,7 +149,7 @@ export const useInfoProvider = () => {
       selectedEventIndex: null,
       numEvents: 0,
     }),
-    []
+    [],
   );
   return data ?? placeholder;
 };
@@ -163,7 +164,7 @@ export const useCuesheetProvider = () => {
       selectedEventId: null,
       titleNow: '',
     }),
-    []
+    [],
   );
 
   return data ?? placeholder;
@@ -183,9 +184,21 @@ export const useTimerProvider = () => {
       expectedFinish: null,
       startedAt: null,
     }),
-    []
+    [],
   );
   return data ?? placeholder;
+};
+
+export const useEventProvider = (eventId) => {
+  const socket = useSocket();
+
+  const setPlayback = useMemo(() => ({
+    loadEvent: () => socket.emit('set-loadid', eventId),
+    startEvent: () => socket.emit('set-startid', eventId),
+    pause: () => socket.emit('set-pause'),
+  }), [socket]);
+
+  return { setPlayback };
 };
 
 export const useSocketProvider = () => {

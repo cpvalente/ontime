@@ -1,0 +1,42 @@
+@use '../../../theme/main' as *;
+@use '../blockMixins' as *;
+
+/* ============= COMMON ============= */
+
+.block {
+  @include block-spacing;
+
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+  height: 40px;
+
+  border-radius: 2px 2px $block-border-radius $block-border-radius;
+  background-color: rgba(107, 70, 193, 0.4);
+  background: linear-gradient(
+                  0deg,
+                  rgba(107, 70, 193, 0.4) 0%,
+                  rgba(128, 90, 213, 0.4) 20%,
+                  rgba(107, 70, 193, 0.15) 21%
+  );
+}
+
+/* ================ DRAG ================ */
+.drag {
+  @include drag-style;
+}
+
+/* ============== ACTION ================ */
+.actionOverlay {
+  @include action-overlay;
+  justify-self: end;
+}
+
+.block:hover > .actionOverlay {
+  @include block-hover;
+}
+
+/* NA */
+.actionOverlay:hover {
+  opacity: 1;
+}

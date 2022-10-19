@@ -1,5 +1,4 @@
-import { IconButton } from '@chakra-ui/button';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { IconButton, Tooltip } from '@chakra-ui/react';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
 import PropTypes from 'prop-types';
 
@@ -25,5 +24,5 @@ export default function RollIconBtn(props) {
 RollIconBtn.propTypes = {
   clickhandler: PropTypes.func,
   active: PropTypes.bool,
-  disabled: PropTypes.bool
-}
+  disabled: PropTypes.bool,
+};

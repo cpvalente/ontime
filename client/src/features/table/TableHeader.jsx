@@ -1,6 +1,5 @@
 import { useContext } from 'react';
-import { Divider } from '@chakra-ui/layout';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Divider, Tooltip } from '@chakra-ui/react';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
@@ -8,12 +7,10 @@ import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 import PropTypes from 'prop-types';
 
-import { EVENT_TABLE } from '../../common/api/apiConstants';
-import { fetchEvent } from '../../common/api/eventApi';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
-import { useFetch } from '../../common/hooks/useFetch';
 import useFullscreen from '../../common/hooks/useFullscreen';
 import { useTimerProvider } from '../../common/hooks/useSocketProvider';
+import useEvent from '../../common/hooks-query/useEvent';
 import { formatDisplay } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
 import { tooltipDelayFast } from '../../ontimeConfig';
@@ -27,7 +24,7 @@ export default function TableHeader({handleCSVExport, featureData}) {
     useContext(TableSettingsContext);
   const timer = useTimerProvider();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const { data: event } = useFetch(EVENT_TABLE, fetchEvent);
+  const { data: event } = useEvent();
 
   const selected = !featureData.numEvents
     ? 'No events'

@@ -1,6 +1,4 @@
-import { IconButton } from '@chakra-ui/button';
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { IconButton, Menu, MenuButton, MenuItem, MenuList, Tooltip } from '@chakra-ui/react';
 import { FiClock } from '@react-icons/all-files/fi/FiClock';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
@@ -30,10 +28,7 @@ export default function ActionButtons(props: ActionButtonProps) {
           aria-label='Options'
           size='xs'
           icon={<FiPlus />}
-          _expanded={{ bg: 'orange.300', color: 'white' }}
-          _focus={{ boxShadow: 'none' }}
-          backgroundColor='orange.200'
-          color='orange.500'
+          colorScheme='blue'
         />
       </Tooltip>
       <MenuList style={menuStyle}>

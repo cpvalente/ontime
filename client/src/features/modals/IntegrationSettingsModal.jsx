@@ -1,12 +1,11 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { ModalBody } from '@chakra-ui/modal';
-import { FormControl, FormLabel, Input, Switch } from '@chakra-ui/react';
+import { FormControl, FormLabel, Input, ModalBody, Switch } from '@chakra-ui/react';
 import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
-import { APP_TABLE } from 'common/api/apiConstants';
-import { getInfo, httpPlaceholder, ontimeVars } from 'common/api/ontimeApi';
-import { useFetch } from 'common/hooks/useFetch';
 
 import { LoggingContext } from '../../common/context/LoggingContext';
+import useInfo from '../../common/hooks-query/useInfo';
+import { httpPlaceholder } from '../../common/models/Http.type';
+import { ontimeVars } from '../../common/models/OntimeVars';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
@@ -14,7 +13,7 @@ import SubmitContainer from './SubmitContainer';
 import style from './Modals.module.scss';
 
 export default function IntegrationSettingsModal() {
-  const { data, status, refetch } = useFetch(APP_TABLE, getInfo);
+  const { data, status, refetch } = useInfo();
   const { emitError } = useContext(LoggingContext);
   const [formData, setFormData] = useState(httpPlaceholder);
   const [changed, setChanged] = useState(false);
@@ -55,7 +54,7 @@ export default function IntegrationSettingsModal() {
         setSubmitting(false);
       }
     },
-    [emitError, formData]
+    [emitError, formData],
   );
 
   /**
@@ -97,18 +96,18 @@ export default function IntegrationSettingsModal() {
             </span>
             <table>
               <tbody>
-                <tr>
-                  <td className={style.labelNote} style={{ width: '30%' }}>
-                    Variable
-                  </td>
-                  <td className={style.labelNote}>Value</td>
+              <tr>
+                <td className={style.labelNote} style={{ width: '30%' }}>
+                  Variable
+                </td>
+                <td className={style.labelNote}>Value</td>
+              </tr>
+              {ontimeVars.map((v) => (
+                <tr key={v.name}>
+                  <td className={style.labelNote}>{v.name}</td>
+                  <td>{v.description}</td>
                 </tr>
-                {ontimeVars.map((v) => (
-                  <tr key={v.name}>
-                    <td className={style.labelNote}>{v.name}</td>
-                    <td>{v.description}</td>
-                  </tr>
-                ))}
+              ))}
               </tbody>
             </table>
           </div>

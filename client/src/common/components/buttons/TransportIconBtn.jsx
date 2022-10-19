@@ -1,5 +1,4 @@
-import { IconButton } from '@chakra-ui/button';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { IconButton, Tooltip } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 import { tooltipDelayMid } from '../../../ontimeConfig';

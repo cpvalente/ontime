@@ -1,0 +1,36 @@
+$block-gap: 4px;
+$element-spacing: 4px;
+$binder-width: 32px;
+$clearance: 8px;
+$block-border-radius: 3px;
+
+@mixin block-spacing() {
+  margin: 4px 1px;
+  padding: 4px 10px 4px 2px;
+  gap: 2px;
+}
+
+@mixin action-overlay() {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  opacity: 0.8;
+  transition: linear 0.1s;
+}
+
+@mixin block-hover() {
+  opacity: 1;
+  transition: linear 0.1s;
+}
+
+@mixin drag-style() {
+  font-size: 20px;
+  text-align: center;
+  opacity: 0.1;
+  cursor: grab;
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 1;
+  }
+}

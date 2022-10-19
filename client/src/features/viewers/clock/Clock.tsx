@@ -4,18 +4,16 @@ import { useSearchParams } from 'react-router-dom';
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import {
-  TimeManager,
-  ViewSettings,
-} from '../../../common/models/OntimeTypes';
+import { TimeManagerType } from '../../../common/models/TimeManaget.type';
+import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
 import { OverridableOptions } from '../../../common/models/ViewTypes';
 import { formatTime } from '../../../common/utils/time';
 
 import './Clock.scss';
 
 interface ClockProps {
-  time: TimeManager;
-  viewSettings: ViewSettings;
+  time: TimeManagerType;
+  viewSettings: ViewSettingsType;
 }
 
 const formatOptions = {

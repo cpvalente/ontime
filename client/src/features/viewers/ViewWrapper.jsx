@@ -1,24 +1,17 @@
 /* eslint-disable react/display-name */
 import { useEffect, useMemo, useState } from 'react';
 
-import { EVENT_TABLE, EVENTS_TABLE } from '../../common/api/apiConstants';
-import { fetchEvent } from '../../common/api/eventApi';
-import { fetchAllEvents } from '../../common/api/eventsApi';
 import { useSocket } from '../../common/context/socketContext';
-import { useFetch } from '../../common/hooks/useFetch';
-import { getView } from '../../common/api/ontimeApi';
 import useSubscription from '../../common/context/useSubscription';
-import { eventPlaceholderSettings } from '../../common/api/ontimeApi';
+import useEvent from '../../common/hooks-query/useEvent';
+import useEventsList from '../../common/hooks-query/useEventsList';
+import useViewSettings from '../../common/hooks-query/useViewSettings';
 
 const withSocket = (Component) => {
   return (props) => {
-    const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents, {
-      placeholderData: [],
-    });
-    const { data: genData } = useFetch(EVENT_TABLE, fetchEvent, {
-      placeholderData: eventPlaceholderSettings,
-    });
-    const { data: viewSettings } = useFetch(VIEW_SETTINGS, getView);
+    const { data: eventsData } = useEventsList();
+    const { data: genData } = useEvent();
+    const { data: viewSettings } = useViewSettings();
 
     const socket = useSocket();
     const [pres, setPres] = useState({
@@ -145,7 +138,7 @@ const withSocket = (Component) => {
     };
 
     /******************************************/
-    /***  + timeManager                     ***/
+    /***  + TimeManagerType                     ***/
     /***  WRAP INFORMATION RELATED TO TIME  ***/
     /***  --------------------------------  ***/
     /******************************************/
@@ -153,7 +146,7 @@ const withSocket = (Component) => {
     // inject info:
     // is timer finished
     // get clock string
-    const timeManager = {
+    const TimeManagerType = {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
       playstate: playback,
@@ -173,7 +166,7 @@ const withSocket = (Component) => {
         lower={lower}
         title={titleManager}
         publicTitle={publicTitleManager}
-        time={timeManager}
+        time={TimeManagerType}
         events={publicEvents}
         backstageEvents={eventsData}
         selectedId={selectedId}

@@ -1,6 +1,5 @@
 import { memo } from 'react';
-import { Button } from '@chakra-ui/button';
-import { Tooltip } from '@chakra-ui/react';
+import { Button, Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import PropTypes from 'prop-types';
 
@@ -55,7 +54,6 @@ const PlaybackTimer = (props) => {
       {isWaiting ? (
         <div className={style.roll}>
           <span className={style.rolltag}>Roll: Countdown to start</span>
-          <span className={style.time}>FIX</span>
         </div>
       ) : (
         <>

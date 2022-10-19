@@ -148,10 +148,21 @@ h1 {
   left: 0;
   z-index: 10;
   color: white;
+  transition: bottom 0.3s;
+
+  &.noEvent {
+    bottom: -500px;
+    transition: bottom 0.7s;
+  }
 
   .header {
     display: flex;
-    justify-content: space-between;
+  }
+
+  .header {
+    h1 {
+      margin-right: auto;
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
-import { ontimeQueryClient } from '../../App';
 import { APP_SETTINGS } from '../api/apiConstants';
+import { ontimeQueryClient } from '../queryClient';
 
 import { mth, mtm, mts } from './timeConstants';
 

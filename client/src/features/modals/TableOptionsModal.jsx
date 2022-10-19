@@ -1,12 +1,11 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { ModalBody } from '@chakra-ui/modal';
-import { Input } from '@chakra-ui/react';
+import { Input, ModalBody } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
-import { USERFIELDS } from 'common/api/apiConstants';
-import { useFetch } from 'common/hooks/useFetch';
 
-import { getUserFields, postUserFields, userFieldsPlaceholder } from '../../common/api/ontimeApi';
+import { postUserFields } from '../../common/api/ontimeApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
+import useUserFields from '../../common/hooks-query/useUserFields';
+import { userFieldsPlaceholder } from '../../common/models/UserFields.type';
 import { handleLinks, host } from '../../common/utils/linkUtils';
 
 import SubmitContainer from './SubmitContainer';
@@ -14,7 +13,7 @@ import SubmitContainer from './SubmitContainer';
 import style from './Modals.module.scss';
 
 export default function TableOptionsModal() {
-  const { data, status, refetch } = useFetch(USERFIELDS, getUserFields);
+  const { data, status, refetch } = useUserFields();
   const { emitError } = useContext(LoggingContext);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);

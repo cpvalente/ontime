@@ -1,45 +1,75 @@
 import { createRef, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import {
+  defaultPublicAtom,
+  showQuickEntryAtom,
+  startTimeIsLastEndAtom,
+} from 'common/atoms/LocalEventSettings';
 import Empty from 'common/components/state/Empty';
+import { CursorContext } from 'common/context/CursorContext';
+import { useEventAction } from 'common/hooks/useEventAction';
+import { useEventListProvider } from 'common/hooks/useSocketProvider';
+import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
+import PropTypes from 'prop-types';
 
-import { showQuickEntryAtom } from '../../../common/atoms/LocalEventSettings';
-import { CursorContext } from '../../../common/context/CursorContext';
-import { useEventListProvider } from '../../../common/hooks/useSocketProvider';
-import EntryBlock from '../EntryBlock/EntryBlock';
+import useSubscription from '../../../common/context/useSubscription';
+import EntryBlock from '../entry-block/EntryBlock';
 
 import EventListItem from './EventListItem';
 
 import style from './List.module.scss';
 
 export default function EventList(props) {
-  const { events, eventsHandler } = props;
-  const { cursor, moveCursorUp, moveCursorDown, setCursor, isCursorLocked } =
+  const { events } = props;
+  const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } =
     useContext(CursorContext);
+  const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
+  const defaultPublic = useAtomValue(defaultPublicAtom);
+  const { addEvent, reorderEvent } = useEventAction();
   const cursorRef = createRef();
   const showQuickEntry = useAtomValue(showQuickEntryAtom);
   const data = useEventListProvider();
+  const [selectedId] = useSubscription('selected-id', null);
+  const [nextId] = useSubscription('next-id', null);
 
   const insertAtCursor = useCallback(
     (type, cursor) => {
       if (cursor === -1) {
-        eventsHandler('add', { type: type });
+        addEvent({ type: type });
       } else {
-        const previousEvent = events[cursor];
-        const nextEvent = events[cursor + 1];
-        if (type === 'event') {
-          eventsHandler('add', { type: type, after: previousEvent.id });
-        } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
-          eventsHandler('add', { type: type, after: previousEvent.id });
+        const previousEvent = events?.[cursor];
+        const nextEvent = events?.[cursor + 1];
+
+        // prevent adding two non-event blocks consecutively
+        const isPreviousDifferent = previousEvent?.type !== type;
+        const isNextDifferent = nextEvent?.type !== type;
+        if (type === 'clone' && previousEvent) {
+          const newEvent = duplicateEvent(previousEvent);
+          newEvent.after = previousEvent.id;
+          addEvent(newEvent);
+        } else if (type === 'event') {
+          const newEvent = {
+            type: 'event',
+            after: previousEvent.id,
+            isPublic: defaultPublic,
+          };
+          const options = {
+            startIsLastEnd: startTimeIsLastEnd ? previousEvent.id : undefined,
+          };
+          addEvent(newEvent, options);
+        } else if (isPreviousDifferent && isNextDifferent) {
+          addEvent({ type: type, after: previousEvent.id });
         }
       }
     },
-    [events, eventsHandler]
+    [addEvent, defaultPublic, events, startTimeIsLastEnd],
   );
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
     (e) => {
+      // handle held key
       // handle held key
       if (e.repeat) return;
       // Check if the alt key is pressed
@@ -72,21 +102,21 @@ export default function EventList(props) {
         }
       }
     },
-    [cursor, events.length, insertAtCursor, moveCursorDown, moveCursorUp]
+    [cursor, events.length, insertAtCursor, moveCursorDown, moveCursorUp],
   );
 
   useEffect(() => {
     // attach the event listener
     document.addEventListener('keydown', handleKeyPress);
 
-    if (cursor > events.length - 1) setCursor(events.length - 1);
-    if (events.length > 0 && cursor === -1) setCursor(0);
+    if (cursor > events.length - 1) moveCursorTo(events.length - 1);
+    if (events.length > 0 && cursor === -1) moveCursorTo(0);
 
     // remove the event listener
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [handleKeyPress, cursor, events, setCursor]);
+  }, [handleKeyPress, cursor, events, moveCursorTo]);
 
   // when cursor moves, view should follow
   useEffect(() => {
@@ -96,7 +126,6 @@ export default function EventList(props) {
       block: 'nearest',
       inline: 'start',
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor]);
 
   // if selected event
@@ -117,10 +146,9 @@ export default function EventList(props) {
     }
     if (found) {
       // move cursor
-      setCursor(gotoIndex);
+      moveCursorTo(gotoIndex);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.selectedEventId, isCursorLocked]);
+  }, [data.selectedEventId, isCursorLocked, moveCursorTo]);
 
   // DND
   const handleOnDragEnd = useCallback(
@@ -132,13 +160,9 @@ export default function EventList(props) {
       if (result.destination === result.source.index) return;
 
       // Call API
-      eventsHandler('reorder', {
-        index: result.draggableId,
-        from: result.source.index,
-        to: result.destination.index,
-      });
+      reorderEvent(result.draggableId, result.source.index, result.destination.index);
     },
-    [eventsHandler]
+    [reorderEvent],
   );
 
   if (events.length < 1) {
@@ -171,10 +195,11 @@ export default function EventList(props) {
                 }
                 const isLast = index === events.length - 1;
                 return (
-                  <div key={e.id}>
-                    {index === 0 && showQuickEntry && (
-                      <EntryBlock index={e.id} eventsHandler={eventsHandler} />
-                    )}
+                  <div
+                    key={e.id}
+                    className={`${style.bgElement}
+                    ${e.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
+                  >
                     <div
                       ref={cursor === index ? cursorRef : undefined}
                       className={cursor === index ? style.cursor : ''}
@@ -184,19 +209,17 @@ export default function EventList(props) {
                         index={index}
                         eventIndex={eventIndex}
                         data={e}
-                        selected={data.selectedEventId === e.id}
-                        next={data.nextEventId === e.id}
-                        eventsHandler={eventsHandler}
+                        selected={selectedId === e.id}
+                        next={nextId === e.id}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
+                        playback={selectedId === e.id ? data.playback : undefined}
                       />
                     </div>
-                    {(showQuickEntry || isLast) && (
+                    {((showQuickEntry && index === cursor) || isLast) && (
                       <EntryBlock
                         showKbd={index === cursor}
                         previousId={e.id}
-                        eventsHandler={eventsHandler}
-                        visible={isLast}
                         disableAddDelay={e.type === 'delay'}
                         disableAddBlock={e.type === 'block'}
                       />
@@ -212,3 +235,7 @@ export default function EventList(props) {
     </div>
   );
 }
+
+EventList.propTypes = {
+  events: PropTypes.array,
+};

@@ -51,7 +51,7 @@ const uploadAndParse = async (file, req, res, options) => {
       // explicitly write objects
       if (typeof result !== 'undefined') {
         const newEvents = result.data.events || [];
-        if (options.onlyEvents) {
+        if (options?.onlyEvents === 'true') {
           await DataProvider.setEvents(newEvents);
         } else {
           await DataProvider.mergeIntoData(result.data);
@@ -119,7 +119,7 @@ export const getAliases = async (req, res) => {
 // Create controller for POST request to '/ontime/aliases'
 // Returns ACK message
 export const postAliases = async (req, res) => {
-  if (failIsNotArray()) {
+  if (failIsNotArray(req.body, res)) {
     return;
   }
   try {
@@ -204,7 +204,7 @@ export const postSettings = async (req, res) => {
       pinCode: pin,
       timeFormat: format,
     };
-    DataProvider.setSettings(newData);
+    await DataProvider.setSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
     res.status(400).send(error);
@@ -231,7 +231,7 @@ export const postViewSettings = async (req, res) => {
 
   try {
     const newData = { overrideStyles: req.body.overrideStyles };
-    DataProvider.setViews(newData);
+    await DataProvider.setViews(newData);
     res.status(200).send(newData);
   } catch (error) {
     res.status(400).send(error);

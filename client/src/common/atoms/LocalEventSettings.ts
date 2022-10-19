@@ -1,3 +1,4 @@
+import { atom } from 'jotai';
 import { atomWithStorage, selectAtom } from 'jotai/utils';
 
 export const eventSettingsAtom = atomWithStorage('ontime-eventSettings', {
@@ -18,3 +19,5 @@ export const defaultPublicAtom = selectAtom(
   eventSettingsAtom,
   (settings) => settings.defaultPublic
 );
+
+export const editorEventId = atom<string | null>(null);

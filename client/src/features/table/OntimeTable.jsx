@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useBlockLayout, useColumnOrder, useResizeColumns, useTable } from 'react-table';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
   DndContext,

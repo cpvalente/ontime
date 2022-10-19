@@ -1,8 +1,6 @@
 import { createContext, useCallback, useEffect, useState } from 'react';
 
-import { APP_SETTINGS } from '../api/apiConstants';
-import { getSettings } from '../api/ontimeApi';
-import { useFetch } from '../hooks/useFetch';
+import useSettings from '../hooks-query/useSettings';
 
 export const AppContext = createContext({
   auth: false,
@@ -13,7 +11,7 @@ export const AppContext = createContext({
 
 export const AppContextProvider = ({ children }) => {
   const [auth, setAuth] = useState(true);
-  const { data } = useFetch(APP_SETTINGS, getSettings);
+  const { data } = useSettings();
 
   useEffect(() => {
     if (data == null) return;
@@ -22,7 +20,7 @@ export const AppContextProvider = ({ children }) => {
       if (previousEntry === data?.pinCode) {
         setAuth(true);
       } else {
-        sessionStorage.removeItem('ontime-entry')
+        sessionStorage.removeItem('ontime-entry');
       }
     } else if (data?.pinCode == null || data?.pinCode === '') {
       setAuth(true);
@@ -49,7 +47,7 @@ export const AppContextProvider = ({ children }) => {
       setAuth(correct);
       return correct;
     },
-    [data]
+    [data],
   );
 
   return <AppContext.Provider value={{ auth, validate }}>{children}</AppContext.Provider>;

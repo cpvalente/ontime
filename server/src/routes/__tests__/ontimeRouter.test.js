@@ -12,9 +12,9 @@ describe('When a GET request request is sent', () => {
       .then((response) => {
         expect(response.text.includes('<!doctype html>')).toBe(false);
         expect(response.body).toBeDefined();
-        expect(typeof response.body.clock).toBe('number');
-        expect(typeof response.body.running).toBe('number');
+        expect(typeof response.body.currentId).toBe('string');
         expect(typeof response.body.timer).toBe('string');
+        expect(typeof response.body.clock).toBe('number');
         expect(typeof response.body.playback).toBe('string');
         expect(typeof response.body.title).toBe('string');
         expect(typeof response.body.presenter).toBe('string');

@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IconButton } from '@chakra-ui/button';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Editable, EditableInput, EditablePreview, IconButton, Tooltip } from '@chakra-ui/react';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 
 import { tooltipDelayMid } from '../../../ontimeConfig';

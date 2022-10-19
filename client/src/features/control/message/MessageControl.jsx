@@ -1,5 +1,4 @@
-import { IconButton } from '@chakra-ui/button';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { IconButton, Tooltip } from '@chakra-ui/react';
 import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
 

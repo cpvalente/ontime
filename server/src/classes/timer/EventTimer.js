@@ -149,6 +149,7 @@ export class EventTimer extends Timer {
     const featureData = {
       selectedEventId: this.selectedEventId,
       nextEventId: this.nextEventId,
+      playback: this.state,
     };
     this.socket.send('ontime-feat-eventlist', featureData);
   }

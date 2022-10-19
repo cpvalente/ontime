@@ -23,5 +23,11 @@
 
 .cursor {
   box-shadow: 2px 2px 0 $ontime-pink;
-  border-radius: 14px;
+  border-radius: 3px;
+}
+
+.bgElement {
+  &.delayed {
+    background: rgba(214, 158, 46, 0.3);
+  }
 }

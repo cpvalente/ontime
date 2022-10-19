@@ -1,18 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-has-content */
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Button, IconButton } from '@chakra-ui/button';
-import { ModalBody } from '@chakra-ui/modal';
-import { Input } from '@chakra-ui/react';
-import { Tooltip } from '@chakra-ui/tooltip';
+import { Button, IconButton, Input, ModalBody, Tooltip } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
-import { ALIASES } from 'common/api/apiConstants';
-import { useFetch } from 'common/hooks/useFetch';
 
 import { viewerLocations } from '../../appConstants';
-import { getAliases, postAliases } from '../../common/api/ontimeApi';
+import { postAliases } from '../../common/api/ontimeApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
+import useAliases from '../../common/hooks-query/useAliases';
 import { validateAlias } from '../../common/utils/aliases';
 import { handleLinks, host } from '../../common/utils/linkUtils';
 import { tooltipDelayFast } from '../../ontimeConfig';
@@ -22,7 +18,7 @@ import SubmitContainer from './SubmitContainer';
 import style from './Modals.module.scss';
 
 export default function AliasesModal() {
-  const { data, status, refetch } = useFetch(ALIASES, getAliases);
+  const { data, status, refetch } = useAliases();
   const { emitError } = useContext(LoggingContext);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -68,14 +64,18 @@ export default function AliasesModal() {
       setAliases(validatedAliases);
 
       if (!errors) {
-        await postAliases(aliases);
-        await refetch();
-        setChanged(false);
+        try {
+          await postAliases(aliases);
+        } catch (error) {
+          emitError(`Error saving settings: ${error}`);
+        } finally {
+          await refetch();
+          setChanged(false);
+        }
       }
-
       setSubmitting(false);
     },
-    [aliases, refetch]
+    [aliases, refetch],
   );
 
   /**
@@ -156,7 +156,7 @@ export default function AliasesModal() {
       setAliases(temp);
       setChanged(true);
     },
-    [aliases]
+    [aliases],
   );
 
   return (
@@ -194,16 +194,16 @@ export default function AliasesModal() {
             eg. a lower third url with some custom parameters
             <table>
               <tbody>
-                <tr>
-                  <td className={style.labelNote} style={{ width: '30%' }}>
-                    Alias
-                  </td>
-                  <td className={style.labelNote}>Page URL</td>
-                </tr>
-                <tr>
-                  <td>mylower</td>
-                  <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
-                </tr>
+              <tr>
+                <td className={style.labelNote} style={{ width: '30%' }}>
+                  Alias
+                </td>
+                <td className={style.labelNote}>Page URL</td>
+              </tr>
+              <tr>
+                <td>mylower</td>
+                <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
+              </tr>
               </tbody>
             </table>
             <br />
@@ -212,16 +212,16 @@ export default function AliasesModal() {
             eg. an unattended screen that you would need to change route from the app
             <table>
               <tbody>
-                <tr>
-                  <td className={style.labelNote} style={{ width: '30%' }}>
-                    Alias
-                  </td>
-                  <td className={style.labelNote}>Page URL</td>
-                </tr>
-                <tr>
-                  <td>thirdfloor</td>
-                  <td>public</td>
-                </tr>
+              <tr>
+                <td className={style.labelNote} style={{ width: '30%' }}>
+                  Alias
+                </td>
+                <td className={style.labelNote}>Page URL</td>
+              </tr>
+              <tr>
+                <td>thirdfloor</td>
+                <td>public</td>
+              </tr>
               </tbody>
             </table>
           </div>

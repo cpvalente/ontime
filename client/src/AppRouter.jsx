@@ -1,10 +1,8 @@
 import { lazy, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import { ALIASES } from './common/api/apiConstants';
-import { getAliases } from './common/api/ontimeApi';
-import { useFetch } from './common/hooks/useFetch';
 import { useSocketProvider } from './common/hooks/useSocketProvider';
+import useAliases from './common/hooks-query/useAliases';
 import withSocket from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('features/editors/ProtectedEditor'));
@@ -39,7 +37,7 @@ const Info = lazy(() => import('features/info/InfoExport'));
 
 export default function AppRouter() {
   useSocketProvider();
-  const { data } = useFetch(ALIASES, getAliases);
+  const { data } = useAliases();
   const location = useLocation();
   const navigate = useNavigate();
 
