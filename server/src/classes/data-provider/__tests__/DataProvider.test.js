@@ -1,4 +1,10 @@
+import jest from 'jest-mock';
 import { DataProvider } from '../DataProvider';
+
+jest.mock('../../../app.js', () => ({
+  data: [],
+  db: {},
+}));
 
 describe('DataProvider', () => {
   describe('safeMerge()', () => {
