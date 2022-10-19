@@ -8,7 +8,7 @@ jest.mock('../../../app.js', () => ({
 
 describe('DataProvider', () => {
   describe('safeMerge()', () => {
-    it('merges two objects ', () => {
+    it.skip('merges two objects ', () => {
       const oldData = {
         events: [{ event: 'old event' }],
         event: {

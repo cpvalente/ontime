@@ -14,7 +14,7 @@ describe('When a GET request request is sent', () => {
         expect(response.body).toBeDefined();
         expect(typeof response.body.currentId).toBe('string');
         expect(typeof response.body.timer).toBe('string');
-        expect(typeof response.body.clock).toBe('string');
+        expect(typeof response.body.clock).toBe('number');
         expect(typeof response.body.playback).toBe('string');
         expect(typeof response.body.title).toBe('string');
         expect(typeof response.body.presenter).toBe('string');
