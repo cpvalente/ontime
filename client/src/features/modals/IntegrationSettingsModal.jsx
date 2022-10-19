@@ -1,11 +1,10 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormControl, FormLabel, Input, ModalBody, Switch } from '@chakra-ui/react';
 import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
-import { APP_TABLE } from 'common/api/apiConstants';
-import { getInfo, httpPlaceholder, ontimeVars } from 'common/api/ontimeApi';
-import { useFetch } from 'common/hooks/useFetch';
+import { httpPlaceholder, ontimeVars } from 'common/api/ontimeApi';
 
 import { LoggingContext } from '../../common/context/LoggingContext';
+import useInfo from '../../common/hooks/useInfo';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
@@ -13,7 +12,7 @@ import SubmitContainer from './SubmitContainer';
 import style from './Modals.module.scss';
 
 export default function IntegrationSettingsModal() {
-  const { data, status, refetch } = useFetch(APP_TABLE, getInfo);
+  const { data, status, refetch } = useInfo();
   const { emitError } = useContext(LoggingContext);
   const [formData, setFormData] = useState(httpPlaceholder);
   const [changed, setChanged] = useState(false);
