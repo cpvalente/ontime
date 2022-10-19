@@ -7,10 +7,8 @@ import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 import PropTypes from 'prop-types';
 
-import { EVENT_TABLE } from '../../common/api/apiConstants';
-import { fetchEvent } from '../../common/api/eventApi';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
-import { useFetch } from '../../common/hooks/useFetch';
+import useEvent from '../../common/hooks/useEvent';
 import useFullscreen from '../../common/hooks/useFullscreen';
 import { useTimerProvider } from '../../common/hooks/useSocketProvider';
 import { formatDisplay } from '../../common/utils/dateConfig';
@@ -26,7 +24,7 @@ export default function TableHeader({handleCSVExport, featureData}) {
     useContext(TableSettingsContext);
   const timer = useTimerProvider();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const { data: event } = useFetch(EVENT_TABLE, fetchEvent);
+  const { data: event } = useEvent();
 
   const selected = !featureData.numEvents
     ? 'No events'
