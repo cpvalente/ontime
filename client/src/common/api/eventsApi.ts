@@ -1,15 +1,17 @@
 import axios from 'axios';
 
+import { OntimeEventEntry } from '../models/EventTypes';
+
 import { eventsURL } from './apiConstants';
 
 /**
  * @description HTTP request to fetch all events
  * @return {Promise}
  */
-export const fetchAllEvents = async () => {
+export async function fetchAllEvents(): Promise<OntimeEventEntry[]> {
   const res = await axios.get(eventsURL);
   return res.data;
-};
+}
 
 /**
  * @description HTTP request to post new event

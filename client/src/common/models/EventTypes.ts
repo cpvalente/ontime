@@ -5,17 +5,17 @@ export interface OntimeBaseEvent {
   id: string;
 }
 
-export interface OntimeDelay extends OntimeBaseEvent {
+export type OntimeDelay = OntimeBaseEvent & {
   type: 'delay';
   duration: number;
   revision: number;
 }
 
-export interface OntimeBlock extends OntimeBaseEvent {
+export type OntimeBlock = OntimeBaseEvent & {
   type: 'block';
 }
 
-export interface OntimeEvent extends OntimeBaseEvent {
+export type OntimeEvent = OntimeBaseEvent & {
   type: 'event';
   title: string,
   subtitle: string,
