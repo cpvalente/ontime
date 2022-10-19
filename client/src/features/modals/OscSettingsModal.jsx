@@ -1,12 +1,12 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormControl, FormLabel, Input, ModalBody } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
-import { OSC_SETTINGS } from 'common/api/apiConstants';
-import { getOSC, oscPlaceholderSettings, postOSC } from 'common/api/ontimeApi';
-import { useFetch } from 'common/hooks/useFetch';
 
+import { postOSC } from '../../common/api/ontimeApi';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
+import useOscSettings from '../../common/hooks/useOscSettings';
+import { oscPlaceholderSettings } from '../../common/models/OscSettings.type';
 
 import { inputProps, portInputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
@@ -76,7 +76,7 @@ const oscTriggerEndpoints = [
 ];
 
 export default function OscSettingsModal() {
-  const { data, status, refetch } = useFetch(OSC_SETTINGS, getOSC);
+  const { data, status, refetch } = useOscSettings();
   const { emitError } = useContext(LoggingContext);
   const [formData, setFormData] = useState(oscPlaceholderSettings);
   const [changed, setChanged] = useState(false);
