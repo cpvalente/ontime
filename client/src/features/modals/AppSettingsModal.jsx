@@ -12,15 +12,14 @@ import {
 } from '@chakra-ui/react';
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
-import { APP_SETTINGS } from 'common/api/apiConstants';
-import { getSettings, ontimePlaceholderSettings, postSettings } from 'common/api/ontimeApi';
-import { useFetch } from 'common/hooks/useFetch';
+import { ontimePlaceholderSettings, postSettings } from 'common/api/ontimeApi';
 import { useAtom } from 'jotai';
 
 import { version } from '../../../package.json';
 import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
+import useSettings from '../../common/hooks/useSettings';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
@@ -28,7 +27,7 @@ import SubmitContainer from './SubmitContainer';
 import style from './Modals.module.scss';
 
 export default function AppSettingsModal() {
-  const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
+  const { data, status, refetch } = useSettings();
   const { emitError, emitWarning } = useContext(LoggingContext);
   const [formData, setFormData] = useState(ontimePlaceholderSettings);
   const [changed, setChanged] = useState(false);
