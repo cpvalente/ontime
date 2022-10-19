@@ -1,23 +1,17 @@
 /* eslint-disable react/display-name */
 import { useEffect, useMemo, useState } from 'react';
 
-import { EVENT_TABLE, EVENTS_TABLE, VIEW_SETTINGS } from '../../common/api/apiConstants';
-import { fetchEvent } from '../../common/api/eventApi';
-import { fetchAllEvents } from '../../common/api/eventsApi';
-import { eventPlaceholderSettings, getView } from '../../common/api/ontimeApi';
 import { useSocket } from '../../common/context/socketContext';
 import useSubscription from '../../common/context/useSubscription';
-import { useFetch } from '../../common/hooks/useFetch';
+import useEvent from '../../common/hooks/useEvent';
+import useEventsList from '../../common/hooks/useEventsList';
+import useViewSettings from '../../common/hooks/useViewSettings';
 
 const withSocket = (Component) => {
   return (props) => {
-    const { data: eventsData } = useFetch(EVENTS_TABLE, fetchAllEvents, {
-      placeholderData: [],
-    });
-    const { data: genData } = useFetch(EVENT_TABLE, fetchEvent, {
-      placeholderData: eventPlaceholderSettings,
-    });
-    const { data: viewSettings } = useFetch(VIEW_SETTINGS, getView);
+    const { data: eventsData } = useEventsList();
+    const { data: genData } = useEvent();
+    const { data: viewSettings } = useViewSettings();
 
     const socket = useSocket();
     const [pres, setPres] = useState({
