@@ -30,7 +30,7 @@
   .event {
     background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
     padding: 1vh 2vw;
-    border-radius: 1vw;
+    border-radius: $element-border-radius;
     max-width: 100%;
 
     &.now {

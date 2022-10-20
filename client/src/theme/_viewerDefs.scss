@@ -7,8 +7,9 @@ $delay-color: $delay-text;
 // Main Properties of a viewer
 $viewer-background-color: $bg-black; // --background-color-override
 $viewer-color: $title-white; // --color-override
-$viewer-outdent-bg-color: $bg-gray-1100; // --outdent-background-color-override
+$viewer-outdent-bg-color: $bg-container-l1; // --outdent-background-color-override
 $viewer-overlay-bg-color: $bg-overlay;
+$element-border-radius: 8px;
 
 // Properties related to timer
 $timer-finished-color: $ontime-pink-variant;

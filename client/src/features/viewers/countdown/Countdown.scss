@@ -80,7 +80,7 @@
       color: var(--accent-color-override, $accent-color);
       background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
       padding: 1vh 2vw;
-      border-radius: 1vw;
+      border-radius: $element-border-radius;
     }
 
     .status {
