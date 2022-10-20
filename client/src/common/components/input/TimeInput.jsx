@@ -133,7 +133,7 @@ export default function TimeInput(props) {
           size='sm'
           icon={<IoLink style={{ transform: 'rotate(-45deg)' }} />}
           aria-label='automate'
-          colorScheme='blue'
+          colorScheme='whiteAlpha'
           style={{ borderRadius: '2px', width: 'min-content' }}
           tabIndex={-1}
         />

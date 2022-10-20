@@ -114,12 +114,6 @@
   }
 }
 
-h1 {
-  font-size: max(1.5em, 16px);
-  color: $bg-gray-100;
-  padding-bottom: 0.25em;
-}
-
 .mainContainer {
   .settings,
   .editor,
@@ -128,9 +122,8 @@ h1 {
   .info {
     border-radius: 8px;
     height: 100%;
-    background-color: $bg-gray-1000;
+    background-color: $bg-container-l1;
     padding: 0.8em 1.5em;
-
     display: flex;
     flex-direction: column;
   }
@@ -138,9 +131,8 @@ h1 {
 
 .eventEditor {
   border-radius: 3px 3px 0 0;
-  background-color: $bg-gray-950;
-  border-top: 1px solid $bg-gray-900;
-  padding: 0.8em 1.5em;
+  background-color: $bg-container-l1;
+  border-top: $border-l1;
   position: absolute;
   bottom: 0;
   width: 100vw;
@@ -155,14 +147,14 @@ h1 {
     transition: bottom 0.7s;
   }
 
-  .header {
+  .eventEditorLayout {
     display: flex;
   }
 
   .header {
-    h1 {
-      margin-right: auto;
-    }
+    background-color: $bg-container-l2;
+    padding: 8px;
+    border-left: 1px solid $bg-container-l3;
   }
 }
 
@@ -194,8 +186,8 @@ h1 {
 
 .playback {
   grid-area: play;
-  min-height: 320px;
-  max-height: 320px;
+  min-height: 270px;
+  max-height: 270px;
   min-width: 480px;
 }
 
@@ -211,5 +203,5 @@ h1 {
 }
 
 .content {
-  padding-top: 0.5em;
+  padding-top: 16px;
 }

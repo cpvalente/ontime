@@ -18,7 +18,7 @@ import { CursorContext } from 'common/context/CursorContext';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 
-import style from './EventListMenu.module.css';
+import style from './EventListMenu.module.scss';
 
 const menuStyle = {
   color: '#000000',
@@ -53,7 +53,6 @@ const EventListMenu = () => {
     [toggleCursorLocked],
   );
 
-  console.log(isCursorLocked)
   return (
     <HStack className={style.headerButtons}>
       <Button

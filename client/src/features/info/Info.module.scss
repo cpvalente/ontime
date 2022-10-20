@@ -2,14 +2,16 @@
 @use '../../theme/mixins' as *;
 
 @mixin container {
-  margin-top: 1em;
   @include second-container;
+  margin-top: 1em;
   padding: 8px;
 }
 
 .container {
   @include container;
+  border: 1px solid transparent;
 }
+
 
 .main {
   font-size: 0.9em;
@@ -30,10 +32,6 @@
 
 .header {
   color: $header-gray;
-}
-
-.headerRoll {
-  color: $ontime-roll;
 }
 
 .collapsedTitle {
@@ -78,10 +76,18 @@
   text-overflow: ellipsis;
 }
 
-.if {
+.interfaceList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.interface {
   font-size: 0.8em;
-  color: $ontime-accent;
-  background-color: $bg-gray-900;
-  padding: 0 0.5em;
-  margin: 0 0.5em;
+  background-color: $bg-container-l3;
+  padding: 0 8px;
+  margin: 0 2px;
+  border-radius: 2px;
+  white-space: nowrap;
 }

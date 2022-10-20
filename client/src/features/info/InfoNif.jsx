@@ -19,13 +19,13 @@ export default function InfoNif() {
         onClick={() => setCollapsed((c) => !c)}
       />
       {!collapsed && (status === 'success') &&(
-        <div>
+        <div className={style.interfaceList}>
           {data?.networkInterfaces.map((e) => (
             <a
               key={e.address}
               href='#!'
               onClick={() => openLink(baseURL.replace('__IP__', e.address))}
-              className={style.if}
+              className={style.interface}
             >
               {`${e.name} - ${e.address}`}
             </a>

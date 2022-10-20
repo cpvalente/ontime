@@ -26,9 +26,10 @@ export default function ActionButtons(props: ActionButtonProps) {
         <MenuButton
           as={IconButton}
           aria-label='Options'
-          size='xs'
+          size='sm'
           icon={<FiPlus />}
           colorScheme='blue'
+          variant='ghost'
         />
       </Tooltip>
       <MenuList style={menuStyle}>

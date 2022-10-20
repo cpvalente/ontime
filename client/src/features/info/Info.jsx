@@ -36,8 +36,8 @@ export default function Info() {
         <span>{selected}</span>
       </div>
       <InfoNif />
-      <InfoTitle title='Now' data={titlesNow} roll={data.playback === 'roll'} />
-      <InfoTitle title='Next' data={titlesNext} roll={data.playback === 'roll'} />
+      <InfoTitle title='Now' data={titlesNow} />
+      <InfoTitle title='Next' data={titlesNext} />
       <InfoLogger />
     </>
   );

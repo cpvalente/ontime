@@ -1,4 +1,4 @@
-import { IoArrowUndo } from '@react-icons/all-files/io5/IoArrowUndo';
+import { IoPlayBack } from '@react-icons/all-files/io5/IoPlayBack';
 import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import PropTypes from 'prop-types';
@@ -30,7 +30,7 @@ export default function Transport(props) {
         clickHandler={() => playbackControl.reload()}
         disabled={selectedId == null || isRolling || noEvents}
         tooltip='Reload event'
-        icon={<IoArrowUndo size='22px' />}
+        icon={<IoPlayBack size='22px' />}
       />
       <UnloadIconBtn
         clickHandler={() => playbackControl.stop()}

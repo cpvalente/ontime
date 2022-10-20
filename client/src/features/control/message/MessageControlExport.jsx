@@ -11,7 +11,6 @@ import style from '../../editors/Editor.module.scss';
 export default function MessageControlExport() {
   return (
     <Box className={style.messages}>
-      <h1>Messages Control</h1>
       <FiArrowUpRight className={style.corner} onClick={(event) => handleLinks(event, 'messagecontrol')} />
       <div className={style.content}>
         <ErrorBoundary>

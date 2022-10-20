@@ -12,7 +12,6 @@ export default function EventListExport() {
   return (
     <CursorProvider>
       <Box className={style.editor}>
-        <h1>Event List</h1>
         <FiArrowUpRight
           className={style.corner}
           onClick={(event) => handleLinks(event, 'eventlist')}

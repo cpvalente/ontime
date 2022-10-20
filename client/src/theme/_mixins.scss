@@ -9,13 +9,12 @@
 }
 
 @mixin second-container {
-  background-color: $bg-gray-1100;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: $bg-container-l2;
   border-radius: 4px;
 }
 
 @mixin third-container {
-  background-color: $bg-black-300;
+  background-color: $bg-gray-1100;
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 2px;
 }
