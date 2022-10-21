@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useSocket } from './socketContext';
+import { useSocket } from '../context/socketContext';
 
 export default function useSubscription<T>(topic: string, initialState: T, requestString?: string) {
   const socket = useSocket();
