@@ -160,10 +160,10 @@
 
 .editor {
   grid-area: even;
-  height: calc(100% - 3em);
+  height: calc(100% - 24px);
 
   .content {
-    height: calc(100% - 3em);
+    height: calc(100% - 24px);
     overflow: hidden;
   }
 }
@@ -175,7 +175,7 @@
   .content {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 3em);
+    height: calc(100% - 24px);
     overflow: hidden;
   }
 }

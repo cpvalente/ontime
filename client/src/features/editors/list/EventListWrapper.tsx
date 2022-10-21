@@ -20,13 +20,15 @@ export default function EventListWrapper() {
   }, [emitError, isError]);
 
   return (
-    <div className={styles.content}>
+    <>
       <EventListMenu />
-      {status === 'success' && data ? (
-        <EventList events={data} />
-      ) : (
-        <Empty text='Connecting to server' />
-      )}
-    </div>
+      <div className={styles.content}>
+        {status === 'success' && data ? (
+          <EventList events={data} />
+        ) : (
+          <Empty text='Connecting to server' />
+        )}
+      </div>
+    </>
   );
 }
