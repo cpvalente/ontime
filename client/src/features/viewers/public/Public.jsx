@@ -38,7 +38,7 @@ export default function Public(props) {
   const clock = formatTime(time.clock, formatOptions);
 
   return (
-    <div className='public-screen'>
+    <div className='public-screen' data-testid="public-view">
       <NavLogo />
 
       <div className='event-title'>{general.title}</div>

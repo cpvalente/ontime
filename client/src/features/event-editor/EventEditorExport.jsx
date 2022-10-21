@@ -22,17 +22,18 @@ export default function InfoExport() {
   return (
     <Box className={`${style.eventEditor} ${!openId ? style.noEvent : ''}`}>
       <ErrorBoundary>
-        <div className={style.header}>
-          <h1>Event Editor</h1>
-          <IconButton
-            aria-label='Close Menu'
-            icon={<FiX />}
-            onClick={() => setOpenId(null)}
-            {...closeBtnStyle}
-          />
-        </div>
-        <div className={style.content}>
+        <div className={style.eventEditorLayout}>
           <EventEditor />
+          <div className={style.header}>
+            <IconButton
+              aria-label='Close Menu'
+              size='lg'
+              icon={<FiX />}
+              onClick={() => setOpenId(null)}
+              {...closeBtnStyle}
+            />
+          </div>
+
         </div>
       </ErrorBoundary>
     </Box>

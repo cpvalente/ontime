@@ -3,7 +3,6 @@
 
 .messageContainer,
 .onAirToggle {
-  @include main-container;
   display: flex;
   gap: 0.5em;
   padding: 0.5em;
@@ -47,7 +46,6 @@
     }
 
     .inline {
-      background-color: $light-bg-transparent;
       border-color: $action-blue;
     }
   }

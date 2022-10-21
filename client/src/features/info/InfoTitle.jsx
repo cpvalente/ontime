@@ -6,9 +6,8 @@ import CollapseBar from '../../common/components/collapseBar/CollapseBar';
 import style from './Info.module.scss';
 
 export default function InfoTitle(props) {
+  const { title, data } = props;
   const [collapsed, setCollapsed] = useState(false);
-
-  const { title, data, roll } = props;
 
   const noTitl = data.title == null || data.title === '';
   const noPres = data.presenter == null || data.presenter === '';
@@ -21,7 +20,6 @@ export default function InfoTitle(props) {
         title={title}
         isCollapsed={collapsed}
         onClick={() => setCollapsed((c) => !c)}
-        roll={roll}
       />
       {!collapsed && (
         <>

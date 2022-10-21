@@ -40,7 +40,7 @@ export default function InputRow(props: InputRowProps) {
           value={inputText}
           placeholder={placeholder}
           className={style.inline}
-          color={text === '' ? '#666' : 'inherit'}
+          color={text === '' ? '#505050' : 'inherit'}
         >
           <EditablePreview className={`${style.padleft} ${style.fullWidth}`} />
           <EditableInput className={style.padleft} />

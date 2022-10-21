@@ -2,7 +2,6 @@
 @use '../../../theme/mixins' as *;
 
 .eventContainer {
-  @include second-container;
   margin-top: 1em;
   display: flex;
   flex-direction: column;
@@ -22,12 +21,20 @@
 }
 
 .cursor {
-  box-shadow: 2px 2px 0 $ontime-pink;
   border-radius: 3px;
+  outline: 1px solid $action-blue;
 }
 
 .bgElement {
   &.delayed {
     background: rgba(214, 158, 46, 0.3);
+  }
+}
+
+.alignCenter {
+  text-align: center;
+  flex-direction: column;
+  button {
+    margin-top: 24px;
   }
 }

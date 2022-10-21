@@ -27,9 +27,8 @@ export default function EventBlockActionMenu(props) {
 
   const blockBtnStyle = {
     size: 'sm',
+    variant: 'ghost',
     colorScheme: 'blue',
-    variant: 'outline',
-    borderRadius: '3px',
   };
 
   return (

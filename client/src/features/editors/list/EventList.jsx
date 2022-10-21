@@ -1,5 +1,6 @@
 import { createRef, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { Button } from '@chakra-ui/react';
 import {
   defaultPublicAtom,
   showQuickEntryAtom,
@@ -166,7 +167,12 @@ export default function EventList(props) {
   );
 
   if (events.length < 1) {
-    return <Empty text='No Events' style={{ marginTop: '10vh' }} />;
+    return (
+      <div className={style.alignCenter}>
+        <Empty text='No Events' style={{ marginTop: '7vh' }} />
+        <Button variant='solid' colorScheme='blue'>Create Event</Button>
+      </div>
+    );
   }
   let cumulativeDelay = 0;
   let eventIndex = -1;

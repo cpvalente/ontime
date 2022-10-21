@@ -4,8 +4,8 @@ import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
 import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
 import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiSave } from '@react-icons/all-files/fi/FiSave';
-import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
+import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { downloadEvents } from 'common/api/ontimeApi';
 
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
@@ -116,7 +116,7 @@ export default function MenuBar(props: MenuBarProps) {
       />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiSettings />}
+        icon={<IoSettingsOutline />}
         className={isSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
         tooltip='Settings'

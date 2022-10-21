@@ -17,7 +17,7 @@ export default function MessageControl() {
       <div className={style.messageContainer}>
         <InputRow
           label='Timer screen message'
-          placeholder='only the presenter screens see this'
+          placeholder='Shown in stage timer'
           text={data.presenter.text}
           visible={data.presenter.visible}
           changeHandler={(newValue) => setMessage.presenterText(newValue)}
@@ -25,7 +25,7 @@ export default function MessageControl() {
         />
         <InputRow
           label='Public screen message'
-          placeholder='public screens will render this'
+          placeholder='Shown in public screens'
           text={data.public.text}
           visible={data.public.visible}
           changeHandler={(newValue) => setMessage.publicText(newValue)}
@@ -33,7 +33,7 @@ export default function MessageControl() {
         />
         <InputRow
           label='Lower third message'
-          placeholder='visible in lower third screen'
+          placeholder='Shown in lower third'
           text={data.lower.text}
           visible={data.lower.visible}
           changeHandler={(newValue) => setMessage.lowerText(newValue)}

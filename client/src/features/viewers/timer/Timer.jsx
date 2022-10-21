@@ -66,7 +66,10 @@ export default function Timer(props) {
   };
 
   return (
-    <div className={time.finished ? 'stage-timer stage-timer--finished' : 'stage-timer'}>
+    <div
+      className={time.finished ? 'stage-timer stage-timer--finished' : 'stage-timer'}
+      data-testid="timer-view"
+    >
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className='message'>{pres.text}</div>
       </div>

@@ -162,7 +162,7 @@ export default function EventEditor() {
               leftIcon={<FiUsers />}
               size='sm'
               colorScheme='blue'
-              variant={event.isPublic ? 'solid' : 'outline'}
+              variant={event.isPublic ? 'solid' : 'ghost'}
               onClick={() => togglePublic(event.isPublic)}
             >
               {event.isPublic ? 'Event is Public' : 'Make event public'}
@@ -180,7 +180,7 @@ export default function EventEditor() {
               <Button
                 leftIcon={<IoBan />}
                 onClick={() => handleSubmit('colour', '')}
-                variant='outline'
+                variant='ghost'
                 colorScheme='blue'
                 borderRadius='3px'
                 size='sm'

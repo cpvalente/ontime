@@ -90,10 +90,10 @@ export default function Countdown(props) {
       : formatTime(follow.timeEnd + delay, formatOptions);
 
   return (
-    <div className='countdown'>
+    <div className='countdown' data-testid="countdown-view">
       <NavLogo />
       {follow === null ? (
-        <div className='event-select'>
+        <div className='event-select' data-testid="countdown-select">
           <span className='event-select__title'>Select an event to follow</span>
           <ul className='event-select__events'>
             {backstageEvents.length === 0 ? (
@@ -112,7 +112,7 @@ export default function Countdown(props) {
           </ul>
         </div>
       ) : (
-        <div className='countdown-container'>
+        <div className='countdown-container' data-testid="countdown-event">
           <div className='timer-group'>
             <div className='aux-timers'>
               <div className='aux-timers__label'>Time Now</div>

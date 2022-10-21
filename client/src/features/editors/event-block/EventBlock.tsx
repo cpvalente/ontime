@@ -1,14 +1,16 @@
 import { useCallback, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { Editable, EditableInput, EditablePreview, IconButton, Tooltip } from '@chakra-ui/react';
+import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
+import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { IoPlayBackOutline } from '@react-icons/all-files/io5/IoPlayBackOutline';
+import { IoPlayOutline } from '@react-icons/all-files/io5/IoPlayOutline';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { IoRemoveCircleSharp } from '@react-icons/all-files/io5/IoRemoveCircleSharp';
+import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
+import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoReturnDownForward } from '@react-icons/all-files/io5/IoReturnDownForward';
-import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { editorEventId } from 'common/atoms/LocalEventSettings';
 import TooltipActionBtn from 'common/components/buttons/TooltipActionBtn';
@@ -27,9 +29,8 @@ import style from './EventBlock.module.scss';
 
 const blockBtnStyle = {
   size: 'sm',
-  colorScheme: 'blue',
-  variant: 'outline',
-  borderRadius: '3px',
+  colorScheme: 'white',
+  variant: 'ghost',
   fontSize: '20px',
 };
 
@@ -103,6 +104,12 @@ export default function EventBlock(props: EventBlockProps) {
   // Todo: data should come from socket
   const progress = `${Math.random() * 100}%`;
   const eventIsPlaying = selected && playback === 'start';
+  const playBtnStyles = { _hover: {} };
+  if (!skip && eventIsPlaying) {
+    playBtnStyles._hover = { bg: '#c05621' };
+  } else if (!skip && !eventIsPlaying) {
+    playBtnStyles._hover = { bg: '#4bffab' };
+  }
 
   return (
     <Draggable key={eventId} draggableId={eventId} index={index}>
@@ -136,37 +143,37 @@ export default function EventBlock(props: EventBlockProps) {
               aria-label='Skip event'
               tooltip='Skip event'
               openDelay={tooltipDelayMid}
-              icon={<IoRemoveCircleSharp />}
+              icon={skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
               {...blockBtnStyle}
-              variant={skip ? 'solid' : 'outline'}
+              variant={skip ? 'solid' : 'ghost'}
               clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
               tabIndex={-1}
               disabled={selected}
             />
             <TooltipActionBtn
-              aria-label='Start event'
-              tooltip='Start event'
+              aria-label='Load event'
+              tooltip='Load event'
               openDelay={tooltipDelayMid}
-              icon={eventIsPlaying ? <IoPause /> : <IoPlay />}
+              icon={selected ? <IoPlayBackOutline /> : <IoReload />}
               disabled={skip}
               {...blockBtnStyle}
-              variant={eventIsPlaying ? 'solid' : 'outline'}
+              clickHandler={() => setPlayback.loadEvent()}
+              tabIndex={-1}
+            />
+            <TooltipActionBtn
+              aria-label='Toggle start / pause event'
+              tooltip={eventIsPlaying ? 'Pause event' : 'Start event'}
+              openDelay={tooltipDelayMid}
+              icon={eventIsPlaying ? <IoPause /> : <IoPlayOutline />}
+              disabled={skip}
+              {...blockBtnStyle}
+              variant={eventIsPlaying ? 'solid' : 'ghost'}
               clickHandler={
                 eventIsPlaying
                   ? () => setPlayback.pause()
                   : () => setPlayback.startEvent()
               }
-              tabIndex={-1}
-            />
-            <TooltipActionBtn
-              aria-label='Load event'
-              tooltip='Load event'
-              openDelay={tooltipDelayMid}
-              icon={selected ? <IoReload /> : <IoReload />}
-              disabled={skip}
-              {...blockBtnStyle}
-              variant={selected ? 'solid' : 'outline'}
-              clickHandler={() => setPlayback.loadEvent()}
+              {...playBtnStyles}
               tabIndex={-1}
             />
           </div>
@@ -190,13 +197,17 @@ export default function EventBlock(props: EventBlockProps) {
           </Editable>
           <span className={style.eventNote}>{note}</span>
           <div className={style.eventActions}>
-            <IconButton
-              icon={<IoSettingsSharp />}
-              aria-label='event options'
-              onClick={() => setOpenId((prev) => prev === eventId ? null : eventId)}
+            <TooltipActionBtn
               {...blockBtnStyle}
-              variant={openId === eventId ? 'solid' : 'outline'}
+              size='sm'
+              icon={<IoOptions />}
+              clickHandler={() => setOpenId((prev) => prev === eventId ? null : eventId)}
+              tooltip='Event options'
+              aria-label='Event options'
               tabIndex={-1}
+              backgroundColor={openId === eventId ? '#ebedf0' : 'transparent'}
+              color={openId === eventId ? '#333' : '#ebedf0'}
+              _hover={{ bg: '#ebedf0', color: '#333' }}
             />
             <EventBlockActionMenu
               showAdd

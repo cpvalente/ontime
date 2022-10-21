@@ -65,7 +65,7 @@ export default function Pip(props) {
   const clock = formatTime(time.clock, formatOptions);
 
   return (
-    <div className='pip'>
+    <div className='pip' data-testid="pip-view">
       <NavLogo />
 
       <div className='event-title'>{general.title}</div>

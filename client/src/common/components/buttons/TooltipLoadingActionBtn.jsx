@@ -3,7 +3,7 @@ import { IconButton, Tooltip } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 export default function TooltipLoadingActionBtn(props) {
-  const { clickHandler, icon, color, size = 'xs', tooltip, ...rest } = props;
+  const { clickHandler, icon, size = 'xs', tooltip, ...rest } = props;
   const [loading, setLoading] = useState(false);
 
   const handleClick = useCallback(() => {
@@ -29,7 +29,6 @@ export default function TooltipLoadingActionBtn(props) {
 TooltipLoadingActionBtn.propTypes = {
   clickHandler: PropTypes.func,
   icon: PropTypes.element,
-  color: PropTypes.string,
   size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg']),
   tooltip: PropTypes.string,
 };

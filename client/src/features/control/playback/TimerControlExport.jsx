@@ -10,8 +10,7 @@ import style from '../../editors/Editor.module.scss';
 
 export default function TimerControlExport() {
   return (
-    <Box className={style.playback}>
-      <h1>Timer Control</h1>
+    <Box className={style.playback} data-testid="panel-timer-control">
       <FiArrowUpRight className={style.corner} onClick={(event) => handleLinks(event, 'timercontrol')} />
       <div className={style.content}>
         <ErrorBoundary>

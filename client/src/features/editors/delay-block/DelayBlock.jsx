@@ -54,7 +54,7 @@ export default function DelayBlock(props) {
           <HStack spacing='4px' className={style.actionOverlay}>
             <Button
               onClick={applyDelayHandler}
-              size='xs'
+              size='sm'
               colorScheme='orange'
               _hover={{ bg: 'orange.400' }}
               leftIcon={<FiCheck />}
@@ -64,9 +64,11 @@ export default function DelayBlock(props) {
             <TooltipLoadingActionBtn
               clickHandler={deleteHandler}
               icon={<IoRemove />}
-              colorScheme='red'
               tooltip='Delete'
-              _hover={{ bg: 'red.400' }}
+              variant='ghost'
+              _hover={{ bg: 'red.400', color: 'white' }}
+              color='red.500'
+              size='sm'
             />
             <ActionButtons showAdd actionHandler={actionHandler} />
           </HStack>
