@@ -18,13 +18,19 @@ async function _insertAndSync(newEvent) {
     const events = DataProvider.getEvents();
     await DataProvider.insertEventAt(newEvent, newEvent.order);
     const previousId = events?.[newEvent.order - 1]?.id;
-    _insertEventInTimerAfterId(newEvent, previousId);
+    if (newEvent.type === 'event') {
+      _insertEventInTimerAfterId(newEvent, previousId);
+    }
   } else if (newEvent.after) {
     await DataProvider.insertEventAfterId(newEvent, newEvent.after);
-    _insertEventInTimerAfterId(newEvent, newEvent.after);
+    if (newEvent.type === 'event') {
+      _insertEventInTimerAfterId(newEvent, newEvent.after);
+    }
   } else {
     await DataProvider.insertEventAt(newEvent, 0);
-    _insertEventInTimerAfterId(newEvent);
+    if (newEvent.type === 'event') {
+      _insertEventInTimerAfterId(newEvent);
+    }
   }
 }
 
