@@ -23,7 +23,7 @@ describe('Message Control input blocks', () => {
     // Presenter dialog and button
     // substring match, ignore case
     render(<MockMessageControl />);
-    expect(screen.getByPlaceholderText(/presenter/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/stage/i)).toBeInTheDocument();
   });
 
   test('Public dialog', async () => {
