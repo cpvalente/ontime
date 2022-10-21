@@ -60,6 +60,7 @@ let tray = null;
 
 // Ensure there isn't another instance of the app running already
 const lock = app.requestSingleInstanceLock();
+
 if (!lock) {
   dialog.showErrorBox('Multiple instances', 'An instance if the App is already running.');
   app.quit();
@@ -111,6 +112,7 @@ function createWindow() {
   win.setMenu(null);
 }
 
+app.disableHardwareAcceleration();
 app.whenReady().then(() => {
   // Set app title in windows
   if (process.platform === 'win32') {
