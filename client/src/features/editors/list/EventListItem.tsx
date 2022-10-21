@@ -1,12 +1,16 @@
 import { useCallback, useContext } from 'react';
-import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEventSettings';
+import {
+  defaultPublicAtom,
+  editorEventId,
+  startTimeIsLastEndAtom,
+} from 'common/atoms/LocalEventSettings';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { OntimeEvent, OntimeEventEntry } from 'common/models/EventTypes';
 import { Playstate } from 'common/models/OntimeTypes';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { calculateDuration } from 'common/utils/timesManager';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { CursorContext } from '../../../common/context/CursorContext';
 import BlockBlock from '../block-block/BlockBlock';
@@ -40,6 +44,7 @@ export default function EventListItem(props: EventListItemProps) {
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
   const { moveCursorTo } = useContext(CursorContext);
+  const [openId, setOpenId] = useAtom(editorEventId);
 
   // Create / delete new events
   type FieldValue = {
@@ -75,6 +80,9 @@ export default function EventListItem(props: EventListItemProps) {
         }
         case 'delete': {
           deleteEvent(data.id);
+          if (openId === data.id) {
+            setOpenId(null);
+          }
           break;
         }
         case 'clone': {
