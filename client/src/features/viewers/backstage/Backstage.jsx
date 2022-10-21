@@ -58,7 +58,7 @@ export default function Backstage(props) {
   const clock = formatTime(time.clock, formatOptions);
 
   return (
-    <div className='backstage'>
+    <div className='backstage' data-testid="backstage-view">
       <NavLogo />
 
       <div className='event-title'>{general.title}</div>

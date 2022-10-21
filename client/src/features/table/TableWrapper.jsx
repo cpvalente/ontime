@@ -83,7 +83,10 @@ export default function TableWrapper() {
     return <span>loading...</span>;
   }
   return (
-    <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}>
+    <div
+      className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}
+      data-testid="cuesheet"
+    >
       <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
       <OntimeTable
         tableData={events}

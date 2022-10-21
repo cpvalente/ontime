@@ -39,7 +39,7 @@ export default function Editor() {
       <ErrorBoundary>
         <ModalManager isOpen={isSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
-      <div className={styles.mainContainer}>
+      <div className={styles.mainContainer} data-testid="event-editor">
         <Box id='settings' className={styles.settings}>
           <ErrorBoundary>
             <MenuBar

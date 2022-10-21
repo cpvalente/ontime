@@ -10,7 +10,7 @@ import style from '../editors/Editor.module.scss';
 
 export default function InfoExport() {
   return (
-    <Box className={style.info}>
+    <Box className={style.info} data-testid="panel-info">
       <FiArrowUpRight className={style.corner} onClick={(event) => handleLinks(event, 'info')} />
       <div className={style.content}>
         <ErrorBoundary>

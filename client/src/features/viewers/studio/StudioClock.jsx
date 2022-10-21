@@ -54,7 +54,7 @@ export default function StudioClock(props) {
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 
   return (
-    <div className='studio-clock'>
+    <div className='studio-clock' data-testid="studio-view">
       <NavLogo />
       <div className='clock-container'>
         <div className='studio-timer'>{clock}</div>

@@ -11,7 +11,7 @@ import style from '../Editor.module.scss';
 export default function EventListExport() {
   return (
     <CursorProvider>
-      <Box className={style.editor}>
+      <Box className={style.editor} data-testid="panel-event-list">
         <FiArrowUpRight
           className={style.corner}
           onClick={(event) => handleLinks(event, 'eventlist')}
