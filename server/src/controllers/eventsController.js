@@ -153,28 +153,29 @@ export const eventsPut = async (req, res) => {
 
   const eventDataFromRequest = req.body;
   const eventId = eventDataFromRequest.id;
-  const event = DataProvider.getEventById(eventId);
+  const eventInMemory = DataProvider.getEventById(eventId);
 
-  if (typeof event === 'undefined') {
+  if (typeof eventInMemory === 'undefined') {
     res.status(400).send(`No event with ID found`);
     return;
   }
 
   try {
-    const newData = await DataProvider.updateEventById(eventId, eventDataFromRequest);
+    const patchedObject = await DataProvider.updateEventById(eventId, eventDataFromRequest);
 
-    if (newData.skip) {
-      _deleteTimerId(eventId);
-      // if it is a skip, make sure it is deleted from timer
-      // event id might already not exist
-    } else {
-      try {
-        _updateTimersSingle(newData.id, eventDataFromRequest);
-      } catch (error) {
-        if (error === 'Event not found') {
+    if (patchedObject.type === 'event') {
+      if (patchedObject.skip) {
+        // if it is a skip, make sure it is deleted from timer
+        _deleteTimerId(patchedObject.id);
+      } else {
+        if (eventInMemory.skip) {
+          // if it was skipped before we add it to the timer
           const events = DataProvider.getEvents();
-          const { id: previousId } = getPreviousPlayable(events, newData.id);
-          _insertEventInTimerAfterId(newData, previousId);
+          const { id } = getPreviousPlayable(events, patchedObject.id);
+          _insertEventInTimerAfterId(patchedObject, id);
+        } else {
+          // otherwise update as normal
+          _updateTimersSingle(patchedObject.id, patchedObject);
         }
       }
     }
