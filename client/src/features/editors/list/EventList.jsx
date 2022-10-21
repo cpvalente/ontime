@@ -14,7 +14,7 @@ import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
-import useSubscription from '../../../common/context/useSubscription';
+import useSubscription from '../../../common/hooks/useSubscription';
 import EntryBlock from '../entry-block/EntryBlock';
 
 import EventListItem from './EventListItem';
