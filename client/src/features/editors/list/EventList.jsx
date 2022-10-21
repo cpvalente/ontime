@@ -184,6 +184,7 @@ export default function EventList(props) {
   let eventIndex = -1;
   let previousEnd = 0;
   let thisEnd = 0;
+  let previousEventId = null;
 
   return (
     <div className={style.eventContainer}>
@@ -204,6 +205,7 @@ export default function EventList(props) {
                   eventIndex++;
                   previousEnd = thisEnd;
                   thisEnd = e.timeEnd;
+                  previousEventId = e.id;
                 }
                 const isLast = index === events.length - 1;
                 return (
@@ -232,6 +234,7 @@ export default function EventList(props) {
                       <EntryBlock
                         showKbd={index === cursor}
                         previousId={e.id}
+                        previousEventId={previousEventId}
                         disableAddDelay={e.type === 'delay'}
                         disableAddBlock={e.type === 'block'}
                       />

@@ -13,6 +13,7 @@ import style from './EntryBlock.module.scss';
 interface EntryBlockProps {
   showKbd: boolean;
   previousId?: string;
+  previousEventId: string | null;
   visible?: boolean;
   disableAddDelay?: boolean;
   disableAddBlock: boolean;
@@ -22,6 +23,7 @@ export default function EntryBlock(props: EntryBlockProps) {
   const {
     showKbd,
     previousId,
+    previousEventId,
     visible = true,
     disableAddDelay = true,
     disableAddBlock,
@@ -37,7 +39,7 @@ export default function EntryBlock(props: EntryBlockProps) {
     switch (eventType) {
       case 'event': {
         const newEvent = { type: 'event', after: previousId, isPublic: doPublic };
-        const options = { startIsLastEnd: doStartTime ? previousId : undefined };
+        const options = { startIsLastEnd: doStartTime ? previousEventId : undefined };
         addEvent(newEvent, options);
         break;
       }
@@ -55,7 +57,7 @@ export default function EntryBlock(props: EntryBlockProps) {
       }
     }
 
-  }, [addEvent, doPublic, doStartTime, emitError, previousId]);
+  }, [addEvent, doPublic, doStartTime, emitError, previousId, previousEventId]);
 
   useEffect(() => {
     setStartTime(startTimeIsLastEnd);
