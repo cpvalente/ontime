@@ -170,7 +170,13 @@ export default function EventList(props) {
     return (
       <div className={style.alignCenter}>
         <Empty text='No Events' style={{ marginTop: '7vh' }} />
-        <Button variant='solid' colorScheme='blue'>Create Event</Button>
+        <Button
+          onClick={() => insertAtCursor('event', cursor)}
+          variant='solid'
+          colorScheme='blue'
+        >
+          Create Event
+        </Button>
       </div>
     );
   }
