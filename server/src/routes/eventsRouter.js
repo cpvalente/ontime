@@ -1,22 +1,23 @@
 import express from 'express';
-export const router = express.Router();
-
 // import events controller
 import {
+  eventsApplyDelay,
+  eventsDelete,
+  eventsDeleteAll,
   eventsGetAll,
   eventsGetById,
+  eventsPatch,
   eventsPost,
   eventsPut,
-  eventsPatch,
   eventsReorder,
-  eventsApplyDelay,
-  eventsDeleteAll,
-  eventsDelete,
 } from '../controllers/eventsController.js';
 import {
+  eventsPostValidator,
   eventsPutValidator,
   paramsMustHaveEventId,
 } from '../controllers/eventsController.validate.js';
+
+export const router = express.Router();
 
 // create route between controller and '/events/' endpoint
 router.get('/', eventsGetAll);
@@ -25,7 +26,7 @@ router.get('/', eventsGetAll);
 router.get('/:eventId', eventsGetById);
 
 // create route between controller and '/events/' endpoint
-router.post('/', eventsPost);
+router.post('/', eventsPostValidator, eventsPost);
 
 // create route between controller and '/events/' endpoint
 router.put('/', eventsPutValidator, eventsPut);
