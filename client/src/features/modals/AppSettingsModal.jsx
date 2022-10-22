@@ -29,7 +29,7 @@ import style from './Modals.module.scss';
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useFetch(APP_SETTINGS, getSettings);
-  const { emitError, emitWarning } = useContext(LoggingContext);
+  const { emitWarning } = useContext(LoggingContext);
   const [formData, setFormData] = useState(ontimePlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -79,10 +79,7 @@ export default function AppSettingsModal() {
       }
     }
 
-    // set fields with error
-    if (!validation.isValid) {
-      emitError(`Invalid Input: ${validation.message}`);
-    } else {
+    if (validation.isValid) {
       await postSettings(formData);
       await refetch();
       validation?.message && emitWarning(validation.message);
