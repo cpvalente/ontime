@@ -1,23 +1,13 @@
 @use '../../../theme/main' as *;
 
-@mixin when-visible() {
-  opacity: 1;
-  height: calc(2.5em + 20px);
+.create {
+  background-color: $bg-container-l2;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5%;
-  margin: 2px 0;
-}
-
-.create {
-  box-sizing: border-box;
-
-  width: 100%;
+  margin: 4px 2px 2px;
   font-size: 12px;
-
-  position: relative;
-  display: none;
 
   .createEvent,
   .createDelay,
@@ -32,69 +22,63 @@
     border-radius: 2px;
     opacity: 0.6;
     cursor: pointer;
-
-    .keyboard {
-      margin-left: 4px;
-      padding: 0 4px;
-      color: #ccc;
-      border-radius: 2px;
-      font-family: Monospaced, sans-serif;
-      background-color: rgba(0, 0, 0, 0.24);
-    }
   }
 
   .createEvent {
-    border: 1px solid #2b6cb0;
-    color: lighten(#2b6cb0, 30%);
+    border: 1px solid $light-bg;
+    color: lighten($light-bg, 30%);
 
     &:hover {
-      background-color: #2b6cb0;
+      background-color: $light-bg;
       opacity: 1;
     }
   }
 
   .createDelay {
-    border: 1px solid #ecc94b;;
-    color: lighten(#ecc94b, 30%);
+    border: 1px solid $block-delay-color;
+    color: lighten($block-delay-color, 30%);
 
     &:hover {
-      background-color: #ecc94b;
+      background-color: $block-delay-color;
       opacity: 1;
     }
   }
 
   .createBlock {
-    border: 1px solid #805ad5;
-    color: lighten(#805ad5, 30%);
+    border: 1px solid $block-block-color;
+    color: lighten($block-block-color, 30%);
 
     &:hover {
-      background-color: #805ad5;
+      background-color: $block-block-color;
       opacity: 1;
     }
   }
+}
 
-  .options {
-    display: flex;
-    flex-direction: column;
+.keyboard {
+  margin-left: 4px;
+  padding: 0 4px;
+  color: $label-gray;
+  border-radius: 2px;
+  background-color: rgba(0, 0, 0, 0.24);
+}
 
-    label {
-      opacity: 0.65;
-      transition: opacity 0.15s;
+.options {
+  display: flex;
+  flex-direction: column;
 
-      &:hover {
-        opacity: 1;
-      }
+  label {
+    opacity: 0.65;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 1;
     }
-
-  }
-
-  .disabled {
-    border-color: $text-gray-disabled;
-    color: $text-gray-disabled;
-    pointer-events: none;
   }
 }
 
-.create.visible {
-  @include when-visible;
+.disabled {
+  border-color: $text-gray-disabled;
+  color: $text-gray-disabled;
+  pointer-events: none;
 }
