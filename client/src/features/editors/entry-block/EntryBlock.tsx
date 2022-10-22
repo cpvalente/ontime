@@ -33,7 +33,6 @@ export default function EntryBlock(props: EntryBlockProps) {
   const doStartTime = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null)
 
-
   const handleCreateEvent = useCallback((eventType: EventTypes) => {
     switch (eventType) {
       case 'event': {
