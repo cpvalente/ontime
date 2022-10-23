@@ -146,16 +146,16 @@ export default function EventEditor() {
             <TextInput field='title' initialText={event.title} submitHandler={handleSubmit} />
           </div>
           <div className={style.column}>
-            <label className={style.inputLabel}>Subtitle</label>
-            <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
-          </div>
-          <div className={style.column}>
             <label className={style.inputLabel}>Presenter</label>
             <TextInput
               field='presenter'
               initialText={event.presenter}
               submitHandler={handleSubmit}
             />
+          </div>
+          <div className={style.column}>
+            <label className={style.inputLabel}>Subtitle</label>
+            <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
           </div>
           <div className={style.padTop}>
             <Button
@@ -190,7 +190,7 @@ export default function EventEditor() {
             </div>
           </div>
           <div className={style.column}>
-            <label className={style.inputLabel}>Notes</label>
+            <label className={style.inputLabel}>Note</label>
             <TextInput
               field='note'
               initialText={event.note}

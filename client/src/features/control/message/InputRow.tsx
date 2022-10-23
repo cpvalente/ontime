@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Editable, EditableInput, EditablePreview, IconButton, Tooltip } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 
+import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './MessageControl.module.scss';
@@ -17,44 +17,32 @@ interface InputRowProps {
 
 export default function InputRow(props: InputRowProps) {
   const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
-  const [inputText, setInputText] = useState<string>(text || '');
 
   const handleInputChange = (newValue: string) => {
-    setInputText(newValue);
     changeHandler(newValue);
   };
-
-  useEffect(() => {
-    if (text) {
-      setInputText(text);
-    }
-  }, [text]);
-
 
   return (
     <div className={`${visible ? style.inputRowActive : ''}`}>
       <span className={style.label}>{label}</span>
       <div className={style.inputItems}>
-        <Editable
-          onChange={(newValue) => handleInputChange(newValue)}
-          value={inputText}
+        <Input
+          size='sm'
+          variant='filled'
+          value={text}
+          onChange={(event) => handleInputChange(event.target.value)}
           placeholder={placeholder}
-          className={style.inline}
-          color={text === '' ? '#505050' : 'inherit'}
-        >
-          <EditablePreview className={`${style.padleft} ${style.fullWidth}`} />
-          <EditableInput className={style.padleft} />
-        </Editable>
-        <Tooltip label={visible ? 'Make invisible' : 'Make visible'} openDelay={tooltipDelayMid}>
-          <IconButton
-            aria-label='Toggle visibility'
-            size='sm'
-            icon={<IoSunny size='18px' />}
-            colorScheme='blue'
-            variant={visible ? 'solid' : 'outline'}
-            onClick={() => actionHandler('update', { field: 'isPublic', value: !visible })}
-          />
-        </Tooltip>
+        />
+        <TooltipActionBtn
+          clickHandler={() => actionHandler('update', { field: 'isPublic', value: !visible })}
+          tooltip={visible ? 'Make invisible' : 'Make visible'}
+          aria-label='Toggle tooltip visibility'
+          openDelay={tooltipDelayMid}
+          icon={<IoSunny size='18px' />}
+          colorScheme='blue'
+          variant={visible ? 'solid' : 'outline'}
+          size='sm'
+        />
       </div>
     </div>
   );

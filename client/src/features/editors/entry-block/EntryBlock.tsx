@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useRef } from 'react';
 import { Checkbox, Tooltip } from '@chakra-ui/react';
 import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEventSettings';
 import { LoggingContext } from 'common/context/LoggingContext';
@@ -13,7 +13,7 @@ import style from './EntryBlock.module.scss';
 interface EntryBlockProps {
   showKbd: boolean;
   previousId?: string;
-  visible?: boolean;
+  previousEventId: string | null;
   disableAddDelay?: boolean;
   disableAddBlock: boolean;
 }
@@ -22,7 +22,7 @@ export default function EntryBlock(props: EntryBlockProps) {
   const {
     showKbd,
     previousId,
-    visible = true,
+    previousEventId,
     disableAddDelay = true,
     disableAddBlock,
   } = props;
@@ -30,14 +30,17 @@ export default function EntryBlock(props: EntryBlockProps) {
   const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
-  const [doStartTime, setStartTime] = useState(startTimeIsLastEnd);
-  const [doPublic, setPublic] = useState(defaultPublic);
+  const doStartTime = useRef<HTMLInputElement | null>(null);
+  const doPublic = useRef<HTMLInputElement | null>(null)
 
   const handleCreateEvent = useCallback((eventType: EventTypes) => {
     switch (eventType) {
       case 'event': {
-        const newEvent = { type: 'event', after: previousId, isPublic: doPublic };
-        const options = { startIsLastEnd: doStartTime ? previousId : undefined };
+        const isPublicOption = doPublic?.current?.checked || defaultPublic;
+        const startTimeIsLastEndOption = doStartTime?.current?.checked || doStartTime;
+
+        const newEvent = { type: 'event', after: previousId, isPublic: isPublicOption };
+        const options = { startIsLastEnd: startTimeIsLastEndOption ? previousEventId : undefined };
         addEvent(newEvent, options);
         break;
       }
@@ -55,18 +58,10 @@ export default function EntryBlock(props: EntryBlockProps) {
       }
     }
 
-  }, [addEvent, doPublic, doStartTime, emitError, previousId]);
-
-  useEffect(() => {
-    setStartTime(startTimeIsLastEnd);
-  }, [startTimeIsLastEnd]);
-
-  useEffect(() => {
-    setPublic(defaultPublic);
-  }, [defaultPublic]);
+  }, [addEvent, doPublic, doStartTime, emitError, previousId, previousEventId]);
 
   return (
-    <div className={`${style.create} ${visible ? style.visible : ''}`}>
+    <div className={style.create}>
       <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
         <span
           className={style.createEvent}
@@ -96,18 +91,18 @@ export default function EntryBlock(props: EntryBlockProps) {
       </Tooltip>
       <div className={style.options}>
         <Checkbox
+          ref={doStartTime}
           size='sm'
           colorScheme='blue'
-          isChecked={doStartTime}
-          onChange={(e) => setStartTime(e.target.checked)}
+          defaultChecked={startTimeIsLastEnd}
         >
           Start time is last end
         </Checkbox>
         <Checkbox
+          ref={doPublic}
           size='sm'
           colorScheme='blue'
-          isChecked={doPublic}
-          onChange={(e) => setPublic(e.target.checked)}
+          defaultChecked={defaultPublic}
         >
           Event is public
         </Checkbox>

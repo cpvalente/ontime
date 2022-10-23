@@ -9,13 +9,12 @@
 
 .container {
   @include container;
-  border: 1px solid transparent;
 }
 
 
 .main {
   font-size: 0.9em;
-  color: $ontime-pink;
+  color: $label-gray;
   display: flex;
   justify-content: space-between;
 }

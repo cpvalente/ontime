@@ -95,7 +95,9 @@ export class DataProvider {
    */
   static async insertEventAfterId(entry, id) {
     const index = [...data.events].findIndex((event) => event.id === id);
-    await DataProvider.insertEventAt(entry, index + 1);
+    // eslint-disable-next-line no-unused-vars
+    const { _after, ...sanitisedEvent } = entry;
+    await DataProvider.insertEventAt(sanitisedEvent, index + 1);
   }
 
   static getSettings() {

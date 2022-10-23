@@ -141,7 +141,7 @@ export const startServer = async (overrideConfig = null) => {
 
   // init timer
   global.timer = new EventTimer(socket, config.timer, oscConfig, http);
-  global.timer.setupWithEventList(events);
+  global.timer.setupWithEventList(events.filter((entry) => entry.type === 'event'));
 
   socket.info('SERVER', returnMessage);
   socket.startListener();

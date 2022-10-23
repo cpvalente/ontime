@@ -56,7 +56,7 @@ const uploadAndParse = async (file, req, res, options) => {
         } else {
           await DataProvider.mergeIntoData(result.data);
         }
-        global.timer.setupWithEventList(newEvents);
+        global.timer.setupWithEventList(newEvents.filter((entry) => entry.type === 'event'));
       }
       res.sendStatus(200);
     } else {

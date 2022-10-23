@@ -25,14 +25,14 @@ export default function Info() {
 
   const selected = !data.numEvents
     ? 'No events'
-    : `Event ${data.selectedEventIndex != null ? data.selectedEventIndex + 1 : '-'}/${
+    : `Event ${data.selectedEventIndex != null ? data.selectedEventIndex + 1 : '-'} / ${
         data.numEvents ? data.numEvents : '-'
       }`;
 
   return (
     <>
       <div className={style.main}>
-        <span>Running on port 4001</span>
+        <span>Ontime running on port 4001</span>
         <span>{selected}</span>
       </div>
       <InfoNif />

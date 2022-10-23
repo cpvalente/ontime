@@ -14,7 +14,7 @@ import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
-import useSubscription from '../../../common/context/useSubscription';
+import useSubscription from '../../../common/hooks/useSubscription';
 import EntryBlock from '../entry-block/EntryBlock';
 
 import EventListItem from './EventListItem';
@@ -170,7 +170,13 @@ export default function EventList(props) {
     return (
       <div className={style.alignCenter}>
         <Empty text='No Events' style={{ marginTop: '7vh' }} />
-        <Button variant='solid' colorScheme='blue'>Create Event</Button>
+        <Button
+          onClick={() => insertAtCursor('event', cursor)}
+          variant='solid'
+          colorScheme='blue'
+        >
+          Create Event
+        </Button>
       </div>
     );
   }
@@ -178,6 +184,7 @@ export default function EventList(props) {
   let eventIndex = -1;
   let previousEnd = 0;
   let thisEnd = 0;
+  let previousEventId = null;
 
   return (
     <div className={style.eventContainer}>
@@ -198,6 +205,7 @@ export default function EventList(props) {
                   eventIndex++;
                   previousEnd = thisEnd;
                   thisEnd = e.timeEnd;
+                  previousEventId = e.id;
                 }
                 const isLast = index === events.length - 1;
                 return (
@@ -226,6 +234,7 @@ export default function EventList(props) {
                       <EntryBlock
                         showKbd={index === cursor}
                         previousId={e.id}
+                        previousEventId={previousEventId}
                         disableAddDelay={e.type === 'delay'}
                         disableAddBlock={e.type === 'block'}
                       />

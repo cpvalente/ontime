@@ -6,19 +6,25 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
-  Button, IconButton, Tooltip,
+  Button,
+  IconButton,
+  Tooltip,
 } from '@chakra-ui/react';
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
-import PropTypes from 'prop-types';
 
 import { LoggingContext } from '../../context/LoggingContext';
+import { Size } from '../../models/UtilTypes';
 
-export default function QuitIconBtn(props) {
+interface QuitIconBtnProps {
+  clickHandler: () => void;
+  size?: Size;
+}
+export default function QuitIconBtn(props: QuitIconBtnProps) {
   const { clickHandler, size = 'lg', ...rest } = props;
   const [isOpen, setIsOpen] = useState(false);
   const { emitInfo } = useContext(LoggingContext);
   const onClose = () => setIsOpen(false);
-  const cancelRef = useRef();
+  const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (window.process?.type === 'renderer') {
@@ -38,6 +44,7 @@ export default function QuitIconBtn(props) {
     <>
       <Tooltip label='Quit Application'>
         <IconButton
+          aria-label='Quit Application'
           size={size}
           icon={<FiPower />}
           colorScheme='red'
@@ -58,7 +65,7 @@ export default function QuitIconBtn(props) {
               This will shutdown the program and all running servers. Are you sure?
             </AlertDialogBody>
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+              <Button ref={cancelRef} onClick={onClose} variant='ghost'>
                 Cancel
               </Button>
               <Button colorScheme='red' onClick={handleShutdown} ml={3}>
@@ -71,8 +78,3 @@ export default function QuitIconBtn(props) {
     </>
   );
 }
-
-QuitIconBtn.propTypes = {
-  clickHandler: PropTypes.func,
-  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg']),
-};

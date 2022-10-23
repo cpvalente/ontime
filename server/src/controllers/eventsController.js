@@ -14,17 +14,20 @@ import { socketProvider } from '../classes/socket/SocketController.js';
 const socket = socketProvider;
 
 async function _insertAndSync(newEvent) {
-  if (newEvent.order) {
-    const events = DataProvider.getEvents();
-    await DataProvider.insertEventAt(newEvent, newEvent.order);
-    const previousId = events?.[newEvent.order - 1]?.id;
-    _insertEventInTimerAfterId(newEvent, previousId);
-  } else if (newEvent.after) {
-    await DataProvider.insertEventAfterId(newEvent, newEvent.after);
-    _insertEventInTimerAfterId(newEvent, newEvent.after);
-  } else {
+  const afterId = newEvent?.after;
+  if (typeof afterId === 'undefined') {
     await DataProvider.insertEventAt(newEvent, 0);
-    _insertEventInTimerAfterId(newEvent);
+    if (newEvent.type === 'event') {
+      _insertEventInTimerAfterId(newEvent);
+    }
+  } else {
+    delete newEvent.after;
+    await DataProvider.insertEventAfterId(newEvent, afterId);
+    if (newEvent.type === 'event') {
+      const events = DataProvider.getEvents();
+      const { id } = getPreviousPlayable(events, newEvent.id);
+      _insertEventInTimerAfterId(newEvent, id);
+    }
   }
 }
 
@@ -51,14 +54,10 @@ function _updateTimers() {
  * @private
  */
 function _insertEventInTimerAfterId(event, previousId) {
-  if (typeof previousId === 'undefined') {
-    global.timer.insertEventAtStart(event);
-  } else {
-    try {
-      global.timer.insertEventAfterId(event, previousId);
-    } catch (error) {
-      socket.error('SERVER', `Unable to update object: ${error}`);
-    }
+  try {
+    global.timer.insertEventAfterId(event, previousId);
+  } catch (error) {
+    socket.error('SERVER', `Unable to update object: ${error}`);
   }
 }
 
@@ -147,28 +146,29 @@ export const eventsPut = async (req, res) => {
 
   const eventDataFromRequest = req.body;
   const eventId = eventDataFromRequest.id;
-  const event = DataProvider.getEventById(eventId);
+  const eventInMemory = DataProvider.getEventById(eventId);
 
-  if (typeof event === 'undefined') {
+  if (typeof eventInMemory === 'undefined') {
     res.status(400).send(`No event with ID found`);
     return;
   }
 
   try {
-    const newData = await DataProvider.updateEventById(eventId, eventDataFromRequest);
+    const patchedObject = await DataProvider.updateEventById(eventId, eventDataFromRequest);
 
-    if (newData.skip) {
-      _deleteTimerId(eventId);
-      // if it is a skip, make sure it is deleted from timer
-      // event id might already not exist
-    } else {
-      try {
-        _updateTimersSingle(newData.id, eventDataFromRequest);
-      } catch (error) {
-        if (error === 'Event not found') {
+    if (patchedObject.type === 'event') {
+      if (patchedObject.skip) {
+        // if it is a skip, make sure it is deleted from timer
+        _deleteTimerId(patchedObject.id);
+      } else {
+        if (eventInMemory.skip) {
+          // if it was skipped before we add it to the timer
           const events = DataProvider.getEvents();
-          const { id: previousId } = getPreviousPlayable(events, newData.id);
-          _insertEventInTimerAfterId(newData, previousId);
+          const { id } = getPreviousPlayable(events, patchedObject.id);
+          _insertEventInTimerAfterId(patchedObject, id);
+        } else {
+          // otherwise update as normal
+          _updateTimersSingle(patchedObject.id, patchedObject);
         }
       }
     }

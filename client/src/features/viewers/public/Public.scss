@@ -110,6 +110,13 @@
       transition: 0.5s;
       transition-property: opacity;
     }
+
+    .message {
+      font-size: 1.5vw;
+      line-height: 2vw;
+      white-space: pre-line;
+      overflow: hidden;
+    }
   }
 
   .clock-container {
