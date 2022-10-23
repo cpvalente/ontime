@@ -24,29 +24,9 @@
     color: $label-gray;
   }
 
-  .inline {
-    border-radius: 4px;
-    background-color: $input-bg;
-    border: $input-border;
-    overflow-x: hidden;
-  }
-
-  .padleft {
-    padding-left: 0.5em;
-    border-radius: 2px;
-  }
-
-  .fullWidth {
-    width: 100%;
-  }
-
   .inputRowActive {
     .label {
       color: $action-blue;
-    }
-
-    .inline {
-      border-color: $action-blue;
     }
   }
 }
