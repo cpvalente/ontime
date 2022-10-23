@@ -772,56 +772,46 @@ export class EventTimer extends Timer {
    * @param previousId
    */
   insertEventAfterId(event, previousId) {
-    // find object in events
-    const previousIndex = this._eventlist.findIndex((e) => e.id === previousId);
-    if (previousIndex === -1) {
-      throw 'Event not found';
-    }
-
-    if (previousIndex + 1 >= this._eventlist.length) {
-      this._eventlist.push(event);
+    if (typeof previousId === 'undefined') {
+      // Insert at beginning
+      this._eventlist.unshift(event);
     } else {
-      this._eventlist.splice(previousIndex + 1, 0, event);
-    }
+      // find object in events
+      const previousIndex = this._eventlist.findIndex((e) => e.id === previousId);
+      if (previousIndex === -1) {
+        throw 'Event not found';
+      }
 
-    try {
-      // check if entry is running
-      if (event.id === this.selectedEventId) {
-        // handle reload selected
-        // Reload data if running
-        const type =
-          this.selectedEventId === event.id && this._startedAt != null ? 'reload' : 'load';
-        this.loadEvent(this.selectedEventIndex, type);
-      } else if (event.id === this.nextEventId) {
-        // roll needs to recalculate
-        if (this.state === 'roll') {
-          this.rollLoad();
+      if (previousIndex + 1 >= this._eventlist.length) {
+        this._eventlist.push(event);
+      } else {
+        this._eventlist.splice(previousIndex + 1, 0, event);
+      }
+
+      try {
+        // check if entry is running
+        if (event.id === this.selectedEventId) {
+          // handle reload selected
+          // Reload data if running
+          const type =
+            this.selectedEventId === event.id && this._startedAt != null ? 'reload' : 'load';
+          this.loadEvent(this.selectedEventIndex, type);
+        } else if (event.id === this.nextEventId) {
+          // roll needs to recalculate
+          if (this.state === 'roll') {
+            this.rollLoad();
+          }
         }
-      }
 
-      // load titles
-      if ('title' in event || 'subtitle' in event || 'presenter' in event) {
-        this._loadTitlesNext();
-        this._loadTitlesNow();
+        // load titles
+        if ('title' in event || 'subtitle' in event || 'presenter' in event) {
+          this._loadTitlesNext();
+          this._loadTitlesNow();
+        }
+      } catch (error) {
+        this.socket.error('SERVER', error);
       }
-    } catch (error) {
-      this.socket.error('SERVER', error);
     }
-
-    // update clients
-    this.broadcastState();
-
-    // run cycle
-    this.runCycle();
-  }
-
-  /**
-   * @description inserts an event in the first position of the list
-   * @param event
-   */
-  insertEventAtStart(event) {
-    // Insert at beginning
-    this._eventlist.unshift(event);
 
     // update clients
     this.broadcastState();

@@ -14,22 +14,19 @@ import { socketProvider } from '../classes/socket/SocketController.js';
 const socket = socketProvider;
 
 async function _insertAndSync(newEvent) {
-  if (newEvent.order) {
-    const events = DataProvider.getEvents();
-    await DataProvider.insertEventAt(newEvent, newEvent.order);
-    const previousId = events?.[newEvent.order - 1]?.id;
-    if (newEvent.type === 'event') {
-      _insertEventInTimerAfterId(newEvent, previousId);
-    }
-  } else if (newEvent.after) {
-    await DataProvider.insertEventAfterId(newEvent, newEvent.after);
-    if (newEvent.type === 'event') {
-      _insertEventInTimerAfterId(newEvent, newEvent.after);
-    }
-  } else {
+  const afterId = newEvent?.after;
+  if (typeof afterId === 'undefined') {
     await DataProvider.insertEventAt(newEvent, 0);
     if (newEvent.type === 'event') {
       _insertEventInTimerAfterId(newEvent);
+    }
+  } else {
+    delete newEvent.after;
+    await DataProvider.insertEventAfterId(newEvent, afterId);
+    if (newEvent.type === 'event') {
+      const events = DataProvider.getEvents();
+      const { id } = getPreviousPlayable(events, newEvent.id);
+      _insertEventInTimerAfterId(newEvent, id);
     }
   }
 }
@@ -57,14 +54,10 @@ function _updateTimers() {
  * @private
  */
 function _insertEventInTimerAfterId(event, previousId) {
-  if (typeof previousId === 'undefined') {
-    global.timer.insertEventAtStart(event);
-  } else {
-    try {
-      global.timer.insertEventAfterId(event, previousId);
-    } catch (error) {
-      socket.error('SERVER', `Unable to update object: ${error}`);
-    }
+  try {
+    global.timer.insertEventAfterId(event, previousId);
+  } catch (error) {
+    socket.error('SERVER', `Unable to update object: ${error}`);
   }
 }
 
