@@ -6,24 +6,21 @@
 .block {
   @include block-spacing;
 
+  box-sizing: content-box;
   display: grid;
   grid-template-columns: 40px 1fr;
   align-items: center;
   height: 40px;
-
-  border-radius: 2px 2px $block-border-radius $block-border-radius;
-  background-color: rgba(107, 70, 193, 0.4);
-  background: linear-gradient(
-                  0deg,
-                  rgba(107, 70, 193, 0.4) 0%,
-                  rgba(128, 90, 213, 0.4) 20%,
-                  rgba(107, 70, 193, 0.15) 21%
-  );
+  border-radius: 2px;
+  border: $border-l3;
+  border-bottom: 4px solid $block-block-color;
+  background-color: $bg-container-l3;
 }
 
 /* ================ DRAG ================ */
 .drag {
   @include drag-style;
+  color: $block-block-color;
 }
 
 /* ============== ACTION ================ */

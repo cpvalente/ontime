@@ -6,20 +6,17 @@
 .delay {
   @include block-spacing;
 
+  box-sizing: content-box;
   display: grid;
   grid-template-columns: 32px 1fr auto;
   grid-template-areas: 'drag inpt btns';
   align-items: center;
   height: 40px;
+  border-radius: 2px;
+  border: $border-l3;
+  border-top: 4px solid $block-delay-color;
+  background-color: $bg-container-l3;
 
-  border-radius: $block-border-radius $block-border-radius 2px 2px;
-  background-color: rgba(214, 158, 46, 0.4);
-  background: linear-gradient(
-                  180deg,
-                  rgba(214, 158, 46, 0.4) 0%,
-                  rgba(214, 158, 46, 0.4) 20%,
-                  rgba(214, 158, 46, 0.17) 21%
-  );
 }
 
 /* ================ DRAG ================ */
@@ -27,6 +24,7 @@
 .drag {
   grid-area: drag;
   @include drag-style;
+  color: $block-delay-color;
 }
 
 /* =============== INPUT ================ */

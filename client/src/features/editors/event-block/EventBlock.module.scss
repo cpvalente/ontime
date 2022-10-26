@@ -25,7 +25,7 @@
 
   // variant
   &.selected {
-    background-color: $bg-container-l3;
+    background-color: #004FAB;
     box-shadow: 0 0 1px 2px $ontime-accent;
   }
 
@@ -87,7 +87,7 @@
     height: 100%;
 
     .delayNote {
-      font-size: 10px;
+      font-size: 11px;
       color: $text-delay;
     }
   }
@@ -148,9 +148,8 @@
       border: 1px solid transparent;
 
       &.enabled {
-        color: $ontime-accent;
-        border: 1px solid $ontime-accent;
-        background-color: $bg-gray-1100;
+        color: $text-white;
+        background-color: $ontime-accent;
       }
     }
 
