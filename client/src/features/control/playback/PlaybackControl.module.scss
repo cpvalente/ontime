@@ -8,9 +8,6 @@
   gap: 4px;
 }
 
-.playbackContainer {
-  padding: 0.5em;
-}
 
 .timeContainer {
   display: grid;
@@ -74,11 +71,11 @@
 
 .btn {
   grid-area: btn;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  width: 100%;
+  gap: 4px;
 }
 
 .minus {
