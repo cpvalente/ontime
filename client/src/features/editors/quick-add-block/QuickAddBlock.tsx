@@ -8,9 +8,9 @@ import { useAtomValue } from 'jotai';
 
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
-import style from './EntryBlock.module.scss';
+import style from './QuickAddBlock.module.scss';
 
-interface EntryBlockProps {
+interface QuickAddBlockProps {
   showKbd: boolean;
   previousId?: string;
   previousEventId: string | null;
@@ -18,7 +18,7 @@ interface EntryBlockProps {
   disableAddBlock: boolean;
 }
 
-export default function EntryBlock(props: EntryBlockProps) {
+export default function QuickAddBlock(props: QuickAddBlockProps) {
   const {
     showKbd,
     previousId,
@@ -61,7 +61,7 @@ export default function EntryBlock(props: EntryBlockProps) {
   }, [addEvent, doPublic, doStartTime, emitError, previousId, previousEventId]);
 
   return (
-    <div className={style.create}>
+    <div className={style.quickAdd}>
       <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
         <span
           className={style.createEvent}
