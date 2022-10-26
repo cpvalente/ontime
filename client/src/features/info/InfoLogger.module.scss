@@ -18,7 +18,6 @@
   overflow-y: scroll;
   font-size: 0.8em;
   user-select: text;
-  @include third-container;
   padding: 0 0.5em;
   margin: 0 0.5em;
 
@@ -78,8 +77,8 @@
   }
 
   div.active {
-    background: $ontime-accent;
-    color: darken($ontime-accent, 70%);
+    background: $ontime-roll;
+    color: white;
   }
 
   .clear {

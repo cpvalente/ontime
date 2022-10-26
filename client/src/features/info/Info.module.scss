@@ -11,26 +11,11 @@
   @include container;
 }
 
-
 .main {
   font-size: 0.9em;
   color: $label-gray;
   display: flex;
   justify-content: space-between;
-}
-
-.header,
-.headerRoll {
-  padding: 0;
-  margin: 0;
-  font-size: 0.9em;
-  color: $header-gray;
-  display: flex;
-  justify-content: space-between;
-}
-
-.header {
-  color: $header-gray;
 }
 
 .collapsedTitle {
