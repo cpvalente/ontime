@@ -26,9 +26,9 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
   const started = stringFromMillis(timerData.startedAt, true);
   const finish = stringFromMillis(timerData.expectedFinish, true);
   const isRolling = playback === 'roll';
-  const isWaiting = timerData.secondaryTimer > 0 && timerData.current == null;
+  const isWaiting = timerData.secondaryTimer !== null && timerData.secondaryTimer > 0 && timerData.current === null;
   const disableButtons = selectedId == null || isRolling;
-  const isOvertime = timerData.current < 0;
+  const isOvertime = timerData.current !== null && timerData.current < 0;
 
   return (
     <div className={style.timeContainer}>
