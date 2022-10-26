@@ -28,10 +28,13 @@ export function formatDisplay(seconds, hideZero = false) {
 
 /**
  * @description Converts milliseconds to seconds
- * @param {number} millis - time in seconds
+ * @param {number | null} millis - time in seconds
  * @returns {number} Amount in seconds
  */
 export const millisToSeconds = (millis) => {
+  if (millis === null) {
+    return 0;
+  }
   return millis < 0 ? Math.ceil(millis / mts) : Math.floor(millis / mts);
 };
 

@@ -8,24 +8,37 @@
   gap: max(16px, 2vh);
 
   display: grid;
-  grid-template-areas: 'timers titles';
+  grid-template-areas: 'timeOptions titles';
   grid-template-columns: auto 1fr;
-
-  .timers,
+  
+  .timeOptions,
   .titles {
-    background-color: $bg-container-l2;
+    background-color: $bg-container-over;
     border-radius: 2px;
     padding: 8px 16px;
   }
 
-  .timers {
-    grid-area: timers;
+  .timeOptions {
+    grid-area: timeOptions;
+    display: flex;
+    gap: 24px;
+  }
+
+  .timers, .timeSettings {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
-  .timers label:nth-child(1) {
+  .timers label:nth-child(1),
+  .timeSettings label:nth-child(1),
+  {
     margin-top: 4px;
+  }
+
+  .timeSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .titles {
@@ -57,10 +70,7 @@
 
     .osc {
       grid-area: tag;
-      font-size: 14px;
-      color: $ontime-accent;
-      text-align: right;
-      user-select: text;
+      justify-self: end;
     }
   }
 

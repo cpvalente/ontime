@@ -131,7 +131,7 @@
 
 .eventEditor {
   border-radius: 3px 3px 0 0;
-  background-color: $bg-container-l1;
+  background-color: $bg-container-over-l1;
   border-top: 1px solid $bg-gray-900;
   position: absolute;
   bottom: 0;
@@ -152,7 +152,7 @@
   }
 
   .header {
-    background-color: $bg-container-l2;
+    background-color: $bg-container-over;
     padding: 8px;
     border-left: 1px solid $bg-container-l3;
   }
@@ -186,8 +186,8 @@
 
 .playback {
   grid-area: play;
-  min-height: 270px;
-  max-height: 270px;
+  min-height: 275px;
+  max-height: 380px;
   min-width: 480px;
 }
 

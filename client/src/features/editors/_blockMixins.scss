@@ -14,7 +14,7 @@ $block-border-radius: 3px;
   flex-direction: row;
   flex-wrap: wrap;
   align-content: center;
-  opacity: 0.8;
+  opacity: 0.6;
   transition: linear 0.1s;
 }
 
@@ -26,7 +26,7 @@ $block-border-radius: 3px;
 @mixin drag-style() {
   font-size: 20px;
   text-align: center;
-  opacity: 0.1;
+  opacity: 0.3;
   cursor: grab;
   transition: opacity 0.3s;
   &:hover {

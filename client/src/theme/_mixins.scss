@@ -18,10 +18,3 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 2px;
 }
-
-@mixin osc-label {
-  color: $ontime-accent-text;
-  font-size: 0.8em;
-  -webkit-user-select: text;
-  user-select: text;
-}
