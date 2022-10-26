@@ -1,0 +1,22 @@
+@use '../../../theme/main' as *;
+
+.copyTag {
+  display: flex;
+  border-radius: 2px;
+  border: 1px solid $action-blue;
+  cursor: pointer;
+  font-size: 0.75em;
+  width: max-content;
+}
+
+.label {
+  background-color: $action-blue;
+  color: $text-white;
+  padding: 0 4px;
+  font-weight: 600;
+}
+
+.text {
+  color: $label-gray;
+  padding: 0 4px;
+}
