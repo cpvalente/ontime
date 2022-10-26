@@ -2,6 +2,7 @@ import { IconButton, Tooltip } from '@chakra-ui/react';
 import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
 
+import CopyTag from '../../../common/components/osc-tag/CopyTag';
 import { useMessageControlProvider } from '../../../common/hooks/useSocketProvider';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
@@ -52,8 +53,11 @@ export default function MessageControl() {
             aria-label='Toggle On Air'
           />
         </Tooltip>
-        <span className={style.onAirLabel}>On Air</span>
-        <span className={style.oscLabel}>{`/ontime/offAir << OSC >> /ontime/onAir`}</span>
+        <div className={style.onAirLabel}>On Air</div>
+        <div className={style.oscLabel}>
+          <CopyTag label='OSC'>/ontime/offAir</CopyTag>
+          <CopyTag label='OSC'>/ontime/offAir</CopyTag>
+        </div>
       </div>
     </>
   );
