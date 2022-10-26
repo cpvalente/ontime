@@ -12,7 +12,7 @@
   grid-template-columns: $binder-width auto 1fr auto;
   grid-template-rows: 36px 36px 36px $element-spacing;
   align-items: center;
-  margin: 2px 2px;
+  margin:4px 2px;
   padding-right: $clearance;
 
   // style - general
@@ -25,8 +25,7 @@
 
   // variant
   &.selected {
-    background-color: #004FAB;
-    box-shadow: 0 0 1px 2px $ontime-accent;
+    background-color: $bg-container-l3;
   }
 
   &.skip {
