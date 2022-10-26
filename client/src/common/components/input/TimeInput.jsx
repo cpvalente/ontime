@@ -162,6 +162,7 @@ export default function TimeInput(props) {
           backgroundColor='#303030'
           color='#fffffa'
           borderRadius='2px 0 0 2px'
+          border={isDelayed ? "1px solid #d69e2e55" : "1px solid transparent"}
         >
           {buttonInitial()}
         </Button>

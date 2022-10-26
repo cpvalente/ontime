@@ -15,8 +15,11 @@ export default function CopyTag(props: PropsWithChildren<CopyTagProps>) {
 
   return (
     <Tooltip label='Click to copy' openDelay={tooltipDelayFast}>
-      <span className={`${style.copyTag} ${className}`}
-            onClick={() => navigator.clipboard.writeText(children as string)}>
+      <button
+        className={`${style.copyTag} ${className}`}
+        onClick={() => navigator.clipboard.writeText(children as string)}
+        tabIndex={-1}
+      >
         {label && (
           <span className={style.label}>
             {label}
@@ -25,7 +28,7 @@ export default function CopyTag(props: PropsWithChildren<CopyTagProps>) {
         <span className={style.text}>
         {children}
         </span>
-      </span>
+      </button>
     </Tooltip>
   );
 }

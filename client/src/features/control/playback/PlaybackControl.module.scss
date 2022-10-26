@@ -62,7 +62,7 @@
 }
 
 .indNegativeActive {
-  background-color: $ontime-pink;
+  background-color: $ontime-pink-variant;
 }
 
 .indDelayActive {
@@ -82,6 +82,12 @@
   grid-area: min;
   display: flex;
   flex-direction: column;
+}
+
+.start,
+.finish,
+.roll {
+  height: 24px;
 }
 
 .start {

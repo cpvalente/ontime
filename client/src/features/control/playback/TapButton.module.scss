@@ -16,6 +16,8 @@
   &:disabled {
     cursor: not-allowed;
     background-color: $opacity-disabled;
+    box-shadow: none;
+    opacity: $opacity-disabled;
   }
 
   &:hover:not(:disabled) {

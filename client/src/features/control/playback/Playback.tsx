@@ -29,6 +29,7 @@ export default function Playback(props: PlaybackProps) {
           onClick={() => setPlayback.start()}
           disabled={!selectedId || isRolling || noEvents}
           theme='start'
+          active={playback === 'start'}
         >
           <IoPlay />
         </TapButton>
@@ -39,6 +40,7 @@ export default function Playback(props: PlaybackProps) {
           onClick={() => setPlayback.pause()}
           disabled={!selectedId || isRolling || noEvents || playback !== 'start'}
           theme='pause'
+          active={playback === 'pause'}
         >
           <IoPause />
         </TapButton>
@@ -49,6 +51,7 @@ export default function Playback(props: PlaybackProps) {
           onClick={() => setPlayback.roll()}
           disabled={playback === 'roll' || noEvents}
           theme='roll'
+          active={isRolling}
         >
           <IoTimeOutline />
         </TapButton>
