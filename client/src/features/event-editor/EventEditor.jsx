@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button, Select } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { editorEventId } from 'common/atoms/LocalEventSettings';
@@ -17,6 +17,7 @@ import { useAtom } from 'jotai';
 import useEventsList from '../../common/hooks-query/useEventsList';
 
 import style from './EventEditor.module.scss';
+import CopyTag from '../../common/components/osc-tag/CopyTag';
 
 export default function EventEditor() {
   const [openId] = useAtom(editorEventId);
@@ -104,40 +105,57 @@ export default function EventEditor() {
 
   return (
     <div className={style.eventEditor}>
-      <div className={style.timers}>
-        <label className={style.inputLabel}>
-          Start time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
-          {delayed && <div className={style.delayLabel}>{newStart}</div>}
-        </label>
-        <TimeInput
-          name='timeStart'
-          submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
-          time={event.timeStart}
-          delay={0}
-          placeholder='Start'
-        />
-        <label className={style.inputLabel}>
-          End time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
-          {delayed && <div className={style.delayLabel}>{newEnd}</div>}
-        </label>
-        <TimeInput
-          name='timeEnd'
-          submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
-          time={event.timeEnd}
-          delay={0}
-          placeholder='End'
-        />
-        <label className={style.inputLabel}>Duration</label>
-        <TimeInput
-          name='duration'
-          submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
-          time={event.duration}
-          delay={0}
-          placeholder='Duration'
-        />
+      <div className={style.timeOptions}>
+        <div className={style.timers}>
+          <label className={style.inputLabel}>
+            Start time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
+            {delayed && <div className={style.delayLabel}>{newStart}</div>}
+          </label>
+          <TimeInput
+            name='timeStart'
+            submitHandler={handleSubmit}
+            validationHandler={timerValidationHandler}
+            time={event.timeStart}
+            delay={0}
+            placeholder='Start'
+          />
+          <label className={style.inputLabel}>
+            End time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
+            {delayed && <div className={style.delayLabel}>{newEnd}</div>}
+          </label>
+          <TimeInput
+            name='timeEnd'
+            submitHandler={handleSubmit}
+            validationHandler={timerValidationHandler}
+            time={event.timeEnd}
+            delay={0}
+            placeholder='End'
+          />
+          <label className={style.inputLabel}>Duration</label>
+          <TimeInput
+            name='duration'
+            submitHandler={handleSubmit}
+            validationHandler={timerValidationHandler}
+            time={event.duration}
+            delay={0}
+            placeholder='Duration'
+          />
+        </div>
+        <div className={style.timeSettings}>
+          <label className={style.inputLabel}>Timer type</label>
+          <Select size='sm' variant='filled' color='black'>
+            <option value='option1'>Start to end</option>
+            <option value='option2'>Duration</option>
+            <option value='option3'>Follow previous</option>
+            <option value='option3'>Start only</option>
+          </Select>
+          <label className={style.inputLabel}>Countdown style</label>
+          <Select size='sm' variant='filled' color='black'>
+            <option value='option1'>Count down</option>
+            <option value='option2'>Count up</option>
+            <option value='option3'>Clock</option>
+          </Select>
+        </div>
       </div>
       <div className={style.titles}>
         <div className={style.left}>
@@ -199,7 +217,7 @@ export default function EventEditor() {
             />
           </div>
         </div>
-        <div className={style.osc}>{`OSC Trigger /ontime/gotoid/${event.id}`}</div>
+        <CopyTag label='OSC trigger' className={style.osc}>{`/ontime/gotoid/${event.id}`}</CopyTag>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 @use '../../../theme/main' as *;
 
-.create {
+.quickAdd {
   background-color: $bg-container-l2;
   display: flex;
   align-items: center;
@@ -81,4 +81,5 @@
   border-color: $text-gray-disabled;
   color: $text-gray-disabled;
   pointer-events: none;
+  cursor: not-allowed;
 }

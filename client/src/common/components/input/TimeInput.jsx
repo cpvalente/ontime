@@ -1,10 +1,11 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { IconButton, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
-import { IoLink } from '@react-icons/all-files/io5/IoLink';
+import { Button, Input, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { forgivingStringToMillis } from 'common/utils/dateConfig';
 import { stringFromMillis } from 'common/utils/time';
 import PropTypes from 'prop-types';
+
+import { tooltipDelayFast } from '../../../ontimeConfig';
 
 import style from './TimeInput.module.scss';
 
@@ -126,18 +127,46 @@ export default function TimeInput(props) {
 
   const isDelayed = delay != null && delay !== 0;
 
+/*
+<IconButton
+    size='sm'
+    icon="s"
+    aria-label='automate'
+    colorScheme='white'
+    style={{ borderRadius: '2px', width: 'min-content' }}
+    tabIndex={-1}
+    variant='ghost'
+  />
+  */
+
+  const buttonInitial = () => {
+    if (name === 'timeStart') return 'S';
+    if (name === 'timeEnd') return 'E';
+    if (name === 'duration') return 'D';
+  }
+
+  const buttonTooltip = () => {
+    if (name === 'timeStart') return 'Start';
+    if (name === 'timeEnd') return 'End';
+    if (name === 'duration') return 'Duration';
+  }
+
   return (
     <InputGroup size='sm' className={`${style.timeInput} ${isDelayed ? style.delayed : ''}`}>
       <InputLeftElement width='fit-content'>
-        <IconButton
+        <Tooltip label={buttonTooltip()} openDelay={tooltipDelayFast}>
+        <Button
           size='sm'
-          icon={<IoLink style={{ transform: 'rotate(-45deg)' }} />}
-          aria-label='automate'
-          colorScheme='blue'
-          style={{ borderRadius: '2px', width: 'min-content' }}
+          variant='filled'
           tabIndex={-1}
-          variant='ghost'
-        />
+          backgroundColor='#303030'
+          color='#fffffa'
+          borderRadius='2px 0 0 2px'
+          border={isDelayed ? "1px solid #d69e2e55" : "1px solid transparent"}
+        >
+          {buttonInitial()}
+        </Button>
+        </Tooltip>
       </InputLeftElement>
       <Input
         ref={inputRef}

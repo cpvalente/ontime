@@ -15,7 +15,7 @@ import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
 import useSubscription from '../../../common/hooks/useSubscription';
-import EntryBlock from '../entry-block/EntryBlock';
+import QuickAddBlock from '../quick-add-block/QuickAddBlock';
 
 import EventListItem from './EventListItem';
 
@@ -231,7 +231,7 @@ export default function EventList(props) {
                       />
                     </div>
                     {((showQuickEntry && index === cursor) || isLast) && (
-                      <EntryBlock
+                      <QuickAddBlock
                         showKbd={index === cursor}
                         previousId={e.id}
                         previousEventId={previousEventId}

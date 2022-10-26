@@ -1,6 +1,5 @@
 import { memo, useCallback, useContext } from 'react';
 import {
-  Button,
   Divider,
   HStack,
   IconButton,
@@ -8,6 +7,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Switch,
   Tooltip,
 } from '@chakra-ui/react';
 import { FiClock } from '@react-icons/all-files/fi/FiClock';
@@ -29,13 +29,10 @@ const EventListMenu = () => {
   const { isCursorLocked, toggleCursorLocked } = useContext(CursorContext);
   const { addEvent, deleteAllEvents } = useEventAction();
 
-  type ActionTypes = 'event' | 'delay' | 'block' | 'delete-all' | 'toggle-lock';
-  const actionHandler = useCallback(
+  type ActionTypes = 'event' | 'delay' | 'block' | 'delete-all';
+  const eventAction = useCallback(
     (action: ActionTypes) => {
       switch (action) {
-        case 'toggle-lock':
-          toggleCursorLocked();
-          break;
         case 'event':
           addEvent({ type: action });
           break;
@@ -55,14 +52,14 @@ const EventListMenu = () => {
 
   return (
     <HStack className={style.headerButtons}>
-      <Button
-        size='sm'
-        variant={isCursorLocked ? 'solid' : 'ghost'}
-        onClick={() => actionHandler('toggle-lock')}
-        colorScheme='blue'
-      >
+      <label className={style.labelledSwitch}>
+        <Switch
+          defaultChecked={isCursorLocked}
+          onChange={(event) => toggleCursorLocked(event.target.checked)}
+          colorScheme='blue'
+        />
         Lock cursor to current
-      </Button>
+      </label>
       <Menu isLazy lazyBehavior='unmount'>
         <Tooltip label='Add / Delete ...'>
           <MenuButton
@@ -70,22 +67,22 @@ const EventListMenu = () => {
             aria-label='Create Menu'
             size='sm'
             icon={<FiPlus />}
-            colorScheme='blue'
+            colorScheme='white'
             variant='outline'
           />
         </Tooltip>
         <MenuList style={menuStyle}>
-          <MenuItem icon={<FiPlus />} onClick={() => actionHandler('event')}>
-            Add Event first
+          <MenuItem icon={<FiPlus />} onClick={() => eventAction('event')}>
+            Add Event at start
           </MenuItem>
-          <MenuItem icon={<FiClock />} onClick={() => actionHandler('delay')}>
-            Add Delay first
+          <MenuItem icon={<FiClock />} onClick={() => eventAction('delay')}>
+            Add Delay at start
           </MenuItem>
-          <MenuItem icon={<FiMinusCircle />} onClick={() => actionHandler('block')}>
-            Add Block first
+          <MenuItem icon={<FiMinusCircle />} onClick={() => eventAction('block')}>
+            Add Block at start
           </MenuItem>
           <Divider />
-          <MenuItem icon={<FiTrash2 />} onClick={() => actionHandler('delete-all')} color='red.500'>
+          <MenuItem icon={<FiTrash2 />} onClick={() => eventAction('delete-all')} color='red.500'>
             Delete All
           </MenuItem>
         </MenuList>

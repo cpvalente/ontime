@@ -27,7 +27,7 @@
 
 .bgElement {
   &.delayed {
-    background: rgba(214, 158, 46, 0.3);
+    background: rgba($block-delay-color, 0.3);
   }
 }
 

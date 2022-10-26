@@ -55,9 +55,10 @@ export default function DelayBlock(props) {
             <Button
               onClick={applyDelayHandler}
               size='sm'
-              colorScheme='orange'
-              _hover={{ bg: 'orange.400' }}
+              color="#F57C13"
+              borderColor="#F57C13"
               leftIcon={<FiCheck />}
+              variant='outline'
             >
               Apply delay
             </Button>
@@ -65,9 +66,8 @@ export default function DelayBlock(props) {
               clickHandler={deleteHandler}
               icon={<IoRemove />}
               tooltip='Delete'
-              variant='ghost'
-              _hover={{ bg: 'red.400', color: 'white' }}
-              color='red.500'
+              variant='outline'
+              colorScheme='white'
               size='sm'
             />
             <ActionButtons showAdd actionHandler={actionHandler} />

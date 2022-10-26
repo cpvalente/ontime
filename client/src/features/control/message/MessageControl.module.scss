@@ -1,15 +1,20 @@
 @use '../../../theme/main' as *;
 @use '../../../theme/mixins' as *;
 
+
+@mixin message-control-label() {
+  font-size: 0.9em;
+  color: $label-gray;
+}
 .messageContainer,
 .onAirToggle {
   display: flex;
-  gap: 0.5em;
   padding: 0.5em;
 }
 
 .messageContainer {
   flex-direction: column;
+  gap: 4px;
 
   .inputItems {
     display: grid;
@@ -20,8 +25,7 @@
   .label {
     padding: 0;
     margin: 0;
-    font-size: 0.9em;
-    color: $label-gray;
+    @include message-control-label;
   }
 
   .inputRowActive {
@@ -33,25 +37,30 @@
 
 .onAirToggle {
   margin-top: 1em;
-  align-items: center;
   display: grid;
   grid-template-areas:
-    'btn label'
-    'btn osc';
-  grid-template-columns: 2.5em 1fr;
-  grid-template-rows: 1.2em 0.8em;
+          'btn label'
+          'btn osc';
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr 1fr;
+  align-items: center;
 
   .btn {
+    aspect-ratio: 1;
     grid-area: btn;
+    height: 100%;
+    margin-right: 16px;
   }
 
   .onAirLabel {
     grid-area: label;
-    font-size: 1.2em;
+    @include message-control-label;
   }
 
   .oscLabel {
-    @include osc-label;
     grid-area: osc;
+    display: flex;
+    gap: 4px;
   }
 }
+

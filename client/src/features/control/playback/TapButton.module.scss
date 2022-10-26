@@ -1,0 +1,65 @@
+@use '../../../theme/main' as *;
+
+@mixin tap-factory($theme-front, $theme-bg, $theme-high) {
+  font-family: "Open Sans", sans-serif;
+  font-size: 22px;
+  background-color: $theme-bg;
+  color: $theme-front;
+  border-radius: 3px;
+  width: 100%;
+  aspect-ratio: 3/1;
+  box-shadow: $theme-high 0 0 2px;
+  transition: background-color 0.3s;
+  display: grid;
+  place-content: center;
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: $opacity-disabled;
+    box-shadow: none;
+    opacity: $opacity-disabled;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: $theme-high;
+  }
+
+  &:active:not(:disabled) {
+    color: $theme-bg;
+    background-color: $theme-front;
+    transition: background-color 0.15s;
+  }
+
+  &.active {
+    background-color: $theme-high;
+  }
+}
+
+.tapButton.neutral{
+  @include tap-factory(rgba(255, 255, 255, 0.867), #303030, #363636);
+}
+
+.tapButton.start {
+  @include tap-factory(rgba(255, 255, 255, 0.867), #303030, $ontime-accent);
+}
+
+.tapButton.roll {
+  @include tap-factory(rgba(255, 255, 255, 0.867), #303030, $ontime-roll);
+}
+
+.tapButton.pause {
+  @include tap-factory(rgba(255, 255, 255, 0.867), #303030, $ontime-paused);
+}
+
+.tapButton.ontime {
+  @include tap-factory(rgba(255, 255, 255, 0.867), #303030, $ontime-pink);
+}
+
+.tapButton.stop {
+  @include tap-factory(rgba(255, 255, 255, 0.867), #303030, $ontime-red);
+}
+
+.tapButton.square {
+  aspect-ratio: 1;
+  font-size: 14px;
+}

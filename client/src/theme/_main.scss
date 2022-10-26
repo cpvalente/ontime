@@ -17,15 +17,17 @@ $bg-gray-100: #c0c0c0; // borders and whatnot
 
 $bg-overlay: rgba(0, 0, 0, 0.85);
 
-$ontime-accent: #4bffab;
+// $ontime-accent: #4bffab);
+$ontime-accent: #58A151;
 $ontime-accent-text: mix($bg-black, $ontime-accent, 10%);
 $ontime-pink: #ff7597;
 $ontime-pink-variant: #ff6969;
-$ontime-roll: #2b6cb0;
-$ontime-delay: #dd6b20;
+$ontime-roll: #0274B6;
+$ontime-delay: #F57C13;
 $action-blue: #3182ce;
 $ontime-paused: #c05621;
 $opacity-disabled: 0.4;
+$ontime-red: #E4281E;
 
 //rgba(255, 255, 255, 0.39); - $bg-gray-700
 //rgba(255, 255, 255, 0.13); - $bg-gray-900
@@ -40,15 +42,15 @@ $opacity-disabled: 0.4;
 // outdent in level2 - $bg-gray-950
 //////////////////////////////////// editor
 
-$notes-color: #d69e2e;
+$notes-color: #9fd8ff;
 
 $text-white: #fffffa;
 $text-gray-disabled: #505050;
-$header-gray: #ccc;
 $label-gray: #aaa;
+$header-gray: $label-gray;
 $clocks: #ddd;
 $bg-gray: #f4f4f8;
-$text-delay: #a97d24;
+$text-delay: #F57C13;
 
 $light-bg: #2b6cb0;
 $light-bg-transparent: #2b6cb055;
@@ -65,16 +67,18 @@ $title-gray: #ddd;
 $subtitle-gray: #aaa;
 
 //////////////////////////////////// block elements
+$bg-container-over: #0b1521;
+$bg-container-over-l1: #132337;
 $bg-container-l1: #202020;
 $bg-container-l2: #232323;
 $bg-container-l3: #2b2b2b;
 $border-l1: 1px solid $bg-gray-1000;
 $border-l3: 1px solid $bg-gray-900;
 
-$block-delay-color: #ecc94b;
+$block-delay-color: #E2720D;
 $delay-text: #d69e2e;
 $block-delay-border: #d69e2e55;
-$block-block-color: #805ad5;
+$block-block-color: #7347AD;
 $block-border: 1px solid $bg-gray-1100;
 
 //////////////////////////////////// viewer cards

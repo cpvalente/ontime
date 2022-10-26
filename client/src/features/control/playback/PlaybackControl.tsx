@@ -1,4 +1,5 @@
 import { usePlaybackControlProvider } from '../../../common/hooks/useSocketProvider';
+import { Playstate } from '../../../common/models/OntimeTypes';
 
 import PlaybackButtons from './PlaybackButtons';
 import PlaybackTimer from './PlaybackTimer';
@@ -6,20 +7,18 @@ import PlaybackTimer from './PlaybackTimer';
 import style from './PlaybackControl.module.scss';
 
 export default function PlaybackControl() {
-  const { data, setPlayback } = usePlaybackControlProvider();
+  const { data } = usePlaybackControlProvider();
 
   return (
     <div className={style.mainContainer}>
       <PlaybackTimer
-        playback={data.playback}
+        playback={data.playback as Playstate}
         selectedId={data.selectedEventId}
-        handleIncrement={(amount) => setPlayback.delay(amount)}
       />
       <PlaybackButtons
         playback={data.playback}
         selectedId={data.selectedEventId}
         noEvents={data.numEvents < 1}
-        playbackControl={setPlayback}
       />
     </div>
   );

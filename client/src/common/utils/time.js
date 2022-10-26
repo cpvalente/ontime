@@ -24,7 +24,7 @@ export const nowInMillis = () => {
 
 /**
  * @description Converts milliseconds to string representing time
- * @param {number} ms - time in milliseconds
+ * @param {number | null} ms - time in milliseconds
  * @param {boolean} showSeconds - weather to show the seconds
  * @param {string} delim - character between HH MM SS
  * @param {string} ifNull - what to return if value is null

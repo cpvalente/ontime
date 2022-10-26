@@ -3,7 +3,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
+import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPlayBackOutline } from '@react-icons/all-files/io5/IoPlayBackOutline';
 import { IoPlayOutline } from '@react-icons/all-files/io5/IoPlayOutline';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
@@ -108,7 +108,7 @@ export default function EventBlock(props: EventBlockProps) {
   if (!skip && eventIsPlaying) {
     playBtnStyles._hover = { bg: '#c05621' };
   } else if (!skip && !eventIsPlaying) {
-    playBtnStyles._hover = { bg: '#4bffab' };
+    playBtnStyles._hover = {  };
   }
 
   return (
@@ -161,19 +161,15 @@ export default function EventBlock(props: EventBlockProps) {
               tabIndex={-1}
             />
             <TooltipActionBtn
-              aria-label='Toggle start / pause event'
-              tooltip={eventIsPlaying ? 'Pause event' : 'Start event'}
+              aria-label='Start event'
+              tooltip='Start event'
               openDelay={tooltipDelayMid}
-              icon={eventIsPlaying ? <IoPause /> : <IoPlayOutline />}
+              icon={eventIsPlaying ? <IoPlay /> : <IoPlayOutline />}
               disabled={skip}
               {...blockBtnStyle}
               variant={eventIsPlaying ? 'solid' : 'ghost'}
-              clickHandler={
-                eventIsPlaying
-                  ? () => setPlayback.pause()
-                  : () => setPlayback.startEvent()
-              }
-              {...playBtnStyles}
+              clickHandler={() => setPlayback.startEvent()}
+              backgroundColor={eventIsPlaying ? '#58A151' : undefined}
               tabIndex={-1}
             />
           </div>

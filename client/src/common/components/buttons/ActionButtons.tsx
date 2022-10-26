@@ -3,8 +3,6 @@ import { FiClock } from '@react-icons/all-files/fi/FiClock';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
 
-import { tooltipDelayMid } from '../../../ontimeConfig';
-
 interface ActionButtonProps {
   showAdd?: boolean;
   showDelay?: boolean;
@@ -22,14 +20,14 @@ export default function ActionButtons(props: ActionButtonProps) {
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
-      <Tooltip label='Add ...' openDelay={tooltipDelayMid}>
+      <Tooltip label='Add ...'>
         <MenuButton
           as={IconButton}
           aria-label='Options'
           size='sm'
           icon={<FiPlus />}
-          colorScheme='blue'
-          variant='ghost'
+          colorScheme='white'
+          variant='outline'
         />
       </Tooltip>
       <MenuList style={menuStyle}>
