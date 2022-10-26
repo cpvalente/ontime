@@ -9,13 +9,14 @@ interface TapButtonProps {
   square?: boolean;
   onClick: () => void;
   theme?: Playstate | 'neutral';
+  active?: boolean;
 }
 
 const TapButton = forwardRef((props: PropsWithChildren<TapButtonProps>, ref: ForwardedRef<HTMLButtonElement> ) => {
-  const { children, disabled, onClick, theme = 'neutral', square } = props;
+  const { children, disabled, onClick, theme = 'neutral', square, active } = props;
   return (
     <button
-      className={`${style.tapButton} ${style[theme]} ${square ? style.square : ''}`}
+      className={`${style.tapButton} ${style[theme]} ${square ? style.square : ''} ${active ? style.active : ''}`}
       disabled={disabled}
       type='button'
       onClick={onClick}

@@ -11,7 +11,7 @@
   box-shadow: $theme-high 0 0 2px;
   transition: background-color 0.3s;
   display: grid;
-  place-content: center;;
+  place-content: center;
 
   &:disabled {
     cursor: not-allowed;
@@ -26,6 +26,10 @@
     color: $theme-bg;
     background-color: $theme-front;
     transition: background-color 0.15s;
+  }
+
+  &.active {
+    background-color: $theme-high;
   }
 }
 
