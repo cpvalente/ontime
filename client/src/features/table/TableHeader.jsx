@@ -11,7 +11,7 @@ import { TableSettingsContext } from '../../common/context/TableSettingsContext'
 import useFullscreen from '../../common/hooks/useFullscreen';
 import { useTimerProvider } from '../../common/hooks/useSocketProvider';
 import useEvent from '../../common/hooks-query/useEvent';
-import { formatDisplay } from '../../common/utils/dateConfig';
+import { formatDisplay, millisToSeconds } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
 import { tooltipDelayFast } from '../../ontimeConfig';
 
@@ -19,7 +19,7 @@ import PlaybackIcon from './tableElements/PlaybackIcon';
 
 import style from './Table.module.scss';
 
-export default function TableHeader({handleCSVExport, featureData}) {
+export default function TableHeader({ handleCSVExport, featureData }) {
   const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
     useContext(TableSettingsContext);
   const timer = useTimerProvider();
@@ -29,11 +29,12 @@ export default function TableHeader({handleCSVExport, featureData}) {
   const selected = !featureData.numEvents
     ? 'No events'
     : `Event ${featureData.selectedEventIndex != null ? featureData.selectedEventIndex + 1 : '-'}/${
-        featureData.numEvents ? featureData.numEvents : '-'
-      }`;
+      featureData.numEvents ? featureData.numEvents : '-'
+    }`;
 
   // prepare presentation variables
-  const timerNow = `${timer.running < 0 ? '-' : ''}${formatDisplay(timer.running)}`;
+  const isOvertime = timer.current < 0;
+  const timerNow = `${isOvertime ? '-' : ''}${formatDisplay(millisToSeconds(timer.current))}`;
   const timeNow = formatTime(timer.clock, {
     showSeconds: true,
     format: 'hh:mm:ss a',

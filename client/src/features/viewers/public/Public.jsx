@@ -3,9 +3,11 @@ import QRCode from 'react-qr-code';
 import NavLogo from 'common/components/nav/NavLogo';
 import TitleSide from 'common/components/title-side/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import Paginator from '../../../common/components/paginator/Paginator';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
@@ -23,6 +25,7 @@ export default function Public(props) {
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [pageNumber, setPageNumber] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
     document.title = 'ontime - Public Screen';
@@ -38,7 +41,7 @@ export default function Public(props) {
   const clock = formatTime(time.clock, formatOptions);
 
   return (
-    <div className='public-screen' data-testid="public-view">
+    <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
       <NavLogo />
 
       <div className='event-title'>{general.title}</div>

@@ -5,9 +5,11 @@ import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
 import NavLogo from 'common/components/nav/NavLogo';
 import TitleCard from 'common/components/title-card/TitleCard';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
 
@@ -23,6 +25,7 @@ export default function Timer(props) {
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [elapsed, setElapsed] = useState(true);
   const [searchParams] = useSearchParams();
+  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
     document.title = 'ontime - Timer';
@@ -64,12 +67,11 @@ export default function Timer(props) {
       y: 500,
     },
   };
+  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
   return (
-    <div
-      className={time.finished ? 'stage-timer stage-timer--finished' : 'stage-timer'}
-      data-testid="timer-view"
-    >
+    <div className={time.finished ? `${baseClasses} stage-timer--finished` : baseClasses}
+         data-testid='timer-view'>
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className='message'>{pres.text}</div>
       </div>

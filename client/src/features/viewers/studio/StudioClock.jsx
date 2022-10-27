@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavLogo from '../../../common/components/nav/NavLogo';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -28,6 +30,7 @@ export default function StudioClock(props) {
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
 
   const [schedule, setSchedule] = useState([]);
+  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
@@ -48,13 +51,13 @@ export default function StudioClock(props) {
       showEnd: false,
     });
     setSchedule(formatted);
-  }, [backstageEvents, nextId, selectedId] );
+  }, [backstageEvents, nextId, selectedId]);
 
   const clock = formatTime(time.clock, formatOptions);
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
 
   return (
-    <div className='studio-clock' data-testid="studio-view">
+    <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavLogo />
       <div className='clock-container'>
         <div className='studio-timer'>{clock}</div>
@@ -65,7 +68,8 @@ export default function StudioClock(props) {
         >
           {title.titleNext}
         </div>
-        <div className={time.isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
+        <div
+          className={time.isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
           {selectedId != null && formatDisplay(time.running)}
         </div>
         <div className='clock-indicators'>

@@ -29,4 +29,4 @@ export const eventsURL = `${serverURL}/${EVENTS_TABLE}`;
 export const ontimeURL = `${serverURL}/ontime`;
 
 export const stylesPath = 'external/styles/override.css';
-export const overrideStylesURL = `serverURL/${stylesPath}`;
+export const overrideStylesURL = `${serverURL}/${stylesPath}`;
