@@ -9,11 +9,11 @@ import {
 import Empty from 'common/components/state/Empty';
 import { CursorContext } from 'common/context/CursorContext';
 import { useEventAction } from 'common/hooks/useEventAction';
-import { useEventListProvider } from 'common/hooks/useSocketProvider';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
+import { useRundownEditor } from '../../../common/hooks/useSocket';
 import useSubscription from '../../../common/hooks/useSubscription';
 import QuickAddBlock from '../quick-add-block/QuickAddBlock';
 
@@ -30,7 +30,8 @@ export default function EventList(props) {
   const { addEvent, reorderEvent } = useEventAction();
   const cursorRef = createRef();
   const showQuickEntry = useAtomValue(showQuickEntryAtom);
-  const data = useEventListProvider();
+  // Todo: add selectedId and nextId to rundown editor hook
+  const { data } = useRundownEditor();
   const [selectedId] = useSubscription('selected-id', null);
   const [nextId] = useSubscription('next-id', null);
 

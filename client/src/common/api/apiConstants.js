@@ -9,12 +9,12 @@ export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
 
-export const FEAT_EVENTLIST = ['feat-eventList'];
-export const FEAT_MESSAGECONTROL = ['feat-messagecontrol'];
-export const FEAT_PLAYBACKCONTROL = ['feat-playbackcontrol'];
-export const FEAT_INFO = ['feat-info'];
-export const FEAT_CUESHEET = ['feat-cuesheet'];
-export const TIMER = ['ontime-timer'];
+export const FEAT_RUNDOWN = 'feat-rundown';
+export const FEAT_MESSAGECONTROL = 'feat-messagecontrol';
+export const FEAT_PLAYBACKCONTROL = 'feat-playbackcontrol';
+export const FEAT_INFO = 'feat-info';
+export const FEAT_CUESHEET = 'feat-cuesheet';
+export const TIMER = 'ontime-timer';
 
 /**
  * @description finds server path given the current location, it

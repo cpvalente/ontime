@@ -3,7 +3,7 @@ import { useCallback, useContext, useEffect } from 'react';
 import { requestPatchEvent } from '../../common/api/eventsApi';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import useMutateEvents from '../../common/hooks/useMutateEvents';
-import { useCuesheetProvider } from '../../common/hooks/useSocketProvider';
+import { useCuesheet } from '../../common/hooks/useSocket';
 import useEventsList from '../../common/hooks-query/useEventsList';
 import useUserFields from '../../common/hooks-query/useUserFields';
 
@@ -18,7 +18,7 @@ export default function TableWrapper() {
   const { data: userFields } = useUserFields();
   const mutation = useMutateEvents(requestPatchEvent);
   const { theme } = useContext(TableSettingsContext);
-  const featureData = useCuesheetProvider();
+  const { data: featureData } = useCuesheet();
 
   // Set window title
   useEffect(() => {
@@ -31,11 +31,11 @@ export default function TableWrapper() {
         return;
       }
 
-    // check if value is the same
-    const event = events[rowIndex];
-    if (event == null) {
-      return;
-    }
+      // check if value is the same
+      const event = events[rowIndex];
+      if (event == null) {
+        return;
+      }
 
       if (event[accessor] === payload) {
         return;
@@ -53,13 +53,13 @@ export default function TableWrapper() {
         [accessor]: cleanVal,
       };
 
-    // submit
-    try {
-      await mutation.mutateAsync(mutationObject);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [mutation, events]);
+      // submit
+      try {
+        await mutation.mutateAsync(mutationObject);
+      } catch (error) {
+        console.error(error);
+      }
+    }, [mutation, events]);
 
   const exportHandler = useCallback(
     (headerData) => {
@@ -76,7 +76,7 @@ export default function TableWrapper() {
       document.body.appendChild(link);
       link.click();
     },
-    [events, userFields]
+    [events, userFields],
   );
 
   if (typeof events === 'undefined' || typeof userFields === 'undefined') {
@@ -85,7 +85,7 @@ export default function TableWrapper() {
   return (
     <div
       className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}
-      data-testid="cuesheet"
+      data-testid='cuesheet'
     >
       <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
       <OntimeTable

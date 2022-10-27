@@ -1,9 +1,9 @@
 import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
 
 import { generateId } from '../utils/generate_id';
+import socket from '../utils/socket';
 import { nowInMillis, stringFromMillis } from '../utils/time';
 
-import { useSocket } from './socketContext';
 
 type LOG_LEVEL = 'INFO' | 'WARN' | 'ERROR';
 type Log = {
@@ -23,7 +23,7 @@ interface LoggingProviderState {
 }
 
 type LoggingProviderProps = {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const notInitialised = () => {
@@ -40,14 +40,12 @@ export const LoggingContext = createContext<LoggingProviderState>({
 
 export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   const MAX_MESSAGES = 100;
-  const socket = useSocket();
   const [logData, setLogData] = useState<Log[]>([]);
   const origin = 'USER';
 
+  // todo: use react-query store
   // handle incoming messages
   useEffect(() => {
-    if (socket == null) return;
-
     // Ask for log data
     socket.emit('get-logger');
 

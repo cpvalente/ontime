@@ -1,4 +1,4 @@
-import { usePlaybackControlProvider } from '../../../common/hooks/useSocketProvider';
+import { usePlaybackControl } from '../../../common/hooks/useSocket';
 import { Playstate } from '../../../common/models/OntimeTypes';
 
 import PlaybackButtons from './PlaybackButtons';
@@ -7,7 +7,7 @@ import PlaybackTimer from './PlaybackTimer';
 import style from './PlaybackControl.module.scss';
 
 export default function PlaybackControl() {
-  const { data } = usePlaybackControlProvider();
+  const { data } = usePlaybackControl();
 
   return (
     <div className={style.mainContainer}>

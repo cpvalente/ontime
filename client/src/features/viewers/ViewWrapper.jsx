@@ -1,11 +1,11 @@
 /* eslint-disable react/display-name */
 import { useEffect, useMemo, useState } from 'react';
 
-import { useSocket } from '../../common/context/socketContext';
 import useSubscription from '../../common/hooks/useSubscription';
 import useEvent from '../../common/hooks-query/useEvent';
 import useEventsList from '../../common/hooks-query/useEventsList';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
+import socket from '../../common/utils/socket';
 
 const withSocket = (Component) => {
   return (props) => {
@@ -13,7 +13,6 @@ const withSocket = (Component) => {
     const { data: genData } = useEvent();
     const { data: viewSettings } = useViewSettings();
 
-    const socket = useSocket();
     const [pres, setPres] = useState({
       text: '',
       visible: false,
@@ -58,10 +57,6 @@ const withSocket = (Component) => {
 
     // Ask for update on load
     useEffect(() => {
-      if (!socket) {
-        return;
-      }
-
       // Handle timer messages
       socket.on('messages-timer', (data) => {
         setPres({ ...data });
@@ -99,7 +94,7 @@ const withSocket = (Component) => {
       } else {
         return [];
       }
-    },[eventsData])
+    }, [eventsData]);
 
     /********************************************/
     /***  + titleManager                      ***/

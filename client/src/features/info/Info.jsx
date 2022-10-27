@@ -1,4 +1,4 @@
-import { useInfoProvider } from '../../common/hooks/useSocketProvider';
+import { useInfoPanel } from '../../common/hooks/useSocket';
 
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';
@@ -7,7 +7,7 @@ import InfoTitle from './InfoTitle';
 import style from './Info.module.scss';
 
 export default function Info() {
-  const data = useInfoProvider();
+  const { data } = useInfoPanel();
 
   const titlesNow = {
     title: data.titles.titleNow,
@@ -26,8 +26,8 @@ export default function Info() {
   const selected = !data.numEvents
     ? 'No events'
     : `Event ${data.selectedEventIndex != null ? data.selectedEventIndex + 1 : '-'} / ${
-        data.numEvents ? data.numEvents : '-'
-      }`;
+      data.numEvents ? data.numEvents : '-'
+    }`;
 
   return (
     <>
