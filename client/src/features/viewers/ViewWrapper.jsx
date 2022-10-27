@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useSocket } from '../../common/context/socketContext';
+import { useMessageControlProvider } from '../../common/hooks/useSocketProvider';
 import useSubscription from '../../common/hooks/useSubscription';
 import useEvent from '../../common/hooks-query/useEvent';
 import useEventsList from '../../common/hooks-query/useEventsList';
@@ -12,20 +13,9 @@ const withSocket = (Component) => {
     const { data: eventsData } = useEventsList();
     const { data: genData } = useEvent();
     const { data: viewSettings } = useViewSettings();
+    const { data: messages } = useMessageControlProvider();
 
     const socket = useSocket();
-    const [pres, setPres] = useState({
-      text: '',
-      visible: false,
-    });
-    const [publ, setPubl] = useState({
-      text: '',
-      visible: false,
-    });
-    const [lower, setLower] = useState({
-      text: '',
-      visible: false,
-    });
     const [publicSelectedId, setPublicSelectedId] = useState(null);
 
     const [timer] = useSubscription('timer', {
@@ -61,35 +51,10 @@ const withSocket = (Component) => {
       if (!socket) {
         return;
       }
-
-      // Handle timer messages
-      socket.on('messages-timer', (data) => {
-        setPres({ ...data });
-      });
-
-      // Handle public messages
-      socket.on('messages-public', (data) => {
-        setPubl({ ...data });
-      });
-
-      // Handle lower third messages
-      socket.on('messages-lower', (data) => {
-        setLower({ ...data });
-      });
-
+      // todo: remove
       socket.on('publicselected-id', (data) => {
         setPublicSelectedId(data);
       });
-
-      // Ask for up to date data
-      socket.emit('get-messages');
-
-      // Clear listeners
-      return () => {
-        socket.off('messages-public');
-        socket.off('messages-timer');
-        socket.off('messages-lower');
-      };
     }, [socket]);
 
 
@@ -161,9 +126,9 @@ const withSocket = (Component) => {
     return (
       <Component
         {...props}
-        pres={pres}
-        publ={publ}
-        lower={lower}
+        pres={messages.presenter}
+        publ={messages.public}
+        lower={messages.lower}
         title={titleManager}
         publicTitle={publicTitleManager}
         time={TimeManagerType}
@@ -174,7 +139,7 @@ const withSocket = (Component) => {
         viewSettings={viewSettings}
         nextId={nextId}
         general={genData}
-        onAir={onAir}
+        onAir={messages.onAir}
       />
     );
   };
