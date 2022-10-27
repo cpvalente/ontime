@@ -47,26 +47,11 @@ export class EventTimer extends Timer {
     // HTTP Client Object
     this.http = null;
 
-    this._interval = null;
-
-    this.presenter = {
-      text: '',
-      visible: false,
-    };
-    this.public = {
-      text: '',
-      visible: false,
-    };
-    this.lower = {
-      text: '',
-      visible: false,
-    };
-
     // call general title reset
     this._resetSelection();
 
     this._eventlist = [];
-    this.onAir = false;
+
     // set recurrent emits
     this._interval = setInterval(() => this.runCycle(), timerConfig?.refresh || 1000);
 
@@ -155,20 +140,6 @@ export class EventTimer extends Timer {
   }
 
   /**
-   * @description Broadcast data for Message Control feature
-   * @private
-   */
-  _broadcastFeatureMessageControl() {
-    const featureData = {
-      presenter: this.presenter,
-      public: this.public,
-      lower: this.lower,
-      onAir: this.onAir,
-    };
-    this.socket.send('ontime-feat-messagecontrol', featureData);
-  }
-
-  /**
    * @description Broadcast data for Playback Control feature
    * @private
    */
@@ -213,7 +184,6 @@ export class EventTimer extends Timer {
   broadcastState() {
     // feature sync
     this._broadcastFeatureEventList();
-    this._broadcastFeatureMessageControl();
     this._broadcastFeaturePlaybackControl();
     this._broadcastFeatureInfo();
     this._broadcastFeatureCuesheet();
@@ -234,7 +204,6 @@ export class EventTimer extends Timer {
     this.socket.send('publicnext-id', this.nextPublicEventId);
     this.socket.send('titles', this.titles);
     this.socket.send('publictitles', this.titlesPublic);
-    this.socket.send('onAir', this.onAir);
   }
 
   /**
@@ -345,18 +314,6 @@ export class EventTimer extends Timer {
         // Call action and force update
         this.socket.info('PLAYBACK', 'Reloaded event');
         this.reload();
-        break;
-      }
-      case 'onAir': {
-        // Call action
-        this.socket.info('PLAYBACK', 'Going On Air');
-        this.setonAir(true);
-        break;
-      }
-      case 'offAir': {
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Going Off Air');
-        this.setonAir(false);
         break;
       }
       default: {
@@ -569,52 +526,6 @@ export class EventTimer extends Timer {
       if (doRollLoad) {
         this.rollLoad();
       }
-    }
-  }
-
-  /**
-   * Set titles and broadcast change
-   * @param {string} action
-   * @param {any} payload
-   * @private
-   */
-  _setTitles(action, payload) {
-    switch (action) {
-      /*******************************************/
-      // Presenter message
-      case 'set-timer-text':
-        this.presenter.text = payload;
-        this.socket.send('messages-timer', this.presenter);
-        break;
-      case 'set-timer-visible':
-        this.presenter.visible = payload;
-        this.socket.send('messages-timer', this.presenter);
-        break;
-
-      /*******************************************/
-      // Public message
-      case 'set-public-text':
-        this.public.text = payload;
-        this.socket.send('messages-public', this.public);
-        break;
-      case 'set-public-visible':
-        this.public.visible = payload;
-        this.socket.send('messages-public', this.public);
-        break;
-
-      /*******************************************/
-      // Lower third message
-      case 'set-lower-text':
-        this.lower.text = payload;
-        this.socket.send('messages-lower', this.lower);
-        break;
-      case 'set-lower-visible':
-        this.lower.visible = payload;
-        this.socket.send('messages-lower', this.lower);
-        break;
-
-      default:
-        break;
     }
   }
 
@@ -1110,16 +1021,6 @@ export class EventTimer extends Timer {
     this.nextEventId = null;
     this.selectedPublicEventId = null;
     this.nextPublicEventId = null;
-  }
-
-  /**
-   * @description Set onAir property of timer
-   * @param {boolean} onAir - whether flag is active
-   */
-  setonAir(onAir) {
-    this.onAir = onAir;
-    // broadcast change
-    this.socket.send('onAir', onAir);
   }
 
   /**

@@ -1,8 +1,12 @@
 import { Server } from 'socket.io';
+
 import getRandomName from '../../utils/getRandomName.js';
 import { generateId } from '../../utils/generate_id.js';
 import { stringFromMillis } from '../../utils/time.js';
 import { Timer } from '../timer/Timer.js';
+import { messageManager } from '../message-manager/MessageManager.js';
+
+import { ADDRESS_MESSAGE_CONTROL } from './socketConfig.js';
 
 class SocketController {
   constructor() {
@@ -167,17 +171,6 @@ class SocketController {
         global.timer.increment(delayTime * 1000 * 60);
       });
 
-      socket.on('set-onAir', (data) => {
-        try {
-          const d = JSON.parse(data);
-          d ? global.timer.trigger('onAir') : global.timer.trigger('offAir');
-        } catch (error) {
-          this.error('RX', `Failed to parse message ${data}`);
-        }
-        this.send('onAir', global.timer.onAir);
-        global.timer._broadcastFeatureMessageControl();
-      });
-
       /*******************************************/
       // general playback state, useful for external sync
       socket.on('ontime-poll', () => {
@@ -249,41 +242,53 @@ class SocketController {
       /***  -------------------------  ***/
       /***********************************/
 
-      /*******************************************/
+      // On Air
+      socket.on('set-onAir', (data) => {
+        try {
+          const status = JSON.parse(data);
+          const featureData = messageManager.setOnAir(status);
+          this.info('PLAYBACK', featureData.onAir ? 'Going On Air' : 'Going Off Air');
+          this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
+        } catch (error) {
+          this.error('RX', `Failed to parse message ${data} : ${error}`);
+        }
+        // Todo: deprecate message as duplicate
+        this.send('onAir', messageManager.onAir);
+      });
 
       // Presenter message
       socket.on('set-timer-message-text', (data) => {
-        global.timer._setTitles('set-timer-text', data);
-        global.timer._broadcastFeatureMessageControl();
+        const featureData = messageManager.setTimerText(data);
+        this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       socket.on('set-timer-message-visible', (data) => {
-        global.timer._setTitles('set-timer-visible', data);
-        global.timer._broadcastFeatureMessageControl();
+        const featureData = messageManager.setTimerVisibility(data);
+        this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       /*******************************************/
       // Public message
       socket.on('set-public-message-text', (data) => {
-        global.timer._setTitles('set-public-text', data);
-        global.timer._broadcastFeatureMessageControl();
+        const featureData = messageManager.setPublicText(data);
+        this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       socket.on('set-public-message-visible', (data) => {
-        global.timer._setTitles('set-public-visible', data);
-        global.timer._broadcastFeatureMessageControl();
+        const featureData = messageManager.setPublicVisibility(data);
+        this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       /*******************************************/
       // Lower third message
       socket.on('set-lower-message-text', (data) => {
-        global.timer._setTitles('set-lower-text', data);
-        global.timer._broadcastFeatureMessageControl();
+        const featureData = messageManager.setLowerText(data);
+        this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       socket.on('set-lower-message-visible', (data) => {
-        global.timer._setTitles('set-lower-visible', data);
-        global.timer._broadcastFeatureMessageControl();
+        const featureData = messageManager.setLowerVisibility(data);
+        this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       /* MOLECULAR ENDPOINTS
@@ -303,7 +308,8 @@ class SocketController {
 
       // 2. MESSAGE CONTROL
       socket.on('get-ontime-feat-messagecontrol', () => {
-        global.timer._broadcastFeatureMessageControl();
+        const featureData = messageManager.getAll();
+        this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       // 3. PLAYBACK CONTROL
@@ -337,9 +343,6 @@ class SocketController {
   /**
    * Logger logic
    * -------------
-   *
-   * This should be separate of event timer, left here for convenience
-   *
    */
 
   /**
