@@ -31,6 +31,7 @@ import { DataProvider } from './classes/data-provider/DataProvider.js';
 const env = process.env.NODE_ENV || 'production';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const isTest = process.env.IS_TEST;
 
 export const { db, data } = await loadDb(__dirname);
 console.log(`Starting ontime version ${process.env.npm_package_version}`);
@@ -60,12 +61,21 @@ app.use('/playback', playbackRouter);
 
 // serve static - css
 app.use('/external', express.static(join(__dirname, 'external')));
-// serve static - react
-app.use(express.static(join(__dirname, env === 'production' ? '../' : '../../', 'client/build')));
+
+// serve static - react, in test mode we fetch the react app from module
+const resolvedPath = () => {
+  const sameModule = '../';
+  const siblingModule = '../../';
+  if (env === 'production' && !isTest) {
+    return sameModule;
+  }
+  return siblingModule;
+};
+app.use(express.static(join(__dirname, resolvedPath(), 'client/build')));
 
 app.get('*', (req, res) => {
   res.sendFile(
-    resolve(__dirname, env === 'production' ? '../' : '../../', 'client', 'build', 'index.html'),
+    resolve(__dirname, resolvedPath(), 'client', 'build', 'index.html'),
   );
 });
 

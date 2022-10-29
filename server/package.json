@@ -33,7 +33,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
     "start:server": "nodemon --experimental-modules --es-module-specifier-resolution=node src/run.js",
-    "e2e": "playwright test",
+    "e2e": "set IS_TEST=true && playwright test",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "dist-win": "electron-builder --publish=never  --x64 --win",
