@@ -36,10 +36,6 @@ test('object instantiates correctly', async () => {
   expect(t.osc).toBeNull();
   expect(t.http).toBeNull();
   expect(t._interval).not.toBeNull();
-  expect(t.presenter).toStrictEqual({ text: '', visible: false });
-  expect(t.public).toStrictEqual({ text: '', visible: false });
-  expect(t.lower).toStrictEqual({ text: '', visible: false });
-  expect(t.lower).toStrictEqual({ text: '', visible: false });
 
   const expectTitlesPublic = {
     titleNow: null,
@@ -90,12 +86,6 @@ describe('test triggers behaviour', () => {
     expect(t.trigger('previous')).toBeFalsy();
     expect(t.trigger('next')).toBeFalsy();
     expect(t.trigger('reload')).toBeFalsy();
-
-    expect(t.onAir).toBeFalsy();
-    expect(t.trigger('onAir')).toBeTruthy();
-    expect(t.onAir).toBeTruthy();
-    expect(t.trigger('offAir')).toBeTruthy();
-    expect(t.onAir).toBeFalsy();
     done();
   });
 
