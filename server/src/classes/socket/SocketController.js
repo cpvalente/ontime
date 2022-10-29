@@ -244,25 +244,31 @@ class SocketController {
 
       // On Air
       socket.on('set-onAir', (data) => {
-        try {
-          const status = JSON.parse(data);
-          const featureData = messageManager.setOnAir(status);
-          this.info('PLAYBACK', featureData.onAir ? 'Going On Air' : 'Going Off Air');
-          this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
-        } catch (error) {
-          this.error('RX', `Failed to parse message ${data} : ${error}`);
+        if (typeof data === 'boolean') {
+          try {
+            const featureData = messageManager.setOnAir(data);
+            this.info('PLAYBACK', featureData.onAir ? 'Going On Air' : 'Going Off Air');
+            this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
+          } catch (error) {
+            this.error('RX', `Failed to parse message ${data} : ${error}`);
+          }
         }
-        // Todo: deprecate message as duplicate
         this.send('onAir', messageManager.onAir);
       });
 
       // Presenter message
       socket.on('set-timer-message-text', (data) => {
+        if (typeof data !== 'string') {
+          return;
+        }
         const featureData = messageManager.setTimerText(data);
         this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       socket.on('set-timer-message-visible', (data) => {
+        if (typeof data !== 'boolean') {
+          return;
+        }
         const featureData = messageManager.setTimerVisibility(data);
         this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
@@ -270,11 +276,17 @@ class SocketController {
       /*******************************************/
       // Public message
       socket.on('set-public-message-text', (data) => {
+        if (typeof data !== 'string') {
+          return;
+        }
         const featureData = messageManager.setPublicText(data);
         this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       socket.on('set-public-message-visible', (data) => {
+        if (typeof data !== 'boolean') {
+          return;
+        }
         const featureData = messageManager.setPublicVisibility(data);
         this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
@@ -282,11 +294,17 @@ class SocketController {
       /*******************************************/
       // Lower third message
       socket.on('set-lower-message-text', (data) => {
+        if (typeof data !== 'string') {
+          return;
+        }
         const featureData = messageManager.setLowerText(data);
         this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       socket.on('set-lower-message-visible', (data) => {
+        if (typeof data !== 'boolean') {
+          return;
+        }
         const featureData = messageManager.setLowerVisibility(data);
         this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
