@@ -46,9 +46,3 @@ jobs:
       - name: Electron - Run tests
         run: yarn test
         working-directory: ./server
-
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          working-directory: ./server
-          start: yarn cypress
