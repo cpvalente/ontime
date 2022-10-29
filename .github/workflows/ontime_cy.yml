@@ -3,7 +3,7 @@
 
 name: ontime_test_CI
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
@@ -43,6 +43,21 @@ jobs:
         run: yarn install && yarn setdb
         working-directory: ./server
 
-      - name: Electron - Run tests
+      - name: Server - run tests
         run: yarn test
         working-directory: ./server
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: ./server
+
+      - name: Run Playwright tests
+        run: yarn e2e
+        working-directory: ./server
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
