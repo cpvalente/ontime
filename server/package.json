@@ -43,10 +43,7 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      "dist",
-      "tests"
-    ]
+    "rootDir": "src"
   },
   "build": {
     "productName": "ontime",
