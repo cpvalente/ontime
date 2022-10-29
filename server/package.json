@@ -12,7 +12,7 @@
   "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
-    "cypress": "^9.6.0",
+    "@playwright/test": "^1.27.1",
     "electron": "^21.1.0",
     "electron-builder": "^23.6.0",
     "eslint": "^8.25.0",
@@ -32,9 +32,8 @@
     "prep": "yarn clean && yarn setdb",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
-    "start:server": "nodemon --experimental-modules --es-module-specifier-resolution=node src/app.js",
-    "cy:run": "cypress run",
-    "cypress": "start-server-and-test start http://localhost:4001 cy:run",
+    "start:server": "nodemon --experimental-modules --es-module-specifier-resolution=node src/run.js",
+    "e2e": "set IS_TEST=true && playwright test",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "dist-win": "electron-builder --publish=never  --x64 --win",
@@ -44,10 +43,7 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      "dist",
-      "cypress"
-    ]
+    "rootDir": "src"
   },
   "build": {
     "productName": "ontime",
@@ -88,7 +84,7 @@
       "!**/{yarn.lock,yarn-error.log}",
       "!**/{test,tests,__test__,__tests__}",
       "!**/{mock,mocks,__mock__,__mocks__}",
-      "!*{.spec.js,*.test.js}"
+      "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
     ],
     "directories": {
       "buildResources": "./assets/"
@@ -101,7 +97,8 @@
           "**/*",
           "!**/{yarn.lock,yarn-error.log}",
           "!**/{test,tests,__test__,__tests__}",
-          "!**/{mock,mocks,__mock__,__mocks__}"
+          "!**/{mock,mocks,__mock__,__mocks__}",
+          "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
         ]
       },
       {
@@ -111,7 +108,8 @@
           "**/*",
           "!**/{yarn.lock,yarn-error.log}",
           "!**/{test,tests,__test__,__tests__}",
-          "!**/{mock,mocks,__mock__,__mocks__}"
+          "!**/{mock,mocks,__mock__,__mocks__}",
+          "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
         ]
       }
     ]

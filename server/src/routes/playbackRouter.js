@@ -1,30 +1,22 @@
 import express from 'express';
-export const router = express.Router();
-
 // import playback controllers
 import {
   pbGet,
-  onAir,
-  offAir,
-  pbStart,
-  pbPause,
-  pbStop,
-  pbRoll,
-  pbPrevious,
-  pbNext,
   pbLoad,
-  pbUnload,
+  pbNext,
+  pbPause,
+  pbPrevious,
   pbReload,
+  pbRoll,
+  pbStart,
+  pbStop,
+  pbUnload,
 } from '../controllers/playbackController.js';
+
+export const router = express.Router();
 
 // create route between controller and '/playback/' endpoint
 router.get('/', pbGet);
-
-// create route between controller and '/playback/onAir' endpoint
-router.post('/onAir', onAir);
-
-// create route between controller and '/playback/offAir' endpoint
-router.post('/offAir', offAir);
 
 // create route between controller and '/playback/start' endpoint
 router.post('/start', pbStart);

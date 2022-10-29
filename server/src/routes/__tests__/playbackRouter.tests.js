@@ -19,24 +19,6 @@ describe('When a GET request request is sent', () => {
 });
 
 describe('When a POST state change is sent', () => {
-  test('POST /playback/onAir returns 200', async () => {
-    await supertest(server)
-      .post('/playback/onAir')
-      .expect(200)
-      .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
-      });
-  });
-
-  test('POST /playback/offAir returns 200', async () => {
-    await supertest(server)
-      .post('/playback/offAir')
-      .expect(200)
-      .then((response) => {
-        expect(response.text.includes('<!doctype html>')).toBe(false);
-      });
-  });
-
   test('POST /playback/start returns 200', async () => {
     await supertest(server)
       .post('/playback/start')

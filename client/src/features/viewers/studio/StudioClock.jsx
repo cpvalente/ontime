@@ -94,7 +94,12 @@ export default function StudioClock(props) {
         </div>
       </div>
       <div className='schedule-container'>
-        <div className={onAir ? 'onAir' : 'onAir onAir--idle'}>ON AIR</div>
+        <div
+          className={onAir ? 'onAir' : 'onAir onAir--idle'}
+          data-testid={onAir ? 'on-air-enabled' : 'on-air-disabled'}
+        >
+          ON AIR
+        </div>
         <div className='schedule'>
           <ul>
             {schedule.map((s) => (

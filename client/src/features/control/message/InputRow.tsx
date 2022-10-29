@@ -24,7 +24,7 @@ export default function InputRow(props: InputRowProps) {
 
   return (
     <div className={`${visible ? style.inputRowActive : ''}`}>
-      <span className={style.label}>{label}</span>
+      <label className={style.label}>{label}</label>
       <div className={style.inputItems}>
         <Input
           size='sm'
@@ -36,7 +36,7 @@ export default function InputRow(props: InputRowProps) {
         <TooltipActionBtn
           clickHandler={() => actionHandler('update', { field: 'isPublic', value: !visible })}
           tooltip={visible ? 'Make invisible' : 'Make visible'}
-          aria-label='Toggle tooltip visibility'
+          aria-label={`Toggle ${label}`}
           openDelay={tooltipDelayMid}
           icon={<IoSunny size='18px' />}
           colorScheme='blue'
