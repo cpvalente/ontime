@@ -4,18 +4,6 @@ export const pbGet = async (req, res) => {
   res.send({ playback: global.timer.state });
 };
 
-// Create controller for GET request to '/playback/onAir'
-// Turns onAir flag to true
-export const onAir = async (req, res) => {
-  global.timer.trigger('onAir') ? res.sendStatus(200) : res.sendStatus(400);
-};
-
-// Create controller for GET request to '/playback/onAir'
-// Turns onAir flag to true
-export const offAir = async (req, res) => {
-  global.timer.trigger('offAir') ? res.sendStatus(200) : res.sendStatus(400);
-};
-
 // Create controller for GET request to '/playback/start'
 // Starts timer object
 export const pbStart = async (req, res) => {
