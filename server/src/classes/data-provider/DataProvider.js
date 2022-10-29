@@ -19,35 +19,35 @@ export class DataProvider {
     return data.event;
   }
 
-  static async setEvents(newData) {
-    data.events = [...newData];
+  static async setRundown(newData) {
+    data.rundown = [...newData];
     await this.persist();
   }
 
   static getEventById(eventId) {
-    return data.events.find((e) => e.id === eventId);
+    return data.rundown.find((e) => e.id === eventId);
   }
 
   static async updateEventById(eventId, newData) {
-    const eventIndex = data.events.findIndex((e) => e.id === eventId);
-    const e = data.events[eventIndex];
-    data.events[eventIndex] = { ...e, ...newData };
-    data.events[eventIndex].revision++;
+    const eventIndex = data.rundown.findIndex((e) => e.id === eventId);
+    const e = data.rundown[eventIndex];
+    data.rundown[eventIndex] = { ...e, ...newData };
+    data.rundown[eventIndex].revision++;
     await this.persist();
-    return data.events[eventIndex];
+    return data.rundown[eventIndex];
   }
 
   static async deleteEvent(eventId) {
-    data.events = Array.from(data.events).filter((e) => e.id !== eventId);
+    data.rundown = Array.from(data.rundown).filter((e) => e.id !== eventId);
     await this.persist();
   }
 
   static getNumEvents() {
-    return data.events.length;
+    return data.rundown.length;
   }
 
-  static async deleteAllEvents() {
-    data.events = [];
+  static async clearRundown() {
+    data.rundown = [];
     await db.write();
   }
 
@@ -60,7 +60,7 @@ export class DataProvider {
    */
   static async insertEventAt(entry, index) {
     // get events
-    const events = DataProvider.getEvents();
+    const events = DataProvider.getRundown();
     const count = events.length;
     const order = entry.order;
 
@@ -83,7 +83,7 @@ export class DataProvider {
     }
 
     // save events
-    await DataProvider.setEvents(events);
+    await DataProvider.setRundown(events);
   }
 
   /**
@@ -94,7 +94,7 @@ export class DataProvider {
    * @private
    */
   static async insertEventAfterId(entry, id) {
-    const index = [...data.events].findIndex((event) => event.id === id);
+    const index = [...data.rundown].findIndex((event) => event.id === id);
     // eslint-disable-next-line no-unused-vars
     const { _after, ...sanitisedEvent } = entry;
     await DataProvider.insertEventAt(sanitisedEvent, index + 1);
@@ -145,8 +145,8 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getEvents() {
-    return [...data.events];
+  static getRundown() {
+    return [...data.rundown];
   }
 
   static async persist() {
@@ -161,7 +161,7 @@ export class DataProvider {
     data.http = mergedData.http;
     data.aliases = mergedData.aliases;
     data.userFields = mergedData.userFields;
-    data.events = mergedData.events;
+    data.rundown = mergedData.rundown;
     await this.persist();
   }
 
@@ -173,8 +173,8 @@ export class DataProvider {
   static safeMerge(existing, newData) {
     const mergedData = { ...existing };
 
-    if (typeof newData?.events !== 'undefined') {
-      mergedData.events = newData.events;
+    if (typeof newData?.rundown !== 'undefined') {
+      mergedData.rundown = newData.rundown;
     }
     if (typeof newData?.event !== 'undefined') {
       mergedData.event = { ...newData.event };

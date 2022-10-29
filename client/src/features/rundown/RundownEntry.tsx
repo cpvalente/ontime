@@ -6,16 +6,17 @@ import {
 } from 'common/atoms/LocalEventSettings';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
-import { OntimeEvent, OntimeEventEntry } from 'common/models/EventTypes';
+import { OntimeEvent, OntimeRundownEntry } from 'common/models/EventTypes';
 import { Playstate } from 'common/models/OntimeTypes';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { calculateDuration } from 'common/utils/timesManager';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { CursorContext } from '../../../common/context/CursorContext';
-import BlockBlock from '../block-block/BlockBlock';
-import DelayBlock from '../delay-block/DelayBlock';
-import EventBlock from '../event-block/EventBlock';
+import { CursorContext } from '../../common/context/CursorContext';
+
+import BlockBlock from './block-block/BlockBlock';
+import DelayBlock from './delay-block/DelayBlock';
+import EventBlock from './event-block/EventBlock';
 
 export type EventItemActions =
   'set-cursor'
@@ -26,10 +27,10 @@ export type EventItemActions =
   | 'clone'
   | 'update'
 
-interface EventListItemProps {
+interface RundownEntryProps {
   index: number;
   eventIndex: number;
-  data: OntimeEventEntry;
+  data: OntimeRundownEntry;
   selected: boolean;
   next: boolean;
   delay: number;
@@ -37,7 +38,7 @@ interface EventListItemProps {
   playback: Playstate;
 }
 
-export default function EventListItem(props: EventListItemProps) {
+export default function RundownEntry(props: RundownEntryProps) {
   const { index, eventIndex, data, selected, next, delay, previousEnd, playback } = props;
   const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);

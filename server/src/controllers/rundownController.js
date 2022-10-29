@@ -24,8 +24,8 @@ async function _insertAndSync(newEvent) {
     delete newEvent.after;
     await DataProvider.insertEventAfterId(newEvent, afterId);
     if (newEvent.type === 'event') {
-      const events = DataProvider.getEvents();
-      const { id } = getPreviousPlayable(events, newEvent.id);
+      const rundown = DataProvider.getRundown();
+      const { id } = getPreviousPlayable(rundown, newEvent.id);
       _insertEventInTimerAfterId(newEvent, id);
     }
   }
@@ -37,8 +37,8 @@ async function _insertAndSync(newEvent) {
  */
 function getEventEvents() {
   // return data.events.filter((e) => e.type === 'event');
-  const events = DataProvider.getEvents();
-  return Array.from(events).filter((e) => e.type === 'event');
+  const rundown = DataProvider.getRundown();
+  return Array.from(rundown).filter((e) => e.type === 'event');
 }
 
 // Updates timer object
@@ -76,15 +76,15 @@ function _deleteTimerId(entryId) {
   global.timer.deleteId(entryId);
 }
 
-// Create controller for GET request to '/events'
+// Create controller for GET request to '/rundown'
 // Returns -
-export const eventsGetAll = async (req, res) => {
-  res.json(DataProvider.getEvents());
+export const rundownGetAll = async (req, res) => {
+  res.json(DataProvider.getRundown());
 };
 
-// Create controller for GET request to '/events/:eventId'
+// Create controller for GET request to '/rundown/:eventId'
 // Returns -
-export const eventsGetById = async (req, res) => {
+export const getEventById = async (req, res) => {
   const id = req.params?.eventId;
 
   if (id == null) {
@@ -95,9 +95,9 @@ export const eventsGetById = async (req, res) => {
   }
 };
 
-// Create controller for POST request to '/events/'
+// Create controller for POST request to '/rundown/'
 // Returns -
-export const eventsPost = async (req, res) => {
+export const rundownPost = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -137,9 +137,9 @@ export const eventsPost = async (req, res) => {
   }
 };
 
-// Create controller for PUT request to '/events/'
+// Create controller for PUT request to '/rundown/'
 // Returns -
-export const eventsPut = async (req, res) => {
+export const rundownPut = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -163,8 +163,8 @@ export const eventsPut = async (req, res) => {
       } else {
         if (eventInMemory.skip) {
           // if it was skipped before we add it to the timer
-          const events = DataProvider.getEvents();
-          const { id } = getPreviousPlayable(events, patchedObject.id);
+          const rundown = DataProvider.getRundown();
+          const { id } = getPreviousPlayable(rundown, patchedObject.id);
           _insertEventInTimerAfterId(patchedObject, id);
         } else {
           // otherwise update as normal
@@ -178,24 +178,16 @@ export const eventsPut = async (req, res) => {
   }
 };
 
-// Create controller for PATCH request to '/events/'
-// Returns -
-// DEPRECATED
-export const eventsPatch = async (req, res) => {
-  // Code is the same as put, call that
-  await eventsPut(req, res);
-};
-
-export const eventsReorder = async (req, res) => {
+export const rundownReorder = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   const { index, from, to } = req.body;
 
-  // get events
-  const events = DataProvider.getEvents();
-  const idx = events.findIndex((e) => e.id === index, from);
+  // get rundown
+  const rundown = DataProvider.getRundown();
+  const idx = rundown.findIndex((e) => e.id === index, from);
 
   // Check if item is at given index
   if (idx !== from) {
@@ -205,13 +197,13 @@ export const eventsReorder = async (req, res) => {
 
   try {
     // remove item at from
-    const [reorderedItem] = events.splice(from, 1);
+    const [reorderedItem] = rundown.splice(from, 1);
 
     // reinsert item at to
-    events.splice(to, 0, reorderedItem);
+    rundown.splice(to, 0, reorderedItem);
 
-    // save events
-    await DataProvider.setEventData(events);
+    // save rundown
+    await DataProvider.setEventData(rundown);
 
     // update timer
     _updateTimers();
@@ -222,19 +214,19 @@ export const eventsReorder = async (req, res) => {
   }
 };
 
-// Create controller for PATCH request to '/events/applydelay/:eventId'
+// Create controller for PATCH request to '/rundown/applydelay/:eventId'
 // Returns -
-export const eventsApplyDelay = async (req, res) => {
+export const rundownApplyDelay = async (req, res) => {
   try {
-    // get events
-    const events = DataProvider.getEvents();
+    // get rundown
+    const rundown = DataProvider.getRundown();
 
     // AUX
     let delayIndex = null;
     let blockIndex = null;
     let delayValue = 0;
 
-    for (const [index, e] of events.entries()) {
+    for (const [index, e] of rundown.entries()) {
       if (delayIndex == null) {
         // look for delay
         if (e.id === req.params.eventId && e.type === 'delay') {
@@ -261,14 +253,14 @@ export const eventsApplyDelay = async (req, res) => {
     }
 
     // delete delay
-    events.splice(delayIndex, 1);
+    rundown.splice(delayIndex, 1);
 
     // delete block
     // index would have moved down since we deleted delay
-    if (blockIndex) events.splice(blockIndex - 1, 1);
+    if (blockIndex) rundown.splice(blockIndex - 1, 1);
 
-    // update events
-    await DataProvider.setEvents(events);
+    // update rundown
+    await DataProvider.setRundown(rundown);
 
     // update timer
     _updateTimers();
@@ -279,9 +271,9 @@ export const eventsApplyDelay = async (req, res) => {
   }
 };
 
-// Create controller for DELETE request to '/events/:eventId'
+// Create controller for DELETE request to '/rundown/:eventId'
 // Returns -
-export const eventsDelete = async (req, res) => {
+export const deleteEventById = async (req, res) => {
   try {
     const eventId = req.params.eventId;
 
@@ -296,11 +288,11 @@ export const eventsDelete = async (req, res) => {
   }
 };
 
-// Create controller for DELETE request to '/events/:eventId'
+// Create controller for DELETE request to '/rundown/:eventId'
 // Returns -
-export const eventsDeleteAll = async (req, res) => {
+export const rundownDelete = async (req, res) => {
   try {
-    await DataProvider.deleteAllEvents();
+    await DataProvider.clearRundown();
     global.timer.clearEventList();
     res.sendStatus(204);
   } catch (error) {

@@ -1,6 +1,6 @@
 import { body, param, validationResult } from 'express-validator';
 
-export const eventsPostValidator = [
+export const rundownPostValidator = [
   body('type').isString().exists().isIn(['event', 'delay', 'block']),
   (req, res, next) => {
     const errors = validationResult(req);
@@ -9,7 +9,7 @@ export const eventsPostValidator = [
   },
 ];
 
-export const eventsPutValidator = [
+export const rundownPutValidator = [
   body('id').isString().exists(),
   (req, res, next) => {
     const errors = validationResult(req);

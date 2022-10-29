@@ -1,18 +1,18 @@
 import fs from 'fs';
 import xlsx from 'node-xlsx';
 import { event as eventDef } from '../models/eventsDefinition.js';
-import { dbModelv1 } from '../models/dataModel.js';
+import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString, validateDuration } from './parserUtils.js';
 import {
-  parseAliases_v1,
-  parseEvent_v1,
-  parseEvents_v1,
-  parseHttp_v1,
-  parseOsc_v1,
-  parseSettings_v1,
-  parseUserFields_v1,
-  parseViews_v1,
-} from './parserUtils_v1.js';
+  parseAliases,
+  parseEvent,
+  parseRundown,
+  parseHttp,
+  parseOsc,
+  parseSettings,
+  parseUserFields,
+  parseViews,
+} from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 import { generateId } from './generate_id.js';
 
@@ -37,7 +37,7 @@ export const isStringEmpty = (value) => {
  * @param {array} excelData - array with excel sheet
  * @returns {object} - parsed object
  */
-export const parseExcel_v1 = async (excelData) => {
+export const parseExcel = async (excelData) => {
   const eventData = {
     title: '',
     url: '',
@@ -246,9 +246,9 @@ export const parseExcel_v1 = async (excelData) => {
     event: eventData,
     settings: {
       app: 'ontime',
-      version: 1,
+      version: 2,
     },
-    userFields: { ...dbModelv1.userFields, ...customUserFields },
+    userFields: { ...dbModel.userFields, ...customUserFields },
   };
 };
 
@@ -258,7 +258,7 @@ export const parseExcel_v1 = async (excelData) => {
  * @param {boolean} [enforce=false] - flag, tells to create an object anyway
  * @returns {object} - parsed object
  */
-export const parseJson_v1 = async (jsonData, enforce = false) => {
+export const parseJson = async (jsonData, enforce = false) => {
   if (!jsonData || typeof jsonData !== 'object') {
     console.log('ERROR: Invalid JSON format');
     return -1;
@@ -268,21 +268,21 @@ export const parseJson_v1 = async (jsonData, enforce = false) => {
   const returnData = {};
 
   // parse Events
-  returnData.events = parseEvents_v1(jsonData);
+  returnData.rundown = parseRundown(jsonData);
   // parse Event
-  returnData.event = parseEvent_v1(jsonData, enforce);
+  returnData.event = parseEvent(jsonData, enforce);
   // Settings handled partially
-  returnData.settings = parseSettings_v1(jsonData, enforce);
+  returnData.settings = parseSettings(jsonData, enforce);
   // View settings handled partially
-  returnData.views = parseViews_v1(jsonData, enforce);
+  returnData.views = parseViews(jsonData, enforce);
   // Import OSC settings if any
-  returnData.osc = parseOsc_v1(jsonData, enforce);
+  returnData.osc = parseOsc(jsonData, enforce);
   // Import HTTP settings if any
-  returnData.http = parseHttp_v1(jsonData, enforce);
+  returnData.http = parseHttp(jsonData, enforce);
   // Import Aliases if any
-  returnData.aliases = parseAliases_v1(jsonData);
+  returnData.aliases = parseAliases(jsonData);
   // Import user fields if any
-  returnData.userFields = parseUserFields_v1(jsonData);
+  returnData.userFields = parseUserFields(jsonData);
 
   return returnData;
 };
@@ -363,11 +363,11 @@ export const fileHandler = async (file) => {
 
       // we only look at worksheets called ontime or event schedule
       if (excelData?.data) {
-        const dataFromExcel = await parseExcel_v1(excelData.data);
+        const dataFromExcel = await parseExcel(excelData.data);
         res.data = {};
-        res.data.events = parseEvents_v1(dataFromExcel);
-        res.data.event = parseEvent_v1(dataFromExcel, true);
-        res.data.userFields = parseUserFields_v1(dataFromExcel);
+        res.data.events = parseRundown(dataFromExcel);
+        res.data.event = parseEvent(dataFromExcel, true);
+        res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
       } else {
         console.log('Error: No sheets found named ontime or event schedule');
@@ -394,7 +394,7 @@ export const fileHandler = async (file) => {
 
     if (uploadedJson.settings.version === 1) {
       try {
-        res.data = await parseJson_v1(uploadedJson);
+        res.data = await parseJson(uploadedJson);
         res.message = 'success';
       } catch (error) {
         res = { error: true, message: `Error parsing file: ${error}` };

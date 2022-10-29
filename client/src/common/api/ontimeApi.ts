@@ -107,14 +107,14 @@ export async function postOSC(data: OscSettingsType) {
  * @description HTTP request to download db
  * @return {Promise}
  */
-export const downloadEvents = async () => {
+export const downloadRundown = async () => {
   await axios({
     url: `${ontimeURL}/db`,
     method: 'GET',
     responseType: 'blob', // important
   }).then((response) => {
     const headerLine = response.headers['Content-Disposition'];
-    let filename = 'events.json';
+    let filename = 'rundown.json';
 
     // try and get the filename from the response
     if (headerLine != null) {
@@ -136,15 +136,15 @@ export const downloadEvents = async () => {
  * @description HTTP request to upload events db
  * @return {Promise}
  */
-type UploadEventsOptions = {
-  onlyEvents?: boolean;
+type UploadDataOptions = {
+  onlyRundown?: boolean;
 }
-export const uploadEvents = async (file: string, setProgress: (value: number) => void, options?: UploadEventsOptions) => {
+export const uploadData = async (file: string, setProgress: (value: number) => void, options?: UploadDataOptions) => {
   const formData = new FormData();
   formData.append('userFile', file);
-  const onlyEvents = options?.onlyEvents;
+  const onlyRundown = options?.onlyRundown;
   await axios
-    .post(`${ontimeURL}/db?onlyEvents=${onlyEvents}`, formData, {
+    .post(`${ontimeURL}/db?onlyRundown=${onlyRundown}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

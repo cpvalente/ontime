@@ -1,8 +1,8 @@
 import jest from 'jest-mock';
-import { dbModelv1, dbModelv1 as dbModel } from '../../models/dataModel.js';
-import { isStringEmpty, parseExcel_v1, parseJson_v1, validateEvent_v1 } from '../parser.js';
+import { dbModel, dbModel as dbModel } from '../../models/dataModel.js';
+import { isStringEmpty, parseExcel, parseJson, validateEvent_v1 } from '../parser.js';
 import { makeString, validateDuration } from '../parserUtils.js';
-import { parseAliases_v1, parseUserFields_v1, parseViews_v1 } from '../parserUtils_v1.js';
+import { parseAliases, parseUserFields, parseViews } from '../parserUtils.js';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -191,7 +191,7 @@ describe('test json parser with valid def', () => {
   let parseResponse;
 
   beforeEach(async () => {
-    parseResponse = await parseJson_v1(testData);
+    parseResponse = await parseJson(testData);
   });
 
   it('has 7 events', () => {
@@ -295,7 +295,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parseJson_v1(testData);
+    const parseResponse = await parseJson(testData);
     expect(parseResponse.events[0].id).toBeDefined();
   });
 
@@ -316,7 +316,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parseJson_v1(testData);
+    const parseResponse = await parseJson(testData);
     expect(console.log).toHaveBeenCalledWith('ERROR: ID collision on import, skipping');
     expect(parseResponse?.events.length).toBe(1);
   });
@@ -336,7 +336,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
-    const parseResponse = await parseJson_v1(testData);
+    const parseResponse = await parseJson(testData);
     expect(console.log).toHaveBeenCalledWith('ERROR: undefined event type, skipping');
     expect(parseResponse?.events.length).toBe(0);
   });
@@ -349,7 +349,7 @@ describe('test parser edge cases', () => {
       },
     };
 
-    await parseJson_v1(testData);
+    await parseJson(testData);
     expect(console.log).toHaveBeenCalledWith('ERROR: unknown app version, skipping');
   });
 });
@@ -391,7 +391,7 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJson_v1(emptyEvents);
+    const parsedDef = await parseJson(emptyEvents);
     expect(parsedDef.events.length).toBe(2);
   });
 
@@ -414,7 +414,7 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJson_v1(emptyEvents);
+    const parsedDef = await parseJson(emptyEvents);
     expect(parsedDef.events.length).toBe(0);
   });
 
@@ -431,7 +431,7 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJson_v1(emptyEventData);
+    const parsedDef = await parseJson(emptyEventData);
     expect(parsedDef.event).toStrictEqual(dbModel.event);
   });
 
@@ -445,14 +445,14 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJson_v1(missingSettings);
+    const parsedDef = await parseJson(missingSettings);
     expect(parsedDef.settings).toStrictEqual(dbModel.settings);
   });
 
   it('fails with invalid JSON', async () => {
     console.log = jest.fn();
     const invalidJSON = 'some random dataset';
-    const parsedDef = await parseJson_v1(invalidJSON);
+    const parsedDef = await parseJson(invalidJSON);
     expect(console.log).toHaveBeenCalledWith('ERROR: Invalid JSON format');
     expect(parsedDef).toBe(-1);
   });
@@ -690,7 +690,7 @@ describe('test parseExcel function', () => {
       },
     ];
 
-    const parsedData = await parseExcel_v1(testdata);
+    const parsedData = await parseExcel(testdata);
 
     expect(parsedData.event).toStrictEqual(expectedParsedEvent);
     expect(parsedData.events).toBeDefined();
@@ -721,7 +721,7 @@ describe('test aliases import', () => {
       ],
     };
 
-    const parsed = parseAliases_v1(testData);
+    const parsed = parseAliases(testData);
     expect(parsed.length).toBe(1);
 
     // generates missing id
@@ -730,7 +730,7 @@ describe('test aliases import', () => {
 });
 
 describe('test userFields import', () => {
-  const model = dbModelv1.userFields;
+  const model = dbModel.userFields;
   it('imports a fully defined user fields', () => {
     const testUserFields = {
       user0: 'test0',
@@ -754,7 +754,7 @@ describe('test userFields import', () => {
       userFields: testUserFields,
     };
 
-    const parsed = parseUserFields_v1(testData);
+    const parsed = parseUserFields(testData);
     expect(parsed).toStrictEqual(testUserFields);
   });
 
@@ -781,7 +781,7 @@ describe('test userFields import', () => {
       userFields: testUserFields,
     };
 
-    const parsed = parseUserFields_v1(testData);
+    const parsed = parseUserFields(testData);
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -794,7 +794,7 @@ describe('test userFields import', () => {
       },
     };
 
-    const parsed = parseUserFields_v1(testData);
+    const parsed = parseUserFields(testData);
     expect(parsed).toStrictEqual(model);
     expect(parsed).toStrictEqual(model);
   });
@@ -812,7 +812,7 @@ describe('test userFields import', () => {
       },
     };
 
-    const parsed = parseUserFields_v1(testData);
+    const parsed = parseUserFields(testData);
     expect(parsed).toStrictEqual(model);
   });
 });
@@ -829,7 +829,7 @@ describe('test views import', () => {
         overrideStyles: true,
       },
     };
-    const parsed = parseViews_v1(testData);
+    const parsed = parseViews(testData);
     expect(parsed).toStrictEqual(testData.views);
   });
 
@@ -841,8 +841,8 @@ describe('test views import', () => {
         version: 1,
       },
     };
-    const parsed = parseViews_v1(testData, true);
-    expect(parsed).toStrictEqual(dbModelv1.views);
+    const parsed = parseViews(testData, true);
+    expect(parsed).toStrictEqual(dbModel.views);
   });
 });
 

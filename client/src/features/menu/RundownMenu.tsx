@@ -18,14 +18,14 @@ import { CursorContext } from 'common/context/CursorContext';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 
-import style from './EventListMenu.module.scss';
+import style from './RundownMenu.module.scss';
 
 const menuStyle = {
   color: '#000000',
   backgroundColor: 'rgba(255,255,255,1)',
 };
 
-const EventListMenu = () => {
+const RundownMenu = () => {
   const { isCursorLocked, toggleCursorLocked } = useContext(CursorContext);
   const { addEvent, deleteAllEvents } = useEventAction();
 
@@ -91,4 +91,4 @@ const EventListMenu = () => {
   );
 };
 
-export default memo(EventListMenu);
+export default memo(RundownMenu);

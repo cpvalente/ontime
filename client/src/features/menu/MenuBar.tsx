@@ -6,7 +6,7 @@ import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
-import { downloadEvents } from 'common/api/ontimeApi';
+import { downloadRundown } from 'common/api/ontimeApi';
 
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
@@ -136,7 +136,7 @@ export default function MenuBar(props: MenuBarProps) {
       <TooltipActionBtn
         {...buttonStyle}
         icon={<FiSave />}
-        clickHandler={downloadEvents}
+        clickHandler={downloadRundown}
         tooltip='Export event list'
         aria-label=''
       />

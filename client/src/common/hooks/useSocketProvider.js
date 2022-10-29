@@ -3,16 +3,16 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   FEAT_CUESHEET,
-  FEAT_EVENTLIST,
   FEAT_INFO,
   FEAT_MESSAGECONTROL,
   FEAT_PLAYBACKCONTROL,
+  FEAT_RUNDOWN,
   TIMER,
 } from '../api/apiConstants';
 import { useSocket } from '../context/socketContext';
 
-export const useEventListProvider = () => {
-  const { data } = useQuery(FEAT_EVENTLIST, () => undefined, {
+export const useRundownProvider = () => {
+  const { data } = useQuery(FEAT_RUNDOWN, () => undefined, {
     cacheTime: Infinity,
     staleTime: Infinity,
   });
@@ -211,8 +211,8 @@ export const useSocketProvider = () => {
     }
 
     socket.emit('get-ontime-feat-eventlist');
-    socket.on('ontime-feat-eventlist', (featureData) => {
-      queryClient.setQueryData(FEAT_EVENTLIST, () => featureData);
+    socket.on('ontime-feat-rundown', (featureData) => {
+      queryClient.setQueryData(FEAT_RUNDOWN, () => featureData);
     });
 
     socket.emit('get-ontime-feat-messagecontrol');
@@ -241,7 +241,7 @@ export const useSocketProvider = () => {
     });
 
     return () => {
-      socket.off('ontime-feat-eventlist');
+      socket.off('ontime-feat-rundown');
       socket.off('ontime-feat-messagecontrol');
       socket.off('ontime-feat-playbackcontrol');
       socket.off('ontime-feat-info');

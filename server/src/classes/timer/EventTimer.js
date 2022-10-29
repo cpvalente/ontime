@@ -130,13 +130,13 @@ export class EventTimer extends Timer {
    * @description Broadcast data for Event List feature
    * @private
    */
-  _broadcastFeatureEventList() {
+  _broadcastFeatureRundown() {
     const featureData = {
       selectedEventId: this.selectedEventId,
       nextEventId: this.nextEventId,
       playback: this.state,
     };
-    this.socket.send('ontime-feat-eventlist', featureData);
+    this.socket.send('ontime-feat-rundown', featureData);
   }
 
   /**
@@ -183,7 +183,7 @@ export class EventTimer extends Timer {
    */
   broadcastState() {
     // feature sync
-    this._broadcastFeatureEventList();
+    this._broadcastFeatureRundown();
     this._broadcastFeaturePlaybackControl();
     this._broadcastFeatureInfo();
     this._broadcastFeatureCuesheet();

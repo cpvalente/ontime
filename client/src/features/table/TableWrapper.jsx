@@ -4,7 +4,7 @@ import { requestPatchEvent } from '../../common/api/eventsApi';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import useMutateEvents from '../../common/hooks/useMutateEvents';
 import { useCuesheetProvider } from '../../common/hooks/useSocketProvider';
-import useEventsList from '../../common/hooks-query/useEventsList';
+import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
 
 import OntimeTable from './OntimeTable';
@@ -14,7 +14,7 @@ import { makeCSV, makeTable } from './utils';
 import style from './Table.module.scss';
 
 export default function TableWrapper() {
-  const { data: events } = useEventsList();
+  const { data: events } = useRundown();
   const { data: userFields } = useUserFields();
   const mutation = useMutateEvents(requestPatchEvent);
   const { theme } = useContext(TableSettingsContext);

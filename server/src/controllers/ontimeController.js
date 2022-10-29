@@ -24,7 +24,7 @@ export const poll = async (req, res) => {
 // Returns -
 export const dbDownload = async (req, res) => {
   const { title } = DataProvider.getEventData();
-  const fileTitle = title || 'ontime events';
+  const fileTitle = title || 'ontime data';
   const dbInDisk = resolveDbPath();
 
   res.download(dbInDisk, `${fileTitle}.json`, (err) => {
@@ -50,13 +50,13 @@ const uploadAndParse = async (file, req, res, options) => {
     } else if (result.message === 'success') {
       // explicitly write objects
       if (typeof result !== 'undefined') {
-        const newEvents = result.data.events || [];
-        if (options?.onlyEvents === 'true') {
-          await DataProvider.setEvents(newEvents);
+        const newRundown = result.data.rundown || [];
+        if (options?.onlyRundown === 'true') {
+          await DataProvider.setRundown(newRundown);
         } else {
           await DataProvider.mergeIntoData(result.data);
         }
-        global.timer.setupWithEventList(newEvents.filter((entry) => entry.type === 'event'));
+        global.timer.setupWithEventList(newRundown.filter((entry) => entry.type === 'event'));
       }
       res.sendStatus(200);
     } else {

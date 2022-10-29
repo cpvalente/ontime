@@ -320,8 +320,8 @@ class SocketController {
        * */
 
       // 1. EVENT LIST
-      socket.on('get-ontime-feat-eventlist', () => {
-        global.timer._broadcastFeatureEventList();
+      socket.on('get-ontime-feat-rundown', () => {
+        global.timer._broadcastFeatureRundown();
       });
 
       // 2. MESSAGE CONTROL

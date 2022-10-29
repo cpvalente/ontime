@@ -5,12 +5,12 @@ import { useSocket } from '../../common/context/socketContext';
 import { useMessageControlProvider } from '../../common/hooks/useSocketProvider';
 import useSubscription from '../../common/hooks/useSubscription';
 import useEvent from '../../common/hooks-query/useEvent';
-import useEventsList from '../../common/hooks-query/useEventsList';
+import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 
 const withSocket = (Component) => {
   return (props) => {
-    const { data: eventsData } = useEventsList();
+    const { data: eventsData } = useRundown();
     const { data: genData } = useEvent();
     const { data: viewSettings } = useViewSettings();
     const { data: messages } = useMessageControlProvider();

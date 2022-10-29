@@ -14,7 +14,7 @@ import http from 'http';
 import cors from 'cors';
 
 // Import Routes
-import { router as eventsRouter } from './routes/eventsRouter.js';
+import { router as rundownRouter } from './routes/rundownRouter.js';
 import { router as eventRouter } from './routes/eventRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as playbackRouter } from './routes/playbackRouter.js';
@@ -54,7 +54,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
-app.use('/events', eventsRouter);
+app.use('/rundown', rundownRouter);
 app.use('/event', eventRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
@@ -133,7 +133,7 @@ const server = http.createServer(app);
  */
 export const startServer = async (overrideConfig = null) => {
   const port = 4001; // port hardcoded
-  const { events, http } = DataProvider.getData();
+  const { rundown, http } = DataProvider.getData();
 
   // Start server
   const returnMessage = `Ontime is listening on port ${port}`;
@@ -151,7 +151,7 @@ export const startServer = async (overrideConfig = null) => {
 
   // init timer
   global.timer = new EventTimer(socket, config.timer, oscConfig, http);
-  global.timer.setupWithEventList(events.filter((entry) => entry.type === 'event'));
+  global.timer.setupWithEventList(rundown.filter((entry) => entry.type === 'event'));
 
   socket.info('SERVER', returnMessage);
   socket.startListener();

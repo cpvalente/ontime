@@ -1,6 +1,6 @@
 let instance;
 
-export class MessageManager {
+class MessageManager {
   constructor() {
     if (instance) {
       throw new Error('There can be only one');

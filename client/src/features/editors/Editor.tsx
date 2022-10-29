@@ -9,7 +9,7 @@ import MenuBar from '../menu/MenuBar';
 
 import styles from './Editor.module.scss';
 
-const EventList = lazy(() => import('features/editors/list/EventListExport'));
+const Rundown = lazy(() => import('features/rundown/RundownExport'));
 const TimerControl = lazy(() => import('features/control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('features/control/message/MessageControlExport'));
 const Info = lazy(() => import('features/info/InfoExport'));
@@ -51,7 +51,7 @@ export default function Editor() {
             />
           </ErrorBoundary>
         </Box>
-        <EventList />
+        <Rundown />
         <MessageControl />
         <TimerControl />
         <Info />
