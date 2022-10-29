@@ -12,7 +12,6 @@ export default function TooltipActionBtn(props: TooltipActionBtnProps) {
     <Tooltip label={tooltip} openDelay={openDelay}>
       <IconButton
         {...rest}
-        aria-label={tooltip}
         size={size}
         icon={icon}
         onClick={clickHandler}

@@ -55,6 +55,7 @@ const config: PlaywrightTestConfig = {
 
     {
       name: 'firefox',
+      testMatch: /.*.spec.ts/,
       use: {
         ...devices['Desktop Firefox'],
       },
@@ -62,6 +63,7 @@ const config: PlaywrightTestConfig = {
 
     {
       name: 'webkit',
+      testMatch: /.*.spec.ts/,
       use: {
         ...devices['Desktop Safari'],
       },
