@@ -19,8 +19,8 @@ import {
 import { IoCloseSharp } from '@react-icons/all-files/io5/IoCloseSharp';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { EVENTS_TABLE } from '../../api/apiConstants';
-import { uploadEvents } from '../../api/ontimeApi';
+import { RUNDOWN_TABLE } from '../../api/apiConstants';
+import { uploadData } from '../../api/ontimeApi';
 import { LoggingContext } from '../../context/LoggingContext';
 import TooltipActionBtn from '../buttons/TooltipActionBtn';
 
@@ -58,11 +58,11 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const handleUpload = useCallback(async () => {
     if (file) {
       try {
-        await uploadEvents(file, setProgress, { onlyEvents: overrideOptionRef?.current?.checked });
+        await uploadData(file, setProgress, { onlyEvents: overrideOptionRef?.current?.checked });
       } catch (error) {
         emitError(`Failed uploading file: ${error}`);
       } finally {
-        await queryClient.invalidateQueries(EVENTS_TABLE);
+        await queryClient.invalidateQueries(RUNDOWN_TABLE);
         setFile(null);
       }
     }

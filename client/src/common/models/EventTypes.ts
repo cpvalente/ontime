@@ -41,4 +41,5 @@ export type OntimeEvent = OntimeBaseEvent & {
   revision: number,
 }
 
-export type OntimeEventEntry = OntimeDelay | OntimeBlock | OntimeEvent;
+export type OntimeRundownEntry = OntimeDelay | OntimeBlock | OntimeEvent;
+export type OntimeRundown = OntimeRundownEntry[]

@@ -1,4 +1,4 @@
-import { OntimeEvent, OntimeEventEntry } from '../models/EventTypes';
+import { OntimeEvent, OntimeRundownEntry } from '../models/EventTypes';
 
 import { formatTime } from './time';
 
@@ -8,7 +8,7 @@ import { formatTime } from './time';
  * @returns {Object[]} Filtered events with calculated delays
  */
 
-export const getEventsWithDelay = (events: OntimeEventEntry[]) => {
+export const getEventsWithDelay = (events: OntimeRundownEntry[]) => {
   if (events == null) return [];
 
   const unfilteredEvents = [...events];
@@ -35,7 +35,7 @@ export const getEventsWithDelay = (events: OntimeEventEntry[]) => {
  * @param {number} limit - max number of events to return
  * @returns {Object[]} Event list with maximum <limit> objects
  */
-export const trimEventlist = (events: OntimeEventEntry[], selectedId: string, limit: number) => {
+export const trimEventlist = (events: OntimeRundownEntry[], selectedId: string, limit: number) => {
   if (events == null) return [];
 
   const BEFORE = 2;

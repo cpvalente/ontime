@@ -60,8 +60,8 @@ test('object instantiates correctly', async () => {
   expect(t.nextEventId).toBeNull();
   expect(t.selectedPublicEventId).toBeNull();
   expect(t.nextPublicEventId).toBeNull();
-  expect(t._eventlist.length).toBe(0);
-  expect(t._eventlist).toStrictEqual([]);
+  expect(t.rundown.length).toBe(0);
+  expect(t.rundown).toStrictEqual([]);
   expect(t.onAir).toBeFalsy();
 
   t.shutdown();
@@ -77,7 +77,7 @@ describe('test triggers behaviour', () => {
   });
 
   test('does not allow triggering events with an empty list', (done) => {
-    expect(t._eventlist.length).toBe(0);
+    expect(t.rundown.length).toBe(0);
 
     expect(t.trigger('start')).toBeFalsy();
     expect(t.trigger('pause')).toBeFalsy();
@@ -90,7 +90,7 @@ describe('test triggers behaviour', () => {
   });
 
   test('...and is consistent by calling the class methods', (done) => {
-    expect(t._eventlist.length).toBe(0);
+    expect(t.rundown.length).toBe(0);
     expect(t.state).toBe('stop');
 
     t.start();

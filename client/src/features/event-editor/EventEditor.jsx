@@ -14,14 +14,14 @@ import { stringFromMillis } from 'common/utils/time';
 import { calculateDuration, validateEntry } from 'common/utils/timesManager';
 import { useAtom } from 'jotai';
 
-import useEventsList from '../../common/hooks-query/useEventsList';
+import useRundown from '../../common/hooks-query/useRundown';
 
 import style from './EventEditor.module.scss';
 import CopyTag from '../../common/components/osc-tag/CopyTag';
 
 export default function EventEditor() {
   const [openId] = useAtom(editorEventId);
-  const { data } = useEventsList();
+  const { data } = useRundown();
   const { emitWarning, emitError } = useContext(LoggingContext);
   const { updateEvent } = useEventAction();
   const [event, setEvent] = useState(null);

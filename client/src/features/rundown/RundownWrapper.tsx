@@ -1,17 +1,17 @@
 import { useContext, useEffect } from 'react';
 import Empty from 'common/components/state/Empty';
 import { LoggingContext } from 'common/context/LoggingContext';
-import EventListMenu from 'features/menu/EventListMenu';
+import RundownMenu from 'features/menu/RundownMenu';
 
-import useEventsList from '../../../common/hooks-query/useEventsList';
+import useRundown from '../../common/hooks-query/useRundown';
 
-import EventList from './EventList';
+import Rundown from './Rundown';
 
-import styles from '../Editor.module.scss';
+import styles from '../editors/Editor.module.scss';
 
-export default function EventListWrapper() {
+export default function RundownWrapper() {
   const { emitError } = useContext(LoggingContext);
-  const { data, status, isError } = useEventsList();
+  const { data, status, isError } = useRundown();
 
   useEffect(() => {
     if (isError) {
@@ -21,10 +21,10 @@ export default function EventListWrapper() {
 
   return (
     <>
-      <EventListMenu />
+      <RundownMenu />
       <div className={styles.content}>
         {status === 'success' && data ? (
-          <EventList events={data} />
+          <Rundown entries={data} />
         ) : (
           <Empty text='Connecting to server' />
         )}

@@ -1,15 +1,15 @@
 import axios from 'axios';
 
-import { OntimeEventEntry } from '../models/EventTypes';
+import { OntimeRundown, OntimeRundownEntry } from '../models/EventTypes';
 
-import { eventsURL } from './apiConstants';
+import { rundownURL } from './apiConstants';
 
 /**
  * @description HTTP request to fetch all events
  * @return {Promise}
  */
-export async function fetchAllEvents(): Promise<OntimeEventEntry[]> {
-  const res = await axios.get(eventsURL);
+export async function fetchRundown(): Promise<OntimeRundown> {
+  const res = await axios.get(rundownURL);
   return res.data;
 }
 
@@ -17,32 +17,32 @@ export async function fetchAllEvents(): Promise<OntimeEventEntry[]> {
  * @description HTTP request to post new event
  * @return {Promise}
  */
-export async function requestPostEvent(data: OntimeEventEntry) {
-  return axios.post(eventsURL, data);
+export async function requestPostEvent(data: OntimeRundownEntry) {
+  return axios.post(rundownURL, data);
 }
 
 /**
  * @description HTTP request to put new event
  * @return {Promise}
  */
-export async function requestPutEvent(data: OntimeEventEntry) {
-  return axios.put(eventsURL, data);
+export async function requestPutEvent(data: OntimeRundownEntry) {
+  return axios.put(rundownURL, data);
 }
 
 /**
  * @description HTTP request to modify event
  * @return {Promise}
  */
-export async function requestPatchEvent(data: OntimeEventEntry) {
-  return axios.patch(eventsURL, data);
+export async function requestPatchEvent(data: OntimeRundownEntry) {
+  return axios.patch(rundownURL, data);
 }
 
 /**
  * @description HTTP request to reorder events
  * @return {Promise}
  */
-export async function requestReorderEvent(data: OntimeEventEntry) {
-  return axios.patch(`${eventsURL}/reorder`, data);
+export async function requestReorderEvent(data: OntimeRundownEntry) {
+  return axios.patch(`${rundownURL}/reorder`, data);
 }
 
 /**
@@ -50,7 +50,7 @@ export async function requestReorderEvent(data: OntimeEventEntry) {
  * @return {Promise}
  */
 export async function requestApplyDelay(eventId: string) {
-  return axios.patch(`${eventsURL}/applydelay/${eventId}`);
+  return axios.patch(`${rundownURL}/applydelay/${eventId}`);
 }
 
 /**
@@ -58,7 +58,7 @@ export async function requestApplyDelay(eventId: string) {
  * @return {Promise}
  */
 export async function requestDelete(eventId: string) {
-  return axios.delete(`${eventsURL}/${eventId}`);
+  return axios.delete(`${rundownURL}/${eventId}`);
 }
 
 /**
@@ -66,5 +66,5 @@ export async function requestDelete(eventId: string) {
  * @return {Promise}
  */
 export async function requestDeleteAll() {
-  return axios.delete(`${eventsURL}/all`);
+  return axios.delete(`${rundownURL}/all`);
 }

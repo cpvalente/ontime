@@ -1,6 +1,6 @@
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
-import { dbModelv1 } from '../models/dataModel.js';
-import { validateEvent_v1 } from './parser.js';
+import { dbModel } from '../models/dataModel.js';
+import { validateEvent } from './parser.js';
 import { generateId } from './generate_id.js';
 import { MAX_EVENTS } from '../settings.js';
 
@@ -9,16 +9,16 @@ import { MAX_EVENTS } from '../settings.js';
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseEvents_v1 = (data) => {
-  let newEvents = [];
-  if ('events' in data) {
-    console.log('Found events definition, importing...');
-    const events = [];
+export const parseRundown = (data) => {
+  let newRundown = [];
+  if ('rundown' in data) {
+    console.log('Found rundown definition, importing...');
+    const rundown = [];
     try {
       const ids = [];
-      for (const e of data.events) {
+      for (const e of data.rundown) {
         // cap number of events
-        if (events.length >= MAX_EVENTS) {
+        if (rundown.length >= MAX_EVENTS) {
           console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
           break;
         }
@@ -30,19 +30,19 @@ export const parseEvents_v1 = (data) => {
         }
 
         if (e.type === 'event') {
-          const event = validateEvent_v1(e);
+          const event = validateEvent(e);
           if (event != null) {
-            events.push(event);
+            rundown.push(event);
             ids.push(event.id);
           }
         } else if (e.type === 'delay') {
-          events.push({
+          rundown.push({
             ...delayDef,
             duration: e.duration,
             id: e.id || generateId(),
           });
         } else if (e.type === 'block') {
-          events.push({ ...blockDef, id: e.id || generateId() });
+          rundown.push({ ...blockDef, id: e.id || generateId() });
         } else {
           console.log('ERROR: undefined event type, skipping');
         }
@@ -51,10 +51,10 @@ export const parseEvents_v1 = (data) => {
       console.log(`Error ${error}`);
     }
     // write to db
-    newEvents = events;
-    console.log(`Uploaded file with ${events.length} entries`);
+    newRundown = rundown;
+    console.log(`Uploaded file with ${newRundown.length} entries`);
   }
-  return newEvents;
+  return newRundown;
 };
 /**
  * Parse event portion of an entry
@@ -62,22 +62,22 @@ export const parseEvents_v1 = (data) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseEvent_v1 = (data, enforce) => {
+export const parseEvent = (data, enforce) => {
   let newEvent = {};
   if ('event' in data) {
     console.log('Found event data, importing...');
     const e = data.event;
     // filter known properties and write to db
     newEvent = {
-      ...dbModelv1.event,
-      title: e.title || dbModelv1.event.title,
-      url: e.url || dbModelv1.event.url,
-      publicInfo: e.publicInfo || dbModelv1.event.publicInfo,
-      backstageInfo: e.backstageInfo || dbModelv1.event.backstageInfo,
-      endMessage: e.endMessage || dbModelv1.event.endMessage,
+      ...dbModel.event,
+      title: e.title || dbModel.event.title,
+      url: e.url || dbModel.event.url,
+      publicInfo: e.publicInfo || dbModel.event.publicInfo,
+      backstageInfo: e.backstageInfo || dbModel.event.backstageInfo,
+      endMessage: e.endMessage || dbModel.event.endMessage,
     };
   } else if (enforce) {
-    newEvent = { ...dbModelv1.event };
+    newEvent = { ...dbModel.event };
     console.log(`Created event object in db`);
   }
   return newEvent;
@@ -89,7 +89,7 @@ export const parseEvent_v1 = (data, enforce) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseSettings_v1 = (data, enforce) => {
+export const parseSettings = (data, enforce) => {
   let newSettings = {};
   if ('settings' in data) {
     console.log('Found settings definition, importing...');
@@ -107,12 +107,12 @@ export const parseSettings_v1 = (data, enforce) => {
 
       // write to db
       newSettings = {
-        ...dbModelv1.settings,
+        ...dbModel.settings,
         ...settings,
       };
     }
   } else if (enforce) {
-    newSettings = dbModelv1.settings;
+    newSettings = dbModel.settings;
     console.log(`Created settings object in db`);
   }
   return newSettings;
@@ -124,14 +124,14 @@ export const parseSettings_v1 = (data, enforce) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseViews_v1 = (data, enforce) => {
+export const parseViews = (data, enforce) => {
   let newViews = {};
   if ('views' in data) {
     console.log('Found view definition, importing...');
     const v = data.views;
 
     const viewSettings = {
-      overrideStyles: v.overrideStyles ?? dbModelv1.views.overrideStyles,
+      overrideStyles: v.overrideStyles ?? dbModel.views.overrideStyles,
     };
 
     // write to db
@@ -139,7 +139,7 @@ export const parseViews_v1 = (data, enforce) => {
       ...viewSettings,
     };
   } else if (enforce) {
-    newViews = dbModelv1.views;
+    newViews = dbModel.views;
     console.log(`Created view object in db`);
   }
   return newViews;
@@ -151,7 +151,7 @@ export const parseViews_v1 = (data, enforce) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseOsc_v1 = (data, enforce) => {
+export const parseOsc = (data, enforce) => {
   let newOsc = {};
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
@@ -164,11 +164,11 @@ export const parseOsc_v1 = (data, enforce) => {
     if (typeof s.enabled !== 'undefined') osc.enabled = s.enabled;
     // write to db
     newOsc = {
-      ...dbModelv1.osc,
+      ...dbModel.osc,
       ...osc,
     };
   } else if (enforce) {
-    newOsc = { ...dbModelv1.osc };
+    newOsc = { ...dbModel.osc };
     console.log(`Created OSC object in db`);
   }
   return newOsc;
@@ -180,7 +180,7 @@ export const parseOsc_v1 = (data, enforce) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseHttp_v1 = (data, enforce) => {
+export const parseHttp = (data, enforce) => {
   const newHttp = {};
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
@@ -192,11 +192,11 @@ export const parseHttp_v1 = (data, enforce) => {
 
     // write to db
     newHttp.http = {
-      ...dbModelv1.http,
+      ...dbModel.http,
       ...http,
     };
   } else if (enforce) {
-    newHttp.http = { ...dbModelv1.http };
+    newHttp.http = { ...dbModel.http };
     console.log(`Created http object in db`);
   }
   return newHttp;
@@ -207,7 +207,7 @@ export const parseHttp_v1 = (data, enforce) => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseAliases_v1 = (data) => {
+export const parseAliases = (data) => {
   const newAliases = [];
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
@@ -242,8 +242,8 @@ export const parseAliases_v1 = (data) => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseUserFields_v1 = (data) => {
-  const newUserFields = { ...dbModelv1.userFields };
+export const parseUserFields = (data) => {
+  const newUserFields = { ...dbModel.userFields };
 
   if ('userFields' in data) {
     console.log('Found User Fields definition, importing...');

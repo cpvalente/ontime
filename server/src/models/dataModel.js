@@ -1,5 +1,5 @@
-export const dbModelv1 = {
-  events: [],
+export const dbModel = {
+  rundown: [],
   event: {
     title: '',
     url: '',
@@ -9,7 +9,7 @@ export const dbModelv1 = {
   },
   settings: {
     app: 'ontime',
-    version: 1,
+    version: 2,
     serverPort: 4001,
     lock: null,
     pinCode: null,

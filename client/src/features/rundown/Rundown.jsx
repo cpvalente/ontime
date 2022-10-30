@@ -9,20 +9,20 @@ import {
 import Empty from 'common/components/state/Empty';
 import { CursorContext } from 'common/context/CursorContext';
 import { useEventAction } from 'common/hooks/useEventAction';
-import { useEventListProvider } from 'common/hooks/useSocketProvider';
+import { useRundownProvider } from 'common/hooks/useSocketProvider';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
-import useSubscription from '../../../common/hooks/useSubscription';
-import QuickAddBlock from '../quick-add-block/QuickAddBlock';
+import useSubscription from '../../common/hooks/useSubscription';
 
-import EventListItem from './EventListItem';
+import QuickAddBlock from './quick-add-block/QuickAddBlock';
+import RundownEntry from './RundownEntry';
 
-import style from './List.module.scss';
+import style from './Rundown.module.scss';
 
-export default function EventList(props) {
-  const { events } = props;
+export default function Rundown(props) {
+  const { entries } = props;
   const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } =
     useContext(CursorContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
@@ -30,7 +30,7 @@ export default function EventList(props) {
   const { addEvent, reorderEvent } = useEventAction();
   const cursorRef = createRef();
   const showQuickEntry = useAtomValue(showQuickEntryAtom);
-  const data = useEventListProvider();
+  const data = useRundownProvider();
   const [selectedId] = useSubscription('selected-id', null);
   const [nextId] = useSubscription('next-id', null);
 
@@ -39,8 +39,8 @@ export default function EventList(props) {
       if (cursor === -1) {
         addEvent({ type: type });
       } else {
-        const previousEvent = events?.[cursor];
-        const nextEvent = events?.[cursor + 1];
+        const previousEvent = entries?.[cursor];
+        const nextEvent = entries?.[cursor + 1];
 
         // prevent adding two non-event blocks consecutively
         const isPreviousDifferent = previousEvent?.type !== type;
@@ -64,7 +64,7 @@ export default function EventList(props) {
         }
       }
     },
-    [addEvent, defaultPublic, events, startTimeIsLastEnd],
+    [addEvent, defaultPublic, entries, startTimeIsLastEnd],
   );
 
   // Handle keyboard shortcuts
@@ -77,7 +77,7 @@ export default function EventList(props) {
       if (e.altKey && (!e.ctrlKey || !e.shiftKey)) {
         // Arrow down
         if (e.keyCode === 40) {
-          if (cursor < events.length - 1) moveCursorDown();
+          if (cursor < entries.length - 1) moveCursorDown();
         }
         // Arrow up
         if (e.keyCode === 38) {
@@ -103,21 +103,21 @@ export default function EventList(props) {
         }
       }
     },
-    [cursor, events.length, insertAtCursor, moveCursorDown, moveCursorUp],
+    [cursor, entries.length, insertAtCursor, moveCursorDown, moveCursorUp],
   );
 
   useEffect(() => {
     // attach the event listener
     document.addEventListener('keydown', handleKeyPress);
 
-    if (cursor > events.length - 1) moveCursorTo(events.length - 1);
-    if (events.length > 0 && cursor === -1) moveCursorTo(0);
+    if (cursor > entries.length - 1) moveCursorTo(entries.length - 1);
+    if (entries.length > 0 && cursor === -1) moveCursorTo(0);
 
     // remove the event listener
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [handleKeyPress, cursor, events, moveCursorTo]);
+  }, [handleKeyPress, cursor, entries, moveCursorTo]);
 
   // when cursor moves, view should follow
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function EventList(props) {
     // move cursor
     let gotoIndex = -1;
     let found = false;
-    for (const e of events) {
+    for (const e of entries) {
       gotoIndex++;
       if (e.id === data.selectedEventId) {
         found = true;
@@ -166,10 +166,10 @@ export default function EventList(props) {
     [reorderEvent],
   );
 
-  if (events.length < 1) {
+  if (entries.length < 1) {
     return (
       <div className={style.alignCenter}>
-        <Empty text='No Events' style={{ marginTop: '7vh' }} />
+        <Empty text='No data yet' style={{ marginTop: '7vh' }} />
         <Button
           onClick={() => insertAtCursor('event', cursor)}
           variant='solid'
@@ -192,7 +192,7 @@ export default function EventList(props) {
         <Droppable droppableId='eventlist'>
           {(provided) => (
             <div className={style.list} {...provided.droppableProps} ref={provided.innerRef}>
-              {events.map((e, index) => {
+              {entries.map((e, index) => {
                 if (index === 0) {
                   cumulativeDelay = 0;
                   eventIndex = -1;
@@ -207,7 +207,7 @@ export default function EventList(props) {
                   thisEnd = e.timeEnd;
                   previousEventId = e.id;
                 }
-                const isLast = index === events.length - 1;
+                const isLast = index === entries.length - 1;
                 return (
                   <div
                     key={e.id}
@@ -218,7 +218,7 @@ export default function EventList(props) {
                       ref={cursor === index ? cursorRef : undefined}
                       className={cursor === index ? style.cursor : ''}
                     >
-                      <EventListItem
+                      <RundownEntry
                         type={e.type}
                         index={index}
                         eventIndex={eventIndex}
@@ -251,6 +251,6 @@ export default function EventList(props) {
   );
 }
 
-EventList.propTypes = {
-  events: PropTypes.array,
+Rundown.propTypes = {
+  entries: PropTypes.array,
 };

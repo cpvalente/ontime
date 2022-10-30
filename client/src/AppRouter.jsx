@@ -30,7 +30,7 @@ const SPip = withSocket(Pip);
 const SStudio = withSocket(StudioClock);
 
 const FeatureWrapper = lazy(() => import('features/FeatureWrapper'));
-const EventList = lazy(() => import('features/editors/list/EventListExport'));
+const RundownPanel = lazy(() => import('features/rundown/RundownExport'));
 const TimerControl = lazy(() => import('features/control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('features/control/message/MessageControlExport'));
 const Info = lazy(() => import('features/info/InfoExport'));
@@ -85,10 +85,10 @@ export default function AppRouter() {
 
       {/*/!* Protected Routes - Elements *!/*/}
       <Route
-        path='/eventlist'
+        path='/rundown'
         element={
           <FeatureWrapper>
-            <EventList />
+            <RundownPanel />
           </FeatureWrapper>
         }
       />

@@ -20,7 +20,7 @@ import { useAtom } from 'jotai';
 import { useEventProvider } from '../../../common/hooks/useSocketProvider';
 import { Playstate } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
-import { EventItemActions } from '../list/EventListItem';
+import { EventItemActions } from '../RundownEntry';
 
 import EventBlockActionMenu from './composite/EventBlockActionMenu';
 import EventBlockTimers from './composite/EventBlockTimers';

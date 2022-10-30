@@ -8,7 +8,7 @@ test.describe('pages routes are available', () => {
 
       await expect(page).toHaveTitle(/ontime/);
       await page.getByTestId('event-editor').click();
-      await page.getByTestId('panel-event-list').click();
+      await page.getByTestId('panel-rundown').click();
       await page.getByTestId('panel-timer-control').click();
       await page.getByTestId('panel-messages-control').click();
       await page.getByTestId('panel-info').click();
@@ -23,8 +23,8 @@ test.describe('pages routes are available', () => {
 
   test.describe('detached views', () => {
     test('rundown', async ({ page }) => {
-      await page.goto('http://localhost:4001/eventlist');
-      await page.getByTestId('panel-event-list').click();
+      await page.goto('http://localhost:4001/rundown');
+      await page.getByTestId('panel-rundown').click();
     });
     test('timer control', async ({ page }) => {
       await page.goto('http://localhost:4001/timercontrol');

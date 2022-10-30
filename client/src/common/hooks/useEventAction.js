@@ -1,7 +1,7 @@
 import { useCallback, useContext } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { EVENTS_TABLE, EVENTS_TABLE_KEY } from '../api/apiConstants';
+import { RUNDOWN_TABLE_KEY,RUNDOWN_TABLE } from '../api/apiConstants';
 import {
   requestApplyDelay,
   requestDelete,
@@ -27,7 +27,7 @@ export const useEventAction = () => {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(EVENTS_TABLE);
+      queryClient.invalidateQueries(RUNDOWN_TABLE);
     },
   });
 
@@ -43,7 +43,7 @@ export const useEventAction = () => {
       // ************* CHECK OPTIONS
       // there is an option to pass an index of an array to use as start time
       if (typeof options?.startIsLastEnd !== 'undefined') {
-        const events = queryClient.getQueryData(EVENTS_TABLE);
+        const events = queryClient.getQueryData(RUNDOWN_TABLE);
         const previousEvent = events.find((event) => event.id === options.startIsLastEnd);
         newEvent.timeStart = previousEvent.timeEnd || 0;
       }
@@ -71,13 +71,13 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries([EVENTS_TABLE_KEY, newEvent.id]);
+      await queryClient.cancelQueries([RUNDOWN_TABLE_KEY, newEvent.id]);
 
       // Snapshot the previous value
-      const previousEvent = queryClient.getQueryData([EVENTS_TABLE_KEY, newEvent.id]);
+      const previousEvent = queryClient.getQueryData([RUNDOWN_TABLE_KEY, newEvent.id]);
 
       // optimistically update object
-      queryClient.setQueryData([EVENTS_TABLE_KEY, newEvent.id], newEvent);
+      queryClient.setQueryData([RUNDOWN_TABLE_KEY, newEvent.id], newEvent);
 
       // Return a context with the previous and new events
       return { previousEvent, newEvent };
@@ -85,12 +85,12 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (error, newEvent, context) => {
-      queryClient.setQueryData([EVENTS_TABLE_KEY, context.newEvent.id], context.previousEvent);
+      queryClient.setQueryData([RUNDOWN_TABLE_KEY, context.newEvent.id], context.previousEvent);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: async (newEvent) => {
-      await queryClient.invalidateQueries([EVENTS_TABLE_KEY, newEvent.id]);
+      await queryClient.invalidateQueries([RUNDOWN_TABLE_KEY, newEvent.id]);
     },
   });
 
@@ -117,15 +117,15 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries([EVENTS_TABLE_KEY, eventId]);
+      await queryClient.cancelQueries([RUNDOWN_TABLE_KEY, eventId]);
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
+      const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
 
       const filtered = [...previousEvents].filter((e) => e.id !== eventId);
 
       // optimistically update object
-      queryClient.setQueryData(EVENTS_TABLE, filtered);
+      queryClient.setQueryData(RUNDOWN_TABLE, filtered);
 
       // Return a context with the previous and new events
       return { previousEvents };
@@ -133,12 +133,12 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (error, eventId, context) => {
-      queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
+      queryClient.setQueryData(RUNDOWN_TABLE, context.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(EVENTS_TABLE);
+      queryClient.invalidateQueries(RUNDOWN_TABLE);
     },
   });
 
@@ -165,15 +165,15 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async () => {
       // cancel ongoing queries
-      await queryClient.cancelQueries(EVENTS_TABLE, { exact: true });
+      await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
+      const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
 
       const clear = [];
 
       // optimistically update object
-      queryClient.setQueryData(EVENTS_TABLE, clear);
+      queryClient.setQueryData(RUNDOWN_TABLE, clear);
 
       // Return a context with the previous and new events
       return { previousEvents };
@@ -181,12 +181,12 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undos optimist update
     onError: (error, eventId, context) => {
-      queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
+      queryClient.setQueryData(RUNDOWN_TABLE, context.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(EVENTS_TABLE);
+      queryClient.invalidateQueries(RUNDOWN_TABLE);
     },
   });
 
@@ -208,7 +208,7 @@ export const useEventAction = () => {
   const _applyDelayMutation = useMutation(requestApplyDelay, {
     // Mutation finished, failed or successful
     onSettled: () => {
-      queryClient.invalidateQueries(EVENTS_TABLE);
+      queryClient.invalidateQueries(RUNDOWN_TABLE);
     },
   });
 
@@ -235,17 +235,17 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries(EVENTS_TABLE, { exact: true });
+      await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(EVENTS_TABLE);
+      const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
 
       const e = [...previousEvents];
       const [reorderedItem] = e.splice(data.from, 1);
       e.splice(data.to, 0, reorderedItem);
 
       // optimistically update object
-      queryClient.setQueryData(EVENTS_TABLE, e);
+      queryClient.setQueryData(RUNDOWN_TABLE, e);
 
       // Return a context with the previous and new events
       return { previousEvents };
@@ -253,12 +253,12 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (error, eventId, context) => {
-      queryClient.setQueryData(EVENTS_TABLE, context.previousEvents);
+      queryClient.setQueryData(RUNDOWN_TABLE, context.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(EVENTS_TABLE);
+      queryClient.invalidateQueries(RUNDOWN_TABLE);
     },
   });
 
