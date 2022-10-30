@@ -76,13 +76,13 @@ function _deleteTimerId(entryId) {
   global.timer.deleteId(entryId);
 }
 
-// Create controller for GET request to '/rundown'
+// Create controller for GET request to '/eventlist'
 // Returns -
 export const rundownGetAll = async (req, res) => {
   res.json(DataProvider.getRundown());
 };
 
-// Create controller for GET request to '/rundown/:eventId'
+// Create controller for GET request to '/eventlist/:eventId'
 // Returns -
 export const getEventById = async (req, res) => {
   const id = req.params?.eventId;
@@ -95,7 +95,7 @@ export const getEventById = async (req, res) => {
   }
 };
 
-// Create controller for POST request to '/rundown/'
+// Create controller for POST request to '/eventlist/'
 // Returns -
 export const rundownPost = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
@@ -137,7 +137,7 @@ export const rundownPost = async (req, res) => {
   }
 };
 
-// Create controller for PUT request to '/rundown/'
+// Create controller for PUT request to '/eventlist/'
 // Returns -
 export const rundownPut = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
@@ -214,7 +214,7 @@ export const rundownReorder = async (req, res) => {
   }
 };
 
-// Create controller for PATCH request to '/rundown/applydelay/:eventId'
+// Create controller for PATCH request to '/eventlist/applydelay/:eventId'
 // Returns -
 export const rundownApplyDelay = async (req, res) => {
   try {
@@ -271,7 +271,7 @@ export const rundownApplyDelay = async (req, res) => {
   }
 };
 
-// Create controller for DELETE request to '/rundown/:eventId'
+// Create controller for DELETE request to '/eventlist/:eventId'
 // Returns -
 export const deleteEventById = async (req, res) => {
   try {
@@ -288,7 +288,7 @@ export const deleteEventById = async (req, res) => {
   }
 };
 
-// Create controller for DELETE request to '/rundown/:eventId'
+// Create controller for DELETE request to '/eventlist/:eventId'
 // Returns -
 export const rundownDelete = async (req, res) => {
   try {

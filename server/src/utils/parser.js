@@ -6,9 +6,9 @@ import { deleteFile, makeString, validateDuration } from './parserUtils.js';
 import {
   parseAliases,
   parseEvent,
-  parseRundown,
   parseHttp,
   parseOsc,
+  parseRundown,
   parseSettings,
   parseUserFields,
   parseViews,
@@ -43,7 +43,7 @@ export const parseExcel = async (excelData) => {
     url: '',
   };
   const customUserFields = {};
-  const events = [];
+  const rundown = [];
   let timeStartIndex = null;
   let timeEndIndex = null;
   let titleIndex = null;
@@ -238,11 +238,11 @@ export const parseExcel = async (excelData) => {
       if (Object.keys(event).length > 0) {
         // if any data was found, push to array
         // take care of it in the next step
-        events.push({ ...event, type: 'event' });
+        rundown.push({ ...event, type: 'event' });
       }
     });
   return {
-    events,
+    rundown,
     event: eventData,
     settings: {
       app: 'ontime',
@@ -293,7 +293,7 @@ export const parseJson = async (jsonData, enforce = false) => {
  * @returns {object|null} - formatted object or null in case is invalid
  */
 
-export const validateEvent_v1 = (eventArgs) => {
+export const validateEvent = (eventArgs) => {
   // ensure id is defined and unique
   const id = eventArgs.id || generateId();
   let event = null;

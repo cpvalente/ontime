@@ -1,12 +1,22 @@
 import jest from 'jest-mock';
-import { dbModel, dbModel as dbModel } from '../../models/dataModel.js';
-import { isStringEmpty, parseExcel, parseJson, validateEvent_v1 } from '../parser.js';
+import { dbModel } from '../../models/dataModel.js';
+import { isStringEmpty, parseExcel, parseJson, validateEvent } from '../parser.js';
 import { makeString, validateDuration } from '../parserUtils.js';
-import { parseAliases, parseUserFields, parseViews } from '../parserUtils.js';
+import { parseAliases, parseUserFields, parseViews } from '../parserFunctions.js';
+
+describe('refuses import of old / unknown versions', () => {
+  test('a v1 file', () => {
+    const testFile = {
+      settings: {
+        version: 1,
+      },
+    };
+  });
+});
 
 describe('test json parser with valid def', () => {
   const testData = {
-    events: [
+    rundown: [
       {
         title: 'Guest Welcoming',
         subtitle: '',
@@ -183,7 +193,7 @@ describe('test json parser with valid def', () => {
     },
     settings: {
       app: 'ontime',
-      version: 1,
+      version: 2,
       timeFormat: '24',
     },
   };
@@ -195,12 +205,12 @@ describe('test json parser with valid def', () => {
   });
 
   it('has 7 events', () => {
-    const length = parseResponse?.events.length;
+    const length = parseResponse?.rundown.length;
     expect(length).toBe(7);
   });
 
   it('first event is as a match', () => {
-    const first = parseResponse?.events[0];
+    const first = parseResponse?.rundown[0];
     const expected = {
       title: 'Guest Welcoming',
       subtitle: '',
@@ -231,7 +241,7 @@ describe('test json parser with valid def', () => {
   });
 
   it('second event is as a match', () => {
-    const second = parseResponse?.events[1];
+    const second = parseResponse?.rundown[1];
     const expected = {
       title: 'Good Morning',
       subtitle: 'Days schedule',
@@ -275,7 +285,7 @@ describe('test json parser with valid def', () => {
   it('settings are for right app and version', () => {
     const settings = parseResponse?.settings;
     expect(settings.app).toBe('ontime');
-    expect(settings.version).toBe(1);
+    expect(settings.version).toBe(2);
   });
 
   it('missing settings', () => {
@@ -287,7 +297,7 @@ describe('test json parser with valid def', () => {
 describe('test parser edge cases', () => {
   it('generates missing ids', async () => {
     const testData = {
-      events: [
+      rundown: [
         {
           title: 'Test Event',
           type: 'event',
@@ -296,13 +306,13 @@ describe('test parser edge cases', () => {
     };
 
     const parseResponse = await parseJson(testData);
-    expect(parseResponse.events[0].id).toBeDefined();
+    expect(parseResponse.rundown[0].id).toBeDefined();
   });
 
   it('detects duplicate Ids', async () => {
     console.log = jest.fn();
     const testData = {
-      events: [
+      rundown: [
         {
           title: 'Test Event 1',
           type: 'event',
@@ -318,13 +328,13 @@ describe('test parser edge cases', () => {
 
     const parseResponse = await parseJson(testData);
     expect(console.log).toHaveBeenCalledWith('ERROR: ID collision on import, skipping');
-    expect(parseResponse?.events.length).toBe(1);
+    expect(parseResponse?.rundown.length).toBe(1);
   });
 
   it('handles incomplete datasets', async () => {
     console.log = jest.fn();
     const testData = {
-      events: [
+      rundown: [
         {
           title: 'Test Event 1',
           id: '1',
@@ -338,7 +348,7 @@ describe('test parser edge cases', () => {
 
     const parseResponse = await parseJson(testData);
     expect(console.log).toHaveBeenCalledWith('ERROR: undefined event type, skipping');
-    expect(parseResponse?.events.length).toBe(0);
+    expect(parseResponse?.rundown.length).toBe(0);
   });
 
   it('skips unknown app and version settings', async () => {
@@ -357,7 +367,7 @@ describe('test parser edge cases', () => {
 describe('test corrupt data', () => {
   it('handles some empty events', async () => {
     const emptyEvents = {
-      events: [
+      rundown: [
         {},
         {},
         {},
@@ -384,7 +394,7 @@ describe('test corrupt data', () => {
       },
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -392,12 +402,12 @@ describe('test corrupt data', () => {
     };
 
     const parsedDef = await parseJson(emptyEvents);
-    expect(parsedDef.events.length).toBe(2);
+    expect(parsedDef.rundown.length).toBe(2);
   });
 
   it('handles all empty events', async () => {
     const emptyEvents = {
-      events: [{}, {}, {}, {}, {}, {}, {}, {}],
+      rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
       event: {
         title: 'All about Carlos demo event',
         url: 'www.carlosvalente.com',
@@ -407,7 +417,7 @@ describe('test corrupt data', () => {
       },
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -415,16 +425,16 @@ describe('test corrupt data', () => {
     };
 
     const parsedDef = await parseJson(emptyEvents);
-    expect(parsedDef.events.length).toBe(0);
+    expect(parsedDef.rundown.length).toBe(0);
   });
 
   it('handles missing event data', async () => {
     const emptyEventData = {
-      events: [{}, {}, {}, {}, {}, {}, {}, {}],
+      rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
       event: {},
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -437,11 +447,11 @@ describe('test corrupt data', () => {
 
   it('handles missing settings', async () => {
     const missingSettings = {
-      events: [{}, {}, {}, {}, {}, {}, {}, {}],
+      rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
       event: {},
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
       },
     };
 
@@ -463,7 +473,7 @@ describe('test event validator', () => {
     const event = {
       title: 'test',
     };
-    const validated = validateEvent_v1(event);
+    const validated = validateEvent(event);
 
     expect(validated).toEqual(
       expect.objectContaining({
@@ -489,13 +499,13 @@ describe('test event validator', () => {
         user7: expect.any(String),
         user8: expect.any(String),
         user9: expect.any(String),
-      })
+      }),
     );
   });
 
   it('fails an empty object', () => {
     const event = {};
-    const validated = validateEvent_v1(event);
+    const validated = validateEvent(event);
     expect(validated).toEqual(null);
   });
 
@@ -506,7 +516,7 @@ describe('test event validator', () => {
       presenter: 3.2,
       note: '1899-12-30T08:00:10.000Z',
     };
-    const validated = validateEvent_v1(event);
+    const validated = validateEvent(event);
     expect(typeof validated.title).toEqual('string');
     expect(typeof validated.subtitle).toEqual('string');
     expect(typeof validated.presenter).toEqual('string');
@@ -518,7 +528,7 @@ describe('test event validator', () => {
       timeStart: false,
       timeEnd: '2',
     };
-    const validated = validateEvent_v1(event);
+    const validated = validateEvent(event);
     expect(typeof validated.timeStart).toEqual('number');
     expect(validated.timeStart).toEqual(0);
     expect(typeof validated.timeEnd).toEqual('number');
@@ -529,7 +539,7 @@ describe('test event validator', () => {
     const event = {
       title: {},
     };
-    const validated = validateEvent_v1(event);
+    const validated = validateEvent(event);
     expect(typeof validated.title).toEqual('string');
   });
 });
@@ -651,7 +661,7 @@ describe('test parseExcel function', () => {
       endMessage: 'test end message',
     };
 
-    const expectedParsedEvents = [
+    const expectedParsedRundown = [
       {
         timeStart: 25200000,
         timeEnd: 28810000,
@@ -693,24 +703,24 @@ describe('test parseExcel function', () => {
     const parsedData = await parseExcel(testdata);
 
     expect(parsedData.event).toStrictEqual(expectedParsedEvent);
-    expect(parsedData.events).toBeDefined();
-    expect(parsedData.events.title).toBe(expectedParsedEvents.title);
-    expect(parsedData.events.presenter).toBe(expectedParsedEvents.presenter);
-    expect(parsedData.events.subtitle).toBe(expectedParsedEvents.subtitle);
-    expect(parsedData.events.isPublic).toBe(expectedParsedEvents.isPublic);
-    expect(parsedData.events.skip).toBe(expectedParsedEvents.skip);
-    expect(parsedData.events.note).toBe(expectedParsedEvents.note);
-    expect(parsedData.events.type).toBe(expectedParsedEvents.type);
+    expect(parsedData.rundown).toBeDefined();
+    expect(parsedData.rundown.title).toBe(expectedParsedRundown.title);
+    expect(parsedData.rundown.presenter).toBe(expectedParsedRundown.presenter);
+    expect(parsedData.rundown.subtitle).toBe(expectedParsedRundown.subtitle);
+    expect(parsedData.rundown.isPublic).toBe(expectedParsedRundown.isPublic);
+    expect(parsedData.rundown.skip).toBe(expectedParsedRundown.skip);
+    expect(parsedData.rundown.note).toBe(expectedParsedRundown.note);
+    expect(parsedData.rundown.type).toBe(expectedParsedRundown.type);
   });
 });
 
 describe('test aliases import', () => {
   it('imports a well defined alias', () => {
     const testData = {
-      events: [],
+      rundown: [],
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
       },
       aliases: [
         {
@@ -746,10 +756,10 @@ describe('test userFields import', () => {
     };
 
     const testData = {
-      events: [],
+      rundown: [],
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
       },
       userFields: testUserFields,
     };
@@ -773,10 +783,10 @@ describe('test userFields import', () => {
     };
 
     const testData = {
-      events: [],
+      rundown: [],
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
       },
       userFields: testUserFields,
     };
@@ -787,10 +797,10 @@ describe('test userFields import', () => {
 
   it('handles missing user fields', () => {
     const testData = {
-      events: [],
+      rundown: [],
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
       },
     };
 
@@ -801,10 +811,10 @@ describe('test userFields import', () => {
 
   it('ignores badly defined fields', () => {
     const testData = {
-      events: [],
+      rundown: [],
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
       },
       userFields: {
         notThis: 'this shouldng be accepted',
@@ -820,10 +830,10 @@ describe('test userFields import', () => {
 describe('test views import', () => {
   it('imports data from file', () => {
     const testData = {
-      events: [],
+      rundown: [],
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
       },
       views: {
         overrideStyles: true,
@@ -835,10 +845,10 @@ describe('test views import', () => {
 
   it('imports defaults to model', () => {
     const testData = {
-      events: [],
+      rundown: [],
       settings: {
         app: 'ontime',
-        version: 1,
+        version: 2,
       },
     };
     const parsed = parseViews(testData, true);

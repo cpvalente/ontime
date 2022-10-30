@@ -1,6 +1,6 @@
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { validateEvent_v1 } from './parser.js';
+import { validateEvent } from './parser.js';
 import { generateId } from './generate_id.js';
 import { MAX_EVENTS } from '../settings.js';
 
@@ -10,15 +10,15 @@ import { MAX_EVENTS } from '../settings.js';
  * @returns {object} - event object data
  */
 export const parseRundown = (data) => {
-  let newEvents = [];
-  if ('events' in data) {
-    console.log('Found events definition, importing...');
-    const events = [];
+  let newRundown = [];
+  if ('rundown' in data) {
+    console.log('Found rundown definition, importing...');
+    const rundown = [];
     try {
       const ids = [];
-      for (const e of data.events) {
+      for (const e of data.rundown) {
         // cap number of events
-        if (events.length >= MAX_EVENTS) {
+        if (rundown.length >= MAX_EVENTS) {
           console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
           break;
         }
@@ -30,19 +30,19 @@ export const parseRundown = (data) => {
         }
 
         if (e.type === 'event') {
-          const event = validateEvent_v1(e);
+          const event = validateEvent(e);
           if (event != null) {
-            events.push(event);
+            rundown.push(event);
             ids.push(event.id);
           }
         } else if (e.type === 'delay') {
-          events.push({
+          rundown.push({
             ...delayDef,
             duration: e.duration,
             id: e.id || generateId(),
           });
         } else if (e.type === 'block') {
-          events.push({ ...blockDef, id: e.id || generateId() });
+          rundown.push({ ...blockDef, id: e.id || generateId() });
         } else {
           console.log('ERROR: undefined event type, skipping');
         }
@@ -51,10 +51,10 @@ export const parseRundown = (data) => {
       console.log(`Error ${error}`);
     }
     // write to db
-    newEvents = events;
-    console.log(`Uploaded file with ${events.length} entries`);
+    newRundown = rundown;
+    console.log(`Uploaded file with ${newRundown.length} entries`);
   }
-  return newEvents;
+  return newRundown;
 };
 /**
  * Parse event portion of an entry

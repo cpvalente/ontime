@@ -30,15 +30,15 @@ const eventFromDb = {
 };
 
 describe('When a POST request is sent', () => {
-  test('POST /rundown should return a 201', async () => {
-    await supertest(server).post('/rundown').send(testEvent).expect(201);
+  test('POST /eventlist should return a 201', async () => {
+    await supertest(server).post('/eventlist').send(testEvent).expect(201);
   });
 });
 
 describe('When a GET request request is sent', () => {
-  test('GET /rundown returns a valid object', async () => {
+  test('GET /eventlist returns a valid object', async () => {
     await supertest(server)
-      .get('/events')
+      .get('/eventlist')
       .expect(200)
       .then((response) => {
         expect(response.text.includes('<!doctype html>')).toBe(false);
@@ -46,9 +46,9 @@ describe('When a GET request request is sent', () => {
         expect(typeof response.body).toBe('object');
       });
   });
-  test('GET /rundown/:eventId returns a valid object', async () => {
+  test('GET /eventlist/:eventId returns a valid object', async () => {
     await supertest(server)
-      .get(`/rundown/${eventFromDb.id}`)
+      .get(`/eventlist/${eventFromDb.id}`)
       .expect(200)
       .then((response) => {
         expect(response.text.includes('<!doctype html>')).toBe(false);

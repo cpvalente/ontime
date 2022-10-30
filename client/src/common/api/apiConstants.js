@@ -25,7 +25,7 @@ export const calculateServer = () =>
 
 export const serverURL = calculateServer();
 export const eventURL = `${serverURL}/event`;
-export const eventsURL = `${serverURL}/rundown`;
+export const rundownURL = `${serverURL}/eventlist`;
 export const ontimeURL = `${serverURL}/ontime`;
 
 export const stylesPath = 'external/styles/override.css';

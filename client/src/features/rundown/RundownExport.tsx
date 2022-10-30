@@ -11,10 +11,10 @@ import style from '../editors/Editor.module.scss';
 export default function RundownExport() {
   return (
     <CursorProvider>
-      <Box className={style.editor} data-testid="panel-event-list">
+      <Box className={style.editor} data-testid='panel-rundown'>
         <FiArrowUpRight
           className={style.corner}
-          onClick={(event) => handleLinks(event, 'eventlist')}
+          onClick={(event) => handleLinks(event, 'rundown')}
         />
         <ErrorBoundary>
           <RundownWrapper />

@@ -2,14 +2,14 @@ import axios from 'axios';
 
 import { OntimeRundown, OntimeRundownEntry } from '../models/EventTypes';
 
-import { eventsURL } from './apiConstants';
+import { rundownURL } from './apiConstants';
 
 /**
  * @description HTTP request to fetch all events
  * @return {Promise}
  */
 export async function fetchRundown(): Promise<OntimeRundown> {
-  const res = await axios.get(eventsURL);
+  const res = await axios.get(rundownURL);
   return res.data;
 }
 
@@ -18,7 +18,7 @@ export async function fetchRundown(): Promise<OntimeRundown> {
  * @return {Promise}
  */
 export async function requestPostEvent(data: OntimeRundownEntry) {
-  return axios.post(eventsURL, data);
+  return axios.post(rundownURL, data);
 }
 
 /**
@@ -26,7 +26,7 @@ export async function requestPostEvent(data: OntimeRundownEntry) {
  * @return {Promise}
  */
 export async function requestPutEvent(data: OntimeRundownEntry) {
-  return axios.put(eventsURL, data);
+  return axios.put(rundownURL, data);
 }
 
 /**
@@ -34,7 +34,7 @@ export async function requestPutEvent(data: OntimeRundownEntry) {
  * @return {Promise}
  */
 export async function requestPatchEvent(data: OntimeRundownEntry) {
-  return axios.patch(eventsURL, data);
+  return axios.patch(rundownURL, data);
 }
 
 /**
@@ -42,7 +42,7 @@ export async function requestPatchEvent(data: OntimeRundownEntry) {
  * @return {Promise}
  */
 export async function requestReorderEvent(data: OntimeRundownEntry) {
-  return axios.patch(`${eventsURL}/reorder`, data);
+  return axios.patch(`${rundownURL}/reorder`, data);
 }
 
 /**
@@ -50,7 +50,7 @@ export async function requestReorderEvent(data: OntimeRundownEntry) {
  * @return {Promise}
  */
 export async function requestApplyDelay(eventId: string) {
-  return axios.patch(`${eventsURL}/applydelay/${eventId}`);
+  return axios.patch(`${rundownURL}/applydelay/${eventId}`);
 }
 
 /**
@@ -58,7 +58,7 @@ export async function requestApplyDelay(eventId: string) {
  * @return {Promise}
  */
 export async function requestDelete(eventId: string) {
-  return axios.delete(`${eventsURL}/${eventId}`);
+  return axios.delete(`${rundownURL}/${eventId}`);
 }
 
 /**
@@ -66,5 +66,5 @@ export async function requestDelete(eventId: string) {
  * @return {Promise}
  */
 export async function requestDeleteAll() {
-  return axios.delete(`${eventsURL}/all`);
+  return axios.delete(`${rundownURL}/all`);
 }
