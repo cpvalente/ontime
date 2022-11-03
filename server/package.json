@@ -41,10 +41,6 @@
     "dist-linux": "electron-builder --publish=never  --x64 --linux",
     "dist-all": "electron-builder -mw"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "rootDir": "src"
-  },
   "build": {
     "productName": "ontime",
     "appId": "no.lightdev.ontime",
