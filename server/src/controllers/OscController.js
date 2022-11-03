@@ -3,7 +3,7 @@ import { Server } from 'node-osc';
 let oscServer = null;
 
 /**
- * @description utilty function to shutdown osc server
+ * @description utility function to shut down osc server
  */
 export const shutdownOSCServer = () => {
   if (oscServer != null) oscServer.close();
@@ -23,7 +23,7 @@ export const initiateOSC = (config) => {
     // message should look like /ontime/{path}/{args} where
     // ontime: fixed message for app
     // path: command to be called
-    // args: extra data, only used on some of the API entries (delay, goto)
+    // args: extra data, only used on some API entries (delay, goto)
 
     // split message
     const [, address, path] = msg[0].split('/');
@@ -142,6 +142,12 @@ export const initiateOSC = (config) => {
         } catch (error) {
           global.timer.error('RX', `OSC IN: error calling goto ${error}`);
         }
+        break;
+      }
+
+      case 'get-playback': {
+        const playback = global.timer.state;
+        global.timer.sendOsc('playback', playback);
         break;
       }
 
