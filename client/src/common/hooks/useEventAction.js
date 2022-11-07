@@ -272,7 +272,7 @@ export const useEventAction = () => {
     async (eventId, from, to) => {
       try {
         const reorderObject = {
-          index: eventId,
+          eventId: eventId,
           from: from,
           to: to,
         };
