@@ -1,6 +1,6 @@
 import jest from 'jest-mock';
 import { dbModelv1, dbModelv1 as dbModel } from '../../models/dataModel.js';
-import { isStringEmpty, parseExcel_v1, parseJson_v1, validateEvent_v1 } from '../parser.js';
+import { parseExcel_v1, parseJson_v1, validateEvent_v1 } from '../parser.js';
 import { makeString, validateDuration } from '../parserUtils.js';
 import { parseAliases_v1, parseUserFields_v1, parseViews_v1 } from '../parserUtils_v1.js';
 
@@ -874,26 +874,5 @@ describe('test validateDuration()', () => {
         expect(d).toBe(t.expected);
       });
     });
-  });
-});
-
-describe('isStringEmpty() function', () => {
-  describe('returns true with any non empty', () => {
-    const notEmpty = ['test', 'thisalso', '123', '#'];
-    for (const testValue of notEmpty) {
-      it(testValue, () => {
-        const isEmpty = isStringEmpty(testValue);
-        expect(isEmpty).toBe(false);
-      });
-    }
-  });
-  describe('returns true empty string or undefined', () => {
-    const empty = ['', ' ', undefined, null];
-    for (const testValue of empty) {
-      it(`handles ${testValue}`, () => {
-        const isEmpty = isStringEmpty(testValue);
-        expect(isEmpty).toBe(true);
-      });
-    }
   });
 });
