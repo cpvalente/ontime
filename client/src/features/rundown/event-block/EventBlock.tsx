@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
@@ -86,6 +86,11 @@ export default function EventBlock(props: EventBlockProps) {
   const binderColours = colour && getAccessibleColour(colour);
   const hasDelay = delay !== 0 && delay !== null;
 
+  // Todo: could I re-render the item without causing a state change here?
+  useEffect(() => {
+    setBlockTitle(title);
+  }, [title]);
+
   const handleTitle = useCallback(
     (text: string) => {
       if (text === title) {
@@ -108,7 +113,7 @@ export default function EventBlock(props: EventBlockProps) {
   if (!skip && eventIsPlaying) {
     playBtnStyles._hover = { bg: '#c05621' };
   } else if (!skip && !eventIsPlaying) {
-    playBtnStyles._hover = {  };
+    playBtnStyles._hover = {};
   }
 
   return (
