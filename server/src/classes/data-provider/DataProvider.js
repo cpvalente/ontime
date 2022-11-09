@@ -96,7 +96,7 @@ export class DataProvider {
   static async insertEventAfterId(entry, id) {
     const index = [...data.rundown].findIndex((event) => event.id === id);
     // eslint-disable-next-line no-unused-vars
-    const { _after, ...sanitisedEvent } = entry;
+    const { after, ...sanitisedEvent } = entry;
     await DataProvider.insertEventAt(sanitisedEvent, index + 1);
   }
 
