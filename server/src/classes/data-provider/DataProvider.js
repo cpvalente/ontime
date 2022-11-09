@@ -2,7 +2,7 @@
  * Class Event Provider is a mediator for handling the local db
  * and adds logic specific to ontime data
  */
-import { data, db } from '../../app.js';
+import { db, data } from '../../modules/loadDb.js';
 
 export class DataProvider {
   static getData() {

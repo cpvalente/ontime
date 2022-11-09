@@ -6,8 +6,7 @@ import { config } from './config/config.js';
 
 // import dependencies
 import { dirname, join, resolve } from 'path';
-// init database
-import loadDb from './modules/loadDb.js';
+
 // dependencies
 import express from 'express';
 import http from 'http';
@@ -22,6 +21,7 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 // Global Objects
 import { EventTimer } from './classes/timer/EventTimer.js';
 import { socketProvider } from './classes/socket/SocketController.js';
+
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
@@ -33,7 +33,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const isTest = process.env.IS_TEST;
 
-export const { db, data } = await loadDb(__dirname);
 console.log(`Starting ontime version ${process.env.npm_package_version}`);
 
 // import socket provider
