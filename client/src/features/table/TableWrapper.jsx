@@ -14,7 +14,7 @@ import { makeCSV, makeTable } from './utils';
 import style from './Table.module.scss';
 
 export default function TableWrapper() {
-  const { data: events } = useRundown();
+  const { data: rundown } = useRundown();
   const { data: userFields } = useUserFields();
   const mutation = useMutateEvents(requestPatchEvent);
   const { theme } = useContext(TableSettingsContext);
@@ -32,7 +32,7 @@ export default function TableWrapper() {
       }
 
     // check if value is the same
-    const event = events[rowIndex];
+    const event = rundown[rowIndex];
     if (event == null) {
       return;
     }
@@ -59,15 +59,15 @@ export default function TableWrapper() {
     } catch (error) {
       console.error(error);
     }
-  }, [mutation, events]);
+  }, [mutation, rundown]);
 
   const exportHandler = useCallback(
     (headerData) => {
-      if (!headerData || !events || !userFields) {
+      if (!headerData || !rundown || !userFields) {
         return;
       }
 
-      const sheetData = makeTable(headerData, events, userFields);
+      const sheetData = makeTable(headerData, rundown, userFields);
       const csvContent = makeCSV(sheetData);
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement('a');
@@ -76,10 +76,10 @@ export default function TableWrapper() {
       document.body.appendChild(link);
       link.click();
     },
-    [events, userFields]
+    [rundown, userFields]
   );
 
-  if (typeof events === 'undefined' || typeof userFields === 'undefined') {
+  if (typeof rundown === 'undefined' || typeof userFields === 'undefined') {
     return <span>loading...</span>;
   }
   return (
@@ -89,7 +89,7 @@ export default function TableWrapper() {
     >
       <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
       <OntimeTable
-        tableData={events}
+        tableData={rundown}
         userFields={userFields}
         handleUpdate={handleUpdate}
         selectedId={featureData.selectedEventId}
