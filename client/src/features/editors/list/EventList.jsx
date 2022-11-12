@@ -39,34 +39,34 @@ export default function EventList(props) {
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
-    (e) => {
+    (event) => {
       // handle held key
-      if (e.repeat) return;
+      if (event.repeat) return;
       // Check if the alt key is pressed
-      if (e.altKey && (!e.ctrlKey || !e.shiftKey)) {
+      if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
         // Arrow down
-        if (e.keyCode === 40) {
+        if (event.keyCode === 40) {
           if (cursor < events.length - 1) moveCursorDown();
         }
         // Arrow up
-        if (e.keyCode === 38) {
+        if (event.keyCode === 38) {
           if (cursor > 0) moveCursorUp();
         }
         // E
-        if (e.key === 'e' || e.key === 'E') {
-          e.preventDefault();
+        if (event.code === "KeyE") {
+          event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('event', cursor);
         }
         // D
-        if (e.key === 'd' || e.key === 'D') {
-          e.preventDefault();
+        if (event.code === "KeyD") {
+          event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('delay', cursor);
         }
         // B
-        if (e.key === 'b' || e.key === 'B') {
-          e.preventDefault();
+        if (event.code === "KeyB") {
+          event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('block', cursor);
         }

@@ -63,29 +63,29 @@ export default function MenuBar(props: MenuBarProps) {
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      // skip if not electron
-      if (!isElectron) return;
       // handle held key
       if (event.repeat) return;
 
       // check if the ctrl key is pressed
-      if (event.ctrlKey) {
+      if (event.ctrlKey || event.metaKey) {
         // ctrl + , (settings)
         if (event.key === ',') {
-          if (isElectron) {
-            // open if not open
-            isSettingsOpen ? onSettingsClose() : onSettingsOpen();
-          }
+          // open if not open
+          isSettingsOpen ? onSettingsClose() : onSettingsOpen();
         }
       }
     },
-    [isElectron, isSettingsOpen, onSettingsClose, onSettingsOpen]
+    [isElectron, isSettingsOpen, onSettingsClose, onSettingsOpen],
   );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyPress);
+    if (isElectron) {
+      document.addEventListener('keydown', handleKeyPress);
+    }
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
+      if (isElectron) {
+        document.removeEventListener('keydown', handleKeyPress);
+      }
     };
   }, [handleKeyPress]);
 
