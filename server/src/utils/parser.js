@@ -365,7 +365,7 @@ export const fileHandler = async (file) => {
       if (excelData?.data) {
         const dataFromExcel = await parseExcel(excelData.data);
         res.data = {};
-        res.data.events = parseRundown(dataFromExcel);
+        res.data.rundown = parseRundown(dataFromExcel);
         res.data.event = parseEvent(dataFromExcel, true);
         res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
