@@ -17,6 +17,7 @@ import TooltipActionBtn from 'common/components/buttons/TooltipActionBtn';
 import { getAccessibleColour } from 'common/utils/styleUtils';
 import { useAtom } from 'jotai';
 
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useEventProvider } from '../../../common/hooks/useSocketProvider';
 import { Playstate } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -82,6 +83,7 @@ export default function EventBlock(props: EventBlockProps) {
 
   const [openId, setOpenId] = useAtom(editorEventId);
   const { setPlayback } = useEventProvider(eventId);
+  const { updateEvent } = useEventAction();
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
 
   const binderColours = colour && getAccessibleColour(colour);
@@ -96,10 +98,9 @@ export default function EventBlock(props: EventBlockProps) {
       const cleanVal = text.trim();
       setBlockTitle(cleanVal);
 
-      // Todo: no need for action handler
-      actionHandler('update', { field: 'title', value: cleanVal });
+      updateEvent({ id: eventId, title: cleanVal });
     },
-    [actionHandler, title],
+    [updateEvent, title],
   );
 
   const eventIsPlaying = selected && playback === 'start';
@@ -107,7 +108,7 @@ export default function EventBlock(props: EventBlockProps) {
   if (!skip && eventIsPlaying) {
     playBtnStyles._hover = { bg: '#c05621' };
   } else if (!skip && !eventIsPlaying) {
-    playBtnStyles._hover = {  };
+    playBtnStyles._hover = {};
   }
 
   return (
