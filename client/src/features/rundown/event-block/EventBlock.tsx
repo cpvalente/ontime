@@ -23,6 +23,7 @@ import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../RundownEntry';
 
 import EventBlockActionMenu from './composite/EventBlockActionMenu';
+import EventBlockProgressBar from './composite/EventBlockProgressBar';
 import EventBlockTimers from './composite/EventBlockTimers';
 
 import style from './EventBlock.module.scss';
@@ -101,8 +102,6 @@ export default function EventBlock(props: EventBlockProps) {
     [actionHandler, title],
   );
 
-  // Todo: data should come from socket
-  const progress = `${Math.random() * 100}%`;
   const eventIsPlaying = selected && playback === 'start';
   const playBtnStyles = { _hover: {} };
   if (!skip && eventIsPlaying) {
@@ -131,12 +130,6 @@ export default function EventBlock(props: EventBlockProps) {
               <IoReorderTwo />
             </span>
             {eventIndex}
-          </div>
-          <div className={selected ? style.progressBg : ''}>
-            <div
-              className={`${style.progressBar} ${playback ? style[playback] : ''}`}
-              style={{ width: progress }}
-            />
           </div>
           <div className={style.playbackActions}>
             <TooltipActionBtn
@@ -191,7 +184,42 @@ export default function EventBlock(props: EventBlockProps) {
             <EditablePreview className={style.eventTitle__preview} />
             <EditableInput />
           </Editable>
-          <span className={style.eventNote}>{note}</span>
+          <div className={style.statusElements}>
+            <span className={style.eventNote}>{note}</span>
+            <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
+              <EventBlockProgressBar playback={playback} />
+            </div>
+            <div className={style.eventStatus}>
+              <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
+              <span
+                className={`${style.statusIcon} ${style.statusNext} ${next ? style.enabled : ''}`}
+              >
+                <IoReturnDownForward />
+              </span>
+              </Tooltip>
+              <Tooltip label='Event has delay' isDisabled={!hasDelay} {...tooltipProps}>
+              <span
+                className={`${style.statusIcon} ${style.statusDelay} ${
+                  hasDelay ? style.enabled : ''
+                }`}
+              >
+                <IoTimerOutline />
+              </span>
+              </Tooltip>
+              <Tooltip
+                label={`${isPublic ? 'Event is public' : 'Event is private'}`}
+                {...tooltipProps}
+              >
+              <span
+                className={`${style.statusIcon} ${style.statusPublic} ${
+                  isPublic ? style.enabled : ''
+                }`}
+              >
+                <FiUsers />
+              </span>
+              </Tooltip>
+            </div>
+          </div>
           <div className={style.eventActions}>
             <TooltipActionBtn
               {...blockBtnStyle}
@@ -212,36 +240,6 @@ export default function EventBlock(props: EventBlockProps) {
               showClone
               actionHandler={actionHandler}
             />
-          </div>
-          <div className={style.eventStatus}>
-            <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
-              <span
-                className={`${style.statusIcon} ${style.statusNext} ${next ? style.enabled : ''}`}
-              >
-                <IoReturnDownForward />
-              </span>
-            </Tooltip>
-            <Tooltip label='Event has delay' isDisabled={!hasDelay} {...tooltipProps}>
-              <span
-                className={`${style.statusIcon} ${style.statusDelay} ${
-                  hasDelay ? style.enabled : ''
-                }`}
-              >
-                <IoTimerOutline />
-              </span>
-            </Tooltip>
-            <Tooltip
-              label={`${isPublic ? 'Event is public' : 'Event is private'}`}
-              {...tooltipProps}
-            >
-              <span
-                className={`${style.statusIcon} ${style.statusPublic} ${
-                  isPublic ? style.enabled : ''
-                }`}
-              >
-                <FiUsers />
-              </span>
-            </Tooltip>
           </div>
         </div>
       )}

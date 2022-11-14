@@ -1,18 +1,74 @@
 @use '../../../theme/main' as *;
 @use '../blockMixins' as *;
 
+.statusElements {
+  grid-area: estatus;
+  display: grid;
+  grid-template-areas:
+          "notes status"
+          "progb progb";
+  gap: 2px;
+  grid-template-rows: auto 4px;
+
+  .eventNote {
+    grid-area: notes;
+    display: block;
+    font-size: 15px;
+    color: $notes-color;
+    line-height: 15px;
+  }
+
+  .eventStatus {
+    grid-area: status;
+
+    display: flex;
+    justify-content: flex-end;
+    gap: $element-spacing;
+
+    .statusIcon {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      padding: 4px;
+      color: $text-gray-disabled;
+    }
+
+    .statusIcon.statusNext {
+      border: 1px solid transparent;
+
+      &.enabled {
+        color: $text-white;
+        background-color: $ontime-accent;
+      }
+    }
+
+    .statusIcon.statusDelay {
+      &.enabled {
+        color: $text-white;
+        background-color: $ontime-delay;
+      }
+    }
+
+    .statusIcon.statusPublic {
+      &.enabled {
+        color: $text-white;
+        background-color: $ontime-roll;
+      }
+    }
+  }
+}
+
 .eventBlock {
   // layout
   display: grid;
   grid-template-areas:
           "binder pb-actions times actions"
           "binder pb-actions title title"
-          "binder pb-actions notes status"
-          "binder progb      progb progb";
+          "binder pb-actions estatus estatus";
   grid-template-columns: $binder-width auto 1fr auto;
-  grid-template-rows: 36px 36px 36px $element-spacing;
+  grid-template-rows: 36px 36px 36px;
   align-items: center;
-  margin:4px 2px;
+  margin: 4px 2px;
   padding-right: $clearance;
 
   // style - general
@@ -23,7 +79,7 @@
   background-color: $bg-container-l2;
   border: $border-l3;
 
-  // variant
+    // variant
   &.selected {
     background-color: $bg-container-l3;
   }
@@ -112,14 +168,6 @@
     }
   }
 
-  .eventNote {
-    grid-area: notes;
-    display: block;
-    font-size: 14px;
-    color: $notes-color;
-    line-height: 15px;
-  }
-
   .eventActions {
     grid-area: actions;
 
@@ -128,44 +176,6 @@
     justify-content: flex-end;
   }
 
-  .eventStatus {
-    grid-area: status;
-
-    display: flex;
-    justify-content: flex-end;
-    gap: $element-spacing;
-
-    .statusIcon {
-      width: 24px;
-      height: 24px;
-      border-radius: 12px;
-      padding: 4px;
-      color: $text-gray-disabled;
-    }
-
-    .statusIcon.statusNext {
-      border: 1px solid transparent;
-
-      &.enabled {
-        color: $text-white;
-        background-color: $ontime-accent;
-      }
-    }
-
-    .statusIcon.statusDelay {
-      &.enabled {
-        color: $text-white;
-        background-color: $ontime-delay;
-      }
-    }
-
-    .statusIcon.statusPublic {
-      &.enabled {
-        color: $text-white;
-        background-color: $ontime-roll;
-      }
-    }
-  }
 
   .eventOptions {
     margin: $element-spacing 16px $element-spacing 0;
@@ -176,36 +186,12 @@
   grid-area: progb;
   border-radius: 1px;
   background-color: $bg-container-l1;
-  margin-bottom: 4px;
-  margin-left: 4px;
+  opacity: 1;
 
   // layout
   height: 100%;
+}
 
-  .progressBar {
-    // layout
-    height: 100%;
-    width: 0;
-    border-radius: 1px 0 0 1px;
-
-    // animations
-    transition: 1s linear;
-    transition-property: width;
-
-    &.start {
-      background-color: $ontime-accent;
-    }
-
-    &.pause {
-      background-color: $ontime-paused;
-    }
-
-    &.roll {
-      background-color: $ontime-roll;
-    }
-
-    &.overtime {
-      background-color: red;
-    }
-  }
+.progressBg.hidden {
+  opacity: 0;
 }

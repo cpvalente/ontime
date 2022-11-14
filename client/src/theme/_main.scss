@@ -1,3 +1,6 @@
+$transition-time-action: 0.1s;
+$transition-time-feedback: 0.3s;
+
 //////////////////////////////////// general app colours
 
 $bg-black-gradient: #202020;
@@ -42,7 +45,7 @@ $ontime-red: #E4281E;
 // outdent in level2 - $bg-gray-950
 //////////////////////////////////// editor
 
-$notes-color: #9fd8ff;
+$notes-color: #f6f6f6;
 
 $text-white: #fffffa;
 $text-gray-disabled: #505050;
