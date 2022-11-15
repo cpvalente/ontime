@@ -297,32 +297,27 @@ class SocketController {
        * */
 
       // 1. EVENT LIST
-      socket.on('get-feat-rundown', () => {
-        console.log(1)
+      socket.on('get-feat-eventlist', () => {
         global.timer._broadcastFeatureEventList();
       });
 
       // 2. MESSAGE CONTROL
       socket.on('get-feat-messagecontrol', () => {
-        console.log(2)
         global.timer._broadcastFeatureMessageControl();
       });
 
       // 3. PLAYBACK CONTROL
       socket.on('get-feat-playbackcontrol', () => {
-        console.log(3)
         global.timer._broadcastFeaturePlaybackControl();
       });
 
       // 4. INFO
       socket.on('get-feat-info', () => {
-        console.log(4)
         global.timer._broadcastFeatureInfo();
       });
 
       // 5. CUE SHEET
       socket.on('get-feat-cuesheet', () => {
-        console.log(5)
         global.timer._broadcastFeatureCuesheet();
       });
 

@@ -9,11 +9,11 @@ export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
 
-export const FEAT_RUNDOWN = 'feat-rundown';
-export const FEAT_MESSAGECONTROL = 'feat-messagecontrol';
-export const FEAT_PLAYBACKCONTROL = 'feat-playbackcontrol';
-export const FEAT_INFO = 'feat-info';
-export const FEAT_CUESHEET = 'feat-cuesheet';
+export const FEAT_RUNDOWN = 'ontime-feat-eventlist';
+export const FEAT_MESSAGECONTROL = 'ontime-feat-messagecontrol';
+export const FEAT_PLAYBACKCONTROL = 'ontime-feat-playbackcontrol';
+export const FEAT_INFO = 'ontime-feat-info';
+export const FEAT_CUESHEET = 'ontime-feat-cuesheet';
 export const TIMER = 'ontime-timer';
 
 /**
