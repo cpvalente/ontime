@@ -3,7 +3,7 @@ import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
 
-import { usePlaybackControlProvider } from '../../../common/hooks/useSocketProvider';
+import { setPlayback } from '../../../common/hooks/useSocket';
 import { Playstate } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
@@ -20,7 +20,6 @@ interface PlaybackProps {
 export default function Playback(props: PlaybackProps) {
   const { playback, selectedId, noEvents } = props;
   const isRolling = playback === 'roll';
-  const { setPlayback } = usePlaybackControlProvider();
 
   return (
     <div className={style.playbackContainer}>

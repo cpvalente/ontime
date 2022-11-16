@@ -1,10 +1,7 @@
 import { Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 
-import {
-  usePlaybackControlProvider,
-  useTimerProvider,
-} from '../../../common/hooks/useSocketProvider';
+import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
 import { Playstate } from '../../../common/models/OntimeTypes';
 import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
@@ -21,8 +18,7 @@ interface PlaybackTimerProps {
 
 export default function PlaybackTimer(props: PlaybackTimerProps) {
   const { playback, selectedId } = props;
-  const { setPlayback } = usePlaybackControlProvider();
-  const timerData = useTimerProvider();
+  const { data: timerData } = useTimer();
   const started = stringFromMillis(timerData.startedAt, true);
   const finish = stringFromMillis(timerData.expectedFinish, true);
   const isRolling = playback === 'roll';

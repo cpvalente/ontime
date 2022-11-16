@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import useFullscreen from '../../common/hooks/useFullscreen';
-import { useTimerProvider } from '../../common/hooks/useSocketProvider';
+import { useTimer } from '../../common/hooks/useSocket';
 import useEvent from '../../common/hooks-query/useEvent';
 import { formatDisplay, millisToSeconds } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
@@ -22,7 +22,7 @@ import style from './Table.module.scss';
 export default function TableHeader({ handleCSVExport, featureData }) {
   const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
     useContext(TableSettingsContext);
-  const timer = useTimerProvider();
+  const { data: timer } = useTimer();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { data: event } = useEvent();
 

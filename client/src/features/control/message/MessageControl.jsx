@@ -3,7 +3,7 @@ import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
 
 import CopyTag from '../../../common/components/osc-tag/CopyTag';
-import { useMessageControlProvider } from '../../../common/hooks/useSocketProvider';
+import { setMessage, useMessageControl } from '../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import InputRow from './InputRow';
@@ -11,7 +11,7 @@ import InputRow from './InputRow';
 import style from './MessageControl.module.scss';
 
 export default function MessageControl() {
-  const { data, setMessage } = useMessageControlProvider();
+  const { data } = useMessageControl();
 
   return (
     <>

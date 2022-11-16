@@ -9,7 +9,7 @@ import {
 import Empty from 'common/components/state/Empty';
 import { CursorContext } from 'common/context/CursorContext';
 import { useEventAction } from 'common/hooks/useEventAction';
-import { useRundownProvider } from 'common/hooks/useSocketProvider';
+import { useRundownEditor } from 'common/hooks/useSocket';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
@@ -23,6 +23,8 @@ import style from './Rundown.module.scss';
 
 export default function Rundown(props) {
   const { entries } = props;
+  // Todo: add selectedId and nextId to rundown editor hook
+  const { data } = useRundownEditor();
   const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } =
     useContext(CursorContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
@@ -30,7 +32,6 @@ export default function Rundown(props) {
   const { addEvent, reorderEvent } = useEventAction();
   const cursorRef = createRef();
   const showQuickEntry = useAtomValue(showQuickEntryAtom);
-  const data = useRundownProvider();
   const [selectedId] = useSubscription('selected-id', null);
   const [nextId] = useSubscription('next-id', null);
 
