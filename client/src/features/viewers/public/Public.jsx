@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import NavLogo from 'common/components/nav/NavLogo';
 import TitleSide from 'common/components/title-side/TitleSide';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
@@ -8,6 +7,7 @@ import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import Paginator from '../../../common/components/paginator/Paginator';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
@@ -42,7 +42,7 @@ export default function Public(props) {
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
-      <NavLogo />
+      <NavigationMenu />
 
       <div className='event-title'>{general.title}</div>
 

@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
-import NavLogo from '../../../common/components/nav/NavLogo';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManaget.type';
 import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
@@ -120,9 +120,6 @@ export default function Clock(props: ClockProps) {
     }
   }
 
-  const hideNav = searchParams.get('hidenav');
-  userOptions.hideNav = Boolean(hideNav);
-
   const clock = formatTime(time.clock, formatOptions);
   const clean = clock.replace('/:/g', '');
 
@@ -137,7 +134,7 @@ export default function Clock(props: ClockProps) {
       }}
       data-testid='clock-view'
     >
-      {!userOptions?.hideNav && <NavLogo />}
+      <NavigationMenu />
       <div
         className='clock'
         style={{

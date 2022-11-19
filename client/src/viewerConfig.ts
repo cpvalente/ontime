@@ -1,4 +1,4 @@
-const navigatorConstants = [
+export const navigatorConstants = [
   { url: '/timer', label: 'Timer' },
   { url: '/clock', label: 'Clock' },
   { url: '/minimal', label: 'Minimal Timer' },
@@ -9,5 +9,3 @@ const navigatorConstants = [
   { url: '/studio', label: 'Studio Clock' },
   { url: '/countdown', label: 'Countdown' },
 ];
-
-export default navigatorConstants;
