@@ -8,11 +8,11 @@ test('test', async ({ context }) => {
 
   // stage timer message
   await editorPage.getByPlaceholder('Shown in stage timer').click();
-  await editorPage.getByPlaceholder('Shown in stage timer').fill('testing');
+  await editorPage.getByPlaceholder('Shown in stage timer').fill('testing stage');
   await editorPage.getByRole('button', { name: 'toggle timer screen message' }).click();
 
   await featurePage.goto('http://localhost:4001/timer');
-  await featurePage.getByText('testing').click();
+  await featurePage.getByText('testing stage').click();
 
   // public screen message
   await editorPage.getByPlaceholder('Shown in public screens').click();

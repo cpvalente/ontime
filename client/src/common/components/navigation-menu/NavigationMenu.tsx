@@ -60,7 +60,7 @@ export default function NavigationMenu() {
       </button>
 
       {showMenu && (
-        <div className={style.menuContainer}>
+        <div className={style.menuContainer} data-testid='navigation-menu'>
           <div className={style.buttonsContainer}>
             <div
               className={style.link}
