@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import NavLogo from "../../../common/components/nav/NavLogo";
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 
 import './LowerLines.scss';
 
@@ -130,7 +130,7 @@ export default function LowerLines(props) {
       }}
     >
 
-      <NavLogo isHidden />
+      <NavigationMenu />
 
       <AnimatePresence>
         {showLower && (

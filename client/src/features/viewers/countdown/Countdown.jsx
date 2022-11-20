@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
-import NavLogo from '../../../common/components/nav/NavLogo';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import Empty from '../../../common/components/state/Empty';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
@@ -94,7 +94,7 @@ export default function Countdown(props) {
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
-      <NavLogo />
+      <NavigationMenu />
       {follow === null ? (
         <div className='event-select' data-testid='countdown-select'>
           <span className='event-select__title'>Select an event to follow</span>

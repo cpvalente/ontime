@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
-import NavLogo from '../../../common/components/nav/NavLogo';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { PresenterMessageType } from '../../../common/models/PresenterMessage.type';
 import { TimeManagerType } from '../../../common/models/TimeManaget.type';
@@ -117,9 +117,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     }
   }
 
-  const hideNav = searchParams.get('hidenav');
-  userOptions.hideNav = Boolean(hideNav);
-
   const hideOvertime = searchParams.get('hideovertime');
   userOptions.hideOvertime = Boolean(hideOvertime);
 
@@ -144,6 +141,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       }}
       data-testid='minimal-timer'
     >
+      <NavigationMenu />
       {!hideMessagesOverlay && (
         <div
           className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}
@@ -151,7 +149,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
           <div className='message'>{pres.text}</div>
         </div>
       )}
-      {!userOptions?.hideNav && <NavLogo />}
       <div
         className={`timer ${!isPlaying ? 'timer--paused' : ''} ${
           showFinished ? 'timer--finished' : ''
