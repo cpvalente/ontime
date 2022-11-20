@@ -5,6 +5,7 @@ import { generateId } from '../../utils/generate_id.js';
 import { stringFromMillis } from '../../utils/time.js';
 import { Timer } from '../timer/Timer.js';
 import { messageManager } from '../message-manager/MessageManager.js';
+import { PlaybackService } from '../../services/playbackService.js';
 
 import { ADDRESS_MESSAGE_CONTROL } from './socketConfig.js';
 
@@ -58,6 +59,7 @@ class SocketController {
       }`;
       this.info('CLIENT', message);
 
+      // Todo: review in favour of features
       // send state
       socket.emit('timer', global.timer.getTimeObject());
       socket.emit('playstate', global.timer.state);
@@ -101,78 +103,69 @@ class SocketController {
       });
 
       socket.on('set-start', () => {
-        global.timer.trigger('start');
-        socket.emit('playstate', global.timer.state);
+        PlaybackService.start();
       });
 
       socket.on('set-startid', (data) => {
-        global.timer.trigger('startById', data);
-        socket.emit('playstate', global.timer.state);
+        if (data) {
+          PlaybackService.startById(data);
+        }
       });
 
       socket.on('set-startindex', (data) => {
         const eventIndex = Number(data);
-        if (isNaN(eventIndex)) {
-          return;
+        if (!isNaN(eventIndex)) {
+          PlaybackService.startByIndex(eventIndex);
         }
-        global.timer.trigger('startByIndex', data);
-        socket.emit('playstate', global.timer.state);
       });
 
       socket.on('set-loadid', (data) => {
-        global.timer.trigger('loadById', data);
-        socket.emit('playstate', global.timer.state);
+        if (data) {
+          PlaybackService.loadById(data);
+        }
       });
 
       socket.on('set-loadindex', (data) => {
         const eventIndex = Number(data);
-        if (isNaN(eventIndex)) {
-          return;
+        if (!isNaN(eventIndex)) {
+          PlaybackService.loadByIndex(eventIndex - 1);
         }
-        global.timer.trigger('loadByIndex', data);
-        socket.emit('playstate', global.timer.state);
       });
 
       socket.on('set-pause', () => {
-        global.timer.trigger('pause');
-        socket.emit('playstate', global.timer.state);
+        PlaybackService.pause();
       });
 
       socket.on('set-stop', () => {
-        global.timer.trigger('stop');
-        socket.emit('playstate', global.timer.state);
+        PlaybackService.stop();
       });
 
       socket.on('set-reload', () => {
-        global.timer.trigger('reload');
-        socket.emit('playstate', global.timer.state);
+        PlaybackService.reload();
       });
 
       socket.on('set-previous', () => {
-        global.timer.trigger('previous');
-        socket.emit('playstate', global.timer.state);
+        PlaybackService.loadPrevious();
       });
 
       socket.on('set-next', () => {
-        global.timer.trigger('next');
-        socket.emit('playstate', global.timer.state);
+        PlaybackService.loadNext();
       });
 
       socket.on('set-roll', () => {
-        global.timer.trigger('roll');
-        socket.emit('playstate', global.timer.state);
+        PlaybackService.roll();
       });
 
       socket.on('set-delay', (data) => {
         const delayTime = Number(data);
-        if (isNaN(delayTime)) {
-          return;
+        if (!isNaN(delayTime)) {
+          PlaybackService.setDelay(delayTime);
         }
-        global.timer.increment(delayTime * 1000 * 60);
       });
 
       /*******************************************/
       // general playback state, useful for external sync
+      // Todo: add delayed value (will come from rundownService)
       socket.on('ontime-poll', () => {
         const timerPoll = global.timer.poll();
         const isDelayed = false;
@@ -181,33 +174,13 @@ class SocketController {
       });
 
       /*******************************************/
-
-      // ** TO BE DEPRECATED ** //
-      socket.on('get-timer', () => {
-        socket.emit('timer', global.timer.getTimeObject());
-      });
-
-      // ** TO BE DEPRECATED IN FAVOR OF DELAY ** //
-      socket.on('increment-timer', (data) => {
-        if (isNaN(parseInt(data, 10))) return;
-        if (data < -5 || data > 5) return;
-        global.timer.increment(data * 1000 * 60);
-      });
-
-      /*******************************************/
       // playstate
-      socket.on('set-playstate', (data) => {
-        global.timer.trigger(data);
-        global.timer._broadcastFeaturePlaybackControl();
-        global.timer._broadcastFeatureInfo();
-      });
-
       socket.on('get-playstate', () => {
         socket.emit('playstate', global.timer.state);
       });
 
       socket.on('get-onAir', () => {
-        socket.emit('onAir', global.timer.onAir);
+        socket.emit('onAir', messageManager.onAir);
       });
 
       /*******************************************/
