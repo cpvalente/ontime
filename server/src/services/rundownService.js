@@ -64,8 +64,8 @@ const isNewNext = () => {
  * @param {array} [affectedIds]
  */
 export function updateTimer(affectedIds) {
-  const runningEventIndex = eventLoader.selectedEventIndex;
-  if (runningEventIndex === null) {
+  const runningEventId = eventLoader.selectedEventId;
+  if (runningEventId === null) {
     return false;
   }
 
@@ -74,15 +74,15 @@ export function updateTimer(affectedIds) {
   // 2. the edited event is currently being used (now or next)
   // 3. the edited event replaces one of the previous (next)
   if (typeof affectedIds === 'undefined') {
-    global.timer.syncLoaded(runningEventIndex);
+    global.timer.syncLoaded(runningEventId);
     return true;
   }
   if (affectedLoaded(affectedIds)) {
-    global.timer.syncLoaded(runningEventIndex);
+    global.timer.syncLoaded(runningEventId);
     return true;
   }
   if (isNewNext()) {
-    global.timer.syncLoaded(runningEventIndex);
+    global.timer.syncLoaded(runningEventId);
     return true;
   }
   return false;
