@@ -1,6 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
-import SocketProvider from 'common/context/socketContext';
 
 import { queryClientMock } from '../../../__mocks__/QueryClient.mock';
 import PlaybackControl from '../playback/PlaybackControl';
@@ -11,10 +10,8 @@ test('check that playback control renders', async () => {
   // render without failing
   render(
     <QueryClientProvider client={queryClientMock}>
-      <SocketProvider>
-        <PlaybackControl />
-      </SocketProvider>
-    </QueryClientProvider>
+      <PlaybackControl />
+    </QueryClientProvider>,
   );
 
   // Text labels for times

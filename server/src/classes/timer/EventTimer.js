@@ -136,7 +136,7 @@ export class EventTimer extends Timer {
       nextEventId: this.nextEventId,
       playback: this.state,
     };
-    this.socket.send('ontime-feat-rundown', featureData);
+    this.socket.send('feat-rundown', featureData);
   }
 
   /**
@@ -149,7 +149,7 @@ export class EventTimer extends Timer {
       selectedEventId: this.selectedEventId,
       numEvents: this.rundown.length,
     };
-    this.socket.send('ontime-feat-playbackcontrol', featureData);
+    this.socket.send('feat-playbackcontrol', featureData);
   }
 
   /**
@@ -164,7 +164,7 @@ export class EventTimer extends Timer {
       selectedEventIndex: this.selectedEventIndex,
       numEvents: this.rundown.length,
     };
-    this.socket.send('ontime-feat-info', featureData);
+    this.socket.send('feat-info', featureData);
   }
 
   _broadcastFeatureCuesheet() {
@@ -175,7 +175,7 @@ export class EventTimer extends Timer {
       numEvents: this.rundown.length,
       titleNow: this.titles.titleNow,
     };
-    this.socket.send('ontime-feat-cuesheet', featureData);
+    this.socket.send('feat-cuesheet', featureData);
   }
 
   /**

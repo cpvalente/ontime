@@ -4,7 +4,7 @@ import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 
-import { usePlaybackControlProvider } from '../../../common/hooks/useSocketProvider';
+import { setPlayback } from '../../../common/hooks/useSocket';
 import { Playstate } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
@@ -20,7 +20,6 @@ interface TransportProps {
 
 export default function Transport(props: TransportProps) {
   const { playback, selectedId, noEvents } = props;
-  const { setPlayback } = usePlaybackControlProvider();
   const isRolling = playback === 'roll';
 
   return (

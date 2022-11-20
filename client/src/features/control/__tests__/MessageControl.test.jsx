@@ -1,6 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
-import SocketProvider from 'common/context/socketContext';
 
 import { queryClientMock } from '../../../__mocks__/QueryClient.mock';
 import MessageControl from '../message/MessageControl';
@@ -11,9 +10,7 @@ import MessageControl from '../message/MessageControl';
 const MockMessageControl = () => {
   return (
     <QueryClientProvider client={queryClientMock}>
-      <SocketProvider>
-        <MessageControl />
-      </SocketProvider>
+      <MessageControl />
     </QueryClientProvider>
   );
 };

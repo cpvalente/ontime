@@ -1,4 +1,6 @@
 export const STATIC_PORT = 4001;
+
+// REST stuff
 export const EVENT_TABLE = ['event'];
 export const ALIASES = ['aliases'];
 export const USERFIELDS = ['userFields'];
@@ -9,12 +11,13 @@ export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
 
-export const FEAT_RUNDOWN = ['feat-rundown'];
-export const FEAT_MESSAGECONTROL = ['feat-messagecontrol'];
-export const FEAT_PLAYBACKCONTROL = ['feat-playbackcontrol'];
-export const FEAT_INFO = ['feat-info'];
-export const FEAT_CUESHEET = ['feat-cuesheet'];
-export const TIMER = ['ontime-timer'];
+// websocket stuff
+export const FEAT_CUESHEET = 'feat-cuesheet';
+export const FEAT_INFO = 'feat-info';
+export const FEAT_MESSAGECONTROL = 'feat-messagecontrol';
+export const FEAT_PLAYBACKCONTROL = 'feat-playbackcontrol';
+export const FEAT_RUNDOWN = 'feat-rundown';
+export const TIMER = 'ontime-timer';
 
 /**
  * @description finds server path given the current location, it
