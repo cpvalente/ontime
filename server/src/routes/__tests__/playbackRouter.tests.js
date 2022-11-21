@@ -100,8 +100,8 @@ describe('When a POST state change is sent', () => {
       });
   });
 
-  test('POST of unknown request returns 404', async () => {
-    await supertest(server).post('/playback/madeup').expect(404);
+  test('POST of unknown request returns 400', async () => {
+    await supertest(server).post('/playback/madeup').expect(400);
   });
 });
 

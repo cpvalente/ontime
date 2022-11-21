@@ -76,9 +76,9 @@ app.get('*', (req, res) => {
   res.sendFile(resolve(__dirname, resolvedPath(), 'client', 'build', 'index.html'));
 });
 
-// Implement route for errors
-app.use((err, req, res) => {
-  res.status(500).send(err.stack);
+// Implement catch all
+app.use((error, response, _next) => {
+  response.status(400).send('Unhandled request');
 });
 
 /***************  START SERVICES ***************/

@@ -88,12 +88,12 @@ export const pbLoad = async (req, res) => {
 // Unloads any events
 export const pbUnload = async (req, res) => {
   PlaybackService.stop();
-  res.sendStatus(200);
+  res.sendStatus(202);
 };
 
 // Create controller for POST request to '/playback/reload'
 // Reloads current event
 export const pbReload = async (req, res) => {
   PlaybackService.reload();
-  res.sendStatus(200);
+  res.sendStatus(202);
 };
