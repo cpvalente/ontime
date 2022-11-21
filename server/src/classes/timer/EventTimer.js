@@ -531,10 +531,14 @@ export class EventTimer extends Timer {
 
     // call super
     super.stop();
+    this._resetTimers(true);
     this._resetSelection();
 
     // update lifecycle: onStop
     this.ontimeCycle = this.cycleState.onStop;
+
+    // broadcast state
+    this.broadcastState();
 
     return this.state;
   }
@@ -568,7 +572,7 @@ export class EventTimer extends Timer {
 
     // nothing to play, unload
     if (nowIndex === null && nextIndex === null) {
-      this.unload();
+      this.stop();
       this.socket.warning('SERVER', 'Roll: no events found');
       return;
     }
@@ -702,20 +706,6 @@ export class EventTimer extends Timer {
     this.sendOsc(this.osc.implemented.next);
     this.pause();
     this.runCycle();
-  }
-
-  unload() {
-    // reset timer
-    this._resetTimers(true);
-
-    // reset selected
-    this._resetSelection();
-
-    // broadcast state
-    this.broadcastState();
-
-    // reset playstate
-    this.stop();
   }
 
   /**
