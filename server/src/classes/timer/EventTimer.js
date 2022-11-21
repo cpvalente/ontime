@@ -211,21 +211,63 @@ export class EventTimer extends Timer {
   }
 
   /**
+   * Starts playback
+   * @return {('start'|'pause'|'stop'|'roll')} Playback state
+   */
+  setStart() {
+    this.start();
+    return this.state;
+  }
+
+  /**
+   * Pauses playback
+   * @return {('start'|'pause'|'stop')} Playback state
+   */
+  setPause() {
+    this.pause();
+    return this.state;
+  }
+
+  /**
+   * Stops playback
+   * @return {('start'|'pause'|'stop'|'roll')} Playback state
+   */
+  setStop() {
+    this.unload();
+    return this.state;
+  }
+
+  /**
+   * Stops playback
+   * @return {('start'|'pause'|'stop'|'roll')} Playback state
+   */
+  setRoll() {
+    this.roll();
+    return this.state;
+  }
+
+  /**
+   * Stops playback
+   * @return {('start'|'pause'|'stop'|'roll')} Playback state
+   */
+  setReload() {
+    this.reload();
+    return this.state;
+  }
+
+  /**
    * @description Interface for triggering playback actions
    * @param {string} action - state to be triggered
    * @param {string|number} [payload] - optional action payload
    * @returns {boolean} Whether action was called
    */
   trigger(action, payload) {
+    console.log('!!! event timer trigger', action);
     let success = true;
     const numEvents = DataProvider.getNumEvents();
     switch (action) {
-      case 'start': {
-        if (!numEvents) return false;
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Play Mode Start');
-        this.start();
-        break;
+      case 'loadById': {
+        return this.loadEventById(payload);
       }
       case 'startById': {
         if (!numEvents) return false;
@@ -235,7 +277,7 @@ export class EventTimer extends Timer {
           this.socket.info('PLAYBACK', 'Play Mode Start');
           this.start();
         } else {
-          return false;
+          return null;
         }
         break;
       }
@@ -251,78 +293,15 @@ export class EventTimer extends Timer {
         }
         break;
       }
-      case 'pause': {
-        if (!numEvents) return false;
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Play Mode Pause');
-        this.pause();
-        break;
-      }
-      case 'stop': {
-        if (!numEvents) return false;
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Play Mode Stop');
-        this.stop();
-        break;
-      }
-      case 'roll': {
-        if (!numEvents) return false;
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Play Mode Roll');
-        this.roll();
-        break;
-      }
-      case 'previous': {
-        if (!numEvents) return false;
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Play Mode Previous');
-        this.previous();
-        break;
-      }
-      case 'next': {
-        if (!numEvents) return false;
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Play Mode Next');
-        this.next();
-        break;
-      }
-      case 'loadById': {
-        if (!numEvents) return false;
-        const loaded = this.loadEventById(payload);
-        if (loaded) {
-          this.socket.info('PLAYBACK', `Loaded event with ID ${payload}`);
-        } else {
-          return false;
-        }
-        break;
-      }
       case 'loadByIndex': {
         if (!numEvents) return false;
         const loaded = this.loadEventByIndex(payload);
-        if (loaded) {
-          this.socket.info('PLAYBACK', `Loaded event with index ${payload}`);
-        } else {
+        if (!loaded) {
           return false;
         }
         break;
       }
-      case 'unload': {
-        if (!numEvents) return false;
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Events unloaded');
-        this.unload();
-        break;
-      }
-      case 'reload': {
-        if (!numEvents) return false;
-        // Call action and force update
-        this.socket.info('PLAYBACK', 'Reloaded event');
-        this.reload();
-        break;
-      }
       default: {
-        // Error, disable flag
-        this.socket.error('RX', `Unhandled action triggered ${action}`);
         success = false;
         break;
       }
@@ -533,6 +512,7 @@ export class EventTimer extends Timer {
     }
   }
 
+  // Todo: remove functionality
   /**
    * Adds an event list to object
    * @param {array} eventlist
@@ -551,7 +531,9 @@ export class EventTimer extends Timer {
     if (numEvents < 1) return;
 
     // load first event
-    this.loadEvent(0);
+    const prev = eventLoader.findPrevious();
+    const event = EventLoader.getEventWithId(prev.id);
+    this.loadEvent(event);
 
     // update clients
     this.broadcastState();
@@ -560,51 +542,27 @@ export class EventTimer extends Timer {
     this.runCycle();
   }
 
-  syncLoaded(eventIndex) {
+  /**
+   *
+   * @param {string} eventId
+   */
+  syncLoaded(eventId) {
     if (this.state === 'roll') {
       this.rollLoad();
     } else {
-      this.loadEvent(eventIndex, 'reload');
+      const event = EventLoader.getEventWithId(eventId);
+      this.loadEvent(event, 'reload');
     }
-  }
-
-  /**
-   * @description loads an event with a given Id
-   * @param {string} eventId - ID of event in eventlist
-   */
-  loadEventById(eventId) {
-    const eventIndex = EventLoader.getIndexOfEvent(eventId);
-
-    if (eventIndex === -1) return false;
-    this.pause();
-    this.loadEvent(eventIndex, 'load');
-    // run cycle
-    this.runCycle();
-    return true;
-  }
-
-  /**
-   * @description loads an event with a given index
-   * @param {number} eventIndex - Index of event in eventlist
-   */
-  loadEventByIndex(eventIndex) {
-    const numEvents = DataProvider.getNumEvents();
-    if (eventIndex === -1 || eventIndex > numEvents) return false;
-    this.pause();
-    this.loadEvent(eventIndex, 'load');
-    // run cycle
-    this.runCycle();
-    return true;
   }
 
   /**
    * Loads a given event by index
    * @typedef ('load'|'reload') loadEventOptions
-   * @param {object} eventIndex
+   * @param {object} event
    * @param {string} [type='load'] - 'load' or 'reload', whether we are keeping running time
    */
-  loadEvent(eventIndex, type = 'load') {
-    const loadedData = eventLoader.loadByIndex(eventIndex);
+  loadEvent(event, type = 'load') {
+    const loadedData = eventLoader.loadById(event.id);
     if (loadedData === null) {
       return;
     }
@@ -751,9 +709,6 @@ export class EventTimer extends Timer {
     // do we need to change
     if (this.state === 'start') return;
 
-    // if there is nothing selected, no nothing
-    if (this.selectedEventId == null) return;
-
     // call super
     super.start();
 
@@ -767,9 +722,6 @@ export class EventTimer extends Timer {
   pause() {
     // do we need to change
     if (this.state === 'pause') return;
-
-    // if there is nothing selected, no nothing
-    if (this.selectedEventId == null) return;
 
     // call super
     super.pause();
@@ -890,12 +842,6 @@ export class EventTimer extends Timer {
   }
 
   roll() {
-    // do we need to change
-    if (this.state === 'roll') return;
-
-    const numEvents = DataProvider.getNumEvents();
-    if (!numEvents) return;
-
     // set state
     this.state = 'roll';
 
@@ -907,34 +853,15 @@ export class EventTimer extends Timer {
   }
 
   previous() {
-    const previous = eventLoader.findPrevious();
-    if (previous === null) {
-      return;
-    }
-    const { id, index } = previous;
-    if (id !== this.selectedEventId) {
-      this.loadEvent(index);
-      // send OSC
-      this.sendOsc(this.osc.implemented.previous);
-      // change playstate
-      this.pause();
-    }
+    this.sendOsc(this.osc.implemented.previous);
+    this.pause();
+    this.runCycle();
   }
 
   next() {
-    const next = eventLoader.findNext();
-    if (next === null) {
-      return;
-    }
-
-    const { id, index } = next;
-    if (id !== this.selectedEventId) {
-      this.loadEvent(index);
-      // send OSC
-      this.sendOsc(this.osc.implemented.next);
-      // change playstate
-      this.pause();
-    }
+    this.sendOsc(this.osc.implemented.next);
+    this.pause();
+    this.runCycle();
   }
 
   unload() {
@@ -966,7 +893,10 @@ export class EventTimer extends Timer {
     this.sendOsc(this.osc.implemented.reload);
 
     // reload data
-    this.loadEvent(this.selectedEventIndex);
+    const event = EventLoader.getEventWithId(this.selectedEventId);
+    this.loadEvent(event);
+
+    this.runCycle();
   }
 
   /****************************************************************************/

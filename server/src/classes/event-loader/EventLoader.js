@@ -4,6 +4,9 @@ import { Timer } from '../timer/Timer.js';
 
 let instance;
 
+/**
+ * Manages business logic around loading events
+ */
 export class EventLoader {
   constructor() {
     if (instance) {
@@ -14,93 +17,124 @@ export class EventLoader {
     this.loadedEvent = null;
   }
 
+  /**
+   * returns all events that contain time data
+   * @return {array}
+   */
   static getTimedEvents() {
     // return mockLoaderData.filter((event) => event.type === 'event');
     return DataProvider.getRundown().filter((event) => event.type === 'event');
   }
 
   /**
-   * loads an event given its index
-   * @param {number} eventIndex
+   * returns all events that can be loaded
+   * @return {array}
    */
-  loadByIndex(eventIndex) {
+  static getPlayableEvents() {
+    // return mockLoaderData.filter((event) => event.type === 'event' && !event.skip);
+    return DataProvider.getRundown().filter((event) => event.type === 'event' && !event.skip);
+  }
+
+  /**
+   * returns number of events
+   * @return {number}
+   */
+  static getNumEvents() {
+    return EventLoader.getTimedEvents().length;
+  }
+
+  /**
+   * returns an event given its index
+   * @param {number} eventIndex
+   * @return {object | undefined}
+   */
+  static getEventAtIndex(eventIndex) {
     const timedEvents = EventLoader.getTimedEvents();
-    if (eventIndex === -1 || eventIndex > timedEvents.length) {
-      return null;
-    }
-    const event = timedEvents?.[eventIndex];
+    return timedEvents?.[eventIndex];
+  }
 
-    if (typeof event === 'undefined') {
-      return null;
-    }
-
-    // we know some stuff now
-    this.loadedEvent = event;
-    this.selectedEventIndex = eventIndex;
-    this.loadedEventId = event.id;
-    this.numEvents = timedEvents.length;
-    this._loadTitlesNow(event, timedEvents);
-    this._loadTitlesNext(timedEvents);
-
-    return this.getLoaded();
+  /**
+   * returns an event given its id
+   * @param {string} eventId
+   * @return {object | undefined}
+   */
+  static getEventWithId(eventId) {
+    const timedEvents = EventLoader.getTimedEvents();
+    return timedEvents.find((event) => event.id === eventId);
   }
 
   /**
    * loads an event given its id
    * @param {string} eventId
+   * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, loadedEventId: *, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
   loadById(eventId) {
-    const eventIndex = EventLoader.getIndexOfEvent(eventId);
-    if (eventIndex !== -1) {
-      return this.loadByIndex(eventIndex);
-    }
+    const event = EventLoader.getEventWithId(eventId);
+    return this._loadEvent(event);
   }
 
   /**
-   * loads an event given its id
-   * @param {string} eventId
+   * loads an event given its index
+   * @param {number} eventIndex
+   * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, loadedEventId: *, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
-  static getIndexOfEvent(eventId) {
-    const timedEvents = EventLoader.getTimedEvents();
-    return timedEvents.findIndex((event) => event.id === eventId);
+  loadByIndex(eventIndex) {
+    const event = EventLoader.getEventAtIndex(eventIndex);
+    return this._loadEvent(event);
   }
 
+  /**
+   * finds the ID of the previous event
+   * @returns {{id: string}|null}
+   */
   findPrevious() {
-    const timedEvents = EventLoader.getTimedEvents();
+    const timedEvents = EventLoader.getPlayableEvents();
     if (timedEvents === null || this.selectedEventIndex === 0) {
       return null;
     }
 
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
-      return { id: timedEvents[0].id, index: 0 };
+      return { id: timedEvents[0].id };
     } else {
       const newIndex = this.selectedEventIndex - 1;
-      return { id: timedEvents?.[newIndex].id, index: newIndex };
+      return { id: timedEvents?.[newIndex].id };
     }
   }
 
+  /**
+   * finds the ID of the next event
+   * @returns {{id: string}|null}
+   */
   findNext() {
-    const timedEvents = EventLoader.getTimedEvents();
+    const timedEvents = EventLoader.getPlayableEvents();
     if (timedEvents === null || this.selectedEventIndex === this.numEvents - 1) {
       return null;
     }
 
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
-      return { id: timedEvents[0].id, index: 0 };
+      return { id: timedEvents[0].id };
     } else {
       const newIndex = this.selectedEventIndex + 1;
-      return { id: timedEvents?.[newIndex].id, index: newIndex };
+      return { id: timedEvents?.[newIndex].id };
     }
   }
 
+  /**
+   * finds next event within Roll context
+   * @returns {{nowIndex: null, timers: null, nowId: null, publicNextIndex: null, nextIndex: null, timeToNext: null, publicIndex: null}|{nowIndex: null, timers: null, nowId: null, publicNextIndex: null, nextIndex: null, timeToNext: null, publicIndex: null}}
+   */
   findRoll() {
-    const timedEvents = EventLoader.getTimedEvents();
+    const timedEvents = EventLoader.getPlayableEvents();
     const millisNow = Timer.getCurrentTime();
     return getSelectionByRoll(timedEvents, millisNow);
   }
 
+  /**
+   * returns data for currently loaded event
+   * @returns {{loadedEvent: null, selectedEventId: (null|*), nextEventId: (null|*), loadedEventId, selectedPublicEventId: (null|*), nextPublicEventId: (null|*), numEvents: (null|number|*), titles: (*|{presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}), titlesPublic: (*|{presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}), selectedEventIndex: (null|number|*)}}
+   */
   getLoaded() {
     return {
       loadedEvent: this.loadedEvent,
@@ -142,6 +176,29 @@ export class EventLoader {
       subtitleNext: null,
       presenterNext: null,
     };
+  }
+
+  /**
+   * loads an event given its id
+   * @param {object} event
+   */
+  _loadEvent(event) {
+    if (typeof event === 'undefined') {
+      return null;
+    }
+    const timedEvents = EventLoader.getPlayableEvents();
+    const eventIndex = timedEvents.findIndex((eventInMemory) => eventInMemory.id === event.id);
+    const playableEvents = EventLoader.getPlayableEvents();
+
+    // we know some stuff now
+    this.loadedEvent = event;
+    this.selectedEventIndex = eventIndex;
+    this.loadedEventId = event.id;
+    this.numEvents = timedEvents.length;
+    this._loadTitlesNow(event, playableEvents);
+    this._loadTitlesNext(playableEvents);
+
+    return this.getLoaded();
   }
 
   /**
