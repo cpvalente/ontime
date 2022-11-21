@@ -202,62 +202,6 @@ export class EventTimer extends Timer {
   }
 
   /**
-   * @description Interface for triggering playback actions
-   * @param {string} action - state to be triggered
-   * @param {string|number} [payload] - optional action payload
-   * @returns {boolean} Whether action was called
-   */
-  trigger(action, payload) {
-    let success = true;
-    const numEvents = DataProvider.getNumEvents();
-    switch (action) {
-      case 'loadById': {
-        return this.loadEventById(payload);
-      }
-      case 'startById': {
-        if (!numEvents) return false;
-        const loaded = this.loadEventById(payload);
-        if (loaded) {
-          this.socket.info('PLAYBACK', `Loaded event with ID ${payload}`);
-          this.socket.info('PLAYBACK', 'Play Mode Start');
-          this.start();
-        } else {
-          return null;
-        }
-        break;
-      }
-      case 'startByIndex': {
-        if (!numEvents) return false;
-        const loaded = this.loadEventByIndex(payload);
-        if (loaded) {
-          this.socket.info('PLAYBACK', `Loaded event with index ${payload}`);
-          this.socket.info('PLAYBACK', 'Play Mode Start');
-          this.start();
-        } else {
-          return false;
-        }
-        break;
-      }
-      case 'loadByIndex': {
-        if (!numEvents) return false;
-        const loaded = this.loadEventByIndex(payload);
-        if (!loaded) {
-          return false;
-        }
-        break;
-      }
-      default: {
-        success = false;
-        break;
-      }
-    }
-
-    // update state
-    this.runCycle();
-    return success;
-  }
-
-  /**
    * @description State machine checks what actions need to
    * happen at every app cycle
    */
