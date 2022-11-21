@@ -2,6 +2,8 @@
 // Returns ACK message
 import { PlaybackService } from '../services/playbackService.js';
 
+// Create controller for POST request to '/playback'
+// Returns playback state
 export const pbGet = async (req, res) => {
   res.send({ playback: global.timer.state });
 };
