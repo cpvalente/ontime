@@ -129,7 +129,7 @@ const server = http.createServer(app);
  * @return {Promise<string>}
  */
 export const startServer = async (overrideConfig = null) => {
-  const { rundown, http } = DataProvider.getData();
+  const { http } = DataProvider.getData();
 
   // Start server
   const returnMessage = `Ontime is listening on port ${serverPort}`;
@@ -147,7 +147,6 @@ export const startServer = async (overrideConfig = null) => {
 
   // init timer
   global.timer = new EventTimer(socket, config.timer, oscConfig, http);
-  global.timer.setupWithEventList(rundown.filter((entry) => entry.type === 'event'));
 
   socket.info('SERVER', returnMessage);
   socket.startListener();

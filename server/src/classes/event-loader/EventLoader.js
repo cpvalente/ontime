@@ -302,14 +302,15 @@ export class EventLoader {
         this.titles.presenterNow = event.presenter;
         this.titles.noteNow = event.note;
         this.selectedEventId = event.id;
-
         break;
+
       case 'now-public':
         this.titlesPublic.titleNow = event.title;
         this.titlesPublic.subtitleNow = event.subtitle;
         this.titlesPublic.presenterNow = event.presenter;
         this.selectedPublicEventId = event.id;
         break;
+
       case 'now-private':
         this.titles.titleNow = event.title;
         this.titles.subtitleNow = event.subtitle;

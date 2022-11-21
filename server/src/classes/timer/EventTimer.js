@@ -51,8 +51,6 @@ export class EventTimer extends Timer {
     // call general title reset
     this._resetSelection();
 
-    this.rundown = [];
-
     // set recurrent emits
     this._interval = setInterval(() => this.runCycle(), timerConfig?.refresh || 1000);
 
@@ -193,17 +191,10 @@ export class EventTimer extends Timer {
     this._broadcastFeatureCuesheet();
     this._broadcastFeatureTimer();
 
-    const numEvents = DataProvider.getNumEvents();
     this.broadcastTimer();
     this.socket.send('playstate', this.state);
-    this.socket.send('selected', {
-      id: this.selectedEventId,
-      index: this.selectedEventIndex,
-      total: numEvents,
-    });
     this.socket.send('selected-id', this.selectedEventId);
     this.socket.send('next-id', this.nextEventId);
-    this.socket.send('numevents', numEvents);
     this.socket.send('publicselected-id', this.selectedPublicEventId);
     this.socket.send('publicnext-id', this.nextPublicEventId);
     this.socket.send('titles', this.titles);
@@ -262,7 +253,6 @@ export class EventTimer extends Timer {
    * @returns {boolean} Whether action was called
    */
   trigger(action, payload) {
-    console.log('!!! event timer trigger', action);
     let success = true;
     const numEvents = DataProvider.getNumEvents();
     switch (action) {
@@ -512,36 +502,6 @@ export class EventTimer extends Timer {
     }
   }
 
-  // Todo: remove functionality
-  /**
-   * Adds an event list to object
-   * @param {array} eventlist
-   */
-  setupWithEventList(eventlist) {
-    if (!Array.isArray(eventlist) || !eventlist.length) return;
-
-    // filter only events
-    const events = eventlist.filter((e) => e.type === 'event');
-    const numEvents = events.length;
-
-    // set general
-    this.rundown = events;
-
-    // list may contain no events
-    if (numEvents < 1) return;
-
-    // load first event
-    const prev = eventLoader.findPrevious();
-    const event = EventLoader.getEventWithId(prev.id);
-    this.loadEvent(event);
-
-    // update clients
-    this.broadcastState();
-
-    // run cycle
-    this.runCycle();
-  }
-
   /**
    *
    * @param {string} eventId
@@ -563,7 +523,7 @@ export class EventTimer extends Timer {
    */
   loadEvent(event, type = 'load') {
     const loadedData = eventLoader.loadById(event.id);
-    if (loadedData === null) {
+    if (!loadedData) {
       return;
     }
 
@@ -594,80 +554,6 @@ export class EventTimer extends Timer {
 
     // update lifecycle: onLoad
     this.ontimeCycle = this.cycleState.onLoad;
-  }
-
-  /**
-   * @description loads given title
-   * @param e
-   * @param type
-   * @private
-   */
-  _loadThisTitles(e, type) {
-    if (e == null) return;
-
-    switch (type) {
-      // now, load to both public and private
-      case 'now':
-        // public
-        this.titlesPublic.titleNow = e.title;
-        this.titlesPublic.subtitleNow = e.subtitle;
-        this.titlesPublic.presenterNow = e.presenter;
-        this.selectedPublicEventId = e.id;
-
-        // private
-        this.titles.titleNow = e.title;
-        this.titles.subtitleNow = e.subtitle;
-        this.titles.presenterNow = e.presenter;
-        this.titles.noteNow = e.note;
-        this.selectedEventId = e.id;
-
-        break;
-      case 'now-public':
-        this.titlesPublic.titleNow = e.title;
-        this.titlesPublic.subtitleNow = e.subtitle;
-        this.titlesPublic.presenterNow = e.presenter;
-        this.selectedPublicEventId = e.id;
-        break;
-      case 'now-private':
-        this.titles.titleNow = e.title;
-        this.titles.subtitleNow = e.subtitle;
-        this.titles.presenterNow = e.presenter;
-        this.titles.noteNow = e.note;
-        this.selectedEventId = e.id;
-        break;
-
-      // next, load to both public and private
-      case 'next':
-        // public
-        this.titlesPublic.titleNext = e.title;
-        this.titlesPublic.subtitleNext = e.subtitle;
-        this.titlesPublic.presenterNext = e.presenter;
-        this.nextPublicEventId = e.id;
-
-        // private
-        this.titles.titleNext = e.title;
-        this.titles.subtitleNext = e.subtitle;
-        this.titles.presenterNext = e.presenter;
-        this.titles.noteNext = e.note;
-        this.nextEventId = e.id;
-        break;
-      case 'next-public':
-        this.titlesPublic.titleNext = e.title;
-        this.titlesPublic.subtitleNext = e.subtitle;
-        this.titlesPublic.presenterNext = e.presenter;
-        this.nextPublicEventId = e.id;
-        break;
-      case 'next-private':
-        this.titles.titleNext = e.title;
-        this.titles.subtitleNext = e.subtitle;
-        this.titles.presenterNext = e.presenter;
-        this.titles.noteNext = e.note;
-        this.nextEventId = e.id;
-        break;
-
-      default:
-        break;
-    }
   }
 
   /**
@@ -799,6 +685,8 @@ export class EventTimer extends Timer {
 
     // found something to run next
     if (nextIndex != null) {
+      const eventNext = EventLoader.getEventAtIndex(nextIndex);
+
       // Set running timers
       if (nowIndex === null) {
         // only warn the first time
@@ -812,25 +700,61 @@ export class EventTimer extends Timer {
 
         // timer counts to next event
         this.secondaryTimer = timeToNext;
-        this._secondaryTarget = this.rundown[nextIndex].timeStart;
+        this._secondaryTarget = eventNext.timeStart;
       }
 
       // TITLES: Load next private
-      this._loadThisTitles(this.rundown[nextIndex], 'next-private');
+      // Todo: this should be an ID
+      // todo: this logic should be removed
+      if (eventNext) {
+        this.titles.titleNext = eventNext.title;
+        this.titles.subtitleNext = eventNext.subtitle;
+        this.titles.presenterNext = eventNext.presenter;
+        this.titles.noteNext = eventNext.note;
+        this.nextEventId = eventNext.id;
+      }
     }
 
+    // Todo: this should be an ID
+    // todo: this logic should be removed
     // TITLES: Load next public
     if (publicNextIndex !== null) {
-      this._loadThisTitles(this.rundown[publicNextIndex], 'next-public');
+      const eventNextPublic = EventLoader.getEventAtIndex(publicNextIndex);
+      if (eventNextPublic) {
+        this.titlesPublic.titleNext = eventNextPublic.title;
+        this.titlesPublic.subtitleNext = eventNextPublic.subtitle;
+        this.titlesPublic.presenterNext = eventNextPublic.presenter;
+        this.titlesPublic.noteNext = eventNextPublic.note;
+        this.nextPublicEventId = eventNextPublic.id;
+      }
     }
 
+    // Todo: this should be an ID
+    // todo: this logic should be removed
     // TITLES: Load now private
     if (nowIndex !== null) {
-      this._loadThisTitles(this.rundown[nowIndex], 'now-private');
+      const eventNowPrivate = EventLoader.getEventAtIndex(nowIndex);
+      if (eventNowPrivate) {
+        this.titles.titleNow = eventNowPrivate.title;
+        this.titles.subtitleNow = eventNowPrivate.subtitle;
+        this.titles.presenterNow = eventNowPrivate.presenter;
+        this.titles.noteNow = eventNowPrivate.note;
+        this.selectedEventId = eventNowPrivate.id;
+      }
     }
+
+    // Todo: this should be an ID
+    // todo: this logic should be removed
     // TITLES: Load now public
     if (publicIndex !== null) {
-      this._loadThisTitles(this.rundown[publicIndex], 'now-public');
+      const eventNowPublic = EventLoader.getEventAtIndex(nowIndex);
+      if (eventNowPublic) {
+        this.titlesPublic.titleNow = eventNowPublic.title;
+        this.titlesPublic.subtitleNow = eventNowPublic.subtitle;
+        this.titlesPublic.presenterNow = eventNowPublic.presenter;
+        this.titlesPublic.noteNow = eventNowPublic.note;
+        this.selectedPublicEventId = eventNowPublic.id;
+      }
     }
 
     if (prevLoaded !== this.selectedEventId) {
@@ -842,7 +766,10 @@ export class EventTimer extends Timer {
   }
 
   roll() {
-    // set state
+    if (this.state === 'roll') {
+      return;
+    }
+
     this.state = 'roll';
 
     // update lifecycle: armed
