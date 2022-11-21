@@ -54,6 +54,16 @@ export class EventLoader {
   }
 
   /**
+   * returns an event given its index
+   * @param {number} eventIndex
+   * @return {object | undefined}
+   */
+  static getPlayableAtIndex(eventIndex) {
+    const timedEvents = EventLoader.getPlayableEvents();
+    return timedEvents?.[eventIndex];
+  }
+
+  /**
    * returns an event given its id
    * @param {string} eventId
    * @return {object | undefined}

@@ -685,7 +685,7 @@ export class EventTimer extends Timer {
 
     // found something to run next
     if (nextIndex != null) {
-      const eventNext = EventLoader.getEventAtIndex(nextIndex);
+      const eventNext = EventLoader.getPlayableAtIndex(nextIndex);
 
       // Set running timers
       if (nowIndex === null) {
@@ -719,7 +719,7 @@ export class EventTimer extends Timer {
     // todo: this logic should be removed
     // TITLES: Load next public
     if (publicNextIndex !== null) {
-      const eventNextPublic = EventLoader.getEventAtIndex(publicNextIndex);
+      const eventNextPublic = EventLoader.getPlayableAtIndex(publicNextIndex);
       if (eventNextPublic) {
         this.titlesPublic.titleNext = eventNextPublic.title;
         this.titlesPublic.subtitleNext = eventNextPublic.subtitle;
@@ -733,7 +733,7 @@ export class EventTimer extends Timer {
     // todo: this logic should be removed
     // TITLES: Load now private
     if (nowIndex !== null) {
-      const eventNowPrivate = EventLoader.getEventAtIndex(nowIndex);
+      const eventNowPrivate = EventLoader.getPlayableAtIndex(nowIndex);
       if (eventNowPrivate) {
         this.titles.titleNow = eventNowPrivate.title;
         this.titles.subtitleNow = eventNowPrivate.subtitle;
@@ -747,7 +747,7 @@ export class EventTimer extends Timer {
     // todo: this logic should be removed
     // TITLES: Load now public
     if (publicIndex !== null) {
-      const eventNowPublic = EventLoader.getEventAtIndex(nowIndex);
+      const eventNowPublic = EventLoader.getPlayableAtIndex(nowIndex);
       if (eventNowPublic) {
         this.titlesPublic.titleNow = eventNowPublic.title;
         this.titlesPublic.subtitleNow = eventNowPublic.subtitle;
