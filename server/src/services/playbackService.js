@@ -193,6 +193,6 @@ export class PlaybackService {
     }
     const delayInMs = delayTime * 1000 * 60;
     global.timer.increment(delayInMs);
-    socketProvider.info('PLAYBACK', `Added ${delayTime}min delay`);
+    socketProvider.info('PLAYBACK', `Added ${delayTime} min delay`);
   }
 }
