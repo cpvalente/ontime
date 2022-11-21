@@ -24,7 +24,7 @@ export class PlaybackService {
       socketProvider.warning('PLAYBACK', `Refused playback of skipped event ID ${event.id}`);
       return false;
     }
-    global.timer.setPause();
+    global.timer.pause();
     global.timer.loadEvent(event);
     return true;
   }
@@ -116,7 +116,7 @@ export class PlaybackService {
     if (!eventLoader.selectedEventId) {
       return;
     }
-    const newState = global.timer.setStart();
+    const newState = global.timer.start();
     if (newState === 'start') {
       socketProvider.info('PLAYBACK', 'Play Mode Start');
     }
@@ -130,7 +130,7 @@ export class PlaybackService {
     if (!eventLoader.selectedEventId) {
       return;
     }
-    const newState = global.timer.setPause();
+    const newState = global.timer.pause();
     if (newState === 'pause') {
       socketProvider.info('PLAYBACK', 'Play Mode Paused');
     }
@@ -145,7 +145,7 @@ export class PlaybackService {
       return;
     }
     eventLoader.reset();
-    const newState = global.timer.setStop();
+    const newState = global.timer.stop();
     if (newState === 'stop') {
       socketProvider.info('PLAYBACK', 'Play Mode Stopped');
     }
@@ -159,7 +159,7 @@ export class PlaybackService {
     if (!eventLoader.selectedEventId) {
       return;
     }
-    const newState = global.timer.setReload();
+    const newState = global.timer.reload();
     socketProvider.info('PLAYBACK', 'Reloaded event');
     socketProvider.send('playstate', newState);
   }
@@ -176,7 +176,7 @@ export class PlaybackService {
       return;
     }
 
-    const newState = global.timer.setRoll();
+    const newState = global.timer.roll();
     if (newState === 'roll') {
       socketProvider.info('PLAYBACK', 'Play Mode Roll');
     }

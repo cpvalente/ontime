@@ -202,51 +202,6 @@ export class EventTimer extends Timer {
   }
 
   /**
-   * Starts playback
-   * @return {('start'|'pause'|'stop'|'roll')} Playback state
-   */
-  setStart() {
-    this.start();
-    return this.state;
-  }
-
-  /**
-   * Pauses playback
-   * @return {('start'|'pause'|'stop')} Playback state
-   */
-  setPause() {
-    this.pause();
-    return this.state;
-  }
-
-  /**
-   * Stops playback
-   * @return {('start'|'pause'|'stop'|'roll')} Playback state
-   */
-  setStop() {
-    this.unload();
-    return this.state;
-  }
-
-  /**
-   * Stops playback
-   * @return {('start'|'pause'|'stop'|'roll')} Playback state
-   */
-  setRoll() {
-    this.roll();
-    return this.state;
-  }
-
-  /**
-   * Stops playback
-   * @return {('start'|'pause'|'stop'|'roll')} Playback state
-   */
-  setReload() {
-    this.reload();
-    return this.state;
-  }
-
-  /**
    * @description Interface for triggering playback actions
    * @param {string} action - state to be triggered
    * @param {string|number} [payload] - optional action payload
@@ -590,46 +545,54 @@ export class EventTimer extends Timer {
 
   /**
    * @description start timer
+   * @return {('start'|'pause'|'stop'|'roll')} Playback state
    */
   start() {
     // do we need to change
-    if (this.state === 'start') return;
+    if (this.state === 'start') return 'start';
 
     // call super
     super.start();
 
     // update lifecycle: onStart
     this.ontimeCycle = this.cycleState.onStart;
+
+    return this.state;
   }
 
   /**
    * @description pause timer
+   * @return {('start'|'pause'|'stop')} Playback state
    */
   pause() {
     // do we need to change
-    if (this.state === 'pause') return;
+    if (this.state === 'pause') return 'pause';
 
     // call super
     super.pause();
 
     // update lifecycle: onPause
     this.ontimeCycle = this.cycleState.onPause;
+
+    return this.state;
   }
 
   /**
    * @description stop timer
+   * @return {('start'|'pause'|'stop'|'roll')} Playback state
    */
   stop() {
     // do we need to change
-    if (this.state === 'stop') return;
+    if (this.state === 'stop') return 'stop';
 
     // call super
     super.stop();
     this._resetSelection();
-    eventLoader.reset();
 
-    // update lifecycle: onPause
+    // update lifecycle: onStop
     this.ontimeCycle = this.cycleState.onStop;
+
+    return this.state;
   }
 
   /**
@@ -765,9 +728,13 @@ export class EventTimer extends Timer {
     }
   }
 
+  /**
+   * Starts roll mode
+   * @return {('start'|'pause'|'stop'|'roll')} Playback state
+   */
   roll() {
     if (this.state === 'roll') {
-      return;
+      return 'roll';
     }
 
     this.state = 'roll';
@@ -777,6 +744,8 @@ export class EventTimer extends Timer {
 
     // load into event
     this.rollLoad();
+
+    return this.state;
   }
 
   previous() {
@@ -807,10 +776,11 @@ export class EventTimer extends Timer {
 
   /**
    * @description reloads current event
+   * @return {('start'|'pause'|'stop'|'roll')} Playback state
    */
   reload() {
     if (!this.selectedEventId) {
-      return;
+      return this.state;
     }
 
     // change playstate
@@ -824,6 +794,8 @@ export class EventTimer extends Timer {
     this.loadEvent(event);
 
     this.runCycle();
+
+    return this.state;
   }
 
   /****************************************************************************/
