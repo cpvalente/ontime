@@ -131,8 +131,9 @@ export const setEventPlayback = {
 
 const emptyTimer = {
   clock: 0,
-  running: 0,
-  isNegative: false,
+  current: 0,
+  secondaryTimer: null,
+  duration: null,
   startedAt: null,
   expectedFinish: null,
 };

@@ -18,7 +18,7 @@ import { getAccessibleColour } from 'common/utils/styleUtils';
 import { useAtom } from 'jotai';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { useEventProvider } from '../../../common/hooks/useSocketProvider';
+import { setEventPlayback } from '../../../common/hooks/useSocket';
 import { Playstate } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../RundownEntry';
@@ -82,7 +82,6 @@ export default function EventBlock(props: EventBlockProps) {
   } = props;
 
   const [openId, setOpenId] = useAtom(editorEventId);
-  const { setPlayback } = useEventProvider(eventId);
   const { updateEvent } = useEventAction();
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
 
@@ -156,7 +155,7 @@ export default function EventBlock(props: EventBlockProps) {
               icon={selected ? <IoPlayBackOutline /> : <IoReload />}
               disabled={skip}
               {...blockBtnStyle}
-              clickHandler={() => setPlayback.loadEvent(eventId)}
+              clickHandler={() => setEventPlayback.loadEvent(eventId)}
               tabIndex={-1}
             />
             <TooltipActionBtn
@@ -167,7 +166,7 @@ export default function EventBlock(props: EventBlockProps) {
               disabled={skip}
               {...blockBtnStyle}
               variant={eventIsPlaying ? 'solid' : 'ghost'}
-              clickHandler={() => setPlayback.startEvent(eventId)}
+              clickHandler={() => setEventPlayback.startEvent(eventId)}
               backgroundColor={eventIsPlaying ? '#58A151' : undefined}
               tabIndex={-1}
             />
