@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
-import NavLogo from 'common/components/nav/NavLogo';
 import { formatDisplay } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
@@ -9,6 +8,7 @@ import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import Paginator from '../../../common/components/paginator/Paginator';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
@@ -69,7 +69,7 @@ export default function Pip(props) {
 
   return (
     <div className={`pip ${isMirrored ? 'mirror' : ''}`} data-testid='pip-view'>
-      <NavLogo />
+      <NavigationMenu />
 
       <div className='event-title'>{general.title}</div>
 

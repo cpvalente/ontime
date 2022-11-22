@@ -6,8 +6,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import { AppContextProvider } from 'common/context/AppContext';
 import { LoggingProvider } from 'common/context/LoggingContext';
-import SocketProvider from 'common/context/socketContext';
 
+import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
 import theme from './theme/theme';
 import AppRouter from './AppRouter';
@@ -16,53 +16,49 @@ import AppRouter from './AppRouter';
 import('typeface-open-sans');
 
 function App() {
+  const { isElectron, sendToElectron } = useElectronEvent();
 
-  // Handle keyboard shortcuts
-  const handleKeyPress = useCallback((e) => {
-    // handle held key
-    if (e.repeat) return;
-    // check if the alt key is pressed
-    if (e.altKey) {
-      if (e.key === 't' || e.key === 'T') {
-        // if we are in electron
-        if (window.process?.type === 'renderer') {
+  const handleKeyPress = useCallback((event) => {
+      // handle held key
+      if (event.repeat) return;
+      // check if the alt key is pressed
+      if (event.altKey) {
+        if (event.code === 'KeyT') {
           // ask to see debug
-          window.ipcRenderer.send('set-window', 'show-dev');
+          sendToElectron('set-window', 'show-dev');
         }
       }
-    }
-  }, []);
+    },[]);
 
   useEffect(() => {
-    // attach the event listener
-    document.addEventListener('keydown', handleKeyPress);
-
-    // remove the event listener
+    if (isElectron) {
+      document.addEventListener('keydown', handleKeyPress);
+    }
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
+      if (isElectron) {
+        document.removeEventListener('keydown', handleKeyPress);
+      }
     };
   }, [handleKeyPress]);
 
   return (
     <ChakraProvider resetCSS theme={theme}>
-      <SocketProvider>
-        <LoggingProvider>
-          <QueryClientProvider client={ontimeQueryClient}>
-            <AppContextProvider>
-              <BrowserRouter>
-                <div className='App'>
-                  <ErrorBoundary>
-                    <Suspense fallback={null}>
-                      <AppRouter />
-                    </Suspense>
-                  </ErrorBoundary>
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </div>
-              </BrowserRouter>
-            </AppContextProvider>
-          </QueryClientProvider>
-        </LoggingProvider>
-      </SocketProvider>
+      <LoggingProvider>
+        <QueryClientProvider client={ontimeQueryClient}>
+          <AppContextProvider>
+            <BrowserRouter>
+              <div className='App'>
+                <ErrorBoundary>
+                  <Suspense fallback={null}>
+                    <AppRouter />
+                  </Suspense>
+                </ErrorBoundary>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </div>
+            </BrowserRouter>
+          </AppContextProvider>
+        </QueryClientProvider>
+      </LoggingProvider>
     </ChakraProvider>
   );
 }

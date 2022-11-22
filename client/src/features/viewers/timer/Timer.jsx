@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 import MyProgressBar from 'common/components/myProgressBar/MyProgressBar';
-import NavLogo from 'common/components/nav/NavLogo';
 import TitleCard from 'common/components/title-card/TitleCard';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
@@ -10,6 +9,7 @@ import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
 
@@ -72,11 +72,11 @@ export default function Timer(props) {
   return (
     <div className={time.finished ? `${baseClasses} stage-timer--finished` : baseClasses}
          data-testid='timer-view'>
-      <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
+      <NavigationMenu />
+      <div
+        className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className='message'>{pres.text}</div>
       </div>
-
-      <NavLogo />
 
       <div className='clock-container'>
         <div className='label'>Time Now</div>

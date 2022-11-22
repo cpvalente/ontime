@@ -1,7 +1,12 @@
-import { server, shutdown, startServer } from '../../app.js';
 import supertest from 'supertest';
+import { server, shutdown, startServer } from '../../app.js';
+import { promise } from '../../modules/loadDb.js';
 
-beforeAll(() => startServer());
+beforeAll(async () => {
+  await promise;
+  startServer();
+});
+
 afterAll(() => shutdown());
 
 describe('When a GET request request is sent', () => {
@@ -12,12 +17,12 @@ describe('When a GET request request is sent', () => {
       .then((response) => {
         expect(response.text.includes('<!doctype html>')).toBe(false);
         expect(response.body).toBeDefined();
-        expect(typeof response.body.currentId).toBe('string');
-        expect(typeof response.body.timer).toBe('string');
-        expect(typeof response.body.clock).toBe('number');
-        expect(typeof response.body.playback).toBe('string');
-        expect(typeof response.body.title).toBe('string');
-        expect(typeof response.body.presenter).toBe('string');
+        expect(response.body.currentId).toBeDefined();
+        expect(response.body.timer).toBeDefined();
+        expect(response.body.clock).toBeDefined();
+        expect(response.body.playback).toBeDefined();
+        expect(response.body.title).toBeDefined();
+        expect(response.body.presenter).toBeDefined();
       });
   });
 

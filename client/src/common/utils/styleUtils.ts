@@ -26,4 +26,4 @@ export const getAccessibleColour = (bgColour: string): ColourCombination => {
  * @description Creates a list of classnames from array of css module conditions
  * @param classNames - css modules objects
  */
-export const cx = (...classNames: any[]) => classNames.filter(Boolean).join(" ")
+export const cx = (classNames: any[]) => classNames.filter(Boolean).join(" ");

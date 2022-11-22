@@ -1,21 +1,20 @@
 /* eslint-disable react/display-name */
 import { useEffect, useMemo, useState } from 'react';
 
-import { useSocket } from '../../common/context/socketContext';
-import { useMessageControlProvider } from '../../common/hooks/useSocketProvider';
+import { useMessageControl } from '../../common/hooks/useSocket';
 import useSubscription from '../../common/hooks/useSubscription';
 import useEvent from '../../common/hooks-query/useEvent';
 import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
+import socket from '../../common/utils/socket';
 
 const withSocket = (Component) => {
   return (props) => {
     const { data: eventsData } = useRundown();
     const { data: genData } = useEvent();
     const { data: viewSettings } = useViewSettings();
-    const { data: messages } = useMessageControlProvider();
+    const { data: messages } = useMessageControl();
 
-    const socket = useSocket();
     const [publicSelectedId, setPublicSelectedId] = useState(null);
 
     const [timer] = useSubscription('timer', {
@@ -44,13 +43,9 @@ const withSocket = (Component) => {
     const [selectedId] = useSubscription('selected-id', null);
     const [nextId] = useSubscription('next-id', null);
     const [playback] = useSubscription('playstate', null);
-    const [onAir] = useSubscription('onAir', false);
 
     // Ask for update on load
     useEffect(() => {
-      if (!socket) {
-        return;
-      }
       // todo: remove
       socket.on('publicselected-id', (data) => {
         setPublicSelectedId(data);

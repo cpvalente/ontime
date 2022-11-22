@@ -9,7 +9,7 @@ import {
 import Empty from 'common/components/state/Empty';
 import { CursorContext } from 'common/context/CursorContext';
 import { useEventAction } from 'common/hooks/useEventAction';
-import { useRundownProvider } from 'common/hooks/useSocketProvider';
+import { useRundownEditor } from 'common/hooks/useSocket';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
@@ -23,6 +23,8 @@ import style from './Rundown.module.scss';
 
 export default function Rundown(props) {
   const { entries } = props;
+  // Todo: add selectedId and nextId to rundown editor hook
+  const { data } = useRundownEditor();
   const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } =
     useContext(CursorContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
@@ -30,7 +32,6 @@ export default function Rundown(props) {
   const { addEvent, reorderEvent } = useEventAction();
   const cursorRef = createRef();
   const showQuickEntry = useAtomValue(showQuickEntryAtom);
-  const data = useRundownProvider();
   const [selectedId] = useSubscription('selected-id', null);
   const [nextId] = useSubscription('next-id', null);
 
@@ -69,35 +70,34 @@ export default function Rundown(props) {
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
-    (e) => {
+    (event) => {
       // handle held key
-      // handle held key
-      if (e.repeat) return;
+      if (event.repeat) return;
       // Check if the alt key is pressed
-      if (e.altKey && (!e.ctrlKey || !e.shiftKey)) {
+      if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
         // Arrow down
-        if (e.keyCode === 40) {
+        if (event.keyCode === 40) {
           if (cursor < entries.length - 1) moveCursorDown();
         }
         // Arrow up
-        if (e.keyCode === 38) {
+        if (event.keyCode === 38) {
           if (cursor > 0) moveCursorUp();
         }
         // E
-        if (e.key === 'e' || e.key === 'E') {
-          e.preventDefault();
+        if (event.code === "KeyE") {
+          event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('event', cursor);
         }
         // D
-        if (e.key === 'd' || e.key === 'D') {
-          e.preventDefault();
+        if (event.code === "KeyD") {
+          event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('delay', cursor);
         }
         // B
-        if (e.key === 'b' || e.key === 'B') {
-          e.preventDefault();
+        if (event.code === "KeyB") {
+          event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('block', cursor);
         }
@@ -192,51 +192,51 @@ export default function Rundown(props) {
         <Droppable droppableId='eventlist'>
           {(provided) => (
             <div className={style.list} {...provided.droppableProps} ref={provided.innerRef}>
-              {entries.map((e, index) => {
+              {entries.map((entry, index) => {
                 if (index === 0) {
                   cumulativeDelay = 0;
                   eventIndex = -1;
                 }
-                if (e.type === 'delay' && e.duration != null) {
-                  cumulativeDelay += e.duration;
-                } else if (e.type === 'block') {
+                if (entry.type === 'delay' && entry.duration != null) {
+                  cumulativeDelay += entry.duration;
+                } else if (entry.type === 'block') {
                   cumulativeDelay = 0;
-                } else if (e.type === 'event') {
+                } else if (entry.type === 'event') {
                   eventIndex++;
                   previousEnd = thisEnd;
-                  thisEnd = e.timeEnd;
-                  previousEventId = e.id;
+                  thisEnd = entry.timeEnd;
+                  previousEventId = entry.id;
                 }
                 const isLast = index === entries.length - 1;
                 return (
                   <div
-                    key={e.id}
+                    key={entry.id}
                     className={`${style.bgElement}
-                    ${e.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
+                    ${entry.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
                   >
                     <div
                       ref={cursor === index ? cursorRef : undefined}
                       className={cursor === index ? style.cursor : ''}
                     >
                       <RundownEntry
-                        type={e.type}
+                        type={entry.type}
                         index={index}
                         eventIndex={eventIndex}
-                        data={e}
-                        selected={selectedId === e.id}
-                        next={nextId === e.id}
+                        data={entry}
+                        selected={selectedId === entry.id}
+                        next={nextId === entry.id}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
-                        playback={selectedId === e.id ? data.playback : undefined}
+                        playback={selectedId === entry.id ? data.playback : undefined}
                       />
                     </div>
                     {((showQuickEntry && index === cursor) || isLast) && (
                       <QuickAddBlock
                         showKbd={index === cursor}
-                        previousId={e.id}
+                        previousId={entry.id}
                         previousEventId={previousEventId}
-                        disableAddDelay={e.type === 'delay'}
-                        disableAddBlock={e.type === 'block'}
+                        disableAddDelay={entry.type === 'delay'}
+                        disableAddBlock={entry.type === 'block'}
                       />
                     )}
                   </div>

@@ -1,9 +1,13 @@
 import { Server } from 'node-osc';
+import { PlaybackService } from '../services/playbackService';
+import { messageManager } from '../classes/message-manager/MessageManager.js';
+import { socketProvider } from '../classes/socket/SocketController.js';
+import { ADDRESS_MESSAGE_CONTROL } from '../classes/socket/socketConfig.js';
 
 let oscServer = null;
 
 /**
- * @description utilty function to shutdown osc server
+ * @description utility function to shut down osc server
  */
 export const shutdownOSCServer = () => {
   if (oscServer != null) oscServer.close();
@@ -11,19 +15,18 @@ export const shutdownOSCServer = () => {
 
 /**
  * @description initialises OSC server
- * @param config
+ * @param {object} config
  */
 export const initiateOSC = (config) => {
   oscServer = new Server(config.port, '0.0.0.0');
 
-  // error
   oscServer.on('error', console.error);
 
   oscServer.on('message', function (msg) {
-    // message should look like /ontime/{path}/{args} where
+    // message should look like /ontime/{path} {args} where
     // ontime: fixed message for app
     // path: command to be called
-    // args: extra data, only used on some of the API entries (delay, goto)
+    // args: extra data, only used on some API entries (delay, goto)
 
     // split message
     const [, address, path] = msg[0].split('/');
@@ -31,122 +34,129 @@ export const initiateOSC = (config) => {
 
     // get first part before (ontime)
     if (address !== 'ontime') {
-      console.error(`OSC IN: Message address ${address} not recognised`);
-      return;
-    }
-
-    if (path == null) {
-      console.error('OSC IN: No path found');
+      console.error('RX', `OSC IN: Message address ${address} not recognised`);
       return;
     }
 
     // get second part (command)
+    if (!path) {
+      console.error('RX', 'OSC IN: No path found');
+      return;
+    }
+
     switch (path.toLowerCase()) {
       case 'onair': {
-        global.timer.setonAir(true);
+        const featureData = messageManager.setOnAir(true);
+        socketProvider.send(ADDRESS_MESSAGE_CONTROL, featureData);
         break;
       }
       case 'offair': {
-        global.timer.setonAir(false);
+        const featureData = messageManager.setOnAir(false);
+        socketProvider.send(ADDRESS_MESSAGE_CONTROL, featureData);
         break;
       }
       case 'play': {
-        global.timer.trigger('start');
+        PlaybackService.start();
         break;
       }
       case 'start': {
         try {
           const eventIndex = Number(args);
           if (isNaN(eventIndex)) {
-            global.timer.error('RX', `OSC IN: event index not recognised ${args}`);
+            socketProvider.error('RX', `OSC IN: event index not recognised ${args}`);
             return;
           }
-          const success = global.timer.trigger('startByIndex', eventIndex);
-          if (!success) {
-            global.timer.error('RX', `OSC IN: event index not recognised ${args}`);
-          }
+          PlaybackService.startByIndex(eventIndex);
         } catch (error) {
-          console.log('error parsing: ', error);
+          console.log('Error loading event: ', error);
         }
         break;
       }
       case 'startid': {
-        const success = global.timer.trigger('startById', args);
-        if (!success) {
-          global.timer.error('RX', `OSC IN: event ID not recognised ${args}`);
+        if (!args) {
+          socketProvider.error('RX', `OSC IN: No ID in request`);
+          return;
         }
+        PlaybackService.loadById(args);
         break;
       }
       case 'pause': {
-        global.timer.trigger('pause');
+        PlaybackService.pause();
         break;
       }
       case 'prev': {
-        global.timer.trigger('previous');
+        PlaybackService.loadPrevious();
         break;
       }
       case 'next': {
-        global.timer.trigger('next');
+        PlaybackService.loadNext();
         break;
       }
       case 'unload':
       case 'stop': {
-        global.timer.trigger('unload');
+        PlaybackService.stop();
         break;
       }
       case 'reload': {
-        global.timer.trigger('reload');
+        PlaybackService.reload();
         break;
       }
       case 'roll': {
-        global.timer.trigger('roll');
+        PlaybackService.roll();
         break;
       }
       case 'delay': {
         try {
-          const t = parseInt(args, 10);
-          if (isNaN(t)) {
-            global.timer.error('RX', `OSC IN: delay time not recognised ${args}`);
+          const delayTime = Number(args);
+          if (isNaN(delayTime)) {
+            socketProvider.error('RX', `OSC IN: delay time not recognised ${args}`);
             return;
           }
-          global.timer.increment(t * 1000 * 60);
+          PlaybackService.setDelay(delayTime);
         } catch (error) {
-          console.log('error parsing: ', error);
+          console.log('Error adding delay: ', error);
         }
         break;
       }
       case 'goto':
       case 'load': {
         try {
-          const eventIndex = parseInt(args, 10);
+          const eventIndex = Number(args);
           if (isNaN(eventIndex) || eventIndex <= 0) {
-            global.timer.error(
+            socketProvider.error(
               'RX',
-              `OSC IN: event index not recognised or out of range ${eventIndex}`
+              `OSC IN: event index not recognised or out of range ${eventIndex}`,
             );
+          } else {
+            PlaybackService.loadByIndex(eventIndex - 1);
           }
-          global.timer.loadEventByIndex(eventIndex - 1);
         } catch (error) {
-          global.timer.error('RX', `OSC IN: error calling goto ${error}`);
+          socketProvider.error('RX', `OSC IN: error calling goto ${error}`);
         }
         break;
       }
       case 'gotoid':
       case 'loadid': {
-        if (args == null) {
-          global.timer.error('RX', `OSC IN: event id not recognised or out of range ${args}}`);
+        if (!args) {
+          socketProvider.error('RX', `OSC IN: event ID not recognised: ${args}}`);
           return;
         }
         try {
-          global.timer.loadEventById(args.toString().toLowerCase());
+          PlaybackService.loadById(args.toString().toLowerCase());
         } catch (error) {
-          global.timer.error('RX', `OSC IN: error calling goto ${error}`);
+          socketProvider.error('RX', `OSC IN: error calling goto ${error}`);
         }
         break;
       }
 
+      case 'get-playback': {
+        const playback = global.timer.state;
+        global.timer.sendOsc('playback', playback);
+        break;
+      }
+
       default: {
-        global.timer.warning('RX', `OSC IN: unhandled message ${path}`);
+        socketProvider.warning('RX', `OSC IN: unhandled message ${path}`);
         break;
       }
     }

@@ -1,6 +1,6 @@
 let instance;
 
-class MessageManager {
+class MessageService {
   constructor() {
     if (instance) {
       throw new Error('There can be only one');
@@ -99,4 +99,4 @@ class MessageManager {
   }
 }
 
-export const messageManager = new MessageManager();
+export const messageManager = new MessageService();

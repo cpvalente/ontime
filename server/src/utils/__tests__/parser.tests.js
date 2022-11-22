@@ -1,18 +1,8 @@
 import jest from 'jest-mock';
 import { dbModel } from '../../models/dataModel.js';
-import { isStringEmpty, parseExcel, parseJson, validateEvent } from '../parser.js';
+import { parseExcel, parseJson, validateEvent } from '../parser.js';
 import { makeString, validateDuration } from '../parserUtils.js';
 import { parseAliases, parseUserFields, parseViews } from '../parserFunctions.js';
-
-describe('refuses import of old / unknown versions', () => {
-  test('a v1 file', () => {
-    const testFile = {
-      settings: {
-        version: 1,
-      },
-    };
-  });
-});
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -499,7 +489,7 @@ describe('test event validator', () => {
         user7: expect.any(String),
         user8: expect.any(String),
         user9: expect.any(String),
-      }),
+      })
     );
   });
 
@@ -884,26 +874,5 @@ describe('test validateDuration()', () => {
         expect(d).toBe(t.expected);
       });
     });
-  });
-});
-
-describe('isStringEmpty() function', () => {
-  describe('returns true with any non empty', () => {
-    const notEmpty = ['test', 'thisalso', '123', '#'];
-    for (const testValue of notEmpty) {
-      it(testValue, () => {
-        const isEmpty = isStringEmpty(testValue);
-        expect(isEmpty).toBe(false);
-      });
-    }
-  });
-  describe('returns true empty string or undefined', () => {
-    const empty = ['', ' ', undefined, null];
-    for (const testValue of empty) {
-      it(`handles ${testValue}`, () => {
-        const isEmpty = isStringEmpty(testValue);
-        expect(isEmpty).toBe(true);
-      });
-    }
   });
 });

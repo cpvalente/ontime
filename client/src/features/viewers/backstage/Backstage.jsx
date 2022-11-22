@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import NavLogo from 'common/components/nav/NavLogo';
 import TitleSide from 'common/components/title-side/TitleSide';
 import { formatDisplay } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -9,6 +8,7 @@ import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import Paginator from '../../../common/components/paginator/Paginator';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
@@ -62,7 +62,7 @@ export default function Backstage(props) {
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
-      <NavLogo />
+      <NavigationMenu />
 
       <div className='event-title'>{general.title}</div>
 

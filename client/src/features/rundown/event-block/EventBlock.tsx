@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
@@ -89,6 +89,11 @@ export default function EventBlock(props: EventBlockProps) {
   const binderColours = colour && getAccessibleColour(colour);
   const hasDelay = delay !== 0 && delay !== null;
 
+  // Todo: could I re-render the item without causing a state change here?
+  useEffect(() => {
+    setBlockTitle(title);
+  }, [title]);
+
   const handleTitle = useCallback(
     (text: string) => {
       if (text === title) {
@@ -151,7 +156,7 @@ export default function EventBlock(props: EventBlockProps) {
               icon={selected ? <IoPlayBackOutline /> : <IoReload />}
               disabled={skip}
               {...blockBtnStyle}
-              clickHandler={() => setPlayback.loadEvent()}
+              clickHandler={() => setPlayback.loadEvent(eventId)}
               tabIndex={-1}
             />
             <TooltipActionBtn
@@ -162,7 +167,7 @@ export default function EventBlock(props: EventBlockProps) {
               disabled={skip}
               {...blockBtnStyle}
               variant={eventIsPlaying ? 'solid' : 'ghost'}
-              clickHandler={() => setPlayback.startEvent()}
+              clickHandler={() => setPlayback.startEvent(eventId)}
               backgroundColor={eventIsPlaying ? '#58A151' : undefined}
               tabIndex={-1}
             />

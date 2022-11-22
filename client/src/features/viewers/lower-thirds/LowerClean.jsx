@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import NavLogo from "../../../common/components/nav/NavLogo";
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 
 import './LowerClean.scss';
 
@@ -87,7 +87,7 @@ export default function LowerClean(props) {
       }}
     >
 
-      <NavLogo isHidden />
+      <NavigationMenu />
 
       <AnimatePresence>
         {showLower && (

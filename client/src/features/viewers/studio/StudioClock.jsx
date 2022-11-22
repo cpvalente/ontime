@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
-import NavLogo from '../../../common/components/nav/NavLogo';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
@@ -58,7 +58,7 @@ export default function StudioClock(props) {
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
-      <NavLogo />
+      <NavigationMenu />
       <div className='clock-container'>
         <div className='studio-timer'>{clock}</div>
         <div
