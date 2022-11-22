@@ -6,6 +6,7 @@ import { resolveDbPath } from '../modules/loadDb.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
+import { PlaybackService } from '../services/playbackService.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -36,6 +37,14 @@ export const dbDownload = async (req, res) => {
   });
 };
 
+/**
+ * handles file upload
+ * @param file
+ * @param req
+ * @param res
+ * @param options
+ * @returns {Promise<void>}
+ */
 const uploadAndParse = async (file, req, res, options) => {
   if (!fs.existsSync(file)) {
     res.status(500).send({ message: 'Upload failed' });
@@ -48,6 +57,7 @@ const uploadAndParse = async (file, req, res, options) => {
     if (result?.error) {
       res.status(400).send({ message: result.message });
     } else if (result.message === 'success') {
+      PlaybackService.stop();
       // explicitly write objects
       if (typeof result !== 'undefined') {
         const newRundown = result.data.rundown || [];
@@ -56,7 +66,6 @@ const uploadAndParse = async (file, req, res, options) => {
         } else {
           await DataProvider.mergeIntoData(result.data);
         }
-        global.timer.setupWithEventList(newRundown.filter((entry) => entry.type === 'event'));
       }
       res.sendStatus(200);
     } else {

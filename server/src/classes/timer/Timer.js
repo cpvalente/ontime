@@ -75,9 +75,8 @@ export class Timer {
   }
 
   /**
-   * @description get current time in epoc
+   * @description get current time in ms from midnight
    * @return {number}
-   * @private
    */
   static getCurrentTime() {
     const now = new Date();

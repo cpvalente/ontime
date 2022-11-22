@@ -193,51 +193,51 @@ export default function Rundown(props) {
         <Droppable droppableId='eventlist'>
           {(provided) => (
             <div className={style.list} {...provided.droppableProps} ref={provided.innerRef}>
-              {entries.map((e, index) => {
+              {entries.map((entry, index) => {
                 if (index === 0) {
                   cumulativeDelay = 0;
                   eventIndex = -1;
                 }
-                if (e.type === 'delay' && e.duration != null) {
-                  cumulativeDelay += e.duration;
-                } else if (e.type === 'block') {
+                if (entry.type === 'delay' && entry.duration != null) {
+                  cumulativeDelay += entry.duration;
+                } else if (entry.type === 'block') {
                   cumulativeDelay = 0;
-                } else if (e.type === 'event') {
+                } else if (entry.type === 'event') {
                   eventIndex++;
                   previousEnd = thisEnd;
-                  thisEnd = e.timeEnd;
-                  previousEventId = e.id;
+                  thisEnd = entry.timeEnd;
+                  previousEventId = entry.id;
                 }
                 const isLast = index === entries.length - 1;
                 return (
                   <div
-                    key={e.id}
+                    key={entry.id}
                     className={`${style.bgElement}
-                    ${e.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
+                    ${entry.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
                   >
                     <div
                       ref={cursor === index ? cursorRef : undefined}
                       className={cursor === index ? style.cursor : ''}
                     >
                       <RundownEntry
-                        type={e.type}
+                        type={entry.type}
                         index={index}
                         eventIndex={eventIndex}
-                        data={e}
-                        selected={selectedId === e.id}
-                        next={nextId === e.id}
+                        data={entry}
+                        selected={selectedId === entry.id}
+                        next={nextId === entry.id}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
-                        playback={selectedId === e.id ? data.playback : undefined}
+                        playback={selectedId === entry.id ? data.playback : undefined}
                       />
                     </div>
                     {((showQuickEntry && index === cursor) || isLast) && (
                       <QuickAddBlock
                         showKbd={index === cursor}
-                        previousId={e.id}
+                        previousId={entry.id}
                         previousEventId={previousEventId}
-                        disableAddDelay={e.type === 'delay'}
-                        disableAddBlock={e.type === 'block'}
+                        disableAddDelay={entry.type === 'delay'}
+                        disableAddBlock={entry.type === 'block'}
                       />
                     )}
                   </div>

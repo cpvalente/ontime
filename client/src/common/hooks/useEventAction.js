@@ -1,7 +1,7 @@
 import { useCallback, useContext } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { RUNDOWN_TABLE_KEY,RUNDOWN_TABLE } from '../api/apiConstants';
+import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import {
   requestApplyDelay,
   requestDelete,
@@ -106,7 +106,7 @@ export const useEventAction = () => {
         emitError(`Error updating event: ${error.message}`);
       }
     },
-    [_updateEventMutation, emitError]
+    [_updateEventMutation, emitError],
   );
 
   /**
@@ -272,7 +272,7 @@ export const useEventAction = () => {
     async (eventId, from, to) => {
       try {
         const reorderObject = {
-          index: eventId,
+          eventId: eventId,
           from: from,
           to: to,
         };

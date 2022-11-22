@@ -1,75 +1,81 @@
 // Create controller for GET request to '/playback'
 // Returns ACK message
+import { PlaybackService } from '../services/playbackService.js';
+
+// Create controller for POST request to '/playback'
+// Returns playback state
 export const pbGet = async (req, res) => {
   res.send({ playback: global.timer.state });
 };
 
-// Create controller for GET request to '/playback/start'
+// Create controller for POST request to '/playback/start'
 // Starts timer object
 export const pbStart = async (req, res) => {
   const { eventId, eventIndex } = req.query;
   if (eventId) {
-    global.timer.trigger('startById', eventId)
-      ? res.sendStatus(200)
-      : res.status(400).send('Invalid event ID');
+    const success = PlaybackService.startById(eventId);
+    success ? res.sendStatus(202) : res.status(400).send('Invalid event ID');
   } else if (eventIndex) {
     const index = Number(eventIndex);
     if (!isNaN(index)) {
-      global.timer.trigger('startByIndex', index - 1)
-        ? res.sendStatus(200)
-        : res.status(400).send('Invalid event index');
+      const success = PlaybackService.startByIndex(eventIndex - 1);
+      success ? res.sendStatus(202) : res.status(400).send('Invalid event index');
     } else {
       res.status(400).send('Invalid event index');
     }
   } else {
-    global.timer.trigger('start') ? res.sendStatus(200) : res.sendStatus(400);
+    PlaybackService.start();
+    res.sendStatus(202);
   }
 };
 
-// Create controller for GET request to '/playback/pause'
+// Create controller for POST request to '/playback/pause'
 // Pauses timer object
 export const pbPause = async (req, res) => {
-  global.timer.trigger('pause') ? res.sendStatus(200) : res.sendStatus(400);
+  PlaybackService.pause();
+  res.sendStatus(202);
 };
 
-// Create controller for GET request to '/playback/stop'
+// Create controller for POST request to '/playback/stop'
 // Stops timer object
 export const pbStop = async (req, res) => {
-  global.timer.trigger('stop') ? res.sendStatus(200) : res.sendStatus(400);
+  PlaybackService.stop();
+  res.sendStatus(202);
 };
 
-// Create controller for GET request to '/playback/roll'
+// Create controller for POST request to '/playback/roll'
 // Sets timer object to roll mode
 export const pbRoll = async (req, res) => {
-  global.timer.trigger('roll') ? res.sendStatus(200) : res.sendStatus(400);
+  PlaybackService.roll();
+  res.sendStatus(202);
 };
 
-// Create controller for GET request to '/playback/previous'
-// Sets timer object to roll mode
+// Create controller for POST request to '/playback/previous'
+// Loads previous event
 export const pbPrevious = async (req, res) => {
-  global.timer.trigger('previous') ? res.sendStatus(200) : res.sendStatus(400);
+  PlaybackService.loadPrevious();
+  res.sendStatus(202);
 };
 
-// Create controller for GET request to '/playback/next'
-// Sets timer object to roll mode
+// Create controller for POST request to '/playback/next'
+// Loads Next event
 export const pbNext = async (req, res) => {
-  global.timer.trigger('next') ? res.sendStatus(200) : res.sendStatus(400);
+  PlaybackService.loadNext();
+  res.sendStatus(202);
 };
 
-// Create controller for GET request to '/playback/load'
+// Create controller for POST request to '/playback/load'
 // Load requested event
 export const pbLoad = async (req, res) => {
   const { eventId, eventIndex } = req.query;
   if (eventId) {
-    global.timer.trigger('loadById', eventId)
-      ? res.sendStatus(200)
-      : res.status(400).send('Invalid event ID');
+    const success = PlaybackService.loadById(eventId);
+    success ? res.sendStatus(202) : res.status(400).send('Invalid event ID');
   } else if (eventIndex) {
     const index = Number(eventIndex);
     if (!isNaN(index)) {
-      global.timer.trigger('loadByIndex', index - 1)
-        ? res.sendStatus(200)
-        : res.status(400).send('Invalid event index');
+      const success = PlaybackService.loadByIndex(eventIndex - 1);
+      success ? res.sendStatus(202) : res.status(400).send('Invalid event index');
     } else {
       res.status(400).send('Invalid event index');
     }
@@ -78,14 +84,16 @@ export const pbLoad = async (req, res) => {
   }
 };
 
-// Create controller for GET request to '/playback/unload'
+// Create controller for POST request to '/playback/unload'
 // Unloads any events
 export const pbUnload = async (req, res) => {
-  global.timer.trigger('unload') ? res.sendStatus(200) : res.sendStatus(400);
+  PlaybackService.stop();
+  res.sendStatus(202);
 };
 
-// Create controller for GET request to '/playback/reload'
+// Create controller for POST request to '/playback/reload'
 // Reloads current event
 export const pbReload = async (req, res) => {
-  global.timer.trigger('reload') ? res.sendStatus(200) : res.sendStatus(400);
+  PlaybackService.reload();
+  res.sendStatus(202);
 };

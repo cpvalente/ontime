@@ -6,8 +6,7 @@ import { config } from './config/config.js';
 
 // import dependencies
 import { dirname, join, resolve } from 'path';
-// init database
-import loadDb from './modules/loadDb.js';
+
 // dependencies
 import express from 'express';
 import http from 'http';
@@ -22,6 +21,7 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 // Global Objects
 import { EventTimer } from './classes/timer/EventTimer.js';
 import { socketProvider } from './classes/socket/SocketController.js';
+
 // Start OSC server
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
@@ -33,7 +33,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const isTest = process.env.IS_TEST;
 
-export const { db, data } = await loadDb(__dirname);
 console.log(`Starting ontime version ${process.env.npm_package_version}`);
 
 // import socket provider
@@ -74,14 +73,12 @@ const resolvedPath = () => {
 app.use(express.static(join(__dirname, resolvedPath(), 'client/build')));
 
 app.get('*', (req, res) => {
-  res.sendFile(
-    resolve(__dirname, resolvedPath(), 'client', 'build', 'index.html'),
-  );
+  res.sendFile(resolve(__dirname, resolvedPath(), 'client', 'build', 'index.html'));
 });
 
-// Implement route for errors
-app.use((err, req, res, next) => {
-  res.status(500).send(err.stack);
+// Implement catch all
+app.use((error, response, _next) => {
+  response.status(400).send('Unhandled request');
 });
 
 /***************  START SERVICES ***************/
@@ -94,12 +91,12 @@ app.use((err, req, res, next) => {
  *
  */
 
-const { osc, settings } = DataProvider.getData();
+const { osc } = DataProvider.getData();
 const oscIP = osc?.targetIP || config.osc.targetIP;
 const oscOutPort = osc?.portOut || config.osc.portOut;
 const oscInPort = osc?.port || config.osc.port;
 const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.inputEnabled;
-const serverPort = settings.serverPort || config.server.port;
+const serverPort = 4001; // hardcoded for now
 
 /**
  * @description starts OSC server
@@ -132,12 +129,11 @@ const server = http.createServer(app);
  * @return {Promise<string>}
  */
 export const startServer = async (overrideConfig = null) => {
-  const port = 4001; // port hardcoded
-  const { rundown, http } = DataProvider.getData();
+  const { http } = DataProvider.getData();
 
   // Start server
-  const returnMessage = `Ontime is listening on port ${port}`;
-  server.listen(port, '0.0.0.0');
+  const returnMessage = `Ontime is listening on port ${serverPort}`;
+  server.listen(serverPort, '0.0.0.0');
 
   // init socket controller
   await socket.initServer(server);
@@ -151,7 +147,6 @@ export const startServer = async (overrideConfig = null) => {
 
   // init timer
   global.timer = new EventTimer(socket, config.timer, oscConfig, http);
-  global.timer.setupWithEventList(rundown.filter((entry) => entry.type === 'event'));
 
   socket.info('SERVER', returnMessage);
   socket.startListener();

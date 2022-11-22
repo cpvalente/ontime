@@ -2,7 +2,7 @@
  * Class Event Provider is a mediator for handling the local db
  * and adds logic specific to ontime data
  */
-import { data, db } from '../../app.js';
+import { db, data } from '../../modules/loadDb.js';
 
 export class DataProvider {
   static getData() {
@@ -96,7 +96,7 @@ export class DataProvider {
   static async insertEventAfterId(entry, id) {
     const index = [...data.rundown].findIndex((event) => event.id === id);
     // eslint-disable-next-line no-unused-vars
-    const { _after, ...sanitisedEvent } = entry;
+    const { after, ...sanitisedEvent } = entry;
     await DataProvider.insertEventAt(sanitisedEvent, index + 1);
   }
 
