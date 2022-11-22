@@ -1,5 +1,5 @@
 import { lazy, useEffect } from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import useAliases from './common/hooks-query/useAliases';
 import withSocket from './features/viewers/ViewWrapper';
@@ -52,7 +52,7 @@ export default function AppRouter() {
 
   return(
     <Routes>
-      <Route path='/' element={<STimer />} />
+      <Route path='/' element={<Navigate to="/timer" /> } />
       <Route path='/speaker' element={<STimer />} />
       <Route path='/presenter' element={<STimer />} />
       <Route path='/stage' element={<STimer />} />
@@ -115,7 +115,7 @@ export default function AppRouter() {
         }
       />
       {/* Send to default if nothing found */}
-      <Route path='*' element={<STimer />} />
+      <Route path='*' element={<Navigate to="/timer" /> } />
     </Routes>
   )
 }
