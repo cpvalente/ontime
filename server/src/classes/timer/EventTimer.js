@@ -119,8 +119,8 @@ export class EventTimer extends Timer {
       current: this.current,
       secondaryTimer: this.secondaryTimer,
       duration: this.duration,
-      expectedFinish: this._getExpectedFinish(),
       startedAt: this._startedAt,
+      expectedFinish: this._getExpectedFinish(),
     };
     this.socket.send('ontime-timer', featureData);
   }
