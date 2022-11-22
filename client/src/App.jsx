@@ -7,8 +7,8 @@ import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import { AppContextProvider } from 'common/context/AppContext';
 import { LoggingProvider } from 'common/context/LoggingContext';
 
-import { ontimeQueryClient } from './common/queryClient';
 import useElectronEvent from './common/hooks/useElectronEvent';
+import { ontimeQueryClient } from './common/queryClient';
 import theme from './theme/theme';
 import AppRouter from './AppRouter';
 
