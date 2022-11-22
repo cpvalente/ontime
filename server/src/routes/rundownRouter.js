@@ -13,6 +13,7 @@ import {
   paramsMustHaveEventId,
   rundownPostValidator,
   rundownPutValidator,
+  rundownReorderValidator,
 } from '../controllers/rundownController.validate.js';
 
 export const router = express.Router();
@@ -21,7 +22,7 @@ export const router = express.Router();
 router.get('/', rundownGetAll);
 
 // create route between controller and '/eventlist/:eventId' endpoint
-router.get('/:eventId', getEventById);
+router.get('/:eventId', paramsMustHaveEventId, getEventById);
 
 // create route between controller and '/eventlist/' endpoint
 router.post('/', rundownPostValidator, rundownPost);
@@ -30,7 +31,7 @@ router.post('/', rundownPostValidator, rundownPost);
 router.put('/', rundownPutValidator, rundownPut);
 
 // create route between controller and '/eventlist/reorder' endpoint
-router.patch('/reorder/', rundownReorder);
+router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 
 // create route between controller and '/eventlist/applydelay/:eventId' endpoint
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);

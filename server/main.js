@@ -30,6 +30,9 @@ let isQuitting = false;
 
 (async () => {
   try {
+    const dbLoader = await import('./src/modules/loadDb.js');
+
+    await dbLoader.promise;
     const { startServer, startOSCServer } = await import(nodePath);
     // Start express server
     loaded = await startServer();

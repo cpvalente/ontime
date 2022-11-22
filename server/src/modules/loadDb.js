@@ -1,6 +1,7 @@
 import { JSONFile, Low } from 'lowdb';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { copyFileSync, existsSync } from 'fs';
+import { fileURLToPath } from 'url';
 import { ensureDirectory, getAppDataPath } from '../utils/fileManagement.js';
 import { config } from '../config/config.js';
 import { validateFile } from '../utils/parserUtils.js';
@@ -63,7 +64,7 @@ const parseDb = async (fileToRead, adapterToUse) => {
  * @param runningDirectory
  * @return {Promise<{data: (number|*), db: Low<unknown>}>}
  */
-export default async function loadDb(runningDirectory) {
+async function loadDb(runningDirectory) {
   const dbInDisk = populateDb(runningDirectory);
 
   const adapter = new JSONFile(dbInDisk);
@@ -76,3 +77,18 @@ export default async function loadDb(runningDirectory) {
 
   return { db, data };
 }
+
+const filename = fileURLToPath(import.meta.url);
+export const dbDirectory = dirname(join(filename, '../'));
+
+export let db = {};
+export let data = {};
+export const promise = loadDb(dbDirectory);
+
+const init = async () => {
+  const dbProvider = await promise;
+  db = dbProvider.db;
+  data = dbProvider.data;
+};
+
+init();

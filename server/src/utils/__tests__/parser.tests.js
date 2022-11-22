@@ -4,16 +4,6 @@ import { parseExcel, parseJson, validateEvent } from '../parser.js';
 import { makeString, validateDuration } from '../parserUtils.js';
 import { parseAliases, parseUserFields, parseViews } from '../parserFunctions.js';
 
-describe('refuses import of old / unknown versions', () => {
-  test('a v1 file', () => {
-    const testFile = {
-      settings: {
-        version: 1,
-      },
-    };
-  });
-});
-
 describe('test json parser with valid def', () => {
   const testData = {
     rundown: [
@@ -499,7 +489,7 @@ describe('test event validator', () => {
         user7: expect.any(String),
         user8: expect.any(String),
         user9: expect.any(String),
-      }),
+      })
     );
   });
 

@@ -44,3 +44,5 @@ router.post('/unload', pbUnload);
 
 // create route between controller and '/playback/reload' endpoint
 router.post('/reload', pbReload);
+
+// router.post('*', (req, res) => res.return(404))

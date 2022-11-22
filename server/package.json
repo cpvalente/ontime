@@ -32,7 +32,7 @@
     "prep": "yarn clean && yarn setdb",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "NODE_ENV=development electron .",
-    "start:server": "nodemon --experimental-modules --es-module-specifier-resolution=node src/run.js",
+    "start:server": "NODE_ENV=development nodemon --experimental-modules --es-module-specifier-resolution=node src/run.js",
     "e2e": "set IS_TEST=true && playwright test",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
@@ -40,10 +40,6 @@
     "dist-mac": "electron-builder --publish=never  --x64 --mac",
     "dist-linux": "electron-builder --publish=never  --x64 --linux",
     "dist-all": "electron-builder -mw"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "rootDir": "src"
   },
   "build": {
     "productName": "ontime",
