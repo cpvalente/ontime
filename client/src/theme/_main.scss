@@ -63,8 +63,6 @@ $error-red: #e53e3e;
 
 //////////////////////////////////// viewers
 $title-white: #fffd;
-$title-gray: #ddd;
-$subtitle-gray: #aaa;
 
 //////////////////////////////////// block elements
 $bg-container-over: #0b1521;
@@ -80,17 +78,6 @@ $delay-text: #d69e2e;
 $block-delay-border: #d69e2e55;
 $block-block-color: #7347AD;
 $block-border: 1px solid $bg-gray-1100;
-
-//////////////////////////////////// viewer cards
-@mixin card-title {
-  color: $title-gray;
-  font-weight: 600;
-}
-
-@mixin card-label {
-  font-size: 1.3vw;
-  color: $ontime-pink;
-}
 
 //////////////////////////////////// utils
 

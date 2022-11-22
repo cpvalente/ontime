@@ -1,24 +1,27 @@
-@use '../../../theme/main' as *;
+@use '../../../theme/main';
+@use '../../../theme/viewerDefs' as *;
 
 .label {
-  @include card-label;
+  font-size: 1.3vw;
+  color: var(--accent-color-override, $accent-color);
 }
 
 .title,
 .subtitle,
 .presenter {
-  @include ellipsis;
+  @include main.ellipsis;
 }
 
 .title {
-  @include card-title;
+  color: $title-color;
+  font-weight: 600;
   font-size: 2.5vw;
   flex: 1;
 }
 
 .subtitle,
 .presenter {
-  color: $subtitle-gray;
+  color: $subtitle-color;
 }
 
 .subtitle {

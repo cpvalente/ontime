@@ -20,19 +20,6 @@ export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreads
 export const JSON_MIME = 'application/json';
 
 /**
- * @description Whether a string is considered empty
- * @param value
- * @return {boolean}
- */
-export const isStringEmpty = (value) => {
-  let v = value;
-  if (typeof value === 'string') {
-    v = value.replace(/\s+/g, '');
-  }
-  return v === '' || !v;
-};
-
-/**
  * @description Excel array parser
  * @param {array} excelData - array with excel sheet
  * @returns {object} - parsed object
@@ -102,9 +89,9 @@ export const parseExcel = async (excelData) => {
         } else if (j === subtitleIndex) {
           event.subtitle = column;
         } else if (j === isPublicIndex) {
-          event.isPublic = isStringEmpty(column);
+          event.isPublic = Boolean(column);
         } else if (j === skipIndex) {
-          event.skip = isStringEmpty(column);
+          event.skip = Boolean(column);
         } else if (j === notesIndex) {
           event.note = column;
         } else if (j === colourIndex) {

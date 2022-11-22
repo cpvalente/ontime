@@ -11,17 +11,22 @@ const {
 } = require('electron');
 const path = require('path');
 const electronConfig = require('./electron.config');
-if (process.env.NODE_ENV === undefined) {
-  process.env.NODE_ENV = 'production';
-}
-const isProduction = process.env.NODE_ENV === 'production';
 
-let loaded = 'Nothing loaded';
-let isQuitting = false;
+const env = process.env.NODE_ENV || 'production';
+const isProduction = env === 'production';
+const isMac = process.platform === 'darwin';
+const isWindows = process.platform === 'win32';
 
+// path to server
 const nodePath = isProduction
   ? path.join('file://', __dirname, '../', 'extraResources', 'src/app.js')
   : path.join('file://', __dirname, 'src/app.js');
+
+// path to icons
+const trayIcon = path.join(__dirname, './assets/background.png');
+const appIcon = path.join(__dirname, './assets/logo.png');
+let loaded = 'Nothing loaded';
+let isQuitting = false;
 
 (async () => {
   try {
@@ -29,17 +34,13 @@ const nodePath = isProduction
     // Start express server
     loaded = await startServer();
 
-    // Start OSC Server (API)
+    // Start OSC Server
     await startOSCServer();
   } catch (error) {
     console.log(error);
     loaded = error;
   }
 })();
-
-// Load Icons
-const trayIcon = path.join(__dirname, './assets/background.png');
-const appIcon = path.join(__dirname, './assets/logo.png');
 
 /**
  * @description utility function to create a notification
@@ -52,6 +53,26 @@ function showNotification(title, text) {
     body: text,
     silent: true,
   }).show();
+}
+
+function appShutdown() {
+  // terminate node service
+  (async () => {
+    const { shutdown } = await import(nodePath);
+    // Shutdown service
+    await shutdown();
+  })();
+
+  isQuitting = true;
+  tray.destroy();
+  win.destroy();
+  app.quit();
+}
+
+function askToQuit() {
+  win.show();
+  win.focus();
+  win.send('user-request-shutdown');
 }
 
 let win;
@@ -76,7 +97,6 @@ if (!lock) {
 }
 
 function createWindow() {
-  // create a new `splash`-Window
   splash = new BrowserWindow({
     width: 333,
     height: 333,
@@ -85,7 +105,10 @@ function createWindow() {
     resizable: false,
     frame: false,
     alwaysOnTop: true,
+    focusable: false,
+    skipTaskbar: true,
   });
+  splash.setIgnoreMouseEvents(true);
   splash.loadURL(`file://${__dirname}/electron/splash/splash.html`);
 
   win = new BrowserWindow({
@@ -115,16 +138,10 @@ function createWindow() {
 app.disableHardwareAcceleration();
 app.whenReady().then(() => {
   // Set app title in windows
-  if (process.platform === 'win32') {
+  if (isWindows) {
     app.setAppUserModelId(app.name);
   }
 
-  // allow usual quit in mac
-  if (process.platform === 'darwin') {
-    globalShortcut.register('Command+Q', () => {
-      win.send('user-request-shutdown');
-    });
-  }
   createWindow();
 
   // register global shortcuts
@@ -133,13 +150,6 @@ app.whenReady().then(() => {
   globalShortcut.register('Alt+1', () => {
     win.show();
     win.focus();
-  });
-
-  // recreate window if no others open
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
   });
 
   // give the nodejs server some time
@@ -165,15 +175,18 @@ app.whenReady().then(() => {
     });
   }, electronConfig.appIni.mainWindowWait);
 
+  // recreate window if no others open
+  app.on('activate', () => {
+    win.show();
+  });
+
   // Hide on close
   win.on('close', function (event) {
     event.preventDefault();
     if (!isQuitting) {
       showNotification('Window Closed', 'App running in background');
       win.hide();
-      return false;
     }
-    return true;
   });
 
   // create tray
@@ -190,33 +203,182 @@ app.whenReady().then(() => {
     },
     {
       label: 'Shutdown',
-      click: () => {
-        win.destroy();
-        app.quit();
-      },
+      click: () => askToQuit(),
     },
   ];
 
   const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
   tray.setContextMenu(trayContextMenu);
-
-  // on tray click event, show main window
-  tray.on('click', function () {
-    if (!win.isVisible()) {
-      win.show();
-    }
-    win.focus();
-  });
 });
+
+const template = [
+  ...(isMac
+    ? [
+        {
+          label: 'Ontime',
+          submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            {
+              label: 'quit',
+              click: () => askToQuit(),
+              accelerator: 'Cmd+Q',
+            },
+          ],
+        },
+      ]
+    : []),
+  {
+    label: 'File',
+    submenu: [isMac ? { role: 'close' } : { role: 'quit' }],
+  },
+  {
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      ...(isMac
+        ? [
+            { role: 'pasteAndMatchStyle' },
+            { role: 'delete' },
+            { role: 'selectAll' },
+            { type: 'separator' },
+            {
+              label: 'Speech',
+              submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
+            },
+          ]
+        : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
+    ],
+  },
+  {
+    label: 'Views',
+    submenu: [
+      {
+        label: 'Ontime Views (opens in browser)',
+        submenu: [
+          {
+            label: 'Timer',
+            accelerator: 'CmdOrCtrl+V',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/timer');
+            },
+          },
+          {
+            label: 'Clock',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/clock');
+            },
+          },
+          {
+            label: 'Minimal Timer',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/minimal');
+            },
+          },
+          {
+            label: 'Backstage',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/backstage');
+            },
+          },
+          {
+            label: 'Public',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/public');
+            },
+          },
+          {
+            label: 'Lower Thirds',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/lower');
+            },
+          },
+
+          {
+            label: 'PiP',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/pip');
+            },
+          },
+          {
+            label: 'Studio Clock',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/studio');
+            },
+          },
+          {
+            label: 'Countdown',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/countdown');
+            },
+          },
+          { type: 'separator' },
+          {
+            label: 'Editor',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/editor');
+            },
+          },
+          {
+            label: 'Cuesheet',
+            click: async () => {
+              await shell.openExternal('http://localhost:4001/cuesheet');
+            },
+          },
+        ],
+      },
+      { type: 'separator' },
+      { role: 'forceReload' },
+      { type: 'separator' },
+      { role: 'resetZoom' },
+      { role: 'zoomIn' },
+      { role: 'zoomOut' },
+    ],
+  },
+  {
+    label: 'Window',
+    submenu: [
+      { role: 'minimize' },
+      { role: 'zoom' },
+      ...(isMac
+        ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }]
+        : [{ role: 'close' }]),
+    ],
+  },
+  {
+    role: 'help',
+    submenu: [
+      {
+        label: 'See on github',
+        click: async () => {
+          await shell.openExternal('https://github.com/cpvalente/ontime');
+        },
+      },
+      {
+        label: 'Online documentation',
+        click: async () => {
+          await shell.openExternal('https://cpvalente.gitbook.io/ontime/');
+        },
+      },
+    ],
+  },
+];
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
 
 // unregister shortcuts before quitting
 app.once('will-quit', () => {
   globalShortcut.unregisterAll();
-});
-
-// destroy tray icon before quit
-app.once('before-quit', () => {
-  tray.destroy();
 });
 
 // Get messages from react
@@ -227,7 +389,7 @@ ipcMain.on('test-message', (event, arg) => {
 
 // Ask for main window reload
 // Test message
-ipcMain.on('reload', (event, arg) => {
+ipcMain.on('reload', () => {
   if (win) {
     win.reload();
   }
@@ -236,18 +398,7 @@ ipcMain.on('reload', (event, arg) => {
 // Terminate
 ipcMain.on('shutdown', () => {
   console.log('Got IPC shutdown');
-
-  // terminate node service
-  (async () => {
-    const { shutdown } = await import(nodePath);
-    // Shutdown service
-    await shutdown();
-  })();
-
-  isQuitting = true;
-  tray.destroy();
-  win.destroy();
-  app.quit();
+  appShutdown();
 });
 
 // Window manipulation
