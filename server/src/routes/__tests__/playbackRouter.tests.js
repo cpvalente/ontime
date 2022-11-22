@@ -1,7 +1,12 @@
-import { server, shutdown, startServer } from '../../app.js';
 import supertest from 'supertest';
+import { server, shutdown, startServer } from '../../app.js';
+import { promise } from '../../modules/loadDb.js';
 
-beforeAll(() => startServer());
+beforeAll(async () => {
+  await promise;
+  startServer();
+});
+
 afterAll(() => shutdown());
 
 describe('When a GET request request is sent', () => {
