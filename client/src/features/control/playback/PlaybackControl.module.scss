@@ -1,13 +1,13 @@
-@use '../../../theme/main' as *;
+@use '../../../theme/v2Styles' as *;
+@use '../../../theme/ontimeColours' as *;
 @use '../../../theme/mixins' as *;
 
 .mainContainer {
   width: 100%;
   display: grid;
   margin: 0 auto;
-  gap: 4px;
+  gap: $element-inner-spacing;
 }
-
 
 .timeContainer {
   display: grid;
@@ -16,7 +16,7 @@
     '... sta fin btn';
   grid-template-rows: 1fr auto;
   grid-template-columns: 1.5em 1fr 1fr 5em;
-  gap: 4px;
+  gap: $element-inner-spacing;
   justify-items: start;
 }
 
@@ -38,16 +38,16 @@
 .indRoll,
 .indDelay,
 .indNegative {
-  background-color: $bg-black-300;
+  background-color: $gray-1300;
 }
 
 .indRoll,
 .indRollActive,
 .indDelay {
   margin: 0 auto;
-  border-radius: 50%;
-  width: 0.8em;
-  height: 0.8em;
+  border-radius: 6px;
+  width: 12px;
+  height: 12px;
 }
 
 .indRollActive {
@@ -58,11 +58,11 @@
 .indNegativeActive {
   margin: 0 auto;
   width: 90%;
-  height: 0.3em;
+  height: 4px;
 }
 
 .indNegativeActive {
-  background-color: $ontime-pink-variant;
+  background-color: $playback-negative;
 }
 
 .indDelayActive {
@@ -75,7 +75,7 @@
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   width: 100%;
-  gap: 4px;
+  gap: $element-inner-spacing;
 }
 
 .minus {
@@ -103,23 +103,27 @@
 }
 
 .time {
-  color: $header-gray;
-  font-size: 1.1em;
+  color: $section-white;
+  font-size: $text-body-size;
 }
 
 .tag {
   color: $label-gray;
-  font-size: 0.9em;
+  font-size: $inner-section-text-size;
 }
 
 .rolltag {
   color: $ontime-roll;
-  font-size: 0.9em;
+  font-size: $text-body-size;
 }
 
 .playbackContainer {
   display: flex;
   justify-content: space-evenly;
   padding-top: 0.5em;
-  gap: 10px;
+  gap: $element-spacing;
+}
+
+.invertX {
+  transform: rotateY(180deg);
 }

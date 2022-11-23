@@ -16,23 +16,22 @@ export const ontimeButtonFilled = {
 
 export const ontimeButtonOutlined = {
   ...commonStyles,
-  background: 'rgba(255, 255, 255, 0.07)', // $white-7
+  background: '#2d2d2d', // $gray-1100
   color: '#779BE7', // $blue-400
   border: '1px solid #779BE7', // $blue-400
   _hover: {
-    background: 'rgba(255, 255, 255, 0.03)', // $white-3
-    border: '1px solid #AFC4FF', // $blue-300
+    background: '#404040', // $gray-1000
   },
 };
 
 
 export const ontimeButtonSubtle = {
   ...commonStyles,
-  background: 'rgba(255, 255, 255, 0.07)', // $white-7
+  background: '#2d2d2d', // $gray-1100
   color: '#779BE7', // $blue-400
   border: '1px solid transparent',
   _hover: {
-    background: 'rgba(255, 255, 255, 0.13)', // $white-11
+    background: '#404040', // $gray-1000
   },
 };
 

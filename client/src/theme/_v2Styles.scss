@@ -3,12 +3,26 @@
 $transition-time-action: 0.1s;
 $transition-time-feedback: 0.3s;
 
+
+$component-border-radius-md: 3px;
+$component-border-radius-sm: 2px;
+
 // semantic colours
 $action-blue: $blue-700;
 $action-text-color: $blue-400;
 $ontime-color: #ff7597;
 $error-red: $red-700;
 $warning-orange: $orange-700;
+$opacity-disabled: 0.4;
+
+// playback colours
+$playback-start: $green-600;
+$ontime-roll: #0274B6;
+$ontime-delay: #F57C13;
+$action-blue: #3182ce;
+$ontime-paused: #c05621;
+$ontime-red: #E4281E;
+$playback-negative: $red-500;
 
 // interface panels
 $bg-container-l1: $gray-1350;
@@ -25,7 +39,7 @@ $section-spacing: 16px;
 $main-spacing: 32px;
 
 // interface text
-$ontime-font-family:  "Open Sans", "Segoe UI", sans-serif;
+$ontime-font-family: "Open Sans", "Segoe UI", sans-serif;
 $label-gray: $gray-400;
 $secondary-text-gray: $gray-400;
 $section-white: $ui-white;

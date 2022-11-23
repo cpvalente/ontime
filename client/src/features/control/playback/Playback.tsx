@@ -13,13 +13,15 @@ import style from './PlaybackControl.module.scss';
 
 interface PlaybackProps {
   playback: Playstate;
-  selectedId: string;
+  selectedId: string | null;
   noEvents: boolean;
 }
 
 export default function Playback(props: PlaybackProps) {
   const { playback, selectedId, noEvents } = props;
   const isRolling = playback === 'roll';
+  const isPlaying = playback === 'start'
+  const isPaused = playback === 'pause'
 
   return (
     <div className={style.playbackContainer}>
@@ -28,7 +30,7 @@ export default function Playback(props: PlaybackProps) {
           onClick={() => setPlayback.start()}
           disabled={!selectedId || isRolling || noEvents}
           theme='start'
-          active={playback === 'start'}
+          active={isPlaying}
         >
           <IoPlay />
         </TapButton>
@@ -37,9 +39,9 @@ export default function Playback(props: PlaybackProps) {
       <Tooltip label='Pause playback' openDelay={tooltipDelayMid}>
         <TapButton
           onClick={() => setPlayback.pause()}
-          disabled={!selectedId || isRolling || noEvents || playback !== 'start'}
+          disabled={!selectedId || isRolling || noEvents }
           theme='pause'
-          active={playback === 'pause'}
+          active={isPaused}
         >
           <IoPause />
         </TapButton>
@@ -48,7 +50,7 @@ export default function Playback(props: PlaybackProps) {
       <Tooltip label='Start roll mode' openDelay={tooltipDelayMid}>
         <TapButton
           onClick={() => setPlayback.roll()}
-          disabled={playback === 'roll' || noEvents}
+          disabled={noEvents}
           theme='roll'
           active={isRolling}
         >
