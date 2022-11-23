@@ -1,22 +1,12 @@
-$action-text-color: #87A3EF;
-$border-color: rgba(white, 0.1);
-$menu-bg: #202020;
+@use "../../../theme/v2Styles" as *;
+@use "../../../theme/mixins" as *;
+
 $menu-hover-bg: #101010;
 $menu-focus-bg: #181818;
-$menu-box-shadow: rgba(0, 0, 0, 0.15) 0 3px 3px 0;
 
 $icon-color: #f6f6f6;
 $button-bg: #303030;
 $button-size: 48px;
-
-$ontime-pink: #ff7597;
-
-// Todo: remove important once style is retired
-a {
-  &::after {
-    content: none !important;
-  }
-}
 
 .mirror {
   transform: rotate(180deg);
@@ -47,15 +37,15 @@ a {
 .menuContainer {
   top: 0;
   left: 0;
-  font-family: 'Open Sans', sans-serif;
+  font-family: $ontime-font-family;
   height: fit-content;
   position: absolute;
-  background-color: $menu-bg;
+  background-color: $bg-container-l1;
   min-width: 200px;
   border-radius: 0 0 24px 0;
-  border-right: 1px solid $border-color;
+  border-right: 1px solid $border-color-ondark;
 
-  box-shadow: $menu-box-shadow;
+  box-shadow: $box-shadow-l2;
   padding-bottom: 1rem;
 
   max-height: 100vh;
@@ -67,21 +57,17 @@ a {
 }
 
 .link {
-  color: $action-text-color;
-  display: flex;
-  align-items: center;
+  @include action-link;
   justify-content: space-between;
   padding: 0.5rem 1rem;
   cursor: pointer;
-  font-size: 14px;
 
   &:hover {
     background-color: $menu-hover-bg;
-    color: $ontime-pink;
   }
 
   &:active {
-    background-color: $border-color;
+    background-color: $border-color-ondark;
   }
 
   &:focus {
@@ -103,5 +89,5 @@ a {
 }
 
 .separator {
-  border-color: $border-color;
+  border-color: $border-color-ondark;
 }
