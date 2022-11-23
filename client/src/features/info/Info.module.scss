@@ -14,6 +14,7 @@
 }
 
 .labels {
+  font-size: $inner-section-text-size;
   display: flex;
   flex-direction: column;
   gap: $element-inner-spacing;
