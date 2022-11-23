@@ -1,27 +1,27 @@
-@use '../../../theme/main' as *;
+@use '../../../theme/v2Styles' as *;
 
 .header {
-  padding: 0;
-  margin: 0;
-  font-size: 0.9em;
+  font-size: $inner-section-text-size;
+  font-weight: 600;
   display: flex;
   justify-content: space-between;
-  color: $header-gray;
+  color: $section-white;
+  border-bottom: 1px solid $border-color-ondark;
+  padding-bottom: $element-inner-spacing;
+  margin-bottom: $element-spacing;
 }
-
 
 .moreExpanded,
 .moreCollapsed {
   cursor: pointer;
-  color: $text-white;
 }
 
 .moreExpanded {
   transform: scaleY(-1);
-  transition: transform 0.3s;
+  transition: transform $transition-time-feedback;
 }
 
 .moreCollapsed {
   transform: scaleY(1);
-  transition: transform 0.3s;
+  transition: transform $transition-time-feedback;
 }

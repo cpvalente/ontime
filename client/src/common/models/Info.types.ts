@@ -1,8 +1,13 @@
 import { OntimeSettingsType } from './OntimeSettings.type';
 
+type NetworkInterfaceType = {
+  name: string;
+  address: string;
+}
+
 export type InfoType = {
-  networkInterfaces: string[];
-  settings: Pick<OntimeSettingsType, "version" | "serverPort" >
+  networkInterfaces: NetworkInterfaceType[];
+  settings: Pick<OntimeSettingsType, 'version' | 'serverPort'>
 }
 
 export const ontimePlaceholderInfo: InfoType = {

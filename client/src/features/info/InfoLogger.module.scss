@@ -1,16 +1,17 @@
-@use 'Info.module' as *;
-@use '../../theme/main' as *;
+@use '../../theme/v2Styles' as *;
 @use '../../theme/mixins' as *;
 
-.container,
-.container__expanded{
-  @include container;
-  max-height: 80%;
-}
+$info-gray: $secondary-text-gray;
+$info-hover: $section-white;
 
-.container__expanded {
-  min-height: 50%;
-  height: 100%
+.infoLoggerContainer {
+  max-height: 80%;
+  margin-top: 32px;
+
+  &.expanded {
+    min-height: 50%;
+    height: 100%
+  }
 }
 
 .log {
@@ -18,70 +19,44 @@
   overflow-y: scroll;
   font-size: 0.8em;
   user-select: text;
-  padding: 0 0.5em;
-  margin: 0 0.5em;
+}
 
-  li {
-    display: flex;
-    margin-bottom: 2px;
-
-    .time {
-      width: 4.5em
-    }
-    .origin {
-      width: 6em;
-    }
-    .msg {
-      flex: 1;
-    }
-  }
-
-  li.info {
+.logEntry {
+  display: flex;
+  margin-bottom: 2px;
+  &.INFO {
     color: $info-gray;
   }
-  li.warn {
+
+  &.WARN {
     color: $warning-orange;
   }
-  li.error {
+
+  &.ERROR {
     color: $error-red;
   }
 
-  li:hover {
-    color: $info-gray-hover;
+  &:hover {
+    color: $info-hover;
+  }
+
+  .time {
+    width: 4.5em
+  }
+
+  .origin {
+    width: 6em;
+  }
+
+  .msg {
+    flex: 1;
   }
 }
 
-.info {
-  color: $text-white;
-}
-
-.error {
-  color: red;
-}
-
-.toggleBar {
+.buttonBar {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  font-size: 0.7em;
+  gap: 8px;
   justify-content: flex-start;
-  padding: 0.5em 8px;
-  font-weight: 600;
-
-  div {
-    padding: 2px 8px;
-    background: #0002;
-    border: 1px solid #fff1;
-    border-radius: 2px;
-    cursor: pointer;
-  }
-
-  div.active {
-    background: $ontime-roll;
-    color: white;
-  }
-
-  .clear {
-    border: 1px solid rgba($ontime-pink, 0.5);
-  }
+  margin-bottom: 8px;
 }

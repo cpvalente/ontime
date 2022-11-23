@@ -1,0 +1,33 @@
+@use "./ontimeColours" as *;
+
+$transition-time-action: 0.1s;
+$transition-time-feedback: 0.3s;
+
+// semantic colours
+$action-blue: $blue-700;
+$action-text-color: $blue-400;
+$ontime-color: #ff7597;
+$error-red: $red-700;
+$warning-orange: $orange-700;
+
+// interface panels
+$bg-container-l1: $gray-1350;
+$bg-container-l2: $gray-1100;
+$bg-container-l3: $gray-1350;
+
+$box-shadow-l2: rgba(0, 0, 0, 0.15) 0 3px 3px 0;
+
+// interface elements
+$border-color-ondark: $white-10;
+$element-inner-spacing: 4px;
+$element-spacing: 8px;
+$section-spacing: 16px;
+$main-spacing: 32px;
+
+// interface text
+$ontime-font-family:  "Open Sans", "Segoe UI", sans-serif;
+$label-gray: $gray-400;
+$secondary-text-gray: $gray-400;
+$section-white: $ui-white;
+$inner-section-text-size: 15px;
+$text-body-size: 16px;

@@ -1,11 +1,16 @@
 import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
 
 import { generateId } from '../utils/generate_id';
+import socket from '../utils/socket';
 import { nowInMillis, stringFromMillis } from '../utils/time';
 
-import socket from '../utils/socket';
-type LOG_LEVEL = 'INFO' | 'WARN' | 'ERROR';
-type Log = {
+export enum LOG_LEVEL {
+  INFO = "INFO",
+  WARN = "WARN",
+  ERROR = "ERROR",
+}
+
+export type Log = {
   id: string;
   origin: string;
   time: string;
@@ -90,7 +95,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    */
   const emitInfo = useCallback(
     (text: string) => {
-      _send(text, 'INFO');
+      _send(text, LOG_LEVEL.INFO);
     },
     [_send],
   );
@@ -101,7 +106,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    */
   const emitWarning = useCallback(
     (text: string) => {
-      _send(text, 'WARN');
+      _send(text, LOG_LEVEL.WARN);
     },
     [_send],
   );
@@ -112,7 +117,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    */
   const emitError = useCallback(
     (text: string) => {
-      _send(text, 'ERROR');
+      _send(text, LOG_LEVEL.ERROR);
     },
     [_send],
   );

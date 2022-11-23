@@ -1,3 +1,5 @@
+@use "./ontimeColours" as *;
+
 $transition-time-action: 0.1s;
 $transition-time-feedback: 0.3s;
 
@@ -111,15 +113,8 @@ textarea {
 }
 
 // Define style for a link
-a {
-  &::after {
-    content: '  \2197';
-    color: $ontime-pink;
-  }
-
-  &:hover {
-    color: $ontime-pink;
-  }
+a:hover {
+  color: $ontime-pink;
 }
 
 // horizontal separator
