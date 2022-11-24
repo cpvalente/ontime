@@ -46,7 +46,7 @@ const emptyMessageControl = {
 };
 
 export const useMessageControl = createSocketHook(FEAT_MESSAGECONTROL, emptyMessageControl);
-export const setMessage = () => ({
+export const setMessage = {
   presenterText: (payload: string) => socket.emit('set-timer-message-text', payload),
   presenterVisible: (payload: boolean) => socket.emit('set-timer-message-visible', payload),
   publicText: (payload: string) => socket.emit('set-public-message-text', payload),
@@ -54,7 +54,7 @@ export const setMessage = () => ({
   lowerText: (payload: string) => socket.emit('set-lower-message-text', payload),
   lowerVisible: (payload: boolean) => socket.emit('set-lower-message-visible', payload),
   onAir: (payload: boolean) => socket.emit('set-onAir', payload),
-});
+};
 
 export const emptyPlaybackControl = {
   playback: 'stop',

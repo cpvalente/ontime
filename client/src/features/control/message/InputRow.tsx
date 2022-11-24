@@ -10,7 +10,7 @@ interface InputRowProps {
   label: string;
   placeholder: string;
   text: string;
-  visible: boolean;
+  visible?: boolean;
   actionHandler: (action: string, payload: object) => void;
   changeHandler: (newValue: string) => void;
 }
@@ -28,7 +28,7 @@ export default function InputRow(props: InputRowProps) {
       <div className={style.inputItems}>
         <Input
           size='sm'
-          variant='filled'
+          variant='ontime-filled'
           value={text}
           onChange={(event) => handleInputChange(event.target.value)}
           placeholder={placeholder}
@@ -40,7 +40,7 @@ export default function InputRow(props: InputRowProps) {
           openDelay={tooltipDelayMid}
           icon={<IoSunny size='18px' />}
           colorScheme='blue'
-          variant={visible ? 'solid' : 'outline'}
+          variant={visible ? 'ontime-filled' : 'ontime-subtle'}
           size='sm'
         />
       </div>
