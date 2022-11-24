@@ -293,28 +293,28 @@ class SocketController {
        * */
 
       // 1. EVENT LIST
-      socket.on('get-ontime-feat-rundown', () => {
+      socket.on('get-feat-rundown', () => {
         global.timer._broadcastFeatureRundown();
       });
 
       // 2. MESSAGE CONTROL
-      socket.on('get-ontime-feat-messagecontrol', () => {
+      socket.on('get-feat-messagecontrol', () => {
         const featureData = messageManager.getAll();
         this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
       });
 
       // 3. PLAYBACK CONTROL
-      socket.on('get-ontime-feat-playbackcontrol', () => {
+      socket.on('get-feat-playbackcontrol', () => {
         global.timer._broadcastFeaturePlaybackControl();
       });
 
       // 4. INFO
-      socket.on('get-ontime-feat-info', () => {
+      socket.on('get-feat-info', () => {
         global.timer._broadcastFeatureInfo();
       });
 
       // 5. CUE SHEET
-      socket.on('get-ontime-feat-cuesheet', () => {
+      socket.on('get-feat-cuesheet', () => {
         global.timer._broadcastFeatureCuesheet();
       });
 
