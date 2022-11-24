@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Select } from '@chakra-ui/react';
-import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
+import { Button, Select, Switch } from '@chakra-ui/react';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { editorEventId } from 'common/atoms/LocalEventSettings';
 import ColourInput from 'common/components/input/ColourInput';
@@ -14,10 +13,10 @@ import { stringFromMillis } from 'common/utils/time';
 import { calculateDuration, validateEntry } from 'common/utils/timesManager';
 import { useAtom } from 'jotai';
 
+import CopyTag from '../../common/components/copy-tag/CopyTag';
 import useRundown from '../../common/hooks-query/useRundown';
 
 import style from './EventEditor.module.scss';
-import CopyTag from '../../common/components/osc-tag/CopyTag';
 
 export default function EventEditor() {
   const [openId] = useAtom(editorEventId);
@@ -93,7 +92,7 @@ export default function EventEditor() {
   );
 
   if (!event) {
-    return <span>Loading</span>;
+    return <span>Loading...</span>;
   }
 
   const delayed = delay !== 0;
@@ -105,6 +104,10 @@ export default function EventEditor() {
 
   return (
     <div className={style.eventEditor}>
+      <div className={style.eventInfo}>{`Event ${'not yet'} | Event ID ${event.id}`}</div>
+      <div className={style.eventActions}>
+        <CopyTag label='OSC trigger'>{`/ontime/gotoid/${event.id}`}</CopyTag>
+      </div>
       <div className={style.timeOptions}>
         <div className={style.timers}>
           <label className={style.inputLabel}>
@@ -116,7 +119,7 @@ export default function EventEditor() {
             submitHandler={handleSubmit}
             validationHandler={timerValidationHandler}
             time={event.timeStart}
-            delay={0}
+            delay={delay}
             placeholder='Start'
           />
           <label className={style.inputLabel}>
@@ -128,7 +131,7 @@ export default function EventEditor() {
             submitHandler={handleSubmit}
             validationHandler={timerValidationHandler}
             time={event.timeEnd}
-            delay={0}
+            delay={delay}
             placeholder='End'
           />
           <label className={style.inputLabel}>Duration</label>
@@ -137,24 +140,33 @@ export default function EventEditor() {
             submitHandler={handleSubmit}
             validationHandler={timerValidationHandler}
             time={event.duration}
-            delay={0}
+            delay={delay}
             placeholder='Duration'
           />
         </div>
         <div className={style.timeSettings}>
           <label className={style.inputLabel}>Timer type</label>
-          <Select size='sm' variant='filled' color='black'>
+          <Select size='sm' variant='ontime'>
             <option value='option1'>Start to end</option>
             <option value='option2'>Duration</option>
             <option value='option3'>Follow previous</option>
             <option value='option3'>Start only</option>
           </Select>
           <label className={style.inputLabel}>Countdown style</label>
-          <Select size='sm' variant='filled' color='black'>
+          <Select size='sm' variant='ontime'>
             <option value='option1'>Count down</option>
             <option value='option2'>Count up</option>
             <option value='option3'>Clock</option>
           </Select>
+          <span className={style.spacer} />
+          <label className={`${style.inputLabel} ${style.publicToggle}`}>
+            <Switch
+              isChecked={event.isPublic}
+              onChange={() => togglePublic(event.isPublic)}
+              variant='ontime'
+            />
+            Event is public
+          </label>
         </div>
       </div>
       <div className={style.titles}>
@@ -175,17 +187,6 @@ export default function EventEditor() {
             <label className={style.inputLabel}>Subtitle</label>
             <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
           </div>
-          <div className={style.padTop}>
-            <Button
-              leftIcon={<FiUsers />}
-              size='sm'
-              colorScheme='blue'
-              variant={event.isPublic ? 'solid' : 'ghost'}
-              onClick={() => togglePublic(event.isPublic)}
-            >
-              {event.isPublic ? 'Event is Public' : 'Make event public'}
-            </Button>
-          </div>
         </div>
         <div className={style.right}>
           <div className={style.column}>
@@ -196,28 +197,26 @@ export default function EventEditor() {
                 handleChange={(value) => handleSubmit('colour', value)}
               />
               <Button
-                leftIcon={<IoBan />}
+                rightIcon={<IoBan />}
                 onClick={() => handleSubmit('colour', '')}
-                variant='ghost'
-                colorScheme='blue'
-                borderRadius='3px'
+                variant='ontime-subtle'
                 size='sm'
               >
                 Clear colour
               </Button>
             </div>
           </div>
-          <div className={style.column}>
+          <div className={`${style.column} ${style.fullHeight}`}>
             <label className={style.inputLabel}>Note</label>
             <TextInput
               field='note'
               initialText={event.note}
               submitHandler={handleSubmit}
               isTextArea
+              isFullHeight
             />
           </div>
         </div>
-        <CopyTag label='OSC trigger' className={style.osc}>{`/ontime/gotoid/${event.id}`}</CopyTag>
       </div>
     </div>
   );

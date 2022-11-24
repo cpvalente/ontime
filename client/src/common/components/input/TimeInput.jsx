@@ -10,7 +10,9 @@ import { tooltipDelayFast } from '../../../ontimeConfig';
 import style from './TimeInput.module.scss';
 
 export default function TimeInput(props) {
-  const { name, submitHandler, time = 0, delay, placeholder, validationHandler, previousEnd } = props;
+  const {
+    name, submitHandler, time = 0, delay, placeholder, validationHandler, previousEnd,
+  } = props;
   const { emitError } = useContext(LoggingContext);
   const inputRef = useRef(null);
   const [value, setValue] = useState('');
@@ -38,87 +40,74 @@ export default function TimeInput(props) {
    * @description Submit handler
    * @param {string} newValue
    */
-  const handleSubmit = useCallback(
-    (newValue) => {
-      // Check if there is anything there
-      if (newValue === '') {
-        return false;
+  const handleSubmit = useCallback((newValue) => {
+    // Check if there is anything there
+    if (newValue === '') {
+      return false;
+    }
+
+    let newValMillis = 0;
+
+    // check for known aliases
+    if (newValue === 'p' || newValue === 'prev' || newValue === 'previous') {
+      // string to pass should be the time of the end before
+      if (previousEnd != null) {
+        newValMillis = previousEnd;
       }
+    } else if (newValue.startsWith('+') || newValue.startsWith('p+') || newValue.startsWith('p +')) {
+      // string to pass should add to the end before
+      const val = newValue.substring(1);
+      newValMillis = previousEnd + forgivingStringToMillis(val);
+    } else {
+      // convert entered value to milliseconds
+      newValMillis = forgivingStringToMillis(newValue);
+    }
 
-      let newValMillis = 0;
+    // Time now and time submittedVal
+    const originalMillis = time + delay;
 
-      // check for known aliases
-      if (newValue === 'p' || newValue === 'prev' || newValue === 'previous') {
-        // string to pass should be the time of the end before
-        if (previousEnd != null) {
-          newValMillis = previousEnd;
-        }
-      } else if (
-        newValue.startsWith('+') ||
-        newValue.startsWith('p+') ||
-        newValue.startsWith('p +')
-      ) {
-        // string to pass should add to the end before
-        const val = newValue.substring(1);
-        newValMillis = previousEnd + forgivingStringToMillis(val);
-      } else {
-        // convert entered value to milliseconds
-        newValMillis = forgivingStringToMillis(newValue);
-      }
+    // check if time is different from before
+    if (newValMillis === originalMillis) return false;
 
-      // Time now and time submittedVal
-      const originalMillis = time + delay;
+    // validate with parent
+    if (!validationHandler(name, newValMillis)) return false;
 
-      // check if time is different from before
-      if (newValMillis === originalMillis) return false;
+    // update entry
+    submitHandler(name, newValMillis);
 
-      // validate with parent
-      if (!validationHandler(name, newValMillis)) return false;
-
-      // update entry
-      submitHandler(name, newValMillis);
-
-      return true;
-    },
-    [delay, name, previousEnd, submitHandler, time, validationHandler]
-  );
+    return true;
+  }, [delay, name, previousEnd, submitHandler, time, validationHandler]);
 
   /**
    * @description Prepare time fields
    * @param {string} value string to be parsed
    */
-  const validateAndSubmit = useCallback(
-    (newValue) => {
-      const success = handleSubmit(newValue);
-      if (success) {
-        const ms = forgivingStringToMillis(newValue);
-        setValue(stringFromMillis(ms + delay));
-      } else {
-        resetValue();
-      }
-    },
-    [delay, handleSubmit, resetValue]
-  );
+  const validateAndSubmit = useCallback((newValue) => {
+    const success = handleSubmit(newValue);
+    if (success) {
+      const ms = forgivingStringToMillis(newValue);
+      setValue(stringFromMillis(ms + delay));
+    } else {
+      resetValue();
+    }
+  }, [delay, handleSubmit, resetValue]);
 
   /**
    * @description Handles common keys for submit and cancel
    * @param {KeyboardEvent} event
    */
-  const onKeyDownHandler = useCallback(
-    (event) => {
-      if (event.key === 'Enter') {
-        inputRef.current.blur();
-        validateAndSubmit(event.target.value);
-      } else if (event.key === 'Tab') {
-        validateAndSubmit(event.target.value);
-      }
-      if (event.key === 'Escape') {
-        inputRef.current.blur();
-        resetValue();
-      }
-    },
-    [resetValue, validateAndSubmit]
-  );
+  const onKeyDownHandler = useCallback((event) => {
+    if (event.key === 'Enter') {
+      inputRef.current.blur();
+      validateAndSubmit(event.target.value);
+    } else if (event.key === 'Tab') {
+      validateAndSubmit(event.target.value);
+    }
+    if (event.key === 'Escape') {
+      inputRef.current.blur();
+      resetValue();
+    }
+  }, [resetValue, validateAndSubmit]);
 
   useEffect(() => {
     if (time == null) return;
@@ -127,45 +116,32 @@ export default function TimeInput(props) {
 
   const isDelayed = delay != null && delay !== 0;
 
-/*
-<IconButton
-    size='sm'
-    icon="s"
-    aria-label='automate'
-    colorScheme='white'
-    style={{ borderRadius: '2px', width: 'min-content' }}
-    tabIndex={-1}
-    variant='ghost'
-  />
-  */
-
-  const buttonInitial = () => {
+  const ButtonInitial = () => {
     if (name === 'timeStart') return 'S';
     if (name === 'timeEnd') return 'E';
     if (name === 'duration') return 'D';
-  }
+  };
 
-  const buttonTooltip = () => {
+  const ButtonTooltip = () => {
     if (name === 'timeStart') return 'Start';
     if (name === 'timeEnd') return 'End';
     if (name === 'duration') return 'Duration';
-  }
+  };
 
   return (
     <InputGroup size='sm' className={`${style.timeInput} ${isDelayed ? style.delayed : ''}`}>
       <InputLeftElement width='fit-content'>
-        <Tooltip label={buttonTooltip()} openDelay={tooltipDelayFast}>
-        <Button
-          size='sm'
-          variant='filled'
-          tabIndex={-1}
-          backgroundColor='#303030'
-          color='#fffffa'
-          borderRadius='2px 0 0 2px'
-          border={isDelayed ? "1px solid #d69e2e55" : "1px solid transparent"}
-        >
-          {buttonInitial()}
-        </Button>
+        <Tooltip label={<ButtonTooltip />} openDelay={tooltipDelayFast}>
+          <Button
+            size='sm'
+            variant='ontime-subtle'
+            className={`${style.inputButton} ${isDelayed ? style.delayed : ''}`}
+            tabIndex={-1}
+            border={isDelayed ? '1px solid #d69e2e55' : '1px solid transparent'}
+            borderRadius='2px 0 0 2px'
+          >
+            <ButtonInitial />
+          </Button>
         </Tooltip>
       </InputLeftElement>
       <Input
@@ -174,7 +150,7 @@ export default function TimeInput(props) {
         className={style.inputField}
         type='text'
         placeholder={placeholder}
-        variant='filled'
+        variant='ontime-filled'
         onFocus={handleFocus}
         onChange={(event) => setValue(event.target.value)}
         onBlur={resetValue}
