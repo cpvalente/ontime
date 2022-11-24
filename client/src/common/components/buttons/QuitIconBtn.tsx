@@ -19,6 +19,23 @@ interface QuitIconBtnProps {
   clickHandler: () => void;
   size?: Size;
 }
+
+const quitBtnStyle = {
+  color: '#D20300', // $red-700
+  borderColor: '#D20300', // $red-700
+  _focus: { boxShadow: 'none' },
+  _hover: {
+    background: '#D20300', // $red-700
+    color: 'white',
+  },
+  _active: {
+    background: '#9A0000', // $red-1000
+    color: 'white',
+  },
+  variant: 'outline',
+  isRound: true,
+};
+
 export default function QuitIconBtn(props: QuitIconBtnProps) {
   const { clickHandler, size = 'lg', ...rest } = props;
   const [isOpen, setIsOpen] = useState(false);
@@ -47,11 +64,8 @@ export default function QuitIconBtn(props: QuitIconBtnProps) {
           aria-label='Quit Application'
           size={size}
           icon={<FiPower />}
-          colorScheme='red'
-          variant='outline'
-          isRound
           onClick={() => setIsOpen(true)}
-          _focus={{ boxShadow: 'none' }}
+          {...quitBtnStyle}
           {...rest}
         />
       </Tooltip>
@@ -59,7 +73,7 @@ export default function QuitIconBtn(props: QuitIconBtnProps) {
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Server Shutdown
+              Ontime Shutdown
             </AlertDialogHeader>
             <AlertDialogBody>
               This will shutdown the program and all running servers. Are you sure?

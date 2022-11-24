@@ -28,6 +28,12 @@ const buttonStyle = {
   fontSize: '1.5em',
   size: 'lg',
   colorScheme: 'white',
+  _hover: {
+    background: 'rgba(255, 255, 255, 0.10)' // $white-10
+  },
+  _active: {
+    background: 'rgba(255, 255, 255, 0.13)' // $white-13
+  }
 };
 
 export default function MenuBar(props: MenuBarProps) {
@@ -120,7 +126,6 @@ export default function MenuBar(props: MenuBarProps) {
         className={isSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
         tooltip='Settings'
-        isRound
         aria-label=''
       />
       <div className={style.gap} />
@@ -130,7 +135,6 @@ export default function MenuBar(props: MenuBarProps) {
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
         tooltip='Upload event list'
-        isRound
         aria-label=''
       />
       <TooltipActionBtn
