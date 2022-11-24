@@ -1,6 +1,7 @@
 import { extendTheme } from '@chakra-ui/react';
 
 import { ontimeButtonFilled, ontimeButtonOutlined, ontimeButtonSubtle } from './ontimeButton';
+import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeSelect } from './ontimeSelect';
 import { ontimeSwitch } from './ontimeSwitch';
 import { ontimeInputFilled, ontimeTextAreaFilled } from './ontimeTextInputs';
@@ -43,6 +44,11 @@ const theme = extendTheme({
         'ontime': { ...ontimeSelect },
       },
     },
+    Menu: {
+      variants: {
+        'ontime-on-dark': {...ontimeMenuOnDark},
+      }
+    }
   },
 });
 

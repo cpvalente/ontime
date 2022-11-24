@@ -11,6 +11,7 @@
 .corner {
   display: none;
   @include absolute-top-right(8px);
+  transform: rotate(45deg);
 }
 
 .mainContainer {
