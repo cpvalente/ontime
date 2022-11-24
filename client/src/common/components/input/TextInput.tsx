@@ -1,9 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Input, Textarea } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
 
-export default function TextInput(props) {
-  const { isTextArea, size = 'sm', field, initialText = '', submitHandler } = props;
+import { Size } from '../../models/UtilTypes';
+
+interface TextInputProps {
+  isTextArea?: boolean;
+  isFullHeight?: boolean;
+  size?: Size;
+  field: string;
+  initialText?: string;
+  submitHandler: (field: string, newValue: string) => void;
+}
+
+export default function TextInput(props: TextInputProps) {
+  const { isTextArea, isFullHeight, size = 'sm', field, initialText = '', submitHandler } = props;
   const inputRef = useRef(null);
   const [text, setText] = useState(initialText);
 
@@ -20,7 +30,7 @@ export default function TextInput(props) {
    * @param {string} newValue
    */
   const handleChange = useCallback(
-    (newValue) => {
+    (newValue: string) => {
       if (newValue !== text) {
         setText(newValue);
       }
@@ -33,7 +43,7 @@ export default function TextInput(props) {
    * @param {string} valueToSubmit
    */
   const handleSubmit = useCallback(
-    (valueToSubmit) => {
+    (valueToSubmit: string) => {
       // No need to update if it hasn't changed
       if (valueToSubmit === initialText) {
         return;
@@ -49,58 +59,44 @@ export default function TextInput(props) {
   );
 
   /**
-   * @description Resets input value to given
-   */
-  const resetValue = useCallback(async () => {
-    setText(initialText);
-  },[initialText])
-
-  /**
    * @description Handles common keys for submit and cancel
-   * @param {KeyboardEvent} event
+   * @param {string} key
    */
   const keyHandler = useCallback(
-    (event) => {
-      if (event.key === 'Escape') {
-        resetValue();
-      } else if (event.key === 'Enter') {
+    (key: string) => {
+      if (key === 'Escape') {
+        setText(initialText);
+      } else if (key === 'Enter') {
         if (!isTextArea) {
           handleSubmit(text);
         }
       }
     },
-    [resetValue, isTextArea, handleSubmit, text]
+    [initialText, isTextArea, handleSubmit, text]
   );
 
   return isTextArea ? (
     <Textarea
       ref={inputRef}
       size={size}
-      variant='filled'
+      variant='ontime-filled'
       value={text}
       onChange={(event) => handleChange(event.target.value)}
       onBlur={(event) => handleSubmit(event.target.value)}
-      onKeyDown={(event) => keyHandler(event)}
+      onKeyDown={(event) => keyHandler(event.key)}
+      style={{height: isFullHeight ? '100%' : undefined }}
       data-testid='input-textarea'
     />
   ) : (
     <Input
       ref={inputRef}
       size={size}
-      variant='filled'
+      variant='ontime-filled'
       value={text}
       onChange={(event) => handleChange(event.target.value)}
       onBlur={(event) => handleSubmit(event.target.value)}
-      onKeyDown={(event) => keyHandler(event)}
+      onKeyDown={(event) => keyHandler(event.key)}
       data-testid='input-textfield'
     />
   );
 }
-
-TextInput.propTypes = {
-  isTextArea: PropTypes.bool,
-  size: PropTypes.string,
-  field: PropTypes.string.isRequired,
-  initialText: PropTypes.string,
-  submitHandler: PropTypes.func,
-};

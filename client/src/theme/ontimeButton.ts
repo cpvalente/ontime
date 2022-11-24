@@ -1,6 +1,7 @@
 const commonStyles = {
   letterSpacing: '0.3px',
   fontWeight: '400',
+  borderRadius: '3px',
 };
 
 export const ontimeButtonFilled = {
@@ -24,7 +25,6 @@ export const ontimeButtonOutlined = {
   },
 };
 
-
 export const ontimeButtonSubtle = {
   ...commonStyles,
   background: '#2d2d2d', // $gray-1100
@@ -34,4 +34,3 @@ export const ontimeButtonSubtle = {
     background: '#404040', // $gray-1000
   },
 };
-

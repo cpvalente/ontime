@@ -130,17 +130,17 @@
 }
 
 .eventEditor {
-  border-radius: 3px 3px 0 0;
-  background-color: $bg-black;
+  border-radius: 8px 8px 0 0;
+  background-color: #202020;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 3px 6px 6px;
   border-top: 1px solid $bg-gray-900;
   position: absolute;
   bottom: 0;
   width: 100vw;
-  max-height: 40vh;
   left: 0;
   z-index: 10;
   color: white;
-  transition: bottom 0.3s;
+  transition: bottom 0.3s; // $transition-time
 
   &.noEvent {
     bottom: -500px;
@@ -152,7 +152,7 @@
   }
 
   .header {
-    background-color: $bg-black;
+    background-color: #202020;
     padding: 8px;
     border-left: 1px solid $bg-container-l3;
   }

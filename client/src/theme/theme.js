@@ -1,6 +1,9 @@
 import { extendTheme } from '@chakra-ui/react';
 
 import { ontimeButtonFilled, ontimeButtonOutlined, ontimeButtonSubtle } from './ontimeButton';
+import { ontimeSelect } from './ontimeSelect';
+import { ontimeSwitch } from './ontimeSwitch';
+import { ontimeInputFilled, ontimeTextAreaFilled } from './ontimeTextInputs';
 
 const theme = extendTheme({
   components: {
@@ -9,46 +12,35 @@ const theme = extendTheme({
         borderRadius: '3px',
       },
       variants: {
-        'ontime-filled': {...ontimeButtonFilled},
-        'ontime-outlined': {...ontimeButtonOutlined},
-        'ontime-subtle': {...ontimeButtonSubtle},
-      }
+        'ontime-filled': { ...ontimeButtonFilled },
+        'ontime-outlined': { ...ontimeButtonOutlined },
+        'ontime-subtle': { ...ontimeButtonSubtle },
+      },
     },
     Input: {
       baseStyle: {
-        field: {
-          borderRadius: 3,
-        },
+        borderRadius: '3px',
       },
-      sizes: {},
       variants: {
-        filled: {
-          field: {
-            backgroundColor: 'rgba(255, 255, 255, 0.03)',
-            _hover: {
-              backgroundColor: 'rgba(255, 255, 255, 0.13)',
-            },
-          },
-        },
-      },
-      defaultProps: {
-        variant: null, // null here
+        'ontime-filled': { ...ontimeInputFilled },
       },
     },
     Textarea: {
       baseStyle: {
-        borderRadius: 3,
+        borderRadius: '3px',
       },
       variants: {
-        filled: {
-          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-          _hover: {
-            backgroundColor: 'rgba(255, 255, 255, 0.13)',
-          },
-        },
+        'ontime-filled': { ...ontimeTextAreaFilled },
       },
-      defaultProps: {
-        variant: null, // null here
+    },
+    Switch: {
+      variants: {
+        'ontime': { ...ontimeSwitch },
+      },
+    },
+    Select: {
+      variants: {
+        'ontime': { ...ontimeSelect },
       },
     },
   },

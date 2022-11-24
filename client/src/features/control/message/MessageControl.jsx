@@ -2,7 +2,7 @@ import { IconButton, Tooltip } from '@chakra-ui/react';
 import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
 
-import CopyTag from '../../../common/components/osc-tag/CopyTag';
+import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { setMessage, useMessageControl } from '../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 

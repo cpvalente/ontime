@@ -1,21 +1,15 @@
 @use '../../../theme/main' as *;
 
-@mixin input-field {
-  border: 1px solid transparent;
-  background-color: $input-bg;
-  font-size: 1em;
-  letter-spacing: 1px;
-
-  &:hover {
-    background-color: $input-hover-bg;
-  }
+.inputButton {
+  border-radius: 2px 0 0 2px;
 }
 
 .timeInput {
   width: fit-content !important;
 
   .inputField {
-    @include input-field;
+    font-size: 1em;
+    letter-spacing: 1px;
     width: 7.5em;
     padding: 0 0 0 2.6em;
   }
@@ -29,19 +23,5 @@
         background-color: $input-hover-bg-delayed;
       }
     }
-  }
-}
-
-.delayInput {
-  display: flex;
-  align-items: center;
-
-  .inputField {
-    @include input-field;
-  }
-
-  .label {
-    padding-left: 8px;
-    font-size: 14px;
   }
 }

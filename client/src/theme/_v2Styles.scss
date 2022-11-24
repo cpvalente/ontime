@@ -3,7 +3,6 @@
 $transition-time-action: 0.1s;
 $transition-time-feedback: 0.3s;
 
-
 $component-border-radius-md: 3px;
 $component-border-radius-sm: 2px;
 
@@ -19,6 +18,7 @@ $opacity-disabled: 0.4;
 $playback-start: $green-600;
 $ontime-roll: #0274B6;
 $ontime-delay: #F57C13;
+$ontime-delay-text: $orange-500;
 $action-blue: #3182ce;
 $ontime-paused: #c05621;
 $ontime-red: #E4281E;
@@ -29,6 +29,7 @@ $bg-container-l1: $gray-1350;
 $bg-container-l2: $gray-1100;
 $bg-container-l3: $gray-1350;
 
+$box-shadow-l1: rgba(0, 0, 0, 0.15) 0 3px 3px 0;
 $box-shadow-l2: rgba(0, 0, 0, 0.15) 0 3px 3px 0;
 
 // interface elements

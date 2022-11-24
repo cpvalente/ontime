@@ -12,7 +12,7 @@ export default function ColourInput(props: ColourInputProps) {
   return (
     <Input
       size='sm'
-      variant='filled'
+      variant='ontime-filled'
       className={style.colourInput}
       type='color'
       value={value}
