@@ -1,16 +1,10 @@
 @use '../../../theme/v2Styles' as *;
 
-.messageContainer {
-  display: flex;
-  flex-direction: column;
-  gap: $section-spacing;
-}
-
-.onAirSection {
-  margin-top: $section-spacing;
-  display: flex;
-  flex-direction: column;
+.inputItems {
+  display: grid;
+  grid-template-columns: 1fr auto;
   gap: $element-spacing;
+  margin-top: $element-inner-spacing;
 }
 
 .label {
