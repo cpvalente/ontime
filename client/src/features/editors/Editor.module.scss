@@ -24,7 +24,7 @@
 
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: 48px 46em 30em auto;
+  grid-template-columns: 48px 46em 450px auto;
   grid-template-areas:
     'sett even play info'
     'sett even mess info';
@@ -187,9 +187,9 @@
 
 .playback {
   grid-area: play;
-  min-height: 275px;
+  min-height: 250px;
   max-height: 380px;
-  min-width: 480px;
+  min-width: 450px;
 }
 
 .mainContainer > .settings {
