@@ -76,7 +76,7 @@ export class EventLoader {
   /**
    * loads an event given its id
    * @param {string} eventId
-   * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, loadedEventId: *, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
+   * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
   loadById(eventId) {
     const event = EventLoader.getEventWithId(eventId);
@@ -86,7 +86,7 @@ export class EventLoader {
   /**
    * loads an event given its index
    * @param {number} eventIndex
-   * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, loadedEventId: *, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
+   * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
   loadByIndex(eventIndex) {
     const event = EventLoader.getEventAtIndex(eventIndex);
@@ -143,12 +143,11 @@ export class EventLoader {
 
   /**
    * returns data for currently loaded event
-   * @returns {{loadedEvent: null, selectedEventId: (null|*), nextEventId: (null|*), loadedEventId, selectedPublicEventId: (null|*), nextPublicEventId: (null|*), numEvents: (null|number|*), titles: (*|{presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}), titlesPublic: (*|{presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}), selectedEventIndex: (null|number|*)}}
+   * @returns {{loadedEvent: null, selectedEventId: (null|*), nextEventId: (null|*), selectedPublicEventId: (null|*), nextPublicEventId: (null|*), numEvents: (null|number|*), titles: (*|{presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}), titlesPublic: (*|{presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}), selectedEventIndex: (null|number|*)}}
    */
   getLoaded() {
     return {
       loadedEvent: this.loadedEvent,
-      loadedEventId: this.loadedEventId,
       selectedEventIndex: this.selectedEventIndex,
       selectedEventId: this.selectedEventId,
       selectedPublicEventId: this.selectedPublicEventId,
@@ -203,8 +202,9 @@ export class EventLoader {
     // we know some stuff now
     this.loadedEvent = event;
     this.selectedEventIndex = eventIndex;
-    this.loadedEventId = event.id;
+    this.selectedEventId = event.id;
     this.numEvents = timedEvents.length;
+    // this.nextEventId = playableEvents[eventIndex + 1].id;
     this._loadTitlesNow(event, playableEvents);
     this._loadTitlesNext(playableEvents);
 

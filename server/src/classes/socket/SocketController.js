@@ -284,7 +284,7 @@ class SocketController {
 
       /* MOLECULAR ENDPOINTS
        * =====================
-       * 1. EVENT LIST
+       * 1. RUNDOWN
        * 2. MESSAGE CONTROL
        * 3. PLAYBACK CONTROL
        * 4. INFO
@@ -292,7 +292,7 @@ class SocketController {
        * 6. TIMER OBJECT
        * */
 
-      // 1. EVENT LIST
+      // 1. RUNDOWN
       socket.on('get-feat-rundown', () => {
         global.timer._broadcastFeatureRundown();
       });
