@@ -2,7 +2,8 @@
 @use '../blockMixins' as *;
 
 .eventBlock {
-  font-family: $ontime-font-family;
+  @include block-styling;
+
   display: grid;
   grid-template-areas:
           "binder ...        ...   ..."
@@ -16,13 +17,7 @@
   align-items: center;
   margin: 4px 2px;
   padding-right: $block-clearance;
-
-  border-radius: $block-border-radius;
   gap: 2px;
-
-  background-color: $block-bg;
-  border: 1px solid #383838;
-  box-shadow: $block-box-shadow;
 
   &.selected {
     background-color: #101010;
@@ -64,6 +59,7 @@
   .drag {
     @include drag-style;
     position: absolute;
+    margin-top: 4px;
   }
 }
 

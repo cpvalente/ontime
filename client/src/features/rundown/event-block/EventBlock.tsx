@@ -22,7 +22,7 @@ import { Playstate } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../RundownEntry';
 
-import EventBlockActionMenu from './composite/EventBlockActionMenu';
+import BlockActionMenu from './composite/BlockActionMenu';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
 import EventBlockTimers from './composite/EventBlockTimers';
 
@@ -242,11 +242,12 @@ export default function EventBlock(props: EventBlockProps) {
               backgroundColor={openId === eventId ? '#2B5ABC' : undefined}
               color={openId === eventId ? 'white' : '#f6f6f6'}
             />
-            <EventBlockActionMenu
+            <BlockActionMenu
               showAdd
               showDelay
               showBlock
               showClone
+              enableDelete
               actionHandler={actionHandler}
             />
           </div>

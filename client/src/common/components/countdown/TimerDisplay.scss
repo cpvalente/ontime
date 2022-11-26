@@ -1,7 +1,7 @@
 @use '../../../theme/viewerDefs' as *;
 
 .timer {
-  font-family: 'Open Sans', sans-serif;
+  font-family:  var(--font-family-override, $ontime-font-family);
   color: var(--timer-color-override, $viewer-color);
   font-size: 21vw;
   line-height: 21vw;

@@ -1,10 +1,10 @@
 import { useCallback, useEffect } from 'react';
 import { VStack } from '@chakra-ui/react';
 import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
-import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
 import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
+import { IoScan } from '@react-icons/all-files/io5/IoScan';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { downloadRundown } from 'common/api/ontimeApi';
 
@@ -100,17 +100,17 @@ export default function MenuBar(props: MenuBarProps) {
       <QuitIconBtn clickHandler={() => actionHandler('shutdown')} />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiMaximize />}
+        icon={<IoScan />}
         clickHandler={() => actionHandler('max')}
         tooltip='Show full window'
-        aria-label=''
+        aria-label='Show full window'
       />
       <TooltipActionBtn
         {...buttonStyle}
         icon={<FiMinimize />}
         clickHandler={() => actionHandler('min')}
-        tooltip='Close to tray'
-        aria-label=''
+        tooltip='Minimise to tray'
+        aria-label='Minimise to tray'
       />
       <div className={style.gap} />
       <TooltipActionBtn
@@ -118,7 +118,7 @@ export default function MenuBar(props: MenuBarProps) {
         icon={<FiHelpCircle />}
         clickHandler={() => actionHandler('help')}
         tooltip='Help'
-        aria-label=''
+        aria-label='Help'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -126,7 +126,7 @@ export default function MenuBar(props: MenuBarProps) {
         className={isSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
         tooltip='Settings'
-        aria-label=''
+        aria-label='Settings'
       />
       <div className={style.gap} />
       <TooltipActionBtn
@@ -134,15 +134,15 @@ export default function MenuBar(props: MenuBarProps) {
         icon={<FiUpload />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
-        tooltip='Upload event list'
-        aria-label=''
+        tooltip='Upload showfile'
+        aria-label='Upload showfile'
       />
       <TooltipActionBtn
         {...buttonStyle}
         icon={<FiSave />}
         clickHandler={downloadRundown}
-        tooltip='Export event list'
-        aria-label=''
+        tooltip='Export showfile'
+        aria-label='Export showfile'
       />
     </VStack>
   );

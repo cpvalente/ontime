@@ -1,32 +1,34 @@
 import { useCallback } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Button, HStack } from '@chakra-ui/react';
-import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
-import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
+import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import ActionButtons from 'common/components/buttons/ActionButtons';
-import TooltipLoadingActionBtn from 'common/components/buttons/TooltipLoadingActionBtn';
 import DelayInput from 'common/components/input/DelayInput';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { millisToMinutes } from 'common/utils/dateConfig';
-import PropTypes from 'prop-types';
+
+import { OntimeDelay, OntimeEvent } from '../../../common/models/EventTypes';
+import BlockActionMenu from '../event-block/composite/BlockActionMenu';
+import { EventItemActions } from '../RundownEntry';
 
 import style from './DelayBlock.module.scss';
 
-export default function DelayBlock(props) {
+interface DelayBlockProps {
+  data: OntimeDelay,
+  index: number;
+  actionHandler: (action: EventItemActions, payload?: number | { field: keyof OntimeEvent, value: unknown }) => void;
+}
+
+export default function DelayBlock(props: DelayBlockProps) {
   const { data, index, actionHandler } = props;
-  const { applyDelay, deleteEvent, updateEvent } = useEventAction();
+  const { applyDelay, updateEvent } = useEventAction();
 
   const applyDelayHandler = useCallback(() => {
     applyDelay(data.id);
   }, [data.id, applyDelay]);
 
-  const deleteHandler = useCallback(() => {
-    deleteEvent(data.id);
-  }, [data.id, deleteEvent]);
-
   const delaySubmitHandler = useCallback(
-    (value) => {
+    (value: number) => {
       const newEvent = {
         id: data.id,
         duration: value * 60000,
@@ -34,7 +36,7 @@ export default function DelayBlock(props) {
 
       updateEvent(newEvent);
     },
-    [data.id, updateEvent]
+    [data.id, updateEvent],
   );
 
   const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
@@ -47,39 +49,22 @@ export default function DelayBlock(props) {
             <IoReorderTwo />
           </span>
           <DelayInput
-            className={style.input}
             value={delayValue}
             submitHandler={delaySubmitHandler}
           />
-          <HStack spacing='4px' className={style.actionOverlay}>
+          <HStack spacing='8px' className={style.actionOverlay}>
             <Button
               onClick={applyDelayHandler}
               size='sm'
-              color="#F57C13"
-              borderColor="#F57C13"
-              leftIcon={<FiCheck />}
-              variant='outline'
+              leftIcon={<IoCheckmark />}
+              variant='ontime-subtle-white'
             >
               Apply delay
             </Button>
-            <TooltipLoadingActionBtn
-              clickHandler={deleteHandler}
-              icon={<IoRemove />}
-              tooltip='Delete'
-              variant='outline'
-              colorScheme='white'
-              size='sm'
-            />
-            <ActionButtons showAdd actionHandler={actionHandler} />
+            <BlockActionMenu showAdd enableDelete actionHandler={actionHandler} />
           </HStack>
         </div>
       )}
     </Draggable>
   );
 }
-
-DelayBlock.propTypes = {
-  data: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
-  actionHandler: PropTypes.func.isRequired,
-};

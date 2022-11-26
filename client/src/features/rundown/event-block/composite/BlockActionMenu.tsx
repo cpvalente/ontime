@@ -7,24 +7,26 @@ import {
   MenuList,
   Tooltip,
 } from '@chakra-ui/react';
-import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
-import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
+import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
+import { IoTrashBinSharp } from '@react-icons/all-files/io5/IoTrashBinSharp';
 
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import { EventItemActions } from '../../RundownEntry';
 
-interface EventBlockActionMenuProps {
-  showAdd: boolean;
-  showDelay: boolean;
-  showBlock: boolean;
-  showClone: boolean;
+interface BlockActionMenuProps {
+  showAdd?: boolean;
+  showDelay?: boolean;
+  showBlock?: boolean;
+  enableDelete?: boolean;
+  showClone?: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
+  className?: string;
 }
-export default function EventBlockActionMenu(props: EventBlockActionMenuProps) {
-  const { showAdd, showDelay, showBlock, showClone, actionHandler } = props;
+export default function BlockActionMenu(props: BlockActionMenuProps) {
+  const { showAdd, showDelay, showBlock, enableDelete, showClone, actionHandler, className } = props;
 
   return (
     <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
@@ -37,6 +39,7 @@ export default function EventBlockActionMenu(props: EventBlockActionMenuProps) {
           variant='ontime-subtle'
           color='#f6f6f6'
           size='sm'
+          className={className}
         />
       </Tooltip>
       <MenuList>
@@ -51,7 +54,7 @@ export default function EventBlockActionMenu(props: EventBlockActionMenuProps) {
           Add Delay after
         </MenuItem>
         <MenuItem
-          icon={<FiMinusCircle />}
+          icon={<IoRemoveCircleOutline />}
           onClick={() => actionHandler('block')}
           isDisabled={!showBlock}
         >
@@ -68,9 +71,9 @@ export default function EventBlockActionMenu(props: EventBlockActionMenuProps) {
         )}
         <MenuDivider />
         <MenuItem
-          icon={<FiTrash2 />}
+          icon={<IoTrashBinSharp />}
           onClick={() => actionHandler('delete')}
-          isDisabled={!showBlock}
+          isDisabled={!enableDelete}
           color='#D20300'
         >
           Delete event

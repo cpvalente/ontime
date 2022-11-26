@@ -1,4 +1,5 @@
 @use '../../theme/ontimeColours' as *;
+@use '../../theme/v2Styles' as *;
 
 $block-gap: 4px;
 $block-element-spacing: 4px;
@@ -8,29 +9,25 @@ $block-border-radius: 8px;
 $block-text-color: $gray-50;
 $block-bg: $gray-1200;
 $block-box-shadow: rgba(0, 0, 0, 0.5) 0 0 3px 2px;
+$secondary-block-height: 40px;
+
+@mixin block-styling() {
+  box-sizing: content-box;
+  background-color: $block-bg;
+  border: 1px solid #383838;
+  box-shadow: $block-box-shadow;
+  font-family: $ontime-font-family;
+  border-radius: $block-border-radius;
+}
 
 @mixin block-spacing() {
   padding: 4px 10px 4px 2px;
   gap: 2px;
 }
 
-@mixin action-overlay() {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-content: center;
-  opacity: 0.6;
-  transition: linear 0.1s;
-}
-
-@mixin block-hover() {
-  opacity: 1;
-  transition: linear 0.1s;
-}
-
 @mixin drag-style() {
   font-size: 20px;
-  text-align: center;
+  justify-self: center;
   opacity: 0.3;
   cursor: grab;
   transition: opacity 0.3s;
