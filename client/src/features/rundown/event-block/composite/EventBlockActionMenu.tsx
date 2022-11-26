@@ -1,44 +1,46 @@
 import {
-  Divider,
   IconButton,
   Menu,
   MenuButton,
+  MenuDivider,
   MenuItem,
   MenuList,
   Tooltip,
 } from '@chakra-ui/react';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
-import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
 import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
-import PropTypes from 'prop-types';
 
 import { tooltipDelayMid } from '../../../../ontimeConfig';
+import { EventItemActions } from '../../RundownEntry';
 
-
-export default function EventBlockActionMenu(props) {
+interface EventBlockActionMenuProps {
+  showAdd: boolean;
+  showDelay: boolean;
+  showBlock: boolean;
+  showClone: boolean;
+  actionHandler: (action: EventItemActions, payload?: any) => void;
+}
+export default function EventBlockActionMenu(props: EventBlockActionMenuProps) {
   const { showAdd, showDelay, showBlock, showClone, actionHandler } = props;
 
-  const menuStyle = {
-    color: '#000000',
-    backgroundColor: 'rgba(255,255,255,1)',
-  };
-
-  const blockBtnStyle = {
-    size: 'sm',
-    variant: 'outline',
-    colorScheme: 'whiteAlpha',
-  };
-
   return (
-    <Menu isLazy lazyBehavior='unmount'>
-      <Tooltip label='Add ...' delay={tooltipDelayMid}>
-        <MenuButton as={IconButton} aria-label='Options' icon={<FiPlus />}
-                    tabIndex={-1} {...blockBtnStyle} />
+    <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
+      <Tooltip label='Add ...' openDelay={tooltipDelayMid}>
+        <MenuButton
+          as={IconButton}
+          aria-label='Event options'
+          icon={<IoAdd />}
+          tabIndex={-1}
+          variant='ontime-subtle'
+          color='#f6f6f6'
+          size='sm'
+        />
       </Tooltip>
-      <MenuList style={menuStyle}>
-        <MenuItem icon={<FiPlus />} onClick={() => actionHandler('event')} isDisabled={!showAdd}>
+      <MenuList>
+        <MenuItem icon={<IoAdd />} onClick={() => actionHandler('event')} isDisabled={!showAdd}>
           Add Event after
         </MenuItem>
         <MenuItem
@@ -64,12 +66,12 @@ export default function EventBlockActionMenu(props) {
             Clone event
           </MenuItem>
         )}
-        <Divider />
+        <MenuDivider />
         <MenuItem
           icon={<FiTrash2 />}
           onClick={() => actionHandler('delete')}
           isDisabled={!showBlock}
-          color='red.500'
+          color='#D20300'
         >
           Delete event
         </MenuItem>
@@ -77,11 +79,3 @@ export default function EventBlockActionMenu(props) {
     </Menu>
   );
 }
-
-EventBlockActionMenu.propTypes = {
-  showAdd: PropTypes.bool,
-  showDelay: PropTypes.bool,
-  showBlock: PropTypes.bool,
-  showClone: PropTypes.bool,
-  actionHandler: PropTypes.func,
-};

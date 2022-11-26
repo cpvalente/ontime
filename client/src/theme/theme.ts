@@ -1,6 +1,11 @@
 import { extendTheme } from '@chakra-ui/react';
 
-import { ontimeButtonFilled, ontimeButtonOutlined, ontimeButtonSubtle } from './ontimeButton';
+import {
+  ontimeButtonFilled,
+  ontimeButtonOutlined,
+  ontimeButtonSubtle,
+  ontimeButtonSubtleWhite,
+} from './ontimeButton';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeSelect } from './ontimeSelect';
 import { ontimeSwitch } from './ontimeSwitch';
@@ -16,11 +21,24 @@ const theme = extendTheme({
         'ontime-filled': { ...ontimeButtonFilled },
         'ontime-outlined': { ...ontimeButtonOutlined },
         'ontime-subtle': { ...ontimeButtonSubtle },
+        'ontime-subtle-white': { ...ontimeButtonSubtleWhite },
       },
+    },
+    Editable: {
+      baseStyle: {
+        input: {
+          borderRadius: '2px',
+          width: '100%',
+        },
+        preview: {
+          width: '100%',
+        }
+      }
     },
     Input: {
       baseStyle: {
-        borderRadius: '3px',
+        borderRadius: '2px',
+        border: '1px',
       },
       variants: {
         'ontime-filled': { ...ontimeInputFilled },
@@ -46,9 +64,9 @@ const theme = extendTheme({
     },
     Menu: {
       variants: {
-        'ontime-on-dark': {...ontimeMenuOnDark},
-      }
-    }
+        'ontime-on-dark': { ...ontimeMenuOnDark },
+      },
+    },
   },
 });
 

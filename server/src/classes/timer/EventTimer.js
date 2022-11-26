@@ -130,7 +130,6 @@ export class EventTimer extends Timer {
    * @private
    */
   _broadcastFeatureRundown() {
-    console.log('debug here', this.selectedEventId)
     const featureData = {
       selectedEventId: this.selectedEventId,
       nextEventId: this.nextEventId,
@@ -427,7 +426,8 @@ export class EventTimer extends Timer {
       return;
     }
 
-    const { loadedEvent, loadedEventIndex, selectedEventId, nextEventId, titles, titlesPublic } = loadedData;
+    const { loadedEvent, loadedEventIndex, selectedEventId, nextEventId, titles, titlesPublic } =
+      loadedData;
 
     const start = loadedEvent.timeStart || 0;
     let end = loadedEvent.timeEnd || 0;

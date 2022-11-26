@@ -1,5 +1,133 @@
-@use '../../../theme/main' as *;
+@use '../../../theme/v2Styles' as *;
 @use '../blockMixins' as *;
+
+.eventBlock {
+  font-family: $ontime-font-family;
+  display: grid;
+  grid-template-areas:
+          "binder ...        ...   ..."
+          "binder pb-actions times actions"
+          "binder pb-actions title title"
+          "binder pb-actions estatus estatus"
+          "binder ...        ...     ...";
+
+  grid-template-columns: $block-binder-width auto 1fr auto;
+  grid-template-rows: 4px 36px 36px 36px 4px;
+  align-items: center;
+  margin: 4px 2px;
+  padding-right: $block-clearance;
+
+  border-radius: $block-border-radius;
+  gap: 2px;
+
+  background-color: $block-bg;
+  border: 1px solid #383838;
+  box-shadow: $block-box-shadow;
+
+  &.selected {
+    background-color: #101010;
+  }
+
+  &.hasCursor {
+    outline: 1px solid #779BE7;
+  }
+
+  &.skip {
+    border: 1px solid rgba(white, 0.03);
+    box-shadow: none;
+
+    .delayNote,
+    .eventTitle,
+    .eventNote,
+    .binder,
+    .eventTimers,
+    .eventStatus {
+      opacity: $opacity-disabled;
+    }
+  }
+}
+
+.binder {
+  grid-area: binder;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  position: relative;
+  cursor: pointer;
+
+  border-radius: $block-border-radius 0 0 $block-border-radius;
+
+  background-color: #303030; // to override inline
+  color: $section-white;
+  font-size: 17px;
+
+  .drag {
+    @include drag-style;
+    position: absolute;
+  }
+}
+
+.playbackActions {
+  grid-area: pb-actions;
+  display: flex;
+  flex-direction: column;
+  margin: 0 8px;
+  gap: 6px;
+}
+
+.eventTimers {
+  grid-area: times;
+  display: flex;
+  align-items: center;
+  gap: $block-clearance;
+  height: 100%;
+
+  .delayNote {
+    font-size: 12px;
+    line-height: 14px;
+    color: #E69056;
+  }
+}
+
+.eventTitle {
+  grid-area: title;
+  display: block;
+  font-size: 18px;
+
+  &.noTitle {
+    .eventTitle__preview {
+      opacity: $opacity-disabled;
+    }
+  }
+}
+
+.eventActions {
+  grid-area: actions;
+  display: flex;
+  gap: $block-clearance;
+  justify-content: flex-end;
+}
+
+
+.eventOptions {
+  margin: $element-spacing 16px $element-spacing 0;
+}
+
+.progressBg {
+  grid-area: progb;
+  border-radius: 2px;
+  background-color: #282828;
+  opacity: 1;
+  height: 100%;
+}
+
+.progressBg.hidden {
+  opacity: 0;
+}
+
+.flip {
+  transform: rotateY(180deg);
+}
 
 .statusElements {
   grid-area: estatus;
@@ -9,189 +137,40 @@
           "progb progb";
   gap: 2px;
   grid-template-rows: auto 4px;
-
-  .eventNote {
-    grid-area: notes;
-    display: block;
-    font-size: 15px;
-    color: $notes-color;
-    line-height: 15px;
-  }
-
-  .eventStatus {
-    grid-area: status;
-
-    display: flex;
-    justify-content: flex-end;
-    gap: $element-spacing;
-
-    .statusIcon {
-      width: 24px;
-      height: 24px;
-      border-radius: 12px;
-      padding: 4px;
-      color: $text-gray-disabled;
-    }
-
-    .statusIcon.statusNext {
-      border: 1px solid transparent;
-
-      &.enabled {
-        color: $text-white;
-        background-color: $ontime-accent;
-      }
-    }
-
-    .statusIcon.statusDelay {
-      &.enabled {
-        color: $text-white;
-        background-color: $ontime-delay;
-      }
-    }
-
-    .statusIcon.statusPublic {
-      &.enabled {
-        color: $text-white;
-        background-color: $ontime-roll;
-      }
-    }
-  }
-}
-
-.eventBlock {
-  // layout
-  display: grid;
-  grid-template-areas:
-          "binder pb-actions times actions"
-          "binder pb-actions title title"
-          "binder pb-actions estatus estatus";
-  grid-template-columns: $binder-width auto 1fr auto;
-  grid-template-rows: 36px 36px 36px;
   align-items: center;
-  margin: 4px 2px;
-  padding-right: $clearance;
-
-  // style - general
-  border-radius: $block-border-radius;
-  gap: 2px;
-
-  // style - colour
-  background-color: $bg-container-l2;
-  border: $border-l3;
-
-    // variant
-  &.selected {
-    background-color: $bg-container-l3;
-  }
-
-  &.skip {
-    background-color: $bg-gray-1000;
-    border: 1px solid transparent;
-
-    .eventTimers > .delayNote,
-    .eventTitle,
-    .eventNote {
-      color: $text-gray-disabled;
-    }
-
-    .binder,
-    .eventTimers,
-    .eventStatus {
-      opacity: $opacity-disabled;
-    }
-  }
-
-  .binder {
-    // layout
-    grid-area: binder;
-    height: 100%;
-    display: grid;
-    place-content: center;
-    position: relative;
-    cursor: pointer;
-
-    // style - general
-    border-radius: 3px 0 0 3px;
-    border-right: 1px solid $bg-gray-900;
-
-    // style - colour
-    background-color: $bg-container-l3; // override inline
-    color: $text-white;
-
-    .drag {
-      @include drag-style;
-      position: absolute;
-    }
-  }
-
-  .playbackActions {
-    // layout
-    grid-area: pb-actions;
-    display: flex;
-    flex-direction: column;
-    margin: $element-spacing $clearance $element-spacing $element-spacing;
-    // style - general
-    gap: 6px;
-  }
-
-  .eventTimers {
-    grid-area: times;
-    display: flex;
-    align-items: center;
-    gap: $clearance;
-    height: 100%;
-
-    .delayNote {
-      font-size: 11px;
-      color: $text-delay;
-    }
-  }
-
-  .eventTitle {
-    grid-area: title;
-    display: block;
-    font-size: 18px;
-
-    .eventTitle__preview {
-      width: 100%;
-    }
-
-    &.noTitle {
-      span {
-        opacity: $opacity-disabled;
-      }
-    }
-
-    input {
-      border-radius: 2px;
-      border: 1px;
-    }
-  }
-
-  .eventActions {
-    grid-area: actions;
-
-    display: flex;
-    gap: $element-spacing;
-    justify-content: flex-end;
-  }
-
-
-  .eventOptions {
-    margin: $element-spacing 16px $element-spacing 0;
-  }
-}
-
-.progressBg {
-  grid-area: progb;
-  border-radius: 1px;
-  background-color: $bg-container-l1;
-  opacity: 1;
-
-  // layout
   height: 100%;
+  padding: 2px 0;
 }
 
-.progressBg.hidden {
-  opacity: 0;
+.eventNote {
+  grid-area: notes;
+  display: block;
+  font-size: 13px;
+  color: $block-text-color;
+  line-height: 13px;
+}
+
+.eventStatus {
+  grid-area: status;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+
+  .statusIcon {
+    width: 16px;
+    height: 16px;
+    color: #404040;
+  }
+
+  .statusNext.enabled {
+    color: $playback-start;
+  }
+
+  .statusDelay.enabled {
+    color: $ontime-delay;
+  }
+
+  .statusPublic.enabled {
+    color: $action-blue;
+  }
 }

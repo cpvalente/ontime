@@ -1,8 +1,13 @@
+@use '../../theme/ontimeColours' as *;
+
 $block-gap: 4px;
-$element-spacing: 4px;
-$binder-width: 32px;
-$clearance: 8px;
-$block-border-radius: 3px;
+$block-element-spacing: 4px;
+$block-binder-width: 32px;
+$block-clearance: 8px;
+$block-border-radius: 8px;
+$block-text-color: $gray-50;
+$block-bg: $gray-1200;
+$block-box-shadow: rgba(0, 0, 0, 0.5) 0 0 3px 2px;
 
 @mixin block-spacing() {
   padding: 4px 10px 4px 2px;

@@ -1,6 +1,9 @@
 @use 'main' as *;
 @use 'viewerCommon' as *;
 
+// Text
+$ontime-font-family: "Open Sans", "Segoe UI", sans-serif; // --font-family-override
+
 // General styling
 $accent-color: $ontime-pink; // --accent-color-override
 $delay-color: $delay-text;

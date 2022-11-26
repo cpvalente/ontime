@@ -75,7 +75,7 @@ $button-color-white: $gray-50;
 }
 
 .tapButton.stop {
-  @include tap-factory($ontime-red);
+  @include tap-factory($ontime-stop);
 }
 
 .tapButton.square {

@@ -9,8 +9,10 @@ import {
   MenuList,
   Switch,
 } from '@chakra-ui/react';
+import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
+import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { CursorContext } from 'common/context/CursorContext';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -62,17 +64,17 @@ const RundownMenu = () => {
           Add event
         </MenuButton>
         <MenuList>
-          <MenuItem onClick={() => eventAction('event')}>
+          <MenuItem  icon={<IoAdd />} onClick={() => eventAction('event')}>
             Event at start
           </MenuItem>
-          <MenuItem onClick={() => eventAction('delay')}>
+          <MenuItem icon={<IoTimerOutline />} onClick={() => eventAction('delay')}>
             Delay at start
           </MenuItem>
-          <MenuItem onClick={() => eventAction('block')}>
+          <MenuItem icon={<FiMinusCircle />} onClick={() => eventAction('block')}>
             Block at start
           </MenuItem>
           <MenuDivider />
-          <MenuItem icon={<IoTrash />} onClick={() => eventAction('delete-all')} color='#D20300'>
+          <MenuItem icon={<FiTrash2 />} onClick={() => eventAction('delete-all')} color='#D20300'>
             Delete All
           </MenuItem>
         </MenuList>

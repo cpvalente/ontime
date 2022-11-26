@@ -137,7 +137,8 @@ export default function TimeInput(props) {
             variant='ontime-subtle'
             className={`${style.inputButton} ${isDelayed ? style.delayed : ''}`}
             tabIndex={-1}
-            border={isDelayed ? '1px solid #d69e2e55' : '1px solid transparent'}
+            border={isDelayed ? '1px solid #E69056' : '1px solid transparent'}
+            borderRight='1px solid transparent'
             borderRadius='2px 0 0 2px'
           >
             <ButtonInitial />

@@ -1,14 +1,11 @@
-@use '../../../theme/main' as *;
-
-.inputButton {
-  border-radius: 2px 0 0 2px;
-}
+$input-font-size: 15px;
+$input-delayed-border-color: #E69056;
 
 .timeInput {
   width: fit-content !important;
 
   .inputField {
-    font-size: 1em;
+    font-size: $input-font-size;
     letter-spacing: 1px;
     width: 7.5em;
     padding: 0 0 0 2.6em;
@@ -16,12 +13,7 @@
 
   &.delayed {
     .inputField {
-      border: $input-delayed-border;
-      background-color: $input-bg-delayed;
-
-      &:hover {
-        background-color: $input-hover-bg-delayed;
-      }
+      border: 1px solid $input-delayed-border-color;
     }
   }
 }
