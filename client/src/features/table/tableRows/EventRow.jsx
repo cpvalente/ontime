@@ -12,8 +12,6 @@ export default function EventRow(props) {
     ? getAccessibleColour(row.original.colour)
     : {};
 
-  console.log(colours);
-
   return (
     <tr {...row.getRowProps()} className={selected ? style.selected : ''} id={row.original.id}>
       <td className={style.indexColumn}>{index}</td>
