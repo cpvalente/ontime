@@ -68,7 +68,7 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
             onClick={() => handleCreateEvent('event')}
             size='xs'
             variant='ontime-subtle'
-            className={`${style.quickBtn} ${style.createBlock}`}
+            className={`${style.quickBtn} ${style.createEvent}`}
           >
             E{showKbd && <span className={style.keyboard}>Alt + E</span>}
           </Button>
@@ -90,7 +90,7 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
             size='xs'
             variant='ontime-subtle'
             disabled={disableAddBlock}
-            className={`${style.quickBtn} ${style.createEvent}`}
+            className={`${style.quickBtn} ${style.createBlock}`}
           >
             B{showKbd && <span className={style.keyboard}>Alt + B</span>}
           </Button>
