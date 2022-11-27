@@ -30,7 +30,11 @@ let isQuitting = false;
 
 (async () => {
   try {
-    const dbLoader = await import('./src/modules/loadDb.js');
+    const loadDepPath = isProduction
+      ? path.join('file://', __dirname, '../', 'extraResources', 'src/modules/loadDb.js')
+      : path.join('file://', __dirname, 'src/modules/loadDb.js');
+
+    const dbLoader = await import(loadDepPath);
 
     await dbLoader.promise;
     const { startServer, startOSCServer } = await import(nodePath);

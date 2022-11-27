@@ -20,17 +20,6 @@
   align-self: center;
 }
 
-.cursor {
-  border-radius: 3px;
-  outline: 1px solid $action-blue;
-}
-
-.bgElement {
-  &.delayed {
-    background: rgba($block-delay-color, 0.3);
-  }
-}
-
 .alignCenter {
   text-align: center;
   flex-direction: column;

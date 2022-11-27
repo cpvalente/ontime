@@ -1,8 +1,8 @@
 import { useInfoPanel } from '../../common/hooks/useSocket';
 
+import InfoTitle from './CollapsableInfo';
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';
-import InfoTitle from './InfoTitle';
 
 import style from './Info.module.scss';
 
@@ -31,7 +31,7 @@ export default function Info() {
 
   return (
     <>
-      <div className={style.main}>
+      <div className={style.panelHeader}>
         <span>Ontime running on port 4001</span>
         <span>{selected}</span>
       </div>

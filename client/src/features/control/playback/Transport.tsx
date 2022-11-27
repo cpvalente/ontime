@@ -1,7 +1,7 @@
 import { Tooltip } from '@chakra-ui/react';
-import { IoPlayBack } from '@react-icons/all-files/io5/IoPlayBack';
 import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
+import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 
 import { setPlayback } from '../../../common/hooks/useSocket';
@@ -14,7 +14,7 @@ import style from './PlaybackControl.module.scss';
 
 interface TransportProps {
   playback: Playstate;
-  selectedId: string;
+  selectedId: string | null;
   noEvents: boolean;
 }
 
@@ -45,10 +45,10 @@ export default function Transport(props: TransportProps) {
           onClick={() => setPlayback.reload()}
           disabled={selectedId == null || isRolling || noEvents}
         >
-          <IoPlayBack />
+          <IoReload className={style.invertX} />
         </TapButton>
       </Tooltip>
-      <Tooltip label='Unload Event' openDelay={100}>
+      <Tooltip label='Unload Event' openDelay={tooltipDelayMid}>
         <TapButton
           onClick={() => setPlayback.stop()}
           disabled={(selectedId == null && !isRolling) || noEvents}

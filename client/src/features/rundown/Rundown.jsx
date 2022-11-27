@@ -1,4 +1,4 @@
-import { createRef, useCallback, useContext, useEffect } from 'react';
+import { createRef, Fragment, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { Button } from '@chakra-ui/react';
 import {
@@ -13,8 +13,6 @@ import { useRundownEditor } from 'common/hooks/useSocket';
 import { duplicateEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
-
-import useSubscription from '../../common/hooks/useSubscription';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEntry from './RundownEntry';
@@ -32,8 +30,6 @@ export default function Rundown(props) {
   const { addEvent, reorderEvent } = useEventAction();
   const cursorRef = createRef();
   const showQuickEntry = useAtomValue(showQuickEntryAtom);
-  const [selectedId] = useSubscription('selected-id', null);
-  const [nextId] = useSubscription('next-id', null);
 
   const insertAtCursor = useCallback(
     (type, cursor) => {
@@ -83,20 +79,17 @@ export default function Rundown(props) {
         if (event.keyCode === 38) {
           if (cursor > 0) moveCursorUp();
         }
-        // E
-        if (event.code === "KeyE") {
+        if (event.code === 'KeyE') {
           event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('event', cursor);
         }
-        // D
-        if (event.code === "KeyD") {
+        if (event.code === 'KeyD') {
           event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('delay', cursor);
         }
-        // B
-        if (event.code === "KeyB") {
+        if (event.code === 'KeyB') {
           event.preventDefault();
           if (cursor == null) return;
           insertAtCursor('block', cursor);
@@ -166,7 +159,7 @@ export default function Rundown(props) {
     [reorderEvent],
   );
 
-  if (entries.length < 1) {
+  if (!entries.length) {
     return (
       <div className={style.alignCenter}>
         <Empty text='No data yet' style={{ marginTop: '7vh' }} />
@@ -209,25 +202,19 @@ export default function Rundown(props) {
                 }
                 const isLast = index === entries.length - 1;
                 return (
-                  <div
-                    key={entry.id}
-                    className={`${style.bgElement}
-                    ${entry.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
-                  >
-                    <div
-                      ref={cursor === index ? cursorRef : undefined}
-                      className={cursor === index ? style.cursor : ''}
-                    >
+                  <Fragment key={entry.id}>
+                    <div ref={cursor === index ? cursorRef : undefined}>
                       <RundownEntry
                         type={entry.type}
                         index={index}
                         eventIndex={eventIndex}
                         data={entry}
-                        selected={selectedId === entry.id}
-                        next={nextId === entry.id}
+                        selected={data.selectedEventId === entry.id}
+                        hasCursor={cursor === index}
+                        next={data.nextEventId === entry.id}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
-                        playback={selectedId === entry.id ? data.playback : undefined}
+                        playback={data.selectedEventId === entry.id ? data.playback : undefined}
                       />
                     </div>
                     {((showQuickEntry && index === cursor) || isLast) && (
@@ -239,7 +226,7 @@ export default function Rundown(props) {
                         disableAddBlock={entry.type === 'block'}
                       />
                     )}
-                  </div>
+                  </Fragment>
                 );
               })}
               {provided.placeholder}

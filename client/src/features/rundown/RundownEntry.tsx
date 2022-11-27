@@ -32,6 +32,7 @@ interface RundownEntryProps {
   eventIndex: number;
   data: OntimeRundownEntry;
   selected: boolean;
+  hasCursor: boolean;
   next: boolean;
   delay: number;
   previousEnd: number;
@@ -39,7 +40,7 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { index, eventIndex, data, selected, next, delay, previousEnd, playback } = props;
+  const { index, eventIndex, data, selected, hasCursor, next, delay, previousEnd, playback } = props;
   const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
@@ -53,7 +54,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     value: unknown;
   }
   const actionHandler = useCallback(
-    (action: EventItemActions, payload: number | FieldValue) => {
+    (action: EventItemActions, payload?: number | FieldValue) => {
       switch (action) {
         case 'set-cursor': {
           moveCursorTo(payload as number);
@@ -151,6 +152,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         next={next}
         skip={data.skip}
         selected={selected}
+        hasCursor={hasCursor}
         playback={playback}
         actionHandler={actionHandler}
       />

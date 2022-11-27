@@ -1,16 +1,17 @@
 import { Input } from '@chakra-ui/react';
-import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
+import { IoEye } from '@react-icons/all-files/io5/IoEye';
+import { IoEyeOffOutline } from '@react-icons/all-files/io5/IoEyeOffOutline';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
-import style from './MessageControl.module.scss';
+import style from './InputRow.module.scss';
 
 interface InputRowProps {
   label: string;
   placeholder: string;
   text: string;
-  visible: boolean;
+  visible?: boolean;
   actionHandler: (action: string, payload: object) => void;
   changeHandler: (newValue: string) => void;
 }
@@ -23,12 +24,12 @@ export default function InputRow(props: InputRowProps) {
   };
 
   return (
-    <div className={`${visible ? style.inputRowActive : ''}`}>
-      <label className={style.label}>{label}</label>
+    <div className={style.inputRow}>
+      <label className={`${style.label} ${visible ? style.active : ''}`}>{label}</label>
       <div className={style.inputItems}>
         <Input
           size='sm'
-          variant='filled'
+          variant='ontime-filled'
           value={text}
           onChange={(event) => handleInputChange(event.target.value)}
           placeholder={placeholder}
@@ -38,9 +39,8 @@ export default function InputRow(props: InputRowProps) {
           tooltip={visible ? 'Make invisible' : 'Make visible'}
           aria-label={`Toggle ${label}`}
           openDelay={tooltipDelayMid}
-          icon={<IoSunny size='18px' />}
-          colorScheme='blue'
-          variant={visible ? 'solid' : 'outline'}
+          icon={visible? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
+          variant={visible ? 'ontime-filled' : 'ontime-subtle'}
           size='sm'
         />
       </div>

@@ -426,7 +426,8 @@ export class EventTimer extends Timer {
       return;
     }
 
-    const { loadedEvent, loadedEventIndex, loadedEventId, titles, titlesPublic } = loadedData;
+    const { loadedEvent, loadedEventIndex, selectedEventId, nextEventId, titles, titlesPublic } =
+      loadedData;
 
     const start = loadedEvent.timeStart || 0;
     let end = loadedEvent.timeEnd || 0;
@@ -438,7 +439,9 @@ export class EventTimer extends Timer {
 
     this.duration = end - start;
     this.selectedEventIndex = loadedEventIndex;
-    this.selectedEventId = loadedEventId;
+    this.selectedEventId = selectedEventId;
+    this.nextEventId = nextEventId;
+
     if (type === 'load') {
       this._resetTimers();
       this.current = this.duration;

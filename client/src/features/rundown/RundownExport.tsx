@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
+import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import { CursorProvider } from 'common/context/CursorContext';
 import { handleLinks } from 'common/utils/linkUtils';
@@ -12,7 +12,7 @@ export default function RundownExport() {
   return (
     <CursorProvider>
       <Box className={style.editor} data-testid='panel-rundown'>
-        <FiArrowUpRight
+        <IoArrowUp
           className={style.corner}
           onClick={(event) => handleLinks(event, 'rundown')}
         />

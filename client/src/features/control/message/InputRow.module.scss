@@ -1,0 +1,17 @@
+@use '../../../theme/v2Styles' as *;
+
+.inputItems {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: $element-spacing;
+  margin-top: $element-inner-spacing;
+}
+
+.label {
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+
+  &.active {
+    color: $action-text-color;
+  }
+}

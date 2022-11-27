@@ -5,12 +5,13 @@
   top: $distance;
   right: $distance;
   cursor: pointer;
-  color: $ontime-pink;
+  color: #f2f2f2;
 }
 
 .corner {
   display: none;
   @include absolute-top-right(8px);
+  transform: rotate(45deg);
 }
 
 .mainContainer {
@@ -20,10 +21,11 @@
   margin: auto;
   color: $title-white;
   padding: max(16px, 2vh) max(8px, 1vh);
+  font-family: "Open Sans", "Segoe UI", sans-serif;
 
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: 48px 46em 30em auto;
+  grid-template-columns: 48px 46em 450px auto;
   grid-template-areas:
     'sett even play info'
     'sett even mess info';
@@ -130,17 +132,17 @@
 }
 
 .eventEditor {
-  border-radius: 3px 3px 0 0;
-  background-color: $bg-black;
+  border-radius: 8px 8px 0 0;
+  background-color: #202020;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 3px 6px 6px;
   border-top: 1px solid $bg-gray-900;
   position: absolute;
   bottom: 0;
   width: 100vw;
-  max-height: 40vh;
   left: 0;
   z-index: 10;
   color: white;
-  transition: bottom 0.3s;
+  transition: bottom 0.3s; // $transition-time
 
   &.noEvent {
     bottom: -500px;
@@ -152,7 +154,7 @@
   }
 
   .header {
-    background-color: $bg-black;
+    background-color: #202020;
     padding: 8px;
     border-left: 1px solid $bg-container-l3;
   }
@@ -186,9 +188,9 @@
 
 .playback {
   grid-area: play;
-  min-height: 275px;
+  min-height: 250px;
   max-height: 380px;
-  min-width: 480px;
+  min-width: 450px;
 }
 
 .mainContainer > .settings {

@@ -1,49 +1,18 @@
-@use '../../../theme/main' as *;
 @use '../blockMixins' as *;
-
-/* ============= COMMON ============= */
 
 .delay {
   @include block-spacing;
+  @include block-styling;
 
-  box-sizing: content-box;
   display: grid;
   grid-template-columns: 32px 1fr auto;
   grid-template-areas: 'drag inpt btns';
   align-items: center;
-  height: 40px;
-  border-radius: 2px;
-  border: $border-l3;
-  border-top: 4px solid $block-delay-color;
-  background-color: $bg-container-l2;
-
+  height: $secondary-block-height;
+  gap: 8px;
 }
-
-/* ================ DRAG ================ */
 
 .drag {
-  grid-area: drag;
   @include drag-style;
-  color: $block-delay-color;
-}
-
-/* =============== INPUT ================ */
-
-.input {
-  grid-area: inpt;
-}
-
-/* ============== ACTION ================ */
-
-.actionOverlay {
-  @include action-overlay;
-}
-
-.delay:hover > .actionOverlay {
-  @include block-hover;
-}
-
-/* NA */
-.actionOverlay:hover {
-  opacity: 1;
+  grid-area: drag;
 }

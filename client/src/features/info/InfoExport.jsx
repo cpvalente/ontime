@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
+import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import ErrorBoundary from '../../common/components/errorBoundary/ErrorBoundary';
 import { handleLinks } from '../../common/utils/linkUtils';
@@ -11,7 +11,7 @@ import style from '../editors/Editor.module.scss';
 export default function InfoExport() {
   return (
     <Box className={style.info} data-testid="panel-info">
-      <FiArrowUpRight className={style.corner} onClick={(event) => handleLinks(event, 'info')} />
+      <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'info')} />
       <div className={style.content}>
         <ErrorBoundary>
           <Info />

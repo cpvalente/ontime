@@ -1,39 +1,20 @@
-@use '../../../theme/main' as *;
 @use '../blockMixins' as *;
-
-/* ============= COMMON ============= */
 
 .block {
   @include block-spacing;
+  @include block-styling;
 
   box-sizing: content-box;
   display: grid;
-  grid-template-columns: 40px 1fr;
+  grid-template-columns: 32px 1fr;
   align-items: center;
-  height: 40px;
-  border-radius: 2px;
-  border: $border-l3;
-  border-bottom: 4px solid $block-block-color;
-  background-color: $bg-container-l2;
+  height: $secondary-block-height;
 }
 
-/* ================ DRAG ================ */
 .drag {
   @include drag-style;
-  color: $block-block-color;
 }
 
-/* ============== ACTION ================ */
 .actionOverlay {
-  @include action-overlay;
-  justify-self: end;
-}
-
-.block:hover > .actionOverlay {
-  @include block-hover;
-}
-
-/* NA */
-.actionOverlay:hover {
-  opacity: 1;
+  justify-self: flex-end;
 }
