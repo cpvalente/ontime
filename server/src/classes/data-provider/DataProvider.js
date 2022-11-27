@@ -2,7 +2,7 @@
  * Class Event Provider is a mediator for handling the local db
  * and adds logic specific to ontime data
  */
-import { db, data } from '../../modules/loadDb.js';
+import { data, db } from '../../modules/loadDb.js';
 
 export class DataProvider {
   static getData() {
@@ -42,7 +42,7 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getNumEvents() {
+  static getRundownLenght() {
     return data.rundown.length;
   }
 

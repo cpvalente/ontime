@@ -4,7 +4,6 @@ import { OSCIntegration } from './integrations/Osc.js';
 import { HTTPIntegration } from './integrations/Http.js';
 import { cleanURL } from '../../utils/url.js';
 import { EventLoader, eventLoader } from '../event-loader/EventLoader.js';
-import { DataProvider } from '../data-provider/DataProvider.js';
 
 /*
  * Class EventTimer adds functions specific to APP
@@ -143,7 +142,7 @@ export class EventTimer extends Timer {
    * @private
    */
   _broadcastFeaturePlaybackControl() {
-    const numEvents = DataProvider.getNumEvents();
+    const numEvents = EventLoader.getNumEvents();
     const featureData = {
       playback: this.state,
       selectedEventId: this.selectedEventId,
@@ -157,7 +156,7 @@ export class EventTimer extends Timer {
    * @private
    */
   _broadcastFeatureInfo() {
-    const numEvents = DataProvider.getNumEvents();
+    const numEvents = EventLoader.getNumEvents();
     const featureData = {
       titles: this.titles,
       playback: this.state,
@@ -169,7 +168,7 @@ export class EventTimer extends Timer {
   }
 
   _broadcastFeatureCuesheet() {
-    const numEvents = DataProvider.getNumEvents();
+    const numEvents = EventLoader.getNumEvents();
     const featureData = {
       playback: this.state,
       selectedEventId: this.selectedEventId,

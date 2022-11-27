@@ -104,7 +104,7 @@ export function getTimedEvents() {
  * @return {unknown[]}
  */
 export async function addEvent(eventData) {
-  const numEvents = DataProvider.getNumEvents();
+  const numEvents = DataProvider.getRundownLenght();
   if (numEvents > MAX_EVENTS) {
     throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
   }
