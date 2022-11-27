@@ -1,5 +1,5 @@
 import { useCallback, useContext } from 'react';
-import TimeInput from 'common/components/input/time-input/TimeInput';
+import TimeInput from 'common/components/input/TimeInput';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import { stringFromMillis } from 'common/utils/time';

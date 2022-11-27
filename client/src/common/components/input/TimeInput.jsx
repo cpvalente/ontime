@@ -5,7 +5,7 @@ import { forgivingStringToMillis } from 'common/utils/dateConfig';
 import { stringFromMillis } from 'common/utils/time';
 import PropTypes from 'prop-types';
 
-import { tooltipDelayFast } from '../../../../ontimeConfig';
+import { tooltipDelayFast } from '../../../ontimeConfig';
 
 import style from './TimeInput.module.scss';
 
