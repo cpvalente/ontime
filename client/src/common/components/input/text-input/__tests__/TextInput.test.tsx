@@ -9,7 +9,8 @@ describe('TextInput component', () => {
     it('renders correctly', () => {
       const testField = 'test';
       const testText = 'Test 123';
-      render(<TextInput field={testField} initialText={testText} />);
+      const submitHandler = vi.fn();
+      render(<TextInput field={testField} initialText={testText} submitHandler={submitHandler} />);
 
       const input = screen.getByTestId('input-textfield');
       expect(input).toBeInTheDocument();
@@ -19,7 +20,9 @@ describe('TextInput component', () => {
     it('Handles renders as textarea', () => {
       const testField = 'test';
       const testText = 'Test 123';
-      render(<TextInput field={testField} initialText={testText} isTextArea />);
+      const submitHandler = vi.fn();
+      render(<TextInput field={testField} initialText={testText} isTextArea
+                        submitHandler={submitHandler} />);
 
       const input = screen.getByTestId('input-textarea');
       expect(input).toBeInTheDocument();
@@ -87,7 +90,7 @@ describe('TextInput component', () => {
     it('handles undefined value', () => {
       const testField = 'test';
       const expected = '';
-      render(<TextInput field={testField} />);
+      render(<TextInput field={testField} submitHandler={vi.fn()} />);
       const input = screen.getByTestId('input-textfield');
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue(expected);
