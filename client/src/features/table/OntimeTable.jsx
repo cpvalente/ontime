@@ -82,7 +82,6 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
   );
 
   const handleResetReordering = useCallback(() => {
-    console.log('called reset', defaultColumnOrder)
     saveColumnOrder(defaultColumnOrder);
     setColumnOrder(defaultColumnOrder);
   }, [saveColumnOrder, setColumnOrder]);

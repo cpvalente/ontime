@@ -1,11 +1,13 @@
 @use "../../../theme/v2Styles" as *;
 @use "../../../theme/mixins" as *;
+@use "../../../theme/ontimeColours" as *;
 
-$menu-hover-bg: #101010;
-$menu-focus-bg: #181818;
+$menu-bg: $gray-1200;
+$menu-hover-bg: $gray-1350;
+$menu-focus-bg: $gray-1300;
 
-$icon-color: #f6f6f6;
-$button-bg: #303030;
+$icon-color: $ui-white;
+$button-bg: $gray-1050;
 $button-size: 48px;
 
 .mirror {
@@ -37,10 +39,9 @@ $button-size: 48px;
 .menuContainer {
   top: 0;
   left: 0;
-  font-family: $ontime-font-family;
   height: fit-content;
   position: absolute;
-  background-color: $bg-container-l1;
+  background-color: $menu-bg;
   min-width: 200px;
   border-radius: 0 0 24px 0;
   border-right: 1px solid $border-color-ondark;
@@ -81,7 +82,6 @@ $button-size: 48px;
     border-left: 4px solid $action-text-color;
   }
 }
-
 
 .linkIcon {
   display: inline-block;

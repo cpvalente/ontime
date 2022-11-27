@@ -37,14 +37,13 @@ useEffect(() => {
 return (
   <AutoTextArea
     size='sm'
-    borderColor='#0001'
     value={value}
     onChange={onChange}
     onBlur={onBlur}
     rows={3}
     transition='none'
     spellCheck={false}
-    color={theme === "dark" ? "#fffffa" : "black"}
+    isDark={theme === "dark"}
   />
 );
 }

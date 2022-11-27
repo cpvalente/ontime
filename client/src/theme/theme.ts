@@ -10,7 +10,11 @@ import { ontimeCheckboxOnDark } from './ontimeCheckbox';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeSelect } from './ontimeSelect';
 import { ontimeSwitch } from './ontimeSwitch';
-import { ontimeInputFilled, ontimeTextAreaFilled } from './ontimeTextInputs';
+import {
+  ontimeInputFilled,
+  ontimeTextAreaFilled,
+  ontimeTextAreaFilledOnLight,
+} from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
 
 const theme = extendTheme({
@@ -57,6 +61,7 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeTextAreaFilled },
+        'ontime-filled-onlight': { ...ontimeTextAreaFilledOnLight },
       },
     },
     Tooltip: {

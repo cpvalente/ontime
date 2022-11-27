@@ -24,3 +24,20 @@ export const ontimeInputFilled = {
 export const ontimeTextAreaFilled = {
   ...commonStyles,
 };
+
+export const ontimeTextAreaFilledOnLight = {
+  borderRadius: '3px',
+  fontWeight: '400',
+  backgroundColor: '#ececec',  // $gray-100
+  color: '#202020', // $gray-1200
+  border: '1px solid transparent',
+  _hover: {
+    backgroundColor: '#cfcfcf', // $gray-300
+  },
+  _focus: {
+    backgroundColor: '#cfcfcf', // $gray-300
+    color: '#101010',
+    border: '1px solid #578AF4', // $blue-500
+  },
+  _placeholder: { color: '#9d9d9d' }, // $gray-500
+}
