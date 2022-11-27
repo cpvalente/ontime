@@ -10,12 +10,12 @@
     "express-validator": "^6.14.2",
     "lowdb": "3.0.0",
     "multer": "^1.4.4",
-    "nanoid": "^3.3.3",
+    "nanoid": "^4.0.0",
     "node-osc": "^8.0.6",
     "node-xlsx": "^0.21.0",
     "passport": "^0.6.0",
     "passport-local": "~1.0.0",
-    "socket.io": "^4.5.2"
+    "socket.io": "^4.5.4"
   },
   "devDependencies": {
     "eslint": "^8.25.0"
