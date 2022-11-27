@@ -1,5 +1,5 @@
 import { useCallback, useContext, useRef } from 'react';
-import { Checkbox, Tooltip } from '@chakra-ui/react';
+import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
 import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEventSettings';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
@@ -31,7 +31,7 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const doStartTime = useRef<HTMLInputElement | null>(null);
-  const doPublic = useRef<HTMLInputElement | null>(null)
+  const doPublic = useRef<HTMLInputElement | null>(null);
 
   const handleCreateEvent = useCallback((eventType: EventTypes) => {
     switch (eventType) {
@@ -62,38 +62,45 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
 
   return (
     <div className={style.quickAdd}>
-      <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
-        <span
-          className={style.createEvent}
-          onClick={() => handleCreateEvent('event')}
-          role='button'
-        >
-          E{showKbd && <span className={style.keyboard}>Alt + E</span>}
-        </span>
-      </Tooltip>
-      <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
-        <span
-          className={`${style.createDelay} ${disableAddDelay ? style.disabled : ''}`}
-          onClick={() => handleCreateEvent('delay')}
-          role='button'
-        >
-          D{showKbd && <span className={style.keyboard}>Alt + D</span>}
-        </span>
-      </Tooltip>
-      <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
-        <span
-          className={`${style.createBlock} ${disableAddBlock ? style.disabled : ''}`}
-          onClick={() => handleCreateEvent('block')}
-          role='button'
-        >
-          B{showKbd && <span className={style.keyboard}>Alt + B</span>}
-        </span>
-      </Tooltip>
+      <div className={style.btnRow}>
+        <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
+          <Button
+            onClick={() => handleCreateEvent('event')}
+            size='xs'
+            variant='ontime-subtle'
+            className={`${style.quickBtn} ${style.createBlock}`}
+          >
+            E{showKbd && <span className={style.keyboard}>Alt + E</span>}
+          </Button>
+        </Tooltip>
+        <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
+          <Button
+            onClick={() => handleCreateEvent('delay')}
+            size='xs'
+            variant='ontime-subtle'
+            disabled={disableAddDelay}
+            className={`${style.quickBtn} ${style.createDelay}`}
+          >
+            D{showKbd && <span className={style.keyboard}>Alt + D</span>}
+          </Button>
+        </Tooltip>
+        <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
+          <Button
+            onClick={() => handleCreateEvent('block')}
+            size='xs'
+            variant='ontime-subtle'
+            disabled={disableAddBlock}
+            className={`${style.quickBtn} ${style.createEvent}`}
+          >
+            B{showKbd && <span className={style.keyboard}>Alt + B</span>}
+          </Button>
+        </Tooltip>
+      </div>
       <div className={style.options}>
         <Checkbox
           ref={doStartTime}
           size='sm'
-          colorScheme='blue'
+          variant='ontime-ondark'
           defaultChecked={startTimeIsLastEnd}
         >
           Start time is last end
@@ -101,7 +108,7 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
         <Checkbox
           ref={doPublic}
           size='sm'
-          colorScheme='blue'
+          variant='ontime-ondark'
           defaultChecked={defaultPublic}
         >
           Event is public

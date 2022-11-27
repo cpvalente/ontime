@@ -1,85 +1,45 @@
 @use '../../../theme/main' as *;
 
 .quickAdd {
-  background-color: $bg-container-l2;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: center;
-  gap: 5%;
-  margin: 4px 2px 2px;
+  margin: 4px 2px;
   font-size: 12px;
+}
 
-  .createEvent,
-  .createDelay,
-  .createBlock {
+.btnRow {
+  justify-self: center;
+  display: flex;
+  gap: 10%;
+
+  .quickBtn {
     width: auto;
     padding: 0 16px;
-    height: 24px;
-    text-align: center;
-    vertical-align: center;
-    font-weight: 600;
-    line-height: 21px;
-    border-radius: 2px;
-    opacity: 0.6;
-    cursor: pointer;
   }
 
   .createEvent {
-    border: 1px solid $light-bg;
-    color: lighten($light-bg, 30%);
-
-    &:hover {
-      background-color: $light-bg;
-      opacity: 1;
-    }
+    color: $light-bg;
   }
 
   .createDelay {
-    border: 1px solid $block-delay-color;
-    color: lighten($block-delay-color, 30%);
-
-    &:hover {
-      background-color: $block-delay-color;
-      opacity: 1;
-    }
+    color: $block-delay-color;
   }
 
   .createBlock {
-    border: 1px solid $block-block-color;
-    color: lighten($block-block-color, 30%);
-
-    &:hover {
-      background-color: $block-block-color;
-      opacity: 1;
-    }
+    color: $block-block-color;
   }
 }
 
 .keyboard {
-  margin-left: 4px;
+  margin-left: 8px;
   padding: 0 4px;
   color: $label-gray;
   border-radius: 2px;
-  background-color: rgba(0, 0, 0, 0.24);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .options {
   display: flex;
   flex-direction: column;
-
-  label {
-    opacity: 0.65;
-    transition: opacity 0.15s;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
-}
-
-.disabled {
-  border-color: $text-gray-disabled;
-  color: $text-gray-disabled;
-  pointer-events: none;
-  cursor: not-allowed;
 }

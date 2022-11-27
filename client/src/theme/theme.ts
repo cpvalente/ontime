@@ -6,6 +6,7 @@ import {
   ontimeButtonSubtle,
   ontimeButtonSubtleWhite,
 } from './ontimeButton';
+import { ontimeCheckboxOnDark } from './ontimeCheckbox';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeSelect } from './ontimeSelect';
 import { ontimeSwitch } from './ontimeSwitch';
@@ -23,6 +24,11 @@ const theme = extendTheme({
         'ontime-subtle': { ...ontimeButtonSubtle },
         'ontime-subtle-white': { ...ontimeButtonSubtleWhite },
       },
+    },
+    Checkbox: {
+      variants: {
+        'ontime-ondark': {...ontimeCheckboxOnDark},
+      }
     },
     Editable: {
       baseStyle: {
