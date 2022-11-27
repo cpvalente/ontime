@@ -11,6 +11,7 @@ import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeSelect } from './ontimeSelect';
 import { ontimeSwitch } from './ontimeSwitch';
 import { ontimeInputFilled, ontimeTextAreaFilled } from './ontimeTextInputs';
+import { ontimeTooltip } from './ontimeTooltip';
 
 const theme = extendTheme({
   components: {
@@ -27,8 +28,8 @@ const theme = extendTheme({
     },
     Checkbox: {
       variants: {
-        'ontime-ondark': {...ontimeCheckboxOnDark},
-      }
+        'ontime-ondark': { ...ontimeCheckboxOnDark },
+      },
     },
     Editable: {
       baseStyle: {
@@ -38,8 +39,8 @@ const theme = extendTheme({
         },
         preview: {
           width: '100%',
-        }
-      }
+        },
+      },
     },
     Input: {
       baseStyle: {
@@ -57,6 +58,9 @@ const theme = extendTheme({
       variants: {
         'ontime-filled': { ...ontimeTextAreaFilled },
       },
+    },
+    Tooltip: {
+      baseStyle: { ...ontimeTooltip},
     },
     Switch: {
       variants: {

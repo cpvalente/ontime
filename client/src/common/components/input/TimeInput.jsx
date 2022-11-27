@@ -131,10 +131,10 @@ export default function TimeInput(props) {
   return (
     <InputGroup size='sm' className={`${style.timeInput} ${isDelayed ? style.delayed : ''}`}>
       <InputLeftElement width='fit-content'>
-        <Tooltip label={<ButtonTooltip />} openDelay={tooltipDelayFast}>
+        <Tooltip label={<ButtonTooltip />} openDelay={tooltipDelayFast} variant='ontime-ondark'>
           <Button
             size='sm'
-            variant='ontime-subtle'
+            variant='ontime-subtle-white'
             className={`${style.inputButton} ${isDelayed ? style.delayed : ''}`}
             tabIndex={-1}
             border={isDelayed ? '1px solid #E69056' : '1px solid transparent'}

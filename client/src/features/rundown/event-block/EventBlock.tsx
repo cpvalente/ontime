@@ -192,7 +192,7 @@ export default function EventBlock(props: EventBlockProps) {
             onChange={(value) => setBlockTitle(value)}
             onSubmit={(value) => handleTitle(value)}
           >
-            <EditablePreview />
+            <EditablePreview className={style.preview} />
             <EditableInput />
           </Editable>
           <div className={style.statusElements}>

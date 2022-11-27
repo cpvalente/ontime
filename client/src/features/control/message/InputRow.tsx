@@ -40,7 +40,6 @@ export default function InputRow(props: InputRowProps) {
           aria-label={`Toggle ${label}`}
           openDelay={tooltipDelayMid}
           icon={visible? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
-          colorScheme='blue'
           variant={visible ? 'ontime-filled' : 'ontime-subtle'}
           size='sm'
         />

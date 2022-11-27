@@ -23,8 +23,6 @@ export default function DelayInput(props: DelayInputProps) {
   const [_value, setValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  console.log('debug value', value, typeof value)
-
   useEffect(() => {
     if (value == null) return;
     setValue(value);

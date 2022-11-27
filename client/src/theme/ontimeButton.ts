@@ -2,9 +2,6 @@ const commonStyles = {
   letterSpacing: '0.3px',
   fontWeight: '400',
   borderRadius: '3px',
-  // _disabled: {
-  //   pointerEvents: "none",
-  // },
 };
 
 export const ontimeButtonFilled = {
@@ -16,6 +13,10 @@ export const ontimeButtonFilled = {
     backgroundColor: '#0A43B9', // $blue-800
     border: '1px solid #0A43B9', // $blue-800
   },
+  _active: {
+    backgroundColor: '#0036A6', // blue-900
+    borderColor: '#002A90', // blue-1000
+  },
 };
 
 export const ontimeButtonOutlined = {
@@ -26,6 +27,10 @@ export const ontimeButtonOutlined = {
   _hover: {
     backgroundColor: '#404040', // $gray-1000
   },
+  _active: {
+    backgroundColor: '#2d2d2d', // $gray-1100
+    borderColor: '#202020', // $gray-12000
+  },
 };
 
 export const ontimeButtonSubtle = {
@@ -35,6 +40,10 @@ export const ontimeButtonSubtle = {
   border: '1px solid transparent',
   _hover: {
     background: '#404040', // $gray-1000
+  },
+  _active: {
+    backgroundColor: '#2d2d2d', // $gray-1100
+    borderColor: '#202020', // $gray-12000
   },
 };
 

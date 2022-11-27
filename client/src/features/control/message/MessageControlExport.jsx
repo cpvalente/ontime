@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { FiArrowUpRight } from '@react-icons/all-files/fi/FiArrowUpRight';
+import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import ErrorBoundary from '../../../common/components/errorBoundary/ErrorBoundary';
 import { handleLinks } from '../../../common/utils/linkUtils';
@@ -11,7 +11,7 @@ import style from '../../editors/Editor.module.scss';
 export default function MessageControlExport() {
   return (
     <Box className={style.messages} data-testid="panel-messages-control">
-      <FiArrowUpRight className={style.corner} onClick={(event) => handleLinks(event, 'messagecontrol')} />
+      <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'messagecontrol')} />
       <div className={style.content}>
         <ErrorBoundary>
           <MessageControl />

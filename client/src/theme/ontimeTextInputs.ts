@@ -12,6 +12,7 @@ const commonStyles = {
     color: '#f6f6f6', // $gray-50
     border: '1px solid #578AF4', // $blue-500
   },
+  _placeholder: { color: '#9d9d9d' }, // $gray-500
 };
 
 export const ontimeInputFilled = {
