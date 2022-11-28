@@ -165,8 +165,8 @@ export default function Rundown(props) {
         <Empty text='No data yet' style={{ marginTop: '7vh' }} />
         <Button
           onClick={() => insertAtCursor('event', cursor)}
-          variant='solid'
-          colorScheme='blue'
+          variant='ontime-filled'
+          className={style.spaceTop}
         >
           Create Event
         </Button>
