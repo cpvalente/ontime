@@ -43,7 +43,7 @@ jobs:
 
       # App
       - name: Electron - Install dependencies
-        run: yarn install && yarn setdb
+        run: yarn setup
         working-directory: ./server
 
       - name: Server - run tests
