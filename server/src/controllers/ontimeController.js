@@ -31,7 +31,7 @@ export const dbDownload = async (req, res) => {
   res.download(dbInDisk, `${fileTitle}.json`, (err) => {
     if (err) {
       res.status(500).send({
-        message: 'Could not download the file. ' + err,
+        message: `Could not download the file: ${err}`,
       });
     }
   });

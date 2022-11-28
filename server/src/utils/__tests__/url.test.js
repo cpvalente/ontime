@@ -1,6 +1,6 @@
 // test cleanURL()
 
-import {cleanURL} from "../url";
+import { cleanURL } from '../url';
 
 describe('url is correctly formatted', () => {
   it('has no leading spaces', () => {
@@ -22,7 +22,7 @@ describe('url is correctly formatted', () => {
   });
 
   it('only contains allowed characters', () => {
-    const test = 'http://<>[]{}|\^';
+    const test = 'http://<>[]{}|^';
     const expected = 'http://';
     expect(cleanURL(test)).toBe(expected);
   });
@@ -32,5 +32,4 @@ describe('url is correctly formatted', () => {
     const expected = 'http://ontime.com';
     expect(cleanURL(test)).toBe(expected);
   });
-
 });

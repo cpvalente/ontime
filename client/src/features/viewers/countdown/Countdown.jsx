@@ -46,7 +46,7 @@ export default function Countdown(props) {
     const eventId = searchParams.get('eventid');
     const eventIndex = searchParams.get('event');
 
-    let followThis = undefined;
+    let followThis;
     const events = [...backstageEvents].filter((event) => event.type === 'event');
 
     if (eventId !== null) {

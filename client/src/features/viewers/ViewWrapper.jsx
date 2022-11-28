@@ -56,10 +56,9 @@ const withSocket = (Component) => {
     const publicEvents = useMemo(() => {
       if (Array.isArray(eventsData)) {
         return eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
-      } else {
-        return [];
       }
-    },[eventsData])
+      return [];
+    }, [eventsData]);
 
     /********************************************/
     /***  + titleManager                      ***/

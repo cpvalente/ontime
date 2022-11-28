@@ -10,7 +10,7 @@ import Empty from 'common/components/state/Empty';
 import { CursorContext } from 'common/context/CursorContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { useRundownEditor } from 'common/hooks/useSocket';
-import { duplicateEvent } from 'common/utils/eventsManager';
+import { cloneEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
@@ -34,7 +34,7 @@ export default function Rundown(props) {
   const insertAtCursor = useCallback(
     (type, cursor) => {
       if (cursor === -1) {
-        addEvent({ type: type });
+        addEvent({ type });
       } else {
         const previousEvent = entries?.[cursor];
         const nextEvent = entries?.[cursor + 1];
@@ -43,7 +43,7 @@ export default function Rundown(props) {
         const isPreviousDifferent = previousEvent?.type !== type;
         const isNextDifferent = nextEvent?.type !== type;
         if (type === 'clone' && previousEvent) {
-          const newEvent = duplicateEvent(previousEvent);
+          const newEvent = cloneEvent(previousEvent);
           newEvent.after = previousEvent.id;
           addEvent(newEvent);
         } else if (type === 'event') {
@@ -57,7 +57,7 @@ export default function Rundown(props) {
           };
           addEvent(newEvent, options);
         } else if (isPreviousDifferent && isNextDifferent) {
-          addEvent({ type: type, after: previousEvent.id });
+          addEvent({ type, after: previousEvent.id });
         }
       }
     },

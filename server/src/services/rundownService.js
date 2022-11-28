@@ -6,7 +6,7 @@ import {
   event as eventDef,
 } from '../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../settings.js';
-import { eventLoader } from '../classes/event-loader/EventLoader.js';
+import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
 
 const affectedLoaded = (affectedIds) => {
   const now = eventLoader.selectedEventId;
@@ -23,7 +23,7 @@ const affectedLoaded = (affectedIds) => {
 };
 
 const isNewNext = () => {
-  const timedEvents = getTimedEvents();
+  const timedEvents = EventLoader.getTimedEvents();
   const now = eventLoader.selectedEventId;
   const next = eventLoader.nextEventId;
 
@@ -86,16 +86,6 @@ export function updateTimer(affectedIds) {
     return true;
   }
   return false;
-}
-
-/**
- * @description returns all events of type event
- * @return {unknown[]}
- */
-export function getTimedEvents() {
-  // return data.events.filter((e) => e.type === 'event');
-  const rundown = DataProvider.getRundown();
-  return rundown.filter((e) => e.type === 'event');
 }
 
 /**

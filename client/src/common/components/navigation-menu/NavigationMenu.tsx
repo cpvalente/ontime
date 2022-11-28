@@ -64,6 +64,7 @@ export default function NavigationMenu() {
             <div
               className={style.link}
               tabIndex={0}
+              role='button'
               onClick={handleFullscreen}
               onKeyDown={(event) => {
                 isKeyEnter(event) && handleFullscreen();
@@ -75,6 +76,7 @@ export default function NavigationMenu() {
             <div
               className={style.link}
               tabIndex={0}
+              role='button'
               onClick={handleMirror}
               onKeyDown={(event) => {
                 isKeyEnter(event) && handleMirror();

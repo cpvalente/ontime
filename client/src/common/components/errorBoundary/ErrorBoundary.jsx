@@ -28,7 +28,7 @@ class ErrorBoundary extends React.Component {
     try {
       this.context.emitError(error.toString());
     } catch (e) {
-      console.log('Unable to emit error', error, e )
+      console.log('Unable to emit error', error, e);
     }
     this.reportContent = `${error} ${info.componentStack}`;
   }
@@ -36,11 +36,12 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.errorMessage) {
       return (
-        <div className={style.errorContainer} data-testid="error-container">
+        <div className={style.errorContainer} data-testid='error-container'>
           <div>
             <p className={style.error}>:/</p>
             <p>Something went wrong</p>
-            <p
+            <div
+              role='button'
               className={style.report}
               onClick={() => {
                 if (navigator.clipboard) {
@@ -50,8 +51,9 @@ class ErrorBoundary extends React.Component {
               }}
             >
               Copy error
-            </p>
-            <p
+            </div>
+            <div
+              role='button'
               className={style.report}
               onClick={() => {
                 if (window?.process?.type === 'renderer') {
@@ -62,7 +64,7 @@ class ErrorBoundary extends React.Component {
               }}
             >
               Reload interface
-            </p>
+            </div>
           </div>
         </div>
       );

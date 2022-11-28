@@ -106,11 +106,9 @@ export class EventLoader {
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
       return { id: timedEvents[0].id };
-    } else {
-      const newIndex = this.selectedEventIndex - 1;
-      console.log(newIndex, timedEvents.length, timedEvents?.[newIndex]);
-      return { id: timedEvents?.[newIndex].id };
     }
+    const newIndex = this.selectedEventIndex - 1;
+    return { id: timedEvents?.[newIndex].id };
   }
 
   /**
@@ -130,10 +128,9 @@ export class EventLoader {
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
       return { id: timedEvents[0].id };
-    } else {
-      const newIndex = this.selectedEventIndex + 1;
-      return { id: timedEvents?.[newIndex].id };
     }
+    const newIndex = this.selectedEventIndex + 1;
+    return { id: timedEvents?.[newIndex].id };
   }
 
   /**
