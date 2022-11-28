@@ -10,7 +10,7 @@ export default function useUserFields() {
     status,
     isError,
     refetch,
-  } = useQuery(USERFIELDS, getUserFields, { placeholderData: userFieldsPlaceholder });
+  } = useQuery(USERFIELDS, getUserFields, { placeholderData: userFieldsPlaceholder, retry: 5, retryDelay: attempt => attempt * 2500 });
 
   return { data, status, isError, refetch };
 }

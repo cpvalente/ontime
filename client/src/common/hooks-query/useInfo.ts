@@ -10,7 +10,7 @@ export default function useInfo() {
     status,
     isError,
     refetch,
-  } = useQuery(APP_INFO, getInfo, { placeholderData: ontimePlaceholderInfo });
+  } = useQuery(APP_INFO, getInfo, { placeholderData: ontimePlaceholderInfo, retry: 5, retryDelay: attempt => attempt * 2500 });
 
   return { data, status, isError, refetch };
 }

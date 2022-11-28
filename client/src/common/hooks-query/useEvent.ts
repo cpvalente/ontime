@@ -10,7 +10,7 @@ export default function useEvent() {
     status,
     isError,
     refetch,
-  } = useQuery(EVENT_TABLE, fetchEvent, { placeholderData: eventDataPlaceholder });
+  } = useQuery(EVENT_TABLE, fetchEvent, { placeholderData: eventDataPlaceholder, retry: 5, retryDelay: attempt => attempt * 2500 });
 
   return { data, status, isError, refetch };
 }

@@ -9,7 +9,7 @@ export default function useAliases() {
     status,
     isError,
     refetch,
-  } = useQuery(ALIASES, getAliases, { placeholderData: [] });
+  } = useQuery(ALIASES, getAliases, { placeholderData: [], retry: 5, retryDelay: attempt => attempt * 2500 });
 
   return { data, status, isError, refetch };
 }

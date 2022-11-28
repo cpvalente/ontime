@@ -10,7 +10,7 @@ export default function useOscSettings() {
     status,
     isError,
     refetch,
-  } = useQuery(OSC_SETTINGS, getOSC, { placeholderData: oscPlaceholderSettings });
+  } = useQuery(OSC_SETTINGS, getOSC, { placeholderData: oscPlaceholderSettings, retry: 5, retryDelay: attempt => attempt * 2500 });
 
   return { data, status, isError, refetch };
 }
