@@ -15,7 +15,6 @@ import { useKeyDown } from '../../hooks/useKeyDown';
 
 import style from './NavigationMenu.module.scss';
 
-// Todo: restyle _main.scss links
 export default function NavigationMenu() {
   const location = useLocation();
 
