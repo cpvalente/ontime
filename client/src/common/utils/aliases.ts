@@ -3,7 +3,7 @@
  * @param {string} alias
  * @returns {{message: string, status: boolean}}
  */
-export const validateAlias = (alias) => {
+export const validateAlias = (alias: string) => {
 
   const valid = { status: true, message: 'ok' };
 

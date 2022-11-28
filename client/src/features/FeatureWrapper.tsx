@@ -1,17 +1,17 @@
-import PropTypes from 'prop-types';
+import { ReactNode } from 'react';
 
 import ProtectRoute from '../common/components/protectRoute/ProtectRoute';
 
 import style from './FeatureWrapper.module.scss';
 
-export default function FeatureWrapper({ children }) {
+interface FeatureWrapperProps {
+  children: ReactNode;
+}
+
+export default function FeatureWrapper({ children }: FeatureWrapperProps) {
   return (
     <ProtectRoute>
       <div className={style.wrapper}>{children}</div>
     </ProtectRoute>
   );
 }
-
-FeatureWrapper.propTypes = {
-  children: PropTypes.element,
-};

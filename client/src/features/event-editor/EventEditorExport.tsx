@@ -27,7 +27,6 @@ export default function InfoExport() {
           <div className={style.header}>
             <IconButton
               aria-label='Close Menu'
-              size='lg'
               icon={<FiX />}
               onClick={() => setOpenId(null)}
               {...closeBtnStyle}
