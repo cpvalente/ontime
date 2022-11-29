@@ -10,8 +10,8 @@ $component-border-radius-sm: 2px;
 $action-blue: #3182ce;
 $action-text-color: $blue-400;
 $ontime-color: #ff7597;
-$error-red: $red-700;
-$warning-orange: $orange-700;
+$error-red: $red-500;
+$warning-orange: $orange-500;
 $opacity-disabled: 0.4;
 
 // playback colours
@@ -22,8 +22,9 @@ $ontime-delay-text: #E69056;
 $ontime-paused: #c05621;
 $ontime-stop: #E4281E;
 $playback-negative: $red-500;
+$active-indicator: #899948;
 
-// interface panels
+  // interface panels
 $bg-container-l1: $gray-1350;
 $bg-container-l2: $gray-1200;
 $bg-container-l3: $gray-1350;

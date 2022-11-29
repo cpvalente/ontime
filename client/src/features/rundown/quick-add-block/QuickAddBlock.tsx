@@ -67,32 +67,32 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
           <Button
             onClick={() => handleCreateEvent('event')}
             size='xs'
-            variant='ontime-subtle'
-            className={`${style.quickBtn} ${style.createEvent}`}
+            variant='ontime-subtle-white'
+            className={style.quickBtn}
           >
-            E{showKbd && <span className={style.keyboard}>Alt + E</span>}
+            Event {showKbd && <span className={style.keyboard}>Alt + E</span>}
           </Button>
         </Tooltip>
         <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
           <Button
             onClick={() => handleCreateEvent('delay')}
             size='xs'
-            variant='ontime-subtle'
+            variant='ontime-subtle-white'
             disabled={disableAddDelay}
-            className={`${style.quickBtn} ${style.createDelay}`}
+            className={style.quickBtn}
           >
-            D{showKbd && <span className={style.keyboard}>Alt + D</span>}
+            Delay {showKbd && <span className={style.keyboard}>Alt + D</span>}
           </Button>
         </Tooltip>
         <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
           <Button
             onClick={() => handleCreateEvent('block')}
             size='xs'
-            variant='ontime-subtle'
+            variant='ontime-subtle-white'
             disabled={disableAddBlock}
-            className={`${style.quickBtn} ${style.createBlock}`}
+            className={style.quickBtn}
           >
-            B{showKbd && <span className={style.keyboard}>Alt + B</span>}
+            Block {showKbd && <span className={style.keyboard}>Alt + B</span>}
           </Button>
         </Tooltip>
       </div>

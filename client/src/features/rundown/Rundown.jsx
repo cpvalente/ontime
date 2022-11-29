@@ -1,6 +1,7 @@
 import { createRef, Fragment, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { Button } from '@chakra-ui/react';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import {
   defaultPublicAtom,
   showQuickEntryAtom,
@@ -167,6 +168,7 @@ export default function Rundown(props) {
           onClick={() => insertAtCursor('event', cursor)}
           variant='ontime-filled'
           className={style.spaceTop}
+          leftIcon={<IoAdd />}
         >
           Create Event
         </Button>

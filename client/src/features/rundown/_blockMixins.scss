@@ -14,10 +14,10 @@ $secondary-block-height: 40px;
 @mixin block-styling() {
   box-sizing: content-box;
   background-color: $block-bg;
-  border: 1px solid #383838;
-  box-shadow: $block-box-shadow;
+  border: 1px solid $white-10;
   font-family: $ontime-font-family;
   border-radius: $block-border-radius;
+  margin: 4px 2px;
 }
 
 @mixin block-spacing() {

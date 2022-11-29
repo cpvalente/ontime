@@ -3,10 +3,9 @@
 .block {
   @include block-spacing;
   @include block-styling;
-
   box-sizing: content-box;
   display: grid;
-  grid-template-columns: 32px 1fr;
+  grid-template-columns: 32px 1fr auto;
   align-items: center;
   height: $secondary-block-height;
 }
