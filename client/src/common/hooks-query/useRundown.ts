@@ -9,7 +9,13 @@ export default function useRundown() {
     status,
     isError,
     refetch,
-  } = useQuery(RUNDOWN_TABLE, fetchRundown, { placeholderData: [], retry: 5, retryDelay: attempt => attempt * 2500 });
+  } = useQuery({
+    queryKey: RUNDOWN_TABLE,
+    queryFn: fetchRundown,
+    placeholderData: [],
+    retry: 5,
+    retryDelay: attempt => attempt * 2500,
+  });
 
   return { data, status, isError, refetch };
 }
