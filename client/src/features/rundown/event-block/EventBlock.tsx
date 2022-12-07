@@ -95,7 +95,7 @@ export default function EventBlock(props: EventBlockProps) {
     if (hasCursor) {
       onFocusRef?.current?.focus();
     }
-  }, [hasCursor])
+  }, [hasCursor]);
 
   const handleTitle = useCallback(
     (text: string) => {
@@ -205,21 +205,25 @@ export default function EventBlock(props: EventBlockProps) {
             <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
               <EventBlockProgressBar playback={playback} />
             </div>
-            <div className={style.eventStatus}>
+            <div className={style.eventStatus} tabIndex={-1}
+            >
               <Tooltip
                 label='Next event'
                 isDisabled={!next}
-                shouldWrapChildren {...tooltipProps}
+                {...tooltipProps}
               >
-                <IoPlaySkipForward
-                  className={`${style.statusIcon} ${next ? style.active : ''}`} />
+                <span>
+                  <IoPlaySkipForward
+                    className={`${style.statusIcon} ${next ? style.active : ''}`} />
+                </span>
               </Tooltip>
               <Tooltip
                 label={`${isPublic ? 'Event is public' : 'Event is private'}`}
                 {...tooltipProps}
-                shouldWrapChildren
               >
-                <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : ''}`} />
+                <span>
+                  <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : ''}`} />
+                </span>
               </Tooltip>
             </div>
           </div>
