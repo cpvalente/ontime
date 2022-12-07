@@ -8,6 +8,7 @@ import { useEventAction } from 'common/hooks/useEventAction';
 import { millisToMinutes } from 'common/utils/dateConfig';
 
 import { OntimeDelay, OntimeEvent } from '../../../common/models/EventTypes';
+import { cx } from '../../../common/utils/styleUtils';
 import BlockActionMenu from '../event-block/composite/BlockActionMenu';
 import { EventItemActions } from '../RundownEntry';
 
@@ -16,11 +17,12 @@ import style from './DelayBlock.module.scss';
 interface DelayBlockProps {
   data: OntimeDelay,
   index: number;
+  hasCursor: boolean;
   actionHandler: (action: EventItemActions, payload?: number | { field: keyof OntimeEvent, value: unknown }) => void;
 }
 
 export default function DelayBlock(props: DelayBlockProps) {
-  const { data, index, actionHandler } = props;
+  const { data, index, hasCursor, actionHandler } = props;
   const { applyDelay, updateEvent } = useEventAction();
 
   const applyDelayHandler = useCallback(() => {
@@ -39,12 +41,17 @@ export default function DelayBlock(props: DelayBlockProps) {
     [data.id, updateEvent],
   );
 
+  const blockClasses = cx([
+    style.delay,
+    hasCursor ? style.hasCursor : null,
+  ]);
+
   const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
 
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
-        <div className={style.delay} {...provided.draggableProps} ref={provided.innerRef}>
+        <div className={blockClasses} {...provided.draggableProps} ref={provided.innerRef}>
           <span className={style.drag} {...provided.dragHandleProps}>
             <IoReorderTwo />
           </span>

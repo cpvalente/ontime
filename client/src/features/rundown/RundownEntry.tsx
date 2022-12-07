@@ -168,9 +168,19 @@ export default function RundownEntry(props: RundownEntryProps) {
       />
     );
   } else if (data.type === 'block') {
-    return <BlockBlock index={index} data={data} actionHandler={actionHandler} />;
+    return <BlockBlock
+      index={index}
+      data={data}
+      hasCursor={hasCursor}
+      actionHandler={actionHandler}
+    />;
   } else if (data.type === 'delay') {
-    return <DelayBlock index={index} data={data} actionHandler={actionHandler} />;
+    return <DelayBlock
+      index={index}
+      data={data}
+      hasCursor={hasCursor}
+      actionHandler={actionHandler}
+    />;
   }
   return null;
 };

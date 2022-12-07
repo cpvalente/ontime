@@ -10,6 +10,7 @@ $block-text-color: $gray-50;
 $block-bg: $gray-1200;
 $block-box-shadow: rgba(0, 0, 0, 0.5) 0 0 3px 2px;
 $secondary-block-height: 40px;
+$block-cursor-color: $blue-400;
 
 @mixin block-styling() {
   box-sizing: content-box;
