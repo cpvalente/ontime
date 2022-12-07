@@ -7,6 +7,7 @@ import { config } from '../config/config.js';
 import { validateFile } from '../utils/parserUtils.js';
 import { dbModel } from '../models/dataModel.js';
 import { parseJson } from '../utils/parser.js';
+import { reportSentryException } from './sentry.js';
 
 /**
  * @description Decides which path the database is in
@@ -36,7 +37,7 @@ const populateDb = (runningDirectory) => {
     try {
       copyFileSync(startupDb, dbInDisk);
     } catch (error) {
-      console.log(error);
+      reportSentryException(error);
     }
   }
 
