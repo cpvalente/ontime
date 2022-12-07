@@ -1,9 +1,9 @@
 import * as Sentry from '@sentry/node';
 
-let isProduction;
+let shouldReport;
 
 export function initSentry(environment) {
-  isProduction = environment === 'production';
+  shouldReport = environment === 'production';
   process.exit(0);
 
   Sentry.init({
@@ -13,7 +13,7 @@ export function initSentry(environment) {
 }
 
 export function reportSentryException(e) {
-  if (isProduction) {
+  if (shouldReport) {
     Sentry.captureException(e);
   } else {
     console.error(e);
