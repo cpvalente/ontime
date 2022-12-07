@@ -1,6 +1,10 @@
 @use '../../theme/ontimeColours' as *;
 @use '../../theme/v2Styles' as *;
 
+$menu-width: 48px;
+$rundown-width: 46em;
+$playback-width: 450px;
+
 @mixin absolute-top-right($distance) {
   position: absolute;
   top: $distance;
@@ -26,7 +30,7 @@
 
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: 48px 46em 450px auto;
+  grid-template-columns: $menu-width $rundown-width $playback-width auto;
   grid-template-areas:
     'sett even play info'
     'sett even mess info';
@@ -50,7 +54,7 @@
   .mainContainer {
     height: 100%;
     grid-template-rows: auto 1fr;
-    grid-template-columns: 48px 48em auto;
+    grid-template-columns: $menu-width $rundown-width auto;
 
     .info {
       visibility: hidden;
@@ -63,7 +67,7 @@
   .mainContainer {
     height: 100%;
     grid-template-rows: 100%;
-    grid-template-columns: 48px 48em;
+    grid-template-columns: $menu-width $rundown-width;
     grid-template-areas:
       'sett even';
 
