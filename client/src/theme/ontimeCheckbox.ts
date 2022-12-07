@@ -15,7 +15,7 @@ export const ontimeCheckboxOnDark = {
     fontWeight: '200',
     color: '#9d9d9d', // $gray-500
     _checked: {
-      color: '#779BE7', //$blue-400
+      color: '#cfcfcf', // $gray-300
     }
   },
 };
