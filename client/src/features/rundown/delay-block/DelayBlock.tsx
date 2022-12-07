@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Button, HStack } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
@@ -24,6 +24,13 @@ interface DelayBlockProps {
 export default function DelayBlock(props: DelayBlockProps) {
   const { data, index, hasCursor, actionHandler } = props;
   const { applyDelay, updateEvent } = useEventAction();
+  const onFocusRef = useRef<null | HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (hasCursor) {
+      onFocusRef?.current?.focus();
+    }
+  }, [hasCursor])
 
   const applyDelayHandler = useCallback(() => {
     applyDelay(data.id);
@@ -52,7 +59,7 @@ export default function DelayBlock(props: DelayBlockProps) {
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
         <div className={blockClasses} {...provided.draggableProps} ref={provided.innerRef}>
-          <span className={style.drag} {...provided.dragHandleProps}>
+          <span className={style.drag} {...provided.dragHandleProps} ref={onFocusRef}>
             <IoReorderTwo />
           </span>
           <DelayInput

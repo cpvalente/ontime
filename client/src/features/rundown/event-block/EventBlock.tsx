@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
@@ -81,6 +81,7 @@ export default function EventBlock(props: EventBlockProps) {
   const [openId, setOpenId] = useAtom(editorEventId);
   const { updateEvent } = useEventAction();
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
+  const onFocusRef = useRef<null | HTMLSpanElement>(null);
 
   const binderColours = colour && getAccessibleColour(colour);
 
@@ -89,6 +90,12 @@ export default function EventBlock(props: EventBlockProps) {
   useEffect(() => {
     setBlockTitle(title);
   }, [title]);
+
+  useEffect(() => {
+    if (hasCursor) {
+      onFocusRef?.current?.focus();
+    }
+  }, [hasCursor])
 
   const handleTitle = useCallback(
     (text: string) => {
@@ -133,7 +140,7 @@ export default function EventBlock(props: EventBlockProps) {
             tabIndex={-1}
             onClick={() => actionHandler('set-cursor', index)}
           >
-            <span className={style.drag} {...provided.dragHandleProps}>
+            <span className={style.drag} {...provided.dragHandleProps} ref={onFocusRef}>
               <IoReorderTwo />
             </span>
             {eventIndex}

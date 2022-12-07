@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 
@@ -17,6 +18,13 @@ interface BlockBlockProps {
 
 export default function BlockBlock(props: BlockBlockProps) {
   const { index, data, hasCursor, actionHandler } = props;
+  const onFocusRef = useRef<null | HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (hasCursor) {
+      onFocusRef?.current?.focus();
+    }
+  }, [hasCursor])
 
   const blockClasses = cx([
     style.block,
@@ -27,7 +35,7 @@ export default function BlockBlock(props: BlockBlockProps) {
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
         <div className={blockClasses} {...provided.draggableProps} ref={provided.innerRef}>
-          <span className={style.drag} {...provided.dragHandleProps}>
+          <span className={style.drag} {...provided.dragHandleProps} ref={onFocusRef}>
             <IoReorderTwo />
           </span>
           <BlockActionMenu
