@@ -1,7 +1,8 @@
 /* eslint-disable react/destructuring-assignment */
 import React from 'react';
+import * as Sentry from '@sentry/react';
 
-import { version as appVersion } from '../../../../package.json';
+import { ONTIME_VERSION } from '../../../../../server/src/version.js';
 import { LoggingContext } from '../../context/LoggingContext';
 
 import style from './ErrorBoundary.module.scss';
@@ -25,10 +26,17 @@ class ErrorBoundary extends React.Component {
       error: error,
       errorInfo: info,
     });
+
+    Sentry.withScope((scope) => {
+      scope.setExtras(error);
+      const eventId = Sentry.captureException(error);
+      this.setState({ eventId, info });
+    });
+
     try {
       this.context.emitError(error.toString());
     } catch (e) {
-      console.log('Unable to emit error', error, e);
+      Sentry.captureMessage(`Unable to emit error ${error} ${e}`);
     }
     this.reportContent = `${error} ${info.componentStack}`;
   }
@@ -43,14 +51,9 @@ class ErrorBoundary extends React.Component {
             <div
               role='button'
               className={style.report}
-              onClick={() => {
-                if (navigator.clipboard) {
-                  const copyContent = `ontime version ${appVersion} \n ${this.reportContent}`;
-                  navigator.clipboard.writeText(copyContent);
-                }
-              }}
+              onClick={() => Sentry.showReportDialog({ eventId: this.state.eventId, appVersion: ONTIME_VERSION })}
             >
-              Copy error
+              Report error
             </div>
             <div
               role='button'

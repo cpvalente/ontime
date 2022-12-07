@@ -10,6 +10,8 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@react-icons/all-files": "^4.1.0",
+    "@sentry/react": "^7.24.1",
+    "@sentry/tracing": "^7.24.1",
     "@tanstack/react-query": "^4.18.0",
     "@tanstack/react-query-devtools": "^4.18.0",
     "autosize": "^5.0.1",
