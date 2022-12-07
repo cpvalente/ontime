@@ -97,8 +97,8 @@ export const formatEventList = (events: OntimeEvent[], selectedId: string, nextI
  * @param {object} event
  * @return {object} clean event
  */
-type DuplicatedEvent = OntimeEvent | { after?: string };
-export const duplicateEvent = (event: OntimeEvent, after?: string): DuplicatedEvent => {
+type ClonedEvent = OntimeEvent | { after?: string };
+export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
   return {
     type: 'event',
     title: event.title,

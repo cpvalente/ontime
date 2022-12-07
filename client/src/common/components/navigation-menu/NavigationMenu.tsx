@@ -15,7 +15,6 @@ import { useKeyDown } from '../../hooks/useKeyDown';
 
 import style from './NavigationMenu.module.scss';
 
-// Todo: restyle _main.scss links
 export default function NavigationMenu() {
   const location = useLocation();
 
@@ -65,6 +64,7 @@ export default function NavigationMenu() {
             <div
               className={style.link}
               tabIndex={0}
+              role='button'
               onClick={handleFullscreen}
               onKeyDown={(event) => {
                 isKeyEnter(event) && handleFullscreen();
@@ -76,6 +76,7 @@ export default function NavigationMenu() {
             <div
               className={style.link}
               tabIndex={0}
+              role='button'
               onClick={handleMirror}
               onKeyDown={(event) => {
                 isKeyEnter(event) && handleMirror();

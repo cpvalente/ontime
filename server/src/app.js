@@ -26,6 +26,7 @@ import { socketProvider } from './classes/socket/SocketController.js';
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
+import { ONTIME_VERSION } from './version.js';
 
 // get environment
 const env = process.env.NODE_ENV || 'production';
@@ -33,7 +34,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const isTest = process.env.IS_TEST;
 
-console.log(`Starting ontime version ${process.env.npm_package_version}`);
+console.log(`Starting ontime version ${ONTIME_VERSION}`);
 
 // import socket provider
 const socket = socketProvider;

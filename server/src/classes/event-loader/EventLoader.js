@@ -99,17 +99,16 @@ export class EventLoader {
    */
   findPrevious() {
     const timedEvents = EventLoader.getPlayableEvents();
-    if (timedEvents === null || this.selectedEventIndex === 0) {
+    if (timedEvents === null || !timedEvents.length || this.selectedEventIndex === 0) {
       return null;
     }
 
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
       return { id: timedEvents[0].id };
-    } else {
-      const newIndex = this.selectedEventIndex - 1;
-      return { id: timedEvents?.[newIndex].id };
     }
+    const newIndex = this.selectedEventIndex - 1;
+    return { id: timedEvents?.[newIndex].id };
   }
 
   /**
@@ -118,17 +117,20 @@ export class EventLoader {
    */
   findNext() {
     const timedEvents = EventLoader.getPlayableEvents();
-    if (timedEvents === null || this.selectedEventIndex === this.numEvents - 1) {
+    if (
+      timedEvents === null ||
+      !timedEvents.length ||
+      this.selectedEventIndex === this.numEvents - 1
+    ) {
       return null;
     }
 
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
       return { id: timedEvents[0].id };
-    } else {
-      const newIndex = this.selectedEventIndex + 1;
-      return { id: timedEvents?.[newIndex].id };
     }
+    const newIndex = this.selectedEventIndex + 1;
+    return { id: timedEvents?.[newIndex].id };
   }
 
   /**

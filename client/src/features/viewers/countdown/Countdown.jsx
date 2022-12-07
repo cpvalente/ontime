@@ -46,7 +46,7 @@ export default function Countdown(props) {
     const eventId = searchParams.get('eventid');
     const eventIndex = searchParams.get('event');
 
-    let followThis = undefined;
+    let followThis;
     const events = [...backstageEvents].filter((event) => event.type === 'event');
 
     if (eventId !== null) {
@@ -100,7 +100,7 @@ export default function Countdown(props) {
           <span className='event-select__title'>Select an event to follow</span>
           <ul className='event-select__events'>
             {backstageEvents.length === 0 ? (
-              <Empty dark text='No events in database' />
+              <Empty text='No events in database' />
             ) : (
               backstageEvents
                 .filter((e) => e.type === 'event')

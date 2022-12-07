@@ -1,4 +1,4 @@
-import { generateId } from '../generate_id.js';
+import { generateId } from '../generate_id';
 
 test('generate a valid 5 digit id', () => {
   const id = generateId();

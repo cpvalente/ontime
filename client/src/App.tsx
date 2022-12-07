@@ -13,12 +13,13 @@ import theme from './theme/theme';
 import AppRouter from './AppRouter';
 
 // Load Open Sans typeface
+// @ts-expect-error no types from font import
 import('typeface-open-sans');
 
 function App() {
   const { isElectron, sendToElectron } = useElectronEvent();
 
-  const handleKeyPress = useCallback((event) => {
+  const handleKeyPress = useCallback((event:KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
       // check if the alt key is pressed

@@ -10,7 +10,13 @@ export default function useSettings() {
     status,
     isError,
     refetch,
-  } = useQuery(APP_SETTINGS, getSettings, { placeholderData: ontimePlaceholderSettings });
+  } = useQuery({
+    queryKey: APP_SETTINGS,
+    queryFn: getSettings,
+    placeholderData: ontimePlaceholderSettings,
+    retry: 5,
+    retryDelay: attempt => attempt * 2500,
+  });
 
   return { data, status, isError, refetch };
 }

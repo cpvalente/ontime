@@ -8,7 +8,7 @@ import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { OntimeEvent, OntimeRundownEntry } from 'common/models/EventTypes';
 import { Playstate } from 'common/models/OntimeTypes';
-import { duplicateEvent } from 'common/utils/eventsManager';
+import { cloneEvent } from 'common/utils/eventsManager';
 import { calculateDuration } from 'common/utils/timesManager';
 import { useAtom, useAtomValue } from 'jotai';
 
@@ -40,7 +40,17 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { index, eventIndex, data, selected, hasCursor, next, delay, previousEnd, playback } = props;
+  const {
+    index,
+    eventIndex,
+    data,
+    selected,
+    hasCursor,
+    next,
+    delay,
+    previousEnd,
+    playback,
+  } = props;
   const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
@@ -88,7 +98,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
         }
         case 'clone': {
-          const newEvent = duplicateEvent(data as OntimeEvent, data.id);
+          const newEvent = cloneEvent(data as OntimeEvent, data.id);
           addEvent(newEvent);
           break;
         }
@@ -161,7 +171,6 @@ export default function RundownEntry(props: RundownEntryProps) {
     return <BlockBlock index={index} data={data} actionHandler={actionHandler} />;
   } else if (data.type === 'delay') {
     return <DelayBlock index={index} data={data} actionHandler={actionHandler} />;
-  } else {
-    return null;
   }
+  return null;
 };

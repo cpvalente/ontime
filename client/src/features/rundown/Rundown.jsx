@@ -1,6 +1,7 @@
 import { createRef, Fragment, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { Button } from '@chakra-ui/react';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import {
   defaultPublicAtom,
   showQuickEntryAtom,
@@ -10,7 +11,7 @@ import Empty from 'common/components/state/Empty';
 import { CursorContext } from 'common/context/CursorContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { useRundownEditor } from 'common/hooks/useSocket';
-import { duplicateEvent } from 'common/utils/eventsManager';
+import { cloneEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
 
@@ -34,7 +35,7 @@ export default function Rundown(props) {
   const insertAtCursor = useCallback(
     (type, cursor) => {
       if (cursor === -1) {
-        addEvent({ type: type });
+        addEvent({ type });
       } else {
         const previousEvent = entries?.[cursor];
         const nextEvent = entries?.[cursor + 1];
@@ -43,7 +44,7 @@ export default function Rundown(props) {
         const isPreviousDifferent = previousEvent?.type !== type;
         const isNextDifferent = nextEvent?.type !== type;
         if (type === 'clone' && previousEvent) {
-          const newEvent = duplicateEvent(previousEvent);
+          const newEvent = cloneEvent(previousEvent);
           newEvent.after = previousEvent.id;
           addEvent(newEvent);
         } else if (type === 'event') {
@@ -57,7 +58,7 @@ export default function Rundown(props) {
           };
           addEvent(newEvent, options);
         } else if (isPreviousDifferent && isNextDifferent) {
-          addEvent({ type: type, after: previousEvent.id });
+          addEvent({ type, after: previousEvent.id });
         }
       }
     },
@@ -73,7 +74,7 @@ export default function Rundown(props) {
       if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
         // Arrow down
         if (event.keyCode === 40) {
-          if (cursor < entries.length - 1) moveCursorDown();
+          if (cursor < entries.length - 2) moveCursorDown();
         }
         // Arrow up
         if (event.keyCode === 38) {
@@ -165,8 +166,9 @@ export default function Rundown(props) {
         <Empty text='No data yet' style={{ marginTop: '7vh' }} />
         <Button
           onClick={() => insertAtCursor('event', cursor)}
-          variant='solid'
-          colorScheme='blue'
+          variant='ontime-filled'
+          className={style.spaceTop}
+          leftIcon={<IoAdd />}
         >
           Create Event
         </Button>

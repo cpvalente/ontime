@@ -18,7 +18,7 @@ function createSocketHook<T>(key: string, defaultValue: T | null = null) {
   // we need the null because useQuery can't receive undefined
   const fetcher = () => (queryClient.getQueryData([key]) ?? defaultValue) as T | null;
 
-  return () => useQuery([key], fetcher, { placeholderData: defaultValue });
+  return () => useQuery({ queryKey: [key], queryFn: fetcher, placeholderData: defaultValue });
 }
 
 const emptyRundown = {

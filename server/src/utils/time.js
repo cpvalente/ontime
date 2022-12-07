@@ -2,6 +2,29 @@ const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
 const mth = 1000 * 60 * 60; // millis to hours
 
+export const timeFormat = 'HH:mm';
+export const timeFormatSeconds = 'HH:mm:ss';
+
+/**
+ * @description Validates a time string
+ * @param {string} string - time string "23:00:12"
+ * @returns {boolean} string represents time
+ */
+export const isTimeString = (string) => {
+  // ^                   # Start of string
+  // (?:                 # Try to match...
+  //  (?:                #  Try to match...
+  //   ([01]?\d|2[0-3]): #   HH:
+  //  )?                 #  (optionally).
+  //  ([0-5]?\d):        #  MM: (required)
+  // )?                  # (entire group optional, so either HH:MM:, MM: or nothing)
+  // ([0-5]?\d)          # SS (required)
+  // $                   # End of string
+
+  const regex = /^(?:(?:([01]?\d|2[0-3])[:,.])?([0-5]?\d)[:,.])?([0-5]?\d)$/;
+  return regex.test(string);
+};
+
 /**
  * @description Converts milliseconds to string representing time
  * @param {number} ms - time in milliseconds
@@ -44,46 +67,6 @@ export const dateToMillis = (date) => {
   const s = date.getSeconds();
 
   return h * mth + m * mtm + s * mts;
-};
-
-/**
- * @description Parses an excel date using the correct parser
- * @param {string} excelDate
- * @returns {number} - time in milliseconds
-
- */
-export const parseExcelDate = (excelDate) => {
-  // attempt converting to date object
-  const date = new Date(excelDate);
-  if (date instanceof Date && !isNaN(date)) {
-    return dateToMillis(date);
-  } else if (isTimeString(excelDate)) {
-    return forgivingStringToMillis(excelDate);
-  }
-  return 0;
-};
-
-export const timeFormat = 'HH:mm';
-export const timeFormatSeconds = 'HH:mm:ss';
-
-/**
- * @description Validates a time string
- * @param {string} string - time string "23:00:12"
- * @returns {boolean} string represents time
- */
-export const isTimeString = (string) => {
-  // ^                   # Start of string
-  // (?:                 # Try to match...
-  //  (?:                #  Try to match...
-  //   ([01]?\d|2[0-3]): #   HH:
-  //  )?                 #  (optionally).
-  //  ([0-5]?\d):        #  MM: (required)
-  // )?                  # (entire group optional, so either HH:MM:, MM: or nothing)
-  // ([0-5]?\d)          # SS (required)
-  // $                   # End of string
-
-  const regex = /^(?:(?:([01]?\d|2[0-3])[:,.])?([0-5]?\d)[:,.])?([0-5]?\d)$/;
-  return regex.test(string);
 };
 
 /**
@@ -145,4 +128,21 @@ export const forgivingStringToMillis = (value, fillLeft = true) => {
     }
   }
   return millis;
+};
+
+/**
+ * @description Parses an excel date using the correct parser
+ * @param {string} excelDate
+ * @returns {number} - time in milliseconds
+
+ */
+export const parseExcelDate = (excelDate) => {
+  // attempt converting to date object
+  const date = new Date(excelDate);
+  if (date instanceof Date && !isNaN(date)) {
+    return dateToMillis(date);
+  } else if (isTimeString(excelDate)) {
+    return forgivingStringToMillis(excelDate);
+  }
+  return 0;
 };

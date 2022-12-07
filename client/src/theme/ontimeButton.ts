@@ -22,10 +22,11 @@ export const ontimeButtonFilled = {
 export const ontimeButtonOutlined = {
   ...commonStyles,
   backgroundColor: '#2d2d2d', // $gray-1100
-  color: '#779BE7', // $blue-400
-  border: '1px solid #779BE7', // $blue-400
+  color: '#9d9d9d', // $blue-400
+  border: '1px solid rgba(255, 255, 255, 0.10)', // white-10
   _hover: {
     backgroundColor: '#404040', // $gray-1000
+    color: '#e2e2e2', // $gray-200
   },
   _active: {
     backgroundColor: '#2d2d2d', // $gray-1100

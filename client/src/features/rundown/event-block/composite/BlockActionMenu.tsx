@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
+import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { IoTrashBinSharp } from '@react-icons/all-files/io5/IoTrashBinSharp';
@@ -34,7 +35,7 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
         <MenuButton
           as={IconButton}
           aria-label='Event options'
-          icon={<IoAdd />}
+          icon={<IoEllipsisHorizontal />}
           tabIndex={-1}
           variant='ontime-subtle'
           color='#f6f6f6'

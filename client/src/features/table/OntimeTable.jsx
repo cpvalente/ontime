@@ -54,7 +54,7 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
       columns,
       data: tableData,
       initialState: {
-        hiddenColumns: hiddenColumns,
+        hiddenColumns,
       },
       handleUpdate,
     },

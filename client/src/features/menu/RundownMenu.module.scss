@@ -1,12 +1,15 @@
+@use '../../theme/v2Styles' as *;
+@use '../../theme/ontimeColours' as *;
+
 .headerButtons {
   align-content: center;
   justify-content: space-between;
-  gap: 8px;
   padding-top: 24px;
 }
 
 .labelledSwitch {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: $element-spacing;
+  color: $gray-100;
 }

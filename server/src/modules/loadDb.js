@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 import { ensureDirectory, getAppDataPath } from '../utils/fileManagement.js';
 import { config } from '../config/config.js';
 import { validateFile } from '../utils/parserUtils.js';
-import { dbModel as dbModel } from '../models/dataModel.js';
-import { parseJson as parseJson } from '../utils/parser.js';
+import { dbModel } from '../models/dataModel.js';
+import { parseJson } from '../utils/parser.js';
 
 /**
  * @description Decides which path the database is in

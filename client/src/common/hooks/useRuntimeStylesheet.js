@@ -6,9 +6,9 @@ export const useRuntimeStylesheet = (pathToFile) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      let response = await fetch(pathToFile);
+      const response = await fetch(pathToFile);
       if (response.ok) {
-        return await response.text();
+        return response.text();
       }
     };
 

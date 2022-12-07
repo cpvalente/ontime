@@ -1,4 +1,5 @@
 @use '../../../theme/v2Styles' as *;
+@use '../../../theme/ontimeColours' as *;
 @use '../blockMixins' as *;
 
 .eventBlock {
@@ -15,20 +16,19 @@
   grid-template-columns: $block-binder-width auto 1fr auto;
   grid-template-rows: 4px 36px 36px 36px 4px;
   align-items: center;
-  margin: 4px 2px;
   padding-right: $block-clearance;
   gap: 2px;
 
   &.selected {
-    background-color: #101010;
+    background-color: $gray-1350;
   }
 
   &.hasCursor {
-    outline: 1px solid #779BE7;
+    outline: 1px solid $blue-400;
   }
 
   &.skip {
-    border: 1px solid rgba(white, 0.03);
+    border: 1px solid $white-3;
     box-shadow: none;
 
     .delayNote,
@@ -52,7 +52,7 @@
 
   border-radius: $block-border-radius 0 0 $block-border-radius;
 
-  background-color: #303030; // to override inline
+  background-color: $gray-1050; // to override inline
   color: $section-white;
   font-size: 17px;
 
@@ -81,7 +81,7 @@
   .delayNote {
     font-size: 12px;
     line-height: 14px;
-    color: #E69056;
+    color: $ontime-delay-text;
   }
 }
 
@@ -112,7 +112,7 @@
 .progressBg {
   grid-area: progb;
   border-radius: 2px;
-  background-color: #282828;
+  background-color: $gray-1100;
   opacity: 1;
   height: 100%;
 }
@@ -155,18 +155,10 @@
   .statusIcon {
     width: 16px;
     height: 16px;
-    color: #404040;
+    color: $gray-1000;
   }
 
-  .statusNext.enabled {
-    color: $playback-start;
-  }
-
-  .statusDelay.enabled {
-    color: $ontime-delay;
-  }
-
-  .statusPublic.enabled {
-    color: $action-blue;
+  .statusIcon.active {
+    color: $active-indicator;
   }
 }

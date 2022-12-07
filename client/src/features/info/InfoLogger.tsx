@@ -71,7 +71,7 @@ export default function InfoLogger() {
         <>
           <div className={style.buttonBar}>
             <Button
-              variant={showUser ? 'ontime-filled' : 'ontime-outlined'}
+              variant={showUser ? 'ontime-filled' : 'ontime-subtle'}
               size='xs'
               onClick={() => setShowUser((s) => !s)}
               onAuxClick={() => disableOthers(LOG_FILTER.USER)}
@@ -80,7 +80,7 @@ export default function InfoLogger() {
               USER
             </Button>
             <Button
-              variant={showClient ? 'ontime-filled' : 'ontime-outlined'}
+              variant={showClient ? 'ontime-filled' : 'ontime-subtle'}
               size='xs'
               onClick={() => setShowClient((s) => !s)}
               onAuxClick={() => disableOthers(LOG_FILTER.CLIENT)}
@@ -89,7 +89,7 @@ export default function InfoLogger() {
               CLIENT
             </Button>
             <Button
-              variant={showServer ? 'ontime-filled' : 'ontime-outlined'}
+              variant={showServer ? 'ontime-filled' : 'ontime-subtle'}
               size='xs'
               onClick={() => setShowServer((s) => !s)}
               onAuxClick={() => disableOthers(LOG_FILTER.SERVER)}
@@ -98,7 +98,7 @@ export default function InfoLogger() {
               SERVER
             </Button>
             <Button
-              variant={showPlayback ? 'ontime-filled' : 'ontime-outlined'}
+              variant={showPlayback ? 'ontime-filled' : 'ontime-subtle'}
               size='xs'
               onClick={() => setShowPlayback((s) => !s)}
               onAuxClick={() => disableOthers(LOG_FILTER.PLAYBACK)}
@@ -107,7 +107,7 @@ export default function InfoLogger() {
               PLAYBACK
             </Button>
             <Button
-              variant={showRx ? 'ontime-filled' : 'ontime-outlined'}
+              variant={showRx ? 'ontime-filled' : 'ontime-subtle'}
               size='xs'
               onClick={() => setShowRx((s) => !s)}
               onAuxClick={() => disableOthers(LOG_FILTER.RX)}
@@ -116,7 +116,7 @@ export default function InfoLogger() {
               RX
             </Button>
             <Button
-              variant={showTx ? 'ontime-filled' : 'ontime-outlined'}
+              variant={showTx ? 'ontime-filled' : 'ontime-subtle'}
               size='xs'
               onClick={() => setShowTx((s) => !s)}
               onAuxClick={() => disableOthers(LOG_FILTER.TX)}
@@ -125,7 +125,7 @@ export default function InfoLogger() {
               TX
             </Button>
             <Button
-              variant='ontime-subtle'
+              variant='ontime-outlined'
               size='xs'
               onClick={clearLog}
             >

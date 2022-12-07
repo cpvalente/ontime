@@ -28,6 +28,11 @@ const appIcon = path.join(__dirname, './assets/logo.png');
 let loaded = 'Nothing loaded';
 let isQuitting = false;
 
+// initialise
+let win;
+let splash;
+let tray = null;
+
 (async () => {
   try {
     const loadDepPath = isProduction
@@ -56,7 +61,7 @@ let isQuitting = false;
  */
 function showNotification(title, text) {
   new Notification({
-    title: title,
+    title,
     body: text,
     silent: true,
   }).show();
@@ -82,13 +87,8 @@ function askToQuit() {
   win.send('user-request-shutdown');
 }
 
-let win;
-let splash;
-let tray = null;
-
 // Ensure there isn't another instance of the app running already
 const lock = app.requestSingleInstanceLock();
-
 if (!lock) {
   dialog.showErrorBox('Multiple instances', 'An instance if the App is already running.');
   app.quit();

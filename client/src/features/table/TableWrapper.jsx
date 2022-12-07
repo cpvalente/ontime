@@ -1,8 +1,7 @@
 import { useCallback, useContext, useEffect } from 'react';
 
-import { requestPatchEvent } from '../../common/api/eventsApi';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
-import useMutateEvents from '../../common/hooks/useMutateEvents';
+import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
@@ -17,9 +16,9 @@ export default function TableWrapper() {
   const { data: rundown } = useRundown();
   const { data: userFields } = useUserFields();
   const { data: featureData } = useCuesheet();
-
-  const mutation = useMutateEvents(requestPatchEvent);
+  const { updateEvent } = useEventAction();
   const { theme } = useContext(TableSettingsContext);
+
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Cuesheet';
@@ -55,11 +54,11 @@ export default function TableWrapper() {
 
     // submit
     try {
-      await mutation.mutateAsync(mutationObject);
+      await updateEvent(mutationObject);
     } catch (error) {
       console.error(error);
     }
-  }, [mutation, rundown]);
+  }, [updateEvent, rundown]);
 
   const exportHandler = useCallback(
     (headerData) => {

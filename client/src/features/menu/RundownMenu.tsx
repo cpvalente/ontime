@@ -61,21 +61,21 @@ const RundownMenu = () => {
           size='sm'
           variant='ontime-subtle'
         >
-          Add event
+          Event...
         </MenuButton>
         <MenuList>
           <MenuItem  icon={<IoAdd />} onClick={() => eventAction('event')}>
-            Event at start
+            Add event at start
           </MenuItem>
           <MenuItem icon={<IoTimerOutline />} onClick={() => eventAction('delay')}>
-            Delay at start
+            Add delay at start
           </MenuItem>
           <MenuItem icon={<FiMinusCircle />} onClick={() => eventAction('block')}>
-            Block at start
+            Add block at start
           </MenuItem>
           <MenuDivider />
           <MenuItem icon={<FiTrash2 />} onClick={() => eventAction('delete-all')} color='#D20300'>
-            Delete All
+            Delete all events
           </MenuItem>
         </MenuList>
       </Menu>
