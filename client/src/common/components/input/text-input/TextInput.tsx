@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { Input, Textarea } from '@chakra-ui/react';
 
+import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
 import { Size } from '../../../models/UtilTypes';
 
 import useReactiveTextInput from './useReactiveTextInput';
@@ -9,9 +10,9 @@ interface TextInputProps {
   isTextArea?: boolean;
   isFullHeight?: boolean;
   size?: Size;
-  field: string;
+  field: EventEditorSubmitActions;
   initialText?: string;
-  submitHandler: (field: string, newValue: string) => void;
+  submitHandler: (field: EventEditorSubmitActions, newValue: string) => void;
 }
 
 export default function TextInput(props: TextInputProps) {
