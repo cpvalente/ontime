@@ -1,7 +1,11 @@
+@use '../../../../theme/v2Styles' as *;
+
 .delayInput {
   display: flex;
-  gap: 8px;
+  gap: $element-spacing;
   align-items: center;
+  color: $ontime-delay-text;
+  font-size: $text-body-size;
 }
 
 .inputField {
