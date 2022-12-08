@@ -11,9 +11,10 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
     "eslint-config-prettier",
-   "plugin:@tanstack/eslint-plugin-query/recommended"
+    "plugin:@tanstack/eslint-plugin-query/recommended"
   ],
   "plugins": [
     "react",
@@ -22,6 +23,8 @@
     "@tanstack/query"
   ],
   "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
     "no-useless-concat": "warn",
     "prefer-template": "warn",
     "react/jsx-no-bind": [
