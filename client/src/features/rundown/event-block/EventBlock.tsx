@@ -108,7 +108,7 @@ export default function EventBlock(props: EventBlockProps) {
 
       updateEvent({ id: eventId, title: cleanVal });
     },
-    [updateEvent, title],
+    [title, updateEvent, eventId],
   );
 
   const eventIsPlaying = selected && playback === 'start';

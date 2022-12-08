@@ -92,7 +92,7 @@ export default function EventEditor() {
       }
       return valid.value;
     },
-    [emitWarning, event?.timeStart, event?.timeEnd],
+    [event, emitWarning],
   );
 
   const togglePublic = useCallback((currentValue: boolean) => {
@@ -101,7 +101,7 @@ export default function EventEditor() {
       }
       updateEvent({ id: event.id, isPublic: !currentValue });
     },
-    [event?.id, updateEvent],
+    [event, updateEvent],
   );
 
   if (!event) {

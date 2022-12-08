@@ -132,16 +132,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
       }
     },
-    [
-      addEvent,
-      calculateDuration,
-      data,
-      defaultPublic,
-      deleteEvent,
-      emitError,
-      startTimeIsLastEnd,
-      updateEvent,
-    ],
+    [addEvent, data, defaultPublic, deleteEvent, emitError, moveCursorTo, openId, setOpenId, startTimeIsLastEnd, updateEvent],
   );
 
   if (data.type === 'event') {

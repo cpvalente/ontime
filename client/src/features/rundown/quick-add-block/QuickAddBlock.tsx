@@ -58,7 +58,7 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
       }
     }
 
-  }, [addEvent, doPublic, doStartTime, emitError, previousId, previousEventId]);
+  }, [defaultPublic, previousId, previousEventId, addEvent, emitError]);
 
   return (
     <div className={style.quickAdd}>

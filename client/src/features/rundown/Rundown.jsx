@@ -121,7 +121,7 @@ export default function Rundown(props) {
       block: 'nearest',
       inline: 'start',
     });
-  }, [cursor]);
+  }, [cursorRef]);
 
   // if selected event
   // or cursor settings changed
@@ -143,7 +143,7 @@ export default function Rundown(props) {
       // move cursor
       moveCursorTo(gotoIndex);
     }
-  }, [data.selectedEventId, isCursorLocked, moveCursorTo]);
+  }, [data.selectedEventId, entries, isCursorLocked, moveCursorTo]);
 
   // DND
   const handleOnDragEnd = useCallback(

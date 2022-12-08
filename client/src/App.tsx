@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -19,7 +19,7 @@ import('typeface-open-sans');
 function App() {
   const { isElectron, sendToElectron } = useElectronEvent();
 
-  const handleKeyPress = useCallback((event:KeyboardEvent) => {
+  const handleKeyPress = (event:KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
       // check if the alt key is pressed
@@ -29,7 +29,7 @@ function App() {
           sendToElectron('set-window', 'show-dev');
         }
       }
-    },[]);
+    };
 
   useEffect(() => {
     if (isElectron) {
@@ -40,7 +40,7 @@ function App() {
         document.removeEventListener('keydown', handleKeyPress);
       }
     };
-  }, [handleKeyPress]);
+  }, []);
 
   return (
     <ChakraProvider resetCSS theme={theme}>
