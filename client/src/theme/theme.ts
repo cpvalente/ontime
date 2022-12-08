@@ -7,6 +7,7 @@ import {
   ontimeButtonSubtleWhite,
 } from './ontimeButton';
 import { ontimeCheckboxOnDark } from './ontimeCheckbox';
+import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeSelect } from './ontimeSelect';
 import { ontimeSwitch } from './ontimeSwitch';
@@ -36,19 +37,13 @@ const theme = extendTheme({
       },
     },
     Editable: {
-      baseStyle: {
-        input: {
-          borderRadius: '2px',
-          width: '100%',
-        },
-        preview: {
-          width: '100%',
-        },
+      variants: {
+        'ontime': { ...ontimeEditable },
       },
     },
     Input: {
       baseStyle: {
-        borderRadius: '2px',
+        borderRadius: '3px',
         border: '1px',
       },
       variants: {

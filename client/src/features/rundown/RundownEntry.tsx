@@ -132,16 +132,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
       }
     },
-    [
-      addEvent,
-      calculateDuration,
-      data,
-      defaultPublic,
-      deleteEvent,
-      emitError,
-      startTimeIsLastEnd,
-      updateEvent,
-    ],
+    [addEvent, data, defaultPublic, deleteEvent, emitError, moveCursorTo, openId, setOpenId, startTimeIsLastEnd, updateEvent],
   );
 
   if (data.type === 'event') {
@@ -168,9 +159,19 @@ export default function RundownEntry(props: RundownEntryProps) {
       />
     );
   } else if (data.type === 'block') {
-    return <BlockBlock index={index} data={data} actionHandler={actionHandler} />;
+    return <BlockBlock
+      index={index}
+      data={data}
+      hasCursor={hasCursor}
+      actionHandler={actionHandler}
+    />;
   } else if (data.type === 'delay') {
-    return <DelayBlock index={index} data={data} actionHandler={actionHandler} />;
+    return <DelayBlock
+      index={index}
+      data={data}
+      hasCursor={hasCursor}
+      actionHandler={actionHandler}
+    />;
   }
   return null;
 };

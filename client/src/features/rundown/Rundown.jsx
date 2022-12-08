@@ -74,7 +74,7 @@ export default function Rundown(props) {
       if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
         // Arrow down
         if (event.keyCode === 40) {
-          if (cursor < entries.length - 2) moveCursorDown();
+          if (cursor < entries.length - 1) moveCursorDown();
         }
         // Arrow up
         if (event.keyCode === 38) {
@@ -121,7 +121,7 @@ export default function Rundown(props) {
       block: 'nearest',
       inline: 'start',
     });
-  }, [cursor]);
+  }, [cursorRef]);
 
   // if selected event
   // or cursor settings changed
@@ -143,7 +143,7 @@ export default function Rundown(props) {
       // move cursor
       moveCursorTo(gotoIndex);
     }
-  }, [data.selectedEventId, isCursorLocked, moveCursorTo]);
+  }, [data.selectedEventId, entries, isCursorLocked, moveCursorTo]);
 
   // DND
   const handleOnDragEnd = useCallback(

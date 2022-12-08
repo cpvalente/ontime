@@ -11,9 +11,10 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
     "eslint-config-prettier",
-   "plugin:@tanstack/eslint-plugin-query/recommended"
+    "plugin:@tanstack/eslint-plugin-query/recommended"
   ],
   "plugins": [
     "react",

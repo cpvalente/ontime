@@ -61,7 +61,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     return () => {
       socket.off('logger');
     };
-  }, [socket]);
+  }, []);
 
   /**
    * Utility function sends message over socket
@@ -86,7 +86,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
         setLogData((currentLog) => currentLog.slice(1));
       }
     },
-    [logData.length, setLogData, socket],
+    [logData.length, setLogData],
   );
 
   /**

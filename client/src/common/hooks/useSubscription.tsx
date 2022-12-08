@@ -16,7 +16,7 @@ export default function useSubscription<T>(topic: string, initialState: T, reque
     return () => {
       socket.off(topic);
     };
-  }, [requestString, socket, topic]);
+  }, [requestString, topic]);
 
   return [state, setState] as const;
 };

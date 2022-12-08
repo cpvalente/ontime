@@ -81,7 +81,7 @@ export default function MenuBar(props: MenuBarProps) {
         }
       }
     },
-    [isElectron, isSettingsOpen, onSettingsClose, onSettingsOpen],
+    [isSettingsOpen, onSettingsClose, onSettingsOpen],
   );
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function MenuBar(props: MenuBarProps) {
         document.removeEventListener('keydown', handleKeyPress);
       }
     };
-  }, [handleKeyPress]);
+  }, [handleKeyPress, isElectron]);
 
   return (
     <VStack>

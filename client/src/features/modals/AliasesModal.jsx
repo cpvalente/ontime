@@ -75,7 +75,7 @@ export default function AliasesModal() {
       }
       setSubmitting(false);
     },
-    [aliases, refetch],
+    [aliases, emitError, refetch],
   );
 
   /**

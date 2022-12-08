@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
@@ -81,6 +81,7 @@ export default function EventBlock(props: EventBlockProps) {
   const [openId, setOpenId] = useAtom(editorEventId);
   const { updateEvent } = useEventAction();
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
+  const onFocusRef = useRef<null | HTMLSpanElement>(null);
 
   const binderColours = colour && getAccessibleColour(colour);
 
@@ -89,6 +90,12 @@ export default function EventBlock(props: EventBlockProps) {
   useEffect(() => {
     setBlockTitle(title);
   }, [title]);
+
+  useEffect(() => {
+    if (hasCursor) {
+      onFocusRef?.current?.focus();
+    }
+  }, [hasCursor]);
 
   const handleTitle = useCallback(
     (text: string) => {
@@ -101,7 +108,7 @@ export default function EventBlock(props: EventBlockProps) {
 
       updateEvent({ id: eventId, title: cleanVal });
     },
-    [updateEvent, title],
+    [title, updateEvent, eventId],
   );
 
   const eventIsPlaying = selected && playback === 'start';
@@ -133,7 +140,7 @@ export default function EventBlock(props: EventBlockProps) {
             tabIndex={-1}
             onClick={() => actionHandler('set-cursor', index)}
           >
-            <span className={style.drag} {...provided.dragHandleProps}>
+            <span className={style.drag} {...provided.dragHandleProps} ref={onFocusRef}>
               <IoReorderTwo />
             </span>
             {eventIndex}
@@ -184,6 +191,7 @@ export default function EventBlock(props: EventBlockProps) {
             previousEnd={previousEnd}
           />
           <Editable
+            variant='ontime'
             value={blockTitle}
             className={`${style.eventTitle} ${!title || title === '' ? style.noTitle : ''}`}
             placeholder='Event title'
@@ -198,21 +206,25 @@ export default function EventBlock(props: EventBlockProps) {
             <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
               <EventBlockProgressBar playback={playback} />
             </div>
-            <div className={style.eventStatus}>
+            <div className={style.eventStatus} tabIndex={-1}
+            >
               <Tooltip
                 label='Next event'
                 isDisabled={!next}
-                shouldWrapChildren {...tooltipProps}
+                {...tooltipProps}
               >
-                <IoPlaySkipForward
-                  className={`${style.statusIcon} ${next ? style.active : ''}`} />
+                <span>
+                  <IoPlaySkipForward
+                    className={`${style.statusIcon} ${next ? style.active : ''}`} />
+                </span>
               </Tooltip>
               <Tooltip
                 label={`${isPublic ? 'Event is public' : 'Event is private'}`}
                 {...tooltipProps}
-                shouldWrapChildren
               >
-                <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : ''}`} />
+                <span>
+                  <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : ''}`} />
+                </span>
               </Tooltip>
             </div>
           </div>

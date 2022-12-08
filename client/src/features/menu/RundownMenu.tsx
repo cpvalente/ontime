@@ -41,7 +41,7 @@ const RundownMenu = () => {
           break;
       }
     },
-    [toggleCursorLocked],
+    [addEvent, deleteAllEvents],
   );
 
   return (

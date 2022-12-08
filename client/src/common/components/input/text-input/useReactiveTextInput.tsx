@@ -76,7 +76,7 @@ export default function useReactiveTextInput(
           break;
       }
     },
-    [initialText, handleSubmit, text],
+    [initialText, options?.submitOnEnter, handleSubmit, text],
   );
 
   return {

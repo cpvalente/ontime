@@ -60,7 +60,7 @@ export const useEventAction = () => {
         emitError(`Error fetching data: ${error.message}`);
       }
     },
-    [_addEventMutation, emitError],
+    [_addEventMutation, emitError, queryClient],
   );
 
   /**

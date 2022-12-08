@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@chakra-ui/react';
 import { clamp } from 'common/utils/math';
-import PropTypes from 'prop-types';
 
 import style from './DelayInput.module.scss';
 
@@ -81,8 +80,3 @@ export default function DelayInput(props: DelayInputProps) {
     </label>
   );
 }
-
-DelayInput.propTypes = {
-  submitHandler: PropTypes.func,
-  value: PropTypes.number,
-};

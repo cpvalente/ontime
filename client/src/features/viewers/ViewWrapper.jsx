@@ -50,7 +50,7 @@ const withSocket = (Component) => {
       socket.on('publicselected-id', (data) => {
         setPublicSelectedId(data);
       });
-    }, [socket]);
+    }, []);
 
 
     const publicEvents = useMemo(() => {

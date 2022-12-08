@@ -10,20 +10,23 @@ import { useEventAction } from 'common/hooks/useEventAction';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import getDelayTo from 'common/utils/getDelayTo';
 import { stringFromMillis } from 'common/utils/time';
-import { calculateDuration, validateEntry } from 'common/utils/timesManager';
+import { calculateDuration, TimeEntryField, validateEntry } from 'common/utils/timesManager';
 import { useAtom } from 'jotai';
 
 import CopyTag from '../../common/components/copy-tag/CopyTag';
 import useRundown from '../../common/hooks-query/useRundown';
+import { OntimeEvent } from '../../common/models/EventTypes';
 
 import style from './EventEditor.module.scss';
+
+export type EventEditorSubmitActions = keyof OntimeEvent | 'durationOverride';
 
 export default function EventEditor() {
   const [openId] = useAtom(editorEventId);
   const { data } = useRundown();
   const { emitWarning, emitError } = useContext(LoggingContext);
   const { updateEvent } = useEventAction();
-  const [event, setEvent] = useState(null);
+  const [event, setEvent] = useState<OntimeEvent | null>(null);
   const [delay, setDelay] = useState(0);
 
   useEffect(() => {
@@ -33,28 +36,34 @@ export default function EventEditor() {
 
     const eventIndex = data.findIndex((event) => event.id === openId);
     if (eventIndex > -1) {
-      setDelay(getDelayTo(data, eventIndex));
-      setEvent(data[eventIndex]);
+      const event = data[eventIndex];
+      if (event.type === 'event') {
+        setDelay(getDelayTo(data, eventIndex));
+        setEvent(data[eventIndex] as OntimeEvent);
+      }
     }
   }, [data, event, openId]);
 
   const handleSubmit = useCallback(
-    (field, value) => {
-      const newEventData = { id: event.id };
+    (field: EventEditorSubmitActions, value: any) => {
+      if (event === null) {
+        return;
+      }
+      const newEventData: Partial<OntimeEvent> = { id: event.id };
       switch (field) {
         case 'durationOverride': {
           // duration defines timeEnd
-          newEventData.timeEnd = event.timeStart += value;
+          newEventData.timeEnd = event.timeStart += value as number;
           break;
         }
         case 'timeStart': {
-          newEventData.duration = calculateDuration(value, event.timeEnd);
-          newEventData.timeStart = value;
+          newEventData.duration = calculateDuration(value as number, event.timeEnd);
+          newEventData.timeStart = value as number;
           break;
         }
         case 'timeEnd': {
-          newEventData.duration = calculateDuration(event.timeStart, value);
-          newEventData.timeEnd = value;
+          newEventData.duration = calculateDuration(event.timeStart, value as number);
+          newEventData.timeEnd = value as number;
           break;
         }
         default: {
@@ -73,22 +82,26 @@ export default function EventEditor() {
     [emitError, event, updateEvent],
   );
 
-  const timerValidationHandler = useCallback(
-    (entry, val) => {
+  const timerValidationHandler = useCallback((entry: TimeEntryField, val: number) => {
+      if (!event) {
+        return;
+      }
       const valid = validateEntry(entry, val, event.timeStart, event.timeEnd);
       if (!valid.value) {
         emitWarning(`Time Input Warning: ${valid.catch}`);
       }
       return valid.value;
     },
-    [emitWarning, event?.timeStart, event?.timeEnd],
+    [event, emitWarning],
   );
 
-  const togglePublic = useCallback(
-    (currentValue) => {
+  const togglePublic = useCallback((currentValue: boolean) => {
+      if (!event) {
+        return;
+      }
       updateEvent({ id: event.id, isPublic: !currentValue });
     },
-    [event?.id, updateEvent],
+    [event, updateEvent],
   );
 
   if (!event) {
@@ -197,7 +210,7 @@ export default function EventEditor() {
                 handleChange={(value) => handleSubmit('colour', value)}
               />
               <Button
-                rightIcon={<IoBan />}
+                leftIcon={<IoBan />}
                 onClick={() => handleSubmit('colour', '')}
                 variant='ontime-subtle'
                 size='sm'
