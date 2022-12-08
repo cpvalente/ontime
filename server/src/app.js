@@ -27,12 +27,15 @@ import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { ONTIME_VERSION } from './version.js';
+import { initSentry } from './modules/sentry.js';
 
 // get environment
 const env = process.env.NODE_ENV || 'production';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const isTest = process.env.IS_TEST;
+
+initSentry(isTest ? 'test' : env);
 
 console.log(`Starting ontime version ${ONTIME_VERSION}`);
 
