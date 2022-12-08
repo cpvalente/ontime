@@ -191,6 +191,7 @@ export default function EventBlock(props: EventBlockProps) {
             previousEnd={previousEnd}
           />
           <Editable
+            variant='ontime'
             value={blockTitle}
             className={`${style.eventTitle} ${!title || title === '' ? style.noTitle : ''}`}
             placeholder='Event title'
