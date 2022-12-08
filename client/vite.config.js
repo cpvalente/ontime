@@ -1,10 +1,24 @@
+import sentryVitePlugin from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 
+import { ONTIME_VERSION } from '../server/src/version.js';
+
 export default defineConfig({
-  plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
+  plugins: [
+    react(),
+    viteTsconfigPaths(),
+    svgrPlugin(),
+    sentryVitePlugin({
+      org: "carlos-valente",
+      project: "ontime",
+      include: "./build",
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      release: ONTIME_VERSION,
+    }),
+  ],
   server: {
     port: 3000,
   },
@@ -14,6 +28,7 @@ export default defineConfig({
     environment: 'jsdom',
   },
   build: {
-    outDir: './build'
+    outDir: './build',
+    sourcemap: true,
   }
 });

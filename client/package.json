@@ -53,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@sentry/vite-plugin": "^0.2.4",
     "@tanstack/eslint-plugin-query": "^4.15.1",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",

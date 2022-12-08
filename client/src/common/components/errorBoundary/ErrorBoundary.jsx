@@ -2,7 +2,6 @@
 import React from 'react';
 import * as Sentry from '@sentry/react';
 
-import { ONTIME_VERSION } from '../../../../../server/src/version.js';
 import { LoggingContext } from '../../context/LoggingContext';
 
 import style from './ErrorBoundary.module.scss';
@@ -51,7 +50,7 @@ class ErrorBoundary extends React.Component {
             <div
               role='button'
               className={style.report}
-              onClick={() => Sentry.showReportDialog({ eventId: this.state.eventId, appVersion: ONTIME_VERSION })}
+              onClick={() => Sentry.showReportDialog({ eventId: this.state.eventId })}
             >
               Report error
             </div>
