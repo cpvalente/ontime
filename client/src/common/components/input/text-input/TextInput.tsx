@@ -21,7 +21,7 @@ export default function TextInput(props: TextInputProps) {
 
   const submitCallback = useCallback((newValue: string) =>
       submitHandler(field, newValue)
-    , [field]);
+    ,[field, submitHandler]);
 
   const textInputProps = useReactiveTextInput(initialText, submitCallback, { submitOnEnter: true });
   const textAreaProps = useReactiveTextInput(initialText, submitCallback);
