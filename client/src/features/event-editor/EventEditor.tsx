@@ -210,7 +210,7 @@ export default function EventEditor() {
                 handleChange={(value) => handleSubmit('colour', value)}
               />
               <Button
-                rightIcon={<IoBan />}
+                leftIcon={<IoBan />}
                 onClick={() => handleSubmit('colour', '')}
                 variant='ontime-subtle'
                 size='sm'

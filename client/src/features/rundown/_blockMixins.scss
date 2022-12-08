@@ -22,7 +22,7 @@ $block-cursor-color: $blue-400;
 }
 
 @mixin block-spacing() {
-  padding: 4px 10px 4px 2px;
+  padding: 4px 8px 4px 2px;
   gap: 2px;
 }
 
@@ -34,5 +34,9 @@ $block-cursor-color: $blue-400;
   transition: opacity 0.3s;
   &:hover {
     opacity: 1;
+  }
+  &:focus {
+    box-shadow: none;
+    outline: none;
   }
 }
