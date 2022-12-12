@@ -49,7 +49,6 @@ let tray = null;
     // Start OSC Server
     await startOSCServer();
   } catch (error) {
-    console.log(error);
     loaded = error;
   }
 })();
