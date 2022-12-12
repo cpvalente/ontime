@@ -59,24 +59,6 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
         </>
       )}
       <div className={style.btn}>
-        <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid}
-                 shouldWrapChildren={disableButtons}>
-          <TapButton
-            onClick={() => setPlayback.delay(-5)}
-            disabled={disableButtons}
-            square>
-            -5
-          </TapButton>
-        </Tooltip>
-        <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid}
-                 shouldWrapChildren={disableButtons}>
-          <TapButton
-            onClick={() => setPlayback.delay(+5)}
-            disabled={disableButtons}
-            square>
-            5
-          </TapButton>
-        </Tooltip>
         <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid}
                  shouldWrapChildren={disableButtons}>
           <TapButton
@@ -93,6 +75,24 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
             disabled={disableButtons}
             square>
             1
+          </TapButton>
+        </Tooltip>
+        <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid}
+                 shouldWrapChildren={disableButtons}>
+          <TapButton
+            onClick={() => setPlayback.delay(-5)}
+            disabled={disableButtons}
+            square>
+            -5
+          </TapButton>
+        </Tooltip>
+        <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid}
+                 shouldWrapChildren={disableButtons}>
+          <TapButton
+            onClick={() => setPlayback.delay(+5)}
+            disabled={disableButtons}
+            square>
+            5
           </TapButton>
         </Tooltip>
       </div>
