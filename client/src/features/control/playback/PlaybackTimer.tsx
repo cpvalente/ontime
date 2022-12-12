@@ -74,7 +74,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
             onClick={() => setPlayback.delay(1)}
             disabled={disableButtons}
             square>
-            1
+            +1
           </TapButton>
         </Tooltip>
         <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid}
@@ -92,7 +92,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
             onClick={() => setPlayback.delay(+5)}
             disabled={disableButtons}
             square>
-            5
+            +5
           </TapButton>
         </Tooltip>
       </div>
