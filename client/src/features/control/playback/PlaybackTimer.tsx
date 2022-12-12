@@ -2,7 +2,7 @@ import { Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -12,7 +12,7 @@ import TapButton from './TapButton';
 import style from './PlaybackControl.module.scss';
 
 interface PlaybackTimerProps {
-  playback: Playstate;
+  playback: Playback;
   selectedId: string | null;
 }
 

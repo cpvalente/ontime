@@ -1,2 +1,2 @@
-export type Playstate = 'roll' | 'start' | 'pause' | 'stop';
+export type Playback = 'roll' | 'play' | 'pause' | 'stop' | 'armed';
 export type TimeFormat = '12' | '24';

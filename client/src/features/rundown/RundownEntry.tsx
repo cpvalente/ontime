@@ -7,7 +7,7 @@ import {
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { OntimeEvent, OntimeRundownEntry } from 'common/models/EventTypes';
-import { Playstate } from 'common/models/OntimeTypes';
+import { Playback } from 'common/models/OntimeTypes';
 import { cloneEvent } from 'common/utils/eventsManager';
 import { calculateDuration } from 'common/utils/timesManager';
 import { useAtom, useAtomValue } from 'jotai';
@@ -36,7 +36,7 @@ interface RundownEntryProps {
   next: boolean;
   delay: number;
   previousEnd: number;
-  playback: Playstate;
+  playback: Playback;
 }
 
 export default function RundownEntry(props: RundownEntryProps) {

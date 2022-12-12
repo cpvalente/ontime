@@ -124,7 +124,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   userOptions.hideMessagesOverlay = Boolean(hideMessagesOverlay);
 
   const showOverlay = pres.text !== '' && pres.visible;
-  const isPlaying = time.playstate !== 'pause';
+  const isPlaying = time.playback !== 'pause';
   const timer = formatDisplay(time.running, true);
   const clean = timer.replace('/:/g', '');
   const showFinished = time.isNegative && !userOptions?.hideOvertime;

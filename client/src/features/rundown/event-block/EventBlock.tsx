@@ -17,7 +17,7 @@ import { useAtom } from 'jotai';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { setEventPlayback } from '../../../common/hooks/useSocket';
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../RundownEntry';
 
@@ -52,7 +52,7 @@ interface EventBlockProps {
   skip: boolean;
   selected: boolean;
   hasCursor: boolean;
-  playback?: Playstate;
+  playback?: Playback;
   actionHandler: (action: EventItemActions, payload?: any) => void;
 }
 

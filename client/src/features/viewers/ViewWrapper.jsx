@@ -42,7 +42,7 @@ const withSocket = (Component) => {
     });
     const [selectedId] = useSubscription('selected-id', null);
     const [nextId] = useSubscription('next-id', null);
-    const [playback] = useSubscription('playstate', null);
+    const [playback] = useSubscription('playback', null);
 
     // Ask for update on load
     useEffect(() => {
@@ -107,8 +107,8 @@ const withSocket = (Component) => {
     // get clock string
     const TimeManagerType = {
       ...timer,
-      finished: playback === 'start' && timer.isNegative && timer.startedAt,
-      playstate: playback,
+      finished: playback === 'play' && timer.isNegative && timer.startedAt,
+      playback,
     };
 
     // prevent render until we get all the data we need

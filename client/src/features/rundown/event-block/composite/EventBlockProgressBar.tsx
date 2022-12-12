@@ -1,11 +1,11 @@
 import { useTimer } from '../../../../common/hooks/useSocket';
-import { Playstate } from '../../../../common/models/OntimeTypes';
+import { Playback } from '../../../../common/models/OntimeTypes';
 import { clamp } from '../../../../common/utils/math';
 
 import style from './EventBlockProgressBar.module.scss';
 
 interface EventBlockProgressBarProps {
-  playback?: Playstate;
+  playback?: Playback;
 }
 
 export default function EventBlockProgressBar(props: EventBlockProgressBarProps) {

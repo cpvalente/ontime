@@ -32,7 +32,7 @@ export const fetchTimerData = (time, follow, selectedId) => {
 
   if (selectedId === follow.id) {
     // check that is not running
-    message = time.playstate === 'pause' ? timerMessages.waiting : timerMessages.running;
+    message = time.playback === 'pause' ? timerMessages.waiting : timerMessages.running;
     timer = time.running;
   } else if (time.clock < follow.timeStart) {
     // if it hasnt started, we count to start

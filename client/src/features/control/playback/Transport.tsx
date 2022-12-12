@@ -5,7 +5,7 @@ import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 
 import { setPlayback } from '../../../common/hooks/useSocket';
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import TapButton from './TapButton';
@@ -13,7 +13,7 @@ import TapButton from './TapButton';
 import style from './PlaybackControl.module.scss';
 
 interface TransportProps {
-  playback: Playstate;
+  playback: Playback;
   selectedId: string | null;
   noEvents: boolean;
 }
@@ -43,7 +43,7 @@ export default function Transport(props: TransportProps) {
       <Tooltip label='Reload event' openDelay={tooltipDelayMid}>
         <TapButton
           onClick={() => setPlayback.reload()}
-          disabled={selectedId == null || isRolling || noEvents}
+          disabled={selectedId === null || isRolling}
         >
           <IoReload className={style.invertX} />
         </TapButton>
@@ -51,7 +51,7 @@ export default function Transport(props: TransportProps) {
       <Tooltip label='Unload Event' openDelay={tooltipDelayMid}>
         <TapButton
           onClick={() => setPlayback.stop()}
-          disabled={(selectedId == null && !isRolling) || noEvents}
+          disabled={(selectedId === null && !isRolling)}
           theme='stop'
         >
           <IoStop />
