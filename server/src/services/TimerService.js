@@ -69,6 +69,25 @@ class TimerService {
   }
 
   /**
+   * Reloads information for currently running timer
+   * @param timer
+   */
+  hotReload(timer) {
+    if (timer.id !== this.loadedTimerId) {
+      return;
+    }
+    if (timer.skip) {
+      this.stop();
+    }
+    console.log('hot reload', this.timer.duration, timer);
+
+    // update relevant information and force update
+    this.loadedTimer = timer;
+    this.timer.duration = timer.duration;
+    this.update();
+  }
+
+  /**
    * Loads given timer to object
    * @param {object} timer
    * @param {number} timer.id

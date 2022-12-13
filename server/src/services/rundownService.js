@@ -7,6 +7,8 @@ import {
 } from '../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
+import { eventTimer } from './TimerService.js';
+import { socketProvider } from '../classes/socket/SocketController.js';
 
 const affectedLoaded = (affectedIds) => {
   const now = eventLoader.selectedEventId;
@@ -71,18 +73,21 @@ export function updateTimer(affectedIds) {
 
   // we need to reload in a few scenarios:
   // 1. we are not confident that changes do not affect running event
-  // 2. the edited event is currently being used (now or next)
-  // 3. the edited event replaces one of the previous (next)
+  // 2. the edited event is in memory (now or next) running
+  // 3. the edited event replaces next event
   if (typeof affectedIds === 'undefined') {
-    global.timer.syncLoaded(runningEventId);
+    const { loadedEvent } = eventLoader.loadById(runningEventId);
+    eventTimer.hotReload(loadedEvent);
     return true;
   }
   if (affectedLoaded(affectedIds)) {
-    global.timer.syncLoaded(runningEventId);
+    const { loadedEvent } = eventLoader.loadById(runningEventId);
+    eventTimer.hotReload(loadedEvent);
     return true;
   }
   if (isNewNext()) {
-    global.timer.syncLoaded(runningEventId);
+    const { loadedEvent } = eventLoader.loadById(runningEventId);
+    eventTimer.hotReload(loadedEvent);
     return true;
   }
   return false;
@@ -126,6 +131,7 @@ export async function addEvent(eventData) {
     throw new Error(error);
   }
   updateTimer([id]);
+  socketProvider.broadcastState();
   return newEvent;
 }
 
@@ -137,6 +143,7 @@ export async function editEvent(eventData) {
   }
   const newEvent = await DataProvider.updateEventById(eventId, eventData);
   updateTimer([eventId]);
+  socketProvider.broadcastState();
   return newEvent;
 }
 
@@ -148,6 +155,7 @@ export async function editEvent(eventData) {
 export async function deleteEvent(eventId) {
   await DataProvider.deleteEvent(eventId);
   updateTimer([eventId]);
+  socketProvider.broadcastState();
 }
 
 /**
@@ -157,6 +165,7 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await DataProvider.clearRundown();
   updateTimer();
+  socketProvider.broadcastState();
 }
 
 /**
@@ -237,4 +246,5 @@ export async function applyDelay(eventId) {
   // update rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
+  socketProvider.broadcastState();
 }
