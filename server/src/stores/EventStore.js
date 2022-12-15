@@ -13,4 +13,7 @@ export const runtimeState = {
     store[key] = value;
     socketProvider.send(key, value);
   },
+  poll() {
+    return store;
+  },
 };
