@@ -1,5 +1,6 @@
 import sentryVitePlugin from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
@@ -30,5 +31,10 @@ export default defineConfig({
   build: {
     outDir: './build',
     sourcemap: true,
-  }
+  },
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
 });
