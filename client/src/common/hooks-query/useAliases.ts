@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { ALIASES } from '../api/apiConstants';
 import { getAliases } from '../api/ontimeApi';
 
@@ -15,6 +16,7 @@ export default function useAliases() {
     placeholderData: [],
     retry: 5,
     retryDelay: attempt => attempt * 2500,
+    refetchInterval: queryRefetchIntervalSlow,
   });
 
   return { data, status, isError, refetch };
