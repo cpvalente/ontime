@@ -79,7 +79,6 @@ class TimerService {
     if (timer.skip) {
       this.stop();
     }
-    console.log('hot reload', this.timer.duration, timer);
 
     // update relevant information and force update
     this.loadedTimer = timer;

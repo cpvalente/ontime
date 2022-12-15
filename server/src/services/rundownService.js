@@ -99,7 +99,7 @@ export function updateTimer(affectedIds) {
  * @return {unknown[]}
  */
 export async function addEvent(eventData) {
-  const numEvents = DataProvider.getRundownLenght();
+  const numEvents = DataProvider.getRundownLength();
   if (numEvents > MAX_EVENTS) {
     throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
   }
