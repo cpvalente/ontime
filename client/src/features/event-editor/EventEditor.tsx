@@ -21,6 +21,7 @@ import style from './EventEditor.module.scss';
 
 export type EventEditorSubmitActions = keyof OntimeEvent | 'durationOverride';
 
+// Todo: add previous end to TimeInput fields
 export default function EventEditor() {
   const [openId] = useAtom(editorEventId);
   const { data } = useRundown();
@@ -45,7 +46,7 @@ export default function EventEditor() {
   }, [data, event, openId]);
 
   const handleSubmit = useCallback(
-    (field: EventEditorSubmitActions, value: any) => {
+    (field: EventEditorSubmitActions, value: string | number) => {
       if (event === null) {
         return;
       }
@@ -53,7 +54,8 @@ export default function EventEditor() {
       switch (field) {
         case 'durationOverride': {
           // duration defines timeEnd
-          newEventData.timeEnd = event.timeStart += value as number;
+          newEventData.duration = value as number;
+          newEventData.timeEnd = event.timeStart + (value as number);
           break;
         }
         case 'timeStart': {
@@ -149,11 +151,10 @@ export default function EventEditor() {
           />
           <label className={style.inputLabel}>Duration</label>
           <TimeInput
-            name='duration'
+            name='durationOverride'
             submitHandler={handleSubmit}
             validationHandler={timerValidationHandler}
             time={event.duration}
-            delay={delay}
             placeholder='Duration'
           />
         </div>
@@ -206,8 +207,9 @@ export default function EventEditor() {
             <label className={style.inputLabel}>Colour</label>
             <div className={style.inline}>
               <ColourInput
+                name="colour"
                 value={event?.colour}
-                handleChange={(value) => handleSubmit('colour', value)}
+                handleChange={handleSubmit}
               />
               <Button
                 leftIcon={<IoBan />}

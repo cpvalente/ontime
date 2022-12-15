@@ -60,7 +60,7 @@ export default function RundownEntry(props: RundownEntryProps) {
 
   // Create / delete new events
   type FieldValue = {
-    field: keyof OntimeEvent;
+    field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
     value: unknown;
   }
   const actionHandler = useCallback(
@@ -107,9 +107,10 @@ export default function RundownEntry(props: RundownEntryProps) {
           const { field, value } = payload as FieldValue;
           const newData: Partial<OntimeEvent> = { id: data.id };
 
-          if (field === 'duration' && data.type === 'event') {
+          if (field === 'durationOverride' && data.type === 'event') {
             // duration defines timeEnd
-            newData.timeEnd = data.timeStart += value as number;
+            newData.duration = value as number;
+            newData.timeEnd = data.timeStart + (value as number);
             updateEvent(newData);
           } else if (field === 'timeStart' && data.type === 'event') {
             newData.duration = calculateDuration(value as number, data.timeEnd);
