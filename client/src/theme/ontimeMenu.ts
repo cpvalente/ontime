@@ -3,6 +3,7 @@ export const ontimeMenuOnDark = {
     borderRadius: "3px",
     border: 'none',
     bg: '#fff', // $gray-50
+    zIndex: 100,
   },
   item: {
     letterSpacing: '0.15px',
