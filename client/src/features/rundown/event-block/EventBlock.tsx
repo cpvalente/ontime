@@ -193,7 +193,7 @@ export default function EventBlock(props: EventBlockProps) {
           <Editable
             variant='ontime'
             value={blockTitle}
-            className={`${style.eventTitle} ${!title || title === '' ? style.noTitle : ''}`}
+            className={`${style.eventTitle} ${!title ? style.noTitle : ''}`}
             placeholder='Event title'
             onChange={(value) => setBlockTitle(value)}
             onSubmit={(value) => handleTitle(value)}

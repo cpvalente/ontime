@@ -117,7 +117,7 @@ export default function EventEditor() {
 
   return (
     <div className={style.eventEditor}>
-      <div className={style.eventInfo}>{`Event ${'not yet'} | Event ID ${event.id}`}</div>
+      <div className={style.eventInfo}>{`Event ID ${event.id}`}</div>
       <div className={style.eventActions}>
         <CopyTag label='OSC trigger'>{`/ontime/gotoid/${event.id}`}</CopyTag>
       </div>
@@ -207,7 +207,8 @@ export default function EventEditor() {
             <div className={style.inline}>
               <ColourInput
                 value={event?.colour}
-                handleChange={(value) => handleSubmit('colour', value)}
+                name='colour'
+                handleChange={handleSubmit}
               />
               <Button
                 leftIcon={<IoBan />}
