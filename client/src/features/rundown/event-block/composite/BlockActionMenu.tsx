@@ -34,7 +34,7 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
   const handleAddDelay = useCallback(() => actionHandler("delay"), [actionHandler])
   const handleAddBlock = useCallback(() => actionHandler("block"), [actionHandler])
   const handleClone = useCallback(() => actionHandler("clone"), [actionHandler])
-  const handleDelete = useCallback(() => actionHandler("delay"), [actionHandler])
+  const handleDelete = useCallback(() => actionHandler("delete"), [actionHandler])
 
   return (
     <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
