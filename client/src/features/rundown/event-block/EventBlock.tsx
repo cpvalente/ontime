@@ -246,7 +246,7 @@ export default function EventBlock(props: EventBlockProps) {
               showDelay
               showBlock
               showClone
-              enableDelete
+              enableDelete={!selected}
               actionHandler={actionHandler}
             />
           </div>
