@@ -1,8 +1,11 @@
 import { useCallback, useContext } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
+import { useAtomValue } from 'jotai';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import {
+  ReorderEntry,
   requestApplyDelay,
   requestDelete,
   requestDeleteAll,
@@ -10,7 +13,9 @@ import {
   requestPutEvent,
   requestReorderEvent,
 } from '../api/eventsApi';
+import { defaultPublicAtom, startTimeIsLastEndAtom } from '../atoms/LocalEventSettings';
 import { LoggingContext } from '../context/LoggingContext';
+import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from '../models/EventTypes';
 
 /**
  * @description Set of utilities for events
@@ -18,9 +23,11 @@ import { LoggingContext } from '../context/LoggingContext';
 export const useEventAction = () => {
   const queryClient = useQueryClient();
   const { emitError } = useContext(LoggingContext);
+  const defaultPublic = useAtomValue(defaultPublicAtom);
+  const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
 
   /**
-   * @description Calls mutation to add new event
+   * Calls mutation to add new event
    * @private
    */
   const _addEventMutation = useMutation(requestPostEvent, {
@@ -31,40 +38,72 @@ export const useEventAction = () => {
     },
   });
 
+  type AddOptions = {
+    defaultPublic?: boolean;
+    startTimeIsLastEnd?: boolean;
+    lastEventId?: string;
+    after?: string;
+  }
+
   /**
-   * @description Adds new event to list
-   * @param {object} event - Event to be added
-   * @param {object} [options] - Event options
+   * Adds an event to rundown
    */
   const addEvent = useCallback(
-    async (event, options) => {
-      const newEvent = { ...event };
+    async (event: Partial<OntimeRundownEntry>, options?: AddOptions) => {
+      const newEvent: Partial<OntimeRundownEntry> = { ...event };
+
 
       // ************* CHECK OPTIONS
       // there is an option to pass an index of an array to use as start time
-      if (typeof options?.startIsLastEnd !== 'undefined') {
-        const events = queryClient.getQueryData(RUNDOWN_TABLE);
-        const previousEvent = events.find((event) => event.id === options.startIsLastEnd);
-        newEvent.timeStart = previousEvent.timeEnd || 0;
-      }
+      // only events have options
+      if (newEvent.type === SupportedEvent.Event) {
+        const applicationOptions = {
+          defaultPublic: options?.defaultPublic ?? defaultPublic,
+          startTimeIsLastEnd: options?.startTimeIsLastEnd ?? startTimeIsLastEnd,
+          lastEventId: options?.lastEventId,
+          after: options?.after,
+        };
 
-      // hard coding duration value to be as expected for now
-      // this until timeOptions gets implemented
-      if (newEvent.type === 'event') {
-        newEvent.duration = Math.max(0, newEvent.timeEnd - newEvent.timeStart) || 0;
+        // hard coding duration value to be as expected for now
+        // this until timeOptions gets implemented
+        if (typeof newEvent?.timeStart !== 'undefined' && typeof newEvent.timeEnd !== 'undefined') {
+          newEvent.duration = Math.max(0, newEvent?.timeEnd - newEvent?.timeStart) || 0;
+        }
+
+        if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
+          console.log('debug got here', applicationOptions.startTimeIsLastEnd, typeof applicationOptions.startTimeIsLastEnd);
+          const rundown = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
+          const previousEvent = rundown.find((event) => event.id === applicationOptions.lastEventId);
+          if (typeof previousEvent !== 'undefined' && previousEvent.type === 'event') {
+            newEvent.timeStart = previousEvent.timeEnd;
+          }
+        }
+
+        if (applicationOptions.defaultPublic) {
+          newEvent.isPublic = true;
+        }
+
+        if (applicationOptions?.after) {
+          newEvent.after = applicationOptions.after;
+        }
       }
 
       try {
+        // @ts-expect-error we know that the event here is one of the defined types
         await _addEventMutation.mutateAsync(newEvent);
       } catch (error) {
-        emitError(`Error fetching data: ${error.message}`);
+        if(!axios.isAxiosError(error)){
+          emitError(`Error fetching data: ${(error as AxiosError).message}`);
+        } else {
+          emitError(`Error fetching data: ${error}`);
+        }
       }
     },
-    [_addEventMutation, emitError, queryClient],
+    [_addEventMutation, defaultPublic, emitError, queryClient, startTimeIsLastEnd],
   );
 
   /**
-   * @description Calls mutation to update existing event
+   * Calls mutation to update existing event
    * @private
    */
   const _updateEventMutation = useMutation(requestPutEvent, {
@@ -84,33 +123,37 @@ export const useEventAction = () => {
     },
 
     // Mutation fails, rollback undoes optimist update
-    onError: (error, newEvent, context) => {
-      queryClient.setQueryData([RUNDOWN_TABLE_KEY, context.newEvent.id], context.previousEvent);
+    onError: (_error, _newEvent, context) => {
+      queryClient.setQueryData([RUNDOWN_TABLE_KEY, context?.newEvent.id], context?.previousEvent);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    onSettled: async (newEvent) => {
-      await queryClient.invalidateQueries([RUNDOWN_TABLE_KEY, newEvent.id]);
+    onSettled: async () => {
+      await queryClient.invalidateQueries([RUNDOWN_TABLE_KEY]);
     },
   });
 
   /**
-   * @description Updates existing event
-   * @param {object} event - Event to be added
+   * Updates existing event
    */
   const updateEvent = useCallback(
-    async (event) => {
+    async (event: Partial<OntimeRundownEntry>) => {
       try {
         await _updateEventMutation.mutateAsync(event);
       } catch (error) {
-        emitError(`Error updating event: ${error.message}`);
+        if(!axios.isAxiosError(error)){
+          emitError(`Error updating event: ${(error as AxiosError).message}`);
+        } else {
+          emitError(`Error updating event: ${error}`);
+        }
+
       }
     },
     [_updateEventMutation, emitError],
   );
 
   /**
-   * @description Calls mutation to delete an event
+   * Calls mutation to delete an event
    * @private
    */
   const _deleteEventMutation = useMutation(requestDelete, {
@@ -122,7 +165,7 @@ export const useEventAction = () => {
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
 
-      const filtered = [...previousEvents].filter((e) => e.id !== eventId);
+      const filtered = [...(previousEvents as OntimeRundown)].filter((e) => e.id !== eventId);
 
       // optimistically update object
       queryClient.setQueryData(RUNDOWN_TABLE, filtered);
@@ -132,8 +175,8 @@ export const useEventAction = () => {
     },
 
     // Mutation fails, rollback undoes optimist update
-    onError: (error, eventId, context) => {
-      queryClient.setQueryData(RUNDOWN_TABLE, context.previousEvents);
+    onError: (_error, _eventId, context) => {
+      queryClient.setQueryData(RUNDOWN_TABLE, context?.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -143,22 +186,25 @@ export const useEventAction = () => {
   });
 
   /**
-   * @description Deletes an event form the list
-   * @param {object} eventId - Event to be deleted
+   * Deletes an event form the list
    */
   const deleteEvent = useCallback(
-    async (eventId) => {
+    async (eventId: string) => {
       try {
         await _deleteEventMutation.mutateAsync(eventId);
-      } catch (error) {
-        emitError(`Error deleting event: ${error.message}`);
+      } catch (error)  {
+        if(!axios.isAxiosError(error)){
+          emitError(`Error deleting event: ${(error as AxiosError).message}`);
+        } else {
+          emitError(`Error deleting event: ${error}`);
+        }
       }
     },
     [_deleteEventMutation, emitError],
   );
 
   /**
-   * @description Calls mutation to delete all events
+   * Calls mutation to delete all events
    * @private
    */
   const _deleteAllEventsMutation = useMutation(requestDeleteAll, {
@@ -170,18 +216,16 @@ export const useEventAction = () => {
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
 
-      const clear = [];
-
       // optimistically update object
-      queryClient.setQueryData(RUNDOWN_TABLE, clear);
+      queryClient.setQueryData(RUNDOWN_TABLE, []);
 
       // Return a context with the previous and new events
       return { previousEvents };
     },
 
     // Mutation fails, rollback undos optimist update
-    onError: (error, eventId, context) => {
-      queryClient.setQueryData(RUNDOWN_TABLE, context.previousEvents);
+    onError: (_error, _eventId, context) => {
+      queryClient.setQueryData(RUNDOWN_TABLE, context?.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -191,18 +235,22 @@ export const useEventAction = () => {
   });
 
   /**
-   * @description Deletes all events from list
+   * Deletes all events from list
    */
   const deleteAllEvents = useCallback(async () => {
     try {
       await _deleteAllEventsMutation.mutateAsync();
     } catch (error) {
-      emitError(`Error deleting events: ${error.message}`);
+      if(!axios.isAxiosError(error)){
+        emitError(`Error deleting events: ${(error as AxiosError).message}`);
+      } else {
+        emitError(`Error deleting events: ${error}`);
+      }
     }
   }, [_deleteAllEventsMutation, emitError]);
 
   /**
-   * @description Calls mutation to apply a delay
+   * Calls mutation to apply a delay
    * @private
    */
   const _applyDelayMutation = useMutation(requestApplyDelay, {
@@ -213,22 +261,25 @@ export const useEventAction = () => {
   });
 
   /**
-   * @description Applies a given delay
-   * @param {object} delayEventId - Id of delay to be applied
+   * Applies a given delay block
    */
   const applyDelay = useCallback(
-    async (delayEventId) => {
+    async (delayEventId: string) => {
       try {
         await _applyDelayMutation.mutateAsync(delayEventId);
       } catch (error) {
-        emitError(`Error applying delay: ${error.message}`);
+        if(!axios.isAxiosError(error)){
+          emitError(`Error applying delay: ${(error as AxiosError).message}`);
+        } else {
+          emitError(`Error applying delay: ${error}`);
+        }
       }
     },
     [_applyDelayMutation, emitError],
   );
 
   /**
-   * @description Calls mutation to reorder an event
+   * Calls mutation to reorder an event
    * @private
    */
   const _reorderEventMutation = useMutation(requestReorderEvent, {
@@ -240,7 +291,7 @@ export const useEventAction = () => {
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
 
-      const e = [...previousEvents];
+      const e = [...(previousEvents as OntimeRundown)];
       const [reorderedItem] = e.splice(data.from, 1);
       e.splice(data.to, 0, reorderedItem);
 
@@ -252,8 +303,8 @@ export const useEventAction = () => {
     },
 
     // Mutation fails, rollback undoes optimist update
-    onError: (error, eventId, context) => {
-      queryClient.setQueryData(RUNDOWN_TABLE, context.previousEvents);
+    onError: (_error, _eventId, context) => {
+      queryClient.setQueryData(RUNDOWN_TABLE, context?.previousEvents);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -263,22 +314,23 @@ export const useEventAction = () => {
   });
 
   /**
-   * @description Reorders a given event
-   * @param {string} eventID - ID of event to reorder
-   * @param {number} from - Current index
-   * @param {number} to - New Index
+   * Reorders a given event
    */
   const reorderEvent = useCallback(
-    async (eventId, from, to) => {
+    async (eventId: string, from: number, to: number) => {
       try {
-        const reorderObject = {
+        const reorderObject: ReorderEntry = {
           eventId: eventId,
           from: from,
           to: to,
         };
         await _reorderEventMutation.mutateAsync(reorderObject);
       } catch (error) {
-        emitError(`Error re-ordering event: ${error.message}`);
+        if(!axios.isAxiosError(error)){
+          emitError(`Error re-ordering event: ${(error as AxiosError).message}`);
+        } else {
+          emitError(`Error re-ordering event: ${error}`);
+        }
       }
     },
     [_reorderEventMutation, emitError],
