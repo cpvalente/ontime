@@ -1,22 +1,27 @@
-export type EventTypes = 'event' | 'delay' | 'block';
+export enum SupportedEvent {
+  Event = 'event',
+  Delay = 'delay',
+  Block = 'block'
+}
 
 export interface OntimeBaseEvent {
-  type: EventTypes;
+  type: SupportedEvent;
   id: string;
+  after?: string; // used when creating an event to indicate its position in rundown
 }
 
 export type OntimeDelay = OntimeBaseEvent & {
-  type: 'delay';
+  type: SupportedEvent.Delay;
   duration: number;
   revision: number;
 }
 
 export type OntimeBlock = OntimeBaseEvent & {
-  type: 'block';
+  type: SupportedEvent.Block;
 }
 
 export type OntimeEvent = OntimeBaseEvent & {
-  type: 'event';
+  type: SupportedEvent.Event;
   title: string,
   subtitle: string,
   presenter: string,
