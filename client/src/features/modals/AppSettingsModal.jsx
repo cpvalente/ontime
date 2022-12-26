@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+import isEqual from 'react-fast-compare';
 import {
   Checkbox,
   FormControl,
@@ -56,11 +57,13 @@ export default function AppSettingsModal() {
   const submitHandler = async (event) => {
     event.preventDefault();
     setSubmitting(true);
+    const validation = { isValid: false, message: '' };
 
-    // set context
-    // TODO: add fast-equals here and check if event settings have changed
-    saveEventSettings(formSettings);
-    const validation = { isValid: false };
+    const hasChanged = !isEqual(formSettings,eventSettings);
+    if (hasChanged) {
+      saveEventSettings(formSettings);
+      validation.isValid = true;
+    }
 
     // we might not have changed this
     if (formData.pinCode !== data.pinCode) {
@@ -77,9 +80,12 @@ export default function AppSettingsModal() {
     if (formData.timeFormat !== data.timeFormat) {
       if (formData.timeFormat === '12' || formData.timeFormat === '24') {
         validation.isValid = true;
+      } else {
+        validation.isValue = false;
       }
     }
 
+    let resetChange = hasChanged;
     // set fields with error
     if (!validation.isValid) {
       emitError(`Invalid Input: ${validation.message}`);
@@ -90,9 +96,12 @@ export default function AppSettingsModal() {
         emitError(`Error saving settings: ${error}`)
       } finally {
         await refetch();
-        setChanged(false);
+        resetChange = true;
       }
       validation?.message && emitWarning(validation.message);
+    }
+    if (resetChange) {
+      setChanged(false);
     }
     setSubmitting(false);
   };
@@ -189,8 +198,7 @@ export default function AppSettingsModal() {
                   colorScheme='red'
                   variant='ghost'
                   icon={<FiX />}
-                  onMouseDown={() => handleChange('pinCode', '')}
-                  onMouseUp={() => handleChange('pinCode', '')}
+                  clickHandler={() => handleChange('pinCode', '')}
                   isDisabled={disableModal}
                 />
               </div>

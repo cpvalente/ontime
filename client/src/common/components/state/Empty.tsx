@@ -1,9 +1,11 @@
+import { CSSProperties } from 'react';
 import { ReactComponent as Emptyimage } from 'assets/images/empty.svg';
 
 import style from './Empty.module.scss';
 
 interface EmptyProps {
   text: string;
+  style: CSSProperties;
 }
 
 export default function Empty(props: EmptyProps) {

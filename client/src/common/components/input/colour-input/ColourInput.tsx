@@ -1,14 +1,17 @@
 import { Input } from '@chakra-ui/react';
 
+import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
+
 import style from './ColourInput.module.scss';
 
 interface ColourInputProps {
   value: string;
-  handleChange: (newValue: string) => void;
+  name: EventEditorSubmitActions;
+  handleChange: (newValue: EventEditorSubmitActions, name: string) => void;
 }
 
 export default function ColourInput(props: ColourInputProps) {
-  const { value, handleChange } = props;
+  const { value, name, handleChange } = props;
   return (
     <Input
       size='sm'
@@ -16,7 +19,7 @@ export default function ColourInput(props: ColourInputProps) {
       className={style.colourInput}
       type='color'
       value={value}
-      onChange={(event) => handleChange(event.target.value)}
+      onChange={(event) => handleChange(name, event.target.value)}
     />
   );
 }

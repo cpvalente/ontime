@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { queryRefetchInterval } from '../../ontimeConfig';
 import { USERFIELDS } from '../api/apiConstants';
 import { getUserFields } from '../api/ontimeApi';
 import { userFieldsPlaceholder } from '../models/UserFields.type';
@@ -16,6 +17,7 @@ export default function useUserFields() {
     placeholderData: userFieldsPlaceholder,
     retry: 5,
     retryDelay: attempt => attempt * 2500,
+    refetchInterval: queryRefetchInterval,
   });
 
   return { data, status, isError, refetch };

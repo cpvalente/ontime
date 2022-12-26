@@ -25,7 +25,7 @@ export async function requestPostEvent(data: OntimeRundownEntry) {
  * @description HTTP request to put new event
  * @return {Promise}
  */
-export async function requestPutEvent(data: OntimeRundownEntry) {
+export async function requestPutEvent(data: Partial<OntimeRundownEntry>) {
   return axios.put(rundownURL, data);
 }
 
@@ -37,11 +37,17 @@ export async function requestPatchEvent(data: OntimeRundownEntry) {
   return axios.patch(rundownURL, data);
 }
 
+
+export type ReorderEntry = {
+  eventId: string,
+  from: number,
+  to: number,
+}
 /**
  * @description HTTP request to reorder events
  * @return {Promise}
  */
-export async function requestReorderEvent(data: OntimeRundownEntry) {
+export async function requestReorderEvent(data: ReorderEntry) {
   return axios.patch(`${rundownURL}/reorder`, data);
 }
 

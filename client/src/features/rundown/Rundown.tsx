@@ -11,6 +11,7 @@ import Empty from 'common/components/state/Empty';
 import { CursorContext } from 'common/context/CursorContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { useRundownEditor } from 'common/hooks/useSocket';
+import { OntimeRundown, SupportedEvent } from 'common/models/EventTypes';
 import { cloneEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
@@ -20,21 +21,27 @@ import RundownEntry from './RundownEntry';
 
 import style from './Rundown.module.scss';
 
-export default function Rundown(props) {
+interface RundownProps {
+  entries: OntimeRundown;
+}
+
+export default function Rundown(props: RundownProps) {
   const { entries } = props;
-  // Todo: add selectedId and nextId to rundown editor hook
   const { data } = useRundownEditor();
   const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } =
     useContext(CursorContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const { addEvent, reorderEvent } = useEventAction();
-  const cursorRef = createRef();
+  const cursorRef = createRef<HTMLDivElement>();
   const showQuickEntry = useAtomValue(showQuickEntryAtom);
 
   const insertAtCursor = useCallback(
-    (type, cursor) => {
+    (type: SupportedEvent | 'clone', cursor: number) => {
       if (cursor === -1) {
+        if (type === 'clone') {
+          return;
+        }
         addEvent({ type });
       } else {
         const previousEvent = entries?.[cursor];
@@ -43,22 +50,23 @@ export default function Rundown(props) {
         // prevent adding two non-event blocks consecutively
         const isPreviousDifferent = previousEvent?.type !== type;
         const isNextDifferent = nextEvent?.type !== type;
-        if (type === 'clone' && previousEvent) {
+        if (type === 'clone' && previousEvent?.type === SupportedEvent.Event) {
           const newEvent = cloneEvent(previousEvent);
           newEvent.after = previousEvent.id;
           addEvent(newEvent);
-        } else if (type === 'event') {
+        } else if (type === SupportedEvent.Event) {
           const newEvent = {
-            type: 'event',
-            after: previousEvent.id,
-            isPublic: defaultPublic,
+            type: SupportedEvent.Event,
           };
           const options = {
-            startIsLastEnd: startTimeIsLastEnd ? previousEvent.id : undefined,
+            defaultPublic: defaultPublic,
+            startTimeIsLastEnd: startTimeIsLastEnd,
+            lastEventId: previousEvent.id,
+            after: previousEvent.id,
           };
           addEvent(newEvent, options);
-        } else if (isPreviousDifferent && isNextDifferent) {
-          addEvent({ type, after: previousEvent.id });
+        } else if (isPreviousDifferent && isNextDifferent && type !== 'clone') {
+          addEvent({ type }, { after: previousEvent.id });
         }
       }
     },
@@ -67,33 +75,45 @@ export default function Rundown(props) {
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
-    (event) => {
+    (event: KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
       // Check if the alt key is pressed
       if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
-        // Arrow down
-        if (event.keyCode === 40) {
-          if (cursor < entries.length - 1) moveCursorDown();
-        }
-        // Arrow up
-        if (event.keyCode === 38) {
-          if (cursor > 0) moveCursorUp();
-        }
-        if (event.code === 'KeyE') {
-          event.preventDefault();
-          if (cursor == null) return;
-          insertAtCursor('event', cursor);
-        }
-        if (event.code === 'KeyD') {
-          event.preventDefault();
-          if (cursor == null) return;
-          insertAtCursor('delay', cursor);
-        }
-        if (event.code === 'KeyB') {
-          event.preventDefault();
-          if (cursor == null) return;
-          insertAtCursor('block', cursor);
+
+        switch (event.code) {
+          case 'ArrowDown': {
+            if (cursor < entries.length - 1) moveCursorDown();
+            break;
+          }
+          case 'ArrowUp': {
+            if (cursor > 0) moveCursorUp();
+            break;
+          }
+          case 'KeyE': {
+            event.preventDefault();
+            if (cursor === -1) return;
+            insertAtCursor(SupportedEvent.Event, cursor);
+            break;
+          }
+          case 'KeyD': {
+            event.preventDefault();
+            if (cursor < 0) return;
+            insertAtCursor(SupportedEvent.Delay, cursor);
+            break;
+          }
+          case 'KeyB': {
+            event.preventDefault();
+            if (cursor < 0) return;
+            insertAtCursor(SupportedEvent.Block, cursor);
+            break;
+          }
+          case 'KeyC': {
+            event.preventDefault();
+            if (cursor < 0) return;
+            insertAtCursor('clone', cursor);
+            break;
+          }
         }
       }
     },
@@ -127,7 +147,9 @@ export default function Rundown(props) {
   // or cursor settings changed
   useEffect(() => {
     // and if we are locked
-    if (!isCursorLocked || data.selectedEventId == null) return;
+    if (!isCursorLocked || !data?.selectedEventId) {
+      return;
+    }
 
     // move cursor
     let gotoIndex = -1;
@@ -143,11 +165,10 @@ export default function Rundown(props) {
       // move cursor
       moveCursorTo(gotoIndex);
     }
-  }, [data.selectedEventId, entries, isCursorLocked, moveCursorTo]);
+  }, [data?.selectedEventId, entries, isCursorLocked, moveCursorTo]);
 
-  // DND
-  const handleOnDragEnd = useCallback(
-    (result) => {
+  // @ts-expect-error react-beautiful-dnd stuff, cant type
+  const handleOnDragEnd = useCallback((result) => {
       // drop outside of area
       if (!result.destination) return;
 
@@ -165,7 +186,7 @@ export default function Rundown(props) {
       <div className={style.alignCenter}>
         <Empty text='No data yet' style={{ marginTop: '7vh' }} />
         <Button
-          onClick={() => insertAtCursor('event', cursor)}
+          onClick={() => insertAtCursor(SupportedEvent.Event, -1)}
           variant='ontime-filled'
           className={style.spaceTop}
           leftIcon={<IoAdd />}
@@ -179,7 +200,7 @@ export default function Rundown(props) {
   let eventIndex = -1;
   let previousEnd = 0;
   let thisEnd = 0;
-  let previousEventId = null;
+  let previousEventId: string | undefined;
 
   return (
     <div className={style.eventContainer}>
@@ -203,6 +224,9 @@ export default function Rundown(props) {
                   previousEventId = entry.id;
                 }
                 const isLast = index === entries.length - 1;
+                const isSelected = data?.selectedEventId === entry.id;
+                const isNext = data?.nextEventId === entry.id;
+
                 return (
                   <Fragment key={entry.id}>
                     <div ref={cursor === index ? cursorRef : undefined}>
@@ -211,18 +235,19 @@ export default function Rundown(props) {
                         index={index}
                         eventIndex={eventIndex}
                         data={entry}
-                        selected={data.selectedEventId === entry.id}
+                        selected={isSelected}
                         hasCursor={cursor === index}
-                        next={data.nextEventId === entry.id}
+                        next={isNext}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
-                        playback={data.selectedEventId === entry.id ? data.playback : undefined}
+                        previousEventId={previousEventId}
+                        playback={isSelected ? data.playback || undefined : undefined}
                       />
                     </div>
                     {((showQuickEntry && index === cursor) || isLast) && (
                       <QuickAddBlock
                         showKbd={index === cursor}
-                        previousId={entry.id}
+                        eventId={entry.id}
                         previousEventId={previousEventId}
                         disableAddDelay={entry.type === 'delay'}
                         disableAddBlock={entry.type === 'block'}

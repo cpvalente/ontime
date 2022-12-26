@@ -10,6 +10,7 @@ import {
   FEAT_RUNDOWN,
   TIMER,
 } from '../api/apiConstants';
+import { Playstate } from '../models/OntimeTypes';
 
 function createSocketHook<T>(key: string, defaultValue: T | null = null) {
   subscribeOnce<T>(key, (data) => queryClient.setQueryData([key], data));
@@ -21,8 +22,14 @@ function createSocketHook<T>(key: string, defaultValue: T | null = null) {
   return () => useQuery({ queryKey: [key], queryFn: fetcher, placeholderData: defaultValue });
 }
 
-const emptyRundown = {
-  selectEventId: null,
+interface IRundown {
+  selectedEventId: string | null;
+  nextEventId: string | null;
+  playback: Playstate | null;
+}
+
+const emptyRundown: IRundown = {
+  selectedEventId: null,
   nextEventId: null,
   playback: null,
 };

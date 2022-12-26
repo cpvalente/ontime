@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import {
   IconButton,
   Menu,
@@ -29,6 +30,12 @@ interface BlockActionMenuProps {
 export default function BlockActionMenu(props: BlockActionMenuProps) {
   const { showAdd, showDelay, showBlock, enableDelete, showClone, actionHandler, className } = props;
 
+  const handleAddEvent = useCallback(() => actionHandler("event"), [actionHandler])
+  const handleAddDelay = useCallback(() => actionHandler("delay"), [actionHandler])
+  const handleAddBlock = useCallback(() => actionHandler("block"), [actionHandler])
+  const handleClone = useCallback(() => actionHandler("clone"), [actionHandler])
+  const handleDelete = useCallback(() => actionHandler("delete"), [actionHandler])
+
   return (
     <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
       <Tooltip label='Add ...' openDelay={tooltipDelayMid}>
@@ -44,19 +51,19 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
         />
       </Tooltip>
       <MenuList>
-        <MenuItem icon={<IoAdd />} onClick={() => actionHandler('event')} isDisabled={!showAdd}>
+        <MenuItem icon={<IoAdd />} onClick={handleAddEvent} isDisabled={!showAdd}>
           Add Event after
         </MenuItem>
         <MenuItem
           icon={<IoTimerOutline />}
-          onClick={() => actionHandler('delay')}
+          onClick={handleAddDelay}
           isDisabled={!showDelay}
         >
           Add Delay after
         </MenuItem>
         <MenuItem
           icon={<IoRemoveCircleOutline />}
-          onClick={() => actionHandler('block')}
+          onClick={handleAddBlock}
           isDisabled={!showBlock}
         >
           Add Block after
@@ -64,7 +71,7 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
         {showClone && (
           <MenuItem
             icon={<IoDuplicateOutline />}
-            onClick={() => actionHandler('clone')}
+            onClick={handleClone}
             isDisabled={!showBlock}
           >
             Clone event
@@ -73,7 +80,7 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
         <MenuDivider />
         <MenuItem
           icon={<IoTrashBinSharp />}
-          onClick={() => actionHandler('delete')}
+          onClick={handleDelete}
           isDisabled={!enableDelete}
           color='#D20300'
         >

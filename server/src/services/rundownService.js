@@ -179,7 +179,7 @@ export async function reorderEvent(eventId, from, to) {
   rundown.splice(to, 0, reorderedItem);
 
   // save rundown
-  await DataProvider.setEventData(rundown);
+  await DataProvider.setRundown(rundown);
   updateTimer();
 
   return reorderedItem;

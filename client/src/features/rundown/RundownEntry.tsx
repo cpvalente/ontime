@@ -6,7 +6,7 @@ import {
 } from 'common/atoms/LocalEventSettings';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
-import { OntimeEvent, OntimeRundownEntry } from 'common/models/EventTypes';
+import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'common/models/EventTypes';
 import { Playstate } from 'common/models/OntimeTypes';
 import { cloneEvent } from 'common/utils/eventsManager';
 import { calculateDuration } from 'common/utils/timesManager';
@@ -28,6 +28,7 @@ export type EventItemActions =
   | 'update'
 
 interface RundownEntryProps {
+  type: SupportedEvent;
   index: number;
   eventIndex: number;
   data: OntimeRundownEntry;
@@ -36,7 +37,8 @@ interface RundownEntryProps {
   next: boolean;
   delay: number;
   previousEnd: number;
-  playback: Playstate;
+  previousEventId?: string;
+  playback?: Playstate; // we only care about this if this event is playing
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
@@ -49,6 +51,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     next,
     delay,
     previousEnd,
+    previousEventId,
     playback,
   } = props;
   const { emitError } = useContext(LoggingContext);
@@ -71,30 +74,29 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
         }
         case 'event': {
-          const newEvent = {
-            type: 'event',
-            after: data.id,
-            isPublic: defaultPublic,
-          };
+          const newEvent = { type: SupportedEvent.Event };
           const options = {
-            startIsLastEnd: startTimeIsLastEnd ? data.id : undefined,
+            startTimeIsLastEnd,
+            defaultPublic,
+            lastEventId: previousEventId,
+            after: data.id,
           };
           addEvent(newEvent, options);
           break;
         }
         case 'delay': {
-          addEvent({ type: 'delay', after: data.id });
+          addEvent({ type: SupportedEvent.Delay }, { after: data.id });
           break;
         }
         case 'block': {
-          addEvent({ type: 'block', after: data.id });
+          addEvent({ type: SupportedEvent.Block }, { after: data.id });
           break;
         }
         case 'delete': {
-          deleteEvent(data.id);
           if (openId === data.id) {
             setOpenId(null);
           }
+          deleteEvent(data.id);
           break;
         }
         case 'clone': {
@@ -107,15 +109,15 @@ export default function RundownEntry(props: RundownEntryProps) {
           const { field, value } = payload as FieldValue;
           const newData: Partial<OntimeEvent> = { id: data.id };
 
-          if (field === 'duration' && data.type === 'event') {
+          if (field === 'duration' && data.type === SupportedEvent.Event) {
             // duration defines timeEnd
             newData.timeEnd = data.timeStart += value as number;
             updateEvent(newData);
-          } else if (field === 'timeStart' && data.type === 'event') {
+          } else if (field === 'timeStart' && data.type === SupportedEvent.Event) {
             newData.duration = calculateDuration(value as number, data.timeEnd);
             newData.timeStart = value as number;
             updateEvent(newData);
-          } else if (field === 'timeEnd' && data.type === 'event') {
+          } else if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
             newData.duration = calculateDuration(data.timeStart, value as number);
             newData.timeEnd = value as number;
             updateEvent(newData);
@@ -132,10 +134,10 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
       }
     },
-    [addEvent, data, defaultPublic, deleteEvent, emitError, moveCursorTo, openId, setOpenId, startTimeIsLastEnd, updateEvent],
+    [addEvent, data, defaultPublic, deleteEvent, emitError, moveCursorTo, openId, previousEventId, setOpenId, startTimeIsLastEnd, updateEvent],
   );
 
-  if (data.type === 'event') {
+  if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
         timeStart={data.timeStart}
@@ -158,14 +160,14 @@ export default function RundownEntry(props: RundownEntryProps) {
         actionHandler={actionHandler}
       />
     );
-  } else if (data.type === 'block') {
+  } else if (data.type === SupportedEvent.Block) {
     return <BlockBlock
       index={index}
       data={data}
       hasCursor={hasCursor}
       actionHandler={actionHandler}
     />;
-  } else if (data.type === 'delay') {
+  } else if (data.type === SupportedEvent.Delay) {
     return <DelayBlock
       index={index}
       data={data}
