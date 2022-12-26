@@ -150,8 +150,8 @@ export default function EventBlock(props: EventBlockProps) {
               variant='ontime-subtle-white'
               aria-label='Skip event'
               tooltip='Skip event'
-              openDelay={tooltipDelayMid}
               icon={skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
+              {...tooltipProps}
               {...blockBtnStyle}
               clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
               tabIndex={-1}
@@ -161,9 +161,9 @@ export default function EventBlock(props: EventBlockProps) {
               variant='ontime-subtle-white'
               aria-label='Load event'
               tooltip='Load event'
-              openDelay={tooltipDelayMid}
               icon={<IoReload className={style.flip} />}
               disabled={skip}
+              {...tooltipProps}
               {...blockBtnStyle}
               clickHandler={() => setEventPlayback.loadEvent(eventId)}
               tabIndex={-1}
@@ -172,9 +172,9 @@ export default function EventBlock(props: EventBlockProps) {
               variant='ontime-subtle-white'
               aria-label='Start event'
               tooltip='Start event'
-              openDelay={tooltipDelayMid}
               icon={eventIsPlaying ? <IoPlay /> : <IoPlayOutline />}
               disabled={skip}
+              {...tooltipProps}
               {...blockBtnStyle}
               clickHandler={() => setEventPlayback.startEvent(eventId)}
               backgroundColor={eventIsPlaying ? '#58A151' : undefined}
