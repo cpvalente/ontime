@@ -166,6 +166,7 @@ export class PlaybackService {
    */
   static roll() {
     if (EventLoader.getNumEvents() && eventTimer.playback !== 'roll') {
+      eventTimer.roll();
       const newState = eventTimer.playback;
       socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
       socketProvider.send('playback', newState);
