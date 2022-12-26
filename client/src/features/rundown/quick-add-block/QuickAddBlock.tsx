@@ -3,7 +3,7 @@ import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
 import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEventSettings';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
-import { EventTypes } from 'common/models/EventTypes';
+import { SupportedEvent } from 'common/models/EventTypes';
 import { useAtomValue } from 'jotai';
 
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -12,8 +12,8 @@ import style from './QuickAddBlock.module.scss';
 
 interface QuickAddBlockProps {
   showKbd: boolean;
-  previousId?: string;
-  previousEventId: string | null;
+  eventId: string;
+  previousEventId?: string;
   disableAddDelay?: boolean;
   disableAddBlock: boolean;
 }
@@ -21,7 +21,7 @@ interface QuickAddBlockProps {
 export default function QuickAddBlock(props: QuickAddBlockProps) {
   const {
     showKbd,
-    previousId,
+    eventId,
     previousEventId,
     disableAddDelay = true,
     disableAddBlock,
@@ -33,23 +33,36 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
   const doStartTime = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
 
-  const handleCreateEvent = useCallback((eventType: EventTypes) => {
+  const handleCreateEvent = useCallback((eventType: SupportedEvent) => {
     switch (eventType) {
       case 'event': {
-        const isPublicOption = doPublic?.current?.checked || defaultPublic;
-        const startTimeIsLastEndOption = doStartTime?.current?.checked || doStartTime;
+        const isPublicOption = doPublic?.current?.checked;
+        const startTimeIsLastEndOption = doStartTime?.current?.checked;
 
-        const newEvent = { type: 'event', after: previousId, isPublic: isPublicOption };
-        const options = { startIsLastEnd: startTimeIsLastEndOption ? previousEventId : undefined };
+        const newEvent = { type: SupportedEvent.Event };
+        const options = {
+          defaultPublic: isPublicOption,
+          startTimeIsLastEnd: startTimeIsLastEndOption,
+          lastEventId: previousEventId,
+          after: eventId,
+        };
         addEvent(newEvent, options);
         break;
       }
       case 'delay': {
-        addEvent({ type: 'delay', after: previousId });
+        const options = {
+          lastEventId: previousEventId,
+          after: eventId,
+        }
+        addEvent({ type: SupportedEvent.Delay }, options);
         break;
       }
       case 'block': {
-        addEvent({ type: 'block', after: previousId });
+        const options= {
+          lastEventId: previousEventId,
+          after: eventId,
+        }
+        addEvent({ type: SupportedEvent.Block }, options);
         break;
       }
       default: {
@@ -58,14 +71,14 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
       }
     }
 
-  }, [defaultPublic, previousId, previousEventId, addEvent, emitError]);
+  }, [previousEventId, eventId, addEvent, emitError]);
 
   return (
     <div className={style.quickAdd}>
       <div className={style.btnRow}>
         <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
           <Button
-            onClick={() => handleCreateEvent('event')}
+            onClick={() => handleCreateEvent(SupportedEvent.Event)}
             size='xs'
             variant='ontime-subtle-white'
             className={style.quickBtn}
@@ -75,7 +88,7 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
         </Tooltip>
         <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
           <Button
-            onClick={() => handleCreateEvent('delay')}
+            onClick={() => handleCreateEvent(SupportedEvent.Delay)}
             size='xs'
             variant='ontime-subtle-white'
             disabled={disableAddDelay}
@@ -86,7 +99,7 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
         </Tooltip>
         <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
           <Button
-            onClick={() => handleCreateEvent('block')}
+            onClick={() => handleCreateEvent(SupportedEvent.Block)}
             size='xs'
             variant='ontime-subtle-white'
             disabled={disableAddBlock}

@@ -43,7 +43,7 @@ export default function Transport(props: TransportProps) {
       <Tooltip label='Reload event' openDelay={tooltipDelayMid}>
         <TapButton
           onClick={() => setPlayback.reload()}
-          disabled={selectedId === null || isRolling}
+          disabled={!selectedId || isRolling}
         >
           <IoReload className={style.invertX} />
         </TapButton>
@@ -51,7 +51,7 @@ export default function Transport(props: TransportProps) {
       <Tooltip label='Unload Event' openDelay={tooltipDelayMid}>
         <TapButton
           onClick={() => setPlayback.stop()}
-          disabled={(selectedId === null && !isRolling)}
+          disabled={!selectedId}
           theme='stop'
         >
           <IoStop />

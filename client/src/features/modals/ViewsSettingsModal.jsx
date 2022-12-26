@@ -6,7 +6,7 @@ import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInforma
 import { postView } from '../../common/api/ontimeApi';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
-import useSettings from '../../common/hooks-query/useSettings';
+import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
 import { openLink } from '../../common/utils/linkUtils';
 
@@ -15,7 +15,8 @@ import SubmitContainer from './SubmitContainer';
 import style from './Modals.module.scss';
 
 export default function ViewsSettingsModal() {
-  const { data, status, refetch } = useSettings();
+  const { data, status, refetch } = useViewSettings();
+
   const { emitError } = useContext(LoggingContext);
   const [formData, setFormData] = useState(viewsSettingsPlaceholder);
   const [changed, setChanged] = useState(false);

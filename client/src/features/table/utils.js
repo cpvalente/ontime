@@ -1,3 +1,5 @@
+import { stringify } from 'csv-stringify/browser/esm/sync';
+
 /**
  * @description parses a field for export
  * @param {string} field
@@ -99,9 +101,6 @@ export const makeTable = (headerData, tableData, userFields) => {
  */
 export const makeCSV = (arrayOfArrays) => {
   let csvData = 'data:text/csv;charset=utf-8,';
-  arrayOfArrays.forEach((rowArray) => {
-    const row = rowArray.join(',');
-    csvData += `${row}\n`;
-  });
-  return csvData;
+  const stringifiedData = stringify(arrayOfArrays);
+  return csvData + stringifiedData;
 };
