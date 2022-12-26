@@ -42,7 +42,7 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getRundownLenght() {
+  static getRundownLength() {
     return data.rundown.length;
   }
 
