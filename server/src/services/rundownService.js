@@ -80,11 +80,12 @@ export function updateTimer(affectedIds) {
   // 1. we are not confident that changes do not affect running event
   const safeOption = typeof affectedIds === 'undefined';
   // 2. the edited event is in memory (now or next) running
-  const eventInMemory = affectedLoaded(affectedIds);
+  const eventInMemory = safeOption ? false : affectedLoaded(affectedIds);
   // 3. the edited event replaces next event
   const isNext = isNewNext();
 
   if (safeOption) {
+    eventLoader.reset();
     const loadedEvent = eventLoader.loadById(runningEventId);
     eventTimer.hotReload(loadedEvent);
     return true;
@@ -94,6 +95,7 @@ export function updateTimer(affectedIds) {
     const loadedEvent = eventLoader.loadById(runningEventId);
     if (!loadedEvent) {
       // event was deleted
+      eventLoader.reset();
       eventTimer.stop();
     } else {
       eventTimer.hotReload(loadedEvent);

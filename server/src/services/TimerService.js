@@ -73,10 +73,10 @@ class TimerService {
    * @param timer
    */
   hotReload(timer) {
-    if (timer.id !== this.loadedTimerId) {
+    if (timer?.id !== this.loadedTimerId) {
       return;
     }
-    if (timer.skip) {
+    if (timer?.skip) {
       this.stop();
     }
 
