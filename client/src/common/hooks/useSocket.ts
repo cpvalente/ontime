@@ -71,7 +71,6 @@ export const emptyPlaybackControl = {
 export const usePlaybackControl = createSocketHook(FEAT_PLAYBACKCONTROL, emptyPlaybackControl);
 export const resetPlayback = () => {
   const cacheData = queryClient.getQueryData([FEAT_PLAYBACKCONTROL]) as Record<string, unknown>;
-
   queryClient.setQueryData([FEAT_PLAYBACKCONTROL], {
     ...cacheData,
     playback: 'stop',
@@ -84,19 +83,15 @@ export const setPlayback = {
   roll: () => socket.emit('set-roll'),
   previous: () => {
     socket.emit('set-previous');
-    resetPlayback();
   },
   next: () => {
     socket.emit('set-next');
-    resetPlayback();
   },
   stop: () => {
     socket.emit('set-stop');
-    resetPlayback();
   },
   reload: () => {
     socket.emit('set-reload');
-    resetPlayback();
   },
   delay: (amount: number) => {
     socket.emit('set-delay', amount);

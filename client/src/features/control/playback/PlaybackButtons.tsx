@@ -1,10 +1,10 @@
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 
-import Playback from './Playback';
+import PlaybackDisplay from './PlaybackDisplay';
 import Transport from './Transport';
 
 interface PlaybackButtonsProps {
-  playback: Playstate;
+  playback: Playback;
   selectedId: string | null;
   noEvents: boolean;
 }
@@ -13,7 +13,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const { playback, selectedId, noEvents } = props;
   return (
     <>
-      <Playback
+      <PlaybackDisplay
         playback={playback}
         selectedId={selectedId}
         noEvents={noEvents}

@@ -17,7 +17,7 @@ import { useAtom } from 'jotai';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { setEventPlayback } from '../../../common/hooks/useSocket';
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../RundownEntry';
 
@@ -52,7 +52,7 @@ interface EventBlockProps {
   skip: boolean;
   selected: boolean;
   hasCursor: boolean;
-  playback?: Playstate;
+  playback?: Playback;
   actionHandler: (action: EventItemActions, payload?: any) => void;
 }
 
@@ -111,7 +111,7 @@ export default function EventBlock(props: EventBlockProps) {
     [title, updateEvent, eventId],
   );
 
-  const eventIsPlaying = selected && playback === 'start';
+  const eventIsPlaying = selected && playback === 'play';
   const playBtnStyles = { _hover: {} };
   if (!skip && eventIsPlaying) {
     playBtnStyles._hover = { bg: '#c05621' };
@@ -246,7 +246,7 @@ export default function EventBlock(props: EventBlockProps) {
               showDelay
               showBlock
               showClone
-              enableDelete={!selected}
+              enableDelete
               actionHandler={actionHandler}
             />
           </div>

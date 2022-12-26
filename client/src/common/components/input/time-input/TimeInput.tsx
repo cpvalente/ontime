@@ -1,20 +1,31 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { KeyboardEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Button, Input, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
 import { LoggingContext } from 'common/context/LoggingContext';
 import { forgivingStringToMillis } from 'common/utils/dateConfig';
 import { stringFromMillis } from 'common/utils/time';
-import PropTypes from 'prop-types';
 
+import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
+import { TimeEntryField } from '../../../utils/timesManager';
 
 import style from './TimeInput.module.scss';
 
-export default function TimeInput(props) {
+interface TimeInputProps {
+  name: TimeEntryField;
+  submitHandler: (field: EventEditorSubmitActions, value: number) => void;
+  time?: number;
+  delay?: number;
+  placeholder: string;
+  validationHandler: (entry: TimeEntryField, val: number) => boolean;
+  previousEnd?: number;
+}
+
+export default function TimeInput(props: TimeInputProps) {
   const {
-    name, submitHandler, time = 0, delay, placeholder, validationHandler, previousEnd,
+    name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0,
   } = props;
   const { emitError } = useContext(LoggingContext);
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState('');
 
   /**
@@ -25,7 +36,7 @@ export default function TimeInput(props) {
     try {
       setValue(stringFromMillis(time + delay));
     } catch (error) {
-      emitError(`Unable to parse date: ${error.text}`);
+      emitError(`Unable to parse date: ${error}`);
     }
   }, [delay, emitError, time]);
 
@@ -33,14 +44,14 @@ export default function TimeInput(props) {
    * @description Selects input text on focus
    */
   const handleFocus = useCallback(() => {
-    inputRef.current.select();
+    inputRef.current?.select();
   }, []);
 
   /**
    * @description Submit handler
    * @param {string} newValue
    */
-  const handleSubmit = useCallback((newValue) => {
+  const handleSubmit = useCallback((newValue: string) => {
     // Check if there is anything there
     if (newValue === '') {
       return false;
@@ -82,7 +93,7 @@ export default function TimeInput(props) {
    * @description Prepare time fields
    * @param {string} value string to be parsed
    */
-  const validateAndSubmit = useCallback((newValue) => {
+  const validateAndSubmit = useCallback((newValue: string) => {
     const success = handleSubmit(newValue);
     if (success) {
       const ms = forgivingStringToMillis(newValue);
@@ -96,15 +107,15 @@ export default function TimeInput(props) {
    * @description Handles common keys for submit and cancel
    * @param {KeyboardEvent} event
    */
-  const onKeyDownHandler = useCallback((event) => {
+  const onKeyDownHandler = useCallback((event:KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      inputRef.current.blur();
-      validateAndSubmit(event.target.value);
+      inputRef.current?.blur();
+      validateAndSubmit((event.target as HTMLInputElement).value);
     } else if (event.key === 'Tab') {
-      validateAndSubmit(event.target.value);
+      validateAndSubmit((event.target as HTMLInputElement).value);
     }
     if (event.key === 'Escape') {
-      inputRef.current.blur();
+      inputRef.current?.blur();
       resetValue();
     }
   }, [resetValue, validateAndSubmit]);
@@ -119,13 +130,15 @@ export default function TimeInput(props) {
   const ButtonInitial = () => {
     if (name === 'timeStart') return 'S';
     if (name === 'timeEnd') return 'E';
-    if (name === 'duration') return 'D';
+    if (name === 'durationOverride') return 'D';
+    return '';
   };
 
   const ButtonTooltip = () => {
     if (name === 'timeStart') return 'Start';
     if (name === 'timeEnd') return 'End';
-    if (name === 'duration') return 'Duration';
+    if (name === 'durationOverride') return 'Duration';
+    return '';
   };
 
   return (
@@ -162,13 +175,3 @@ export default function TimeInput(props) {
     </InputGroup>
   );
 }
-
-TimeInput.propTypes = {
-  name: PropTypes.string,
-  submitHandler: PropTypes.func,
-  time: PropTypes.number,
-  delay: PropTypes.number,
-  placeholder: PropTypes.string,
-  validationHandler: PropTypes.func,
-  previousEnd: PropTypes.number,
-};

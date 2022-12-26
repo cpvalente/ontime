@@ -7,14 +7,20 @@ import {
 } from '../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
+import { eventTimer } from './TimerService.js';
+import { socketProvider } from '../classes/socket/SocketController.js';
 
+/**
+ *
+ * @param affectedIds
+ * @returns boolean
+ */
 const affectedLoaded = (affectedIds) => {
   const now = eventLoader.selectedEventId;
   const nowPublic = eventLoader.selectedPublicEventId;
   const next = eventLoader.nextEventId;
   const nextPublic = eventLoader.nextPublicEventId;
   return (
-    affectedIds.includes(now) ||
     affectedIds.includes(now) ||
     affectedIds.includes(nowPublic) ||
     affectedIds.includes(next) ||
@@ -65,24 +71,41 @@ const isNewNext = () => {
  */
 export function updateTimer(affectedIds) {
   const runningEventId = eventLoader.selectedEventId;
+
   if (runningEventId === null) {
     return false;
   }
 
   // we need to reload in a few scenarios:
   // 1. we are not confident that changes do not affect running event
-  // 2. the edited event is currently being used (now or next)
-  // 3. the edited event replaces one of the previous (next)
-  if (typeof affectedIds === 'undefined') {
-    global.timer.syncLoaded(runningEventId);
+  const safeOption = typeof affectedIds === 'undefined';
+  // 2. the edited event is in memory (now or next) running
+  const eventInMemory = safeOption ? false : affectedLoaded(affectedIds);
+  // 3. the edited event replaces next event
+  const isNext = isNewNext();
+
+  if (safeOption) {
+    eventLoader.reset();
+    const loadedEvent = eventLoader.loadById(runningEventId);
+    eventTimer.hotReload(loadedEvent);
     return true;
   }
-  if (affectedLoaded(affectedIds)) {
-    global.timer.syncLoaded(runningEventId);
+
+  if (eventInMemory) {
+    const loadedEvent = eventLoader.loadById(runningEventId);
+    if (!loadedEvent) {
+      // event was deleted
+      eventLoader.reset();
+      eventTimer.stop();
+    } else {
+      eventTimer.hotReload(loadedEvent);
+    }
     return true;
   }
-  if (isNewNext()) {
-    global.timer.syncLoaded(runningEventId);
+
+  if (isNext) {
+    const loadedEvent = eventLoader.loadById(runningEventId);
+    eventTimer.hotReload(loadedEvent);
     return true;
   }
   return false;
@@ -94,7 +117,7 @@ export function updateTimer(affectedIds) {
  * @return {unknown[]}
  */
 export async function addEvent(eventData) {
-  const numEvents = DataProvider.getRundownLenght();
+  const numEvents = DataProvider.getRundownLength();
   if (numEvents > MAX_EVENTS) {
     throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
   }
@@ -126,6 +149,7 @@ export async function addEvent(eventData) {
     throw new Error(error);
   }
   updateTimer([id]);
+  socketProvider.broadcastState();
   return newEvent;
 }
 
@@ -137,6 +161,7 @@ export async function editEvent(eventData) {
   }
   const newEvent = await DataProvider.updateEventById(eventId, eventData);
   updateTimer([eventId]);
+  socketProvider.broadcastState();
   return newEvent;
 }
 
@@ -148,6 +173,7 @@ export async function editEvent(eventData) {
 export async function deleteEvent(eventId) {
   await DataProvider.deleteEvent(eventId);
   updateTimer([eventId]);
+  socketProvider.broadcastState();
 }
 
 /**
@@ -157,6 +183,7 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await DataProvider.clearRundown();
   updateTimer();
+  socketProvider.broadcastState();
 }
 
 /**
@@ -237,4 +264,5 @@ export async function applyDelay(eventId) {
   // update rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
+  socketProvider.broadcastState();
 }

@@ -4,8 +4,9 @@
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  margin: 4px 2px;
+  margin: 4px 0;
   font-size: 12px;
+  padding: 0 10px;
 }
 
 .btnRow {

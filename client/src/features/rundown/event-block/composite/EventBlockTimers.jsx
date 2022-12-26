@@ -24,7 +24,7 @@ export default function EventBlockTimers(props) {
   const handleValidation = useCallback(
     (field, value) => {
       const valid = validateEntry(field, value, timeStart, timeEnd);
-      if (!valid.value) {
+      if (valid.catch) {
         emitWarning(`Time Input Warning: ${valid.catch}`);
       }
       return valid.value;
@@ -60,11 +60,10 @@ export default function EventBlockTimers(props) {
         previousEnd={previousEnd}
       />
       <TimeInput
-        name='duration'
+        name='durationOverride'
         submitHandler={handleSubmit}
         validationHandler={handleValidation}
         time={duration}
-        delay={delay}
         placeholder='Duration'
         previousEnd={previousEnd}
       />

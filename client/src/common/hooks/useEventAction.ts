@@ -71,7 +71,6 @@ export const useEventAction = () => {
         }
 
         if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
-          console.log('debug got here', applicationOptions.startTimeIsLastEnd, typeof applicationOptions.startTimeIsLastEnd);
           const rundown = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
           const previousEvent = rundown.find((event) => event.id === applicationOptions.lastEventId);
           if (typeof previousEvent !== 'undefined' && previousEvent.type === 'event') {

@@ -1,6 +1,6 @@
 import { ForwardedRef, forwardRef, PropsWithChildren } from 'react';
 
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 
 import style from './TapButton.module.scss';
 
@@ -8,7 +8,7 @@ interface TapButtonProps {
   disabled?: boolean;
   square?: boolean;
   onClick: () => void;
-  theme?: Playstate | 'neutral';
+  theme?: Playback | 'neutral';
   active?: boolean;
 }
 

@@ -3,6 +3,7 @@
  */
 import { socketProvider } from '../classes/socket/SocketController.js';
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
+import { eventTimer } from './TimerService.js';
 
 /**
  * Service manages playback status of app
@@ -15,18 +16,18 @@ export class PlaybackService {
    * @return {boolean} success
    */
   static loadEvent(event) {
+    let success = false;
     if (!event) {
       socketProvider.error('PLAYBACK', 'No event found');
-      return false;
-    }
-
-    if (event.skip) {
+    } else if (event.skip) {
       socketProvider.warning('PLAYBACK', `Refused playback of skipped event ID ${event.id}`);
-      return false;
+    } else {
+      eventLoader.loadEvent(event);
+      eventTimer.load(event);
+      success = true;
     }
-    global.timer.pause();
-    global.timer.loadEvent(event);
-    return true;
+    socketProvider.broadcastState();
+    return success;
   }
 
   /**
@@ -93,8 +94,10 @@ export class PlaybackService {
   static loadPrevious() {
     const previousEvent = eventLoader.findPrevious();
     if (previousEvent) {
-      PlaybackService.loadById(previousEvent.id);
-      global.timer.previous();
+      const success = PlaybackService.loadEvent(previousEvent);
+      if (success) {
+        socketProvider.info('PLAYBACK', `Loaded event with ID ${previousEvent.id}`);
+      }
     }
   }
 
@@ -104,8 +107,10 @@ export class PlaybackService {
   static loadNext() {
     const nextEvent = eventLoader.findNext();
     if (nextEvent) {
-      PlaybackService.loadById(nextEvent.id);
-      global.timer.next();
+      const success = PlaybackService.loadEvent(nextEvent);
+      if (success) {
+        socketProvider.info('PLAYBACK', `Loaded event with ID ${nextEvent.id}`);
+      }
     }
   }
 
@@ -113,86 +118,72 @@ export class PlaybackService {
    * Starts playback on selected event
    */
   static start() {
-    if (!eventLoader.selectedEventId) {
-      return;
+    if (eventLoader.selectedEventId) {
+      eventTimer.start();
+      const newState = eventTimer.playback;
+      socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
     }
-    const newState = global.timer.start();
-    if (newState === 'start') {
-      socketProvider.info('PLAYBACK', 'Play Mode Start');
-    }
-    socketProvider.send('playstate', newState);
+    socketProvider.broadcastState();
   }
 
   /**
    * Pauses playback on selected event
    */
   static pause() {
-    if (!eventLoader.selectedEventId) {
-      return;
+    if (eventLoader.selectedEventId) {
+      eventTimer.pause();
+      const newState = eventTimer.playback;
+      socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
     }
-    const newState = global.timer.pause();
-    if (newState === 'pause') {
-      socketProvider.info('PLAYBACK', 'Play Mode Paused');
-    }
-    socketProvider.send('playstate', newState);
+    socketProvider.broadcastState();
   }
 
   /**
    * Stops timer and unloads any events
    */
   static stop() {
-    if (!eventLoader.selectedEventId && global.timer.state !== 'roll') {
-      return;
+    if (eventLoader.selectedEventId || eventTimer.playback === 'roll') {
+      eventLoader.reset();
+      eventTimer.stop();
+      const newState = eventTimer.playback;
+      socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
     }
-    eventLoader.reset();
-    const newState = global.timer.stop();
-    if (newState === 'stop') {
-      socketProvider.info('PLAYBACK', 'Play Mode Stopped');
-    }
-    socketProvider.send('playstate', newState);
+    socketProvider.broadcastState();
   }
 
   /**
    * Reloads current event
    */
   static reload() {
-    if (!eventLoader.selectedEventId) {
-      return;
+    if (eventLoader.selectedEventId) {
+      this.loadById(eventLoader.selectedEventId);
     }
-    const newState = global.timer.reload();
-    socketProvider.info('PLAYBACK', 'Reloaded event');
-    socketProvider.send('playstate', newState);
+    socketProvider.broadcastState();
   }
 
   /**
    * Sets playback to roll
    */
   static roll() {
-    if (!EventLoader.getNumEvents()) {
-      return;
+    if (EventLoader.getNumEvents() && eventTimer.playback !== 'roll') {
+      eventTimer.roll();
+      const newState = eventTimer.playback;
+      socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
+      socketProvider.send('playback', newState);
     }
-
-    if (global.timer.state === 'roll') {
-      return;
-    }
-
-    const newState = global.timer.roll();
-    if (newState === 'roll') {
-      socketProvider.info('PLAYBACK', 'Play Mode Roll');
-    }
-    socketProvider.send('playstate', newState);
+    socketProvider.broadcastState();
   }
 
   /**
    * Adds delay to current event
-   * @param {number} delayTime time in ms
+   * @param {number} delayTime time in minutes
    */
   static setDelay(delayTime) {
-    if (!eventLoader.selectedEventId) {
-      return;
+    if (eventLoader.selectedEventId) {
+      const delayInMs = delayTime * 1000 * 60;
+      eventTimer.delay(delayInMs);
+      socketProvider.info('PLAYBACK', `Added ${delayTime} min delay`);
     }
-    const delayInMs = delayTime * 1000 * 60;
-    global.timer.increment(delayInMs);
-    socketProvider.info('PLAYBACK', `Added ${delayTime} min delay`);
+    socketProvider.broadcastState();
   }
 }

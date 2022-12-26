@@ -8,6 +8,8 @@ import { messageManager } from '../message-manager/MessageManager.js';
 import { PlaybackService } from '../../services/playbackService.js';
 
 import { ADDRESS_MESSAGE_CONTROL } from './socketConfig.js';
+import { eventTimer } from '../../services/TimerService.js';
+import { EventLoader, eventLoader } from '../event-loader/EventLoader.js';
 
 class SocketController {
   constructor() {
@@ -61,12 +63,16 @@ class SocketController {
 
       // Todo: review in favour of features
       // send state
-      socket.emit('timer', global.timer.getTimeObject());
-      socket.emit('playstate', global.timer.state);
-      socket.emit('selected-id', global.timer.selectedEventId);
-      socket.emit('next-id', global.timer.nextEventId);
-      socket.emit('publicselected-id', global.timer.selectedPublicEventId);
-      socket.emit('publicnext-id', global.timer.nextPublicEventId);
+      socket.emit('timer', eventTimer.timer);
+      socket.emit('playback', eventTimer.playback);
+      socket.emit('selected', {
+        id: eventLoader.selectedEventId,
+        index: eventLoader.selectedEventIndex,
+        total: eventLoader.numEvents,
+      });
+      socket.emit('next-id', eventLoader.nextEventId);
+      socket.emit('publicselected-id', eventLoader.selectedPublicEventId);
+      socket.emit('publicnext-id', eventLoader.nextPublicEventId);
 
       /**
        * @description handle disconnecting a user
@@ -167,16 +173,15 @@ class SocketController {
       // general playback state, useful for external sync
       // Todo: add delayed value (will come from rundownService)
       socket.on('ontime-poll', () => {
-        const timerPoll = global.timer.poll();
+        const timerPoll = eventTimer.timer;
         const isDelayed = false;
         const colour = '';
         socket.emit('ontime-poll', { isDelayed, colour, ...timerPoll });
       });
 
       /*******************************************/
-      // playstate
-      socket.on('get-playstate', () => {
-        socket.emit('playstate', global.timer.state);
+      socket.on('get-playback', () => {
+        socket.emit('playback', eventTimer.playback);
       });
 
       socket.on('get-onAir', () => {
@@ -184,30 +189,20 @@ class SocketController {
       });
 
       /*******************************************/
-      // selection data
       socket.on('get-selected', () => {
         socket.emit('selected', {
-          id: global.timer.selectedEventId,
-          index: global.timer.selectedEventIndex,
-          total: global.timer._eventlist.length,
+          id: eventLoader.selectedEventId,
+          index: eventLoader.selectedEventIndex,
+          total: eventLoader.numEvents,
         });
       });
 
-      socket.on('get-selected-id', () => {
-        socket.emit('selected-id', global.timer.selectedEventId);
-      });
-
-      socket.on('get-next-id', () => {
-        socket.emit('next-id', global.timer.nextEventId);
-      });
-
-      // title data
       socket.on('get-titles', () => {
-        socket.emit('titles', global.timer.titles);
+        socket.emit('titles', eventLoader.titles);
       });
 
       socket.on('get-publictitles', () => {
-        socket.emit('publictitles', global.timer.titlesPublic);
+        socket.emit('publictitles', eventLoader.titlesPublic);
       });
 
       /***********************************/
@@ -294,33 +289,32 @@ class SocketController {
 
       // 1. RUNDOWN
       socket.on('get-feat-rundown', () => {
-        global.timer._broadcastFeatureRundown();
+        this.broadcastFeatureRundown();
       });
 
       // 2. MESSAGE CONTROL
       socket.on('get-feat-messagecontrol', () => {
-        const featureData = messageManager.getAll();
-        this.socket.emit(ADDRESS_MESSAGE_CONTROL, featureData);
+        this.broadcastFeatureMessageControl();
       });
 
       // 3. PLAYBACK CONTROL
       socket.on('get-feat-playbackcontrol', () => {
-        global.timer._broadcastFeaturePlaybackControl();
+        this.broadcastFeaturePlaybackControl();
       });
 
       // 4. INFO
       socket.on('get-feat-info', () => {
-        global.timer._broadcastFeatureInfo();
+        this.broadcastFeatureInfo();
       });
 
       // 5. CUE SHEET
       socket.on('get-feat-cuesheet', () => {
-        global.timer._broadcastFeatureCuesheet();
+        this.broadcastFeatureCuesheet();
       });
 
       // 6. TIMER
       socket.on('get-ontime-timer', () => {
-        global.timer._broadcastFeatureTimer();
+        this.broadcastTimer();
       });
     });
   }
@@ -361,6 +355,83 @@ class SocketController {
     if (this.messageStack.length > this._MAX_MESSAGES) {
       this.messageStack.pop();
     }
+  }
+
+  /**
+   * Broadcast data for Event List feature
+   */
+  broadcastFeatureRundown() {
+    const featureData = {
+      selectedEventId: eventLoader.selectedEventId,
+      nextEventId: eventLoader.nextEventId,
+      playback: eventTimer.playback,
+    };
+    this.send('feat-rundown', featureData);
+  }
+
+  /**
+   * Broadcast data for Message Control feature
+   */
+  broadcastFeatureMessageControl() {
+    const featureData = messageManager.getAll();
+    this.send(ADDRESS_MESSAGE_CONTROL, featureData);
+  }
+
+  /**
+   * Broadcast data for Playback Control feature
+   */
+  broadcastFeaturePlaybackControl() {
+    const featureData = {
+      playback: eventTimer.playback,
+      selectedEventId: eventLoader.selectedEventId,
+      numEvents: EventLoader.getNumEvents(),
+    };
+    this.send('feat-playbackcontrol', featureData);
+  }
+
+  /**
+   * Broadcast data for Info feature
+   */
+  broadcastFeatureInfo() {
+    const featureData = {
+      titles: eventLoader.titles,
+      playback: eventTimer.playback,
+      selectedEventId: eventLoader.selectedEventId,
+      selectedEventIndex: eventLoader.selectedEventIndex,
+      numEvents: EventLoader.getNumEvents(),
+    };
+    this.send('feat-info', featureData);
+  }
+
+  /**
+   * Broadcast data for Cuesheet feature
+   */
+  broadcastFeatureCuesheet() {
+    const featureData = {
+      playback: eventTimer.playback,
+      selectedEventId: eventLoader.selectedEventId,
+      selectedEventIndex: eventLoader.selectedEventIndex,
+      numEvents: EventLoader.getNumEvents(),
+      titleNow: eventLoader.titles.titleNow,
+    };
+    this.send('feat-cuesheet', featureData);
+  }
+
+  /**
+   * Broadcast Timer feature
+   */
+  broadcastTimer() {
+    const featureData = eventTimer.timer;
+    this.send('ontime-timer', featureData);
+  }
+
+  broadcastState() {
+    this.broadcastFeatureRundown();
+    this.broadcastFeatureMessageControl();
+    this.broadcastFeaturePlaybackControl();
+    this.broadcastFeatureInfo();
+    this.broadcastFeatureCuesheet();
+    this.broadcastTimer();
   }
 
   /**

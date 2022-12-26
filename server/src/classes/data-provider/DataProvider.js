@@ -42,7 +42,7 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getRundownLenght() {
+  static getRundownLength() {
     return data.rundown.length;
   }
 
@@ -56,7 +56,6 @@ export class DataProvider {
    * @param entry
    * @param index
    * @return {Promise<void>}
-   * @private
    */
   static async insertEventAt(entry, index) {
     // get events
@@ -91,7 +90,6 @@ export class DataProvider {
    * @param entry
    * @param id
    * @return {Promise<void>}
-   * @private
    */
   static async insertEventAfterId(entry, id) {
     const index = [...data.rundown].findIndex((event) => event.id === id);

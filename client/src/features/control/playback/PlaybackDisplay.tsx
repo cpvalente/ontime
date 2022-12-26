@@ -3,30 +3,31 @@ import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
 
 import { setPlayback } from '../../../common/hooks/useSocket';
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 
 import TapButton from './TapButton';
 
 import style from './PlaybackControl.module.scss';
 
 interface PlaybackProps {
-  playback: Playstate;
+  playback: Playback;
   selectedId: string | null;
   noEvents: boolean;
 }
 
-export default function Playback(props: PlaybackProps) {
+export default function PlaybackDisplay(props: PlaybackProps) {
   const { playback, selectedId, noEvents } = props;
   const isRolling = playback === 'roll';
-  const isPlaying = playback === 'start';
+  const isPlaying = playback === 'play';
   const isPaused = playback === 'pause';
+  const isArmed = playback === 'armed';
 
   return (
     <div className={style.playbackContainer}>
       <TapButton
         onClick={() => setPlayback.start()}
-        disabled={!selectedId || isRolling || noEvents}
-        theme='start'
+        disabled={!selectedId || isRolling}
+        theme='play'
         active={isPlaying}
       >
         <IoPlay />
@@ -34,7 +35,7 @@ export default function Playback(props: PlaybackProps) {
 
       <TapButton
         onClick={() => setPlayback.pause()}
-        disabled={!selectedId || isRolling || noEvents}
+        disabled={!selectedId || isRolling || isArmed}
         theme='pause'
         active={isPaused}
       >

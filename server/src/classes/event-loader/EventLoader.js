@@ -80,7 +80,7 @@ export class EventLoader {
    */
   loadById(eventId) {
     const event = EventLoader.getEventWithId(eventId);
-    return this._loadEvent(event);
+    return this.loadEvent(event);
   }
 
   /**
@@ -90,12 +90,12 @@ export class EventLoader {
    */
   loadByIndex(eventIndex) {
     const event = EventLoader.getEventAtIndex(eventIndex);
-    return this._loadEvent(event);
+    return this.loadEvent(event);
   }
 
   /**
-   * finds the ID of the previous event
-   * @returns {{id: string}|null}
+   * finds the previous event
+   * @return {object | undefined}
    */
   findPrevious() {
     const timedEvents = EventLoader.getPlayableEvents();
@@ -105,15 +105,16 @@ export class EventLoader {
 
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
-      return { id: timedEvents[0].id };
+      return timedEvents[0];
     }
+
     const newIndex = this.selectedEventIndex - 1;
-    return { id: timedEvents?.[newIndex].id };
+    return timedEvents?.[newIndex];
   }
 
   /**
-   * finds the ID of the next event
-   * @returns {{id: string}|null}
+   * finds the next event
+   * @return {object | undefined}
    */
   findNext() {
     const timedEvents = EventLoader.getPlayableEvents();
@@ -127,10 +128,10 @@ export class EventLoader {
 
     // if there is no event running, go to first
     if (this.selectedEventIndex === null) {
-      return { id: timedEvents[0].id };
+      return timedEvents[0];
     }
     const newIndex = this.selectedEventIndex + 1;
-    return { id: timedEvents?.[newIndex].id };
+    return timedEvents?.[newIndex];
   }
 
   /**
@@ -193,7 +194,7 @@ export class EventLoader {
    * loads an event given its id
    * @param {object} event
    */
-  _loadEvent(event) {
+  loadEvent(event) {
     if (typeof event === 'undefined') {
       return null;
     }

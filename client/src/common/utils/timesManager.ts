@@ -35,19 +35,11 @@ export const handleTimeEntry = (field: TimeEntryField, val: number, timeStart: n
 export const validateEntry = (field: TimeEntryField, value: number, timeStart: number, timeEnd: number): { value: boolean, catch: string } => {
   const validate = { value: true, catch: '' };
 
-  // 1. if one of times is not entered, anything goes
-  if (value == null || timeStart == null || timeEnd == null) return validate;
-  if (timeStart === 0) return validate;
+  const { start, end } = handleTimeEntry(field, value, timeStart, timeEnd);
 
-  // 2. find out what's what
-  const { start, end, durationOverride } = handleTimeEntry(field, value, timeStart, timeEnd);
-  if (durationOverride !== null) {
-    return validate;
-  }
-
-  // 3. validation rules
-  if (start > end) {
+  if (end < start) {
     validate.catch = 'Start time later than end time';
   }
+
   return validate;
 };

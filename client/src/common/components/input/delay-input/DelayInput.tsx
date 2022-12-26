@@ -33,7 +33,6 @@ export default function DelayInput(props: DelayInputProps) {
    */
   const validate = useCallback(
     (newValue?: string) => {
-      console.log('debug', newValue, typeof newValue);
       if (newValue === '') setValue(0);
       const delayValue = clamp(Number(newValue), -60, 60);
 

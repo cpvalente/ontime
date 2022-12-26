@@ -7,7 +7,7 @@ import {
 import { LoggingContext } from 'common/context/LoggingContext';
 import { useEventAction } from 'common/hooks/useEventAction';
 import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'common/models/EventTypes';
-import { Playstate } from 'common/models/OntimeTypes';
+import { Playback } from 'common/models/OntimeTypes';
 import { cloneEvent } from 'common/utils/eventsManager';
 import { calculateDuration } from 'common/utils/timesManager';
 import { useAtom, useAtomValue } from 'jotai';
@@ -38,7 +38,7 @@ interface RundownEntryProps {
   delay: number;
   previousEnd: number;
   previousEventId?: string;
-  playback?: Playstate; // we only care about this if this event is playing
+  playback?: Playback; // we only care about this if this event is playing
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
@@ -63,7 +63,7 @@ export default function RundownEntry(props: RundownEntryProps) {
 
   // Create / delete new events
   type FieldValue = {
-    field: keyof OntimeEvent;
+    field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
     value: unknown;
   }
   const actionHandler = useCallback(
@@ -109,9 +109,10 @@ export default function RundownEntry(props: RundownEntryProps) {
           const { field, value } = payload as FieldValue;
           const newData: Partial<OntimeEvent> = { id: data.id };
 
-          if (field === 'duration' && data.type === SupportedEvent.Event) {
+          if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
             // duration defines timeEnd
-            newData.timeEnd = data.timeStart += value as number;
+            newData.duration = value as number;
+            newData.timeEnd = data.timeStart + (value as number);
             updateEvent(newData);
           } else if (field === 'timeStart' && data.type === SupportedEvent.Event) {
             newData.duration = calculateDuration(value as number, data.timeEnd);

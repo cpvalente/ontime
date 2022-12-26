@@ -1,5 +1,5 @@
 import { usePlaybackControl } from '../../../common/hooks/useSocket';
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 
 import PlaybackButtons from './PlaybackButtons';
 import PlaybackTimer from './PlaybackTimer';
@@ -12,7 +12,7 @@ export default function PlaybackControl() {
   return (
     <div className={style.mainContainer}>
       <PlaybackTimer
-        playback={data.playback as Playstate}
+        playback={data.playback as Playback}
         selectedId={data.selectedEventId}
       />
       <PlaybackButtons

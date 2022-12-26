@@ -2,7 +2,7 @@ import { Tooltip } from '@chakra-ui/react';
 import TimerDisplay from 'common/components/countdown/TimerDisplay';
 
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
-import { Playstate } from '../../../common/models/OntimeTypes';
+import { Playback } from '../../../common/models/OntimeTypes';
 import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -12,7 +12,7 @@ import TapButton from './TapButton';
 import style from './PlaybackControl.module.scss';
 
 interface PlaybackTimerProps {
-  playback: Playstate;
+  playback: Playback;
   selectedId: string | null;
 }
 
@@ -59,24 +59,6 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
         </>
       )}
       <div className={style.btn}>
-        <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid}
-                 shouldWrapChildren={disableButtons}>
-          <TapButton
-            onClick={() => setPlayback.delay(-5)}
-            disabled={disableButtons}
-            square>
-            -5
-          </TapButton>
-        </Tooltip>
-        <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid}
-                 shouldWrapChildren={disableButtons}>
-          <TapButton
-            onClick={() => setPlayback.delay(+5)}
-            disabled={disableButtons}
-            square>
-            5
-          </TapButton>
-        </Tooltip>
         <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid}
                  shouldWrapChildren={disableButtons}>
           <TapButton
@@ -92,7 +74,25 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
             onClick={() => setPlayback.delay(1)}
             disabled={disableButtons}
             square>
-            1
+            +1
+          </TapButton>
+        </Tooltip>
+        <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid}
+                 shouldWrapChildren={disableButtons}>
+          <TapButton
+            onClick={() => setPlayback.delay(-5)}
+            disabled={disableButtons}
+            square>
+            -5
+          </TapButton>
+        </Tooltip>
+        <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid}
+                 shouldWrapChildren={disableButtons}>
+          <TapButton
+            onClick={() => setPlayback.delay(+5)}
+            disabled={disableButtons}
+            square>
+            +5
           </TapButton>
         </Tooltip>
       </div>

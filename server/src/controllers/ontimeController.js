@@ -7,12 +7,13 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
 import { PlaybackService } from '../services/playbackService.js';
+import { runtimeState } from '../stores/EventStore.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
 export const poll = async (req, res) => {
   try {
-    const s = global.timer.poll();
+    const s = runtimeState.poll();
     res.status(200).send(s);
   } catch (error) {
     res.status(500).send({

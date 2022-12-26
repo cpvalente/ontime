@@ -1,16 +1,15 @@
-// get environment vars
 import 'dotenv/config';
-
-// import config
-import { config } from './config/config.js';
-
-// import dependencies
-import { dirname, join, resolve } from 'path';
-
-// dependencies
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+
+// import utils
+import { config } from './config/config.js';
+import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
+import { fileURLToPath } from 'url';
+import { ONTIME_VERSION } from './version.js';
+import { initSentry } from './modules/sentry.js';
+import { dirname, join, resolve } from 'path';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
@@ -18,16 +17,10 @@ import { router as eventRouter } from './routes/eventRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as playbackRouter } from './routes/playbackRouter.js';
 
-// Global Objects
-import { EventTimer } from './classes/timer/EventTimer.js';
-import { socketProvider } from './classes/socket/SocketController.js';
-
-// Start OSC server
-import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
-import { fileURLToPath } from 'url';
+// Services
 import { DataProvider } from './classes/data-provider/DataProvider.js';
-import { ONTIME_VERSION } from './version.js';
-import { initSentry } from './modules/sentry.js';
+import { socketProvider } from './classes/socket/SocketController.js';
+import { eventTimer } from './services/TimerService.js';
 
 // get environment
 const env = process.env.NODE_ENV || 'production';
@@ -65,7 +58,7 @@ app.use('/playback', playbackRouter);
 // serve static - css
 app.use('/external', express.static(join(__dirname, 'external')));
 
-// serve static - react, in test mode we fetch the react app from module
+// serve static - react, in test mode we fetch the React app from module
 const resolvedPath = () => {
   const sameModule = '../';
   const siblingModule = '../../';
@@ -74,6 +67,7 @@ const resolvedPath = () => {
   }
   return siblingModule;
 };
+
 app.use(express.static(join(__dirname, resolvedPath(), 'client/build')));
 
 app.get('*', (req, res) => {
@@ -81,7 +75,7 @@ app.get('*', (req, res) => {
 });
 
 // Implement catch all
-app.use((error, response, _next) => {
+app.use((error, response) => {
   response.status(400).send('Unhandled request');
 });
 
@@ -128,13 +122,10 @@ export const startOSCServer = async (overrideConfig = null) => {
 const server = http.createServer(app);
 
 /**
- * @description Starts all necessary services
- * @param overrideConfig
+ * Starts servers
  * @return {Promise<string>}
  */
-export const startServer = async (overrideConfig = null) => {
-  const { http } = DataProvider.getData();
-
+export const startServer = async () => {
   // Start server
   const returnMessage = `Ontime is listening on port ${serverPort}`;
   server.listen(serverPort, '0.0.0.0');
@@ -143,18 +134,24 @@ export const startServer = async (overrideConfig = null) => {
   await socket.initServer(server);
   socket.info('SERVER', 'Socket initialised');
 
+  socket.info('SERVER', returnMessage);
+  socket.startListener();
+  return returnMessage;
+};
+
+/**
+ * starts integrations
+ * @param overrideConfig
+ * @return {Promise<void>}
+ */
+export const startIntegrations = async (overrideConfig = null) => {
+  const { http } = DataProvider.getData();
+
   // OSC Config
   const oscConfig = {
     ip: oscIP,
     port: overrideConfig?.port || oscOutPort,
   };
-
-  // init timer
-  global.timer = new EventTimer(socket, config.timer, oscConfig, http);
-
-  socket.info('SERVER', returnMessage);
-  socket.startListener();
-  return returnMessage;
 };
 
 /**
@@ -166,7 +163,7 @@ export const shutdown = async () => {
   server.close();
 
   shutdownOSCServer();
-  global.timer.shutdown();
+  eventTimer.shutdown();
   socket.shutdown();
 };
 
