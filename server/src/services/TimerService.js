@@ -83,6 +83,9 @@ class TimerService {
     // update relevant information and force update
     this.loadedTimer = timer;
     this.timer.duration = timer.duration;
+    if (this.timer.startedAt === null) {
+      this.timer.current = timer.duration;
+    }
     this.update();
   }
 

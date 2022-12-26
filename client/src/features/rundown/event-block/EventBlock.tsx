@@ -111,7 +111,7 @@ export default function EventBlock(props: EventBlockProps) {
     [title, updateEvent, eventId],
   );
 
-  const eventIsPlaying = selected && playback === 'start';
+  const eventIsPlaying = selected && playback === 'play';
   const playBtnStyles = { _hover: {} };
   if (!skip && eventIsPlaying) {
     playBtnStyles._hover = { bg: '#c05621' };
@@ -246,7 +246,7 @@ export default function EventBlock(props: EventBlockProps) {
               showDelay
               showBlock
               showClone
-              enableDelete={!selected}
+              enableDelete
               actionHandler={actionHandler}
             />
           </div>

@@ -10,13 +10,17 @@ import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js
 import { eventTimer } from './TimerService.js';
 import { socketProvider } from '../classes/socket/SocketController.js';
 
+/**
+ *
+ * @param affectedIds
+ * @returns boolean
+ */
 const affectedLoaded = (affectedIds) => {
   const now = eventLoader.selectedEventId;
   const nowPublic = eventLoader.selectedPublicEventId;
   const next = eventLoader.nextEventId;
   const nextPublic = eventLoader.nextPublicEventId;
   return (
-    affectedIds.includes(now) ||
     affectedIds.includes(now) ||
     affectedIds.includes(nowPublic) ||
     affectedIds.includes(next) ||
@@ -67,26 +71,38 @@ const isNewNext = () => {
  */
 export function updateTimer(affectedIds) {
   const runningEventId = eventLoader.selectedEventId;
+
   if (runningEventId === null) {
     return false;
   }
 
   // we need to reload in a few scenarios:
   // 1. we are not confident that changes do not affect running event
+  const safeOption = typeof affectedIds === 'undefined';
   // 2. the edited event is in memory (now or next) running
+  const eventInMemory = affectedLoaded(affectedIds);
   // 3. the edited event replaces next event
-  if (typeof affectedIds === 'undefined') {
-    const { loadedEvent } = eventLoader.loadById(runningEventId);
+  const isNext = isNewNext();
+
+  if (safeOption) {
+    const loadedEvent = eventLoader.loadById(runningEventId);
     eventTimer.hotReload(loadedEvent);
     return true;
   }
-  if (affectedLoaded(affectedIds)) {
-    const { loadedEvent } = eventLoader.loadById(runningEventId);
-    eventTimer.hotReload(loadedEvent);
+
+  if (eventInMemory) {
+    const loadedEvent = eventLoader.loadById(runningEventId);
+    if (!loadedEvent) {
+      // event was deleted
+      eventTimer.stop();
+    } else {
+      eventTimer.hotReload(loadedEvent);
+    }
     return true;
   }
-  if (isNewNext()) {
-    const { loadedEvent } = eventLoader.loadById(runningEventId);
+
+  if (isNext) {
+    const loadedEvent = eventLoader.loadById(runningEventId);
     eventTimer.hotReload(loadedEvent);
     return true;
   }
