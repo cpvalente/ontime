@@ -22,8 +22,6 @@ export default function PlaybackDisplay(props: PlaybackProps) {
   const isPaused = playback === 'pause';
   const isArmed = playback === 'armed';
 
-  console.log('>>>>>>>>>>>>>>>>', selectedId)
-
   return (
     <div className={style.playbackContainer}>
       <TapButton
