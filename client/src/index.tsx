@@ -9,7 +9,6 @@ import App from './App';
 
 import './index.scss';
 
-
 const container = document.getElementById('root');
 const root = createRoot(container as Element);
 
@@ -18,6 +17,7 @@ Sentry.init({
   integrations: [new BrowserTracing()],
   tracesSampleRate: 1.0,
   release: ONTIME_VERSION,
+  enabled: import.meta.env.PROD,
 });
 
 root.render(
