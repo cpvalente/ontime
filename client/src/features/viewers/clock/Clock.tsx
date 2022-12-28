@@ -6,7 +6,7 @@ import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManaget.type';
+import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
 import { OverridableOptions } from '../../../common/models/ViewTypes';
 import { formatTime } from '../../../common/utils/time';

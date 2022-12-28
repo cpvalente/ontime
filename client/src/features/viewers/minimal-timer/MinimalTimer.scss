@@ -9,9 +9,8 @@
 
   background: var(--background-color-override, $viewer-background-color);
   color: var(--color-override, $viewer-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-content: center;
 
   &--finished {
     outline: clamp(4px, 1vw, 16px) solid $timer-finished-color;
