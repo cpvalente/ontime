@@ -25,6 +25,7 @@
   &--finished {
     outline: clamp(4px, 1vw, 16px) solid $timer-finished-color;
     outline-offset: calc(clamp(4px, 1vw, 16px) * -1);
+    transition: $viewer-transition-time;
   }
 
 
@@ -88,11 +89,11 @@
     background-color: $viewer-overlay-bg-color;
     z-index: -1;
     opacity: 0;
-    transition: 0.5s;
+    transition: $viewer-transition-time;
 
     &--active {
       opacity: 1;
-      transition: 0.5s;
+      transition: $viewer-transition-time;
       transition-property: opacity;
       z-index: 2;
     }

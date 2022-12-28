@@ -1,4 +1,4 @@
-import { Playstate } from './OntimeTypes';
+import { Playback } from './OntimeTypes';
 
 export type TimeManagerType = {
   clock: number,
@@ -7,5 +7,5 @@ export type TimeManagerType = {
   startedAt: null | number;
   expectedFinish: null | number;
   finished: boolean;
-  playstate: Playstate
+  playback: Playback
 }
