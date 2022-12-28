@@ -78,7 +78,7 @@
     "prettier": "^2.7.1",
     "prop-types": "^15.8.1",
     "react-test-renderer": "^18.1.0",
-    "sass": "^1.51.0",
+    "sass": "^1.57.1",
     "stylelint": "^14.9.1",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard-scss": "^4.0.0",
