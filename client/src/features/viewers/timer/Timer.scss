@@ -5,55 +5,51 @@
   box-sizing: border-box; /* reset */
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
+  height: 100vh;
 
   background: var(--background-color-override, $viewer-background-color);
-  height: 100vh;
   color: var(--color-override, $viewer-color);
   display: grid;
-  grid-template-columns: 1fr 1fr 5vw 1fr 1fr;
-  grid-template-rows: auto 1fr auto minmax(25vh, auto);
+  grid-template-columns: auto;
+  grid-template-rows: auto 1fr auto auto auto;
   grid-template-areas:
-    ' clck clck .... .... ....'
-    ' timr timr timr timr timr'
-    ' prog prog prog prog prog'
-    ' now  now  .... next next';
-  gap: 1vw;
-  padding: 1vw;
+    'clock'
+    'timer'
+    'progress'
+    'now'
+    'next';
+
+  gap: max(1vw, 16px);
+  padding: max(1vw, 16px) clamp(16px, 10vw, 64px);
 
   &--finished {
-    border: 1vw solid $timer-finished-color;
+    outline: clamp(4px, 1vw, 16px) solid $timer-finished-color;
+    outline-offset: calc(clamp(4px, 1vw, 16px) * -1);
   }
 
 
   /* =================== TITLES ===================*/
 
-  .event {
-    background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
-    padding: 1vh 2vw;
-    border-radius: $element-border-radius;
-    max-width: 100%;
+  .event.now {
+    grid-area: now;
+  }
 
-    &.now {
-      grid-area: now;
-
-    }
-    &.next {
-      grid-area: next;
-    }
+  .event.next {
+    grid-area: next;
   }
 
   /* =================== MAIN ===================*/
 
   .timer-container {
-    grid-area: timr;
+    grid-area: timer;
     justify-self: center;
     align-self: center;
-    color: white;
+    color: var(--timer-color-override, $timer-color);
 
     .end-message {
       text-align: center;
       font-size: 12vw;
-      line-height: 18vw;
+      line-height: 0.9em;
       font-weight: 600;
       color: $timer-finished-color;
       padding: 0;
@@ -65,17 +61,17 @@
   }
 
   .progress-container {
-    grid-area: prog;
-    width: 80%;
+    grid-area: progress;
+    width: 100%;
     margin: 0 auto;
     opacity: 1;
-    transition: 0.5s;
+    transition: $viewer-transition-time;
   }
 
   .timer--paused,
   .progress-container--paused {
-    opacity: 0.6;
-    transition: 0.5s;
+    opacity: $viewer-opacity-disabled;
+    transition: $viewer-transition-time;
   }
 
 
@@ -108,7 +104,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    color: white;
+    color: $viewer-color;
     transform: translate(-50%, -50%);
     -ms-transform: translate(-50%, -50%);
     font-size: 15vw;
@@ -120,18 +116,21 @@
   /* =================== MAIN ===================*/
 
   .clock-container {
-    grid-area: clck;
-    padding: 1vh 2vw;
+    grid-area: clock;
 
     .label {
-      font-size: 1.3vw;
-      color: var(--accent-color-override, $accent-color);
+      font-size: clamp(16px, 1.5vw, 24px);
+      font-weight: 600;
+      color: var(--label-color-override, $viewer-label-color);
+      text-transform: uppercase;
     }
 
+    // Todo: should clock colour be an override
     .clock {
       font-family: 'Open Sans', sans-serif;
-      font-size: 4vw;
-      letter-spacing: 0.4vw;
+      font-size: clamp(32px, 3.5vw, 50px);
+      font-weight: 600;
+      letter-spacing: 0.05em;
     }
   }
 

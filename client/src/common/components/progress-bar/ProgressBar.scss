@@ -4,9 +4,8 @@
   width: 100%;
   height: 16px;
   border-radius: 8px;
-  background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
+  background-color: var(--card-background-color-override, $viewer-card-bg-color);
 }
-
 
 .progress-bar__indicator {
   height: 16px;
