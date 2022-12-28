@@ -1,4 +1,4 @@
-import { KeyboardEvent, useEffect, useState } from 'react';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
@@ -10,6 +10,7 @@ import { useAtom } from 'jotai';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import { mirrorViewersAtom } from '../../atoms/ViewerSettings';
+import useClickOutside from '../../hooks/useClickOutside';
 import useFullscreen from '../../hooks/useFullscreen';
 import { useKeyDown } from '../../hooks/useKeyDown';
 
@@ -22,6 +23,8 @@ export default function NavigationMenu() {
   const [isMirrored, setMirrored] = useAtom(mirrorViewersAtom);
   const [showButton, setShowButton] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  useClickOutside(menuRef, () => setShowMenu(false));
 
   const toggleMenu = () => setShowMenu((prev) => !prev);
   useKeyDown(toggleMenu, ' ');
@@ -49,7 +52,7 @@ export default function NavigationMenu() {
   const handleMirror = () => setMirrored((prev) => !prev);
 
   return createPortal(
-    <div id='navigation-menu-portal' className={isMirrored ? style.mirror : ''}>
+    <div id='navigation-menu-portal' ref={menuRef} className={isMirrored ? style.mirror : ''}>
       <button
         onClick={toggleMenu}
         aria-label='toggle menu'
