@@ -37,8 +37,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       </div>
       <div className={style.timer}>
         <TimerDisplay
-          time={isWaiting ? millisToSeconds(timerData.secondaryTimer) : millisToSeconds(timerData.current)}
-          isNegative={isOvertime}
+          time={isWaiting ? timerData.secondaryTimer : timerData.current}
           small
         />
       </div>

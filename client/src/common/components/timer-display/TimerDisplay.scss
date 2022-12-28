@@ -3,17 +3,16 @@
 .timer {
   font-family: var(--font-family-override, $viewer-font-family);
   color: var(--timer-color-override, $viewer-color);
-  font-size: 18vw;
-  line-height: 18vw;
+  font-size: 20vw;
+  line-height: 0.9em;
   text-align: center;
   letter-spacing: 1vw;
+  font-weight: 600;
 
   &--small {
     font-size: 3.75em;
-    line-height: 0.9;
     text-align: center;
     letter-spacing: 0.1em;
-    font-weight: 600;
   }
 
   &--finished {

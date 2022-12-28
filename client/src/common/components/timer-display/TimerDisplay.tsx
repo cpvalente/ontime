@@ -1,25 +1,30 @@
 import { memo } from 'react';
-import { formatDisplay } from 'common/utils/dateConfig';
+import { formatDisplay, millisToSeconds } from 'common/utils/dateConfig';
 
 import './TimerDisplay.scss';
 
 interface TimerDisplayProps {
-  time: number;
+  time?: number | null;
   small?: boolean;
-  isNegative?: boolean;
   hideZeroHours?: boolean;
   className?: string;
 }
 
+/**
+ * Displays time in ms in formatted timetag
+ * @param props
+ * @constructor
+ */
 const TimerDisplay = (props: TimerDisplayProps) => {
-  const { time, small, isNegative, hideZeroHours, className = '' } = props;
+  const { time, small, hideZeroHours, className = '' } = props;
 
   const display =
     (time === null || typeof time === 'undefined' || isNaN(time))
       ? '-- : -- : --'
-      : formatDisplay(time, hideZeroHours);
+      : formatDisplay(millisToSeconds(time), hideZeroHours);
 
-  const classes = `timer ${small ? 'timer--small' : ''}  ${isNegative ? 'timer--finished' : ''} ${className}`;
+  const isNegative = (time ?? 0) < 0;
+  const classes = `timer ${small ? 'timer--small' : ''} ${isNegative ? 'timer--finished' : ''} ${className}`;
 
   return <div className={classes}>{display}</div>;
 };
