@@ -1,10 +1,10 @@
 @use '../../../theme/viewerDefs' as *;
 
 .timer {
-  font-family:  var(--font-family-override, $ontime-font-family);
+  font-family: var(--font-family-override, $viewer-font-family);
   color: var(--timer-color-override, $viewer-color);
-  font-size: 21vw;
-  line-height: 21vw;
+  font-size: 18vw;
+  line-height: 18vw;
   text-align: center;
   letter-spacing: 1vw;
 

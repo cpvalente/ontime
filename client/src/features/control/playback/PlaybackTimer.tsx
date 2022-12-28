@@ -1,5 +1,5 @@
 import { Tooltip } from '@chakra-ui/react';
-import TimerDisplay from 'common/components/countdown/TimerDisplay';
+import TimerDisplay from 'common/components/timer-display/TimerDisplay';
 
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
 import { Playback } from '../../../common/models/OntimeTypes';

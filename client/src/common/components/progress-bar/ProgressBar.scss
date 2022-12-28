@@ -1,0 +1,17 @@
+@use '../../../theme/viewerDefs' as *;
+
+.progress-bar__bg {
+  width: 100%;
+  height: 16px;
+  border-radius: 8px;
+  background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
+}
+
+
+.progress-bar__indicator {
+  height: 16px;
+  border-radius: 8px;
+  background-color: var(--accent-color-override, $accent-color);
+  transition: 1s linear;
+  transition-property: width;
+}
