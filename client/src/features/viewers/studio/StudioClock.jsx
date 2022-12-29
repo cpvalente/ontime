@@ -22,6 +22,16 @@ const formatOptions = {
   format: 'hh:mm',
 };
 
+StudioClock.propTypes = {
+  title: PropTypes.object,
+  time: PropTypes.object,
+  backstageEvents: PropTypes.array,
+  selectedId: PropTypes.string,
+  nextId: PropTypes.string,
+  onAir: PropTypes.bool,
+  viewSettings: PropTypes.object,
+};
+
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
 
@@ -42,7 +52,9 @@ export default function StudioClock(props) {
 
   // Prepare event list
   useEffect(() => {
-    if (backstageEvents == null) return;
+    if (!backstageEvents) {
+      return;
+    }
 
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
@@ -106,8 +118,8 @@ export default function StudioClock(props) {
               <li
                 key={s.id}
                 className={s.isNow ? 'now' : s.isNext ? 'next' : ''}
-                style={{ borderLeft: `4px solid ${s.colour !== '' ? s.colour : 'transparent'}` }}
               >
+                <div className='user-colour' style={{ backgroundColor: `${s.colour !== '' ? s.colour : ''}` }} />
                 {`${s.time} ${s.title}`}
               </li>
             ))}
@@ -117,13 +129,3 @@ export default function StudioClock(props) {
     </div>
   );
 }
-
-StudioClock.propTypes = {
-  title: PropTypes.object,
-  time: PropTypes.object,
-  backstageEvents: PropTypes.array,
-  selectedId: PropTypes.string,
-  nextId: PropTypes.string,
-  onAir: PropTypes.bool,
-  viewSettings: PropTypes.object,
-};

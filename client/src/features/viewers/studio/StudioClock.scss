@@ -142,6 +142,8 @@ $cyan-idle: #0aa;
       li {
         margin-bottom: 1.5vh;
         padding-left: 0.25em;
+        display: flex;
+        align-items: center;
       }
 
       .now {
@@ -150,6 +152,13 @@ $cyan-idle: #0aa;
 
       .next {
         color: $red-active;
+      }
+
+      .user-colour {
+        width: 0.35em;
+        height: 0.35em;
+        background-color: $red-idle;
+        margin-right: 0.35em;
       }
     }
   }
