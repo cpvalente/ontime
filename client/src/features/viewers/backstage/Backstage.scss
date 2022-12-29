@@ -10,8 +10,8 @@
   font-family: $viewer-font-family;
   background: var(--background-color-override, $viewer-background-color);
   color: var(--color-override, $viewer-color);
-  gap: max(1vw, 16px);
-  padding: max(1vw, 16px) clamp(16px, 10vw, 64px);
+  gap: min(2vh, 16px);
+  padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
 
   display: grid;
   grid-template-columns: 1fr 1fr 40vw;
@@ -40,7 +40,7 @@
       text-transform: uppercase;
     }
 
-    .clock {
+    .time {
       font-size: clamp(32px, 3.5vw, 50px);
       font-weight: 600;
       letter-spacing: 0.05em;
@@ -48,7 +48,6 @@
 
     .message {
       font-size: clamp(16px, 1.5vw, 24px);
-      color: var(--color-override, $viewer-color);
       font-weight: 400;
     }
   }
@@ -105,7 +104,7 @@
       text-transform: uppercase;
     }
 
-    .timer {
+    .time {
       font-size: clamp(24px, 2vw, 32px);
       letter-spacing: 0.05em;
     }

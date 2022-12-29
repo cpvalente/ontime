@@ -78,7 +78,7 @@ export default function Backstage(props) {
         {general.title}
         <div className='clock-container'>
           <div className='label'>Time Now</div>
-          <div className='clock'>{clock}</div>
+          <div className='time'>{clock}</div>
         </div>
       </div>
 
@@ -108,15 +108,15 @@ export default function Backstage(props) {
               <div className='event-timer-container'>
                 <div className='timer-container'>
                   <div className='label'>Started At</div>
-                  <div className='timer'>{startedAt}</div>
+                  <div className='time'>{startedAt}</div>
                 </div>
                 <div className='timer-container'>
                   <div className='label'>Expected Finish</div>
-                  <div className='timer'>{expectedFinish}</div>
+                  <div className='time'>{expectedFinish}</div>
                 </div>
                 <div className='timer-container'>
                   <div className='label'>Stage Timer</div>
-                  <div className='timer'>{stageTimer}</div>
+                  <div className='time'>{stageTimer}</div>
                 </div>
               </div>
             </motion.div>
