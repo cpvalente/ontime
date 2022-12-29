@@ -7,8 +7,12 @@
   width: 100%; /* restrict the page width to viewport */
   height: 100vh;
 
+  font-family: $viewer-font-family;
   background: var(--background-color-override, $viewer-background-color);
   color: var(--color-override, $viewer-color);
+  gap: min(2vh, 16px);
+  padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+
   display: grid;
   grid-template-columns: auto;
   grid-template-rows: auto 1fr auto auto auto;
@@ -19,24 +23,45 @@
     'now'
     'next';
 
-  gap: max(1vw, 16px);
-  padding: max(1vw, 16px) clamp(16px, 10vw, 64px);
-
   &--finished {
     outline: clamp(4px, 1vw, 16px) solid $timer-finished-color;
     outline-offset: calc(clamp(4px, 1vw, 16px) * -1);
     transition: $viewer-transition-time;
   }
 
+  /* =================== CLOCK ===================*/
+
+  .clock-container {
+    grid-area: clock;
+    margin-left: auto;
+    font-weight: 600;
+
+    .label {
+      font-size: clamp(16px, 1.5vw, 24px);
+      color: var(--label-color-override, $viewer-label-color);
+      text-transform: uppercase;
+    }
+
+    .clock {
+      font-size: clamp(32px, 3.5vw, 50px);
+      letter-spacing: 0.05em;
+    }
+  }
 
   /* =================== TITLES ===================*/
 
-  .event.now {
-    grid-area: now;
-  }
+  .event {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    padding: 16px 24px;
+    border-radius: 8px;
 
-  .event.next {
-    grid-area: next;
+    &.now {
+      grid-area: now;
+    }
+
+    &.next {
+      grid-area: next;
+    }
   }
 
   /* =================== MAIN ===================*/
@@ -113,26 +138,4 @@
     text-align: center;
     font-weight: 600;
   }
-
-  /* =================== MAIN ===================*/
-
-  .clock-container {
-    grid-area: clock;
-
-    .label {
-      font-size: clamp(16px, 1.5vw, 24px);
-      font-weight: 600;
-      color: var(--label-color-override, $viewer-label-color);
-      text-transform: uppercase;
-    }
-
-    // Todo: should clock colour be an override
-    .clock {
-      font-family: 'Open Sans', sans-serif;
-      font-size: clamp(32px, 3.5vw, 50px);
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
-  }
-
 }

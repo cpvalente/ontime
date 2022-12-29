@@ -46,8 +46,6 @@ export default function Timer(props) {
   const isPlaying = time.playback !== 'pause';
   const normalisedTime = Math.max(time.current, 0);
 
-  console.log(time.current)
-
   // motion
   const titleVariants = {
     hidden: {

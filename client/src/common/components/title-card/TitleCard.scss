@@ -1,9 +1,6 @@
 @use '../../../theme/viewerDefs' as *;
 
 .title-card {
-  background-color: var(--card-background-color-override, $viewer-card-bg-color);
-  padding: 16px 24px;
-  border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -27,6 +24,7 @@
 
   .label {
     font-size: clamp(16px, 1.5vw, 24px);
+    font-weight: 400;
     color: var(--secondary-color-override, $viewer-secondary-color);
     margin-left: auto;
     text-transform: uppercase;
