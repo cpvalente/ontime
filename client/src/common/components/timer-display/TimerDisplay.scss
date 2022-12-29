@@ -2,11 +2,11 @@
 
 .timer {
   font-family: var(--font-family-override, $viewer-font-family);
-  color: var(--timer-color-override, $viewer-color);
+  color: var(--timer-color-override, $timer-color);
   font-size: 20vw;
   line-height: 0.9em;
   text-align: center;
-  letter-spacing: 1vw;
+  letter-spacing: 0.05em;
   font-weight: 600;
 
   &--small {

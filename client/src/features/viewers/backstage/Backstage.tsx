@@ -105,18 +105,18 @@ export default function Backstage(props) {
                 subtitle={title.subtitleNow}
                 presenter={title.presenterNow}
               />
-              <div className='event-timer-container'>
-                <div className='timer-container'>
-                  <div className='label'>Started At</div>
-                  <div className='time'>{startedAt}</div>
+              <div className='timer-group'>
+                <div className='aux-timers'>
+                  <div className='aux-timers__label'>Started At</div>
+                  <div className='aux-timers__value'>{startedAt}</div>
                 </div>
-                <div className='timer-container'>
-                  <div className='label'>Expected Finish</div>
-                  <div className='time'>{expectedFinish}</div>
+                <div className='aux-timers'>
+                  <div className='aux-timers__label'>Expected Finish</div>
+                  <div className='aux-timers__value'>{expectedFinish}</div>
                 </div>
-                <div className='timer-container'>
-                  <div className='label'>Stage Timer</div>
-                  <div className='time'>{stageTimer}</div>
+                <div className='aux-timers'>
+                  <div className='aux-timers__label'>Stage Timer</div>
+                  <div className='aux-timers__value'>{stageTimer}</div>
                 </div>
               </div>
             </motion.div>
