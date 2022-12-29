@@ -1,0 +1,46 @@
+import { Link } from 'react-router-dom';
+
+import Empty from '../../../common/components/state/Empty';
+import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from '../../../common/models/EventTypes';
+import { formatTime } from '../../../common/utils/time';
+
+import { sanitiseTitle } from './countdown.helpers';
+
+import './Countdown.scss';
+
+
+interface CountdownSelectProps {
+  events: OntimeRundownEntry[];
+}
+
+export default function CountdownSelect(props: CountdownSelectProps) {
+  const { events } = props;
+  const filteredEvents = events.filter((event: OntimeRundownEntry) => event.type === SupportedEvent.Event) as OntimeEvent[];
+
+  return (
+    <div className='event-select' data-testid='countdown-select'>
+      <span className='event-select__title'>Select an event to follow</span>
+      <ul className='event-select__events'>
+        {!events.length ? (
+          <Empty text='No events in database' />
+        ) : (
+          filteredEvents.map((event: OntimeEvent, counter: number) => {
+              const index = counter + 1;
+              const title = sanitiseTitle(event.title);
+              const start = formatTime(event.timeStart, { format: 'hh:mm' });
+              const end = formatTime(event.timeEnd, { format: 'hh:mm' });
+
+              return (
+                <li key={event.id}>
+                  <Link to={`/countdown?eventid=${event.id}`}>
+                    {`${index}. ${start} → ${end} | ${title}`}
+                  </Link>
+                </li>
+              );
+            },
+          )
+        )}
+      </ul>
+    </div>
+  );
+}

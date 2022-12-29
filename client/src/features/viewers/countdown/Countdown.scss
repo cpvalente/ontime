@@ -5,25 +5,27 @@
   box-sizing: border-box; /* reset */
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
-
-  background: var(--background-color-override, $viewer-background-color);
   height: 100vh;
+
+  font-family: $viewer-font-family;
+  background: var(--background-color-override, $viewer-background-color);
   color: var(--color-override, $viewer-color);
-  padding: 1vw;
+
+  /* =================== MAIN - SELECT ===================*/
 
   .event-select {
     display: flex;
     margin-top: 8vh;
     align-items: center;
     justify-content: center;
-    font-size: max(1.3vw, 12px);
     flex-direction: column;
 
     &__title {
-      font-size: max(2vw, 14px);
+      font-size: clamp(24px, 2vw, 32px);
     }
 
     &__events {
+      font-size: clamp(16px, 1.5vw, 24px);
       margin-top: 1em;
       overflow-y: auto;
       height: 70vh;
@@ -31,21 +33,88 @@
     }
   }
 
+  /* =================== MAIN - EVENT CONTAINER ===================*/
+
   .countdown-container {
     height: 100%;
     width: 100%;
+    gap: min(2vh, 16px);
+    padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+
     display: grid;
-    grid-template-rows: 1fr auto auto auto 1fr auto;
+    grid-template-rows: auto auto auto auto 1fr;
     grid-template-columns: 100%;
     grid-template-areas:
-    'title'
+    'header'
     'status'
     'clock'
-    'y'
+    'title'
     'timers';
-    gap: 1vw;
-    justify-content: center;
-    text-align: center;
+
+    /* =================== HEADER + EXTRAS ===================*/
+
+    .clock-container {
+      grid-area: header;
+      margin-left: auto;
+      font-weight: 600;
+
+      .label {
+        font-size: clamp(16px, 1.5vw, 24px);
+        color: var(--label-color-override, $viewer-label-color);
+        text-transform: uppercase;
+      }
+
+      .time {
+        font-size: clamp(32px, 3.5vw, 50px);
+        color: var(--secondary-color-override, $viewer-secondary-color);
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .status {
+      grid-area: status;
+      color: var(--label-color-override, $viewer-label-color);
+      font-size: clamp(32px, 3.5vw, 50px);
+      font-weight: 600;
+    }
+
+    /* =================== TIMER + TITLE ===================*/
+
+    .timer {
+      grid-area: clock;
+
+      font-family: var(--font-family-override, $viewer-font-family);
+      color: var(--timer-color-override, $timer-color);
+      font-size: 20vw;
+      line-height: 0.9em;
+      text-align: center;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      opacity: 1;
+
+      &--paused {
+        opacity: $viewer-opacity-disabled;
+      }
+
+      &--finished {
+        color: $timer-finished-color;
+      }
+    }
+
+    .title {
+      grid-area: title;
+      background-color: var(--card-background-color-override, $viewer-card-bg-color);
+      padding: 16px 24px;
+      border-radius: 8px;
+
+      font-weight: 600;
+      font-size: clamp(40px, 4.5vw, 80px);
+      color: var(--accent-color-override, $accent-color);
+      line-height: 1.1em;
+      text-align: center;
+    }
+
+    /* =================== FOOTER TIMERS ===================*/
 
     .timer-group {
       grid-area: timers;
@@ -55,58 +124,22 @@
 
       .aux-timers {
         text-align: center;
+        font-size: clamp(24px, 1.75vw, 32px);
 
         &__label {
-          font-size: max(1.3vw, 12px);
-          color: var(--accent-color-override, $accent-color);
+          color: var(--label-color-override, $viewer-label-color);
+          text-transform: uppercase;
         }
 
         &__value {
-          font-family: 'Open Sans', sans-serif;
-          font-size: max(2vw, 14px);
-          letter-spacing: 0.3px;
+          font-size: clamp(32px, 3.5vw, 50px);
+          color: var(--secondary-color-override, $viewer-secondary-color);
+          letter-spacing: 0.05em;
 
           &--delayed {
             color: $delay-color;
           }
         }
-      }
-    }
-
-    .title {
-      grid-area: title;
-      font-size: max(4vw, 18px);
-      align-self: center;
-      color: var(--accent-color-override, $accent-color);
-      background-color: var(--outdent-background-color-override, $viewer-outdent-bg-color);
-      padding: 1vh 2vw;
-      border-radius: $element-border-radius;
-    }
-
-    .status {
-      grid-area: status;
-      padding-left: 5vw;
-      font-size: max(2.5vw, 14px);
-      justify-self: flex-start;
-      align-self: flex-end;
-    }
-
-    .timer {
-      grid-area: clock;
-      line-height: 20vw;
-      font-size: 21vw;
-      text-align: center;
-      letter-spacing: 0.4vw;
-      align-self: flex-start;
-      opacity: 1.0;
-      transition: opacity 0.5s;
-      color: var(--timer-color-override, $viewer-color);
-
-      &--paused {
-        opacity: 0.6;
-      }
-      &--finished {
-        color: $timer-finished-color;
       }
     }
   }
