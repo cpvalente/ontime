@@ -5,12 +5,11 @@
   border-spacing: 50px;
 
   .entry {
-    margin-top: min(0.5vh, 16px);
     font-size: clamp(16px, 1.5vw, 24px);
 
     .entry-colour {
       background-color: var(--card-background-color-override, $viewer-card-bg-color);
-      height: max(8px, 0.75vw, 12px);
+      height: clamp(8px, 0.75vw, 12px);
       width: clamp(8px, 0.75vw, 12px);
       border-radius: 6px;
       display: inline-block;
