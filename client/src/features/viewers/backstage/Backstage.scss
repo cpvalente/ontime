@@ -15,7 +15,7 @@
 
   display: grid;
   grid-template-columns: 1fr 1fr 40vw;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto 12px 1fr auto;
   grid-template-areas:
     ' header    header    header'
     ' progress  progress  schedule-nav'
@@ -29,6 +29,20 @@
     font-size: clamp(32px, 4.5vw, 64px);
     font-weight: 600;
     display: flex;
+  }
+
+  .clock-container {
+    margin-left: auto;
+  }
+
+  .public-container {
+    grid-area: message;
+
+    &--hidden {
+      opacity: 0;
+      transition: $viewer-transition-time;
+      transition-property: opacity;
+    }
   }
 
   .clock-container,
@@ -50,19 +64,6 @@
       font-size: clamp(16px, 1.5vw, 24px);
       font-weight: 400;
     }
-  }
-
-  .public-container {
-    &--hidden {
-      opacity: 0;
-      transition: $viewer-transition-time;
-      transition-property: opacity;
-    }
-  }
-
-  .clock-container {
-    grid-area: clock;
-    margin-left: auto;
   }
 
   /* =================== MAIN - NOW ===================*/
