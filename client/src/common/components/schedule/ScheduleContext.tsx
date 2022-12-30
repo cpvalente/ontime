@@ -28,7 +28,7 @@ export const ScheduleProvider = (
     events,
     selectedEventId,
     isBackstage = false,
-    eventsPerPage = 5,
+    eventsPerPage = 4,
     time = 10,
   }: PropsWithChildren<ScheduleProviderProps>) => {
 

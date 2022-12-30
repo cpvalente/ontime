@@ -57,7 +57,7 @@
   justify-content: flex-end;
 
   .schedule-nav__item {
-    background-color: var(--secondary-color-override, $viewer-secondary-color);
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
     width: 12px;
     height: 12px;
     border-radius: 6px;

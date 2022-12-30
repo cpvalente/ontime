@@ -11,7 +11,7 @@ interface ProgressBarProps {
 export default function ProgressBar(props: ProgressBarProps) {
   const { now = 0, complete = 100, className = '' } = props;
 
-  const percentComplete = clamp(100 - (now * 100) / complete, 0, 100);
+  const percentComplete = clamp(100 - (Math.max(now, 0) * 100) / complete, 0, 100);
 
   console.log(now, complete, percentComplete);
   return (

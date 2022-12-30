@@ -55,7 +55,6 @@ export default function Backstage(props) {
   const startedAt = formatTime(time.startedAt, formatOptions);
   const expectedFinish = formatTime(time.expectedFinish, formatOptions);
 
-  const normalisedTime = Math.max(time.current, 0);
   const qrSize = Math.max(window.innerWidth / 15, 128);
   const filteredEvents = getEventsWithDelay(backstageEvents);
   const showPublicMessage = publ.text && publ.visible;
@@ -84,7 +83,7 @@ export default function Backstage(props) {
 
       <ProgressBar
         className='progress-container'
-        now={normalisedTime}
+        now={time.current}
         complete={time.duration}
       />
 

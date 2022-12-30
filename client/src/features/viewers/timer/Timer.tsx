@@ -100,7 +100,7 @@ export default function Timer(props) {
         className={
           isPlaying ? 'progress-container' : 'progress-container progress-container--paused'
         }
-        now={normalisedTime}
+        now={time.current}
         complete={time.duration}
       />
 
