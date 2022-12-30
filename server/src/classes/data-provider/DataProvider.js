@@ -30,9 +30,10 @@ export class DataProvider {
 
   static async updateEventById(eventId, newData) {
     const eventIndex = data.rundown.findIndex((e) => e.id === eventId);
-    const e = data.rundown[eventIndex];
-    data.rundown[eventIndex] = { ...e, ...newData };
-    data.rundown[eventIndex].revision++;
+    const persistedEvent = data.rundown[eventIndex];
+    const newEvent = { ...persistedEvent, ...newData };
+    newEvent.revision++;
+    data.rundown[eventIndex] = newEvent;
     await this.persist();
     return data.rundown[eventIndex];
   }
