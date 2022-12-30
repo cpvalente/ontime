@@ -1,4 +1,4 @@
-@use '../../../theme/main' as *;
+@use '../../../theme/v2Styles' as *;
 
 .modalBody {
   min-height: 40vh;
@@ -18,11 +18,11 @@
   }
 
   .info {
-    background-color: $bg-gray;
+    background-color: $bg-container-onlight;
     margin: 1em 0;
     padding: 0.5em;
     border-radius: 2px;
-    color: black;
+    color: $text-black;
     position: relative;
   }
 

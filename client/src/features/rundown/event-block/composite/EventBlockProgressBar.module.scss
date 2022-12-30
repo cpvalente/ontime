@@ -1,4 +1,4 @@
-@use '../../../../theme/main' as *;
+@use '../../../../theme/v2Styles' as *;
 
 .progressBar {
   // layout
@@ -11,7 +11,7 @@
   transition-property: width;
 
   &.play {
-    background-color: $ontime-accent;
+    background-color: $playback-start;
   }
 
   &.pause {
@@ -23,7 +23,6 @@
   }
 
   &.overtime {
-    background-color: $ontime-pink-variant;
+    background-color: $playback-negative;
   }
 }
-

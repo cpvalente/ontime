@@ -1,16 +1,14 @@
-@use '../../../theme/main' as *;
-@use '../../../theme/mixins' as *;
+@use '../../../theme/v2Styles' as *;
 
 .container {
-  background: $bg-black;
-
   display: grid;
   place-content: center;
   height: 100vh;
   padding-bottom: 30vh;
 
-  color: $ontime-pink;
-  font-family: 'Open Sans', sans-serif;
+  background: $bg-container-l1;
+  color: $ontime-color;
+  font-family: $ontime-font-family;
   font-weight: 200;
   text-align: center;
   font-size: 3vw;
@@ -37,9 +35,9 @@
 
 @keyframes colourFade {
   from {
-    background: $ontime-pink;
+    background: $action-blue;
   }
   to {
-    background: rgba($ontime-pink, 0);
+    background: rgba($action-blue, 0);
   }
 }
