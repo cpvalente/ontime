@@ -22,6 +22,11 @@ const formatOptions = {
   format: 'hh:mm:ss a',
 };
 
+const formatOptionsFinished = {
+  showSeconds: false,
+  format: 'hh:mm a',
+};
+
 Countdown.propTypes = {
   backstageEvents: PropTypes.array,
   time: PropTypes.object,
@@ -100,6 +105,12 @@ export default function Countdown(props) {
     follow === null
       ? '...'
       : formatTime(follow.timeEnd + delay, formatOptions);
+  const formattedTimer = runningMessage === TimerMessage.ended
+    ? formatTime(runningTimer, formatOptionsFinished)
+    : formatDisplay(
+      isSelected ? millisToSeconds(runningTimer) : millisToSeconds(runningTimer + delay),
+      isSelected || time.waiting,
+    );
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
@@ -121,10 +132,7 @@ export default function Countdown(props) {
               isRunningFinished ? 'timer--finished' : ''
             }`}
           >
-            {formatDisplay(
-              isSelected ? runningTimer : runningTimer + millisToSeconds(delay),
-              isSelected || time.waiting,
-            )}
+            {formattedTimer}
           </span>
           <div className='title'>{follow?.title || 'Untitled Event'}</div>
 

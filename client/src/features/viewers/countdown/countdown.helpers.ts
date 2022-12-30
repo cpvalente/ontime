@@ -1,6 +1,5 @@
 import { OntimeEvent } from '../../../common/models/EventTypes';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { millisToSeconds } from '../../../common/utils/dateConfig';
 
 export enum TimerMessage {
   toStart = 'Time to start',
@@ -31,7 +30,7 @@ export const fetchTimerData = (time: TimeManagerType, follow: OntimeEvent, selec
   } else if (time.clock < follow.timeStart) {
     // if it hasnt started, we count to start
     message = TimerMessage.toStart;
-    timer = millisToSeconds(follow.timeStart - time.clock);
+    timer = follow.timeStart - time.clock;
 
   } else if (follow.timeStart <= time.clock && time.clock <= follow.timeEnd) {
     // if it has started, we show running timer
@@ -47,7 +46,7 @@ export const fetchTimerData = (time: TimeManagerType, follow: OntimeEvent, selec
       if (follow.timeStart > time.clock) {
         // if it hasnt started, we count to start
         message = TimerMessage.toStart;
-        timer = millisToSeconds(follow.timeStart - time.clock);
+        timer = follow.timeStart - time.clock;
 
       } else if (follow.timeStart <= time.clock) {
         // if it has started, we show running timer
@@ -57,13 +56,13 @@ export const fetchTimerData = (time: TimeManagerType, follow: OntimeEvent, selec
       } else {
         // if it has ended, we show how long ago
         message = TimerMessage.ended;
-        timer = millisToSeconds(follow.timeEnd);
+        timer = follow.timeEnd;
       }
 
     } else {
       // if it has ended, we show how long ago
       message = TimerMessage.ended;
-      timer = millisToSeconds(follow.timeEnd);
+      timer = follow.timeEnd;
     }
   }
   return { message, timer };
