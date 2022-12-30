@@ -15,7 +15,6 @@ const Countdown = lazy(() => import('features/viewers/countdown/Countdown'));
 const Backstage = lazy(() => import('features/viewers/backstage/Backstage'));
 const Public = lazy(() => import('features/viewers/public/Public'));
 const Lower = lazy(() => import('features/viewers/lower-thirds/LowerWrapper'));
-const Pip = lazy(() => import('features/viewers/picture-in-picture/Pip'));
 const StudioClock = lazy(() => import('features/viewers/studio/StudioClock'));
 
 const STimer = withSocket(TimerView);
@@ -25,7 +24,6 @@ const SCountdown = withSocket(Countdown);
 const SBackstage = withSocket(Backstage);
 const SPublic = withSocket(Public);
 const SLowerThird = withSocket(Lower);
-const SPip = withSocket(Pip);
 const SStudio = withSocket(StudioClock);
 
 const FeatureWrapper = lazy(() => import('features/FeatureWrapper'));
@@ -70,7 +68,6 @@ export default function AppRouter() {
       <Route path='/backstage' element={<SBackstage />} />
 
       <Route path='/public' element={<SPublic />} />
-      <Route path='/pip' element={<SPip />} />
       <Route path='/studio' element={<SStudio />} />
       {/*/!* Lower cannot have fallback *!/*/}
       <Route path='/lower' element={<SLowerThird />} />
