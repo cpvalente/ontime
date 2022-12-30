@@ -1,0 +1,23 @@
+@use '../../../theme/viewerDefs' as *;
+
+$progress-bar-size: 12px;
+$progress-bar-br: 6px;
+
+.progress-bar__bg {
+  width: 100%;
+  height: $progress-bar-size;
+  border-radius: $progress-bar-br;
+  background-color: var(--card-background-color-override, $viewer-card-bg-color);
+
+  &--hidden {
+    display: none;
+  }
+}
+
+.progress-bar__indicator {
+  height: $progress-bar-size;
+  border-radius: $progress-bar-br;
+  background-color: var(--accent-color-override, $accent-color);
+  transition: 1s linear;
+  transition-property: width;
+}

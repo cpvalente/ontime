@@ -5,7 +5,7 @@ import style from './Empty.module.scss';
 
 interface EmptyProps {
   text: string;
-  style: CSSProperties;
+  style?: CSSProperties;
 }
 
 export default function Empty(props: EmptyProps) {

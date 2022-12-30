@@ -1,33 +1,28 @@
-@use 'main' as *;
+@use 'v2Styles' as *;
 @use 'viewerCommon' as *;
+@use "ontimeColours" as *;
+
+// General
+$viewer-transition-time: 0.5s;
 
 // Text
-$ontime-font-family: "Open Sans", "Segoe UI", sans-serif; // --font-family-override
+$viewer-font-family: "Open Sans", "Segoe UI", sans-serif; // --font-family-override
+$viewer-opacity-disabled: 0.6;
 
 // General styling
-$accent-color: $ontime-pink; // --accent-color-override
-$delay-color: $delay-text;
+$accent-color: $red-500; // --accent-color-override
+$delay-color: $ontime-delay-text;
+$viewer-label-color: rgba(white, 25%);
 
 // Main Properties of a viewer
-$viewer-background-color: $bg-black; // --background-color-override
-$viewer-color: $title-white; // --color-override
-$viewer-outdent-bg-color: $bg-container-l1; // --outdent-background-color-override
-$viewer-overlay-bg-color: $bg-overlay;
+$viewer-background-color: $ui-black; // --background-color-override
+$viewer-color: rgba(white, 80%); // --color-override
+$viewer-secondary-color: rgba(white, 45%); // --secondary-color-override
+$viewer-card-bg-color: rgba(white, 7%); // --card-background-color-override
+$viewer-overlay-bg-color: rgba(black, 90%);
 $element-border-radius: 8px;
 
 // Properties related to timer
-$timer-finished-color: $ontime-pink-variant;
-
-// View specific - Pip
-$pip-bg-color: $bg-black-100;
-$pip-border-color: $bg-black-200;
-$pip-text-color: $bg-gray-900;
-$today-item-bg: $bg-gray-700;
-
-// View specific - Titles
-$title-color: #ddd;
-$subtitle-color: #aaa;
-
-// View specific - Paginator
-$now-bg-color: #ffffff11;
-$future-bg-color: #ffffff05;
+$timer-color: rgba(white, 80%); // --timer-color-override
+$timer-finished-color: $playback-negative;
+$timer-bold-font-family: "Arial Black", sans-serif; // --card-background-color-override

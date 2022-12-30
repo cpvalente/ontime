@@ -1,9 +1,8 @@
 import { Tooltip } from '@chakra-ui/react';
-import TimerDisplay from 'common/components/countdown/TimerDisplay';
+import TimerDisplay from 'common/components/timer-display/TimerDisplay';
 
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
 import { Playback } from '../../../common/models/OntimeTypes';
-import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
@@ -37,8 +36,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       </div>
       <div className={style.timer}>
         <TimerDisplay
-          time={isWaiting ? millisToSeconds(timerData.secondaryTimer) : millisToSeconds(timerData.current)}
-          isNegative={isOvertime}
+          time={isWaiting ? timerData.secondaryTimer : timerData.current}
           small
         />
       </div>

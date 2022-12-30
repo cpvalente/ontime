@@ -1,9 +1,9 @@
-@use '../../theme/main' as *;
+@use '../../theme/ontimeColours' as *;
 
 .gap {
   height: 1em;
 }
 
 .open {
-  background: $light-bg;
+  background: $blue-700;
 }

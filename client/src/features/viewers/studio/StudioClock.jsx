@@ -22,6 +22,16 @@ const formatOptions = {
   format: 'hh:mm',
 };
 
+StudioClock.propTypes = {
+  title: PropTypes.object,
+  time: PropTypes.object,
+  backstageEvents: PropTypes.array,
+  selectedId: PropTypes.string,
+  nextId: PropTypes.string,
+  onAir: PropTypes.bool,
+  viewSettings: PropTypes.object,
+};
+
 export default function StudioClock(props) {
   const { title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
 
@@ -34,7 +44,7 @@ export default function StudioClock(props) {
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
-  const MAX_TITLES = 10;
+  const MAX_TITLES = 12;
 
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
@@ -42,7 +52,9 @@ export default function StudioClock(props) {
 
   // Prepare event list
   useEffect(() => {
-    if (backstageEvents == null) return;
+    if (!backstageEvents) {
+      return;
+    }
 
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
@@ -55,6 +67,7 @@ export default function StudioClock(props) {
 
   const clock = formatTime(time.clock, formatOptions);
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
+  const isNegative = (time.current ?? 0) < 0;
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
@@ -64,13 +77,13 @@ export default function StudioClock(props) {
         <div
           ref={titleRef}
           className='next-title'
-          style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
+          style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '75%' }}
         >
           {title.titleNext}
         </div>
         <div
-          className={time.isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
-          {selectedId != null && formatDisplay(time.running)}
+          className={isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
+          {selectedId != null && formatDisplay(time.current)}
         </div>
         <div className='clock-indicators'>
           {activeIndicators.map((i) => (
@@ -106,8 +119,8 @@ export default function StudioClock(props) {
               <li
                 key={s.id}
                 className={s.isNow ? 'now' : s.isNext ? 'next' : ''}
-                style={{ borderLeft: `4px solid ${s.colour !== '' ? s.colour : 'transparent'}` }}
               >
+                <div className='user-colour' style={{ backgroundColor: `${s.colour !== '' ? s.colour : ''}` }} />
                 {`${s.time} ${s.title}`}
               </li>
             ))}
@@ -117,13 +130,3 @@ export default function StudioClock(props) {
     </div>
   );
 }
-
-StudioClock.propTypes = {
-  title: PropTypes.object,
-  time: PropTypes.object,
-  backstageEvents: PropTypes.array,
-  selectedId: PropTypes.string,
-  nextId: PropTypes.string,
-  onAir: PropTypes.bool,
-  viewSettings: PropTypes.object,
-};

@@ -22,8 +22,8 @@ export default function MessageControl() {
         actionHandler={() => setMessage.presenterVisible(!data?.presenter.visible)}
       />
       <InputRow
-        label='Public screen message'
-        placeholder='Shown in public screens'
+        label='Public / Backstage screen message'
+        placeholder='Shown in public and backstage screens'
         text={data?.public.text || ''}
         visible={data?.public.visible || false}
         changeHandler={(newValue) => setMessage.publicText(newValue)}

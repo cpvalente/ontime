@@ -1,4 +1,4 @@
-import { OntimeEvent, OntimeRundownEntry } from '../models/EventTypes';
+import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from '../models/EventTypes';
 
 import { formatTime } from './time';
 
@@ -8,24 +8,24 @@ import { formatTime } from './time';
  * @returns {Object[]} Filtered events with calculated delays
  */
 
-export const getEventsWithDelay = (events: OntimeRundownEntry[]) => {
+export const getEventsWithDelay = (events: OntimeRundownEntry[]): OntimeEvent[] => {
   if (events == null) return [];
 
   const unfilteredEvents = [...events];
 
   // Add running delay
   let delay = 0;
-  for (const e of unfilteredEvents) {
-    if (e.type === 'block') delay = 0;
-    else if (e.type === 'delay') delay = delay + e.duration;
-    else if (e.type === 'event' && delay > 0) {
-      e.timeStart += delay;
-      e.timeEnd += delay;
+  for (const event of unfilteredEvents) {
+    if (event.type === SupportedEvent.Block) delay = 0;
+    else if (event.type === SupportedEvent.Delay) delay = delay + event.duration;
+    else if (event.type === SupportedEvent.Event && delay > 0) {
+      event.timeStart += delay;
+      event.timeEnd += delay;
     }
   }
 
   // filter just events
-  return unfilteredEvents.filter((e) => e.type === 'event');
+  return unfilteredEvents.filter((event) => event.type === SupportedEvent.Event) as OntimeEvent[];
 };
 
 /**
@@ -100,7 +100,7 @@ export const formatEventList = (events: OntimeEvent[], selectedId: string, nextI
 type ClonedEvent = OntimeEvent | { after?: string };
 export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
   return {
-    type: 'event',
+    type: SupportedEvent.Event,
     title: event.title,
     subtitle: event.subtitle,
     presenter: event.presenter,

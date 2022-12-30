@@ -1,11 +1,15 @@
 :root {
-  --background-color-override: #f3f4f8;
-  --color-override: #5051f9;
-  --accent-color-override: #23235f;
-  --timer-color-override: #5051f9;
-  --outdent-background-color-override: white;
+  --background-color-override: #ececec;
+  --color-override: #101010;
+  --secondary-color-override: #404040;
+  --accent-color-override: #FA5656;
+  --label-color-override: #6c6c6c;
+  --timer-color-override: #202020;
+  --card-background-color-override: #FFF;
+  --font-family-override: "Open Sans";
+  --font-family-bold-override: "Arial Black";
 }
 
 .timer {
-  font-family: "Comic Sans MS", serif !important;
+  color: black !important;
 }
