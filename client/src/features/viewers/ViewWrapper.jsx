@@ -18,11 +18,14 @@ const withSocket = (Component) => {
     const [publicSelectedId, setPublicSelectedId] = useState(null);
 
     const [timer] = useSubscription('ontime-timer', {
-      clock: 0,
-      current: 0,
-      isNegative: false,
-      startedAt: null,
+      clock: null,
+      current: null,
+      elapsed: null ,
       expectedFinish: null,
+      addedTime: 0,
+      startedAt: null,
+      finishedAt: null,
+      secondaryTimer: null,
     });
     const [titles] = useSubscription('titles', {
       titleNow: '',

@@ -67,6 +67,7 @@ export default function StudioClock(props) {
 
   const clock = formatTime(time.clock, formatOptions);
   const [, , secondsNow] = stringFromMillis(time.clock).split(':');
+  const isNegative = (time.current ?? 0) < 0;
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
@@ -81,8 +82,8 @@ export default function StudioClock(props) {
           {title.titleNext}
         </div>
         <div
-          className={time.isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
-          {selectedId != null && formatDisplay(time.running)}
+          className={isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
+          {selectedId != null && formatDisplay(time.current)}
         </div>
         <div className='clock-indicators'>
           {activeIndicators.map((i) => (

@@ -6,7 +6,7 @@ export const timeFormatSeconds = 'HH:mm:ss';
 /**
  * another go at simpler string formatting (counters)
  * @description Converts seconds to string representing time
- * @param {number} seconds - time in seconds
+ * @param {number | null} seconds - time in seconds
  * @param {boolean} [hideZero] - whether to show hours in case its 00
  * @returns {string} String representing absolute time 00:12:02
  */

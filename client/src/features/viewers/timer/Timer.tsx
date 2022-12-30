@@ -60,7 +60,7 @@ export default function Timer(props) {
   const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
-  const normalisedTime = Math.max(time.current, 0);
+  const normalisedTime = time.current === null ? null : Math.max(time.current, 0);
   const showProgress = time.playback !== 'stop';
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 

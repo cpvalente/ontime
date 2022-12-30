@@ -12,7 +12,7 @@ import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { formatTime } from '../../../common/utils/time';
 
-import { fetchTimerData, timerMessages } from './countdown.helpers';
+import { fetchTimerData, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
 
 import './Countdown.scss';
@@ -38,7 +38,7 @@ export default function Countdown(props) {
 
   const [follow, setFollow] = useState<OntimeEvent | null>(null);
   const [runningTimer, setRunningTimer] = useState(0);
-  const [runningMessage, setRunningMessage] = useState('');
+  const [runningMessage, setRunningMessage] = useState<TimerMessage>(TimerMessage.unhandled);
   const [delay, setDelay] = useState(0);
 
   useEffect(() => {
@@ -87,8 +87,8 @@ export default function Countdown(props) {
   }
 
   const standby = time.playback !== 'start' && selectedId === follow?.id;
-  const isRunningFinished = time.finished && runningMessage === timerMessages.running;
-  const isSelected = runningMessage === timerMessages.running;
+  const isRunningFinished = time.finished && runningMessage === TimerMessage.running;
+  const isSelected = runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
   const clock = formatTime(time.clock, formatOptions);

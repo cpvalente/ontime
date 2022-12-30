@@ -10,7 +10,7 @@ import { PresenterMessageType } from '../../../common/models/PresenterMessage.ty
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
 import { OverridableOptions } from '../../../common/models/ViewTypes';
-import { formatDisplay } from '../../../common/utils/dateConfig';
+import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 
 import './MinimalTimer.scss';
 
@@ -125,11 +125,21 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
-  const timer = formatDisplay(time.running, true);
-  const clean = timer.replace('/:/g', '');
-  const showFinished = time.isNegative && !userOptions?.hideOvertime;
+  const isNegative = (time.current ?? 0) < 0;
+  const showFinished = isNegative && !userOptions?.hideOvertime;
 
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
+
+  let stageTimer;
+  if (time.current === null) {
+    stageTimer = '- - : - -';
+  } else {
+    stageTimer = formatDisplay(Math.abs(millisToSeconds(time.current)), true);
+    if (time.current < 0) {
+      stageTimer = `-${stageTimer}`;
+    }
+  }
+  const stageTimerCharacters = stageTimer.replace('/:/g', '').length;
 
   return (
     <div
@@ -155,14 +165,14 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         }`}
         style={{
           color: userOptions.textColour,
-          fontSize: `${(89 / (clean.length - 1)) * (userOptions.size || 1)}vw`,
+          fontSize: `${(89 / (stageTimerCharacters - 1)) * (userOptions.size || 1)}vw`,
           fontFamily: userOptions.font,
           top: userOptions.top,
           left: userOptions.left,
           backgroundColor: userOptions.textBackground,
         }}
       >
-        {time.isNegative ? `-${timer}` : timer}
+        {stageTimer}
       </div>
     </div>
   );
