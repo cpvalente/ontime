@@ -53,7 +53,8 @@ export default function Backstage(props) {
 
   const clock = formatTime(time.clock, formatOptions);
   const startedAt = formatTime(time.startedAt, formatOptions);
-  const expectedFinish = formatTime(time.expectedFinish, formatOptions);
+  const isNegative = (time.current ?? 0) < 0;
+  const expectedFinish = isNegative ? 'In overtime' : formatTime(time.expectedFinish, formatOptions);
 
   const qrSize = Math.max(window.innerWidth / 15, 128);
   const filteredEvents = getEventsWithDelay(backstageEvents);
@@ -65,7 +66,7 @@ export default function Backstage(props) {
     stageTimer = '- - : - -';
   } else {
     stageTimer = formatDisplay(Math.abs(millisToSeconds(time.current)), true);
-    if (time.current < 0) {
+    if (isNegative) {
       stageTimer = `-${stageTimer}`;
     }
   }
