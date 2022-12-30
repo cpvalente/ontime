@@ -18,6 +18,8 @@ interface TimerDisplayProps {
 const TimerDisplay = (props: TimerDisplayProps) => {
   const { time, small, hideZeroHours, className = '' } = props;
 
+  console.log('debug', time)
+
   const display =
     (time === null || typeof time === 'undefined' || isNaN(time))
       ? '-- : -- : --'
