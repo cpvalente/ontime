@@ -94,18 +94,20 @@
     margin-top: 2em;
     padding-top: 1em;
     display: flex;
-    justify-content: space-between;
+    gap: 7.5em;
   }
 
   .aux-timers {
-    font-size: clamp(16px, 1.5vw, 24px);
+    font-size: max(1vw, 16px);
 
     &__label {
       color: var(--label-color-override, $viewer-label-color);
+      font-weight: 600;
       text-transform: uppercase;
     }
 
     &__value {
+      color: var(--secondary-color-override, $viewer-secondary-color);
       font-size: clamp(24px, 2vw, 32px);
       letter-spacing: 0.05em;
     }
