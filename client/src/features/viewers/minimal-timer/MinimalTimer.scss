@@ -19,7 +19,7 @@
   }
 
   .timer {
-    font-family: $timer-bold-font-family;
+    font-family: var(--font-family-bold-override, $timer-bold-font-family) ;
     font-size: 20vw;
     position: relative;
     color: var(--timer-color-override, $viewer-color);

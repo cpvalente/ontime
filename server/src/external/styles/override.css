@@ -6,8 +6,10 @@
   --label-color-override: #6c6c6c;
   --timer-color-override: #202020;
   --card-background-color-override: #FFF;
+  --font-family-override: "Open Sans";
+  --font-family-bold-override: "Arial Black";
 }
 
 .timer {
-  font-family: "Arial Black", serif !important;
+  color: black !important;
 }
