@@ -157,6 +157,7 @@ $cyan-idle: #0aa;
       .user-colour {
         width: 0.35em;
         height: 0.35em;
+        aspect-ratio: 1;
         background-color: $red-idle;
         margin-right: 0.35em;
       }

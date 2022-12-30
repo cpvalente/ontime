@@ -84,7 +84,7 @@ export default function NavigationMenu() {
               onKeyDown={(event) => {
                 isKeyEnter(event) && handleMirror();
               }}>
-              Mirror Screen
+              Flip Screen
               <IoSwapVertical />
             </div>
             {/*<div className={style.link} tabIndex={0}>*/}

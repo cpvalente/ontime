@@ -18,6 +18,22 @@ const formatOptions = {
   format: 'hh:mm:ss a',
 };
 
+// motion
+const titleVariants = {
+  hidden: {
+    y: 500,
+  },
+  visible: {
+    y: 0,
+    transition: {
+      duration: 1,
+    },
+  },
+  exit: {
+    y: 500,
+  },
+};
+
 Timer.propTypes = {
   general: PropTypes.object,
   pres: PropTypes.object,
@@ -45,25 +61,10 @@ export default function Timer(props) {
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
   const normalisedTime = Math.max(time.current, 0);
-
-  // motion
-  const titleVariants = {
-    hidden: {
-      y: 500,
-    },
-    visible: {
-      y: 0,
-      transition: {
-        duration: 1,
-      },
-    },
-    exit: {
-      y: 500,
-    },
-  };
+  const showProgress = time.playback !== 'stop';
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
-  return (
+ return (
     <div
       className={time.finished ? `${baseClasses} stage-timer--finished` : baseClasses}
       data-testid='timer-view'
@@ -102,6 +103,7 @@ export default function Timer(props) {
         }
         now={time.current}
         complete={time.duration}
+        hidden={!showProgress}
       />
 
       <AnimatePresence>

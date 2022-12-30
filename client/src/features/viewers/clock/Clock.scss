@@ -17,5 +17,6 @@
     font-size: 20vw;
     position: relative;
     color: var(--timer-color-override, $viewer-color);
+    letter-spacing: 0.05em;
   }
 }

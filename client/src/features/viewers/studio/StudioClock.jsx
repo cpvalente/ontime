@@ -44,7 +44,7 @@ export default function StudioClock(props) {
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
-  const MAX_TITLES = 10;
+  const MAX_TITLES = 12;
 
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
@@ -76,7 +76,7 @@ export default function StudioClock(props) {
         <div
           ref={titleRef}
           className='next-title'
-          style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '82%' }}
+          style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '75%' }}
         >
           {title.titleNext}
         </div>

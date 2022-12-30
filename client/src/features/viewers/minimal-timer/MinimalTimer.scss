@@ -27,6 +27,7 @@
     transition: $viewer-transition-time;
     transition-property: opacity;
     background-color: transparent;
+    letter-spacing: 0.05em;
 
     &--paused {
       opacity: $viewer-opacity-disabled;

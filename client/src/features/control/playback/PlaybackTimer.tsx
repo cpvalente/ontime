@@ -3,7 +3,6 @@ import TimerDisplay from 'common/components/timer-display/TimerDisplay';
 
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
 import { Playback } from '../../../common/models/OntimeTypes';
-import { millisToSeconds } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 

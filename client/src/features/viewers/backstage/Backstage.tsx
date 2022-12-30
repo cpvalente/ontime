@@ -58,6 +58,7 @@ export default function Backstage(props) {
   const qrSize = Math.max(window.innerWidth / 15, 128);
   const filteredEvents = getEventsWithDelay(backstageEvents);
   const showPublicMessage = publ.text && publ.visible;
+  const showProgress = time.playback !== 'stop';
 
   let stageTimer;
   if (time.current === null) {
@@ -85,6 +86,7 @@ export default function Backstage(props) {
         className='progress-container'
         now={time.current}
         complete={time.duration}
+        hidden={!showProgress}
       />
 
       <div className='now-container'>
