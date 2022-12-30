@@ -22,7 +22,7 @@
     font-family: var(--font-family-bold-override, $timer-bold-font-family) ;
     font-size: 20vw;
     position: relative;
-    color: var(--timer-color-override, $viewer-color);
+    color: var(--timer-color-override, $timer-color);
     opacity: 1;
     transition: $viewer-transition-time;
     transition-property: opacity;
