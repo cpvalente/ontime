@@ -17,9 +17,9 @@ const withSocket = (Component) => {
 
     const [publicSelectedId, setPublicSelectedId] = useState(null);
 
-    const [timer] = useSubscription('timer', {
+    const [timer] = useSubscription('ontime-timer', {
       clock: 0,
-      running: 0,
+      current: 0,
       isNegative: false,
       startedAt: null,
       expectedFinish: null,
@@ -107,7 +107,7 @@ const withSocket = (Component) => {
     // get clock string
     const TimeManagerType = {
       ...timer,
-      finished: playback === 'play' && timer.isNegative && timer.startedAt,
+      finished: playback === 'play' && timer.current < 0 && timer.startedAt,
       playback,
     };
 
