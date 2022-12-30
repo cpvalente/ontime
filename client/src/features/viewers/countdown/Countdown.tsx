@@ -91,7 +91,7 @@ export default function Countdown(props) {
     return null;
   }
 
-  const standby = time.playback !== 'start' && selectedId === follow?.id;
+  const standby = time.playback !== 'play' && selectedId === follow?.id;
   const isRunningFinished = time.finished && runningMessage === TimerMessage.running;
   const isSelected = runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
