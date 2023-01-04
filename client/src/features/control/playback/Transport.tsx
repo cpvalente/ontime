@@ -51,7 +51,7 @@ export default function Transport(props: TransportProps) {
       <Tooltip label='Unload Event' openDelay={tooltipDelayMid}>
         <TapButton
           onClick={() => setPlayback.stop()}
-          disabled={!selectedId}
+          disabled={!selectedId && !isRolling}
           theme='stop'
         >
           <IoStop />
