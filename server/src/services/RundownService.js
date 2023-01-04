@@ -86,13 +86,13 @@ export function updateTimer(affectedIds) {
 
   if (safeOption) {
     eventLoader.reset();
-    const loadedEvent = eventLoader.loadById(runningEventId);
+    const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
     eventTimer.hotReload(loadedEvent);
     return true;
   }
 
   if (eventInMemory) {
-    const loadedEvent = eventLoader.loadById(runningEventId);
+    const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
     if (!loadedEvent) {
       // event was deleted
       eventLoader.reset();
@@ -104,7 +104,7 @@ export function updateTimer(affectedIds) {
   }
 
   if (isNext) {
-    const loadedEvent = eventLoader.loadById(runningEventId);
+    const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
     eventTimer.hotReload(loadedEvent);
     return true;
   }
