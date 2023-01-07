@@ -1,6 +1,9 @@
 import { runtimeState } from '../stores/EventStore.js';
+import { PlaybackService } from './PlaybackService.js';
+import { updateRoll } from './rollUtils.js';
+import { DAY_TO_MS } from '../classes/timer/classUtils.js';
 
-class TimerService {
+export class TimerService {
   /**
    * @constructor
    * @param {object} [timerConfig]
@@ -62,10 +65,10 @@ class TimerService {
       finishedAt: null,
       secondaryTimer: null,
     };
-    this.loadedTimer = null;
     this.loadedTimerId = null;
     this._pausedInterval = 0;
     this._pausedAt = null;
+    this._secondaryTarget = null;
   }
 
   /**
@@ -73,16 +76,28 @@ class TimerService {
    * @param timer
    */
   hotReload(timer) {
-    if (timer?.id !== this.loadedTimerId) {
+    if (typeof timer === 'undefined') {
+      this.stop();
       return;
     }
+
+    if (timer?.id !== this.loadedTimerId) {
+      // event timer only concerns itself with current event
+      return;
+    }
+
     if (timer?.skip) {
       this.stop();
     }
 
+    // TODO: check if any relevant information warrants update
+
     // update relevant information and force update
-    this.loadedTimer = timer;
     this.timer.duration = timer.duration;
+
+    // this might not be ideal
+    this.timer.finishedAt = null;
+    this.timer.expectedFinish = this._getExpectedFinish();
     if (this.timer.startedAt === null) {
       this.timer.current = timer.duration;
     }
@@ -106,7 +121,6 @@ class TimerService {
 
     this._clear();
 
-    this.loadedTimer = timer;
     this.loadedTimerId = timer.id;
     this.timer.duration = timer.duration;
     this.timer.current = timer.duration;
@@ -221,27 +235,58 @@ class TimerService {
   update() {
     this.timer.clock = TimerService.getCurrentTime();
 
-    // we only update timer if a timer has been started
-    if (this.timer.startedAt !== null) {
-      if (this.playback === 'pause') {
-        this._pausedInterval = this.timer.clock - this._pausedAt;
-      }
+    if (this.playback === 'roll') {
+      const tempCurrentTimer = {
+        selectedEventId: this.loadedTimerId,
+        current: this.timer.current,
+        // safeguard on midnight rollover
+        _finishAt:
+          this.timer.expectedFinish >= this.timer.startedAt
+            ? this.timer.expectedFinish
+            : this.timer.expectedFinish + DAY_TO_MS,
 
-      this.timer.current =
-        this.timer.startedAt +
-        this.timer.duration +
-        this.timer.addedTime +
-        this._pausedInterval -
-        this.timer.clock;
-      this.timer.elapsed = this.timer.duration - this.timer.current;
+        clock: this.timer.clock,
+        secondaryTimer: this.timer.secondaryTimer,
+        _secondaryTarget: this._secondaryTarget,
+      };
+      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } =
+        updateRoll(tempCurrentTimer);
 
-      if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
-        this.timer.finishedAt = this.timer.clock;
+      this.timer.current = updatedTimer;
+      this.timer.secondaryTimer = updatedSecondaryTimer;
+
+      if (isFinished) {
+        this.timer.selectedEventId = null;
+        this.loadedTimerId = null;
         this._onFinish();
-      } else {
-        this.timer.finishedAt = null;
       }
-      this.timer.expectedFinish = this._getExpectedFinish();
+
+      if (doRollLoad) {
+        PlaybackService.roll();
+      }
+    } else {
+      // we only update timer if a timer has been started
+      if (this.timer.startedAt !== null) {
+        if (this.playback === 'pause') {
+          this._pausedInterval = this.timer.clock - this._pausedAt;
+        }
+
+        this.timer.current =
+          this.timer.startedAt +
+          this.timer.duration +
+          this.timer.addedTime +
+          this._pausedInterval -
+          this.timer.clock;
+        this.timer.elapsed = this.timer.duration - this.timer.current;
+
+        if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
+          this.timer.finishedAt = this.timer.clock;
+          this._onFinish();
+        } else {
+          this.timer.finishedAt = null;
+        }
+        this.timer.expectedFinish = this._getExpectedFinish();
+      }
     }
     this._onUpdate();
   }
@@ -256,12 +301,33 @@ class TimerService {
     runtimeState.set('ontime-timer', this.timer);
   }
 
-  roll() {
+  roll(currentEvent, nextEvent, timers) {
+    this._clear();
+    this.timer.clock = TimerService.getCurrentTime();
+
+    if (currentEvent) {
+      // there is something running, load
+      this.timer.secondaryTimer = null;
+      this._secondaryTarget = null;
+
+      this.loadedTimerId = currentEvent.id;
+      this.timer.startedAt = currentEvent.timeStart;
+      this.timer.expectedFinish = currentEvent.timeEnd;
+      this.timer.duration = timers.duration;
+      this.timer.current = timers.current;
+    } else if (nextEvent) {
+      // nothing now, but something coming up
+      this.timer.secondaryTimer = nextEvent.timeStart - this.timer.clock;
+      this._secondaryTarget = nextEvent.timeStart;
+    }
+
+    this.playback = 'roll';
     this._onRoll();
+    this.update();
   }
 
   _onRoll() {
-    throw new Error('Roll not implemented');
+    this._onLoad();
   }
 
   shutdown() {

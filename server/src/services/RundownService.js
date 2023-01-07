@@ -92,10 +92,9 @@ export function updateTimer(affectedIds) {
   }
 
   if (eventInMemory) {
+    eventLoader.reset();
     const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
     if (!loadedEvent) {
-      // event was deleted
-      eventLoader.reset();
       eventTimer.stop();
     } else {
       eventTimer.hotReload(loadedEvent);

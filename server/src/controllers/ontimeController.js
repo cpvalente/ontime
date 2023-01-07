@@ -6,7 +6,7 @@ import { resolveDbPath } from '../modules/loadDb.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
-import { PlaybackService } from '../services/playbackService.js';
+import { PlaybackService } from '../services/PlaybackService.js';
 import { runtimeState } from '../stores/EventStore.js';
 
 // Create controller for GET request to '/ontime/poll'

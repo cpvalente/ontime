@@ -5,7 +5,7 @@ import { generateId } from '../../utils/generate_id.js';
 import { stringFromMillis } from '../../utils/time.js';
 import { Timer } from '../timer/Timer.js';
 import { messageManager } from '../message-manager/MessageManager.js';
-import { PlaybackService } from '../../services/playbackService.js';
+import { PlaybackService } from '../../services/PlaybackService.js';
 
 import { ADDRESS_MESSAGE_CONTROL } from './socketConfig.js';
 import { eventTimer } from '../../services/TimerService.js';

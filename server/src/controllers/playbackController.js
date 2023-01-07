@@ -1,6 +1,6 @@
 // Create controller for GET request to '/playback'
 // Returns ACK message
-import { PlaybackService } from '../services/playbackService.js';
+import { PlaybackService } from '../services/PlaybackService.js';
 
 // Create controller for POST request to '/playback'
 // Returns playback state
