@@ -1,7 +1,7 @@
 import { runtimeState } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
-import { DAY_TO_MS } from '../classes/timer/classUtils.js';
+import { DAY_TO_MS } from '../utils/time.js';
 
 export class TimerService {
   /**
