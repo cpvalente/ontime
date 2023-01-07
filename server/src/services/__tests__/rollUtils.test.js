@@ -1,11 +1,11 @@
 import {
   DAY_TO_MS,
-  getSelectionByRoll,
+  getRollTimers,
   normaliseEndTime,
   replacePlaceholder,
   sortArrayByProperty,
   updateRoll,
-} from '../classUtils.js';
+} from '../rollUtils.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -54,7 +54,7 @@ describe('sort simple arrays of objects', () => {
   });
 });
 
-// test getSelectionByRoll()
+// test getRollTimers()
 describe('test that roll loads selection in right order', () => {
   const eventlist = [
     {
@@ -119,7 +119,7 @@ describe('test that roll loads selection in right order', () => {
       timeToNext: 5,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -140,7 +140,7 @@ describe('test that roll loads selection in right order', () => {
       timeToNext: 5,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -161,7 +161,7 @@ describe('test that roll loads selection in right order', () => {
       timeToNext: 5,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -182,7 +182,7 @@ describe('test that roll loads selection in right order', () => {
       timeToNext: 10,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -203,7 +203,7 @@ describe('test that roll loads selection in right order', () => {
       timeToNext: 1,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -224,7 +224,7 @@ describe('test that roll loads selection in right order', () => {
       timeToNext: 7,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -245,7 +245,7 @@ describe('test that roll loads selection in right order', () => {
       timeToNext: null,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -261,7 +261,7 @@ describe('test that roll loads selection in right order', () => {
       timeToNext: DAY_TO_MS - now + eventlist[0].timeStart,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -284,12 +284,12 @@ describe('test that roll loads selection in right order', () => {
       timers: null,
       timeToNext: DAY_TO_MS - now + singleEventList[0].timeStart,
     };
-    const state = getSelectionByRoll(singleEventList, now);
+    const state = getRollTimers(singleEventList, now);
     expect(state).toStrictEqual(expected);
   });
 });
 
-// test getSelectionByRoll()
+// test getRollTimers()
 describe('test that roll behaviour with overlapping times', () => {
   const eventlist = [
     {
@@ -324,7 +324,7 @@ describe('test that roll behaviour with overlapping times', () => {
       timeToNext: 10,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -345,7 +345,7 @@ describe('test that roll behaviour with overlapping times', () => {
       timeToNext: 0,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -366,7 +366,7 @@ describe('test that roll behaviour with overlapping times', () => {
       timeToNext: -5,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -387,7 +387,7 @@ describe('test that roll behaviour with overlapping times', () => {
       timeToNext: null,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -408,7 +408,7 @@ describe('test that roll behaviour with overlapping times', () => {
       timeToNext: null,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 });
@@ -475,7 +475,7 @@ describe('test that it replaces data correctly', () => {
   });
 });
 
-// test getSelectionByRoll() on issue #58
+// test getRollTimers() on issue #58
 describe('test that roll behaviour multi day event edge cases', () => {
   it('if the start time is the day after end time, and start time is earlier than now', () => {
     const now = 66600000; // 19:30
@@ -502,7 +502,7 @@ describe('test that roll behaviour multi day event edge cases', () => {
       timeToNext: null,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -526,7 +526,7 @@ describe('test that roll behaviour multi day event edge cases', () => {
       timeToNext: eventlist[0].timeStart - now,
     };
 
-    const state = getSelectionByRoll(eventlist, now);
+    const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 });
@@ -634,6 +634,26 @@ describe('typical scenarios', () => {
       _finishAt: null,
       clock: 16,
       secondaryTimer: 1,
+      _secondaryTarget: 15,
+    };
+
+    const expected = {
+      updatedTimer: null,
+      updatedSecondaryTimer: timers._secondaryTarget - timers.clock,
+      doRollLoad: true,
+      isFinished: false,
+    };
+
+    expect(updateRoll(timers)).toStrictEqual(expected);
+  });
+
+  it('when a secondary timer is finished, it prompts for new event load', () => {
+    const timers = {
+      selectedEventId: null,
+      current: null,
+      _finishAt: null,
+      clock: 15,
+      secondaryTimer: 0,
       _secondaryTarget: 15,
     };
 

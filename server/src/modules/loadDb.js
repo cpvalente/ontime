@@ -1,4 +1,5 @@
-import { JSONFile, Low } from 'lowdb';
+import { Low } from 'lowdb';
+import { JSONFile } from 'lowdb/node';
 import { dirname, join } from 'path';
 import { copyFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';

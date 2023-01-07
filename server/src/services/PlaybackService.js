@@ -3,7 +3,7 @@
  */
 import { socketProvider } from '../classes/socket/SocketController.js';
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
-import { eventTimer } from './TimerService.js';
+import { eventTimer, TimerService } from './TimerService.js';
 
 /**
  * Service manages playback status of app
@@ -121,7 +121,7 @@ export class PlaybackService {
     if (eventLoader.selectedEventId) {
       eventTimer.start();
       const newState = eventTimer.playback;
-      socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
+      socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
     socketProvider.broadcastState();
   }
@@ -133,7 +133,7 @@ export class PlaybackService {
     if (eventLoader.selectedEventId) {
       eventTimer.pause();
       const newState = eventTimer.playback;
-      socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
+      socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
     socketProvider.broadcastState();
   }
@@ -146,7 +146,7 @@ export class PlaybackService {
       eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;
-      socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
+      socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
     socketProvider.broadcastState();
   }
@@ -165,13 +165,29 @@ export class PlaybackService {
    * Sets playback to roll
    */
   static roll() {
-    if (EventLoader.getNumEvents() && eventTimer.playback !== 'roll') {
-      eventTimer.roll();
+    if (EventLoader.getPlayableEvents()) {
+      const rollTimers = eventLoader.findRoll(TimerService.getCurrentTime());
+
+      // nothing to play
+      if (rollTimers === null) {
+        socketProvider.error('SERVER', 'Roll: no events found');
+        PlaybackService.stop();
+        return;
+      }
+
+      const { currentEvent, nextEvent, timers } = rollTimers;
+      if (!currentEvent && !nextEvent) {
+        socketProvider.error('SERVER', 'Roll: no events found');
+        PlaybackService.stop();
+        return;
+      }
+
+      eventTimer.roll(currentEvent, nextEvent, timers);
+
       const newState = eventTimer.playback;
-      socketProvider.info('PLAYBACK', `Play Mode ${newState}`);
-      socketProvider.send('playback', newState);
+      socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      socketProvider.broadcastState();
     }
-    socketProvider.broadcastState();
   }
 
   /**

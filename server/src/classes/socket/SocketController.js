@@ -3,12 +3,11 @@ import { Server } from 'socket.io';
 import getRandomName from '../../utils/getRandomName.js';
 import { generateId } from '../../utils/generate_id.js';
 import { stringFromMillis } from '../../utils/time.js';
-import { Timer } from '../timer/Timer.js';
 import { messageManager } from '../message-manager/MessageManager.js';
-import { PlaybackService } from '../../services/playbackService.js';
+import { PlaybackService } from '../../services/PlaybackService.js';
 
 import { ADDRESS_MESSAGE_CONTROL } from './socketConfig.js';
-import { eventTimer } from '../../services/TimerService.js';
+import { eventTimer, TimerService } from '../../services/TimerService.js';
 import { EventLoader, eventLoader } from '../event-loader/EventLoader.js';
 
 class SocketController {
@@ -342,7 +341,7 @@ class SocketController {
       level,
       origin,
       text,
-      time: stringFromMillis(Timer.getCurrentTime() || 0),
+      time: stringFromMillis(TimerService.getCurrentTime() || 0),
     };
 
     this.messageStack.unshift(logMessage);

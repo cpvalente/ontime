@@ -156,20 +156,34 @@ export const startIntegrations = async (overrideConfig = null) => {
 
 /**
  * @description clean shutdown app services
+ * @param {number} exitCode
  * @return {Promise<void>}
  */
-export const shutdown = async () => {
+export const shutdown = async (exitCode) => {
   // shutdown express server
   server.close();
 
   shutdownOSCServer();
   eventTimer.shutdown();
   socket.shutdown();
+  process.exit(exitCode || 0);
 };
 
+process.on('unhandledRejection', async (error, promise) => {
+  console.error(error, 'Error: unhandled rejection', promise);
+  socket.error('SERVER', 'Error: unhandled rejection');
+  await shutdown(1);
+});
+
+process.on('uncaughtException', async (error, promise) => {
+  console.error(error, 'Error: uncaught exception', promise);
+  socket.error('SERVER', 'Error: uncaught exception');
+  await shutdown(1);
+});
+
 // register shutdown signals
-process.once('SIGHUP', shutdown);
-process.once('SIGINT', shutdown);
-process.once('SIGTERM', shutdown);
+process.once('SIGHUP', async () => shutdown(0));
+process.once('SIGINT', async () => shutdown(0));
+process.once('SIGTERM', async () => shutdown(0));
 
 export { server, app };

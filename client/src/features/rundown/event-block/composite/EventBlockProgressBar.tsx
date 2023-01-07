@@ -16,7 +16,7 @@ export default function EventBlockProgressBar(props: EventBlockProgressBarProps)
   const elapsed = clamp(100 - (now * 100) / complete, 0, 100);
   const progress = `${elapsed}%`;
 
-  if (timer?.current != null && timer?.current < 0) {
+  if ((timer?.current ?? 0) < 0) {
     return (
       <div
         className={`${style.progressBar} ${style.overtime}`}

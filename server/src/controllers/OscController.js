@@ -1,5 +1,5 @@
 import { Server } from 'node-osc';
-import { PlaybackService } from '../services/playbackService.js';
+import { PlaybackService } from '../services/PlaybackService.js';
 import { messageManager } from '../classes/message-manager/MessageManager.js';
 import { socketProvider } from '../classes/socket/SocketController.js';
 import { ADDRESS_MESSAGE_CONTROL } from '../classes/socket/socketConfig.js';
@@ -22,7 +22,7 @@ export const initiateOSC = (config) => {
 
   oscServer.on('error', console.error);
 
-  oscServer.on('message', function(msg) {
+  oscServer.on('message', function (msg) {
     // message should look like /ontime/{path} {args} where
     // ontime: fixed message for app
     // path: command to be called

@@ -1,6 +1,5 @@
 import { DataProvider } from '../data-provider/DataProvider.js';
-import { getSelectionByRoll } from '../timer/classUtils.js';
-import { Timer } from '../timer/Timer.js';
+import { getRollTimers } from '../../services/rollUtils.js';
 
 let instance;
 
@@ -136,12 +135,36 @@ export class EventLoader {
 
   /**
    * finds next event within Roll context
-   * @returns {{nowIndex: null, timers: null, nowId: null, publicNextIndex: null, nextIndex: null, timeToNext: null, publicIndex: null}|{nowIndex: null, timers: null, nowId: null, publicNextIndex: null, nextIndex: null, timeToNext: null, publicIndex: null}}
+   * @param {number} timeNow - current time in ms
    */
-  findRoll() {
+  findRoll(timeNow) {
     const timedEvents = EventLoader.getPlayableEvents();
-    const millisNow = Timer.getCurrentTime();
-    return getSelectionByRoll(timedEvents, millisNow);
+    if (!timedEvents.length) {
+      return null;
+    }
+
+    const {
+      nowIndex,
+      timers,
+      timeToNext,
+      nextEvent,
+      nextPublicEvent,
+      currentEvent,
+      currentPublicEvent,
+    } = getRollTimers(timedEvents, timeNow);
+
+    this.loadedEvent = currentEvent;
+    this.selectedEventIndex = nowIndex;
+    this.selectedEventId = currentEvent?.id || null;
+    this.numEvents = timedEvents.length;
+
+    // titles
+    this._loadThisTitles(currentEvent, 'now-private');
+    this._loadThisTitles(currentPublicEvent, 'now-public');
+    this._loadThisTitles(nextEvent, 'next-private');
+    this._loadThisTitles(nextPublicEvent, 'next-public');
+
+    return { currentEvent, nextEvent, timeToNext, timers };
   }
 
   /**
@@ -300,6 +323,10 @@ export class EventLoader {
    * @private
    */
   _loadThisTitles(event, type) {
+    if (!event) {
+      return;
+    }
+
     switch (type) {
       // now, load to both public and private
       case 'now':
@@ -364,7 +391,7 @@ export class EventLoader {
         break;
 
       default:
-        break;
+        throw new Error(`Unhandled title type: ${type}`);
     }
   }
 }
