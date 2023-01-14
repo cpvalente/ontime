@@ -14,15 +14,23 @@
     "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
     "eslint-config-prettier",
-    "plugin:@tanstack/eslint-plugin-query/recommended"
+    "plugin:@tanstack/eslint-plugin-query/recommended",
+    "prettier"
   ],
   "plugins": [
     "react",
     "testing-library",
     "simple-import-sort",
-    "@tanstack/query"
+    "@tanstack/query",
+    "prettier"
   ],
   "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
     "no-useless-concat": "warn",
     "prefer-template": "warn",
     "react/jsx-no-bind": [
