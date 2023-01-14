@@ -1,5 +1,3 @@
-import { expect, test } from 'vitest';
-
 import { clamp } from '../math';
 
 test('Clamps a set of numbers correctly', () => {

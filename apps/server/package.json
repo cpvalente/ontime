@@ -1,11 +1,13 @@
 {
   "name": "ontime-server",
   "type": "module",
-  "version": "1.4.2",
+  "version": "2.0.0-alpha",
+  "exports": "./src/index.js",
   "dependencies": {
     "@sentry/node": "^7.24.1",
     "@sentry/tracing": "^7.24.1",
     "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
@@ -15,16 +17,42 @@
     "nanoid": "^4.0.0",
     "node-osc": "^8.0.6",
     "node-xlsx": "^0.21.0",
+    "ontime-utils": "workspace:*",
     "passport": "^0.6.0",
     "passport-local": "~1.0.0",
-    "socket.io": "^4.5.4"
+    "socket.io": "^4.5.4",
+    "ts-node-dev": "^2.0.0",
+    "tsup": "^6.5.0"
   },
   "devDependencies": {
-    "eslint": "^8.25.0"
+    "@types/express": "^4.17.15",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
+    "eslint": "^8.31.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4",
+    "vitest": "^0.27.1"
   },
   "scripts": {
-    "nodestart": "nodemon app.js",
-    "start": "node app.js",
-    "start:headless": "NODE_ENV=production node run.js"
+    "dev": "set NODE_ENV=development && ts-node-esm src/index.js",
+    "dev2": "ts-node-dev --respawn --transpile-only src/index.js",
+    "build": "tsup --format cjs",
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:pipeline": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "tsup": {
+    "entry": [
+      "src/app.ts"
+    ],
+    "sourcemap": true,
+    "clean": true,
+    "shims": true,
+    "minify": true
   }
 }

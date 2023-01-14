@@ -55,13 +55,6 @@ const config: PlaywrightTestConfig = {
   ],
 
   outputDir: 'test-results/',
-
-   webServer: {
-     command: 'yarn start:server',
-     timeout: 120 * 1000,
-     port: 4001,
-     reuseExistingServer: !process.env.CI,
-   },
 };
 
 export default config;

@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
+import { generateId } from 'ontime-utils';
 
 import getRandomName from '../../utils/getRandomName.js';
-import { generateId } from '../../utils/generate_id.js';
 import { stringFromMillis } from '../../utils/time.js';
 import { messageManager } from '../message-manager/MessageManager.js';
 import { PlaybackService } from '../../services/PlaybackService.js';
@@ -319,7 +319,7 @@ class SocketController {
   }
 
   send(topic, payload) {
-    this.socket.emit(topic, payload);
+    this.socket?.emit(topic, payload);
   }
 
   /****************************************************************************/
@@ -345,7 +345,7 @@ class SocketController {
     };
 
     this.messageStack.unshift(logMessage);
-    this.socket.emit('logger', logMessage);
+    this.socket?.emit('logger', logMessage);
 
     if (process.env.NODE_ENV !== 'production') {
       console.log(`[${logMessage.level}] \t ${logMessage.origin} \t ${logMessage.text}`);

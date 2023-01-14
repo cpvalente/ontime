@@ -1,5 +1,3 @@
-import { describe, expect, it, test } from 'vitest';
-
 import { formatEventList, getEventsWithDelay, trimEventlist } from '../eventsManager';
 
 test('getEventsWithDelay function', () => {

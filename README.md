@@ -18,9 +18,9 @@ It allows a center application to be able to distribute event information in the
 minimises needs for using Media Server outputs or expensive video distribution while allowing easy
 integration in workflows including OBS and d3.
 
-![App Window](https://github.com/cpvalente/ontime/blob/master/.github/app.jpg)
+![App Window](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/app.jpg)
 
-![Views](https://github.com/cpvalente/ontime/blob/master/.github/02_screentypes.png)
+![Views](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/02_screentypes.png)
 
 ## Using Ontime
 
@@ -42,9 +42,10 @@ For the presentation views...
 -------------------------------------------------------------
 IP.ADDRESS:4001            > Web server default to presenter timer view
 IP.ADDRESS:4001/timer      > Presenter / Stage timer view
+IP.ADDRESS:4001/minimal    > Simple timer view
+IP.ADDRESS:4001/clock      > Simple clock view
 IP.ADDRESS:4001/sm         > Stage Manager / Backstage view
 IP.ADDRESS:4001/public     > Public / Foyer view
-IP.ADDRESS:4001/pip        > Picture in Picture view
 IP.ADDRESS:4001/lower      > Lower Thirds
 IP.ADDRESS:4001/studio     > Studio Clock
 IP.ADDRESS:4001/cuesheet   > Cue Sheet
@@ -59,16 +60,15 @@ More documentation available [here](https://cpvalente.gitbook.io/ontime/)
 
 ## Feature List (in no specific order)
 
-- [x] Distribute Data over network and render in the browser
+- [x] Distribute data over network and render in the browser
 - [x] Different screen types
     - Stage Timer
     - Backstage Info
     - Public Info
-    - Picture in Picture
     - Studio Clock
     - [Make your own?](#make-your-own-viewer)
-- [x] Configurable realtime Lower Thirds
-- [x] Cuesheets with additional custom fields
+- [x] Configurable Lower Thirds
+- [x] Cuesheets with user definable fields
 - [x] Send live messages to different screen types
 - [x] Ability to differentiate between backstage and public data
 - [x] Manage delays workflow

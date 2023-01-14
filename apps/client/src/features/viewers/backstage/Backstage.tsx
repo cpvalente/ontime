@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
-import { formatDisplay, millisToSeconds } from 'common/utils/dateConfig';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
@@ -14,6 +13,7 @@ import { ScheduleProvider } from '../../../common/components/schedule/ScheduleCo
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';

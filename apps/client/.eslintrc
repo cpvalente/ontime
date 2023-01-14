@@ -8,6 +8,7 @@
     "browser": true,
     "node": true
   },
+  "parser": "@typescript-eslint/parser",
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
@@ -22,6 +23,7 @@
     "testing-library",
     "simple-import-sort",
     "@tanstack/query",
+    "@typescript-eslint",
     "prettier"
   ],
   "rules": {

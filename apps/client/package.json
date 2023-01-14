@@ -21,7 +21,7 @@
     "framer-motion": "^8.0.2",
     "jotai": "^1.10.0",
     "luxon": "^3.1.0",
-    "ontime-utils": "workspace:^2.0.0",
+    "ontime-utils": "workspace:*",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
@@ -31,7 +31,7 @@
     "react-table": "^7.7.0",
     "socket.io-client": "^4.5.4",
     "typeface-open-sans": "^1.1.13",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^3.1.1"
   },
   "scripts": {
     "dev": "set BROWSER=none&&vite",
@@ -39,7 +39,8 @@
     "lint": "eslint .",
     "stylelint": "npx stylelint \"**/*.scss\"\n",
     "test": "vitest",
-    "test:pipeline": "vitest run"
+    "test:pipeline": "vitest run",
+    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build"
   },
   "browserslist": {
     "production": [
@@ -60,10 +61,13 @@
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^14.1.1",
     "@types/color": "^3.0.3",
+    "@types/prop-types": "^15.7.5",
     "@types/react": "^18.0.26",
     "@types/react-beautiful-dnd": "^13.1.3",
     "@types/react-dom": "^18.0.10",
     "@types/testing-library__jest-dom": "^5.14.5",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
     "@vitejs/plugin-react": "^3.0.1",
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
@@ -73,6 +77,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-testing-library": "^5.9.1",
+    "jsdom": "^21.1.0",
     "prettier": "^2.8.3",
     "prop-types": "^15.8.1",
     "sass": "^1.57.1",

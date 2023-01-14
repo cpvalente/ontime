@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormLabel, Input, ModalBody, Textarea } from '@chakra-ui/react';
-import { postEvent } from 'common/api/eventApi';
 
+import { postEvent } from '../../common/api/eventApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
 import useEvent from '../../common/hooks-query/useEvent';
 import { eventDataPlaceholder } from '../../common/models/EventData.type';

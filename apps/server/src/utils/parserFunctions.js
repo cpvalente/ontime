@@ -1,7 +1,7 @@
+import { generateId } from 'ontime-utils';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { validateEvent } from './parser.js';
-import { generateId } from './generate_id.js';
 import { MAX_EVENTS } from '../settings.js';
 
 /**

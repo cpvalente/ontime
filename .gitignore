@@ -8,6 +8,10 @@ node_modules/
 # testing
 coverage/
 *.mp4
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
 
 # production
 build/
@@ -40,3 +44,9 @@ ontime.code-workspace
 
 # webstorm stuff
 .idea/*
+
+# turborepo stuff
+.turbo
+
+# versioning file
+/apps/electron/version.js

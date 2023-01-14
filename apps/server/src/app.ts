@@ -7,7 +7,7 @@ import cors from 'cors';
 import { config } from './config/config.js';
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
-import { ONTIME_VERSION } from './version.js';
+import { ONTIME_VERSION } from '../../electron/version.js';
 import { initSentry } from './modules/sentry.js';
 import { dirname, join, resolve } from 'path';
 
@@ -21,12 +21,15 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { socketProvider } from './classes/socket/SocketController.js';
 import { eventTimer } from './services/TimerService.js';
+import logThis from './testing.js';
 
 // get environment
 const env = process.env.NODE_ENV || 'production';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const filePath = fileURLToPath(import.meta.url);
+const currentDirectory = dirname(filePath);
 const isTest = process.env.IS_TEST;
+
+logThis('Testing typescript!');
 
 initSentry(isTest ? 'test' : env);
 
@@ -56,7 +59,7 @@ app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
 // serve static - css
-app.use('/external', express.static(join(__dirname, 'external')));
+app.use('/external', express.static(join(currentDirectory, 'external')));
 
 // serve static - react, in test mode we fetch the React app from module
 const resolvedPath = () => {
@@ -68,10 +71,10 @@ const resolvedPath = () => {
   return siblingModule;
 };
 
-app.use(express.static(join(__dirname, resolvedPath(), 'client/build')));
+app.use(express.static(join(currentDirectory, resolvedPath(), 'client/build')));
 
 app.get('*', (req, res) => {
-  res.sendFile(resolve(__dirname, resolvedPath(), 'client', 'build', 'index.html'));
+  res.sendFile(resolve(currentDirectory, resolvedPath(), 'client', 'build', 'index.html'));
 });
 
 // Implement catch all

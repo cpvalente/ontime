@@ -1,5 +1,3 @@
-import { describe, expect, it, test } from 'vitest';
-
 import { makeCSV, makeTable, parseField } from '../utils';
 
 describe('parseField()', () => {

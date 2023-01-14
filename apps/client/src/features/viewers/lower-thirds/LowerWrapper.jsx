@@ -1,8 +1,8 @@
 import { memo, useEffect, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { useSearchParams } from 'react-router-dom';
-import { overrideStylesURL } from 'common/api/apiConstants';
-import { useRuntimeStylesheet } from 'common/hooks/useRuntimeStylesheet';
+import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import PropTypes from 'prop-types';
 
 import LowerClean from './LowerClean';

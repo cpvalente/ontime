@@ -94,7 +94,7 @@ export class DataProvider {
    */
   static async insertEventAfterId(entry, id) {
     const index = [...data.rundown].findIndex((event) => event.id === id);
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars -- we are just getting rid of after parameter
     const { after, ...sanitisedEvent } = entry;
     await DataProvider.insertEventAt(sanitisedEvent, index + 1);
   }

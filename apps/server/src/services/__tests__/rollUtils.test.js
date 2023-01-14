@@ -1,3 +1,4 @@
+
 import {
   DAY_TO_MS,
   getRollTimers,
@@ -10,21 +11,9 @@ import {
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
   it('sort array 1-5', () => {
-    const arr1 = [
-      { timeStart: 1 },
-      { timeStart: 5 },
-      { timeStart: 3 },
-      { timeStart: 2 },
-      { timeStart: 4 },
-    ];
+    const arr1 = [{ timeStart: 1 }, { timeStart: 5 }, { timeStart: 3 }, { timeStart: 2 }, { timeStart: 4 }];
 
-    const arr1Expected = [
-      { timeStart: 1 },
-      { timeStart: 2 },
-      { timeStart: 3 },
-      { timeStart: 4 },
-      { timeStart: 5 },
-    ];
+    const arr1Expected = [{ timeStart: 1 }, { timeStart: 2 }, { timeStart: 3 }, { timeStart: 4 }, { timeStart: 5 }];
 
     const sorted = sortArrayByProperty(arr1, 'timeStart');
     expect(sorted).toStrictEqual(arr1Expected);

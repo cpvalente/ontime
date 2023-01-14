@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest';
-
 import { calculateDuration, DAY_TO_MS } from '../timesManager';
 
 describe('calculateDuration()', () => {

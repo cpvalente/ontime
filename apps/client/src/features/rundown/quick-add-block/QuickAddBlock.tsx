@@ -1,9 +1,9 @@
 import { useCallback, useContext, useRef } from 'react';
 import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
-import { defaultPublicAtom, startTimeIsLastEndAtom } from 'common/atoms/LocalEventSettings';
-import { LoggingContext } from 'common/context/LoggingContext';
-import { useEventAction } from 'common/hooks/useEventAction';
-import { SupportedEvent } from 'common/models/EventTypes';
+import { defaultPublicAtom, startTimeIsLastEndAtom } from '../../../common/atoms/LocalEventSettings';
+import { LoggingContext } from '../../../common/context/LoggingContext';
+import { useEventAction } from '../../../common/hooks/useEventAction';
+import { SupportedEvent } from '../../../common/models/EventTypes';
 import { useAtomValue } from 'jotai';
 
 import { tooltipDelayMid } from '../../../ontimeConfig';

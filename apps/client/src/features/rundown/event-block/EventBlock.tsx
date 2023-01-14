@@ -10,9 +10,9 @@ import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
 import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { editorEventId } from 'common/atoms/LocalEventSettings';
-import TooltipActionBtn from 'common/components/buttons/TooltipActionBtn';
-import { cx, getAccessibleColour } from 'common/utils/styleUtils';
+import { editorEventId } from '../../../common/atoms/LocalEventSettings';
+import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
+import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useAtom } from 'jotai';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';

@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { formatDisplay, millisToSeconds } from 'common/utils/dateConfig';
+
+import { formatDisplay, millisToSeconds } from '../../utils/dateConfig';
 
 import './TimerDisplay.scss';
 
@@ -17,8 +18,6 @@ interface TimerDisplayProps {
  */
 const TimerDisplay = (props: TimerDisplayProps) => {
   const { time, small, hideZeroHours, className = '' } = props;
-
-  console.log('debug', time)
 
   const display =
     (time === null || typeof time === 'undefined' || isNaN(time))

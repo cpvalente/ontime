@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
-import { overrideStylesURL } from 'common/api/apiConstants';
-import { mirrorViewersAtom } from 'common/atoms/ViewerSettings';
-import NavigationMenu from 'common/components/navigation-menu/NavigationMenu';
-import ProgressBar from 'common/components/progress-bar/ProgressBar';
-import TimerDisplay from 'common/components/timer-display/TimerDisplay';
-import TitleCard from 'common/components/title-card/TitleCard';
-import { useRuntimeStylesheet } from 'common/hooks/useRuntimeStylesheet';
-import { formatTime } from 'common/utils/time';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
+
+import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
+import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
+import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
+import TitleCard from '../../../common/components/title-card/TitleCard';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { formatTime } from '../../../common/utils/time';
 
 import './Timer.scss';
 

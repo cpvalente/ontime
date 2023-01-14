@@ -28,9 +28,7 @@
     "src",
     "../node_modules/.pnpm/vitest@0.26.3/node_modules/vitest/globals.d.ts"
   ],
-
   "exclude": [
     "node_modules",
-    "build"
   ]
 }

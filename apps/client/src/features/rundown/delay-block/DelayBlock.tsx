@@ -3,9 +3,9 @@ import { Draggable } from 'react-beautiful-dnd';
 import { Button, HStack } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import DelayInput from 'common/components/input/delay-input/DelayInput';
-import { useEventAction } from 'common/hooks/useEventAction';
-import { millisToMinutes } from 'common/utils/dateConfig';
+import DelayInput from '../../../common/components/input/delay-input/DelayInput';
+import { useEventAction } from '../../../common/hooks/useEventAction';
+import { millisToMinutes } from '../../../common/utils/dateConfig';
 
 import { OntimeDelay, OntimeEvent } from '../../../common/models/EventTypes';
 import { cx } from '../../../common/utils/styleUtils';

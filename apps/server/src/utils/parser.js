@@ -1,5 +1,6 @@
 import fs from 'fs';
 import xlsx from 'node-xlsx';
+import { generateId } from 'ontime-utils';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString, validateDuration } from './parserUtils.js';
@@ -14,7 +15,6 @@ import {
   parseViews,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
-import { generateId } from './generate_id.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';

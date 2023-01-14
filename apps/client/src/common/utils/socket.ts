@@ -1,4 +1,4 @@
-import { serverURL } from 'common/api/apiConstants';
+import { serverURL } from '../api/apiConstants';
 import { io } from 'socket.io-client';
 
 const socket = io(serverURL, { transports: ['websocket'] });

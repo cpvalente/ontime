@@ -6,7 +6,7 @@ import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
 import { IoScan } from '@react-icons/all-files/io5/IoScan';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
-import { downloadRundown } from 'common/api/ontimeApi';
+import { downloadRundown } from '../../common/api/ontimeApi';
 
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';

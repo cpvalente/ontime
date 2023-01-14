@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@chakra-ui/react';
-import { clamp } from 'common/utils/math';
+
+import { clamp } from '../../../utils/math';
 
 import style from './DelayInput.module.scss';
 

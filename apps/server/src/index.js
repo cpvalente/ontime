@@ -5,7 +5,7 @@ import { promise } from './modules/loadDb.js';
   try {
     await promise;
 
-    const { startServer, startOSCServer } = await import('./app.js');
+    const { startServer, startOSCServer } = await import('./app.ts');
     // Start express server
     loaded = await startServer();
 

@@ -1,5 +1,3 @@
-// test cleanURL()
-
 import { cleanURL } from '../url';
 
 describe('url is correctly formatted', () => {

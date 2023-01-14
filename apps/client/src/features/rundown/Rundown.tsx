@@ -1,20 +1,17 @@
 import { createRef, Fragment, useCallback, useContext, useEffect } from 'react';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import {
-  defaultPublicAtom,
-  showQuickEntryAtom,
-  startTimeIsLastEndAtom,
-} from 'common/atoms/LocalEventSettings';
-import Empty from 'common/components/state/Empty';
-import { CursorContext } from 'common/context/CursorContext';
-import { useEventAction } from 'common/hooks/useEventAction';
-import { useRundownEditor } from 'common/hooks/useSocket';
-import { OntimeRundown, SupportedEvent } from 'common/models/EventTypes';
-import { cloneEvent } from 'common/utils/eventsManager';
 import { useAtomValue } from 'jotai';
 import PropTypes from 'prop-types';
+
+import { defaultPublicAtom, showQuickEntryAtom, startTimeIsLastEndAtom } from '../../common/atoms/LocalEventSettings';
+import Empty from '../../common/components/state/Empty';
+import { CursorContext } from '../../common/context/CursorContext';
+import { useEventAction } from '../../common/hooks/useEventAction';
+import { useRundownEditor } from '../../common/hooks/useSocket';
+import { OntimeRundown, SupportedEvent } from '../../common/models/EventTypes';
+import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEntry from './RundownEntry';
@@ -80,7 +77,6 @@ export default function Rundown(props: RundownProps) {
       if (event.repeat) return;
       // Check if the alt key is pressed
       if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
-
         switch (event.code) {
           case 'ArrowDown': {
             if (cursor < entries.length - 1) moveCursorDown();
@@ -167,13 +163,13 @@ export default function Rundown(props: RundownProps) {
     }
   }, [data?.selectedEventId, entries, isCursorLocked, moveCursorTo]);
 
-  // @ts-expect-error react-beautiful-dnd stuff, cant type
-  const handleOnDragEnd = useCallback((result) => {
+  const handleOnDragEnd = useCallback(
+    (result: DropResult) => {
       // drop outside of area
-      if (!result.destination) return;
+      if (!result?.destination) return;
 
       // no change
-      if (result.destination === result.source.index) return;
+      if (result.destination.index === result.source.index) return;
 
       // Call API
       reorderEvent(result.draggableId, result.source.index, result.destination.index);

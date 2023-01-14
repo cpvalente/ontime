@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest';
-
 import { validateAlias } from '../aliases';
 
 describe('An alias fails if incorrect', () => {

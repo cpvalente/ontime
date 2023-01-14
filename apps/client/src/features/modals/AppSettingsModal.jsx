@@ -13,10 +13,10 @@ import {
 } from '@chakra-ui/react';
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
-import { postSettings } from 'common/api/ontimeApi';
 import { useAtom } from 'jotai';
 
 import { version } from '../../../package.json';
+import { postSettings } from '../../common/api/ontimeApi';
 import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';

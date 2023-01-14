@@ -1,18 +1,14 @@
 import { useCallback, useContext } from 'react';
-import {
-  defaultPublicAtom,
-  editorEventId,
-  startTimeIsLastEndAtom,
-} from 'common/atoms/LocalEventSettings';
-import { LoggingContext } from 'common/context/LoggingContext';
-import { useEventAction } from 'common/hooks/useEventAction';
-import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'common/models/EventTypes';
-import { Playback } from 'common/models/OntimeTypes';
-import { cloneEvent } from 'common/utils/eventsManager';
-import { calculateDuration } from 'common/utils/timesManager';
 import { useAtom, useAtomValue } from 'jotai';
 
+import { defaultPublicAtom, editorEventId, startTimeIsLastEndAtom } from '../../common/atoms/LocalEventSettings';
 import { CursorContext } from '../../common/context/CursorContext';
+import { LoggingContext } from '../../common/context/LoggingContext';
+import { useEventAction } from '../../common/hooks/useEventAction';
+import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from '../../common/models/EventTypes';
+import { Playback } from '../../common/models/OntimeTypes';
+import { cloneEvent } from '../../common/utils/eventsManager';
+import { calculateDuration } from '../../common/utils/timesManager';
 
 import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
@@ -123,7 +119,8 @@ export default function RundownEntry(props: RundownEntryProps) {
             newData.timeEnd = value as number;
             updateEvent(newData);
           } else if (field in data) {
-            newData[field] = value as never;
+            // @ts-expect-error not sure how to type this
+            newData[field] = value;
             updateEvent(newData);
           } else {
             emitError(`Unknown field: ${field}`);
@@ -135,7 +132,19 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
       }
     },
-    [addEvent, data, defaultPublic, deleteEvent, emitError, moveCursorTo, openId, previousEventId, setOpenId, startTimeIsLastEnd, updateEvent],
+    [
+      addEvent,
+      data,
+      defaultPublic,
+      deleteEvent,
+      emitError,
+      moveCursorTo,
+      openId,
+      previousEventId,
+      setOpenId,
+      startTimeIsLastEnd,
+      updateEvent,
+    ],
   );
 
   if (data.type === SupportedEvent.Event) {
@@ -177,4 +186,4 @@ export default function RundownEntry(props: RundownEntryProps) {
     />;
   }
   return null;
-};
+}

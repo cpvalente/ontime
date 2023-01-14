@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { AutoTextArea } from 'common/components/input/auto-text-area/AutoTextArea';
-import { TableSettingsContext } from 'common/context/TableSettingsContext';
+import { AutoTextArea } from '@/common/components/input/auto-text-area/AutoTextArea';
+import { TableSettingsContext } from '@/common/context/TableSettingsContext';
 import PropTypes from 'prop-types';
 
 /**

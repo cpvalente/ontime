@@ -1,5 +1,5 @@
+import { generateId } from 'ontime-utils';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import { generateId } from '../utils/generate_id.js';
 import {
   block as blockDef,
   delay as delayDef,

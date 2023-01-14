@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest';
-
 import { DAY_TO_MS } from '../../../../common/utils/timeConstants';
 import { fetchTimerData, sanitiseTitle, TimerMessage } from '../countdown.helpers';
 

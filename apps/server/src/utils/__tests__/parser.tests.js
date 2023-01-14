@@ -1,4 +1,4 @@
-import jest from 'jest-mock';
+import { vi } from 'vitest';
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, validateEvent } from '../parser.js';
 import { makeString, validateDuration } from '../parserUtils.js';
@@ -300,7 +300,7 @@ describe('test parser edge cases', () => {
   });
 
   it('detects duplicate Ids', async () => {
-    console.log = jest.fn();
+    console.log = vi.fn();
     const testData = {
       rundown: [
         {
@@ -322,7 +322,7 @@ describe('test parser edge cases', () => {
   });
 
   it('handles incomplete datasets', async () => {
-    console.log = jest.fn();
+    console.log = vi.fn();
     const testData = {
       rundown: [
         {
@@ -342,7 +342,7 @@ describe('test parser edge cases', () => {
   });
 
   it('skips unknown app and version settings', async () => {
-    console.log = jest.fn();
+    console.log = vi.fn();
     const testData = {
       settings: {
         osc_port: 8888,
@@ -450,7 +450,7 @@ describe('test corrupt data', () => {
   });
 
   it('fails with invalid JSON', async () => {
-    console.log = jest.fn();
+    console.log = vi.fn();
     const invalidJSON = 'some random dataset';
     const parsedDef = await parseJson(invalidJSON);
     expect(console.log).toHaveBeenCalledWith('ERROR: Invalid JSON format');
@@ -489,7 +489,7 @@ describe('test event validator', () => {
         user7: expect.any(String),
         user8: expect.any(String),
         user9: expect.any(String),
-      })
+      }),
     );
   });
 

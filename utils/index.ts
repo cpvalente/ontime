@@ -1,1 +1,1 @@
-export { generateId } from './src/generate-id/generateId';
+export { generateId } from './src/generate-id/generateId.js';

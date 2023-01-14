@@ -5,6 +5,8 @@ class MessageService {
     if (instance) {
       throw new Error('There can be only one');
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
     this.socket = null;
 

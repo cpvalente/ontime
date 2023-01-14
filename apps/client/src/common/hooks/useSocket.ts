@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { ontimeQueryClient as queryClient } from 'common/queryClient';
-import socket, { subscribeOnce } from 'common/utils/socket';
+import { ontimeQueryClient as queryClient } from '../queryClient';
+import socket, { subscribeOnce } from '../utils/socket';
 
 import {
   FEAT_CUESHEET,
@@ -10,7 +10,7 @@ import {
   FEAT_RUNDOWN,
   TIMER,
 } from '../api/apiConstants';
-import { Playstate } from '../models/OntimeTypes';
+import { Playback } from '../models/OntimeTypes';
 
 function createSocketHook<T>(key: string, defaultValue: T | null = null) {
   subscribeOnce<T>(key, (data) => queryClient.setQueryData([key], data));
@@ -25,7 +25,7 @@ function createSocketHook<T>(key: string, defaultValue: T | null = null) {
 interface IRundown {
   selectedEventId: string | null;
   nextEventId: string | null;
-  playback: Playstate | null;
+  playback: Playback | null;
 }
 
 const emptyRundown: IRundown = {

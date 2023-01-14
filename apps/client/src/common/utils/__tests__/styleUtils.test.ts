@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest';
-
 import { cx } from '../styleUtils';
 
 import style from './styleUtils.module.scss';

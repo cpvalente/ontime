@@ -1,12 +1,15 @@
 {
   "name": "ontime-utils",
+  "type": "module",
+  "exports": "./index.ts",
   "version": "2.0.0",
   "private": true,
   "description": "shared logic for ontime",
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
-    "test:pipeline": "vitest run"
+    "test:pipeline": "vitest run",
+    "cleanup": "rm -rf .turbo && rm -rf node_modules"
   },
   "dependencies": {
     "nanoid": "^4.0.0"

@@ -1,5 +1,4 @@
 import { act, renderHook } from '@testing-library/react';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import useClickOutside from '../useClickOutside';
 

@@ -1,6 +1,6 @@
 import { Tooltip } from '@chakra-ui/react';
-import TimerDisplay from 'common/components/timer-display/TimerDisplay';
 
+import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
 import { Playback } from '../../../common/models/OntimeTypes';
 import { stringFromMillis } from '../../../common/utils/time';
@@ -18,7 +18,9 @@ interface PlaybackTimerProps {
 export default function PlaybackTimer(props: PlaybackTimerProps) {
   const { playback, selectedId } = props;
   const { data: timerData } = useTimer();
-  const started = stringFromMillis(timerData.startedAt, true);
+
+  // TODO: checkout typescript in utilities
+  const started = stringFromMillis(timerData?.startedAt, true);
   const finish = stringFromMillis(timerData.expectedFinish, true);
   const isRolling = playback === 'roll';
   const isWaiting = timerData.secondaryTimer !== null && timerData.secondaryTimer > 0 && timerData.current === null;
@@ -35,10 +37,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
         <div className={style.indDelay} />
       </div>
       <div className={style.timer}>
-        <TimerDisplay
-          time={isWaiting ? timerData.secondaryTimer : timerData.current}
-          small
-        />
+        <TimerDisplay time={isWaiting ? timerData.secondaryTimer : timerData.current} small />
       </div>
       {isWaiting ? (
         <div className={style.roll}>
@@ -57,43 +56,27 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
         </>
       )}
       <div className={style.btn}>
-        <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid}
-                 shouldWrapChildren={disableButtons}>
-          <TapButton
-            onClick={() => setPlayback.delay(-1)}
-            disabled={disableButtons}
-            square>
+        <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
+          <TapButton onClick={() => setPlayback.delay(-1)} disabled={disableButtons} square>
             -1
           </TapButton>
         </Tooltip>
-        <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid}
-                 shouldWrapChildren={disableButtons}>
-          <TapButton
-            onClick={() => setPlayback.delay(1)}
-            disabled={disableButtons}
-            square>
+        <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
+          <TapButton onClick={() => setPlayback.delay(1)} disabled={disableButtons} square>
             +1
           </TapButton>
         </Tooltip>
-        <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid}
-                 shouldWrapChildren={disableButtons}>
-          <TapButton
-            onClick={() => setPlayback.delay(-5)}
-            disabled={disableButtons}
-            square>
+        <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
+          <TapButton onClick={() => setPlayback.delay(-5)} disabled={disableButtons} square>
             -5
           </TapButton>
         </Tooltip>
-        <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid}
-                 shouldWrapChildren={disableButtons}>
-          <TapButton
-            onClick={() => setPlayback.delay(+5)}
-            disabled={disableButtons}
-            square>
+        <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
+          <TapButton onClick={() => setPlayback.delay(+5)} disabled={disableButtons} square>
             +5
           </TapButton>
         </Tooltip>
       </div>
     </div>
   );
-};
+}

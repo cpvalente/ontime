@@ -1,21 +1,13 @@
 import { memo, useCallback, useContext } from 'react';
-import {
-  Button,
-  HStack,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuItem,
-  MenuList,
-  Switch,
-} from '@chakra-ui/react';
+import { Button, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Switch } from '@chakra-ui/react';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
-import { CursorContext } from 'common/context/CursorContext';
 
+import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { SupportedEvent } from '../../common/models/EventTypes';
 
 import style from './RundownMenu.module.scss';
 
@@ -23,17 +15,18 @@ const RundownMenu = () => {
   const { isCursorLocked, toggleCursorLocked } = useContext(CursorContext);
   const { addEvent, deleteAllEvents } = useEventAction();
 
-  type ActionTypes = 'event' | 'delay' | 'block' | 'delete-all';
+  // TODO: re-write this with stable functions
+  type ActionTypes = SupportedEvent | 'delete-all';
   const eventAction = useCallback(
     (action: ActionTypes) => {
       switch (action) {
-        case 'event':
+        case SupportedEvent.Event:
           addEvent({ type: action });
           break;
-        case 'delay':
+        case SupportedEvent.Delay:
           addEvent({ type: action });
           break;
-        case 'block':
+        case SupportedEvent.Block:
           addEvent({ type: action });
           break;
         case 'delete-all':
@@ -64,13 +57,13 @@ const RundownMenu = () => {
           Event...
         </MenuButton>
         <MenuList>
-          <MenuItem  icon={<IoAdd />} onClick={() => eventAction('event')}>
+          <MenuItem icon={<IoAdd />} onClick={() => eventAction(SupportedEvent.Event)}>
             Add event at start
           </MenuItem>
-          <MenuItem icon={<IoTimerOutline />} onClick={() => eventAction('delay')}>
+          <MenuItem icon={<IoTimerOutline />} onClick={() => eventAction(SupportedEvent.Delay)}>
             Add delay at start
           </MenuItem>
-          <MenuItem icon={<FiMinusCircle />} onClick={() => eventAction('block')}>
+          <MenuItem icon={<FiMinusCircle />} onClick={() => eventAction(SupportedEvent.Block)}>
             Add block at start
           </MenuItem>
           <MenuDivider />

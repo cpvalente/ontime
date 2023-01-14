@@ -1,4 +1,4 @@
-import { clamp } from 'common/utils/math';
+import { clamp } from '../../utils/math';
 
 import './ProgressBar.scss';
 

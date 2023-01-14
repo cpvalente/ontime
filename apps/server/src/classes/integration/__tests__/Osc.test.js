@@ -1,3 +1,4 @@
+
 import { OSCIntegration } from '../Osc';
 import { Server } from 'node-osc';
 
@@ -33,7 +34,7 @@ test('Class initialises correctly', () => {
 });
 
 describe('OSC fails to initialise when incorrect data is given', () => {
-  test('IP of wrong type', () => {
+  it('IP of wrong type', () => {
     const osc = new OSCIntegration();
     const init = osc.init({ ip: 123, port: 8888 });
     expect(init.message).toBe('Config options incorrect');
@@ -41,7 +42,7 @@ describe('OSC fails to initialise when incorrect data is given', () => {
     expect(osc.oscClient).toBe(null);
   });
 
-  test('IP is null', () => {
+  it('IP is null', () => {
     const osc = new OSCIntegration();
     const init = osc.init({ ip: null, port: 8888 });
     expect(init.message).toBe('Config options incorrect');
@@ -49,7 +50,7 @@ describe('OSC fails to initialise when incorrect data is given', () => {
     expect(osc.oscClient).toBe(null);
   });
 
-  test('Port of wrong type', () => {
+  it('Port of wrong type', () => {
     const osc = new OSCIntegration();
     const init = osc.init({ ip: 'localhost', port: 'test' });
     expect(init.message).toBe('Config options incorrect');
@@ -57,7 +58,7 @@ describe('OSC fails to initialise when incorrect data is given', () => {
     expect(osc.oscClient).toBe(null);
   });
 
-  test('Port is null', () => {
+  it('Port is null', () => {
     const osc = new OSCIntegration();
     const init = osc.init({ ip: 'localhost', port: null });
     expect(init.message).toBe('Config options incorrect');

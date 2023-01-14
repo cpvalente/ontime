@@ -19,8 +19,8 @@ const isWindows = process.platform === 'win32';
 
 // path to server
 const nodePath = isProduction
-  ? path.join('file://', __dirname, '../', 'extraResources', 'src/app.js')
-  : path.join('file://', __dirname, 'src/app.js');
+  ? path.join('file://', __dirname, '../', 'server/app.js')
+  : path.join('file://', __dirname, '../server/src/app.js');
 
 // path to icons
 const trayIcon = path.join(__dirname, './assets/background.png');
@@ -36,7 +36,7 @@ let tray = null;
 (async () => {
   try {
     const loadDepPath = isProduction
-      ? path.join('file://', __dirname, '../', 'extraResources', 'src/modules/loadDb.js')
+      ? path.join('file://', __dirname, '../', 'server/modules/loadDb.js')
       : path.join('file://', __dirname, 'src/modules/loadDb.js');
 
     const dbLoader = await import(loadDepPath);

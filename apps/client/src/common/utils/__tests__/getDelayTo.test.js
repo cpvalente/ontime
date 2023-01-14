@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest';
-
 import getDelayTo from '../getDelayTo';
 
 describe('getDelayTo function', () => {

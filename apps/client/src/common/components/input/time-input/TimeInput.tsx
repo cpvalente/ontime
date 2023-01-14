@@ -1,11 +1,11 @@
 import { KeyboardEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Button, Input, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
-import { LoggingContext } from 'common/context/LoggingContext';
-import { forgivingStringToMillis } from 'common/utils/dateConfig';
-import { stringFromMillis } from 'common/utils/time';
 
 import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
+import { LoggingContext } from '../../../context/LoggingContext';
+import { forgivingStringToMillis } from '../../../utils/dateConfig';
+import { stringFromMillis } from '../../../utils/time';
 import { TimeEntryField } from '../../../utils/timesManager';
 
 import style from './TimeInput.module.scss';
@@ -144,7 +144,7 @@ export default function TimeInput(props: TimeInputProps) {
   return (
     <InputGroup size='sm' className={`${style.timeInput} ${isDelayed ? style.delayed : ''}`}>
       <InputLeftElement width='fit-content'>
-        <Tooltip label={<ButtonTooltip />} openDelay={tooltipDelayFast} variant='ontime-ondark'>
+        <Tooltip label={ButtonTooltip()} openDelay={tooltipDelayFast} variant='ontime-ondark'>
           <Button
             size='sm'
             variant='ontime-subtle-white'
@@ -154,7 +154,7 @@ export default function TimeInput(props: TimeInputProps) {
             borderRight='1px solid transparent'
             borderRadius='2px 0 0 2px'
           >
-            <ButtonInitial />
+            {ButtonInitial()}
           </Button>
         </Tooltip>
       </InputLeftElement>
