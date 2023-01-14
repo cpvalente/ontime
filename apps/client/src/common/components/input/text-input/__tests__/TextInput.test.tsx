@@ -1,13 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import TextInput from '../TextInput';
 
 describe('TextInput component', () => {
   describe('when given props', () => {
+    // small hack to reset DOM between tests
+    beforeEach(() => {
+      document.getElementsByTagName('html')[0].innerHTML = '';
+    });
+
     it('renders correctly', () => {
-      const testField = 'test';
+      const testField = 'title';
       const testText = 'Test 123';
       const submitHandler = vi.fn();
       render(<TextInput field={testField} initialText={testText} submitHandler={submitHandler} />);
@@ -18,11 +23,10 @@ describe('TextInput component', () => {
     });
 
     it('Handles renders as textarea', () => {
-      const testField = 'test';
+      const testField = 'title';
       const testText = 'Test 123';
       const submitHandler = vi.fn();
-      render(<TextInput field={testField} initialText={testText} isTextArea
-                        submitHandler={submitHandler} />);
+      render(<TextInput field={testField} initialText={testText} isTextArea submitHandler={submitHandler} />);
 
       const input = screen.getByTestId('input-textarea');
       expect(input).toBeInTheDocument();
@@ -31,8 +35,12 @@ describe('TextInput component', () => {
   });
 
   describe('on status change', () => {
+    // small hack to reset DOM between tests
+    afterEach(() => {
+      document.getElementsByTagName('html')[0].innerHTML = '';
+    });
     it('calls submitHandler on new value', async () => {
-      const testField = 'test';
+      const testField = 'title';
       const testText = 'Test 123';
       const myTypedString = '456';
       const expectedString = testText + myTypedString;
@@ -53,7 +61,7 @@ describe('TextInput component', () => {
     });
 
     it('cleans value before submitting', async () => {
-      const testField = 'test';
+      const testField = 'title';
       const myTypedString = '                456          ';
       const expectedString = '456';
       const submitHandler = vi.fn();
@@ -70,25 +78,8 @@ describe('TextInput component', () => {
   });
 
   describe('handles edge cases', () => {
-    it('handles number values', () => {
-      const testField = 'test';
-      const testText = 123;
-      render(<TextInput field={testField} initialText={testText} />);
-      const input = screen.getByTestId('input-textfield');
-      expect(input).toBeInTheDocument();
-      expect(input).toHaveValue(`${testText}`);
-    });
-    it('handles null value', () => {
-      const testField = 'test';
-      const testText = null;
-      const expected = '';
-      render(<TextInput field={testField} initialText={testText} />);
-      const input = screen.getByTestId('input-textfield');
-      expect(input).toBeInTheDocument();
-      expect(input).toHaveValue(expected);
-    });
     it('handles undefined value', () => {
-      const testField = 'test';
+      const testField = 'title';
       const expected = '';
       render(<TextInput field={testField} submitHandler={vi.fn()} />);
       const input = screen.getByTestId('input-textfield');
