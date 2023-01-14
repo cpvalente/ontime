@@ -1,7 +1,7 @@
 import { Box, IconButton } from '@chakra-ui/react';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { editorEventId } from 'common/atoms/LocalEventSettings';
-import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
+import ErrorBoundary from 'common/components/error-boundary/ErrorBoundary';
 import { useAtom } from 'jotai';
 
 import EventEditor from './EventEditor';

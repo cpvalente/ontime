@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+import CollapseBar from '../../common/components/collapse-bar/CollapseBar';
 
 import style from './Info.module.scss';
 

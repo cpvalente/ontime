@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
+import ErrorBoundary from 'common/components/error-boundary/ErrorBoundary';
 import { CursorProvider } from 'common/context/CursorContext';
 import { handleLinks } from 'common/utils/linkUtils';
 

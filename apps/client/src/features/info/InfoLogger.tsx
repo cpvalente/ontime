@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/react';
 
-import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+import CollapseBar from '../../common/components/collapse-bar/CollapseBar';
 import { Log, LoggingContext } from '../../common/context/LoggingContext';
 
 import style from './InfoLogger.module.scss';

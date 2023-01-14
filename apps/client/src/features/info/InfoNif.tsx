@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
-import CollapseBar from '../../common/components/collapseBar/CollapseBar';
+import CollapseBar from '../../common/components/collapse-bar/CollapseBar';
 import useInfo from '../../common/hooks-query/useInfo';
 import { openLink } from '../../common/utils/linkUtils';
 
