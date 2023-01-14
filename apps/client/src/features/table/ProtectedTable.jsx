@@ -1,4 +1,4 @@
-import ProtectRoute from '../../common/components/protectRoute/ProtectRoute';
+import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
 import { TableSettingsProvider } from '../../common/context/TableSettingsContext';
 
 import TableWrapper from './TableWrapper';

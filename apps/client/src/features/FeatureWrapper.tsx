@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-import ProtectRoute from '../common/components/protectRoute/ProtectRoute';
+import ProtectRoute from '../common/components/protect-route/ProtectRoute';
 
 import style from './FeatureWrapper.module.scss';
 
