@@ -37,7 +37,7 @@ let tray = null;
   try {
     const loadDepPath = isProduction
       ? path.join('file://', __dirname, '../', 'server/modules/loadDb.js')
-      : path.join('file://', __dirname, 'src/modules/loadDb.js');
+      : path.join('file://', __dirname, '../server/src/modules/loadDb.js');
 
     const dbLoader = await import(loadDepPath);
 
@@ -115,7 +115,7 @@ function createWindow() {
     skipTaskbar: true,
   });
   splash.setIgnoreMouseEvents(true);
-  splash.loadURL(`file://${__dirname}/electron/splash/splash.html`);
+  splash.loadURL(`file://${__dirname}/src/splash/splash.html`);
 
   win = new BrowserWindow({
     width: 1920,
@@ -124,17 +124,16 @@ function createWindow() {
     minHeight: 405,
     maxWidth: 1920,
     maxHeight: 1440,
-    backgroundColor: '#202020',
+    backgroundColor: '#101010', // $gray-1350
     icon: appIcon,
     show: false,
     textAreasAreResizable: false,
     enableWebSQL: false,
     darkTheme: true,
     webPreferences: {
-      preload: path.join(__dirname, './electron/preload.js'),
+      preload: path.join(__dirname, './src/preload.js'),
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true,
     },
   });
 
@@ -161,11 +160,11 @@ app.whenReady().then(() => {
   // give the nodejs server some time
   setTimeout(() => {
     // Load page served by node
-    const reactApp = isProduction
+    const clientUrl = isProduction
       ? electronConfig.reactAppUrl.production
       : electronConfig.reactAppUrl.development;
 
-    win.loadURL(reactApp).then(() => {
+    win.loadURL(clientUrl).then(() => {
       win.webContents.setBackgroundThrottling(false);
 
       win.show();

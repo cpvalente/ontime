@@ -1,6 +1,5 @@
 {
   "name": "ontime",
-  "type": "module",
   "version": "2.0.0-alpha",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
