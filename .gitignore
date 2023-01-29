@@ -49,4 +49,4 @@ ontime.code-workspace
 .turbo
 
 # versioning file
-/apps/electron/version.js
+/apps/electron/version.mjs

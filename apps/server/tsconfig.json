@@ -5,11 +5,14 @@
     "moduleResolution": "Node16",
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
+    "sourceMap": true,
     "esModuleInterop": true,
-    "types": ["vitest/globals"]
+    "skipLibCheck": true,
+    "types": ["vitest/globals"],
+    "outDir": "dist"
   },
   "include": [
-    "src"
+    "src/**/*"
   ],
   "exclude": ["node_modules", "build"],
 //  "ts-node": {

@@ -3,10 +3,10 @@ import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import { AppContextProvider } from './common/context/AppContext';
 import { LoggingProvider } from './common/context/LoggingContext';
-
 import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
 import theme from './theme/theme';

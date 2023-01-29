@@ -1,18 +1,19 @@
 import { promise } from './modules/loadDb.js';
+import { startOSCServer, startServer } from './app.js';
 
-(async () => {
-  let loaded;
+async function startOntime() {
   try {
     await promise;
 
-    const { startServer, startOSCServer } = await import('./app.ts');
     // Start express server
-    loaded = await startServer();
+    const loaded = await startServer();
+    console.log(loaded);
 
     // Start OSC Server (API)
     await startOSCServer();
   } catch (error) {
     console.log(error);
   }
-  console.log(loaded);
-})();
+}
+
+startOntime();

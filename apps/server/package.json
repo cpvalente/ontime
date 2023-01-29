@@ -1,6 +1,7 @@
 {
   "name": "ontime-server",
   "type": "module",
+  "main": "src/index.ts",
   "version": "2.0.0-alpha",
   "exports": "./src/index.js",
   "dependencies": {
@@ -31,15 +32,17 @@
     "@typescript-eslint/parser": "^5.48.1",
     "eslint": "^8.31.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "nodemon": "^2.0.20",
     "prettier": "^2.8.3",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4",
     "vitest": "^0.27.1"
   },
   "scripts": {
-    "dev": "set NODE_ENV=development && ts-node-esm src/index.js",
-    "dev2": "ts-node-dev --respawn --transpile-only src/index.js",
+    "dev": "nodemon --exec \"ts-node-esm\" ./src/index.ts",
     "build": "tsup --format cjs",
+    "setdb": "cp ../electron/demo-db/db.json preloaded-db/db.json",
+    "postinstall": "pnpm setdb",
     "lint": "eslint .",
     "test": "vitest",
     "test:pipeline": "vitest run",
@@ -48,7 +51,7 @@
   },
   "tsup": {
     "entry": [
-      "src/app.ts"
+      "src/index.ts"
     ],
     "sourcemap": true,
     "clean": true,

@@ -7,7 +7,7 @@ import cors from 'cors';
 import { config } from './config/config.js';
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { fileURLToPath } from 'url';
-import { ONTIME_VERSION } from '../../electron/version.js';
+import { ONTIME_VERSION } from '../../electron/version.mjs';
 import { initSentry } from './modules/sentry.js';
 import { dirname, join, resolve } from 'path';
 
