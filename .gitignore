@@ -8,8 +8,8 @@ node_modules/
 # testing
 coverage/
 *.mp4
-/test-results/
-/playwright-report/
+test-results
+playwright-report
 /playwright/.cache/
 
 

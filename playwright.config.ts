@@ -11,7 +11,7 @@ import { devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 const config: PlaywrightTestConfig = {
-  testDir: './tests',
+  testDir: './e2e/tests',
   timeout: 60 * 1000,
   expect: {
     timeout: 5000
@@ -26,9 +26,12 @@ const config: PlaywrightTestConfig = {
     viewport: { width: 1920, height: 1080 },
     actionTimeout: 5000,
     baseURL: 'http://localhost:4001',
+    ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
   },
-
+  webServer: {
+    command: "pnpm dev:server"
+  },
   projects: [
     {
       name: 'chromium',
@@ -53,7 +56,6 @@ const config: PlaywrightTestConfig = {
       },
     },
   ],
-
   outputDir: 'test-results/',
 };
 

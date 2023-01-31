@@ -4,7 +4,7 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 
-import { ONTIME_VERSION } from '../electron/version.js';
+import { ONTIME_VERSION } from '../electron/version.mjs';
 
 export default defineConfig({
   plugins: [

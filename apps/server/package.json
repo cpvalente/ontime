@@ -39,7 +39,7 @@
     "vitest": "^0.27.1"
   },
   "scripts": {
-    "dev": "nodemon --exec \"ts-node-esm\" ./src/index.ts",
+    "dev": "set NODE_ENV=development && nodemon --exec \"ts-node-esm\" ./src/index.ts",
     "build": "tsup --format cjs",
     "setdb": "cp ../electron/demo-db/db.json preloaded-db/db.json",
     "postinstall": "pnpm setdb",
