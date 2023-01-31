@@ -19,8 +19,8 @@ const isWindows = process.platform === 'win32';
 
 // path to server
 const nodePath = isProduction
-  ? path.join('file://', __dirname, '../', 'server/index.cjs')
-  : path.join('file://', __dirname, '../server/dist/index.cjs');
+  ? path.join('file://', __dirname, '../', 'server/src/index.js')
+  : path.join('file://', __dirname, '../server/src/index.js');
 
 // : path.join('file://', __dirname, '../server/src/index.ts');
 console.log('PATH = ', nodePath)
@@ -39,7 +39,7 @@ let tray = null;
 (async () => {
   try {
     const loadDepPath = isProduction
-      ? path.join('file://', __dirname, '../', 'server/modules/loadDb.js')
+      ? path.join('file://', __dirname, '../', 'server/src/modules/loadDb.js')
       : path.join('file://', __dirname, '../server/src/modules/loadDb.js');
     console.log('DB PATH = ', loadDepPath)
 
@@ -55,6 +55,7 @@ let tray = null;
   } catch (error) {
     loaded = error;
   }
+  console.log('initiated status: ', loaded)
 })();
 
 /**

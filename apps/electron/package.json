@@ -87,7 +87,19 @@
       },
       {
         "from": "../server/dist",
-        "to": "server/",
+        "to": ".",
+        "filter": [
+          "**/*",
+          "!**/{yarn.lock,yarn-error.log}",
+          "!**/{pnpm-lock.yaml}",
+          "!**/{test,tests,__test__,__tests__}",
+          "!**/{mock,mocks,__mock__,__mocks__}",
+          "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
+        ]
+      },
+      {
+        "from": "../server/node_modules",
+        "to": "server/node_modules",
         "filter": [
           "**/*",
           "!**/{yarn.lock,yarn-error.log}",
