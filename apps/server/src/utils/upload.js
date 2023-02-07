@@ -1,7 +1,9 @@
 import multer from 'multer';
 import * as path from 'path';
+
 import { EXCEL_MIME, JSON_MIME } from './parser.js';
-import { ensureDirectory, getAppDataPath } from './fileManagement.js';
+import { ensureDirectory } from './fileManagement.js';
+import { getAppDataPath } from '../setup.js';
 
 // Define multer storage object
 const storage = multer.diskStorage({

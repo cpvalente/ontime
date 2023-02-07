@@ -1,42 +1,25 @@
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
-import { dirname, join } from 'path';
 import { copyFileSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { ensureDirectory, getAppDataPath } from '../utils/fileManagement.js';
-import { config } from '../config/config.js';
+import { ensureDirectory } from '../utils/fileManagement.js';
 import { validateFile } from '../utils/parserUtils.js';
 import { dbModel } from '../models/dataModel.js';
 import { parseJson } from '../utils/parser.js';
 import { reportSentryException } from './sentry.js';
-
-/**
- * @description Decides which path the database is in
- * @param ensure - whether it should create directory if it doesnt exist
- * @return {string}
- */
-export const resolveDbPath = (ensure = true) => {
-  const appPath = getAppDataPath();
-  const dbDirectory = join(appPath, config.database.directory);
-  if (ensure) {
-    ensureDirectory(dbDirectory);
-  }
-  return join(dbDirectory, config.database.filename);
-};
+import { currentDirectory, pathToStartDb, resolveDbPath } from '../setup.js';
 
 /**
  * @description ensures directories exist and populates database
- * @param runningDirectory
- * @return {string}
+ * @return {string} - path to db file
  */
-const populateDb = (runningDirectory) => {
-  const startupDb = join(runningDirectory, config.database.directory, config.database.filename);
+const populateDb = () => {
   const dbInDisk = resolveDbPath();
+  ensureDirectory(dbInDisk);
 
-  // if dbInDisk doesnt exist we want to use startup db
+  // if dbInDisk doesn't exist we want to use startup db
   if (!existsSync(dbInDisk)) {
     try {
-      copyFileSync(startupDb, dbInDisk);
+      copyFileSync(pathToStartDb, dbInDisk);
     } catch (error) {
       reportSentryException(error);
     }
@@ -63,11 +46,10 @@ const parseDb = async (fileToRead, adapterToUse) => {
 
 /**
  * @description Modules loads ontime db
- * @param runningDirectory
- * @return {Promise<{data: (number|*), db: Low<unknown>}>}
+ * @return {Promise<{data: (*), db: Low<unknown>}>}
  */
-async function loadDb(runningDirectory) {
-  const dbInDisk = populateDb(runningDirectory);
+async function loadDb() {
+  const dbInDisk = populateDb();
 
   const adapter = new JSONFile(dbInDisk);
   const db = new Low(adapter);
@@ -80,12 +62,9 @@ async function loadDb(runningDirectory) {
   return { db, data };
 }
 
-const filename = fileURLToPath(import.meta.url);
-export const dbDirectory = dirname(join(filename, '../'));
-
 export let db = {};
 export let data = {};
-export const promise = loadDb(dbDirectory);
+export const promise = loadDb();
 
 const init = async () => {
   const dbProvider = await promise;

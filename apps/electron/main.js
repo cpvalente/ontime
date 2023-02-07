@@ -18,12 +18,13 @@ const isMac = process.platform === 'darwin';
 const isWindows = process.platform === 'win32';
 
 // path to server
-const nodePath = isProduction
-  ? path.join('file://', __dirname, '../', 'server/src/index.js')
-  : path.join('file://', __dirname, '../server/src/index.js');
+const nodePath = path.join('file://', __dirname, '../', 'server/index.cjs')
 
-// : path.join('file://', __dirname, '../server/src/index.ts');
-console.log('PATH = ', nodePath)
+if (!isProduction || true) {
+  console.log(`Electron running in ${env} environment`);
+  console.log(`Ontime server at ${nodePath} `);
+  process.traceProcessWarnings = true;
+}
 
 // path to icons
 const trayIcon = path.join(__dirname, './assets/background.png');
@@ -37,15 +38,22 @@ let splash;
 let tray = null;
 
 (async () => {
+
+  // in dev mode, we expect both UI and server to be running
+  if (!isProduction)  {
+    return
+  }
+
   try {
-    const loadDepPath = isProduction
-      ? path.join('file://', __dirname, '../', 'server/src/modules/loadDb.js')
-      : path.join('file://', __dirname, '../server/src/modules/loadDb.js');
-    console.log('DB PATH = ', loadDepPath)
+    // const loadDepPath = isProduction
+    //   ? path.join('file://', __dirname, '../', 'server/src/modules/loadDb.js')
+    //   : path.join('file://', __dirname, '../server/src/modules/loadDb.js');
+    // console.log('DB PATH = ', loadDepPath)
+    //
+    // // TODO: should this should be handled by process, not consumer
+    // const dbLoader = await import(loadDepPath);
 
-    const dbLoader = await import(loadDepPath);
-
-    await dbLoader.promise;
+    // await dbLoader.promise;
     const { startServer, startOSCServer } = await import(nodePath);
     // Start express server
     loaded = await startServer();
@@ -75,7 +83,6 @@ function appShutdown() {
   // terminate node service
   (async () => {
     const { shutdown } = await import(nodePath);
-    // Shutdown service
     await shutdown();
   })();
 

@@ -2,12 +2,12 @@ import fs from 'fs';
 import { networkInterfaces } from 'os';
 import { generateId } from 'ontime-utils';
 import { fileHandler } from '../utils/parser.js';
-import { resolveDbPath } from '../modules/loadDb.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { runtimeState } from '../stores/EventStore.js';
+import { resolveDbPath } from '../setup.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
