@@ -34,7 +34,7 @@ if (!isProduction) {
 initSentry(environment);
 
 // import socket provider
-const socket = socketProvider;
+const socketServer = socketProvider;
 
 // Create express APP
 const app = express();
@@ -103,7 +103,7 @@ const serverPort = 4001; // hardcoded for now
  */
 export const startOSCServer = async (overrideConfig = null) => {
   if (!oscInEnabled) {
-    socket.info('RX', 'OSC Input Disabled');
+    socketServer.info('RX', 'OSC Input Disabled');
     return;
   }
 
@@ -113,12 +113,12 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  socket.info('RX', `Starting OSC Server on port: ${oscInPort}`);
+  socketServer.info('RX', `Starting OSC Server on port: ${oscInPort}`);
   initiateOSC(oscSettings);
 };
 
 // create HTTP server
-const server = http.createServer(app);
+const expressServer = http.createServer(app);
 
 /**
  * Starts servers
@@ -127,14 +127,14 @@ const server = http.createServer(app);
 export const startServer = async () => {
   // Start server
   const returnMessage = `Ontime is listening on port ${serverPort}`;
-  server.listen(serverPort, '0.0.0.0');
+  expressServer.listen(serverPort, '0.0.0.0');
 
   // init socket controller
-  await socket.initServer(server);
-  socket.info('SERVER', 'Socket initialised');
+  await socketServer.initServer(expressServer);
+  socketServer.info('SERVER', 'Socket initialised');
 
-  socket.info('SERVER', returnMessage);
-  socket.startListener();
+  socketServer.info('SERVER', returnMessage);
+  socketServer.startListener();
   return returnMessage;
 };
 
@@ -158,25 +158,27 @@ export const startIntegrations = async (overrideConfig = null) => {
  * @param {number} exitCode
  * @return {Promise<void>}
  */
-export const shutdown = async (exitCode) => {
-  // shutdown express server
-  server.close();
+export const shutdown = async (exitCode = 0) => {
+  console.log(`Ontime shutting down with code ${exitCode}`);
 
+  expressServer.close();
   shutdownOSCServer();
   eventTimer.shutdown();
-  socket.shutdown();
-  process.exit(exitCode || 0);
+  socketServer.shutdown();
+  process.exit(exitCode);
 };
+
+process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
 
 process.on('unhandledRejection', async (error, promise) => {
   console.error(error, 'Error: unhandled rejection', promise);
-  socket.error('SERVER', 'Error: unhandled rejection');
+  socketServer.error('SERVER', 'Error: unhandled rejection');
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error, promise) => {
   console.error(error, 'Error: uncaught exception', promise);
-  socket.error('SERVER', 'Error: uncaught exception');
+  socketServer.error('SERVER', 'Error: uncaught exception');
   await shutdown(1);
 });
 
