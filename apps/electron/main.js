@@ -210,20 +210,8 @@ app.whenReady().then(() => {
   tray = new Tray(trayIcon);
 
   // Define context menu
-  const trayMenuTemplate = [
-    {
-      label: 'Show App (Alt + 1)',
-      click: () => {
-        win.show();
-        win.focus();
-      },
-    },
-    {
-      label: 'Shutdown',
-      click: () => askToQuit(),
-    },
-  ];
-
+  const { getTrayMenu } = require('./src/menu/trayMenu.js');
+  const trayMenuTemplate = getTrayMenu(bringToFront, askToQuit)
   const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
   tray.setContextMenu(trayContextMenu);
 });
