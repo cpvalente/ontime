@@ -40,27 +40,26 @@ export const isProduction = env === 'production' && !isTest;
 
 // =================================================
 // resolve path to external
-const sameModule = '../../';
-const siblingModule = '../../';
+const productionPath = '../../Resources/extraResources/';
+const devPath = '../../';
 
-export const uiPath = 'client/build/';
-export const resolvedPath = (): string => (isProduction ? sameModule : siblingModule);
+export const uiPath = 'client/';
+export const resolvedPath = (): string => (isProduction ? productionPath : devPath);
 
 // resolve file URL in both CJS and ESM (build and dev)
-const __dirname = fileURLToPath(import.meta.url)
-console.log('>>>>>>>>>>>>>>>', __dirname)
+if (import.meta.url) {
+  globalThis.__dirname = fileURLToPath(import.meta.url);
+}
 
 // path to server src folder
 export const currentDirectory = dirname(__dirname);
 
 const appPath = isTest ? '../' : getAppDataPath();
 const dbDirectory = join(appPath, isTest ? config.database.testdb : config.database.directory);
+
 // path to public db
 export const resolveDbPath = (): string => join(dbDirectory, config.database.filename);
 
 export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
   : join(currentDirectory, config.database.directory, config.database.filename);
-
-// Todo: both resolve the same?
-console.log('**', pathToStartDb, resolveDbPath())

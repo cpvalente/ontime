@@ -18,11 +18,11 @@ const isMac = process.platform === 'darwin';
 const isWindows = process.platform === 'win32';
 
 // path to server
-const nodePath = path.join('file://', __dirname, '../', 'server/index.cjs')
+const nodePath = path.join(__dirname, '../extraResources/server/index.cjs')
 
-if (!isProduction || true) {
+if (!isProduction) {
   console.log(`Electron running in ${env} environment`);
-  console.log(`Ontime server at ${nodePath} `);
+  console.log(`Ontime server at ${nodePath}`);
   process.traceProcessWarnings = true;
 }
 
@@ -45,16 +45,9 @@ let tray = null;
   }
 
   try {
-    // const loadDepPath = isProduction
-    //   ? path.join('file://', __dirname, '../', 'server/src/modules/loadDb.js')
-    //   : path.join('file://', __dirname, '../server/src/modules/loadDb.js');
-    // console.log('DB PATH = ', loadDepPath)
-    //
-    // // TODO: should this should be handled by process, not consumer
-    // const dbLoader = await import(loadDepPath);
+    const ontimeServer = require(nodePath)
+    const { startServer, startOSCServer } = ontimeServer;
 
-    // await dbLoader.promise;
-    const { startServer, startOSCServer } = await import(nodePath);
     // Start express server
     loaded = await startServer();
 
@@ -63,7 +56,6 @@ let tray = null;
   } catch (error) {
     loaded = error;
   }
-  console.log('initiated status: ', loaded)
 })();
 
 /**
@@ -82,8 +74,9 @@ function showNotification(title, text) {
 function appShutdown() {
   // terminate node service
   (async () => {
-    const { shutdown } = await import(nodePath);
-    await shutdown();
+    const ontimeServer = require(nodePath)
+    const { shutdown } = ontimeServer;
+    await shutdown(2);
   })();
 
   isQuitting = true;
@@ -92,24 +85,29 @@ function appShutdown() {
   app.quit();
 }
 
-function askToQuit() {
+function bringToFront() {
   win.show();
   win.focus();
+}
+
+function askToQuit() {
+  bringToFront();
   win.send('user-request-shutdown');
 }
 
 // Ensure there isn't another instance of the app running already
 const lock = app.requestSingleInstanceLock();
 if (!lock) {
-  dialog.showErrorBox('Multiple instances', 'An instance if the App is already running.');
+  dialog.showErrorBox('Multiple instances', 'An instance of the App is already running.');
   app.quit();
 } else {
   app.on('second-instance', () => {
     // Someone tried to run a second instance, we should focus our window.
     if (win) {
-      if (win.isMinimized()) win.restore();
-      win.show();
-      win.focus();
+      if (win.isMinimized()) {
+        win.restore();
+      }
+      bringToFront();
     }
   });
 }
@@ -165,13 +163,12 @@ app.whenReady().then(() => {
   // (available regardless of whether app is in focus)
   // bring focus to window
   globalShortcut.register('Alt+1', () => {
-    win.show();
-    win.focus();
+   bringToFront();
   });
 
-  // give the nodejs server some time
+  // cheat to schedule process
   setTimeout(() => {
-    // Load page served by node
+    // Load page served by node or use React dev run
     const clientUrl = isProduction
       ? electronConfig.reactAppUrl.production
       : electronConfig.reactAppUrl.development;
@@ -187,10 +184,10 @@ app.whenReady().then(() => {
       if (typeof loaded === 'string') {
         tray.setToolTip(loaded);
       } else {
-        tray.setToolTip('Initialising error: please restart ontime');
+        tray.setToolTip('Initialising error: please restart Ontime');
       }
     });
-  }, electronConfig.appIni.mainWindowWait);
+  }, 0);
 
   // recreate window if no others open
   app.on('activate', () => {
@@ -235,38 +232,34 @@ ipcMain.on('test-message', (event, arg) => {
 // Ask for main window reload
 // Test message
 ipcMain.on('reload', () => {
-  if (win) {
-    win.reload();
-  }
+    win?.reload();
 });
 
 // Terminate
 ipcMain.on('shutdown', () => {
-  console.log('Got IPC shutdown');
+  console.log('Electron got IPC shutdown');
   appShutdown();
 });
 
 // Window manipulation
 ipcMain.on('set-window', (event, arg) => {
-  console.log('Got IPC set-window', arg);
-
-  if (arg === 'to-max') {
-    // window full
-    win.maximize();
-  } else if (arg === 'to-tray') {
-    // window to tray
-    win.hide();
-  } else if (arg === 'show-dev') {
-    // Show dev tools
-    win.webContents.openDevTools({ mode: 'detach' });
+  switch (arg) {
+    case 'to-max':
+      win.maximize();
+      break;
+    case 'to-tray':
+      win.maximize();
+      break;
+    case 'show-dev':
+      win.webContents.openDevTools({ mode: 'detach' });
+      break;
+    default:
+      console.log('Electron unhandled window request', arg)
   }
 });
 
 // Open links external
 ipcMain.on('send-to-link', (event, arg) => {
-  console.log('Got IPC send-to-link', arg);
-
-  // send to help URL
   if (arg === 'help') {
     shell.openExternal(electronConfig.externalUrls.help);
   } else {

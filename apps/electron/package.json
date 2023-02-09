@@ -75,7 +75,7 @@
     "extraResources": [
       {
         "from": "../client/build",
-        "to": "client/",
+        "to": "extraResources/client/",
         "filter": [
           "**/*",
           "!**/{yarn.lock,yarn-error.log}",
@@ -87,7 +87,7 @@
       },
       {
         "from": "../server/dist/",
-        "to": "server/",
+        "to": "extraResources/server/",
         "filter": [
           "**/*",
           "!**/{yarn.lock,yarn-error.log}",

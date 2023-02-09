@@ -42,9 +42,8 @@
   "scripts": {
     "dev": "set NODE_ENV=development && nodemon --exec \"ts-node-esm\" ./src/index.ts",
     "dev:test": "set IS_TEST=true && nodemon --exec \"ts-node-esm\" ./src/index.ts",
-    "build": "esbuild src/index.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
-    "build2": "esbuild src/index.ts --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
-    "build3": "tsc",
+    "build": "esbuild src/app.ts --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
+    "build:debug": "esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "postinstall": "pnpm setdb",
     "lint": "eslint .",
     "test": "vitest",
