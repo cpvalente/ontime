@@ -4,7 +4,7 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 
-import { ONTIME_VERSION } from '../electron/version.mjs';
+import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
 export default defineConfig({
   plugins: [
@@ -14,7 +14,7 @@ export default defineConfig({
       org: 'carlos-valente',
       project: 'ontime',
       include: './build',
-      authToken: process.env.SENTRY_AUTH_TOKEN,
+      authToken: '087754a37bb947f2ab738dfa731267ffec52a9f3a14a42f48061e343d0332c2f',
       release: ONTIME_VERSION,
       deploy: {
         env: 'production',

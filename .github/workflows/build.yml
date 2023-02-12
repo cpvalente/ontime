@@ -21,34 +21,19 @@ jobs:
         with:
           node-version: 16
 
-      # React
-      - name: React - Install dependencies
-        run: yarn install --frozen-lockfile --network-timeout 300000
-        working-directory: ./client
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
 
-      - name: React - Build project
-        run: yarn build
-        working-directory: ./client
+      - name: Build project packages
+        run: turbo build
 
-      # Node server
-      - name: Server - Install dependencies
-        run: yarn install --frozen-lockfile --production --network-timeout 300000
-        working-directory: ./server/src
-
-      # App
-      - name: Electron - Install dependencies
-        shell: bash
-        run: yarn install --frozen-lockfile --network-timeout 300000 && yarn setdb
-        working-directory: ./server
       - name: Electron - Build app
-        run: yarn dist-mac
-        working-directory: ./server
+        run: turbo dist-mac
 
-      # Release
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./server/dist/ontime-macOS.dmg
+          files: ./electron/dist/ontime-macOS.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -65,34 +50,20 @@ jobs:
         with:
           node-version: 16
 
-      # React
-      - name: React - Install dependencies
-        run: yarn install --frozen-lockfile --network-timeout 300000
-        working-directory: ./client
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
 
-      - name: React - Build project
-        run: yarn build
-        working-directory: ./client
+      - name: Build project packages
+        run: turbo build
 
-      # Node server
-      - name: Server - Install dependencies
-        run: yarn install --frozen-lockfile --production --network-timeout 300000
-        working-directory: ./server/src
-
-      # App
-      - name: Electron - Install dependencies
-        shell: bash
-        run: yarn install --frozen-lockfile --network-timeout 300000 && yarn setdb
-        working-directory: ./server
       - name: Electron - Build app
-        run: yarn dist-win
-        working-directory: ./server
+        run: turbo dist-win
 
       # Release
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./server/dist/ontime-win64.exe
+          files: ./electron/dist/ontime-win64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -109,34 +80,20 @@ jobs:
         with:
           node-version: 16
 
-      # React
-      - name: React - Install dependencies
-        run: yarn install --frozen-lockfile --network-timeout 300000
-        working-directory: ./client
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
 
-      - name: React - Build project
-        run: yarn build
-        working-directory: ./client
+      - name: Build project packages
+        run: turbo build
 
-      # Node server
-      - name: Server - Install dependencies
-        run: yarn install --frozen-lockfile --production --network-timeout 300000
-        working-directory: ./server/src
-
-      # App
-      - name: Electron - Install dependencies
-        shell: bash
-        run: yarn install --frozen-lockfile --network-timeout 300000 && yarn setdb
-        working-directory: ./server
       - name: Electron - Build app
-        run: yarn dist-linux
-        working-directory: ./server
+        run: turbo dist-linux
 
       # Release
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./server/dist/ontime-linux.AppImage
+          files: ./electron/dist/ontime-linux.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -145,6 +102,7 @@ jobs:
     timeout-minutes: 20
     env:
       CI: ''
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -155,19 +113,14 @@ jobs:
         with:
           node-version: 16
 
-      # React
-      - name: React - Install dependencies
-        run: yarn install --network-timeout 300000
-        working-directory: ./client
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
 
-      - name: React - Build project
-        run: yarn build
-        working-directory: ./client
+      - name: Build project packages
+        run: turbo build
 
-      # Node server
-      - name: Server - Install dependencies
-        run: yarn install --frozen-lockfile --production --network-timeout 300000
-        working-directory: ./server/src
+      - name: Electron - Build app
+        run: turbo dist-mac
 
       # Login to docker
       - name: Login to Docker Hub
