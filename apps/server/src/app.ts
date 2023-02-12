@@ -4,12 +4,13 @@ import http from 'http';
 import cors from 'cors';
 
 // import utils
+import { join, resolve } from 'path';
+
 import { config } from './config/config.js';
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
-import { fileURLToPath } from 'url';
-import { ONTIME_VERSION } from '../../electron/version.mjs';
 import { initSentry } from './modules/sentry.js';
-import { dirname, join, resolve } from 'path';
+import { currentDirectory, environment, isProduction, resolvedPath, uiPath } from './setup.js';
+import { ONTIME_VERSION } from '../../electron/version.mjs';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
@@ -21,19 +22,16 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { socketProvider } from './classes/socket/SocketController.js';
 import { eventTimer } from './services/TimerService.js';
-import logThis from './testing.js';
+import { promise } from './modules/loadDb.js';
 
-// get environment
-const env = process.env.NODE_ENV || 'production';
-const filePath = fileURLToPath(import.meta.url);
-const currentDirectory = dirname(filePath);
-const isTest = process.env.IS_TEST;
+console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
-logThis('Testing typescript!');
+if (!isProduction) {
+  console.log(`Ontime running in ${environment} environment`);
+  console.log(`Ontime directory at ${currentDirectory} `);
+}
 
-initSentry(isTest ? 'test' : env);
-
-console.log(`Starting ontime version ${ONTIME_VERSION}`);
+initSentry(environment);
 
 // import socket provider
 const socket = socketProvider;
@@ -62,19 +60,10 @@ app.use('/playback', playbackRouter);
 app.use('/external', express.static(join(currentDirectory, 'external')));
 
 // serve static - react, in test mode we fetch the React app from module
-const resolvedPath = () => {
-  const sameModule = '../';
-  const siblingModule = '../../';
-  if (env === 'production' && !isTest) {
-    return sameModule;
-  }
-  return siblingModule;
-};
-
-app.use(express.static(join(currentDirectory, resolvedPath(), 'client/build')));
+app.use(express.static(join(currentDirectory, resolvedPath(), uiPath)));
 
 app.get('*', (req, res) => {
-  res.sendFile(resolve(currentDirectory, resolvedPath(), 'client', 'build', 'index.html'));
+  res.sendFile(resolve(currentDirectory, resolvedPath(), uiPath, 'index.html'));
 });
 
 // Implement catch all
@@ -91,6 +80,13 @@ app.use((error, response) => {
  * It can also be overridden on call
  *
  */
+(async () => {
+  try {
+    await promise;
+  } catch (error) {
+    console.log(error);
+  }
+})();
 
 const { osc } = DataProvider.getData();
 const oscIP = osc?.targetIP || config.osc.targetIP;
@@ -188,5 +184,3 @@ process.on('uncaughtException', async (error, promise) => {
 process.once('SIGHUP', async () => shutdown(0));
 process.once('SIGINT', async () => shutdown(0));
 process.once('SIGTERM', async () => shutdown(0));
-
-export { server, app };
