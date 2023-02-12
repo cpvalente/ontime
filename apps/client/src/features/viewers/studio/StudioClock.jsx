@@ -18,8 +18,8 @@ import { formatTime, stringFromMillis } from '../../../common/utils/time';
 import './StudioClock.scss';
 
 const formatOptions = {
-  showSeconds: false,
-  format: 'hh:mm',
+  showSeconds: true,
+  format: 'hh:mm:ss',
 };
 
 StudioClock.propTypes = {

@@ -81,8 +81,8 @@ $cyan-idle: #0aa;
 
     .studio-timer {
       color: $red-active;
-      font-size: calc(#{$clock-size} / 3);
-      margin-top: calc(50% - calc(#{$clock-size} / 7));
+      font-size: calc(#{$clock-size} / 4.6);
+      margin-top: calc(50% - calc(#{$clock-size} / 11));
       line-height: 0.8em;
     }
 
