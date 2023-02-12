@@ -3,9 +3,8 @@ import { createRoot } from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 
-import { ONTIME_VERSION } from '../../electron/version.mjs';
-
 import App from './App';
+import { ONTIME_VERSION } from './ONTIME_VERSION';
 
 import './index.scss';
 

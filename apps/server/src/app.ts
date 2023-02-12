@@ -10,7 +10,7 @@ import { config } from './config/config.js';
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { initSentry } from './modules/sentry.js';
 import { currentDirectory, environment, isProduction, resolvedPath, uiPath } from './setup.js';
-import { ONTIME_VERSION } from '../../electron/version.mjs';
+import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';

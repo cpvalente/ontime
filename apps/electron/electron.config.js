@@ -1,6 +1,6 @@
 module.exports = {
   appIni: {
-    mainWindowWait: 2000,
+    shutdownCode: 99,
   },
   reactAppUrl: {
     development: 'http://localhost:3000/editor',
@@ -9,4 +9,10 @@ module.exports = {
   externalUrls: {
     help: 'https://cpvalente.gitbook.io/ontime/',
   },
+  server: {
+    pathToEntrypoint: '../extraResources/server/index.cjs'
+  },
+  assets: {
+    pathToAssets: './assets/',
+  }
 };

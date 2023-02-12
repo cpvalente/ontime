@@ -18,7 +18,9 @@ const isMac = process.platform === 'darwin';
 const isWindows = process.platform === 'win32';
 
 // path to server
-const nodePath = path.join(__dirname, '../extraResources/server/index.cjs')
+const nodePath = isProduction
+  ? path.join(__dirname, electronConfig.server.pathToEntrypoint)
+  : path.join(__dirname, '../server/dist/index.cjs');
 
 if (!isProduction) {
   console.log(`Electron running in ${env} environment`);
@@ -27,8 +29,8 @@ if (!isProduction) {
 }
 
 // path to icons
-const trayIcon = path.join(__dirname, './assets/background.png');
-const appIcon = path.join(__dirname, './assets/logo.png');
+const trayIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'background.png');
+const appIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'logo.png');
 let loaded = 'Nothing loaded';
 let isQuitting = false;
 
@@ -74,9 +76,11 @@ function showNotification(title, text) {
 function appShutdown() {
   // terminate node service
   (async () => {
+    console.log('asking for shutdown 1', nodePath)
     const ontimeServer = require(nodePath)
+    console.log('asking for shutdown 2', ontimeServer)
     const { shutdown } = ontimeServer;
-    await shutdown(2);
+    await shutdown(electronConfig.appIni.shutdownCode);
   })();
 
   isQuitting = true;

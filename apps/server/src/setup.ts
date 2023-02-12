@@ -55,10 +55,10 @@ if (import.meta.url) {
 export const currentDirectory = dirname(__dirname);
 
 const appPath = isTest ? '../' : getAppDataPath();
-const dbDirectory = join(appPath, isTest ? config.database.testdb : config.database.directory);
 
 // path to public db
-export const resolveDbPath = (): string => join(dbDirectory, config.database.filename);
+export const resolveDbDirectory = join(appPath, isTest ? config.database.testdb : config.database.directory);
+export const resolveDbPath = join(resolveDbDirectory, config.database.filename);
 
 export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
