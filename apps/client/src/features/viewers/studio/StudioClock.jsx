@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
 
@@ -18,7 +19,7 @@ import { formatTime, stringFromMillis } from '../../../common/utils/time';
 import './StudioClock.scss';
 
 const formatOptions = {
-  showSeconds: true,
+  showSeconds: false,
   format: 'hh:mm:ss',
 };
 
@@ -45,6 +46,10 @@ export default function StudioClock(props) {
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
   const MAX_TITLES = 12;
+
+  const [searchParams] = useSearchParams();
+  const showSeconds = searchParams.get('seconds');
+  formatOptions.showSeconds = Boolean(showSeconds);
 
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
@@ -73,7 +78,7 @@ export default function StudioClock(props) {
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
       <div className='clock-container'>
-        <div className='studio-timer'>{clock}</div>
+        <div className={`${showSeconds ? 'studio-timer-seconds' : 'studio-timer'}`}>{clock}</div>
         <div
           ref={titleRef}
           className='next-title'
@@ -81,8 +86,7 @@ export default function StudioClock(props) {
         >
           {title.titleNext}
         </div>
-        <div
-          className={isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
+        <div className={isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
           {selectedId != null && formatDisplay(time.current)}
         </div>
         <div className='clock-indicators'>
