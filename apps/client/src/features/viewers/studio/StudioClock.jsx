@@ -9,11 +9,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
-import {
-  formatEventList,
-  getEventsWithDelay,
-  trimEventlist,
-} from '../../../common/utils/eventsManager';
+import { formatEventList, getEventsWithDelay, trimEventlist } from '../../../common/utils/eventsManager';
 import { formatTime, stringFromMillis } from '../../../common/utils/time';
 
 import './StudioClock.scss';
@@ -120,10 +116,7 @@ export default function StudioClock(props) {
         <div className='schedule'>
           <ul>
             {schedule.map((s) => (
-              <li
-                key={s.id}
-                className={s.isNow ? 'now' : s.isNext ? 'next' : ''}
-              >
+              <li key={s.id} className={s.isNow ? 'now' : s.isNext ? 'next' : ''}>
                 <div className='user-colour' style={{ backgroundColor: `${s.colour !== '' ? s.colour : ''}` }} />
                 {`${s.time} ${s.title}`}
               </li>
