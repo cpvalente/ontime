@@ -16,7 +16,7 @@ import './StudioClock.scss';
 
 const formatOptions = {
   showSeconds: false,
-  format: 'hh:mm:ss',
+  format: 'hh:mm',
 };
 
 StudioClock.propTypes = {
@@ -46,6 +46,7 @@ export default function StudioClock(props) {
   const [searchParams] = useSearchParams();
   const showSeconds = searchParams.get('seconds');
   formatOptions.showSeconds = Boolean(showSeconds);
+  formatOptions.format = `hh:mm${formatOptions.showSeconds ? 'mm' : ''}`;
 
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
@@ -74,7 +75,7 @@ export default function StudioClock(props) {
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
       <div className='clock-container'>
-        <div className={`${showSeconds ? 'studio-timer-seconds' : 'studio-timer'}`}>{clock}</div>
+        <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
           ref={titleRef}
           className='next-title'
