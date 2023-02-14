@@ -5,34 +5,13 @@ node_modules/
 /.pnp
 .pnp.js
 
-# testing
-coverage/
-*.mp4
-
-# production
-build/
-dist/
-
 # misc
 .DS_Store
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+*.local
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# working stuff
-_SS/
-db backup.json
-server/src/preloaded-db/db.json
-server/src/models/db.json
-TODO.md
-ontime-db/
-ontime-external/
 
 # vscode stuff
 .vscode/*
@@ -40,3 +19,28 @@ ontime.code-workspace
 
 # webstorm stuff
 .idea/*
+
+# turborepo stuff
+.turbo
+
+# testing
+test-results
+playwright-report
+/playwright/.cache/
+
+# production
+build/
+dist/
+
+# working stuff
+**/TODO.md
+
+# docker utils
+ontime-db
+ontime-external/
+
+# working database
+apps/server/src/preloaded-db/db.json
+
+# versioning file
+**/ONTIME_VERSION.js

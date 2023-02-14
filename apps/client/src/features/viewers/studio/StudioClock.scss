@@ -1,0 +1,186 @@
+@use '../../../theme/viewerDefs' as *;
+
+@font-face {
+  font-family: "digital-clock";
+  src: local('digital-7'), url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype') ;
+}
+
+/* =============== CLOCK STUFF ==================*/
+
+$clock-size: 90vh;
+$size-hours: min(3vh, 20px);
+$half-hours: min(1.5vh, 10px);
+$size-min: min(2.5vh, 18px);
+$half-min: min(1.25vh, 9px);
+$red-active: #c53030;
+$red-idle: #300000;
+$cyan-active: #0ff;
+$cyan-idle: #0aa;
+
+.studio-clock {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100vh;
+  padding: 1vw;
+
+  background: var(--background-color-override, #000);
+
+  display: grid;
+  grid-template-columns: 95vh 1fr;
+  gap: 2vw;
+  grid-template-areas: "clck schd";
+
+  .clock-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    grid-area: clck;
+    width: $clock-size;
+    height: $clock-size;
+    aspect-ratio: 1;
+    text-align: center;
+    position: relative;
+    margin: 4vh auto;
+    font-family: digital-clock, monospace;
+    text-transform: uppercase;
+
+    .clock-indicators {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+
+      .min,
+      .hours {
+        border-radius: 50%;
+        position: absolute;
+        background: $red-idle;
+
+        &--active {
+          background: $red-active;
+          box-shadow: 0 0 10px 2px rgba(255, 0, 0, 0.25);
+        }
+      }
+
+      .min {
+        min-height: $size-min;
+        width: $size-min;
+        top: calc(50% - #{$half_min});
+        left: calc(50% - #{$half_min});
+      }
+
+      .hours {
+        min-height: $size-hours;
+        width: $size-hours;
+        top: calc(50% - #{$half_hours});
+        left: calc(50% - #{$half_hours});
+      }
+    }
+
+    .studio-timer {
+      color: $red-active;
+      font-size: calc(#{$clock-size} / 3);
+      margin-top: calc(50% - calc(#{$clock-size} / 7));
+      line-height: 0.8em;
+
+      &--with-seconds {
+        font-size: calc(#{$clock-size} / 4.6);
+        margin-top: calc(50% - calc(#{$clock-size} / 11));
+    }
+    }
+
+
+
+    .next-title:after,
+    .next-title:after,
+    .next-countdown--overtime:after {
+      content: '\200b';
+    }
+
+    .next-title {
+      color: $cyan-idle;
+      text-align: center;
+    }
+
+    .next-countdown {
+      font-size: 10vh;
+      line-height: 1em;
+      color: $cyan-active;
+
+      &--overtime {
+        color: darken($red-active, 10%);
+      }
+    }
+
+    .next-countdown::before {
+      content: '-';
+    }
+  }
+
+  /* ============= SCHEDULE STUFF =================*/
+
+  .schedule-container {
+    grid-area: schd;
+    margin: 4vh 0;
+    font-family: digital-clock, monospace;
+    text-transform: uppercase;
+
+    .onAir {
+      padding-bottom: 2vh;
+      font-size: 15vh;
+      line-height: 0.9em;
+      color: $red-active;
+
+      &--idle {
+        color: $red-idle;
+      }
+    }
+
+    .schedule {
+      ul {
+        color: $cyan-idle;
+        font-size: 3.75vh;
+        line-height: 1em;
+        list-style: none;
+      }
+
+      li {
+        margin-bottom: 1.5vh;
+        padding-left: 0.25em;
+        display: flex;
+        align-items: center;
+      }
+
+      .now {
+        color: $cyan-active;
+      }
+
+      .next {
+        color: $red-active;
+      }
+
+      .user-colour {
+        width: 0.35em;
+        height: 0.35em;
+        aspect-ratio: 1;
+        background-color: $red-idle;
+        margin-right: 0.35em;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  .studio-clock {
+    display: grid;
+    grid-template-areas: "clck";
+    grid-template-columns: 100%;
+    place-content: center;
+
+    .schedule-container {
+      display: none;
+    }
+  }
+}
