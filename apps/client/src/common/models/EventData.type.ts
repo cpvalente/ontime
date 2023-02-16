@@ -1,15 +1,17 @@
 export type EventDataType = {
   title: string;
-  url: string;
+  publicUrl: string;
   publicInfo: string;
+  backstageUrl: string;
   backstageInfo: string;
   endMessage: string;
 };
 
 export const eventDataPlaceholder: EventDataType = {
   title: '',
-  url: '',
+  publicUrl: '',
   publicInfo: '',
+  backstageUrl: '',
   backstageInfo: '',
   endMessage: '',
 };

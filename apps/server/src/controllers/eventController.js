@@ -16,8 +16,9 @@ export const postEvent = async (req, res) => {
   try {
     const newEvent = removeUndefined({
       title: req.body?.title,
-      url: req.body?.url,
+      publicUrl: req.body?.publicUrl,
       publicInfo: req.body?.publicInfo,
+      backstageUrl: req.body?.backstageUrl,
       backstageInfo: req.body?.backstageInfo,
       endMessage: req.body?.endMessage,
     });

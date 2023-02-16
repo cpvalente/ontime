@@ -102,19 +102,19 @@ export default function SettingsModal() {
           </div>
           <div className={style.hSeparator}>Additional Screen Info</div>
           <div className={style.spacedEntry}>
-            <FormLabel htmlFor='url'>
-              Event URL
+            <FormLabel htmlFor='pubUrl'>
+              Public URL
               <span className={style.labelNote}>
                 <br />
-                Shown as a QR code in some views
+                QR code to be shown on public screens
               </span>
             </FormLabel>
             <Input
               {...inputProps}
-              name='url'
+              name='pubUrl'
               placeholder='www.onsite.no'
-              value={formData.url}
-              onChange={(event) => handleChange('url', event.target.value)}
+              value={formData.publicUrl}
+              onChange={(event) => handleChange('publicUrl', event.target.value)}
             />
           </div>
           <div className={style.spacedEntry}>
@@ -131,6 +131,22 @@ export default function SettingsModal() {
               placeholder='Information to be shown on public screens'
               value={formData.publicInfo}
               onChange={(event) => handleChange('publicInfo', event.target.value)}
+            />
+          </div>
+          <div className={style.spacedEntry}>
+            <FormLabel htmlFor='backstagekUrl'>
+              Backstage URL
+              <span className={style.labelNote}>
+                <br />
+                QR to be shown on backstage screens
+              </span>
+            </FormLabel>
+            <Input
+              {...inputProps}
+              name='backstageUrl'
+              placeholder='www.onsite.no'
+              value={formData.backstageurl}
+              onChange={(event) => handleChange('backstageUrl', event.target.value)}
             />
           </div>
           <div className={style.spacedEntry}>
