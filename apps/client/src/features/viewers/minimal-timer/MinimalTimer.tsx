@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { EventDataType } from 'common/models/EventData.type';
 import { useAtom } from 'jotai';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -18,7 +19,7 @@ interface MinimalTimerProps {
   pres: PresenterMessageType;
   time: TimeManagerType;
   viewSettings: ViewSettingsType;
-  general: object;
+  general: EventDataType;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
@@ -125,6 +126,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   userOptions.hideMessagesOverlay = Boolean(hideMessagesOverlay);
 
   const hideEndMessage = searchParams.get('hideendmessage');
+  userOptions.hideEndMessage = Boolean(hideEndMessage);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';

@@ -11,4 +11,5 @@ export type OverridableOptions = {
   hideNav?: boolean;
   hideOvertime?: boolean;
   hideMessagesOverlay?: boolean;
-}
+  hideEndMessage?: boolean;
+};
