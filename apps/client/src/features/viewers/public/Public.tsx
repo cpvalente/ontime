@@ -64,7 +64,6 @@ export default function Public(props) {
       </div>
 
       <div className='now-container'>
-
         <AnimatePresence>
           {publicTitle.showNow && (
             <motion.div
@@ -106,29 +105,21 @@ export default function Public(props) {
         </AnimatePresence>
       </div>
 
-      <ScheduleProvider
-        events={events}
-        selectedEventId={publicSelectedId}
-      >
+      <ScheduleProvider events={events} selectedEventId={publicSelectedId}>
         <ScheduleNav className='schedule-nav-container' />
         <Schedule className='schedule-container' />
       </ScheduleProvider>
 
-      <div
-        className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
+      <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
         <div className='label'>Public message</div>
         <div className='message'>{publ.text}</div>
       </div>
 
       <div className='info'>
         <div className='qr'>
-          {general.url != null && general.url !== '' && (
-            <QRCode value={general.url} size={qrSize} level='L' />
-          )}
+          {general.url != null && general.url !== '' && <QRCode value={general.url} size={qrSize} level='L' />}
         </div>
-        {general.backstageInfo && (
-          <div className='info__message'>{general.backstageInfo}</div>
-        )}
+        {general.backstageInfo && <div className='info__message'>{general.backstageInfo}</div>}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ export type EventDataType = {
   publicInfo: string;
   backstageInfo: string;
   endMessage: string;
-}
+};
 
 export const eventDataPlaceholder: EventDataType = {
   title: '',

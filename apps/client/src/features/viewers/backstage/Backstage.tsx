@@ -83,12 +83,7 @@ export default function Backstage(props) {
         </div>
       </div>
 
-      <ProgressBar
-        className='progress-container'
-        now={time.current}
-        complete={time.duration}
-        hidden={!showProgress}
-      />
+      <ProgressBar className='progress-container' now={time.current} complete={time.duration} hidden={!showProgress} />
 
       <div className='now-container'>
         <AnimatePresence>
@@ -146,30 +141,21 @@ export default function Backstage(props) {
         </AnimatePresence>
       </div>
 
-      <ScheduleProvider
-        events={filteredEvents}
-        selectedEventId={selectedId}
-        isBackstage
-      >
+      <ScheduleProvider events={filteredEvents} selectedEventId={selectedId} isBackstage>
         <ScheduleNav className='schedule-nav-container' />
         <Schedule className='schedule-container' />
       </ScheduleProvider>
 
-      <div
-        className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
+      <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
         <div className='label'>Public message</div>
         <div className='message'>{publ.text}</div>
       </div>
 
       <div className='info'>
         <div className='qr'>
-          {general.url != null && general.url !== '' && (
-            <QRCode value={general.url} size={qrSize} level='L' />
-          )}
+          {general.url != null && general.url !== '' && <QRCode value={general.url} size={qrSize} level='L' />}
         </div>
-        {general.backstageInfo && (
-          <div className='info__message'>{general.backstageInfo}</div>
-        )}
+        {general.backstageInfo && <div className='info__message'>{general.backstageInfo}</div>}
       </div>
     </div>
   );

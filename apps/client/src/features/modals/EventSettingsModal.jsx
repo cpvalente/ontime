@@ -45,7 +45,7 @@ export default function SettingsModal() {
       try {
         await postEvent(formData);
       } catch (error) {
-        emitError(`Error saving event settings: ${error}`)
+        emitError(`Error saving event settings: ${error}`);
       } finally {
         await refetch();
         setChanged(false);
@@ -53,7 +53,7 @@ export default function SettingsModal() {
 
       setSubmitting(false);
     },
-    [emitError, formData, refetch]
+    [emitError, formData, refetch],
   );
 
   /**
@@ -69,12 +69,15 @@ export default function SettingsModal() {
    * @param {string} field - object parameter to update
    * @param {string} value - new object parameter value
    */
-  const handleChange = useCallback((field, value) => {
-    const temp = { ...formData };
-    temp[field] = value;
-    setFormData(temp);
-    setChanged(true);
-  },[formData]);
+  const handleChange = useCallback(
+    (field, value) => {
+      const temp = { ...formData };
+      temp[field] = value;
+      setFormData(temp);
+      setChanged(true);
+    },
+    [formData],
+  );
 
   return (
     <ModalBody className={style.modalBody}>
@@ -165,12 +168,7 @@ export default function SettingsModal() {
             />
           </div>
         </div>
-        <SubmitContainer
-          revert={revert}
-          submitting={submitting}
-          changed={changed}
-          status={status}
-        />
+        <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
       </form>
     </ModalBody>
   );
