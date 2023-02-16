@@ -132,6 +132,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isPlaying = time.playback !== 'pause';
   const isNegative = (time.current ?? 0) < 0;
   const showFinished = isNegative && !userOptions?.hideOvertime;
+  const ShowEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;
 
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
 
@@ -162,7 +163,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
           <div className='message'>{pres.text}</div>
         </div>
       )}
-      {time.finished && general.endMessage && !hideEndMessage ? (
+      {ShowEndMessage ? (
         <div className='end-message'>{general.endMessage}</div>
       ) : (
         <div
