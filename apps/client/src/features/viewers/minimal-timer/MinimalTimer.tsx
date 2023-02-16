@@ -18,10 +18,11 @@ interface MinimalTimerProps {
   pres: PresenterMessageType;
   time: TimeManagerType;
   viewSettings: ViewSettingsType;
+  general: object;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
-  const { pres, time, viewSettings } = props;
+  const { pres, time, viewSettings, general } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
   const [isMirrored] = useAtom(mirrorViewersAtom);
@@ -123,6 +124,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideMessagesOverlay = searchParams.get('hidemessages');
   userOptions.hideMessagesOverlay = Boolean(hideMessagesOverlay);
 
+  const hideEndMessage = searchParams.get('hideendmessage');
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
   const isNegative = (time.current ?? 0) < 0;
@@ -157,19 +160,23 @@ export default function MinimalTimer(props: MinimalTimerProps) {
           <div className='message'>{pres.text}</div>
         </div>
       )}
-      <div
-        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`}
-        style={{
-          color: userOptions.textColour,
-          fontSize: `${(89 / (stageTimerCharacters - 1)) * (userOptions.size || 1)}vw`,
-          fontFamily: userOptions.font,
-          top: userOptions.top,
-          left: userOptions.left,
-          backgroundColor: userOptions.textBackground,
-        }}
-      >
-        {stageTimer}
-      </div>
+      {time.finished && general.endMessage && !hideEndMessage ? (
+        <div className='end-message'>{general.endMessage}</div>
+      ) : (
+        <div
+          className={`timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`}
+          style={{
+            color: userOptions.textColour,
+            fontSize: `${(89 / (stageTimerCharacters - 1)) * (userOptions.size || 1)}vw`,
+            fontFamily: userOptions.font,
+            top: userOptions.top,
+            left: userOptions.left,
+            backgroundColor: userOptions.textBackground,
+          }}
+        >
+          {stageTimer}
+        </div>
+      )}
     </div>
   );
 }
