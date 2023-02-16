@@ -27,8 +27,9 @@ export default function SettingsModal() {
 
     setFormData({
       title: data.title,
-      url: data.url,
+      publicUrl: data.publicUrl,
       publicInfo: data.publicInfo,
+      backstageUrl: data.backstageUrl,
       backstageInfo: data.backstageInfo,
       endMessage: data.endMessage,
     });
@@ -145,7 +146,7 @@ export default function SettingsModal() {
               {...inputProps}
               name='backstageUrl'
               placeholder='www.onsite.no'
-              value={formData.backstageurl}
+              value={formData.backstageUrl}
               onChange={(event) => handleChange('backstageUrl', event.target.value)}
             />
           </div>
