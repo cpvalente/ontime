@@ -153,16 +153,12 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     >
       <NavigationMenu />
       {!hideMessagesOverlay && (
-        <div
-          className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}
-        >
+        <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
           <div className='message'>{pres.text}</div>
         </div>
       )}
       <div
-        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${
-          showFinished ? 'timer--finished' : ''
-        }`}
+        className={`timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`}
         style={{
           color: userOptions.textColour,
           fontSize: `${(89 / (stageTimerCharacters - 1)) * (userOptions.size || 1)}vw`,
