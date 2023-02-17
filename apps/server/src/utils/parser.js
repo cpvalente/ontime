@@ -292,8 +292,7 @@ export const validateEvent = (eventArgs) => {
 
     const e = eventArgs;
     const d = eventDef;
-    const start =
-      e.timeStart != null && typeof e.timeStart === 'number' ? e.timeStart : d.timeStart;
+    const start = e.timeStart != null && typeof e.timeStart === 'number' ? e.timeStart : d.timeStart;
     const end = e.timeEnd != null && typeof e.timeEnd === 'number' ? e.timeEnd : d.timeEnd;
 
     event = {
@@ -344,9 +343,7 @@ export const fileHandler = async (file) => {
     try {
       const excelData = xlsx
         .parse(file, { cellDates: true })
-        .find(
-          ({ name }) => name.toLowerCase() === 'ontime' || name.toLowerCase() === 'event schedule'
-        );
+        .find(({ name }) => name.toLowerCase() === 'ontime' || name.toLowerCase() === 'event schedule');
 
       // we only look at worksheets called ontime or event schedule
       if (excelData?.data) {
@@ -379,7 +376,7 @@ export const fileHandler = async (file) => {
       return { error: true, message: 'Error parsing JSON file' };
     }
 
-    if (uploadedJson.settings.version === 1) {
+    if (uploadedJson.settings.version === 2) {
       try {
         res.data = await parseJson(uploadedJson);
         res.message = 'success';

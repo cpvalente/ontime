@@ -27,9 +27,8 @@ export const poll = async (req, res) => {
 export const dbDownload = async (req, res) => {
   const { title } = DataProvider.getEventData();
   const fileTitle = title || 'ontime data';
-  const dbInDisk = resolveDbPath();
 
-  res.download(dbInDisk, `${fileTitle}.json`, (err) => {
+  res.download(resolveDbPath, `${fileTitle}.json`, (err) => {
     if (err) {
       res.status(500).send({
         message: `Could not download the file: ${err}`,
