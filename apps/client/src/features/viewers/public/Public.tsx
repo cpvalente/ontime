@@ -116,11 +116,7 @@ export default function Public(props) {
       </div>
 
       <div className='info'>
-        <div className='qr'>
-          {general.publicUrl != null && general.publicUrl !== '' && (
-            <QRCode value={general.publicUrl} size={qrSize} level='L' />
-          )}
-        </div>
+        <div className='qr'>{general.publicUrl && <QRCode value={general.publicUrl} size={qrSize} level='L' />}</div>
         {general.publicInfo && <div className='info__message'>{general.publicInfo}</div>}
       </div>
     </div>

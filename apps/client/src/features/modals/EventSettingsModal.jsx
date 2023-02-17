@@ -103,7 +103,7 @@ export default function SettingsModal() {
           </div>
           <div className={style.hSeparator}>Additional Screen Info</div>
           <div className={style.spacedEntry}>
-            <FormLabel htmlFor='pubUrl'>
+            <FormLabel htmlFor='publicUrl'>
               Public URL
               <span className={style.labelNote}>
                 <br />
@@ -112,7 +112,7 @@ export default function SettingsModal() {
             </FormLabel>
             <Input
               {...inputProps}
-              name='pubUrl'
+              name='publicUrl'
               placeholder='www.onsite.no'
               value={formData.publicUrl}
               onChange={(event) => handleChange('publicUrl', event.target.value)}
@@ -135,7 +135,7 @@ export default function SettingsModal() {
             />
           </div>
           <div className={style.spacedEntry}>
-            <FormLabel htmlFor='backstagekUrl'>
+            <FormLabel htmlFor='backstageUrl'>
               Backstage URL
               <span className={style.labelNote}>
                 <br />

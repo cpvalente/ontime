@@ -153,9 +153,7 @@ export default function Backstage(props) {
 
       <div className='info'>
         <div className='qr'>
-          {general.backstageUrl != null && general.backstageUrl !== '' && (
-            <QRCode value={general.backstageUrl} size={qrSize} level='L' />
-          )}
+          {general.backstageUrl && <QRCode value={general.backstageUrl} size={qrSize} level='L' />}
         </div>
         {general.backstageInfo && <div className='info__message'>{general.backstageInfo}</div>}
       </div>
