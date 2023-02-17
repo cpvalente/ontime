@@ -384,7 +384,7 @@ export const fileHandler = async (file) => {
       return { error: true, message: 'Error parsing JSON file' };
     }
 
-    if (uploadedJson.settings.version === 1) {
+    if (uploadedJson.settings.version === 2) {
       try {
         res.data = await parseJson(uploadedJson);
         res.message = 'success';
