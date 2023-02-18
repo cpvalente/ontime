@@ -43,7 +43,7 @@ export const useEventAction = () => {
     startTimeIsLastEnd?: boolean;
     lastEventId?: string;
     after?: string;
-  }
+  };
 
   /**
    * Adds an event to rundown
@@ -51,7 +51,6 @@ export const useEventAction = () => {
   const addEvent = useCallback(
     async (event: Partial<OntimeRundownEntry>, options?: AddOptions) => {
       const newEvent: Partial<OntimeRundownEntry> = { ...event };
-
 
       // ************* CHECK OPTIONS
       // there is an option to pass an index of an array to use as start time
@@ -91,7 +90,7 @@ export const useEventAction = () => {
         // @ts-expect-error we know that the event here is one of the defined types
         await _addEventMutation.mutateAsync(newEvent);
       } catch (error) {
-        if(!axios.isAxiosError(error)){
+        if (!axios.isAxiosError(error)) {
           emitError(`Error fetching data: ${(error as AxiosError).message}`);
         } else {
           emitError(`Error fetching data: ${error}`);
@@ -140,12 +139,11 @@ export const useEventAction = () => {
       try {
         await _updateEventMutation.mutateAsync(event);
       } catch (error) {
-        if(!axios.isAxiosError(error)){
+        if (!axios.isAxiosError(error)) {
           emitError(`Error updating event: ${(error as AxiosError).message}`);
         } else {
           emitError(`Error updating event: ${error}`);
         }
-
       }
     },
     [_updateEventMutation, emitError],
@@ -191,8 +189,8 @@ export const useEventAction = () => {
     async (eventId: string) => {
       try {
         await _deleteEventMutation.mutateAsync(eventId);
-      } catch (error)  {
-        if(!axios.isAxiosError(error)){
+      } catch (error) {
+        if (!axios.isAxiosError(error)) {
           emitError(`Error deleting event: ${(error as AxiosError).message}`);
         } else {
           emitError(`Error deleting event: ${error}`);
@@ -240,7 +238,7 @@ export const useEventAction = () => {
     try {
       await _deleteAllEventsMutation.mutateAsync();
     } catch (error) {
-      if(!axios.isAxiosError(error)){
+      if (!axios.isAxiosError(error)) {
         emitError(`Error deleting events: ${(error as AxiosError).message}`);
       } else {
         emitError(`Error deleting events: ${error}`);
@@ -267,7 +265,7 @@ export const useEventAction = () => {
       try {
         await _applyDelayMutation.mutateAsync(delayEventId);
       } catch (error) {
-        if(!axios.isAxiosError(error)){
+        if (!axios.isAxiosError(error)) {
           emitError(`Error applying delay: ${(error as AxiosError).message}`);
         } else {
           emitError(`Error applying delay: ${error}`);
@@ -325,7 +323,7 @@ export const useEventAction = () => {
         };
         await _reorderEventMutation.mutateAsync(reorderObject);
       } catch (error) {
-        if(!axios.isAxiosError(error)){
+        if (!axios.isAxiosError(error)) {
           emitError(`Error re-ordering event: ${(error as AxiosError).message}`);
         } else {
           emitError(`Error re-ordering event: ${error}`);
