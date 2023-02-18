@@ -4,6 +4,7 @@ export const event = {
   presenter: '',
   note: '',
   timeType: 'start-end',
+  countdownStyle: 'count-down',
   timeStart: 0,
   timeEnd: 0,
   duration: 0,

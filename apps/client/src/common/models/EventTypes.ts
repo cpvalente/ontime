@@ -27,6 +27,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   presenter: string;
   note: string;
   timeType?: string;
+  countdownStyle: string;
   timeStart: number;
   timeEnd: number;
   duration: number;

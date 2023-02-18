@@ -84,7 +84,8 @@ export default function EventEditor() {
     [emitError, event, updateEvent],
   );
 
-  const timerValidationHandler = useCallback((entry: TimeEntryField, val: number) => {
+  const timerValidationHandler = useCallback(
+    (entry: TimeEntryField, val: number) => {
       if (!event) {
         return;
       }
@@ -97,7 +98,15 @@ export default function EventEditor() {
     [event, emitWarning],
   );
 
-  const togglePublic = useCallback((currentValue: boolean) => {
+  const handleChange = useCallback(
+    (field: string, value: string) => {
+      updateEvent({ id: event.id, [field]: value });
+    },
+    [event, updateEvent],
+  );
+
+  const togglePublic = useCallback(
+    (currentValue: boolean) => {
       if (!event) {
         return;
       }
@@ -111,9 +120,7 @@ export default function EventEditor() {
   }
 
   const delayed = delay !== 0;
-  const addedTime = delayed
-    ? `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))} minutes`
-    : null;
+  const addedTime = delayed ? `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))} minutes` : null;
   const newStart = delayed ? `New start ${stringFromMillis(event.timeStart + delay)}` : null;
   const newEnd = delayed ? `New end ${stringFromMillis(event.timeEnd + delay)}` : null;
 
@@ -160,25 +167,31 @@ export default function EventEditor() {
         </div>
         <div className={style.timeSettings}>
           <label className={style.inputLabel}>Timer type</label>
-          <Select size='sm' variant='ontime'>
-            <option value='option1'>Start to end</option>
-            <option value='option2'>Duration</option>
-            <option value='option3'>Follow previous</option>
-            <option value='option3'>Start only</option>
+          <Select
+            size='sm'
+            name='timeType'
+            value={event.timeType}
+            onChange={(event) => handleChange('timeType', event.target.value)}
+          >
+            <option value='start-end'>Start to end</option>
+            <option value='duration'>Duration</option>
+            <option value='follow-previous'>Follow previous</option>
+            <option value='start-only'>Start only</option>
           </Select>
           <label className={style.inputLabel}>Countdown style</label>
-          <Select size='sm' variant='ontime'>
-            <option value='option1'>Count down</option>
-            <option value='option2'>Count up</option>
-            <option value='option3'>Clock</option>
+          <Select
+            size='sm'
+            name='countdownStyle'
+            value={event.countdownStyle}
+            onChange={(event) => handleChange('countdownStyle', event.target.value)}
+          >
+            <option value='count-down'>Count down</option>
+            <option value='count-up'>Count up</option>
+            <option value='clock'>Clock</option>
           </Select>
           <span className={style.spacer} />
           <label className={`${style.inputLabel} ${style.publicToggle}`}>
-            <Switch
-              isChecked={event.isPublic}
-              onChange={() => togglePublic(event.isPublic)}
-              variant='ontime'
-            />
+            <Switch isChecked={event.isPublic} onChange={() => togglePublic(event.isPublic)} variant='ontime' />
             Event is public
           </label>
         </div>
@@ -191,11 +204,7 @@ export default function EventEditor() {
           </div>
           <div className={style.column}>
             <label className={style.inputLabel}>Presenter</label>
-            <TextInput
-              field='presenter'
-              initialText={event.presenter}
-              submitHandler={handleSubmit}
-            />
+            <TextInput field='presenter' initialText={event.presenter} submitHandler={handleSubmit} />
           </div>
           <div className={style.column}>
             <label className={style.inputLabel}>Subtitle</label>
@@ -206,30 +215,15 @@ export default function EventEditor() {
           <div className={style.column}>
             <label className={style.inputLabel}>Colour</label>
             <div className={style.inline}>
-              <ColourInput
-                name="colour"
-                value={event?.colour}
-                handleChange={handleSubmit}
-              />
-              <Button
-                leftIcon={<IoBan />}
-                onClick={() => handleSubmit('colour', '')}
-                variant='ontime-subtle'
-                size='sm'
-              >
+              <ColourInput name='colour' value={event?.colour} handleChange={handleSubmit} />
+              <Button leftIcon={<IoBan />} onClick={() => handleSubmit('colour', '')} variant='ontime-subtle' size='sm'>
                 Clear colour
               </Button>
             </div>
           </div>
           <div className={`${style.column} ${style.fullHeight}`}>
             <label className={style.inputLabel}>Note</label>
-            <TextInput
-              field='note'
-              initialText={event.note}
-              submitHandler={handleSubmit}
-              isTextArea
-              isFullHeight
-            />
+            <TextInput field='note' initialText={event.note} submitHandler={handleSubmit} isTextArea isFullHeight />
           </div>
         </div>
       </div>
