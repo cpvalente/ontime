@@ -45,7 +45,7 @@ export class TimerService {
 
     return Math.max(
       this.timer.startedAt + this.timer.duration + this._pausedInterval + this.timer.addedTime,
-      this.timer.startedAt
+      this.timer.startedAt,
     );
   }
 
@@ -249,8 +249,7 @@ export class TimerService {
         secondaryTimer: this.timer.secondaryTimer,
         _secondaryTarget: this._secondaryTarget,
       };
-      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } =
-        updateRoll(tempCurrentTimer);
+      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
 
       this.timer.current = updatedTimer;
       this.timer.secondaryTimer = updatedSecondaryTimer;
@@ -272,11 +271,7 @@ export class TimerService {
         }
 
         this.timer.current =
-          this.timer.startedAt +
-          this.timer.duration +
-          this.timer.addedTime +
-          this._pausedInterval -
-          this.timer.clock;
+          this.timer.startedAt + this.timer.duration + this.timer.addedTime + this._pausedInterval - this.timer.clock;
         this.timer.elapsed = this.timer.duration - this.timer.current;
 
         if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
