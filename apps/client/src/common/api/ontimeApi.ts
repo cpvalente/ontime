@@ -138,18 +138,18 @@ export const downloadRundown = async () => {
  */
 type UploadDataOptions = {
   onlyRundown?: boolean;
-}
+};
 export const uploadData = async (file: string, setProgress: (value: number) => void, options?: UploadDataOptions) => {
   const formData = new FormData();
   formData.append('userFile', file);
-  const onlyRundown = options?.onlyRundown;
+  const onlyRundown = options?.onlyRundown || 'false';
   await axios
     .post(`${ontimeURL}/db?onlyRundown=${onlyRundown}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
       onUploadProgress: (progressEvent) => {
-        const complete = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        const complete = progressEvent?.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
         setProgress(complete);
       },
     })
