@@ -133,6 +133,10 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isNegative = (time.current ?? 0) < 0;
   const showFinished = isNegative && !userOptions?.hideOvertime;
   const showEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;
+  const countUp =
+    time.duration - time.current > time.duration ? time.duration * -1 + time.current : time.duration - time.current;
+  const timer =
+    time.countdownStyle === 'count-down' ? time.current : time.countdownStyle === 'count-up' ? countUp : time.clock;
 
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
 
@@ -140,7 +144,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   if (time.current === null) {
     stageTimer = '- - : - -';
   } else {
-    stageTimer = formatDisplay(Math.abs(millisToSeconds(time.current)), true);
+    stageTimer = formatDisplay(Math.abs(millisToSeconds(timer)), true);
     if (time.current < 0) {
       stageTimer = `-${stageTimer}`;
     }

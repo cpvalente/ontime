@@ -61,7 +61,12 @@ export default function Timer(props) {
   const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
-  const normalisedTime = time.current === null ? null : Math.max(time.current, 0);
+  const countUp =
+    time.duration - time.current > time.duration ? time.duration * -1 + time.current : time.duration - time.current;
+  const timer =
+    time.countdownStyle === 'count-down' ? time.current : time.countdownStyle === 'count-up' ? countUp : time.clock;
+
+  const showEndMessage = time.current < 0 && general.endMessage;
   const showProgress = time.playback !== 'stop';
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
@@ -78,12 +83,10 @@ export default function Timer(props) {
       </div>
 
       <div className='timer-container'>
-        {time.finished ? (
-          <div className='end-message'>
-            {!general.endMessage ? <TimerDisplay time={time.current} hideZeroHours /> : general.endMessage}
-          </div>
+        {showEndMessage ? (
+          <div className='end-message'>{general.endMessage}</div>
         ) : (
-          <TimerDisplay time={normalisedTime} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
+          <TimerDisplay time={timer} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
         )}
       </div>
 

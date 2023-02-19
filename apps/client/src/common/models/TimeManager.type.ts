@@ -4,6 +4,8 @@ export type TimeManagerType = {
   clock: number;
   current: null | number;
   elapsed: null | number;
+  duration: null | number;
+  countdownStyle: string;
   expectedFinish: null | number;
   addedTime: number;
   startedAt: null | number;
@@ -12,4 +14,4 @@ export type TimeManagerType = {
 
   finished: boolean;
   playback: Playback;
-}
+};

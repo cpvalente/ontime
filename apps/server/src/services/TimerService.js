@@ -94,6 +94,7 @@ export class TimerService {
 
     // update relevant information and force update
     this.timer.duration = timer.duration;
+    this.timer.countdownStyle = timer.countdownStyle;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -112,6 +113,7 @@ export class TimerService {
    * @param {number} timer.timeEnd
    * @param {number} timer.duration
    * @param {string} timer.timeType
+   * @param {string} timer.countdownStyle
    * @param {boolean} timer.skip
    */
   load(timer) {
@@ -125,6 +127,7 @@ export class TimerService {
     this.timer.duration = timer.duration;
     this.timer.current = timer.duration;
     this.playback = 'armed';
+    this.timer.countdownStyle = timer.countdownStyle;
     this._pausedInterval = 0;
     this._pausedAt = 0;
 

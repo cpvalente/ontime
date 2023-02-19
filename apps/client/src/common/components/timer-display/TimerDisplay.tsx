@@ -20,7 +20,7 @@ const TimerDisplay = (props: TimerDisplayProps) => {
   const { time, small, hideZeroHours, className = '' } = props;
 
   const display =
-    (time === null || typeof time === 'undefined' || isNaN(time))
+    time === null || typeof time === 'undefined' || isNaN(time)
       ? '-- : -- : --'
       : formatDisplay(millisToSeconds(time), hideZeroHours);
 
