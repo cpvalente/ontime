@@ -46,7 +46,7 @@ export default function StudioClock(props) {
   const [searchParams] = useSearchParams();
   const showSeconds = searchParams.get('seconds');
   formatOptions.showSeconds = Boolean(showSeconds);
-  formatOptions.format = `hh:mm${formatOptions.showSeconds ? 'mm' : ''}`;
+  formatOptions.format = `hh:mm${formatOptions.showSeconds ? ':ss' : ''}`;
 
   useEffect(() => {
     document.title = 'ontime - Studio Clock';

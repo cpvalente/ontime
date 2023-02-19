@@ -27,7 +27,8 @@ export const JSON_MIME = 'application/json';
 export const parseExcel = async (excelData) => {
   const eventData = {
     title: '',
-    url: '',
+    publicUrl: '',
+    backstageUrl: '',
   };
   const customUserFields = {};
   const rundown = [];
@@ -55,8 +56,9 @@ export const parseExcel = async (excelData) => {
     .filter((e) => e.length > 0)
     .forEach((row) => {
       let eventTitleNext = false;
-      let eventUrlNext = false;
+      let publicUrlNext = false;
       let publicInfoNext = false;
+      let backstageUrlNext = false;
       let backstageInfoNext = false;
       let endMessageNext = false;
       const event = {};
@@ -66,12 +68,15 @@ export const parseExcel = async (excelData) => {
         if (eventTitleNext) {
           eventData.title = column;
           eventTitleNext = false;
-        } else if (eventUrlNext) {
-          eventData.url = column;
-          eventUrlNext = false;
+        } else if (publicUrlNext) {
+          eventData.publicUrl = column;
+          publicUrlNext = false;
         } else if (publicInfoNext) {
           eventData.publicInfo = column;
           publicInfoNext = false;
+        } else if (backstageUrlNext) {
+          eventData.publicUrl = column;
+          backstageUrlNext = false;
         } else if (backstageInfoNext) {
           eventData.backstageInfo = column;
           backstageInfoNext = false;
@@ -125,11 +130,14 @@ export const parseExcel = async (excelData) => {
               case 'event name':
                 eventTitleNext = true;
                 break;
-              case 'event url':
-                eventUrlNext = true;
+              case 'public url':
+                publicUrlNext = true;
                 break;
               case 'public info':
                 publicInfoNext = true;
+                break;
+              case 'backstage url':
+                backstageUrlNext = true;
                 break;
               case 'backstage info':
                 backstageInfoNext = true;
