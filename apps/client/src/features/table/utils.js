@@ -40,6 +40,7 @@ export const makeTable = (headerData, tableData, userFields) => {
     ['Ontime · Schedule Template'],
     ['Event Name', headerData?.title || ''],
     ['Public URL', headerData?.publicUrl || ''],
+    ['Backstage URL', headerData?.backstageUrl || ''],
     [],
   ];
 
