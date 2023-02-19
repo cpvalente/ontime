@@ -113,7 +113,7 @@ export default function SettingsModal() {
             <Input
               {...inputProps}
               name='publicUrl'
-              placeholder='www.onsite.no'
+              placeholder='www.getontime.no'
               value={formData.publicUrl}
               onChange={(event) => handleChange('publicUrl', event.target.value)}
             />
@@ -145,7 +145,7 @@ export default function SettingsModal() {
             <Input
               {...inputProps}
               name='backstageUrl'
-              placeholder='www.onsite.no'
+              placeholder='www.getontime.no'
               value={formData.backstageUrl}
               onChange={(event) => handleChange('backstageUrl', event.target.value)}
             />
