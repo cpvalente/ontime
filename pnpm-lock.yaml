@@ -112,7 +112,6 @@ importers:
       framer-motion: 8.4.3_biqbaboplfbrettd7655fr4n2y
       jotai: 1.13.0_react@18.2.0
       luxon: 3.2.1
-      ontime-utils: link:../../utils
       react: 18.2.0
       react-beautiful-dnd: 13.1.1_biqbaboplfbrettd7655fr4n2y
       react-dom: 18.2.0_react@18.2.0
@@ -148,6 +147,7 @@ importers:
       eslint-plugin-testing-library: 5.9.1_iukboom6ndih5an6iafl45j2fe
       jsdom: 21.1.0
       ontime-types: link:../../packages/types
+      ontime-utils: link:../../packages/utils
       prettier: 2.8.3
       prop-types: 15.8.1
       sass: 1.57.1
@@ -220,7 +220,7 @@ importers:
       nanoid: 4.0.0
       node-osc: 8.0.9
       node-xlsx: 0.21.0
-      ontime-utils: link:../../utils
+      ontime-utils: link:../../packages/utils
       passport: 0.6.0
       passport-local: 1.0.0
       socket.io: 4.5.4
@@ -242,11 +242,17 @@ importers:
 
   packages/types:
     specifiers:
+      '@typescript-eslint/eslint-plugin': ^5.48.1
+      '@typescript-eslint/parser': ^5.48.1
+      eslint: ^8.31.0
       typescript: ^4.9.4
     devDependencies:
+      '@typescript-eslint/eslint-plugin': 5.48.1_3jon24igvnqaqexgwtxk6nkpse
+      '@typescript-eslint/parser': 5.48.1_iukboom6ndih5an6iafl45j2fe
+      eslint: 8.31.0
       typescript: 4.9.4
 
-  utils:
+  packages/utils:
     specifiers:
       '@typescript-eslint/eslint-plugin': ^5.48.1
       '@typescript-eslint/parser': ^5.48.1
@@ -3713,7 +3719,7 @@ packages:
   /axios/0.25.0_debug@4.3.4:
     resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
     dependencies:
-      follow-redirects: 1.15.2_debug@4.3.4
+      follow-redirects: 1.15.2
     transitivePeerDependencies:
       - debug
     dev: true
@@ -5403,19 +5409,6 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
-    dev: false
-
-  /follow-redirects/1.15.2_debug@4.3.4:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dependencies:
-      debug: 4.3.4
-    dev: true
 
   /for-each/0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
