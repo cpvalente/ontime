@@ -32,6 +32,7 @@
     "eslint": "^8.31.0",
     "eslint-plugin-prettier": "^4.2.1",
     "nodemon": "^2.0.20",
+    "ontime-types": "workspace:*",
     "prettier": "^2.8.3",
     "shx": "^0.3.4",
     "ts-node": "^10.9.1",

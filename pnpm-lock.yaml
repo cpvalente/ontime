@@ -71,6 +71,7 @@ importers:
       jotai: ^1.10.0
       jsdom: ^21.1.0
       luxon: ^3.1.0
+      ontime-types: workspace:*
       ontime-utils: workspace:*
       prettier: ^2.8.3
       prop-types: ^15.8.1
@@ -146,6 +147,7 @@ importers:
       eslint-plugin-simple-import-sort: 8.0.0_eslint@8.31.0
       eslint-plugin-testing-library: 5.9.1_iukboom6ndih5an6iafl45j2fe
       jsdom: 21.1.0
+      ontime-types: link:../../packages/types
       prettier: 2.8.3
       prop-types: 15.8.1
       sass: 1.57.1
@@ -194,6 +196,7 @@ importers:
       node-osc: ^8.0.9
       node-xlsx: ^0.21.0
       nodemon: ^2.0.20
+      ontime-types: workspace:*
       ontime-utils: workspace:*
       passport: ^0.6.0
       passport-local: ~1.0.0
@@ -230,11 +233,18 @@ importers:
       eslint: 8.31.0
       eslint-plugin-prettier: 4.2.1_ilxq7usaoskowiuvcfaznp7pcm
       nodemon: 2.0.20
+      ontime-types: link:../../packages/types
       prettier: 2.8.3
       shx: 0.3.4
       ts-node: 10.9.1_qacynw5b4krdzzrloasmebsynu
       typescript: 4.9.4
       vitest: 0.27.1
+
+  packages/types:
+    specifiers:
+      typescript: ^4.9.4
+    devDependencies:
+      typescript: 4.9.4
 
   utils:
     specifiers:

@@ -80,6 +80,7 @@
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-testing-library": "^5.9.1",
     "jsdom": "^21.1.0",
+    "ontime-types": "workspace:*",
     "prettier": "^2.8.3",
     "prop-types": "^15.8.1",
     "sass": "^1.57.1",
