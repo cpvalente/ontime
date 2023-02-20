@@ -61,10 +61,6 @@ export default function Timer(props) {
   const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
-  const countUp =
-    time.duration - time.current > time.duration ? time.duration * -1 + time.current : time.duration - time.current;
-  const timer =
-    time.countdownStyle === 'count-down' ? time.current : time.countdownStyle === 'count-up' ? countUp : time.clock;
 
   const showEndMessage = time.current < 0 && general.endMessage;
   const showProgress = time.playback !== 'stop';
@@ -86,7 +82,7 @@ export default function Timer(props) {
         {showEndMessage ? (
           <div className='end-message'>{general.endMessage}</div>
         ) : (
-          <TimerDisplay time={timer} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
+          <TimerDisplay timer={time} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
         )}
       </div>
 
