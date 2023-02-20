@@ -10,17 +10,19 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
 
 import AliasesModal from './AliasesModal';
 import AppSettingsModal from './AppSettingsModal';
 import EventSettingsModal from './EventSettingsModal';
-import IntegrationSettingsModal from './IntegrationSettingsModal';
-import OscSettingsModal from './OscSettingsModal';
 import TableOptionsModal from './TableOptionsModal';
 import ViewsSettingsModal from './ViewsSettingsModal';
 
-export default function ModalManager(props) {
+interface ModalManagerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function ModalManager(props: ModalManagerProps) {
   const { isOpen, onClose } = props;
   return (
     <Modal
@@ -38,13 +40,11 @@ export default function ModalManager(props) {
 
         <Tabs size='sm' isLazy>
           <TabList>
-            <Tab style={{ fontSize: '0.9em' }}>App Settings</Tab>
-            <Tab style={{ fontSize: '0.9em' }}>Viewers</Tab>
-            <Tab style={{ fontSize: '0.9em' }}>Event Data</Tab>
-            <Tab style={{ fontSize: '0.9em' }}>URL Aliases</Tab>
-            <Tab style={{ fontSize: '0.9em' }}>Cuesheet</Tab>
-            <Tab style={{ fontSize: '0.9em' }}>OSC</Tab>
-            {/*<Tab style={{ fontSize: '0.9em' }}>Integration</Tab>*/}
+            <Tab>App Settings</Tab>
+            <Tab>Viewers</Tab>
+            <Tab>Event Data</Tab>
+            <Tab>URL Aliases</Tab>
+            <Tab>Cuesheet</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -62,20 +62,9 @@ export default function ModalManager(props) {
             <TabPanel>
               <TableOptionsModal />
             </TabPanel>
-            <TabPanel>
-              <OscSettingsModal />
-            </TabPanel>
-            {/*<TabPanel>*/}
-            {/*  <IntegrationSettingsModal />*/}
-            {/*</TabPanel>*/}
           </TabPanels>
         </Tabs>
       </ModalContent>
     </Modal>
   );
 }
-
-ModalManager.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
