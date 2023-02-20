@@ -1,7 +1,7 @@
 export enum SupportedEvent {
   Event = 'event',
   Delay = 'delay',
-  Block = 'block',
+  Block = 'block'
 }
 
 export interface OntimeBaseEvent {
@@ -14,11 +14,11 @@ export type OntimeDelay = OntimeBaseEvent & {
   type: SupportedEvent.Delay;
   duration: number;
   revision: number;
-};
+}
 
 export type OntimeBlock = OntimeBaseEvent & {
   type: SupportedEvent.Block;
-};
+}
 
 export type OntimeEvent = OntimeBaseEvent & {
   type: SupportedEvent.Event;
@@ -27,7 +27,6 @@ export type OntimeEvent = OntimeBaseEvent & {
   presenter: string;
   note: string;
   timeType?: string;
-  countdownStyle: string;
   timeStart: number;
   timeEnd: number;
   duration: number;
@@ -45,7 +44,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   user8: string;
   user9: string;
   revision: number;
-};
+}
 
 export type OntimeRundownEntry = OntimeDelay | OntimeBlock | OntimeEvent;
-export type OntimeRundown = OntimeRundownEntry[];
+export type OntimeRundown = OntimeRundownEntry[]
