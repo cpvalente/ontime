@@ -219,7 +219,6 @@ export class TimerService {
 
     this.timer.addedTime += amount;
     this.timer.current += amount;
-    this.timer.elapsed += amount;
 
     // handle edge cases
     if (amount < 0 && Math.abs(amount) > this.timer.current) {
