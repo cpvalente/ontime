@@ -18,6 +18,7 @@ import { stringFromMillis } from '../../common/utils/time';
 import { calculateDuration, TimeEntryField, validateEntry } from '../../common/utils/timesManager';
 
 import style from './EventEditor.module.scss';
+import { TimerType } from 'ontime-types';
 
 export type EventEditorSubmitActions = keyof OntimeEvent | 'durationOverride';
 
@@ -166,28 +167,28 @@ export default function EventEditor() {
           />
         </div>
         <div className={style.timeSettings}>
-          <label className={style.inputLabel}>Timer type</label>
+          <label className={style.inputLabel}>Timer Behaviour</label>
           <Select
             size='sm'
-            name='timeType'
-            value={event.timeType}
-            onChange={(event) => handleChange('timeType', event.target.value)}
+            name='timerBehaviour'
+            value={event.timerBehaviour}
+            onChange={(event) => handleChange('timerBehaviour', event.target.value)}
           >
             <option value='start-end'>Start to end</option>
             <option value='duration'>Duration</option>
             <option value='follow-previous'>Follow previous</option>
             <option value='start-only'>Start only</option>
           </Select>
-          <label className={style.inputLabel}>Countdown style</label>
+          <label className={style.inputLabel}>Timer Type</label>
           <Select
             size='sm'
-            name='countdownStyle'
-            value={event.countdownStyle}
-            onChange={(event) => handleChange('countdownStyle', event.target.value)}
+            name='timerType'
+            value={event.timerType}
+            onChange={(event) => handleChange('timerType', event.target.value)}
           >
-            <option value='count-down'>Count down</option>
-            <option value='count-up'>Count up</option>
-            <option value='clock'>Clock</option>
+            <option value={TimerType.CountDown}>Count down</option>
+            <option value={TimerType.CountUp}>Count up</option>
+            <option value={TimerType.Clock}>Clock</option>
           </Select>
           <span className={style.spacer} />
           <label className={`${style.inputLabel} ${style.publicToggle}`}>

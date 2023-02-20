@@ -1,3 +1,5 @@
+import { TimerType } from 'ontime-types';
+
 import { Playback } from './OntimeTypes';
 
 export type TimeManagerType = {
@@ -5,7 +7,8 @@ export type TimeManagerType = {
   current: null | number;
   elapsed: null | number;
   duration: null | number;
-  countdownStyle: string;
+  timerBehaviour?: string;
+  timerType: TimerType;
   expectedFinish: null | number;
   addedTime: number;
   startedAt: null | number;

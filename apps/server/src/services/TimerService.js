@@ -45,7 +45,7 @@ export class TimerService {
 
     return Math.max(
       this.timer.startedAt + this.timer.duration + this._pausedInterval + this.timer.addedTime,
-      this.timer.startedAt
+      this.timer.startedAt,
     );
   }
 
@@ -64,6 +64,7 @@ export class TimerService {
       startedAt: null,
       finishedAt: null,
       secondaryTimer: null,
+      timerType: null,
     };
     this.loadedTimerId = null;
     this._pausedInterval = 0;
@@ -94,7 +95,7 @@ export class TimerService {
 
     // update relevant information and force update
     this.timer.duration = timer.duration;
-    this.timer.countdownStyle = timer.countdownStyle;
+    this.timer.timerType = timer.timerType;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -112,8 +113,8 @@ export class TimerService {
    * @param {number} timer.timeStart
    * @param {number} timer.timeEnd
    * @param {number} timer.duration
-   * @param {string} timer.timeType
-   * @param {string} timer.countdownStyle
+   * @param {string} timer.timerBehaviour
+   * @param {string} timer.timerType
    * @param {boolean} timer.skip
    */
   load(timer) {
@@ -127,7 +128,7 @@ export class TimerService {
     this.timer.duration = timer.duration;
     this.timer.current = timer.duration;
     this.playback = 'armed';
-    this.timer.countdownStyle = timer.countdownStyle;
+    this.timer.timerType = timer.timerType;
     this._pausedInterval = 0;
     this._pausedAt = 0;
 
@@ -252,8 +253,7 @@ export class TimerService {
         secondaryTimer: this.timer.secondaryTimer,
         _secondaryTarget: this._secondaryTarget,
       };
-      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } =
-        updateRoll(tempCurrentTimer);
+      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
 
       this.timer.current = updatedTimer;
       this.timer.secondaryTimer = updatedSecondaryTimer;
@@ -275,11 +275,7 @@ export class TimerService {
         }
 
         this.timer.current =
-          this.timer.startedAt +
-          this.timer.duration +
-          this.timer.addedTime +
-          this._pausedInterval -
-          this.timer.clock;
+          this.timer.startedAt + this.timer.duration + this.timer.addedTime + this._pausedInterval - this.timer.clock;
         this.timer.elapsed = this.timer.duration - this.timer.current;
 
         if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
