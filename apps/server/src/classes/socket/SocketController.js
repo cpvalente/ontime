@@ -55,7 +55,9 @@ class SocketController {
       // keep track of connections
       this.numClients++;
       this._clientNames[socket.id] = getRandomName();
-      const message = `${this.numClients} Clients with new connection: ${this._clientNames[socket.id]}`;
+      const message = `${this.numClients} Clients with new connection: ${
+        this._clientNames[socket.id]
+      }`;
       this.info('CLIENT', message);
 
       // Todo: review in favour of features
@@ -76,7 +78,9 @@ class SocketController {
        */
       socket.on('disconnect', () => {
         this.numClients--;
-        const message = `${this.numClients} Clients with disconnection: ${this._clientNames[socket.id]}`;
+        const message = `${this.numClients} Clients with disconnection: ${
+          this._clientNames[socket.id]
+        }`;
         delete this._clientNames[socket.id];
         this.info('CLIENT', message);
       });
