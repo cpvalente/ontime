@@ -23,6 +23,11 @@ import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { socketProvider } from './classes/socket/SocketController.js';
 import { eventTimer } from './services/TimerService.js';
 import { promise } from './modules/loadDb.js';
+import { TimerType } from 'ontime-types';
+
+// TODO: apply code and remove, refs PR #290
+const sharedType: TimerType = TimerType.CountDown;
+console.log('WIP', sharedType);
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
