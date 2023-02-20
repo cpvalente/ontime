@@ -36,6 +36,32 @@ export const dbModel = {
     portOut: 9999,
     targetIP: '127.0.0.1',
     enabled: true,
+    subscriptions: {
+      onLoad: {
+        message: '',
+        enabled: false,
+      },
+      onStart: {
+        message: '',
+        enabled: false,
+      },
+      onPause: {
+        message: '',
+        enabled: false,
+      },
+      onStop: {
+        message: '',
+        enabled: false,
+      },
+      onUpdate: {
+        message: '',
+        enabled: false,
+      },
+      onFinish: {
+        message: '',
+        enabled: false,
+      },
+    },
   },
   http: {
     user: null,
