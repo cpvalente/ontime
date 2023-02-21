@@ -39,6 +39,7 @@ export class DataProvider {
   }
 
   static async deleteEvent(eventId) {
+    // @ts-expect-error -- this will go away once we type db
     data.rundown = Array.from(data.rundown).filter((e) => e.id !== eventId);
     await this.persist();
   }
@@ -49,6 +50,7 @@ export class DataProvider {
 
   static async clearRundown() {
     data.rundown = [];
+    // @ts-expect-error -- not sure how to type, this is library side
     await db.write();
   }
 
@@ -149,6 +151,7 @@ export class DataProvider {
   }
 
   static async persist() {
+    // @ts-expect-error -- not sure how to type, this is library side
     await db.write();
   }
 

@@ -2,7 +2,7 @@ import { ArgumentType, Client, Message } from 'node-osc';
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplate } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
-import type { OscConfig, OscSubscriptions } from '../../@types/ConfigOsc.types.js';
+import { OSCSettings, OscSubscriptions } from '../../models/dataModel.js';
 
 type Action = TimerLifeCycleKey | string;
 
@@ -22,7 +22,7 @@ export class OscIntegration implements IIntegration {
   /**
    * Initializes oscClient
    */
-  init(config: OscConfig) {
+  init(config: OSCSettings) {
     const { targetIP, portOut, subscriptions } = config;
 
     this.initSubscriptions(subscriptions);
@@ -52,7 +52,7 @@ export class OscIntegration implements IIntegration {
     }
   }
 
-  initSubscriptions(subscriptionOptions: Partial<OscSubscriptions>) {
+  initSubscriptions(subscriptionOptions: OscSubscriptions) {
     this.subscriptions = { ...this.subscriptions, ...subscriptionOptions };
   }
 

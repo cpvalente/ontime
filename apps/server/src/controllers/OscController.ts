@@ -3,6 +3,7 @@ import { PlaybackService } from '../services/PlaybackService.js';
 import { messageManager } from '../classes/message-manager/MessageManager.js';
 import { socketProvider } from '../classes/socket/SocketController.js';
 import { ADDRESS_MESSAGE_CONTROL } from '../classes/socket/socketConfig.js';
+import { OSCSettings } from '../models/dataModel.js';
 
 let oscServer = null;
 
@@ -14,11 +15,10 @@ export const shutdownOSCServer = () => {
 };
 
 /**
- * @description initialises OSC server
- * @param {object} config
+ * Initialises OSC server
  */
-export const initiateOSC = (config) => {
-  oscServer = new Server(config.port, '0.0.0.0');
+export const initiateOSC = (config: OSCSettings) => {
+  oscServer = new Server(config.portIn, '0.0.0.0');
 
   oscServer.on('error', console.error);
 

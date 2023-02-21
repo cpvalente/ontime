@@ -3,7 +3,7 @@ import { JSONFile } from 'lowdb/node';
 import { copyFileSync, existsSync } from 'fs';
 import { ensureDirectory } from '../utils/fileManagement.js';
 import { validateFile } from '../utils/parserUtils.js';
-import { dbModel } from '../models/dataModel.js';
+import { DatabaseModel, dbModel } from '../models/dataModel.js';
 import { parseJson } from '../utils/parser.js';
 import { reportSentryException } from './sentry.js';
 import { pathToStartDb, resolveDbDirectory, resolveDbPath } from '../setup.js';
@@ -51,7 +51,7 @@ const parseDb = async (fileToRead, adapterToUse) => {
 async function loadDb() {
   const dbInDisk = populateDb();
 
-  const adapter = new JSONFile(dbInDisk);
+  const adapter = new JSONFile<DatabaseModel>(dbInDisk);
   const db = new Low(adapter);
 
   const data = await parseDb(dbInDisk, db);
@@ -63,7 +63,7 @@ async function loadDb() {
 }
 
 export let db = {};
-export let data = {};
+export let data = {} as DatabaseModel;
 export const dbLoadingProcess = loadDb();
 
 const init = async () => {

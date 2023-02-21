@@ -1,9 +1,8 @@
 import { generateId } from 'ontime-utils';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
-import { dbModel } from '../models/dataModel.js';
+import { dbModel, OSCSettings } from '../models/dataModel.js';
 import { validateEvent } from './parser.js';
 import { MAX_EVENTS } from '../settings.js';
-import type { OscConfig } from '../@types/ConfigOsc.types.js';
 
 /**
  * Parse events array of an entry
@@ -148,20 +147,21 @@ export const parseViews = (data, enforce) => {
 
 /**
  * Parse osc portion of an entry
- * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
- * @returns {object} - event object data
  */
-export const parseOsc = (data: { osc?: Partial<OscConfig> }, enforce: boolean) => {
+export const parseOsc = (
+  data: { osc?: Partial<OSCSettings> },
+  enforce: boolean,
+): OSCSettings | Record<string, never> => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 
-    const loadedConfig: Partial<OscConfig> = data?.osc || {};
+    const loadedConfig = data?.osc || {};
     return {
-      port: loadedConfig.port ?? dbModel.osc.port,
+      portIn: loadedConfig.portIn ?? dbModel.osc.portIn,
       portOut: loadedConfig.portOut ?? dbModel.osc.portOut,
       targetIP: loadedConfig.targetIP ?? dbModel.osc.targetIP,
-      enabled: loadedConfig.enabled ?? dbModel.osc.enabled,
+      enabledIn: loadedConfig.enabledIn ?? dbModel.osc.enabledIn,
+      enabledOut: loadedConfig.enabledOut ?? dbModel.osc.enabledOut,
       subscriptions: loadedConfig.subscriptions ?? dbModel.osc.subscriptions,
     };
   } else if (enforce) {

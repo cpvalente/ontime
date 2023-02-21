@@ -25,7 +25,7 @@ import { eventTimer } from './services/TimerService.js';
 import { dbLoadingProcess } from './modules/loadDb.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { OscIntegration } from './services/integration-service/OscIntegration.js';
-import { OscConfig } from './@types/ConfigOsc.types.js';
+import { OSCSettings } from './models/dataModel.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -88,8 +88,8 @@ app.use((error, response) => {
 await dbLoadingProcess;
 
 const { osc } = DataProvider.getData();
-const oscInPort = osc?.port || config.osc.port;
-const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.inputEnabled;
+const oscInPort = osc.portIn;
+const oscInEnabled = osc.enabledIn;
 const serverPort = 4001; // hardcoded for now
 
 /**
@@ -106,7 +106,8 @@ export const startOSCServer = async (overrideConfig = null) => {
 
   // Setup default port
   const oscSettings = {
-    port: overrideConfig?.port || oscInPort,
+    ...osc,
+    portIn: overrideConfig?.port || osc.portIn,
   };
 
   // Start OSC Server
@@ -137,7 +138,7 @@ export const startServer = async () => {
 /**
  * starts integrations
  */
-export const startIntegrations = async (config?: { osc: OscConfig }) => {
+export const startIntegrations = async (config?: { osc: OSCSettings }) => {
   const { osc } = config ?? DataProvider.getData();
   console.log('Ontime starting OSC integration');
 

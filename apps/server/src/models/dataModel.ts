@@ -1,4 +1,28 @@
-export const dbModel = {
+import { TimerLifeCycleKey } from '../services/integration-service/IIntegration.js';
+
+export type OscSubscriptions = { [key in TimerLifeCycleKey]?: { message: string; enabled: boolean } };
+
+export interface OSCSettings {
+  portIn: number;
+  portOut: number;
+  targetIP: string;
+  enabledIn: boolean;
+  enabledOut: boolean;
+  subscriptions: OscSubscriptions;
+}
+
+export type DatabaseModel = {
+  rundown: any;
+  event: any;
+  settings: any;
+  views: any;
+  aliases: any;
+  userFields: any;
+  osc: OSCSettings;
+  http: any;
+};
+
+export const dbModel: DatabaseModel = {
   rundown: [],
   event: {
     title: '',
@@ -32,10 +56,11 @@ export const dbModel = {
     user9: 'user9',
   },
   osc: {
-    port: 8888,
+    portIn: 8888,
     portOut: 9999,
     targetIP: '127.0.0.1',
-    enabled: true,
+    enabledIn: false,
+    enabledOut: false,
     subscriptions: {
       onLoad: {
         message: '',

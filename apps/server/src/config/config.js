@@ -12,10 +12,11 @@ export const config = {
     tablename: 'events',
   },
   osc: {
-    port: 8888,
+    portIn: 8888,
     portOut: 9999,
     targetIP: '127.0.0.1',
-    inputEnabled: true,
+    enabledIn: true,
+    enabledOut: true,
   },
   http: {
     user: '',
