@@ -64,10 +64,10 @@ async function loadDb() {
 
 export let db = {};
 export let data = {};
-export const promise = loadDb();
+export const dbLoadingProcess = loadDb();
 
 const init = async () => {
-  const dbProvider = await promise;
+  const dbProvider = await dbLoadingProcess;
   db = dbProvider.db;
   data = dbProvider.data;
 };

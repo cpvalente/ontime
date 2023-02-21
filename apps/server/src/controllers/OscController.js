@@ -34,7 +34,7 @@ export const initiateOSC = (config) => {
 
     // get first part before (ontime)
     if (address !== 'ontime') {
-      console.error('RX', `OSC IN: Message address ${address} not recognised`);
+      console.error('RX', `OSC IN: Message address ${address} not recognised`, msg);
       return;
     }
 
@@ -123,10 +123,7 @@ export const initiateOSC = (config) => {
         try {
           const eventIndex = Number(args);
           if (isNaN(eventIndex) || eventIndex <= 0) {
-            socketProvider.error(
-              'RX',
-              `OSC IN: event index not recognised or out of range ${eventIndex}`
-            );
+            socketProvider.error('RX', `OSC IN: event index not recognised or out of range ${eventIndex}`);
           } else {
             PlaybackService.loadByIndex(eventIndex - 1);
           }

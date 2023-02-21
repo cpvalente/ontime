@@ -2,6 +2,8 @@ import { runtimeState } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { DAY_TO_MS } from '../utils/time.js';
+import { integrationService } from './integration-service/IntegrationService.js';
+import TimerLifeCycle from '../@types/TimerLifecycle.types.js';
 
 export class TimerService {
   /**
@@ -45,7 +47,7 @@ export class TimerService {
 
     return Math.max(
       this.timer.startedAt + this.timer.duration + this._pausedInterval + this.timer.addedTime,
-      this.timer.startedAt
+      this.timer.startedAt,
     );
   }
 
@@ -138,6 +140,7 @@ export class TimerService {
   _onLoad() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onLoad);
   }
 
   start() {
@@ -172,6 +175,7 @@ export class TimerService {
   _onStart() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onStart);
   }
 
   pause() {
@@ -188,6 +192,7 @@ export class TimerService {
   _onPause() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onPause);
   }
 
   stop() {
@@ -202,6 +207,7 @@ export class TimerService {
   _onStop() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onStop);
   }
 
   /**
@@ -249,8 +255,7 @@ export class TimerService {
         secondaryTimer: this.timer.secondaryTimer,
         _secondaryTarget: this._secondaryTarget,
       };
-      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } =
-        updateRoll(tempCurrentTimer);
+      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
 
       this.timer.current = updatedTimer;
       this.timer.secondaryTimer = updatedSecondaryTimer;
@@ -272,11 +277,7 @@ export class TimerService {
         }
 
         this.timer.current =
-          this.timer.startedAt +
-          this.timer.duration +
-          this.timer.addedTime +
-          this._pausedInterval -
-          this.timer.clock;
+          this.timer.startedAt + this.timer.duration + this.timer.addedTime + this._pausedInterval - this.timer.clock;
         this.timer.elapsed = this.timer.duration - this.timer.current;
 
         if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
@@ -294,11 +295,13 @@ export class TimerService {
   _onUpdate() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onUpdate);
   }
 
   _onFinish() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onFinish);
   }
 
   roll(currentEvent, nextEvent, timers) {

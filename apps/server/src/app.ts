@@ -22,7 +22,10 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { socketProvider } from './classes/socket/SocketController.js';
 import { eventTimer } from './services/TimerService.js';
-import { promise } from './modules/loadDb.js';
+import { dbLoadingProcess } from './modules/loadDb.js';
+import { integrationService } from './services/integration-service/IntegrationService.js';
+import { OscIntegration } from './services/integration-service/OscIntegration.js';
+import { OscConfig } from './@types/ConfigOsc.types.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -80,17 +83,11 @@ app.use((error, response) => {
  * It can also be overridden on call
  *
  */
-(async () => {
-  try {
-    await promise;
-  } catch (error) {
-    console.log(error);
-  }
-})();
+
+// we need to wait for the db to be loaded
+await dbLoadingProcess;
 
 const { osc } = DataProvider.getData();
-const oscIP = osc?.targetIP || config.osc.targetIP;
-const oscOutPort = osc?.portOut || config.osc.portOut;
 const oscInPort = osc?.port || config.osc.port;
 const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.inputEnabled;
 const serverPort = 4001; // hardcoded for now
@@ -129,8 +126,7 @@ export const startServer = async () => {
   const returnMessage = `Ontime is listening on port ${serverPort}`;
   expressServer.listen(serverPort, '0.0.0.0');
 
-  // init socket controller
-  await socketServer.initServer(expressServer);
+  socketServer.initServer(expressServer);
   socketServer.info('SERVER', 'Socket initialised');
 
   socketServer.info('SERVER', returnMessage);
@@ -140,17 +136,22 @@ export const startServer = async () => {
 
 /**
  * starts integrations
- * @param overrideConfig
- * @return {Promise<void>}
  */
-export const startIntegrations = async (overrideConfig = null) => {
-  const { http } = DataProvider.getData();
+export const startIntegrations = async (config?: { osc: OscConfig }) => {
+  const { osc } = config ?? DataProvider.getData();
+  console.log('Ontime starting OSC integration');
 
-  // OSC Config
-  const oscConfig = {
-    ip: oscIP,
-    port: overrideConfig?.port || oscOutPort,
-  };
+  if (!osc) {
+    return 'OSC Invalid configuration';
+  }
+
+  const oscIntegration = new OscIntegration();
+  const { success, message } = oscIntegration.init(osc);
+  socketServer.info('RX', message);
+
+  if (success) {
+    integrationService.register(oscIntegration);
+  }
 };
 
 /**
@@ -165,6 +166,7 @@ export const shutdown = async (exitCode = 0) => {
   shutdownOSCServer();
   eventTimer.shutdown();
   socketServer.shutdown();
+  integrationService.shutdown();
   process.exit(exitCode);
 };
 
