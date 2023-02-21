@@ -71,8 +71,9 @@ export const parseEvent = (data, enforce) => {
     newEvent = {
       ...dbModel.event,
       title: e.title || dbModel.event.title,
-      url: e.url || dbModel.event.url,
+      publicUrl: e.publicUrl || dbModel.event.publicUrl,
       publicInfo: e.publicInfo || dbModel.event.publicInfo,
+      backstageUrl: e.backstageUrl || dbModel.event.backstageUrl,
       backstageInfo: e.backstageInfo || dbModel.event.backstageInfo,
       endMessage: e.endMessage || dbModel.event.endMessage,
     };

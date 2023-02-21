@@ -1,5 +1,4 @@
 # https://pnpm.io/pnpm-workspace_yaml
 packages:
-  # all packages in direct subdirectories of apps/
   - "apps/*"
-  - "utils"
+  - "packages/*"

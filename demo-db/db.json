@@ -221,8 +221,9 @@
   ],
   "event": {
     "title": "All about Carlos demo event",
-    "url": "www.carlosvalente.com",
+    "publicUrl": "www.getontime.no",
     "publicInfo": "WiFi: demoproject \nPassword: ontimeproject",
+    "backstageUrl": "www.getontime.no",
     "backstageInfo": "WiFi: demobackstage\nPassword: ontimeproject",
     "endMessage": ""
   },

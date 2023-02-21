@@ -26,8 +26,9 @@ export const dbModel: DatabaseModel = {
   rundown: [],
   event: {
     title: '',
-    url: '',
+    publicUrl: '',
     publicInfo: '',
+    backstageUrl: '',
     backstageInfo: '',
     endMessage: '',
   },

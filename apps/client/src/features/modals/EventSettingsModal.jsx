@@ -27,8 +27,9 @@ export default function SettingsModal() {
 
     setFormData({
       title: data.title,
-      url: data.url,
+      publicUrl: data.publicUrl,
       publicInfo: data.publicInfo,
+      backstageUrl: data.backstageUrl,
       backstageInfo: data.backstageInfo,
       endMessage: data.endMessage,
     });
@@ -45,7 +46,7 @@ export default function SettingsModal() {
       try {
         await postEvent(formData);
       } catch (error) {
-        emitError(`Error saving event settings: ${error}`)
+        emitError(`Error saving event settings: ${error}`);
       } finally {
         await refetch();
         setChanged(false);
@@ -53,7 +54,7 @@ export default function SettingsModal() {
 
       setSubmitting(false);
     },
-    [emitError, formData, refetch]
+    [emitError, formData, refetch],
   );
 
   /**
@@ -69,12 +70,15 @@ export default function SettingsModal() {
    * @param {string} field - object parameter to update
    * @param {string} value - new object parameter value
    */
-  const handleChange = useCallback((field, value) => {
-    const temp = { ...formData };
-    temp[field] = value;
-    setFormData(temp);
-    setChanged(true);
-  },[formData]);
+  const handleChange = useCallback(
+    (field, value) => {
+      const temp = { ...formData };
+      temp[field] = value;
+      setFormData(temp);
+      setChanged(true);
+    },
+    [formData],
+  );
 
   return (
     <ModalBody className={style.modalBody}>
@@ -99,19 +103,19 @@ export default function SettingsModal() {
           </div>
           <div className={style.hSeparator}>Additional Screen Info</div>
           <div className={style.spacedEntry}>
-            <FormLabel htmlFor='url'>
-              Event URL
+            <FormLabel htmlFor='publicUrl'>
+              Public URL
               <span className={style.labelNote}>
                 <br />
-                Shown as a QR code in some views
+                QR code to be shown on public screens
               </span>
             </FormLabel>
             <Input
               {...inputProps}
-              name='url'
-              placeholder='www.onsite.no'
-              value={formData.url}
-              onChange={(event) => handleChange('url', event.target.value)}
+              name='publicUrl'
+              placeholder='www.getontime.no'
+              value={formData.publicUrl}
+              onChange={(event) => handleChange('publicUrl', event.target.value)}
             />
           </div>
           <div className={style.spacedEntry}>
@@ -128,6 +132,22 @@ export default function SettingsModal() {
               placeholder='Information to be shown on public screens'
               value={formData.publicInfo}
               onChange={(event) => handleChange('publicInfo', event.target.value)}
+            />
+          </div>
+          <div className={style.spacedEntry}>
+            <FormLabel htmlFor='backstageUrl'>
+              Backstage URL
+              <span className={style.labelNote}>
+                <br />
+                QR to be shown on backstage screens
+              </span>
+            </FormLabel>
+            <Input
+              {...inputProps}
+              name='backstageUrl'
+              placeholder='www.getontime.no'
+              value={formData.backstageUrl}
+              onChange={(event) => handleChange('backstageUrl', event.target.value)}
             />
           </div>
           <div className={style.spacedEntry}>
@@ -165,12 +185,7 @@ export default function SettingsModal() {
             />
           </div>
         </div>
-        <SubmitContainer
-          revert={revert}
-          submitting={submitting}
-          changed={changed}
-          status={status}
-        />
+        <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
       </form>
     </ModalBody>
   );
