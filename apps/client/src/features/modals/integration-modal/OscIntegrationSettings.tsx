@@ -5,7 +5,8 @@ import { Button, FormControl, Input, ModalBody, ModalFooter, Switch } from '@cha
 import { postOSC } from '../../../common/api/ontimeApi';
 import { LoggingContext } from '../../../common/context/LoggingContext';
 import useOscSettings from '../../../common/hooks-query/useOscSettings';
-import { OscSettingsType } from '../../../common/models/OscSettings.type';
+import { PlaceholderSettings } from '../../../common/models/OscSettings.type';
+import { isIPAddress, isOnlyNumbers } from '../../../common/utils/regex';
 
 import styles from '../Modal.module.scss';
 
@@ -18,28 +19,36 @@ export default function OscIntegrationSettings() {
     reset,
     setError,
     formState: { errors, isSubmitting, isDirty, isValid },
-  } = useForm<OscSettingsType>({
+  } = useForm<PlaceholderSettings>({
     defaultValues: data,
     values: data,
   });
 
   const disableSubmit = isSubmitting || !isDirty || !isValid;
 
-  async function onSubmit(values: OscSettingsType) {
-    if (Number(values.port) === Number(values.portOut)) {
-      setError('port', { message: 'OSC IN and OUT Ports cant be the same' });
+  const onSubmit = async (values: PlaceholderSettings) => {
+    const numericPortIn = Number(values.portIn);
+    const numericPortOut = Number(values.portOut);
+
+    if (numericPortIn === numericPortOut) {
+      setError('portIn', { message: 'OSC IN and OUT Ports cant be the same' });
       return;
     }
+
+    const parsedValues = {
+      ...values,
+      portIn: numericPortIn,
+      portOut: numericPortOut,
+    };
+
     try {
-      await postOSC(values);
+      await postOSC(parsedValues);
     } catch (error) {
       emitError(`Error setting OSC: ${error}`);
     }
-  }
+  };
 
-  function resetForm() {
-    reset(data);
-  }
+  const resetForm = () => reset(data);
 
   return (
     <>
@@ -50,36 +59,35 @@ export default function OscIntegrationSettings() {
               <span className={`${styles.sectionTitle} ${styles.main}`}>OSC Input</span>
               <span className={styles.sectionSubtitle}>Control Ontime with OSC</span>
             </div>
-            <div>
-              <Switch {...register('enabled')} variant='ontime-on-light' />
-            </div>
+            <Switch {...register('enabledIn')} variant='ontime-on-light' />
           </div>
 
-          <FormControl isInvalid={!!errors.port} className={styles.splitSection}>
-            <div>
-              <label htmlFor='name' className={styles.sectionTitle}>
-                Listen on Port
-              </label>
-              {errors.port ? (
-                <span className={styles.error}>{errors.port.message}</span>
+          <FormControl isInvalid={!!errors.portIn} className={styles.splitSection}>
+            <label htmlFor='portIn'>
+              <span className={styles.sectionTitle}>Listen on Port</span>
+              {errors.portIn ? (
+                <span className={styles.error}>{errors.portIn.message}</span>
               ) : (
                 <span className={styles.sectionSubtitle}>Default 8888</span>
               )}
-            </div>
-            <div>
-              <Input
-                placeholder='8888'
-                width='75px'
-                size='sm'
-                textAlign='right'
-                maxLength={5}
-                {...register('port', {
-                  required: { value: true, message: 'Required field' },
-                  max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
-                  min: { value: 1024, message: 'Port in incorrect range (1024 - 65535)' },
-                })}
-              />
-            </div>
+            </label>
+            <Input
+              id='portIn'
+              placeholder='8888'
+              width='75px'
+              size='sm'
+              textAlign='right'
+              maxLength={5}
+              {...register('portIn', {
+                required: { value: true, message: 'Required field' },
+                max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
+                min: { value: 1024, message: 'Port in incorrect range (1024 - 65535)' },
+                pattern: {
+                  value: isOnlyNumbers,
+                  message: 'Value should be numeric',
+                },
+              })}
+            />
           </FormControl>
 
           <hr className={styles.divider} />
@@ -91,70 +99,69 @@ export default function OscIntegrationSettings() {
               </span>
               <span className={styles.sectionSubtitle}>Ontime data feedback</span>
             </div>
-            <div>
-              <Switch variant='ontime-on-light' isChecked={true} />
-              {/*<Switch {...register('enabledOutput')} variant='ontime-on-light' isChecked={true} />*/}
-            </div>
+            <Switch {...register('enabledOut')} variant='ontime-on-light' />
           </div>
 
           <FormControl isInvalid={!!errors.targetIP} className={styles.splitSection}>
-            <div>
-              <label htmlFor='targetIP' className={styles.sectionTitle}>
-                OSC target IP
-              </label>
+            <label htmlFor='targetIP'>
+              <span className={styles.sectionTitle}>OSC target IP</span>
               {errors.targetIP ? (
                 <span className={styles.error}>{errors.targetIP.message}</span>
               ) : (
                 <span className={styles.sectionSubtitle}>Default 127.0.0.1</span>
               )}
-            </div>
-            <div>
-              <Input
-                placeholder='127.0.0.1'
-                width='140px'
-                size='sm'
-                textAlign='right'
-                {...register('targetIP', {
-                  required: { value: true, message: 'Required field' },
-                })}
-              />
-            </div>
+            </label>
+            <Input
+              id='targetIP'
+              placeholder='127.0.0.1'
+              width='140px'
+              size='sm'
+              textAlign='right'
+              {...register('targetIP', {
+                required: { value: true, message: 'Required field' },
+                pattern: {
+                  value: isIPAddress,
+                  message: 'Invalid IP address',
+                },
+              })}
+            />
           </FormControl>
 
           <FormControl className={styles.splitSection}>
-            <div>
-              <label htmlFor='name' className={styles.sectionTitle}>
-                OSC target Port
-              </label>
+            <label htmlFor='portOut'>
+              <span className={styles.sectionTitle}>OSC target Port</span>
               {errors.portOut ? (
                 <span className={styles.error}>{errors.portOut.message}</span>
               ) : (
                 <span className={styles.sectionSubtitle}>Default 9999</span>
               )}
-            </div>
-            <div>
-              <Input
-                placeholder='9999'
-                width='75px'
-                size='sm'
-                textAlign='right'
-                maxLength={5}
-                {...register('portOut', {
-                  required: { value: true, message: 'Required field' },
-                  max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
-                  min: { value: 1024, message: 'Port in incorrect range (1024 - 65535)' },
-                })}
-              />
-            </div>
+            </label>
+            <Input
+              id='portOut'
+              placeholder='9999'
+              width='75px'
+              size='sm'
+              textAlign='right'
+              maxLength={5}
+              {...register('portOut', {
+                required: { value: true, message: 'Required field' },
+                max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
+                min: { value: 1024, message: 'Port in incorrect range (1024 - 65535)' },
+                pattern: {
+                  value: isOnlyNumbers,
+                  message: 'Value should be numeric',
+                },
+              })}
+            />
           </FormControl>
         </ModalBody>
         {/*<ModalSubmitFooter />*/}
       </form>
       <ModalFooter className={styles.buttonSection}>
-        <Button variant='ghosted' paddingLeft={0} color='#6c6c6c' size='sm' onClick={resetForm}>
+        <Button variant='ontime-ghost-on-light' size='sm' onClick={resetForm}>
           Revert to saved
         </Button>
-        <Button colorScheme='gray' size='sm'>
+        <Button variant='ontime-subtle-on-light' size='sm'>
           Cancel
         </Button>
         <Button
