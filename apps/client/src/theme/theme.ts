@@ -1,27 +1,22 @@
 import { extendTheme } from '@chakra-ui/react';
 
-import {
-  ontimeButtonFilled,
-  ontimeButtonOutlined,
-  ontimeButtonSubtle,
-  ontimeButtonSubtleWhite,
-} from './ontimeButton';
+import { ontimeButtonFilled, ontimeButtonOutlined, ontimeButtonSubtle, ontimeButtonSubtleWhite } from './ontimeButton';
 import { ontimeCheckboxOnDark } from './ontimeCheckbox';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeSelect } from './ontimeSelect';
-import { ontimeSwitch } from './ontimeSwitch';
-import {
-  ontimeInputFilled,
-  ontimeTextAreaFilled,
-  ontimeTextAreaFilledOnLight,
-} from './ontimeTextInputs';
+import { lightSwitch, ontimeSwitch } from './ontimeSwitch';
+import { ontimeInputFilled, ontimeTextAreaFilled, ontimeTextAreaFilledOnLight } from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
+import { ontimeModal } from './ontimeModal';
+import { ontimeTab } from './ontimeTab';
 
 const theme = extendTheme({
   components: {
     Button: {
       baseStyle: {
+        letterSpacing: '0.3px',
+        fontWeight: '400',
         borderRadius: '3px',
       },
       variants: {
@@ -38,7 +33,7 @@ const theme = extendTheme({
     },
     Editable: {
       variants: {
-        'ontime': { ...ontimeEditable },
+        ontime: { ...ontimeEditable },
       },
     },
     Input: {
@@ -48,6 +43,16 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeInputFilled },
+      },
+    },
+    Modal: {
+      variants: {
+        ontime: { ...ontimeModal },
+      },
+    },
+    Tabs: {
+      variants: {
+        ontime: { ...ontimeTab },
       },
     },
     Textarea: {
@@ -60,16 +65,17 @@ const theme = extendTheme({
       },
     },
     Tooltip: {
-      baseStyle: { ...ontimeTooltip},
+      baseStyle: { ...ontimeTooltip },
     },
     Switch: {
       variants: {
-        'ontime': { ...ontimeSwitch },
+        ontime: { ...ontimeSwitch },
+        'ontime-on-light': { ...lightSwitch },
       },
     },
     Select: {
       variants: {
-        'ontime': { ...ontimeSelect },
+        ontime: { ...ontimeSelect },
       },
     },
     Menu: {

@@ -1,4 +1,5 @@
-@use '../../theme/main' as *;
+@use '../../theme/ontimeColours' as *;
+@use '../../theme/v2Styles' as *;
 
 //////////////////////////////////// main
 
@@ -7,7 +8,7 @@
 
   .notes {
     font-weight: 400;
-    color: $light-bg;
+    color: $action-blue;
     display: grid;
     place-items: center;
     height: 4em;
@@ -16,7 +17,7 @@
   .modalFields {
     max-height: 45vh;
     overflow-y: auto;
-    scrollbar-color: rgba($light-bg, 0.35) rgba($light-bg, 0.15);
+    scrollbar-color: rgba($action-blue, 0.35) rgba($action-blue, 0.15);
     padding-right: 6px;
 
     label {
@@ -42,7 +43,7 @@
       grid-template-columns: 20% 1fr 4em;
 
       .placeholder {
-        background: $light-text;
+        background: black;
         width: 100%;
         height: 24px;
       }
@@ -51,19 +52,19 @@
 
   /* Track */
   ::-webkit-scrollbar-track {
-    background: rgba($light-bg, 0.15);
+    background: rgba($gray-50, 0.15);
     border-radius: 3px;
   }
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: rgba($light-bg, 0.35);
+    background: rgba($gray-100, 0.35);
     border-radius: 3px;
   }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba($light-bg, 0.45);
+    background: rgba($gray-200, 0.45);
   }
 
   .modalInline {
@@ -99,9 +100,8 @@
     padding-top: 2em;
     display: flex;
     justify-content: flex-end;
-    gap: 1em;
+    gap: 16px;
   }
-
 }
 
 .modalBody > * {
@@ -115,7 +115,7 @@ ul.featureList {
     display: flex;
     align-items: center;
     svg {
-      color: $ontime-accent-text;
+      color: black;
       margin-right: 4px;
     }
   }
@@ -124,7 +124,7 @@ ul.featureList {
 p {
   &.notes {
     text-align: center;
-    border-color: $light-bg-transparent;
+    border-color: black;
     border-width: 0 2px;
     font-size: 0.9em;
     margin-bottom: 1em;
@@ -139,7 +139,7 @@ span {
 }
 
 .blockNotes {
-  background-color: $bg-gray;
+  background-color: $gray-1100;
   margin: 1em 0;
   padding: 0.5em;
   font-size: 0.8em;
@@ -147,7 +147,7 @@ span {
 
   table {
     background-color: #fff;
-    border-left: 4px solid lighten($ontime-pink, 5%);
+    border-left: 4px solid lighten($ontime-color, 5%);
     width: 100%;
     margin: 0.5em 0;
     border-radius: 2px;
@@ -181,12 +181,12 @@ span {
 }
 
 .labelNote {
-  color: $light-bg;
+  color: $action-blue;
   padding-right: 1em;
 }
 
 .labelNoteInline {
-  color: $light-bg;
+  color: $action-blue;
 }
 
 .inlineFlex {

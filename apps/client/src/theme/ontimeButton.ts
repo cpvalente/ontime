@@ -1,11 +1,4 @@
-const commonStyles = {
-  letterSpacing: '0.3px',
-  fontWeight: '400',
-  borderRadius: '3px',
-};
-
 export const ontimeButtonFilled = {
-  ...commonStyles,
   background: '#2B5ABC', // $blue-700
   color: '#fff', // pure-white
   border: '1px solid #2B5ABC', // $blue-700
@@ -20,7 +13,6 @@ export const ontimeButtonFilled = {
 };
 
 export const ontimeButtonOutlined = {
-  ...commonStyles,
   backgroundColor: '#2d2d2d', // $gray-1100
   color: '#e2e2e2', // $blue-400
   border: '1px solid rgba(255, 255, 255, 0.10)', // white-10
@@ -34,7 +26,6 @@ export const ontimeButtonOutlined = {
 };
 
 export const ontimeButtonSubtle = {
-  ...commonStyles,
   backgroundColor: '#303030', // $gray-1050
   color: '#779BE7', // $blue-400
   border: '1px solid transparent',
