@@ -1,6 +1,8 @@
 import { generateId } from 'ontime-utils';
+import { OSCSettings } from 'ontime-types';
+
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
-import { dbModel, OSCSettings } from '../models/dataModel.js';
+import { dbModel } from '../models/dataModel.js';
 import { validateEvent } from './parser.js';
 import { MAX_EVENTS } from '../settings.js';
 

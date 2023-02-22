@@ -6,11 +6,11 @@ import cors from 'cors';
 // import utils
 import { join, resolve } from 'path';
 
-import { config } from './config/config.js';
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { initSentry } from './modules/sentry.js';
 import { currentDirectory, environment, isProduction, resolvedPath, uiPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
+import { OSCSettings } from 'ontime-types';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
@@ -25,7 +25,6 @@ import { eventTimer } from './services/TimerService.js';
 import { dbLoadingProcess } from './modules/loadDb.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { OscIntegration } from './services/integration-service/OscIntegration.js';
-import { OSCSettings } from './models/dataModel.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 

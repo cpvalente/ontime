@@ -1,8 +1,6 @@
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { runtimeState } from '../../stores/EventStore.js';
 
-type Action = TimerLifeCycleKey | string;
-
 class IntegrationService {
   private integrations: IIntegration[];
 
@@ -18,7 +16,7 @@ class IntegrationService {
     this.integrations = this.integrations.filter((int) => int !== integrationService);
   }
 
-  dispatch(action: Action) {
+  dispatch(action: TimerLifeCycleKey) {
     const state = runtimeState.poll();
     this.integrations.forEach((integration) => {
       integration.dispatch(action, state);

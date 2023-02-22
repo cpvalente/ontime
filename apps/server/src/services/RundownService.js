@@ -7,7 +7,7 @@ import {
 } from '../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
-import { eventTimer } from './TimerService.js';
+import { eventTimer } from './TimerService.ts';
 import { socketProvider } from '../classes/socket/SocketController.js';
 
 /**

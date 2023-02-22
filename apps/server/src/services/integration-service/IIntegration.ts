@@ -1,12 +1,11 @@
-import TimerLifeCycle from '../../@types/TimerLifecycle.types.js';
+import { TimerLifeCycle, OscSubscription } from 'ontime-types';
 
 export type TimerLifeCycleKey = keyof typeof TimerLifeCycle;
-type BaseSubscriptions = { [key in TimerLifeCycleKey]?: unknown };
 
 export default interface IIntegration {
-  subscriptions: BaseSubscriptions;
+  subscriptions: OscSubscription;
   init: (config: unknown) => OperationReturn;
-  dispatch: (action: string, state?: object) => OperationReturn;
+  dispatch: (action: TimerLifeCycleKey, state?: object) => OperationReturn;
   emit: (...args: unknown[]) => unknown;
   shutdown: () => void;
 }

@@ -7,7 +7,7 @@ import { messageManager } from '../message-manager/MessageManager.js';
 import { PlaybackService } from '../../services/PlaybackService.js';
 
 import { ADDRESS_MESSAGE_CONTROL } from './socketConfig.js';
-import { eventTimer, TimerService } from '../../services/TimerService.js';
+import { eventTimer, TimerService } from '../../services/TimerService.ts';
 import { EventLoader, eventLoader } from '../event-loader/EventLoader.js';
 
 class SocketController {

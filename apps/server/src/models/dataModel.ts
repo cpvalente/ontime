@@ -1,26 +1,4 @@
-import { TimerLifeCycleKey } from '../services/integration-service/IIntegration.js';
-
-export type OscSubscriptions = { [key in TimerLifeCycleKey]?: { message: string; enabled: boolean } };
-
-export interface OSCSettings {
-  portIn: number;
-  portOut: number;
-  targetIP: string;
-  enabledIn: boolean;
-  enabledOut: boolean;
-  subscriptions: OscSubscriptions;
-}
-
-export type DatabaseModel = {
-  rundown: any;
-  event: any;
-  settings: any;
-  views: any;
-  aliases: any;
-  userFields: any;
-  osc: OSCSettings;
-  http: any;
-};
+import { DatabaseModel } from 'ontime-types';
 
 export const dbModel: DatabaseModel = {
   rundown: [],

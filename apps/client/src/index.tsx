@@ -2,7 +2,6 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
-import { TimerType } from 'ontime-types';
 
 import App from './App';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
@@ -19,10 +18,6 @@ Sentry.init({
   release: ONTIME_VERSION,
   enabled: import.meta.env.PROD,
 });
-
-// TODO: apply code and remove, refs PR #290
-const sharedType: TimerType = TimerType.CountDown;
-console.log('WIP', sharedType);
 
 root.render(
   <StrictMode>

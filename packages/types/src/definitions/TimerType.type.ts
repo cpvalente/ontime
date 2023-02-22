@@ -1,7 +1,7 @@
-enum TimerType {
+enum TimerTypeType {
   CountDown = 'count-down',
   CountUp = 'count-up',
   Clock = 'clock'
 }
 
-export default TimerType
+export default TimerTypeType

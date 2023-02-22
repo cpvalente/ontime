@@ -1,9 +1,11 @@
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import { copyFileSync, existsSync } from 'fs';
+import { DatabaseModel } from 'ontime-types';
+
 import { ensureDirectory } from '../utils/fileManagement.js';
 import { validateFile } from '../utils/parserUtils.js';
-import { DatabaseModel, dbModel } from '../models/dataModel.js';
+import { dbModel } from '../models/dataModel.js';
 import { parseJson } from '../utils/parser.js';
 import { reportSentryException } from './sentry.js';
 import { pathToStartDb, resolveDbDirectory, resolveDbPath } from '../setup.js';

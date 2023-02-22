@@ -1,4 +1,4 @@
-enum TimerLifeCycle {
+export enum TimerLifeCycle {
   onLoad = 'onLoad',
   onStart = 'onStart',
   onPause = 'onPause',
@@ -6,5 +6,3 @@ enum TimerLifeCycle {
   onUpdate = 'onUpdate',
   onFinish = 'onFinish',
 }
-
-export default TimerLifeCycle;

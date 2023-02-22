@@ -1,17 +1,40 @@
+import { TimerLifeCycle } from 'ontime-types';
+
 import { runtimeState } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { DAY_TO_MS } from '../utils/time.js';
 import { integrationService } from './integration-service/IntegrationService.js';
-import TimerLifeCycle from '../@types/TimerLifecycle.types.js';
 
 export class TimerService {
+  private readonly _interval: NodeJS.Timer;
+
+  private playback: string;
+
+  private loadedTimerId: null;
+  private _pausedInterval: number;
+  private _pausedAt: number | null;
+  private _secondaryTarget: number | null;
+
+  timer: {
+    clock: number;
+    current: number | null;
+    elapsed: number | null;
+    expectedFinish: number | null;
+    addedTime: number;
+    startedAt: number | null;
+    finishedAt: number | null;
+    secondaryTimer: number | null;
+    selectedEventId: string | null;
+    duration: number | null;
+  };
+
   /**
    * @constructor
    * @param {object} [timerConfig]
    * @param {number} [timerConfig.refresh]
    */
-  constructor(timerConfig) {
+  constructor(timerConfig?) {
     this._clear();
     this._interval = setInterval(() => this.update(), timerConfig?.refresh || 1000);
   }
@@ -66,6 +89,8 @@ export class TimerService {
       startedAt: null,
       finishedAt: null,
       secondaryTimer: null,
+      selectedEventId: null,
+      duration: null,
     };
     this.loadedTimerId = null;
     this._pausedInterval = 0;
