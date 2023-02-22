@@ -1,7 +1,7 @@
 import TimerTypeType from './definitions/TimerType.type.js';
 import { DatabaseModel } from './definitions/DataModel.type.js';
 import { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
-import { OscSubscription, OSCSettings } from './definitions/core/OscSettings.type.js';
+import { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
 
 // DATA MODEL
 export type { DatabaseModel };
