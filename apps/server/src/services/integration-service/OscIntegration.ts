@@ -42,7 +42,7 @@ export class OscIntegration implements IIntegration {
       this.oscClient = new Client(targetIP, portOut);
       return {
         success: true,
-        message: `OSC Client connected to ${targetIP}:${portOut}`,
+        message: `OSC integration client connected to ${targetIP}:${portOut}`,
       };
     } catch (error) {
       this.oscClient = null;

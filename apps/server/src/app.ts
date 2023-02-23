@@ -74,6 +74,7 @@ app.use((error, response) => {
 });
 
 /***************  START SERVICES ***************/
+
 /* Override config
  * ----------------
  *
@@ -81,15 +82,59 @@ app.use((error, response) => {
  * It can be overridden here by the settings in the db
  * It can also be overridden on call
  *
+ * Start order
+ * ----------------
+ *
+ * The services need to be started in a certain order,
+ * the enum below enforces that
  */
 
-// we need to wait for the db to be loaded
-await dbLoadingProcess;
+enum OntimeStartOrder {
+  Error,
+  InitDB,
+  InitServer,
+  InitIO,
+}
 
-const { osc } = DataProvider.getData();
-const oscInPort = osc.portIn;
-const oscInEnabled = osc.enabledIn;
-const serverPort = 4001; // hardcoded for now
+let step = OntimeStartOrder.InitDB;
+const checkStart = (currentState) => {
+  if (step !== currentState) {
+    step = OntimeStartOrder.Error;
+    throw new Error('Init order error: startDb > startServer > startOsc > startIntegrations');
+  } else {
+    if (step === 1 || step === 2) {
+      step = step + 1;
+    }
+  }
+};
+
+export const startDb = async () => {
+  checkStart(OntimeStartOrder.InitDB);
+  await dbLoadingProcess;
+};
+
+// create HTTP server
+const expressServer = http.createServer(app);
+
+/**
+ * Starts servers
+ * @return {Promise<string>}
+ */
+export const startServer = async () => {
+  checkStart(OntimeStartOrder.InitServer);
+
+  const serverPort = 4001; // hardcoded for now
+  const returnMessage = `Ontime is listening on port ${serverPort}`;
+  expressServer.listen(serverPort, '0.0.0.0');
+
+  socketServer.initServer(expressServer);
+  socketServer.info('SERVER', 'Socket initialised');
+
+  socketServer.info('SERVER', returnMessage);
+  socketServer.startListener();
+
+  return returnMessage;
+};
 
 /**
  * @description starts OSC server
@@ -98,7 +143,11 @@ const serverPort = 4001; // hardcoded for now
  * @return {Promise<void>}
  */
 export const startOSCServer = async (overrideConfig = null) => {
-  if (!oscInEnabled) {
+  checkStart(OntimeStartOrder.InitIO);
+
+  const { osc } = DataProvider.getData();
+
+  if (!osc.enabledIn) {
     socketServer.info('RX', 'OSC Input Disabled');
     return;
   }
@@ -110,36 +159,17 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  socketServer.info('RX', `Starting OSC Server on port: ${oscInPort}`);
+  socketServer.info('RX', `Starting OSC Server on port: ${oscSettings.portIn}`);
   initiateOSC(oscSettings);
-};
-
-// create HTTP server
-const expressServer = http.createServer(app);
-
-/**
- * Starts servers
- * @return {Promise<string>}
- */
-export const startServer = async () => {
-  // Start server
-  const returnMessage = `Ontime is listening on port ${serverPort}`;
-  expressServer.listen(serverPort, '0.0.0.0');
-
-  socketServer.initServer(expressServer);
-  socketServer.info('SERVER', 'Socket initialised');
-
-  socketServer.info('SERVER', returnMessage);
-  socketServer.startListener();
-  return returnMessage;
 };
 
 /**
  * starts integrations
  */
 export const startIntegrations = async (config?: { osc: OSCSettings }) => {
+  checkStart(OntimeStartOrder.InitIO);
+
   const { osc } = config ?? DataProvider.getData();
-  console.log('Ontime starting OSC integration');
 
   if (!osc) {
     return 'OSC Invalid configuration';
