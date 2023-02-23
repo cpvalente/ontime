@@ -3,7 +3,7 @@ import axios from 'axios';
 import { URLAliasType } from '../models/Alias.type';
 import { InfoType } from '../models/Info.types';
 import { OntimeSettingsType } from '../models/OntimeSettings.type';
-import { OscSettingsType } from '../models/OscSettings.type';
+import { OSCSettings } from '../models/OscSettings.type';
 import { UserFieldsType } from '../models/UserFields.type';
 import { ViewSettingsType } from '../models/ViewSettings.type';
 
@@ -90,7 +90,7 @@ export async function postUserFields(data: UserFieldsType) {
  * @description HTTP request to retrieve osc settings
  * @return {Promise}
  */
-export async function getOSC(): Promise<OscSettingsType> {
+export async function getOSC(): Promise<OSCSettings> {
   const res = await axios.get(`${ontimeURL}/osc`);
   return res.data;
 }
@@ -99,7 +99,7 @@ export async function getOSC(): Promise<OscSettingsType> {
  * @description HTTP request to mutate osc settings
  * @return {Promise}
  */
-export async function postOSC(data: OscSettingsType) {
+export async function postOSC(data: OSCSettings) {
   return axios.post(`${ontimeURL}/osc`, data);
 }
 

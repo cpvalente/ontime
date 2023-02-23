@@ -1,15 +1,40 @@
+import { TimerLifeCycle } from 'ontime-types';
+
 import { runtimeState } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { DAY_TO_MS } from '../utils/time.js';
+import { integrationService } from './integration-service/IntegrationService.js';
 
 export class TimerService {
+  private readonly _interval: NodeJS.Timer;
+
+  private playback: string;
+
+  private loadedTimerId: null;
+  private _pausedInterval: number;
+  private _pausedAt: number | null;
+  private _secondaryTarget: number | null;
+
+  timer: {
+    clock: number;
+    current: number | null;
+    elapsed: number | null;
+    expectedFinish: number | null;
+    addedTime: number;
+    startedAt: number | null;
+    finishedAt: number | null;
+    secondaryTimer: number | null;
+    selectedEventId: string | null;
+    duration: number | null;
+  };
+
   /**
    * @constructor
    * @param {object} [timerConfig]
    * @param {number} [timerConfig.refresh]
    */
-  constructor(timerConfig) {
+  constructor(timerConfig?) {
     this._clear();
     this._interval = setInterval(() => this.update(), timerConfig?.refresh || 1000);
   }
@@ -45,7 +70,7 @@ export class TimerService {
 
     return Math.max(
       this.timer.startedAt + this.timer.duration + this._pausedInterval + this.timer.addedTime,
-      this.timer.startedAt
+      this.timer.startedAt,
     );
   }
 
@@ -64,6 +89,8 @@ export class TimerService {
       startedAt: null,
       finishedAt: null,
       secondaryTimer: null,
+      selectedEventId: null,
+      duration: null,
     };
     this.loadedTimerId = null;
     this._pausedInterval = 0;
@@ -138,6 +165,7 @@ export class TimerService {
   _onLoad() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onLoad);
   }
 
   start() {
@@ -172,6 +200,7 @@ export class TimerService {
   _onStart() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onStart);
   }
 
   pause() {
@@ -188,6 +217,7 @@ export class TimerService {
   _onPause() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onPause);
   }
 
   stop() {
@@ -202,6 +232,7 @@ export class TimerService {
   _onStop() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onStop);
   }
 
   /**
@@ -249,8 +280,7 @@ export class TimerService {
         secondaryTimer: this.timer.secondaryTimer,
         _secondaryTarget: this._secondaryTarget,
       };
-      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } =
-        updateRoll(tempCurrentTimer);
+      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
 
       this.timer.current = updatedTimer;
       this.timer.secondaryTimer = updatedSecondaryTimer;
@@ -272,11 +302,7 @@ export class TimerService {
         }
 
         this.timer.current =
-          this.timer.startedAt +
-          this.timer.duration +
-          this.timer.addedTime +
-          this._pausedInterval -
-          this.timer.clock;
+          this.timer.startedAt + this.timer.duration + this.timer.addedTime + this._pausedInterval - this.timer.clock;
         this.timer.elapsed = this.timer.duration - this.timer.current;
 
         if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
@@ -294,11 +320,13 @@ export class TimerService {
   _onUpdate() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onUpdate);
   }
 
   _onFinish() {
     runtimeState.set('playback', this.playback);
     runtimeState.set('ontime-timer', this.timer);
+    integrationService.dispatch(TimerLifeCycle.onFinish);
   }
 
   roll(currentEvent, nextEvent, timers) {

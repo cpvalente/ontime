@@ -1,4 +1,4 @@
-import { DataProvider } from '../data-provider/DataProvider.js';
+import { DataProvider } from '../data-provider/DataProvider.ts';
 import { getRollTimers } from '../../services/rollUtils.js';
 
 let instance;

@@ -3,6 +3,7 @@
  * and adds logic specific to ontime data
  */
 import { data, db } from '../../modules/loadDb.js';
+import { safeMerge } from './DataProvider.utils.js';
 
 export class DataProvider {
   static getData() {
@@ -39,6 +40,7 @@ export class DataProvider {
   }
 
   static async deleteEvent(eventId) {
+    // @ts-expect-error -- this will go away once we type db
     data.rundown = Array.from(data.rundown).filter((e) => e.id !== eventId);
     await this.persist();
   }
@@ -49,6 +51,7 @@ export class DataProvider {
 
   static async clearRundown() {
     data.rundown = [];
+    // @ts-expect-error -- not sure how to type, this is library side
     await db.write();
   }
 
@@ -149,11 +152,12 @@ export class DataProvider {
   }
 
   static async persist() {
+    // @ts-expect-error -- not sure how to type, this is library side
     await db.write();
   }
 
   static async mergeIntoData(newData) {
-    const mergedData = DataProvider.safeMerge(data, newData);
+    const mergedData = safeMerge(data, newData);
     data.event = mergedData.event;
     data.settings = mergedData.settings;
     data.osc = mergedData.osc;
@@ -162,37 +166,5 @@ export class DataProvider {
     data.userFields = mergedData.userFields;
     data.rundown = mergedData.rundown;
     await this.persist();
-  }
-
-  /**
-   * Merges two data objects
-   * @param {object} existing
-   * @param {object} newData
-   */
-  static safeMerge(existing, newData) {
-    const mergedData = { ...existing };
-
-    if (typeof newData?.rundown !== 'undefined') {
-      mergedData.rundown = newData.rundown;
-    }
-    if (typeof newData?.event !== 'undefined') {
-      mergedData.event = { ...newData.event };
-    }
-    if (typeof newData?.settings !== 'undefined') {
-      mergedData.settings = { ...newData.settings };
-    }
-    if (typeof newData?.osc !== 'undefined') {
-      mergedData.osc = { ...newData.osc };
-    }
-    if (typeof newData?.http !== 'undefined') {
-      mergedData.http = { ...newData.http };
-    }
-    if (typeof newData?.aliases !== 'undefined') {
-      mergedData.aliases = [...newData.aliases];
-    }
-    if (typeof newData?.userFields !== 'undefined') {
-      mergedData.userFields = { ...existing.userFields, ...newData.userFields };
-    }
-    return mergedData;
   }
 }

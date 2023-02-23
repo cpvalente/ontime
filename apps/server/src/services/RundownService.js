@@ -1,5 +1,5 @@
 import { generateId } from 'ontime-utils';
-import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.ts';
 import {
   block as blockDef,
   delay as delayDef,
@@ -7,7 +7,7 @@ import {
 } from '../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
-import { eventTimer } from './TimerService.js';
+import { eventTimer } from './TimerService.ts';
 import { socketProvider } from '../classes/socket/SocketController.js';
 
 /**

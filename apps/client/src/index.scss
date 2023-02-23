@@ -7,6 +7,13 @@
   scrollbar-width: thin;
 }
 
+// reset box-sizing
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
 body,
 html,
 .App {

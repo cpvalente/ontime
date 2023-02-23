@@ -1,16 +1,14 @@
-// import { promise } from './modules/loadDb.js';
-import { startOSCServer, startServer } from './app.js';
+import { startDb, startIntegrations, startOSCServer, startServer } from './app.js';
 
 async function startOntime() {
   try {
-    // await promise;
+    await startDb();
 
-    // Start express server
     const loaded = await startServer();
     console.log(loaded);
 
-    // Start OSC Server (API)
     await startOSCServer();
+    await startIntegrations();
   } catch (error) {
     console.log('Error starting Ontime');
     console.log(error);

@@ -1,6 +1,8 @@
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import { copyFileSync, existsSync } from 'fs';
+import { DatabaseModel } from 'ontime-types';
+
 import { ensureDirectory } from '../utils/fileManagement.js';
 import { validateFile } from '../utils/parserUtils.js';
 import { dbModel } from '../models/dataModel.js';
@@ -51,7 +53,7 @@ const parseDb = async (fileToRead, adapterToUse) => {
 async function loadDb() {
   const dbInDisk = populateDb();
 
-  const adapter = new JSONFile(dbInDisk);
+  const adapter = new JSONFile<DatabaseModel>(dbInDisk);
   const db = new Low(adapter);
 
   const data = await parseDb(dbInDisk, db);
@@ -63,11 +65,11 @@ async function loadDb() {
 }
 
 export let db = {};
-export let data = {};
-export const promise = loadDb();
+export let data = {} as DatabaseModel;
+export const dbLoadingProcess = loadDb();
 
 const init = async () => {
-  const dbProvider = await promise;
+  const dbProvider = await dbLoadingProcess;
   db = dbProvider.db;
   data = dbProvider.data;
 };

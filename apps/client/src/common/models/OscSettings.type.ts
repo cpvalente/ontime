@@ -1,13 +1,16 @@
-export type OscSettingsType = {
-  port: string;
+import { OSCSettings } from 'ontime-types';
+
+// in the placeholder, we pass strings to satisfy input type
+export interface PlaceholderSettings extends Omit<OSCSettings, 'portIn' | 'portOut'> {
+  portIn: string;
   portOut: string;
-  targetIP: string;
-  enabled: boolean;
 }
 
-export const oscPlaceholderSettings: OscSettingsType = {
-  port: '',
+export const oscPlaceholderSettings: PlaceholderSettings = {
+  portIn: '',
   portOut: '',
   targetIP: '',
-  enabled: false,
+  enabledIn: false,
+  enabledOut: false,
+  subscriptions: {},
 };

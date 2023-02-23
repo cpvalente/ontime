@@ -4,6 +4,8 @@ import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
 import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
+import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
+import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
 import { IoScan } from '@react-icons/all-files/io5/IoScan';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { downloadRundown } from '../../common/api/ontimeApi';
@@ -20,6 +22,8 @@ interface MenuBarProps {
   onSettingsClose: () => void;
   isUploadOpen: boolean;
   onUploadOpen: () => void;
+  isIntegrationOpen: boolean;
+  onIntegrationOpen: () => void;
 }
 
 type Actions = 'min' | 'max' | 'shutdown' | 'help';
@@ -29,42 +33,53 @@ const buttonStyle = {
   size: 'lg',
   colorScheme: 'white',
   _hover: {
-    background: 'rgba(255, 255, 255, 0.10)' // $white-10
+    background: 'rgba(255, 255, 255, 0.10)', // $white-10
   },
   _active: {
-    background: 'rgba(255, 255, 255, 0.13)' // $white-13
-  }
+    background: 'rgba(255, 255, 255, 0.13)', // $white-13
+  },
 };
 
 export default function MenuBar(props: MenuBarProps) {
-  const { isSettingsOpen, onSettingsOpen, onSettingsClose, isUploadOpen, onUploadOpen } = props;
+  const {
+    isSettingsOpen,
+    onSettingsOpen,
+    onSettingsClose,
+    isUploadOpen,
+    onUploadOpen,
+    isIntegrationOpen,
+    onIntegrationOpen,
+  } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
-  const actionHandler = useCallback((action: Actions) => {
-    // Stop crashes when testing locally
-    if (!isElectron) {
-      if (action === 'help') {
-        window.open('https://cpvalente.gitbook.io/ontime/');
+  const actionHandler = useCallback(
+    (action: Actions) => {
+      // Stop crashes when testing locally
+      if (!isElectron) {
+        if (action === 'help') {
+          window.open('https://cpvalente.gitbook.io/ontime/');
+        }
+      } else {
+        switch (action) {
+          case 'min':
+            sendToElectron('set-window', 'to-tray');
+            break;
+          case 'max':
+            sendToElectron('set-window', 'to-max');
+            break;
+          case 'shutdown':
+            sendToElectron('shutdown', 'now');
+            break;
+          case 'help':
+            sendToElectron('send-to-link', 'help');
+            break;
+          default:
+            break;
+        }
       }
-    } else {
-      switch (action) {
-        case 'min':
-          sendToElectron('set-window', 'to-tray');
-          break;
-        case 'max':
-          sendToElectron('set-window', 'to-max');
-          break;
-        case 'shutdown':
-          sendToElectron('shutdown', 'now');
-          break;
-        case 'help':
-          sendToElectron('send-to-link', 'help');
-          break;
-        default:
-          break;
-      }
-    }
-  }, [sendToElectron, isElectron]);
+    },
+    [sendToElectron, isElectron],
+  );
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -127,6 +142,15 @@ export default function MenuBar(props: MenuBarProps) {
         clickHandler={onSettingsOpen}
         tooltip='Settings'
         aria-label='Settings'
+      />
+      <div className={style.gap} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={isIntegrationOpen ? <IoExtensionPuzzle /> : <IoExtensionPuzzleOutline />}
+        className={isIntegrationOpen ? style.open : ''}
+        clickHandler={onIntegrationOpen}
+        tooltip='Integrations'
+        aria-label='Integrations'
       />
       <div className={style.gap} />
       <TooltipActionBtn

@@ -1,4 +1,6 @@
-export const dbModel = {
+import { DatabaseModel } from 'ontime-types';
+
+export const dbModel: DatabaseModel = {
   rundown: [],
   event: {
     title: '',
@@ -33,10 +35,37 @@ export const dbModel = {
     user9: 'user9',
   },
   osc: {
-    port: 8888,
+    portIn: 8888,
     portOut: 9999,
     targetIP: '127.0.0.1',
-    enabled: true,
+    enabledIn: false,
+    enabledOut: false,
+    subscriptions: {
+      onLoad: {
+        message: '',
+        enabled: false,
+      },
+      onStart: {
+        message: '',
+        enabled: false,
+      },
+      onPause: {
+        message: '',
+        enabled: false,
+      },
+      onStop: {
+        message: '',
+        enabled: false,
+      },
+      onUpdate: {
+        message: '',
+        enabled: false,
+      },
+      onFinish: {
+        message: '',
+        enabled: false,
+      },
+    },
   },
   http: {
     user: null,

@@ -48,13 +48,13 @@ let tray = null;
 
   try {
     const ontimeServer = require(nodePath)
-    const { startServer, startOSCServer } = ontimeServer;
+    const { startDb, startServer, startOSCServer, startIntegrations } = ontimeServer;
 
-    // Start express server
+    await startDb();
+
     loaded = await startServer();
-
-    // Start OSC Server
     await startOSCServer();
+    await startIntegrations();
   } catch (error) {
     loaded = error;
   }

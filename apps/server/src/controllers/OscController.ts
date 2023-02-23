@@ -1,4 +1,6 @@
 import { Server } from 'node-osc';
+import { OSCSettings } from 'ontime-types';
+
 import { PlaybackService } from '../services/PlaybackService.js';
 import { messageManager } from '../classes/message-manager/MessageManager.js';
 import { socketProvider } from '../classes/socket/SocketController.js';
@@ -14,11 +16,10 @@ export const shutdownOSCServer = () => {
 };
 
 /**
- * @description initialises OSC server
- * @param {object} config
+ * Initialises OSC server
  */
-export const initiateOSC = (config) => {
-  oscServer = new Server(config.port, '0.0.0.0');
+export const initiateOSC = (config: OSCSettings) => {
+  oscServer = new Server(config.portIn, '0.0.0.0');
 
   oscServer.on('error', console.error);
 
@@ -34,7 +35,7 @@ export const initiateOSC = (config) => {
 
     // get first part before (ontime)
     if (address !== 'ontime') {
-      console.error('RX', `OSC IN: Message address ${address} not recognised`);
+      console.error('RX', `OSC IN: Message address ${address} not recognised`, msg);
       return;
     }
 
@@ -123,10 +124,7 @@ export const initiateOSC = (config) => {
         try {
           const eventIndex = Number(args);
           if (isNaN(eventIndex) || eventIndex <= 0) {
-            socketProvider.error(
-              'RX',
-              `OSC IN: event index not recognised or out of range ${eventIndex}`
-            );
+            socketProvider.error('RX', `OSC IN: event index not recognised or out of range ${eventIndex}`);
           } else {
             PlaybackService.loadByIndex(eventIndex - 1);
           }

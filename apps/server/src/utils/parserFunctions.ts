@@ -1,4 +1,6 @@
 import { generateId } from 'ontime-utils';
+import { OSCSettings } from 'ontime-types';
+
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { validateEvent } from './parser.js';
@@ -148,31 +150,27 @@ export const parseViews = (data, enforce) => {
 
 /**
  * Parse osc portion of an entry
- * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
- * @returns {object} - event object data
  */
-export const parseOsc = (data, enforce) => {
-  let newOsc = {};
+export const parseOsc = (
+  data: { osc?: Partial<OSCSettings> },
+  enforce: boolean,
+): OSCSettings | Record<string, never> => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
-    const s = data.osc;
-    const osc = {};
 
-    if (s.port) osc.port = s.port;
-    if (s.portOut) osc.portOut = s.portOut;
-    if (s.targetIP) osc.targetIP = s.targetIP;
-    if (typeof s.enabled !== 'undefined') osc.enabled = s.enabled;
-    // write to db
-    newOsc = {
-      ...dbModel.osc,
-      ...osc,
+    const loadedConfig = data?.osc || {};
+    return {
+      portIn: loadedConfig.portIn ?? dbModel.osc.portIn,
+      portOut: loadedConfig.portOut ?? dbModel.osc.portOut,
+      targetIP: loadedConfig.targetIP ?? dbModel.osc.targetIP,
+      enabledIn: loadedConfig.enabledIn ?? dbModel.osc.enabledIn,
+      enabledOut: loadedConfig.enabledOut ?? dbModel.osc.enabledOut,
+      subscriptions: loadedConfig.subscriptions ?? dbModel.osc.subscriptions,
     };
   } else if (enforce) {
-    newOsc = { ...dbModel.osc };
     console.log(`Created OSC object in db`);
-  }
-  return newOsc;
+    return { ...dbModel.osc };
+  } else return {};
 };
 
 /**
@@ -185,18 +183,21 @@ export const parseHttp = (data, enforce) => {
   const newHttp = {};
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
-    const h = data.osc;
+    const h = data.http;
     const http = {};
 
+    // @ts-expect-error -- not yet
     if (h.user) http.user = h.user;
+    // @ts-expect-error -- not yet
     if (h.pwd) http.pwd = h.pwd;
 
-    // write to db
+    // @ts-expect-error -- not yet
     newHttp.http = {
       ...dbModel.http,
       ...http,
     };
   } else if (enforce) {
+    // @ts-expect-error -- not yet
     newHttp.http = { ...dbModel.http };
     console.log(`Created http object in db`);
   }
