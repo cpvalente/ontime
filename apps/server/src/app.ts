@@ -8,7 +8,7 @@ import { join, resolve } from 'path';
 
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { initSentry } from './modules/sentry.js';
-import { currentDirectory, environment, isProduction, resolvedPath, uiPath } from './setup.js';
+import { currentDirectory, environment, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { OSCSettings } from 'ontime-types';
 
@@ -62,10 +62,13 @@ app.use('/playback', playbackRouter);
 app.use('/external', express.static(join(currentDirectory, 'external')));
 
 // serve static - react, in test mode we fetch the React app from module
-app.use(express.static(join(currentDirectory, resolvedPath(), uiPath)));
+const newpath = join(currentDirectory, resolvedPath());
+console.log('serving content at ', newpath);
+
+app.use(express.static(join(currentDirectory, resolvedPath())));
 
 app.get('*', (req, res) => {
-  res.sendFile(resolve(currentDirectory, resolvedPath(), uiPath, 'index.html'));
+  res.sendFile(resolve(currentDirectory, resolvedPath(), 'index.html'));
 });
 
 // Implement catch all
