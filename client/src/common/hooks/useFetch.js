@@ -11,6 +11,7 @@ export const useFetch = (namespace, fn) => {
   const { data, status, isError, refetch } = useQuery(namespace, fn, {
     refetchInterval: refetchIntervalMs,
     cacheTime: Infinity,
+    networkMode: 'always',
   });
 
   return { data, status, isError, refetch };

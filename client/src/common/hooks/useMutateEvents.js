@@ -9,6 +9,7 @@ import { EVENTS_TABLE } from '../api/apiConstants';
 export default function useMutateEvents(mutation){
   const queryClient = useQueryClient();
   return useMutation(mutation, {
+    networkMode: 'always',
     onMutate: async (newEvent) => {
       // cancel ongoing queries
       queryClient.cancelQueries(EVENTS_TABLE, { exact: true });
