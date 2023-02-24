@@ -11,6 +11,7 @@ import TimerDisplay from '../../../common/components/timer-display/TimerDisplay'
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
+import { getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
 
@@ -66,6 +67,8 @@ export default function Timer(props) {
   const showProgress = time.playback !== 'stop';
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
+  const stageTimer = getTimerByType(time);
+
   return (
     <div className={time.finished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
@@ -82,7 +85,7 @@ export default function Timer(props) {
         {showEndMessage ? (
           <div className='end-message'>{general.endMessage}</div>
         ) : (
-          <TimerDisplay timer={time} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
+          <TimerDisplay time={stageTimer} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
         )}
       </div>
 

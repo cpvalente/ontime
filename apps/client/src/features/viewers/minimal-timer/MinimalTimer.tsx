@@ -12,6 +12,7 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
 import { OverridableOptions } from '../../../common/models/ViewTypes';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
+import { getTimerByType } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
 
@@ -133,23 +134,18 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isNegative = (time.current ?? 0) < 0;
   const showFinished = isNegative && !userOptions?.hideOvertime;
   const showEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;
-  const countUp =
-    time.duration - time.current > time.duration ? time.duration * -1 + time.current : time.duration - time.current;
-  const timer =
-    time.countdownStyle === 'count-down' ? time.current : time.countdownStyle === 'count-up' ? countUp : time.clock;
+
+  const stageTimer = getTimerByType(time);
+
+  let display = stageTimer ? formatDisplay(millisToSeconds(stageTimer), true) : '-- : -- : --';
+
+  if (isNegative) {
+    display = `-${display}`;
+  }
 
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
 
-  let stageTimer;
-  if (time.current === null) {
-    stageTimer = '- - : - -';
-  } else {
-    stageTimer = formatDisplay(Math.abs(millisToSeconds(timer)), true);
-    if (time.current < 0) {
-      stageTimer = `-${stageTimer}`;
-    }
-  }
-  const stageTimerCharacters = stageTimer.replace('/:/g', '').length;
+  const stageTimerCharacters = display.replace('/:/g', '').length;
 
   return (
     <div
@@ -181,7 +177,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
             backgroundColor: userOptions.textBackground,
           }}
         >
-          {stageTimer}
+          {display}
         </div>
       )}
     </div>
