@@ -9,9 +9,9 @@ import { integrationService } from './integration-service/IntegrationService.js'
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
 
-  private playback: string;
+  playback: string;
 
-  private loadedTimerId: null;
+  loadedTimerId: null;
   private _pausedInterval: number;
   private _pausedAt: number | null;
   private _secondaryTarget: number | null;

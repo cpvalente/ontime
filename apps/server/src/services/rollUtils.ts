@@ -1,16 +1,12 @@
 /**
  * Utility variable: 24 hour in milliseconds .
- * @type {number}
  */
 export const DAY_TO_MS = 86400000;
 
 /**
- * @description handle events that span over midnight
- * @param {number} start - When does the event start
- * @param {number} end  - When does the event end
- * @returns {number} normalised time
+ * handle events that span over midnight
  */
-export const normaliseEndTime = (start, end) => (end < start ? end + DAY_TO_MS : end);
+export const normaliseEndTime = (start: number, end: number) => (end < start ? end + DAY_TO_MS : end);
 
 /**
  * @description Sorts an array of objects by given property
@@ -45,15 +41,15 @@ export const replacePlaceholder = (str, values) => {
  * @param timeNow
  * @returns {{}}
  */
-export const getRollTimers = (rundown, timeNow) => {
-  let nowIndex = null; // index of event now
-  let nowId = null; // id of event now
-  let publicIndex = null; // index of public event now
+export const getRollTimers = (rundown, timeNow: number) => {
+  let nowIndex: number | null = null; // index of event now
+  let nowId: string | null = null; // id of event now
+  let publicIndex: string | null = null; // index of public event now
   let publicTime = -1;
-  let nextIndex = null; // index of next event
-  let publicNextIndex = null; // index of next public event
-  let timeToNext = null; // counter: time for next event
-  let publicTimeToNext = null; // counter: time for next public event
+  let nextIndex: number | null = null; // index of next event
+  let publicNextIndex: number | null = null; // index of next public event
+  let timeToNext: number | null = null; // counter: time for next event
+  let publicTimeToNext: number | null = null; // counter: time for next public event
   let timers = null;
 
   // Order events by startTime
@@ -171,8 +167,7 @@ export const getRollTimers = (rundown, timeNow) => {
  * @returns {object} object with selection variables
  */
 export const updateRoll = (currentTimers) => {
-  const { selectedEventId, current, _finishAt, clock, secondaryTimer, _secondaryTarget } =
-    currentTimers;
+  const { selectedEventId, current, _finishAt, clock, secondaryTimer, _secondaryTarget } = currentTimers;
 
   // timers
   let updatedTimer = current;

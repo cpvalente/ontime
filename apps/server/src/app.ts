@@ -100,7 +100,7 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitDB;
-const checkStart = (currentState) => {
+const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
     step = OntimeStartOrder.Error;
     throw new Error('Init order error: startDb > startServer > startOsc > startIntegrations');
