@@ -5,7 +5,7 @@ import { block as blockDef, delay as delayDef, event as eventDef } from '../mode
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventTimer } from './TimerService.js';
-import { runtimeState } from '../stores/EventStore.js';
+import { eventStore } from '../stores/EventStore.js';
 
 /**
  * Checks if a list of IDs is in the current selection
@@ -145,7 +145,7 @@ export async function addEvent(eventData) {
     throw new Error(error);
   }
   updateTimer([id]);
-  runtimeState.broadcast();
+  eventStore.broadcast();
   return newEvent;
 }
 
@@ -157,7 +157,7 @@ export async function editEvent(eventData) {
   }
   const newEvent = await DataProvider.updateEventById(eventId, eventData);
   updateTimer([eventId]);
-  runtimeState.broadcast();
+  eventStore.broadcast();
   return newEvent;
 }
 
@@ -169,7 +169,7 @@ export async function editEvent(eventData) {
 export async function deleteEvent(eventId) {
   await DataProvider.deleteEvent(eventId);
   updateTimer([eventId]);
-  runtimeState.broadcast();
+  eventStore.broadcast();
 }
 
 /**
@@ -179,7 +179,7 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await DataProvider.clearRundown();
   updateTimer();
-  runtimeState.broadcast();
+  eventStore.broadcast();
 }
 
 /**
@@ -260,5 +260,5 @@ export async function applyDelay(eventId) {
   // update rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
-  runtimeState.broadcast();
+  eventStore.broadcast();
 }

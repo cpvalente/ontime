@@ -5,7 +5,7 @@ const store = {};
 /**
  * A runtime store that broadcasts its payload
  */
-export const runtimeState = {
+export const eventStore = {
   get(key) {
     return store[key];
   },

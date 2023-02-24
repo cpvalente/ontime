@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { EventData, ViewSettings } from 'ontime-types';
+import { EventData, Message, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { PresenterMessageType } from '../../../common/models/PresenterMessage.type';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
@@ -15,7 +14,7 @@ import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig
 import './MinimalTimer.scss';
 
 interface MinimalTimerProps {
-  pres: PresenterMessageType;
+  pres: Message;
   time: TimeManagerType;
   viewSettings: ViewSettings;
   general: EventData;

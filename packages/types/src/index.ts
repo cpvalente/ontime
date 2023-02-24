@@ -1,7 +1,14 @@
 import { Alias } from './definitions/core/Alias.type.js';
 import { DatabaseModel } from './definitions/DataModel.type.js';
 import { EventData } from './definitions/core/EventData.type.js';
-import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from './definitions/core/OntimeEvent.type.js';
+import { Message, MessageControl } from './definitions/runtime/MessageControl.type.js';
+import {
+  OntimeBaseEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  SupportedEvent,
+} from './definitions/core/OntimeEvent.type.js';
 import { OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
 import { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
 import { Playback } from './definitions/runtime/Playback.type.js';
@@ -43,5 +50,7 @@ export type { OscSubscription, OSCSettings };
 // SERVER
 export { TimerLifeCycle };
 export type { Playback };
+export type { Message };
+export type { MessageControl };
 
 // CLIENT

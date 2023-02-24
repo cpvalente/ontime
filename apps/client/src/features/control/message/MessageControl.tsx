@@ -16,26 +16,26 @@ export default function MessageControl() {
       <InputRow
         label='Timer screen message'
         placeholder='Shown in stage timer'
-        text={data?.presenter.text || ''}
-        visible={data?.presenter.visible || false}
+        text={data?.messages.presenter.text || ''}
+        visible={data?.messages.presenter.visible || false}
         changeHandler={(newValue) => setMessage.presenterText(newValue)}
-        actionHandler={() => setMessage.presenterVisible(!data?.presenter.visible)}
+        actionHandler={() => setMessage.presenterVisible(!data?.messages.presenter.visible)}
       />
       <InputRow
         label='Public / Backstage screen message'
         placeholder='Shown in public and backstage screens'
-        text={data?.public.text || ''}
-        visible={data?.public.visible || false}
+        text={data?.messages.public.text || ''}
+        visible={data?.messages.public.visible || false}
         changeHandler={(newValue) => setMessage.publicText(newValue)}
-        actionHandler={() => setMessage.publicVisible(!data?.public.visible)}
+        actionHandler={() => setMessage.publicVisible(!data?.messages.public.visible)}
       />
       <InputRow
         label='Lower third message'
         placeholder='Shown in lower third'
-        text={data?.lower.text || ''}
-        visible={data?.lower.visible || false}
+        text={data?.messages.lower.text || ''}
+        visible={data?.messages.lower.visible || false}
         changeHandler={(newValue) => setMessage.lowerText(newValue)}
-        actionHandler={() => setMessage.lowerVisible(!data?.lower.visible)}
+        actionHandler={() => setMessage.lowerVisible(!data?.messages.lower.visible)}
       />
       <div className={style.onAirSection}>
         <label className={style.label}>Toggle On Air state</label>

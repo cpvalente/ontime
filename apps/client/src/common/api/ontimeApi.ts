@@ -1,11 +1,7 @@
 import axios from 'axios';
+import { Alias, OSCSettings, Settings, UserFields, ViewSettings } from 'ontime-types';
 
-import { Alias, Settings } from 'ontime-types';
 import { InfoType } from '../models/Info';
-import { OntimeSettingsType } from '../models/OntimeSettings';
-import { OSCSettings } from '../models/OscSettings';
-import { UserFieldsType } from '../models/UserFields';
-import { ViewSettingsType } from '../models/ViewSettings.type';
 
 import { ontimeURL } from './apiConstants';
 
@@ -22,7 +18,7 @@ export async function getSettings(): Promise<Settings> {
  * @description HTTP request to mutate application settings
  * @return {Promise}
  */
-export async function postSettings(data: OntimeSettingsType) {
+export async function postSettings(data: Settings) {
   return axios.post(`${ontimeURL}/settings`, data);
 }
 
@@ -39,7 +35,7 @@ export async function getInfo(): Promise<InfoType> {
  * @description HTTP request to retrieve view settings
  * @return {Promise}
  */
-export async function getView(): Promise<ViewSettingsType> {
+export async function getView(): Promise<ViewSettings> {
   const res = await axios.get(`${ontimeURL}/views`);
   return res.data;
 }
@@ -48,7 +44,7 @@ export async function getView(): Promise<ViewSettingsType> {
  * @description HTTP request to mutate view settings
  * @return {Promise}
  */
-export async function postView(data: ViewSettingsType) {
+export async function postView(data: ViewSettings) {
   return axios.post(`${ontimeURL}/views`, data);
 }
 
@@ -73,7 +69,7 @@ export async function postAliases(data: Alias[]) {
  * @description HTTP request to retrieve user fields
  * @return {Promise}
  */
-export async function getUserFields(): Promise<UserFieldsType> {
+export async function getUserFields(): Promise<UserFields> {
   const res = await axios.get(`${ontimeURL}/userfields`);
   return res.data;
 }
@@ -82,7 +78,7 @@ export async function getUserFields(): Promise<UserFieldsType> {
  * @description HTTP request to mutate user fields
  * @return {Promise}
  */
-export async function postUserFields(data: UserFieldsType) {
+export async function postUserFields(data: UserFields) {
   return axios.post(`${ontimeURL}/userfields`, data);
 }
 

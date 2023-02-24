@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useContext, useState } from 'react';
+import { OntimeEvent } from 'ontime-types';
 
 import { useInterval } from '../../hooks/useInterval';
-import { OntimeEvent } from '../../models/EventTypes';
 
 interface ScheduleContextState {
   events: OntimeEvent[];

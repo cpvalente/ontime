@@ -6,14 +6,14 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
-import { runtimeState } from '../stores/EventStore.js';
+import { eventStore } from '../stores/EventStore.js';
 import { resolveDbPath } from '../setup.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
 export const poll = async (req, res) => {
   try {
-    const s = runtimeState.poll();
+    const s = eventStore.poll();
     res.status(200).send(s);
   } catch (error) {
     res.status(500).send({

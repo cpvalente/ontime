@@ -1,6 +1,6 @@
 import { DataProvider } from '../data-provider/DataProvider.js';
 import { getRollTimers } from '../../services/rollUtils.js';
-import { runtimeState } from '../../stores/EventStore.js';
+import { eventStore } from '../../stores/EventStore.js';
 
 let instance;
 
@@ -266,8 +266,8 @@ export class EventLoader {
    * Handle side effects from event loading
    */
   private _loadEvent() {
-    runtimeState.set('titles', this.titles);
-    runtimeState.set('titlesPublic', this.titlesPublic);
+    eventStore.set('titles', this.titles);
+    eventStore.set('titlesPublic', this.titlesPublic);
   }
 
   /**

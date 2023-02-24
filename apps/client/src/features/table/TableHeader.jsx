@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import useFullscreen from '../../common/hooks/useFullscreen';
 import { useTimer } from '../../common/hooks/useSocket';
-import useEvent from '../../common/hooks-query/useEvent';
+import useEventData from '../../common/hooks-query/useEventData';
 import { formatDisplay, millisToSeconds } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
 import { tooltipDelayFast } from '../../ontimeConfig';
@@ -24,7 +24,7 @@ export default function TableHeader({ handleCSVExport, featureData }) {
     useContext(TableSettingsContext);
   const { data: timer } = useTimer();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const { data: event } = useEvent();
+  const { data: event } = useEventData();
 
   const selected = !featureData.numEvents
     ? 'No events'

@@ -5,7 +5,7 @@ import { EVENTDATA_TABLE } from '../api/apiConstants';
 import { fetchEventData } from '../api/eventDataApi';
 import { eventDataPlaceholder } from '../models/EventData';
 
-export default function useEvent() {
+export default function useEventData() {
   const { data, status, isError, refetch } = useQuery({
     queryKey: EVENTDATA_TABLE,
     queryFn: fetchEventData,

@@ -68,7 +68,7 @@ export const parseEventData = (data, enforce) => {
   let newEventData = {};
   if ('eventData' in data) {
     console.log('Found event data, importing...');
-    const e = data.event;
+    const e = data.eventData;
     // filter known properties and write to db
     newEventData = {
       ...dbModel.eventData,
