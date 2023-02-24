@@ -131,8 +131,6 @@ export const startServer = async () => {
   expressServer.listen(serverPort, '0.0.0.0');
 
   socketServer.initServer(expressServer);
-  socketServer.info('SERVER', 'Socket initialised');
-
   socketServer.info('SERVER', returnMessage);
   socketServer.startListener();
 
