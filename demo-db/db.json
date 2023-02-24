@@ -1,5 +1,5 @@
 {
-  "events": [
+  "rundown": [
     {
       "title": "Welcome to Ontime",
       "subtitle": "Subtitles are useful",
@@ -219,7 +219,7 @@
       "id": "1358"
     }
   ],
-  "event": {
+  "eventData": {
     "title": "All about Carlos demo event",
     "publicUrl": "www.getontime.no",
     "publicInfo": "WiFi: demoproject \nPassword: ontimeproject",
@@ -234,7 +234,7 @@
     "lock": null,
     "pinCode": "1234"
   },
-  "views": {
+  "viewSettings": {
     "overrideStyles": false
   },
   "osc": {

@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
+import { ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime } from '../../../common/utils/time';
 
@@ -15,7 +15,7 @@ import './Clock.scss';
 
 interface ClockProps {
   time: TimeManagerType;
-  viewSettings: ViewSettingsType;
+  viewSettings: ViewSettings;
 }
 
 const formatOptions = {

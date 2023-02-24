@@ -1,5 +1,6 @@
+import { Playback } from 'ontime-types';
+
 import { usePlaybackControl } from '../../../common/hooks/useSocket';
-import { Playback } from '../../../common/models/OntimeTypes';
 
 import PlaybackButtons from './PlaybackButtons';
 import PlaybackTimer from './PlaybackTimer';

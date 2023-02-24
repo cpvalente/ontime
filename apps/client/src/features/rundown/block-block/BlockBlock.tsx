@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import { OntimeBlock, OntimeEvent } from 'ontime-types';
 
-import { OntimeBlock, OntimeEvent } from '../../../common/models/EventTypes';
 import { cx } from '../../../common/utils/styleUtils';
 import BlockActionMenu from '../event-block/composite/BlockActionMenu';
 import { EventItemActions } from '../RundownEntry';

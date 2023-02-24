@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Select, Switch } from '@chakra-ui/react';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { useAtom } from 'jotai';
+import { OntimeEvent } from 'ontime-types';
 
 import { editorEventId } from '../../common/atoms/LocalEventSettings';
 import CopyTag from '../../common/components/copy-tag/CopyTag';
@@ -11,7 +12,6 @@ import TimeInput from '../../common/components/input/time-input/TimeInput';
 import { LoggingContext } from '../../common/context/LoggingContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useRundown from '../../common/hooks-query/useRundown';
-import { OntimeEvent } from '../../common/models/EventTypes';
 import { millisToMinutes } from '../../common/utils/dateConfig';
 import getDelayTo from '../../common/utils/getDelayTo';
 import { stringFromMillis } from '../../common/utils/time';

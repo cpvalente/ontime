@@ -3,11 +3,11 @@ import { Draggable } from 'react-beautiful-dnd';
 import { Button, HStack } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import { OntimeDelay, OntimeEvent } from 'ontime-types';
+
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { millisToMinutes } from '../../../common/utils/dateConfig';
-
-import { OntimeDelay, OntimeEvent } from '../../../common/models/EventTypes';
 import { cx } from '../../../common/utils/styleUtils';
 import BlockActionMenu from '../event-block/composite/BlockActionMenu';
 import { EventItemActions } from '../RundownEntry';
@@ -15,10 +15,10 @@ import { EventItemActions } from '../RundownEntry';
 import style from './DelayBlock.module.scss';
 
 interface DelayBlockProps {
-  data: OntimeDelay,
+  data: OntimeDelay;
   index: number;
   hasCursor: boolean;
-  actionHandler: (action: EventItemActions, payload?: number | { field: keyof OntimeEvent, value: unknown }) => void;
+  actionHandler: (action: EventItemActions, payload?: number | { field: keyof OntimeEvent; value: unknown }) => void;
 }
 
 export default function DelayBlock(props: DelayBlockProps) {
@@ -30,7 +30,7 @@ export default function DelayBlock(props: DelayBlockProps) {
     if (hasCursor) {
       onFocusRef?.current?.focus();
     }
-  }, [hasCursor])
+  }, [hasCursor]);
 
   const applyDelayHandler = useCallback(() => {
     applyDelay(data.id);
@@ -48,10 +48,7 @@ export default function DelayBlock(props: DelayBlockProps) {
     [data.id, updateEvent],
   );
 
-  const blockClasses = cx([
-    style.delay,
-    hasCursor ? style.hasCursor : null,
-  ]);
+  const blockClasses = cx([style.delay, hasCursor ? style.hasCursor : null]);
 
   const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
 
@@ -62,17 +59,9 @@ export default function DelayBlock(props: DelayBlockProps) {
           <span className={style.drag} {...provided.dragHandleProps} ref={onFocusRef}>
             <IoReorderTwo />
           </span>
-          <DelayInput
-            value={delayValue}
-            submitHandler={delaySubmitHandler}
-          />
+          <DelayInput value={delayValue} submitHandler={delaySubmitHandler} />
           <HStack spacing='8px' className={style.actionOverlay}>
-            <Button
-              onClick={applyDelayHandler}
-              size='sm'
-              leftIcon={<IoCheckmark />}
-              variant='ontime-subtle-white'
-            >
+            <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
               Apply delay
             </Button>
             <BlockActionMenu showAdd enableDelete actionHandler={actionHandler} />

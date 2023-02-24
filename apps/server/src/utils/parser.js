@@ -6,13 +6,13 @@ import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString, validateDuration } from './parserUtils.js';
 import {
   parseAliases,
-  parseEvent,
+  parseEventData,
   parseHttp,
   parseOsc,
   parseRundown,
   parseSettings,
   parseUserFields,
-  parseViews,
+  parseViewSettings,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 
@@ -265,11 +265,11 @@ export const parseJson = async (jsonData, enforce = false) => {
   // parse Events
   returnData.rundown = parseRundown(jsonData);
   // parse Event
-  returnData.event = parseEvent(jsonData, enforce);
+  returnData.event = parseEventData(jsonData, enforce);
   // Settings handled partially
   returnData.settings = parseSettings(jsonData, enforce);
   // View settings handled partially
-  returnData.views = parseViews(jsonData, enforce);
+  returnData.views = parseViewSettings(jsonData, enforce);
   // Import OSC settings if any
   returnData.osc = parseOsc(jsonData, enforce);
   // Import HTTP settings if any
@@ -358,7 +358,7 @@ export const fileHandler = async (file) => {
         const dataFromExcel = await parseExcel(excelData.data);
         res.data = {};
         res.data.rundown = parseRundown(dataFromExcel);
-        res.data.event = parseEvent(dataFromExcel, true);
+        res.data.event = parseEventData(dataFromExcel, true);
         res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
       } else {

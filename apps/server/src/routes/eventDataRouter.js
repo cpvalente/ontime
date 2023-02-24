@@ -2,8 +2,8 @@ import express from 'express';
 export const router = express.Router();
 
 // import event controller
-import { getEvent, postEvent } from '../controllers/eventController.js';
-import { eventSanitizer } from '../controllers/eventController.validate.js';
+import { getEvent, postEvent } from '../controllers/eventDataController.js';
+import { eventSanitizer } from '../controllers/eventDataController.validate.js';
 
 // create route between controller and 'GET /event' endpoint
 router.get('/', getEvent);

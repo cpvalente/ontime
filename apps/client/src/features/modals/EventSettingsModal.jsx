@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormLabel, Input, ModalBody, Textarea } from '@chakra-ui/react';
 
-import { postEvent } from '../../common/api/eventApi';
+import { postEventData } from '../../common/api/eventDataApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
 import useEvent from '../../common/hooks-query/useEvent';
 import { eventDataPlaceholder } from '../../common/models/EventData';
@@ -44,7 +44,7 @@ export default function SettingsModal() {
       setSubmitting(true);
 
       try {
-        await postEvent(formData);
+        await postEventData(formData);
       } catch (error) {
         emitError(`Error saving event settings: ${error}`);
       } finally {

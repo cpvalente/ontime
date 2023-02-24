@@ -225,7 +225,7 @@ export const postSettings = async (req, res) => {
  * @method GET
  */
 export const getViewSettings = async (req, res) => {
-  const views = DataProvider.getViews();
+  const views = DataProvider.getViewSettings();
   res.status(200).send(views);
 };
 
@@ -240,7 +240,7 @@ export const postViewSettings = async (req, res) => {
 
   try {
     const newData = { overrideStyles: req.body.overrideStyles };
-    await DataProvider.setViews(newData);
+    await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
     res.status(400).send(error);

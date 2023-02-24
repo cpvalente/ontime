@@ -1,7 +1,7 @@
 export const STATIC_PORT = 4001;
 
 // REST stuff
-export const EVENT_TABLE = ['event'];
+export const EVENTDATA_TABLE = ['eventdata'];
 export const ALIASES = ['aliases'];
 export const USERFIELDS = ['userFields'];
 export const RUNDOWN_TABLE_KEY = 'rundown';
@@ -23,11 +23,10 @@ export const TIMER = 'timer';
  * @description finds server path given the current location, it
  * @return {*}
  */
-export const calculateServer = () =>
-  import.meta.env.DEV ? `http://localhost:${STATIC_PORT}` : window.location.origin;
+export const calculateServer = () => (import.meta.env.DEV ? `http://localhost:${STATIC_PORT}` : window.location.origin);
 
 export const serverURL = calculateServer();
-export const eventURL = `${serverURL}/event`;
+export const eventURL = `${serverURL}/eventdata`;
 export const rundownURL = `${serverURL}/eventlist`;
 export const ontimeURL = `${serverURL}/ontime`;
 

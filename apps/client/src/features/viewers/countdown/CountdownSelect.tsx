@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
+import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import Empty from '../../../common/components/state/Empty';
-import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from '../../../common/models/EventTypes';
 import { formatTime } from '../../../common/utils/time';
 
 import { sanitiseTitle } from './countdown.helpers';

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { EventDataType } from 'common/models/EventData';
 import { useAtom } from 'jotai';
+import { EventData, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
@@ -9,7 +9,6 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { PresenterMessageType } from '../../../common/models/PresenterMessage.type';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 
@@ -18,8 +17,8 @@ import './MinimalTimer.scss';
 interface MinimalTimerProps {
   pres: PresenterMessageType;
   time: TimeManagerType;
-  viewSettings: ViewSettingsType;
-  general: EventDataType;
+  viewSettings: ViewSettings;
+  general: EventData;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {

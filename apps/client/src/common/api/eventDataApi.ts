@@ -7,7 +7,7 @@ import { eventURL } from './apiConstants';
  * @description HTTP request to fetch event data
  * @return {Promise}
  */
-export async function fetchEvent(): Promise<EventData> {
+export async function fetchEventData(): Promise<EventData> {
   const res = await axios.get(eventURL);
   return res.data;
 }
@@ -16,6 +16,6 @@ export async function fetchEvent(): Promise<EventData> {
  * @description HTTP request to mutate event data
  * @return {Promise}
  */
-export async function postEvent(data: EventData) {
+export async function postEventData(data: EventData) {
   return axios.post(eventURL, data);
 }

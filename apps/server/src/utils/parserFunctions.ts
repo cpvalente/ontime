@@ -64,26 +64,26 @@ export const parseRundown = (data) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseEvent = (data, enforce) => {
-  let newEvent = {};
-  if ('event' in data) {
+export const parseEventData = (data, enforce) => {
+  let newEventData = {};
+  if ('eventData' in data) {
     console.log('Found event data, importing...');
     const e = data.event;
     // filter known properties and write to db
-    newEvent = {
-      ...dbModel.event,
-      title: e.title || dbModel.event.title,
-      publicUrl: e.publicUrl || dbModel.event.publicUrl,
-      publicInfo: e.publicInfo || dbModel.event.publicInfo,
-      backstageUrl: e.backstageUrl || dbModel.event.backstageUrl,
-      backstageInfo: e.backstageInfo || dbModel.event.backstageInfo,
-      endMessage: e.endMessage || dbModel.event.endMessage,
+    newEventData = {
+      ...dbModel.eventData,
+      title: e.title || dbModel.eventData.title,
+      publicUrl: e.publicUrl || dbModel.eventData.publicUrl,
+      publicInfo: e.publicInfo || dbModel.eventData.publicInfo,
+      backstageUrl: e.backstageUrl || dbModel.eventData.backstageUrl,
+      backstageInfo: e.backstageInfo || dbModel.eventData.backstageInfo,
+      endMessage: e.endMessage || dbModel.eventData.endMessage,
     };
   } else if (enforce) {
-    newEvent = { ...dbModel.event };
+    newEventData = { ...dbModel.eventData };
     console.log(`Created event object in db`);
   }
-  return newEvent;
+  return newEventData;
 };
 
 /**
@@ -127,14 +127,14 @@ export const parseSettings = (data, enforce) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseViews = (data, enforce) => {
+export const parseViewSettings = (data, enforce) => {
   let newViews = {};
-  if ('views' in data) {
+  if ('viewSettings' in data) {
     console.log('Found view definition, importing...');
-    const v = data.views;
+    const v = data.viewSettings;
 
     const viewSettings = {
-      overrideStyles: v.overrideStyles ?? dbModel.views.overrideStyles,
+      overrideStyles: v.overrideStyles ?? dbModel.viewSettings.overrideStyles,
     };
 
     // write to db
@@ -142,8 +142,8 @@ export const parseViews = (data, enforce) => {
       ...viewSettings,
     };
   } else if (enforce) {
-    newViews = dbModel.views;
-    console.log(`Created view object in db`);
+    newViews = dbModel.viewSettings;
+    console.log(`Created viewSettings object in db`);
   }
   return newViews;
 };
