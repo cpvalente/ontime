@@ -16,4 +16,8 @@ export const runtimeState = {
   poll() {
     return store;
   },
+  broadcast() {
+    socketProvider.send(store);
+    socketProvider.broadcastState();
+  },
 };
