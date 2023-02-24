@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-import { URLAliasType } from '../models/Alias.type';
-import { InfoType } from '../models/Info.types';
-import { OntimeSettingsType } from '../models/OntimeSettings.type';
-import { OSCSettings } from '../models/OscSettings.type';
-import { UserFieldsType } from '../models/UserFields.type';
+import { URLAliasType } from '../models/Alias';
+import { InfoType } from '../models/Info';
+import { OntimeSettingsType } from '../models/OntimeSettings';
+import { OSCSettings } from '../models/OscSettings';
+import { UserFieldsType } from '../models/UserFields';
 import { ViewSettingsType } from '../models/ViewSettings.type';
 
 import { ontimeURL } from './apiConstants';

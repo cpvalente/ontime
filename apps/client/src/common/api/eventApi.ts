@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { EventDataType } from '../models/EventData.type';
+import { EventDataType } from '../models/EventData';
 
 import { eventURL } from './apiConstants';
 

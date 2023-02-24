@@ -40,7 +40,6 @@ export class DataProvider {
   }
 
   static async deleteEvent(eventId) {
-    // @ts-expect-error -- this will go away once we type db
     data.rundown = Array.from(data.rundown).filter((e) => e.id !== eventId);
     await this.persist();
   }

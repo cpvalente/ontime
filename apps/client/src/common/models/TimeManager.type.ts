@@ -1,4 +1,4 @@
-import { Playback } from './OntimeTypes';
+import { Playback } from 'ontime-types';
 
 export type TimeManagerType = {
   clock: number;
@@ -12,4 +12,4 @@ export type TimeManagerType = {
 
   finished: boolean;
   playback: Playback;
-}
+};

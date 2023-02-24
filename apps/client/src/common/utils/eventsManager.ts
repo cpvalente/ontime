@@ -1,4 +1,4 @@
-import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from '../models/EventTypes';
+import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { formatTime } from './time';
 

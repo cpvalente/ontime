@@ -5,7 +5,7 @@ import { Button, FormControl, Input, ModalBody, ModalFooter, Switch } from '@cha
 import { postOSC } from '../../../common/api/ontimeApi';
 import { LoggingContext } from '../../../common/context/LoggingContext';
 import useOscSettings from '../../../common/hooks-query/useOscSettings';
-import { PlaceholderSettings } from '../../../common/models/OscSettings.type';
+import { PlaceholderSettings } from '../../../common/models/OscSettings';
 import { isIPAddress, isOnlyNumbers } from '../../../common/utils/regex';
 
 import styles from '../Modal.module.scss';

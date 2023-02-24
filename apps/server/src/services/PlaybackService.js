@@ -4,6 +4,7 @@
 import { socketProvider } from '../classes/socket/SocketController.js';
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventTimer, TimerService } from './TimerService.ts';
+import { runtimeState } from '../stores/EventStore.js';
 
 /**
  * Service manages playback status of app
@@ -26,7 +27,7 @@ export class PlaybackService {
       eventTimer.load(event);
       success = true;
     }
-    socketProvider.broadcastState();
+    runtimeState.broadcast();
     return success;
   }
 
@@ -123,7 +124,6 @@ export class PlaybackService {
       const newState = eventTimer.playback;
       socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
-    socketProvider.broadcastState();
   }
 
   /**
@@ -135,7 +135,6 @@ export class PlaybackService {
       const newState = eventTimer.playback;
       socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
-    socketProvider.broadcastState();
   }
 
   /**
@@ -148,7 +147,6 @@ export class PlaybackService {
       const newState = eventTimer.playback;
       socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
-    socketProvider.broadcastState();
   }
 
   /**
@@ -158,7 +156,6 @@ export class PlaybackService {
     if (eventLoader.selectedEventId) {
       this.loadById(eventLoader.selectedEventId);
     }
-    socketProvider.broadcastState();
   }
 
   /**
@@ -186,7 +183,6 @@ export class PlaybackService {
 
       const newState = eventTimer.playback;
       socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
-      socketProvider.broadcastState();
     }
   }
 
@@ -200,6 +196,5 @@ export class PlaybackService {
       eventTimer.delay(delayInMs);
       socketProvider.info('PLAYBACK', `Added ${delayTime} min delay`);
     }
-    socketProvider.broadcastState();
   }
 }

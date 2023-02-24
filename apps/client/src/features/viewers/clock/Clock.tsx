@@ -8,7 +8,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
-import { OverridableOptions } from '../../../common/models/ViewTypes';
+import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime } from '../../../common/utils/time';
 
 import './Clock.scss';

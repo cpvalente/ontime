@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { EVENT_TABLE } from '../api/apiConstants';
 import { fetchEvent } from '../api/eventApi';
-import { eventDataPlaceholder } from '../models/EventData.type';
+import { eventDataPlaceholder } from '../models/EventData';
 
 export default function useEvent() {
   const { data, status, isError, refetch } = useQuery({

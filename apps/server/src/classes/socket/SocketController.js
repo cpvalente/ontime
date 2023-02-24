@@ -412,6 +412,8 @@ class SocketController {
     this.send('feat-cuesheet', featureData);
   }
 
+  // TODO: ouch, services should update the store
+  // make middleware to maintain the features OR remove the feature endpoints
   broadcastState() {
     this.broadcastFeatureRundown();
     this.broadcastFeatureMessageControl();

@@ -2,6 +2,7 @@ import { useCallback, useContext } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { useAtomValue } from 'jotai';
+import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import {
@@ -15,7 +16,6 @@ import {
 } from '../api/eventsApi';
 import { defaultPublicAtom, startTimeIsLastEndAtom } from '../atoms/LocalEventSettings';
 import { LoggingContext } from '../context/LoggingContext';
-import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from '../models/EventTypes';
 
 /**
  * @description Set of utilities for events
@@ -88,7 +88,6 @@ export const useEventAction = () => {
       }
 
       try {
-        // @ts-expect-error we know that the event here is one of the defined types
         await _addEventMutation.mutateAsync(newEvent);
       } catch (error) {
         if (!axios.isAxiosError(error)) {

@@ -1,21 +1,16 @@
+import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent } from 'ontime-types';
 import { generateId } from 'ontime-utils';
-import { DataProvider } from '../classes/data-provider/DataProvider.ts';
-import {
-  block as blockDef,
-  delay as delayDef,
-  event as eventDef,
-} from '../models/eventsDefinition.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { block as blockDef, delay as delayDef, event as eventDef } from '../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
-import { eventTimer } from './TimerService.ts';
-import { socketProvider } from '../classes/socket/SocketController.js';
+import { eventTimer } from './TimerService.js';
+import { runtimeState } from '../stores/EventStore.js';
 
 /**
- *
- * @param affectedIds
- * @returns boolean
+ * Checks if a list of IDs is in the current selection
  */
-const affectedLoaded = (affectedIds) => {
+const affectedLoaded = (affectedIds: string[]) => {
   const now = eventLoader.selectedEventId;
   const nowPublic = eventLoader.selectedPublicEventId;
   const next = eventLoader.nextEventId;
@@ -28,6 +23,9 @@ const affectedLoaded = (affectedIds) => {
   );
 };
 
+/**
+ * Checks if timer replaces the loaded next
+ */
 const isNewNext = () => {
   const timedEvents = EventLoader.getTimedEvents();
   const now = eventLoader.selectedEventId;
@@ -66,10 +64,9 @@ const isNewNext = () => {
 };
 
 /**
- * updates timer object
- * @param {array} [affectedIds]
+ * Updates timer object
  */
-export function updateTimer(affectedIds) {
+export function updateTimer(affectedIds?: string[]) {
   const runningEventId = eventLoader.selectedEventId;
 
   if (runningEventId === null) {
@@ -121,18 +118,18 @@ export async function addEvent(eventData) {
     throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
   }
 
-  let newEvent = {};
+  let newEvent: Partial<OntimeBaseEvent> = {};
   const id = generateId();
 
   switch (eventData.type) {
     case 'event':
-      newEvent = { ...eventDef, ...eventData, id };
+      newEvent = { ...eventDef, ...eventData, id } as Partial<OntimeEvent>;
       break;
     case 'delay':
-      newEvent = { ...delayDef, ...eventData, id };
+      newEvent = { ...delayDef, ...eventData, id } as Partial<OntimeDelay>;
       break;
     case 'block':
-      newEvent = { ...blockDef, ...eventData, id };
+      newEvent = { ...blockDef, ...eventData, id } as Partial<OntimeBlock>;
       break;
   }
 
@@ -148,7 +145,7 @@ export async function addEvent(eventData) {
     throw new Error(error);
   }
   updateTimer([id]);
-  socketProvider.broadcastState();
+  runtimeState.broadcast();
   return newEvent;
 }
 
@@ -160,7 +157,7 @@ export async function editEvent(eventData) {
   }
   const newEvent = await DataProvider.updateEventById(eventId, eventData);
   updateTimer([eventId]);
-  socketProvider.broadcastState();
+  runtimeState.broadcast();
   return newEvent;
 }
 
@@ -172,7 +169,7 @@ export async function editEvent(eventData) {
 export async function deleteEvent(eventId) {
   await DataProvider.deleteEvent(eventId);
   updateTimer([eventId]);
-  socketProvider.broadcastState();
+  runtimeState.broadcast();
 }
 
 /**
@@ -182,7 +179,7 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await DataProvider.clearRundown();
   updateTimer();
-  socketProvider.broadcastState();
+  runtimeState.broadcast();
 }
 
 /**
@@ -263,5 +260,5 @@ export async function applyDelay(eventId) {
   // update rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
-  socketProvider.broadcastState();
+  runtimeState.broadcast();
 }

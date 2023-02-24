@@ -201,7 +201,7 @@ export class EventLoader {
   /**
    * Resets instance state
    */
-  reset(emit: boolean) {
+  reset(emit?: boolean) {
     this.loadedEvent = null;
     this.selectedEventIndex = null;
     this.selectedEventId = null;

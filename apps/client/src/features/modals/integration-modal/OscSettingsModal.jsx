@@ -6,7 +6,7 @@ import { postOSC } from '../../../common/api/ontimeApi';
 import EnableBtn from '../../../common/components/buttons/EnableBtn';
 import { LoggingContext } from '../../../common/context/LoggingContext';
 import useOscSettings from '../../../common/hooks-query/useOscSettings';
-import { oscPlaceholderSettings } from '../../../common/models/OscSettings.type';
+import { oscPlaceholderSettings } from '../../../common/models/OscSettings';
 import { inputProps, portInputProps } from '../modalHelper';
 import SubmitContainer from '../SubmitContainer';
 

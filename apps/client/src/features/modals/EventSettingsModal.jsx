@@ -4,7 +4,7 @@ import { FormLabel, Input, ModalBody, Textarea } from '@chakra-ui/react';
 import { postEvent } from '../../common/api/eventApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
 import useEvent from '../../common/hooks-query/useEvent';
-import { eventDataPlaceholder } from '../../common/models/EventData.type';
+import { eventDataPlaceholder } from '../../common/models/EventData';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';

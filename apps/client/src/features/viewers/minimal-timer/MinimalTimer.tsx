@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { EventDataType } from 'common/models/EventData.type';
+import { EventDataType } from 'common/models/EventData';
 import { useAtom } from 'jotai';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -10,7 +10,7 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { PresenterMessageType } from '../../../common/models/PresenterMessage.type';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
-import { OverridableOptions } from '../../../common/models/ViewTypes';
+import { OverridableOptions } from '../../../common/models/View.types';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 
 import './MinimalTimer.scss';

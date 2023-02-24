@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react';
 import { Input, Textarea } from '@chakra-ui/react';
 
 import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
-import { Size } from '../../../models/UtilTypes';
+import { Size } from '../../../models/Util.type';
 
 import useReactiveTextInput from './useReactiveTextInput';
 
