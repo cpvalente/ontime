@@ -1,6 +1,6 @@
 import { TimerLifeCycle } from 'ontime-types';
 
-import { runtimeState } from '../stores/EventStore.js';
+import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { DAY_TO_MS } from '../utils/time.js';
@@ -9,9 +9,9 @@ import { integrationService } from './integration-service/IntegrationService.js'
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
 
-  private playback: string;
+  playback: string;
 
-  private loadedTimerId: null;
+  loadedTimerId: null;
   private _pausedInterval: number;
   private _pausedAt: number | null;
   private _secondaryTarget: number | null;
@@ -163,8 +163,8 @@ export class TimerService {
    * @private
    */
   _onLoad() {
-    runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    eventStore.set('playback', this.playback);
+    eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onLoad);
   }
 
@@ -198,8 +198,8 @@ export class TimerService {
    * @private
    */
   _onStart() {
-    runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    eventStore.set('playback', this.playback);
+    eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onStart);
   }
 
@@ -215,8 +215,8 @@ export class TimerService {
   }
 
   _onPause() {
-    runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    eventStore.set('playback', this.playback);
+    eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onPause);
   }
 
@@ -230,8 +230,8 @@ export class TimerService {
   }
 
   _onStop() {
-    runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    eventStore.set('playback', this.playback);
+    eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onStop);
   }
 
@@ -318,14 +318,14 @@ export class TimerService {
   }
 
   _onUpdate() {
-    runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    eventStore.set('playback', this.playback);
+    eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onUpdate);
   }
 
   _onFinish() {
-    runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    eventStore.set('playback', this.playback);
+    eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onFinish);
   }
 

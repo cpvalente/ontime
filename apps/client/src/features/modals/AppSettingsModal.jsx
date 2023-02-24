@@ -21,7 +21,7 @@ import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
 import useSettings from '../../common/hooks-query/useSettings';
-import { ontimePlaceholderSettings } from '../../common/models/OntimeSettings.type';
+import { ontimePlaceholderSettings } from '../../common/models/OntimeSettings';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';

@@ -4,15 +4,13 @@
  * @param {object} newData
  */
 export function safeMerge(existing, newData) {
-  const { rundown, event, settings, osc, http, aliases, userFields } = newData || {};
+  const { rundown, event, settings, viewSettings, osc, http, aliases, userFields } = newData || {};
   return {
     ...existing,
     rundown: rundown ?? existing.rundown,
     event: { ...existing.event, ...event },
     settings: { ...existing.settings, ...settings },
-    views: {
-      overrideStyles: false,
-    },
+    viewSettings: { ...existing.viewSettings, ...viewSettings },
     aliases: aliases ?? existing.aliases,
     userFields: {
       ...existing.userFields,

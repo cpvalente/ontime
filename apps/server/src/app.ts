@@ -14,7 +14,7 @@ import { OSCSettings } from 'ontime-types';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
-import { router as eventRouter } from './routes/eventRouter.js';
+import { router as eventDataRouter } from './routes/eventDataRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as playbackRouter } from './routes/playbackRouter.js';
 
@@ -54,7 +54,7 @@ app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
 app.use('/eventlist', rundownRouter);
-app.use('/event', eventRouter);
+app.use('/eventdata', eventDataRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
@@ -100,7 +100,7 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitDB;
-const checkStart = (currentState) => {
+const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
     step = OntimeStartOrder.Error;
     throw new Error('Init order error: startDb > startServer > startOsc > startIntegrations');
@@ -131,8 +131,6 @@ export const startServer = async () => {
   expressServer.listen(serverPort, '0.0.0.0');
 
   socketServer.initServer(expressServer);
-  socketServer.info('SERVER', 'Socket initialised');
-
   socketServer.info('SERVER', returnMessage);
   socketServer.startListener();
 

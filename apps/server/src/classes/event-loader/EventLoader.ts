@@ -1,12 +1,34 @@
-import { DataProvider } from '../data-provider/DataProvider.ts';
+import { DataProvider } from '../data-provider/DataProvider.js';
 import { getRollTimers } from '../../services/rollUtils.js';
+import { eventStore } from '../../stores/EventStore.js';
 
 let instance;
+
+type TitleBlock = {
+  titleNow: string | null;
+  subtitleNow: string | null;
+  presenterNow: string | null;
+  noteNow: string | null;
+  titleNext: string | null;
+  subtitleNext: string | null;
+  presenterNext: string | null;
+  noteNext: string | null;
+};
 
 /**
  * Manages business logic around loading events
  */
 export class EventLoader {
+  loadedEvent: object | null;
+  numEvents: number | null;
+  selectedEventIndex: number | null;
+  selectedEventId: string | null;
+  selectedPublicEventId: string | null;
+  nextEventId: string | null;
+  nextPublicEventId: string | null;
+  titles: TitleBlock;
+  titlesPublic: TitleBlock;
+
   constructor() {
     if (instance) {
       throw new Error('There can be only one');
@@ -14,7 +36,7 @@ export class EventLoader {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-    this.reset();
+    this.reset(false);
     this.loadedEvent = null;
   }
 
@@ -119,11 +141,7 @@ export class EventLoader {
    */
   findNext() {
     const timedEvents = EventLoader.getPlayableEvents();
-    if (
-      timedEvents === null ||
-      !timedEvents.length ||
-      this.selectedEventIndex === this.numEvents - 1
-    ) {
+    if (timedEvents === null || !timedEvents.length || this.selectedEventIndex === this.numEvents - 1) {
       return null;
     }
 
@@ -145,15 +163,8 @@ export class EventLoader {
       return null;
     }
 
-    const {
-      nowIndex,
-      timers,
-      timeToNext,
-      nextEvent,
-      nextPublicEvent,
-      currentEvent,
-      currentPublicEvent,
-    } = getRollTimers(timedEvents, timeNow);
+    const { nowIndex, timers, timeToNext, nextEvent, nextPublicEvent, currentEvent, currentPublicEvent } =
+      getRollTimers(timedEvents, timeNow);
 
     this.loadedEvent = currentEvent;
     this.selectedEventIndex = nowIndex;
@@ -187,7 +198,10 @@ export class EventLoader {
     };
   }
 
-  reset() {
+  /**
+   * Resets instance state
+   */
+  reset(emit?: boolean) {
     this.loadedEvent = null;
     this.selectedEventIndex = null;
     this.selectedEventId = null;
@@ -209,10 +223,17 @@ export class EventLoader {
       titleNow: null,
       subtitleNow: null,
       presenterNow: null,
+      noteNow: null,
       titleNext: null,
       subtitleNext: null,
       presenterNext: null,
+      noteNext: null,
     };
+
+    // workaround for socket not being ready in constructor
+    if (emit) {
+      this._loadEvent();
+    }
   }
 
   /**
@@ -236,7 +257,17 @@ export class EventLoader {
     this._loadTitlesNow(event, playableEvents);
     this._loadTitlesNext(playableEvents);
 
+    this._loadEvent();
+
     return this.getLoaded();
+  }
+
+  /**
+   * Handle side effects from event loading
+   */
+  private _loadEvent() {
+    eventStore.set('titles', this.titles);
+    eventStore.set('titlesPublic', this.titlesPublic);
   }
 
   /**
@@ -245,7 +276,7 @@ export class EventLoader {
    * @param {object} event
    * @param {array} rundown
    */
-  _loadTitlesNow(event, rundown) {
+  private _loadTitlesNow(event, rundown) {
     // private title is always current
     // check if current is also public
     if (event.isPublic) {
@@ -276,8 +307,7 @@ export class EventLoader {
    * @description look for next titles to load
    * @private
    */
-  _loadTitlesNext(rundown) {
-    // Todo: is there a scenario where this gets called without an event?
+  private _loadTitlesNext(rundown) {
     // maybe there is nothing to load
     if (this.selectedEventIndex === null) return;
 
@@ -324,7 +354,7 @@ export class EventLoader {
    * @param type
    * @private
    */
-  _loadThisTitles(event, type) {
+  private _loadThisTitles(event, type) {
     if (!event) {
       return;
     }
@@ -336,6 +366,7 @@ export class EventLoader {
         this.titlesPublic.titleNow = event.title;
         this.titlesPublic.subtitleNow = event.subtitle;
         this.titlesPublic.presenterNow = event.presenter;
+        this.titlesPublic.noteNow = event.note;
         this.selectedPublicEventId = event.id;
 
         // private
@@ -350,6 +381,7 @@ export class EventLoader {
         this.titlesPublic.titleNow = event.title;
         this.titlesPublic.subtitleNow = event.subtitle;
         this.titlesPublic.presenterNow = event.presenter;
+        this.titlesPublic.noteNow = event.note;
         this.selectedPublicEventId = event.id;
         break;
 
@@ -367,6 +399,7 @@ export class EventLoader {
         this.titlesPublic.titleNext = event.title;
         this.titlesPublic.subtitleNext = event.subtitle;
         this.titlesPublic.presenterNext = event.presenter;
+        this.titlesPublic.noteNext = event.note;
         this.nextPublicEventId = event.id;
 
         // private
@@ -381,6 +414,7 @@ export class EventLoader {
         this.titlesPublic.titleNext = event.title;
         this.titlesPublic.subtitleNext = event.subtitle;
         this.titlesPublic.presenterNext = event.presenter;
+        this.titlesPublic.noteNext = event.note;
         this.nextPublicEventId = event.id;
         break;
 

@@ -1,7 +1,5 @@
-export type ViewSettingsType = {
-  overrideStyles: boolean;
-}
+import { ViewSettings } from 'ontime-types';
 
-export const viewsSettingsPlaceholder: ViewSettingsType = {
+export const viewsSettingsPlaceholder: ViewSettings = {
   overrideStyles: false,
 };

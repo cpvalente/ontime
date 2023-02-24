@@ -2,7 +2,7 @@ import { DatabaseModel } from 'ontime-types';
 
 export const dbModel: DatabaseModel = {
   rundown: [],
-  event: {
+  eventData: {
     title: '',
     publicUrl: '',
     publicInfo: '',
@@ -18,7 +18,7 @@ export const dbModel: DatabaseModel = {
     pinCode: null,
     timeFormat: '24',
   },
-  views: {
+  viewSettings: {
     overrideStyles: false,
   },
   aliases: [],

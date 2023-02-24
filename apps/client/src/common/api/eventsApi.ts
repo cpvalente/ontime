@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-import { OntimeRundown, OntimeRundownEntry } from '../models/EventTypes';
+import { OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
 import { rundownURL } from './apiConstants';
 
@@ -37,12 +36,12 @@ export async function requestPatchEvent(data: OntimeRundownEntry) {
   return axios.patch(rundownURL, data);
 }
 
-
 export type ReorderEntry = {
-  eventId: string,
-  from: number,
-  to: number,
-}
+  eventId: string;
+  from: number;
+  to: number;
+};
+
 /**
  * @description HTTP request to reorder events
  * @return {Promise}

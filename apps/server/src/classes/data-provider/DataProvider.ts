@@ -2,6 +2,8 @@
  * Class Event Provider is a mediator for handling the local db
  * and adds logic specific to ontime data
  */
+import { EventData, ViewSettings } from 'ontime-types';
+
 import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
 
@@ -10,14 +12,14 @@ export class DataProvider {
     return data;
   }
 
-  static async setEventData(newData) {
-    data.event = { ...data.event, ...newData };
+  static async setEventData(newData: EventData) {
+    data.eventData = { ...data.eventData, ...newData };
     await this.persist();
-    return data.event;
+    return data.eventData;
   }
 
   static getEventData() {
-    return data.event;
+    return data.eventData;
   }
 
   static async setRundown(newData) {
@@ -40,7 +42,6 @@ export class DataProvider {
   }
 
   static async deleteEvent(eventId) {
-    // @ts-expect-error -- this will go away once we type db
     data.rundown = Array.from(data.rundown).filter((e) => e.id !== eventId);
     await this.persist();
   }
@@ -128,12 +129,12 @@ export class DataProvider {
     return { ...data.userFields };
   }
 
-  static getViews() {
-    return { ...data.views };
+  static getViewSettings() {
+    return { ...data.viewSettings };
   }
 
-  static async setViews(newData) {
-    data.views = { ...newData };
+  static async setViewSettings(newData: ViewSettings) {
+    data.viewSettings = { ...newData };
     await this.persist();
   }
 
@@ -158,8 +159,9 @@ export class DataProvider {
 
   static async mergeIntoData(newData) {
     const mergedData = safeMerge(data, newData);
-    data.event = mergedData.event;
+    data.eventData = mergedData.event;
     data.settings = mergedData.settings;
+    data.viewSettings = mergedData.viewSettings;
     data.osc = mergedData.osc;
     data.http = mergedData.http;
     data.aliases = mergedData.aliases;

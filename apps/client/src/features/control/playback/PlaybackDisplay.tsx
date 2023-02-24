@@ -1,9 +1,9 @@
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
+import { Playback } from 'ontime-types';
 
 import { setPlayback } from '../../../common/hooks/useSocket';
-import { Playback } from '../../../common/models/OntimeTypes';
 
 import TapButton from './TapButton';
 

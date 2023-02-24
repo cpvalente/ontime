@@ -1,4 +1,4 @@
-import { Playback } from '../../../common/models/OntimeTypes';
+import { Playback } from 'ontime-types';
 
 import PlaybackDisplay from './PlaybackDisplay';
 import Transport from './Transport';

@@ -4,7 +4,6 @@ import { OSCSettings } from 'ontime-types';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { messageManager } from '../classes/message-manager/MessageManager.js';
 import { socketProvider } from '../classes/socket/SocketController.js';
-import { ADDRESS_MESSAGE_CONTROL } from '../classes/socket/socketConfig.js';
 
 let oscServer = null;
 
@@ -47,13 +46,11 @@ export const initiateOSC = (config: OSCSettings) => {
 
     switch (path.toLowerCase()) {
       case 'onair': {
-        const featureData = messageManager.setOnAir(true);
-        socketProvider.send(ADDRESS_MESSAGE_CONTROL, featureData);
+        messageManager.setOnAir(true);
         break;
       }
       case 'offair': {
-        const featureData = messageManager.setOnAir(false);
-        socketProvider.send(ADDRESS_MESSAGE_CONTROL, featureData);
+        messageManager.setOnAir(false);
         break;
       }
       case 'play': {

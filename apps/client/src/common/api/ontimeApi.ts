@@ -1,11 +1,7 @@
 import axios from 'axios';
+import { Alias, OSCSettings, Settings, UserFields, ViewSettings } from 'ontime-types';
 
-import { URLAliasType } from '../models/Alias.type';
-import { InfoType } from '../models/Info.types';
-import { OntimeSettingsType } from '../models/OntimeSettings.type';
-import { OSCSettings } from '../models/OscSettings.type';
-import { UserFieldsType } from '../models/UserFields.type';
-import { ViewSettingsType } from '../models/ViewSettings.type';
+import { InfoType } from '../models/Info';
 
 import { ontimeURL } from './apiConstants';
 
@@ -13,7 +9,7 @@ import { ontimeURL } from './apiConstants';
  * @description HTTP request to retrieve application settings
  * @return {Promise}
  */
-export async function getSettings(): Promise<OntimeSettingsType> {
+export async function getSettings(): Promise<Settings> {
   const res = await axios.get(`${ontimeURL}/settings`);
   return res.data;
 }
@@ -22,7 +18,7 @@ export async function getSettings(): Promise<OntimeSettingsType> {
  * @description HTTP request to mutate application settings
  * @return {Promise}
  */
-export async function postSettings(data: OntimeSettingsType) {
+export async function postSettings(data: Settings) {
   return axios.post(`${ontimeURL}/settings`, data);
 }
 
@@ -39,7 +35,7 @@ export async function getInfo(): Promise<InfoType> {
  * @description HTTP request to retrieve view settings
  * @return {Promise}
  */
-export async function getView(): Promise<ViewSettingsType> {
+export async function getView(): Promise<ViewSettings> {
   const res = await axios.get(`${ontimeURL}/views`);
   return res.data;
 }
@@ -48,7 +44,7 @@ export async function getView(): Promise<ViewSettingsType> {
  * @description HTTP request to mutate view settings
  * @return {Promise}
  */
-export async function postView(data: ViewSettingsType) {
+export async function postView(data: ViewSettings) {
   return axios.post(`${ontimeURL}/views`, data);
 }
 
@@ -56,7 +52,7 @@ export async function postView(data: ViewSettingsType) {
  * @description HTTP request to retrieve aliases
  * @return {Promise}
  */
-export async function getAliases(): Promise<URLAliasType[]> {
+export async function getAliases(): Promise<Alias[]> {
   const res = await axios.get(`${ontimeURL}/aliases`);
   return res.data;
 }
@@ -65,7 +61,7 @@ export async function getAliases(): Promise<URLAliasType[]> {
  * @description HTTP request to mutate aliases
  * @return {Promise}
  */
-export async function postAliases(data: URLAliasType[]) {
+export async function postAliases(data: Alias[]) {
   return axios.post(`${ontimeURL}/aliases`, data);
 }
 
@@ -73,7 +69,7 @@ export async function postAliases(data: URLAliasType[]) {
  * @description HTTP request to retrieve user fields
  * @return {Promise}
  */
-export async function getUserFields(): Promise<UserFieldsType> {
+export async function getUserFields(): Promise<UserFields> {
   const res = await axios.get(`${ontimeURL}/userfields`);
   return res.data;
 }
@@ -82,7 +78,7 @@ export async function getUserFields(): Promise<UserFieldsType> {
  * @description HTTP request to mutate user fields
  * @return {Promise}
  */
-export async function postUserFields(data: UserFieldsType) {
+export async function postUserFields(data: UserFields) {
   return axios.post(`${ontimeURL}/userfields`, data);
 }
 

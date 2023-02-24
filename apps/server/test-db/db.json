@@ -7,9 +7,23 @@
       "note": "Maybe a running note for the operator?",
       "timeStart": 28800000,
       "timeEnd": 30600000,
+      "timeType": "start-end",
+      "duration": 1800000,
       "isPublic": false,
+      "skip": false,
+      "colour": "",
+      "user0": "",
+      "user1": "",
+      "user2": "",
+      "user3": "",
+      "user4": "",
+      "user5": "",
+      "user6": "",
+      "user7": "",
+      "user8": "",
+      "user9": "",
       "type": "event",
-      "revision": 7,
+      "revision": 0,
       "id": "5946"
     },
     {
@@ -19,9 +33,23 @@
       "note": "",
       "timeStart": 30600000,
       "timeEnd": 34200000,
+      "timeType": "start-end",
+      "duration": 3600000,
       "isPublic": false,
+      "skip": false,
+      "colour": "",
+      "user0": "",
+      "user1": "",
+      "user2": "",
+      "user3": "",
+      "user4": "",
+      "user5": "",
+      "user6": "",
+      "user7": "",
+      "user8": "",
+      "user9": "",
       "type": "event",
-      "revision": 4,
+      "revision": 0,
       "id": "c2e7"
     },
     {
@@ -31,9 +59,23 @@
       "note": "",
       "timeStart": 34200000,
       "timeEnd": 34800000,
+      "timeType": "start-end",
+      "duration": 600000,
       "isPublic": false,
+      "skip": false,
+      "colour": "",
+      "user0": "",
+      "user1": "",
+      "user2": "",
+      "user3": "",
+      "user4": "",
+      "user5": "",
+      "user6": "",
+      "user7": "",
+      "user8": "",
+      "user9": "",
       "type": "event",
-      "revision": 4,
+      "revision": 0,
       "id": "cc0f"
     },
     {
@@ -43,9 +85,23 @@
       "note": "In green, below",
       "timeStart": 34800000,
       "timeEnd": 35400000,
+      "timeType": "start-end",
+      "duration": 600000,
       "isPublic": false,
+      "skip": false,
+      "colour": "",
+      "user0": "",
+      "user1": "",
+      "user2": "",
+      "user3": "",
+      "user4": "",
+      "user5": "",
+      "user6": "",
+      "user7": "",
+      "user8": "",
+      "user9": "",
       "type": "event",
-      "revision": 7,
+      "revision": 0,
       "id": "8ee5"
     },
     {
@@ -55,15 +111,29 @@
       "note": "",
       "timeStart": 0,
       "timeEnd": 600000,
+      "timeType": "start-end",
+      "duration": 600000,
       "isPublic": false,
+      "skip": false,
+      "colour": "",
+      "user0": "",
+      "user1": "",
+      "user2": "",
+      "user3": "",
+      "user4": "",
+      "user5": "",
+      "user6": "",
+      "user7": "",
+      "user8": "",
+      "user9": "",
       "type": "event",
-      "revision": 2,
+      "revision": 0,
       "id": "8222"
     },
     {
       "duration": 900000,
       "type": "delay",
-      "revision": 1,
+      "revision": 0,
       "id": "a386"
     },
     {
@@ -73,9 +143,23 @@
       "note": "* Until a block is found",
       "timeStart": 35400000,
       "timeEnd": 36600000,
+      "timeType": "start-end",
+      "duration": 1200000,
       "isPublic": false,
+      "skip": false,
+      "colour": "",
+      "user0": "",
+      "user1": "",
+      "user2": "",
+      "user3": "",
+      "user4": "",
+      "user5": "",
+      "user6": "",
+      "user7": "",
+      "user8": "",
+      "user9": "",
       "type": "event",
-      "revision": 6,
+      "revision": 0,
       "id": "6dce"
     },
     {
@@ -85,9 +169,23 @@
       "note": "Orange and red buttons on the right",
       "timeStart": 36600000,
       "timeEnd": 43200000,
+      "timeType": "start-end",
+      "duration": 6600000,
       "isPublic": false,
+      "skip": false,
+      "colour": "",
+      "user0": "",
+      "user1": "",
+      "user2": "",
+      "user3": "",
+      "user4": "",
+      "user5": "",
+      "user6": "",
+      "user7": "",
+      "user8": "",
+      "user9": "",
       "type": "event",
-      "revision": 9,
+      "revision": 0,
       "id": "2651"
     },
     {
@@ -101,13 +199,27 @@
       "note": "Blue button on the right",
       "timeStart": 46800000,
       "timeEnd": 57600000,
+      "timeType": "start-end",
+      "duration": 10800000,
       "isPublic": false,
+      "skip": false,
+      "colour": "",
+      "user0": "",
+      "user1": "",
+      "user2": "",
+      "user3": "",
+      "user4": "",
+      "user5": "",
+      "user6": "",
+      "user7": "",
+      "user8": "",
+      "user9": "",
       "type": "event",
-      "revision": 6,
+      "revision": 0,
       "id": "1358"
     }
   ],
-  "event": {
+  "eventData": {
     "title": "All about Carlos demo event",
     "publicUrl": "www.getontime.no",
     "publicInfo": "WiFi: demoproject \nPassword: ontimeproject",
@@ -117,16 +229,52 @@
   },
   "settings": {
     "app": "ontime",
-    "version": 2,
+    "version": 1,
     "serverPort": 4001,
     "lock": null,
     "pinCode": "1234"
+  },
+  "viewSettings": {
+    "overrideStyles": false
   },
   "osc": {
     "port": 8888,
     "portOut": 9999,
     "targetIP": "127.0.0.1",
     "enabled": true
+  },
+  "http": {
+    "http": {
+      "user": null,
+      "pwd": null,
+      "messages": {
+        "onLoad": {
+          "url": "",
+          "enabled": false
+        },
+        "onStart": {
+          "url": "",
+          "enabled": false
+        },
+        "onUpdate": {
+          "url": "",
+          "enabled": false
+        },
+        "onPause": {
+          "url": "",
+          "enabled": false
+        },
+        "onStop": {
+          "url": "",
+          "enabled": false
+        },
+        "onFinish": {
+          "url": "",
+          "enabled": false
+        }
+      },
+      "enabled": true
+    }
   },
   "aliases": [
     {

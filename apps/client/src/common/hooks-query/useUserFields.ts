@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryRefetchInterval } from '../../ontimeConfig';
 import { USERFIELDS } from '../api/apiConstants';
 import { getUserFields } from '../api/ontimeApi';
-import { userFieldsPlaceholder } from '../models/UserFields.type';
+import { userFieldsPlaceholder } from '../models/UserFields';
 
 export default function useUserFields() {
   const { data, status, isError, refetch } = useQuery({

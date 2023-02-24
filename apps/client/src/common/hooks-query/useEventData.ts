@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { EVENT_TABLE } from '../api/apiConstants';
-import { fetchEvent } from '../api/eventApi';
-import { eventDataPlaceholder } from '../models/EventData.type';
+import { EVENTDATA_TABLE } from '../api/apiConstants';
+import { fetchEventData } from '../api/eventDataApi';
+import { eventDataPlaceholder } from '../models/EventData';
 
-export default function useEvent() {
+export default function useEventData() {
   const { data, status, isError, refetch } = useQuery({
-    queryKey: EVENT_TABLE,
-    queryFn: fetchEvent,
+    queryKey: EVENTDATA_TABLE,
+    queryFn: fetchEventData,
     placeholderData: eventDataPlaceholder,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,

@@ -3,14 +3,13 @@ import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { useAtomValue } from 'jotai';
-import PropTypes from 'prop-types';
+import { OntimeRundown, SupportedEvent } from 'ontime-types';
 
 import { defaultPublicAtom, showQuickEntryAtom, startTimeIsLastEndAtom } from '../../common/atoms/LocalEventSettings';
 import Empty from '../../common/components/state/Empty';
 import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
-import { OntimeRundown, SupportedEvent } from '../../common/models/EventTypes';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
@@ -25,8 +24,7 @@ interface RundownProps {
 export default function Rundown(props: RundownProps) {
   const { entries } = props;
   const { data } = useRundownEditor();
-  const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } =
-    useContext(CursorContext);
+  const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } = useContext(CursorContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const { addEvent, reorderEvent } = useEventAction();
@@ -260,7 +258,3 @@ export default function Rundown(props: RundownProps) {
     </div>
   );
 }
-
-Rundown.propTypes = {
-  entries: PropTypes.array,
-};

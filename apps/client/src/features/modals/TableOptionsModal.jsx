@@ -5,7 +5,7 @@ import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInforma
 import { postUserFields } from '../../common/api/ontimeApi';
 import { LoggingContext } from '../../common/context/LoggingContext';
 import useUserFields from '../../common/hooks-query/useUserFields';
-import { userFieldsPlaceholder } from '../../common/models/UserFields.type';
+import { userFieldsPlaceholder } from '../../common/models/UserFields';
 import { handleLinks, host } from '../../common/utils/linkUtils';
 
 import SubmitContainer from './SubmitContainer';

@@ -3,10 +3,7 @@ import { startDb, startIntegrations, startOSCServer, startServer } from './app.j
 async function startOntime() {
   try {
     await startDb();
-
-    const loaded = await startServer();
-    console.log(loaded);
-
+    await startServer();
     await startOSCServer();
     await startIntegrations();
   } catch (error) {
