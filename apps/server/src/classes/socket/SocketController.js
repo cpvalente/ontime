@@ -309,6 +309,7 @@ class SocketController {
 
       // 6. TIMER
       socket.on('get-timer', () => {
+        // TODO: Not ideal workaround
         socket.emit('timer', eventTimer.timer);
       });
     });
