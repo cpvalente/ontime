@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-import { EventDataType } from '../models/EventData';
+import { EventData } from 'ontime-types';
 
 import { eventURL } from './apiConstants';
 
@@ -8,7 +7,7 @@ import { eventURL } from './apiConstants';
  * @description HTTP request to fetch event data
  * @return {Promise}
  */
-export async function fetchEvent(): Promise<EventDataType> {
+export async function fetchEvent(): Promise<EventData> {
   const res = await axios.get(eventURL);
   return res.data;
 }
@@ -17,6 +16,6 @@ export async function fetchEvent(): Promise<EventDataType> {
  * @description HTTP request to mutate event data
  * @return {Promise}
  */
-export async function postEvent(data: EventDataType) {
+export async function postEvent(data: EventData) {
   return axios.post(eventURL, data);
 }

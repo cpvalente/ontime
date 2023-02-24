@@ -2,7 +2,7 @@ import fs from 'fs';
 import { networkInterfaces } from 'os';
 import { generateId } from 'ontime-utils';
 import { fileHandler } from '../utils/parser.js';
-import { DataProvider } from '../classes/data-provider/DataProvider.ts';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';

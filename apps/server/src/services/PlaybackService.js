@@ -3,7 +3,7 @@
  */
 import { socketProvider } from '../classes/socket/SocketController.js';
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
-import { eventTimer, TimerService } from './TimerService.ts';
+import { eventTimer, TimerService } from './TimerService.js';
 import { runtimeState } from '../stores/EventStore.js';
 
 /**

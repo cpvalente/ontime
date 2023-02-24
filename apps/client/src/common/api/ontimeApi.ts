@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { URLAliasType } from '../models/Alias';
+import { Alias, Settings } from 'ontime-types';
 import { InfoType } from '../models/Info';
 import { OntimeSettingsType } from '../models/OntimeSettings';
 import { OSCSettings } from '../models/OscSettings';
@@ -13,7 +13,7 @@ import { ontimeURL } from './apiConstants';
  * @description HTTP request to retrieve application settings
  * @return {Promise}
  */
-export async function getSettings(): Promise<OntimeSettingsType> {
+export async function getSettings(): Promise<Settings> {
   const res = await axios.get(`${ontimeURL}/settings`);
   return res.data;
 }
@@ -56,7 +56,7 @@ export async function postView(data: ViewSettingsType) {
  * @description HTTP request to retrieve aliases
  * @return {Promise}
  */
-export async function getAliases(): Promise<URLAliasType[]> {
+export async function getAliases(): Promise<Alias[]> {
   const res = await axios.get(`${ontimeURL}/aliases`);
   return res.data;
 }
@@ -65,7 +65,7 @@ export async function getAliases(): Promise<URLAliasType[]> {
  * @description HTTP request to mutate aliases
  * @return {Promise}
  */
-export async function postAliases(data: URLAliasType[]) {
+export async function postAliases(data: Alias[]) {
   return axios.post(`${ontimeURL}/aliases`, data);
 }
 
