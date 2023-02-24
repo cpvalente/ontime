@@ -17,7 +17,7 @@ const withSocket = (Component) => {
 
     const [publicSelectedId, setPublicSelectedId] = useState(null);
 
-    const [timer] = useSubscription('ontime-timer', {
+    const [timer] = useSubscription('timer', {
       clock: null,
       current: null,
       elapsed: null ,

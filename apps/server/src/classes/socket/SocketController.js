@@ -308,7 +308,7 @@ class SocketController {
       });
 
       // 6. TIMER
-      socket.on('get-ontime-timer', () => {
+      socket.on('get-timer', () => {
         this.broadcastTimer();
       });
     });
@@ -412,21 +412,12 @@ class SocketController {
     this.send('feat-cuesheet', featureData);
   }
 
-  /**
-   * Broadcast Timer feature
-   */
-  broadcastTimer() {
-    const featureData = eventTimer.timer;
-    this.send('ontime-timer', featureData);
-  }
-
   broadcastState() {
     this.broadcastFeatureRundown();
     this.broadcastFeatureMessageControl();
     this.broadcastFeaturePlaybackControl();
     this.broadcastFeatureInfo();
     this.broadcastFeatureCuesheet();
-    this.broadcastTimer();
   }
 
   /**

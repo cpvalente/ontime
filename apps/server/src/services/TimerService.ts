@@ -164,7 +164,7 @@ export class TimerService {
    */
   _onLoad() {
     runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    runtimeState.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onLoad);
   }
 
@@ -199,7 +199,7 @@ export class TimerService {
    */
   _onStart() {
     runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    runtimeState.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onStart);
   }
 
@@ -216,7 +216,7 @@ export class TimerService {
 
   _onPause() {
     runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    runtimeState.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onPause);
   }
 
@@ -231,7 +231,7 @@ export class TimerService {
 
   _onStop() {
     runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    runtimeState.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onStop);
   }
 
@@ -319,13 +319,13 @@ export class TimerService {
 
   _onUpdate() {
     runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    runtimeState.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onUpdate);
   }
 
   _onFinish() {
     runtimeState.set('playback', this.playback);
-    runtimeState.set('ontime-timer', this.timer);
+    runtimeState.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onFinish);
   }
 
