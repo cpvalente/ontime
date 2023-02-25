@@ -8,7 +8,6 @@ import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
-import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
@@ -93,7 +92,6 @@ export default function Timer(props) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-
       <NavigationMenu />
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className='message'>{pres.text}</div>
@@ -121,7 +119,6 @@ export default function Timer(props) {
           <div className={`timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`}>
             {display}
           </div>
-          // <TimerDisplay time={display} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
         )}
       </div>
 
