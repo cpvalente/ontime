@@ -111,7 +111,7 @@ export default function Timer(props) {
       <div
         className='timer-container'
         style={{
-          fontSize: `${100 / (stageTimerCharacters - 1)}vw`,
+          fontSize: `${100 / stageTimerCharacters}vw`,
         }}
       >
         {showEndMessage ? (

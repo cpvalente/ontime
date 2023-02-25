@@ -86,6 +86,16 @@
 
     .timer {
       opacity: 1;
+      font-family: var(--font-family-override, $viewer-font-family);
+      color: var(--timer-color-override, $timer-color);
+      line-height: 0.9em;
+      text-align: center;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+
+      &--finished {
+      color: $timer-finished-color;
+  }
     }
   }
 
