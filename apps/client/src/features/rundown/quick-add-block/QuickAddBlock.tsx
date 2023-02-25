@@ -1,11 +1,11 @@
 import { useCallback, useContext, useRef } from 'react';
 import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
+import { SupportedEvent } from 'ontime-types';
+
 import { defaultPublicAtom, startTimeIsLastEndAtom } from '../../../common/atoms/LocalEventSettings';
 import { LoggingContext } from '../../../common/context/LoggingContext';
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { SupportedEvent } from '../../../common/models/EventTypes';
-import { useAtomValue } from 'jotai';
-
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './QuickAddBlock.module.scss';
@@ -19,13 +19,7 @@ interface QuickAddBlockProps {
 }
 
 export default function QuickAddBlock(props: QuickAddBlockProps) {
-  const {
-    showKbd,
-    eventId,
-    previousEventId,
-    disableAddDelay = true,
-    disableAddBlock,
-  } = props;
+  const { showKbd, eventId, previousEventId, disableAddDelay = true, disableAddBlock } = props;
   const { addEvent } = useEventAction();
   const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
@@ -33,45 +27,47 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
   const doStartTime = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
 
-  const handleCreateEvent = useCallback((eventType: SupportedEvent) => {
-    switch (eventType) {
-      case 'event': {
-        const isPublicOption = doPublic?.current?.checked;
-        const startTimeIsLastEndOption = doStartTime?.current?.checked;
+  const handleCreateEvent = useCallback(
+    (eventType: SupportedEvent) => {
+      switch (eventType) {
+        case 'event': {
+          const isPublicOption = doPublic?.current?.checked;
+          const startTimeIsLastEndOption = doStartTime?.current?.checked;
 
-        const newEvent = { type: SupportedEvent.Event };
-        const options = {
-          defaultPublic: isPublicOption,
-          startTimeIsLastEnd: startTimeIsLastEndOption,
-          lastEventId: previousEventId,
-          after: eventId,
-        };
-        addEvent(newEvent, options);
-        break;
-      }
-      case 'delay': {
-        const options = {
-          lastEventId: previousEventId,
-          after: eventId,
+          const newEvent = { type: SupportedEvent.Event };
+          const options = {
+            defaultPublic: isPublicOption,
+            startTimeIsLastEnd: startTimeIsLastEndOption,
+            lastEventId: previousEventId,
+            after: eventId,
+          };
+          addEvent(newEvent, options);
+          break;
         }
-        addEvent({ type: SupportedEvent.Delay }, options);
-        break;
-      }
-      case 'block': {
-        const options= {
-          lastEventId: previousEventId,
-          after: eventId,
+        case 'delay': {
+          const options = {
+            lastEventId: previousEventId,
+            after: eventId,
+          };
+          addEvent({ type: SupportedEvent.Delay }, options);
+          break;
         }
-        addEvent({ type: SupportedEvent.Block }, options);
-        break;
+        case 'block': {
+          const options = {
+            lastEventId: previousEventId,
+            after: eventId,
+          };
+          addEvent({ type: SupportedEvent.Block }, options);
+          break;
+        }
+        default: {
+          emitError(`Cannot create unknown event type: ${eventType}`);
+          break;
+        }
       }
-      default: {
-        emitError(`Cannot create unknown event type: ${eventType}`);
-        break;
-      }
-    }
-
-  }, [previousEventId, eventId, addEvent, emitError]);
+    },
+    [previousEventId, eventId, addEvent, emitError],
+  );
 
   return (
     <div className={style.quickAdd}>
@@ -110,20 +106,10 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
         </Tooltip>
       </div>
       <div className={style.options}>
-        <Checkbox
-          ref={doStartTime}
-          size='sm'
-          variant='ontime-ondark'
-          defaultChecked={startTimeIsLastEnd}
-        >
+        <Checkbox ref={doStartTime} size='sm' variant='ontime-ondark' defaultChecked={startTimeIsLastEnd}>
           Start time is last end
         </Checkbox>
-        <Checkbox
-          ref={doPublic}
-          size='sm'
-          variant='ontime-ondark'
-          defaultChecked={defaultPublic}
-        >
+        <Checkbox ref={doPublic} size='sm' variant='ontime-ondark' defaultChecked={defaultPublic}>
           Event is public
         </Checkbox>
       </div>

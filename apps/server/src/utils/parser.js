@@ -6,13 +6,13 @@ import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString, validateDuration } from './parserUtils.js';
 import {
   parseAliases,
-  parseEvent,
+  parseEventData,
   parseHttp,
   parseOsc,
   parseRundown,
   parseSettings,
   parseUserFields,
-  parseViews,
+  parseViewSettings,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 
@@ -238,7 +238,7 @@ export const parseExcel = async (excelData) => {
     });
   return {
     rundown,
-    event: eventData,
+    eventData: eventData,
     settings: {
       app: 'ontime',
       version: 2,
@@ -265,11 +265,11 @@ export const parseJson = async (jsonData, enforce = false) => {
   // parse Events
   returnData.rundown = parseRundown(jsonData);
   // parse Event
-  returnData.event = parseEvent(jsonData, enforce);
+  returnData.eventData = parseEventData(jsonData, enforce);
   // Settings handled partially
   returnData.settings = parseSettings(jsonData, enforce);
   // View settings handled partially
-  returnData.views = parseViews(jsonData, enforce);
+  returnData.viewSettings = parseViewSettings(jsonData, enforce);
   // Import OSC settings if any
   returnData.osc = parseOsc(jsonData, enforce);
   // Import HTTP settings if any
@@ -359,7 +359,7 @@ export const fileHandler = async (file) => {
         const dataFromExcel = await parseExcel(excelData.data);
         res.data = {};
         res.data.rundown = parseRundown(dataFromExcel);
-        res.data.event = parseEvent(dataFromExcel, true);
+        res.data.eventData = parseEventData(dataFromExcel, true);
         res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
       } else {

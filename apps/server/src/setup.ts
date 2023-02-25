@@ -40,10 +40,9 @@ export const isProduction = env === 'production' && !isTest;
 
 // =================================================
 // resolve path to external
-const productionPath = '../../Resources/extraResources/';
-const devPath = '../../';
+const productionPath = '../../Resources/extraResources/client';
+const devPath = '../../client/build/';
 
-export const uiPath = 'client/';
 export const resolvedPath = (): string => (isProduction ? productionPath : devPath);
 
 // resolve file URL in both CJS and ESM (build and dev)

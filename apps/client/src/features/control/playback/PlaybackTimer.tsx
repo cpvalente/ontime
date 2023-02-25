@@ -1,8 +1,8 @@
 import { Tooltip } from '@chakra-ui/react';
+import { Playback } from 'ontime-types';
 
 import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
-import { Playback } from '../../../common/models/OntimeTypes';
 import { stringFromMillis } from '../../../common/utils/time';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 

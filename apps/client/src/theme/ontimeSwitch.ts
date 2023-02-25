@@ -1,5 +1,4 @@
 export const ontimeSwitch = {
-  container: {  },
   track: {
     background: '#2d2d2d', // $gray-1100
     border: '1px solid transparent',
@@ -8,7 +7,19 @@ export const ontimeSwitch = {
     },
     _focus: {
       border: '1px solid #578AF4', // $blue-500
-    }
+    },
   },
-  thumb: {},
+};
+
+export const lightSwitch = {
+  track: {
+    border: '2px solid transparent',
+    background: '#cfcfcf', // $gray-300
+    _checked: {
+      background: `#578AF4`, // $blue-500
+    },
+    _focus: {
+      border: '2px solid #D2DDFF', // $blue-200
+    },
+  },
 };

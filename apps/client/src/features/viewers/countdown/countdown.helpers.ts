@@ -1,4 +1,5 @@
-import { OntimeEvent } from '../../../common/models/EventTypes';
+import { OntimeEvent } from 'ontime-types';
+
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 
 export enum TimerMessage {

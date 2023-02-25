@@ -1,10 +1,11 @@
 import { lazy, useEffect } from 'react';
 import { Box, useDisclosure } from '@chakra-ui/react';
+
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import UploadModal from '../../common/components/upload-modal/UploadModal';
-import ModalManager from '../../features/modals/ModalManager';
-
+import ModalManager from '../modals/ModalManager';
 import MenuBar from '../menu/MenuBar';
+import IntegrationModal from '../modals/integration-modal/IntegrationModal';
 
 import styles from './Editor.module.scss';
 
@@ -15,16 +16,14 @@ const Info = lazy(() => import('../../features/info/InfoExport'));
 const EventEditor = lazy(() => import('../../features/event-editor/EventEditorExport'));
 
 export default function Editor() {
-  const {
-    isOpen: isSettingsOpen,
-    onOpen: onSettingsOpen,
-    onClose: onSettingsClose,
-  } = useDisclosure();
+  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
+
+  const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
 
   const {
-    isOpen: isUploadModalOpen,
-    onOpen: onUploadModalOpen,
-    onClose: onUploadModalClose,
+    isOpen: isIntegrationModalOpen,
+    onOpen: onIntegrationModalOpen,
+    onClose: onIntegrationModalClose,
   } = useDisclosure();
 
   // Set window title
@@ -35,10 +34,11 @@ export default function Editor() {
   return (
     <>
       <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
+      <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
       <ErrorBoundary>
         <ModalManager isOpen={isSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
-      <div className={styles.mainContainer} data-testid="event-editor">
+      <div className={styles.mainContainer} data-testid='event-editor'>
         <Box id='settings' className={styles.settings}>
           <ErrorBoundary>
             <MenuBar
@@ -47,6 +47,8 @@ export default function Editor() {
               onSettingsClose={onSettingsClose}
               isUploadOpen={isUploadModalOpen}
               onUploadOpen={onUploadModalOpen}
+              isIntegrationOpen={isIntegrationModalOpen}
+              onIntegrationOpen={onIntegrationModalOpen}
             />
           </ErrorBoundary>
         </Box>

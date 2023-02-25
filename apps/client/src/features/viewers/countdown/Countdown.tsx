@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
+import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from '../../../common/models/EventTypes';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { formatTime } from '../../../common/utils/time';
