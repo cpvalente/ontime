@@ -30,6 +30,7 @@ export default function EventListWrapper() {
   const [events, setEvents] = useState(null);
 
   const addEvent = useMutation(requestPost, {
+    networkMode: 'always',
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -76,6 +77,7 @@ export default function EventListWrapper() {
   });
 
   const updateEvent = useMutation(requestPut, {
+    networkMode: 'always',
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -103,6 +105,7 @@ export default function EventListWrapper() {
   });
 
   const patchEvent = useMutation(requestPatch, {
+    networkMode: 'always',
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -134,6 +137,7 @@ export default function EventListWrapper() {
   });
 
   const deleteEvent = useMutation(requestDelete, {
+    networkMode: 'always',
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
@@ -163,6 +167,7 @@ export default function EventListWrapper() {
   });
 
   const deleteAllEvents = useMutation(requestDeleteAll, {
+    networkMode: 'always',
     // we optimistically update here
     onMutate: async () => {
       // cancel ongoing queries
@@ -192,6 +197,7 @@ export default function EventListWrapper() {
   });
 
   const applyDelay = useMutation(requestApplyDelay, {
+    networkMode: 'always',
     // Mutation finished, failed or successful
     onSettled: () => {
       queryClient.invalidateQueries(EVENTS_TABLE);
@@ -199,6 +205,7 @@ export default function EventListWrapper() {
   });
 
   const reorderEvent = useMutation(requestReorder, {
+    networkMode: 'always',
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
