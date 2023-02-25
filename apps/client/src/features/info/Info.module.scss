@@ -38,6 +38,7 @@
 
   .interface {
     @include action-link;
+    font-size: $inner-section-text-size;
     white-space: nowrap;
   }
 

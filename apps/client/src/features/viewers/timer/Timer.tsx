@@ -93,6 +93,7 @@ export default function Timer(props) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
+
       <NavigationMenu />
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className='message'>{pres.text}</div>
@@ -132,7 +133,7 @@ export default function Timer(props) {
       />
 
       <AnimatePresence>
-        {title.showNow && (
+        {title.showNow && !time.finished && (
           <motion.div
             className='event now'
             key='now'
