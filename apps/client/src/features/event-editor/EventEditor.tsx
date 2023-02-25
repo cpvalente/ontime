@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Select, Switch } from '@chakra-ui/react';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { useAtom } from 'jotai';
-import { OntimeEvent } from 'ontime-types';
+import { OntimeEvent, TimerType } from 'ontime-types';
 
 import { editorEventId } from '../../common/atoms/LocalEventSettings';
 import CopyTag from '../../common/components/copy-tag/CopyTag';
@@ -18,7 +18,6 @@ import { stringFromMillis } from '../../common/utils/time';
 import { calculateDuration, TimeEntryField, validateEntry } from '../../common/utils/timesManager';
 
 import style from './EventEditor.module.scss';
-import { TimerType } from 'ontime-types';
 
 export type EventEditorSubmitActions = keyof OntimeEvent | 'durationOverride';
 

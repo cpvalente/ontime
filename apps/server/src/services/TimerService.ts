@@ -1,4 +1,4 @@
-import { TimerLifeCycle } from 'ontime-types';
+import { TimerLifeCycle, TimerType } from 'ontime-types';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
@@ -27,6 +27,7 @@ export class TimerService {
     secondaryTimer: number | null;
     selectedEventId: string | null;
     duration: number | null;
+    timerType: TimerType | null;
   };
 
   /**
