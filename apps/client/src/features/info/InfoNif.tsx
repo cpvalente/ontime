@@ -18,19 +18,11 @@ export default function InfoNif() {
 
   return (
     <div className={style.container}>
-      <CollapseBar
-        title='Network Info'
-        isCollapsed={collapsed}
-        onClick={() => setCollapsed((prev) => !prev)}
-      />
+      <CollapseBar title='Network Info' isCollapsed={collapsed} onClick={() => setCollapsed((prev) => !prev)} />
       {!collapsed && (
         <div className={style.interfaceList}>
           {data?.networkInterfaces.map((nif) => (
-            <span
-              key={nif.address}
-              onClick={() => handleClick(nif.address)}
-              className={style.interface}
-            >
+            <span key={nif.address} onClick={() => handleClick(nif.address)} className={style.interface}>
               {`${nif.name} - ${nif.address}`}
               <IoArrowUp className={style.linkIcon} />
             </span>

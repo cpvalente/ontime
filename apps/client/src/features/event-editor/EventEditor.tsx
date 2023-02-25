@@ -119,7 +119,10 @@ export default function EventEditor() {
 
   return (
     <div className={style.eventEditor}>
-      <div className={style.eventInfo}>{`Event ID ${event.id}`}</div>
+      <div className={style.eventInfo}>
+        Event ID
+        <span className={style.eventId}>{event.id}</span>
+      </div>
       <div className={style.eventActions}>
         <CopyTag label='OSC trigger'>{`/ontime/gotoid/${event.id}`}</CopyTag>
       </div>

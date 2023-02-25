@@ -38,12 +38,13 @@
 .indRoll,
 .indDelay,
 .indNegative {
-  background-color: $gray-1300;
+  background-color: $gray-1350;
 }
 
 .indRoll,
 .indRollActive,
-.indDelay {
+.indDelay,
+.indDelayActive {
   margin: 0 auto;
   border-radius: 6px;
   width: 12px;
