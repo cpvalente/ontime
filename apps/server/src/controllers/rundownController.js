@@ -1,4 +1,4 @@
-import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.ts';
 import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,
@@ -7,7 +7,7 @@ import {
   deleteEvent,
   editEvent,
   reorderEvent,
-} from '../services/RundownService.js';
+} from '../services/RundownService.ts';
 
 // Create controller for GET request to '/eventlist'
 // Returns -

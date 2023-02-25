@@ -6,15 +6,15 @@ import cors from 'cors';
 // import utils
 import { join, resolve } from 'path';
 
-import { config } from './config/config.js';
 import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { initSentry } from './modules/sentry.js';
-import { currentDirectory, environment, isProduction, resolvedPath, uiPath } from './setup.js';
+import { currentDirectory, environment, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
+import { OSCSettings } from 'ontime-types';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
-import { router as eventRouter } from './routes/eventRouter.js';
+import { router as eventDataRouter } from './routes/eventDataRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as playbackRouter } from './routes/playbackRouter.js';
 
@@ -22,12 +22,9 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { socketProvider } from './classes/socket/SocketController.js';
 import { eventTimer } from './services/TimerService.js';
-import { promise } from './modules/loadDb.js';
-import { TimerType } from 'ontime-types';
-
-// TODO: apply code and remove, refs PR #290
-const sharedType: TimerType = TimerType.CountDown;
-console.log('WIP', sharedType);
+import { dbLoadingProcess } from './modules/loadDb.js';
+import { integrationService } from './services/integration-service/IntegrationService.js';
+import { OscIntegration } from './services/integration-service/OscIntegration.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -57,7 +54,7 @@ app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
 app.use('/eventlist', rundownRouter);
-app.use('/event', eventRouter);
+app.use('/eventdata', eventDataRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
@@ -65,10 +62,13 @@ app.use('/playback', playbackRouter);
 app.use('/external', express.static(join(currentDirectory, 'external')));
 
 // serve static - react, in test mode we fetch the React app from module
-app.use(express.static(join(currentDirectory, resolvedPath(), uiPath)));
+const newpath = join(currentDirectory, resolvedPath());
+console.log('serving content at ', newpath);
+
+app.use(express.static(join(currentDirectory, resolvedPath())));
 
 app.get('*', (req, res) => {
-  res.sendFile(resolve(currentDirectory, resolvedPath(), uiPath, 'index.html'));
+  res.sendFile(resolve(currentDirectory, resolvedPath(), 'index.html'));
 });
 
 // Implement catch all
@@ -77,6 +77,7 @@ app.use((error, response) => {
 });
 
 /***************  START SERVICES ***************/
+
 /* Override config
  * ----------------
  *
@@ -84,42 +85,35 @@ app.use((error, response) => {
  * It can be overridden here by the settings in the db
  * It can also be overridden on call
  *
+ * Start order
+ * ----------------
+ *
+ * The services need to be started in a certain order,
+ * the enum below enforces that
  */
-(async () => {
-  try {
-    await promise;
-  } catch (error) {
-    console.log(error);
+
+enum OntimeStartOrder {
+  Error,
+  InitDB,
+  InitServer,
+  InitIO,
+}
+
+let step = OntimeStartOrder.InitDB;
+const checkStart = (currentState: OntimeStartOrder) => {
+  if (step !== currentState) {
+    step = OntimeStartOrder.Error;
+    throw new Error('Init order error: startDb > startServer > startOsc > startIntegrations');
+  } else {
+    if (step === 1 || step === 2) {
+      step = step + 1;
+    }
   }
-})();
+};
 
-const { osc } = DataProvider.getData();
-const oscIP = osc?.targetIP || config.osc.targetIP;
-const oscOutPort = osc?.portOut || config.osc.portOut;
-const oscInPort = osc?.port || config.osc.port;
-const oscInEnabled = osc?.enabled !== undefined ? osc.enabled : config.osc.inputEnabled;
-const serverPort = 4001; // hardcoded for now
-
-/**
- * @description starts OSC server
- * @description starts OSC server
- * @param overrideConfig
- * @return {Promise<void>}
- */
-export const startOSCServer = async (overrideConfig = null) => {
-  if (!oscInEnabled) {
-    socketServer.info('RX', 'OSC Input Disabled');
-    return;
-  }
-
-  // Setup default port
-  const oscSettings = {
-    port: overrideConfig?.port || oscInPort,
-  };
-
-  // Start OSC Server
-  socketServer.info('RX', `Starting OSC Server on port: ${oscInPort}`);
-  initiateOSC(oscSettings);
+export const startDb = async () => {
+  checkStart(OntimeStartOrder.InitDB);
+  await dbLoadingProcess;
 };
 
 // create HTTP server
@@ -130,32 +124,65 @@ const expressServer = http.createServer(app);
  * @return {Promise<string>}
  */
 export const startServer = async () => {
-  // Start server
+  checkStart(OntimeStartOrder.InitServer);
+
+  const serverPort = 4001; // hardcoded for now
   const returnMessage = `Ontime is listening on port ${serverPort}`;
   expressServer.listen(serverPort, '0.0.0.0');
 
-  // init socket controller
-  await socketServer.initServer(expressServer);
-  socketServer.info('SERVER', 'Socket initialised');
-
+  socketServer.initServer(expressServer);
   socketServer.info('SERVER', returnMessage);
   socketServer.startListener();
+
   return returnMessage;
 };
 
 /**
- * starts integrations
+ * @description starts OSC server
+ * @description starts OSC server
  * @param overrideConfig
  * @return {Promise<void>}
  */
-export const startIntegrations = async (overrideConfig = null) => {
-  const { http } = DataProvider.getData();
+export const startOSCServer = async (overrideConfig = null) => {
+  checkStart(OntimeStartOrder.InitIO);
 
-  // OSC Config
-  const oscConfig = {
-    ip: oscIP,
-    port: overrideConfig?.port || oscOutPort,
+  const { osc } = DataProvider.getData();
+
+  if (!osc.enabledIn) {
+    socketServer.info('RX', 'OSC Input Disabled');
+    return;
+  }
+
+  // Setup default port
+  const oscSettings = {
+    ...osc,
+    portIn: overrideConfig?.port || osc.portIn,
   };
+
+  // Start OSC Server
+  socketServer.info('RX', `Starting OSC Server on port: ${oscSettings.portIn}`);
+  initiateOSC(oscSettings);
+};
+
+/**
+ * starts integrations
+ */
+export const startIntegrations = async (config?: { osc: OSCSettings }) => {
+  checkStart(OntimeStartOrder.InitIO);
+
+  const { osc } = config ?? DataProvider.getData();
+
+  if (!osc) {
+    return 'OSC Invalid configuration';
+  }
+
+  const oscIntegration = new OscIntegration();
+  const { success, message } = oscIntegration.init(osc);
+  socketServer.info('RX', message);
+
+  if (success) {
+    integrationService.register(oscIntegration);
+  }
 };
 
 /**
@@ -170,6 +197,7 @@ export const shutdown = async (exitCode = 0) => {
   shutdownOSCServer();
   eventTimer.shutdown();
   socketServer.shutdown();
+  integrationService.shutdown();
   process.exit(exitCode);
 };
 

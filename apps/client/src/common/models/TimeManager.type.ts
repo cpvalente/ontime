@@ -1,6 +1,4 @@
-import { TimerType } from 'ontime-types';
-
-import { Playback } from './OntimeTypes';
+import { Playback, TimerType } from 'ontime-types';
 
 export type TimeManagerType = {
   clock: number;

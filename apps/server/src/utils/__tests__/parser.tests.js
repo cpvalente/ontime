@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, validateEvent } from '../parser.js';
 import { makeString, validateDuration } from '../parserUtils.js';
-import { parseAliases, parseUserFields, parseViews } from '../parserFunctions.js';
+import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.js';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -829,7 +829,7 @@ describe('test views import', () => {
         overrideStyles: true,
       },
     };
-    const parsed = parseViews(testData);
+    const parsed = parseViewSettings(testData);
     expect(parsed).toStrictEqual(testData.views);
   });
 
@@ -841,7 +841,7 @@ describe('test views import', () => {
         version: 2,
       },
     };
-    const parsed = parseViews(testData, true);
+    const parsed = parseViewSettings(testData, true);
     expect(parsed).toStrictEqual(dbModel.views);
   });
 });

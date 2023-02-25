@@ -5,7 +5,7 @@ const store = {};
 /**
  * A runtime store that broadcasts its payload
  */
-export const runtimeState = {
+export const eventStore = {
   get(key) {
     return store[key];
   },
@@ -15,5 +15,9 @@ export const runtimeState = {
   },
   poll() {
     return store;
+  },
+  broadcast() {
+    socketProvider.send(store);
+    socketProvider.broadcastState();
   },
 };

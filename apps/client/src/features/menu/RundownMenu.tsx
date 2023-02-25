@@ -4,10 +4,10 @@ import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
+import { SupportedEvent } from 'ontime-types';
 
 import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
-import { SupportedEvent } from '../../common/models/EventTypes';
 
 import style from './RundownMenu.module.scss';
 

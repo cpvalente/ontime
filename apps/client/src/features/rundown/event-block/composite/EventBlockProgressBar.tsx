@@ -1,5 +1,6 @@
+import { Playback } from 'ontime-types';
+
 import { useTimer } from '../../../../common/hooks/useSocket';
-import { Playback } from '../../../../common/models/OntimeTypes';
 import { clamp } from '../../../../common/utils/math';
 
 import style from './EventBlockProgressBar.module.scss';

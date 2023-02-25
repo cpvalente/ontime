@@ -10,14 +10,14 @@ import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
 import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import { useAtom } from 'jotai';
+import { Playback } from 'ontime-types';
+
 import { editorEventId } from '../../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { useAtom } from 'jotai';
-
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { setEventPlayback } from '../../../common/hooks/useSocket';
-import { Playback } from '../../../common/models/OntimeTypes';
+import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../RundownEntry';
 
@@ -129,11 +129,7 @@ export default function EventBlock(props: EventBlockProps) {
   return (
     <Draggable key={eventId} draggableId={eventId} index={index}>
       {(provided) => (
-        <div
-          className={blockClasses}
-          {...provided.draggableProps}
-          ref={provided.innerRef}
-        >
+        <div className={blockClasses} {...provided.draggableProps} ref={provided.innerRef}>
           <div
             className={style.binder}
             style={{ ...binderColours }}
@@ -206,22 +202,13 @@ export default function EventBlock(props: EventBlockProps) {
             <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
               <EventBlockProgressBar playback={playback} />
             </div>
-            <div className={style.eventStatus} tabIndex={-1}
-            >
-              <Tooltip
-                label='Next event'
-                isDisabled={!next}
-                {...tooltipProps}
-              >
+            <div className={style.eventStatus} tabIndex={-1}>
+              <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
                 <span>
-                  <IoPlaySkipForward
-                    className={`${style.statusIcon} ${next ? style.active : ''}`} />
+                  <IoPlaySkipForward className={`${style.statusIcon} ${next ? style.active : ''}`} />
                 </span>
               </Tooltip>
-              <Tooltip
-                label={`${isPublic ? 'Event is public' : 'Event is private'}`}
-                {...tooltipProps}
-              >
+              <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
                 <span>
                   <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : ''}`} />
                 </span>
@@ -234,7 +221,7 @@ export default function EventBlock(props: EventBlockProps) {
               variant='ontime-subtle-white'
               size='sm'
               icon={<IoOptions />}
-              clickHandler={() => setOpenId((prev) => prev === eventId ? null : eventId)}
+              clickHandler={() => setOpenId((prev) => (prev === eventId ? null : eventId))}
               tooltip='Event options'
               aria-label='Event options'
               tabIndex={-1}

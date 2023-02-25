@@ -4,7 +4,7 @@ import { FiInfo } from '@react-icons/all-files/fi/FiInfo';
 
 import { LoggingContext } from '../../common/context/LoggingContext';
 import useInfo from '../../common/hooks-query/useInfo';
-import { httpPlaceholder } from '../../common/models/Http.type';
+import { httpPlaceholder } from '../../common/models/Http';
 import { ontimeVars } from '../../common/models/OntimeVars';
 
 import { inputProps } from './modalHelper';

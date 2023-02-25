@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useMessageControl } from '../../common/hooks/useSocket';
 import useSubscription from '../../common/hooks/useSubscription';
-import useEvent from '../../common/hooks-query/useEvent';
+import useEventData from '../../common/hooks-query/useEventData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import socket from '../../common/utils/socket';
@@ -11,13 +11,13 @@ import socket from '../../common/utils/socket';
 const withSocket = (Component) => {
   return (props) => {
     const { data: eventsData } = useRundown();
-    const { data: genData } = useEvent();
+    const { data: genData } = useEventData();
     const { data: viewSettings } = useViewSettings();
-    const { data: messages } = useMessageControl();
+    const { data: messageControl } = useMessageControl();
 
     const [publicSelectedId, setPublicSelectedId] = useState(null);
 
-    const [timer] = useSubscription('ontime-timer', {
+    const [timer] = useSubscription('timer', {
       clock: null,
       current: null,
       elapsed: null ,
@@ -123,9 +123,9 @@ const withSocket = (Component) => {
     return (
       <Component
         {...props}
-        pres={messages.presenter}
-        publ={messages.public}
-        lower={messages.lower}
+        pres={messageControl.messages.presenter}
+        publ={messageControl.messages.public}
+        lower={messageControl.messages.lower}
         title={titleManager}
         publicTitle={publicTitleManager}
         time={TimeManagerType}
@@ -136,7 +136,7 @@ const withSocket = (Component) => {
         viewSettings={viewSettings}
         nextId={nextId}
         general={genData}
-        onAir={messages.onAir}
+        onAir={messageControl.onAir}
       />
     );
   };

@@ -1,6 +1,5 @@
 import { ForwardedRef, forwardRef, PropsWithChildren } from 'react';
-
-import { Playback } from '../../../common/models/OntimeTypes';
+import { Playback } from 'ontime-types';
 
 import style from './TapButton.module.scss';
 

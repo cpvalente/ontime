@@ -3,9 +3,9 @@ import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
+import { Playback } from 'ontime-types';
 
 import { setPlayback } from '../../../common/hooks/useSocket';
-import { Playback } from '../../../common/models/OntimeTypes';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import TapButton from './TapButton';

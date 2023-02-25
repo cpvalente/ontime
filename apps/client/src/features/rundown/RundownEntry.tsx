@@ -1,12 +1,11 @@
 import { useCallback, useContext } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
 import { defaultPublicAtom, editorEventId, startTimeIsLastEndAtom } from '../../common/atoms/LocalEventSettings';
 import { CursorContext } from '../../common/context/CursorContext';
 import { LoggingContext } from '../../common/context/LoggingContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
-import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from '../../common/models/EventTypes';
-import { Playback } from '../../common/models/OntimeTypes';
 import { cloneEvent } from '../../common/utils/eventsManager';
 import { calculateDuration } from '../../common/utils/timesManager';
 
@@ -14,14 +13,7 @@ import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 
-export type EventItemActions =
-  'set-cursor'
-  | 'event'
-  | 'delay'
-  | 'block'
-  | 'delete'
-  | 'clone'
-  | 'update'
+export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update';
 
 interface RundownEntryProps {
   type: SupportedEvent;
@@ -38,18 +30,7 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const {
-    index,
-    eventIndex,
-    data,
-    selected,
-    hasCursor,
-    next,
-    delay,
-    previousEnd,
-    previousEventId,
-    playback,
-  } = props;
+  const { index, eventIndex, data, selected, hasCursor, next, delay, previousEnd, previousEventId, playback } = props;
   const { emitError } = useContext(LoggingContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
@@ -61,7 +42,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   type FieldValue = {
     field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
     value: unknown;
-  }
+  };
   const actionHandler = useCallback(
     (action: EventItemActions, payload?: number | FieldValue) => {
       switch (action) {
@@ -171,19 +152,11 @@ export default function RundownEntry(props: RundownEntryProps) {
       />
     );
   } else if (data.type === SupportedEvent.Block) {
-    return <BlockBlock
-      index={index}
-      data={data}
-      hasCursor={hasCursor}
-      actionHandler={actionHandler}
-    />;
+    // @ts-expect-error -- revise types here
+    return <BlockBlock index={index} data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
   } else if (data.type === SupportedEvent.Delay) {
-    return <DelayBlock
-      index={index}
-      data={data}
-      hasCursor={hasCursor}
-      actionHandler={actionHandler}
-    />;
+    // @ts-expect-error -- revise types here
+    return <DelayBlock index={index} data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
   }
   return null;
 }

@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ontimeQueryClient as queryClient } from '../queryClient';
-import socket, { subscribeOnce } from '../utils/socket';
+import { Playback } from 'ontime-types';
 
 import {
   FEAT_CUESHEET,
@@ -10,7 +9,8 @@ import {
   FEAT_RUNDOWN,
   TIMER,
 } from '../api/apiConstants';
-import { Playback } from '../models/OntimeTypes';
+import { ontimeQueryClient as queryClient } from '../queryClient';
+import socket, { subscribeOnce } from '../utils/socket';
 
 function createSocketHook<T>(key: string, defaultValue: T | null = null) {
   subscribeOnce<T>(key, (data) => queryClient.setQueryData([key], data));
@@ -37,17 +37,19 @@ const emptyRundown: IRundown = {
 export const useRundownEditor = createSocketHook(FEAT_RUNDOWN, emptyRundown);
 
 const emptyMessageControl = {
-  presenter: {
-    text: '',
-    visible: false,
-  },
-  public: {
-    text: '',
-    visible: false,
-  },
-  lower: {
-    text: '',
-    visible: false,
+  messages: {
+    presenter: {
+      text: '',
+      visible: false,
+    },
+    public: {
+      text: '',
+      visible: false,
+    },
+    lower: {
+      text: '',
+      visible: false,
+    },
   },
   onAir: false,
 };
@@ -123,7 +125,6 @@ export const emptyCuesheet = {
 };
 
 export const useCuesheet = createSocketHook(FEAT_CUESHEET, emptyCuesheet);
-
 
 export const setEventPlayback = {
   loadEvent: (eventId: string) => socket.emit('set-loadid', eventId),

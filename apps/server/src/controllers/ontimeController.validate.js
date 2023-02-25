@@ -65,10 +65,11 @@ export const validateSettings = [
  * @description Validates object for POST /ontime/osc
  */
 export const validateOSC = [
-  body('port').exists().isInt({ min: 0, max: 65353 }),
-  body('portOut').exists().isInt({ min: 0, max: 65353 }),
+  body('portIn').exists().isInt({ min: 1024, max: 65535 }),
+  body('portOut').exists().isInt({ min: 1024, max: 65535 }),
   body('targetIP').exists().isIP(),
-  body('enabled').exists().isBoolean(),
+  body('enabledIn').exists().isBoolean(),
+  body('enabledOut').exists().isBoolean(),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });

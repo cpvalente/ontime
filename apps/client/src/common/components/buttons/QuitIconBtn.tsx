@@ -13,7 +13,7 @@ import {
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
 
 import { LoggingContext } from '../../context/LoggingContext';
-import { Size } from '../../models/UtilTypes';
+import { Size } from '../../models/Util.type';
 
 interface QuitIconBtnProps {
   clickHandler: () => void;

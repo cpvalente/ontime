@@ -3,7 +3,7 @@ import { Button, ButtonGroup, IconButton, Tooltip } from '@chakra-ui/react';
 import { IoCopy } from '@react-icons/all-files/io5/IoCopy';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
-import { Size } from '../../models/UtilTypes';
+import { Size } from '../../models/Util.type';
 
 interface CopyTagProps {
   label: string;

@@ -1,0 +1,77 @@
+@use '../../theme/v2Styles' as *;
+@use '../../theme/ontimeColours' as *;
+
+.headerNotes {
+  font-size: $text-body-size;
+  width: 100%;
+  padding: 0 16px;
+  color: $modal-note-color;
+  margin-bottom: $section-spacing;
+}
+
+.divider {
+  margin: 8px 0;
+  border: 0;
+  border-top: 1px solid $gray-100;
+}
+
+.sectionContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%
+}
+
+.splitSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border-radius: 3px;
+  padding: 8px;
+
+  &:hover {
+    background-color: $blue-50;
+  }
+}
+
+.sectionTitle {
+  font-size: 14px;
+  display: block;
+
+  &.main {
+    font-weight: 600;
+  }
+}
+
+@mixin subsection {
+  font-size: 14px;
+  display: block;
+}
+
+.sectionSubtitle {
+  @include subsection;
+  color: $modal-note-color;
+}
+
+.error {
+  @include subsection;
+  color: $error-red;
+}
+
+.buttonSection {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid $gray-100;
+  display: flex;
+  gap: 16px;
+}
+
+.buttonSection {
+  button:first-of-type {
+    margin-right: auto;
+  }
+}
+
+.spacer {
+  flex-grow: 1;
+}

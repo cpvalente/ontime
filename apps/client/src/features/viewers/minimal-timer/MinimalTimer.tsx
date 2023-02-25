@@ -1,27 +1,24 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { EventDataType } from 'common/models/EventData.type';
 import { useAtom } from 'jotai';
-import { TimerType } from 'ontime-types';
+import { EventData, Message, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { PresenterMessageType } from '../../../common/models/PresenterMessage.type';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { ViewSettingsType } from '../../../common/models/ViewSettings.type';
-import { OverridableOptions } from '../../../common/models/ViewTypes';
+import { OverridableOptions } from '../../../common/models/View.types';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import { getTimerByType } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
 
 interface MinimalTimerProps {
-  pres: PresenterMessageType;
+  pres: Message;
   time: TimeManagerType;
-  viewSettings: ViewSettingsType;
-  general: EventDataType;
+  viewSettings: ViewSettings;
+  general: EventData;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
