@@ -131,8 +131,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isPlaying = time.playback !== 'pause';
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-  const showFinished = time.finished && !userOptions?.hideOvertime && time.timerType !== TimerType.Clock;
   const showEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;
+  const showFinished = time.finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
   const stageTimer = getTimerByType(time);
 

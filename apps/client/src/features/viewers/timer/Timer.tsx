@@ -68,7 +68,7 @@ export default function Timer(props) {
 
   const showEndMessage = time.current < 0 && general.endMessage;
   const showProgress = time.playback !== 'stop';
-  const showFinished = time.finished && time.timerType !== TimerType.Clock;
+  const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showClock = time.timerType !== TimerType.Clock;
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
