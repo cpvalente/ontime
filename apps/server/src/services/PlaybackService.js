@@ -5,6 +5,7 @@ import { socketProvider } from '../classes/socket/SocketController.js';
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventTimer, TimerService } from './TimerService.js';
 import { eventStore } from '../stores/EventStore.js';
+import { clock } from './Clock.js';
 
 /**
  * Service manages playback status of app
@@ -163,7 +164,7 @@ export class PlaybackService {
    */
   static roll() {
     if (EventLoader.getPlayableEvents()) {
-      const rollTimers = eventLoader.findRoll(TimerService.getCurrentTime());
+      const rollTimers = eventLoader.findRoll(clock.getCurrentTime());
 
       // nothing to play
       if (rollTimers === null) {

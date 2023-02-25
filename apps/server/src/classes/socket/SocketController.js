@@ -6,8 +6,9 @@ import { stringFromMillis } from '../../utils/time.js';
 import { messageManager } from '../message-manager/MessageManager.js';
 import { PlaybackService } from '../../services/PlaybackService.js';
 
-import { eventTimer, TimerService } from '../../services/TimerService.js';
+import { eventTimer } from '../../services/TimerService.js';
 import { EventLoader, eventLoader } from '../event-loader/EventLoader.js';
+import { clock } from '../../services/Clock.js';
 
 class SocketController {
   constructor() {
@@ -329,7 +330,7 @@ class SocketController {
       level,
       origin,
       text,
-      time: stringFromMillis(TimerService.getCurrentTime() || 0),
+      time: stringFromMillis(clock.getSystemTime() || 0),
     };
 
     this.messageStack.unshift(logMessage);
