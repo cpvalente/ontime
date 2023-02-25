@@ -3,6 +3,7 @@ import { Playback } from 'ontime-types';
 
 import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
+import { millisToMinutes } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
@@ -26,15 +27,21 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
   const isWaiting = timerData.secondaryTimer !== null && timerData.secondaryTimer > 0 && timerData.current === null;
   const disableButtons = selectedId === null || isRolling;
   const isOvertime = timerData.current !== null && timerData.current < 0;
+  const hasAddedTime = Boolean(timerData.addedTime);
+
+  const rollLabel = isRolling ? 'Roll mode active' : '';
+  const addedTimeLabel = hasAddedTime ? `Added ${millisToMinutes(timerData.addedTime)} minutes` : '';
 
   return (
     <div className={style.timeContainer}>
       <div className={style.indicators}>
-        <Tooltip label='Roll mode active'>
+        <Tooltip label={rollLabel}>
           <div className={isRolling ? style.indRollActive : style.indRoll} />
         </Tooltip>
         <div className={isOvertime ? style.indNegativeActive : style.indNegative} />
-        <div className={style.indDelay} />
+        <Tooltip label={addedTimeLabel}>
+          <div className={hasAddedTime ? style.indDelayActive : style.indDelay} />
+        </Tooltip>
       </div>
       <div className={style.timer}>
         <TimerDisplay time={isWaiting ? timerData.secondaryTimer : timerData.current} small />

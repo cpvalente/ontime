@@ -99,6 +99,7 @@
     grid-area: info;
     display: flex;
     gap: max(1vw, 16px);
+    min-height: max(calc(100vh / 15), 128px);
 
     &__message {
       font-size: clamp(16px, 1.5vw, 24px);

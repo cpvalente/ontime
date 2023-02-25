@@ -11,6 +11,11 @@ $playback-width: 450px;
   right: $distance;
   cursor: pointer;
   color: $ui-white;
+  transition-property: color;
+  transition-duration: $transition-time-action;
+  &:hover {
+    color: $ontime-color;
+  }
 }
 
 .corner {

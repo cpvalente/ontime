@@ -65,14 +65,10 @@ export default function Timer(props) {
   const showProgress = time.playback !== 'stop';
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
- return (
-    <div
-      className={time.finished ? `${baseClasses} stage-timer--finished` : baseClasses}
-      data-testid='timer-view'
-    >
+  return (
+    <div className={time.finished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
-      <div
-        className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
+      <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className='message'>{pres.text}</div>
       </div>
 
@@ -84,31 +80,22 @@ export default function Timer(props) {
       <div className='timer-container'>
         {time.finished ? (
           <div className='end-message'>
-            {!general.endMessage ? (
-              <TimerDisplay time={time.current} hideZeroHours />
-            ) : (
-              general.endMessage
-            )}
+            {!general.endMessage ? <TimerDisplay time={time.current} hideZeroHours /> : general.endMessage}
           </div>
         ) : (
-          <TimerDisplay
-            time={normalisedTime}
-            hideZeroHours
-            className={isPlaying ? 'timer' : 'timer--paused'} />
+          <TimerDisplay time={normalisedTime} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
         )}
       </div>
 
       <ProgressBar
-        className={
-          isPlaying ? 'progress-container' : 'progress-container progress-container--paused'
-        }
+        className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
         now={time.current}
         complete={time.duration}
         hidden={!showProgress}
       />
 
       <AnimatePresence>
-        {title.showNow && (
+        {title.showNow && !time.finished && (
           <motion.div
             className='event now'
             key='now'
@@ -117,12 +104,7 @@ export default function Timer(props) {
             animate='visible'
             exit='exit'
           >
-            <TitleCard
-              label='now'
-              title={title.titleNow}
-              subtitle={title.subtitleNow}
-              presenter={title.presenterNow}
-            />
+            <TitleCard label='now' title={title.titleNow} subtitle={title.subtitleNow} presenter={title.presenterNow} />
           </motion.div>
         )}
       </AnimatePresence>
