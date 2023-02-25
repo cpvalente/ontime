@@ -35,6 +35,7 @@
     grid-area: clock;
     margin-left: auto;
     font-weight: 600;
+    transition: opacity $viewer-transition-time;
 
     .label {
       font-size: clamp(16px, 1.5vw, 24px);
@@ -69,6 +70,7 @@
 
   .timer-container {
     grid-area: timer;
+    font-size: 20vw;
     justify-self: center;
     align-self: center;
     color: var(--timer-color-override, $timer-color);

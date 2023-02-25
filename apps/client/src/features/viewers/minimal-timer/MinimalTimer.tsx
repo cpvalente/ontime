@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { EventDataType } from 'common/models/EventData.type';
 import { useAtom } from 'jotai';
+import { TimerType } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
@@ -131,13 +132,22 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
-  const isNegative = (time.current ?? 0) < 0;
-  const showFinished = isNegative && !userOptions?.hideOvertime;
+  const isNegative =
+    (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
+  const showFinished = time.finished && !userOptions?.hideOvertime && time.timerType !== TimerType.Clock;
   const showEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;
 
   const stageTimer = getTimerByType(time);
 
-  let display = stageTimer ? formatDisplay(millisToSeconds(stageTimer), true) : '-- : -- : --';
+  let display = '';
+
+  if (typeof stageTimer === 'string') {
+    display = stageTimer;
+  } else if (stageTimer === null || typeof stageTimer === 'undefined' || isNaN(stageTimer)) {
+    display = '-- : -- : --';
+  } else {
+    display = formatDisplay(millisToSeconds(stageTimer), true);
+  }
 
   if (isNegative) {
     display = `-${display}`;

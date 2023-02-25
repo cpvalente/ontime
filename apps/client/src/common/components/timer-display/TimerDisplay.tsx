@@ -5,7 +5,7 @@ import { formatDisplay, millisToSeconds } from '../../utils/dateConfig';
 import './TimerDisplay.scss';
 
 interface TimerDisplayProps {
-  time?: number | null;
+  time?: string | number | null;
   small?: boolean;
   hideZeroHours?: boolean;
   className?: string;
@@ -19,10 +19,15 @@ interface TimerDisplayProps {
 const TimerDisplay = (props: TimerDisplayProps) => {
   const { time, small, hideZeroHours, className = '' } = props;
 
-  const display =
-    time === null || typeof time === 'undefined' || isNaN(time)
-      ? '-- : -- : --'
-      : formatDisplay(millisToSeconds(time), hideZeroHours);
+  let display = '';
+
+  if (typeof time === 'string') {
+    display = time;
+  } else if (time === null || typeof time === 'undefined' || isNaN(time)) {
+    display = '-- : -- : --';
+  } else {
+    display = formatDisplay(millisToSeconds(time), hideZeroHours);
+  }
 
   const isNegative = (time ?? 0) < 0;
 
