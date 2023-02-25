@@ -23,9 +23,9 @@ export type { DatabaseModel };
 
 // ---> Rundown
 export { TimerType };
+export { SupportedEvent };
 export type { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent };
 export type { OntimeRundown, OntimeRundownEntry };
-export { SupportedEvent };
 
 // ---> Event
 export type { EventData };

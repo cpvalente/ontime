@@ -1,10 +1,12 @@
-export const event = {
+import { OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
+
+export const event: Omit<OntimeEvent, 'id'> = {
   title: '',
   subtitle: '',
   presenter: '',
   note: '',
   timerBehaviour: 'start-end',
-  timerType: 'count-down',
+  timerType: TimerType.CountDown,
   timeStart: 0,
   timeEnd: 0,
   duration: 0,
@@ -21,16 +23,16 @@ export const event = {
   user7: '',
   user8: '',
   user9: '',
-  type: 'event',
+  type: SupportedEvent.Event,
   revision: 0,
 };
 
-export const delay = {
+export const delay: Omit<OntimeDelay, 'id'> = {
   duration: 0,
-  type: 'delay',
+  type: SupportedEvent.Delay,
   revision: 0,
 };
 
-export const block = {
-  type: 'block',
+export const block: Omit<OntimeBlock, 'id'> = {
+  type: SupportedEvent.Block,
 };
