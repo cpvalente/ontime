@@ -39,14 +39,14 @@ export default function AppSettingsModal() {
   const [eventSettings, saveEventSettings] = useAtom(eventSettingsAtom);
   const [formSettings, setFormSettings] = useState(eventSettings);
 
-  const gitUrl = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
+  const [gitdata, setGitData] = useState();
 
-  let latestVersion = '';
+  const gitUrl = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
 
   const getLatestVersion = async () => {
     const result = await fetch(gitUrl);
-    result.json().then(json => {
-      latestVersion = json.tag_name;
+    result.json().then((json) => {
+      setGitData(json);
     });
   };
 
@@ -149,7 +149,11 @@ export default function AppSettingsModal() {
         <br />
         🔥 Changes take effect on save 🔥
       </p>
-      <p className={style.notes}>{`Running ontime version ${version}`}</p>
+      <p className={style.notes}>
+        {`Running ontime version ${version}`}
+        <br />
+        <a href={gitdata?.html_url} target='_blank' rel='noreferrer'>{`Latest version: ${gitdata?.tag_name}`}</a>
+      </p>
       <form onSubmit={submitHandler}>
         <div className={style.modalFields}>
           <div className={style.hSeparator}>General App Settings</div>
