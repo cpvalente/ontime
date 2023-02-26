@@ -3,8 +3,8 @@
  */
 import { socketProvider } from '../classes/socket/SocketController.js';
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
-import { eventTimer, TimerService } from './TimerService.js';
 import { eventStore } from '../stores/EventStore.js';
+import { eventTimer } from './TimerService.js';
 import { clock } from './Clock.js';
 
 /**
