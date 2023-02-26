@@ -39,6 +39,17 @@ export default function AppSettingsModal() {
   const [eventSettings, saveEventSettings] = useAtom(eventSettingsAtom);
   const [formSettings, setFormSettings] = useState(eventSettings);
 
+  const gitUrl = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
+
+  let latestVersion = '';
+
+  const getLatestVersion = async () => {
+    const result = await fetch(gitUrl);
+    result.json().then(json => {
+      latestVersion = json.tag_name;
+    });
+  };
+
   /**
    * Set formdata from server state
    */
@@ -49,6 +60,7 @@ export default function AppSettingsModal() {
       pinCode: data.pinCode,
       timeFormat: data.timeFormat,
     });
+    getLatestVersion();
   }, [changed, data]);
 
   /**
@@ -59,7 +71,7 @@ export default function AppSettingsModal() {
     setSubmitting(true);
     const validation = { isValid: false, message: '' };
 
-    const hasChanged = !isEqual(formSettings,eventSettings);
+    const hasChanged = !isEqual(formSettings, eventSettings);
     if (hasChanged) {
       saveEventSettings(formSettings);
       validation.isValid = true;
@@ -93,7 +105,7 @@ export default function AppSettingsModal() {
       try {
         await postSettings(formData);
       } catch (error) {
-        emitError(`Error saving settings: ${error}`)
+        emitError(`Error saving settings: ${error}`);
       } finally {
         await refetch();
         resetChange = true;
@@ -150,13 +162,7 @@ export default function AppSettingsModal() {
                   Ontime is available at port
                 </span>
               </FormLabel>
-              <Input
-                {...inputProps}
-                name='title'
-                value={4001}
-                disabled
-                style={{ width: '6em', textAlign: 'center' }}
-              />
+              <Input {...inputProps} name='title' value={4001} disabled style={{ width: '6em', textAlign: 'center' }} />
             </FormControl>
             <FormControl id='editorPin'>
               <FormLabel htmlFor='editorPin'>
@@ -256,12 +262,7 @@ export default function AppSettingsModal() {
             </Checkbox>
           </div>
         </div>
-        <SubmitContainer
-          revert={revert}
-          submitting={submitting}
-          changed={changed}
-          status={status}
-        />
+        <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
       </form>
     </ModalBody>
   );
