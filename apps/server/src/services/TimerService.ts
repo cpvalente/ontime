@@ -46,14 +46,11 @@ export class TimerService {
    * @private
    */
   _getExpectedFinish() {
-    console.log('debug expected finish')
     if (this.timer.startedAt === null) {
-      console.log('1')
       return null;
     }
 
     if (this.timer.finishedAt) {
-      console.log('2', this.timer.finishedAt)
       return this.timer.finishedAt;
     }
 
@@ -184,7 +181,6 @@ export class TimerService {
    * @private
    */
   _onStart() {
-    console.log('start', this.playback)
     eventStore.set('playback', this.playback);
     eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onStart);
@@ -232,8 +228,6 @@ export class TimerService {
     }
 
     this.timer.addedTime += amount;
-    this.timer.current += amount;
-    this.timer.elapsed += amount;
 
     // handle edge cases
     if (amount < 0 && Math.abs(amount) > this.timer.current) {
@@ -290,7 +284,7 @@ export class TimerService {
 
         this.timer.current =
           this.timer.startedAt + this.timer.duration + this.timer.addedTime + this.pausedTime - this.timer.clock;
-        this.timer.elapsed = this.timer.duration - this.timer.current;
+        this.timer.elapsed = this.timer.duration - this.timer.current + this.timer.addedTime;
 
         if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
           this.timer.finishedAt = this.timer.clock;
