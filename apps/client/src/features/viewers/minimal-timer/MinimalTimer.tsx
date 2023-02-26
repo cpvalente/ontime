@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { EventData, Message, ViewSettings } from 'ontime-types';
+import { EventData, Message, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
@@ -9,7 +9,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
-import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
+import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
 
@@ -128,22 +128,23 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
-  const isNegative = (time.current ?? 0) < 0;
-  const showFinished = isNegative && !userOptions?.hideOvertime;
+  const isNegative =
+    (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
   const showEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;
+  const showFinished =
+    time.finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
+
+  const stageTimer = getTimerByType(time);
+  let display = formatTimerDisplay(stageTimer);
+  if (isNegative) {
+    display = `-${display}`;
+  }
+  const stageTimerCharacters = display.replace('/:/g', '').length;
+
+  const timerFontSize = (89 / (stageTimerCharacters - 1)) * (userOptions.size || 1);
+  const timerClasseNames = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
-
-  let stageTimer;
-  if (time.current === null) {
-    stageTimer = '- - : - -';
-  } else {
-    stageTimer = formatDisplay(Math.abs(millisToSeconds(time.current)), true);
-    if (time.current < 0) {
-      stageTimer = `-${stageTimer}`;
-    }
-  }
-  const stageTimerCharacters = stageTimer.replace('/:/g', '').length;
 
   return (
     <div
@@ -165,17 +166,17 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         <div className='end-message'>{general.endMessage}</div>
       ) : (
         <div
-          className={`timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`}
+          className={timerClasseNames}
           style={{
             color: userOptions.textColour,
-            fontSize: `${(89 / (stageTimerCharacters - 1)) * (userOptions.size || 1)}vw`,
+            fontSize: `${timerFontSize}vw`,
             fontFamily: userOptions.font,
             top: userOptions.top,
             left: userOptions.left,
             backgroundColor: userOptions.textBackground,
           }}
         >
-          {stageTimer}
+          {display}
         </div>
       )}
     </div>
