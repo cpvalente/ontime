@@ -5,15 +5,10 @@
   color: var(--timer-color-override, $timer-color);
   line-height: 0.9em;
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   font-weight: 600;
-
-  &--small {
-    font-size: 3.75em;
-    text-align: center;
-    letter-spacing: 0.1em;
-  }
-
+  font-size: 3.75em;
+  
   &--finished {
     color: $timer-finished-color;
   }

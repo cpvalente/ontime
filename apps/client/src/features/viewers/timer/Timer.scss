@@ -48,6 +48,10 @@
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
     }
+
+    &--hidden {
+      opacity: 0;
+    }
   }
 
   /* =================== TITLES ===================*/
@@ -70,10 +74,8 @@
 
   .timer-container {
     grid-area: timer;
-    font-size: 20vw;
     justify-self: center;
     align-self: center;
-    color: var(--timer-color-override, $timer-color);
 
     .end-message {
       text-align: center;
@@ -86,6 +88,7 @@
 
     .timer {
       opacity: 1;
+      font-size: 20vw;
       font-family: var(--font-family-override, $viewer-font-family);
       color: var(--timer-color-override, $timer-color);
       line-height: 0.9em;
@@ -93,9 +96,14 @@
       letter-spacing: 0.05em;
       font-weight: 600;
 
+      &--paused {
+        opacity: $viewer-opacity-disabled;
+        transition: $viewer-transition-time;
+      }
+
       &--finished {
-      color: $timer-finished-color;
-  }
+        color: $timer-finished-color;
+      }
     }
   }
 
@@ -105,13 +113,12 @@
     margin: 0 auto;
     opacity: 1;
     transition: $viewer-transition-time;
-  }
 
-  .timer--paused,
-  .progress-container--paused {
+  &--paused {
     opacity: $viewer-opacity-disabled;
     transition: $viewer-transition-time;
   }
+}
 
 
   /* =================== OVERLAY ===================*/

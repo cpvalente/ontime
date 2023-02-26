@@ -1,6 +1,7 @@
 import { TimerType } from 'ontime-types';
 
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
 
 const formatOptions = {
@@ -19,10 +20,24 @@ export function getTimerByType(timerObject?: TimerTypeParams): string | number |
   if (timerObject.timerType === TimerType.CountDown) {
     timer = timerObject.current;
   } else if (timerObject.timerType === TimerType.CountUp) {
-    timer = timerObject?.elapsed ?? 0;
+    timer = timerObject.elapsed ?? 0;
   } else if (timerObject.timerType === TimerType.Clock) {
     timer = formatTime(timerObject.clock, formatOptions);
   }
 
   return timer;
+}
+
+export function formatTimerDisplay(timer?: string | number | null): string {
+  let display = '';
+
+  if (typeof timer === 'string') {
+    display = timer;
+  } else if (timer === null || typeof timer === 'undefined' || isNaN(timer)) {
+    display = '-- : -- : --';
+  } else {
+    display = formatDisplay(millisToSeconds(timer), true);
+  }
+
+  return display;
 }

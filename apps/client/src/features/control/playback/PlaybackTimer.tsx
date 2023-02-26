@@ -44,7 +44,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
         </Tooltip>
       </div>
       <div className={style.timer}>
-        <TimerDisplay time={isWaiting ? timerData.secondaryTimer : timerData.current} small />
+        <TimerDisplay time={isWaiting ? timerData.secondaryTimer : timerData.current} />
       </div>
       {isWaiting ? (
         <div className={style.roll}>

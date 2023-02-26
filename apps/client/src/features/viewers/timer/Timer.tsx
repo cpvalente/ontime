@@ -10,9 +10,8 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
-import { getTimerByType } from '../common/viewerUtils';
+import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
 
@@ -73,22 +72,14 @@ export default function Timer(props) {
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
   const stageTimer = getTimerByType(time);
-
-  let display = '';
-
-  if (typeof stageTimer === 'string') {
-    display = stageTimer;
-  } else if (stageTimer === null || typeof stageTimer === 'undefined' || isNaN(stageTimer)) {
-    display = '-- : -- : --';
-  } else {
-    display = formatDisplay(millisToSeconds(stageTimer), true);
-  }
-
+  let display = formatTimerDisplay(stageTimer);
+  const stageTimerCharacters = display.replace('/:/g', '').length;
   if (isNegative) {
     display = `-${display}`;
   }
 
-  const stageTimerCharacters = display.replace('/:/g', '').length;
+  const timerFontSize = 100 / stageTimerCharacters;
+  const timerClasseNames = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
@@ -97,26 +88,21 @@ export default function Timer(props) {
         <div className='message'>{pres.text}</div>
       </div>
 
-      <div
-        className='clock-container'
-        style={{
-          opacity: `${showClock ? 1 : 0}`,
-        }}
-      >
+      <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
         <div className='label'>Time Now</div>
         <div className='clock'>{clock}</div>
       </div>
 
-      <div
-        className='timer-container'
-        style={{
-          fontSize: `${100 / stageTimerCharacters}vw`,
-        }}
-      >
+      <div className='timer-container'>
         {showEndMessage ? (
           <div className='end-message'>{general.endMessage}</div>
         ) : (
-          <div className={`timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`}>
+          <div
+            className={timerClasseNames}
+            style={{
+              fontSize: `${timerFontSize}vw`,
+            }}
+          >
             {display}
           </div>
         )}
