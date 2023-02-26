@@ -35,7 +35,7 @@ const withSocket = (Component) => {
       subtitleNext: '',
       presenterNext: '',
     });
-    const [publicTitles] = useSubscription('publictitles', {
+    const [publicTitles] = useSubscription('titlesPublic', {
       titleNow: '',
       subtitleNow: '',
       presenterNow: '',
