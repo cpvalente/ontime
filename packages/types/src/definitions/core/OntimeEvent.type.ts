@@ -1,3 +1,5 @@
+import { TimerType } from '../TimerType.type.js';
+
 export enum SupportedEvent {
   Event = 'event',
   Delay = 'delay',
@@ -26,7 +28,8 @@ export type OntimeEvent = OntimeBaseEvent & {
   subtitle: string;
   presenter: string;
   note: string;
-  timeType?: string;
+  timerBehaviour: 'start-end',
+  timerType: TimerType,
   timeStart: number;
   timeEnd: number;
   duration: number;

@@ -14,7 +14,7 @@ import { OSCSettings, OscSubscription } from './definitions/core/OscSettings.typ
 import { Playback } from './definitions/runtime/Playback.type.js';
 import { Settings } from './definitions/core/Settings.type.js';
 import { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
-import { TimerTypeType } from './definitions/TimerType.type.js';
+import { TimerType } from './definitions/TimerType.type.js';
 import { UserFields } from './definitions/core/UserFields.type.js';
 import { ViewSettings } from './definitions/core/Views.type.js';
 
@@ -22,10 +22,10 @@ import { ViewSettings } from './definitions/core/Views.type.js';
 export type { DatabaseModel };
 
 // ---> Rundown
-export type { TimerTypeType };
+export { TimerType };
+export { SupportedEvent };
 export type { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent };
 export type { OntimeRundown, OntimeRundownEntry };
-export { SupportedEvent };
 
 // ---> Event
 export type { EventData };

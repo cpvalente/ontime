@@ -35,6 +35,7 @@
     grid-area: clock;
     margin-left: auto;
     font-weight: 600;
+    transition: opacity $viewer-transition-time;
 
     .label {
       font-size: clamp(16px, 1.5vw, 24px);
@@ -46,6 +47,10 @@
       font-size: clamp(32px, 3.5vw, 50px);
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
+    }
+
+    &--hidden {
+      opacity: 0;
     }
   }
 
@@ -71,7 +76,6 @@
     grid-area: timer;
     justify-self: center;
     align-self: center;
-    color: var(--timer-color-override, $timer-color);
 
     .end-message {
       text-align: center;
@@ -84,6 +88,22 @@
 
     .timer {
       opacity: 1;
+      font-size: 20vw;
+      font-family: var(--font-family-override, $viewer-font-family);
+      color: var(--timer-color-override, $timer-color);
+      line-height: 0.9em;
+      text-align: center;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+
+      &--paused {
+        opacity: $viewer-opacity-disabled;
+        transition: $viewer-transition-time;
+      }
+
+      &--finished {
+        color: $timer-finished-color;
+      }
     }
   }
 
@@ -93,13 +113,12 @@
     margin: 0 auto;
     opacity: 1;
     transition: $viewer-transition-time;
-  }
 
-  .timer--paused,
-  .progress-container--paused {
+  &--paused {
     opacity: $viewer-opacity-disabled;
     transition: $viewer-transition-time;
   }
+}
 
 
   /* =================== OVERLAY ===================*/

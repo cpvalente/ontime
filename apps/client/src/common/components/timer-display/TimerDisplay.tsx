@@ -6,9 +6,6 @@ import './TimerDisplay.scss';
 
 interface TimerDisplayProps {
   time?: number | null;
-  small?: boolean;
-  hideZeroHours?: boolean;
-  className?: string;
 }
 
 /**
@@ -17,15 +14,19 @@ interface TimerDisplayProps {
  * @constructor
  */
 const TimerDisplay = (props: TimerDisplayProps) => {
-  const { time, small, hideZeroHours, className = '' } = props;
+  const { time } = props;
 
-  const display =
-    (time === null || typeof time === 'undefined' || isNaN(time))
-      ? '-- : -- : --'
-      : formatDisplay(millisToSeconds(time), hideZeroHours);
+  let display = '';
+
+  if (time === null || typeof time === 'undefined' || isNaN(time)) {
+    display = '-- : -- : --';
+  } else {
+    display = formatDisplay(millisToSeconds(time));
+  }
 
   const isNegative = (time ?? 0) < 0;
-  const classes = `timer ${small ? 'timer--small' : ''} ${isNegative ? 'timer--finished' : ''} ${className}`;
+
+  const classes = `timer ${isNegative ? 'timer--finished' : ''}`;
 
   return <div className={classes}>{display}</div>;
 };
