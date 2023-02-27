@@ -3,15 +3,32 @@ type MaybeNumber = number | null;
 /**
  * Calculates expected finish time of a running timer
  */
-export function getFinishTime(startedAt: MaybeNumber, duration: MaybeNumber, pausedTime: number, addedTime: number) {
+export function getExpectedFinish(
+  startedAt: MaybeNumber,
+  finishedAt: MaybeNumber,
+  duration: number,
+  pausedTime: number,
+  addedTime: number,
+) {
+  if (startedAt === null) {
+    return null;
+  }
+
+  if (finishedAt !== null) {
+    return finishedAt;
+  }
+
   return Math.max(startedAt + duration + pausedTime + addedTime, startedAt);
 }
 
 /**
  * Calculates running countdown
  */
-export function getCurrentTime(expectedFinish: number, pausedTime: number, addedTime: number, clock: number) {
-  return expectedFinish + addedTime + pausedTime - clock;
+export function getCurrent(expectedFinish: MaybeNumber, clock: number) {
+  if (expectedFinish === null) {
+    return null;
+  }
+  return expectedFinish - clock;
 }
 
 /**

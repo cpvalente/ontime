@@ -5,7 +5,7 @@ import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { DAY_TO_MS } from '../utils/time.js';
 import { integrationService } from './integration-service/IntegrationService.js';
-import { getElapsed, getFinishTime } from './timerUtils.js';
+import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 
 export class TimerService {
@@ -40,22 +40,6 @@ export class TimerService {
   constructor(timerConfig?) {
     this._clear();
     this._interval = setInterval(() => this.update(), timerConfig?.refresh || 1000);
-  }
-
-  /**
-   * Returns expected time finish
-   * @private
-   */
-  _getExpectedFinish() {
-    if (this.timer.startedAt === null) {
-      return null;
-    }
-
-    if (this.timer.finishedAt) {
-      return this.timer.finishedAt;
-    }
-
-    return getFinishTime(this.timer.startedAt, this.timer.duration, this.pausedTime, this.timer.addedTime);
   }
 
   /**
@@ -110,7 +94,13 @@ export class TimerService {
 
     // this might not be ideal
     this.timer.finishedAt = null;
-    this.timer.expectedFinish = this._getExpectedFinish();
+    this.timer.expectedFinish = getExpectedFinish(
+      this.timer.startedAt,
+      this.timer.finishedAt,
+      this.timer.duration,
+      this.pausedTime,
+      this.timer.addedTime,
+    );
     if (this.timer.startedAt === null) {
       this.timer.current = timer.duration;
     }
@@ -177,7 +167,13 @@ export class TimerService {
     }
 
     this.playback = 'play';
-    this.timer.expectedFinish = this._getExpectedFinish();
+    this.timer.expectedFinish = getExpectedFinish(
+      this.timer.startedAt,
+      this.timer.finishedAt,
+      this.timer.duration,
+      this.pausedTime,
+      this.timer.addedTime,
+    );
     this._onStart();
   }
 
@@ -287,18 +283,20 @@ export class TimerService {
           this.pausedTime = this.timer.clock - this.pausedAt;
         }
 
-        this.timer.current =
-          this.timer.startedAt + this.timer.duration + this.timer.addedTime + this.pausedTime - this.timer.clock;
-
-        this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
-
         if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
           this.timer.finishedAt = this.timer.clock;
           this._onFinish();
         } else {
-          this.timer.finishedAt = null;
-          this.timer.expectedFinish = this._getExpectedFinish();
+          this.timer.expectedFinish = getExpectedFinish(
+            this.timer.startedAt,
+            this.timer.finishedAt,
+            this.timer.duration,
+            this.pausedTime,
+            this.timer.addedTime,
+          );
         }
+        this.timer.current = getCurrent(this.timer.expectedFinish, this.timer.clock);
+        this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
       }
     }
     this._onUpdate();
