@@ -5,7 +5,7 @@ import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { DAY_TO_MS } from '../utils/time.js';
 import { integrationService } from './integration-service/IntegrationService.js';
-import { getFinishTime } from './timerUtils.js';
+import { getElapsed, getFinishTime } from './timerUtils.js';
 import { clock } from './Clock.js';
 
 export class TimerService {
@@ -54,7 +54,7 @@ export class TimerService {
       return this.timer.finishedAt;
     }
 
-    return getFinishTime(this.timer.startedAt, this.timer.duration, this.pausedTime, this.timer.addedTime)
+    return getFinishTime(this.timer.startedAt, this.timer.duration, this.pausedTime, this.timer.addedTime);
   }
 
   /**
@@ -284,7 +284,8 @@ export class TimerService {
 
         this.timer.current =
           this.timer.startedAt + this.timer.duration + this.timer.addedTime + this.pausedTime - this.timer.clock;
-        this.timer.elapsed = this.timer.duration - this.timer.current + this.timer.addedTime;
+
+        this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
 
         if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
           this.timer.finishedAt = this.timer.clock;
