@@ -20,7 +20,7 @@ class Clock {
   /**
    * Get current time from source
    */
-  getCurrentTime(): number {
+  timeNow(): number {
     switch (this.source) {
       case Source.System:
         return this.getSystemTime();

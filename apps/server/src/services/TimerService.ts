@@ -49,7 +49,7 @@ export class TimerService {
   _clear() {
     this.playback = 'stop';
     this.timer = {
-      clock: clock.getCurrentTime(),
+      clock: clock.timeNow(),
       current: null,
       elapsed: null,
       expectedFinish: null,
@@ -155,7 +155,7 @@ export class TimerService {
       return;
     }
 
-    this.timer.clock = clock.getCurrentTime();
+    this.timer.clock = clock.timeNow();
 
     // add paused time
     if (this.pausedTime) {
@@ -193,7 +193,7 @@ export class TimerService {
     }
 
     this.playback = 'pause';
-    this.timer.clock = clock.getCurrentTime();
+    this.timer.clock = clock.timeNow();
     this.pausedAt = this.timer.clock;
     this._onPause();
   }
@@ -234,7 +234,7 @@ export class TimerService {
     if (amount < 0 && Math.abs(amount) > this.timer.current) {
       if (this.timer.finishedAt === null) {
         // if we will make the clock negative
-        this.timer.finishedAt = clock.getCurrentTime();
+        this.timer.finishedAt = clock.timeNow();
       }
     } else if (this.timer.current < 0 && this.timer.current + amount > 0) {
       // clock will go from negative to positive
@@ -246,7 +246,7 @@ export class TimerService {
   }
 
   update() {
-    this.timer.clock = clock.getCurrentTime();
+    this.timer.clock = clock.timeNow();
 
     if (this.playback === 'roll') {
       const tempCurrentTimer = {
@@ -314,7 +314,7 @@ export class TimerService {
 
   roll(currentEvent, nextEvent, timers) {
     this._clear();
-    this.timer.clock = clock.getCurrentTime();
+    this.timer.clock = clock.timeNow();
 
     if (currentEvent) {
       // there is something running, load

@@ -164,7 +164,7 @@ export class PlaybackService {
    */
   static roll() {
     if (EventLoader.getPlayableEvents()) {
-      const rollTimers = eventLoader.findRoll(clock.getCurrentTime());
+      const rollTimers = eventLoader.findRoll(clock.timeNow());
 
       // nothing to play
       if (rollTimers === null) {
