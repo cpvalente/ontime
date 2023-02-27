@@ -68,16 +68,31 @@ describe('getExpectedFinish()', () => {
 
 describe('getCurrent()', () => {
   it('is null if it hasnt started', () => {
-    const expectedFinish = null;
+    const startedAt = null;
+    const duration = 0;
+    const pausedTime = 0;
+    const addedTime = 0;
     const clock = 0;
-    const current = getCurrent(expectedFinish, clock);
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
     expect(current).toBe(null);
   });
   it('is the remaining time in clock', () => {
-    const expectedFinish = 10;
+    const startedAt = 0;
+    const duration = 10;
+    const pausedTime = 0;
+    const addedTime = 0;
     const clock = 1;
-    const current = getCurrent(expectedFinish, clock);
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
     expect(current).toBe(9);
+  });
+  it('accounts for added times', () => {
+    const startedAt = 0;
+    const duration = 10;
+    const pausedTime = 5;
+    const addedTime = 5;
+    const clock = 1;
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    expect(current).toBe(19);
   });
 });
 
@@ -105,7 +120,7 @@ describe('getExpectedFinish() getElapsedTime() and getCurrentTime() combined', (
     const clock = 0;
     const expectedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
     const elapsed = getElapsed(startedAt, clock);
-    const current = getCurrent(expectedFinish, clock);
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
     expect(expectedFinish).toBe(10);
     expect(elapsed).toBe(0);
     expect(current).toBe(10);
@@ -120,7 +135,7 @@ describe('getExpectedFinish() getElapsedTime() and getCurrentTime() combined', (
     const clock = 5;
     const expectedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
     const elapsed = getElapsed(startedAt, clock);
-    const current = getCurrent(expectedFinish, clock);
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
     expect(expectedFinish).toBe(13);
     expect(elapsed).toBe(5);
     expect(current).toBe(8);

@@ -24,11 +24,17 @@ export function getExpectedFinish(
 /**
  * Calculates running countdown
  */
-export function getCurrent(expectedFinish: MaybeNumber, clock: number) {
-  if (expectedFinish === null) {
+export function getCurrent(
+  startedAt: MaybeNumber,
+  duration: number,
+  addedTime: number,
+  pausedTime: number,
+  clock: number,
+) {
+  if (startedAt === null) {
     return null;
   }
-  return expectedFinish - clock;
+  return startedAt + duration + addedTime + pausedTime - clock;
 }
 
 /**

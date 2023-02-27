@@ -295,7 +295,13 @@ export class TimerService {
             this.timer.addedTime,
           );
         }
-        this.timer.current = getCurrent(this.timer.expectedFinish, this.timer.clock);
+        this.timer.current = getCurrent(
+          this.timer.startedAt,
+          this.timer.duration,
+          this.timer.addedTime,
+          this.pausedTime,
+          this.timer.clock,
+        );
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
       }
     }
