@@ -1,4 +1,4 @@
-import { TimerLifeCycle } from 'ontime-types';
+import { TimerLifeCycle, TimerType } from 'ontime-types';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
@@ -29,6 +29,7 @@ export class TimerService {
     secondaryTimer: number | null; // used for roll mode
     selectedEventId: string | null;
     duration: number | null;
+    timerType: TimerType | null;
   };
 
   /**
@@ -74,6 +75,7 @@ export class TimerService {
       secondaryTimer: null,
       selectedEventId: null,
       duration: null,
+      timerType: null,
     };
     this.loadedTimerId = null;
     this.pausedTime = 0;
@@ -104,6 +106,7 @@ export class TimerService {
 
     // update relevant information and force update
     this.timer.duration = timer.duration;
+    this.timer.timerType = timer.timerType;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -121,7 +124,8 @@ export class TimerService {
    * @param {number} timer.timeStart
    * @param {number} timer.timeEnd
    * @param {number} timer.duration
-   * @param {string} timer.timeType
+   * @param {string} timer.timerBehaviour
+   * @param {string} timer.timerType
    * @param {boolean} timer.skip
    */
   load(timer) {
@@ -135,6 +139,7 @@ export class TimerService {
     this.timer.duration = timer.duration;
     this.timer.current = timer.duration;
     this.playback = 'armed';
+    this.timer.timerType = timer.timerType;
     this.pausedTime = 0;
     this.pausedAt = 0;
 

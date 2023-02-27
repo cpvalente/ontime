@@ -1,16 +1,17 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
+import { TimerType } from 'ontime-types';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
-import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatTime } from '../../../common/utils/time';
+import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
 
@@ -61,29 +62,49 @@ export default function Timer(props) {
   const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== 'pause';
-  const normalisedTime = time.current === null ? null : Math.max(time.current, 0);
+  const isNegative =
+    (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
+
+  const showEndMessage = time.current < 0 && general.endMessage;
   const showProgress = time.playback !== 'stop';
+  const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
+  const showClock = time.timerType !== TimerType.Clock;
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
+  const stageTimer = getTimerByType(time);
+  let display = formatTimerDisplay(stageTimer);
+  const stageTimerCharacters = display.replace('/:/g', '').length;
+  if (isNegative) {
+    display = `-${display}`;
+  }
+
+  const timerFontSize = 100 / stageTimerCharacters;
+  const timerClasseNames = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
+
   return (
-    <div className={time.finished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
+    <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className='message'>{pres.text}</div>
       </div>
 
-      <div className='clock-container'>
+      <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
         <div className='label'>Time Now</div>
         <div className='clock'>{clock}</div>
       </div>
 
       <div className='timer-container'>
-        {time.finished ? (
-          <div className='end-message'>
-            {!general.endMessage ? <TimerDisplay time={time.current} hideZeroHours /> : general.endMessage}
-          </div>
+        {showEndMessage ? (
+          <div className='end-message'>{general.endMessage}</div>
         ) : (
-          <TimerDisplay time={normalisedTime} hideZeroHours className={isPlaying ? 'timer' : 'timer--paused'} />
+          <div
+            className={timerClasseNames}
+            style={{
+              fontSize: `${timerFontSize}vw`,
+            }}
+          >
+            {display}
+          </div>
         )}
       </div>
 

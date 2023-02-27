@@ -1,4 +1,4 @@
-export enum TimerTypeType {
+export enum TimerType {
   CountDown = 'count-down',
   CountUp = 'count-up',
   Clock = 'clock'
