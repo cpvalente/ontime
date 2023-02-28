@@ -38,7 +38,7 @@ class MessageService {
    */
   setTimerText(payload: string) {
     this.messages.presenter.text = payload;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.updateStore();
     return this.getAll();
   }
 
@@ -47,7 +47,7 @@ class MessageService {
    */
   setTimerVisibility(status: boolean) {
     this.messages.presenter.visible = status;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.updateStore();
     return this.getAll();
   }
 
@@ -56,7 +56,7 @@ class MessageService {
    */
   setPublicText(payload: string) {
     this.messages.public.text = payload;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.updateStore();
     return this.getAll();
   }
 
@@ -65,7 +65,7 @@ class MessageService {
    */
   setPublicVisibility(status: boolean) {
     this.messages.public.visible = status;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.updateStore();
     return this.getAll();
   }
 
@@ -74,7 +74,7 @@ class MessageService {
    */
   setLowerText(payload: string) {
     this.messages.lower.text = payload;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.updateStore();
     return this.getAll();
   }
 
@@ -83,7 +83,7 @@ class MessageService {
    */
   setLowerVisibility(status: boolean) {
     this.messages.lower.visible = status;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.updateStore();
     return this.getAll();
   }
 
@@ -92,7 +92,13 @@ class MessageService {
    */
   setOnAir(status: boolean) {
     this.onAir = status;
+    this.updateStore();
     return this.getAll();
+  }
+
+  private updateStore() {
+    eventStore.set('messages', this.messages);
+    eventStore.set('onAir', this.onAir);
   }
 
   /**
@@ -106,4 +112,4 @@ class MessageService {
   }
 }
 
-export const messageManager = new MessageService();
+export const messageService = new MessageService();

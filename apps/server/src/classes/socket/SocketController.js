@@ -3,7 +3,7 @@ import { generateId } from 'ontime-utils';
 
 import getRandomName from '../../utils/getRandomName.js';
 import { stringFromMillis } from '../../utils/time.js';
-import { messageManager } from '../message-manager/MessageManager.js';
+import { messageService } from '../message-service/MessageService.ts';
 import { PlaybackService } from '../../services/PlaybackService.js';
 
 import { eventTimer } from '../../services/TimerService.js';
@@ -180,7 +180,7 @@ class SocketController {
       });
 
       socket.on('get-onAir', () => {
-        socket.emit('onAir', messageManager.onAir);
+        socket.emit('onAir', messageService.onAir);
       });
 
       /*******************************************/
@@ -209,7 +209,7 @@ class SocketController {
       socket.on('set-onAir', (data) => {
         if (typeof data === 'boolean') {
           try {
-            const featureData = messageManager.setOnAir(data);
+            const featureData = messageService.setOnAir(data);
             this.info('PLAYBACK', featureData.onAir ? 'Going On Air' : 'Going Off Air');
           } catch (error) {
             this.error('RX', `Failed to parse message ${data} : ${error}`);
@@ -222,14 +222,14 @@ class SocketController {
         if (typeof data !== 'string') {
           return;
         }
-        messageManager.setTimerText(data);
+        messageService.setTimerText(data);
       });
 
       socket.on('set-timer-message-visible', (data) => {
         if (typeof data !== 'boolean') {
           return;
         }
-        messageManager.setTimerVisibility(data);
+        messageService.setTimerVisibility(data);
       });
 
       /*******************************************/
@@ -238,14 +238,14 @@ class SocketController {
         if (typeof data !== 'string') {
           return;
         }
-        messageManager.setPublicText(data);
+        messageService.setPublicText(data);
       });
 
       socket.on('set-public-message-visible', (data) => {
         if (typeof data !== 'boolean') {
           return;
         }
-        messageManager.setPublicVisibility(data);
+        messageService.setPublicVisibility(data);
       });
 
       /*******************************************/
@@ -254,14 +254,14 @@ class SocketController {
         if (typeof data !== 'string') {
           return;
         }
-        messageManager.setLowerText(data);
+        messageService.setLowerText(data);
       });
 
       socket.on('set-lower-message-visible', (data) => {
         if (typeof data !== 'boolean') {
           return;
         }
-        messageManager.setLowerVisibility(data);
+        messageService.setLowerVisibility(data);
       });
 
       /* MOLECULAR ENDPOINTS

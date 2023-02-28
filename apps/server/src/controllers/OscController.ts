@@ -2,7 +2,7 @@ import { Server } from 'node-osc';
 import { OSCSettings } from 'ontime-types';
 
 import { PlaybackService } from '../services/PlaybackService.js';
-import { messageManager } from '../classes/message-manager/MessageManager.js';
+import { messageService } from '../classes/message-service/MessageService.js';
 import { socketProvider } from '../classes/socket/SocketController.js';
 
 let oscServer = null;
@@ -46,11 +46,11 @@ export const initiateOSC = (config: OSCSettings) => {
 
     switch (path.toLowerCase()) {
       case 'onair': {
-        messageManager.setOnAir(true);
+        messageService.setOnAir(true);
         break;
       }
       case 'offair': {
-        messageManager.setOnAir(false);
+        messageService.setOnAir(false);
         break;
       }
       case 'play': {
