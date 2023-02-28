@@ -142,8 +142,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const stageTimerCharacters = display.replace('/:/g', '').length;
 
   const timerFontSize = (89 / (stageTimerCharacters - 1)) * (userOptions.size || 1);
-  const timerClasseNames = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
+  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
 
   return (
@@ -166,7 +166,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         <div className='end-message'>{general.endMessage}</div>
       ) : (
         <div
-          className={timerClasseNames}
+          className={timerClasses}
           style={{
             color: userOptions.textColour,
             fontSize: `${timerFontSize}vw`,

@@ -20,8 +20,7 @@ export function getTimerByType(timerObject?: TimerTypeParams): string | number |
   if (timerObject.timerType === TimerType.CountDown) {
     timer = timerObject.current;
   } else if (timerObject.timerType === TimerType.CountUp) {
-    //todo: fix counting down issue in backend later
-    timer = (timerObject.elapsed ?? 0) < 0 ? 0 : timerObject.elapsed;
+    timer = timerObject.elapsed;
   } else if (timerObject.timerType === TimerType.Clock) {
     timer = formatTime(timerObject.clock, formatOptions);
   }

@@ -78,8 +78,8 @@ export default function Timer(props) {
     display = `-${display}`;
   }
 
-  const timerFontSize = 100 / stageTimerCharacters;
-  const timerClasseNames = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
+  const timerFontSize = 89 / (stageTimerCharacters - 1);
+  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
@@ -98,7 +98,7 @@ export default function Timer(props) {
           <div className='end-message'>{general.endMessage}</div>
         ) : (
           <div
-            className={timerClasseNames}
+            className={timerClasses}
             style={{
               fontSize: `${timerFontSize}vw`,
             }}
