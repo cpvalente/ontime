@@ -16,7 +16,7 @@ import { FiX } from '@react-icons/all-files/fi/FiX';
 import { useAtom } from 'jotai';
 
 import { version } from '../../../package.json';
-import { postSettings } from '../../common/api/ontimeApi';
+import { getLatestVersion, postSettings } from '../../common/api/ontimeApi';
 import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
@@ -39,16 +39,7 @@ export default function AppSettingsModal() {
   const [eventSettings, saveEventSettings] = useAtom(eventSettingsAtom);
   const [formSettings, setFormSettings] = useState(eventSettings);
 
-  const [gitdata, setGitData] = useState();
-
-  const gitUrl = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
-
-  const getLatestVersion = async () => {
-    const result = await fetch(gitUrl);
-    result.json().then((json) => {
-      setGitData(json);
-    });
-  };
+  const [versionData, setVersionData] = useState({ version: '', url: '' });
 
   /**
    * Set formdata from server state
@@ -60,7 +51,9 @@ export default function AppSettingsModal() {
       pinCode: data.pinCode,
       timeFormat: data.timeFormat,
     });
-    getLatestVersion();
+    getLatestVersion().then((data) => {
+      setVersionData(data);
+    });
   }, [changed, data]);
 
   /**
@@ -140,6 +133,24 @@ export default function AppSettingsModal() {
     setChanged(true);
   };
 
+  /**
+   * Handles version comparison and returns text
+   */
+  const versionString = () => {
+    //remove v. added by github
+    const latestVersion = versionData.version.substring(2);
+    const installedVersion = version;
+    if (latestVersion === installedVersion) {
+      const text = `Running latest version: ${installedVersion}`;
+      return text;
+    } else {
+      const text = (
+        <a href={versionData.url} target='_blank' rel='noreferrer'>{`New version available: ${latestVersion}`}</a>
+      );
+      return text;
+    }
+  };
+
   const disableModal = status !== 'success';
 
   return (
@@ -149,11 +160,7 @@ export default function AppSettingsModal() {
         <br />
         🔥 Changes take effect on save 🔥
       </p>
-      <p className={style.notes}>
-        {`Running ontime version ${version}`}
-        <br />
-        <a href={gitdata?.html_url} target='_blank' rel='noreferrer'>{`Latest version: ${gitdata?.tag_name}`}</a>
-      </p>
+      <p className={style.notes}>{versionString()}</p>
       <form onSubmit={submitHandler}>
         <div className={style.modalFields}>
           <div className={style.hSeparator}>General App Settings</div>

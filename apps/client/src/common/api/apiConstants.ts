@@ -19,6 +19,9 @@ export const FEAT_PLAYBACKCONTROL = 'feat-playbackcontrol';
 export const FEAT_RUNDOWN = 'feat-rundown';
 export const TIMER = 'timer';
 
+// external stuff
+export const githubURL = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
+
 /**
  * @description finds server path given the current location, it
  * @return {*}
