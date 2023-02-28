@@ -3,12 +3,13 @@ import { generateId } from 'ontime-utils';
 
 import getRandomName from '../../utils/getRandomName.js';
 import { stringFromMillis } from '../../utils/time.js';
-import { messageService } from '../message-service/MessageService.ts';
+import { messageService } from '../../services/message-service/MessageService.js';
 import { PlaybackService } from '../../services/PlaybackService.js';
 
 import { eventTimer } from '../../services/TimerService.js';
-import { EventLoader, eventLoader } from '../event-loader/EventLoader.js';
 import { clock } from '../../services/Clock.js';
+import { eventStore } from '../../stores/EventStore.js';
+import { isProduction } from '../../setup.js';
 
 class SocketController {
   constructor() {
@@ -57,19 +58,6 @@ class SocketController {
       this._clientNames[socket.id] = getRandomName();
       const message = `${this.numClients} Clients with new connection: ${this._clientNames[socket.id]}`;
       this.info('CLIENT', message);
-
-      // Todo: review in favour of features
-      // send state
-      socket.emit('timer', eventTimer.timer);
-      socket.emit('playback', eventTimer.playback);
-      socket.emit('selected', {
-        id: eventLoader.selectedEventId,
-        index: eventLoader.selectedEventIndex,
-        total: eventLoader.numEvents,
-      });
-      socket.emit('next-id', eventLoader.nextEventId);
-      socket.emit('publicselected-id', eventLoader.selectedPublicEventId);
-      socket.emit('publicnext-id', eventLoader.nextPublicEventId);
 
       /**
        * @description handle disconnecting a user
@@ -174,37 +162,6 @@ class SocketController {
         socket.emit('ontime-poll', { isDelayed, colour, ...timerPoll });
       });
 
-      /*******************************************/
-      socket.on('get-playback', () => {
-        socket.emit('playback', eventTimer.playback);
-      });
-
-      socket.on('get-onAir', () => {
-        socket.emit('onAir', messageService.onAir);
-      });
-
-      /*******************************************/
-      socket.on('get-selected', () => {
-        socket.emit('selected', {
-          id: eventLoader.selectedEventId,
-          index: eventLoader.selectedEventIndex,
-          total: eventLoader.numEvents,
-        });
-      });
-
-      socket.on('get-titles', () => {
-        socket.emit('titles', eventLoader.titles);
-      });
-
-      socket.on('get-publictitles', () => {
-        socket.emit('publictitles', eventLoader.titlesPublic);
-      });
-
-      /***********************************/
-      /***  MESSAGE GETTERS / SETTERS  ***/
-      /***  -------------------------  ***/
-      /***********************************/
-
       // On Air
       socket.on('set-onAir', (data) => {
         if (typeof data === 'boolean') {
@@ -264,45 +221,9 @@ class SocketController {
         messageService.setLowerVisibility(data);
       });
 
-      /* MOLECULAR ENDPOINTS
-       * =====================
-       * 1. RUNDOWN
-       * 2. MESSAGE CONTROL
-       * 3. PLAYBACK CONTROL
-       * 4. INFO
-       * 5. CUE SHEET
-       * 6. TIMER OBJECT
-       * */
-
-      // 1. RUNDOWN
-      socket.on('get-feat-rundown', () => {
-        this.broadcastFeatureRundown();
-      });
-
-      // 2. MESSAGE CONTROL
-      socket.on('get-feat-messagecontrol', () => {
-        this.broadcastFeatureMessageControl();
-      });
-
-      // 3. PLAYBACK CONTROL
-      socket.on('get-feat-playbackcontrol', () => {
-        this.broadcastFeaturePlaybackControl();
-      });
-
-      // 4. INFO
-      socket.on('get-feat-info', () => {
-        this.broadcastFeatureInfo();
-      });
-
-      // 5. CUE SHEET
-      socket.on('get-feat-cuesheet', () => {
-        this.broadcastFeatureCuesheet();
-      });
-
-      // 6. TIMER
       socket.on('get-timer', () => {
-        // TODO: Not ideal workaround
-        socket.emit('timer', eventTimer.timer);
+        const timer = eventStore.get('timer');
+        socket.emit('timer', timer);
       });
     });
   }
@@ -336,83 +257,13 @@ class SocketController {
     this.messageStack.unshift(logMessage);
     this.socket?.emit('logger', logMessage);
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (!isProduction) {
       console.log(`[${logMessage.level}] \t ${logMessage.origin} \t ${logMessage.text}`);
     }
 
     if (this.messageStack.length > this._MAX_MESSAGES) {
       this.messageStack.pop();
     }
-  }
-
-  /**
-   * Broadcast data for Event List feature
-   */
-  broadcastFeatureRundown() {
-    const featureData = {
-      selectedEventId: eventLoader.selectedEventId,
-      nextEventId: eventLoader.nextEventId,
-      playback: eventTimer.playback,
-    };
-    this.send('feat-rundown', featureData);
-  }
-
-  /**
-   * Broadcast data for Message Control feature
-   */
-  broadcastFeatureMessageControl() {
-    const featureData = messageManager.getAll();
-    this.send('feat-messagecontrol', featureData);
-  }
-
-  /**
-   * Broadcast data for Playback Control feature
-   */
-  broadcastFeaturePlaybackControl() {
-    const featureData = {
-      playback: eventTimer.playback,
-      selectedEventId: eventLoader.selectedEventId,
-      numEvents: EventLoader.getNumEvents(),
-    };
-    this.send('feat-playbackcontrol', featureData);
-  }
-
-  /**
-   * Broadcast data for Info feature
-   */
-  broadcastFeatureInfo() {
-    const featureData = {
-      titles: eventLoader.titles,
-      playback: eventTimer.playback,
-      selectedEventId: eventLoader.selectedEventId,
-      selectedEventIndex: eventLoader.selectedEventIndex,
-      numEvents: EventLoader.getNumEvents(),
-    };
-    this.send('feat-info', featureData);
-  }
-
-  /**
-   * Broadcast data for Cuesheet feature
-   */
-  broadcastFeatureCuesheet() {
-    const featureData = {
-      playback: eventTimer.playback,
-      selectedEventId: eventLoader.selectedEventId,
-      selectedEventIndex: eventLoader.selectedEventIndex,
-      numEvents: EventLoader.getNumEvents(),
-      titleNow: eventLoader.titles.titleNow,
-    };
-    this.send('feat-cuesheet', featureData);
-  }
-
-  // TODO: ouch, services should update the store
-  // make middleware to maintain the features OR remove the feature endpoints
-  broadcastState() {
-    this.broadcastFeatureRundown();
-    this.broadcastFeatureMessageControl();
-    this.broadcastFeaturePlaybackControl();
-    this.broadcastFeatureInfo();
-    this.broadcastFeatureCuesheet();
   }
 
   /**

@@ -2,7 +2,7 @@ import { Server } from 'node-osc';
 import { OSCSettings } from 'ontime-types';
 
 import { PlaybackService } from '../services/PlaybackService.js';
-import { messageService } from '../classes/message-service/MessageService.js';
+import { messageService } from '../services/message-service/MessageService.js';
 import { socketProvider } from '../classes/socket/SocketController.js';
 
 let oscServer = null;

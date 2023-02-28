@@ -18,6 +18,5 @@ export const eventStore = {
   },
   broadcast() {
     socketProvider.send(store);
-    socketProvider.broadcastState();
   },
 };
