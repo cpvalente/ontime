@@ -12,15 +12,8 @@ export default function PlaybackControl() {
 
   return (
     <div className={style.mainContainer}>
-      <PlaybackTimer
-        playback={data.playback as Playback}
-        selectedId={data.selectedEventId}
-      />
-      <PlaybackButtons
-        playback={data.playback}
-        selectedId={data.selectedEventId}
-        noEvents={data.numEvents < 1}
-      />
+      <PlaybackTimer playback={data.playback as Playback} />
+      <PlaybackButtons playback={data.playback} noEvents={data.numEvents < 1} />
     </div>
   );
 }

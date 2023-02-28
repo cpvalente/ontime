@@ -1,6 +1,7 @@
 /**
  * starts loaded timer
  */
+import { Playback } from 'ontime-types';
 import { socketProvider } from '../classes/socket/SocketController.js';
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventStore } from '../stores/EventStore.js';
@@ -142,7 +143,7 @@ export class PlaybackService {
    * Stops timer and unloads any events
    */
   static stop() {
-    if (eventLoader.selectedEventId || eventTimer.playback === 'roll') {
+    if (eventLoader.selectedEventId || eventTimer.playback === Playback.Roll) {
       eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;

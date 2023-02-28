@@ -49,7 +49,7 @@ export type { OscSubscription, OSCSettings };
 
 // SERVER
 export { TimerLifeCycle };
-export type { Playback };
+export { Playback };
 export type { Message };
 export type { MessageControl };
 
