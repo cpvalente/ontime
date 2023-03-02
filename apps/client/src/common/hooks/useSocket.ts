@@ -67,7 +67,6 @@ export const setMessage = {
 
 export const emptyPlaybackControl = {
   playback: 'stop',
-  selectedEventId: null,
   numEvents: 0,
 };
 export const usePlaybackControl = createSocketHook(FEAT_PLAYBACKCONTROL, emptyPlaybackControl);
@@ -76,7 +75,6 @@ export const resetPlayback = () => {
   queryClient.setQueryData([FEAT_PLAYBACKCONTROL], {
     ...cacheData,
     playback: 'stop',
-    selectedEventId: null,
   });
 };
 export const setPlayback = {
@@ -112,7 +110,6 @@ export const emptyInfo = {
     noteNext: '',
   },
   playback: 'stop',
-  selectedEventId: null,
   selectedEventIndex: null,
   numEvents: 0,
 };
