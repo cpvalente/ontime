@@ -1,31 +1,17 @@
+import { OntimeEvent, TitleBlock, Loaded } from 'ontime-types';
+
 import { DataProvider } from '../data-provider/DataProvider.js';
 import { getRollTimers } from '../../services/rollUtils.js';
 import { eventStore } from '../../stores/EventStore.js';
 
 let instance;
 
-type TitleBlock = {
-  titleNow: string | null;
-  subtitleNow: string | null;
-  presenterNow: string | null;
-  noteNow: string | null;
-  titleNext: string | null;
-  subtitleNext: string | null;
-  presenterNext: string | null;
-  noteNext: string | null;
-};
-
 /**
  * Manages business logic around loading events
  */
 export class EventLoader {
-  loadedEvent: object | null;
-  numEvents: number | null;
-  selectedEventIndex: number | null;
-  selectedEventId: string | null;
-  selectedPublicEventId: string | null;
-  nextEventId: string | null;
-  nextPublicEventId: string | null;
+  loadedEvent: OntimeEvent | null;
+  loaded: Loaded;
   titles: TitleBlock;
   titlesPublic: TitleBlock;
 
@@ -122,16 +108,16 @@ export class EventLoader {
    */
   findPrevious() {
     const timedEvents = EventLoader.getPlayableEvents();
-    if (timedEvents === null || !timedEvents.length || this.selectedEventIndex === 0) {
+    if (timedEvents === null || !timedEvents.length || this.loaded.selectedEventIndex === 0) {
       return null;
     }
 
     // if there is no event running, go to first
-    if (this.selectedEventIndex === null) {
+    if (this.loaded.selectedEventIndex === null) {
       return timedEvents[0];
     }
 
-    const newIndex = this.selectedEventIndex - 1;
+    const newIndex = this.loaded.selectedEventIndex - 1;
     return timedEvents?.[newIndex];
   }
 
@@ -141,15 +127,15 @@ export class EventLoader {
    */
   findNext() {
     const timedEvents = EventLoader.getPlayableEvents();
-    if (timedEvents === null || !timedEvents.length || this.selectedEventIndex === this.numEvents - 1) {
+    if (timedEvents === null || !timedEvents.length || this.loaded.selectedEventIndex === this.loaded.numEvents - 1) {
       return null;
     }
 
     // if there is no event running, go to first
-    if (this.selectedEventIndex === null) {
+    if (this.loaded.selectedEventIndex === null) {
       return timedEvents[0];
     }
-    const newIndex = this.selectedEventIndex + 1;
+    const newIndex = this.loaded.selectedEventIndex + 1;
     return timedEvents?.[newIndex];
   }
 
@@ -167,9 +153,9 @@ export class EventLoader {
       getRollTimers(timedEvents, timeNow);
 
     this.loadedEvent = currentEvent;
-    this.selectedEventIndex = nowIndex;
-    this.selectedEventId = currentEvent?.id || null;
-    this.numEvents = timedEvents.length;
+    this.loaded.selectedEventIndex = nowIndex;
+    this.loaded.selectedEventId = currentEvent?.id || null;
+    this.loaded.numEvents = timedEvents.length;
 
     // titles
     this._loadThisTitles(currentEvent, 'now-private');
@@ -187,12 +173,7 @@ export class EventLoader {
   getLoaded() {
     return {
       loadedEvent: this.loadedEvent,
-      selectedEventIndex: this.selectedEventIndex,
-      selectedEventId: this.selectedEventId,
-      selectedPublicEventId: this.selectedPublicEventId,
-      nextEventId: this.nextEventId,
-      nextPublicEventId: this.nextPublicEventId,
-      numEvents: this.numEvents,
+      loaded: this.loaded,
       titles: this.titles,
       titlesPublic: this.titlesPublic,
     };
@@ -203,12 +184,14 @@ export class EventLoader {
    */
   reset(emit?: boolean) {
     this.loadedEvent = null;
-    this.selectedEventIndex = null;
-    this.selectedEventId = null;
-    this.selectedPublicEventId = null;
-    this.nextEventId = null;
-    this.nextPublicEventId = null;
-    this.numEvents = null;
+    this.loaded = {
+      selectedEventIndex: null,
+      selectedEventId: null,
+      selectedPublicEventId: null,
+      nextEventId: null,
+      nextPublicEventId: null,
+      numEvents: 0,
+    };
     this.titles = {
       titleNow: null,
       subtitleNow: null,
@@ -250,9 +233,9 @@ export class EventLoader {
 
     // we know some stuff now
     this.loadedEvent = event;
-    this.selectedEventIndex = eventIndex;
-    this.selectedEventId = event.id;
-    this.numEvents = timedEvents.length;
+    this.loaded.selectedEventIndex = eventIndex;
+    this.loaded.selectedEventId = event.id;
+    this.loaded.numEvents = timedEvents.length;
     // this.nextEventId = playableEvents[eventIndex + 1].id;
     this._loadTitlesNow(event, playableEvents);
     this._loadTitlesNext(playableEvents);
@@ -266,6 +249,7 @@ export class EventLoader {
    * Handle side effects from event loading
    */
   private _loadEvent() {
+    eventStore.set('loaded', this.loaded);
     eventStore.set('titles', this.titles);
     eventStore.set('titlesPublic', this.titlesPublic);
   }
@@ -288,13 +272,13 @@ export class EventLoader {
       this.titlesPublic.titleNow = null;
       this.titlesPublic.subtitleNow = null;
       this.titlesPublic.presenterNow = null;
-      this.selectedPublicEventId = null;
+      this.loaded.selectedPublicEventId = null;
 
       // if there is nothing before, return
-      if (this.selectedEventIndex === 0) return;
+      if (this.loaded.selectedEventIndex === 0) return;
 
       // iterate backwards to find it
-      for (let i = this.selectedEventIndex; i >= 0; i--) {
+      for (let i = this.loaded.selectedEventIndex; i >= 0; i--) {
         if (rundown[i].isPublic) {
           this._loadThisTitles(rundown[i], 'now-public');
           break;
@@ -309,27 +293,27 @@ export class EventLoader {
    */
   private _loadTitlesNext(rundown) {
     // maybe there is nothing to load
-    if (this.selectedEventIndex === null) return;
+    if (this.loaded.selectedEventIndex === null) return;
 
     // assume there is no next event
     this.titles.titleNext = null;
     this.titles.subtitleNext = null;
     this.titles.presenterNext = null;
     this.titles.noteNext = null;
-    this.nextEventId = null;
+    this.loaded.nextEventId = null;
 
     this.titlesPublic.titleNext = null;
     this.titlesPublic.subtitleNext = null;
     this.titlesPublic.presenterNext = null;
-    this.nextPublicEventId = null;
+    this.loaded.nextPublicEventId = null;
 
     const numEvents = rundown.length;
 
-    if (this.selectedEventIndex < numEvents - 1) {
+    if (this.loaded.selectedEventIndex < numEvents - 1) {
       let nextPublic = false;
       let nextPrivate = false;
 
-      for (let i = this.selectedEventIndex + 1; i < numEvents; i++) {
+      for (let i = this.loaded.selectedEventIndex + 1; i < numEvents; i++) {
         // if we have not set private
         if (!nextPrivate) {
           this._loadThisTitles(rundown[i], 'next-private');
@@ -367,14 +351,14 @@ export class EventLoader {
         this.titlesPublic.subtitleNow = event.subtitle;
         this.titlesPublic.presenterNow = event.presenter;
         this.titlesPublic.noteNow = event.note;
-        this.selectedPublicEventId = event.id;
+        this.loaded.selectedPublicEventId = event.id;
 
         // private
         this.titles.titleNow = event.title;
         this.titles.subtitleNow = event.subtitle;
         this.titles.presenterNow = event.presenter;
         this.titles.noteNow = event.note;
-        this.selectedEventId = event.id;
+        this.loaded.selectedEventId = event.id;
         break;
 
       case 'now-public':
@@ -382,7 +366,7 @@ export class EventLoader {
         this.titlesPublic.subtitleNow = event.subtitle;
         this.titlesPublic.presenterNow = event.presenter;
         this.titlesPublic.noteNow = event.note;
-        this.selectedPublicEventId = event.id;
+        this.loaded.selectedPublicEventId = event.id;
         break;
 
       case 'now-private':
@@ -390,7 +374,7 @@ export class EventLoader {
         this.titles.subtitleNow = event.subtitle;
         this.titles.presenterNow = event.presenter;
         this.titles.noteNow = event.note;
-        this.selectedEventId = event.id;
+        this.loaded.selectedEventId = event.id;
         break;
 
       // next, load to both public and private
@@ -400,14 +384,14 @@ export class EventLoader {
         this.titlesPublic.subtitleNext = event.subtitle;
         this.titlesPublic.presenterNext = event.presenter;
         this.titlesPublic.noteNext = event.note;
-        this.nextPublicEventId = event.id;
+        this.loaded.nextPublicEventId = event.id;
 
         // private
         this.titles.titleNext = event.title;
         this.titles.subtitleNext = event.subtitle;
         this.titles.presenterNext = event.presenter;
         this.titles.noteNext = event.note;
-        this.nextEventId = event.id;
+        this.loaded.nextEventId = event.id;
         break;
 
       case 'next-public':
@@ -415,7 +399,7 @@ export class EventLoader {
         this.titlesPublic.subtitleNext = event.subtitle;
         this.titlesPublic.presenterNext = event.presenter;
         this.titlesPublic.noteNext = event.note;
-        this.nextPublicEventId = event.id;
+        this.loaded.nextPublicEventId = event.id;
         break;
 
       case 'next-private':
@@ -423,7 +407,7 @@ export class EventLoader {
         this.titles.subtitleNext = event.subtitle;
         this.titles.presenterNext = event.presenter;
         this.titles.noteNext = event.note;
-        this.nextEventId = event.id;
+        this.loaded.nextEventId = event.id;
         break;
 
       default:

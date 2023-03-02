@@ -11,10 +11,10 @@ import { eventStore } from '../stores/EventStore.js';
  * Checks if a list of IDs is in the current selection
  */
 const affectedLoaded = (affectedIds: string[]) => {
-  const now = eventLoader.selectedEventId;
-  const nowPublic = eventLoader.selectedPublicEventId;
-  const next = eventLoader.nextEventId;
-  const nextPublic = eventLoader.nextPublicEventId;
+  const now = eventLoader.loaded.selectedEventId;
+  const nowPublic = eventLoader.loaded.selectedPublicEventId;
+  const next = eventLoader.loaded.nextEventId;
+  const nextPublic = eventLoader.loaded.nextPublicEventId;
   return (
     affectedIds.includes(now) ||
     affectedIds.includes(nowPublic) ||
@@ -28,8 +28,8 @@ const affectedLoaded = (affectedIds: string[]) => {
  */
 const isNewNext = () => {
   const timedEvents = EventLoader.getTimedEvents();
-  const now = eventLoader.selectedEventId;
-  const next = eventLoader.nextEventId;
+  const now = eventLoader.loaded.selectedEventId;
+  const next = eventLoader.loaded.nextEventId;
 
   // check whether the index of now and next are consecutive
   const indexNow = timedEvents.findIndex((event) => event.id === now);
@@ -39,8 +39,8 @@ const isNewNext = () => {
     return true;
   }
   // iterate through timed events and see if there are public events between nowPublic and nextPublic
-  const nowPublic = eventLoader.selectedPublicEventId;
-  const nextPublic = eventLoader.nextPublicEventId;
+  const nowPublic = eventLoader.loaded.selectedPublicEventId;
+  const nextPublic = eventLoader.loaded.nextPublicEventId;
 
   let foundNew = false;
   let isAfter = false;
@@ -67,7 +67,7 @@ const isNewNext = () => {
  * Updates timer object
  */
 export function updateTimer(affectedIds?: string[]) {
-  const runningEventId = eventLoader.selectedEventId;
+  const runningEventId = eventLoader.loaded.selectedEventId;
 
   if (runningEventId === null) {
     return false;

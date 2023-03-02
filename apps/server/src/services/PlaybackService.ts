@@ -121,7 +121,7 @@ export class PlaybackService {
    * Starts playback on selected event
    */
   static start() {
-    if (eventLoader.selectedEventId) {
+    if (eventTimer.loadedTimerId) {
       eventTimer.start();
       const newState = eventTimer.playback;
       socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
@@ -132,7 +132,7 @@ export class PlaybackService {
    * Pauses playback on selected event
    */
   static pause() {
-    if (eventLoader.selectedEventId) {
+    if (eventTimer.loadedTimerId) {
       eventTimer.pause();
       const newState = eventTimer.playback;
       socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
@@ -143,7 +143,7 @@ export class PlaybackService {
    * Stops timer and unloads any events
    */
   static stop() {
-    if (eventLoader.selectedEventId || eventTimer.playback === Playback.Roll) {
+    if (eventTimer.loadedTimerId || eventTimer.playback === Playback.Roll) {
       eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;
@@ -155,8 +155,8 @@ export class PlaybackService {
    * Reloads current event
    */
   static reload() {
-    if (eventLoader.selectedEventId) {
-      this.loadById(eventLoader.selectedEventId);
+    if (eventTimer.loadedTimerId) {
+      this.loadById(eventTimer.loadedTimerId);
     }
   }
 
@@ -193,7 +193,7 @@ export class PlaybackService {
    * @param {number} delayTime time in minutes
    */
   static setDelay(delayTime) {
-    if (eventLoader.selectedEventId) {
+    if (eventTimer.loadedTimerId) {
       const delayInMs = delayTime * 1000 * 60;
       eventTimer.delay(delayInMs);
       socketProvider.info('PLAYBACK', `Added ${delayTime} min delay`);
