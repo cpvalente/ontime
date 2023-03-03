@@ -88,10 +88,14 @@ class MessageService {
   }
 
   /**
-   * @description set state of onAir
+   * @description set state of onAir, toggles if parameters are offered
    */
-  setOnAir(status: boolean) {
-    this.onAir = status;
+  setOnAir(status?: boolean) {
+    if (!status) {
+      this.onAir = !this.onAir;
+    } else {
+      this.onAir = status;
+    }
     this.updateStore();
     return this.getAll();
   }
