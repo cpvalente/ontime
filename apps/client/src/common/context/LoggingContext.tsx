@@ -1,22 +1,9 @@
 import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
+import { Log, LogLevel } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import socket from '../utils/socket';
 import { nowInMillis, stringFromMillis } from '../utils/time';
-
-export enum LOG_LEVEL {
-  INFO = 'INFO',
-  WARN = 'WARN',
-  ERROR = 'ERROR',
-}
-
-export type Log = {
-  id: string;
-  origin: string;
-  time: string;
-  level: LOG_LEVEL;
-  text: string;
-};
 
 interface LoggingProviderState {
   logData: Log[];
@@ -70,7 +57,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    * @private
    */
   const _send = useCallback(
-    (text: string, level: LOG_LEVEL) => {
+    (text: string, level: LogLevel) => {
       if (socket != null) {
         const newLogMessage: Log = {
           id: generateId(),
@@ -95,7 +82,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    */
   const emitInfo = useCallback(
     (text: string) => {
-      _send(text, LOG_LEVEL.INFO);
+      _send(text, LogLevel.Info);
     },
     [_send],
   );
@@ -106,7 +93,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    */
   const emitWarning = useCallback(
     (text: string) => {
-      _send(text, LOG_LEVEL.WARN);
+      _send(text, LogLevel.Warn);
     },
     [_send],
   );
@@ -117,7 +104,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
    */
   const emitError = useCallback(
     (text: string) => {
-      _send(text, LOG_LEVEL.ERROR);
+      _send(text, LogLevel.Error);
     },
     [_send],
   );

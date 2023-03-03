@@ -13,6 +13,7 @@ import { OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.ty
 import { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
 import { Playback } from './definitions/runtime/Playback.type.js';
 import { Loaded } from './definitions/runtime/Playlist.type.js';
+import { Log, LogLevel } from './definitions/runtime/Logger.type.js';
 import { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 import { Settings } from './definitions/core/Settings.type.js';
 import { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
@@ -52,6 +53,8 @@ export type { OscSubscription, OSCSettings };
 // ---> HTTP
 
 // SERVER RUNTIME
+export { LogLevel };
+export type { Log };
 export { Playback };
 export { TimerLifeCycle };
 
