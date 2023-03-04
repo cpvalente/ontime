@@ -25,6 +25,10 @@ export default function Timer(props) {
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
   const [elapsed, setElapsed] = useState(() => {
+    // eg. http://localhost:3000/timer?progress=up
+    // Check for user options
+    // progress: selector
+    // Should be 'up' or 'down'
     const progress = searchParams.get('progress');
     return progress === 'up';
   });
