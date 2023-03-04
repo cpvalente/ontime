@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Alias, OSCSettings, RemoteVersion, Settings, UserFields, ViewSettings } from 'ontime-types';
+import { Alias, OSCSettings, Settings, UserFields, ViewSettings } from 'ontime-types';
 
 import { InfoType } from '../models/Info';
 
@@ -156,7 +156,7 @@ export const uploadData = async (file: string, setProgress: (value: number) => v
  * @description HTTP request to get the latest version and url from github
  * @return {Promise}
  */
-export async function getRemoteVersion(): Promise<RemoteVersion> {
+export async function getLatestVersion(): Promise<object> {
   const res = await axios.get(`${githubURL}`);
   return { url: res.data.html_url, version: res.data.tag_name };
 }

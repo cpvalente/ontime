@@ -13,7 +13,6 @@ import { OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.ty
 import { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
 import { Playback } from './definitions/runtime/Playback.type.js';
 import { Settings } from './definitions/core/Settings.type.js';
-import { RemoteVersion } from './definitions/core/RemoteVersion.type.js';
 import { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
 import { TimerType } from './definitions/TimerType.type.js';
 import { UserFields } from './definitions/core/UserFields.type.js';
@@ -55,5 +54,3 @@ export type { Message };
 export type { MessageControl };
 
 // CLIENT
-
-export type { RemoteVersion }
