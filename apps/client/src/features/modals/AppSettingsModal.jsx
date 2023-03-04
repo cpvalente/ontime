@@ -40,20 +40,7 @@ export default function AppSettingsModal() {
   const [eventSettings, saveEventSettings] = useAtom(eventSettingsAtom);
   const [formSettings, setFormSettings] = useState(eventSettings);
 
-  const [versionData, setVersionData] = useState({ version: '', url: '' });
-
-  const UpdateStatus = {
-    Current: <a>Using ontime version: {version}</a>,
-    Latest: <a>Using latest version</a>,
-    CanUpdate: (
-      <a href={versionData.url} target='_blank' rel='noreferrer'>
-        Update to version {versionData.version} available
-      </a>
-    ),
-    Error: <a>Error reaching server</a>,
-  };
-
-  const [updateMessage, setUpdateMessage] = useState(UpdateStatus.Current);
+  const [updateMessage, setUpdateMessage] = useState(<a>Using ontime version: {version}</a>);
   const [isFetching, setIsFetching] = useState(false);
 
   /**
@@ -153,18 +140,21 @@ export default function AppSettingsModal() {
    */
 
   const versionCheck = async () => {
-    let message = UpdateStatus.Latest;
+    let message = <a>Using latest version</a>;
     setIsFetching(true);
     getLatestVersion()
       .then((data) => {
-        setVersionData(data);
-        const remoteVersion = data.version;
-        if (!remoteVersion.includes(version)) {
-          message = UpdateStatus.CanUpdate;
+        const remoteVersion = data;
+        if (!remoteVersion.version.includes(version)) {
+          message = (
+            <a href={remoteVersion.url} target='_blank' rel='noreferrer'>
+              Update to version {remoteVersion.version} available
+            </a>
+          );
         }
       })
       .catch(function () {
-        message = UpdateStatus.Error;
+        message = <a>Error reaching server</a>;
       })
       .finally(function () {
         setUpdateMessage(message);
