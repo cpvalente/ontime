@@ -136,9 +136,8 @@ export default function AppSettingsModal() {
   };
 
   /**
-   * Handles version comparison and returns text
+   * Handles version comparison and returns component with message
    */
-
   const versionCheck = async () => {
     let message = <a>Using latest version</a>;
     setIsFetching(true);
