@@ -17,7 +17,7 @@ import { FiX } from '@react-icons/all-files/fi/FiX';
 import { useAtom } from 'jotai';
 
 import { version } from '../../../package.json';
-import { getLatestVersion, postSettings } from '../../common/api/ontimeApi';
+import { getRemoteVersion, postSettings } from '../../common/api/ontimeApi';
 import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import { LoggingContext } from '../../common/context/LoggingContext';
@@ -53,9 +53,6 @@ export default function AppSettingsModal() {
       pinCode: data.pinCode,
       timeFormat: data.timeFormat,
     });
-    // getLatestVersion().then((data) => {
-    //   setVersionData(data);
-    // });
   }, [changed, data]);
 
   /**
@@ -136,13 +133,13 @@ export default function AppSettingsModal() {
   };
 
   /**
-   * Handles version comparison and returns text
+   * Handles version comparison and returns a component with the result
    */
 
   const versionCheck = async () => {
     let message = <a>Using latest version</a>;
     setIsFetching(true);
-    getLatestVersion()
+    getRemoteVersion()
       .then((data) => {
         const remoteVersion = data;
         if (!remoteVersion.version.includes(version)) {

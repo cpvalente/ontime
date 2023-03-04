@@ -10,6 +10,7 @@ export const APP_INFO = ['appinfo'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
+export const REMOTE_VERSION = ['remoteVersion'];
 
 // websocket stuff
 export const FEAT_CUESHEET = 'feat-cuesheet';
