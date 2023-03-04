@@ -21,9 +21,7 @@ interface TimeInputProps {
 }
 
 export default function TimeInput(props: TimeInputProps) {
-  const {
-    name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0,
-  } = props;
+  const { name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0 } = props;
   const { emitError } = useContext(LoggingContext);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState('');
@@ -51,74 +49,83 @@ export default function TimeInput(props: TimeInputProps) {
    * @description Submit handler
    * @param {string} newValue
    */
-  const handleSubmit = useCallback((newValue: string) => {
-    // Check if there is anything there
-    if (newValue === '') {
-      return false;
-    }
-
-    let newValMillis = 0;
-
-    // check for known aliases
-    if (newValue === 'p' || newValue === 'prev' || newValue === 'previous') {
-      // string to pass should be the time of the end before
-      if (previousEnd != null) {
-        newValMillis = previousEnd;
+  const handleSubmit = useCallback(
+    (newValue: string) => {
+      // Check if there is anything there
+      if (newValue === '') {
+        return false;
       }
-    } else if (newValue.startsWith('+') || newValue.startsWith('p+') || newValue.startsWith('p +')) {
-      // string to pass should add to the end before
-      const val = newValue.substring(1);
-      newValMillis = previousEnd + forgivingStringToMillis(val);
-    } else {
-      // convert entered value to milliseconds
-      newValMillis = forgivingStringToMillis(newValue);
-    }
 
-    // Time now and time submittedVal
-    const originalMillis = time + delay;
+      let newValMillis = 0;
 
-    // check if time is different from before
-    if (newValMillis === originalMillis) return false;
+      // check for known aliases
+      if (newValue === 'p' || newValue === 'prev' || newValue === 'previous') {
+        // string to pass should be the time of the end before
+        if (previousEnd != null) {
+          newValMillis = previousEnd;
+        }
+      } else if (newValue.startsWith('+') || newValue.startsWith('p+') || newValue.startsWith('p +')) {
+        // string to pass should add to the end before
+        const val = newValue.substring(1);
+        newValMillis = previousEnd + forgivingStringToMillis(val);
+      } else {
+        // convert entered value to milliseconds
+        newValMillis = forgivingStringToMillis(newValue);
+      }
 
-    // validate with parent
-    if (!validationHandler(name, newValMillis)) return false;
+      // Time now and time submittedVal
+      const originalMillis = time + delay;
 
-    // update entry
-    submitHandler(name, newValMillis);
+      // check if time is different from before
+      if (newValMillis === originalMillis) return false;
 
-    return true;
-  }, [delay, name, previousEnd, submitHandler, time, validationHandler]);
+      // validate with parent
+      if (!validationHandler(name, newValMillis)) return false;
+
+      // update entry
+      submitHandler(name, newValMillis);
+
+      return true;
+    },
+    [delay, name, previousEnd, submitHandler, time, validationHandler],
+  );
 
   /**
    * @description Prepare time fields
    * @param {string} value string to be parsed
    */
-  const validateAndSubmit = useCallback((newValue: string) => {
-    const success = handleSubmit(newValue);
-    if (success) {
-      const ms = forgivingStringToMillis(newValue);
-      setValue(stringFromMillis(ms + delay));
-    } else {
-      resetValue();
-    }
-  }, [delay, handleSubmit, resetValue]);
+  const validateAndSubmit = useCallback(
+    (newValue: string) => {
+      const success = handleSubmit(newValue);
+      if (success) {
+        const ms = forgivingStringToMillis(newValue);
+        setValue(stringFromMillis(ms + delay));
+      } else {
+        resetValue();
+      }
+    },
+    [delay, handleSubmit, resetValue],
+  );
 
   /**
    * @description Handles common keys for submit and cancel
    * @param {KeyboardEvent} event
    */
-  const onKeyDownHandler = useCallback((event:KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      inputRef.current?.blur();
-      validateAndSubmit((event.target as HTMLInputElement).value);
-    } else if (event.key === 'Tab') {
-      validateAndSubmit((event.target as HTMLInputElement).value);
-    }
-    if (event.key === 'Escape') {
-      inputRef.current?.blur();
-      resetValue();
-    }
-  }, [resetValue, validateAndSubmit]);
+  const onKeyDownHandler = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        inputRef.current?.blur();
+        validateAndSubmit((event.target as HTMLInputElement).value);
+      } else if (event.key === 'Tab') {
+        validateAndSubmit((event.target as HTMLInputElement).value);
+      }
+      if (event.key === 'Escape') {
+        inputRef.current?.blur();
+        resetValue();
+      }
+    },
+    [resetValue, validateAndSubmit],
+  );
 
   useEffect(() => {
     if (time == null) return;
