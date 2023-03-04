@@ -158,8 +158,5 @@ export const uploadData = async (file: string, setProgress: (value: number) => v
  */
 export async function getLatestVersion(): Promise<object> {
   const res = await axios.get(`${githubURL}`);
-  const url = res.data.html_url;
-  const version = res.data.tag_name;
-  // console.log({ url: url, version: version });
-  return { url: url, version: version };
+  return { url: res.data.html_url, version: res.data.tag_name };
 }
