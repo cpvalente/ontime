@@ -299,6 +299,12 @@ describe('test forgivingStringToMillis()', () => {
       { value: '010000', expect: 1000 * 60 * 60 },
       { value: '230000', expect: 1000 * 60 * 60 * 23 },
       { value: '121212', expect: 12 * 1000 + 12 * 60 * 1000 + 12 * 1000 * 60 * 60 },
+      { value: '0h0m0s', expect: 0 },
+      { value: '0h0m1s', expect: 1000 },
+      { value: '0h1m0s', expect: 1000 * 60 },
+      { value: '1h0m0s', expect: 1000 * 60 * 60 },
+      { value: '23h0m0s', expect: 1000 * 60 * 60 * 23 },
+      { value: '12h12m12s', expect: 12 * 1000 + 12 * 60 * 1000 + 12 * 1000 * 60 * 60 },
     ];
 
     for (const s of testData) {
