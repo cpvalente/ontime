@@ -103,9 +103,13 @@ const parse = (valueAsString: string): number => {
 export const forgivingStringToMillis = (value: string, fillLeft = true): number => {
   let millis = 0;
 
-  const hours = parseInt(/(\d*)h/.exec(value)?.[0] ?? 0, 10);
-  const minutes = parseInt(/(\d*)m/.exec(value)?.[0] ?? 0, 10);
-  const seconds = parseInt(/(\d*)s/.exec(value)?.[0] ?? 0, 10);
+  // const hours = parseInt(/(\d*)h/.exec(value)?.[0] ?? 0, 10);
+  // const minutes = parseInt(/(\d*)m/.exec(value)?.[0] ?? 0, 10);
+  // const seconds = parseInt(/(\d*)s/.exec(value)?.[0] ?? 0, 10);
+
+  const hours = parseInt(value.match(/(\d+)h/)?.[0] ?? 0, 10);
+  const minutes = parseInt(value.match(/(\d+)m/)?.[0] ?? 0, 10);
+  const seconds = parseInt(value.match(/(\d+)s/)?.[0] ?? 0, 10);
 
   if (hours > 0 || minutes > 0 || seconds > 0) {
     millis = hours * mth + minutes * mtm + seconds * mts;
