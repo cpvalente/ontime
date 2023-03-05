@@ -1,7 +1,4 @@
-import { serverURL } from '../api/apiConstants';
-import { io } from 'socket.io-client';
-
-const socket = io(serverURL, { transports: ['websocket'] });
+const socket = new WebSocket('ws://localhost:4001/ws');
 const subscriptions = new Set();
 
 export function subscribeOnce<T>(key: string, callback: (data: T) => void, requestString?: string) {
@@ -10,8 +7,8 @@ export function subscribeOnce<T>(key: string, callback: (data: T) => void, reque
   }
   subscriptions.add(key);
 
-  requestString ? socket.emit(requestString) : socket.emit(`get-${key}`);
-  socket.on(key, callback);
+  // requestString ? socket.send(requestString) : socket.send(`get-${key}`);
+  // socket.on(key, callback);
 }
 
 export default socket;

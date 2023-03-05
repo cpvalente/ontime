@@ -29,6 +29,7 @@ export const LoggingContext = createContext<LoggingProviderState>({
   clearLog: notInitialised,
 });
 
+// TODO: Logger should probably implement its own store?
 export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   const MAX_MESSAGES = 100;
   const [logData, setLogData] = useState<Log[]>([]);
@@ -38,16 +39,16 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   // todo: useSubscription or feature
   // handle incoming messages
   useEffect(() => {
-    socket.emit('get-logger');
+    // socket.send('get-logger');
 
-    socket.on('logger', (data: Log) => {
-      setLogData((currentLog) => [data, ...currentLog]);
-    });
-
-    // Clear listener
-    return () => {
-      socket.off('logger');
-    };
+    // socket.on('logger', (data: Log) => {
+    //   setLogData((currentLog) => [data, ...currentLog]);
+    // });
+    //
+    // // Clear listener
+    // return () => {
+    //   socket.off('logger');
+    // };
   }, []);
 
   /**
@@ -67,7 +68,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
           text,
         };
         setLogData((currentLog) => [newLogMessage, ...currentLog]);
-        socket.emit('logger', newLogMessage);
+        socket.send('logger', newLogMessage);
       }
       if (logData.length > MAX_MESSAGES) {
         setLogData((currentLog) => currentLog.slice(1));
