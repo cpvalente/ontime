@@ -6,7 +6,6 @@ import cors from 'cors';
 // import utils
 import { join, resolve } from 'path';
 
-import { initiateOSC, shutdownOSCServer } from './controllers/OscController.js';
 import { initSentry } from './modules/sentry.js';
 import { currentDirectory, environment, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
@@ -18,13 +17,17 @@ import { router as eventDataRouter } from './routes/eventDataRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as playbackRouter } from './routes/playbackRouter.js';
 
-// Services
+// Import adapters
+import { OscServer } from './adapters/OscAdapter.js';
+import { SocketServer } from './adapters/WebsocketAdapter.js';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
-import { socketProvider } from './classes/socket/SocketController.js';
-import { eventTimer } from './services/TimerService.js';
 import { dbLoadingProcess } from './modules/loadDb.js';
+
+// Services
+import { eventTimer } from './services/TimerService.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { OscIntegration } from './services/integration-service/OscIntegration.js';
+import { logger } from './classes/Logger.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -34,9 +37,6 @@ if (!isProduction) {
 }
 
 initSentry(environment);
-
-// import socket provider
-const socketServer = socketProvider;
 
 // Create express APP
 const app = express();
@@ -100,6 +100,9 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitDB;
+let expressServer = null;
+let oscServer = null;
+
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
     step = OntimeStartOrder.Error;
@@ -116,9 +119,6 @@ export const startDb = async () => {
   await dbLoadingProcess;
 };
 
-// create HTTP server
-const expressServer = http.createServer(app);
-
 /**
  * Starts servers
  * @return {Promise<string>}
@@ -128,11 +128,20 @@ export const startServer = async () => {
 
   const serverPort = 4001; // hardcoded for now
   const returnMessage = `Ontime is listening on port ${serverPort}`;
+
+  expressServer = http.createServer(app);
+
+  const socket = new SocketServer(expressServer);
+
   expressServer.listen(serverPort, '0.0.0.0');
 
-  socketServer.initServer(expressServer);
-  socketServer.info('SERVER', returnMessage);
-  socketServer.startListener();
+  logger.init(socket.send);
+
+  let i = 1;
+  setInterval(() => {
+    logger.info('RX', `TESTING ${i}`);
+    i++;
+  }, 2000);
 
   return returnMessage;
 };
@@ -149,7 +158,7 @@ export const startOSCServer = async (overrideConfig = null) => {
   const { osc } = DataProvider.getData();
 
   if (!osc.enabledIn) {
-    socketServer.info('RX', 'OSC Input Disabled');
+    logger.info('RX', 'OSC Input Disabled');
     return;
   }
 
@@ -160,8 +169,8 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  socketServer.info('RX', `Starting OSC Server on port: ${oscSettings.portIn}`);
-  initiateOSC(oscSettings);
+  logger.info('RX', `Starting OSC Server on port: ${oscSettings.portIn}`);
+  oscServer = new OscServer(oscSettings);
 };
 
 /**
@@ -178,7 +187,7 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
 
   const oscIntegration = new OscIntegration();
   const { success, message } = oscIntegration.init(osc);
-  socketServer.info('RX', message);
+  logger.info('RX', message);
 
   if (success) {
     integrationService.register(oscIntegration);
@@ -193,10 +202,10 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
 export const shutdown = async (exitCode = 0) => {
   console.log(`Ontime shutting down with code ${exitCode}`);
 
-  expressServer.close();
-  shutdownOSCServer();
+  expressServer?.close();
+  oscServer?.shutdown();
   eventTimer.shutdown();
-  socketServer.shutdown();
+  logger.shutdown();
   integrationService.shutdown();
   process.exit(exitCode);
 };
@@ -205,13 +214,13 @@ process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
 
 process.on('unhandledRejection', async (error, promise) => {
   console.error(error, 'Error: unhandled rejection', promise);
-  socketServer.error('SERVER', 'Error: unhandled rejection');
+  logger.error('SERVER', 'Error: unhandled rejection');
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error, promise) => {
   console.error(error, 'Error: uncaught exception', promise);
-  socketServer.error('SERVER', 'Error: uncaught exception');
+  logger.error('SERVER', 'Error: uncaught exception');
   await shutdown(1);
 });
 

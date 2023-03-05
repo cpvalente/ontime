@@ -12,3 +12,7 @@ export type Log = {
   text: string;
 };
 
+export type LogMessage = {
+  type: 'ontime-log';
+  payload: Log;
+};

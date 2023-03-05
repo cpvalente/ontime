@@ -1,8 +1,9 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/react';
+import { Log } from 'ontime-types';
 
 import CollapseBar from '../../common/components/collapse-bar/CollapseBar';
-import { Log, LoggingContext } from '../../common/context/LoggingContext';
+import { useLogData } from '../../common/stores/logger';
 
 import style from './InfoLogger.module.scss';
 
@@ -16,7 +17,8 @@ enum LOG_FILTER {
 }
 
 export default function InfoLogger() {
-  const { logData, clearLog } = useContext(LoggingContext);
+  const logData = useLogData();
+  // const { logData, clearLog } = useContext(LoggingContext);
   const [data, setData] = useState<Log[]>([]);
   const [collapsed, setCollapsed] = useState(false);
   const [showClient, setShowClient] = useState(true);
@@ -25,6 +27,10 @@ export default function InfoLogger() {
   const [showTx, setShowTx] = useState(true);
   const [showPlayback, setShowPlayback] = useState(true);
   const [showUser, setShowUser] = useState(true);
+
+  const clearLog = () => console.log('CALLED CLEAR');
+
+  console.log('DEBUG INFO', logData)
 
   useEffect(() => {
     if (!logData) {
@@ -65,7 +71,7 @@ export default function InfoLogger() {
   }, []);
 
   return (
-    <div className={`${style.infoLoggerContainer} ${collapsed? '' : style.expanded}`}>
+    <div className={`${style.infoLoggerContainer} ${collapsed ? '' : style.expanded}`}>
       <CollapseBar title='Log' isCollapsed={collapsed} onClick={() => setCollapsed((prev) => !prev)} />
       {!collapsed && (
         <>
@@ -124,11 +130,7 @@ export default function InfoLogger() {
             >
               TX
             </Button>
-            <Button
-              variant='ontime-outlined'
-              size='xs'
-              onClick={clearLog}
-            >
+            <Button variant='ontime-outlined' size='xs' onClick={clearLog}>
               Clear
             </Button>
           </div>

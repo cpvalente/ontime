@@ -31,6 +31,13 @@ class Logger {
     this.queue = [];
   }
 
+  private addToQueue(log: Log) {
+    this.queue.push(log);
+    if (this.queue.length > 100) {
+      this.queue.pop();
+    }
+  }
+
   /**
    * Internal safe push method, adds log to queue if callback not available
    * @param log
@@ -41,15 +48,19 @@ class Logger {
     }
 
     if (this.push) {
-      this.push({
-        type: 'ontime-log',
-        payload: log,
-      });
-    } else {
-      this.queue.push(log);
-      if (this.queue.length > 100) {
-        this.queue.pop();
+      try {
+        this.push({
+          type: 'ontime-log',
+          payload: log,
+        });
+        console.log('DEBUG FAILED LOGGER SHOULDVE SENT')
+
+      } catch (_e) {
+        console.log('DEBUG FAILED LOGGER SEND', _e)
+        this.addToQueue(log);
       }
+    } else {
+      this.addToQueue(log);
     }
   }
 
