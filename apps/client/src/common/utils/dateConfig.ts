@@ -10,7 +10,7 @@ export const timeFormatSeconds = 'HH:mm:ss';
  * @param {boolean} [hideZero] - whether to show hours in case its 00
  * @returns {string} String representing absolute time 00:12:02
  */
-export function formatDisplay(seconds: number | null, hideZero = false) {
+export function formatDisplay(seconds: number | null, hideZero = false): string {
   if (typeof seconds !== 'number') {
     return hideZero ? '00:00' : '00:00:00';
   }
@@ -31,7 +31,7 @@ export function formatDisplay(seconds: number | null, hideZero = false) {
  * @param {number | null} millis - time in seconds
  * @returns {number} Amount in seconds
  */
-export const millisToSeconds = (millis: number | null) => {
+export const millisToSeconds = (millis: number | null): number => {
   if (millis === null) {
     return 0;
   }
@@ -43,7 +43,7 @@ export const millisToSeconds = (millis: number | null) => {
  * @param {number} millis - time in seconds
  * @returns {number} Amount in seconds
  */
-export const millisToMinutes = (millis: number) => {
+export const millisToMinutes = (millis: number): number => {
   return millis < 0 ? Math.ceil(millis / mtm) : Math.floor(millis / mtm);
 };
 
@@ -52,7 +52,7 @@ export const millisToMinutes = (millis: number) => {
  * @param {string} string - time string "23:00:12"
  * @returns {number} Amount in milliseconds
  */
-export const timeStringToMillis = (string: string) => {
+export const timeStringToMillis = (string: string): number => {
   if (typeof string !== 'string') return 0;
   const time = string.split(':');
   if (time.length === 1) return Math.abs(time[0] * mts);
@@ -66,7 +66,7 @@ export const timeStringToMillis = (string: string) => {
  * @param {string} string - time string "23:00:12"
  * @returns {boolean} string represents time
  */
-export const isTimeString = (string: string) => {
+export const isTimeString = (string: string): boolean => {
   // ^                   # Start of string
   // (?:                 # Try to match...
   //  (?:                #  Try to match...
@@ -86,7 +86,7 @@ export const isTimeString = (string: string) => {
  * @param {string} valueAsString
  * @return {number}
  */
-const parse = (valueAsString: string) => {
+const parse = (valueAsString: string): number => {
   const parsed = parseInt(valueAsString, 10);
   if (isNaN(parsed)) {
     return 0;
@@ -100,7 +100,7 @@ const parse = (valueAsString: string) => {
  * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value: string, fillLeft = true) => {
+export const forgivingStringToMillis = (value: string, fillLeft = true): number => {
   let millis = 0;
 
   const hours = parseInt(/(\d*)h/.exec(value)?.[0] ?? 0, 10);
