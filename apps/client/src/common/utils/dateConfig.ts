@@ -10,13 +10,13 @@ export const timeFormatSeconds = 'HH:mm:ss';
  * @param {boolean} [hideZero] - whether to show hours in case its 00
  * @returns {string} String representing absolute time 00:12:02
  */
-export function formatDisplay(seconds, hideZero = false) {
+export function formatDisplay(seconds: number | null, hideZero = false): string {
   if (typeof seconds !== 'number') {
     return hideZero ? '00:00' : '00:00:00';
   }
 
   // add an extra 0 if necessary
-  const format = (val) => `0${Math.floor(val)}`.slice(-2);
+  const format = (val: number) => `0${Math.floor(val)}`.slice(-2);
 
   const s = Math.abs(seconds);
   const hours = Math.floor((s / 3600) % 24);
@@ -31,7 +31,7 @@ export function formatDisplay(seconds, hideZero = false) {
  * @param {number | null} millis - time in seconds
  * @returns {number} Amount in seconds
  */
-export const millisToSeconds = (millis) => {
+export const millisToSeconds = (millis: number | null): number => {
   if (millis === null) {
     return 0;
   }
@@ -43,7 +43,7 @@ export const millisToSeconds = (millis) => {
  * @param {number} millis - time in seconds
  * @returns {number} Amount in seconds
  */
-export const millisToMinutes = (millis) => {
+export const millisToMinutes = (millis: number): number => {
   return millis < 0 ? Math.ceil(millis / mtm) : Math.floor(millis / mtm);
 };
 
@@ -52,7 +52,7 @@ export const millisToMinutes = (millis) => {
  * @param {string} string - time string "23:00:12"
  * @returns {number} Amount in milliseconds
  */
-export const timeStringToMillis = (string) => {
+export const timeStringToMillis = (string: string): number => {
   if (typeof string !== 'string') return 0;
   const time = string.split(':');
   if (time.length === 1) return Math.abs(time[0] * mts);
@@ -66,7 +66,7 @@ export const timeStringToMillis = (string) => {
  * @param {string} string - time string "23:00:12"
  * @returns {boolean} string represents time
  */
-export const isTimeString = (string) => {
+export const isTimeString = (string: string): boolean => {
   // ^                   # Start of string
   // (?:                 # Try to match...
   //  (?:                #  Try to match...
@@ -83,10 +83,10 @@ export const isTimeString = (string) => {
 
 /**
  * @description safe parse string to int
- * @param valueAsString
+ * @param {string} valueAsString
  * @return {number}
  */
-const parse = (valueAsString) => {
+const parse = (valueAsString: string): number => {
   const parsed = parseInt(valueAsString, 10);
   if (isNaN(parsed)) {
     return 0;
@@ -100,44 +100,53 @@ const parse = (valueAsString) => {
  * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value, fillLeft = true) => {
+export const forgivingStringToMillis = (value: string, fillLeft = true): number => {
   let millis = 0;
 
-  // split string at known separators    : , .
-  const separatorRegex = /[\s,:.]+/;
-  const [first, second, third] = value.split(separatorRegex);
+  const hours = parseInt(value.match(/(\d+)h/)?.[0] ?? 0, 10);
+  const minutes = parseInt(value.match(/(\d+)m/)?.[0] ?? 0, 10);
+  const seconds = parseInt(value.match(/(\d+)s/)?.[0] ?? 0, 10);
 
-  if (first != null && second != null && third != null) {
-    // if string has three sections, treat as [hours] [minutes] [seconds]
-    millis = parse(first) * mth;
-    millis += parse(second) * mtm;
-    millis += parse(third) * mts;
-  } else if (first != null && second == null && third == null) {
-    // if string has one section,
-    // could be a complete string like 121010 - 12:10:10
-    if (first.length === 6) {
-      const hours = first.substring(0, 2);
-      const minutes = first.substring(2, 4);
-      const seconds = first.substring(4);
-      millis = parse(hours) * mth;
-      millis += parse(minutes) * mtm;
-      millis += parse(seconds) * mts;
-    } else {
-      // otherwise lets treat as [minutes]
-      millis = parse(first) * mtm;
-    }
-  }
-  if (first != null && second != null && third == null) {
-    // if string has two sections
-    if (fillLeft) {
-      // treat as [hours] [minutes]
+  if (hours > 0 || minutes > 0 || seconds > 0) {
+    millis = hours * mth + minutes * mtm + seconds * mts;
+  } else {
+    // split string at known separators    : , .
+    const separatorRegex = /[\s,:.]+/;
+    const [first, second, third] = value.split(separatorRegex);
+
+    if (first != null && second != null && third != null) {
+      // if string has three sections, treat as [hours] [minutes] [seconds]
       millis = parse(first) * mth;
       millis += parse(second) * mtm;
-    } else {
-      // treat as [minutes] [seconds]
-      millis = parse(first) * mtm;
-      millis += parse(second) * mts;
+      millis += parse(third) * mts;
+    } else if (first != null && second == null && third == null) {
+      // if string has one section,
+      // could be a complete string like 121010 - 12:10:10
+      if (first.length === 6) {
+        const hours = first.substring(0, 2);
+        const minutes = first.substring(2, 4);
+        const seconds = first.substring(4);
+        millis = parse(hours) * mth;
+        millis += parse(minutes) * mtm;
+        millis += parse(seconds) * mts;
+      } else {
+        // otherwise lets treat as [minutes]
+        millis = parse(first) * mtm;
+      }
+    }
+    if (first != null && second != null && third == null) {
+      // if string has two sections
+      if (fillLeft) {
+        // treat as [hours] [minutes]
+        millis = parse(first) * mth;
+        millis += parse(second) * mtm;
+      } else {
+        // treat as [minutes] [seconds]
+        millis = parse(first) * mtm;
+        millis += parse(second) * mts;
+      }
     }
   }
+
   return millis;
 };
