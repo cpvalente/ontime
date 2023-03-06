@@ -24,6 +24,7 @@ export default function Timer(props) {
   const { general, pres, title, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
+  const [searchParams] = useSearchParams();
   const [elapsed, setElapsed] = useState(() => {
     // eg. http://localhost:3000/timer?progress=up
     // Check for user options
@@ -33,7 +34,6 @@ export default function Timer(props) {
     return progress === 'up';
   });
 
-  const [searchParams] = useSearchParams();
   const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
