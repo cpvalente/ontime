@@ -23,8 +23,17 @@ const formatOptions = {
 export default function Timer(props) {
   const { general, pres, title, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-  const [elapsed, setElapsed] = useState(true);
+
   const [searchParams] = useSearchParams();
+  const [elapsed, setElapsed] = useState(() => {
+    // eg. http://localhost:3000/timer?progress=up
+    // Check for user options
+    // progress: selector
+    // Should be 'up' or 'down'
+    const progress = searchParams.get('progress');
+    return progress === 'up';
+  });
+
   const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
@@ -34,17 +43,6 @@ export default function Timer(props) {
   // defer rendering until we load stylesheets
   if (!shouldRender) {
     return null;
-  }
-
-  // eg. http://localhost:3000/timer?progress=up
-  // Check for user options
-  // progress: selector
-  // Should be 'up' or 'down'
-  const progress = searchParams.get('progress');
-  if (progress === 'up') {
-    setElapsed(true);
-  } else if (progress === 'down') {
-    setElapsed(false);
   }
 
   const clock = formatTime(time.clock, formatOptions);
