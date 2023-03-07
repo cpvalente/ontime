@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import {
   Checkbox,
@@ -15,11 +15,12 @@ import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { useAtom } from 'jotai';
 
+import { useEmitLog } from '@/common/stores/logger';
+
 import { version } from '../../../package.json';
 import { postSettings } from '../../common/api/ontimeApi';
 import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
-import { LoggingContext } from '../../common/context/LoggingContext';
 import useSettings from '../../common/hooks-query/useSettings';
 import { ontimePlaceholderSettings } from '../../common/models/OntimeSettings';
 
@@ -30,7 +31,7 @@ import style from './Modals.module.scss';
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useSettings();
-  const { emitError, emitWarning } = useContext(LoggingContext);
+  const { emitError, emitWarning } = useEmitLog();
   const [formData, setFormData] = useState(ontimePlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);

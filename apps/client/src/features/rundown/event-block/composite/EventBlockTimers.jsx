@@ -1,8 +1,9 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
+import { useEmitLog } from '@/common/stores/logger';
+
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { LoggingContext } from '../../../../common/context/LoggingContext';
 import { millisToMinutes } from '../../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../../common/utils/time';
 import { validateEntry } from '../../../../common/utils/timesManager';
@@ -11,7 +12,7 @@ import style from '../EventBlock.module.scss';
 
 export default function EventBlockTimers(props) {
   const { timeStart, timeEnd, duration, delay, actionHandler, previousEnd } = props;
-  const { emitWarning } = useContext(LoggingContext);
+  const { emitWarning } = useEmitLog();
 
   const delayTime = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
   const newTime = stringFromMillis(timeStart + delay);

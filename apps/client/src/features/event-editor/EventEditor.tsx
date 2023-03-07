@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, Select, Switch } from '@chakra-ui/react';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { useAtom } from 'jotai';
@@ -9,9 +9,9 @@ import CopyTag from '../../common/components/copy-tag/CopyTag';
 import ColourInput from '../../common/components/input/colour-input/ColourInput';
 import TextInput from '../../common/components/input/text-input/TextInput';
 import TimeInput from '../../common/components/input/time-input/TimeInput';
-import { LoggingContext } from '../../common/context/LoggingContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useRundown from '../../common/hooks-query/useRundown';
+import { useEmitLog } from '../../common/stores/logger';
 import { millisToMinutes } from '../../common/utils/dateConfig';
 import getDelayTo from '../../common/utils/getDelayTo';
 import { stringFromMillis } from '../../common/utils/time';
@@ -25,7 +25,7 @@ export type EventEditorSubmitActions = keyof OntimeEvent | 'durationOverride';
 export default function EventEditor() {
   const [openId] = useAtom(editorEventId);
   const { data } = useRundown();
-  const { emitWarning, emitError } = useContext(LoggingContext);
+  const { emitWarning, emitError } = useEmitLog();
   const { updateEvent } = useEventAction();
   const [event, setEvent] = useState<OntimeEvent | null>(null);
   const [delay, setDelay] = useState(0);

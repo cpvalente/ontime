@@ -7,10 +7,11 @@ import { nowInMillis, stringFromMillis } from '../utils/time';
 
 import createStore from './createStore';
 
-const logger = createStore<Log[]>([]);
-const MAX_MESSAGES = 100;
+export const logger = createStore<Log[]>([]);
+export const LOGGER_MAX_MESSAGES = 100;
 
 export function useEmitLog() {
+  // should I just make my own ?
   const { sendJsonMessage } = useWebSocket('ws://localhost:4001/ws', {
     share: true,
     shouldReconnect: () => true,
@@ -20,7 +21,7 @@ export function useEmitLog() {
     const state = logger.get();
     console.log('DEBUG', state);
     state.push(log);
-    if (state.length > MAX_MESSAGES) {
+    if (state.length > LOGGER_MAX_MESSAGES) {
       state.slice(1);
     }
     logger.set(state);
@@ -94,19 +95,6 @@ export function useEmitLog() {
   };
 }
 
-// export function useSyncExternalLogger() {
-//   const { lastMessage, lastJsonMessage } = useWebSocket('ws://localhost:4001/ws', {
-//     share: true,
-//     shouldReconnect: () => true,
-//     onClose: () => console.log('closed socket connection'),
-//     onError: () => console.log('error in socket connection'),
-//   });
-//
-//   useEffect(() => {
-//     console.log('DEBUG LOGGER SYNC', lastMessage, lastJsonMessage);
-//   }, [lastMessage, lastJsonMessage]);
-// }
-//
 export const useLogData = () => {
   return useSyncExternalStore(logger.subscribe, () => logger.get());
 };

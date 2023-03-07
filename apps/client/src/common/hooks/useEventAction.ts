@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { useAtomValue } from 'jotai';
@@ -15,14 +15,14 @@ import {
   requestReorderEvent,
 } from '../api/eventsApi';
 import { defaultPublicAtom, startTimeIsLastEndAtom } from '../atoms/LocalEventSettings';
-import { LoggingContext } from '../context/LoggingContext';
+import { useEmitLog } from '../stores/logger';
 
 /**
  * @description Set of utilities for events
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
 

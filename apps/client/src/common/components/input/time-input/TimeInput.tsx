@@ -1,9 +1,9 @@
-import { KeyboardEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Input, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
 
 import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
-import { LoggingContext } from '../../../context/LoggingContext';
+import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
 import { stringFromMillis } from '../../../utils/time';
 import { TimeEntryField } from '../../../utils/timesManager';
@@ -24,7 +24,7 @@ export default function TimeInput(props: TimeInputProps) {
   const {
     name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0,
   } = props;
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState('');
 
