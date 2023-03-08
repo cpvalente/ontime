@@ -6,7 +6,6 @@ import cors from 'cors';
 // import utils
 import { join, resolve } from 'path';
 
-import { initSentry } from './modules/sentry.js';
 import { currentDirectory, environment, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { OSCSettings } from 'ontime-types';
@@ -36,7 +35,7 @@ if (!isProduction) {
   console.log(`Ontime directory at ${currentDirectory} `);
 }
 
-initSentry(environment);
+initSentry(isProduction);
 
 // Create express APP
 const app = express();
@@ -212,14 +211,14 @@ export const shutdown = async (exitCode = 0) => {
 
 process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
 
-process.on('unhandledRejection', async (error, promise) => {
-  console.error(error, 'Error: unhandled rejection', promise);
+process.on('unhandledRejection', async (error) => {
+  reportSentryException(error);
   logger.error('SERVER', 'Error: unhandled rejection');
   await shutdown(1);
 });
 
-process.on('uncaughtException', async (error, promise) => {
-  console.error(error, 'Error: uncaught exception', promise);
+process.on('uncaughtException', async (error) => {
+  reportSentryException(error);
   logger.error('SERVER', 'Error: uncaught exception');
   await shutdown(1);
 });
