@@ -1,11 +1,13 @@
-import { MessageControl } from 'ontime-types';
+import { Message } from 'ontime-types';
 
 import { eventStore } from '../../stores/EventStore.js';
 
 let instance;
 
 class MessageService {
-  messages: MessageControl;
+  timerMessage: Message;
+  publicMessage: Message;
+  lowerMessage: Message;
   onAir: boolean;
 
   constructor() {
@@ -16,20 +18,21 @@ class MessageService {
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
 
-    this.messages = {
-      presenter: {
-        text: '',
-        visible: false,
-      },
-      public: {
-        text: '',
-        visible: false,
-      },
-      lower: {
-        text: '',
-        visible: false,
-      },
+    this.timerMessage = {
+      text: '',
+      visible: false,
     };
+
+    this.publicMessage = {
+      text: '',
+      visible: false,
+    };
+
+    this.lowerMessage = {
+      text: '',
+      visible: false,
+    };
+
     this.onAir = false;
   }
 
@@ -37,8 +40,8 @@ class MessageService {
    * @description sets message on stage timer screen
    */
   setTimerText(payload: string) {
-    this.messages.presenter.text = payload;
-    this.updateStore();
+    this.timerMessage.text = payload;
+    eventStore.set('timerMessage', this.timerMessage);
     return this.getAll();
   }
 
@@ -46,8 +49,8 @@ class MessageService {
    * @description sets message visibility on stage timer screen
    */
   setTimerVisibility(status: boolean) {
-    this.messages.presenter.visible = status;
-    this.updateStore();
+    this.timerMessage.visible = status;
+    eventStore.set('timerMessage', this.timerMessage);
     return this.getAll();
   }
 
@@ -55,8 +58,8 @@ class MessageService {
    * @description sets message on public screen
    */
   setPublicText(payload: string) {
-    this.messages.public.text = payload;
-    this.updateStore();
+    this.publicMessage.text = payload;
+    eventStore.set('publicMessage', this.publicMessage);
     return this.getAll();
   }
 
@@ -64,8 +67,8 @@ class MessageService {
    * @description sets message visibility on public screen
    */
   setPublicVisibility(status: boolean) {
-    this.messages.public.visible = status;
-    this.updateStore();
+    this.publicMessage.visible = status;
+    eventStore.set('publicMessage', this.publicMessage);
     return this.getAll();
   }
 
@@ -73,8 +76,8 @@ class MessageService {
    * @description sets message on lower third screen
    */
   setLowerText(payload: string) {
-    this.messages.lower.text = payload;
-    this.updateStore();
+    this.lowerMessage.text = payload;
+    eventStore.set('lowerMessage', this.lowerMessage);
     return this.getAll();
   }
 
@@ -82,8 +85,8 @@ class MessageService {
    * @description sets message visibility on lower third screen
    */
   setLowerVisibility(status: boolean) {
-    this.messages.lower.visible = status;
-    this.updateStore();
+    this.lowerMessage.visible = status;
+    eventStore.set('lowerMessage', this.lowerMessage);
     return this.getAll();
   }
 
@@ -91,18 +94,13 @@ class MessageService {
    * @description set state of onAir, toggles if parameters are offered
    */
   setOnAir(status?: boolean) {
-    if (!status) {
+    if (typeof status === 'undefined') {
       this.onAir = !this.onAir;
     } else {
       this.onAir = status;
     }
-    this.updateStore();
-    return this.getAll();
-  }
-
-  private updateStore() {
-    eventStore.set('messages', this.messages);
     eventStore.set('onAir', this.onAir);
+    return this.getAll();
   }
 
   /**
@@ -110,7 +108,9 @@ class MessageService {
    */
   getAll() {
     return {
-      messages: this.messages,
+      timerMessage: this.timerMessage,
+      publicMessage: this.publicMessage,
+      lowerMessage: this.lowerMessage,
       onAir: this.onAir,
     };
   }

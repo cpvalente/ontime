@@ -1,7 +1,7 @@
 import { Alias } from './definitions/core/Alias.type.js';
 import { DatabaseModel } from './definitions/DataModel.type.js';
 import { EventData } from './definitions/core/EventData.type.js';
-import { Message, MessageControl } from './definitions/runtime/MessageControl.type.js';
+import { Message } from './definitions/runtime/MessageControl.type.js';
 import {
   OntimeBaseEvent,
   OntimeBlock,
@@ -59,7 +59,6 @@ export { Playback };
 export { TimerLifeCycle };
 
 export type { Message };
-export type { MessageControl };
 export type { Loaded };
 export type { RuntimeStore };
 export type { TimerState };

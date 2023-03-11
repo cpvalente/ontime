@@ -1,5 +1,5 @@
 import { Playback } from './Playback.type.js';
-import { MessageControl } from './MessageControl.type.js';
+import { Message } from './MessageControl.type.js';
 import { TimerState } from './TimerState.type.js';
 import { TitleBlock } from './TitleBlock.type.js';
 import { Loaded } from './Playlist.type.js';
@@ -10,7 +10,9 @@ export type RuntimeStore = {
   playback: Playback;
 
   // messages service
-  messages: MessageControl;
+  timerMessage: Message;
+  publicMessage: Message;
+  lowerMessage: Message;
   onAir: boolean;
 
   // event loader
