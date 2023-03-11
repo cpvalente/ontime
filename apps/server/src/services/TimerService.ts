@@ -324,6 +324,16 @@ export class TimerService {
 
         if (
           this.playback === 'play' &&
+          this.timer.endAction === EndAction.Pause &&
+          this.timer.current <= 0 &&
+          this.timer.finishedAt === null
+        ) {
+          this.timer.finishedAt = this.timer.clock;
+          PlaybackService.pause();
+        }
+
+        if (
+          this.playback === 'play' &&
           this.timer.endAction === EndAction.Next &&
           this.timer.current <= 0 &&
           this.timer.finishedAt === null
