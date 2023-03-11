@@ -1,4 +1,4 @@
-import { TimerLifeCycle, TimerType } from 'ontime-types';
+import { EndAction, TimerLifeCycle, TimerType } from 'ontime-types';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
@@ -30,6 +30,7 @@ export class TimerService {
     selectedEventId: string | null;
     duration: number | null;
     timerType: TimerType | null;
+    endAction: EndAction | null;
   };
 
   /**
@@ -60,6 +61,7 @@ export class TimerService {
       selectedEventId: null,
       duration: null,
       timerType: null,
+      endAction: null,
     };
     this.loadedTimerId = null;
     this.pausedTime = 0;
@@ -91,6 +93,7 @@ export class TimerService {
     // update relevant information and force update
     this.timer.duration = timer.duration;
     this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -130,6 +133,7 @@ export class TimerService {
     this.timer.current = timer.duration;
     this.playback = 'armed';
     this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
     this.pausedTime = 0;
     this.pausedAt = 0;
 
@@ -283,7 +287,12 @@ export class TimerService {
           this.pausedTime = this.timer.clock - this.pausedAt;
         }
 
-        if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
+        if (
+          this.playback === 'play' &&
+          this.timer.endAction === EndAction.Continue &&
+          this.timer.current <= 0 &&
+          this.timer.finishedAt === null
+        ) {
           this.timer.finishedAt = this.timer.clock;
           this._onFinish();
         } else {
@@ -302,6 +311,30 @@ export class TimerService {
           this.pausedTime,
           this.timer.clock,
         );
+
+        if (
+          this.playback === 'play' &&
+          this.timer.endAction === EndAction.Stop &&
+          this.timer.current <= 0 &&
+          this.timer.finishedAt === null
+        ) {
+          this.timer.finishedAt = this.timer.clock;
+          this._onFinish();
+          this.stop();
+        }
+
+        if (
+          this.playback === 'play' &&
+          this.timer.endAction === EndAction.Next &&
+          this.timer.current <= 0 &&
+          this.timer.finishedAt === null
+        ) {
+          this.timer.finishedAt = this.timer.clock;
+          this._onFinish();
+          PlaybackService.loadNext();
+          this.start();
+        }
+
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
       }
     }
