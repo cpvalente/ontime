@@ -128,6 +128,28 @@ export class PlaybackService {
   }
 
   /**
+   * Starts playback on next event
+   */
+  static startNext(fallbackAction) {
+    const nextEvent = eventLoader.findNext();
+    if (nextEvent) {
+      const success = PlaybackService.loadEvent(nextEvent);
+      if (success) {
+        socketProvider.info('PLAYBACK', `Loaded event with ID ${nextEvent.id}`);
+        PlaybackService.start();
+      }
+    } else if (fallbackAction === 'stop') {
+      socketProvider.info('PLAYBACK', `No next event found! Stopping playback`);
+      PlaybackService.stop();
+    } else if (fallbackAction === 'pause') {
+      socketProvider.info('PLAYBACK', `No next event found! Pausing playback`);
+      PlaybackService.pause('pause');
+    } else {
+      socketProvider.info('PLAYBACK', `No next event found! Continuing playback`);
+    }
+  }
+
+  /**
    * Pauses playback on selected event
    */
   static pause() {

@@ -339,8 +339,7 @@ export class TimerService {
           this.timer.finishedAt === null
         ) {
           this.timer.finishedAt = this.timer.clock;
-          PlaybackService.loadNext();
-          PlaybackService.start();
+          PlaybackService.startNext();
         }
 
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
