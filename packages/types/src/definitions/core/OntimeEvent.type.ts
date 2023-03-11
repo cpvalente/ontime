@@ -1,3 +1,4 @@
+import { EndAction } from '../EndAction.type.js';
 import { TimerType } from '../TimerType.type.js';
 
 export enum SupportedEvent {
@@ -28,7 +29,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   subtitle: string;
   presenter: string;
   note: string;
-  timerBehaviour: 'start-end',
+  endAction: EndAction,
   timerType: TimerType,
   timeStart: number;
   timeEnd: number;

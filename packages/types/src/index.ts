@@ -15,6 +15,7 @@ import { Playback } from './definitions/runtime/Playback.type.js';
 import { Settings } from './definitions/core/Settings.type.js';
 import { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
 import { TimerType } from './definitions/TimerType.type.js';
+import { EndAction } from './definitions/EndAction.type.js';
 import { UserFields } from './definitions/core/UserFields.type.js';
 import { ViewSettings } from './definitions/core/Views.type.js';
 
@@ -23,6 +24,7 @@ export type { DatabaseModel };
 
 // ---> Rundown
 export { TimerType };
+export { EndAction };
 export { SupportedEvent };
 export type { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent };
 export type { OntimeRundown, OntimeRundownEntry };
