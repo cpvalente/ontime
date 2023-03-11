@@ -7,20 +7,20 @@ import InfoNif from './InfoNif';
 import style from './Info.module.scss';
 
 export default function Info() {
-  const { data } = useInfoPanel();
+  const data = useInfoPanel();
 
   const titlesNow = {
-    title: data.titles.titleNow,
-    subtitle: data.titles.subtitleNow,
-    presenter: data.titles.presenterNow,
-    note: data.titles.noteNow,
+    title: data.titles.titleNow || '',
+    subtitle: data.titles.subtitleNow || '',
+    presenter: data.titles.presenterNow || '',
+    note: data.titles.noteNow || '',
   };
 
   const titlesNext = {
-    title: data.titles.titleNext,
-    subtitle: data.titles.subtitleNext,
-    presenter: data.titles.presenterNext,
-    note: data.titles.noteNext,
+    title: data.titles.titleNext || '',
+    subtitle: data.titles.subtitleNext || '',
+    presenter: data.titles.presenterNext || '',
+    note: data.titles.noteNext || '',
   };
 
   const selected = !data.numEvents

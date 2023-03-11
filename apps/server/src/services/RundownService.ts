@@ -5,7 +5,6 @@ import { block as blockDef, delay as delayDef, event as eventDef } from '../mode
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventTimer } from './TimerService.js';
-import { eventStore } from '../stores/EventStore.js';
 
 /**
  * Checks if a list of IDs is in the current selection
@@ -112,7 +111,7 @@ export function updateTimer(affectedIds?: string[]) {
  * @param {object} eventData
  * @return {unknown[]}
  */
-export async function addEvent(eventData) {
+export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
   const numEvents = DataProvider.getRundownLength();
   if (numEvents > MAX_EVENTS) {
     throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
@@ -145,7 +144,7 @@ export async function addEvent(eventData) {
     throw new Error(error);
   }
   updateTimer([id]);
-  eventStore.broadcast();
+  updateChangeNumEvents();
   return newEvent;
 }
 
@@ -157,7 +156,6 @@ export async function editEvent(eventData) {
   }
   const newEvent = await DataProvider.updateEventById(eventId, eventData);
   updateTimer([eventId]);
-  eventStore.broadcast();
   return newEvent;
 }
 
@@ -169,7 +167,7 @@ export async function editEvent(eventData) {
 export async function deleteEvent(eventId) {
   await DataProvider.deleteEvent(eventId);
   updateTimer([eventId]);
-  eventStore.broadcast();
+  updateChangeNumEvents();
 }
 
 /**
@@ -179,7 +177,7 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await DataProvider.clearRundown();
   updateTimer();
-  eventStore.broadcast();
+  updateChangeNumEvents();
 }
 
 /**
@@ -204,7 +202,6 @@ export async function reorderEvent(eventId, from, to) {
   // save rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
-
   return reorderedItem;
 }
 
@@ -260,5 +257,12 @@ export async function applyDelay(eventId) {
   // update rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
-  eventStore.broadcast();
+}
+
+/**
+ * Forces update in the store
+ * Called when we make changes to the rundown object
+ */
+function updateChangeNumEvents() {
+  eventLoader.updateNumEvents();
 }

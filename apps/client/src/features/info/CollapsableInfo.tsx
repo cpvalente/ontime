@@ -9,7 +9,7 @@ type TitleShape = {
   presenter: string;
   subtitle: string;
   note: string;
-}
+};
 
 interface CollapsableInfoProps {
   title: string;
@@ -22,11 +22,7 @@ export default function CollapsableInfo(props: CollapsableInfoProps) {
 
   return (
     <div className={style.container}>
-      <CollapseBar
-        title={title}
-        isCollapsed={collapsed}
-        onClick={() => setCollapsed((prev) => !prev)}
-      />
+      <CollapseBar title={title} isCollapsed={collapsed} onClick={() => setCollapsed((prev) => !prev)} />
       {!collapsed && (
         <div className={style.labels}>
           <div>

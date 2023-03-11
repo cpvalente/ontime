@@ -3,7 +3,7 @@ import { Button } from '@chakra-ui/react';
 import { Log } from 'ontime-types';
 
 import CollapseBar from '../../common/components/collapse-bar/CollapseBar';
-import { useLogData } from '../../common/stores/logger';
+import { useEmitLog, useLogData } from '../../common/stores/logger';
 
 import style from './InfoLogger.module.scss';
 
@@ -18,8 +18,11 @@ enum LOG_FILTER {
 
 export default function InfoLogger() {
   const logData = useLogData();
+  const { clearLog } = useEmitLog();
   // const { logData, clearLog } = useContext(LoggingContext);
-  const [data, setData] = useState<Log[]>([]);
+  // TODO: derived data shouldn't be in state
+  const data: Log[] = [];
+  const setData = (newData) => console.log('tried setting data');
   const [collapsed, setCollapsed] = useState(false);
   const [showClient, setShowClient] = useState(true);
   const [showServer, setShowServer] = useState(true);
@@ -27,15 +30,6 @@ export default function InfoLogger() {
   const [showTx, setShowTx] = useState(true);
   const [showPlayback, setShowPlayback] = useState(true);
   const [showUser, setShowUser] = useState(true);
-
-  const clearLog = () => console.log('CALLED CLEAR');
-
-  console.log('DEBUG INFO', logData)
-
-  useEffect(() => {
-    if (!logData) {
-      return;
-    }
 
     const matchers: LOG_FILTER[] = [];
     if (showUser) {
@@ -57,9 +51,7 @@ export default function InfoLogger() {
       matchers.push(LOG_FILTER.PLAYBACK);
     }
 
-    const filteredData = logData.filter((entry) => matchers.some((match) => entry.origin === match));
-    setData(filteredData);
-  }, [logData, showUser, showClient, showServer, showPlayback, showRx, showTx]);
+  const filteredData = logData.filter((entry) => matchers.some((match) => entry.origin === match));
 
   const disableOthers = useCallback((toEnable: LOG_FILTER) => {
     toEnable === LOG_FILTER.USER ? setShowUser(true) : setShowUser(false);
@@ -135,7 +127,7 @@ export default function InfoLogger() {
             </Button>
           </div>
           <ul className={style.log}>
-            {data.map((logEntry) => (
+            {filteredData.map((logEntry) => (
               <li key={logEntry.id} className={`${style.logEntry} ${style[logEntry.level]} `}>
                 <span className={style.time}>{logEntry.time}</span>
                 <span className={style.origin}>{logEntry.origin}</span>

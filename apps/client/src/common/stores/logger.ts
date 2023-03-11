@@ -1,8 +1,8 @@
 import { useCallback, useSyncExternalStore } from 'react';
-import useWebSocket from 'react-use-websocket';
-import { Log, LogLevel, LogMessage } from 'ontime-types';
+import { Log, LogLevel } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
+import { socketSendJson } from '../utils/socket';
 import { nowInMillis, stringFromMillis } from '../utils/time';
 
 import createStore from './createStore';
@@ -11,15 +11,8 @@ export const logger = createStore<Log[]>([]);
 export const LOGGER_MAX_MESSAGES = 100;
 
 export function useEmitLog() {
-  // should I just make my own ?
-  const { sendJsonMessage } = useWebSocket('ws://localhost:4001/ws', {
-    share: true,
-    shouldReconnect: () => true,
-  });
-
   const _addToLogger = (log: Log) => {
     const state = logger.get();
-    console.log('DEBUG', state);
     state.push(log);
     if (state.length > LOGGER_MAX_MESSAGES) {
       state.slice(1);
@@ -42,12 +35,8 @@ export function useEmitLog() {
       text,
     };
 
-    const logMessage: LogMessage = {
-      type: 'ontime-log',
-      payload: log,
-    };
     _addToLogger(log);
-    sendJsonMessage(logMessage);
+    socketSendJson('ontime-log', log);
   };
 
   /**
@@ -84,7 +73,7 @@ export function useEmitLog() {
   );
 
   const clearLog = useCallback(() => {
-    throw new Error('NOT IMPLEMENTED CLEAR LOG');
+    logger.set([]);
   }, []);
 
   return {
