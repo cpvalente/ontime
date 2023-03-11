@@ -129,6 +129,7 @@ export class PlaybackService {
 
   /**
    * Starts playback on next event
+   * @param {string} [fallbackAction] - 'stop', 'pause', or null
    */
   static startNext(fallbackAction) {
     const nextEvent = eventLoader.findNext();
