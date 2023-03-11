@@ -6,6 +6,7 @@ import cors from 'cors';
 // import utils
 import { join, resolve } from 'path';
 
+import { initSentry, reportSentryException } from './modules/sentry.js';
 import { currentDirectory, environment, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { OSCSettings } from 'ontime-types';
@@ -18,7 +19,7 @@ import { router as playbackRouter } from './routes/playbackRouter.js';
 
 // Import adapters
 import { OscServer } from './adapters/OscAdapter.js';
-import { SocketServer } from './adapters/WebsocketAdapter.js';
+import { socket } from './adapters/WebsocketAdapter.js';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { dbLoadingProcess } from './modules/loadDb.js';
 
@@ -27,6 +28,7 @@ import { eventTimer } from './services/TimerService.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { OscIntegration } from './services/integration-service/OscIntegration.js';
 import { logger } from './classes/Logger.js';
+import { eventLoader } from './classes/event-loader/EventLoader.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -130,17 +132,10 @@ export const startServer = async () => {
 
   expressServer = http.createServer(app);
 
-  const socket = new SocketServer(expressServer);
+  socket.init(expressServer);
+  eventLoader.init();
 
   expressServer.listen(serverPort, '0.0.0.0');
-
-  logger.init(socket.send);
-
-  let i = 1;
-  setInterval(() => {
-    logger.info('RX', `TESTING ${i}`);
-    i++;
-  }, 2000);
 
   return returnMessage;
 };
@@ -204,8 +199,9 @@ export const shutdown = async (exitCode = 0) => {
   expressServer?.close();
   oscServer?.shutdown();
   eventTimer.shutdown();
-  logger.shutdown();
   integrationService.shutdown();
+  logger.shutdown();
+  socket.shutdown();
   process.exit(exitCode);
 };
 

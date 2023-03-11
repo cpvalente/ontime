@@ -1,141 +1,110 @@
-import { useQuery } from '@tanstack/react-query';
-import { Playback } from 'ontime-types';
+import { useMemo } from 'react';
 
-import {
-  FEAT_CUESHEET,
-  FEAT_INFO,
-  FEAT_MESSAGECONTROL,
-  FEAT_PLAYBACKCONTROL,
-  FEAT_RUNDOWN,
-  TIMER,
-} from '../api/apiConstants';
-import { ontimeQueryClient as queryClient } from '../queryClient';
-import socket, { subscribeOnce } from '../utils/socket';
+import { useRuntimeStore } from '../stores/runtime';
+import { socketSendJson } from '../utils/socket';
 
-function createSocketHook<T>(key: string, defaultValue: T | null = null) {
-  subscribeOnce<T>(key, (data) => queryClient.setQueryData([key], data));
+export const useRundownEditor = () => {
+  const state = useRuntimeStore();
 
-  // retrieves data from the cache or null if non-existent
-  // we need the null because useQuery can't receive undefined
-  const fetcher = () => (queryClient.getQueryData([key]) ?? defaultValue) as T | null;
-
-  return () => useQuery({ queryKey: [key], queryFn: fetcher, placeholderData: defaultValue });
-}
-
-interface IRundown {
-  selectedEventId: string | null;
-  nextEventId: string | null;
-  playback: Playback | null;
-}
-
-const emptyRundown: IRundown = {
-  selectedEventId: null,
-  nextEventId: null,
-  playback: null,
+  return useMemo(() => {
+    return {
+      selectedEventId: state.loaded.selectedEventId,
+      nextEventId: state.loaded.nextEventId,
+      playback: state.playback,
+    };
+  }, [state.loaded.selectedEventId, state.loaded.nextEventId, state.playback]);
 };
 
-export const useRundownEditor = createSocketHook(FEAT_RUNDOWN, emptyRundown);
-
-const emptyMessageControl = {
-  messages: {
-    presenter: {
-      text: '',
-      visible: false,
-    },
-    public: {
-      text: '',
-      visible: false,
-    },
-    lower: {
-      text: '',
-      visible: false,
-    },
-  },
-  onAir: false,
+export const useMessageControl = () => {
+  const state = useRuntimeStore();
+  return useMemo(() => {
+    return {
+      timerMessage: state.timerMessage,
+      publicMessage: state.publicMessage,
+      lowerMessage: state.lowerMessage,
+      onAir: state.onAir,
+    };
+  }, [state.timerMessage, state.publicMessage, state.lowerMessage, state.onAir]);
 };
 
-export const useMessageControl = createSocketHook(FEAT_MESSAGECONTROL, emptyMessageControl);
 export const setMessage = {
-  presenterText: (payload: string) => socket.emit('set-timer-message-text', payload),
-  presenterVisible: (payload: boolean) => socket.emit('set-timer-message-visible', payload),
-  publicText: (payload: string) => socket.emit('set-public-message-text', payload),
-  publicVisible: (payload: boolean) => socket.emit('set-public-message-visible', payload),
-  lowerText: (payload: string) => socket.emit('set-lower-message-text', payload),
-  lowerVisible: (payload: boolean) => socket.emit('set-lower-message-visible', payload),
-  onAir: (payload: boolean) => socket.emit('set-onAir', payload),
+  presenterText: (payload: string) => socketSendJson('set-timer-message-text', payload),
+  presenterVisible: (payload: boolean) => socketSendJson('set-timer-message-visible', payload),
+  publicText: (payload: string) => socketSendJson('set-public-message-text', payload),
+  publicVisible: (payload: boolean) => socketSendJson('set-public-message-visible', payload),
+  lowerText: (payload: string) => socketSendJson('set-lower-message-text', payload),
+  lowerVisible: (payload: boolean) => socketSendJson('set-lower-message-visible', payload),
+  onAir: (payload: boolean) => socketSendJson('set-onAir', payload),
 };
 
-export const emptyPlaybackControl = {
-  playback: 'stop',
-  numEvents: 0,
+export const usePlaybackControl = () => {
+  const state = useRuntimeStore();
+
+  return useMemo(() => {
+    return {
+      playback: state.playback,
+      numEvents: state.loaded.numEvents,
+    };
+  }, [state.playback, state.loaded.numEvents]);
 };
-export const usePlaybackControl = createSocketHook(FEAT_PLAYBACKCONTROL, emptyPlaybackControl);
-export const resetPlayback = () => {
-  const cacheData = queryClient.getQueryData([FEAT_PLAYBACKCONTROL]) as Record<string, unknown>;
-  queryClient.setQueryData([FEAT_PLAYBACKCONTROL], {
-    ...cacheData,
-    playback: 'stop',
-  });
-};
+
 export const setPlayback = {
-  start: () => socket.emit('set-start'),
-  pause: () => socket.emit('set-pause'),
-  roll: () => socket.emit('set-roll'),
+  start: () => socketSendJson('start'),
+  pause: () => socketSendJson('pause'),
+  roll: () => socketSendJson('roll'),
   previous: () => {
-    socket.emit('set-previous');
+    socketSendJson('previous');
   },
   next: () => {
-    socket.emit('set-next');
+    socketSendJson('next');
   },
   stop: () => {
-    socket.emit('set-stop');
+    socketSendJson('stop');
   },
   reload: () => {
-    socket.emit('set-reload');
+    socketSendJson('reload');
   },
   delay: (amount: number) => {
-    socket.emit('set-delay', amount);
+    socketSendJson('delay', amount);
   },
 };
 
-export const emptyInfo = {
-  titles: {
-    titleNow: '',
-    subtitleNow: '',
-    presenterNow: '',
-    noteNow: '',
-    titleNext: '',
-    subtitleNext: '',
-    presenterNext: '',
-    noteNext: '',
-  },
-  playback: 'stop',
-  selectedEventIndex: null,
-  numEvents: 0,
+export const useInfoPanel = () => {
+  const state = useRuntimeStore();
+
+  return useMemo(() => {
+    return {
+      titles: state.titles,
+      playback: state.playback,
+      selectedEventIndex: state.loaded.selectedEventIndex,
+      numEvents: state.loaded.numEvents,
+    };
+  }, [state.titles, state.playback, state.loaded.selectedEventIndex, state.loaded.numEvents]);
 };
 
-export const useInfoPanel = createSocketHook(FEAT_INFO, emptyInfo);
+export const useCuesheet = () => {
+  const state = useRuntimeStore();
 
-export const emptyCuesheet = {
-  selectedEventId: null,
-  titleNow: '',
+  return useMemo(() => {
+    return {
+      selectedEventIndex: state.loaded.selectedEventId,
+      titleNow: state.titles.titleNow,
+    };
+  }, [state.loaded.selectedEventId, state.titles.titleNow]);
 };
-
-export const useCuesheet = createSocketHook(FEAT_CUESHEET, emptyCuesheet);
 
 export const setEventPlayback = {
-  loadEvent: (eventId: string) => socket.emit('set-loadid', eventId),
-  startEvent: (eventId: string) => socket.emit('set-startid', eventId),
-  pause: () => socket.emit('set-pause'),
+  loadEvent: (eventId: string) => socketSendJson('loadid', eventId),
+  startEvent: (eventId: string) => socketSendJson('startid', eventId),
+  pause: () => socketSendJson('pause'),
 };
 
-const emptyTimer = {
-  clock: 0,
-  current: 0,
-  secondaryTimer: null,
-  duration: null,
-  startedAt: null,
-  expectedFinish: null,
-};
+export const useTimer = () => {
+  const state = useRuntimeStore();
 
-export const useTimer = createSocketHook(TIMER, emptyTimer);
+  return useMemo(() => {
+    return {
+      timer: state.timer,
+    };
+  }, [state.timer]);
+};

@@ -47,6 +47,7 @@ importers:
       '@testing-library/react': ^13.1.1
       '@testing-library/user-event': ^14.1.1
       '@types/color': ^3.0.3
+      '@types/luxon': ^3.2.0
       '@types/prop-types': ^15.7.5
       '@types/react': ^18.0.26
       '@types/react-beautiful-dnd': ^13.1.3
@@ -59,6 +60,7 @@ importers:
       axios: ^1.2.0
       color: ^4.2.3
       csv-stringify: ^6.2.3
+      deepmerge: ^4.3.0
       eslint: ^8.31.0
       eslint-config-prettier: ^8.6.0
       eslint-plugin-jest: ^27.1.7
@@ -70,7 +72,7 @@ importers:
       framer-motion: ^8.0.2
       jotai: ^1.10.0
       jsdom: ^21.1.0
-      luxon: ^3.1.0
+      luxon: ^3.3.0
       ontime-types: workspace:*
       ontime-utils: workspace:*
       prettier: ^2.8.3
@@ -110,9 +112,10 @@ importers:
       axios: 1.2.2
       color: 4.2.3
       csv-stringify: 6.2.3
+      deepmerge: 4.3.0
       framer-motion: 8.4.3_biqbaboplfbrettd7655fr4n2y
       jotai: 1.13.0_react@18.2.0
-      luxon: 3.2.1
+      luxon: 3.3.0
       react: 18.2.0
       react-beautiful-dnd: 13.1.1_biqbaboplfbrettd7655fr4n2y
       react-dom: 18.2.0_react@18.2.0
@@ -131,6 +134,7 @@ importers:
       '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       '@testing-library/user-event': 14.4.3
       '@types/color': 3.0.3
+      '@types/luxon': 3.2.0
       '@types/prop-types': 15.7.5
       '@types/react': 18.0.26
       '@types/react-beautiful-dnd': 13.1.3
@@ -260,19 +264,23 @@ importers:
 
   packages/utils:
     specifiers:
+      '@types/luxon': ^3.2.0
       '@typescript-eslint/eslint-plugin': ^5.48.1
       '@typescript-eslint/parser': ^5.48.1
       eslint: ^8.31.0
       eslint-config-prettier: ^8.6.0
       eslint-plugin-prettier: ^4.2.1
       eslint-plugin-simple-import-sort: ^8.0.0
+      luxon: ^3.3.0
       nanoid: ^4.0.0
       prettier: ^2.8.3
       typescript: ^4.9.4
       vitest: ^0.27.1
     dependencies:
+      luxon: 3.3.0
       nanoid: 4.0.0
     devDependencies:
+      '@types/luxon': 3.2.0
       '@typescript-eslint/eslint-plugin': 5.48.1_3jon24igvnqaqexgwtxk6nkpse
       '@typescript-eslint/parser': 5.48.1_iukboom6ndih5an6iafl45j2fe
       eslint: 8.31.0
@@ -2996,6 +3004,10 @@ packages:
     resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
     dev: false
 
+  /@types/luxon/3.2.0:
+    resolution: {integrity: sha512-lGmaGFoaXHuOLXFvuju2bfvZRqxAqkHPx9Y9IQdQABrinJJshJwfNCKV+u7rR3kJbiqfTF/NhOkcxxAFrObyaA==}
+    dev: true
+
   /@types/mime/3.0.1:
     resolution: {integrity: sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==}
     dev: true
@@ -4412,6 +4424,11 @@ packages:
   /deep-is/0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
     dev: true
+
+  /deepmerge/4.3.0:
+    resolution: {integrity: sha512-z2wJZXrmeHdvYJp/Ux55wIjqo81G5Bp4c+oELTW+7ar6SogWHajt5a9gO3s3IDaGSAXjDk0vlQKN3rms8ab3og==}
+    engines: {node: '>=0.10.0'}
+    dev: false
 
   /defer-to-connect/1.1.3:
     resolution: {integrity: sha512-0ISdNousHvZT2EiFlZeZAHBUvSxmKswVCEf8hW7KWgG4a8MVEu/3Vb6uWYozkjylyCxe0JBIiRB1jV45S70WVQ==}
@@ -6485,8 +6502,8 @@ packages:
   /lru_map/0.3.3:
     resolution: {integrity: sha512-Pn9cox5CsMYngeDbmChANltQl+5pi6XmTrraMSzhPmMBbmgcxmqWry0U3PGapCU1yB4/LqCcom7qhHZiF/jGfQ==}
 
-  /luxon/3.2.1:
-    resolution: {integrity: sha512-QrwPArQCNLAKGO/C+ZIilgIuDnEnKx5QYODdDtbFaxzsbZcc/a7WFq7MhsVYgRlwawLtvOUESTlfJ+hc/USqPg==}
+  /luxon/3.3.0:
+    resolution: {integrity: sha512-An0UCfG/rSiqtAIiBPO0Y9/zAnHUZxAMiCpTd5h2smgsj7GGmcenvrvww2cqNA8/4A5ZrD1gJpHN2mIHZQF+Mg==}
     engines: {node: '>=12'}
     dev: false
 

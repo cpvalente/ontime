@@ -8,17 +8,18 @@ import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import { AppContextProvider } from './common/context/AppContext';
 import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
+import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
 import AppRouter from './AppRouter';
-// import { useSyncExternalLogger } from './common/stores/logger';
 
 // Load Open Sans typeface
 // @ts-expect-error no types from font import
 import('typeface-open-sans');
 
+connectSocket();
+
 function App() {
   const { isElectron, sendToElectron } = useElectronEvent();
-  // useSyncExternalLogger();
 
   const handleKeyPress = (event: KeyboardEvent) => {
     // handle held key

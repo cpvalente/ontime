@@ -16,7 +16,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
     }
 
     case 'set-onair': {
-      if (payload) {
+      if (typeof payload !== 'undefined') {
         messageService.setOnAir(Boolean(payload));
       }
       break;
@@ -32,46 +32,46 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       break;
     }
 
-    case 'timer-message-text': {
+    case 'set-timer-message-text': {
       if (typeof payload !== 'string') {
-        throw new Error('Unable to parse payload');
+        throw new Error(`Unable to parse payload: ${payload}`);
       }
       messageService.setTimerText(payload);
       break;
     }
-    case 'timer-message-visibility': {
-      if (!payload) {
-        throw new Error('Unable to parse payload');
+    case 'set-timer-message-visible': {
+      if (typeof payload === 'undefined') {
+        throw new Error(`Unable to parse payload: ${payload}`);
       }
       messageService.setTimerVisibility(Boolean(payload));
       break;
     }
 
-    case 'public-message-text': {
+    case 'set-public-message-text': {
       if (typeof payload !== 'string') {
-        throw new Error('Unable to parse payload');
+        throw new Error(`Unable to parse payload: ${payload}`);
       }
       messageService.setPublicText(payload);
       break;
     }
-    case 'public-message-visibility': {
-      if (!payload) {
-        throw new Error('Unable to parse payload');
+    case 'set-public-message-visible': {
+      if (typeof payload === 'undefined') {
+        throw new Error(`Unable to parse payload: ${payload}`);
       }
       messageService.setPublicVisibility(Boolean(payload));
       break;
     }
 
-    case 'lower-message-text': {
+    case 'set-lower-message-text': {
       if (typeof payload !== 'string') {
-        throw new Error('Unable to parse payload');
+        throw new Error(`Unable to parse payload: ${payload}`);
       }
       messageService.setLowerText(payload);
       break;
     }
-    case 'lower-message-visibility': {
-      if (!payload) {
-        throw new Error('Unable to parse payload');
+    case 'set-lower-message-visible': {
+      if (typeof payload === 'undefined') {
+        throw new Error(`Unable to parse payload: ${payload}`);
       }
       messageService.setLowerVisibility(Boolean(payload));
       break;

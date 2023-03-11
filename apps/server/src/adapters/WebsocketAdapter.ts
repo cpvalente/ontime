@@ -30,7 +30,7 @@ export class SocketServer implements IAdapter {
   private wss: WebSocketServer | null;
   private clientIds: Set<string>;
 
-  constructor(server) {
+  constructor() {
     if (instance) {
       throw new Error('There can be only one');
     }
@@ -38,14 +38,16 @@ export class SocketServer implements IAdapter {
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
     this.clientIds = new Set<string>();
+    this.wss = null;
+  }
 
+  init(server) {
     this.wss = new WebSocketServer({ path: '/ws', server });
 
     this.wss.on('connection', (ws) => {
       const clientId = getRandomName();
       this.clientIds.add(clientId);
       logger.info('RX', `${this.wss.clients.size} Connections with new: ${clientId}`);
-      console.log('DEBUG OPENED', this.wss.clients.size);
 
       // send store payload on connect
       ws.send(
@@ -99,7 +101,7 @@ export class SocketServer implements IAdapter {
             logger.error('RX', `WS IN: ${error}`);
           }
         } catch (_) {
-          return;
+          // we ignore unknown
         }
       });
     });
@@ -107,7 +109,6 @@ export class SocketServer implements IAdapter {
 
   // message is any serializable value
   send(message: any) {
-    console.log('DEBUG SEND', this.wss);
     this.wss?.clients.forEach((client) => {
       if (client !== this.wss && client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(message));
@@ -115,6 +116,9 @@ export class SocketServer implements IAdapter {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  shutdown() {}
+  shutdown() {
+    this.wss?.close();
+  }
 }
+
+export const socket = new SocketServer();
