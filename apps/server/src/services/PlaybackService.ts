@@ -119,7 +119,7 @@ export class PlaybackService {
    * Starts playback on selected event
    */
   static start() {
-    if (eventTimer.loadedTimerId) {
+    if (eventTimer.playback === Playback.Armed || eventTimer.playback === Playback.Pause) {
       eventTimer.start();
       const newState = eventTimer.playback;
       logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
@@ -130,7 +130,7 @@ export class PlaybackService {
    * Pauses playback on selected event
    */
   static pause() {
-    if (eventTimer.loadedTimerId) {
+    if (eventTimer.playback === Playback.Play) {
       eventTimer.pause();
       const newState = eventTimer.playback;
       logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
@@ -141,7 +141,7 @@ export class PlaybackService {
    * Stops timer and unloads any events
    */
   static stop() {
-    if (eventTimer.loadedTimerId || eventTimer.playback === Playback.Roll) {
+    if (eventTimer.playback !== Playback.Stop) {
       eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;
@@ -167,14 +167,14 @@ export class PlaybackService {
 
       // nothing to play
       if (rollTimers === null) {
-        logger.error('SERVER', 'Roll: no events found');
+        logger.warning('SERVER', 'Roll: no events found');
         PlaybackService.stop();
         return;
       }
 
       const { currentEvent, nextEvent, timers } = rollTimers;
       if (!currentEvent && !nextEvent) {
-        logger.error('SERVER', 'Roll: no events found');
+        logger.warning('SERVER', 'Roll: no events found');
         PlaybackService.stop();
         return;
       }
