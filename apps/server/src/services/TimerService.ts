@@ -319,8 +319,7 @@ export class TimerService {
           this.timer.finishedAt === null
         ) {
           this.timer.finishedAt = this.timer.clock;
-          this._onFinish();
-          this.stop();
+          PlaybackService.stop();
         }
 
         if (
@@ -330,9 +329,8 @@ export class TimerService {
           this.timer.finishedAt === null
         ) {
           this.timer.finishedAt = this.timer.clock;
-          this._onFinish();
           PlaybackService.loadNext();
-          this.start();
+          PlaybackService.start();
         }
 
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
