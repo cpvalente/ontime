@@ -1,11 +1,11 @@
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Input, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
+import { millisToString } from 'ontime-utils';
 
 import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
-import { stringFromMillis } from '../../../utils/time';
 import { TimeEntryField } from '../../../utils/timesManager';
 
 import style from './TimeInput.module.scss';
@@ -34,7 +34,7 @@ export default function TimeInput(props: TimeInputProps) {
   const resetValue = useCallback(() => {
     // Todo: check if change is necessary
     try {
-      setValue(stringFromMillis(time + delay));
+      setValue(millisToString(time + delay));
     } catch (error) {
       emitError(`Unable to parse date: ${error}`);
     }
@@ -97,7 +97,7 @@ export default function TimeInput(props: TimeInputProps) {
     const success = handleSubmit(newValue);
     if (success) {
       const ms = forgivingStringToMillis(newValue);
-      setValue(stringFromMillis(ms + delay));
+      setValue(millisToString(ms + delay));
     } else {
       resetValue();
     }

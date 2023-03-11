@@ -6,7 +6,6 @@ import {
   millisToSeconds,
   timeStringToMillis,
 } from '../dateConfig';
-import { stringFromMillis } from '../time';
 
 describe('test string from formatDisplay function', () => {
   it('test with null values', () => {
@@ -58,7 +57,7 @@ describe('test string from formatDisplay function', () => {
 describe('test formatDisplay handles partial secs', () => {
   it('test with 1795829', () => {
     const t = { val: 1795829, result: '00:29:55' };
-    expect(stringFromMillis(t.val)).toBe(t.result);
+    expect(formatDisplay(t.val)).toBe(t.result);
   });
 });
 

@@ -1,9 +1,9 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { Log, LogLevel } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { generateId, millisToString } from 'ontime-utils';
 
 import { socketSendJson } from '../utils/socket';
-import { nowInMillis, stringFromMillis } from '../utils/time';
+import { nowInMillis } from '../utils/time';
 
 import createStore from './createStore';
 
@@ -30,7 +30,7 @@ export function useEmitLog() {
     const log = {
       id: generateId(),
       origin: 'CLIENT',
-      time: stringFromMillis(nowInMillis()),
+      time: millisToString(nowInMillis()),
       level,
       text,
     };

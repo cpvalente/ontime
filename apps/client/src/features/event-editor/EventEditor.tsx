@@ -3,6 +3,7 @@ import { Button, Select, Switch } from '@chakra-ui/react';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { useAtom } from 'jotai';
 import { OntimeEvent, TimerType } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
 
 import { editorEventId } from '../../common/atoms/LocalEventSettings';
 import CopyTag from '../../common/components/copy-tag/CopyTag';
@@ -14,7 +15,6 @@ import useRundown from '../../common/hooks-query/useRundown';
 import { useEmitLog } from '../../common/stores/logger';
 import { millisToMinutes } from '../../common/utils/dateConfig';
 import getDelayTo from '../../common/utils/getDelayTo';
-import { stringFromMillis } from '../../common/utils/time';
 import { calculateDuration, TimeEntryField, validateEntry } from '../../common/utils/timesManager';
 
 import style from './EventEditor.module.scss';
@@ -121,8 +121,8 @@ export default function EventEditor() {
 
   const delayed = delay !== 0;
   const addedTime = delayed ? `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))} minutes` : null;
-  const newStart = delayed ? `New start ${stringFromMillis(event.timeStart + delay)}` : null;
-  const newEnd = delayed ? `New end ${stringFromMillis(event.timeEnd + delay)}` : null;
+  const newStart = delayed ? `New start ${millisToString(event.timeStart + delay)}` : null;
+  const newEnd = delayed ? `New end ${millisToString(event.timeEnd + delay)}` : null;
 
   return (
     <div className={style.eventEditor}>
