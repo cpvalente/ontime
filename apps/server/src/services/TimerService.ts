@@ -227,7 +227,7 @@ export class TimerService {
    * Delays running timer by given amount
    * @param {number} amount
    */
-  delay(amount) {
+  delay(amount: number) {
     if (!this.loadedTimerId) {
       return;
     }
@@ -287,12 +287,7 @@ export class TimerService {
           this.pausedTime = this.timer.clock - this.pausedAt;
         }
 
-        if (
-          this.playback === 'play' &&
-          this.timer.endAction === EndAction.Continue &&
-          this.timer.current <= 0 &&
-          this.timer.finishedAt === null
-        ) {
+        if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
           this.timer.finishedAt = this.timer.clock;
           this._onFinish();
         } else {
@@ -312,36 +307,6 @@ export class TimerService {
           this.timer.clock,
         );
 
-        if (
-          this.playback === 'play' &&
-          this.timer.endAction === EndAction.Stop &&
-          this.timer.current <= 0 &&
-          this.timer.finishedAt === null
-        ) {
-          this.timer.finishedAt = this.timer.clock;
-          PlaybackService.stop();
-        }
-
-        if (
-          this.playback === 'play' &&
-          this.timer.endAction === EndAction.Pause &&
-          this.timer.current <= 0 &&
-          this.timer.finishedAt === null
-        ) {
-          this.timer.finishedAt = this.timer.clock;
-          PlaybackService.pause();
-        }
-
-        if (
-          this.playback === 'play' &&
-          this.timer.endAction === EndAction.Next &&
-          this.timer.current <= 0 &&
-          this.timer.finishedAt === null
-        ) {
-          this.timer.finishedAt = this.timer.clock;
-          PlaybackService.startNext();
-        }
-
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
       }
     }
@@ -356,6 +321,15 @@ export class TimerService {
   _onFinish() {
     eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onFinish);
+    if (this.timer.endAction === EndAction.Stop) {
+      PlaybackService.stop();
+    } else if (this.timer.endAction === EndAction.LoadNext) {
+      // setTimeout(() => {
+        PlaybackService.loadNext();
+      // }, 1);
+    } else if (this.timer.endAction === EndAction.PlayNext) {
+      PlaybackService.startNext();
+    }
   }
 
   roll(currentEvent, nextEvent, timers) {
