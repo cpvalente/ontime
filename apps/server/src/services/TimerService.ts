@@ -324,9 +324,9 @@ export class TimerService {
     if (this.timer.endAction === EndAction.Stop) {
       PlaybackService.stop();
     } else if (this.timer.endAction === EndAction.LoadNext) {
-      // setTimeout(() => {
+      setTimeout(() => {
         PlaybackService.loadNext();
-      // }, 1);
+      }, 0);
     } else if (this.timer.endAction === EndAction.PlayNext) {
       PlaybackService.startNext();
     }
