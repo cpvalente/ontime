@@ -324,6 +324,7 @@ export class TimerService {
     if (this.timer.endAction === EndAction.Stop) {
       PlaybackService.stop();
     } else if (this.timer.endAction === EndAction.LoadNext) {
+      // we need to delay here because to put this action in the queue stack. otherwise it wont be executed properly
       setTimeout(() => {
         PlaybackService.loadNext();
       }, 0);

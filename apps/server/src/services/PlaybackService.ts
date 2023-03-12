@@ -106,10 +106,10 @@ export class PlaybackService {
 
   /**
    * Loads event after currently selected
-   * @param {string} [fallbackAction] - 'stop', 'pause', or null
+   * @param {string} [fallbackAction] - 'stop', 'pause'
    * @return {boolean} success
    */
-  static loadNext(fallbackAction?: 'stop' | 'pause' | null): boolean {
+  static loadNext(fallbackAction?: 'stop' | 'pause'): boolean {
     const nextEvent = eventLoader.findNext();
     if (nextEvent) {
       const success = PlaybackService.loadEvent(nextEvent);
@@ -144,9 +144,9 @@ export class PlaybackService {
 
   /**
    * Starts playback on next event
-   * @param {string} [fallbackAction] - 'stop', 'pause', or null
+   * @param {string} [fallbackAction] - 'stop', 'pause'
    */
-  static startNext(fallbackAction?: 'stop' | 'pause' | null) {
+  static startNext(fallbackAction?: 'stop' | 'pause') {
     const success = PlaybackService.loadNext(fallbackAction);
     if (success) {
       PlaybackService.start();
