@@ -1,8 +1,8 @@
-import deepmerge from 'deepmerge';
 import { Log } from 'ontime-types';
 
-import { websocketUrl } from '../api/apiConstants';
-import { logger, LOGGER_MAX_MESSAGES } from '../stores/logger';
+import { RUNTIME, websocketUrl } from '../api/apiConstants';
+import { ontimeQueryClient } from '../queryClient';
+import { addLog } from '../stores/logger';
 import { runtime } from '../stores/runtime';
 
 export let websocket: WebSocket | null = null;
@@ -46,73 +46,68 @@ export const connectSocket = () => {
       // TODO: implement partial store updates
       switch (type) {
         case 'ontime-log': {
-          const state = logger.get();
-          state.unshift(payload as Log);
-
-          if (state.length > LOGGER_MAX_MESSAGES) {
-            state.splice(LOGGER_MAX_MESSAGES + 1, state.length - LOGGER_MAX_MESSAGES - 1);
-          }
-          logger.set(state);
+          addLog(payload as Log);
           break;
         }
         case 'ontime': {
-          const storeState = runtime.get();
-          const newState = deepmerge(storeState, payload);
-          runtime.set(newState);
+          runtime.setState(payload);
+          if (import.meta.env.DEV) {
+            ontimeQueryClient.setQueryData(RUNTIME, data.payload);
+          }
           break;
         }
         case 'ontime-playback': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.playback = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
         case 'ontime-timer': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.timer = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
         case 'ontime-loaded': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.loaded = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
         case 'ontime-titles': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.titles = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
         case 'ontime-titlesPublic': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.titlesPublic = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
         case 'ontime-timerMessage': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.timerMessage = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
         case 'ontime-publicMessage': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.publicMessage = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
         case 'ontime-lowerMessage': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.lowerMessage = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
         case 'ontime-onAir': {
-          const state = runtime.get();
+          const state = runtime.getState();
           state.onAir = payload;
-          runtime.set(state);
+          runtime.setState(state);
           break;
         }
       }

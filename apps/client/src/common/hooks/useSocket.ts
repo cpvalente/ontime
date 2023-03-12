@@ -1,30 +1,27 @@
-import { useMemo } from 'react';
+import { RuntimeStore } from 'ontime-types';
 
-import { useRuntimeStore } from '../stores/runtime';
+import { deepCompare, useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
 
 export const useRundownEditor = () => {
-  const state = useRuntimeStore();
+  const featureSelector = (state: RuntimeStore) => ({
+    playback: state.playback,
+    selectedEventId: state.loaded.selectedEventId,
+    nextEventId: state.loaded.nextEventId,
+  });
 
-  return useMemo(() => {
-    return {
-      selectedEventId: state.loaded.selectedEventId,
-      nextEventId: state.loaded.nextEventId,
-      playback: state.playback,
-    };
-  }, [state.loaded.selectedEventId, state.loaded.nextEventId, state.playback]);
+  return useRuntimeStore(featureSelector, deepCompare);
 };
 
 export const useMessageControl = () => {
-  const state = useRuntimeStore();
-  return useMemo(() => {
-    return {
-      timerMessage: state.timerMessage,
-      publicMessage: state.publicMessage,
-      lowerMessage: state.lowerMessage,
-      onAir: state.onAir,
-    };
-  }, [state.timerMessage, state.publicMessage, state.lowerMessage, state.onAir]);
+  const featureSelector = (state: RuntimeStore) => ({
+    timerMessage: state.timerMessage,
+    publicMessage: state.publicMessage,
+    lowerMessage: state.lowerMessage,
+    onAir: state.onAir,
+  });
+
+  return useRuntimeStore(featureSelector, deepCompare);
 };
 
 export const setMessage = {
@@ -38,14 +35,12 @@ export const setMessage = {
 };
 
 export const usePlaybackControl = () => {
-  const state = useRuntimeStore();
+  const featureSelector = (state: RuntimeStore) => ({
+    playback: state.playback,
+    numEvents: state.loaded.numEvents,
+  });
 
-  return useMemo(() => {
-    return {
-      playback: state.playback,
-      numEvents: state.loaded.numEvents,
-    };
-  }, [state.playback, state.loaded.numEvents]);
+  return useRuntimeStore(featureSelector, deepCompare);
 };
 
 export const setPlayback = {
@@ -70,27 +65,23 @@ export const setPlayback = {
 };
 
 export const useInfoPanel = () => {
-  const state = useRuntimeStore();
+  const featureSelector = (state: RuntimeStore) => ({
+    titles: state.titles,
+    playback: state.playback,
+    selectedEventIndex: state.loaded.selectedEventIndex,
+    numEvents: state.loaded.numEvents,
+  });
 
-  return useMemo(() => {
-    return {
-      titles: state.titles,
-      playback: state.playback,
-      selectedEventIndex: state.loaded.selectedEventIndex,
-      numEvents: state.loaded.numEvents,
-    };
-  }, [state.titles, state.playback, state.loaded.selectedEventIndex, state.loaded.numEvents]);
+  return useRuntimeStore(featureSelector, deepCompare);
 };
 
 export const useCuesheet = () => {
-  const state = useRuntimeStore();
+  const featureSelector = (state: RuntimeStore) => ({
+    selectedEventIndex: state.loaded.selectedEventId,
+    titleNow: state.titles.titleNow,
+  });
 
-  return useMemo(() => {
-    return {
-      selectedEventIndex: state.loaded.selectedEventId,
-      titleNow: state.titles.titleNow,
-    };
-  }, [state.loaded.selectedEventId, state.titles.titleNow]);
+  return useRuntimeStore(featureSelector, deepCompare);
 };
 
 export const setEventPlayback = {
@@ -100,11 +91,9 @@ export const setEventPlayback = {
 };
 
 export const useTimer = () => {
-  const state = useRuntimeStore();
+  const featureSelector = (state: RuntimeStore) => ({
+    timer: state.timer,
+  });
 
-  return useMemo(() => {
-    return {
-      timer: state.timer,
-    };
-  }, [state.timer]);
+  return useRuntimeStore(featureSelector, deepCompare);
 };

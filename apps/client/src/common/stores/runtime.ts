@@ -1,10 +1,7 @@
-import { useSyncExternalStore } from 'react';
+import isEqual from 'react-fast-compare';
 import { Playback, RuntimeStore } from 'ontime-types';
-
-import { RUNTIME } from '../api/apiConstants';
-import { ontimeQueryClient } from '../queryClient';
-
-import createStore from './createStore';
+import { useStore } from 'zustand';
+import { createStore } from 'zustand/vanilla';
 
 export const runtimeStorePlaceholder = {
   timer: {
@@ -64,14 +61,13 @@ export const runtimeStorePlaceholder = {
   },
 };
 
-export const runtime = createStore<RuntimeStore>(runtimeStorePlaceholder);
+export const runtime = createStore<RuntimeStore>(() => ({
+  ...runtimeStorePlaceholder,
+}));
 
-export const useRuntimeStore = () => {
-  const data = useSyncExternalStore(runtime.subscribe, runtime.get);
+export const deepCompare = <T>(a: T, b: T) => isEqual(a, b);
 
-  // inject the data to react query to leverage dev tools for debugging
-  if (import.meta.env.DEV) {
-    ontimeQueryClient.setQueryData(RUNTIME, data);
-  }
-  return data;
-};
+export const useRuntimeStore = <T>(
+  selector: (state: RuntimeStore) => T,
+  equalityFn?: (a: unknown, b: unknown) => boolean,
+) => useStore(runtime, selector, equalityFn);

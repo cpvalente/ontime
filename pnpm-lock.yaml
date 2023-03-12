@@ -96,6 +96,7 @@ importers:
       vite-plugin-svgr: ^2.4.0
       vite-tsconfig-paths: ^4.0.3
       web-vitals: ^3.1.1
+      zustand: ^4.3.6
     dependencies:
       '@chakra-ui/react': 2.4.8_loo4skotrnm7icurwgkplqpnwq
       '@dnd-kit/core': 6.0.7_biqbaboplfbrettd7655fr4n2y
@@ -127,6 +128,7 @@ importers:
       react-use-websocket: 4.3.1_biqbaboplfbrettd7655fr4n2y
       typeface-open-sans: 1.1.13
       web-vitals: 3.1.1
+      zustand: 4.3.6_react@18.2.0
     devDependencies:
       '@sentry/vite-plugin': 0.3.0
       '@tanstack/eslint-plugin-query': 4.21.0
@@ -9344,3 +9346,19 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zustand/4.3.6_react@18.2.0:
+    resolution: {integrity: sha512-6J5zDxjxLE+yukC2XZWf/IyWVKnXT9b9HUv09VJ/bwGCpKNcaTqp7Ws28Xr8jnbvnZcdRaidztAPsXFBIqufiw==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      immer: '>=9.0'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
+    dev: false
