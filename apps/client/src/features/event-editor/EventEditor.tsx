@@ -176,11 +176,10 @@ export default function EventEditor() {
             value={event.endAction}
             onChange={(event) => handleChange('endAction', event.target.value)}
           >
-            {Object.keys(EndAction).map((key) => (
-              <option key={key} value={EndAction[key as keyof typeof EndAction]}>
-                {key}
-              </option>
-            ))}
+            <option value={EndAction.Continue}>Continue</option>
+            <option value={EndAction.Stop}>Stop</option>
+            <option value={EndAction.LoadNext}>Load Next</option>
+            <option value={EndAction.PlayNext}>Play Next</option>
           </Select>
           <label className={style.inputLabel}>Timer Type</label>
           <Select
