@@ -106,14 +106,28 @@ export class PlaybackService {
 
   /**
    * Loads event after currently selected
+   * @param {string} [fallbackAction] - 'stop', 'pause', or null
+   * @return {boolean} success
    */
-  static loadNext() {
+  static loadNext(fallbackAction?: 'stop' | 'pause' | null): boolean {
     const nextEvent = eventLoader.findNext();
     if (nextEvent) {
       const success = PlaybackService.loadEvent(nextEvent);
       if (success) {
         socketProvider.info('PLAYBACK', `Loaded event with ID ${nextEvent.id}`);
+        return true;
       }
+    } else if (fallbackAction === 'stop') {
+      socketProvider.info('PLAYBACK', `No next event found! Stopping playback`);
+      PlaybackService.stop();
+      return false;
+    } else if (fallbackAction === 'pause') {
+      socketProvider.info('PLAYBACK', `No next event found! Pausing playback`);
+      PlaybackService.pause();
+      return false;
+    } else {
+      socketProvider.info('PLAYBACK', `No next event found! Continuing playback`);
+      return false;
     }
   }
 
@@ -133,21 +147,9 @@ export class PlaybackService {
    * @param {string} [fallbackAction] - 'stop', 'pause', or null
    */
   static startNext(fallbackAction?: 'stop' | 'pause' | null) {
-    const nextEvent = eventLoader.findNext();
-    if (nextEvent) {
-      const success = PlaybackService.loadEvent(nextEvent);
-      if (success) {
-        socketProvider.info('PLAYBACK', `Loaded event with ID ${nextEvent.id}`);
-        PlaybackService.start();
-      }
-    } else if (fallbackAction === 'stop') {
-      socketProvider.info('PLAYBACK', `No next event found! Stopping playback`);
-      PlaybackService.stop();
-    } else if (fallbackAction === 'pause') {
-      socketProvider.info('PLAYBACK', `No next event found! Pausing playback`);
-      PlaybackService.pause();
-    } else {
-      socketProvider.info('PLAYBACK', `No next event found! Continuing playback`);
+    const success = PlaybackService.loadNext(fallbackAction);
+    if (success) {
+      PlaybackService.start();
     }
   }
 
