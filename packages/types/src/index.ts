@@ -1,5 +1,6 @@
 import { Alias } from './definitions/core/Alias.type.js';
 import { DatabaseModel } from './definitions/DataModel.type.js';
+import { EndAction } from './definitions/EndAction.type.js';
 import { EventData } from './definitions/core/EventData.type.js';
 import { Message, MessageControl } from './definitions/runtime/MessageControl.type.js';
 import {
@@ -15,7 +16,6 @@ import { Playback } from './definitions/runtime/Playback.type.js';
 import { Settings } from './definitions/core/Settings.type.js';
 import { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
 import { TimerType } from './definitions/TimerType.type.js';
-import { EndAction } from './definitions/EndAction.type.js';
 import { UserFields } from './definitions/core/UserFields.type.js';
 import { ViewSettings } from './definitions/core/Views.type.js';
 
