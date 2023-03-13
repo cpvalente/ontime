@@ -40,7 +40,7 @@ jobs:
       run: pnpm turbo build
 
     - name: Electron - Build app
-      run: turbo dist-linux
+      run: pnpm turbo dist-linux
         
     - name: Docker Login
       # You may pin to the exact commit or the version.
