@@ -1,4 +1,4 @@
-import { EndAction, TimerLifeCycle, TimerType, Playback } from 'ontime-types';
+import { EndAction, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';

@@ -15,9 +15,6 @@ export const RUNTIME = ['runtimeStore'];
 // external stuff
 export const githubURL = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
 
-// external stuff
-export const githubURL = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
-
 /**
  * @description finds server path given the current location, it
  * @return {*}

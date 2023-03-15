@@ -169,6 +169,17 @@ export default function EventEditor() {
           />
         </div>
         <div className={style.timeSettings}>
+          <label className={style.inputLabel}>Timer Type</label>
+          <Select
+            size='sm'
+            name='timerType'
+            value={event.timerType}
+            onChange={(event) => handleChange('timerType', event.target.value)}
+          >
+            <option value={TimerType.CountDown}>Count down</option>
+            <option value={TimerType.CountUp}>Count up</option>
+            <option value={TimerType.Clock}>Clock</option>
+          </Select>
           <label className={style.inputLabel}>End Action</label>
           <Select
             size='sm'
@@ -180,17 +191,6 @@ export default function EventEditor() {
             <option value={EndAction.Stop}>Stop</option>
             <option value={EndAction.LoadNext}>Load Next</option>
             <option value={EndAction.PlayNext}>Play Next</option>
-          </Select>
-          <label className={style.inputLabel}>Timer Type</label>
-          <Select
-            size='sm'
-            name='timerType'
-            value={event.timerType}
-            onChange={(event) => handleChange('timerType', event.target.value)}
-          >
-            <option value={TimerType.CountDown}>Count down</option>
-            <option value={TimerType.CountUp}>Count up</option>
-            <option value={TimerType.Clock}>Clock</option>
           </Select>
           <span className={style.spacer} />
           <label className={`${style.inputLabel} ${style.publicToggle}`}>

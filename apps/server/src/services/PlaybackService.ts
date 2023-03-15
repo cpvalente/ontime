@@ -1,4 +1,4 @@
-import { Playback } from 'ontime-types';
+import { OntimeEvent, Playback } from 'ontime-types';
 
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventStore } from '../stores/EventStore.js';
@@ -116,15 +116,15 @@ export class PlaybackService {
         return true;
       }
     } else if (fallbackAction === 'stop') {
-      socketProvider.info('PLAYBACK', `No next event found! Stopping playback`);
+      logger.info('PLAYBACK', `No next event found! Stopping playback`);
       PlaybackService.stop();
       return false;
     } else if (fallbackAction === 'pause') {
-      socketProvider.info('PLAYBACK', `No next event found! Pausing playback`);
+      logger.info('PLAYBACK', `No next event found! Pausing playback`);
       PlaybackService.pause();
       return false;
     } else {
-      socketProvider.info('PLAYBACK', `No next event found! Continuing playback`);
+      logger.info('PLAYBACK', `No next event found! Continuing playback`);
       return false;
     }
   }
