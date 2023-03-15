@@ -5,16 +5,15 @@ import { block as blockDef, delay as delayDef, event as eventDef } from '../mode
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventTimer } from './TimerService.js';
-import { eventStore } from '../stores/EventStore.js';
 
 /**
  * Checks if a list of IDs is in the current selection
  */
 const affectedLoaded = (affectedIds: string[]) => {
-  const now = eventLoader.selectedEventId;
-  const nowPublic = eventLoader.selectedPublicEventId;
-  const next = eventLoader.nextEventId;
-  const nextPublic = eventLoader.nextPublicEventId;
+  const now = eventLoader.loaded.selectedEventId;
+  const nowPublic = eventLoader.loaded.selectedPublicEventId;
+  const next = eventLoader.loaded.nextEventId;
+  const nextPublic = eventLoader.loaded.nextPublicEventId;
   return (
     affectedIds.includes(now) ||
     affectedIds.includes(nowPublic) ||
@@ -28,8 +27,8 @@ const affectedLoaded = (affectedIds: string[]) => {
  */
 const isNewNext = () => {
   const timedEvents = EventLoader.getTimedEvents();
-  const now = eventLoader.selectedEventId;
-  const next = eventLoader.nextEventId;
+  const now = eventLoader.loaded.selectedEventId;
+  const next = eventLoader.loaded.nextEventId;
 
   // check whether the index of now and next are consecutive
   const indexNow = timedEvents.findIndex((event) => event.id === now);
@@ -39,8 +38,8 @@ const isNewNext = () => {
     return true;
   }
   // iterate through timed events and see if there are public events between nowPublic and nextPublic
-  const nowPublic = eventLoader.selectedPublicEventId;
-  const nextPublic = eventLoader.nextPublicEventId;
+  const nowPublic = eventLoader.loaded.selectedPublicEventId;
+  const nextPublic = eventLoader.loaded.nextPublicEventId;
 
   let foundNew = false;
   let isAfter = false;
@@ -67,7 +66,7 @@ const isNewNext = () => {
  * Updates timer object
  */
 export function updateTimer(affectedIds?: string[]) {
-  const runningEventId = eventLoader.selectedEventId;
+  const runningEventId = eventLoader.loaded.selectedEventId;
 
   if (runningEventId === null) {
     return false;
@@ -112,7 +111,7 @@ export function updateTimer(affectedIds?: string[]) {
  * @param {object} eventData
  * @return {unknown[]}
  */
-export async function addEvent(eventData) {
+export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
   const numEvents = DataProvider.getRundownLength();
   if (numEvents > MAX_EVENTS) {
     throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
@@ -145,7 +144,7 @@ export async function addEvent(eventData) {
     throw new Error(error);
   }
   updateTimer([id]);
-  eventStore.broadcast();
+  updateChangeNumEvents();
   return newEvent;
 }
 
@@ -157,7 +156,6 @@ export async function editEvent(eventData) {
   }
   const newEvent = await DataProvider.updateEventById(eventId, eventData);
   updateTimer([eventId]);
-  eventStore.broadcast();
   return newEvent;
 }
 
@@ -169,7 +167,7 @@ export async function editEvent(eventData) {
 export async function deleteEvent(eventId) {
   await DataProvider.deleteEvent(eventId);
   updateTimer([eventId]);
-  eventStore.broadcast();
+  updateChangeNumEvents();
 }
 
 /**
@@ -179,7 +177,7 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await DataProvider.clearRundown();
   updateTimer();
-  eventStore.broadcast();
+  updateChangeNumEvents();
 }
 
 /**
@@ -204,7 +202,6 @@ export async function reorderEvent(eventId, from, to) {
   // save rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
-
   return reorderedItem;
 }
 
@@ -260,5 +257,12 @@ export async function applyDelay(eventId) {
   // update rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
-  eventStore.broadcast();
+}
+
+/**
+ * Forces update in the store
+ * Called when we make changes to the rundown object
+ */
+function updateChangeNumEvents() {
+  eventLoader.updateNumEvents();
 }

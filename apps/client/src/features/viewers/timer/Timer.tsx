@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
-import { TimerType } from 'ontime-types';
+import { Playback, TimerType } from 'ontime-types';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -61,12 +61,12 @@ export default function Timer(props) {
 
   const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
-  const isPlaying = time.playback !== 'pause';
+  const isPlaying = time.playback !== Playback.Pause;
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
 
   const showEndMessage = time.current < 0 && general.endMessage;
-  const showProgress = time.playback !== 'stop';
+  const showProgress = time.playback !== Playback.Stop;
   const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showClock = time.timerType !== TimerType.Clock;
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;

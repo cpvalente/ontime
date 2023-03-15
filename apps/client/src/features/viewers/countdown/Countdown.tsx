@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -91,7 +91,7 @@ export default function Countdown(props) {
     return null;
   }
 
-  const standby = time.playback !== 'play' && selectedId === follow?.id;
+  const standby = time.playback !== Playback.Play && selectedId === follow?.id;
   const isRunningFinished = time.finished && runningMessage === TimerMessage.running;
   const isSelected = runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';

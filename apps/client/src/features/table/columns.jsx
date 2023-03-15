@@ -1,10 +1,9 @@
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 
-import { stringFromMillis } from '../../common/utils/time.js';
-
 import EditableCell from './tableElements/EditableCell';
 
 import style from './Table.module.scss';
+import { millisToString } from 'ontime-utils';
 
 /**
  * React - Table column object
@@ -22,19 +21,19 @@ export const makeColumns = (sizes, userFields) => {
     {
       Header: 'Start',
       accessor: 'timeStart',
-      Cell: ({ cell: { value, delayed } }) => stringFromMillis(delayed || value),
+      Cell: ({ cell: { value, delayed } }) => millisToString(delayed || value),
       width: sizes?.timeStart || 90,
     },
     {
       Header: 'End',
       accessor: 'timeEnd',
-      Cell: ({ cell: { value, delayed } }) => stringFromMillis(delayed || value),
+      Cell: ({ cell: { value, delayed } }) => millisToString(delayed || value),
       width: sizes?.timeEnd || 90,
     },
     {
       Header: 'Duration',
       accessor: 'duration',
-      Cell: ({ cell: { value } }) => stringFromMillis(value),
+      Cell: ({ cell: { value } }) => millisToString(value),
       width: sizes?.duration || 90,
     },
     { Header: 'Title', accessor: 'title', width: sizes?.title || 400 },

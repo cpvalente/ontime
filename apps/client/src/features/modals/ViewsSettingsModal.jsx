@@ -1,11 +1,12 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormControl, FormLabel, ModalBody } from '@chakra-ui/react';
 import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
+import { useEmitLog } from '@/common/stores/logger';
+
 import { postView } from '../../common/api/ontimeApi';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
-import { LoggingContext } from '../../common/context/LoggingContext';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
 import { openLink } from '../../common/utils/linkUtils';
@@ -17,7 +18,7 @@ import style from './Modals.module.scss';
 export default function ViewsSettingsModal() {
   const { data, status, refetch } = useViewSettings();
 
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const [formData, setFormData] = useState(viewsSettingsPlaceholder);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
