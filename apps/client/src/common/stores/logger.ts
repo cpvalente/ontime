@@ -1,32 +1,37 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback } from 'react';
 import { Log, LogLevel } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
+import { useStore } from 'zustand';
+import { createStore } from 'zustand/vanilla';
 
 import { socketSendJson } from '../utils/socket';
 import { nowInMillis } from '../utils/time';
 
-import createStore from './createStore';
+type LogStore = {
+  logs: Log[];
+};
 
-export const logger = createStore<Log[]>([]);
-export const LOGGER_MAX_MESSAGES = 100;
+export const logger = createStore<LogStore>(() => ({
+  logs: [],
+}));
+
+export const useLogData = () => useStore(logger);
+
+export const addLog = (log: Log) =>
+  logger.setState((state) => ({
+    logs: [...state.logs, log],
+  }));
+
+export const clearLogs = () => logger.setState({ logs: [] });
 
 export function useEmitLog() {
-  const _addToLogger = (log: Log) => {
-    const state = logger.get();
-    state.push(log);
-    if (state.length > LOGGER_MAX_MESSAGES) {
-      state.slice(1);
-    }
-    logger.set(state);
-  };
-
   /**
    * Utility function sends message over socket
    * @param text
    * @param level
    * @private
    */
-  const _emit = (text: string, level: LogLevel) => {
+  const _emit = useCallback((text: string, level: LogLevel) => {
     const log = {
       id: generateId(),
       origin: 'CLIENT',
@@ -35,9 +40,9 @@ export function useEmitLog() {
       text,
     };
 
-    _addToLogger(log);
+    addLog(log);
     socketSendJson('ontime-log', log);
-  };
+  }, []);
 
   /**
    * Sends a message with level INFO
@@ -72,18 +77,9 @@ export function useEmitLog() {
     [_emit],
   );
 
-  const clearLog = useCallback(() => {
-    logger.set([]);
-  }, []);
-
   return {
     emitInfo,
     emitWarning,
     emitError,
-    clearLog,
   };
 }
-
-export const useLogData = () => {
-  return useSyncExternalStore(logger.subscribe, () => logger.get());
-};
