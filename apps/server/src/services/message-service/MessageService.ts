@@ -1,11 +1,13 @@
-import { MessageControl } from 'ontime-types';
+import { Message } from 'ontime-types';
 
 import { eventStore } from '../../stores/EventStore.js';
 
 let instance;
 
 class MessageService {
-  messages: MessageControl;
+  timerMessage: Message;
+  publicMessage: Message;
+  lowerMessage: Message;
   onAir: boolean;
 
   constructor() {
@@ -16,20 +18,21 @@ class MessageService {
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
 
-    this.messages = {
-      presenter: {
-        text: '',
-        visible: false,
-      },
-      public: {
-        text: '',
-        visible: false,
-      },
-      lower: {
-        text: '',
-        visible: false,
-      },
+    this.timerMessage = {
+      text: '',
+      visible: false,
     };
+
+    this.publicMessage = {
+      text: '',
+      visible: false,
+    };
+
+    this.lowerMessage = {
+      text: '',
+      visible: false,
+    };
+
     this.onAir = false;
   }
 
@@ -37,8 +40,8 @@ class MessageService {
    * @description sets message on stage timer screen
    */
   setTimerText(payload: string) {
-    this.messages.presenter.text = payload;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.timerMessage.text = payload;
+    eventStore.set('timerMessage', this.timerMessage);
     return this.getAll();
   }
 
@@ -46,8 +49,8 @@ class MessageService {
    * @description sets message visibility on stage timer screen
    */
   setTimerVisibility(status: boolean) {
-    this.messages.presenter.visible = status;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.timerMessage.visible = status;
+    eventStore.set('timerMessage', this.timerMessage);
     return this.getAll();
   }
 
@@ -55,8 +58,8 @@ class MessageService {
    * @description sets message on public screen
    */
   setPublicText(payload: string) {
-    this.messages.public.text = payload;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.publicMessage.text = payload;
+    eventStore.set('publicMessage', this.publicMessage);
     return this.getAll();
   }
 
@@ -64,8 +67,8 @@ class MessageService {
    * @description sets message visibility on public screen
    */
   setPublicVisibility(status: boolean) {
-    this.messages.public.visible = status;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.publicMessage.visible = status;
+    eventStore.set('publicMessage', this.publicMessage);
     return this.getAll();
   }
 
@@ -73,8 +76,8 @@ class MessageService {
    * @description sets message on lower third screen
    */
   setLowerText(payload: string) {
-    this.messages.lower.text = payload;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.lowerMessage.text = payload;
+    eventStore.set('lowerMessage', this.lowerMessage);
     return this.getAll();
   }
 
@@ -82,16 +85,21 @@ class MessageService {
    * @description sets message visibility on lower third screen
    */
   setLowerVisibility(status: boolean) {
-    this.messages.lower.visible = status;
-    eventStore.set('feat-messagecontrol', { messages: this.messages });
+    this.lowerMessage.visible = status;
+    eventStore.set('lowerMessage', this.lowerMessage);
     return this.getAll();
   }
 
   /**
-   * @description set state of onAir
+   * @description set state of onAir, toggles if parameters are offered
    */
-  setOnAir(status: boolean) {
-    this.onAir = status;
+  setOnAir(status?: boolean) {
+    if (typeof status === 'undefined') {
+      this.onAir = !this.onAir;
+    } else {
+      this.onAir = status;
+    }
+    eventStore.set('onAir', this.onAir);
     return this.getAll();
   }
 
@@ -100,10 +108,12 @@ class MessageService {
    */
   getAll() {
     return {
-      messages: this.messages,
+      timerMessage: this.timerMessage,
+      publicMessage: this.publicMessage,
+      lowerMessage: this.lowerMessage,
       onAir: this.onAir,
     };
   }
 }
 
-export const messageManager = new MessageService();
+export const messageService = new MessageService();

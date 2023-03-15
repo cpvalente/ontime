@@ -2,7 +2,7 @@ import { lazy, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import useAliases from './common/hooks-query/useAliases';
-import withSocket from './features/viewers/ViewWrapper';
+import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Table = lazy(() => import('./features/table/ProtectedTable'));
@@ -17,14 +17,14 @@ const Public = lazy(() => import('./features/viewers/public/Public'));
 const Lower = lazy(() => import('./features/viewers/lower-thirds/LowerWrapper'));
 const StudioClock = lazy(() => import('./features/viewers/studio/StudioClock'));
 
-const STimer = withSocket(TimerView);
-const SMinimalTimer = withSocket(MinimalTimerView);
-const SClock = withSocket(ClockView);
-const SCountdown = withSocket(Countdown);
-const SBackstage = withSocket(Backstage);
-const SPublic = withSocket(Public);
-const SLowerThird = withSocket(Lower);
-const SStudio = withSocket(StudioClock);
+const STimer = withData(TimerView);
+const SMinimalTimer = withData(MinimalTimerView);
+const SClock = withData(ClockView);
+const SCountdown = withData(Countdown);
+const SBackstage = withData(Backstage);
+const SPublic = withData(Public);
+const SLowerThird = withData(Lower);
+const SStudio = withData(StudioClock);
 
 const FeatureWrapper = lazy(() => import('./features/FeatureWrapper'));
 const RundownPanel = lazy(() => import('./features/rundown/RundownExport'));

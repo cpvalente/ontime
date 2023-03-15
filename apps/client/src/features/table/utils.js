@@ -1,4 +1,5 @@
 import { stringify } from 'csv-stringify/browser/esm/sync';
+import { millisToString } from 'ontime-utils';
 
 /**
  * @description parses a field for export
@@ -6,14 +7,13 @@ import { stringify } from 'csv-stringify/browser/esm/sync';
  * @param {*} data
  * @return {string}
  */
-import { stringFromMillis } from '../../common/utils/time';
 
 export const parseField = (field, data) => {
   let val;
   switch (field) {
     case 'timeStart':
     case 'timeEnd':
-      val = stringFromMillis(data);
+      val = millisToString(data);
       break;
     case 'isPublic':
       val = data ? 'x' : '';

@@ -1,1 +1,7 @@
-export type Playback = 'roll' | 'play' | 'pause' | 'stop' | 'armed';
+export enum Playback {
+  Roll = 'roll',
+  Play = 'play',
+  Pause = 'pause',
+  Stop = 'stop',
+  Armed = 'armed',
+}

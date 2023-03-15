@@ -1,18 +1,17 @@
-import { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, FormControl, Input, ModalBody, ModalFooter, Switch } from '@chakra-ui/react';
 
 import { postOSC } from '../../../common/api/ontimeApi';
-import { LoggingContext } from '../../../common/context/LoggingContext';
 import useOscSettings from '../../../common/hooks-query/useOscSettings';
 import { PlaceholderSettings } from '../../../common/models/OscSettings';
+import { useEmitLog } from '../../../common/stores/logger';
 import { isIPAddress, isOnlyNumbers } from '../../../common/utils/regex';
 
 import styles from '../Modal.module.scss';
 
 export default function OscIntegrationSettings() {
   const { data } = useOscSettings();
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const {
     handleSubmit,
     register,

@@ -1,9 +1,10 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Input, ModalBody } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
+import { useEmitLog } from '@/common/stores/logger';
+
 import { postUserFields } from '../../common/api/ontimeApi';
-import { LoggingContext } from '../../common/context/LoggingContext';
 import useUserFields from '../../common/hooks-query/useUserFields';
 import { userFieldsPlaceholder } from '../../common/models/UserFields';
 import { handleLinks, host } from '../../common/utils/linkUtils';
@@ -14,7 +15,7 @@ import style from './Modals.module.scss';
 
 export default function TableOptionsModal() {
   const { data, status, refetch } = useUserFields();
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [userFields, setUserFields] = useState(userFieldsPlaceholder);

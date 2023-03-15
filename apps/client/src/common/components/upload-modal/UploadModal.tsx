@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useContext, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -21,7 +21,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { RUNDOWN_TABLE } from '../../api/apiConstants';
 import { uploadData } from '../../api/ontimeApi';
-import { LoggingContext } from '../../context/LoggingContext';
+import { useEmitLog } from '../../stores/logger';
 import TooltipActionBtn from '../buttons/TooltipActionBtn';
 
 import { validateFile } from './utils';
@@ -35,7 +35,7 @@ interface UploadModalProps {
 
 export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const queryClient = useQueryClient();
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const [errors, setErrors] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);

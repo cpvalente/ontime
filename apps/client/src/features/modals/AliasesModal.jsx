@@ -1,13 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-has-content */
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, IconButton, Input, ModalBody, Tooltip } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 
+import { useEmitLog } from '@/common/stores/logger';
+
 import { viewerLocations } from '../../appConstants';
 import { postAliases } from '../../common/api/ontimeApi';
-import { LoggingContext } from '../../common/context/LoggingContext';
 import useAliases from '../../common/hooks-query/useAliases';
 import { validateAlias } from '../../common/utils/aliases';
 import { handleLinks, host } from '../../common/utils/linkUtils';
@@ -19,7 +20,7 @@ import style from './Modals.module.scss';
 
 export default function AliasesModal() {
   const { data, status, refetch } = useAliases();
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [aliases, setAliases] = useState([]);
@@ -111,29 +112,32 @@ export default function AliasesModal() {
    * @param {string} id - object id
    * @param {boolean} isEnabled - whether to enable / disable flag
    */
-  const setEnabled = useCallback((id, isEnabled) => {
-    const aliasesState = [...aliases];
-    for (const a of aliasesState) {
-      if (a.id === id) {
-        if (isEnabled) {
-          if (a.alias === '' || a.pathAndParams === '') {
-            emitError('Alias incomplete');
-            break;
-          }
+  const setEnabled = useCallback(
+    (id, isEnabled) => {
+      const aliasesState = [...aliases];
+      for (const a of aliasesState) {
+        if (a.id === id) {
+          if (isEnabled) {
+            if (a.alias === '' || a.pathAndParams === '') {
+              emitError('Alias incomplete');
+              break;
+            }
 
-          const isRepeated = aliases.some((r) => a.alias === r.alias && r.enabled);
-          if (isRepeated) {
-            emitError('There is already an alias with this name');
-            break;
+            const isRepeated = aliases.some((r) => a.alias === r.alias && r.enabled);
+            if (isRepeated) {
+              emitError('There is already an alias with this name');
+              break;
+            }
           }
+          a.enabled = isEnabled;
+          break;
         }
-        a.enabled = isEnabled;
-        break;
       }
-    }
-    setChanged(true);
-    setAliases(aliasesState);
-  }, [aliases, emitError]);
+      setChanged(true);
+      setAliases(aliasesState);
+    },
+    [aliases, emitError],
+  );
 
   /**
    * Reverts local state equals to server state
@@ -194,16 +198,16 @@ export default function AliasesModal() {
             eg. a lower third url with some custom parameters
             <table>
               <tbody>
-              <tr>
-                <td className={style.labelNote} style={{ width: '30%' }}>
-                  Alias
-                </td>
-                <td className={style.labelNote}>Page URL</td>
-              </tr>
-              <tr>
-                <td>mylower</td>
-                <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
-              </tr>
+                <tr>
+                  <td className={style.labelNote} style={{ width: '30%' }}>
+                    Alias
+                  </td>
+                  <td className={style.labelNote}>Page URL</td>
+                </tr>
+                <tr>
+                  <td>mylower</td>
+                  <td>lower?bg=ff2&text=f00&size=0.6&transition=5</td>
+                </tr>
               </tbody>
             </table>
             <br />
@@ -212,16 +216,16 @@ export default function AliasesModal() {
             eg. an unattended screen that you would need to change route from the app
             <table>
               <tbody>
-              <tr>
-                <td className={style.labelNote} style={{ width: '30%' }}>
-                  Alias
-                </td>
-                <td className={style.labelNote}>Page URL</td>
-              </tr>
-              <tr>
-                <td>thirdfloor</td>
-                <td>public</td>
-              </tr>
+                <tr>
+                  <td className={style.labelNote} style={{ width: '30%' }}>
+                    Alias
+                  </td>
+                  <td className={style.labelNote}>Page URL</td>
+                </tr>
+                <tr>
+                  <td>thirdfloor</td>
+                  <td>public</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -254,12 +258,7 @@ export default function AliasesModal() {
                   onChange={(event) => handleChange(index, 'pathAndParams', event.target.value)}
                 />
                 <Tooltip label={`Test /${alias.pathAndParams}`} openDelay={tooltipDelayFast}>
-                  <a
-                    href='#!'
-                    target='_blank'
-                    rel='noreferrer'
-                    onClick={(e) => handleLinks(e, alias.pathAndParams)}
-                  />
+                  <a href='#!' target='_blank' rel='noreferrer' onClick={(e) => handleLinks(e, alias.pathAndParams)} />
                 </Tooltip>
                 <Tooltip label='Enable alias' openDelay={tooltipDelayFast}>
                   <IconButton
@@ -281,12 +280,8 @@ export default function AliasesModal() {
                   />
                 </Tooltip>
               </div>
-              {alias.aliasError ? (
-                <div className={style.error}>{`Alias error: ${alias.aliasError}`}</div>
-              ) : null}
-              {alias.urlError ? (
-                <div className={style.error}>{`URL error: ${alias.urlError}`}</div>
-              ) : null}
+              {alias.aliasError ? <div className={style.error}>{`Alias error: ${alias.aliasError}`}</div> : null}
+              {alias.urlError ? <div className={style.error}>{`URL error: ${alias.urlError}`}</div> : null}
             </div>
           ))}
 
@@ -296,12 +291,7 @@ export default function AliasesModal() {
             </Button>
           </div>
         </div>
-        <SubmitContainer
-          revert={revert}
-          submitting={submitting}
-          changed={changed}
-          status={status}
-        />
+        <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
       </form>
     </ModalBody>
   );

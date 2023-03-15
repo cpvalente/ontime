@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { EventData, Message, TimerType, ViewSettings } from 'ontime-types';
+import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
@@ -127,7 +127,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   userOptions.hideEndMessage = Boolean(hideEndMessage);
 
   const showOverlay = pres.text !== '' && pres.visible;
-  const isPlaying = time.playback !== 'pause';
+  const isPlaying = time.playback !== Playback.Pause;
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
   const showEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;

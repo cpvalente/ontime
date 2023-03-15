@@ -3,14 +3,18 @@ import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
-import PropTypes from 'prop-types';
+import { Playback } from 'ontime-types';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
 
-export default function PlaybackIcon(props) {
+interface PlaybackIconProps {
+  state: Playback;
+}
+
+export default function PlaybackIcon(props: PlaybackIconProps) {
   const { state } = props;
 
-  if (state === 'stop') {
+  if (state === Playback.Stop) {
     return (
       <Tooltip openDelay={tooltipDelayFast} label='Timer Stopped' shouldWrapChildren>
         <IoStop />
@@ -18,7 +22,7 @@ export default function PlaybackIcon(props) {
     );
   }
 
-  if (state === 'start') {
+  if (state === Playback.Play) {
     return (
       <Tooltip openDelay={tooltipDelayFast} label='Timer Playing' shouldWrapChildren>
         <IoPlay />
@@ -26,7 +30,7 @@ export default function PlaybackIcon(props) {
     );
   }
 
-  if (state === 'pause') {
+  if (state === Playback.Pause) {
     return (
       <Tooltip openDelay={tooltipDelayFast} label='Timer Paused' shouldWrapChildren>
         <IoPause />
@@ -34,7 +38,7 @@ export default function PlaybackIcon(props) {
     );
   }
 
-  if (state === 'roll') {
+  if (state === Playback.Roll) {
     return (
       <Tooltip openDelay={tooltipDelayFast} label='Timer Rolling' shouldWrapChildren>
         <IoTimeOutline />
@@ -44,7 +48,3 @@ export default function PlaybackIcon(props) {
 
   return '';
 }
-
-PlaybackIcon.propTypes = {
-  state: PropTypes.string,
-};
