@@ -1,11 +1,11 @@
-import { useCallback, useContext, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { SupportedEvent } from 'ontime-types';
 
 import { defaultPublicAtom, startTimeIsLastEndAtom } from '../../../common/atoms/LocalEventSettings';
-import { LoggingContext } from '../../../common/context/LoggingContext';
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import { useEmitLog } from '../../../common/stores/logger';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './QuickAddBlock.module.scss';
@@ -21,7 +21,7 @@ interface QuickAddBlockProps {
 export default function QuickAddBlock(props: QuickAddBlockProps) {
   const { showKbd, eventId, previousEventId, disableAddDelay = true, disableAddBlock } = props;
   const { addEvent } = useEventAction();
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const doStartTime = useRef<HTMLInputElement | null>(null);

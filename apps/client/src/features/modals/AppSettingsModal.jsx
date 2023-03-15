@@ -1,6 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import {
+  Button,
   Checkbox,
   FormControl,
   FormLabel,
@@ -15,11 +16,12 @@ import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 import { useAtom } from 'jotai';
 
+import { useEmitLog } from '@/common/stores/logger';
+
 import { version } from '../../../package.json';
-import { postSettings } from '../../common/api/ontimeApi';
+import { getLatestVersion, postSettings } from '../../common/api/ontimeApi';
 import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
-import { LoggingContext } from '../../common/context/LoggingContext';
 import useSettings from '../../common/hooks-query/useSettings';
 import { ontimePlaceholderSettings } from '../../common/models/OntimeSettings';
 
@@ -30,7 +32,7 @@ import style from './Modals.module.scss';
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useSettings();
-  const { emitError, emitWarning } = useContext(LoggingContext);
+  const { emitError, emitWarning } = useEmitLog();
   const [formData, setFormData] = useState(ontimePlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -38,6 +40,9 @@ export default function AppSettingsModal() {
 
   const [eventSettings, saveEventSettings] = useAtom(eventSettingsAtom);
   const [formSettings, setFormSettings] = useState(eventSettings);
+
+  const [updateMessage, setUpdateMessage] = useState(<a>Using ontime version: {version}</a>);
+  const [isFetching, setIsFetching] = useState(false);
 
   /**
    * Set formdata from server state
@@ -49,6 +54,9 @@ export default function AppSettingsModal() {
       pinCode: data.pinCode,
       timeFormat: data.timeFormat,
     });
+    // getLatestVersion().then((data) => {
+    //   setVersionData(data);
+    // });
   }, [changed, data]);
 
   /**
@@ -59,7 +67,7 @@ export default function AppSettingsModal() {
     setSubmitting(true);
     const validation = { isValid: false, message: '' };
 
-    const hasChanged = !isEqual(formSettings,eventSettings);
+    const hasChanged = !isEqual(formSettings, eventSettings);
     if (hasChanged) {
       saveEventSettings(formSettings);
       validation.isValid = true;
@@ -93,7 +101,7 @@ export default function AppSettingsModal() {
       try {
         await postSettings(formData);
       } catch (error) {
-        emitError(`Error saving settings: ${error}`)
+        emitError(`Error saving settings: ${error}`);
       } finally {
         await refetch();
         resetChange = true;
@@ -128,6 +136,32 @@ export default function AppSettingsModal() {
     setChanged(true);
   };
 
+  /**
+   * Handles version comparison and returns component with message
+   */
+  const versionCheck = async () => {
+    let message = <a>Using latest version</a>;
+    setIsFetching(true);
+    getLatestVersion()
+      .then((data) => {
+        const remoteVersion = data;
+        if (!remoteVersion.version.includes(version)) {
+          message = (
+            <a href={remoteVersion.url} target='_blank' rel='noreferrer'>
+              Update to version {remoteVersion.version} available
+            </a>
+          );
+        }
+      })
+      .catch(function () {
+        message = <a>Error reaching server</a>;
+      })
+      .finally(function () {
+        setUpdateMessage(message);
+        setIsFetching(false);
+      });
+  };
+
   const disableModal = status !== 'success';
 
   return (
@@ -137,7 +171,6 @@ export default function AppSettingsModal() {
         <br />
         🔥 Changes take effect on save 🔥
       </p>
-      <p className={style.notes}>{`Running ontime version ${version}`}</p>
       <form onSubmit={submitHandler}>
         <div className={style.modalFields}>
           <div className={style.hSeparator}>General App Settings</div>
@@ -150,13 +183,7 @@ export default function AppSettingsModal() {
                   Ontime is available at port
                 </span>
               </FormLabel>
-              <Input
-                {...inputProps}
-                name='title'
-                value={4001}
-                disabled
-                style={{ width: '6em', textAlign: 'center' }}
-              />
+              <Input {...inputProps} name='title' value={4001} disabled style={{ width: '6em', textAlign: 'center' }} />
             </FormControl>
             <FormControl id='editorPin'>
               <FormLabel htmlFor='editorPin'>
@@ -255,13 +282,14 @@ export default function AppSettingsModal() {
               Event default public
             </Checkbox>
           </div>
+          <div className={style.notes}>
+            {updateMessage}
+            <Button onClick={versionCheck} isLoading={isFetching}>
+              Check for updates
+            </Button>
+          </div>
         </div>
-        <SubmitContainer
-          revert={revert}
-          submitting={submitting}
-          changed={changed}
-          status={status}
-        />
+        <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
       </form>
     </ModalBody>
   );

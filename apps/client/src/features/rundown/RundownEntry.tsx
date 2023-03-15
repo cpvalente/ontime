@@ -4,8 +4,8 @@ import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontim
 
 import { defaultPublicAtom, editorEventId, startTimeIsLastEndAtom } from '../../common/atoms/LocalEventSettings';
 import { CursorContext } from '../../common/context/CursorContext';
-import { LoggingContext } from '../../common/context/LoggingContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
 import { calculateDuration } from '../../common/utils/timesManager';
 
@@ -31,7 +31,7 @@ interface RundownEntryProps {
 
 export default function RundownEntry(props: RundownEntryProps) {
   const { index, eventIndex, data, selected, hasCursor, next, delay, previousEnd, previousEventId, playback } = props;
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);
   const { addEvent, updateEvent, deleteEvent } = useEventAction();

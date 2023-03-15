@@ -1,12 +1,10 @@
-/**
- * starts loaded timer
- */
 import { Playback } from 'ontime-types';
-import { socketProvider } from '../classes/socket/SocketController.js';
+
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventStore } from '../stores/EventStore.js';
 import { eventTimer } from './TimerService.js';
 import { clock } from './Clock.js';
+import { logger } from '../classes/Logger.js';
 
 /**
  * Service manages playback status of app
@@ -21,9 +19,9 @@ export class PlaybackService {
   static loadEvent(event) {
     let success = false;
     if (!event) {
-      socketProvider.error('PLAYBACK', 'No event found');
+      logger.error('PLAYBACK', 'No event found');
     } else if (event.skip) {
-      socketProvider.warning('PLAYBACK', `Refused playback of skipped event ID ${event.id}`);
+      logger.warning('PLAYBACK', `Refused playback of skipped event ID ${event.id}`);
     } else {
       eventLoader.loadEvent(event);
       eventTimer.load(event);
@@ -42,7 +40,7 @@ export class PlaybackService {
     const event = EventLoader.getEventWithId(eventId);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      socketProvider.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
       PlaybackService.start();
     }
     return success;
@@ -57,7 +55,7 @@ export class PlaybackService {
     const event = EventLoader.getEventAtIndex(eventIndex);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      socketProvider.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
       PlaybackService.start();
     }
     return success;
@@ -72,7 +70,7 @@ export class PlaybackService {
     const event = EventLoader.getEventWithId(eventId);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      socketProvider.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
     }
     return success;
   }
@@ -86,7 +84,7 @@ export class PlaybackService {
     const event = EventLoader.getEventAtIndex(eventIndex);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      socketProvider.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
     }
     return success;
   }
@@ -99,7 +97,7 @@ export class PlaybackService {
     if (previousEvent) {
       const success = PlaybackService.loadEvent(previousEvent);
       if (success) {
-        socketProvider.info('PLAYBACK', `Loaded event with ID ${previousEvent.id}`);
+        logger.info('PLAYBACK', `Loaded event with ID ${previousEvent.id}`);
       }
     }
   }
@@ -112,7 +110,7 @@ export class PlaybackService {
     if (nextEvent) {
       const success = PlaybackService.loadEvent(nextEvent);
       if (success) {
-        socketProvider.info('PLAYBACK', `Loaded event with ID ${nextEvent.id}`);
+        logger.info('PLAYBACK', `Loaded event with ID ${nextEvent.id}`);
       }
     }
   }
@@ -121,10 +119,10 @@ export class PlaybackService {
    * Starts playback on selected event
    */
   static start() {
-    if (eventTimer.loadedTimerId) {
+    if (eventTimer.playback === Playback.Armed || eventTimer.playback === Playback.Pause) {
       eventTimer.start();
       const newState = eventTimer.playback;
-      socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
   }
 
@@ -132,10 +130,10 @@ export class PlaybackService {
    * Pauses playback on selected event
    */
   static pause() {
-    if (eventTimer.loadedTimerId) {
+    if (eventTimer.playback === Playback.Play) {
       eventTimer.pause();
       const newState = eventTimer.playback;
-      socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
   }
 
@@ -143,11 +141,11 @@ export class PlaybackService {
    * Stops timer and unloads any events
    */
   static stop() {
-    if (eventTimer.loadedTimerId || eventTimer.playback === Playback.Roll) {
+    if (eventTimer.playback !== Playback.Stop) {
       eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;
-      socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
   }
 
@@ -169,14 +167,14 @@ export class PlaybackService {
 
       // nothing to play
       if (rollTimers === null) {
-        socketProvider.error('SERVER', 'Roll: no events found');
+        logger.warning('SERVER', 'Roll: no events found');
         PlaybackService.stop();
         return;
       }
 
       const { currentEvent, nextEvent, timers } = rollTimers;
       if (!currentEvent && !nextEvent) {
-        socketProvider.error('SERVER', 'Roll: no events found');
+        logger.warning('SERVER', 'Roll: no events found');
         PlaybackService.stop();
         return;
       }
@@ -184,7 +182,7 @@ export class PlaybackService {
       eventTimer.roll(currentEvent, nextEvent, timers);
 
       const newState = eventTimer.playback;
-      socketProvider.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
     }
   }
 
@@ -196,7 +194,7 @@ export class PlaybackService {
     if (eventTimer.loadedTimerId) {
       const delayInMs = delayTime * 1000 * 60;
       eventTimer.delay(delayInMs);
-      socketProvider.info('PLAYBACK', `Added ${delayTime} min delay`);
+      logger.info('PLAYBACK', `Added ${delayTime} min delay`);
     }
   }
 }

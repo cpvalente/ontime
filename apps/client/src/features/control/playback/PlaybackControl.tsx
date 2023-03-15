@@ -8,7 +8,7 @@ import PlaybackTimer from './PlaybackTimer';
 import style from './PlaybackControl.module.scss';
 
 export default function PlaybackControl() {
-  const { data } = usePlaybackControl();
+  const data = usePlaybackControl();
 
   return (
     <div className={style.mainContainer}>

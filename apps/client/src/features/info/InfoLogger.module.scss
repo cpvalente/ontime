@@ -6,12 +6,7 @@ $info-hover: $section-white;
 
 .infoLoggerContainer {
   max-height: 80%;
-  margin-top: 32px;
-
-  &.expanded {
-    min-height: 50%;
-    height: 100%
-  }
+  height: 100%
 }
 
 .log {
@@ -24,6 +19,7 @@ $info-hover: $section-white;
 .logEntry {
   display: flex;
   margin-bottom: 2px;
+
   &.INFO {
     color: $info-gray;
   }

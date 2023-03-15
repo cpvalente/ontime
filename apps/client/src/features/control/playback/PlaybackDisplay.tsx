@@ -42,7 +42,12 @@ export default function PlaybackDisplay(props: PlaybackProps) {
         <IoPause />
       </TapButton>
 
-      <TapButton onClick={() => setPlayback.roll()} disabled={noEvents} theme={Playback.Roll} active={isRolling}>
+      <TapButton
+        onClick={() => setPlayback.roll()}
+        disabled={!isStopped || noEvents}
+        theme={Playback.Roll}
+        active={isRolling}
+      >
         <IoTimeOutline />
       </TapButton>
     </div>

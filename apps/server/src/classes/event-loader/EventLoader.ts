@@ -22,7 +22,10 @@ export class EventLoader {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-    this.reset(false);
+  }
+
+  init() {
+    this.reset();
     this.loadedEvent = null;
   }
 
@@ -180,9 +183,17 @@ export class EventLoader {
   }
 
   /**
+   * Forces event loader to update the event count
+   */
+  updateNumEvents() {
+    this.loaded.numEvents = EventLoader.getPlayableEvents().length;
+    eventStore.set('loaded', this.loaded);
+  }
+
+  /**
    * Resets instance state
    */
-  reset(emit?: boolean) {
+  reset(emit = true) {
     this.loadedEvent = null;
     this.loaded = {
       selectedEventIndex: null,
@@ -190,7 +201,7 @@ export class EventLoader {
       selectedPublicEventId: null,
       nextEventId: null,
       nextPublicEventId: null,
-      numEvents: 0,
+      numEvents: EventLoader.getPlayableEvents().length,
     };
     this.titles = {
       titleNow: null,

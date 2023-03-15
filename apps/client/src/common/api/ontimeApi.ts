@@ -3,7 +3,7 @@ import { Alias, OSCSettings, Settings, UserFields, ViewSettings } from 'ontime-t
 
 import { InfoType } from '../models/Info';
 
-import { ontimeURL } from './apiConstants';
+import { githubURL, ontimeURL } from './apiConstants';
 
 /**
  * @description HTTP request to retrieve application settings
@@ -151,3 +151,12 @@ export const uploadData = async (file: string, setProgress: (value: number) => v
     })
     .then((response) => response.data.id);
 };
+
+/**
+ * @description HTTP request to get the latest version and url from github
+ * @return {Promise}
+ */
+export async function getLatestVersion(): Promise<object> {
+  const res = await axios.get(`${githubURL}`);
+  return { url: res.data.html_url, version: res.data.tag_name };
+}
