@@ -39,23 +39,24 @@ export const useEventAction = () => {
     networkMode: 'always',
   });
 
-  type AddOptions = {
-    defaultPublic?: boolean;
-    startTimeIsLastEnd?: boolean;
-    lastEventId?: string;
+  type BaseOptions = {
     after?: string;
+  };
+
+  type EventOptions = BaseOptions & {
+    defaultPublic?: boolean;
+    lastEventId?: string;
+    startTimeIsLastEnd?: boolean;
   };
 
   /**
    * Adds an event to rundown
    */
   const addEvent = useCallback(
-    async (event: Partial<OntimeRundownEntry>, options?: AddOptions) => {
+    async (event: Partial<OntimeRundownEntry>, options?: EventOptions) => {
       const newEvent: Partial<OntimeRundownEntry> = { ...event };
 
-      // ************* CHECK OPTIONS
-      // there is an option to pass an index of an array to use as start time
-      // only events have options
+      // ************* CHECK OPTIONS specific to events
       if (newEvent.type === SupportedEvent.Event) {
         const applicationOptions = {
           defaultPublic: options?.defaultPublic ?? defaultPublic,
@@ -81,13 +82,15 @@ export const useEventAction = () => {
         if (applicationOptions.defaultPublic) {
           newEvent.isPublic = true;
         }
+      }
 
-        if (applicationOptions?.after) {
-          newEvent.after = applicationOptions.after;
-        }
+      // handle adding options that concern all event type
+      if (options?.after) {
+        newEvent.after = options.after;
       }
 
       try {
+        // @ts-expect-error -- we know that the object is well formed now
         await _addEventMutation.mutateAsync(newEvent);
       } catch (error) {
         if (!axios.isAxiosError(error)) {
