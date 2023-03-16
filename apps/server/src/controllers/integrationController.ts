@@ -98,7 +98,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
     }
 
     case 'startid': {
-      if (!payload) {
+      if (!payload || typeof payload !== 'string') {
         throw new Error(`Event ID not recognised: ${payload}`);
       }
       PlaybackService.startById(payload);

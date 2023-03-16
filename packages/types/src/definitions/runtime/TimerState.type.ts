@@ -1,4 +1,5 @@
 import { TimerType } from '../TimerType.type.js';
+import { EndAction } from '../EndAction.type.js';
 
 export type TimerState = {
   clock: number; // realtime clock
@@ -12,4 +13,5 @@ export type TimerState = {
   selectedEventId: string | null;
   duration: number | null;
   timerType: TimerType | null;
+  endAction: EndAction | null;
 };

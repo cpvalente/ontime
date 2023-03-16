@@ -1,5 +1,6 @@
 import { Alias } from './definitions/core/Alias.type.js';
 import { DatabaseModel } from './definitions/DataModel.type.js';
+import { EndAction } from './definitions/EndAction.type.js';
 import { EventData } from './definitions/core/EventData.type.js';
 import { Message } from './definitions/runtime/MessageControl.type.js';
 import {
@@ -28,6 +29,7 @@ export type { DatabaseModel };
 
 // ---> Rundown
 export { TimerType };
+export { EndAction };
 export { SupportedEvent };
 export type { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent };
 export type { OntimeRundown, OntimeRundownEntry };

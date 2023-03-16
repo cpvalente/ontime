@@ -1,4 +1,4 @@
-import { Playback, TimerLifeCycle, TimerState } from 'ontime-types';
+import { EndAction, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
@@ -47,6 +47,7 @@ export class TimerService {
       selectedEventId: null,
       duration: null,
       timerType: null,
+      endAction: null,
     };
     this.loadedTimerId = null;
     this.pausedTime = 0;
@@ -78,6 +79,7 @@ export class TimerService {
     // update relevant information and force update
     this.timer.duration = timer.duration;
     this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -117,6 +119,7 @@ export class TimerService {
     this.timer.current = timer.duration;
     this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
     this.pausedTime = 0;
     this.pausedAt = 0;
 
@@ -210,7 +213,7 @@ export class TimerService {
    * Delays running timer by given amount
    * @param {number} amount
    */
-  delay(amount) {
+  delay(amount: number) {
     if (!this.loadedTimerId) {
       return;
     }
@@ -289,6 +292,7 @@ export class TimerService {
           this.pausedTime,
           this.timer.clock,
         );
+
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
       }
     }
@@ -303,6 +307,16 @@ export class TimerService {
   _onFinish() {
     eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onFinish);
+    if (this.timer.endAction === EndAction.Stop) {
+      PlaybackService.stop();
+    } else if (this.timer.endAction === EndAction.LoadNext) {
+      // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
+      setTimeout(() => {
+        PlaybackService.loadNext();
+      }, 0);
+    } else if (this.timer.endAction === EndAction.PlayNext) {
+      PlaybackService.startNext();
+    }
   }
 
   roll(currentEvent, nextEvent, timers) {

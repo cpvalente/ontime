@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Select, Switch } from '@chakra-ui/react';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { useAtom } from 'jotai';
-import { OntimeEvent, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { editorEventId } from '../../common/atoms/LocalEventSettings';
@@ -169,18 +169,6 @@ export default function EventEditor() {
           />
         </div>
         <div className={style.timeSettings}>
-          <label className={style.inputLabel}>Timer Behaviour</label>
-          <Select
-            size='sm'
-            name='timerBehaviour'
-            value={event.timerBehaviour}
-            onChange={(event) => handleChange('timerBehaviour', event.target.value)}
-          >
-            <option value='start-end'>Start to end</option>
-            <option value='duration'>Duration</option>
-            <option value='follow-previous'>Follow previous</option>
-            <option value='start-only'>Start only</option>
-          </Select>
           <label className={style.inputLabel}>Timer Type</label>
           <Select
             size='sm'
@@ -191,6 +179,18 @@ export default function EventEditor() {
             <option value={TimerType.CountDown}>Count down</option>
             <option value={TimerType.CountUp}>Count up</option>
             <option value={TimerType.Clock}>Clock</option>
+          </Select>
+          <label className={style.inputLabel}>End Action</label>
+          <Select
+            size='sm'
+            name='endAction'
+            value={event.endAction}
+            onChange={(event) => handleChange('endAction', event.target.value)}
+          >
+            <option value={EndAction.Continue}>Continue</option>
+            <option value={EndAction.Stop}>Stop</option>
+            <option value={EndAction.LoadNext}>Load Next</option>
+            <option value={EndAction.PlayNext}>Play Next</option>
           </Select>
           <span className={style.spacer} />
           <label className={`${style.inputLabel} ${style.publicToggle}`}>

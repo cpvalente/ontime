@@ -1,4 +1,4 @@
-import { Playback } from 'ontime-types';
+import { OntimeEvent, Playback } from 'ontime-types';
 
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventStore } from '../stores/EventStore.js';
@@ -13,10 +13,10 @@ import { logger } from '../classes/Logger.js';
 export class PlaybackService {
   /**
    * makes calls for loading and starting given event
-   * @param {object} event
+   * @param {OntimeEvent} event
    * @return {boolean} success
    */
-  static loadEvent(event) {
+  static loadEvent(event: OntimeEvent): boolean {
     let success = false;
     if (!event) {
       logger.error('PLAYBACK', 'No event found');
@@ -36,7 +36,7 @@ export class PlaybackService {
    * @param {string} eventId
    * @return {boolean} success
    */
-  static startById(eventId) {
+  static startById(eventId: string): boolean {
     const event = EventLoader.getEventWithId(eventId);
     const success = PlaybackService.loadEvent(event);
     if (success) {
@@ -51,7 +51,7 @@ export class PlaybackService {
    * @param {number} eventIndex
    * @return {boolean} success
    */
-  static startByIndex(eventIndex) {
+  static startByIndex(eventIndex: number): boolean {
     const event = EventLoader.getEventAtIndex(eventIndex);
     const success = PlaybackService.loadEvent(event);
     if (success) {
@@ -66,7 +66,7 @@ export class PlaybackService {
    * @param {string} eventId
    * @return {boolean} success
    */
-  static loadById(eventId) {
+  static loadById(eventId: string): boolean {
     const event = EventLoader.getEventWithId(eventId);
     const success = PlaybackService.loadEvent(event);
     if (success) {
@@ -80,7 +80,7 @@ export class PlaybackService {
    * @param {number} eventIndex
    * @return {boolean} success
    */
-  static loadByIndex(eventIndex) {
+  static loadByIndex(eventIndex: number): boolean {
     const event = EventLoader.getEventAtIndex(eventIndex);
     const success = PlaybackService.loadEvent(event);
     if (success) {
@@ -104,14 +104,28 @@ export class PlaybackService {
 
   /**
    * Loads event after currently selected
+   * @param {string} [fallbackAction] - 'stop', 'pause'
+   * @return {boolean} success
    */
-  static loadNext() {
+  static loadNext(fallbackAction?: 'stop' | 'pause'): boolean {
     const nextEvent = eventLoader.findNext();
     if (nextEvent) {
       const success = PlaybackService.loadEvent(nextEvent);
       if (success) {
         logger.info('PLAYBACK', `Loaded event with ID ${nextEvent.id}`);
+        return true;
       }
+    } else if (fallbackAction === 'stop') {
+      logger.info('PLAYBACK', `No next event found! Stopping playback`);
+      PlaybackService.stop();
+      return false;
+    } else if (fallbackAction === 'pause') {
+      logger.info('PLAYBACK', `No next event found! Pausing playback`);
+      PlaybackService.pause();
+      return false;
+    } else {
+      logger.info('PLAYBACK', `No next event found! Continuing playback`);
+      return false;
     }
   }
 
@@ -123,6 +137,17 @@ export class PlaybackService {
       eventTimer.start();
       const newState = eventTimer.playback;
       logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+    }
+  }
+
+  /**
+   * Starts playback on next event
+   * @param {string} [fallbackAction] - 'stop', 'pause'
+   */
+  static startNext(fallbackAction?: 'stop' | 'pause') {
+    const success = PlaybackService.loadNext(fallbackAction);
+    if (success) {
+      PlaybackService.start();
     }
   }
 
@@ -190,7 +215,7 @@ export class PlaybackService {
    * Adds delay to current event
    * @param {number} delayTime time in minutes
    */
-  static setDelay(delayTime) {
+  static setDelay(delayTime: number) {
     if (eventTimer.loadedTimerId) {
       const delayInMs = delayTime * 1000 * 60;
       eventTimer.delay(delayInMs);
