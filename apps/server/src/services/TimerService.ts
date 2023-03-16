@@ -1,4 +1,4 @@
-import { TimerLifeCycle, TimerType } from 'ontime-types';
+import { EndAction, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
@@ -11,26 +11,13 @@ import { clock } from './Clock.js';
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
 
-  playback: string;
+  playback: Playback;
+  timer: TimerState;
 
   loadedTimerId: null;
   private pausedTime: number;
   private pausedAt: number | null;
   private secondaryTarget: number | null;
-
-  timer: {
-    clock: number; // realtime clock
-    current: number | null; // running countdown
-    elapsed: number | null; // elapsed time in current timer
-    expectedFinish: number | null;
-    addedTime: number; // time added by user, can be negative
-    startedAt: number | null;
-    finishedAt: number | null; // only if timer has already finished
-    secondaryTimer: number | null; // used for roll mode
-    selectedEventId: string | null;
-    duration: number | null;
-    timerType: TimerType | null;
-  };
 
   /**
    * @constructor
@@ -47,7 +34,7 @@ export class TimerService {
    * @private
    */
   _clear() {
-    this.playback = 'stop';
+    this.playback = Playback.Stop;
     this.timer = {
       clock: clock.timeNow(),
       current: null,
@@ -60,6 +47,7 @@ export class TimerService {
       selectedEventId: null,
       duration: null,
       timerType: null,
+      endAction: null,
     };
     this.loadedTimerId = null;
     this.pausedTime = 0;
@@ -91,6 +79,7 @@ export class TimerService {
     // update relevant information and force update
     this.timer.duration = timer.duration;
     this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -128,8 +117,9 @@ export class TimerService {
     this.loadedTimerId = timer.id;
     this.timer.duration = timer.duration;
     this.timer.current = timer.duration;
-    this.playback = 'armed';
+    this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
     this.pausedTime = 0;
     this.pausedAt = 0;
 
@@ -151,7 +141,7 @@ export class TimerService {
       return;
     }
 
-    if (this.playback === 'play') {
+    if (this.playback === Playback.Play) {
       return;
     }
 
@@ -166,7 +156,7 @@ export class TimerService {
       this.timer.startedAt = this.timer.clock;
     }
 
-    this.playback = 'play';
+    this.playback = Playback.Play;
     this.timer.expectedFinish = getExpectedFinish(
       this.timer.startedAt,
       this.timer.finishedAt,
@@ -188,11 +178,11 @@ export class TimerService {
   }
 
   pause() {
-    if (this.playback !== 'play') {
+    if (this.playback !== Playback.Play) {
       return;
     }
 
-    this.playback = 'pause';
+    this.playback = Playback.Pause;
     this.timer.clock = clock.timeNow();
     this.pausedAt = this.timer.clock;
     this._onPause();
@@ -205,7 +195,7 @@ export class TimerService {
   }
 
   stop() {
-    if (this.playback === 'stop') {
+    if (this.playback === Playback.Stop) {
       return;
     }
 
@@ -223,7 +213,7 @@ export class TimerService {
    * Delays running timer by given amount
    * @param {number} amount
    */
-  delay(amount) {
+  delay(amount: number) {
     if (!this.loadedTimerId) {
       return;
     }
@@ -248,7 +238,7 @@ export class TimerService {
   update() {
     this.timer.clock = clock.timeNow();
 
-    if (this.playback === 'roll') {
+    if (this.playback === Playback.Roll) {
       const tempCurrentTimer = {
         selectedEventId: this.loadedTimerId,
         current: this.timer.current,
@@ -279,11 +269,11 @@ export class TimerService {
     } else {
       // we only update timer if a timer has been started
       if (this.timer.startedAt !== null) {
-        if (this.playback === 'pause') {
+        if (this.playback === Playback.Pause) {
           this.pausedTime = this.timer.clock - this.pausedAt;
         }
 
-        if (this.playback === 'play' && this.timer.current <= 0 && this.timer.finishedAt === null) {
+        if (this.playback === Playback.Play && this.timer.current <= 0 && this.timer.finishedAt === null) {
           this.timer.finishedAt = this.timer.clock;
           this._onFinish();
         } else {
@@ -302,6 +292,7 @@ export class TimerService {
           this.pausedTime,
           this.timer.clock,
         );
+
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
       }
     }
@@ -316,6 +307,16 @@ export class TimerService {
   _onFinish() {
     eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onFinish);
+    if (this.timer.endAction === EndAction.Stop) {
+      PlaybackService.stop();
+    } else if (this.timer.endAction === EndAction.LoadNext) {
+      // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
+      setTimeout(() => {
+        PlaybackService.loadNext();
+      }, 0);
+    } else if (this.timer.endAction === EndAction.PlayNext) {
+      PlaybackService.startNext();
+    }
   }
 
   roll(currentEvent, nextEvent, timers) {
@@ -338,7 +339,7 @@ export class TimerService {
       this.secondaryTarget = nextEvent.timeStart;
     }
 
-    this.playback = 'roll';
+    this.playback = Playback.Roll;
     this._onRoll();
     this.update();
   }

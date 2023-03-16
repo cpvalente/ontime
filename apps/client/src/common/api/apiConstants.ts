@@ -10,14 +10,7 @@ export const APP_INFO = ['appinfo'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
-
-// websocket stuff
-export const FEAT_CUESHEET = 'feat-cuesheet';
-export const FEAT_INFO = 'feat-info';
-export const FEAT_MESSAGECONTROL = 'feat-messagecontrol';
-export const FEAT_PLAYBACKCONTROL = 'feat-playbackcontrol';
-export const FEAT_RUNDOWN = 'feat-rundown';
-export const TIMER = 'timer';
+export const RUNTIME = ['runtimeStore'];
 
 // external stuff
 export const githubURL = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
@@ -29,6 +22,8 @@ export const githubURL = 'https://api.github.com/repos/cpvalente/ontime/releases
 export const calculateServer = () => (import.meta.env.DEV ? `http://localhost:${STATIC_PORT}` : window.location.origin);
 
 export const serverURL = calculateServer();
+export const websocketUrl = `ws://${window.location.hostname}:${STATIC_PORT}/ws`;
+
 export const eventURL = `${serverURL}/eventdata`;
 export const rundownURL = `${serverURL}/eventlist`;
 export const ontimeURL = `${serverURL}/ontime`;

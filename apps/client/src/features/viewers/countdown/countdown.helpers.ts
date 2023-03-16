@@ -1,4 +1,4 @@
-import { OntimeEvent } from 'ontime-types';
+import { OntimeEvent, Playback } from 'ontime-types';
 
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 
@@ -25,7 +25,7 @@ export const fetchTimerData = (time: TimeManagerType, follow: OntimeEvent, selec
 
   if (selectedId === follow.id) {
     // check that is not running
-    message = time.playback === 'pause' ? TimerMessage.waiting : TimerMessage.running;
+    message = time.playback === Playback.Pause ? TimerMessage.waiting : TimerMessage.running;
     timer = time.current ?? 0;
 
   } else if (time.clock < follow.timeStart) {

@@ -2,12 +2,9 @@
 import React from 'react';
 import * as Sentry from '@sentry/react';
 
-import { LoggingContext } from '../../context/LoggingContext';
-
 import style from './ErrorBoundary.module.scss';
 
 class ErrorBoundary extends React.Component {
-  static contextType = LoggingContext;
   reportContent = '';
 
   constructor(props) {

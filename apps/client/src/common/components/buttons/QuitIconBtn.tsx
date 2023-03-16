@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -12,8 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { FiPower } from '@react-icons/all-files/fi/FiPower';
 
-import { LoggingContext } from '../../context/LoggingContext';
 import { Size } from '../../models/Util.type';
+import { useEmitLog } from '../../stores/logger';
 
 interface QuitIconBtnProps {
   clickHandler: () => void;
@@ -39,7 +39,7 @@ const quitBtnStyle = {
 export default function QuitIconBtn(props: QuitIconBtnProps) {
   const { clickHandler, size = 'lg', ...rest } = props;
   const [isOpen, setIsOpen] = useState(false);
-  const { emitInfo } = useContext(LoggingContext);
+  const { emitInfo } = useEmitLog();
   const onClose = () => setIsOpen(false);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
 

@@ -21,12 +21,13 @@
     "ontime-utils": "workspace:*",
     "passport": "^0.6.0",
     "passport-local": "~1.0.0",
-    "socket.io": "^4.5.4"
+    "ws": "^8.12.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
     "@types/node": "^16.11.7",
     "@types/node-osc": "^6.0.0",
+    "@types/websocket": "^1.0.5",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
     "esbuild": "^0.17.5",

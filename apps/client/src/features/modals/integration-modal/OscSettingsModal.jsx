@@ -1,10 +1,11 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormControl, FormLabel, Input, ModalBody } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
+import { useEmitLog } from '@/common/stores/logger';
+
 import { postOSC } from '../../../common/api/ontimeApi';
 import EnableBtn from '../../../common/components/buttons/EnableBtn';
-import { LoggingContext } from '../../../common/context/LoggingContext';
 import useOscSettings from '../../../common/hooks-query/useOscSettings';
 import { oscPlaceholderSettings } from '../../../common/models/OscSettings';
 import { inputProps, portInputProps } from '../modalHelper';
@@ -76,7 +77,7 @@ const oscTriggerEndpoints = [
 
 export default function OscSettingsModal() {
   const { data, status, refetch } = useOscSettings();
-  const { emitError } = useContext(LoggingContext);
+  const { emitError } = useEmitLog();
   const [formData, setFormData] = useState(oscPlaceholderSettings);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -122,8 +123,8 @@ export default function OscSettingsModal() {
       } else {
         try {
           await postOSC(formData);
-        } catch (error){
-          emitError(`Error setting OSC: ${error}`)
+        } catch (error) {
+          emitError(`Error setting OSC: ${error}`);
         } finally {
           await refetch();
           setChanged(false);
@@ -131,7 +132,7 @@ export default function OscSettingsModal() {
       }
       setSubmitting(false);
     },
-    [emitError, formData, refetch]
+    [emitError, formData, refetch],
   );
 
   /**
@@ -154,7 +155,7 @@ export default function OscSettingsModal() {
       setFormData(temp);
       setChanged(true);
     },
-    [formData]
+    [formData],
   );
 
   return (
@@ -283,12 +284,7 @@ export default function OscSettingsModal() {
             </table>
           </div>
         </div>
-        <SubmitContainer
-          revert={revert}
-          submitting={submitting}
-          changed={changed}
-          status={status}
-        />
+        <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
       </form>
     </ModalBody>
   );

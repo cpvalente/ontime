@@ -111,7 +111,7 @@ export default function EventBlock(props: EventBlockProps) {
     [title, updateEvent, eventId],
   );
 
-  const eventIsPlaying = selected && playback === 'play';
+  const eventIsPlaying = selected && playback === Playback.Play;
   const playBtnStyles = { _hover: {} };
   if (!skip && eventIsPlaying) {
     playBtnStyles._hover = { bg: '#c05621' };

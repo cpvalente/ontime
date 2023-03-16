@@ -14,46 +14,33 @@ import style from './PlaybackControl.module.scss';
 
 interface TransportProps {
   playback: Playback;
-  selectedId: string | null;
   noEvents: boolean;
 }
 
 export default function Transport(props: TransportProps) {
-  const { playback, selectedId, noEvents } = props;
-  const isRolling = playback === 'roll';
+  const { playback, noEvents } = props;
+  const isRolling = playback === Playback.Roll;
+  const isStopped = playback === Playback.Stop;
 
   return (
     <div className={style.playbackContainer}>
       <Tooltip label='Previous event' openDelay={tooltipDelayMid}>
-        <TapButton
-          onClick={() => setPlayback.previous()}
-          disabled={isRolling || noEvents}
-        >
+        <TapButton onClick={() => setPlayback.previous()} disabled={isRolling || noEvents}>
           <IoPlaySkipBack />
         </TapButton>
       </Tooltip>
       <Tooltip label='Next event' openDelay={tooltipDelayMid}>
-        <TapButton
-          onClick={() => setPlayback.next()}
-          disabled={isRolling || noEvents}
-        >
+        <TapButton onClick={() => setPlayback.next()} disabled={isRolling || noEvents}>
           <IoPlaySkipForward />
         </TapButton>
       </Tooltip>
       <Tooltip label='Reload event' openDelay={tooltipDelayMid}>
-        <TapButton
-          onClick={() => setPlayback.reload()}
-          disabled={!selectedId || isRolling}
-        >
+        <TapButton onClick={() => setPlayback.reload()} disabled={isStopped || isRolling}>
           <IoReload className={style.invertX} />
         </TapButton>
       </Tooltip>
       <Tooltip label='Unload Event' openDelay={tooltipDelayMid}>
-        <TapButton
-          onClick={() => setPlayback.stop()}
-          disabled={!selectedId && !isRolling}
-          theme='stop'
-        >
+        <TapButton onClick={() => setPlayback.stop()} disabled={isStopped && !isRolling} theme={Playback.Stop}>
           <IoStop />
         </TapButton>
       </Tooltip>
