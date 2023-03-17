@@ -4,6 +4,7 @@ import { OSCSettings, OscSubscription } from 'ontime-types';
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplate } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
+import { dbModel } from '../../models/dataModel.js';
 
 type Action = TimerLifeCycleKey | string;
 
@@ -17,7 +18,7 @@ export class OscIntegration implements IIntegration {
 
   constructor() {
     this.oscClient = null;
-    this.subscriptions = {};
+    this.subscriptions = dbModel.osc.subscriptions;
   }
 
   /**
@@ -73,11 +74,15 @@ export class OscIntegration implements IIntegration {
     }
 
     // check subscriptions for action
-    const { enabled, message } = this.subscriptions?.[action] || {};
-    if (enabled) {
-      const parsedMessage = parseTemplate(message, state || {});
-      this.emit('address/', parsedMessage);
-    }
+    const eventSubscriptions = this.subscriptions?.[action] || [];
+
+    eventSubscriptions.forEach((sub) => {
+      const { enabled, message } = sub;
+      if (enabled) {
+        const parsedMessage = parseTemplate(message, state || {});
+        this.emit(parsedMessage);
+      }
+    });
   }
 
   emit(path: string, payload?: ArgumentType) {
