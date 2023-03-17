@@ -252,7 +252,7 @@ ipcMain.on('set-window', (event, arg) => {
       win.maximize();
       break;
     case 'to-tray':
-      win.maximize();
+      win.hide();
       break;
     case 'show-dev':
       win.webContents.openDevTools({ mode: 'detach' });
