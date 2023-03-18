@@ -37,7 +37,7 @@ jobs:
       run: pnpm install --frozen-lockfile
 
     - name: Build project packages
-      run: pnpm turbo build
+      run: pnpm turbo build:docker
         
     - name: Docker Login
       # You may pin to the exact commit or the version.
