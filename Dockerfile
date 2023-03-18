@@ -1,6 +1,6 @@
 FROM node:16-alpine
 
-WORKDIR /resources/extraResources/
+WORKDIR /Resources/extraResources/
 
 # Prepare UI
 COPY /apps/client/build ./client/
