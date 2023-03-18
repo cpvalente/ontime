@@ -1,19 +1,19 @@
 FROM node:16-alpine
 
-WORKDIR /apps/server
+WORKDIR /resources/extraResources/
 
 # Prepare UI
-COPY /apps/client/build ../client/build
+COPY /apps/client/build ./client/
 
 # Prepare Backend
-COPY /apps/server ./
+COPY /apps/server/dist/ ./server/
 
 # Export default ports Main - OSC IN
 EXPOSE 4001/tcp 8888/udp
 ENV NODE_ENV=production
 ENV ONTIME_DATA=/server/
 
-CMD ["npm", "start:headless"]
+CMD ["node", "server/docker.cjs"]
 
 # Build and run commands
 # !!! Note that this command needs pre-build versions of the UI and server apps
