@@ -7,7 +7,7 @@ COPY /apps/client/build ./client/
 
 # Prepare Backend
 COPY /apps/server/dist/ ./server/
-COPY /apps/server/preloaded-db/ ./preloaded-db/
+COPY /demo-db/ ./preloaded-db/
 
 # Export default ports Main - OSC IN
 EXPOSE 4001/tcp 8888/udp
