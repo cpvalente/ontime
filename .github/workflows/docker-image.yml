@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    tags: [ "v2.*" ]
+    tags: [ "v2.*.*" ]
   workflow_dispatch:
 
 jobs:
