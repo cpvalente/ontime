@@ -2,9 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "v2" ]
-  pull_request:
-    branches: [ "v2" ]
+    tags: [ "v2.*" ]
   workflow_dispatch:
 
 jobs:
@@ -67,5 +65,5 @@ jobs:
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }}
 
