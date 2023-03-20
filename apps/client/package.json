@@ -39,6 +39,7 @@
     "postinstall": "pnpm addversion",
     "dev": "set BROWSER=none&&vite",
     "build": "vite build",
+    "build:docker": "vite build",
     "lint": "eslint .",
     "stylelint": "npx stylelint \"**/*.scss\"\n",
     "test": "vitest",
