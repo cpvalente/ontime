@@ -22,7 +22,7 @@ EXPOSE 9999/udp
 # Environment Variable to signal that we are running production
 ENV NODE_ENV=production
 # Ontime Data path
-ENV ONTIME_DATA=/server/
+ENV ONTIME_DATA=./external/
 
 
 CMD ["node", "server/docker.cjs"]
