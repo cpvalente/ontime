@@ -4,7 +4,7 @@ FROM node:16-alpine
 # Environment Variable to signal that we are running production
 ENV NODE_ENV=production
 # Ontime Data path
-ENV ONTIME_DATA=./external/
+ENV ONTIME_DATA=./db/
 
 WORKDIR /Resources/extraResources/
 
@@ -13,7 +13,7 @@ COPY /apps/client/build ./client/
 
 # Prepare Backend
 COPY /apps/server/dist/ ./server/
-COPY /demo-db/ ./external/preloaded-db/
+COPY /demo-db/ ./preloaded-db/
 COPY /apps/server/src/external/styles ./external/styles/
 
 # Export default ports

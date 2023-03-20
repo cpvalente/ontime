@@ -9,7 +9,7 @@ services:
       - "127.0.0.1:8888:8888/udp"
     volumes:
       - "./ontime-db:/Resources/extraResources/external/preloaded-db"
-      - "./ontime-external:/Resources/extraResources/external/styles"
+      - "./ontime-styles:/Resources/extraResources/external/styles"
     environment:
       - TZ=Asia/Singapore
     restart: unless-stopped
