@@ -17,14 +17,9 @@ COPY /demo-db/ ./preloaded-db/
 COPY /apps/server/src/external/ ./external/
 
 # Export default ports
-# Ontime Interface
-EXPOSE 4001/tcp 
-# OSC In
-EXPOSE 8888/udp
-# OSC Out
-EXPOSE 9999/udp
+EXPOSE 4001/tcp 8888/udp 9999/udp
 
-VOLUME /Resources/extraResources/external/ /Resources/extraResources/db/
+VOLUME ["/Resources/extraResources/external", "/Resources/extraResources/db"]
 
 CMD ["node", "server/docker.cjs"]
 
