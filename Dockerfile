@@ -14,7 +14,7 @@ COPY /apps/client/build ./client/
 # Prepare Backend
 COPY /apps/server/dist/ ./server/
 COPY /demo-db/ ./preloaded-db/
-COPY /apps/server/src/external/styles/ ./external/styles/
+COPY /apps/server/src/external/ ./external/
 
 # Export default ports
 # Ontime Interface
