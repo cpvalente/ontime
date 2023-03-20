@@ -62,9 +62,9 @@ jobs:
         # Path to the Dockerfile
         file: ./Dockerfile
         # List of target platforms for build
-        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,windows-amd64
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:v2_latest
 

@@ -8,5 +8,5 @@ export const config = {
   styles: {
     directory: 'external/styles',
     filename: 'override.css',
-  }
+  },
 };
