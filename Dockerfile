@@ -8,6 +8,7 @@ COPY /apps/client/build ./client/
 # Prepare Backend
 COPY /apps/server/dist/ ./server/
 COPY /demo-db/ ./preloaded-db/
+COPY /apps/server/src/external/ ./external/
 
 # Export default ports
 # Ontime Interface
@@ -21,7 +22,7 @@ EXPOSE 9999/udp
 # Environment Variable to signal that we are running production
 ENV NODE_ENV=production
 # Ontime Data path
-ENV ONTIME_DATA=./external/
+ENV ONTIME_DATA=/server/
 
 
 CMD ["node", "server/docker.cjs"]
