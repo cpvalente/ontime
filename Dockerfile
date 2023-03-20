@@ -24,6 +24,9 @@ EXPOSE 8888/udp
 # OSC Out
 EXPOSE 9999/udp
 
+VOLUME ./external/
+VOLUME ./db/
+
 CMD ["node", "server/docker.cjs"]
 
 # Build and run commands
