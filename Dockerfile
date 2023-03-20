@@ -1,5 +1,11 @@
 FROM node:16-alpine
 
+# Set environment variables
+# Environment Variable to signal that we are running production
+ENV NODE_ENV=production
+# Ontime Data path
+ENV ONTIME_DATA=./external/
+
 WORKDIR /Resources/extraResources/
 
 # Prepare UI
@@ -7,8 +13,8 @@ COPY /apps/client/build ./client/
 
 # Prepare Backend
 COPY /apps/server/dist/ ./server/
-COPY /demo-db/ ./preloaded-db/
-COPY /apps/server/src/external/ ./external/
+COPY /demo-db/ ./external/preloaded-db/
+COPY /apps/server/src/external/styles ./external/styles/
 
 # Export default ports
 # Ontime Interface
@@ -17,13 +23,6 @@ EXPOSE 4001/tcp
 EXPOSE 8888/udp
 # OSC Out
 EXPOSE 9999/udp
-
-# Set environment variables
-# Environment Variable to signal that we are running production
-ENV NODE_ENV=production
-# Ontime Data path
-ENV ONTIME_DATA=./external/
-
 
 CMD ["node", "server/docker.cjs"]
 

@@ -8,8 +8,8 @@ services:
       - "4001:4001/tcp"
       - "127.0.0.1:8888:8888/udp"
     volumes:
-      - "./ontime-db:/server/preloaded-db"
-      - "./ontime-external:/server/external"
+      - "./ontime-db:/Resources/extraResources/external/preloaded-db"
+      - "./ontime-external:/Resources/extraResources/external/styles"
     environment:
       - TZ=Asia/Singapore
     restart: unless-stopped
