@@ -2,6 +2,7 @@ name: Docker Image CI
 
 on:
   push:
+    branches: [ "V2"]
     tags: [ "v2.*.*" ]
   workflow_dispatch:
 
