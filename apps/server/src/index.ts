@@ -2,14 +2,14 @@ import { startDb, startIntegrations, startOSCServer, startServer } from './app.j
 
 async function startOntime() {
   try {
-    console.log('Starting Ontime')
-    console.log('Loading DB')
+    console.log('Starting Ontime');
+    console.log('Loading DB');
     await startDb();
-    console.log('Starting Server')
+    console.log('Starting Server');
     await startServer();
-    console.log('Starting OSC Server')
+    console.log('Starting OSC Server');
     await startOSCServer();
-    console.log('Starting Integrations')
+    console.log('Starting Integrations');
     await startIntegrations();
   } catch (error) {
     console.log('Error starting Ontime');
