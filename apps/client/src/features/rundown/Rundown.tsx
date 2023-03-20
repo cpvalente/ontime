@@ -23,7 +23,7 @@ interface RundownProps {
 
 export default function Rundown(props: RundownProps) {
   const { entries } = props;
-  const { data } = useRundownEditor();
+  const data = useRundownEditor();
   const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } = useContext(CursorContext);
   const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
   const defaultPublic = useAtomValue(defaultPublicAtom);

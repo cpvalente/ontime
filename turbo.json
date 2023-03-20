@@ -3,6 +3,7 @@
   "pipeline":{
     "dev": {},
     "build": {},
+    "build:docker": {},
     "test": {},
     "test:pipeline": {},
     "e2e": {

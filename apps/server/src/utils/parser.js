@@ -310,7 +310,7 @@ export const validateEvent = (eventArgs) => {
       presenter: makeString(e.presenter, d.presenter),
       timeStart: start,
       timeEnd: end,
-      timerBehaviour: makeString(e.timerBehaviour, d.timerBehaviour),
+      endAction: makeString(e.endAction, d.endAction),
       timerType: makeString(e.timerType, d.timerType),
       duration: validateDuration(start, end),
       isPublic: typeof e.isPublic === 'boolean' ? e.isPublic : d.isPublic,

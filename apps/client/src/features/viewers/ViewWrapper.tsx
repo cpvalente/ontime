@@ -1,67 +1,32 @@
-/* eslint-disable react/display-name */
-import { useEffect, useMemo, useState } from 'react';
+import { ReactNode, useMemo } from 'react';
+import { Playback } from 'ontime-types';
 
-import { useMessageControl } from '../../common/hooks/useSocket';
-import useSubscription from '../../common/hooks/useSubscription';
 import useEventData from '../../common/hooks-query/useEventData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
-import socket from '../../common/utils/socket';
+import { useRuntimeStore } from '../../common/stores/runtime';
 
-const withSocket = (Component) => {
+const withData = (Component: ReactNode) => {
   return (props) => {
+
+    // HTTP API data
     const { data: eventsData } = useRundown();
     const { data: genData } = useEventData();
     const { data: viewSettings } = useViewSettings();
-    const { data: messageControl } = useMessageControl();
-
-    const [publicSelectedId, setPublicSelectedId] = useState(null);
-
-    const [timer] = useSubscription('timer', {
-      clock: null,
-      current: null,
-      elapsed: null ,
-      expectedFinish: null,
-      addedTime: 0,
-      startedAt: null,
-      finishedAt: null,
-      secondaryTimer: null,
-    });
-    const [titles] = useSubscription('titles', {
-      titleNow: '',
-      subtitleNow: '',
-      presenterNow: '',
-      titleNext: '',
-      subtitleNext: '',
-      presenterNext: '',
-    });
-    const [publicTitles] = useSubscription('titlesPublic', {
-      titleNow: '',
-      subtitleNow: '',
-      presenterNow: '',
-      titleNext: '',
-      subtitleNext: '',
-      presenterNext: '',
-    });
-    const [selectedId] = useSubscription('selected-id', null);
-    const [nextId] = useSubscription('next-id', null);
-    const [playback] = useSubscription('playback', null);
-
-    // Ask for update on load
-    useEffect(() => {
-      // todo: remove
-      socket.on('publicselected-id', (data) => {
-        setPublicSelectedId(data);
-      });
-    }, []);
-
 
     const publicEvents = useMemo(() => {
       if (Array.isArray(eventsData)) {
-        return eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
+        return eventsData.filter((e) => e.type === 'event' && e.title && e.isPublic);
       }
       return [];
     }, [eventsData]);
+
+    // websocket data
+    const data = useRuntimeStore();
+    const { timer, titles, titlesPublic, publicMessage, timerMessage, lowerMessage, playback, onAir } = data;
+    const publicSelectedId = data.loaded.selectedPublicEventId;
+    const selectedId = data.loaded.selectedEventId;
+    const nextId = data.loaded.nextEventId;
 
     /********************************************/
     /***  + titleManager                      ***/
@@ -85,16 +50,14 @@ const withSocket = (Component) => {
     /********************************************/
     // is there a now field?
     let showPublicNow = true;
-    if (!publicTitles.titleNow && !publicTitles.subtitleNow && !publicTitles.presenterNow)
-      showPublicNow = false;
+    if (!titlesPublic.titleNow && !titlesPublic.subtitleNow && !titlesPublic.presenterNow) showPublicNow = false;
 
     // is there a next field?
     let showPublicNext = true;
-    if (!publicTitles.titleNext && !publicTitles.subtitleNext && !publicTitles.presenterNext)
-      showPublicNext = false;
+    if (!titlesPublic.titleNext && !titlesPublic.subtitleNext && !titlesPublic.presenterNext) showPublicNext = false;
 
     const publicTitleManager = {
-      ...publicTitles,
+      ...titlesPublic,
       showNow: showPublicNow,
       showNext: showPublicNext,
     };
@@ -110,7 +73,7 @@ const withSocket = (Component) => {
     // get clock string
     const TimeManagerType = {
       ...timer,
-      finished: playback === 'play' && timer.current < 0 && timer.startedAt,
+      finished: playback === Playback.Play && (timer.current ?? 0) < 0 && timer.startedAt,
       playback,
     };
 
@@ -119,13 +82,12 @@ const withSocket = (Component) => {
       return null;
     }
 
-    Component.displayName = 'ComponentWithData';
     return (
       <Component
         {...props}
-        pres={messageControl.messages.presenter}
-        publ={messageControl.messages.public}
-        lower={messageControl.messages.lower}
+        pres={timerMessage}
+        publ={publicMessage}
+        lower={lowerMessage}
         title={titleManager}
         publicTitle={publicTitleManager}
         time={TimeManagerType}
@@ -136,10 +98,10 @@ const withSocket = (Component) => {
         viewSettings={viewSettings}
         nextId={nextId}
         general={genData}
-        onAir={messageControl.onAir}
+        onAir={onAir}
       />
     );
   };
 };
 
-export default withSocket;
+export default withData;

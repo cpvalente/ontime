@@ -5,4 +5,8 @@ export const config = {
     filename: 'db.json',
     tablename: 'events',
   },
+  styles: {
+    directory: 'external/styles',
+    filename: 'override.css',
+  },
 };

@@ -4,33 +4,33 @@ import { Playback } from 'ontime-types';
 import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
 import { millisToMinutes } from '../../../common/utils/dateConfig';
-import { stringFromMillis } from '../../../common/utils/time';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import TapButton from './TapButton';
 
 import style from './PlaybackControl.module.scss';
+import { millisToString } from 'ontime-utils';
 
 interface PlaybackTimerProps {
   playback: Playback;
-  selectedId: string | null;
 }
 
 export default function PlaybackTimer(props: PlaybackTimerProps) {
-  const { playback, selectedId } = props;
-  const { data: timerData } = useTimer();
+  const { playback } = props;
+  const data = useTimer();
 
   // TODO: checkout typescript in utilities
-  const started = stringFromMillis(timerData?.startedAt, true);
-  const finish = stringFromMillis(timerData.expectedFinish, true);
-  const isRolling = playback === 'roll';
-  const isWaiting = timerData.secondaryTimer !== null && timerData.secondaryTimer > 0 && timerData.current === null;
-  const disableButtons = selectedId === null || isRolling;
-  const isOvertime = timerData.current !== null && timerData.current < 0;
-  const hasAddedTime = Boolean(timerData.addedTime);
+  const started = millisToString(data.timer.startedAt);
+  const finish = millisToString(data.timer.expectedFinish);
+  const isRolling = playback === Playback.Roll;
+  const isStopped = playback === Playback.Stop;
+  const isWaiting = data.timer.secondaryTimer !== null && data.timer.secondaryTimer > 0 && data.timer.current === null;
+  const disableButtons = isStopped || isRolling;
+  const isOvertime = data.timer.current !== null && data.timer.current < 0;
+  const hasAddedTime = Boolean(data.timer.addedTime);
 
   const rollLabel = isRolling ? 'Roll mode active' : '';
-  const addedTimeLabel = hasAddedTime ? `Added ${millisToMinutes(timerData.addedTime)} minutes` : '';
+  const addedTimeLabel = hasAddedTime ? `Added ${millisToMinutes(data.timer.addedTime)} minutes` : '';
 
   return (
     <div className={style.timeContainer}>
@@ -44,7 +44,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
         </Tooltip>
       </div>
       <div className={style.timer}>
-        <TimerDisplay time={isWaiting ? timerData.secondaryTimer : timerData.current} />
+        <TimerDisplay time={isWaiting ? data.timer.secondaryTimer : data.timer.current} />
       </div>
       {isWaiting ? (
         <div className={style.roll}>

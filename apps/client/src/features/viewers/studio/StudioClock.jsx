@@ -10,9 +10,10 @@ import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import { formatEventList, getEventsWithDelay, trimEventlist } from '../../../common/utils/eventsManager';
-import { formatTime, stringFromMillis } from '../../../common/utils/time';
+import { formatTime } from '../../../common/utils/time';
 
 import './StudioClock.scss';
+import { millisToString } from 'ontime-utils';
 
 const formatOptions = {
   showSeconds: false,
@@ -68,7 +69,7 @@ export default function StudioClock(props) {
   }, [backstageEvents, nextId, selectedId]);
 
   const clock = formatTime(time.clock, formatOptions);
-  const [, , secondsNow] = stringFromMillis(time.clock).split(':');
+  const [, , secondsNow] = millisToString(time.clock).split(':');
   const isNegative = (time.current ?? 0) < 0;
 
   return (

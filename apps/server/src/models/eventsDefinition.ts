@@ -1,11 +1,11 @@
-import { OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
+import { EndAction, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
 
 export const event: Omit<OntimeEvent, 'id'> = {
   title: '',
   subtitle: '',
   presenter: '',
   note: '',
-  timerBehaviour: 'start-end',
+  endAction: EndAction.Continue,
   timerType: TimerType.CountDown,
   timeStart: 0,
   timeEnd: 0,
