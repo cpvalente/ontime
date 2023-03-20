@@ -9,10 +9,22 @@ COPY /apps/client/build ./client/
 COPY /apps/server/dist/ ./server/
 COPY /demo-db/ ./preloaded-db/
 
-# Export default ports Main - OSC IN
-EXPOSE 4001/tcp 8888/udp
+# Export default ports
+#Ontime Interface
+EXPOSE 4001/tcp 
+#OSC In
+EXPOSE 8888/udp
+#OSC Out
+EXPOSE 9999/udp
+
+# Set environment variables
+# Environment Variable to signal that we are running production
 ENV NODE_ENV=production
+# Ontime Data path
 ENV ONTIME_DATA=/server/
+
+# Expose the data folder
+VOLUME [ "/server/" ]
 
 CMD ["node", "server/docker.cjs"]
 
