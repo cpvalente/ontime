@@ -24,8 +24,7 @@ EXPOSE 8888/udp
 # OSC Out
 EXPOSE 9999/udp
 
-VOLUME /Resources/extraResources/external/
-VOLUME /Resources/extraResources/db/
+VOLUME /Resources/extraResources/external/ /Resources/extraResources/db/
 
 CMD ["node", "server/docker.cjs"]
 
