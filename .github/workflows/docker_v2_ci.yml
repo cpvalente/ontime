@@ -62,7 +62,7 @@ jobs:
         # Path to the Dockerfile
         file: ./Dockerfile
         # List of target platforms for build
-        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,windows-amd64
+        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
