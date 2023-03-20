@@ -19,8 +19,6 @@ COPY /apps/server/src/external/ ./external/
 # Export default ports
 EXPOSE 4001/tcp 8888/udp 9999/udp
 
-VOLUME ["/external/preloaded-db", "/external/styles"]
-
 CMD ["node", "server/docker.cjs"]
 
 # Build and run commands
