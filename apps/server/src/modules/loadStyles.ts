@@ -4,14 +4,14 @@ import { ensureDirectory } from '../utils/fileManagement.js';
 import { reportSentryException } from './sentry.js';
 
 /**
- * @description ensures directories exist and populates database
- * @return {string} - path to db file
+ * @description ensures directories exist and populates stylesheet
+ * @return {string} - path to stylesheet file
  */
 const populateStyles = () => {
   const stylesInDisk = resolveStylesPath;
   ensureDirectory(resolveStylesDirectory);
 
-  // if dbInDisk doesn't exist we want to use startup db
+  // if stylesInDisk doesn't exist we want to use startup stylesheet
   if (!existsSync(stylesInDisk)) {
     try {
       copyFileSync(pathToStartStyles, stylesInDisk);
