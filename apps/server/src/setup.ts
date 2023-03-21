@@ -67,4 +67,4 @@ export const pathToStartDb = isTest
 export const resolveStylesDirectory = join(appPath, config.styles.directory);
 export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);
 
-export const pathToStartStyles = join(currentDirectory, '/external/', config.styles.filename);
+export const pathToStartStyles = join(currentDirectory, '/external/styles/', config.styles.filename);
