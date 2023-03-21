@@ -13,8 +13,8 @@ COPY /apps/client/build ./client/
 
 # Prepare Backend
 COPY /apps/server/dist/ ./server/
-COPY /demo-db/ ./server/preloaded-db/
-COPY /apps/server/src/external/ ./server/external/
+COPY /demo-db/ ./preloaded-db/
+COPY /apps/server/src/external/ ./external/
 
 # Export default ports
 EXPOSE 4001/tcp 8888/udp 9999/udp
