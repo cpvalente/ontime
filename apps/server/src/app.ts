@@ -29,7 +29,7 @@ import { integrationService } from './services/integration-service/IntegrationSe
 import { OscIntegration } from './services/integration-service/OscIntegration.js';
 import { logger } from './classes/Logger.js';
 import { eventLoader } from './classes/event-loader/EventLoader.js';
-import { populateStylesFile } from './modules/loadStyles.js';
+import { populateStyles } from './modules/loadStyles.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -119,7 +119,6 @@ const checkStart = (currentState: OntimeStartOrder) => {
 export const startDb = async () => {
   checkStart(OntimeStartOrder.InitDB);
   await dbLoadingProcess;
-  populateStylesFile;
 };
 
 /**
@@ -128,6 +127,8 @@ export const startDb = async () => {
  */
 export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
+
+  populateStyles();
 
   const serverPort = 4001; // hardcoded for now
   const returnMessage = `Ontime is listening on port ${serverPort}`;

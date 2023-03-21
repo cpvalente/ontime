@@ -6,7 +6,7 @@ export const config = {
     tablename: 'events',
   },
   styles: {
-    directory: 'external-styles',
+    directory: 'styles',
     filename: 'override.css',
   },
 };

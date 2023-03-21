@@ -7,7 +7,7 @@ import { reportSentryException } from './sentry.js';
  * @description ensures directories exist and populates stylesheet
  * @return {string} - path to stylesheet file
  */
-const populateStyles = () => {
+export const populateStyles = () => {
   const stylesInDisk = resolveStylesPath;
   ensureDirectory(resolveStylesDirectory);
 
@@ -22,5 +22,3 @@ const populateStyles = () => {
 
   return stylesInDisk;
 };
-
-export const populateStylesFile = populateStyles();
