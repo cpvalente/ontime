@@ -66,5 +66,5 @@ jobs:
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:v2_latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:beta_${{ env.RELEASE_VERSION  }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:beta_v2
 
