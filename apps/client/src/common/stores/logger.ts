@@ -40,7 +40,6 @@ export function useEmitLog() {
       text,
     };
 
-    addLog(log);
     socketSendJson('ontime-log', log);
   }, []);
 
