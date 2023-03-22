@@ -2,7 +2,7 @@ import { ArgumentType, Client, Message } from 'node-osc';
 import { OSCSettings, OscSubscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
-import { parseTemplate } from './integrationUtils.js';
+import { parseTemplateNested } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
 import { dbModel } from '../../models/dataModel.js';
 
@@ -78,8 +78,8 @@ export class OscIntegration implements IIntegration {
 
     eventSubscriptions.forEach((sub) => {
       const { enabled, message } = sub;
-      if (enabled) {
-        const parsedMessage = parseTemplate(message, state || {});
+      if (enabled && message) {
+        const parsedMessage = parseTemplateNested(message, state || {});
         this.emit(parsedMessage);
       }
     });
@@ -103,7 +103,7 @@ export class OscIntegration implements IIntegration {
       if (error) {
         return {
           success: false,
-          message: `error is here ${JSON.stringify(error)}`,
+          message: `Error sending message: ${JSON.stringify(error)}`,
         };
       }
       return {
