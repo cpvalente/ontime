@@ -21,9 +21,6 @@ export default function OntimeModalFooter(props: OntimeModalFooterProps) {
       <Button isDisabled={disableRevert} variant='ontime-ghost-on-light' size='sm' onClick={handleRevert}>
         Revert to saved
       </Button>
-      <Button isDisabled={isSubmitting} variant='ontime-subtle-on-light' size='sm'>
-        Cancel
-      </Button>
       <Button
         type='submit'
         form={formId}
