@@ -12,5 +12,12 @@ export const oscPlaceholderSettings: PlaceholderSettings = {
   targetIP: '',
   enabledIn: false,
   enabledOut: false,
-  subscriptions: {},
+  subscriptions: {
+    onLoad: [],
+    onStart: [],
+    onPause: [],
+    onStop: [],
+    onUpdate: [],
+    onFinish: [],
+  },
 };

@@ -13,6 +13,8 @@ export const ontimeModal = {
   },
   body: {
     padding: 0,
+    display: 'flex',
+    flexDirection: 'column',
   },
   closeButton: {
     color: '#202020', // $gray-50
