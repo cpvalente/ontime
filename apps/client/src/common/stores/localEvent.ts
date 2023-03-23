@@ -14,16 +14,52 @@ type LocalEventStore = {
   setDefaultPublic: (defaultPublic: boolean) => void;
 };
 
+enum LocalEventKeys {
+  ShowQuickEntry = 'ontime-show-quick-entry',
+  StartTimeIsLastEnd = 'ontime-start-is-last-end',
+  DefaultPublic = 'ontime-default-publi',
+}
+
+function booleanFromLocalStorage(key: string, fallback: boolean): boolean {
+  const valueInStorage = localStorage.getItem(key);
+  if (valueInStorage) {
+    return valueInStorage === 'true';
+  } else {
+    localStorage.setItem(key, String(fallback));
+    return fallback;
+  }
+}
+
 export const useLocalEvent = create<LocalEventStore>((set) => ({
   eventSettings: {
-    showQuickEntry: false,
-    startTimeIsLastEnd: true,
-    defaultPublic: true,
+    showQuickEntry: booleanFromLocalStorage(LocalEventKeys.ShowQuickEntry, false),
+    startTimeIsLastEnd: booleanFromLocalStorage(LocalEventKeys.ShowQuickEntry, true),
+    defaultPublic: booleanFromLocalStorage(LocalEventKeys.ShowQuickEntry, true),
   },
-  setLocalEventSettings: (value) => set(() => ({ eventSettings: value })),
+
+  setLocalEventSettings: (value) =>
+    set(() => {
+      localStorage.setItem(LocalEventKeys.ShowQuickEntry, String(value.showQuickEntry));
+      localStorage.setItem(LocalEventKeys.StartTimeIsLastEnd, String(value.startTimeIsLastEnd));
+      localStorage.setItem(LocalEventKeys.DefaultPublic, String(value.defaultPublic));
+      return { eventSettings: value };
+    }),
+
   setShowQuickEntry: (showQuickEntry) =>
-    set((state) => ({ eventSettings: { ...state.eventSettings, showQuickEntry } })),
+    set((state) => {
+      localStorage.setItem(LocalEventKeys.ShowQuickEntry, String(showQuickEntry));
+      return { eventSettings: { ...state.eventSettings, showQuickEntry } };
+    }),
+
   setStartTimeIsLastEnd: (startTimeIsLastEnd) =>
-    set((state) => ({ eventSettings: { ...state.eventSettings, startTimeIsLastEnd } })),
-  setDefaultPublic: (defaultPublic) => set((state) => ({ eventSettings: { ...state.eventSettings, defaultPublic } })),
+    set((state) => {
+      localStorage.setItem(LocalEventKeys.StartTimeIsLastEnd, String(startTimeIsLastEnd));
+      return { eventSettings: { ...state.eventSettings, startTimeIsLastEnd } };
+    }),
+
+  setDefaultPublic: (defaultPublic) =>
+    set((state) => {
+      localStorage.setItem(LocalEventKeys.DefaultPublic, String(defaultPublic));
+      return { eventSettings: { ...state.eventSettings, defaultPublic } };
+    }),
 }));
