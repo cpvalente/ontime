@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Select, Switch } from '@chakra-ui/react';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
-import { useAtom } from 'jotai';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
-import { editorEventId } from '../../common/atoms/LocalEventSettings';
 import CopyTag from '../../common/components/copy-tag/CopyTag';
 import ColourInput from '../../common/components/input/colour-input/ColourInput';
 import TextInput from '../../common/components/input/text-input/TextInput';
 import TimeInput from '../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useRundown from '../../common/hooks-query/useRundown';
+import { useEventEditorStore } from '../../common/stores/eventEditor';
 import { useEmitLog } from '../../common/stores/logger';
 import { millisToMinutes } from '../../common/utils/dateConfig';
 import getDelayTo from '../../common/utils/getDelayTo';
@@ -23,7 +22,7 @@ export type EventEditorSubmitActions = keyof OntimeEvent | 'durationOverride';
 
 // Todo: add previous end to TimeInput fields
 export default function EventEditor() {
-  const [openId] = useAtom(editorEventId);
+  const { openId } = useEventEditorStore();
   const { data } = useRundown();
   const { emitWarning, emitError } = useEmitLog();
   const { updateEvent } = useEventAction();

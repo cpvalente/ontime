@@ -1,10 +1,9 @@
 import { useCallback, useContext } from 'react';
-import { useAtom } from 'jotai';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
-import { editorEventId } from '../../common/atoms/LocalEventSettings';
 import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { useEventEditorStore } from '../../common/stores/eventEditor';
 import { useLocalEvent } from '../../common/stores/localEvent';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
@@ -33,11 +32,9 @@ interface RundownEntryProps {
 export default function RundownEntry(props: RundownEntryProps) {
   const { index, eventIndex, data, selected, hasCursor, next, delay, previousEnd, previousEventId, playback } = props;
   const { emitError } = useEmitLog();
-
+  const { openId, removeOpenEvent } = useEventEditorStore();
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
   const { moveCursorTo } = useContext(CursorContext);
-
-  const [openId, setOpenId] = useAtom(editorEventId);
 
   const { eventSettings } = useLocalEvent();
   const defaultPublic = eventSettings.defaultPublic;
@@ -76,7 +73,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         }
         case 'delete': {
           if (openId === data.id) {
-            setOpenId(null);
+            removeOpenEvent();
           }
           deleteEvent(data.id);
           break;
@@ -127,7 +124,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       moveCursorTo,
       openId,
       previousEventId,
-      setOpenId,
+      removeOpenEvent,
       startTimeIsLastEnd,
       updateEvent,
     ],
