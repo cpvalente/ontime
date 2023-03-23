@@ -6,3 +6,5 @@ export enum TimerLifeCycle {
   onUpdate = 'onUpdate',
   onFinish = 'onFinish',
 }
+
+export type TimerLifeCycleKey = keyof typeof TimerLifeCycle;

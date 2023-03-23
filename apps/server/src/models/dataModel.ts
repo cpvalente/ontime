@@ -41,30 +41,12 @@ export const dbModel: DatabaseModel = {
     enabledIn: false,
     enabledOut: false,
     subscriptions: {
-      onLoad: {
-        message: '',
-        enabled: false,
-      },
-      onStart: {
-        message: '',
-        enabled: false,
-      },
-      onPause: {
-        message: '',
-        enabled: false,
-      },
-      onStop: {
-        message: '',
-        enabled: false,
-      },
-      onUpdate: {
-        message: '',
-        enabled: false,
-      },
-      onFinish: {
-        message: '',
-        enabled: false,
-      },
+      onLoad: [],
+      onStart: [],
+      onPause: [],
+      onStop: [],
+      onUpdate: [],
+      onFinish: [],
     },
   },
   http: {

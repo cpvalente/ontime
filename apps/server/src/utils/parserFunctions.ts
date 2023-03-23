@@ -1,5 +1,5 @@
 import { generateId } from 'ontime-utils';
-import { OSCSettings } from 'ontime-types';
+import { OSCSettings, OscSubscription, TimerLifeCycle } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
@@ -149,6 +149,28 @@ export const parseViewSettings = (data, enforce) => {
 };
 
 /**
+ * Parses and validates subscription object
+ * @param data
+ */
+export const validateOscSubscription = (data: OscSubscription) => {
+  if (!data) {
+    return false;
+  }
+  const timerKeys = Object.keys(TimerLifeCycle);
+  for (const key of timerKeys) {
+    if (!(key in data) || !Array.isArray(data[key])) {
+      return false;
+    }
+    for (const subscription of data[key]) {
+      if (!subscription.id || typeof subscription.message !== 'string' || typeof subscription.enabled !== 'boolean') {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+/**
  * Parse osc portion of an entry
  */
 export const parseOsc = (
@@ -159,13 +181,17 @@ export const parseOsc = (
     console.log('Found OSC definition, importing...');
 
     const loadedConfig = data?.osc || {};
+    const validatedSubscriptions = validateOscSubscription(loadedConfig.subscriptions)
+      ? loadedConfig.subscriptions
+      : dbModel.osc.subscriptions;
+
     return {
       portIn: loadedConfig.portIn ?? dbModel.osc.portIn,
       portOut: loadedConfig.portOut ?? dbModel.osc.portOut,
       targetIP: loadedConfig.targetIP ?? dbModel.osc.targetIP,
       enabledIn: loadedConfig.enabledIn ?? dbModel.osc.enabledIn,
       enabledOut: loadedConfig.enabledOut ?? dbModel.osc.enabledOut,
-      subscriptions: loadedConfig.subscriptions ?? dbModel.osc.subscriptions,
+      subscriptions: validatedSubscriptions,
     };
   } else if (enforce) {
     console.log(`Created OSC object in db`);

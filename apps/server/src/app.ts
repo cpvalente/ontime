@@ -25,10 +25,10 @@ import { dbLoadingProcess } from './modules/loadDb.js';
 
 // Services
 import { eventTimer } from './services/TimerService.js';
-import { integrationService } from './services/integration-service/IntegrationService.js';
-import { OscIntegration } from './services/integration-service/OscIntegration.js';
-import { logger } from './classes/Logger.js';
 import { eventLoader } from './classes/event-loader/EventLoader.js';
+import { integrationService } from './services/integration-service/IntegrationService.js';
+import { logger } from './classes/Logger.js';
+import { oscIntegration } from './services/integration-service/OscIntegration.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -179,7 +179,6 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
     return 'OSC Invalid configuration';
   }
 
-  const oscIntegration = new OscIntegration();
   const { success, message } = oscIntegration.init(osc);
   logger.info('RX', message);
 

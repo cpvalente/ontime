@@ -1,16 +1,18 @@
 import { useForm } from 'react-hook-form';
-import { Button, FormControl, Input, ModalBody, ModalFooter, Switch } from '@chakra-ui/react';
+import { FormControl, Input, ModalBody, Switch } from '@chakra-ui/react';
 
-import { postOSC } from '../../../common/api/ontimeApi';
-import useOscSettings from '../../../common/hooks-query/useOscSettings';
+import useOscSettings, { useOscSettingsMutation } from '../../../common/hooks-query/useOscSettings';
 import { PlaceholderSettings } from '../../../common/models/OscSettings';
 import { useEmitLog } from '../../../common/stores/logger';
 import { isIPAddress, isOnlyNumbers } from '../../../common/utils/regex';
 
+import OntimeModalFooter from './OntimeModalFooter';
+
 import styles from '../Modal.module.scss';
 
-export default function OscIntegrationSettings() {
+export default function OscSettings() {
   const { data } = useOscSettings();
+  const { mutateAsync } = useOscSettingsMutation();
   const { emitError } = useEmitLog();
   const {
     handleSubmit,
@@ -22,8 +24,6 @@ export default function OscIntegrationSettings() {
     defaultValues: data,
     values: data,
   });
-
-  const disableSubmit = isSubmitting || !isDirty || !isValid;
 
   const onSubmit = async (values: PlaceholderSettings) => {
     const numericPortIn = Number(values.portIn);
@@ -41,17 +41,20 @@ export default function OscIntegrationSettings() {
     };
 
     try {
-      await postOSC(parsedValues);
+      await mutateAsync(parsedValues);
     } catch (error) {
       emitError(`Error setting OSC: ${error}`);
     }
   };
 
-  const resetForm = () => reset(data);
+  const resetForm = () => {
+    // @ts-expect-error -- we know the types dont match
+    reset(data);
+  };
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='test'>
+      <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='oscSettings'>
         <ModalBody>
           <div className={styles.splitSection}>
             <div>
@@ -77,6 +80,7 @@ export default function OscIntegrationSettings() {
               size='sm'
               textAlign='right'
               maxLength={5}
+              variant='ontime-filled-on-light'
               {...register('portIn', {
                 required: { value: true, message: 'Required field' },
                 max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
@@ -116,6 +120,7 @@ export default function OscIntegrationSettings() {
               width='140px'
               size='sm'
               textAlign='right'
+              variant='ontime-filled-on-light'
               {...register('targetIP', {
                 required: { value: true, message: 'Required field' },
                 pattern: {
@@ -142,6 +147,7 @@ export default function OscIntegrationSettings() {
               size='sm'
               textAlign='right'
               maxLength={5}
+              variant='ontime-filled-on-light'
               {...register('portOut', {
                 required: { value: true, message: 'Required field' },
                 max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
@@ -154,27 +160,14 @@ export default function OscIntegrationSettings() {
             />
           </FormControl>
         </ModalBody>
-        {/*<ModalSubmitFooter />*/}
       </form>
-      <ModalFooter className={styles.buttonSection}>
-        <Button variant='ontime-ghost-on-light' size='sm' onClick={resetForm}>
-          Revert to saved
-        </Button>
-        <Button variant='ontime-subtle-on-light' size='sm'>
-          Cancel
-        </Button>
-        <Button
-          variant='ontime-filled'
-          type='submit'
-          form='test'
-          disabled={disableSubmit}
-          isLoading={isSubmitting}
-          padding='0 2em'
-          size='sm'
-        >
-          Save
-        </Button>
-      </ModalFooter>
+      <OntimeModalFooter
+        formId='oscSettings'
+        handleRevert={resetForm}
+        isDirty={isDirty}
+        isValid={isValid}
+        isSubmitting={isSubmitting}
+      />
     </>
   );
 }

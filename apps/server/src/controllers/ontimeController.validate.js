@@ -1,4 +1,5 @@
 import { body, check, validationResult } from 'express-validator';
+import { validateOscSubscription } from '../utils/parserFunctions.js';
 
 /**
  * @description Validates object for POST /ontime/views
@@ -70,6 +71,9 @@ export const validateOSC = [
   body('targetIP').exists().isIP(),
   body('enabledIn').exists().isBoolean(),
   body('enabledOut').exists().isBoolean(),
+  body('subscriptions')
+    .isObject()
+    .custom((value) => validateOscSubscription(value)),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });

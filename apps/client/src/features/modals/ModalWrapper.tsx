@@ -1,14 +1,5 @@
 import { PropsWithChildren } from 'react';
-import {
-  Button,
-  Modal,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
-import styles from './Modal.module.scss';
+import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
 
 interface ModalWrapperProps {
   isOpen: boolean;

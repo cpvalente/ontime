@@ -11,7 +11,7 @@ import {
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
 import { OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
-import { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
+import { OSCSettings, OscSubscription, OscSubscriptionOptions } from './definitions/core/OscSettings.type.js';
 import { Playback } from './definitions/runtime/Playback.type.js';
 import { Loaded } from './definitions/runtime/Playlist.type.js';
 import { Log, LogLevel, LogMessage } from './definitions/runtime/Logger.type.js';
@@ -50,7 +50,7 @@ export type { Alias };
 export type { UserFields };
 
 // ---> OSC
-export type { OscSubscription, OSCSettings };
+export type { OscSubscription, OSCSettings, OscSubscriptionOptions };
 
 // ---> HTTP
 
