@@ -266,8 +266,11 @@ export const postOSC = async (req, res) => {
   try {
     const oscSettings = req.body;
     await DataProvider.setOsc(oscSettings);
+
+    // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
     logger.info('RX', message);
+
     res.send(oscSettings).status(200);
   } catch (error) {
     res.status(400).send(error);
