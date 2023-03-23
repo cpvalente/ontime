@@ -77,7 +77,10 @@ export const useInfoPanel = () => {
 
 export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    selectedEventIndex: state.loaded.selectedEventId,
+    playback: state.playback,
+    selectedEventId: state.loaded.selectedEventId,
+    selectedEventIndex: state.loaded.selectedEventIndex,
+    numEvents: state.loaded.numEvents,
     titleNow: state.titles.titleNow,
   });
 
@@ -92,7 +95,7 @@ export const setEventPlayback = {
 
 export const useTimer = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    timer: state.timer,
+    ...state.timer,
   });
 
   return useRuntimeStore(featureSelector, deepCompare);

@@ -1,5 +1,6 @@
 import { Tooltip } from '@chakra-ui/react';
 import { Playback } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
 
 import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
@@ -9,7 +10,6 @@ import { tooltipDelayMid } from '../../../ontimeConfig';
 import TapButton from './TapButton';
 
 import style from './PlaybackControl.module.scss';
-import { millisToString } from 'ontime-utils';
 
 interface PlaybackTimerProps {
   playback: Playback;
@@ -17,20 +17,20 @@ interface PlaybackTimerProps {
 
 export default function PlaybackTimer(props: PlaybackTimerProps) {
   const { playback } = props;
-  const data = useTimer();
+  const timer = useTimer();
 
   // TODO: checkout typescript in utilities
-  const started = millisToString(data.timer.startedAt);
-  const finish = millisToString(data.timer.expectedFinish);
+  const started = millisToString(timer.startedAt);
+  const finish = millisToString(timer.expectedFinish);
   const isRolling = playback === Playback.Roll;
   const isStopped = playback === Playback.Stop;
-  const isWaiting = data.timer.secondaryTimer !== null && data.timer.secondaryTimer > 0 && data.timer.current === null;
+  const isWaiting = timer.secondaryTimer !== null && timer.secondaryTimer > 0 && timer.current === null;
   const disableButtons = isStopped || isRolling;
-  const isOvertime = data.timer.current !== null && data.timer.current < 0;
-  const hasAddedTime = Boolean(data.timer.addedTime);
+  const isOvertime = timer.current !== null && timer.current < 0;
+  const hasAddedTime = Boolean(timer.addedTime);
 
   const rollLabel = isRolling ? 'Roll mode active' : '';
-  const addedTimeLabel = hasAddedTime ? `Added ${millisToMinutes(data.timer.addedTime)} minutes` : '';
+  const addedTimeLabel = hasAddedTime ? `Added ${millisToMinutes(timer.addedTime)} minutes` : '';
 
   return (
     <div className={style.timeContainer}>
@@ -44,7 +44,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
         </Tooltip>
       </div>
       <div className={style.timer}>
-        <TimerDisplay time={isWaiting ? data.timer.secondaryTimer : data.timer.current} />
+        <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} />
       </div>
       {isWaiting ? (
         <div className={style.roll}>
