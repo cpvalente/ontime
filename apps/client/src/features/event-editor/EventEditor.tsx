@@ -226,7 +226,14 @@ export default function EventEditor() {
           </div>
           <div className={`${style.column} ${style.fullHeight}`}>
             <label className={style.inputLabel}>Note</label>
-            <TextInput field='note' initialText={event.note} submitHandler={handleSubmit} isTextArea isFullHeight />
+            <TextInput
+              field='note'
+              initialText={event.note}
+              submitHandler={handleSubmit}
+              isTextArea
+              isFullHeight
+              resize='none'
+            />
           </div>
         </div>
       </div>
