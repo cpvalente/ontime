@@ -17,7 +17,7 @@ type LocalEventStore = {
 enum LocalEventKeys {
   ShowQuickEntry = 'ontime-show-quick-entry',
   StartTimeIsLastEnd = 'ontime-start-is-last-end',
-  DefaultPublic = 'ontime-default-publi',
+  DefaultPublic = 'ontime-default-public',
 }
 
 function booleanFromLocalStorage(key: string, fallback: boolean): boolean {
