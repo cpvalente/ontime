@@ -1,10 +1,9 @@
 import { useCallback, useRef } from 'react';
 import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
-import { useAtomValue } from 'jotai';
 import { SupportedEvent } from 'ontime-types';
 
-import { defaultPublicAtom, startTimeIsLastEndAtom } from '../../../common/atoms/LocalEventSettings';
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import { useLocalEvent } from '../../../common/stores/localEvent';
 import { useEmitLog } from '../../../common/stores/logger';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
@@ -22,10 +21,13 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
   const { showKbd, eventId, previousEventId, disableAddDelay = true, disableAddBlock } = props;
   const { addEvent } = useEventAction();
   const { emitError } = useEmitLog();
-  const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
-  const defaultPublic = useAtomValue(defaultPublicAtom);
+
   const doStartTime = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
+
+  const { eventSettings } = useLocalEvent();
+  const defaultPublic = eventSettings.defaultPublic;
+  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
   const handleCreateEvent = useCallback(
     (eventType: SupportedEvent) => {

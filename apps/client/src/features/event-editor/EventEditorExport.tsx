@@ -1,8 +1,9 @@
 import { Box, IconButton } from '@chakra-ui/react';
 import { FiX } from '@react-icons/all-files/fi/FiX';
+import { useAtom } from 'jotai';
+
 import { editorEventId } from '../../common/atoms/LocalEventSettings';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
-import { useAtom } from 'jotai';
 
 import EventEditor from './EventEditor';
 
@@ -25,14 +26,8 @@ export default function InfoExport() {
         <div className={style.eventEditorLayout}>
           <EventEditor />
           <div className={style.header}>
-            <IconButton
-              aria-label='Close Menu'
-              icon={<FiX />}
-              onClick={() => setOpenId(null)}
-              {...closeBtnStyle}
-            />
+            <IconButton aria-label='Close Menu' icon={<FiX />} onClick={() => setOpenId(null)} {...closeBtnStyle} />
           </div>
-
         </div>
       </ErrorBoundary>
     </Box>

@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import { useAtomValue } from 'jotai';
 import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
@@ -14,7 +13,7 @@ import {
   requestPutEvent,
   requestReorderEvent,
 } from '../api/eventsApi';
-import { defaultPublicAtom, startTimeIsLastEndAtom } from '../atoms/LocalEventSettings';
+import { useLocalEvent } from '../stores/localEvent';
 import { useEmitLog } from '../stores/logger';
 
 /**
@@ -23,8 +22,9 @@ import { useEmitLog } from '../stores/logger';
 export const useEventAction = () => {
   const queryClient = useQueryClient();
   const { emitError } = useEmitLog();
-  const defaultPublic = useAtomValue(defaultPublicAtom);
-  const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
+  const { eventSettings } = useLocalEvent();
+  const defaultPublic = eventSettings.defaultPublic;
+  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
   /**
    * Calls mutation to add new event

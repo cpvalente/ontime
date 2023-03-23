@@ -1,10 +1,11 @@
 import { useCallback, useContext } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
-import { defaultPublicAtom, editorEventId, startTimeIsLastEndAtom } from '../../common/atoms/LocalEventSettings';
+import { editorEventId } from '../../common/atoms/LocalEventSettings';
 import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { useLocalEvent } from '../../common/stores/localEvent';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
 import { calculateDuration } from '../../common/utils/timesManager';
@@ -32,11 +33,15 @@ interface RundownEntryProps {
 export default function RundownEntry(props: RundownEntryProps) {
   const { index, eventIndex, data, selected, hasCursor, next, delay, previousEnd, previousEventId, playback } = props;
   const { emitError } = useEmitLog();
-  const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
-  const defaultPublic = useAtomValue(defaultPublicAtom);
+
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
   const { moveCursorTo } = useContext(CursorContext);
+
   const [openId, setOpenId] = useAtom(editorEventId);
+
+  const { eventSettings } = useLocalEvent();
+  const defaultPublic = eventSettings.defaultPublic;
+  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
   // Create / delete new events
   type FieldValue = {
