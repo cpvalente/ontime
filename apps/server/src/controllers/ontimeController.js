@@ -8,6 +8,8 @@ import { mergeObject } from '../utils/parserUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { resolveDbPath } from '../setup.js';
+import { oscIntegration } from '../services/integration-service/OscIntegration.js';
+import { logger } from '../classes/Logger.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -42,7 +44,7 @@ export const dbDownload = async (req, res) => {
  * @param file
  * @param req
  * @param res
- * @param options
+ * @param [options]
  * @returns {Promise<void>}
  */
 const uploadAndParse = async (file, req, res, options) => {
@@ -247,7 +249,7 @@ export const postViewSettings = async (req, res) => {
   }
 };
 
-// Create controller for POST request to '/ontime/osc'
+// Create controller for GET request to '/ontime/osc'
 // Returns -
 export const getOSC = async (req, res) => {
   const osc = DataProvider.getOsc();
@@ -262,8 +264,11 @@ export const postOSC = async (req, res) => {
   }
 
   try {
-    await DataProvider.setOsc(req.body);
-    res.send(req.body).status(200);
+    const oscSettings = req.body;
+    await DataProvider.setOsc(oscSettings);
+    const { message } = oscIntegration.init(oscSettings);
+    logger.info('RX', message);
+    res.send(oscSettings).status(200);
   } catch (error) {
     res.status(400).send(error);
   }

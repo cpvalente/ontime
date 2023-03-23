@@ -20,8 +20,7 @@ export default function IntegrationModal(props: IntegrationModalProps) {
   return (
     <ModalWrapper title='Integration Settings' isOpen={isOpen} onClose={onClose}>
       <div className={styles.headerNotes}>
-        Manage settings related to protocol integrations <br />
-        Changes take effect on app restart
+        Manage settings related to protocol integrations
         <a href={oscDocsUrl} target='_blank' rel='noreferrer'>
           Read the docs
         </a>

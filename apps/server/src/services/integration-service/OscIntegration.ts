@@ -41,6 +41,8 @@ export class OscIntegration implements IIntegration {
       };
     }
     try {
+      // this allows re-calling the init function during runtime
+      this.oscClient?.close();
       this.oscClient = new Client(targetIP, portOut);
       return {
         success: true,
@@ -124,3 +126,5 @@ export class OscIntegration implements IIntegration {
     }
   }
 }
+
+export const oscIntegration = new OscIntegration();
