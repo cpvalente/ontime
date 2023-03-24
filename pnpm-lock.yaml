@@ -31,8 +31,8 @@ importers:
   apps/client:
     specifiers:
       '@chakra-ui/react': ^2.5.1
-      '@dnd-kit/core': ^6.0.6
-      '@dnd-kit/sortable': ^7.0.1
+      '@dnd-kit/core': ^6.0.8
+      '@dnd-kit/sortable': ^7.0.2
       '@dnd-kit/utilities': ^3.2.1
       '@emotion/react': ^11.10.5
       '@emotion/styled': ^11.10.5
@@ -84,6 +84,7 @@ importers:
       react-qr-code: ^2.0.11
       react-router-dom: ^6.3.0
       react-table: ^7.7.0
+      react-virtuoso: ^4.1.0
       sass: ^1.57.1
       stylelint: ^14.16.1
       stylelint-config-prettier: ^9.0.4
@@ -97,8 +98,8 @@ importers:
       zustand: ^4.3.6
     dependencies:
       '@chakra-ui/react': 2.5.1_loo4skotrnm7icurwgkplqpnwq
-      '@dnd-kit/core': 6.0.7_biqbaboplfbrettd7655fr4n2y
-      '@dnd-kit/sortable': 7.0.2_pmudlfv2z3i7vvlookxjkeidxe
+      '@dnd-kit/core': 6.0.8_biqbaboplfbrettd7655fr4n2y
+      '@dnd-kit/sortable': 7.0.2_52scne4zmdeyjh2otzkgz2xfvu
       '@dnd-kit/utilities': 3.2.1_react@18.2.0
       '@emotion/react': 11.10.5_kzbn2opkn2327fwg5yzwzya5o4
       '@emotion/styled': 11.10.5_qvatmowesywn4ye42qoh247szu
@@ -122,6 +123,7 @@ importers:
       react-qr-code: 2.0.11_react@18.2.0
       react-router-dom: 6.6.2_biqbaboplfbrettd7655fr4n2y
       react-table: 7.8.0_react@18.2.0
+      react-virtuoso: 4.1.0_biqbaboplfbrettd7655fr4n2y
       typeface-open-sans: 1.1.13
       web-vitals: 3.1.1
       zustand: 4.3.6_react@18.2.0
@@ -1632,11 +1634,11 @@ packages:
       react: '>=16.8.0'
     dependencies:
       react: 18.2.0
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
-  /@dnd-kit/core/6.0.7_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-qcLBTVTjmLuLqC0RHQ+dFKN5neWmAI56H9xZ+he9WEJEkAvR76YAcz7DSWDJfjErepfG2H3Fkb9lYiX7cPR62g==}
+  /@dnd-kit/core/6.0.8_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-lYaoP8yHTQSLlZe6Rr9qogouGUz9oRUj4AHhDQGQzq/hqaJRpFo65X+JKsdHf8oUFBzx5A+SJPUvxAwTF2OabA==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -1645,19 +1647,19 @@ packages:
       '@dnd-kit/utilities': 3.2.1_react@18.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
-  /@dnd-kit/sortable/7.0.2_pmudlfv2z3i7vvlookxjkeidxe:
+  /@dnd-kit/sortable/7.0.2_52scne4zmdeyjh2otzkgz2xfvu:
     resolution: {integrity: sha512-wDkBHHf9iCi1veM834Gbk1429bd4lHX4RpAwT0y2cHLf246GAvU2sVw/oxWNpPKQNQRQaeGXhAVgrOl1IT+iyA==}
     peerDependencies:
       '@dnd-kit/core': ^6.0.7
       react: '>=16.8.0'
     dependencies:
-      '@dnd-kit/core': 6.0.7_biqbaboplfbrettd7655fr4n2y
+      '@dnd-kit/core': 6.0.8_biqbaboplfbrettd7655fr4n2y
       '@dnd-kit/utilities': 3.2.1_react@18.2.0
       react: 18.2.0
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /@dnd-kit/utilities/3.2.1_react@18.2.0:
@@ -7533,6 +7535,17 @@ packages:
       react: ^16.8.3 || ^17.0.0-0 || ^18.0.0
     dependencies:
       react: 18.2.0
+    dev: false
+
+  /react-virtuoso/4.1.0_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Vcq5WXn18PvPT55kdeGQ8BN3K95XyPe7hum8zG6Tx7g1CtUYVsQKN7fouMxBSy+XymEDB5ynGy8JWhuqyLLtPw==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16 || >=17 || >= 18'
+      react-dom: '>=16 || >=17 || >= 18'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react/18.2.0:
