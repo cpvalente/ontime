@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import { booleanFromLocalStorage } from '../utils/localStorage';
+
 type EventSettings = {
   showQuickEntry: boolean;
   startTimeIsLastEnd: boolean;
@@ -18,16 +20,6 @@ enum LocalEventKeys {
   ShowQuickEntry = 'ontime-show-quick-entry',
   StartTimeIsLastEnd = 'ontime-start-is-last-end',
   DefaultPublic = 'ontime-default-public',
-}
-
-function booleanFromLocalStorage(key: string, fallback: boolean): boolean {
-  const valueInStorage = localStorage.getItem(key);
-  if (valueInStorage) {
-    return valueInStorage === 'true';
-  } else {
-    localStorage.setItem(key, String(fallback));
-    return fallback;
-  }
 }
 
 export const useLocalEvent = create<LocalEventStore>((set) => ({

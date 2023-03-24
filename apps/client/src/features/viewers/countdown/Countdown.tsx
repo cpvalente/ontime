@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
-import PropTypes from 'prop-types';
+import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { formatTime } from '../../../common/utils/time';
@@ -27,19 +25,18 @@ const formatOptionsFinished = {
   format: 'hh:mm a',
 };
 
-Countdown.propTypes = {
-  backstageEvents: PropTypes.array,
-  time: PropTypes.object,
-  selectedId: PropTypes.string,
-  viewSettings: PropTypes.object,
-};
+interface CountdownProps {
+  isMirrored: boolean;
+  backstageEvents: OntimeEvent[];
+  time: TimeManagerType;
+  selectedId: string | null;
+  viewSettings: ViewSettings;
+}
 
-// @ts-expect-error we are unable to type this just yet
-export default function Countdown(props) {
-  const { backstageEvents, time, selectedId, viewSettings } = props;
+export default function Countdown(props: CountdownProps) {
+  const { isMirrored, backstageEvents, time, selectedId, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
-  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   const [follow, setFollow] = useState<OntimeEvent | null>(null);
   const [runningTimer, setRunningTimer] = useState(0);
@@ -97,20 +94,15 @@ export default function Countdown(props) {
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
   const clock = formatTime(time.clock, formatOptions);
-  const startTime =
-    follow === null
-      ? '...'
-      : formatTime(follow.timeStart + delay, formatOptions);
-  const endTime =
-    follow === null
-      ? '...'
-      : formatTime(follow.timeEnd + delay, formatOptions);
-  const formattedTimer = runningMessage === TimerMessage.ended
-    ? formatTime(runningTimer, formatOptionsFinished)
-    : formatDisplay(
-      isSelected ? millisToSeconds(runningTimer) : millisToSeconds(runningTimer + delay),
-      isSelected || time.waiting,
-    );
+  const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay, formatOptions);
+  const endTime = follow === null ? '...' : formatTime(follow.timeEnd + delay, formatOptions);
+  const formattedTimer =
+    runningMessage === TimerMessage.ended
+      ? formatTime(runningTimer, formatOptionsFinished)
+      : formatDisplay(
+          isSelected ? millisToSeconds(runningTimer) : millisToSeconds(runningTimer + delay),
+          isSelected || time.waiting,
+        );
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
@@ -119,7 +111,6 @@ export default function Countdown(props) {
         <CountdownSelect events={backstageEvents} />
       ) : (
         <div className='countdown-container' data-testid='countdown-event'>
-
           <div className='clock-container'>
             <div className='label'>Time Now</div>
             <div className='time'>{clock}</div>
@@ -127,11 +118,7 @@ export default function Countdown(props) {
 
           <div className='status'>{runningMessage}</div>
 
-          <span
-            className={`timer ${standby ? 'timer--paused' : ''} ${
-              isRunningFinished ? 'timer--finished' : ''
-            }`}
-          >
+          <span className={`timer ${standby ? 'timer--paused' : ''} ${isRunningFinished ? 'timer--finished' : ''}`}>
             {formattedTimer}
           </span>
           <div className='title'>{follow?.title || 'Untitled Event'}</div>
@@ -139,18 +126,13 @@ export default function Countdown(props) {
           <div className='timer-group'>
             <div className='aux-timers'>
               <div className='aux-timers__label'>Start Time</div>
-              <span className={`aux-timers__value ${delayedTimerStyles}`}>
-                {startTime}
-              </span>
+              <span className={`aux-timers__value ${delayedTimerStyles}`}>{startTime}</span>
             </div>
             <div className='aux-timers'>
               <div className='aux-timers__label'>End Time</div>
-              <span className={`aux-timers__value ${delayedTimerStyles}`}>
-                {endTime}
-              </span>
+              <span className={`aux-timers__value ${delayedTimerStyles}`}>{endTime}</span>
             </div>
           </div>
-
         </div>
       )}
     </div>

@@ -6,13 +6,12 @@ import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
-import { useAtom } from 'jotai';
 
 import { navigatorConstants } from '../../../viewerConfig';
-import { mirrorViewersAtom } from '../../atoms/ViewerSettings';
 import useClickOutside from '../../hooks/useClickOutside';
 import useFullscreen from '../../hooks/useFullscreen';
 import { useKeyDown } from '../../hooks/useKeyDown';
+import { useViewOptionsStore } from '../../stores/viewOptions';
 
 import style from './NavigationMenu.module.scss';
 
@@ -20,7 +19,7 @@ export default function NavigationMenu() {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const [isMirrored, setMirrored] = useAtom(mirrorViewersAtom);
+  const { mirror, toggleMirror } = useViewOptionsStore();
   const [showButton, setShowButton] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -49,10 +48,10 @@ export default function NavigationMenu() {
 
   const isKeyEnter = (event: KeyboardEvent<HTMLDivElement>) => event.key === 'Enter';
   const handleFullscreen = () => toggleFullScreen();
-  const handleMirror = () => setMirrored((prev) => !prev);
+  const handleMirror = () => toggleMirror();
 
   return createPortal(
-    <div id='navigation-menu-portal' ref={menuRef} className={isMirrored ? style.mirror : ''}>
+    <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
       <button
         onClick={toggleMenu}
         aria-label='toggle menu'
@@ -83,7 +82,8 @@ export default function NavigationMenu() {
               onClick={handleMirror}
               onKeyDown={(event) => {
                 isKeyEnter(event) && handleMirror();
-              }}>
+              }}
+            >
               Flip Screen
               <IoSwapVertical />
             </div>
@@ -97,12 +97,15 @@ export default function NavigationMenu() {
               key={route.url}
               to={route.url}
               className={`${style.link} ${route.url === location.pathname ? style.current : undefined}`}
-              tabIndex={0}>
+              tabIndex={0}
+            >
               {route.label}
               <IoArrowUp className={style.linkIcon} />
             </Link>
           ))}
         </div>
       )}
-    </div>, document.body);
+    </div>,
+    document.body,
+  );
 }

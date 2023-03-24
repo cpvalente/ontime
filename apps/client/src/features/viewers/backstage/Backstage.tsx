@@ -1,11 +1,9 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useAtom } from 'jotai';
-import PropTypes from 'prop-types';
+import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import Schedule from '../../../common/components/schedule/Schedule';
@@ -13,10 +11,12 @@ import { ScheduleProvider } from '../../../common/components/schedule/ScheduleCo
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';
+import { TitleManager } from '../ViewWrapper';
 
 import './Backstage.scss';
 
@@ -25,21 +25,20 @@ const formatOptions = {
   format: 'hh:mm:ss a',
 };
 
-Backstage.propTypes = {
-  publ: PropTypes.object,
-  title: PropTypes.object,
-  time: PropTypes.object,
-  backstageEvents: PropTypes.array,
-  selectedId: PropTypes.string,
-  general: PropTypes.object,
-  viewSettings: PropTypes.object,
-};
+interface BackstageProps {
+  isMirrored: boolean;
+  publ: Message;
+  title: TitleManager;
+  time: TimeManagerType;
+  backstageEvents: OntimeEvent[];
+  selectedId: string | null;
+  general: EventData;
+  viewSettings: ViewSettings;
+}
 
-// @ts-expect-error unable to type just yet
-export default function Backstage(props) {
-  const { publ, title, time, backstageEvents, selectedId, general, viewSettings } = props;
+export default function Backstage(props: BackstageProps) {
+  const { isMirrored, publ, title, time, backstageEvents, selectedId, general, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   // Set window title
   useEffect(() => {

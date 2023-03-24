@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAtom } from 'jotai';
+import { millisToString } from 'ontime-utils';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -13,7 +12,6 @@ import { formatEventList, getEventsWithDelay, trimEventlist } from '../../../com
 import { formatTime } from '../../../common/utils/time';
 
 import './StudioClock.scss';
-import { millisToString } from 'ontime-utils';
 
 const formatOptions = {
   showSeconds: false,
@@ -21,6 +19,7 @@ const formatOptions = {
 };
 
 StudioClock.propTypes = {
+  isMirrored: PropTypes.bool,
   title: PropTypes.object,
   time: PropTypes.object,
   backstageEvents: PropTypes.array,
@@ -31,14 +30,13 @@ StudioClock.propTypes = {
 };
 
 export default function StudioClock(props) {
-  const { title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
+  const { isMirrored, title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
 
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
 
   const [schedule, setSchedule] = useState([]);
-  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];

@@ -1,13 +1,18 @@
 import { ReactNode, useMemo } from 'react';
-import { Playback } from 'ontime-types';
+import { Playback, TitleBlock } from 'ontime-types';
 
 import useEventData from '../../common/hooks-query/useEventData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { useRuntimeStore } from '../../common/stores/runtime';
+import { useViewOptionsStore } from '../../common/stores/viewOptions';
+
+export type TitleManager = TitleBlock & { showNow: boolean; showNext: boolean };
 
 const withData = (Component: ReactNode) => {
   return (props) => {
+    // persisted app state
+    const { mirror: isMirrored } = useViewOptionsStore();
 
     // HTTP API data
     const { data: eventsData } = useRundown();
@@ -41,7 +46,7 @@ const withData = (Component: ReactNode) => {
     let showNext = true;
     if (!titles.titleNext && !titles.subtitleNext && !titles.presenterNext) showNext = false;
 
-    const titleManager = { ...titles, showNow: showNow, showNext: showNext };
+    const titleManager: TitleManager = { ...titles, showNow: showNow, showNext: showNext };
 
     /********************************************/
     /***  + publicTitleManager               ***/
@@ -56,7 +61,7 @@ const withData = (Component: ReactNode) => {
     let showPublicNext = true;
     if (!titlesPublic.titleNext && !titlesPublic.subtitleNext && !titlesPublic.presenterNext) showPublicNext = false;
 
-    const publicTitleManager = {
+    const publicTitleManager: TitleManager = {
       ...titlesPublic,
       showNow: showPublicNow,
       showNext: showPublicNext,
@@ -85,6 +90,7 @@ const withData = (Component: ReactNode) => {
     return (
       <Component
         {...props}
+        isMirrored={isMirrored}
         pres={timerMessage}
         publ={publicMessage}
         lower={lowerMessage}
