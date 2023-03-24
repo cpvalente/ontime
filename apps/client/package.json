@@ -20,7 +20,6 @@
     "csv-stringify": "^6.2.3",
     "deepmerge": "^4.3.0",
     "framer-motion": "^8.0.2",
-    "jotai": "^1.10.0",
     "luxon": "^3.3.0",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",

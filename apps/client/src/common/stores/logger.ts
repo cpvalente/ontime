@@ -19,7 +19,7 @@ export const useLogData = () => useStore(logger);
 
 export const addLog = (log: Log) =>
   logger.setState((state) => ({
-    logs: [...state.logs, log],
+    logs: [log, ...state.logs],
   }));
 
 export const clearLogs = () => logger.setState({ logs: [] });

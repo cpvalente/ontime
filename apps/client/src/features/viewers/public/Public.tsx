@@ -1,19 +1,19 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useAtom } from 'jotai';
-import PropTypes from 'prop-types';
+import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { titleVariants } from '../common/animation';
+import { TitleManager } from '../ViewWrapper';
 
 import './Public.scss';
 
@@ -22,21 +22,20 @@ const formatOptions = {
   format: 'hh:mm:ss a',
 };
 
-Public.propTypes = {
-  publ: PropTypes.object,
-  publicTitle: PropTypes.object,
-  time: PropTypes.object,
-  events: PropTypes.array,
-  publicSelectedId: PropTypes.string,
-  general: PropTypes.object,
-  viewSettings: PropTypes.object,
-};
+interface BackstageProps {
+  isMirrored: boolean;
+  publ: Message;
+  publicTitle: TitleManager;
+  time: TimeManagerType;
+  events: OntimeEvent[];
+  publicSelectedId: string | null;
+  general: EventData;
+  viewSettings: ViewSettings;
+}
 
-// @ts-expect-error unable to type just yet
-export default function Public(props) {
-  const { publ, publicTitle, time, events, publicSelectedId, general, viewSettings } = props;
+export default function Public(props: BackstageProps) {
+  const { isMirrored, publ, publicTitle, time, events, publicSelectedId, general, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
     document.title = 'ontime - Public Screen';

@@ -35,7 +35,7 @@ export default function TextInput(props: TextInputProps) {
     <Textarea
       ref={inputRef}
       size={size}
-      resize='none'
+      resize={resize}
       variant='ontime-filled'
       {...textAreaProps}
       style={{ height: isFullHeight ? '100%' : undefined }}

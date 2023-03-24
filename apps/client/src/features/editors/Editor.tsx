@@ -3,9 +3,9 @@ import { Box, useDisclosure } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import UploadModal from '../../common/components/upload-modal/UploadModal';
-import ModalManager from '../modals/ModalManager';
 import MenuBar from '../menu/MenuBar';
 import IntegrationModal from '../modals/integration-modal/IntegrationModal';
+import ModalManager from '../modals/ModalManager';
 
 import styles from './Editor.module.scss';
 
@@ -17,9 +17,7 @@ const EventEditor = lazy(() => import('../../features/event-editor/EventEditorEx
 
 export default function Editor() {
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
-
   const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
-
   const {
     isOpen: isIntegrationModalOpen,
     onOpen: onIntegrationModalOpen,
