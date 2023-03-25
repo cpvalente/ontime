@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Box } from '@chakra-ui/react';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
@@ -8,9 +9,9 @@ import Info from './Info';
 
 import style from '../editors/Editor.module.scss';
 
-export default function InfoExport() {
+const InfoExport = () => {
   return (
-    <Box className={style.info} data-testid="panel-info">
+    <Box className={style.info} data-testid='panel-info'>
       <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'info')} />
       <div className={style.content}>
         <ErrorBoundary>
@@ -20,3 +21,5 @@ export default function InfoExport() {
     </Box>
   );
 }
+
+export default memo(InfoExport)

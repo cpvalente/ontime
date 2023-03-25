@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Box } from '@chakra-ui/react';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
@@ -8,7 +9,7 @@ import PlaybackControl from './PlaybackControl';
 
 import style from '../../editors/Editor.module.scss';
 
-export default function TimerControlExport() {
+const TimerControlExport = () => {
   return (
     <Box className={style.playback} data-testid='panel-timer-control'>
       <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'timercontrol')} />
@@ -19,4 +20,6 @@ export default function TimerControlExport() {
       </div>
     </Box>
   );
-}
+};
+
+export default memo(TimerControlExport);
