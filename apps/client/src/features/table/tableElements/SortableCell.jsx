@@ -15,13 +15,13 @@ export default function SortableCell({ column }) {
 
   // build drag styles
   const dragStyle = {
+    ...style,
     transform: CSS.Translate.toString(transform),
     transition,
-    ...style,
   };
 
   return (
-    <th {...restColumn} ref={setNodeRef} style={{ ...dragStyle }} className={isDragging ? styles.dragging : ''}>
+    <th {...restColumn} ref={setNodeRef} style={dragStyle} className={isDragging ? styles.dragging : ''}>
       <div {...attributes} {...listeners}>
         <Tooltip label={column.Header} openDelay={tooltipDelayFast}>
           {column.render('Header')}
