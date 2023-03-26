@@ -24,5 +24,5 @@ export const useCursor = create<CursorStore>()((set) => ({
     }),
   moveCursorUp: () => set((state) => ({ cursor: Math.max(state.cursor - 1, 0) })),
   moveCursorDown: () => set((state) => ({ cursor: state.cursor + 1 })),
-  moveCursorTo: (index: number) => set((state) => ({ cursor: index > 0 ? index : state.cursor })),
+  moveCursorTo: (index: number) => set((state) => ({ cursor: index >=0 ? index : state.cursor })),
 }));

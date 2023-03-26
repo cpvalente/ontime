@@ -1,17 +1,25 @@
-import { createRef, Fragment, useCallback, useContext, useEffect } from 'react';
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
-import { Button } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { createRef, Fragment, useCallback, useEffect } from 'react';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, SupportedEvent } from 'ontime-types';
 
-import Empty from '../../common/components/state/Empty';
-import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
+import { useCursor } from '../../common/stores/cursorStore';
 import { useLocalEvent } from '../../common/stores/localEvent';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
+import RundownEmpty from './RundownEmpty';
 import RundownEntry from './RundownEntry';
 
 import style from './Rundown.module.scss';
@@ -22,15 +30,27 @@ interface RundownProps {
 
 export default function Rundown(props: RundownProps) {
   const { entries } = props;
-  const data = useRundownEditor();
-  const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } = useContext(CursorContext);
+  // TODO: should this go to the child element?
+  const featureData = useRundownEditor();
   const { addEvent, reorderEvent } = useEventAction();
-  const cursorRef = createRef<HTMLDivElement>();
-
   const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
   const showQuickEntry = eventSettings.showQuickEntry;
+
+  // cursor
+  const cursor = useCursor((state) => state.cursor);
+  const isCursorLocked = useCursor((state) => state.isCursorLocked);
+  const moveCursorTo = useCursor((state) => state.moveCursorTo);
+  const cursorRef = createRef<HTMLDivElement>();
+
+  // DND KIT
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const insertAtCursor = useCallback(
     (type: SupportedEvent | 'clone', cursor: number) => {
@@ -78,11 +98,11 @@ export default function Rundown(props: RundownProps) {
       if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
         switch (event.code) {
           case 'ArrowDown': {
-            if (cursor < entries.length - 1) moveCursorDown();
+            if (cursor < entries.length - 1) moveCursorTo(cursor + 1);
             break;
           }
           case 'ArrowUp': {
-            if (cursor > 0) moveCursorUp();
+            if (cursor > 0) moveCursorTo(cursor - 1);
             break;
           }
           case 'KeyE': {
@@ -112,28 +132,31 @@ export default function Rundown(props: RundownProps) {
         }
       }
     },
-    [cursor, entries.length, insertAtCursor, moveCursorDown, moveCursorUp],
+    [cursor, entries.length, insertAtCursor, moveCursorTo],
   );
 
+  // move cursor
+  // useEffect(() => {
+  //   if (cursor > entries.length - 1) moveCursorTo(entries.length - 1);
+  //   if (entries.length > 0 && cursor === -1) moveCursorTo(0);
+  // }, [cursor, entries.length, moveCursorTo]);
+
+  // listen to keys
   useEffect(() => {
-    // attach the event listener
     document.addEventListener('keydown', handleKeyPress);
 
-    if (cursor > entries.length - 1) moveCursorTo(entries.length - 1);
-    if (entries.length > 0 && cursor === -1) moveCursorTo(0);
-
-    // remove the event listener
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [handleKeyPress, cursor, entries, moveCursorTo]);
+  }, [handleKeyPress]);
 
   // when cursor moves, view should follow
   useEffect(() => {
-    if (cursorRef.current == null) return;
+    if (!cursorRef?.current) return;
+
     cursorRef.current.scrollIntoView({
       behavior: 'smooth',
-      block: 'nearest',
+      block: 'start',
       inline: 'start',
     });
   }, [cursorRef]);
@@ -142,120 +165,110 @@ export default function Rundown(props: RundownProps) {
   // or cursor settings changed
   useEffect(() => {
     // and if we are locked
-    if (!isCursorLocked || !data?.selectedEventId) {
+    if (!isCursorLocked || !featureData?.selectedEventId) {
       return;
     }
 
     // move cursor
     let gotoIndex = -1;
     let found = false;
-    for (const e of entries) {
+    for (const entry of entries) {
       gotoIndex++;
-      if (e.id === data.selectedEventId) {
+      if (entry.id === featureData.selectedEventId) {
         found = true;
         break;
       }
     }
     if (found) {
-      // move cursor
       moveCursorTo(gotoIndex);
     }
-  }, [data?.selectedEventId, entries, isCursorLocked, moveCursorTo]);
+  }, [featureData?.selectedEventId, entries, isCursorLocked, moveCursorTo]);
 
-  const handleOnDragEnd = useCallback(
-    (result: DropResult) => {
-      // drop outside of area
-      if (!result?.destination) return;
-
-      // no change
-      if (result.destination.index === result.source.index) return;
-
-      // Call API
-      reorderEvent(result.draggableId, result.source.index, result.destination.index);
-    },
-    [reorderEvent],
-  );
+  const handleOnDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over?.id) {
+      if (active.id !== over?.id) {
+        const draggedId = String(active.id);
+        const fromIndex = active.data.current?.sortable.index;
+        const toIndex = over.data.current?.sortable.index;
+        console.log('debug will ask reorder', fromIndex, toIndex);
+        reorderEvent(draggedId, fromIndex, toIndex);
+      }
+    }
+  };
 
   if (!entries.length) {
-    return (
-      <div className={style.alignCenter}>
-        <Empty text='No data yet' style={{ marginTop: '7vh' }} />
-        <Button
-          onClick={() => insertAtCursor(SupportedEvent.Event, -1)}
-          variant='ontime-filled'
-          className={style.spaceTop}
-          leftIcon={<IoAdd />}
-        >
-          Create Event
-        </Button>
-      </div>
-    );
+    return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, -1)} />;
   }
+
   let cumulativeDelay = 0;
-  let eventIndex = -1;
   let previousEnd = 0;
   let thisEnd = 0;
   let previousEventId: string | undefined;
+  let eventIndex = -1;
 
   return (
     <div className={style.eventContainer}>
-      <DragDropContext onDragEnd={handleOnDragEnd}>
-        <Droppable droppableId='eventlist'>
-          {(provided) => (
-            <div className={style.list} {...provided.droppableProps} ref={provided.innerRef}>
-              {entries.map((entry, index) => {
-                if (index === 0) {
-                  cumulativeDelay = 0;
-                  eventIndex = -1;
-                }
-                if (entry.type === 'delay' && entry.duration != null) {
-                  cumulativeDelay += entry.duration;
-                } else if (entry.type === 'block') {
-                  cumulativeDelay = 0;
-                } else if (entry.type === 'event') {
-                  eventIndex++;
-                  previousEnd = thisEnd;
-                  thisEnd = entry.timeEnd;
-                  previousEventId = entry.id;
-                }
-                const isLast = index === entries.length - 1;
-                const isSelected = data?.selectedEventId === entry.id;
-                const isNext = data?.nextEventId === entry.id;
+      <DndContext
+        onDragEnd={handleOnDragEnd}
+        sensors={sensors}
+        modifiers={[restrictToVerticalAxis]}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext items={entries} strategy={verticalListSortingStrategy}>
+          <div className={style.list}>
+            {entries.map((entry, index) => {
+              if (index === 0) {
+                cumulativeDelay = 0;
+                eventIndex = -1;
+              }
+              if (entry.type === 'delay' && entry.duration != null) {
+                cumulativeDelay += entry.duration;
+              } else if (entry.type === 'block') {
+                cumulativeDelay = 0;
+              } else if (entry.type === 'event') {
+                eventIndex++;
+                previousEnd = thisEnd;
+                thisEnd = entry.timeEnd;
+                previousEventId = entry.id;
+              }
+              const isLast = index === entries.length - 1;
+              const isSelected = featureData?.selectedEventId === entry.id;
+              const isNext = featureData?.nextEventId === entry.id;
 
-                return (
-                  <Fragment key={entry.id}>
-                    <div ref={cursor === index ? cursorRef : undefined}>
-                      <RundownEntry
-                        type={entry.type}
-                        index={index}
-                        eventIndex={eventIndex}
-                        data={entry}
-                        selected={isSelected}
-                        hasCursor={cursor === index}
-                        next={isNext}
-                        delay={cumulativeDelay}
-                        previousEnd={previousEnd}
-                        previousEventId={previousEventId}
-                        playback={isSelected ? data.playback || undefined : undefined}
-                      />
-                    </div>
-                    {((showQuickEntry && index === cursor) || isLast) && (
-                      <QuickAddBlock
-                        showKbd={index === cursor}
-                        eventId={entry.id}
-                        previousEventId={previousEventId}
-                        disableAddDelay={entry.type === 'delay'}
-                        disableAddBlock={entry.type === 'block'}
-                      />
-                    )}
-                  </Fragment>
-                );
-              })}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+              return (
+                <Fragment key={entry.id}>
+                  <div ref={cursor === index ? cursorRef : undefined}>
+                    <RundownEntry
+                      type={entry.type}
+                      index={index}
+                      eventIndex={eventIndex}
+                      data={entry}
+                      selected={isSelected}
+                      hasCursor={cursor === index}
+                      next={isNext}
+                      delay={cumulativeDelay}
+                      previousEnd={previousEnd}
+                      previousEventId={previousEventId}
+                      playback={isSelected ? featureData.playback || undefined : undefined}
+                    />
+                  </div>
+
+                  {((showQuickEntry && index === cursor) || isLast) && (
+                    <QuickAddBlock
+                      showKbd={false}
+                      eventId={entry.id}
+                      previousEventId={previousEventId}
+                      disableAddDelay={entry.type === 'delay'}
+                      disableAddBlock={entry.type === 'block'}
+                    />
+                  )}
+                </Fragment>
+              );
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
