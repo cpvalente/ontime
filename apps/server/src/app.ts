@@ -120,7 +120,6 @@ export const initAssets = async () => {
   checkStart(OntimeStartOrder.InitAssets);
   await dbLoadingProcess;
   populateStyles();
-
 };
 
 /**

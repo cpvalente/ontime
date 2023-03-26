@@ -49,7 +49,7 @@
     "setdb": "shx cp ../../demo-db/db.json src/preloaded-db/db.json",
     "prebuild": "pnpm setdb",
     "build": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
-    "build:docker": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/app.cjs && esbuild src/index.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/docker.cjs",
+    "build:docker": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/app.cjs && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "lint": "eslint .",
     "test": "vitest",
