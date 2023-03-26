@@ -154,9 +154,14 @@ export default function Rundown(props: RundownProps) {
   useEffect(() => {
     if (!cursorRef?.current) return;
 
+    // using start in block parameter causes jumpy behaviour
+    // could alternatively scroll using scrollTo and
+    // calculate position within a range
+    // if the item is near the top half, we are ok
+    // otherwise scroll difference
     cursorRef.current.scrollIntoView({
       behavior: 'smooth',
-      block: 'start',
+      block: 'nearest',
       inline: 'start',
     });
   }, [cursorRef]);
