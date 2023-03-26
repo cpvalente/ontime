@@ -2,11 +2,11 @@ FROM node:16-alpine
 
 # Set environment variables
 # Environment Variable to signal that we are running production
-ENV NODE_ENV=production
+ENV NODE_ENV=docker
 # Ontime Data path
 ENV ONTIME_DATA=/external/
 
-WORKDIR /Resources/extraResources/
+WORKDIR /app/
 
 # Prepare UI
 COPY /apps/client/build ./client/
