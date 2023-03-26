@@ -96,19 +96,19 @@ app.use((error, response) => {
 
 enum OntimeStartOrder {
   Error,
-  InitDB,
+  InitAssets,
   InitServer,
   InitIO,
 }
 
-let step = OntimeStartOrder.InitDB;
+let step = OntimeStartOrder.InitAssets;
 let expressServer = null;
 let oscServer = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
     step = OntimeStartOrder.Error;
-    throw new Error('Init order error: startDb > startServer > startOsc > startIntegrations');
+    throw new Error('Init order error: initAssets > startServer > startOsc > startIntegrations');
   } else {
     if (step === 1 || step === 2) {
       step = step + 1;
@@ -116,9 +116,11 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
-export const startDb = async () => {
-  checkStart(OntimeStartOrder.InitDB);
+export const initAssets = async () => {
+  checkStart(OntimeStartOrder.InitAssets);
   await dbLoadingProcess;
+  populateStyles();
+
 };
 
 /**
@@ -127,8 +129,6 @@ export const startDb = async () => {
  */
 export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
-
-  populateStyles();
 
   const serverPort = 4001; // hardcoded for now
   const returnMessage = `Ontime is listening on port ${serverPort}`;
