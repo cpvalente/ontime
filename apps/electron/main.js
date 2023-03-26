@@ -48,9 +48,9 @@ let tray = null;
 
   try {
     const ontimeServer = require(nodePath)
-    const { startDb, startServer, startOSCServer, startIntegrations } = ontimeServer;
+    const { initAssets, startServer, startOSCServer, startIntegrations } = ontimeServer;
 
-    await startDb();
+    await initAssets();
 
     loaded = await startServer();
     await startOSCServer();

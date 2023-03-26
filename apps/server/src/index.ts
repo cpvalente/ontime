@@ -1,10 +1,10 @@
-import { startDb, startIntegrations, startOSCServer, startServer } from './app.js';
+import { initAssets, startIntegrations, startOSCServer, startServer } from './app.js';
 
 async function startOntime() {
   try {
     console.log('Starting Ontime');
     console.log('Loading DB');
-    await startDb();
+    await initAssets();
     console.log('Starting Server');
     await startServer();
     console.log('Starting OSC Server');
