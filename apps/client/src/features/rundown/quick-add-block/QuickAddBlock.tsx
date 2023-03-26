@@ -25,7 +25,7 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
   const doStartTime = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
 
-  const { eventSettings } = useLocalEvent();
+  const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 

@@ -12,7 +12,7 @@ export type TitleManager = TitleBlock & { showNow: boolean; showNext: boolean };
 const withData = (Component: ReactNode) => {
   return (props) => {
     // persisted app state
-    const { mirror: isMirrored } = useViewOptionsStore();
+    const isMirrored = useViewOptionsStore((state) => state.mirror);
 
     // HTTP API data
     const { data: eventsData } = useRundown();

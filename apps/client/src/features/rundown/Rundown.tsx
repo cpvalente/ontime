@@ -27,7 +27,7 @@ export default function Rundown(props: RundownProps) {
   const { addEvent, reorderEvent } = useEventAction();
   const cursorRef = createRef<HTMLDivElement>();
 
-  const { eventSettings } = useLocalEvent();
+  const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
   const showQuickEntry = eventSettings.showQuickEntry;

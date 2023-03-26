@@ -1,8 +1,8 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
-import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { useCursor } from '../../common/stores/cursorStore';
 import { useEventEditorStore } from '../../common/stores/eventEditor';
 import { useLocalEvent } from '../../common/stores/localEvent';
 import { useEmitLog } from '../../common/stores/logger';
@@ -34,9 +34,9 @@ export default function RundownEntry(props: RundownEntryProps) {
   const { emitError } = useEmitLog();
   const { openId, removeOpenEvent } = useEventEditorStore();
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
-  const { moveCursorTo } = useContext(CursorContext);
+  const moveCursorTo = useCursor((state) => state.moveCursorTo);
 
-  const { eventSettings } = useLocalEvent();
+  const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 

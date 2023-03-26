@@ -22,7 +22,7 @@ import { useEmitLog } from '../stores/logger';
 export const useEventAction = () => {
   const queryClient = useQueryClient();
   const { emitError } = useEmitLog();
-  const { eventSettings } = useLocalEvent();
+  const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
