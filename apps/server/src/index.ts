@@ -3,7 +3,7 @@ import { initAssets, startIntegrations, startOSCServer, startServer } from './ap
 async function startOntime() {
   try {
     console.log('Starting Ontime');
-    console.log('Loading DB');
+    console.log('Loading Assets');
     await initAssets();
     console.log('Starting Server');
     await startServer();
