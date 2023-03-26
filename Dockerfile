@@ -24,4 +24,4 @@ CMD ["node", "server/docker.cjs"]
 # Build and run commands
 # !!! Note that this command needs pre-build versions of the UI and server apps
 # docker build -t getontime/ontime .
-# docker run -p 4001:4001 -p 8888:8888/udp -p 9999:9999/udp -v ./ontime-db:/external/preloaded-db/ -v ./ontime-styles:/external/external/styles/ getontime/ontime
+# docker run -p 4001:4001 -p 8888:8888/udp -p 9999:9999/udp -v ./ontime-db:/external/db/ -v ./ontime-styles:/external/styles/ getontime/ontime
