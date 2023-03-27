@@ -174,7 +174,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
       <div className={style.statusElements}>
         <span className={style.eventNote}>{note}</span>
         <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
-          <EventBlockProgressBar playback={playback} />
+          {selected && <EventBlockProgressBar playback={playback} />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
           <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
