@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeEvent, Playback } from 'ontime-types';
 
+import { useCursor } from '../../../common/stores/cursorStore';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { EventItemActions } from '../RundownEntry';
 
@@ -62,6 +63,7 @@ export default function EventBlock(props: EventBlockProps) {
     actionHandler,
   } = props;
 
+  const moveCursorTo = useCursor((state) => state.moveCursorTo);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -77,7 +79,7 @@ export default function EventBlock(props: EventBlockProps) {
   });
 
   const dragStyle = {
-    zIndex: isDragging ? 2 : 1,
+    zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
     transition,
   };
@@ -124,12 +126,7 @@ export default function EventBlock(props: EventBlockProps) {
 
   return (
     <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
-      <div
-        className={style.binder}
-        style={{ ...binderColours }}
-        tabIndex={-1}
-        onClick={() => actionHandler('set-cursor', index)}
-      >
+      <div className={style.binder} style={{ ...binderColours }} tabIndex={-1} onClick={() => moveCursorTo(index)}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>

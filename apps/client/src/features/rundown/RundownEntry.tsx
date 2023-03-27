@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
-import { useCursor } from '../../common/stores/cursorStore';
 import { useEventEditorStore } from '../../common/stores/eventEditor';
 import { useLocalEvent } from '../../common/stores/localEvent';
 import { useEmitLog } from '../../common/stores/logger';
@@ -34,7 +33,6 @@ export default function RundownEntry(props: RundownEntryProps) {
   const { emitError } = useEmitLog();
   const { openId, removeOpenEvent } = useEventEditorStore();
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
-  const moveCursorTo = useCursor((state) => state.moveCursorTo);
 
   const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
@@ -45,13 +43,10 @@ export default function RundownEntry(props: RundownEntryProps) {
     field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
     value: unknown;
   };
+
   const actionHandler = useCallback(
     (action: EventItemActions, payload?: number | FieldValue) => {
       switch (action) {
-        case 'set-cursor': {
-          moveCursorTo(payload as number);
-          break;
-        }
         case 'event': {
           const newEvent = { type: SupportedEvent.Event };
           const options = {
@@ -111,8 +106,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
         }
         default:
-          emitError(`Unknown action called: ${action}`);
-          break;
+          throw new Error(`Unhandled event ${action}`);
       }
     },
     [
@@ -121,7 +115,6 @@ export default function RundownEntry(props: RundownEntryProps) {
       defaultPublic,
       deleteEvent,
       emitError,
-      moveCursorTo,
       openId,
       previousEventId,
       removeOpenEvent,

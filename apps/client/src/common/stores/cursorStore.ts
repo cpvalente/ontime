@@ -6,8 +6,6 @@ type CursorStore = {
   cursor: number;
   isCursorLocked: boolean;
   toggleCursorLocked: (newValue?: boolean) => void;
-  moveCursorUp: () => void;
-  moveCursorDown: () => void;
   moveCursorTo: (index: number) => void;
 };
 
@@ -22,7 +20,5 @@ export const useCursor = create<CursorStore>()((set) => ({
       localStorage.setItem(cursorLockedKey, String(val));
       return { isCursorLocked: val };
     }),
-  moveCursorUp: () => set((state) => ({ cursor: Math.max(state.cursor - 1, 0) })),
-  moveCursorDown: () => set((state) => ({ cursor: state.cursor + 1 })),
-  moveCursorTo: (index: number) => set((state) => ({ cursor: index >=0 ? index : state.cursor })),
+  moveCursorTo: (index: number) => set(() => ({ cursor: index })),
 }));
