@@ -16,15 +16,21 @@ import { EventItemActions } from '../RundownEntry';
 import style from './DelayBlock.module.scss';
 
 interface DelayBlockProps {
-  eventId: string;
   data: OntimeDelay;
-  index: number;
   hasCursor: boolean;
-  actionHandler: (action: EventItemActions, payload?: number | { field: keyof OntimeEvent; value: unknown }) => void;
+  actionHandler: (
+    action: EventItemActions,
+    payload?:
+      | number
+      | {
+          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
+          value: unknown;
+        },
+  ) => void;
 }
 
 export default function DelayBlock(props: DelayBlockProps) {
-  const { eventId, data, index, hasCursor, actionHandler } = props;
+  const { data, hasCursor, actionHandler } = props;
   const { applyDelay, updateEvent } = useEventAction();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
@@ -35,7 +41,6 @@ export default function DelayBlock(props: DelayBlockProps) {
     transform,
     transition,
   } = useSortable({
-    animateLayoutChanges: () => true,
     id: data.id,
   });
 

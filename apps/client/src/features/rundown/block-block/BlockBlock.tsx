@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { Draggable } from 'react-beautiful-dnd';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeBlock, OntimeEvent } from 'ontime-types';
 
@@ -8,29 +9,32 @@ import BlockActionMenu from '../event-block/composite/BlockActionMenu';
 import { EventItemActions } from '../RundownEntry';
 
 import style from './BlockBlock.module.scss';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 interface BlockBlockProps {
-  index: number;
   data: OntimeBlock;
   hasCursor: boolean;
-  actionHandler: (action: EventItemActions, payload?: number | { field: keyof OntimeEvent; value: unknown }) => void;
+  actionHandler: (
+    action: EventItemActions,
+    payload?:
+      | number
+      | {
+          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
+          value: unknown;
+        },
+  ) => void;
 }
 
 export default function BlockBlock(props: BlockBlockProps) {
-  const { index, data, hasCursor, actionHandler } = props;
+  const { data, hasCursor, actionHandler } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
   const {
-    isDragging,
     attributes: dragAttributes,
     listeners: dragListeners,
     setNodeRef,
     transform,
     transition,
   } = useSortable({
-    animateLayoutChanges: () => true,
     id: data.id,
   });
 

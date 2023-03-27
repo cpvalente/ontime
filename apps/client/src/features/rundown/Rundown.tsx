@@ -1,15 +1,7 @@
-import { createRef, Fragment, useCallback, useEffect } from 'react';
-import {
-  closestCenter,
-  DndContext,
-  DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { useCallback, useEffect, useRef } from 'react';
+import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -42,15 +34,10 @@ export default function Rundown(props: RundownProps) {
   const cursor = useCursor((state) => state.cursor);
   const isCursorLocked = useCursor((state) => state.isCursorLocked);
   const moveCursorTo = useCursor((state) => state.moveCursorTo);
-  const cursorRef = createRef<HTMLDivElement>();
+  const cursorRef = useRef<HTMLDivElement>();
 
   // DND KIT
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const insertAtCursor = useCallback(
     (type: SupportedEvent | 'clone', cursor: number) => {
@@ -193,11 +180,9 @@ export default function Rundown(props: RundownProps) {
     const { active, over } = event;
     if (over?.id) {
       if (active.id !== over?.id) {
-        const draggedId = String(active.id);
         const fromIndex = active.data.current?.sortable.index;
         const toIndex = over.data.current?.sortable.index;
-        console.log('debug will ask reorder', fromIndex, toIndex);
-        reorderEvent(draggedId, fromIndex, toIndex);
+        reorderEvent(String(active.id), fromIndex, toIndex);
       }
     }
   };
@@ -227,11 +212,11 @@ export default function Rundown(props: RundownProps) {
                 cumulativeDelay = 0;
                 eventIndex = -1;
               }
-              if (entry.type === 'delay' && entry.duration != null) {
+              if (entry.type === SupportedEvent.Delay && entry.duration !== null) {
                 cumulativeDelay += entry.duration;
-              } else if (entry.type === 'block') {
+              } else if (entry.type === SupportedEvent.Block) {
                 cumulativeDelay = 0;
-              } else if (entry.type === 'event') {
+              } else if (entry.type === SupportedEvent.Event) {
                 eventIndex++;
                 previousEnd = thisEnd;
                 thisEnd = entry.timeEnd;
@@ -242,22 +227,20 @@ export default function Rundown(props: RundownProps) {
               const isNext = featureData?.nextEventId === entry.id;
 
               return (
-                <Fragment key={entry.id}>
-                  <div ref={cursor === index ? cursorRef : undefined}>
-                    <RundownEntry
-                      type={entry.type}
-                      index={index}
-                      eventIndex={eventIndex}
-                      data={entry}
-                      selected={isSelected}
-                      hasCursor={cursor === index}
-                      next={isNext}
-                      delay={cumulativeDelay}
-                      previousEnd={previousEnd}
-                      previousEventId={previousEventId}
-                      playback={isSelected ? featureData.playback || undefined : undefined}
-                    />
-                  </div>
+                <div key={entry.id} ref={cursor === index ? cursorRef : undefined}>
+                  <RundownEntry
+                    type={entry.type}
+                    index={index}
+                    eventIndex={eventIndex}
+                    data={entry}
+                    selected={isSelected}
+                    hasCursor={cursor === index}
+                    next={isNext}
+                    delay={cumulativeDelay}
+                    previousEnd={previousEnd}
+                    previousEventId={previousEventId}
+                    playback={isSelected ? featureData.playback : undefined}
+                  />
 
                   {((showQuickEntry && index === cursor) || isLast) && (
                     <QuickAddBlock
@@ -268,7 +251,7 @@ export default function Rundown(props: RundownProps) {
                       disableAddBlock={entry.type === 'block'}
                     />
                   )}
-                </Fragment>
+                </div>
               );
             })}
           </div>

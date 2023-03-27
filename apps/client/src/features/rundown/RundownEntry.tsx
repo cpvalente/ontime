@@ -154,11 +154,9 @@ export default function RundownEntry(props: RundownEntryProps) {
       />
     );
   } else if (data.type === SupportedEvent.Block) {
-    // @ts-expect-error -- revise types here
-    return <BlockBlock index={index} data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
+    return <BlockBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
   } else if (data.type === SupportedEvent.Delay) {
-    // @ts-expect-error -- revise types here
-    return <DelayBlock index={index} data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
+    return <DelayBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
   }
   return null;
 }

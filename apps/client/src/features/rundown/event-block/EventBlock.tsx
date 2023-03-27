@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { Playback } from 'ontime-types';
+import { OntimeEvent, Playback } from 'ontime-types';
 
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { EventItemActions } from '../RundownEntry';
@@ -29,7 +29,15 @@ interface EventBlockProps {
   selected: boolean;
   hasCursor: boolean;
   playback?: Playback;
-  actionHandler: (action: EventItemActions, payload?: any) => void;
+  actionHandler: (
+    action: EventItemActions,
+    payload?:
+      | number
+      | {
+          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
+          value: unknown;
+        },
+  ) => void;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -56,7 +64,6 @@ export default function EventBlock(props: EventBlockProps) {
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const hasRendered = useRef(false);
 
   const {
     isDragging,
@@ -66,7 +73,6 @@ export default function EventBlock(props: EventBlockProps) {
     transform,
     transition,
   } = useSortable({
-    animateLayoutChanges: () => true,
     id: eventId,
   });
 
@@ -84,32 +90,30 @@ export default function EventBlock(props: EventBlockProps) {
     }
   }, [hasCursor]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          hasRendered.current = true;
         }
       },
       {
         root: null,
-        threshold: 0.3,
+        threshold: 1,
       },
     );
 
-    const saveRef = handleRef.current;
-
-    if (saveRef) {
-      observer.observe(handleRef.current);
+    const handleRefCurrent = handleRef.current;
+    if (handleRefCurrent) {
+      observer.observe(handleRefCurrent);
     }
 
     return () => {
-      if (saveRef) {
-        observer.unobserve(saveRef);
+      if (handleRefCurrent) {
+        observer.unobserve(handleRefCurrent);
       }
     };
-  }, []);
+  }, [handleRef]);
 
   const blockClasses = cx([
     style.eventBlock,
@@ -131,7 +135,7 @@ export default function EventBlock(props: EventBlockProps) {
         </span>
         {eventIndex}
       </div>
-      {(isVisible || hasRendered) && (
+      {isVisible && (
         <EventBlockInner
           timeStart={timeStart}
           timeEnd={timeEnd}
