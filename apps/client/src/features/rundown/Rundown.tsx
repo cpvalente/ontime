@@ -23,13 +23,6 @@ export default function Rundown(props: RundownProps) {
   const { entries } = props;
   const [statefulEntries, setStatefulEntries] = useState(entries);
 
-  useEffect(() => {
-    if (entries) {
-      setStatefulEntries(entries);
-    }
-  }, [entries]);
-
-  // TODO: should this go to the child element?
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent } = useEventAction();
   const eventSettings = useLocalEvent((state) => state.eventSettings);
@@ -129,11 +122,13 @@ export default function Rundown(props: RundownProps) {
     [cursor, entries.length, insertAtCursor, moveCursorTo],
   );
 
-  // move cursor
-  // useEffect(() => {
-  //   if (cursor > entries.length - 1) moveCursorTo(entries.length - 1);
-  //   if (entries.length > 0 && cursor === -1) moveCursorTo(0);
-  // }, [cursor, entries.length, moveCursorTo]);
+  // we copy the state from the store here
+  // to workaround async updates on the drag mutations
+  useEffect(() => {
+    if (entries) {
+      setStatefulEntries(entries);
+    }
+  }, [entries]);
 
   // listen to keys
   useEffect(() => {
@@ -198,8 +193,6 @@ export default function Rundown(props: RundownProps) {
       }
     }
   };
-
-  console.log('rendering component');
 
   if (!entries.length) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, -1)} />;
