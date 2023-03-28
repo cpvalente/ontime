@@ -32,7 +32,6 @@ importers:
     specifiers:
       '@chakra-ui/react': ^2.5.1
       '@dnd-kit/core': ^6.0.8
-      '@dnd-kit/modifiers': ^6.0.1
       '@dnd-kit/sortable': ^7.0.2
       '@dnd-kit/utilities': ^3.2.1
       '@emotion/react': ^11.10.5
@@ -97,7 +96,6 @@ importers:
     dependencies:
       '@chakra-ui/react': 2.5.1_loo4skotrnm7icurwgkplqpnwq
       '@dnd-kit/core': 6.0.8_biqbaboplfbrettd7655fr4n2y
-      '@dnd-kit/modifiers': 6.0.1_52scne4zmdeyjh2otzkgz2xfvu
       '@dnd-kit/sortable': 7.0.2_52scne4zmdeyjh2otzkgz2xfvu
       '@dnd-kit/utilities': 3.2.1_react@18.2.0
       '@emotion/react': 11.10.5_kzbn2opkn2327fwg5yzwzya5o4
@@ -1643,18 +1641,6 @@ packages:
       '@dnd-kit/utilities': 3.2.1_react@18.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      tslib: 2.5.0
-    dev: false
-
-  /@dnd-kit/modifiers/6.0.1_52scne4zmdeyjh2otzkgz2xfvu:
-    resolution: {integrity: sha512-rbxcsg3HhzlcMHVHWDuh9LCjpOVAgqbV78wLGI8tziXY3+qcMQ61qVXIvNKQFuhj75dSfD+o+PYZQ/NUk2A23A==}
-    peerDependencies:
-      '@dnd-kit/core': ^6.0.6
-      react: '>=16.8.0'
-    dependencies:
-      '@dnd-kit/core': 6.0.8_biqbaboplfbrettd7655fr4n2y
-      '@dnd-kit/utilities': 3.2.1_react@18.2.0
-      react: 18.2.0
       tslib: 2.5.0
     dev: false
 
