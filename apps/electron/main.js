@@ -1,14 +1,4 @@
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  globalShortcut,
-  Tray,
-  dialog,
-  ipcMain,
-  shell,
-  Notification,
-} = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut, Tray, dialog, ipcMain, shell, Notification } = require('electron');
 const path = require('path');
 const electronConfig = require('./electron.config');
 
@@ -40,10 +30,9 @@ let splash;
 let tray = null;
 
 (async () => {
-
   // in dev mode, we expect both UI and server to be running
-  if (!isProduction)  {
-    return
+  if (!isProduction) {
+    return;
   }
 
   try {
@@ -76,9 +65,7 @@ function showNotification(title, text) {
 function appShutdown() {
   // terminate node service
   (async () => {
-    console.log('asking for shutdown 1', nodePath)
-    const ontimeServer = require(nodePath)
-    console.log('asking for shutdown 2', ontimeServer)
+    const ontimeServer = require(nodePath);
     const { shutdown } = ontimeServer;
     await shutdown(electronConfig.appIni.shutdownCode);
   })();
@@ -129,7 +116,8 @@ function createWindow() {
     skipTaskbar: true,
   });
   splash.setIgnoreMouseEvents(true);
-  splash.loadURL(`file://${__dirname}/src/splash/splash.html`);
+  const splashPath = path.join('file://', __dirname, '/src/splash/splash.html');
+  splash.loadURL(splashPath);
 
   win = new BrowserWindow({
     width: 1920,
@@ -167,15 +155,13 @@ app.whenReady().then(() => {
   // (available regardless of whether app is in focus)
   // bring focus to window
   globalShortcut.register('Alt+1', () => {
-   bringToFront();
+    bringToFront();
   });
 
   // cheat to schedule process
   setTimeout(() => {
     // Load page served by node or use React dev run
-    const clientUrl = isProduction
-      ? electronConfig.reactAppUrl.production
-      : electronConfig.reactAppUrl.development;
+    const clientUrl = isProduction ? electronConfig.reactAppUrl.production : electronConfig.reactAppUrl.development;
 
     win.loadURL(clientUrl).then(() => {
       win.webContents.setBackgroundThrottling(false);
@@ -212,13 +198,13 @@ app.whenReady().then(() => {
 
   // Define context menu
   const { getTrayMenu } = require('./src/menu/trayMenu.js');
-  const trayMenuTemplate = getTrayMenu(bringToFront, askToQuit)
+  const trayMenuTemplate = getTrayMenu(bringToFront, askToQuit);
   const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
   tray.setContextMenu(trayContextMenu);
 });
 
 const { getApplicationMenu } = require('./src/menu/applicationMenu.js');
-const template = getApplicationMenu(isMac, askToQuit)
+const template = getApplicationMenu(isMac, askToQuit);
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
@@ -227,16 +213,10 @@ app.once('will-quit', () => {
   globalShortcut.unregisterAll();
 });
 
-// Get messages from react
-// Test message
-ipcMain.on('test-message', (event, arg) => {
-  showNotification('Test Message', 'test from react', arg);
-});
-
 // Ask for main window reload
 // Test message
 ipcMain.on('reload', () => {
-    win?.reload();
+  win?.reload();
 });
 
 // Terminate
@@ -252,13 +232,13 @@ ipcMain.on('set-window', (event, arg) => {
       win.maximize();
       break;
     case 'to-tray':
-      win.maximize();
+      win.hide();
       break;
     case 'show-dev':
       win.webContents.openDevTools({ mode: 'detach' });
       break;
     default:
-      console.log('Electron unhandled window request', arg)
+      console.log('Electron unhandled window request', arg);
   }
 });
 

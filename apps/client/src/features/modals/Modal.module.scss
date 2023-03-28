@@ -4,13 +4,24 @@
 .headerNotes {
   font-size: $text-body-size;
   width: 100%;
-  padding: 0 16px;
+  padding: 0 $section-spacing;
   color: $modal-note-color;
   margin-bottom: $section-spacing;
+
+  a {
+    display: block;
+    color: $blue-500;
+    transition-property: color;
+    transition-duration: $transition-time-action;
+
+    &:hover {
+      color: $ontime-color;
+    }
+  }
 }
 
 .divider {
-  margin: 8px 0;
+  margin: $element-spacing 0;
   border: 0;
   border-top: 1px solid $gray-100;
 }
@@ -21,21 +32,29 @@
   height: 100%
 }
 
-.splitSection {
+@mixin sectionSpacing {
+  border-radius: $component-border-radius-md;
+  padding: $element-spacing;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-
-  border-radius: 3px;
-  padding: 8px;
 
   &:hover {
     background-color: $blue-50;
   }
 }
 
+.splitSection {
+  @include sectionSpacing;
+  justify-content: space-between;
+}
+
+.entryRow {
+  @include sectionSpacing;
+  gap: $element-inner-spacing;
+}
+
 .sectionTitle {
-  font-size: 14px;
+  font-size: $inner-section-text-size;
   display: block;
 
   &.main {
@@ -44,7 +63,7 @@
 }
 
 @mixin subsection {
-  font-size: 14px;
+  font-size: $inner-section-text-size;
   display: block;
 }
 
@@ -59,19 +78,23 @@
 }
 
 .buttonSection {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: $section-spacing;
+  padding-top: $section-spacing;
+  padding-left: -24px;
   border-top: 1px solid $gray-100;
   display: flex;
-  gap: 16px;
-}
-
-.buttonSection {
-  button:first-of-type {
-    margin-right: auto;
-  }
+  gap: $section-spacing;
 }
 
 .spacer {
   flex-grow: 1;
+}
+
+.shiftRight {
+  align-self: flex-end;
+  margin-right: 8px;
+}
+
+.showPointer {
+  cursor: pointer;
 }

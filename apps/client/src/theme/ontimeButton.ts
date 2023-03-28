@@ -70,4 +70,5 @@ export const ontimeGhostOnLight = {
 export const ontimeButtonSubtleWhite = {
   ...ontimeButtonSubtle,
   color: '#f6f6f6', // $gray-50
+  fontWeight: 600,
 };

@@ -2,14 +2,13 @@ import { createRef, Fragment, useCallback, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { useAtomValue } from 'jotai';
 import { OntimeRundown, SupportedEvent } from 'ontime-types';
 
-import { defaultPublicAtom, showQuickEntryAtom, startTimeIsLastEndAtom } from '../../common/atoms/LocalEventSettings';
 import Empty from '../../common/components/state/Empty';
 import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
+import { useLocalEvent } from '../../common/stores/localEvent';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
@@ -25,11 +24,13 @@ export default function Rundown(props: RundownProps) {
   const { entries } = props;
   const data = useRundownEditor();
   const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } = useContext(CursorContext);
-  const startTimeIsLastEnd = useAtomValue(startTimeIsLastEndAtom);
-  const defaultPublic = useAtomValue(defaultPublicAtom);
   const { addEvent, reorderEvent } = useEventAction();
   const cursorRef = createRef<HTMLDivElement>();
-  const showQuickEntry = useAtomValue(showQuickEntryAtom);
+
+  const { eventSettings } = useLocalEvent();
+  const defaultPublic = eventSettings.defaultPublic;
+  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  const showQuickEntry = eventSettings.showQuickEntry;
 
   const insertAtCursor = useCallback(
     (type: SupportedEvent | 'clone', cursor: number) => {

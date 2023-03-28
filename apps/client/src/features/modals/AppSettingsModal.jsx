@@ -14,16 +14,15 @@ import {
 } from '@chakra-ui/react';
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
-import { useAtom } from 'jotai';
 
 import { useEmitLog } from '@/common/stores/logger';
 
 import { version } from '../../../package.json';
 import { getLatestVersion, postSettings } from '../../common/api/ontimeApi';
-import { eventSettingsAtom } from '../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useSettings from '../../common/hooks-query/useSettings';
 import { ontimePlaceholderSettings } from '../../common/models/OntimeSettings';
+import { useLocalEvent } from '../../common/stores/localEvent';
 
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
@@ -38,7 +37,7 @@ export default function AppSettingsModal() {
   const [submitting, setSubmitting] = useState(false);
   const [hidePin, setHidePin] = useState(true);
 
-  const [eventSettings, saveEventSettings] = useAtom(eventSettingsAtom);
+  const { eventSettings, setLocalEventSettings } = useLocalEvent();
   const [formSettings, setFormSettings] = useState(eventSettings);
 
   const [updateMessage, setUpdateMessage] = useState(<a>Using ontime version: {version}</a>);
@@ -69,7 +68,7 @@ export default function AppSettingsModal() {
 
     const hasChanged = !isEqual(formSettings, eventSettings);
     if (hasChanged) {
-      saveEventSettings(formSettings);
+      setLocalEventSettings(formSettings);
       validation.isValid = true;
     }
 

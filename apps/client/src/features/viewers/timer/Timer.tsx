@@ -1,17 +1,16 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useAtom } from 'jotai';
-import { Playback, TimerType } from 'ontime-types';
-import PropTypes from 'prop-types';
+import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
+import { TitleManager } from '../ViewWrapper';
 
 import './Timer.scss';
 
@@ -36,19 +35,18 @@ const titleVariants = {
   },
 };
 
-Timer.propTypes = {
-  general: PropTypes.object,
-  pres: PropTypes.object,
-  title: PropTypes.object,
-  time: PropTypes.object,
-  viewSettings: PropTypes.object,
-};
+interface TimerProps {
+  isMirrored: boolean;
+  general: EventData;
+  pres: Message;
+  title: TitleManager;
+  time: TimeManagerType;
+  viewSettings: ViewSettings;
+}
 
-// @ts-expect-error unable to type just yet
-export default function Timer(props) {
-  const { general, pres, title, time, viewSettings } = props;
+export default function Timer(props: TimerProps) {
+  const { isMirrored, general, pres, title, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
     document.title = 'ontime - Timer';

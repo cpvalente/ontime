@@ -10,13 +10,12 @@ import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
 import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { useAtom } from 'jotai';
 import { Playback } from 'ontime-types';
 
-import { editorEventId } from '../../../common/atoms/LocalEventSettings';
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { setEventPlayback } from '../../../common/hooks/useSocket';
+import { useEventEditorStore } from '../../../common/stores/eventEditor';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../RundownEntry';
@@ -78,7 +77,7 @@ export default function EventBlock(props: EventBlockProps) {
     actionHandler,
   } = props;
 
-  const [openId, setOpenId] = useAtom(editorEventId);
+  const { openId, setOpenEvent, removeOpenEvent } = useEventEditorStore();
   const { updateEvent } = useEventAction();
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
   const onFocusRef = useRef<null | HTMLSpanElement>(null);
@@ -110,6 +109,14 @@ export default function EventBlock(props: EventBlockProps) {
     },
     [title, updateEvent, eventId],
   );
+
+  const toggleOpenEvent = useCallback(() => {
+    if (openId === eventId) {
+      removeOpenEvent();
+    } else {
+      setOpenEvent(eventId);
+    }
+  }, [eventId, openId, removeOpenEvent, setOpenEvent]);
 
   const eventIsPlaying = selected && playback === Playback.Play;
   const playBtnStyles = { _hover: {} };
@@ -221,7 +228,7 @@ export default function EventBlock(props: EventBlockProps) {
               variant='ontime-subtle-white'
               size='sm'
               icon={<IoOptions />}
-              clickHandler={() => setOpenId((prev) => (prev === eventId ? null : eventId))}
+              clickHandler={toggleOpenEvent}
               tooltip='Event options'
               aria-label='Event options'
               tabIndex={-1}

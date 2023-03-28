@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAtom } from 'jotai';
 import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { mirrorViewersAtom } from '../../../common/atoms/ViewerSettings';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -14,6 +12,7 @@ import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 import './MinimalTimer.scss';
 
 interface MinimalTimerProps {
+  isMirrored: boolean;
   pres: Message;
   time: TimeManagerType;
   viewSettings: ViewSettings;
@@ -21,10 +20,9 @@ interface MinimalTimerProps {
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
-  const { pres, time, viewSettings, general } = props;
+  const { isMirrored, pres, time, viewSettings, general } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
-  const [isMirrored] = useAtom(mirrorViewersAtom);
 
   useEffect(() => {
     document.title = 'ontime - Minimal Timer';

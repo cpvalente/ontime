@@ -15,7 +15,12 @@ import { ontimeModal } from './ontimeModal';
 import { ontimeSelect } from './ontimeSelect';
 import { lightSwitch, ontimeSwitch } from './ontimeSwitch';
 import { ontimeTab } from './ontimeTab';
-import { ontimeInputFilled, ontimeTextAreaFilled, ontimeTextAreaFilledOnLight } from './ontimeTextInputs';
+import {
+  ontimeInputFilled,
+  ontimeInputFilledOnLight,
+  ontimeTextAreaFilled,
+  ontimeTextAreaFilledOnLight,
+} from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
 
 const theme = extendTheme({
@@ -52,6 +57,7 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeInputFilled },
+        'ontime-filled-on-light': { ...ontimeInputFilledOnLight },
       },
     },
     Modal: {

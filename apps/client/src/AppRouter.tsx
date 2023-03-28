@@ -40,6 +40,7 @@ export default function AppRouter() {
   // navigate if is alias route
   useEffect(() => {
     if (!data) return;
+
     for (const d of data) {
       if (`/${d.alias}` === location.pathname && d.enabled) {
         navigate(`/${d.pathAndParams}`);
@@ -48,9 +49,9 @@ export default function AppRouter() {
     }
   }, [data, location, navigate]);
 
-  return(
+  return (
     <Routes>
-      <Route path='/' element={<Navigate to="/timer" /> } />
+      <Route path='/' element={<Navigate to='/timer' />} />
       <Route path='/speaker' element={<STimer />} />
       <Route path='/presenter' element={<STimer />} />
       <Route path='/stage' element={<STimer />} />
@@ -111,8 +112,8 @@ export default function AppRouter() {
           </FeatureWrapper>
         }
       />
-      {/* Send to default if nothing found */}
-      <Route path='*' element={<Navigate to="/timer" /> } />
+      {/*/!* Send to default if nothing found *!/*/}
+      <Route path='*' element={<STimer />} />
     </Routes>
-  )
+  );
 }

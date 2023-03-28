@@ -2,8 +2,10 @@ import { ArgumentType, Client, Message } from 'node-osc';
 import { OSCSettings, OscSubscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
-import { parseTemplate } from './integrationUtils.js';
+import { parseTemplateNested } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
+import { dbModel } from '../../models/dataModel.js';
+import { validateOscSubscription } from '../../utils/parserFunctions.js';
 
 type Action = TimerLifeCycleKey | string;
 
@@ -17,7 +19,7 @@ export class OscIntegration implements IIntegration {
 
   constructor() {
     this.oscClient = null;
-    this.subscriptions = {};
+    this.subscriptions = dbModel.osc.subscriptions;
   }
 
   /**
@@ -39,6 +41,8 @@ export class OscIntegration implements IIntegration {
       };
     }
     try {
+      // this allows re-calling the init function during runtime
+      this.oscClient?.close();
       this.oscClient = new Client(targetIP, portOut);
       return {
         success: true,
@@ -54,7 +58,9 @@ export class OscIntegration implements IIntegration {
   }
 
   initSubscriptions(subscriptionOptions: OscSubscription) {
-    this.subscriptions = { ...this.subscriptions, ...subscriptionOptions };
+    if (validateOscSubscription(subscriptionOptions)) {
+      this.subscriptions = { ...subscriptionOptions };
+    }
   }
 
   dispatch(action: Action, state?: object) {
@@ -73,11 +79,15 @@ export class OscIntegration implements IIntegration {
     }
 
     // check subscriptions for action
-    const { enabled, message } = this.subscriptions?.[action] || {};
-    if (enabled) {
-      const parsedMessage = parseTemplate(message, state || {});
-      this.emit('address/', parsedMessage);
-    }
+    const eventSubscriptions = this.subscriptions?.[action] || [];
+
+    eventSubscriptions.forEach((sub) => {
+      const { enabled, message } = sub;
+      if (enabled && message) {
+        const parsedMessage = parseTemplateNested(message, state || {});
+        this.emit(parsedMessage);
+      }
+    });
   }
 
   emit(path: string, payload?: ArgumentType) {
@@ -98,7 +108,7 @@ export class OscIntegration implements IIntegration {
       if (error) {
         return {
           success: false,
-          message: `error is here ${JSON.stringify(error)}`,
+          message: `Error sending message: ${JSON.stringify(error)}`,
         };
       }
       return {
@@ -116,3 +126,5 @@ export class OscIntegration implements IIntegration {
     }
   }
 }
+
+export const oscIntegration = new OscIntegration();

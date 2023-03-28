@@ -19,7 +19,7 @@ export const useLogData = () => useStore(logger);
 
 export const addLog = (log: Log) =>
   logger.setState((state) => ({
-    logs: [...state.logs, log],
+    logs: [log, ...state.logs],
   }));
 
 export const clearLogs = () => logger.setState({ logs: [] });
@@ -40,7 +40,6 @@ export function useEmitLog() {
       text,
     };
 
-    addLog(log);
     socketSendJson('ontime-log', log);
   }, []);
 

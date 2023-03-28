@@ -119,6 +119,7 @@ export default function MenuBar(props: MenuBarProps) {
         clickHandler={() => actionHandler('max')}
         tooltip='Show full window'
         aria-label='Show full window'
+        isDisabled={!isElectron}
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -126,6 +127,7 @@ export default function MenuBar(props: MenuBarProps) {
         clickHandler={() => actionHandler('min')}
         tooltip='Minimise to tray'
         aria-label='Minimise to tray'
+        isDisabled={!isElectron}
       />
       <div className={style.gap} />
       <TooltipActionBtn

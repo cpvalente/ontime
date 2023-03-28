@@ -85,10 +85,14 @@ export class SocketServer implements IAdapter {
 
           if (type === 'hello') {
             ws.send('hi');
+            return;
           }
 
           if (type === 'ontime-log') {
-            console.log('attempted adding to log');
+            if (payload.level && payload.origin && payload.text) {
+              logger.emit(payload.level, payload.origin, payload.text);
+            }
+            return;
           }
 
           try {
@@ -108,7 +112,7 @@ export class SocketServer implements IAdapter {
   }
 
   // message is any serializable value
-  send(message: any) {
+  send(message: unknown) {
     this.wss?.clients.forEach((client) => {
       if (client !== this.wss && client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(message));

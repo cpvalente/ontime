@@ -16,6 +16,7 @@ export const runtimeStorePlaceholder = {
     selectedEventId: null,
     duration: null,
     timerType: null,
+    endAction: null,
   },
   playback: Playback.Stop,
   timerMessage: {

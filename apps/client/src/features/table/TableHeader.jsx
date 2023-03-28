@@ -20,17 +20,16 @@ import PlaybackIcon from './tableElements/PlaybackIcon';
 import style from './Table.module.scss';
 
 export default function TableHeader({ handleCSVExport, featureData }) {
-  const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } =
-    useContext(TableSettingsContext);
-  const { data: timer } = useTimer();
+  const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } = useContext(TableSettingsContext);
+  const timer = useTimer();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { data: event } = useEventData();
 
   const selected = !featureData.numEvents
     ? 'No events'
     : `Event ${featureData.selectedEventIndex != null ? featureData.selectedEventIndex + 1 : '-'}/${
-      featureData.numEvents ? featureData.numEvents : '-'
-    }`;
+        featureData.numEvents ? featureData.numEvents : '-'
+      }`;
 
   // prepare presentation variables
   const isOvertime = timer.current < 0;

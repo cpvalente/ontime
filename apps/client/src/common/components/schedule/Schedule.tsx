@@ -17,23 +17,9 @@ export default function Schedule({ className }: ScheduleProps) {
   }
 
   let selectedState: 'past' | 'now' | 'future' = 'past';
-  const selectedEvent = paginatedEvents.find((event) => event.id === selectedEventId);
 
   return (
     <ul className={`schedule ${className}`}>
-      {selectedEvent && (
-        <ScheduleItem
-          key={selectedEvent.id}
-          selected='now'
-          timeStart={selectedEvent.timeStart}
-          timeEnd={selectedEvent.timeEnd}
-          title={selectedEvent.title}
-          presenter={selectedEvent.presenter}
-          colour={isBackstage ? selectedEvent.colour : ''}
-          backstageEvent={!selectedEvent.isPublic}
-          skip={selectedEvent.skip}
-        />
-      )}
       {paginatedEvents.map((event) => {
         if (event.id === selectedEventId) {
           selectedState = 'now';

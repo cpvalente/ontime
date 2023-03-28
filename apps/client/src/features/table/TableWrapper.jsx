@@ -15,8 +15,8 @@ import style from './Table.module.scss';
 export default function TableWrapper() {
   const { data: rundown } = useRundown();
   const { data: userFields } = useUserFields();
-  const { data: featureData } = useCuesheet();
   const { updateEvent } = useEventAction();
+  const featureData = useCuesheet();
   const { theme } = useContext(TableSettingsContext);
 
   // Set window title
@@ -30,11 +30,11 @@ export default function TableWrapper() {
         return;
       }
 
-    // check if value is the same
-    const event = rundown[rowIndex];
-    if (event == null) {
-      return;
-    }
+      // check if value is the same
+      const event = rundown[rowIndex];
+      if (event == null) {
+        return;
+      }
 
       if (event[accessor] === payload) {
         return;
@@ -52,13 +52,15 @@ export default function TableWrapper() {
         [accessor]: cleanVal,
       };
 
-    // submit
-    try {
-      await updateEvent(mutationObject);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [updateEvent, rundown]);
+      // submit
+      try {
+        await updateEvent(mutationObject);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [updateEvent, rundown],
+  );
 
   const exportHandler = useCallback(
     (headerData) => {
@@ -75,17 +77,14 @@ export default function TableWrapper() {
       document.body.appendChild(link);
       link.click();
     },
-    [rundown, userFields]
+    [rundown, userFields],
   );
 
   if (typeof rundown === 'undefined' || typeof userFields === 'undefined') {
     return <span>loading...</span>;
   }
   return (
-    <div
-      className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper}
-      data-testid="cuesheet"
-    >
+    <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper} data-testid='cuesheet'>
       <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
       <OntimeTable
         tableData={rundown}
