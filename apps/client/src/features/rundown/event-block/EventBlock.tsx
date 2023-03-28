@@ -5,6 +5,7 @@ import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeEvent, Playback } from 'ontime-types';
 
 import { useCursor } from '../../../common/stores/cursorStore';
+import { useEventEditorStore } from '../../../common/stores/eventEditor';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { EventItemActions } from '../RundownEntry';
 
@@ -66,6 +67,7 @@ export default function EventBlock(props: EventBlockProps) {
   const moveCursorTo = useCursor((state) => state.moveCursorTo);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const openId = useEventEditorStore((state) => state.openId);
 
   const {
     isDragging,
@@ -134,6 +136,7 @@ export default function EventBlock(props: EventBlockProps) {
       </div>
       {isVisible && (
         <EventBlockInner
+          isOpen={openId === eventId}
           timeStart={timeStart}
           timeEnd={timeEnd}
           duration={duration}

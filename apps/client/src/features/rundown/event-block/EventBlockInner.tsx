@@ -32,6 +32,7 @@ const tooltipProps = {
 };
 
 interface EventBlockInnerProps {
+  isOpen: boolean;
   timeStart: number;
   timeEnd: number;
   duration: number;
@@ -50,6 +51,7 @@ interface EventBlockInnerProps {
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
   const {
+    isOpen,
     timeStart,
     timeEnd,
     duration,
@@ -66,11 +68,12 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     actionHandler,
   } = props;
 
-  const { openId, setOpenEvent, removeOpenEvent } = useEventEditorStore();
   const { updateEvent } = useEventAction();
 
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
   const [renderInner, setRenderInner] = useState(false);
+  const setOpenEvent = useEventEditorStore((state) => state.setOpenEvent);
+  const removeOpenEvent = useEventEditorStore((state) => state.removeOpenEvent);
 
   // Todo: could I re-render the item without causing a state change here?
   // ?? use refs instead?
@@ -98,12 +101,12 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   );
 
   const toggleOpenEvent = useCallback(() => {
-    if (openId === eventId) {
+    if (isOpen) {
       removeOpenEvent();
     } else {
       setOpenEvent(eventId);
     }
-  }, [eventId, openId, removeOpenEvent, setOpenEvent]);
+  }, [eventId, isOpen, removeOpenEvent, setOpenEvent]);
 
   const eventIsPlaying = selected && playback === Playback.Play;
   const playBtnStyles = { _hover: {} };
@@ -199,8 +202,8 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           tooltip='Event options'
           aria-label='Event options'
           tabIndex={-1}
-          backgroundColor={openId === eventId ? '#2B5ABC' : undefined}
-          color={openId === eventId ? 'white' : '#f6f6f6'}
+          backgroundColor={isOpen ? '#2B5ABC' : undefined}
+          color={isOpen ? 'white' : '#f6f6f6'}
         />
         <BlockActionMenu showAdd showDelay showBlock showClone enableDelete={!selected} actionHandler={actionHandler} />
       </div>
