@@ -36,6 +36,7 @@ export default function BlockBlock(props: BlockBlockProps) {
     transition,
   } = useSortable({
     id: data.id,
+    animateLayoutChanges: () => false,
   });
 
   const dragStyle = {

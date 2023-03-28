@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -22,6 +21,14 @@ interface RundownProps {
 
 export default function Rundown(props: RundownProps) {
   const { entries } = props;
+  const [statefulEntries, setStatefulEntries] = useState(entries);
+
+  useEffect(() => {
+    if (entries) {
+      setStatefulEntries(entries);
+    }
+  }, [entries]);
+
   // TODO: should this go to the child element?
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent } = useEventAction();
@@ -178,14 +185,21 @@ export default function Rundown(props: RundownProps) {
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
     if (over?.id) {
       if (active.id !== over?.id) {
         const fromIndex = active.data.current?.sortable.index;
         const toIndex = over.data.current?.sortable.index;
+        // ugly hack to handle inconsistencies between dnd-kit and async store updates
+        setStatefulEntries((currentEntries) => {
+          return arrayMove(currentEntries, fromIndex, toIndex);
+        });
         reorderEvent(String(active.id), fromIndex, toIndex);
       }
     }
   };
+
+  console.log('rendering component');
 
   if (!entries.length) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, -1)} />;
@@ -199,15 +213,10 @@ export default function Rundown(props: RundownProps) {
 
   return (
     <div className={style.eventContainer}>
-      <DndContext
-        onDragEnd={handleOnDragEnd}
-        sensors={sensors}
-        modifiers={[restrictToVerticalAxis]}
-        collisionDetection={closestCenter}
-      >
-        <SortableContext items={entries} strategy={verticalListSortingStrategy}>
+      <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
+        <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
-            {entries.map((entry, index) => {
+            {statefulEntries.map((entry, index) => {
               if (index === 0) {
                 cumulativeDelay = 0;
                 eventIndex = -1;
@@ -241,7 +250,6 @@ export default function Rundown(props: RundownProps) {
                     previousEventId={previousEventId}
                     playback={isSelected ? featureData.playback : undefined}
                   />
-
                   {((showQuickEntry && index === cursor) || isLast) && (
                     <QuickAddBlock
                       showKbd={false}

@@ -9,6 +9,7 @@
 }
 
 .list {
+  overflow-x: clip;
   display: flex;
   flex-direction: column;
 }

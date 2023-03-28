@@ -78,6 +78,7 @@ export default function EventBlock(props: EventBlockProps) {
     transition,
   } = useSortable({
     id: eventId,
+    animateLayoutChanges: () => false,
   });
 
   const dragStyle = {

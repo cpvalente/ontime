@@ -42,6 +42,7 @@ export default function DelayBlock(props: DelayBlockProps) {
     transition,
   } = useSortable({
     id: data.id,
+    animateLayoutChanges: () => false,
   });
 
   const dragStyle = {
