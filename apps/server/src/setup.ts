@@ -36,14 +36,24 @@ const env = process.env.NODE_ENV || 'production';
 
 export const isTest = Boolean(process.env.IS_TEST);
 export const environment = isTest ? 'test' : env;
-export const isProduction = env === 'production' && !isTest;
+export const isProduction = env === ('production' || 'docker') && !isTest;
+export const isDocker = env === 'docker';
 
 // =================================================
 // resolve path to external
 const productionPath = '../../Resources/extraResources/client';
 const devPath = '../../client/build/';
+const dockerPath = 'client/';
 
-export const resolvedPath = (): string => (isProduction ? productionPath : devPath);
+export const resolvedPath = (): string => {
+  if (isProduction) {
+    return productionPath;
+  }
+  if (isDocker) {
+    return dockerPath;
+  }
+  return devPath;
+};
 
 // resolve file URL in both CJS and ESM (build and dev)
 if (import.meta.url) {
@@ -61,4 +71,10 @@ export const resolveDbPath = join(resolveDbDirectory, config.database.filename);
 
 export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
-  : join(currentDirectory, config.database.directory, config.database.filename);
+  : join(currentDirectory, '/preloaded-db/', config.database.filename);
+
+// path to public styles
+export const resolveStylesDirectory = join(appPath, config.styles.directory);
+export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);
+
+export const pathToStartStyles = join(currentDirectory, '/external/styles/', config.styles.filename);

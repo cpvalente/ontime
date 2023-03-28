@@ -29,6 +29,7 @@ import { eventLoader } from './classes/event-loader/EventLoader.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
+import { populateStyles } from './modules/loadStyles.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -95,19 +96,19 @@ app.use((error, response) => {
 
 enum OntimeStartOrder {
   Error,
-  InitDB,
+  InitAssets,
   InitServer,
   InitIO,
 }
 
-let step = OntimeStartOrder.InitDB;
+let step = OntimeStartOrder.InitAssets;
 let expressServer = null;
 let oscServer = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
     step = OntimeStartOrder.Error;
-    throw new Error('Init order error: startDb > startServer > startOsc > startIntegrations');
+    throw new Error('Init order error: initAssets > startServer > startOsc > startIntegrations');
   } else {
     if (step === 1 || step === 2) {
       step = step + 1;
@@ -115,9 +116,10 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
-export const startDb = async () => {
-  checkStart(OntimeStartOrder.InitDB);
+export const initAssets = async () => {
+  checkStart(OntimeStartOrder.InitAssets);
   await dbLoadingProcess;
+  populateStyles();
 };
 
 /**
