@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { Draggable } from 'react-beautiful-dnd';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeBlock, OntimeEvent } from 'ontime-types';
 
@@ -10,43 +11,53 @@ import { EventItemActions } from '../RundownEntry';
 import style from './BlockBlock.module.scss';
 
 interface BlockBlockProps {
-  index: number;
   data: OntimeBlock;
   hasCursor: boolean;
-  actionHandler: (action: EventItemActions, payload?: number | { field: keyof OntimeEvent, value: unknown }) => void;
+  actionHandler: (
+    action: EventItemActions,
+    payload?:
+      | number
+      | {
+          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
+          value: unknown;
+        },
+  ) => void;
 }
 
 export default function BlockBlock(props: BlockBlockProps) {
-  const { index, data, hasCursor, actionHandler } = props;
-  const onFocusRef = useRef<null | HTMLSpanElement>(null);
+  const { data, hasCursor, actionHandler } = props;
+  const handleRef = useRef<null | HTMLSpanElement>(null);
+
+  const {
+    attributes: dragAttributes,
+    listeners: dragListeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id: data.id,
+    animateLayoutChanges: () => false,
+  });
+
+  const dragStyle = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
 
   useEffect(() => {
     if (hasCursor) {
-      onFocusRef?.current?.focus();
+      handleRef?.current?.focus();
     }
-  }, [hasCursor])
+  }, [hasCursor]);
 
-  const blockClasses = cx([
-    style.block,
-    hasCursor ? style.hasCursor : null,
-  ]);
+  const blockClasses = cx([style.block, hasCursor ? style.hasCursor : null]);
 
   return (
-    <Draggable key={data.id} draggableId={data.id} index={index}>
-      {(provided) => (
-        <div className={blockClasses} {...provided.draggableProps} ref={provided.innerRef}>
-          <span className={style.drag} {...provided.dragHandleProps} ref={onFocusRef}>
-            <IoReorderTwo />
-          </span>
-          <BlockActionMenu
-            className={style.actionOverlay}
-            showAdd
-            showDelay
-            enableDelete
-            actionHandler={actionHandler}
-          />
-        </div>
-      )}
-    </Draggable>
+    <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
+      <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+        <IoReorderTwo />
+      </span>
+      <BlockActionMenu className={style.actionOverlay} showAdd showDelay enableDelete actionHandler={actionHandler} />
+    </div>
   );
 }

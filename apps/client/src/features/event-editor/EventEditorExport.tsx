@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Box, IconButton } from '@chakra-ui/react';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 
@@ -16,7 +17,7 @@ const closeBtnStyle = {
   _hover: { bg: '#ebedf0', color: '#333' },
 };
 
-export default function InfoExport() {
+const EventEditorExport = () => {
   const { openId, removeOpenEvent } = useEventEditorStore();
 
   return (
@@ -31,4 +32,7 @@ export default function InfoExport() {
       </ErrorBoundary>
     </Box>
   );
-}
+};
+
+export default memo(EventEditorExport);
+

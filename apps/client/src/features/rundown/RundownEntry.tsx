@@ -1,7 +1,6 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
-import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useEventEditorStore } from '../../common/stores/eventEditor';
 import { useLocalEvent } from '../../common/stores/localEvent';
@@ -32,11 +31,12 @@ interface RundownEntryProps {
 export default function RundownEntry(props: RundownEntryProps) {
   const { index, eventIndex, data, selected, hasCursor, next, delay, previousEnd, previousEventId, playback } = props;
   const { emitError } = useEmitLog();
-  const { openId, removeOpenEvent } = useEventEditorStore();
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
-  const { moveCursorTo } = useContext(CursorContext);
 
-  const { eventSettings } = useLocalEvent();
+  const openId = useEventEditorStore((state) => state.openId);
+  const removeOpenEvent = useEventEditorStore((state) => state.removeOpenEvent);
+
+  const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
@@ -45,90 +45,73 @@ export default function RundownEntry(props: RundownEntryProps) {
     field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
     value: unknown;
   };
-  const actionHandler = useCallback(
-    (action: EventItemActions, payload?: number | FieldValue) => {
-      switch (action) {
-        case 'set-cursor': {
-          moveCursorTo(payload as number);
-          break;
-        }
-        case 'event': {
-          const newEvent = { type: SupportedEvent.Event };
-          const options = {
-            startTimeIsLastEnd,
-            defaultPublic,
-            lastEventId: previousEventId,
-            after: data.id,
-          };
-          addEvent(newEvent, options);
-          break;
-        }
-        case 'delay': {
-          addEvent({ type: SupportedEvent.Delay }, { after: data.id });
-          break;
-        }
-        case 'block': {
-          addEvent({ type: SupportedEvent.Block }, { after: data.id });
-          break;
-        }
-        case 'delete': {
-          if (openId === data.id) {
-            removeOpenEvent();
-          }
-          deleteEvent(data.id);
-          break;
-        }
-        case 'clone': {
-          const newEvent = cloneEvent(data as OntimeEvent, data.id);
-          addEvent(newEvent);
-          break;
-        }
-        case 'update': {
-          // Handles and filters update requests
-          const { field, value } = payload as FieldValue;
-          const newData: Partial<OntimeEvent> = { id: data.id };
 
-          if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
-            // duration defines timeEnd
-            newData.duration = value as number;
-            newData.timeEnd = data.timeStart + (value as number);
-            updateEvent(newData);
-          } else if (field === 'timeStart' && data.type === SupportedEvent.Event) {
-            newData.duration = calculateDuration(value as number, data.timeEnd);
-            newData.timeStart = value as number;
-            updateEvent(newData);
-          } else if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
-            newData.duration = calculateDuration(data.timeStart, value as number);
-            newData.timeEnd = value as number;
-            updateEvent(newData);
-          } else if (field in data) {
-            // @ts-expect-error not sure how to type this
-            newData[field] = value;
-            updateEvent(newData);
-          } else {
-            emitError(`Unknown field: ${field}`);
-          }
-          break;
-        }
-        default:
-          emitError(`Unknown action called: ${action}`);
-          break;
+  // we assume the data is not changing in the lifecycle of this component
+  // changes to the data would make rundown re-render, also re-rendering this component
+  const actionHandler = useCallback((action: EventItemActions, payload?: number | FieldValue) => {
+    switch (action) {
+      case 'event': {
+        const newEvent = { type: SupportedEvent.Event };
+        const options = {
+          startTimeIsLastEnd,
+          defaultPublic,
+          lastEventId: previousEventId,
+          after: data.id,
+        };
+        addEvent(newEvent, options);
+        break;
       }
-    },
-    [
-      addEvent,
-      data,
-      defaultPublic,
-      deleteEvent,
-      emitError,
-      moveCursorTo,
-      openId,
-      previousEventId,
-      removeOpenEvent,
-      startTimeIsLastEnd,
-      updateEvent,
-    ],
-  );
+      case 'delay': {
+        addEvent({ type: SupportedEvent.Delay }, { after: data.id });
+        break;
+      }
+      case 'block': {
+        addEvent({ type: SupportedEvent.Block }, { after: data.id });
+        break;
+      }
+      case 'delete': {
+        if (openId === data.id) {
+          removeOpenEvent();
+        }
+        deleteEvent(data.id);
+        break;
+      }
+      case 'clone': {
+        const newEvent = cloneEvent(data as OntimeEvent, data.id);
+        addEvent(newEvent);
+        break;
+      }
+      case 'update': {
+        // Handles and filters update requests
+        const { field, value } = payload as FieldValue;
+        const newData: Partial<OntimeEvent> = { id: data.id };
+
+        if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
+          // duration defines timeEnd
+          newData.duration = value as number;
+          newData.timeEnd = data.timeStart + (value as number);
+          updateEvent(newData);
+        } else if (field === 'timeStart' && data.type === SupportedEvent.Event) {
+          newData.duration = calculateDuration(value as number, data.timeEnd);
+          newData.timeStart = value as number;
+          updateEvent(newData);
+        } else if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
+          newData.duration = calculateDuration(data.timeStart, value as number);
+          newData.timeEnd = value as number;
+          updateEvent(newData);
+        } else if (field in data) {
+          // @ts-expect-error not sure how to type this
+          newData[field] = value;
+          updateEvent(newData);
+        } else {
+          emitError(`Unknown field: ${field}`);
+        }
+        break;
+      }
+      default:
+        throw new Error(`Unhandled event ${action}`);
+    }
+  }, []);
 
   if (data.type === SupportedEvent.Event) {
     return (
@@ -154,11 +137,9 @@ export default function RundownEntry(props: RundownEntryProps) {
       />
     );
   } else if (data.type === SupportedEvent.Block) {
-    // @ts-expect-error -- revise types here
-    return <BlockBlock index={index} data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
+    return <BlockBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
   } else if (data.type === SupportedEvent.Delay) {
-    // @ts-expect-error -- revise types here
-    return <DelayBlock index={index} data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
+    return <DelayBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
   }
   return null;
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { Draggable } from 'react-beautiful-dnd';
 import { Button, HStack } from '@chakra-ui/react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeDelay, OntimeEvent } from 'ontime-types';
@@ -16,19 +17,42 @@ import style from './DelayBlock.module.scss';
 
 interface DelayBlockProps {
   data: OntimeDelay;
-  index: number;
   hasCursor: boolean;
-  actionHandler: (action: EventItemActions, payload?: number | { field: keyof OntimeEvent; value: unknown }) => void;
+  actionHandler: (
+    action: EventItemActions,
+    payload?:
+      | number
+      | {
+          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
+          value: unknown;
+        },
+  ) => void;
 }
 
 export default function DelayBlock(props: DelayBlockProps) {
-  const { data, index, hasCursor, actionHandler } = props;
+  const { data, hasCursor, actionHandler } = props;
   const { applyDelay, updateEvent } = useEventAction();
-  const onFocusRef = useRef<null | HTMLSpanElement>(null);
+  const handleRef = useRef<null | HTMLSpanElement>(null);
+
+  const {
+    attributes: dragAttributes,
+    listeners: dragListeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id: data.id,
+    animateLayoutChanges: () => false,
+  });
+
+  const dragStyle = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
 
   useEffect(() => {
     if (hasCursor) {
-      onFocusRef?.current?.focus();
+      handleRef?.current?.focus();
     }
   }, [hasCursor]);
 
@@ -53,21 +77,17 @@ export default function DelayBlock(props: DelayBlockProps) {
   const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
 
   return (
-    <Draggable key={data.id} draggableId={data.id} index={index}>
-      {(provided) => (
-        <div className={blockClasses} {...provided.draggableProps} ref={provided.innerRef}>
-          <span className={style.drag} {...provided.dragHandleProps} ref={onFocusRef}>
-            <IoReorderTwo />
-          </span>
-          <DelayInput value={delayValue} submitHandler={delaySubmitHandler} />
-          <HStack spacing='8px' className={style.actionOverlay}>
-            <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
-              Apply delay
-            </Button>
-            <BlockActionMenu showAdd enableDelete actionHandler={actionHandler} />
-          </HStack>
-        </div>
-      )}
-    </Draggable>
+    <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
+      <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+        <IoReorderTwo />
+      </span>
+      <DelayInput value={delayValue} submitHandler={delaySubmitHandler} />
+      <HStack spacing='8px' className={style.actionOverlay}>
+        <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
+          Apply delay
+        </Button>
+        <BlockActionMenu showAdd enableDelete actionHandler={actionHandler} />
+      </HStack>
+    </div>
   );
 }

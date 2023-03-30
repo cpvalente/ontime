@@ -1,6 +1,6 @@
 export const ontimeMenuOnDark = {
   list: {
-    borderRadius: "3px",
+    borderRadius: '3px',
     border: 'none',
     bg: '#fff', // $gray-50
     zIndex: 100,

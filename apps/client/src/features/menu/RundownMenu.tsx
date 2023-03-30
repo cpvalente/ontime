@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext } from 'react';
+import { memo, useCallback } from 'react';
 import { Button, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Switch } from '@chakra-ui/react';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
@@ -6,36 +6,32 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { SupportedEvent } from 'ontime-types';
 
-import { CursorContext } from '../../common/context/CursorContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { useCursor } from '../../common/stores/cursorStore';
 
 import style from './RundownMenu.module.scss';
 
 const RundownMenu = () => {
-  const { isCursorLocked, toggleCursorLocked } = useContext(CursorContext);
+  const isCursorLocked = useCursor((state) => state.isCursorLocked);
+  const toggleCursorLocked = useCursor((state) => state.toggleCursorLocked);
+
   const { addEvent, deleteAllEvents } = useEventAction();
 
-  // TODO: re-write this with stable functions
-  type ActionTypes = SupportedEvent | 'delete-all';
-  const eventAction = useCallback(
-    (action: ActionTypes) => {
-      switch (action) {
-        case SupportedEvent.Event:
-          addEvent({ type: action });
-          break;
-        case SupportedEvent.Delay:
-          addEvent({ type: action });
-          break;
-        case SupportedEvent.Block:
-          addEvent({ type: action });
-          break;
-        case 'delete-all':
-          deleteAllEvents();
-          break;
-      }
-    },
-    [addEvent, deleteAllEvents],
-  );
+  const newEvent = useCallback(() => {
+    addEvent({ type: SupportedEvent.Event });
+  }, [addEvent]);
+
+  const newBlock = useCallback(() => {
+    addEvent({ type: SupportedEvent.Block });
+  }, [addEvent]);
+
+  const newDelay = useCallback(() => {
+    addEvent({ type: SupportedEvent.Delay });
+  }, [addEvent]);
+
+  const deleteAll = useCallback(() => {
+    deleteAllEvents();
+  }, [deleteAllEvents]);
 
   return (
     <HStack className={style.headerButtons}>
@@ -45,29 +41,24 @@ const RundownMenu = () => {
           onChange={(event) => toggleCursorLocked(event.target.checked)}
           variant='ontime'
         />
-        Lock cursor to current
+        Follow loaded event
       </label>
       <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
-        <MenuButton
-          as={Button}
-          leftIcon={<IoAdd />}
-          size='sm'
-          variant='ontime-subtle'
-        >
+        <MenuButton as={Button} leftIcon={<IoAdd />} size='sm' variant='ontime-subtle'>
           Event...
         </MenuButton>
         <MenuList>
-          <MenuItem icon={<IoAdd />} onClick={() => eventAction(SupportedEvent.Event)}>
+          <MenuItem icon={<IoAdd />} onClick={newEvent}>
             Add event at start
           </MenuItem>
-          <MenuItem icon={<IoTimerOutline />} onClick={() => eventAction(SupportedEvent.Delay)}>
+          <MenuItem icon={<IoTimerOutline />} onClick={newDelay}>
             Add delay at start
           </MenuItem>
-          <MenuItem icon={<FiMinusCircle />} onClick={() => eventAction(SupportedEvent.Block)}>
+          <MenuItem icon={<FiMinusCircle />} onClick={newBlock}>
             Add block at start
           </MenuItem>
           <MenuDivider />
-          <MenuItem icon={<FiTrash2 />} onClick={() => eventAction('delete-all')} color='#D20300'>
+          <MenuItem icon={<FiTrash2 />} onClick={deleteAll} color='#D20300'>
             Delete all events
           </MenuItem>
         </MenuList>

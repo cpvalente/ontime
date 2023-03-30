@@ -148,7 +148,7 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
       if (el) {
         el.scrollIntoView({
           behavior: 'smooth',
-          block: 'center',
+          block: 'start',
           inline: 'nearest',
         });
       }

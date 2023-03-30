@@ -13,11 +13,7 @@ export default function RundownWrapper() {
     <>
       <RundownMenu />
       <div className={styles.content}>
-        {status === 'success' && data ? (
-          <Rundown entries={data} />
-        ) : (
-          <Empty text='Connecting to server' />
-        )}
+        {status === 'success' && data ? <Rundown entries={data} /> : <Empty text='Connecting to server' />}
       </div>
     </>
   );

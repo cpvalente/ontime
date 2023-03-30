@@ -37,7 +37,9 @@ export default function AppSettingsModal() {
   const [submitting, setSubmitting] = useState(false);
   const [hidePin, setHidePin] = useState(true);
 
-  const { eventSettings, setLocalEventSettings } = useLocalEvent();
+  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const setLocalEventSettings = useLocalEvent((state) => state.setLocalEventSettings);
+
   const [formSettings, setFormSettings] = useState(eventSettings);
 
   const [updateMessage, setUpdateMessage] = useState(<a>Using ontime version: {version}</a>);

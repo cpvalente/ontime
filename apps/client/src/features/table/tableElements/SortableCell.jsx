@@ -13,22 +13,15 @@ export default function SortableCell({ column }) {
     id: column.id,
   });
 
-  // prevent scaling on drag
-  const cssTransform = {
-    ...transform,
-    scaleX: 1,
-    scaleY: 1,
-  }
-
   // build drag styles
   const dragStyle = {
-    transform: CSS.Transform.toString(cssTransform),
-    transition,
     ...style,
+    transform: CSS.Translate.toString(transform),
+    transition,
   };
 
   return (
-    <th {...restColumn} ref={setNodeRef} style={{...dragStyle}} className={isDragging ? styles.dragging: ''}>
+    <th {...restColumn} ref={setNodeRef} style={dragStyle} className={isDragging ? styles.dragging : ''}>
       <div {...attributes} {...listeners}>
         <Tooltip label={column.Header} openDelay={tooltipDelayFast}>
           {column.render('Header')}

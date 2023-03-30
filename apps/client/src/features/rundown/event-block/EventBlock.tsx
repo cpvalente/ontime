@@ -1,38 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
-import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
-import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoPlayOutline } from '@react-icons/all-files/io5/IoPlayOutline';
-import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
-import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
-import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { Playback } from 'ontime-types';
+import { OntimeEvent, Playback } from 'ontime-types';
 
-import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { useEventAction } from '../../../common/hooks/useEventAction';
-import { setEventPlayback } from '../../../common/hooks/useSocket';
+import { useCursor } from '../../../common/stores/cursorStore';
 import { useEventEditorStore } from '../../../common/stores/eventEditor';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { tooltipDelayMid } from '../../../ontimeConfig';
 import { EventItemActions } from '../RundownEntry';
 
-import BlockActionMenu from './composite/BlockActionMenu';
-import EventBlockProgressBar from './composite/EventBlockProgressBar';
-import EventBlockTimers from './composite/EventBlockTimers';
+import EventBlockInner from './EventBlockInner';
 
 import style from './EventBlock.module.scss';
-
-const blockBtnStyle = {
-  size: 'sm',
-};
-
-const tooltipProps = {
-  openDelay: tooltipDelayMid,
-};
 
 interface EventBlockProps {
   timeStart: number;
@@ -52,7 +31,15 @@ interface EventBlockProps {
   selected: boolean;
   hasCursor: boolean;
   playback?: Playback;
-  actionHandler: (action: EventItemActions, payload?: any) => void;
+  actionHandler: (
+    action: EventItemActions,
+    payload?:
+      | number
+      | {
+          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
+          value: unknown;
+        },
+  ) => void;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -77,54 +64,61 @@ export default function EventBlock(props: EventBlockProps) {
     actionHandler,
   } = props;
 
-  const { openId, setOpenEvent, removeOpenEvent } = useEventEditorStore();
-  const { updateEvent } = useEventAction();
-  const [blockTitle, setBlockTitle] = useState<string>(title || '');
-  const onFocusRef = useRef<null | HTMLSpanElement>(null);
+  const moveCursorTo = useCursor((state) => state.moveCursorTo);
+  const handleRef = useRef<null | HTMLSpanElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const openId = useEventEditorStore((state) => state.openId);
+
+  const {
+    isDragging,
+    attributes: dragAttributes,
+    listeners: dragListeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id: eventId,
+    animateLayoutChanges: () => false,
+  });
+
+  const dragStyle = {
+    zIndex: isDragging ? 2 : 'inherit',
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
 
   const binderColours = colour && getAccessibleColour(colour);
 
-  // Todo: could I re-render the item without causing a state change here?
-  // ?? use refs instead?
-  useEffect(() => {
-    setBlockTitle(title);
-  }, [title]);
-
   useEffect(() => {
     if (hasCursor) {
-      onFocusRef?.current?.focus();
+      handleRef?.current?.focus();
     }
   }, [hasCursor]);
 
-  const handleTitle = useCallback(
-    (text: string) => {
-      if (text === title) {
-        return;
-      }
+  useLayoutEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      {
+        root: null,
+        threshold: 1,
+      },
+    );
 
-      const cleanVal = text.trim();
-      setBlockTitle(cleanVal);
-
-      updateEvent({ id: eventId, title: cleanVal });
-    },
-    [title, updateEvent, eventId],
-  );
-
-  const toggleOpenEvent = useCallback(() => {
-    if (openId === eventId) {
-      removeOpenEvent();
-    } else {
-      setOpenEvent(eventId);
+    const handleRefCurrent = handleRef.current;
+    if (handleRefCurrent) {
+      observer.observe(handleRefCurrent);
     }
-  }, [eventId, openId, removeOpenEvent, setOpenEvent]);
 
-  const eventIsPlaying = selected && playback === Playback.Play;
-  const playBtnStyles = { _hover: {} };
-  if (!skip && eventIsPlaying) {
-    playBtnStyles._hover = { bg: '#c05621' };
-  } else if (!skip && !eventIsPlaying) {
-    playBtnStyles._hover = {};
-  }
+    return () => {
+      if (handleRefCurrent) {
+        observer.unobserve(handleRefCurrent);
+      }
+    };
+  }, [handleRef]);
 
   const blockClasses = cx([
     style.eventBlock,
@@ -134,118 +128,32 @@ export default function EventBlock(props: EventBlockProps) {
   ]);
 
   return (
-    <Draggable key={eventId} draggableId={eventId} index={index}>
-      {(provided) => (
-        <div className={blockClasses} {...provided.draggableProps} ref={provided.innerRef}>
-          <div
-            className={style.binder}
-            style={{ ...binderColours }}
-            tabIndex={-1}
-            onClick={() => actionHandler('set-cursor', index)}
-          >
-            <span className={style.drag} {...provided.dragHandleProps} ref={onFocusRef}>
-              <IoReorderTwo />
-            </span>
-            {eventIndex}
-          </div>
-          <div className={style.playbackActions}>
-            <TooltipActionBtn
-              variant='ontime-subtle-white'
-              aria-label='Skip event'
-              tooltip='Skip event'
-              icon={skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
-              {...tooltipProps}
-              {...blockBtnStyle}
-              clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
-              tabIndex={-1}
-              disabled={selected}
-            />
-            <TooltipActionBtn
-              variant='ontime-subtle-white'
-              aria-label='Load event'
-              tooltip='Load event'
-              icon={<IoReload className={style.flip} />}
-              disabled={skip}
-              {...tooltipProps}
-              {...blockBtnStyle}
-              clickHandler={() => setEventPlayback.loadEvent(eventId)}
-              tabIndex={-1}
-            />
-            <TooltipActionBtn
-              variant='ontime-subtle-white'
-              aria-label='Start event'
-              tooltip='Start event'
-              icon={eventIsPlaying ? <IoPlay /> : <IoPlayOutline />}
-              disabled={skip}
-              {...tooltipProps}
-              {...blockBtnStyle}
-              clickHandler={() => setEventPlayback.startEvent(eventId)}
-              backgroundColor={eventIsPlaying ? '#58A151' : undefined}
-              _hover={{ backgroundColor: eventIsPlaying ? '#58A151' : undefined }}
-              tabIndex={-1}
-            />
-          </div>
-          <EventBlockTimers
-            timeStart={timeStart}
-            timeEnd={timeEnd}
-            duration={duration}
-            delay={delay}
-            actionHandler={actionHandler}
-            previousEnd={previousEnd}
-          />
-          <Editable
-            variant='ontime'
-            value={blockTitle}
-            className={`${style.eventTitle} ${!title ? style.noTitle : ''}`}
-            placeholder='Event title'
-            onChange={(value) => setBlockTitle(value)}
-            onSubmit={(value) => handleTitle(value)}
-          >
-            <EditablePreview className={style.preview} />
-            <EditableInput />
-          </Editable>
-          <div className={style.statusElements}>
-            <span className={style.eventNote}>{note}</span>
-            <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
-              <EventBlockProgressBar playback={playback} />
-            </div>
-            <div className={style.eventStatus} tabIndex={-1}>
-              <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
-                <span>
-                  <IoPlaySkipForward className={`${style.statusIcon} ${next ? style.active : ''}`} />
-                </span>
-              </Tooltip>
-              <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
-                <span>
-                  <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : ''}`} />
-                </span>
-              </Tooltip>
-            </div>
-          </div>
-          <div className={style.eventActions}>
-            <TooltipActionBtn
-              {...blockBtnStyle}
-              variant='ontime-subtle-white'
-              size='sm'
-              icon={<IoOptions />}
-              clickHandler={toggleOpenEvent}
-              tooltip='Event options'
-              aria-label='Event options'
-              tabIndex={-1}
-              backgroundColor={openId === eventId ? '#2B5ABC' : undefined}
-              color={openId === eventId ? 'white' : '#f6f6f6'}
-            />
-            <BlockActionMenu
-              showAdd
-              showDelay
-              showBlock
-              showClone
-              enableDelete={!selected}
-              actionHandler={actionHandler}
-            />
-          </div>
-        </div>
+    <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
+      <div className={style.binder} style={{ ...binderColours }} tabIndex={-1} onClick={() => moveCursorTo(index)}>
+        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+          <IoReorderTwo />
+        </span>
+        {eventIndex}
+      </div>
+      {isVisible && (
+        <EventBlockInner
+          isOpen={openId === eventId}
+          timeStart={timeStart}
+          timeEnd={timeEnd}
+          duration={duration}
+          eventId={eventId}
+          isPublic={isPublic}
+          title={title}
+          note={note}
+          delay={delay}
+          previousEnd={previousEnd}
+          next={next}
+          skip={skip}
+          selected={selected}
+          playback={playback}
+          actionHandler={actionHandler}
+        />
       )}
-    </Draggable>
+    </div>
   );
 }
