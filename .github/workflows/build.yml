@@ -2,9 +2,7 @@ name: Ontime build
 
 on:
   push:
-    # run when a tag is created
-    tags:
-      - '*'
+    tags: [ "v1.*.*" ]
   workflow_dispatch:
 
 jobs:

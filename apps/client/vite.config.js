@@ -6,20 +6,24 @@ import svgrPlugin from 'vite-plugin-svgr';
 
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
+const isLocal = process.env.NODE_ENV === 'local';
+
 export default defineConfig({
   plugins: [
     react(),
     svgrPlugin(),
-    sentryVitePlugin({
-      org: 'carlos-valente',
-      project: 'ontime',
-      include: './build',
-      authToken: '087754a37bb947f2ab738dfa731267ffec52a9f3a14a42f48061e343d0332c2f',
-      release: ONTIME_VERSION,
-      deploy: {
-        env: 'production',
-      },
-    }),
+    !isLocal &&
+      sentryVitePlugin({
+        org: 'carlos-valente',
+        project: 'ontime',
+        include: './build',
+        authToken: sentryAuthToken,
+        release: ONTIME_VERSION,
+        deploy: {
+          env: 'production',
+        },
+      }),
   ],
   server: {
     port: 3000,
