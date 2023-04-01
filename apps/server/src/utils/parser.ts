@@ -1,6 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck -- not ready to fully type
+
 import fs from 'fs';
 import xlsx from 'node-xlsx';
 import { generateId } from 'ontime-utils';
+import { DatabaseModel, EventData, OntimeEvent, OntimeRundown, UserFields } from 'ontime-types';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString, validateDuration } from './parserUtils.js';
@@ -25,32 +29,32 @@ export const JSON_MIME = 'application/json';
  * @returns {object} - parsed object
  */
 export const parseExcel = async (excelData) => {
-  const eventData = {
+  const eventData: Partial<EventData> = {
     title: '',
     publicUrl: '',
     backstageUrl: '',
   };
-  const customUserFields = {};
-  const rundown = [];
-  let timeStartIndex = null;
-  let timeEndIndex = null;
-  let titleIndex = null;
-  let presenterIndex = null;
-  let subtitleIndex = null;
-  let isPublicIndex = null;
-  let skipIndex = null;
-  let notesIndex = null;
-  let colourIndex = null;
-  let user0Index = null;
-  let user1Index = null;
-  let user2Index = null;
-  let user3Index = null;
-  let user4Index = null;
-  let user5Index = null;
-  let user6Index = null;
-  let user7Index = null;
-  let user8Index = null;
-  let user9Index = null;
+  const customUserFields: Partial<UserFields> = {};
+  const rundown: OntimeRundown = [];
+  let timeStartIndex: number | null = null;
+  let timeEndIndex: number | null = null;
+  let titleIndex: number | null = null;
+  let presenterIndex: number | null = null;
+  let subtitleIndex: number | null = null;
+  let isPublicIndex: number | null = null;
+  let skipIndex: number | null = null;
+  let notesIndex: number | null = null;
+  let colourIndex: number | null = null;
+  let user0Index: number | null = null;
+  let user1Index: number | null = null;
+  let user2Index: number | null = null;
+  let user3Index: number | null = null;
+  let user4Index: number | null = null;
+  let user5Index: number | null = null;
+  let user6Index: number | null = null;
+  let user7Index: number | null = null;
+  let user8Index: number | null = null;
+  let user9Index: number | null = null;
 
   excelData
     .filter((e) => e.length > 0)
@@ -61,7 +65,8 @@ export const parseExcel = async (excelData) => {
       let backstageUrlNext = false;
       let backstageInfoNext = false;
       let endMessageNext = false;
-      const event = {};
+
+      const event: Partial<OntimeEvent> = {};
 
       row.forEach((column, j) => {
         // check flags
@@ -253,14 +258,14 @@ export const parseExcel = async (excelData) => {
  * @param {boolean} [enforce=false] - flag, tells to create an object anyway
  * @returns {object} - parsed object
  */
-export const parseJson = async (jsonData, enforce = false) => {
+export const parseJson = async (jsonData, enforce = false): Promise<DatabaseModel | -1> => {
   if (!jsonData || typeof jsonData !== 'object') {
     console.log('ERROR: Invalid JSON format');
     return -1;
   }
 
   // object containing the parsed data
-  const returnData = {};
+  const returnData: Partial<DatabaseModel> = {};
 
   // parse Events
   returnData.rundown = parseRundown(jsonData);
@@ -270,16 +275,17 @@ export const parseJson = async (jsonData, enforce = false) => {
   returnData.settings = parseSettings(jsonData, enforce);
   // View settings handled partially
   returnData.viewSettings = parseViewSettings(jsonData, enforce);
-  // Import OSC settings if any
-  returnData.osc = parseOsc(jsonData, enforce);
-  // Import HTTP settings if any
-  returnData.http = parseHttp(jsonData, enforce);
   // Import Aliases if any
   returnData.aliases = parseAliases(jsonData);
   // Import user fields if any
   returnData.userFields = parseUserFields(jsonData);
+  // Import OSC settings if any
+  // @ts-expect-error -- we are unable to type just yet
+  returnData.osc = parseOsc(jsonData, enforce);
+  // Import HTTP settings if any
+  returnData.http = parseHttp(jsonData, enforce);
 
-  return returnData;
+  return returnData as DatabaseModel;
 };
 
 /**
@@ -339,13 +345,16 @@ export const validateEvent = (eventArgs) => {
   return event;
 };
 
+type ResponseOK = { data: Partial<DatabaseModel>; message: 'success' };
+type ResponseError = { error: true; message: string };
+
 /**
  * @description Middleware function that checks file type and calls relevant parser
  * @param {string} file - reference to file
  * @return {object} - parse result message
  */
 export const fileHandler = async (file) => {
-  let res = {};
+  let res: Partial<ResponseOK | ResponseError> = {};
 
   // check which file type are we dealing with
   if (file.endsWith('.xlsx')) {

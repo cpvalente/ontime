@@ -1,0 +1,42 @@
+name: Ontime test v2
+
+on:
+  pull_request:
+    branches: [ v2 ]
+  workflow_dispatch:
+
+jobs:
+  testing:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: ''
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7.26.3
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # We choose to run tests separately
+      - name: React - Run unit tests
+        run: pnpm test:pipeline
+        working-directory: ./apps/client
+
+      - name: Server - Run unit tests
+        run: pnpm test:pipeline
+        working-directory: ./apps/server
+
+      - name: Utils - Run unit tests
+        run: pnpm test:pipeline
+        working-directory: ./packages/utils

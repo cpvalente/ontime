@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import { dbModel } from '../../models/dataModel.js';
-import { parseExcel, parseJson, validateEvent } from '../parser.js';
+import { parseExcel, parseJson, validateEvent } from '../parser.ts';
 import { makeString, validateDuration } from '../parserUtils.js';
 import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.js';
 

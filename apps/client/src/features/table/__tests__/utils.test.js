@@ -1,4 +1,4 @@
-import { makeCSV, makeTable, parseField } from '../utils';
+import { makeCSV, makeTable, parseField } from '../tableUtils';
 
 describe('parseField()', () => {
   it('returns a string from given millis on timeStart and TimeEnd', () => {

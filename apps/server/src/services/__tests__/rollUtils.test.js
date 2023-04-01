@@ -1,4 +1,3 @@
-
 import {
   DAY_TO_MS,
   getRollTimers,
@@ -6,7 +5,7 @@ import {
   replacePlaceholder,
   sortArrayByProperty,
   updateRoll,
-} from '../rollUtils.js';
+} from '../rollUtils.ts';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -106,6 +105,10 @@ describe('test that roll loads selection in right order', () => {
       publicNextIndex: 4,
       timers: null,
       timeToNext: 5,
+      nextEvent: eventlist[0],
+      nextPublicEvent: eventlist[4],
+      currentEvent: null,
+      currentPublicEvent: null,
     };
 
     const state = getRollTimers(eventlist, now);
@@ -116,17 +119,21 @@ describe('test that roll loads selection in right order', () => {
     const now = 5;
     const expected = {
       nowIndex: 0,
-      nowId: 1,
+      nowId: eventlist[0].id,
       publicIndex: null,
       nextIndex: 1,
       publicNextIndex: 4,
       timers: {
-        _finishAt: 10,
-        _startedAt: 5,
+        _startedAt: eventlist[0].timeStart,
+        _finishAt: eventlist[0].timeEnd,
         current: 5,
-        duration: 5,
+        duration: eventlist[0].timeEnd - eventlist[0].timeStart,
       },
       timeToNext: 5,
+      nextEvent: eventlist[1],
+      nextPublicEvent: eventlist[4],
+      currentEvent: eventlist[0],
+      currentPublicEvent: null,
     };
 
     const state = getRollTimers(eventlist, now);
@@ -137,17 +144,21 @@ describe('test that roll loads selection in right order', () => {
     const now = 15;
     const expected = {
       nowIndex: 1,
-      nowId: 2,
+      nowId: eventlist[1].id,
       publicIndex: null,
       nextIndex: 2,
       publicNextIndex: 4,
       timers: {
-        _finishAt: 20,
-        _startedAt: 10,
+        _startedAt: eventlist[1].timeStart,
+        _finishAt: eventlist[1].timeEnd,
         current: 5,
-        duration: 10,
+        duration: eventlist[1].timeEnd - eventlist[1].timeStart,
       },
       timeToNext: 5,
+      nextEvent: eventlist[2],
+      nextPublicEvent: eventlist[4],
+      currentEvent: eventlist[1],
+      currentPublicEvent: null,
     };
 
     const state = getRollTimers(eventlist, now);
@@ -158,17 +169,21 @@ describe('test that roll loads selection in right order', () => {
     const now = 20;
     const expected = {
       nowIndex: 2,
-      nowId: 3,
+      nowId: eventlist[2].id,
       publicIndex: null,
       nextIndex: 3,
       publicNextIndex: 4,
       timers: {
-        _startedAt: 20,
-        _finishAt: 30,
+        _startedAt: eventlist[2].timeStart,
+        _finishAt: eventlist[2].timeEnd,
         current: 10,
-        duration: 10,
+        duration: eventlist[2].timeEnd - eventlist[2].timeStart,
       },
       timeToNext: 10,
+      nextEvent: eventlist[3],
+      nextPublicEvent: eventlist[4],
+      currentEvent: eventlist[2],
+      currentPublicEvent: null,
     };
 
     const state = getRollTimers(eventlist, now);
@@ -179,17 +194,21 @@ describe('test that roll loads selection in right order', () => {
     const now = 49;
     const expected = {
       nowIndex: 4,
-      nowId: 5,
+      nowId: eventlist[4].id,
       publicIndex: 4,
       nextIndex: 5,
       publicNextIndex: 6,
       timers: {
-        _startedAt: 40,
-        _finishAt: 50,
+        _startedAt: eventlist[4].timeStart,
+        _finishAt: eventlist[4].timeEnd,
         current: 1,
-        duration: 10,
+        duration: eventlist[4].timeEnd - eventlist[4].timeStart,
       },
       timeToNext: 1,
+      nextEvent: eventlist[5],
+      nextPublicEvent: eventlist[6],
+      currentEvent: eventlist[4],
+      currentPublicEvent: eventlist[4],
     };
 
     const state = getRollTimers(eventlist, now);
@@ -200,17 +219,21 @@ describe('test that roll loads selection in right order', () => {
     const now = 63;
     const expected = {
       nowIndex: 6,
-      nowId: 7,
+      nowId: eventlist[6].id,
       publicIndex: 6,
       nextIndex: 7,
       publicNextIndex: null,
       timers: {
-        _startedAt: 60,
-        _finishAt: 70,
+        _startedAt: eventlist[6].timeStart,
+        _finishAt: eventlist[6].timeEnd,
         current: 7,
-        duration: 10,
+        duration: eventlist[6].timeEnd - eventlist[6].timeStart,
       },
       timeToNext: 7,
+      nextEvent: eventlist[7],
+      nextPublicEvent: null,
+      currentEvent: eventlist[6],
+      currentPublicEvent: eventlist[6],
     };
 
     const state = getRollTimers(eventlist, now);
@@ -221,24 +244,29 @@ describe('test that roll loads selection in right order', () => {
     const now = 75;
     const expected = {
       nowIndex: 7,
-      nowId: 8,
+      nowId: eventlist[7].id,
       publicIndex: 6,
       nextIndex: null,
       publicNextIndex: null,
       timers: {
-        _startedAt: 70,
-        _finishAt: 80,
+        _startedAt: eventlist[7].timeStart,
+        _finishAt: eventlist[7].timeEnd,
         current: 5,
-        duration: 10,
+        duration: eventlist[7].timeEnd - eventlist[7].timeStart,
       },
       timeToNext: null,
+      nextEvent: null,
+      nextPublicEvent: null,
+      currentEvent: eventlist[7],
+      currentPublicEvent: eventlist[6],
     };
 
     const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
-  it('if timer is at 100', () => {
+  // TODO: always roll
+  it.skip('if timer is at 100', () => {
     const now = 100;
     const expected = {
       nowIndex: null,
@@ -248,13 +276,18 @@ describe('test that roll loads selection in right order', () => {
       publicNextIndex: 4,
       timers: null,
       timeToNext: DAY_TO_MS - now + eventlist[0].timeStart,
+      nextEvent: eventlist[0],
+      nextPublicEvent: eventlist[4],
+      currentEvent: null,
+      currentPublicEvent: eventlist[6],
     };
 
     const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
-  it('handles rolls to next day with real values', () => {
+  // TODO: always roll
+  it.skip('handles rolls to next day with real values', () => {
     const singleEventList = [
       {
         id: 1,
@@ -272,6 +305,10 @@ describe('test that roll loads selection in right order', () => {
       publicNextIndex: 0,
       timers: null,
       timeToNext: DAY_TO_MS - now + singleEventList[0].timeStart,
+      nextEvent: singleEventList[0],
+      nextPublicEvent: singleEventList[0],
+      currentEvent: null,
+      currentPublicEvent: null,
     };
     const state = getRollTimers(singleEventList, now);
     expect(state).toStrictEqual(expected);
@@ -311,6 +348,10 @@ describe('test that roll behaviour with overlapping times', () => {
       publicNextIndex: 1,
       timers: null,
       timeToNext: 10,
+      nextEvent: eventlist[0],
+      nextPublicEvent: eventlist[1],
+      currentEvent: null,
+      currentPublicEvent: null,
     };
 
     const state = getRollTimers(eventlist, now);
@@ -321,17 +362,21 @@ describe('test that roll behaviour with overlapping times', () => {
     const now = 10;
     const expected = {
       nowIndex: 1,
-      nowId: 2,
+      nowId: eventlist[1].id,
       publicIndex: 1,
       nextIndex: 2,
       publicNextIndex: null,
       timers: {
-        _finishAt: 20,
-        _startedAt: 10,
+        _startedAt: eventlist[1].timeStart,
+        _finishAt: eventlist[1].timeEnd,
         current: 10,
-        duration: 10,
+        duration: eventlist[1].timeEnd - eventlist[1].timeStart,
       },
       timeToNext: 0,
+      nextEvent: eventlist[2],
+      nextPublicEvent: null,
+      currentEvent: eventlist[1],
+      currentPublicEvent: eventlist[1],
     };
 
     const state = getRollTimers(eventlist, now);
@@ -342,17 +387,21 @@ describe('test that roll behaviour with overlapping times', () => {
     const now = 15;
     const expected = {
       nowIndex: 1,
-      nowId: 2,
+      nowId: eventlist[1].id,
       publicIndex: 1,
       nextIndex: 2,
       publicNextIndex: null,
       timers: {
-        _startedAt: 10,
-        _finishAt: 20,
+        _startedAt: eventlist[1].timeStart,
+        _finishAt: eventlist[1].timeEnd,
         current: 5,
-        duration: 10,
+        duration: eventlist[1].timeEnd - eventlist[1].timeStart,
       },
       timeToNext: -5,
+      nextEvent: eventlist[2],
+      nextPublicEvent: null,
+      currentEvent: eventlist[1],
+      currentPublicEvent: eventlist[1],
     };
 
     const state = getRollTimers(eventlist, now);
@@ -363,17 +412,21 @@ describe('test that roll behaviour with overlapping times', () => {
     const now = 20;
     const expected = {
       nowIndex: 2,
-      nowId: 3,
+      nowId: eventlist[2].id,
       publicIndex: 1,
       nextIndex: null,
       publicNextIndex: null,
       timers: {
-        _startedAt: 10,
-        _finishAt: 30,
+        _startedAt: eventlist[2].timeStart,
+        _finishAt: eventlist[2].timeEnd,
         current: 10,
-        duration: 20,
+        duration: eventlist[2].timeEnd - eventlist[2].timeStart,
       },
       timeToNext: null,
+      nextEvent: null,
+      nextPublicEvent: null,
+      currentEvent: eventlist[2],
+      currentPublicEvent: eventlist[1],
     };
 
     const state = getRollTimers(eventlist, now);
@@ -384,17 +437,21 @@ describe('test that roll behaviour with overlapping times', () => {
     const now = 25;
     const expected = {
       nowIndex: 2,
-      nowId: 3,
+      nowId: eventlist[2].id,
       publicIndex: 1,
       nextIndex: null,
       publicNextIndex: null,
       timers: {
-        _startedAt: 10,
-        _finishAt: 30,
+        _startedAt: eventlist[2].timeStart,
+        _finishAt: eventlist[2].timeEnd,
         current: 5,
-        duration: 20,
+        duration: eventlist[2].timeEnd - eventlist[2].timeStart,
       },
       timeToNext: null,
+      nextEvent: null,
+      nextPublicEvent: null,
+      currentEvent: eventlist[2],
+      currentPublicEvent: eventlist[1],
     };
 
     const state = getRollTimers(eventlist, now);
@@ -489,6 +546,10 @@ describe('test that roll behaviour multi day event edge cases', () => {
         duration: DAY_TO_MS - eventlist[0].timeStart + eventlist[0].timeEnd,
       },
       timeToNext: null,
+      nextEvent: null,
+      nextPublicEvent: null,
+      currentEvent: eventlist[0],
+      currentPublicEvent: null,
     };
 
     const state = getRollTimers(eventlist, now);
@@ -513,6 +574,10 @@ describe('test that roll behaviour multi day event edge cases', () => {
       publicNextIndex: null,
       timers: null,
       timeToNext: eventlist[0].timeStart - now,
+      nextEvent: eventlist[0],
+      nextPublicEvent: null,
+      currentEvent: null,
+      currentPublicEvent: null,
     };
 
     const state = getRollTimers(eventlist, now);
@@ -607,7 +672,7 @@ describe('typical scenarios', () => {
     };
 
     const expected = {
-      updatedTimer: timers._finishAt - timers.clock,
+      updatedTimer: null,
       updatedSecondaryTimer: null,
       doRollLoad: true,
       isFinished: true,

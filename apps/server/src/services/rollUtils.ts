@@ -1,3 +1,5 @@
+import { OntimeEvent } from 'ontime-types';
+
 /**
  * Utility variable: 24 hour in milliseconds .
  */
@@ -36,15 +38,15 @@ export const replacePlaceholder = (str, values) => {
 };
 
 /**
- *
+ * Finds loading information given a current rundown and time
  * @param rundown
  * @param timeNow
  * @returns {{}}
  */
-export const getRollTimers = (rundown, timeNow: number) => {
+export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
   let nowIndex: number | null = null; // index of event now
   let nowId: string | null = null; // id of event now
-  let publicIndex: string | null = null; // index of public event now
+  let publicIndex: number | null = null; // index of public event now
   let publicTime = -1;
   let nextIndex: number | null = null; // index of next event
   let publicNextIndex: number | null = null; // index of next public event

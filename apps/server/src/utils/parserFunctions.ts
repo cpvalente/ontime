@@ -1,5 +1,15 @@
 import { generateId } from 'ontime-utils';
-import { OSCSettings, OscSubscription, TimerLifeCycle } from 'ontime-types';
+import {
+  Alias,
+  EventData,
+  OntimeRundown,
+  OSCSettings,
+  OscSubscription,
+  Settings,
+  TimerLifeCycle,
+  UserFields,
+  ViewSettings,
+} from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
@@ -11,8 +21,8 @@ import { MAX_EVENTS } from '../settings.js';
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseRundown = (data) => {
-  let newRundown = [];
+export const parseRundown = (data): OntimeRundown => {
+  let newRundown: OntimeRundown = [];
   if ('rundown' in data) {
     console.log('Found rundown definition, importing...');
     const rundown = [];
@@ -64,8 +74,8 @@ export const parseRundown = (data) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseEventData = (data, enforce) => {
-  let newEventData = {};
+export const parseEventData = (data, enforce): EventData => {
+  let newEventData: Partial<EventData> = {};
   if ('eventData' in data) {
     console.log('Found event data, importing...');
     const e = data.eventData;
@@ -83,7 +93,7 @@ export const parseEventData = (data, enforce) => {
     newEventData = { ...dbModel.eventData };
     console.log(`Created event object in db`);
   }
-  return newEventData;
+  return newEventData as EventData;
 };
 
 /**
@@ -92,8 +102,8 @@ export const parseEventData = (data, enforce) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseSettings = (data, enforce) => {
-  let newSettings = {};
+export const parseSettings = (data, enforce): Settings => {
+  let newSettings: Partial<Settings> = {};
   if ('settings' in data) {
     console.log('Found settings definition, importing...');
     const s = data.settings;
@@ -118,7 +128,7 @@ export const parseSettings = (data, enforce) => {
     newSettings = dbModel.settings;
     console.log(`Created settings object in db`);
   }
-  return newSettings;
+  return newSettings as Settings;
 };
 
 /**
@@ -127,8 +137,8 @@ export const parseSettings = (data, enforce) => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseViewSettings = (data, enforce) => {
-  let newViews = {};
+export const parseViewSettings = (data, enforce): ViewSettings => {
+  let newViews: Partial<ViewSettings> = {};
   if ('viewSettings' in data) {
     console.log('Found view definition, importing...');
     const v = data.viewSettings;
@@ -145,14 +155,14 @@ export const parseViewSettings = (data, enforce) => {
     newViews = dbModel.viewSettings;
     console.log(`Created viewSettings object in db`);
   }
-  return newViews;
+  return newViews as ViewSettings;
 };
 
 /**
  * Parses and validates subscription object
  * @param data
  */
-export const validateOscSubscription = (data: OscSubscription) => {
+export const validateOscSubscription = (data: OscSubscription): boolean => {
   if (!data) {
     return false;
   }
@@ -173,10 +183,7 @@ export const validateOscSubscription = (data: OscSubscription) => {
 /**
  * Parse osc portion of an entry
  */
-export const parseOsc = (
-  data: { osc?: Partial<OSCSettings> },
-  enforce: boolean,
-): OSCSettings | Record<string, never> => {
+export const parseOsc = (data: { osc?: Partial<OSCSettings> }, enforce: boolean): Partial<OSCSettings> => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 
@@ -235,8 +242,8 @@ export const parseHttp = (data, enforce) => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseAliases = (data) => {
-  const newAliases = [];
+export const parseAliases = (data): Alias[] => {
+  const newAliases: Alias[] = [];
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
     const ids = [];
@@ -270,8 +277,8 @@ export const parseAliases = (data) => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseUserFields = (data) => {
-  const newUserFields = { ...dbModel.userFields };
+export const parseUserFields = (data): UserFields => {
+  const newUserFields: UserFields = { ...dbModel.userFields };
 
   if ('userFields' in data) {
     console.log('Found User Fields definition, importing...');

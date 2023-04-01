@@ -1,4 +1,4 @@
-import { OntimeEvent, TitleBlock, Loaded } from 'ontime-types';
+import { Loaded, OntimeEvent, TitleBlock } from 'ontime-types';
 
 import { DataProvider } from '../data-provider/DataProvider.js';
 import { getRollTimers } from '../../services/rollUtils.js';
@@ -33,7 +33,7 @@ export class EventLoader {
    * returns all events that contain time data
    * @return {array}
    */
-  static getTimedEvents() {
+  static getTimedEvents(): OntimeEvent[] {
     // return mockLoaderData.filter((event) => event.type === 'event');
     return DataProvider.getRundown().filter((event) => event.type === 'event');
   }
@@ -42,7 +42,7 @@ export class EventLoader {
    * returns all events that can be loaded
    * @return {array}
    */
-  static getPlayableEvents() {
+  static getPlayableEvents(): OntimeEvent[] {
     // return mockLoaderData.filter((event) => event.type === 'event' && !event.skip);
     return DataProvider.getRundown().filter((event) => event.type === 'event' && !event.skip);
   }
@@ -58,9 +58,9 @@ export class EventLoader {
   /**
    * returns an event given its index
    * @param {number} eventIndex
-   * @return {object | undefined}
+   * @return {OntimeEvent | undefined}
    */
-  static getEventAtIndex(eventIndex) {
+  static getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
     const timedEvents = EventLoader.getTimedEvents();
     return timedEvents?.[eventIndex];
   }

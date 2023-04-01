@@ -37,6 +37,7 @@
     "postinstall": "pnpm addversion",
     "dev": "set BROWSER=none&&vite",
     "build": "vite build",
+    "build:local": "NODE_ENV=local vite build",
     "build:docker": "vite build",
     "lint": "eslint .",
     "stylelint": "npx stylelint \"**/*.scss\"\n",
@@ -91,6 +92,7 @@
     "typescript": "^4.9.4",
     "vite": "^4.0.4",
     "vite-plugin-svgr": "^2.4.0",
-    "vite-tsconfig-paths": "^4.0.3"
+    "vite-tsconfig-paths": "^4.0.3",
+    "vitest": "^0.29.8"
   }
 }

@@ -3,7 +3,7 @@ import { safeMerge } from '../DataProvider.utils.js';
 describe('safeMerge', () => {
   const existing = {
     rundown: [],
-    event: {
+    eventData: {
       title: 'existing title',
       publicUrl: 'existing public URL',
       backstageUrl: 'existing backstageUrl',
@@ -18,7 +18,7 @@ describe('safeMerge', () => {
       version: 2,
       serverPort: 4001,
     },
-    views: {
+    viewSettings: {
       overrideStyles: false,
     },
     aliases: [],
@@ -33,30 +33,12 @@ describe('safeMerge', () => {
       enabledIn: false,
       enabledOut: false,
       subscriptions: {
-        onLoad: {
-          message: '',
-          enabled: false,
-        },
-        onStart: {
-          message: '',
-          enabled: false,
-        },
-        onPause: {
-          message: '',
-          enabled: false,
-        },
-        onStop: {
-          message: '',
-          enabled: false,
-        },
-        onUpdate: {
-          message: '',
-          enabled: false,
-        },
-        onFinish: {
-          message: '',
-          enabled: false,
-        },
+        onLoad: [],
+        onStart: [],
+        onPause: [],
+        onStop: [],
+        onUpdate: [],
+        onFinish: [],
       },
     },
     http: {
@@ -81,13 +63,13 @@ describe('safeMerge', () => {
 
   it('merges the event key', () => {
     const newData = {
-      event: {
+      eventData: {
         title: 'new title',
         publicInfo: 'new public info',
       },
     };
     const mergedData = safeMerge(existing, newData);
-    expect(mergedData.event).toEqual({
+    expect(mergedData.eventData).toEqual({
       title: 'new title',
       publicUrl: 'existing public URL',
       publicInfo: 'new public info',
@@ -120,10 +102,13 @@ describe('safeMerge', () => {
       osc: {
         portIn: 7777,
         subscriptions: {
-          onStart: {
-            message: 'new message',
-            enabled: true,
-          },
+          onStart: [
+            {
+              id: 'unique',
+              message: 'new message',
+              enabled: true,
+            },
+          ],
         },
       },
     };
@@ -135,30 +120,18 @@ describe('safeMerge', () => {
       enabledIn: false,
       enabledOut: false,
       subscriptions: {
-        onLoad: {
-          message: '',
-          enabled: false,
-        },
-        onStart: {
-          message: 'new message',
-          enabled: true,
-        },
-        onPause: {
-          message: '',
-          enabled: false,
-        },
-        onStop: {
-          message: '',
-          enabled: false,
-        },
-        onUpdate: {
-          message: '',
-          enabled: false,
-        },
-        onFinish: {
-          message: '',
-          enabled: false,
-        },
+        onLoad: [],
+        onStart: [
+          {
+            id: 'unique',
+            message: 'new message',
+            enabled: true,
+          },
+        ],
+        onPause: [],
+        onStop: [],
+        onUpdate: [],
+        onFinish: [],
       },
     });
   });
@@ -182,7 +155,7 @@ describe('safeMerge', () => {
         pinCode: null,
         timeFormat: '24',
       },
-      views: {
+      viewSettings: {
         overrideStyles: false,
       },
       aliases: [],
@@ -205,60 +178,24 @@ describe('safeMerge', () => {
         enabledIn: false,
         enabledOut: false,
         subscriptions: {
-          onLoad: {
-            message: '',
-            enabled: false,
-          },
-          onStart: {
-            message: '',
-            enabled: false,
-          },
-          onPause: {
-            message: '',
-            enabled: false,
-          },
-          onStop: {
-            message: '',
-            enabled: false,
-          },
-          onUpdate: {
-            message: '',
-            enabled: false,
-          },
-          onFinish: {
-            message: '',
-            enabled: false,
-          },
+          onLoad: [],
+          onStart: [],
+          onPause: [],
+          onStop: [],
+          onUpdate: [],
+          onFinish: [],
         },
       },
       http: {
         user: null,
         pwd: null,
         messages: {
-          onLoad: {
-            url: '',
-            enabled: false,
-          },
-          onStart: {
-            url: '',
-            enabled: false,
-          },
-          onUpdate: {
-            url: '',
-            enabled: false,
-          },
-          onPause: {
-            url: '',
-            enabled: false,
-          },
-          onStop: {
-            url: '',
-            enabled: false,
-          },
-          onFinish: {
-            url: '',
-            enabled: false,
-          },
+          onLoad: [],
+          onStart: [],
+          onUpdate: [],
+          onPause: [],
+          onStop: [],
+          onFinish: [],
         },
         enabled: true,
       },

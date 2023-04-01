@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 import { generateId } from 'ontime-utils';
-import { fileHandler } from '../utils/parser.js';
+import { fileHandler } from '../utils/parser.ts';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
