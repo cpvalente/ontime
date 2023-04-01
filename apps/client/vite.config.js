@@ -15,7 +15,7 @@ export default defineConfig({
     svgrPlugin(),
     !isLocal &&
       sentryVitePlugin({
-        org: 'carlos-valente',
+        org: 'get-ontime',
         project: 'ontime',
         include: './build',
         authToken: sentryAuthToken,
