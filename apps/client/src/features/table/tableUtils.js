@@ -23,7 +23,7 @@ export const parseField = (field, data) => {
       break;
   }
   if (typeof data === 'undefined') {
-    return ''
+    return '';
   }
   return val;
 };
@@ -78,9 +78,7 @@ export const makeTable = (headerData, tableData, userFields) => {
 
   for (const field in userFields) {
     const fieldValue = userFields[field];
-    const displayName = `${field}${
-      fieldValue !== field && fieldValue !== '' ? `:${fieldValue}` : ''
-    }`;
+    const displayName = `${field}${fieldValue !== field && fieldValue !== '' ? `:${fieldValue}` : ''}`;
     fieldTitles.push(displayName);
   }
 

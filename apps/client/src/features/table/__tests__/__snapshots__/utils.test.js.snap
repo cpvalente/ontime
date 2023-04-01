@@ -1,4 +1,4 @@
-// Vitest Snapshot v1
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`makeTable() > returns array of arrays with given fields 1`] = `
 [
@@ -10,7 +10,11 @@ exports[`makeTable() > returns array of arrays with given fields 1`] = `
     "",
   ],
   [
-    "Event URL",
+    "Public URL",
+    "",
+  ],
+  [
+    "Backstage URL",
     "",
   ],
   [],
@@ -26,54 +30,6 @@ exports[`makeTable() > returns array of arrays with given fields 1`] = `
     "user0:test",
   ],
   [
-    "00:00:00",
-    "00:00:00",
-    "test title 1",
-    "",
-    "",
-    "x",
-    "",
-    "",
-    "test",
-    "test",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-  ],
-]
-`;
-
-exports[`makeTable() returns array of arrays with given fields 1`] = `
-Array [
-  Array [
-    "Ontime · Schedule Template",
-  ],
-  Array [
-    "Event Name",
-    "",
-  ],
-  Array [
-    "Event URL",
-    "",
-  ],
-  Array [],
-  Array [
-    "Time Start",
-    "Time End",
-    "Event Title",
-    "Presenter Name",
-    "Event Subtitle",
-    "Is Public? (x)",
-    "Notes",
-    "Colour",
-    "user0:test",
-  ],
-  Array [
     "00:00:00",
     "00:00:00",
     "test title 1",

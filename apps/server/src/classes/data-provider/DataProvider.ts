@@ -159,7 +159,7 @@ export class DataProvider {
 
   static async mergeIntoData(newData) {
     const mergedData = safeMerge(data, newData);
-    data.eventData = mergedData.event;
+    data.eventData = mergedData.eventData;
     data.settings = mergedData.settings;
     data.viewSettings = mergedData.viewSettings;
     data.osc = mergedData.osc;

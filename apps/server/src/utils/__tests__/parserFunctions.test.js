@@ -1,4 +1,4 @@
-import { validateOscSubscription } from '../parserFunctions.js';
+import { validateOscSubscription } from '../parserFunctions.ts';
 
 test('validateOscSubscription()', () => {
   it('should return true when given a valid OscSubscription', () => {

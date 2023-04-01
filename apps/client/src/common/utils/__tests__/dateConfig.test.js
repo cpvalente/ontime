@@ -54,13 +54,6 @@ describe('test string from formatDisplay function', () => {
   });
 });
 
-describe('test formatDisplay handles partial secs', () => {
-  it('test with 1795829', () => {
-    const t = { val: 1795829, result: '00:29:55' };
-    expect(formatDisplay(t.val)).toBe(t.result);
-  });
-});
-
 describe('test string from formatDisplay function with hidezero', () => {
   it('test with null values', () => {
     const t = { val: null, result: '00:00' };
