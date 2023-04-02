@@ -6,8 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  testing:
-
+  unit-test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -42,8 +41,8 @@ jobs:
         working-directory: ./packages/utils
 
   e2e-test:
-    timeout-minutes: 20
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v3
