@@ -26,7 +26,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build client
-        run: pnpm build:client
+        run: turbo build:local
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
