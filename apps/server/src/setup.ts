@@ -66,10 +66,14 @@ if (import.meta.url) {
 // path to server src folder
 export const currentDirectory = dirname(__dirname);
 
-const appPath = isTest ? '../' : getAppDataPath();
+const testDbStartDirectory = isTest ? '../' : getAppDataPath();
+export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
 
 // path to public db
-export const resolveDbDirectory = join(appPath, isTest ? config.database.testdb : config.database.directory);
+export const resolveDbDirectory = join(
+  testDbStartDirectory,
+  isTest ? config.database.testdb : config.database.directory,
+);
 export const resolveDbPath = join(resolveDbDirectory, config.database.filename);
 
 export const pathToStartDb = isTest
@@ -77,7 +81,7 @@ export const pathToStartDb = isTest
   : join(currentDirectory, '/preloaded-db/', config.database.filename);
 
 // path to public styles
-export const resolveStylesDirectory = join(appPath, config.styles.directory);
+export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
 export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);
 
 export const pathToStartStyles = join(currentDirectory, '/external/styles/', config.styles.filename);
