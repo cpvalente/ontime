@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "2.0.0-alpha",
+  "version": "2.0.0-beta1",
   "exports": "./src/index.js",
   "dependencies": {
     "@sentry/node": "^7.24.1",
