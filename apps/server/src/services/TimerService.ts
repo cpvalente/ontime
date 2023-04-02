@@ -307,15 +307,17 @@ export class TimerService {
   _onFinish() {
     eventStore.set('timer', this.timer);
     integrationService.dispatch(TimerLifeCycle.onFinish);
-    if (this.timer.endAction === EndAction.Stop) {
-      PlaybackService.stop();
-    } else if (this.timer.endAction === EndAction.LoadNext) {
-      // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
-      setTimeout(() => {
-        PlaybackService.loadNext();
-      }, 0);
-    } else if (this.timer.endAction === EndAction.PlayNext) {
-      PlaybackService.startNext();
+    if (this.playback === Playback.Play) {
+      if (this.timer.endAction === EndAction.Stop) {
+        PlaybackService.stop();
+      } else if (this.timer.endAction === EndAction.LoadNext) {
+        // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
+        setTimeout(() => {
+          PlaybackService.loadNext();
+        }, 0);
+      } else if (this.timer.endAction === EndAction.PlayNext) {
+        PlaybackService.startNext();
+      }
     }
   }
 
