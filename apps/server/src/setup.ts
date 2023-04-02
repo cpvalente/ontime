@@ -46,11 +46,14 @@ const devPath = '../../client/build/';
 const dockerPath = 'client/';
 
 export const resolvedPath = (): string => {
-  if (isProduction) {
-    return productionPath;
+  if (isTest) {
+    return devPath;
   }
   if (isDocker) {
     return dockerPath;
+  }
+  if (isProduction) {
+    return productionPath;
   }
   return devPath;
 };

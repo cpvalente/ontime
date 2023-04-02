@@ -258,10 +258,9 @@ export const parseExcel = async (excelData) => {
  * @param {boolean} [enforce=false] - flag, tells to create an object anyway
  * @returns {object} - parsed object
  */
-export const parseJson = async (jsonData, enforce = false): Promise<DatabaseModel | -1> => {
+export const parseJson = async (jsonData, enforce = false): Promise<DatabaseModel | null> => {
   if (!jsonData || typeof jsonData !== 'object') {
-    console.log('ERROR: Invalid JSON format');
-    return -1;
+    return null;
   }
 
   // object containing the parsed data

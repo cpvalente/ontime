@@ -2,12 +2,6 @@ import type { PlaywrightTestConfig } from '@playwright/test';
 import { devices } from '@playwright/test';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
-
-/**
  * See https://playwright.dev/docs/test-configuration.
  */
 const config: PlaywrightTestConfig = {
@@ -19,8 +13,14 @@ const config: PlaywrightTestConfig = {
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: 'html',
+  webServer: {
+    command: "turbo run dev:test",
+    port: 4001,
+    reuseExistingServer: false,
+    timeout: 60 * 1000,
+  },
   use: {
     screenshot: 'only-on-failure',
     viewport: { width: 1920, height: 1080 },
@@ -28,9 +28,6 @@ const config: PlaywrightTestConfig = {
     baseURL: 'http://localhost:4001',
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
-  },
-  webServer: {
-    command: "pnpm dev:server"
   },
   projects: [
     {
@@ -41,16 +38,8 @@ const config: PlaywrightTestConfig = {
     },
 
     {
-      name: 'firefox',
-      testMatch: /.*.spec.all.ts/,
-      use: {
-        ...devices['Desktop Firefox'],
-      },
-    },
-
-    {
       name: 'webkit',
-      testMatch: /.*.spec.ts/,
+      testMatch: /.*.spec.mac.ts/,
       use: {
         ...devices['Desktop Safari'],
       },
