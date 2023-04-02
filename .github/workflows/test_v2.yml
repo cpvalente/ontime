@@ -6,12 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  testing:
-
-    runs-on: ubuntu-latest
+  e2e-test:
     timeout-minutes: 20
-    env:
-      CI: ''
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -28,15 +25,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # We choose to run tests separately
-      - name: React - Run unit tests
-        run: pnpm test:pipeline
-        working-directory: ./apps/client
+      - name: Build client
+        run: pnpm build:client
 
-      - name: Server - Run unit tests
-        run: pnpm test:pipeline
-        working-directory: ./apps/server
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
-      - name: Utils - Run unit tests
-        run: pnpm test:pipeline
-        working-directory: ./packages/utils
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
