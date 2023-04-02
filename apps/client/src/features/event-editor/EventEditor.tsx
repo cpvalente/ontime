@@ -174,6 +174,7 @@ export default function EventEditor() {
             name='timerType'
             value={event.timerType}
             onChange={(event) => handleChange('timerType', event.target.value)}
+            variant='ontime'
           >
             <option value={TimerType.CountDown}>Count down</option>
             <option value={TimerType.CountUp}>Count up</option>
@@ -185,6 +186,7 @@ export default function EventEditor() {
             name='endAction'
             value={event.endAction}
             onChange={(event) => handleChange('endAction', event.target.value)}
+            variant='ontime'
           >
             <option value={EndAction.Continue}>Continue</option>
             <option value={EndAction.Stop}>Stop</option>
