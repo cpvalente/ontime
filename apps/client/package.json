@@ -35,9 +35,9 @@
   "scripts": {
     "addversion": "node -p \"'export const ONTIME_VERSION = ' + JSON.stringify(require('../../package.json').version) + ';'\" > src/ONTIME_VERSION.js",
     "postinstall": "pnpm addversion",
-    "dev": "set BROWSER=none&&vite",
+    "dev": "cross-env BROWSER=none vite",
     "build": "vite build",
-    "build:local": "NODE_ENV=local vite build",
+    "build:local": "cross-env NODE_ENV=local vite build",
     "build:docker": "vite build",
     "lint": "eslint .",
     "stylelint": "npx stylelint \"**/*.scss\"\n",

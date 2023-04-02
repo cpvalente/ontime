@@ -43,6 +43,7 @@ export default function MessageControl() {
           variant={data.onAir ? 'ontime-filled' : 'ontime-subtle'}
           leftIcon={data.onAir ? <IoMicSharp size='24px' /> : <IoMicOffOutline size='24px' />}
           onClick={() => setMessage.onAir(!data.onAir)}
+          data-testid='toggle on air'
         >
           {data?.onAir ? 'Ontime is On Air' : 'Ontime is Off Air'}
         </Button>

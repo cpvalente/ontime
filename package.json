@@ -26,22 +26,25 @@
     "dev:electron": "turbo run dev --filter=ontime",
     "dev:server": "turbo run dev --filter=ontime-server",
     "build": "turbo run build",
+    "build:local": "turbo run build:local",
+    "dist-win": "turbo run dist-win",
+    "dist-mac": "turbo run dist-mac",
+    "dist-linux": "turbo run dist-linux",
     "test": "vitest",
-    "e2e": "start-test \"turbo dev --filter=ontime-server\" 4001 e2e:local",
-    "e2e:local": "npx playwright test -c playwright.config.ts",
+    "e2e": "cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
     "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules"
   },
   "devDependencies": {
-    "@playwright/test": "^1.30.0",
+    "@playwright/test": "^1.32.1",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-playwright": "^0.11.2",
+    "eslint-plugin-playwright": "^0.12.0",
     "prettier": "^2.8.2",
-    "start-server-and-test": "^1.15.2",
-    "turbo": "^1.6.3",
+    "turbo": "^1.8.8",
     "typescript": "^4.8.3"
   }
 }

@@ -8,29 +8,32 @@ test('test', async ({ context }) => {
 
   // stage timer message
   await editorPage.getByPlaceholder('Shown in stage timer').click();
+  await expect(editorPage.getByPlaceholder('Shown in stage timer')).toBeEnabled(true);
+
   await editorPage.getByPlaceholder('Shown in stage timer').fill('testing stage');
-  await editorPage.getByRole('button', { name: 'toggle timer screen message' }).click();
+  await editorPage.getByRole('button', { name: /toggle timer screen message/i }).click({ timeout: 5000 });
 
   await featurePage.goto('http://localhost:4001/timer');
   await featurePage.getByText('testing stage').click();
 
   // public screen message
-  await editorPage.getByPlaceholder('Shown in public screens').click();
-  await editorPage.getByPlaceholder('Shown in public screens').fill('testing public');
-  await editorPage.getByRole('button', { name: /toggle public screen message/i }).click();
+  await editorPage.getByPlaceholder('Shown in public and backstage screens').click();
+  await editorPage.getByPlaceholder('Shown in public and backstage screens').fill('testing public');
+  await editorPage.getByRole('button', { name: 'Toggle Public / Backstage screen message' }).click();
 
   await featurePage.goto('http://localhost:4001/public');
-  await featurePage.getByText('testing public').click();
+  await featurePage.getByText('testing public').click({ timeout: 10000 });
 
   // lower third message
   await editorPage.getByPlaceholder('Shown in lower third').click();
   await editorPage.getByPlaceholder('Shown in lower third').fill('testing lower');
   await editorPage.getByRole('button', { name: /toggle lower third message/i }).click();
   await featurePage.goto('http://localhost:4001/lower');
-  await featurePage.getByText('testing lower').click();
+  // increase the timeout to accommodate animation
+  await featurePage.getByText('testing lower').click({ timeout: 10000 });
 
   // on air state
-  await editorPage.getByRole('button', { name: 'Toggle On Air' }).click();
+  await editorPage.getByTestId('toggle on air').click();
   await featurePage.goto('http://localhost:4001/studio');
   await featurePage.getByText('ON AIR').click();
   const onAirActive = await featurePage.locator('data-testid=on-air-enabled');

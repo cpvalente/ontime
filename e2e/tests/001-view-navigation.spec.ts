@@ -8,7 +8,7 @@ test.describe('test view navigation feature', () => {
 
     await page.getByRole('button', { name: 'toggle menu' }).click();
     await page.locator('data-test-id=navigation-menu');
-    await page.getByRole('link', { name: 'Clock' }).click();
+    await page.getByRole('link', { name: 'Clock', exact: true }).click();
     await page.locator('data-test-id=clock-view');
     await expect(page).toHaveURL('http://localhost:4001/clock');
 
@@ -39,12 +39,6 @@ test.describe('test view navigation feature', () => {
 
     await page.getByRole('button', { name: 'toggle menu' }).click();
     await page.locator('data-test-id=navigation-menu');
-    await page.getByRole('link', { name: 'PiP' }).click();
-    await page.locator('data-test-id=pip-view');
-    await expect(page).toHaveURL('http://localhost:4001/pip');
-
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    await page.locator('data-test-id=navigation-menu');
     await page.getByRole('link', { name: 'Studio Clock' }).click();
     await page.locator('data-test-id=studio-view');
     await expect(page).toHaveURL('http://localhost:4001/studio');
@@ -57,7 +51,7 @@ test.describe('test view navigation feature', () => {
 
     await page.getByRole('button', { name: 'toggle menu' }).click();
     await page.locator('data-test-id=navigation-menu');
-    await page.getByRole('link', { name: 'Timer' }).click();
+    await page.getByRole('link', { name: 'Timer', exact: true }).click();
     await page.locator('data-test-id=timer-view');
     await expect(page).toHaveURL('http://localhost:4001/timer');
   });
