@@ -1,14 +1,20 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
+import { IoCaretDownCircle } from '@react-icons/all-files/io5/IoCaretDownCircle';
+import { IoCaretUpCircle } from '@react-icons/all-files/io5/IoCaretUpCircle';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { IoPlayCircle } from '@react-icons/all-files/io5/IoPlayCircle';
+import { IoPlayForwardCircle } from '@react-icons/all-files/io5/IoPlayForwardCircle';
 import { IoPlayOutline } from '@react-icons/all-files/io5/IoPlayOutline';
-import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
+import { IoPlaySkipForwardCircle } from '@react-icons/all-files/io5/IoPlaySkipForwardCircle';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
 import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
-import { Playback } from 'ontime-types';
+import { IoStopCircle } from '@react-icons/all-files/io5/IoStopCircle';
+import { IoTime } from '@react-icons/all-files/io5/IoTime';
+import { EndAction, Playback, TimerType } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -38,6 +44,8 @@ interface EventBlockInnerProps {
   duration: number;
   eventId: string;
   isPublic: boolean;
+  endAction: EndAction;
+  timerType: TimerType;
   title: string;
   note: string;
   delay: number;
@@ -57,6 +65,8 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     duration,
     eventId,
     isPublic = true,
+    endAction,
+    timerType,
     title,
     note,
     delay,
@@ -180,14 +190,24 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           {selected && <EventBlockProgressBar playback={playback} />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
-          <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
+          {next && (
+            <Tooltip label='Next event' {...tooltipProps}>
+              <span className={style.tag}>NEXT</span>
+            </Tooltip>
+          )}
+          <Tooltip label={`End action: ${endAction}`} {...tooltipProps}>
             <span>
-              <IoPlaySkipForward className={`${style.statusIcon} ${next ? style.active : ''}`} />
+              <EndActionIcon action={endAction} className={style.statusIcon} />
+            </span>
+          </Tooltip>
+          <Tooltip label={`Time type: ${timerType}`} {...tooltipProps}>
+            <span>
+              <TimerIcon type={timerType} className={style.statusIcon} />
             </span>
           </Tooltip>
           <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
             <span>
-              <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : ''}`} />
+              <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
         </div>
@@ -212,3 +232,28 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 };
 
 export default memo(EventBlockInner);
+
+function EndActionIcon(props: { action: EndAction; className: string }) {
+  const { action, className } = props;
+  if (action === EndAction.LoadNext) {
+    return <IoPlaySkipForwardCircle className={className} />;
+  }
+  if (action === EndAction.PlayNext) {
+    return <IoPlayForwardCircle className={className} />;
+  }
+  if (action === EndAction.Stop) {
+    return <IoStopCircle className={className} />;
+  }
+  return <IoPlayCircle className={className} />;
+}
+
+function TimerIcon(props: { type: TimerType; className: string }) {
+  const { type, className } = props;
+  if (type === TimerType.CountUp) {
+    return <IoCaretUpCircle className={className} />;
+  }
+  if (type === TimerType.Clock) {
+    return <IoTime className={className} />;
+  }
+  return <IoCaretDownCircle className={className} />;
+}

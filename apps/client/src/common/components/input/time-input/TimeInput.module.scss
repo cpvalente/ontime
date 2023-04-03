@@ -4,6 +4,10 @@ $input-delayed-border-color: #E69056;
 .timeInput {
   width: fit-content !important;
 
+  .inputButton {
+    aspect-ratio: 1;
+  }
+
   .inputField {
     font-size: $input-font-size;
     letter-spacing: 1px;

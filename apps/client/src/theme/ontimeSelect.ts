@@ -3,7 +3,7 @@ export const ontimeSelect = {
     color: '#e2e2e2', // $gray-200
     borderRadius: '3px',
     fontWeight: '400',
-    background: '#262626',  // $gray-1100
+    background: '#262626', // $gray-1100
     border: '1px solid transparent',
     _hover: {
       background: '#404040', // $gray-1000

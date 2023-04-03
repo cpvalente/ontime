@@ -95,6 +95,20 @@
           "!**/{mock,mocks,__mock__,__mocks__}",
           "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
         ]
+      },
+      {
+        "from": "../server/src/preloaded-db/",
+        "to": "extraResources/preloaded-db/",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../server/src/external/",
+        "to": "extraResources/external/",
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   }

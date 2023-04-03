@@ -8,7 +8,7 @@ test('test', async ({ context }) => {
 
   // stage timer message
   await editorPage.getByPlaceholder('Shown in stage timer').click();
-  await expect(editorPage.getByPlaceholder('Shown in stage timer')).toBeEnabled(true);
+  await expect(editorPage.getByPlaceholder('Shown in stage timer')).toBeEnabled();
 
   await editorPage.getByPlaceholder('Shown in stage timer').fill('testing stage');
   await editorPage.getByRole('button', { name: /toggle timer screen message/i }).click({ timeout: 5000 });

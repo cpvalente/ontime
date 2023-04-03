@@ -245,7 +245,7 @@ export default function Rundown(props: RundownProps) {
                   />
                   {((showQuickEntry && index === cursor) || isLast) && (
                     <QuickAddBlock
-                      showKbd={false}
+                      showKbd={index === cursor}
                       eventId={entry.id}
                       previousEventId={previousEventId}
                       disableAddDelay={entry.type === 'delay'}

@@ -7,7 +7,7 @@ import cors from 'cors';
 import { join, resolve } from 'path';
 
 import { initSentry, reportSentryException } from './modules/sentry.js';
-import { currentDirectory, environment, isProduction, resolvedPath } from './setup.js';
+import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { OSCSettings } from 'ontime-types';
 
@@ -61,7 +61,7 @@ app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
 // serve static - css
-app.use('/external', express.static(join(currentDirectory, 'external')));
+app.use('/external', express.static(externalsStartDirectory));
 
 // serve static - react, in test mode we fetch the React app from module
 app.use(express.static(join(currentDirectory, resolvedPath())));
