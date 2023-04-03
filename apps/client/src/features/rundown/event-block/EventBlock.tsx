@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { OntimeEvent, Playback } from 'ontime-types';
+import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useCursor } from '../../../common/stores/cursorStore';
 import { useEventEditorStore } from '../../../common/stores/eventEditor';
@@ -21,6 +21,8 @@ interface EventBlockProps {
   eventIndex: number;
   eventId: string;
   isPublic: boolean;
+  endAction: EndAction;
+  timerType: TimerType;
   title: string;
   note: string;
   delay: number;
@@ -51,6 +53,8 @@ export default function EventBlock(props: EventBlockProps) {
     eventIndex,
     eventId,
     isPublic = true,
+    endAction,
+    timerType,
     title,
     note,
     delay,
@@ -143,6 +147,8 @@ export default function EventBlock(props: EventBlockProps) {
           duration={duration}
           eventId={eventId}
           isPublic={isPublic}
+          endAction={endAction}
+          timerType={timerType}
           title={title}
           note={note}
           delay={delay}

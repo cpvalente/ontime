@@ -137,6 +137,8 @@ export default function RundownEntry(props: RundownEntryProps) {
         eventIndex={eventIndex + 1}
         eventId={data.id}
         isPublic={data.isPublic}
+        endAction={data.endAction}
+        timerType={data.timerType}
         title={data.title}
         note={data.note}
         delay={delay}

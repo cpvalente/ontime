@@ -154,15 +154,24 @@
   grid-area: status;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 8px;
+
+  .tag {
+    font-size: 0.55em;
+    color: $active-indicator;
+  }
 
   .statusIcon {
     width: 16px;
     height: 16px;
-    color: $gray-1000;
+    color: $gray-500;
   }
 
   .statusIcon.active {
-    color: $ui-white;
+    color: $active-indicator;
+  }
+  .statusIcon.disabled {
+    color: $gray-1000;
   }
 }
