@@ -29,14 +29,14 @@ let win;
 let splash;
 let tray = null;
 
-(async () => {
-  // in dev mode, we expect both UI and server to be running
-  if (!isProduction) {
-    return;
-  }
+async function startBackend() {
+  await (async () => {
+    // in dev mode, we expect both UI and server to be running
+    if (!isProduction) {
+      return;
+    }
 
-  try {
-    const ontimeServer = require(nodePath)
+    const ontimeServer = require(nodePath);
     const { initAssets, startServer, startOSCServer, startIntegrations } = ontimeServer;
 
     await initAssets();
@@ -44,10 +44,8 @@ let tray = null;
     loaded = await startServer();
     await startOSCServer();
     await startIntegrations();
-  } catch (error) {
-    loaded = error;
-  }
-})();
+  })();
+}
 
 /**
  * @description utility function to create a notification
@@ -158,26 +156,34 @@ app.whenReady().then(() => {
     bringToFront();
   });
 
-  // cheat to schedule process
-  setTimeout(() => {
-    // Load page served by node or use React dev run
-    const clientUrl = isProduction ? electronConfig.reactAppUrl.production : electronConfig.reactAppUrl.development;
+  startBackend()
+    .then(() => {
+      // Load page served by node or use React dev run
+      const clientUrl = isProduction ? electronConfig.reactAppUrl.production : electronConfig.reactAppUrl.development;
 
-    win.loadURL(clientUrl).then(() => {
-      win.webContents.setBackgroundThrottling(false);
+      win
+        .loadURL(clientUrl)
+        .then(() => {
+          win.webContents.setBackgroundThrottling(false);
 
-      win.show();
-      win.focus();
+          win.show();
+          win.focus();
 
-      splash.destroy();
+          splash.destroy();
 
-      if (typeof loaded === 'string') {
-        tray.setToolTip(loaded);
-      } else {
-        tray.setToolTip('Initialising error: please restart Ontime');
-      }
+          if (typeof loaded === 'string') {
+            tray.setToolTip(loaded);
+          } else {
+            tray.setToolTip('Initialising error: please restart Ontime');
+          }
+        })
+        .catch((error) => {
+          dialog.showErrorBox('Ontime failed to reach server', error);
+        });
+    })
+    .catch((error) => {
+      dialog.showErrorBox('Ontime failed to start', error);
     });
-  }, 0);
 
   // recreate window if no others open
   app.on('activate', () => {
