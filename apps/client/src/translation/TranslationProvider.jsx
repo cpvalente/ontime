@@ -3,12 +3,11 @@ import React, { createContext, useContext, useState } from 'react';
 import { langDe } from '@/translation/languages/de';
 import { langEn } from '@/translation/languages/en';
 
-const ALLOWED_LANGUAGES = ['en', 'de'];
-
 const translationsMap = new Map([
   ['en', langEn],
   ['de', langDe],
 ]);
+const ALLOWED_LANGUAGES = Array.from(translationsMap.keys());
 
 export const TranslationContext = createContext(undefined);
 
