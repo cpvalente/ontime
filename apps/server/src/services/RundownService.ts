@@ -1,4 +1,4 @@
-import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent } from 'ontime-types';
+import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef, event as eventDef } from '../models/eventsDefinition.js';
@@ -212,15 +212,13 @@ export async function reorderEvent(eventId, from, to) {
  */
 export async function applyDelay(eventId) {
   const rundown = DataProvider.getRundown();
-  // AUX
   let delayIndex = null;
-  let blockIndex = null;
   let delayValue = 0;
 
   for (const [index, e] of rundown.entries()) {
     // look for delay
     if (delayIndex === null) {
-      if (e.id === eventId && e.type === 'delay') {
+      if (e.id === eventId && e.type === SupportedEvent.Delay) {
         delayValue = e.duration;
         delayIndex = index;
       }
@@ -228,16 +226,14 @@ export async function applyDelay(eventId) {
 
     // apply delay value to all items until block or end
     else {
-      if (e.type === 'event') {
+      if (e.type === SupportedEvent.Event) {
         // update times
         e.timeStart += delayValue;
         e.timeEnd += delayValue;
 
         // increment revision
         e.revision += 1;
-      } else if (e.type === 'block') {
-        // save id and stop
-        blockIndex = index;
+      } else if (e.type === SupportedEvent.Block) {
         break;
       }
     }
@@ -249,10 +245,6 @@ export async function applyDelay(eventId) {
 
   // delete delay
   rundown.splice(delayIndex, 1);
-
-  // delete block
-  // index would have moved down since we deleted delay
-  if (blockIndex) rundown.splice(blockIndex - 1, 1);
 
   // update rundown
   await DataProvider.setRundown(rundown);
