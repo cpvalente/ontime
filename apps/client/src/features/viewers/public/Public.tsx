@@ -37,7 +37,7 @@ interface BackstageProps {
 export default function Public(props: BackstageProps) {
   const { isMirrored, publ, publicTitle, time, events, publicSelectedId, general, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-  const { getString } = useTranslation();
+  const { getLocalizedString } = useTranslation();
 
   useEffect(() => {
     document.title = 'ontime - Public Screen';
@@ -59,7 +59,7 @@ export default function Public(props: BackstageProps) {
       <div className='event-header'>
         {general.title}
         <div className='clock-container'>
-          <div className='label'>{getString('common.time_now')}</div>
+          <div className='label'>{getLocalizedString('common.time_now')}</div>
           <div className='time'>{clock}</div>
         </div>
       </div>

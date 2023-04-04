@@ -15,12 +15,12 @@ export const TranslationProvider = ({ children }) => {
   // Default language
   const [language, setLanguageState] = useState('en');
 
-  const getString = (key, lang = language) => {
+  const getLocalizedString = (key, lang = language) => {
     if (key in translationsList[lang]) {
       return translationsList[lang][key];
     } else if (lang !== DEFAULT_LANGUAGE) {
       /* If the key does not exist in the chosen language, try to load it in the default language. */
-      return getString(key, 'en');
+      return getLocalizedString(key, 'en');
     } else {
       /* We are here if the key does not exist in the default language. */
       return undefined;
@@ -38,7 +38,7 @@ export const TranslationProvider = ({ children }) => {
   };
 
   const contextValue = {
-    getString,
+    getLocalizedString,
     setLanguage,
   };
 
@@ -46,6 +46,6 @@ export const TranslationProvider = ({ children }) => {
 };
 
 export const useTranslation = () => {
-  const { getString, setLanguage } = useContext(TranslationContext);
-  return { getString, setLanguage };
+  const { getLocalizedString, setLanguage } = useContext(TranslationContext);
+  return { getLocalizedString, setLanguage };
 };
