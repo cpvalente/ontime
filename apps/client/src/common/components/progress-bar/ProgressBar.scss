@@ -7,7 +7,7 @@ $progress-bar-br: 6px;
   width: 100%;
   height: $progress-bar-size;
   border-radius: $progress-bar-br;
-  background-color: var(--card-background-color-override, $viewer-card-bg-color);
+  background-color: var(--timer-progress-bg-override, $viewer-card-bg-color);
 
   &--hidden {
     display: none;
@@ -17,7 +17,7 @@ $progress-bar-br: 6px;
 .progress-bar__indicator {
   height: $progress-bar-size;
   border-radius: $progress-bar-br;
-  background-color: var(--accent-color-override, $accent-color);
+  background-color: var(--timer-progress-override, $accent-color);
   transition: 1s linear;
   transition-property: width;
 }

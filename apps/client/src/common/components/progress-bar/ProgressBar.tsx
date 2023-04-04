@@ -16,10 +16,7 @@ export default function ProgressBar(props: ProgressBarProps) {
 
   return (
     <div className={`progress-bar__bg ${hidden ? 'progress-bar__bg--hidden' : ''} ${className}`}>
-      <div
-        className='progress-bar__indicator'
-        style={{ width: `${percentComplete}%` }}
-      />
+      <div className='progress-bar__indicator' style={{ width: `${percentComplete}%` }} />
     </div>
   );
 }

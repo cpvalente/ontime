@@ -63,7 +63,7 @@ export default function Timer(props: TimerProps) {
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
 
-  const showEndMessage = time.current < 0 && general.endMessage;
+  const showEndMessage = (time.current ?? 1) < 0 && general.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showClock = time.timerType !== TimerType.Clock;
@@ -108,8 +108,8 @@ export default function Timer(props: TimerProps) {
 
       <ProgressBar
         className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
-        now={time.current}
-        complete={time.duration}
+        now={time.current || 0}
+        complete={time.duration || 0}
         hidden={!showProgress}
       />
 
