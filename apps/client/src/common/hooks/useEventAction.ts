@@ -76,6 +76,7 @@ export const useEventAction = () => {
           const previousEvent = rundown.find((event) => event.id === applicationOptions.lastEventId);
           if (typeof previousEvent !== 'undefined' && previousEvent.type === 'event') {
             newEvent.timeStart = previousEvent.timeEnd;
+            newEvent.timeEnd = previousEvent.timeEnd;
           }
         }
 
