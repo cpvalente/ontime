@@ -1,4 +1,4 @@
-import { EndAction, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
+import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
@@ -8,13 +8,23 @@ import { integrationService } from './integration-service/IntegrationService.js'
 import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 
+/**
+ * Aux type
+ */
+type Timer = {
+  _startedAt: number;
+  _finishAt: number;
+  duration: number;
+  current: number;
+};
+
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
 
   playback: Playback;
   timer: TimerState;
 
-  loadedTimerId: null;
+  loadedTimerId: string | null;
   private pausedTime: number;
   private pausedAt: number | null;
   private secondaryTarget: number | null;
@@ -250,7 +260,7 @@ export class TimerService {
 
         clock: this.timer.clock,
         secondaryTimer: this.timer.secondaryTimer,
-        _secondaryTarget: this.secondaryTarget,
+        secondaryTarget: this.secondaryTarget,
       };
       const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
 
@@ -263,6 +273,7 @@ export class TimerService {
         this._onFinish();
       }
 
+      // to load the next event we have to escalate to parent service
       if (doRollLoad) {
         PlaybackService.roll();
       }
@@ -321,7 +332,13 @@ export class TimerService {
     }
   }
 
-  roll(currentEvent, nextEvent, timers) {
+  /**
+   * Loads roll information into timer service
+   * @param {OntimeEvent | null} currentEvent -- both current event and next event cant be null
+   * @param {OntimeEvent | null} nextEvent -- both current event and next event cant be null
+   * @param {Timer} timers
+   */
+  roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null, timers: Timer) {
     this._clear();
     this.timer.clock = clock.timeNow();
 
@@ -336,9 +353,11 @@ export class TimerService {
       this.timer.duration = timers.duration;
       this.timer.current = timers.current;
     } else if (nextEvent) {
+      // account for day after
+      const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + DAY_TO_MS : nextEvent.timeStart;
       // nothing now, but something coming up
-      this.timer.secondaryTimer = nextEvent.timeStart - this.timer.clock;
-      this.secondaryTarget = nextEvent.timeStart;
+      this.timer.secondaryTimer = nextStart - this.timer.clock;
+      this.secondaryTarget = nextStart;
     }
 
     this.playback = Playback.Roll;
