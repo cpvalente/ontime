@@ -1,7 +1,7 @@
 import { TimerType } from 'ontime-types';
 
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
+import { formatDisplay } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
 
 const formatOptions = {
@@ -36,7 +36,7 @@ export function formatTimerDisplay(timer?: string | number | null): string {
   } else if (timer === null || typeof timer === 'undefined' || isNaN(timer)) {
     display = '-- : -- : --';
   } else {
-    display = formatDisplay(millisToSeconds(timer), true);
+    display = formatDisplay(timer, true);
   }
 
   return display;

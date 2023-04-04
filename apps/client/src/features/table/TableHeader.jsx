@@ -11,7 +11,7 @@ import { TableSettingsContext } from '../../common/context/TableSettingsContext'
 import useFullscreen from '../../common/hooks/useFullscreen';
 import { useTimer } from '../../common/hooks/useSocket';
 import useEventData from '../../common/hooks-query/useEventData';
-import { formatDisplay, millisToSeconds } from '../../common/utils/dateConfig';
+import { formatDisplay } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
 import { tooltipDelayFast } from '../../ontimeConfig';
 
@@ -33,7 +33,7 @@ export default function TableHeader({ handleCSVExport, featureData }) {
 
   // prepare presentation variables
   const isOvertime = timer.current < 0;
-  const timerNow = `${isOvertime ? '-' : ''}${formatDisplay(millisToSeconds(timer.current))}`;
+  const timerNow = `${isOvertime ? '-' : ''}${formatDisplay(timer.current)}`;
   const timeNow = formatTime(timer.clock, {
     showSeconds: true,
     format: 'hh:mm:ss a',

@@ -6,7 +6,7 @@ import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
+import { formatDisplay } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { formatTime } from '../../../common/utils/time';
 
@@ -100,8 +100,8 @@ export default function Countdown(props: CountdownProps) {
     runningMessage === TimerMessage.ended
       ? formatTime(runningTimer, formatOptionsFinished)
       : formatDisplay(
-          isSelected ? millisToSeconds(runningTimer) : millisToSeconds(runningTimer + delay),
-          isSelected || time.waiting,
+          isSelected ? runningTimer : runningTimer + delay,
+          isSelected || runningMessage === TimerMessage.waiting,
         );
 
   return (
