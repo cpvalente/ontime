@@ -5,11 +5,11 @@
   --accent-color-override: #fa5656;
   --label-color-override: #6c6c6c;
   --timer-color-override: #202020;
-  --timer-progress-bg-override: #fff;
-  --timer-progress-override: #202020;
   --card-background-color-override: #fff;
   --font-family-override: "Open Sans";
   --font-family-bold-override: "Arial Black";
+  --timer-progress-bg-override: #fff;
+  --timer-progress-override: #202020;
 }
 
 .timer {
