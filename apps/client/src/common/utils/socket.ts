@@ -1,4 +1,4 @@
-import { Log } from 'ontime-types';
+import { Log, RuntimeStore } from 'ontime-types';
 
 import { RUNTIME, websocketUrl } from '../api/apiConstants';
 import { ontimeQueryClient } from '../queryClient';
@@ -50,7 +50,7 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime': {
-          runtime.setState(payload);
+          runtime.setState(payload as RuntimeStore);
           if (import.meta.env.DEV) {
             ontimeQueryClient.setQueryData(RUNTIME, data.payload);
           }

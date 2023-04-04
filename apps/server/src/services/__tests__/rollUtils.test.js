@@ -1,11 +1,4 @@
-import {
-  DAY_TO_MS,
-  getRollTimers,
-  normaliseEndTime,
-  replacePlaceholder,
-  sortArrayByProperty,
-  updateRoll,
-} from '../rollUtils.ts';
+import { DAY_TO_MS, getRollTimers, normaliseEndTime, sortArrayByProperty, updateRoll } from '../rollUtils.ts';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -265,8 +258,7 @@ describe('test that roll loads selection in right order', () => {
     expect(state).toStrictEqual(expected);
   });
 
-  // TODO: always roll
-  it.skip('if timer is at 100', () => {
+  it('if timer is at 100', () => {
     const now = 100;
     const expected = {
       nowIndex: null,
@@ -279,15 +271,14 @@ describe('test that roll loads selection in right order', () => {
       nextEvent: eventlist[0],
       nextPublicEvent: eventlist[4],
       currentEvent: null,
-      currentPublicEvent: eventlist[6],
+      currentPublicEvent: null,
     };
 
     const state = getRollTimers(eventlist, now);
     expect(state).toStrictEqual(expected);
   });
 
-  // TODO: always roll
-  it.skip('handles rolls to next day with real values', () => {
+  it('handles rolls to next day with real values', () => {
     const singleEventList = [
       {
         id: 1,
@@ -459,68 +450,6 @@ describe('test that roll behaviour with overlapping times', () => {
   });
 });
 
-// test replacePlaceholder()
-describe('test that it replaces data correctly', () => {
-  const values = {
-    $timer: 'timer',
-    $title: 'title',
-    $presenter: 'presenter',
-    $subtitle: 'subtitle',
-    '$next-title': 'next title',
-    '$next-presenter': 'next presenter',
-    '$next-subtitle': 'next subtitle',
-  };
-
-  it('replaces timer', () => {
-    const test = '___1232132 $timer';
-    const expected = '___1232132 timer';
-    const s = replacePlaceholder(test, values);
-    expect(s).toBe(expected);
-  });
-
-  it('replaces title', () => {
-    const test = '___1232132 $title';
-    const expected = '___1232132 title';
-    const s = replacePlaceholder(test, values);
-    expect(s).toBe(expected);
-  });
-
-  it('replaces presenter', () => {
-    const test = '___1232132 $presenter';
-    const expected = '___1232132 presenter';
-    const s = replacePlaceholder(test, values);
-    expect(s).toBe(expected);
-  });
-
-  it('replaces subtitle', () => {
-    const test = '___1232132 $subtitle';
-    const expected = '___1232132 subtitle';
-    const s = replacePlaceholder(test, values);
-    expect(s).toBe(expected);
-  });
-
-  it('replaces next next title', () => {
-    const test = '___1232132 $next-title';
-    const expected = '___1232132 next title';
-    const s = replacePlaceholder(test, values);
-    expect(s).toBe(expected);
-  });
-
-  it('replaces next presenter', () => {
-    const test = '___1232132 $next-presenter';
-    const expected = '___1232132 next presenter';
-    const s = replacePlaceholder(test, values);
-    expect(s).toBe(expected);
-  });
-
-  it('replaces next subtitle', () => {
-    const test = '___1232132 $next-subtitle';
-    const expected = '___1232132 next subtitle';
-    const s = replacePlaceholder(test, values);
-    expect(s).toBe(expected);
-  });
-});
-
 // test getRollTimers() on issue #58
 describe('test that roll behaviour multi day event edge cases', () => {
   it('if the start time is the day after end time, and start time is earlier than now', () => {
@@ -621,7 +550,7 @@ describe('typical scenarios', () => {
       _finishAt: 15,
       clock: 11,
       secondaryTimer: null,
-      _secondaryTarget: null,
+      secondaryTarget: null,
     };
 
     const expected = {
@@ -648,12 +577,12 @@ describe('typical scenarios', () => {
       _finishAt: null,
       clock: 11,
       secondaryTimer: 1,
-      _secondaryTarget: 15,
+      secondaryTarget: 15,
     };
 
     const expected = {
       updatedTimer: null,
-      updatedSecondaryTimer: timers._secondaryTarget - timers.clock,
+      updatedSecondaryTimer: timers.secondaryTarget - timers.clock,
       doRollLoad: false,
       isFinished: false,
     };
@@ -668,11 +597,11 @@ describe('typical scenarios', () => {
       _finishAt: 11,
       clock: 12,
       secondaryTimer: null,
-      _secondaryTarget: null,
+      secondaryTarget: null,
     };
 
     const expected = {
-      updatedTimer: null,
+      updatedTimer: -1,
       updatedSecondaryTimer: null,
       doRollLoad: true,
       isFinished: true,
@@ -688,12 +617,12 @@ describe('typical scenarios', () => {
       _finishAt: null,
       clock: 16,
       secondaryTimer: 1,
-      _secondaryTarget: 15,
+      secondaryTarget: 15,
     };
 
     const expected = {
       updatedTimer: null,
-      updatedSecondaryTimer: timers._secondaryTarget - timers.clock,
+      updatedSecondaryTimer: timers.secondaryTarget - timers.clock,
       doRollLoad: true,
       isFinished: false,
     };
@@ -708,12 +637,12 @@ describe('typical scenarios', () => {
       _finishAt: null,
       clock: 15,
       secondaryTimer: 0,
-      _secondaryTarget: 15,
+      secondaryTarget: 15,
     };
 
     const expected = {
       updatedTimer: null,
-      updatedSecondaryTimer: timers._secondaryTarget - timers.clock,
+      updatedSecondaryTimer: timers.secondaryTarget - timers.clock,
       doRollLoad: true,
       isFinished: false,
     };

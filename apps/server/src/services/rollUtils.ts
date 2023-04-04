@@ -17,72 +17,75 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  * @returns {array} copy of array sorted in ascending order
  */
 
-export const sortArrayByProperty = (arr, property) => {
+export const sortArrayByProperty = <T>(arr: T[], property: string): T[] => {
   return [...arr].sort((a, b) => {
     return a[property] - b[property];
   });
 };
 
-/**
- * @description Replaces placeholder variables in string with given data
- * @param {string} str - string to analyse
- * @param {object} values - map of variables: values to use
- * @returns {string} finished string
- */
-
-export const replacePlaceholder = (str, values) => {
-  for (const [k, v] of Object.entries(values)) {
-    str = str.replace(k, v);
-  }
-  return str;
+type Timer = {
+  _startedAt: number;
+  _finishAt: number;
+  duration: number;
+  current: number;
 };
 
 /**
  * Finds loading information given a current rundown and time
- * @param rundown
- * @param timeNow
+ * @param {OntimeEvent[]} rundown - List of playable events
+ * @param {number} timeNow - time now in ms
  * @returns {{}}
  */
 export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
   let nowIndex: number | null = null; // index of event now
   let nowId: string | null = null; // id of event now
   let publicIndex: number | null = null; // index of public event now
-  let publicTime = -1;
   let nextIndex: number | null = null; // index of next event
   let publicNextIndex: number | null = null; // index of next public event
   let timeToNext: number | null = null; // counter: time for next event
   let publicTimeToNext: number | null = null; // counter: time for next public event
-  let timers = null;
+  let timers: Timer | null = null;
 
-  // Order events by startTime
   const orderedEvents = sortArrayByProperty(rundown, 'timeStart');
-
-  // preload first if we are past events
   const lastEvent = orderedEvents[orderedEvents.length - 1];
   const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
 
-  let nextEvent = null;
-  let nextPublicEvent = null;
-  let currentEvent = null;
-  let currentPublicEvent = null;
+  let nextEvent: OntimeEvent | null = null;
+  let nextPublicEvent: OntimeEvent | null = null;
+  let currentEvent: OntimeEvent | null = null;
+  let currentPublicEvent: OntimeEvent | null = null;
 
   if (timeNow > lastNormalEnd) {
-    nextIndex = 0;
-    timeToNext = orderedEvents[0].timeStart + DAY_TO_MS - timeNow;
+    // we are past last end
+    // preload first and find next
 
-    // look for next public
-    for (const event of orderedEvents) {
-      if (event.isPublic) {
-        nextPublicEvent = event;
-        publicNextIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
-        break;
+    const firstEvent = orderedEvents[0];
+    nextIndex = 0;
+    nextEvent = firstEvent;
+    timeToNext = firstEvent.timeStart + DAY_TO_MS - timeNow;
+
+    if (firstEvent.isPublic) {
+      nextPublicEvent = firstEvent;
+      publicNextIndex = 0;
+    } else {
+      // look for next public
+      // dev note: we feel that this is more efficient than filtering
+      // since the next event will likely be close to the one playing
+      for (const event of orderedEvents) {
+        if (event.isPublic) {
+          nextPublicEvent = event;
+          // we need the index before this was sorted
+          publicNextIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
+          break;
+        }
       }
     }
   } else {
     // flags: select first event if several overlapping
     let nowFound = false;
+    // keep track of the end times when looking for public
+    let publicTime = -1;
 
-    // loop through events, look for where we should be
     for (const event of orderedEvents) {
       // When does the event end (handle midnight)
       const normalEnd = normaliseEndTime(event.timeStart, event.timeEnd);
@@ -90,27 +93,18 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
       if (normalEnd <= timeNow) {
         // event ran already
 
-        // public event might not be the one running
         if (event.isPublic && normalEnd > publicTime) {
+          // public event might not be the one running
           publicTime = normalEnd;
           currentPublicEvent = event;
           publicIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
         }
       } else if (normalEnd > timeNow && timeNow >= event.timeStart && !nowFound) {
         // event is running
-
-        // it could also be public
-        if (event.isPublic) {
-          publicTime = normalEnd;
-          currentPublicEvent = event;
-          publicIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
-        }
-
         currentEvent = event;
         nowIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
         nowId = event.id;
 
-        // set timers
         timers = {
           _startedAt: event.timeStart,
           _finishAt: event.timeEnd,
@@ -118,25 +112,39 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
           current: normalEnd - timeNow,
         };
         nowFound = true;
+
+        // it could also be public
+        if (event.isPublic) {
+          publicTime = normalEnd;
+          currentPublicEvent = event;
+          publicIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
+        }
       } else if (normalEnd > timeNow) {
         // event will run
 
-        // no need to look after found first
-        if (nextIndex !== null && publicNextIndex !== null) continue;
+        // we already know whats next and next-public
+        if (nextIndex !== null && publicNextIndex !== null) {
+          continue;
+        }
 
         // look for next events
         // check how far the start is from now
-        const wait = event.timeStart - timeNow;
+        const timeToEventStart = event.timeStart - timeNow;
 
-        if (nextIndex === null || wait < timeToNext) {
-          timeToNext = wait;
+        // we don't have a next or this one starts sooner than current next
+        if (nextIndex === null || timeToEventStart < timeToNext) {
+          timeToNext = timeToEventStart;
           nextEvent = event;
           nextIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
         }
-        if ((publicNextIndex === null || wait < publicTimeToNext) && event.isPublic) {
-          publicTimeToNext = wait;
-          nextPublicEvent = event;
-          publicNextIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
+
+        if (event.isPublic) {
+          // if we don't have a public next or this one start sooner than assigned next
+          if (publicNextIndex === null || timeToEventStart < publicTimeToNext) {
+            publicTimeToNext = timeToEventStart;
+            nextPublicEvent = event;
+            publicNextIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
+          }
         }
       }
     }
@@ -157,55 +165,50 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
   };
 };
 
+type CurrentTimers = {
+  selectedEventId: string | null;
+  current: number | null;
+  _finishAt: number | null;
+  clock: number | null;
+  secondaryTimer: number | null;
+  secondaryTarget: number | null;
+};
+
 /**
  * @description Implements update functions for roll mode
- * @param {object} currentTimers
- * @param {object} currentTimers.selectedEventId - Id of currently selected event
- * @param {object} currentTimers.current - Running timer
- * @param {object} currentTimers._finishAt - Expected finish time
- * @param {object} currentTimers.clock - time now
- * @param {object} currentTimers.secondaryTimer - secondary timer
- * @param {object} currentTimers._secondaryTarget - finish time of secondary timer
+ * @param {CurrentTimers} currentTimers
  * @returns {object} object with selection variables
  */
-export const updateRoll = (currentTimers) => {
-  const { selectedEventId, current, _finishAt, clock, secondaryTimer, _secondaryTarget } = currentTimers;
+export const updateRoll = (currentTimers: CurrentTimers) => {
+  const { selectedEventId, current, _finishAt, clock, secondaryTimer, secondaryTarget } = currentTimers;
 
   // timers
   let updatedTimer = current;
   let updatedSecondaryTimer = secondaryTimer;
-  // whether rollLoad should be called
+  // whether rollLoad should be called: force reload of events
   let doRollLoad = false;
   // whether finished event should trigger
-  let isFinished = false;
+  let isPrimaryFinished = false;
 
-  if (selectedEventId && current >= 0) {
+  if (selectedEventId && current !== null) {
     // if we have something selected and a timer, we are running
-    // this is true because roll never goes into negative times
 
-    // update timer
     updatedTimer = _finishAt - clock;
     if (updatedTimer < 0) {
-      isFinished = true;
-      updatedTimer = null;
+      isPrimaryFinished = true;
+      // we need a new event
+      doRollLoad = true;
     }
   } else if (secondaryTimer >= 0) {
     // if secondaryTimer is running we are in waiting to roll
 
-    // update secondary
-    updatedSecondaryTimer = _secondaryTarget - clock;
+    updatedSecondaryTimer = secondaryTarget - clock;
+
+    if (updatedSecondaryTimer <= 0) {
+      // we need a new event
+      doRollLoad = true;
+    }
   }
 
-  // if nothing is running, we need to find out if
-  // a) we just finished an event (finished was set to true)
-  // b) we need to look for events
-  // this could be caused by a secondary timer or event finished
-  const secondaryRunning = updatedSecondaryTimer <= 0 && updatedSecondaryTimer != null;
-
-  if (isFinished || secondaryRunning) {
-    // look for events
-    doRollLoad = true;
-  }
-
-  return { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished };
+  return { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished: isPrimaryFinished };
 };
