@@ -4,7 +4,7 @@ import { millisToString } from 'ontime-utils';
 
 import TimerDisplay from '../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../common/hooks/useSocket';
-import { millisToMinutes } from '../../../common/utils/dateConfig';
+import { millisToMinutes, millisToSeconds } from '../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import TapButton from './TapButton';
@@ -30,7 +30,30 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
   const hasAddedTime = Boolean(timer.addedTime);
 
   const rollLabel = isRolling ? 'Roll mode active' : '';
-  const addedTimeLabel = hasAddedTime ? `Added ${millisToMinutes(timer.addedTime)} minutes` : '';
+
+  const resolveAddedTimeLabel = () => {
+    function resolveClosestUnit(ms: number) {
+      if (ms < 6000) {
+        return `${millisToSeconds(ms)} seconds`;
+      } else if (ms < 12000) {
+        return `1 minute`;
+      } else {
+        return `${millisToMinutes(ms)} minutes`;
+      }
+    }
+
+    if (timer.addedTime > 0) {
+      return `Added ${resolveClosestUnit(timer.addedTime)}`;
+    }
+
+    if (timer.addedTime < 0) {
+      return `Removed ${resolveClosestUnit(timer.addedTime)}`;
+    }
+
+    return '';
+  };
+
+  const addedTimeLabel = resolveAddedTimeLabel();
 
   return (
     <div className={style.timeContainer}>
