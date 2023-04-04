@@ -11,6 +11,8 @@ const inputStyleProps = {
   size: 'sm',
   color: '#E69056',
   variant: 'ontime-filled',
+  fontSize: '15px',
+  letterSpacing: '0.3px',
 };
 
 interface DelayInputProps {
@@ -24,7 +26,9 @@ export default function DelayInput(props: DelayInputProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (value == null) return;
+    if (!value) {
+      return;
+    }
     setValue(value);
   }, [value]);
 
@@ -36,7 +40,6 @@ export default function DelayInput(props: DelayInputProps) {
     (newValue?: string) => {
       if (newValue === '') setValue(0);
       const delayValue = clamp(Number(newValue), -60, 60);
-
       if (delayValue === value) return;
       setValue(delayValue);
 
@@ -49,15 +52,18 @@ export default function DelayInput(props: DelayInputProps) {
    * @description Handles common keys for submit and cancel
    * @param {KeyboardEvent} event
    */
-  const onKeyDownHandler = useCallback((key: string) => {
-    if (key === 'Enter') {
-      inputRef.current?.blur();
-      validate(inputRef.current?.value);
-    } else if (key === 'Escape') {
-      inputRef.current?.blur();
-      setValue(value);
-    }
-  }, [validate, value]);
+  const onKeyDownHandler = useCallback(
+    (key: string) => {
+      if (key === 'Enter') {
+        inputRef.current?.blur();
+        validate(inputRef.current?.value);
+      } else if (key === 'Escape') {
+        inputRef.current?.blur();
+        setValue(value);
+      }
+    },
+    [validate, value],
+  );
 
   const labelText = `${Math.abs(value) !== 1 ? 'minutes' : 'minute'} ${
     value !== undefined && value >= 0 ? 'delayed' : 'ahead'
