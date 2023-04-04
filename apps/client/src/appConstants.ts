@@ -3,7 +3,6 @@ const minimalLocation = 'minimal';
 const speakerLocation = 'speaker';
 const smLocation = 'sm';
 const publicLocation = 'public';
-const pipLocation = 'pip';
 const studioLocation = 'studio';
 const cuesheetLocation = 'cuesheet';
 const countdownLocation = 'countdown';
@@ -17,7 +16,6 @@ export const viewerLocations = [
   { link: smLocation, label: 'Backstage screen' },
   { link: publicLocation, label: 'Public screen' },
   { link: lowerLocation, label: 'Lower thirds' },
-  { link: pipLocation, label: 'Picture in Picture' },
   { link: studioLocation, label: 'Studio clock' },
   { link: countdownLocation, label: 'Countdown' },
   { link: cuesheetLocation, label: 'Cuesheet' },
