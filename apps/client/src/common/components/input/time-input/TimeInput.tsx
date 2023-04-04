@@ -160,7 +160,7 @@ export default function TimeInput(props: TimeInputProps) {
 
   return (
     <InputGroup size='sm' className={inputClasses}>
-      <InputLeftElement width='fit-content'>
+      <InputLeftElement className={style.inputLeft}>
         <Tooltip label={ButtonTooltip()} openDelay={tooltipDelayFast} variant='ontime-ondark'>
           <Button
             size='sm'

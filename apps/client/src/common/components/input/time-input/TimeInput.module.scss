@@ -6,6 +6,11 @@ $input-delayed-border-color: #E69056;
 .timeInput {
   width: fit-content !important;
 
+  .inputLeft {
+    max-width: fit-content;
+  }
+
+  .inputLeft,
   .inputButton {
     aspect-ratio: 1;
   }
