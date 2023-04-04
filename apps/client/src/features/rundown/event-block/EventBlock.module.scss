@@ -87,18 +87,6 @@
 
 .eventTitle {
   grid-area: title;
-  display: block;
-  font-size: 18px;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  &.noTitle {
-    .preview {
-      opacity: $opacity-disabled;
-    }
-  }
 }
 
 .eventActions {

@@ -5,6 +5,7 @@ import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeBlock, OntimeEvent } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';
+import TitleEditor from '../common/TitleEditor';
 import BlockActionMenu from '../event-block/composite/BlockActionMenu';
 import { EventItemActions } from '../RundownEntry';
 
@@ -57,6 +58,7 @@ export default function BlockBlock(props: BlockBlockProps) {
       <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
         <IoReorderTwo />
       </span>
+      <TitleEditor title={data.title} eventId={data.id} placeholder='Block title' />
       <BlockActionMenu className={style.actionOverlay} showAdd showDelay enableDelete actionHandler={actionHandler} />
     </div>
   );

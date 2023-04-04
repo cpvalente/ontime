@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react';
-import { Editable, EditableInput, EditablePreview, Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@chakra-ui/react';
 import { IoCaretDownCircle } from '@react-icons/all-files/io5/IoCaretDownCircle';
 import { IoCaretUpCircle } from '@react-icons/all-files/io5/IoCaretUpCircle';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
@@ -17,10 +17,10 @@ import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, Playback, TimerType } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { useEventAction } from '../../../common/hooks/useEventAction';
 import { setEventPlayback } from '../../../common/hooks/useSocket';
 import { useEventEditorStore } from '../../../common/stores/eventEditor';
 import { tooltipDelayMid } from '../../../ontimeConfig';
+import TitleEditor from '../common/TitleEditor';
 import { EventItemActions } from '../RundownEntry';
 
 import BlockActionMenu from './composite/BlockActionMenu';
@@ -78,37 +78,13 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     actionHandler,
   } = props;
 
-  const { updateEvent } = useEventAction();
-
-  const [blockTitle, setBlockTitle] = useState<string>(title || '');
   const [renderInner, setRenderInner] = useState(false);
   const setOpenEvent = useEventEditorStore((state) => state.setOpenEvent);
   const removeOpenEvent = useEventEditorStore((state) => state.removeOpenEvent);
 
-  // Todo: could I re-render the item without causing a state change here?
-  // ?? use refs instead?
-
   useEffect(() => {
     setRenderInner(true);
   }, []);
-
-  useEffect(() => {
-    setBlockTitle(title);
-  }, [title]);
-
-  const handleTitle = useCallback(
-    (text: string) => {
-      if (text === title) {
-        return;
-      }
-
-      const cleanVal = text.trim();
-      setBlockTitle(cleanVal);
-
-      updateEvent({ id: eventId, title: cleanVal });
-    },
-    [title, updateEvent, eventId],
-  );
 
   const toggleOpenEvent = useCallback(() => {
     if (isOpen) {
@@ -173,17 +149,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         actionHandler={actionHandler}
         previousEnd={previousEnd}
       />
-      <Editable
-        variant='ontime'
-        value={blockTitle}
-        className={`${style.eventTitle} ${!title ? style.noTitle : ''}`}
-        placeholder='Event title'
-        onChange={(value) => setBlockTitle(value)}
-        onSubmit={(value) => handleTitle(value)}
-      >
-        <EditablePreview className={style.preview} />
-        <EditableInput />
-      </Editable>
+      <TitleEditor title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
       <div className={style.statusElements}>
         <span className={style.eventNote}>{note}</span>
         <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
