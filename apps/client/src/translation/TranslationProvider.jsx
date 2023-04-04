@@ -3,20 +3,28 @@ import React, { createContext, useContext, useState } from 'react';
 import { langDe } from '@/translation/languages/de';
 import { langEn } from '@/translation/languages/en';
 
-const translationsMap = new Map([
-  ['en', langEn],
-  ['de', langDe],
-]);
-const ALLOWED_LANGUAGES = Array.from(translationsMap.keys());
-
+const translationsList = {
+  en: langEn,
+  de: langDe,
+};
+const ALLOWED_LANGUAGES = Object.keys(translationsList);
+const DEFAULT_LANGUAGE = 'en';
 export const TranslationContext = createContext(undefined);
 
 export const TranslationProvider = ({ children }) => {
   // Default language
   const [language, setLanguageState] = useState('en');
 
-  const getString = (key) => {
-    return translationsMap.get(language).get(key);
+  const getString = (key, lang = language) => {
+    if (key in translationsList[lang]) {
+      return translationsList[lang][key];
+    } else if (lang !== DEFAULT_LANGUAGE) {
+      /* If the key does not exist in the chosen language, try to load it in the default language. */
+      return getString(key, 'en');
+    } else {
+      /* We are here if the key does not exist in the default language. */
+      return undefined;
+    }
   };
 
   const setLanguage = (language) => {

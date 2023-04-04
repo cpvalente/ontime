@@ -1,5 +1,5 @@
-type TranslationMap = Map<string, string>;
+import { TranslationObject } from '../Translation.types';
 
-export const langDe: TranslationMap = new Map([
-  ['common.time_now', 'Aktuelle Zeit'],
-]);
+export const langDe: TranslationObject = {
+  'common.time_now': 'Aktuelle Zeit',
+};
