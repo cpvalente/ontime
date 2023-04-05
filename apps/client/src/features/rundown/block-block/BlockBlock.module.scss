@@ -6,6 +6,7 @@
   box-sizing: content-box;
   display: grid;
   grid-template-columns: 32px 1fr auto;
+  gap: 8px;
   align-items: center;
   height: $secondary-block-height;
 

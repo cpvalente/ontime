@@ -5,7 +5,7 @@ import { socket } from './WebsocketAdapter.js';
  * @param payload -- possible patch payload
  */
 export function sendRefetch(payload: any | null = null) {
-  socket.send({
+  socket.sendAsJson({
     type: 'ontime-refetch',
     payload,
   });

@@ -2,26 +2,27 @@ import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } f
 import { Button, Input, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
 import { millisToString } from 'ontime-utils';
 
-import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
+import { cx } from '../../../utils/styleUtils';
 import { TimeEntryField } from '../../../utils/timesManager';
 
 import style from './TimeInput.module.scss';
 
 interface TimeInputProps {
   name: TimeEntryField;
-  submitHandler: (field: EventEditorSubmitActions, value: number) => void;
+  submitHandler: (field: TimeEntryField, value: number) => void;
   time?: number;
   delay?: number;
   placeholder: string;
   validationHandler: (entry: TimeEntryField, val: number) => boolean;
   previousEnd?: number;
+  warning?: string;
 }
 
 export default function TimeInput(props: TimeInputProps) {
-  const { name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0 } = props;
+  const { name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0, warning } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState('');
@@ -30,7 +31,6 @@ export default function TimeInput(props: TimeInputProps) {
    * @description Resets input value to given
    */
   const resetValue = useCallback(() => {
-    // Todo: check if change is necessary
     try {
       setValue(millisToString(time + delay));
     } catch (error) {
@@ -149,20 +149,23 @@ export default function TimeInput(props: TimeInputProps) {
   };
 
   const ButtonTooltip = () => {
-    if (name === 'timeStart') return 'Start';
-    if (name === 'timeEnd') return 'End';
-    if (name === 'durationOverride') return 'Duration';
+    if (name === 'timeStart') return `Start${warning ? `: ${warning}` : ''}`;
+    if (name === 'timeEnd') return `End${warning ? `: ${warning}` : ''}`;
+    if (name === 'durationOverride') return `Duration${warning ? `: ${warning}` : ''}`;
     return '';
   };
 
+  const inputClasses = cx([style.timeInput, isDelayed ? style.delayed : null]);
+  const buttonClasses = cx([style.inputButton, isDelayed ? style.delayed : null, warning ? style.warn : null]);
+
   return (
-    <InputGroup size='sm' className={`${style.timeInput} ${isDelayed ? style.delayed : ''}`}>
-      <InputLeftElement width='fit-content'>
+    <InputGroup size='sm' className={inputClasses}>
+      <InputLeftElement className={style.inputLeft}>
         <Tooltip label={ButtonTooltip()} openDelay={tooltipDelayFast} variant='ontime-ondark'>
           <Button
             size='sm'
             variant='ontime-subtle-white'
-            className={`${style.inputButton} ${isDelayed ? style.delayed : ''}`}
+            className={buttonClasses}
             tabIndex={-1}
             border={isDelayed ? '1px solid #E69056' : '1px solid transparent'}
             borderRight='1px solid transparent'

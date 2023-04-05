@@ -42,14 +42,14 @@ export default function ViewsSettingsModal() {
       try {
         await postView(formData);
       } catch (error) {
-        emitError(`Error view settings: ${error}`)
-      } finally{
+        emitError(`Error view settings: ${error}`);
+      } finally {
         await refetch();
         setChanged(false);
       }
       setSubmitting(false);
     },
-    [emitError, formData, refetch]
+    [emitError, formData, refetch],
   );
 
   /**
@@ -72,7 +72,7 @@ export default function ViewsSettingsModal() {
       setFormData(temp);
       setChanged(true);
     },
-    [formData]
+    [formData],
   );
 
   return (
@@ -89,18 +89,30 @@ export default function ViewsSettingsModal() {
             <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
             CSS Style Overrides
           </span>
-          This feature allows user defined CSS to override the application stylesheets as a way to
-          customise viewers appearance.
+          This feature allows user defined CSS to override the application stylesheets as a way to customise viewers
+          appearance.
           <br />
-          Currently the feature affects the following views<br />
+          Currently the feature affects the following views
+          <br />
           <ul className={style.featureList}>
-            <li><IoCheckmarkSharp /> Stage timer</li>
-            <li><IoCheckmarkSharp /> Clock</li>
-            <li><IoCheckmarkSharp /> Minimal timer</li>
-            <li><IoCheckmarkSharp /> Backstage screen</li>
-            <li><IoCheckmarkSharp /> Public screen</li>
-            <li><IoCheckmarkSharp /> Picture in Picture</li>
-            <li><IoCheckmarkSharp /> Countdown</li>
+            <li>
+              <IoCheckmarkSharp /> Stage timer
+            </li>
+            <li>
+              <IoCheckmarkSharp /> Clock
+            </li>
+            <li>
+              <IoCheckmarkSharp /> Minimal timer
+            </li>
+            <li>
+              <IoCheckmarkSharp /> Backstage screen
+            </li>
+            <li>
+              <IoCheckmarkSharp /> Public screen
+            </li>
+            <li>
+              <IoCheckmarkSharp /> Countdown
+            </li>
           </ul>
           Read more about it in the documentation{' '}
           <a
@@ -123,19 +135,12 @@ export default function ViewsSettingsModal() {
               </FormLabel>
               <EnableBtn
                 active={formData.overrideStyles}
-                text={
-                  formData.overrideStyles ? 'Style Override Enabled' : 'Style Override Disabled'
-                }
+                text={formData.overrideStyles ? 'Style Override Enabled' : 'Style Override Disabled'}
                 actionHandler={() => handleChange('overrideStyles', !formData.overrideStyles)}
               />
             </FormControl>
           </div>
-          <SubmitContainer
-            revert={revert}
-            submitting={submitting}
-            changed={changed}
-            status={status}
-          />
+          <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
         </div>
       </form>
     </ModalBody>

@@ -112,7 +112,7 @@ export class SocketServer implements IAdapter {
   }
 
   // message is any serializable value
-  send(message: unknown) {
+  sendAsJson(message: unknown) {
     this.wss?.clients.forEach((client) => {
       if (client !== this.wss && client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(message));

@@ -34,5 +34,6 @@ export const delay: Omit<OntimeDelay, 'id'> = {
 };
 
 export const block: Omit<OntimeBlock, 'id'> = {
+  title: '',
   type: SupportedEvent.Block,
 };

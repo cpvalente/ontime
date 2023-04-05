@@ -1,4 +1,4 @@
-export type TimeEntryField = 'timeStart' |'timeEnd' | 'durationOverride';
+export type TimeEntryField = 'timeStart' | 'timeEnd' | 'durationOverride';
 
 /**
  * @description Milliseconds in a day
@@ -14,7 +14,12 @@ export const calculateDuration = (start: number, end: number): number =>
 /**
  * @description Checks which field the value relates to
  */
-export const handleTimeEntry = (field: TimeEntryField, val: number, timeStart: number, timeEnd: number): {start: number, end: number, durationOverride: boolean} => {
+export const handleTimeEntry = (
+  field: TimeEntryField,
+  val: number,
+  timeStart: number,
+  timeEnd: number,
+): { start: number; end: number; durationOverride: boolean } => {
   let start = timeStart;
   let end = timeEnd;
   let durationOverride = false;
@@ -32,13 +37,18 @@ export const handleTimeEntry = (field: TimeEntryField, val: number, timeStart: n
 /**
  * @description Validates time entry
  */
-export const validateEntry = (field: TimeEntryField, value: number, timeStart: number, timeEnd: number): { value: boolean, catch: string } => {
-  const validate = { value: true, catch: '' };
+export const validateEntry = (
+  field: TimeEntryField,
+  value: number,
+  timeStart: number,
+  timeEnd: number,
+): { value: boolean; warnings: { start?: string; end?: string; duration?: string } } => {
+  const validate = { value: true, warnings: { start: '', end: '', duration: '' } };
 
   const { start, end } = handleTimeEntry(field, value, timeStart, timeEnd);
 
   if (end < start) {
-    validate.catch = 'Start time later than end time';
+    validate.warnings.start = 'Start time later than end time';
   }
 
   return validate;

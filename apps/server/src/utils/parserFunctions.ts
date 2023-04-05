@@ -54,7 +54,7 @@ export const parseRundown = (data): OntimeRundown => {
             id: e.id || generateId(),
           });
         } else if (e.type === 'block') {
-          rundown.push({ ...blockDef, id: e.id || generateId() });
+          rundown.push({ ...blockDef, title: e.title, id: e.id || generateId() });
         } else {
           console.log('ERROR: undefined event type, skipping');
         }

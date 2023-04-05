@@ -6,19 +6,19 @@ export const timeFormatSeconds = 'HH:mm:ss';
 /**
  * another go at simpler string formatting (counters)
  * @description Converts seconds to string representing time
- * @param {number | null} seconds - time in seconds
+ * @param {number | null} milliseconds - time in seconds
  * @param {boolean} [hideZero] - whether to show hours in case its 00
  * @returns {string} String representing absolute time 00:12:02
  */
-export function formatDisplay(seconds: number | null, hideZero = false): string {
-  if (typeof seconds !== 'number') {
+export function formatDisplay(milliseconds: number | null, hideZero = false): string {
+  if (typeof milliseconds !== 'number') {
     return hideZero ? '00:00' : '00:00:00';
   }
 
   // add an extra 0 if necessary
   const format = (val: number) => `0${Math.floor(val)}`.slice(-2);
 
-  const s = Math.abs(seconds);
+  const s = Math.abs(millisToSeconds(milliseconds));
   const hours = Math.floor((s / 3600) % 24);
   const minutes = Math.floor((s % 3600) / 60);
 

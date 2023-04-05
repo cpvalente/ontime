@@ -19,12 +19,12 @@ describe('test string from formatDisplay function', () => {
   });
 
   it('test with valid millis', () => {
-    const t = { val: 3600, result: '01:00:00' };
+    const t = { val: 3600000, result: '01:00:00' };
     expect(formatDisplay(t.val, false)).toBe(t.result);
   });
 
   it('test with negative millis', () => {
-    const t = { val: -3600, result: '01:00:00' };
+    const t = { val: -3600000, result: '01:00:00' };
     expect(formatDisplay(t.val, false)).toBe(t.result);
   });
 
@@ -39,17 +39,17 @@ describe('test string from formatDisplay function', () => {
   });
 
   it('test with 86400 (24 hours)', () => {
-    const t = { val: 86400, result: '00:00:00' };
+    const t = { val: 86400000, result: '00:00:00' };
     expect(formatDisplay(t.val, false)).toBe(t.result);
   });
 
   it('test with 86401 (24 hours and 1 second)', () => {
-    const t = { val: 86401, result: '00:00:01' };
+    const t = { val: 86401000, result: '00:00:01' };
     expect(formatDisplay(t.val, false)).toBe(t.result);
   });
 
   it('test with -86401 (-24 hours and 1 second)', () => {
-    const t = { val: -86401, result: '00:00:01' };
+    const t = { val: -86401000, result: '00:00:01' };
     expect(formatDisplay(t.val, false)).toBe(t.result);
   });
 });
@@ -61,12 +61,12 @@ describe('test string from formatDisplay function with hidezero', () => {
   });
 
   it('test with valid millis', () => {
-    const t = { val: 3600, result: '01:00:00' };
+    const t = { val: 3600000, result: '01:00:00' };
     expect(formatDisplay(t.val, true)).toBe(t.result);
   });
 
   it('test with negative millis', () => {
-    const t = { val: -3600, result: '01:00:00' };
+    const t = { val: -3600000, result: '01:00:00' };
     expect(formatDisplay(t.val, true)).toBe(t.result);
   });
 
@@ -81,17 +81,17 @@ describe('test string from formatDisplay function with hidezero', () => {
   });
 
   it('test with 86400 (24 hours)', () => {
-    const t = { val: 86400, result: '00:00' };
+    const t = { val: 86400000, result: '00:00' };
     expect(formatDisplay(t.val, true)).toBe(t.result);
   });
 
   it('test with 86401 (24 hours and 1 second)', () => {
-    const t = { val: 86401, result: '00:01' };
+    const t = { val: 86401000, result: '00:01' };
     expect(formatDisplay(t.val, true)).toBe(t.result);
   });
 
   it('test with -86401 (-24 hours and 1 second)', () => {
-    const t = { val: -86401, result: '00:01' };
+    const t = { val: -86401000, result: '00:01' };
     expect(formatDisplay(t.val, true)).toBe(t.result);
   });
 });

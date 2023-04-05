@@ -12,7 +12,7 @@ import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatDisplay, millisToSeconds } from '../../../common/utils/dateConfig';
+import { formatDisplay } from '../../../common/utils/dateConfig';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -66,7 +66,7 @@ export default function Backstage(props: BackstageProps) {
   if (time.current === null) {
     stageTimer = '- - : - -';
   } else {
-    stageTimer = formatDisplay(Math.abs(millisToSeconds(time.current)), true);
+    stageTimer = formatDisplay(Math.abs(time.current), true);
     if (isNegative) {
       stageTimer = `-${stageTimer}`;
     }

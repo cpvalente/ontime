@@ -64,10 +64,20 @@
   }
 }
 
-.inputLabel {
+@mixin input-label() {
   font-size: 13px;
-  display: block;
   color: $label-gray;
+}
+
+.countedInput {
+  display: flex;
+  justify-content: space-between;
+  @include input-label;
+}
+
+.inputLabel {
+  display: block;
+  @include input-label;
 
   .delayLabel {
     color: $ontime-delay-text;

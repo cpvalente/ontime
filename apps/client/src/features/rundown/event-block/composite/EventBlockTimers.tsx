@@ -1,18 +1,25 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { millisToString } from 'ontime-utils';
-import PropTypes from 'prop-types';
-
-import { useEmitLog } from '@/common/stores/logger';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { millisToMinutes } from '../../../../common/utils/dateConfig';
-import { validateEntry } from '../../../../common/utils/timesManager';
+import { TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
+import { EventItemActions } from '../../RundownEntry';
 
 import style from '../EventBlock.module.scss';
 
-export default function EventBlockTimers(props) {
+interface EventBlockTimerProps {
+  timeStart: number;
+  timeEnd: number;
+  duration: number;
+  delay: number;
+  actionHandler: (action: EventItemActions, payload?: any) => void;
+  previousEnd: number;
+}
+
+export default function EventBlockTimers(props: EventBlockTimerProps) {
   const { timeStart, timeEnd, duration, delay, actionHandler, previousEnd } = props;
-  const { emitWarning } = useEmitLog();
+  const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
 
   const delayTime = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
   const newTime = millisToString(timeStart + delay);
@@ -24,21 +31,19 @@ export default function EventBlockTimers(props) {
    * @return {boolean}
    */
   const handleValidation = useCallback(
-    (field, value) => {
+    (field: TimeEntryField, value: number) => {
       const valid = validateEntry(field, value, timeStart, timeEnd);
-      if (valid.catch) {
-        emitWarning(`Time Input Warning: ${valid.catch}`);
-      }
+      setWarnings((prev) => ({ ...prev, ...valid.warnings }));
       return valid.value;
     },
-    [emitWarning, timeEnd, timeStart]
+    [timeEnd, timeStart],
   );
 
   const handleSubmit = useCallback(
-    (field, value) => {
+    (field: TimeEntryField, value: number) => {
       actionHandler('update', { field, value });
     },
-    [actionHandler]
+    [actionHandler],
   );
 
   return (
@@ -51,6 +56,7 @@ export default function EventBlockTimers(props) {
         delay={delay}
         placeholder='Start'
         previousEnd={previousEnd}
+        warning={warning.start}
       />
       <TimeInput
         name='timeEnd'
@@ -60,6 +66,7 @@ export default function EventBlockTimers(props) {
         delay={delay}
         placeholder='End'
         previousEnd={previousEnd}
+        warning={warning.end}
       />
       <TimeInput
         name='durationOverride'
@@ -68,6 +75,7 @@ export default function EventBlockTimers(props) {
         time={duration}
         placeholder='Duration'
         previousEnd={previousEnd}
+        warning={warning.duration}
       />
       {delay !== 0 && delay !== null && (
         <div className={style.delayNote}>
@@ -79,12 +87,3 @@ export default function EventBlockTimers(props) {
     </div>
   );
 }
-
-EventBlockTimers.propTypes = {
-  timeStart: PropTypes.number,
-  timeEnd: PropTypes.number,
-  duration: PropTypes.number,
-  delay: PropTypes.number,
-  actionHandler: PropTypes.func,
-  previousEnd: PropTypes.number,
-};

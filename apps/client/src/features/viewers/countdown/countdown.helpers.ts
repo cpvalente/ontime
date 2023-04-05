@@ -21,7 +21,7 @@ export const sanitiseTitle = (title: string | null) => (title ? title : '{no tit
 export const fetchTimerData = (
   time: TimeManagerType,
   follow: OntimeEvent,
-  selectedId: string,
+  selectedId: string | null,
 ): { message: TimerMessage; timer: number } => {
   let message;
   let timer;

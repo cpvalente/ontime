@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
 
 interface UseReactiveTextInputReturn {
   value: string;
@@ -14,8 +14,7 @@ export default function useReactiveTextInput(
     submitOnEnter?: boolean;
   },
 ): UseReactiveTextInputReturn {
-  const [text, setText] = useState(initialText);
-
+  const [text, setText] = useState<string>(initialText);
 
   useEffect(() => {
     if (typeof initialText === 'undefined') {
@@ -58,7 +57,6 @@ export default function useReactiveTextInput(
     [initialText, submitCallback],
   );
 
-
   /**
    * @description Handles common keys for submit and cancel
    * @param {string} key
@@ -81,8 +79,8 @@ export default function useReactiveTextInput(
 
   return {
     value: text,
-    onChange: (event) => handleChange((event.target as HTMLInputElement).value),
-    onBlur: (event) => handleSubmit((event.target as HTMLInputElement).value),
-    onKeyDown: (event) => keyHandler(event.key),
+    onChange: (event: ChangeEvent) => handleChange((event.target as HTMLInputElement).value),
+    onBlur: (event: ChangeEvent) => handleSubmit((event.target as HTMLInputElement).value),
+    onKeyDown: (event: KeyboardEvent) => keyHandler(event.key),
   };
 }

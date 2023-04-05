@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { formatDisplay, millisToSeconds } from '../../utils/dateConfig';
+import { formatDisplay } from '../../utils/dateConfig';
 
 import './TimerDisplay.scss';
 
@@ -21,7 +21,7 @@ const TimerDisplay = (props: TimerDisplayProps) => {
   if (time === null || typeof time === 'undefined' || isNaN(time)) {
     display = '-- : -- : --';
   } else {
-    display = formatDisplay(millisToSeconds(time));
+    display = formatDisplay(time);
   }
 
   const isNegative = (time ?? 0) < 0;

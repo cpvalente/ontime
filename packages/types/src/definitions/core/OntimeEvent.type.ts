@@ -21,6 +21,7 @@ export type OntimeDelay = OntimeBaseEvent & {
 
 export type OntimeBlock = OntimeBaseEvent & {
   type: SupportedEvent.Block;
+  title: string;
 };
 
 export type OntimeEvent = OntimeBaseEvent & {

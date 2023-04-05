@@ -219,7 +219,9 @@ export class PlaybackService {
     if (eventTimer.loadedTimerId) {
       const delayInMs = delayTime * 1000 * 60;
       eventTimer.delay(delayInMs);
-      logger.info('PLAYBACK', `Added ${delayTime} min delay`);
+      delayInMs > 0
+        ? logger.info('PLAYBACK', `Added ${delayTime} min delay`)
+        : logger.info('PLAYBACK', `Removed ${delayTime} min delay`);
     }
   }
 }

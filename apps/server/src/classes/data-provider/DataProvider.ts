@@ -2,7 +2,7 @@
  * Class Event Provider is a mediator for handling the local db
  * and adds logic specific to ontime data
  */
-import { EventData, ViewSettings } from 'ontime-types';
+import { EventData, SupportedEvent, ViewSettings } from 'ontime-types';
 
 import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
@@ -35,7 +35,9 @@ export class DataProvider {
     const eventIndex = data.rundown.findIndex((e) => e.id === eventId);
     const persistedEvent = data.rundown[eventIndex];
     const newEvent = { ...persistedEvent, ...newData };
-    newEvent.revision++;
+    if (newEvent.type === SupportedEvent.Event) {
+      newEvent.revision++;
+    }
     data.rundown[eventIndex] = newEvent;
     await this.persist();
     return data.rundown[eventIndex];
