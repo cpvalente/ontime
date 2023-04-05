@@ -20,7 +20,7 @@ import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBt
 import { setEventPlayback } from '../../../common/hooks/useSocket';
 import { useEventEditorStore } from '../../../common/stores/eventEditor';
 import { tooltipDelayMid } from '../../../ontimeConfig';
-import TitleEditor from '../common/TitleEditor';
+import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
 
 import BlockActionMenu from './composite/BlockActionMenu';
@@ -149,7 +149,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         actionHandler={actionHandler}
         previousEnd={previousEnd}
       />
-      <TitleEditor title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+      <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
       <div className={style.statusElements}>
         <span className={style.eventNote}>{note}</span>
         <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>

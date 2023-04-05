@@ -13,7 +13,7 @@ interface TitleEditorProps {
   className?: string;
 }
 
-export default function TitleEditor(props: TitleEditorProps) {
+export default function EditableBlockTitle(props: TitleEditorProps) {
   const { title, eventId, placeholder, className } = props;
   const [blockTitle, setBlockTitle] = useState<string>(title || '');
   const { updateEvent } = useEventAction();
