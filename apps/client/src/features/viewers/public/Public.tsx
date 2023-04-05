@@ -12,6 +12,7 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
+import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import { TitleManager } from '../ViewWrapper';
 
@@ -36,6 +37,7 @@ interface BackstageProps {
 export default function Public(props: BackstageProps) {
   const { isMirrored, publ, publicTitle, time, events, publicSelectedId, general, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { getLocalizedString } = useTranslation();
 
   useEffect(() => {
     document.title = 'ontime - Public Screen';
@@ -57,7 +59,7 @@ export default function Public(props: BackstageProps) {
       <div className='event-header'>
         {general.title}
         <div className='clock-container'>
-          <div className='label'>Time Now</div>
+          <div className='label'>{getLocalizedString('common.time_now')}</div>
           <div className='time'>{clock}</div>
         </div>
       </div>
@@ -110,7 +112,7 @@ export default function Public(props: BackstageProps) {
       </ScheduleProvider>
 
       <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
-        <div className='label'>Public message</div>
+        <div className='label'>{getLocalizedString('common.public_message')}</div>
         <div className='message'>{publ.text}</div>
       </div>
 

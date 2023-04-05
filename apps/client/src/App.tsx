@@ -10,6 +10,7 @@ import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
+import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 
 // Load Open Sans typeface
@@ -52,7 +53,9 @@ function App() {
             <div className='App'>
               <ErrorBoundary>
                 <Suspense fallback={null}>
-                  <AppRouter />
+                  <TranslationProvider>
+                    <AppRouter />
+                  </TranslationProvider>
                 </Suspense>
               </ErrorBoundary>
               <ReactQueryDevtools initialIsOpen={false} />
