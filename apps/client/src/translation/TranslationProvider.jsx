@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 
 import { langDe } from '@/translation/languages/de';
 import { langEn } from '@/translation/languages/en';
@@ -12,22 +12,20 @@ const DEFAULT_LANGUAGE = 'en';
 export const TranslationContext = createContext(undefined);
 
 export const TranslationProvider = ({ children }) => {
-  // Default language
   const [language, setLanguageState] = useState('en');
 
-  const getLocalizedString = (key, lang = language) => {
-    if (key in translationsList[lang]) {
-      return translationsList[lang][key];
-    } else if (lang !== DEFAULT_LANGUAGE) {
-      /* If the key does not exist in the chosen language, try to load it in the default language. */
-      return getLocalizedString(key, 'en');
-    } else {
-      /* We are here if the key does not exist in the default language. */
-      return undefined;
-    }
-  };
+  const getLocalizedString = useCallback(
+    (key, lang = language) => {
+      if (key in translationsList[lang]) {
+        return translationsList[lang][key];
+      } else if (lang !== DEFAULT_LANGUAGE) {
+        return getLocalizedString(key, 'en');
+      }
+    },
+    [language],
+  );
 
-  const setLanguage = (language) => {
+  const setLanguage = useCallback((language) => {
     language = language.toLowerCase();
     if (ALLOWED_LANGUAGES.includes(language)) {
       setLanguageState(language);
@@ -35,7 +33,7 @@ export const TranslationProvider = ({ children }) => {
     } else {
       console.warn(`Language code ${language} does not exist.`);
     }
-  };
+  }, []);
 
   const contextValue = {
     getLocalizedString,

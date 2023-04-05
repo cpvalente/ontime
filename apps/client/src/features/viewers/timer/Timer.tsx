@@ -9,11 +9,11 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
+import { useTranslation } from '../../../translation/TranslationProvider';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 import { TitleManager } from '../ViewWrapper';
 
 import './Timer.scss';
-import { useTranslation } from '../../../translation/TranslationProvider';
 
 const formatOptions = {
   showSeconds: true,

@@ -5,6 +5,7 @@ export const langEn: TranslationObject = {
   'common.expected_finish': 'Expected Finish',
   'common.now': 'Now',
   'common.next': 'Next',
+  'common.public_message': 'Public message',
   'common.start_time': 'Start Time',
   'common.stage_timer': 'Stage Timer',
   'common.started_at': 'Started At',

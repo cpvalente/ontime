@@ -10,8 +10,8 @@ import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
-import AppRouter from './AppRouter';
 import { TranslationProvider } from './translation/TranslationProvider';
+import AppRouter from './AppRouter';
 
 // Load Open Sans typeface
 // @ts-expect-error no types from font import

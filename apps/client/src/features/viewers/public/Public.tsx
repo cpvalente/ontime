@@ -112,7 +112,7 @@ export default function Public(props: BackstageProps) {
       </ScheduleProvider>
 
       <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
-        <div className='label'>Public message</div>
+        <div className='label'>{getLocalizedString('common.public_message')}</div>
         <div className='message'>{publ.text}</div>
       </div>
 
