@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Select, Switch } from '@chakra-ui/react';
-import { IoBan } from '@react-icons/all-files/io5/IoBan';
+import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import CopyTag from '../../common/components/copy-tag/CopyTag';
-import ColourInput from '../../common/components/input/colour-input/ColourInput';
+import SwatchSelect from '../../common/components/input/colour-input/SwatchSelect';
 import TimeInput from '../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useRundown from '../../common/hooks-query/useRundown';
@@ -224,10 +223,7 @@ export default function EventEditor() {
           <div className={style.column}>
             <label className={style.inputLabel}>Colour</label>
             <div className={style.inline}>
-              <ColourInput name='colour' value={event.colour} handleChange={handleSubmit} />
-              <Button leftIcon={<IoBan />} onClick={() => handleSubmit('colour', '')} variant='ontime-subtle' size='sm'>
-                Clear colour
-              </Button>
+              <SwatchSelect name='colour' value={event.colour} handleChange={handleSubmit} />
             </div>
           </div>
           <CountedTextArea field='note' label='Note' initialValue={event.note} submitHandler={handleSubmit} />

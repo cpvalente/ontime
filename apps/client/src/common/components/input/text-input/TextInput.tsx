@@ -15,21 +15,30 @@ interface BaseProps {
   submitHandler: (field: EventEditorSubmitActions, newValue: string) => void;
 }
 
-interface TextAreaProps {
+interface TextInputProps extends BaseProps {
+  isTextArea?: false;
+}
+
+interface TextAreaProps extends BaseProps {
   isTextArea: true;
   resize?: 'horizontal' | 'vertical' | 'none';
 }
 
-type TextInputProps = BaseProps & TextAreaProps;
+type InputProps = TextInputProps | TextAreaProps;
 
-export default function TextInput(props: TextInputProps) {
-  const { isTextArea, isFullHeight, size = 'sm', field, initialText = '', submitHandler, resize = 'none' } = props;
+export default function TextInput(props: InputProps) {
+  const { isTextArea, isFullHeight, size = 'sm', field, initialText = '', submitHandler } = props;
   const inputRef = useRef(null);
 
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
   const textInputProps = useReactiveTextInput(initialText, submitCallback, { submitOnEnter: true });
   const textAreaProps = useReactiveTextInput(initialText, submitCallback);
+
+  let resize = 'none';
+  if (isTextArea) {
+    resize = (props as TextAreaProps)?.resize ?? 'none';
+  }
 
   return isTextArea ? (
     <Textarea
