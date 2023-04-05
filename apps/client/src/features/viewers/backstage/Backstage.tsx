@@ -15,6 +15,7 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
+import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import { TitleManager } from '../ViewWrapper';
 
@@ -39,6 +40,7 @@ interface BackstageProps {
 export default function Backstage(props: BackstageProps) {
   const { isMirrored, publ, title, time, backstageEvents, selectedId, general, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { getLocalizedString } = useTranslation();
 
   // Set window title
   useEffect(() => {
@@ -77,7 +79,7 @@ export default function Backstage(props: BackstageProps) {
       <div className='event-header'>
         {general.title}
         <div className='clock-container'>
-          <div className='label'>Time Now</div>
+          <div className='label'>{getLocalizedString('common.time_now')}</div>
           <div className='time'>{clock}</div>
         </div>
       </div>
@@ -103,15 +105,15 @@ export default function Backstage(props: BackstageProps) {
               />
               <div className='timer-group'>
                 <div className='aux-timers'>
-                  <div className='aux-timers__label'>Started At</div>
+                  <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
                   <div className='aux-timers__value'>{startedAt}</div>
                 </div>
                 <div className='aux-timers'>
-                  <div className='aux-timers__label'>Expected Finish</div>
+                  <div className='aux-timers__label'>{getLocalizedString('common.expected_finish')}</div>
                   <div className='aux-timers__value'>{expectedFinish}</div>
                 </div>
                 <div className='aux-timers'>
-                  <div className='aux-timers__label'>Stage Timer</div>
+                  <div className='aux-timers__label'>{getLocalizedString('common.stage_timer')}</div>
                   <div className='aux-timers__value'>{stageTimer}</div>
                 </div>
               </div>
@@ -146,7 +148,7 @@ export default function Backstage(props: BackstageProps) {
       </ScheduleProvider>
 
       <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
-        <div className='label'>Public message</div>
+        <div className='label'>{getLocalizedString('common.public_message')}</div>
         <div className='message'>{publ.text}</div>
       </div>
 

@@ -9,6 +9,7 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatDisplay } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { formatTime } from '../../../common/utils/time';
+import { useTranslation } from '../../../translation/TranslationProvider';
 
 import { fetchTimerData, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
@@ -37,6 +38,7 @@ export default function Countdown(props: CountdownProps) {
   const { isMirrored, backstageEvents, time, selectedId, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
+  const { getLocalizedString } = useTranslation();
 
   const [follow, setFollow] = useState<OntimeEvent | null>(null);
   const [runningTimer, setRunningTimer] = useState(0);
@@ -112,11 +114,11 @@ export default function Countdown(props: CountdownProps) {
       ) : (
         <div className='countdown-container' data-testid='countdown-event'>
           <div className='clock-container'>
-            <div className='label'>Time Now</div>
+            <div className='label'>{getLocalizedString('common.time_now')}</div>
             <div className='time'>{clock}</div>
           </div>
 
-          <div className='status'>{runningMessage}</div>
+          <div className='status'>{getLocalizedString(`countdown.${runningMessage}`)}</div>
 
           <span className={`timer ${standby ? 'timer--paused' : ''} ${isRunningFinished ? 'timer--finished' : ''}`}>
             {formattedTimer}
@@ -125,11 +127,11 @@ export default function Countdown(props: CountdownProps) {
 
           <div className='timer-group'>
             <div className='aux-timers'>
-              <div className='aux-timers__label'>Start Time</div>
+              <div className='aux-timers__label'>{getLocalizedString('common.start_time')}</div>
               <span className={`aux-timers__value ${delayedTimerStyles}`}>{startTime}</span>
             </div>
             <div className='aux-timers'>
-              <div className='aux-timers__label'>End Time</div>
+              <div className='aux-timers__label'>{getLocalizedString('common.end_time')}</div>
               <span className={`aux-timers__value ${delayedTimerStyles}`}>{endTime}</span>
             </div>
           </div>

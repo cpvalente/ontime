@@ -3,10 +3,10 @@ import { OntimeEvent, Playback } from 'ontime-types';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 
 export enum TimerMessage {
-  toStart = 'Time to start',
-  waiting = 'Waiting for event start',
-  running = 'Event running',
-  ended = 'Event ended at',
+  toStart = 'to_start',
+  waiting = 'waiting',
+  running = 'running',
+  ended = 'ended',
   unhandled = '',
 }
 
