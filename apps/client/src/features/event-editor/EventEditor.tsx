@@ -6,7 +6,6 @@ import { millisToString } from 'ontime-utils';
 
 import CopyTag from '../../common/components/copy-tag/CopyTag';
 import ColourInput from '../../common/components/input/colour-input/ColourInput';
-import TextInput from '../../common/components/input/text-input/TextInput';
 import TimeInput from '../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useRundown from '../../common/hooks-query/useRundown';
@@ -16,6 +15,9 @@ import { millisToMinutes } from '../../common/utils/dateConfig';
 import getDelayTo from '../../common/utils/getDelayTo';
 import { calculateDuration, TimeEntryField, validateEntry } from '../../common/utils/timesManager';
 
+import CountedTextArea from './composite/CountedTextArea';
+import CountedTextInput from './composite/CountedTextInput';
+
 import style from './EventEditor.module.scss';
 
 export type EventEditorSubmitActions = keyof OntimeEvent | 'durationOverride';
@@ -24,10 +26,11 @@ export type EventEditorSubmitActions = keyof OntimeEvent | 'durationOverride';
 export default function EventEditor() {
   const { openId } = useEventEditorStore();
   const { data } = useRundown();
-  const { emitWarning, emitError } = useEmitLog();
+  const { emitError } = useEmitLog();
   const { updateEvent } = useEventAction();
   const [event, setEvent] = useState<OntimeEvent | null>(null);
   const [delay, setDelay] = useState(0);
+  const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
 
   useEffect(() => {
     if (!data || !openId) {
@@ -85,16 +88,14 @@ export default function EventEditor() {
 
   const timerValidationHandler = useCallback(
     (entry: TimeEntryField, val: number) => {
-      if (!event) {
-        return;
+      if (!event?.timeStart) {
+        return true;
       }
       const valid = validateEntry(entry, val, event.timeStart, event.timeEnd);
-      if (!valid.value) {
-        emitWarning(`Time Input Warning: ${valid.catch}`);
-      }
+      setWarnings((prev) => ({ ...prev, ...valid.warnings }));
       return valid.value;
     },
-    [event, emitWarning],
+    [event?.timeStart, event?.timeEnd],
   );
 
   const handleChange = useCallback(
@@ -145,6 +146,7 @@ export default function EventEditor() {
             time={event.timeStart}
             delay={delay}
             placeholder='Start'
+            warning={warning.start}
           />
           <label className={style.inputLabel}>
             End time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
@@ -157,6 +159,7 @@ export default function EventEditor() {
             time={event.timeEnd}
             delay={delay}
             placeholder='End'
+            warning={warning.end}
           />
           <label className={style.inputLabel}>Duration</label>
           <TimeInput
@@ -165,6 +168,7 @@ export default function EventEditor() {
             validationHandler={timerValidationHandler}
             time={event.duration}
             placeholder='Duration'
+            warning={warning.duration}
           />
         </div>
         <div className={style.timeSettings}>
@@ -202,40 +206,31 @@ export default function EventEditor() {
       </div>
       <div className={style.titles}>
         <div className={style.left}>
-          <div className={style.column}>
-            <label className={style.inputLabel}>Title</label>
-            <TextInput field='title' initialText={event.title} submitHandler={handleSubmit} />
-          </div>
-          <div className={style.column}>
-            <label className={style.inputLabel}>Presenter</label>
-            <TextInput field='presenter' initialText={event.presenter} submitHandler={handleSubmit} />
-          </div>
-          <div className={style.column}>
-            <label className={style.inputLabel}>Subtitle</label>
-            <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
-          </div>
+          <CountedTextInput field='title' label='Title' initialValue={event.title} submitHandler={handleSubmit} />
+          <CountedTextInput
+            field='presenter'
+            label='Presenter'
+            initialValue={event.presenter}
+            submitHandler={handleSubmit}
+          />
+          <CountedTextInput
+            field='subtitle'
+            label='Subtitle'
+            initialValue={event.subtitle}
+            submitHandler={handleSubmit}
+          />
         </div>
         <div className={style.right}>
           <div className={style.column}>
             <label className={style.inputLabel}>Colour</label>
             <div className={style.inline}>
-              <ColourInput name='colour' value={event?.colour} handleChange={handleSubmit} />
+              <ColourInput name='colour' value={event.colour} handleChange={handleSubmit} />
               <Button leftIcon={<IoBan />} onClick={() => handleSubmit('colour', '')} variant='ontime-subtle' size='sm'>
                 Clear colour
               </Button>
             </div>
           </div>
-          <div className={`${style.column} ${style.fullHeight}`}>
-            <label className={style.inputLabel}>Note</label>
-            <TextInput
-              field='note'
-              initialText={event.note}
-              submitHandler={handleSubmit}
-              isTextArea
-              isFullHeight
-              resize='none'
-            />
-          </div>
+          <CountedTextArea field='note' label='Note' initialValue={event.note} submitHandler={handleSubmit} />
         </div>
       </div>
     </div>
