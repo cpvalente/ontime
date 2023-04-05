@@ -30,6 +30,7 @@ import { integrationService } from './services/integration-service/IntegrationSe
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
+import { eventStore, getInitialPayload } from './stores/EventStore.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -132,7 +133,10 @@ export const startServer = async () => {
   expressServer = http.createServer(app);
 
   socket.init(expressServer);
+
+  // provide initial payload to event store
   eventLoader.init();
+  eventStore.init(getInitialPayload());
 
   expressServer.listen(serverPort, '0.0.0.0');
 

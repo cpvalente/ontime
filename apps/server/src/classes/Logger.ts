@@ -39,7 +39,7 @@ class Logger {
     }
 
     try {
-      socket.send({
+      socket.sendAsJson({
         type: 'ontime-log',
         payload: log,
       });

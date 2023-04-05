@@ -24,9 +24,9 @@ export class EventLoader {
     instance = this;
   }
 
+  // we need to delay init until the store is ready
   init() {
-    this.reset();
-    this.loadedEvent = null;
+    this.reset(false);
   }
 
   /**

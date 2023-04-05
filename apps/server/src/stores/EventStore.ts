@@ -1,12 +1,18 @@
 import { RuntimeStore } from 'ontime-types';
 import { socket } from '../adapters/WebsocketAdapter.js';
+import { eventTimer } from '../services/TimerService.js';
+import { messageService } from '../services/message-service/MessageService.js';
+import { eventLoader } from '../classes/event-loader/EventLoader.js';
 
-const store: Partial<RuntimeStore> = {};
+let store: Partial<RuntimeStore> = {};
 
 /**
  * A runtime store that broadcasts its payload
  */
 export const eventStore = {
+  init(payload: RuntimeStore) {
+    store = payload;
+  },
   get<T extends keyof RuntimeStore>(key: T) {
     return store[key];
   },
@@ -23,9 +29,35 @@ export const eventStore = {
     return store;
   },
   broadcast() {
-    socket.send({
+    socket.sendAsJson({
       type: 'ontime',
       payload: store,
     });
   },
 };
+
+/**
+ * Module initialises the services and provides initial payload for the store
+ * Currently registered objects in store
+ * - Timer Service      timer
+ * - Timer Service      playback
+ * - Message Service    timerMessage
+ * - Message Service    publicMessage
+ * - Message Service    lowerMessage
+ * - Message Service    onAir
+ * - Event Loader       loaded
+ * - Event Loader       titles
+ * - Event Loader       titlesPublic
+ */
+
+export const getInitialPayload = () => ({
+  timer: eventTimer.timer,
+  playback: eventTimer.playback,
+  timerMessage: messageService.timerMessage,
+  publicMessage: messageService.publicMessage,
+  lowerMessage: messageService.lowerMessage,
+  onAir: messageService.onAir,
+  loaded: eventLoader.loaded,
+  titles: eventLoader.titles,
+  titlesPublic: eventLoader.titlesPublic,
+});
