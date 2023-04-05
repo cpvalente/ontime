@@ -5,6 +5,7 @@ import { block as blockDef, delay as delayDef, event as eventDef } from '../mode
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventTimer } from './TimerService.js';
+import { sendRefetch } from '../adapters/websocketAux.js';
 
 /**
  * Checks if a list of IDs is in the current selection
@@ -145,6 +146,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   }
   updateTimer([id]);
   updateChangeNumEvents();
+  sendRefetch();
   return newEvent;
 }
 
@@ -156,6 +158,7 @@ export async function editEvent(eventData) {
   }
   const newEvent = await DataProvider.updateEventById(eventId, eventData);
   updateTimer([eventId]);
+  sendRefetch();
   return newEvent;
 }
 
@@ -168,6 +171,7 @@ export async function deleteEvent(eventId) {
   await DataProvider.deleteEvent(eventId);
   updateTimer([eventId]);
   updateChangeNumEvents();
+  sendRefetch();
 }
 
 /**
@@ -178,6 +182,7 @@ export async function deleteAllEvents() {
   await DataProvider.clearRundown();
   updateTimer();
   updateChangeNumEvents();
+  sendRefetch();
 }
 
 /**
@@ -202,6 +207,7 @@ export async function reorderEvent(eventId, from, to) {
   // save rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
+  sendRefetch();
   return reorderedItem;
 }
 
@@ -257,6 +263,7 @@ export async function applyDelay(eventId) {
   // update rundown
   await DataProvider.setRundown(rundown);
   updateTimer();
+  sendRefetch();
 }
 
 /**
