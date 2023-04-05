@@ -11,6 +11,7 @@ import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
 import AppRouter from './AppRouter';
+import { TranslationProvider } from './translation/TranslationProvider';
 
 // Load Open Sans typeface
 // @ts-expect-error no types from font import
@@ -52,7 +53,9 @@ function App() {
             <div className='App'>
               <ErrorBoundary>
                 <Suspense fallback={null}>
-                  <AppRouter />
+                  <TranslationProvider>
+                    <AppRouter />
+                  </TranslationProvider>
                 </Suspense>
               </ErrorBoundary>
               <ReactQueryDevtools initialIsOpen={false} />

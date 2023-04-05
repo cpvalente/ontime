@@ -1,8 +1,9 @@
 import { lazy, useEffect } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import useAliases from './common/hooks-query/useAliases';
 import withData from './features/viewers/ViewWrapper';
+import { useTranslation } from './translation/TranslationProvider';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Table = lazy(() => import('./features/table/ProtectedTable'));
@@ -36,6 +37,17 @@ export default function AppRouter() {
   const { data } = useAliases();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { setLanguage } = useTranslation();
+
+  // Set output language
+  useEffect(() => {
+    const langParam = searchParams.get('lang');
+    if (langParam && langParam.length === 2) {
+      setLanguage(searchParams.get('lang'));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // navigate if is alias route
   useEffect(() => {

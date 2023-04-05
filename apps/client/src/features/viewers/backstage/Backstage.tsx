@@ -19,6 +19,7 @@ import { titleVariants } from '../common/animation';
 import { TitleManager } from '../ViewWrapper';
 
 import './Backstage.scss';
+import { useTranslation } from '../../../translation/TranslationProvider';
 
 const formatOptions = {
   showSeconds: true,
@@ -39,6 +40,7 @@ interface BackstageProps {
 export default function Backstage(props: BackstageProps) {
   const { isMirrored, publ, title, time, backstageEvents, selectedId, general, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { getString } = useTranslation();
 
   // Set window title
   useEffect(() => {
@@ -77,7 +79,7 @@ export default function Backstage(props: BackstageProps) {
       <div className='event-header'>
         {general.title}
         <div className='clock-container'>
-          <div className='label'>Time Now</div>
+          <div className='label'>{getString('common.time_now')}</div>
           <div className='time'>{clock}</div>
         </div>
       </div>

@@ -13,6 +13,7 @@ import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 import { TitleManager } from '../ViewWrapper';
 
 import './Timer.scss';
+import { useTranslation } from '../../../translation/TranslationProvider';
 
 const formatOptions = {
   showSeconds: true,
@@ -47,6 +48,7 @@ interface TimerProps {
 export default function Timer(props: TimerProps) {
   const { isMirrored, general, pres, title, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { getLocalizedString } = useTranslation();
 
   useEffect(() => {
     document.title = 'ontime - Timer';
@@ -87,7 +89,7 @@ export default function Timer(props: TimerProps) {
       </div>
 
       <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
-        <div className='label'>Time Now</div>
+        <div className='label'>{getLocalizedString('common.time_now')}</div>
         <div className='clock'>{clock}</div>
       </div>
 
