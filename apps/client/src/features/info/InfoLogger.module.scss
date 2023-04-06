@@ -4,12 +4,8 @@
 $info-gray: $secondary-text-gray;
 $info-hover: $section-white;
 
-.infoLoggerContainer {
-  max-height: 80%;
-  height: 100%
-}
-
 .log {
+  flex: 1;
   height: 100%;
   overflow-y: scroll;
   font-size: 0.8em;

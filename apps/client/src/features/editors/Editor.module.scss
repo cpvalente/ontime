@@ -164,7 +164,7 @@ $playback-width: 450px;
   }
 
   .header {
-    background-color: #202020;
+    background-color: $gray-1200;
     padding: 8px;
     border-left: 1px solid $white-10;
   }
@@ -172,10 +172,8 @@ $playback-width: 450px;
 
 .editor {
   grid-area: even;
-  height: calc(100% - 24px);
 
   .content {
-    height: calc(100% - 24px);
     overflow: hidden;
   }
 }
@@ -187,7 +185,6 @@ $playback-width: 450px;
   .content {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 24px);
     overflow: hidden;
   }
 }

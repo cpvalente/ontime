@@ -56,7 +56,7 @@ export default function InfoLogger() {
   }, []);
 
   return (
-    <div className={style.infoLoggerContainer}>
+    <>
       <div className={style.buttonBar}>
         <Button
           variant={showUser ? 'ontime-filled' : 'ontime-subtle'}
@@ -125,6 +125,6 @@ export default function InfoLogger() {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 }
