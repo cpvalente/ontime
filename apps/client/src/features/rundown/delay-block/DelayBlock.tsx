@@ -3,6 +3,7 @@ import { Button, HStack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeDelay, OntimeEvent } from 'ontime-types';
 
@@ -31,7 +32,7 @@ interface DelayBlockProps {
 
 export default function DelayBlock(props: DelayBlockProps) {
   const { data, hasCursor, actionHandler } = props;
-  const { applyDelay, updateEvent } = useEventAction();
+  const { applyDelay, updateEvent, deleteEvent } = useEventAction();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
   const {
@@ -56,9 +57,13 @@ export default function DelayBlock(props: DelayBlockProps) {
     }
   }, [hasCursor]);
 
-  const applyDelayHandler = useCallback(() => {
+  const applyDelayHandler = () => {
     applyDelay(data.id);
-  }, [data.id, applyDelay]);
+  };
+
+  const cancelDelayHandler = () => {
+    deleteEvent(data.id);
+  };
 
   const delaySubmitHandler = useCallback(
     (value: number) => {
@@ -84,7 +89,10 @@ export default function DelayBlock(props: DelayBlockProps) {
       <DelayInput value={delayValue} submitHandler={delaySubmitHandler} />
       <HStack spacing='8px' className={style.actionOverlay}>
         <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
-          Apply delay
+          Apply
+        </Button>
+        <Button onClick={cancelDelayHandler} size='sm' leftIcon={<IoClose />} variant='ontime-subtle-white'>
+          Cancel
         </Button>
         <BlockActionMenu showAdd enableDelete actionHandler={actionHandler} />
       </HStack>

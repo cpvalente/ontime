@@ -1,13 +1,5 @@
 import { useCallback } from 'react';
-import {
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuItem,
-  MenuList,
-  Tooltip,
-} from '@chakra-ui/react';
+import { IconButton, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
@@ -27,14 +19,15 @@ interface BlockActionMenuProps {
   actionHandler: (action: EventItemActions, payload?: any) => void;
   className?: string;
 }
+
 export default function BlockActionMenu(props: BlockActionMenuProps) {
   const { showAdd, showDelay, showBlock, enableDelete, showClone, actionHandler, className } = props;
 
-  const handleAddEvent = useCallback(() => actionHandler("event"), [actionHandler])
-  const handleAddDelay = useCallback(() => actionHandler("delay"), [actionHandler])
-  const handleAddBlock = useCallback(() => actionHandler("block"), [actionHandler])
-  const handleClone = useCallback(() => actionHandler("clone"), [actionHandler])
-  const handleDelete = useCallback(() => actionHandler("delete"), [actionHandler])
+  const handleAddEvent = useCallback(() => actionHandler('event'), [actionHandler]);
+  const handleAddDelay = useCallback(() => actionHandler('delay'), [actionHandler]);
+  const handleAddBlock = useCallback(() => actionHandler('block'), [actionHandler]);
+  const handleClone = useCallback(() => actionHandler('clone'), [actionHandler]);
+  const handleDelete = useCallback(() => actionHandler('delete'), [actionHandler]);
 
   return (
     <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
@@ -44,8 +37,7 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
           aria-label='Event options'
           icon={<IoEllipsisHorizontal />}
           tabIndex={-1}
-          variant='ontime-subtle'
-          color='#f6f6f6'
+          variant='ontime-subtle-white'
           size='sm'
           className={className}
         />
@@ -54,36 +46,19 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
         <MenuItem icon={<IoAdd />} onClick={handleAddEvent} isDisabled={!showAdd}>
           Add Event after
         </MenuItem>
-        <MenuItem
-          icon={<IoTimerOutline />}
-          onClick={handleAddDelay}
-          isDisabled={!showDelay}
-        >
+        <MenuItem icon={<IoTimerOutline />} onClick={handleAddDelay} isDisabled={!showDelay}>
           Add Delay after
         </MenuItem>
-        <MenuItem
-          icon={<IoRemoveCircleOutline />}
-          onClick={handleAddBlock}
-          isDisabled={!showBlock}
-        >
+        <MenuItem icon={<IoRemoveCircleOutline />} onClick={handleAddBlock} isDisabled={!showBlock}>
           Add Block after
         </MenuItem>
         {showClone && (
-          <MenuItem
-            icon={<IoDuplicateOutline />}
-            onClick={handleClone}
-            isDisabled={!showBlock}
-          >
+          <MenuItem icon={<IoDuplicateOutline />} onClick={handleClone} isDisabled={!showBlock}>
             Clone event
           </MenuItem>
         )}
         <MenuDivider />
-        <MenuItem
-          icon={<IoTrashBinSharp />}
-          onClick={handleDelete}
-          isDisabled={!enableDelete}
-          color='#D20300'
-        >
+        <MenuItem icon={<IoTrashBinSharp />} onClick={handleDelete} isDisabled={!enableDelete} color='#D20300'>
           Delete event
         </MenuItem>
       </MenuList>

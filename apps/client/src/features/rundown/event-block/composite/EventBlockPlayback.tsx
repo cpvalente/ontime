@@ -42,6 +42,8 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         aria-label='Skip event'
         tooltip='Skip event'
         icon={skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
+        backgroundColor={skip ? '#FA5656' : undefined}
+        _hover={{ backgroundColor: skip ? '#FF7878' : '#404040' }}
         {...tooltipProps}
         {...blockBtnStyle}
         clickHandler={toggleSkip}

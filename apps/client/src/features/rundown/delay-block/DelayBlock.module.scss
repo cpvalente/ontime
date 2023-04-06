@@ -4,6 +4,8 @@
   @include block-spacing;
   @include block-styling;
 
+  background-color: $block-bg2;
+
   display: grid;
   grid-template-columns: 32px 1fr auto;
   grid-template-areas: 'drag inpt btns';

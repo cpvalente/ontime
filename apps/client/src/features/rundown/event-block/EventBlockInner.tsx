@@ -1,13 +1,13 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
-import { IoCaretDownCircle } from '@react-icons/all-files/io5/IoCaretDownCircle';
-import { IoCaretUpCircle } from '@react-icons/all-files/io5/IoCaretUpCircle';
+import { IoCaretDown } from '@react-icons/all-files/io5/IoCaretDown';
+import { IoCaretUp } from '@react-icons/all-files/io5/IoCaretUp';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
-import { IoPlayCircle } from '@react-icons/all-files/io5/IoPlayCircle';
-import { IoPlayForwardCircle } from '@react-icons/all-files/io5/IoPlayForwardCircle';
-import { IoPlaySkipForwardCircle } from '@react-icons/all-files/io5/IoPlaySkipForwardCircle';
-import { IoStopCircle } from '@react-icons/all-files/io5/IoStopCircle';
+import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
+import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
+import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, Playback, TimerType } from 'ontime-types';
 
@@ -120,14 +120,14 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
               <span className={style.tag}>NEXT</span>
             </Tooltip>
           )}
-          <Tooltip label={`End action: ${endAction}`} {...tooltipProps}>
-            <span>
-              <EndActionIcon action={endAction} className={style.statusIcon} />
-            </span>
-          </Tooltip>
           <Tooltip label={`Time type: ${timerType}`} {...tooltipProps}>
             <span>
               <TimerIcon type={timerType} className={style.statusIcon} />
+            </span>
+          </Tooltip>
+          <Tooltip label={`End action: ${endAction}`} {...tooltipProps}>
+            <span>
+              <EndActionIcon action={endAction} className={style.statusIcon} />
             </span>
           </Tooltip>
           <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
@@ -161,24 +161,24 @@ export default memo(EventBlockInner);
 function EndActionIcon(props: { action: EndAction; className: string }) {
   const { action, className } = props;
   if (action === EndAction.LoadNext) {
-    return <IoPlaySkipForwardCircle className={className} />;
+    return <IoPlaySkipForward className={className} />;
   }
   if (action === EndAction.PlayNext) {
-    return <IoPlayForwardCircle className={className} />;
+    return <IoPlayForward className={className} />;
   }
   if (action === EndAction.Stop) {
-    return <IoStopCircle className={className} />;
+    return <IoStop className={className} />;
   }
-  return <IoPlayCircle className={className} />;
+  return <IoPlay className={className} />;
 }
 
 function TimerIcon(props: { type: TimerType; className: string }) {
   const { type, className } = props;
   if (type === TimerType.CountUp) {
-    return <IoCaretUpCircle className={className} />;
+    return <IoCaretUp className={className} />;
   }
   if (type === TimerType.Clock) {
     return <IoTime className={className} />;
   }
-  return <IoCaretDownCircle className={className} />;
+  return <IoCaretDown className={className} />;
 }
