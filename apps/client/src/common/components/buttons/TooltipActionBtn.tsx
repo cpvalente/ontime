@@ -10,13 +10,7 @@ export default function TooltipActionBtn(props: TooltipActionBtnProps) {
   const { clickHandler, icon, size = 'xs', tooltip, openDelay = 0, className, ...rest } = props;
   return (
     <Tooltip label={tooltip} openDelay={openDelay}>
-      <IconButton
-        {...rest}
-        size={size}
-        icon={icon}
-        onClick={clickHandler}
-        className={className}
-      />
+      <IconButton {...rest} size={size} icon={icon} onClick={clickHandler} className={className} />
     </Tooltip>
   );
 }

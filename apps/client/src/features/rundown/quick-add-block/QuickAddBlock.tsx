@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
 import { SupportedEvent } from 'ontime-types';
 
@@ -17,7 +17,7 @@ interface QuickAddBlockProps {
   disableAddBlock: boolean;
 }
 
-export default function QuickAddBlock(props: QuickAddBlockProps) {
+const QuickAddBlock = (props: QuickAddBlockProps) => {
   const { showKbd, eventId, previousEventId, disableAddDelay = true, disableAddBlock } = props;
   const { addEvent } = useEventAction();
   const { emitError } = useEmitLog();
@@ -117,4 +117,6 @@ export default function QuickAddBlock(props: QuickAddBlockProps) {
       </div>
     </div>
   );
-}
+};
+
+export default memo(QuickAddBlock);

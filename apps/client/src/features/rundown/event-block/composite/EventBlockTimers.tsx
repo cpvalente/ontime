@@ -1,28 +1,53 @@
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
+import { OntimeEvent } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToMinutes } from '../../../../common/utils/dateConfig';
-import { TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
-import { EventItemActions } from '../../RundownEntry';
+import { calculateDuration, TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
 
 import style from '../EventBlock.module.scss';
 
 interface EventBlockTimerProps {
+  eventId: string;
   timeStart: number;
   timeEnd: number;
   duration: number;
   delay: number;
-  actionHandler: (action: EventItemActions, payload?: any) => void;
   previousEnd: number;
 }
 
-export default function EventBlockTimers(props: EventBlockTimerProps) {
-  const { timeStart, timeEnd, duration, delay, actionHandler, previousEnd } = props;
+type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride';
+
+const EventBlockTimers = (props: EventBlockTimerProps) => {
+  const { eventId, timeStart, timeEnd, duration, delay, previousEnd } = props;
+  const { updateEvent } = useEventAction();
+
   const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
 
-  const delayTime = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
-  const newTime = millisToString(timeStart + delay);
+  const handleSubmit = (field: TimeActions, value: number) => {
+    const newEventData: Partial<OntimeEvent> = { id: eventId };
+    switch (field) {
+      case 'durationOverride': {
+        // duration defines timeEnd
+        newEventData.duration = value;
+        newEventData.timeEnd = timeStart + value;
+        break;
+      }
+      case 'timeStart': {
+        newEventData.duration = calculateDuration(value, timeEnd);
+        newEventData.timeStart = value;
+        break;
+      }
+      case 'timeEnd': {
+        newEventData.duration = calculateDuration(timeStart, value);
+        newEventData.timeEnd = value;
+        break;
+      }
+    }
+    updateEvent(newEventData);
+  };
 
   /**
    * @description Validates a time input against its pair
@@ -39,12 +64,8 @@ export default function EventBlockTimers(props: EventBlockTimerProps) {
     [timeEnd, timeStart],
   );
 
-  const handleSubmit = useCallback(
-    (field: TimeEntryField, value: number) => {
-      actionHandler('update', { field, value });
-    },
-    [actionHandler],
-  );
+  const delayTime = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
+  const newTime = millisToString(timeStart + delay);
 
   return (
     <div className={style.eventTimers}>
@@ -86,4 +107,6 @@ export default function EventBlockTimers(props: EventBlockTimerProps) {
       )}
     </div>
   );
-}
+};
+
+export default memo(EventBlockTimers);

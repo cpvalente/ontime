@@ -4,26 +4,21 @@ import { IoCaretDownCircle } from '@react-icons/all-files/io5/IoCaretDownCircle'
 import { IoCaretUpCircle } from '@react-icons/all-files/io5/IoCaretUpCircle';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPlayCircle } from '@react-icons/all-files/io5/IoPlayCircle';
 import { IoPlayForwardCircle } from '@react-icons/all-files/io5/IoPlayForwardCircle';
-import { IoPlayOutline } from '@react-icons/all-files/io5/IoPlayOutline';
 import { IoPlaySkipForwardCircle } from '@react-icons/all-files/io5/IoPlaySkipForwardCircle';
-import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
-import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoStopCircle } from '@react-icons/all-files/io5/IoStopCircle';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, Playback, TimerType } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { setEventPlayback } from '../../../common/hooks/useSocket';
 import { useEventEditorStore } from '../../../common/stores/eventEditor';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
 
 import BlockActionMenu from './composite/BlockActionMenu';
+import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
 import EventBlockTimers from './composite/EventBlockTimers';
 
@@ -104,49 +99,13 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   return !renderInner ? null : (
     <>
-      <div className={style.playbackActions}>
-        <TooltipActionBtn
-          variant='ontime-subtle-white'
-          aria-label='Skip event'
-          tooltip='Skip event'
-          icon={skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
-          {...tooltipProps}
-          {...blockBtnStyle}
-          clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
-          tabIndex={-1}
-          disabled={selected}
-        />
-        <TooltipActionBtn
-          variant='ontime-subtle-white'
-          aria-label='Load event'
-          tooltip='Load event'
-          icon={<IoReload className={style.flip} />}
-          disabled={skip}
-          {...tooltipProps}
-          {...blockBtnStyle}
-          clickHandler={() => setEventPlayback.loadEvent(eventId)}
-          tabIndex={-1}
-        />
-        <TooltipActionBtn
-          variant='ontime-subtle-white'
-          aria-label='Start event'
-          tooltip='Start event'
-          icon={eventIsPlaying ? <IoPlay /> : <IoPlayOutline />}
-          disabled={skip}
-          {...tooltipProps}
-          {...blockBtnStyle}
-          clickHandler={() => setEventPlayback.startEvent(eventId)}
-          backgroundColor={eventIsPlaying ? '#58A151' : undefined}
-          _hover={{ backgroundColor: eventIsPlaying ? '#58A151' : undefined }}
-          tabIndex={-1}
-        />
-      </div>
+      <EventBlockPlayback eventId={eventId} skip={skip} isPlaying={eventIsPlaying} selected={selected} />
       <EventBlockTimers
+        eventId={eventId}
         timeStart={timeStart}
         timeEnd={timeEnd}
         duration={duration}
         delay={delay}
-        actionHandler={actionHandler}
         previousEnd={previousEnd}
       />
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
