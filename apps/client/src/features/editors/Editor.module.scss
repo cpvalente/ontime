@@ -175,6 +175,7 @@ $playback-width: 450px;
   grid-area: even;
 
   .content {
+    height: calc(100% - 24px);
     overflow: hidden;
   }
 }
