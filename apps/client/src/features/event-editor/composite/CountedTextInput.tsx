@@ -2,15 +2,16 @@ import { useCallback } from 'react';
 import { Input } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
-import { EventEditorSubmitActions } from '../EventEditor';
+
+import { TitleActions } from './EventEditorTitles';
 
 import style from '../EventEditor.module.scss';
 
 interface CountedTextInputProps {
-  field: EventEditorSubmitActions;
+  field: TitleActions;
   label: string;
   initialValue: string;
-  submitHandler: (field: EventEditorSubmitActions, value: string) => void;
+  submitHandler: (field: TitleActions, value: string) => void;
 }
 
 export default function CountedTextInput(props: CountedTextInputProps) {

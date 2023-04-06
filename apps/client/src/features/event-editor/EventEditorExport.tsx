@@ -35,4 +35,3 @@ const EventEditorExport = () => {
 };
 
 export default memo(EventEditorExport);
-

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { EventEditorSubmitActions } from '../../../../features/event-editor/EventEditor';
+import { TitleActions } from '../../../../features/event-editor/composite/EventEditorTitles';
 
 import Swatch from './Swatch';
 
@@ -8,8 +8,8 @@ import style from './SwatchSelect.module.scss';
 
 interface ColourInputProps {
   value: string;
-  name: EventEditorSubmitActions;
-  handleChange: (newValue: EventEditorSubmitActions, name: string) => void;
+  name: TitleActions;
+  handleChange: (newValue: TitleActions, name: string) => void;
 }
 
 const colours = [
