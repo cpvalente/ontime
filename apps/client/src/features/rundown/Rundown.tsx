@@ -194,7 +194,7 @@ export default function Rundown(props: RundownProps) {
     }
   };
 
-  if (!entries.length) {
+  if (statefulEntries?.length < 1) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, -1)} />;
   }
 

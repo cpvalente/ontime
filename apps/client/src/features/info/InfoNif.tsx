@@ -15,7 +15,7 @@ export default function InfoNif() {
 
   return (
     <div className={style.interfaceList}>
-      {data?.networkInterfaces.map((nif) => (
+      {data?.networkInterfaces?.map((nif) => (
         <span key={nif.address} onClick={() => handleClick(nif.address)} className={style.interface}>
           {`${nif.name} - ${nif.address}`}
           <IoArrowUp className={style.linkIcon} />
