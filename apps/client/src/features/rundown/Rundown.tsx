@@ -255,6 +255,7 @@ export default function Rundown(props: RundownProps) {
                 </div>
               );
             })}
+            <div className={style.spacer} />
           </div>
         </SortableContext>
       </DndContext>
