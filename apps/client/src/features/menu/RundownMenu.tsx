@@ -8,12 +8,14 @@ import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCursor } from '../../common/stores/cursorStore';
+import { useEventEditorStore } from '../../common/stores/eventEditor';
 
 import style from './RundownMenu.module.scss';
 
 const RundownMenu = () => {
   const isCursorLocked = useCursor((state) => state.isCursorLocked);
   const toggleCursorLocked = useCursor((state) => state.toggleCursorLocked);
+  const removeOpenEvent = useEventEditorStore((state) => state.removeOpenEvent);
 
   const { addEvent, deleteAllEvents } = useEventAction();
 
@@ -31,7 +33,8 @@ const RundownMenu = () => {
 
   const deleteAll = useCallback(() => {
     deleteAllEvents();
-  }, [deleteAllEvents]);
+    removeOpenEvent();
+  }, [deleteAllEvents, removeOpenEvent]);
 
   return (
     <HStack className={style.headerButtons}>
