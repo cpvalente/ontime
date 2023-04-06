@@ -10,8 +10,8 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@react-icons/all-files": "^4.1.0",
-    "@sentry/react": "^7.28.1",
-    "@sentry/tracing": "^7.24.1",
+    "@sentry/react": "^7.46.0",
+    "@sentry/tracing": "^7.46.0",
     "@tanstack/react-query": "^4.26.1",
     "@tanstack/react-query-devtools": "^4.26.1",
     "autosize": "^5.0.2",
@@ -58,7 +58,7 @@
     ]
   },
   "devDependencies": {
-    "@sentry/vite-plugin": "^0.3.0",
+    "@sentry/vite-plugin": "^0.4.0",
     "@tanstack/eslint-plugin-query": "^4.26.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.1.1",
