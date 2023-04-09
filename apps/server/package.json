@@ -48,6 +48,7 @@
     "dev:test": "cross-env IS_TEST=true nodemon --exec \"ts-node-esm\" ./src/index.ts",
     "prebuild": "pnpm setdb",
     "build": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
+    "build:local": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "build:docker": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "lint": "eslint .",
