@@ -56,7 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
-app.use('/eventlist', rundownRouter);
+app.use('/events', rundownRouter);
 app.use('/eventdata', eventDataRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
