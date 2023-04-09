@@ -18,26 +18,26 @@ import {
 
 export const router = express.Router();
 
-// create route between controller and '/eventlist/' endpoint
+// create route between controller and '/events/' endpoint
 router.get('/', rundownGetAll);
 
-// create route between controller and '/eventlist/:eventId' endpoint
+// create route between controller and '/events/:eventId' endpoint
 router.get('/:eventId', paramsMustHaveEventId, getEventById);
 
-// create route between controller and '/eventlist/' endpoint
+// create route between controller and '/events/' endpoint
 router.post('/', rundownPostValidator, rundownPost);
 
-// create route between controller and '/eventlist/' endpoint
+// create route between controller and '/events/' endpoint
 router.put('/', rundownPutValidator, rundownPut);
 
-// create route between controller and '/eventlist/reorder' endpoint
+// create route between controller and '/events/reorder' endpoint
 router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 
-// create route between controller and '/eventlist/applydelay/:eventId' endpoint
+// create route between controller and '/events/applydelay/:eventId' endpoint
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
 
-// create route between controller and '/eventlist/all' endpoint
+// create route between controller and '/events/all' endpoint
 router.delete('/all', rundownDelete);
 
-// create route between controller and '/eventlist/:eventId' endpoint
+// create route between controller and '/events/:eventId' endpoint
 router.delete('/:eventId', paramsMustHaveEventId, deleteEventById);

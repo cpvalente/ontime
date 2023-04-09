@@ -25,7 +25,7 @@ export const serverURL = calculateServer();
 export const websocketUrl = `ws://${window.location.hostname}:${STATIC_PORT}/ws`;
 
 export const eventURL = `${serverURL}/eventdata`;
-export const rundownURL = `${serverURL}/eventlist`;
+export const rundownURL = `${serverURL}/events`;
 export const ontimeURL = `${serverURL}/ontime`;
 
 export const stylesPath = 'external/styles/override.css';
