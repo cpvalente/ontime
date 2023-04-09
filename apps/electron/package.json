@@ -12,7 +12,7 @@
   "license": "AGPL-3.0-only",
   "main": "main.js",
   "devDependencies": {
-    "electron": "^21.1.0",
+    "electron": "^22.3.5",
     "electron-builder": "^23.6.0",
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",

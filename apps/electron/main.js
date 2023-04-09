@@ -178,11 +178,11 @@ app.whenReady().then(() => {
           }
         })
         .catch((error) => {
-          dialog.showErrorBox('Ontime failed to reach server', error);
+          console.log('ERROR: Ontime failed to reach server', error);
         });
     })
     .catch((error) => {
-      dialog.showErrorBox('Ontime failed to start', error);
+      console.log('ERROR: Ontime failed to start', error);
     });
 
   // recreate window if no others open
