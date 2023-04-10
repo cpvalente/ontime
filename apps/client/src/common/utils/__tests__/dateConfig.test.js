@@ -5,7 +5,6 @@ import {
   millisToDelayString,
   millisToMinutes,
   millisToSeconds,
-  timeStringToMillis,
 } from '../dateConfig';
 
 describe('test string from formatDisplay function', () => {
@@ -168,88 +167,6 @@ describe('test millisToMinutes function', () => {
   it('test with -86401000 (-24 hours and 1 second)', () => {
     const t = { val: -86401000, result: -1440 };
     expect(millisToMinutes(t.val, false)).toBe(t.result);
-  });
-});
-
-describe('test timeStringToMillis function', () => {
-  it('test with null', () => {
-    const t = { val: null, result: 0 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 00:00:00', () => {
-    const t = { val: '00:00:00', result: 0 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with -00:00:00', () => {
-    const t = { val: '-00:00:00', result: 0 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 00:00:01', () => {
-    const t = { val: '00:00:01', result: 1000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with -00:00:01', () => {
-    const t = { val: '-00:00:01', result: 1000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 01:00:01', () => {
-    const t = { val: '01:00:01', result: 3601000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 24:00:01', () => {
-    const t = { val: '24:00:01', result: 86401000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 00:00:5', () => {
-    const t = { val: '00:00:5', result: 5000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 00:1:00', () => {
-    const t = { val: '00:1:00', result: 60000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 1:00:00', () => {
-    const t = { val: '1:00:00', result: 3600000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 1', () => {
-    const t = { val: '1', result: 1000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 120', () => {
-    const t = { val: '120', result: 120000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 56', () => {
-    const t = { val: '56', result: 56000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 2:3', () => {
-    const t = { val: '2:3', result: 123000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 02:3', () => {
-    const t = { val: '02:3', result: 123000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
-  });
-
-  it('test with 2:03', () => {
-    const t = { val: '2:03', result: 123000 };
-    expect(timeStringToMillis(t.val)).toBe(t.result);
   });
 });
 

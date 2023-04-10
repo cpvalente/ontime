@@ -50,20 +50,6 @@ export const millisToMinutes = (millis: number): number => {
 };
 
 /**
- * @description Converts timestring to milliseconds
- * @param {string} string - time string "23:00:12"
- * @returns {number} Amount in milliseconds
- */
-export const timeStringToMillis = (string: string): number => {
-  if (typeof string !== 'string') return 0;
-  const time = string.split(':');
-  if (time.length === 1) return Math.abs(time[0] * mts);
-  if (time.length === 2) return Math.abs(time[0]) * mtm + time[1] * mts;
-  if (time.length === 3) return Math.abs(time[0]) * mth + time[1] * mtm + time[2] * mts;
-  return 0;
-};
-
-/**
  * @description Validates a time string
  * @param {string} string - time string "23:00:12"
  * @returns {boolean} string represents time
