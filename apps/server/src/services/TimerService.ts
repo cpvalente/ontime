@@ -141,8 +141,10 @@ export class TimerService {
    * @private
    */
   _onLoad() {
-    eventStore.set('playback', this.playback);
-    eventStore.set('timer', this.timer);
+    eventStore.batchSet({
+      playback: this.playback,
+      timer: this.timer,
+    });
     integrationService.dispatch(TimerLifeCycle.onLoad);
   }
 
@@ -182,8 +184,10 @@ export class TimerService {
    * @private
    */
   _onStart() {
-    eventStore.set('playback', this.playback);
-    eventStore.set('timer', this.timer);
+    eventStore.batchSet({
+      playback: this.playback,
+      timer: this.timer,
+    });
     integrationService.dispatch(TimerLifeCycle.onStart);
   }
 
@@ -199,8 +203,10 @@ export class TimerService {
   }
 
   _onPause() {
-    eventStore.set('playback', this.playback);
-    eventStore.set('timer', this.timer);
+    eventStore.batchSet({
+      playback: this.playback,
+      timer: this.timer,
+    });
     integrationService.dispatch(TimerLifeCycle.onPause);
   }
 
@@ -214,8 +220,10 @@ export class TimerService {
   }
 
   _onStop() {
-    eventStore.set('playback', this.playback);
-    eventStore.set('timer', this.timer);
+    eventStore.batchSet({
+      playback: this.playback,
+      timer: this.timer,
+    });
     integrationService.dispatch(TimerLifeCycle.onStop);
   }
 
