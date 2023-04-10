@@ -1,7 +1,17 @@
-import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from 'ontime-types';
+import {
+  OntimeBaseEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  SupportedEvent,
+} from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay as delayDef, event as eventDef } from '../models/eventsDefinition.js';
+import {
+  block as blockDef,
+  delay as delayDef,
+  event as eventDef,
+} from '../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventTimer } from './TimerService.js';
@@ -216,30 +226,27 @@ export async function reorderEvent(eventId, from, to) {
  * @param eventId
  * @returns {Promise<void>}
  */
-export async function applyDelay(eventId) {
+export async function applyDelay(eventId: string) {
   const rundown = DataProvider.getRundown();
   let delayIndex = null;
   let delayValue = 0;
 
-  for (const [index, e] of rundown.entries()) {
+  for (const [index, event] of rundown.entries()) {
     // look for delay
     if (delayIndex === null) {
-      if (e.id === eventId && e.type === SupportedEvent.Delay) {
-        delayValue = e.duration;
+      if (event.id === eventId && event.type === SupportedEvent.Delay) {
+        delayValue = event.duration;
         delayIndex = index;
       }
     }
 
     // apply delay value to all items until block or end
     else {
-      if (e.type === SupportedEvent.Event) {
-        // update times
-        e.timeStart += delayValue;
-        e.timeEnd += delayValue;
-
-        // increment revision
-        e.revision += 1;
-      } else if (e.type === SupportedEvent.Block) {
+      if (event.type === SupportedEvent.Event) {
+        event.timeStart = Math.max(0, event.timeStart + delayValue);
+        event.timeEnd = Math.max(event.duration, event.timeStart + delayValue);
+        event.revision += 1;
+      } else if (event.type === SupportedEvent.Block) {
         break;
       }
     }

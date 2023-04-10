@@ -12,6 +12,7 @@ import { ontimeCheckboxOnDark } from './ontimeCheckbox';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeModal } from './ontimeModal';
+import { ontimeBlockRadio } from './ontimeRadio';
 import { ontimeSelect } from './ontimeSelect';
 import { lightSwitch, ontimeSwitch } from './ontimeSwitch';
 import { ontimeTab } from './ontimeTab';
@@ -63,6 +64,11 @@ const theme = extendTheme({
     Modal: {
       variants: {
         ontime: { ...ontimeModal },
+      },
+    },
+    Radio: {
+      variants: {
+        'ontime-block': { ...ontimeBlockRadio },
       },
     },
     Tabs: {

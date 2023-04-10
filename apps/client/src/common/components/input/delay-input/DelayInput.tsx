@@ -1,88 +1,134 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Input } from '@chakra-ui/react';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { Input, Radio, RadioGroup } from '@chakra-ui/react';
+import { millisToString } from 'ontime-utils';
 
-import { clamp } from '../../../utils/math';
+import { useEventAction } from '../../../hooks/useEventAction';
+import { forgivingStringToMillis } from '../../../utils/dateConfig';
 
 import style from './DelayInput.module.scss';
 
-const inputStyleProps = {
-  width: 20,
-  placeholder: '-',
-  size: 'sm',
-  color: '#E69056',
-  variant: 'ontime-filled',
-  fontSize: '15px',
-  letterSpacing: '0.3px',
-};
-
 interface DelayInputProps {
-  submitHandler: (value: number) => void;
-  value?: number;
+  eventId: string;
+  duration: number;
 }
 
 export default function DelayInput(props: DelayInputProps) {
-  const { submitHandler, value = 0 } = props;
-  const [_value, setValue] = useState(value);
+  const { eventId, duration } = props;
+  const { updateEvent } = useEventAction();
+
+  const [value, setValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);
+  // avoid wrong submit on cancel
+  let ignoreChange = false;
 
   useEffect(() => {
-    if (!value) {
+    if (typeof duration === undefined) {
       return;
     }
-    setValue(value);
-  }, [value]);
+    setValue(millisToString(duration));
+  }, [duration]);
 
   /**
    * @description Prepare delay value for update
-   * @param {string} value string to be parsed
+   * @param {string} newValue string to be parsed
    */
-  const validate = useCallback(
-    (newValue?: string) => {
-      if (newValue === '') setValue(0);
-      const delayValue = clamp(Number(newValue), -60, 60);
-      if (delayValue === value) return;
-      setValue(delayValue);
+  const validateAndSubmit = (newValue: string) => {
+    if (ignoreChange) {
+      ignoreChange = false;
+      return;
+    }
 
-      submitHandler(delayValue);
-    },
-    [submitHandler, value],
-  );
+    const isNegative = newValue.startsWith('-');
+    let newMillis = forgivingStringToMillis(newValue);
+
+    if (isNegative) {
+      newMillis = newMillis * -1;
+    }
+
+    if (newMillis === duration) {
+      return;
+    }
+
+    submitChange(newMillis);
+    setValue(millisToString(newMillis));
+  };
+
+  const submitChange = (value: number) => {
+    updateEvent({
+      id: eventId,
+      duration: value,
+    });
+  };
+
+  /**
+   * @description Selects input text on focus
+   */
+  const handleFocus = () => inputRef.current?.select();
 
   /**
    * @description Handles common keys for submit and cancel
    * @param {KeyboardEvent} event
    */
-  const onKeyDownHandler = useCallback(
-    (key: string) => {
-      if (key === 'Enter') {
-        inputRef.current?.blur();
-        validate(inputRef.current?.value);
-      } else if (key === 'Escape') {
-        inputRef.current?.blur();
-        setValue(value);
-      }
-    },
-    [validate, value],
-  );
+  const onKeyDownHandler = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      inputRef.current?.blur();
+      validateAndSubmit((event.target as HTMLInputElement).value);
+    } else if (event.key === 'Tab') {
+      validateAndSubmit((event.target as HTMLInputElement).value);
+    } else if (event.key === 'Escape') {
+      ignoreChange = true;
+      setValue(millisToString(duration));
+      inputRef.current?.blur();
+    }
+  };
 
-  const labelText = `${Math.abs(value) !== 1 ? 'minutes' : 'minute'} ${
-    value !== undefined && value >= 0 ? 'delayed' : 'ahead'
-  }`;
+  /**
+   * @description handles direction change to delay
+   * @param newDirection
+   */
+  const handleSlipChange = (newDirection: 'add' | 'subtract') => {
+    if (newDirection === 'add') {
+      // add time
+      if (duration < 0) {
+        submitChange(duration * -1);
+      }
+    } else if (newDirection === 'subtract') {
+      // subtract time
+      if (duration > 0) {
+        submitChange(duration * -1);
+      }
+    }
+  };
+
+  const checkedOption = value.startsWith('-') ? 'subtract' : 'add';
 
   return (
-    <label className={style.delayInput}>
+    <div className={style.delayInput}>
       <Input
-        {...inputStyleProps}
+        size='sm'
         ref={inputRef}
         data-testid='delay-input'
         className={style.inputField}
-        value={_value}
-        onChange={(event) => setValue(Number(event.target.value))}
-        onBlur={(event) => validate(event.target.value)}
-        onKeyDown={(event) => onKeyDownHandler(event.key)}
-        type='number'
+        type='text'
+        placeholder='-'
+        variant='ontime-filled'
+        onFocus={handleFocus}
+        onChange={(event) => setValue(event.target.value)}
+        onBlur={(event) => validateAndSubmit(event.target.value)}
+        onKeyDown={onKeyDownHandler}
+        value={value}
+        maxLength={9}
       />
-      {labelText}
-    </label>
+      <RadioGroup
+        className={style.delayOptions}
+        onChange={handleSlipChange}
+        value={checkedOption}
+        variant='ontime-block'
+        size='sm'
+      >
+        <Radio value='add'>Add time</Radio>
+        <Radio value='subtract'>Subtract time</Radio>
+      </RadioGroup>
+    </div>
   );
 }

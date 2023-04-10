@@ -5,7 +5,8 @@ import { millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { millisToMinutes } from '../../../common/utils/dateConfig';
+import { millisToDelayString } from '../../../common/utils/dateConfig';
+import { cx } from '../../../common/utils/styleUtils';
 import { calculateDuration, TimeEntryField, validateEntry } from '../../../common/utils/timesManager';
 
 import style from '../EventEditor.module.scss';
@@ -71,18 +72,15 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     updateEvent(newEventData);
   };
 
-  const delayed = delay !== 0;
-  const addedTime = delayed ? `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))} minutes` : null;
-  const newStart = delayed ? `New start ${millisToString(timeStart + delay)}` : null;
-  const newEnd = delayed ? `New end ${millisToString(timeEnd + delay)}` : null;
+  const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
+  const startLabel = delayTime ? `New start ${millisToString(timeStart + delay)}` : 'Start time';
+  const endLabel = delayTime ? `New end ${millisToString(timeEnd + delay)}` : 'End time';
+  const inputTimeLabels = cx([style.inputLabel, delayTime ? style.delayLabel : null]);
 
   return (
     <div className={style.timeOptions}>
       <div className={style.timers}>
-        <label className={style.inputLabel}>
-          Start time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
-          {delayed && <div className={style.delayLabel}>{newStart}</div>}
-        </label>
+        <label className={inputTimeLabels}>{startLabel}</label>
         <TimeInput
           name='timeStart'
           submitHandler={handleSubmit}
@@ -92,10 +90,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           placeholder='Start'
           warning={warning.start}
         />
-        <label className={style.inputLabel}>
-          End time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
-          {delayed && <div className={style.delayLabel}>{newEnd}</div>}
-        </label>
+        <label className={inputTimeLabels}>{endLabel}</label>
         <TimeInput
           name='timeEnd'
           submitHandler={handleSubmit}

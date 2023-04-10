@@ -4,7 +4,7 @@ import { millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
-import { millisToMinutes } from '../../../../common/utils/dateConfig';
+import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import { calculateDuration, TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
 
 import style from '../EventBlock.module.scss';
@@ -64,8 +64,9 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
     [timeEnd, timeStart],
   );
 
-  const delayTime = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
-  const newTime = millisToString(timeStart + delay);
+  const delayedStart = Math.max(0, timeStart + delay);
+  const newTime = millisToString(delayedStart);
+  const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
 
   return (
     <div className={style.eventTimers}>
@@ -94,13 +95,14 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         submitHandler={handleSubmit}
         validationHandler={handleValidation}
         time={duration}
+        delay={0}
         placeholder='Duration'
         previousEnd={previousEnd}
         warning={warning.duration}
       />
-      {delay !== 0 && delay !== null && (
+      {delayTime && (
         <div className={style.delayNote}>
-          {`${delayTime} minutes`}
+          {delayTime}
           <br />
           {`New start: ${newTime}`}
         </div>

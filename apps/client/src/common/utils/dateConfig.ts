@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 import { mth, mtm, mts } from './timeConstants';
 
 export const timeFormat = 'HH:mm';
@@ -150,3 +152,24 @@ export const forgivingStringToMillis = (value: string, fillLeft = true): number 
 
   return millis;
 };
+
+export function luxonFormatShort(millis: number, format: string) {
+  return DateTime.fromMillis(millis).toUTC().toFormat(format);
+}
+
+export function millisToDelayString(millis: number | null): undefined | string | null {
+  if (millis == null || millis === 0) {
+    return null;
+  }
+
+  const isNegative = millis < 0;
+  const absMillis = Math.abs(millis);
+
+  if (absMillis < mtm) {
+    return `${isNegative ? '-' : '+'}${luxonFormatShort(absMillis, 's')}sec`;
+  } else if (absMillis < mth && absMillis % mtm === 0) {
+    return `${isNegative ? '-' : '+'}${luxonFormatShort(absMillis, 'm')}min`;
+  } else {
+    return `${isNegative ? '-' : '+'}${luxonFormatShort(absMillis, 'HH:mm:ss')}`;
+  }
+}
