@@ -70,7 +70,6 @@ importers:
       eslint-plugin-testing-library: ^5.9.1
       framer-motion: ^10.10.0
       jsdom: ^21.1.0
-      luxon: ^3.3.0
       ontime-types: workspace:*
       ontime-utils: workspace:*
       prettier: ^2.8.3
@@ -112,7 +111,6 @@ importers:
       csv-stringify: 6.2.3
       deepmerge: 4.3.0
       framer-motion: 10.11.2_biqbaboplfbrettd7655fr4n2y
-      luxon: 3.3.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-fast-compare: 3.2.0
