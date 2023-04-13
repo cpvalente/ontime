@@ -24,5 +24,7 @@ $element-border-radius: 8px;
 
 // Properties related to timer
 $timer-color: rgba(white, 80%); // --timer-color-override
+$timer-warning-color: rgba(240, 213, 0, 80%);
+$timer-danger-color: rgba(202, 11, 0, 80%);
 $timer-finished-color: $playback-negative;
 $timer-bold-font-family: "Arial Black", sans-serif; // --card-background-color-override

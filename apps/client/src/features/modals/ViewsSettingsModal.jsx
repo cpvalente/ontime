@@ -23,10 +23,6 @@ export default function ViewsSettingsModal() {
   const [formData, setFormData] = useState(viewsSettingsPlaceholder);
   const [changed, setChanged] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [normalColor, setNormalColor] = useState('#ffffffcc');
-  const [warningColor, setWarningColor] = useState('#F0D500');
-  const [dangerColor, setDangerColor] = useState('#CA0B00');
-
   /**
    * Set formdata from server state
    */
@@ -143,18 +139,6 @@ export default function ViewsSettingsModal() {
                 actionHandler={() => handleChange('overrideStyles', !formData.overrideStyles)}
               />
             </FormControl>
-            <div className='normal-color'>
-              <div className='label'> Normal Color </div>
-              <PopoverPicker color={normalColor} onChange={setNormalColor}></PopoverPicker>
-            </div>
-            <div className='warning-color'>
-              <div className='label'> Warning Color </div>
-              <PopoverPicker color={warningColor} onChange={setWarningColor}></PopoverPicker>
-            </div>
-            <div className='danger-color'>
-              <div className='label'> Danger Color </div>
-              <PopoverPicker color={dangerColor} onChange={setDangerColor}></PopoverPicker>
-            </div>
           </div>
           <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
         </div>

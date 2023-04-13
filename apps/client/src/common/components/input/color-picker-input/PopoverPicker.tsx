@@ -12,15 +12,21 @@ export default function PopoverPicker(props: PopoverPickerProps) {
   const { color, onChange } = props;
 
   const presetColors = [
-    '#FFCC78',
-    '#FFAB33',
-    '#77C785',
-    '#339E4E',
-    '#779BE7',
-    '#3E75E8',
-    '#FF7878',
-    '#ED3333',
-    '#A790F5',
+    '#ffffff', // white
+    '#F0D500', // warningyellow
+    '#CA0B00', // dangerred
+    '#FFCC78', // $orange-400
+    '#FFAB33', // $orange-600
+    '#77C785', // $green-400
+    '#339E4E', // $green-600
+    '#779BE7', // $blue-400
+    '#3E75E8', // $blue-600
+    '#FF7878', // $red-400
+    '#ED3333', // $red-600
+    '#A790F5', // $violet-400
+    '#8064E1', // $violet-600
+    '#9d9d9d', // $gray-500
+    '#ececec', // $gray-100
   ];
 
   return (

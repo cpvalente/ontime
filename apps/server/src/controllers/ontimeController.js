@@ -241,7 +241,14 @@ export const postViewSettings = async (req, res) => {
   }
 
   try {
-    const newData = { overrideStyles: req.body.overrideStyles };
+    const newData = {
+      overrideStyles: req.body.overrideStyles,
+      normalColor: req.body.normalColor,
+      warningColor: req.body.warningColor,
+      warningThreshold: req.body.warningThreshold,
+      dangerColor: req.body.dangerColor,
+      dangerThreshold: req.body.dangerThreshold,
+    };
     await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);
   } catch (error) {

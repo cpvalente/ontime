@@ -145,6 +145,11 @@ export const parseViewSettings = (data, enforce): ViewSettings => {
 
     const viewSettings = {
       overrideStyles: v.overrideStyles ?? dbModel.viewSettings.overrideStyles,
+      normalColor: v.normalColor ?? dbModel.viewSettings.normalColor,
+      warningColor: v.warningColor ?? dbModel.viewSettings.warningColor,
+      warningThreshold: v.warningThreshold ?? dbModel.viewSettings.warningThreshold,
+      dangerColor: v.dangerColor ?? dbModel.viewSettings.dangerColor,
+      dangerThreshold: v.dangerThreshold ?? dbModel.viewSettings.dangerThreshold,
     };
 
     // write to db
