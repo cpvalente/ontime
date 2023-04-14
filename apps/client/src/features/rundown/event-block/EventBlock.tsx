@@ -33,6 +33,7 @@ interface EventBlockProps {
   selected: boolean;
   hasCursor: boolean;
   playback?: Playback;
+  isRolling: boolean;
   actionHandler: (
     action: EventItemActions,
     payload?:
@@ -65,6 +66,7 @@ export default function EventBlock(props: EventBlockProps) {
     selected,
     hasCursor,
     playback,
+    isRolling,
     actionHandler,
   } = props;
 
@@ -128,6 +130,7 @@ export default function EventBlock(props: EventBlockProps) {
     style.eventBlock,
     skip ? style.skip : null,
     selected ? style.selected : null,
+    playback ? style[playback] : null,
     hasCursor ? style.hasCursor : null,
   ]);
 
@@ -157,6 +160,7 @@ export default function EventBlock(props: EventBlockProps) {
           skip={skip}
           selected={selected}
           playback={playback}
+          isRolling={isRolling}
           actionHandler={actionHandler}
         />
       )}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { OntimeRundown, SupportedEvent } from 'ontime-types';
+import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
@@ -242,6 +242,7 @@ export default function Rundown(props: RundownProps) {
                     previousEnd={previousEnd}
                     previousEventId={previousEventId}
                     playback={isSelected ? featureData.playback : undefined}
+                    isRolling={featureData.playback === Playback.Roll}
                   />
                   {((showQuickEntry && index === cursor) || isLast) && (
                     <QuickAddBlock

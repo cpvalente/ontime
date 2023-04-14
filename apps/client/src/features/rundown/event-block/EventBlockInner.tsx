@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
-import { IoCaretDown } from '@react-icons/all-files/io5/IoCaretDown';
-import { IoCaretUp } from '@react-icons/all-files/io5/IoCaretUp';
+import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
+import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
@@ -49,6 +49,7 @@ interface EventBlockInnerProps {
   skip: boolean;
   selected: boolean;
   playback?: Playback;
+  isRolling: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
 }
 
@@ -70,6 +71,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     skip = false,
     selected,
     playback,
+    isRolling,
     actionHandler,
   } = props;
 
@@ -89,17 +91,18 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     }
   }, [eventId, isOpen, removeOpenEvent, setOpenEvent]);
 
-  const eventIsPlaying = selected && playback === Playback.Play;
+  const eventIsPlaying = playback === Playback.Play;
+  const eventIsPaused = playback === Playback.Pause;
+
   const playBtnStyles = { _hover: {} };
   if (!skip && eventIsPlaying) {
-    playBtnStyles._hover = { bg: '#c05621' };
+    playBtnStyles._hover = { bg: '#c05621' }; // $ontime-paused
   } else if (!skip && !eventIsPlaying) {
     playBtnStyles._hover = {};
   }
 
   return !renderInner ? null : (
     <>
-      <EventBlockPlayback eventId={eventId} skip={skip} isPlaying={eventIsPlaying} selected={selected} />
       <EventBlockTimers
         eventId={eventId}
         timeStart={timeStart}
@@ -109,6 +112,14 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         previousEnd={previousEnd}
       />
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+      <EventBlockPlayback
+        eventId={eventId}
+        skip={skip}
+        isPlaying={eventIsPlaying}
+        isPaused={eventIsPaused}
+        selected={selected}
+        disablePlayback={skip || isRolling}
+      />
       <div className={style.statusElements}>
         <span className={style.eventNote}>{note}</span>
         <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
@@ -175,10 +186,10 @@ function EndActionIcon(props: { action: EndAction; className: string }) {
 function TimerIcon(props: { type: TimerType; className: string }) {
   const { type, className } = props;
   if (type === TimerType.CountUp) {
-    return <IoCaretUp className={className} />;
+    return <IoArrowUp className={className} />;
   }
   if (type === TimerType.Clock) {
     return <IoTime className={className} />;
   }
-  return <IoCaretDown className={className} />;
+  return <IoArrowDown className={className} />;
 }
