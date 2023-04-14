@@ -25,18 +25,22 @@ export default function TimeInput(props: TimeInputProps) {
   const { name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0, warning } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState<string>('');
+  // avoid wrong submit on cancel
+  let ignoreChange = false;
 
   /**
    * @description Resets input value to given
    */
   const resetValue = useCallback(() => {
     try {
-      setValue(millisToString(time + delay));
+      // eslint-disable-next-line -- we use ignore change to stop submit on cancel
+      ignoreChange = true;
+      setValue(millisToString(time));
     } catch (error) {
       emitError(`Unable to parse date: ${error}`);
     }
-  }, [delay, emitError, time]);
+  }, [emitError, time]);
 
   /**
    * @description Selects input text on focus
@@ -73,11 +77,8 @@ export default function TimeInput(props: TimeInputProps) {
         newValMillis = forgivingStringToMillis(newValue);
       }
 
-      // Time now and time submittedVal
-      const originalMillis = time + delay;
-
       // check if time is different from before
-      if (newValMillis === originalMillis) return false;
+      if (newValMillis === time) return false;
 
       // validate with parent
       if (!validationHandler(name, newValMillis)) return false;
@@ -87,7 +88,7 @@ export default function TimeInput(props: TimeInputProps) {
 
       return true;
     },
-    [delay, name, previousEnd, submitHandler, time, validationHandler],
+    [name, previousEnd, submitHandler, time, validationHandler],
   );
 
   /**
@@ -96,10 +97,16 @@ export default function TimeInput(props: TimeInputProps) {
    */
   const validateAndSubmit = useCallback(
     (newValue: string) => {
+      if (ignoreChange) {
+        // eslint-disable-next-line -- we use this to prevent a wrong submit
+        ignoreChange = false;
+        return;
+      }
       const success = handleSubmit(newValue);
       if (success) {
         const ms = forgivingStringToMillis(newValue);
-        setValue(millisToString(ms + delay));
+        const delayed = name === 'timeEnd' ? Math.max(0, ms + delay) : Math.max(0, ms + delay);
+        setValue(millisToString(delayed));
       } else {
         resetValue();
       }
@@ -139,8 +146,6 @@ export default function TimeInput(props: TimeInputProps) {
     resetValue();
   }, [emitError, resetValue, time]);
 
-  const isDelayed = delay != null && delay !== 0;
-
   const ButtonInitial = () => {
     if (name === 'timeStart') return 'S';
     if (name === 'timeEnd') return 'E';
@@ -155,6 +160,7 @@ export default function TimeInput(props: TimeInputProps) {
     return '';
   };
 
+  const isDelayed = delay !== 0;
   const inputClasses = cx([style.timeInput, isDelayed ? style.delayed : null]);
   const buttonClasses = cx([style.inputButton, isDelayed ? style.delayed : null, warning ? style.warn : null]);
 

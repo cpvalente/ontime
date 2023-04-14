@@ -79,7 +79,7 @@
   display: block;
   @include input-label;
 
-  .delayLabel {
+  &.delayLabel {
     color: $ontime-delay-text;
   }
 

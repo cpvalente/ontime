@@ -32,7 +32,7 @@
     }
 
     &:not(:last-child) {
-      padding-bottom: clamp(16px, 1.5vw, 24px);
+      padding-bottom: 8px;
     }
 
     &--past {

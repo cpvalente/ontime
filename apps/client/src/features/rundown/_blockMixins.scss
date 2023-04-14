@@ -23,7 +23,7 @@ $block-cursor-color: $blue-400;
 }
 
 @mixin block-spacing() {
-  padding: 4px 8px 4px 2px;
+  padding-right: 8px;
   gap: 2px;
 }
 

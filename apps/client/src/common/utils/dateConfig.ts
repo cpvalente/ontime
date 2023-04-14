@@ -1,3 +1,5 @@
+import { formatFromMillis } from 'ontime-utils';
+
 import { mth, mtm, mts } from './timeConstants';
 
 export const timeFormat = 'HH:mm';
@@ -45,20 +47,6 @@ export const millisToSeconds = (millis: number | null): number => {
  */
 export const millisToMinutes = (millis: number): number => {
   return millis < 0 ? Math.ceil(millis / mtm) : Math.floor(millis / mtm);
-};
-
-/**
- * @description Converts timestring to milliseconds
- * @param {string} string - time string "23:00:12"
- * @returns {number} Amount in milliseconds
- */
-export const timeStringToMillis = (string: string): number => {
-  if (typeof string !== 'string') return 0;
-  const time = string.split(':');
-  if (time.length === 1) return Math.abs(time[0] * mts);
-  if (time.length === 2) return Math.abs(time[0]) * mtm + time[1] * mts;
-  if (time.length === 3) return Math.abs(time[0]) * mth + time[1] * mtm + time[2] * mts;
-  return 0;
 };
 
 /**
@@ -150,3 +138,20 @@ export const forgivingStringToMillis = (value: string, fillLeft = true): number 
 
   return millis;
 };
+
+export function millisToDelayString(millis: number | null): undefined | string | null {
+  if (millis == null || millis === 0) {
+    return null;
+  }
+
+  const isNegative = millis < 0;
+  const absMillis = Math.abs(millis);
+
+  if (absMillis < mtm) {
+    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 's')}sec`;
+  } else if (absMillis < mth && absMillis % mtm === 0) {
+    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'm')}min`;
+  } else {
+    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
+  }
+}

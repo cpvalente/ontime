@@ -260,9 +260,11 @@ export class EventLoader {
    * Handle side effects from event loading
    */
   private _loadEvent() {
-    eventStore.set('loaded', this.loaded);
-    eventStore.set('titles', this.titles);
-    eventStore.set('titlesPublic', this.titlesPublic);
+    eventStore.batchSet({
+      loaded: this.loaded,
+      titles: this.titles,
+      titlesPublic: this.titlesPublic,
+    });
   }
 
   /**

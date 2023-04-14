@@ -22,8 +22,28 @@ $skip-opacity: 0.1;
   padding-right: $block-clearance;
   gap: 2px;
 
+  @mixin declare-overrides(){
+    --status-color-override: #{$gray-200};
+    --status-color-active-override: #{$green-400};
+  }
+
   &.selected {
     background-color: $gray-1350;
+  }
+
+  &.play {
+    background-color: $green-700;
+    @include declare-overrides;
+  }
+
+  &.roll {
+    background-color: $blue-700;
+    @include declare-overrides;
+  }
+
+  &.pause {
+    background-color: $orange-700;
+    @include declare-overrides;
   }
 
   &.hasCursor {
@@ -146,6 +166,7 @@ $skip-opacity: 0.1;
   justify-content: flex-end;
   align-items: center;
   gap: 8px;
+  color: var(--status-color-override, $gray-500);
 
   .tag {
     padding-top: 1px;
@@ -156,12 +177,12 @@ $skip-opacity: 0.1;
   .statusIcon {
     width: 16px;
     height: 16px;
-    color: $gray-500;
   }
 
   .statusIcon.active {
-    color: $active-indicator;
+    color: var(--status-color-active-override, $active-indicator);
   }
+
   .statusIcon.disabled {
     color: $gray-1000;
   }

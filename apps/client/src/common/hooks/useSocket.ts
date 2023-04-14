@@ -90,6 +90,7 @@ export const useCuesheet = () => {
 export const setEventPlayback = {
   loadEvent: (eventId: string) => socketSendJson('loadid', eventId),
   startEvent: (eventId: string) => socketSendJson('startid', eventId),
+  start: () => socketSendJson('start'),
   pause: () => socketSendJson('pause'),
 };
 
