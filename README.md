@@ -65,6 +65,7 @@ More documentation is available [in our docs](https://cpvalente.gitbook.io/ontim
     - Backstage Info
     - Public Info
     - Studio Clock
+    - Countdown
     - [Make your own?](#make-your-own-viewer)
 - [x] Configurable Lower Thirds
 - [x] Cuesheets with user definable fields
@@ -109,11 +110,11 @@ Taking advantage of the integrations, we currently use Ontime with:
 
 ### Make your own viewer
 
-Ontime broadcasts its data over WebSockets. This allows you to consume its data outside of the application.
+Ontime broadcasts its data over WebSockets. This allows you to consume its data outside the application.
 
 Writing a new view for the browser can be done with basic knowledge of HTML + CSS + Javascript (or any other language that can run in the browser).
 <br />
-See [this repository](https://github.com/cpvalente/ontime-viewer-template) with a small template on
+See [this repository](https://github.com/cpvalente/ontime-viewer-template-v2) with a small template on
 how to get you started and read the docs about
 the [Websocket API](https://app.gitbook.com/s/-Mc0giSOToAhq0ROd0CR/control-and-feedback/websocket-api)
 
@@ -132,13 +133,7 @@ in [available Docker Hub at getontime/ontime](https://hub.docker.com/r/getontime
 docker pull getontime/ontime
 ```
 
-```bash
-# Port 4001 - ontime server port
-# Port 8888 - OSC input, bound to localhost IP Address 
-docker run -p 4001:4001 -p 127.0.0.1:8888:8888/udp --mount type=bind,source="$(pwd)/ontime-db",target=/server/preloaded-db getontime/ontime
-```
-
-or if running from the docker compose
+and use the included docker compose to get started
 
 ```bash
 docker-compose up
