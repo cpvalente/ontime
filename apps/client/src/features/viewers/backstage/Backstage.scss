@@ -119,7 +119,7 @@
     grid-area: schedule;
     overflow: hidden;
     height: 100%;
-    margin-left: 16px;
+    margin-left: clamp(16px, 5vw, 64px);;
   }
 
   .schedule-nav-container {
@@ -131,6 +131,8 @@
     grid-area: info;
     display: flex;
     gap: max(1vw, 16px);
+    align-self: flex-end;
+    overflow: hidden;
 
     &__message {
       font-size: clamp(16px, 1.5vw, 24px);
@@ -141,7 +143,7 @@
     }
 
     .qr {
-      margin-left: auto;
+      margin-left: clamp(16px, 5vw, 64px);;
       padding: 4px;
       background-color: white;
     }
