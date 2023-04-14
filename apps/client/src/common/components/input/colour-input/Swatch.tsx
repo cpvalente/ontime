@@ -17,7 +17,7 @@ export default function Swatch(props: SwatchProps) {
 
   if (!color) {
     return (
-      <div className={`${classes} ${style.center}`}>
+      <div className={`${classes} ${style.center}`} onClick={() => onClick('')}>
         <IoBan />
       </div>
     );
