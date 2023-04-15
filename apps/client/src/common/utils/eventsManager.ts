@@ -17,13 +17,17 @@ export const getEventsWithDelay = (events: OntimeRundownEntry[]): OntimeEvent[] 
   let delay = 0;
   for (const event of events) {
     if (event.type === SupportedEvent.Block) delay = 0;
-    else if (event.type === SupportedEvent.Delay) delay = delay + event.duration;
-    else if (event.type === SupportedEvent.Event && delay !== 0) {
-      delayedEvents.push({
-        ...event,
-        timeStart: event.timeStart + delay,
-        timeEnd: event.timeEnd + delay,
-      });
+    else if (event.type === SupportedEvent.Delay) {
+      if (typeof event.duration === 'number') {
+        delay += event.duration;
+      }
+    } else if (event.type === SupportedEvent.Event) {
+      const delayedEvent = { ...event };
+      if (delay !== 0) {
+        delayedEvent.timeStart = Math.max(delayedEvent.timeStart + delay, 0);
+        delayedEvent.timeEnd = Math.max(delayedEvent.timeEnd + delay, 0);
+      }
+      delayedEvents.push(delayedEvent);
     }
   }
 
