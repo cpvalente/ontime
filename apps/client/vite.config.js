@@ -2,6 +2,7 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
+import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
 
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
@@ -24,6 +25,7 @@ export default defineConfig({
           env: 'production',
         },
       }),
+    compression({ algorithm: 'brotliCompress' }),
   ],
   server: {
     port: 3000,
