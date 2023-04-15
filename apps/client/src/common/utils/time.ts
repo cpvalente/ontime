@@ -46,7 +46,7 @@ type FormatOptions = {
  * @param {function} resolver
  * @return {string}
  */
-export const formatTime = (milliseconds: number | null, options: FormatOptions, resolver = resolveTimeFormat) => {
+export const formatTime = (milliseconds: number | null, options?: FormatOptions, resolver = resolveTimeFormat) => {
   if (milliseconds === null) {
     return '...';
   }
