@@ -128,9 +128,20 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isPlaying = time.playback !== Playback.Pause;
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-  const showEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;
+  const showEndMessage = (time.current ?? 1) < 0 && general.endMessage && !hideEndMessage;
   const showFinished =
     time.finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
+
+  const showProgress = time.playback !== Playback.Stop;
+  const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
+  const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
+  const timerColor = userOptions.textColour
+    ? userOptions.textColour
+    : showProgress && showDanger
+    ? viewSettings.dangerColor
+    : showProgress && showWarning
+    ? viewSettings.warningColor
+    : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
   let display = formatTimerDisplay(stageTimer);
@@ -166,7 +177,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         <div
           className={timerClasses}
           style={{
-            color: userOptions.textColour,
+            color: timerColor,
             fontSize: `${timerFontSize}vw`,
             fontFamily: userOptions.font,
             top: userOptions.top,
