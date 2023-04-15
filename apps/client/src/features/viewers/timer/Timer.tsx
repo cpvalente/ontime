@@ -68,6 +68,8 @@ export default function Timer(props: TimerProps) {
   const showEndMessage = (time.current ?? 1) < 0 && general.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
+  const showWarning = time.current <= Number(viewSettings.warningThreshold);
+  const showDanger = time.current <= Number(viewSettings.dangerThreshold);
   const showClock = time.timerType !== TimerType.Clock;
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
@@ -101,6 +103,7 @@ export default function Timer(props: TimerProps) {
             className={timerClasses}
             style={{
               fontSize: `${timerFontSize}vw`,
+              color: showDanger ? viewSettings.dangerColor : showWarning ? viewSettings.warningColor : '',
             }}
           >
             {display}

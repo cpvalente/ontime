@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FormLabel, Input, ModalBody } from '@chakra-ui/react';
+import {
+  FormLabel,
+  ModalBody,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+} from '@chakra-ui/react';
 
 import { useEmitLog } from '@/common/stores/logger';
 
@@ -7,8 +15,9 @@ import { postView } from '../../common/api/ontimeApi';
 import PopoverPicker from '../../common/components/input/color-picker-input/PopoverPicker';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
+import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
 
-import { inputProps } from './modalHelper';
+import { numberInputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
 import style from './Modals.module.scss';
@@ -72,6 +81,14 @@ export default function StyleSettingsModal() {
     [formData],
   );
 
+  function handleThresholdChange(field, value) {
+    const temp = { ...formData };
+    value = forgivingStringToMillis(value);
+    temp[field] = value;
+    setFormData(temp);
+    setChanged(true);
+  }
+
   return (
     <ModalBody className={style.modalBody}>
       <p className={style.notes}>
@@ -109,22 +126,32 @@ export default function StyleSettingsModal() {
           </div>
           <div className={style.modalInline}>
             <div className={style.spacedEntry}>
-              <FormLabel htmlFor='warningThreshold'>Warning Thershold</FormLabel>
-              <Input
-                {...inputProps}
-                name='warningThreshold'
-                value={formData.warningThreshold}
-                onChange={(event) => handleChange('warningThreshold', event.target.value)}
-              />
+              <FormLabel htmlFor='warningThreshold'>Warning Time</FormLabel>
+              <NumberInput
+                {...numberInputProps}
+                value={millisToMinutes(Number(formData.warningThreshold), 'm')}
+                onChange={(event) => handleThresholdChange('warningThreshold', event)}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
             </div>
-             <div className={style.spacedEntry}>
-              <FormLabel htmlFor='dangerThreshold'>Danger Thershold</FormLabel>
-              <Input
-                {...inputProps}
-                name='dangerThreshold'
-                value={formData.dangerThreshold}
-                onChange={(event) => handleChange('dangerThreshold', event.target.value)}
-              />
+            <div className={style.spacedEntry}>
+              <FormLabel htmlFor='dangerThreshold'>Danger Time</FormLabel>
+              <NumberInput
+                {...numberInputProps}
+                value={millisToMinutes(Number(formData.dangerThreshold), 'm')}
+                onChange={(event) => handleThresholdChange('dangerThreshold', event)}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
             </div>
           </div>
           <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />

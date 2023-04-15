@@ -1,4 +1,4 @@
-import { HexColorPicker } from 'react-colorful';
+import { HexAlphaColorPicker } from 'react-colorful';
 import { Popover, PopoverBody, PopoverContent, PopoverTrigger } from '@chakra-ui/react';
 
 import style from './PopoverPicker.module.scss';
@@ -37,7 +37,7 @@ export default function PopoverPicker(props: PopoverPickerProps) {
       <PopoverContent>
         <PopoverBody>
           <div className={style.picker}>
-            <HexColorPicker color={color} onChange={onChange} className={style.reactcolorful} />
+            <HexAlphaColorPicker color={color} onChange={onChange} className={style.reactcolorful} />
             <div className={style.picker__swatches}>
               {presetColors.map((presetColor) => (
                 <button
