@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import expressStaticGzip from 'express-static-gzip';
 import http from 'http';
 import cors from 'cors';
 
@@ -61,8 +62,14 @@ app.use('/playback', playbackRouter);
 // serve static - css
 app.use('/external', express.static(externalsStartDirectory));
 
-// serve static - react, in test mode we fetch the React app from module
-app.use(express.static(join(currentDirectory, resolvedPath())));
+// serve static - react, in dev/test mode we fetch the React app from module
+const reactAppPath = join(currentDirectory, resolvedPath());
+app.use(
+  expressStaticGzip(reactAppPath, {
+    enableBrotli: true,
+    orderPreference: ['br'],
+  }),
+);
 
 app.get('*', (req, res) => {
   res.sendFile(resolve(currentDirectory, resolvedPath(), 'index.html'));
