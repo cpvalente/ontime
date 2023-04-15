@@ -1,15 +1,4 @@
-@use '../../theme/v2Styles' as *;
-@use '../../theme/ontimeColours' as *;
-
 .headerButtons {
-  align-content: center;
-  justify-content: space-between;
+  text-align: right;
   padding-top: 24px;
-}
-
-.labelledSwitch {
-  display: flex;
-  align-items: center;
-  gap: $element-spacing;
-  color: $gray-100;
 }

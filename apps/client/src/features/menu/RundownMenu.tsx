@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { Button, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Switch } from '@chakra-ui/react';
+import { Button, Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
@@ -7,14 +7,11 @@ import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
-import { useCursor } from '../../common/stores/cursorStore';
 import { useEventEditorStore } from '../../common/stores/eventEditor';
 
 import style from './RundownMenu.module.scss';
 
 const RundownMenu = () => {
-  const isCursorLocked = useCursor((state) => state.isCursorLocked);
-  const toggleCursorLocked = useCursor((state) => state.toggleCursorLocked);
   const removeOpenEvent = useEventEditorStore((state) => state.removeOpenEvent);
 
   const { addEvent, deleteAllEvents } = useEventAction();
@@ -37,15 +34,7 @@ const RundownMenu = () => {
   }, [deleteAllEvents, removeOpenEvent]);
 
   return (
-    <HStack className={style.headerButtons}>
-      <label className={style.labelledSwitch}>
-        <Switch
-          defaultChecked={isCursorLocked}
-          onChange={(event) => toggleCursorLocked(event.target.checked)}
-          variant='ontime'
-        />
-        Follow loaded event
-      </label>
+    <div className={style.headerButtons}>
       <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
         <MenuButton as={Button} leftIcon={<IoAdd />} size='sm' variant='ontime-subtle'>
           Event...
@@ -66,7 +55,7 @@ const RundownMenu = () => {
           </MenuItem>
         </MenuList>
       </Menu>
-    </HStack>
+    </div>
   );
 };
 
