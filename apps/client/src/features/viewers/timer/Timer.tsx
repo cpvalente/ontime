@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
@@ -68,8 +69,13 @@ export default function Timer(props: TimerProps) {
   const showEndMessage = (time.current ?? 1) < 0 && general.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
-  const showWarning = time.current <= Number(viewSettings.warningThreshold);
-  const showDanger = time.current <= Number(viewSettings.dangerThreshold);
+  const showWarning = time.current < viewSettings.warningThreshold;
+  const showDanger = time.current < viewSettings.dangerThreshold;
+  const timerColor = showDanger
+    ? viewSettings.dangerColor
+    : showWarning
+    ? viewSettings.warningColor
+    : viewSettings.normalColor;
   const showClock = time.timerType !== TimerType.Clock;
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
@@ -103,7 +109,7 @@ export default function Timer(props: TimerProps) {
             className={timerClasses}
             style={{
               fontSize: `${timerFontSize}vw`,
-              color: showDanger ? viewSettings.dangerColor : showWarning ? viewSettings.warningColor : '',
+              color: timerColor,
             }}
           >
             {display}
@@ -111,10 +117,15 @@ export default function Timer(props: TimerProps) {
         )}
       </div>
 
-      <ProgressBar
+      <MultiPartProgressBar
         className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
         now={time.current || 0}
         complete={time.duration || 0}
+        normalColor={viewSettings.normalColor}
+        warning={viewSettings.warningThreshold}
+        warningColor={viewSettings.warningColor}
+        danger={viewSettings.dangerThreshold}
+        dangerColor={viewSettings.dangerColor}
         hidden={!showProgress}
       />
 

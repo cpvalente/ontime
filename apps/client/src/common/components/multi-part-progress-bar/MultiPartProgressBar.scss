@@ -4,10 +4,12 @@ $progress-bar-size: 12px;
 $progress-bar-br: 6px;
 
 .progress-bar__bg {
+  position: relative;
   width: 100%;
   height: $progress-bar-size;
   border-radius: $progress-bar-br;
   background-color: var(--timer-progress-bg-override, $viewer-card-bg-color);
+  display: flex;
 
   &--hidden {
     display: none;
@@ -15,9 +17,23 @@ $progress-bar-br: 6px;
 }
 
 .progress-bar__indicator {
-  height: $progress-bar-size;
-  border-radius: $progress-bar-br;
-  background-color: var(--timer-progress-override, $accent-color);
+  position: absolute;
+  height: $progress-bar-size;;
+  background-color: black;
+  opacity: 0.8;
   transition: 1s linear;
   transition-property: width;
+  right: 0;
+}
+
+.progressNormal {
+  height: $progress-bar-size;
+}
+
+.progressWarning {
+  height: $progress-bar-size;
+}
+
+.progressDanger {
+  height: $progress-bar-size;
 }

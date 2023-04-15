@@ -2,7 +2,7 @@ export type ViewSettings = {
   overrideStyles: boolean;
   normalColor: string;
   warningColor: string;
-  warningThreshold: string;
+  warningThreshold: number;
   dangerColor: string;
-  dangerThreshold: string;
+  dangerThreshold: number;
 }
