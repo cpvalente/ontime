@@ -1,6 +1,5 @@
-import { DateTime } from 'luxon';
 import { Settings } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { formatFromMillis, millisToString } from 'ontime-utils';
 
 import { APP_SETTINGS } from '../api/apiConstants';
 import { ontimeQueryClient } from '../queryClient';
@@ -39,7 +38,6 @@ type FormatOptions = {
 };
 
 /**
- /**
  * @description utility function to format a date in 12 or 24 hour format
  * @param {number | null} milliseconds
  * @param {object} [options]
@@ -48,13 +46,11 @@ type FormatOptions = {
  * @param {function} resolver
  * @return {string}
  */
-export const formatTime = (milliseconds: number | null, options: FormatOptions, resolver = resolveTimeFormat) => {
+export const formatTime = (milliseconds: number | null, options?: FormatOptions, resolver = resolveTimeFormat) => {
   if (milliseconds === null) {
     return '...';
   }
   const timeFormat = resolver();
   const { showSeconds = false, format: formatString = 'hh:mm a' } = options || {};
-  return timeFormat === '12'
-    ? DateTime.fromMillis(milliseconds).toUTC().toFormat(formatString)
-    : millisToString(milliseconds, showSeconds);
+  return timeFormat === '12' ? formatFromMillis(milliseconds, formatString) : millisToString(milliseconds, showSeconds);
 };

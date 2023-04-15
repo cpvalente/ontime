@@ -6,7 +6,7 @@ import { useInterval } from '../../hooks/useInterval';
 interface ScheduleContextState {
   events: OntimeEvent[];
   paginatedEvents: OntimeEvent[];
-  selectedEventId: string;
+  selectedEventId: string | null;
   numPages: number;
   visiblePage: number;
   isBackstage: boolean;
@@ -16,22 +16,20 @@ const ScheduleContext = createContext<ScheduleContextState | undefined>(undefine
 
 interface ScheduleProviderProps {
   events: OntimeEvent[];
-  selectedEventId: string;
+  selectedEventId: string | null;
   isBackstage?: boolean;
   eventsPerPage?: number;
   time?: number;
 }
 
-export const ScheduleProvider = (
-  {
-    children,
-    events,
-    selectedEventId,
-    isBackstage = false,
-    eventsPerPage = 4,
-    time = 10,
-  }: PropsWithChildren<ScheduleProviderProps>) => {
-
+export const ScheduleProvider = ({
+  children,
+  events,
+  selectedEventId,
+  isBackstage = false,
+  eventsPerPage = 8,
+  time = 10,
+}: PropsWithChildren<ScheduleProviderProps>) => {
   const [visiblePage, setVisiblePage] = useState(0);
 
   const numPages = Math.ceil(events.length / eventsPerPage);

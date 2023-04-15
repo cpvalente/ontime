@@ -8,6 +8,10 @@ let store: Partial<RuntimeStore> = {};
 
 /**
  * A runtime store that broadcasts its payload
+ * - init: allows for adding an initial payload to the store
+ * - batchSet: allows setting several keys with a single broadcast
+ * - poll: utility to return state
+ * - broadcast: send its payload as json object
  */
 export const eventStore = {
   init(payload: RuntimeStore) {
@@ -23,6 +27,12 @@ export const eventStore = {
     //   type: `ontime-${key}`,
     //   payload: value,
     // });
+    this.broadcast();
+  },
+  batchSet<K extends keyof RuntimeStore>(values: Record<K, RuntimeStore[K]>) {
+    Object.entries(values).forEach(([key, value]) => {
+      store[key] = value;
+    });
     this.broadcast();
   },
   poll() {

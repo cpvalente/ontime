@@ -21,6 +21,9 @@ export const ontimeButtonOutlined = {
   border: '1px solid rgba(255, 255, 255, 0.10)', // white-10
   _hover: {
     backgroundColor: '#404040', // $gray-1000
+    _disabled: {
+      backgroundColor: '#2d2d2d', // $gray-1100
+    },
   },
   _active: {
     backgroundColor: '#2d2d2d', // $gray-1100
@@ -34,6 +37,9 @@ export const ontimeButtonSubtle = {
   border: '1px solid transparent',
   _hover: {
     background: '#404040', // $gray-1000
+    _disabled: {
+      backgroundColor: '#303030', // $gray-1050
+    },
   },
   _active: {
     backgroundColor: '#2d2d2d', // $gray-1100
@@ -47,6 +53,9 @@ export const ontimeButtonSubtleOnLight = {
   border: '1px solid transparent',
   _hover: {
     backgroundColor: '#cfcfcf', // $gray-200
+    _disabled: {
+      backgroundColor: '#ececec', // $gray-100
+    },
   },
   _active: {
     backgroundColor: '#ececec', // $gray-200
@@ -60,6 +69,9 @@ export const ontimeGhostOnLight = {
   _hover: {
     color: '#595959', // $gray-800
     backgroundColor: '#ececec', // $gray-200
+    _disabled: {
+      backgroundColor: 'transparent',
+    },
   },
   _active: {
     backgroundColor: 'transparent',

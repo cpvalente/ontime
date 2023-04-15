@@ -26,10 +26,23 @@ interface RundownEntryProps {
   previousEnd: number;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
+  isRolling: boolean; // we need to know even if not related to this event
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { index, eventIndex, data, selected, hasCursor, next, delay, previousEnd, previousEventId, playback } = props;
+  const {
+    index,
+    eventIndex,
+    data,
+    selected,
+    hasCursor,
+    next,
+    delay,
+    previousEnd,
+    previousEventId,
+    playback,
+    isRolling,
+  } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
 
@@ -149,6 +162,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         selected={selected}
         hasCursor={hasCursor}
         playback={playback}
+        isRolling={isRolling}
         actionHandler={actionHandler}
       />
     );

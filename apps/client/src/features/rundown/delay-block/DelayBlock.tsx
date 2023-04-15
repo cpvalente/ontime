@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Button, HStack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -9,7 +9,6 @@ import { OntimeDelay, OntimeEvent } from 'ontime-types';
 
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { millisToMinutes } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
 import BlockActionMenu from '../event-block/composite/BlockActionMenu';
 import { EventItemActions } from '../RundownEntry';
@@ -32,7 +31,7 @@ interface DelayBlockProps {
 
 export default function DelayBlock(props: DelayBlockProps) {
   const { data, hasCursor, actionHandler } = props;
-  const { applyDelay, updateEvent, deleteEvent } = useEventAction();
+  const { applyDelay, deleteEvent } = useEventAction();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
   const {
@@ -65,28 +64,14 @@ export default function DelayBlock(props: DelayBlockProps) {
     deleteEvent(data.id);
   };
 
-  const delaySubmitHandler = useCallback(
-    (value: number) => {
-      const newEvent = {
-        id: data.id,
-        duration: value * 60000,
-      };
-
-      updateEvent(newEvent);
-    },
-    [data.id, updateEvent],
-  );
-
   const blockClasses = cx([style.delay, hasCursor ? style.hasCursor : null]);
-
-  const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
 
   return (
     <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
       <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
         <IoReorderTwo />
       </span>
-      <DelayInput value={delayValue} submitHandler={delaySubmitHandler} />
+      <DelayInput eventId={data.id} duration={data.duration} />
       <HStack spacing='8px' className={style.actionOverlay}>
         <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
           Apply

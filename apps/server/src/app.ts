@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import express from 'express';
+import expressStaticGzip from 'express-static-gzip';
 import http from 'http';
 import cors from 'cors';
 
 // import utils
 import { join, resolve } from 'path';
 
-import { initSentry, reportSentryException } from './modules/sentry.js';
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { OSCSettings } from 'ontime-types';
@@ -39,8 +39,6 @@ if (!isProduction) {
   console.log(`Ontime directory at ${currentDirectory} `);
 }
 
-initSentry(isProduction);
-
 // Create express APP
 const app = express();
 app.disable('x-powered-by');
@@ -64,8 +62,14 @@ app.use('/playback', playbackRouter);
 // serve static - css
 app.use('/external', express.static(externalsStartDirectory));
 
-// serve static - react, in test mode we fetch the React app from module
-app.use(express.static(join(currentDirectory, resolvedPath())));
+// serve static - react, in dev/test mode we fetch the React app from module
+const reactAppPath = join(currentDirectory, resolvedPath());
+app.use(
+  expressStaticGzip(reactAppPath, {
+    enableBrotli: true,
+    orderPreference: ['br'],
+  }),
+);
 
 app.get('*', (req, res) => {
   res.sendFile(resolve(currentDirectory, resolvedPath(), 'index.html'));
@@ -209,14 +213,12 @@ export const shutdown = async (exitCode = 0) => {
 
 process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
 
-process.on('unhandledRejection', async (error) => {
-  reportSentryException(error);
+process.on('unhandledRejection', async () => {
   logger.error('SERVER', 'Error: unhandled rejection');
   await shutdown(1);
 });
 
-process.on('uncaughtException', async (error) => {
-  reportSentryException(error);
+process.on('uncaughtException', async () => {
   logger.error('SERVER', 'Error: uncaught exception');
   await shutdown(1);
 });

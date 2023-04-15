@@ -1,7 +1,6 @@
 import { copyFileSync, existsSync } from 'fs';
 import { pathToStartStyles, resolveStylesDirectory, resolveStylesPath } from '../setup.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
-import { reportSentryException } from './sentry.js';
 
 /**
  * @description ensures directories exist and populates stylesheet
@@ -15,8 +14,8 @@ export const populateStyles = () => {
   if (!existsSync(stylesInDisk)) {
     try {
       copyFileSync(pathToStartStyles, stylesInDisk);
-    } catch (error) {
-      reportSentryException(error);
+    } catch (_) {
+      /* we do not handle this */
     }
   }
 

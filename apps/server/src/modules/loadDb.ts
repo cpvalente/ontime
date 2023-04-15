@@ -7,7 +7,6 @@ import { ensureDirectory } from '../utils/fileManagement.js';
 import { validateFile } from '../utils/parserUtils.js';
 import { dbModel } from '../models/dataModel.js';
 import { parseJson } from '../utils/parser.js';
-import { reportSentryException } from './sentry.js';
 import { pathToStartDb, resolveDbDirectory, resolveDbPath } from '../setup.js';
 
 /**
@@ -22,8 +21,8 @@ const populateDb = () => {
   if (!existsSync(dbInDisk)) {
     try {
       copyFileSync(pathToStartDb, dbInDisk);
-    } catch (error) {
-      reportSentryException(error);
+    } catch (_) {
+      /* we do not handle this */
     }
   }
 

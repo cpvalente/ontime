@@ -8,8 +8,8 @@ import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle'
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
 import { IoScan } from '@react-icons/all-files/io5/IoScan';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
-import { downloadRundown } from '../../common/api/ontimeApi';
 
+import { downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
@@ -132,31 +132,6 @@ export default function MenuBar(props: MenuBarProps) {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiHelpCircle />}
-        clickHandler={() => actionHandler('help')}
-        tooltip='Help'
-        aria-label='Help'
-      />
-      <TooltipActionBtn
-        {...buttonStyle}
-        icon={<IoSettingsOutline />}
-        className={isSettingsOpen ? style.open : ''}
-        clickHandler={onSettingsOpen}
-        tooltip='Settings'
-        aria-label='Settings'
-      />
-      <div className={style.gap} />
-      <TooltipActionBtn
-        {...buttonStyle}
-        icon={isIntegrationOpen ? <IoExtensionPuzzle /> : <IoExtensionPuzzleOutline />}
-        className={isIntegrationOpen ? style.open : ''}
-        clickHandler={onIntegrationOpen}
-        tooltip='Integrations'
-        aria-label='Integrations'
-      />
-      <div className={style.gap} />
-      <TooltipActionBtn
-        {...buttonStyle}
         icon={<FiUpload />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
@@ -169,6 +144,31 @@ export default function MenuBar(props: MenuBarProps) {
         clickHandler={downloadRundown}
         tooltip='Export showfile'
         aria-label='Export showfile'
+      />
+      <div className={style.gap} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={isIntegrationOpen ? <IoExtensionPuzzle /> : <IoExtensionPuzzleOutline />}
+        className={isIntegrationOpen ? style.open : ''}
+        clickHandler={onIntegrationOpen}
+        tooltip='Integrations'
+        aria-label='Integrations'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<IoSettingsOutline />}
+        className={isSettingsOpen ? style.open : ''}
+        clickHandler={onSettingsOpen}
+        tooltip='Settings'
+        aria-label='Settings'
+      />
+      <div className={style.gap} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<FiHelpCircle />}
+        clickHandler={() => actionHandler('help')}
+        tooltip='Help'
+        aria-label='Help'
       />
     </VStack>
   );

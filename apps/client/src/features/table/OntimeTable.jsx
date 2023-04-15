@@ -10,11 +10,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import {
-  horizontalListSortingStrategy,
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
+import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import PropTypes from 'prop-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
@@ -148,7 +144,7 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
       if (el) {
         el.scrollIntoView({
           behavior: 'smooth',
-          block: 'start',
+          block: 'center',
           inline: 'nearest',
         });
       }
