@@ -11,21 +11,23 @@ import { formatTime } from './time';
 export const getEventsWithDelay = (events: OntimeRundownEntry[]): OntimeEvent[] => {
   if (events == null) return [];
 
-  const unfilteredEvents = [...events];
+  const delayedEvents: OntimeEvent[] = [];
 
   // Add running delay
   let delay = 0;
-  for (const event of unfilteredEvents) {
+  for (const event of events) {
     if (event.type === SupportedEvent.Block) delay = 0;
     else if (event.type === SupportedEvent.Delay) delay = delay + event.duration;
-    else if (event.type === SupportedEvent.Event && delay > 0) {
-      event.timeStart += delay;
-      event.timeEnd += delay;
+    else if (event.type === SupportedEvent.Event && delay !== 0) {
+      delayedEvents.push({
+        ...event,
+        timeStart: event.timeStart + delay,
+        timeEnd: event.timeEnd + delay,
+      });
     }
   }
 
-  // filter just events
-  return unfilteredEvents.filter((event) => event.type === SupportedEvent.Event) as OntimeEvent[];
+  return delayedEvents;
 };
 
 /**
@@ -57,7 +59,7 @@ export const trimEventlist = (events: OntimeRundownEntry[], selectedId: string, 
 
 type FormatEventListOptionsProp = {
   showEnd?: boolean;
-}
+};
 /**
  * @description Returns list of events formatted to be displayed
  * @param {Object[]} events - given events
@@ -67,7 +69,12 @@ type FormatEventListOptionsProp = {
  * @param {boolean} [options.showEnd] - whether to show the end time
  * @returns {Object[]} Formatted list of events [{time: -, title: -, isNow, isNext}]
  */
-export const formatEventList = (events: OntimeEvent[], selectedId: string, nextId: string, options: FormatEventListOptionsProp) => {
+export const formatEventList = (
+  events: OntimeEvent[],
+  selectedId: string,
+  nextId: string,
+  options: FormatEventListOptionsProp,
+) => {
   if (events == null) return [];
   const { showEnd = false } = options;
 
