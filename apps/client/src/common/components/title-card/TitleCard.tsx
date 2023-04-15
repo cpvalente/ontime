@@ -4,9 +4,9 @@ import './TitleCard.scss';
 
 interface TitleCardProps {
   label: 'now' | 'next';
-  title: string;
-  subtitle: string;
-  presenter: string;
+  title: string | null;
+  subtitle: string | null;
+  presenter: string | null;
 }
 
 export default function TitleCard(props: TitleCardProps) {
