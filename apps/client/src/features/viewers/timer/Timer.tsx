@@ -5,7 +5,6 @@ import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-ty
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
-import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -69,13 +68,14 @@ export default function Timer(props: TimerProps) {
   const showEndMessage = (time.current ?? 1) < 0 && general.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
-  const showWarning = time.current < viewSettings.warningThreshold;
-  const showDanger = time.current < viewSettings.dangerThreshold;
-  const timerColor = showDanger
-    ? viewSettings.dangerColor
-    : showWarning
-    ? viewSettings.warningColor
-    : viewSettings.normalColor;
+  const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
+  const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
+  const timerColor =
+    showProgress && showDanger
+      ? viewSettings.dangerColor
+      : showProgress && showWarning
+      ? viewSettings.warningColor
+      : viewSettings.normalColor;
   const showClock = time.timerType !== TimerType.Clock;
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
