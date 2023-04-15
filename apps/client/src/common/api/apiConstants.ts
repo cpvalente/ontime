@@ -15,14 +15,9 @@ export const RUNTIME = ['runtimeStore'];
 // external stuff
 export const githubURL = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
 
-/**
- * @description finds server path given the current location, it
- * @return {*}
- */
-export const calculateServer = () => (import.meta.env.DEV ? `http://localhost:${window.location.port}` : window.location.origin);
-
-export const serverURL = calculateServer();
-export const websocketUrl = `ws://${window.location.hostname}:${window.location.port}/ws`;
+export const serverPort = import.meta.env.DEV ? STATIC_PORT : window.location.port;
+export const serverURL = import.meta.env.DEV ? `http://localhost:${serverPort}` : window.location.origin;
+export const websocketUrl = `ws://${window.location.hostname}:${serverPort}/ws`;
 
 export const eventURL = `${serverURL}/eventdata`;
 export const rundownURL = `${serverURL}/events`;
