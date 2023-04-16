@@ -31,9 +31,13 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
 
   const percentComplete = 100 - clamp(100 - (Math.max(now, 0) * 100) / complete, 0, 100);
 
-  const dangerWidth = (danger / complete) * 100;
-  const warningWidth = (warning / complete) * 100 - dangerWidth;
-  const normalWidth = 100 - (warningWidth + dangerWidth);
+  const dangerWidth = clamp((danger / complete) * 100, 0, 100);
+  const warningWidth = clamp((warning / complete) * 100 - dangerWidth, 0, 100);
+  const normalWidth = clamp(100 - (warningWidth + dangerWidth), 0, 100);
+
+  console.log('normalWidth', normalWidth);
+  console.log('warningWidth', warningWidth);
+  console.log('dangerWidth', dangerWidth);
 
   return (
     <div
