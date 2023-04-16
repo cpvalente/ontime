@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FormControl, ModalBody, NumberInput, NumberInputField, Switch } from '@chakra-ui/react';
-import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
-import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
+import {
+  FormControl,
+  InputGroup,
+  InputRightAddon,
+  ModalBody,
+  NumberInput,
+  NumberInputField,
+  Switch,
+} from '@chakra-ui/react';
 
 import { useEmitLog } from '@/common/stores/logger';
 
@@ -10,9 +16,8 @@ import PopoverPicker from '../../common/components/input/color-picker-input/Popo
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
 import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
-import { openLink } from '../../common/utils/linkUtils';
 
-import { inputProps } from './modalHelper';
+import { numberInputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
 import styles from './Modal.module.scss';
@@ -132,18 +137,20 @@ export default function ViewsSettingsModal() {
         <FormControl className={styles.splitSection}>
           <label htmlFor='warningThreshold'>
             <span className={styles.sectionTitle}>Warning Time</span>
-            <span className={styles.sectionSubtitle}>The time when the color changes</span>
+            <span className={styles.sectionSubtitle}>The time (in minutes) when the color changes</span>
           </label>
-          <NumberInput
-            {...inputProps}
-            width='50px'
-            id='warningThreshold'
-            variant='ontime-filled-on-light'
-            value={millisToMinutes(Number(formData.warningThreshold), 'm')}
-            onChange={(event) => handleThresholdChange('warningThreshold', event)}
-          >
-            <NumberInputField />
-          </NumberInput>
+          <InputGroup size='sm' width='140px'>
+            <NumberInput
+              {...numberInputProps}
+              id='warningThreshold'
+              variant='ontime-filled-on-light'
+              value={millisToMinutes(Number(formData.warningThreshold), 'm')}
+              onChange={(event) => handleThresholdChange('warningThreshold', event)}
+            >
+              <NumberInputField />
+            </NumberInput>
+            <InputRightAddon children='Minutes'></InputRightAddon>
+          </InputGroup>
         </FormControl>
         <div className={styles.splitSection}>
           <div>
@@ -159,18 +166,20 @@ export default function ViewsSettingsModal() {
         <FormControl className={styles.splitSection}>
           <label htmlFor='dangerThreshold'>
             <span className={styles.sectionTitle}>Danger Time</span>
-            <span className={styles.sectionSubtitle}>The time when the color changes</span>
+            <span className={styles.sectionSubtitle}>The time (in minutes) when the color changes</span>
           </label>
-          <NumberInput
-            {...inputProps}
-            id='dangerThreshold'
-            width='50px'
-            variant='ontime-filled-on-light'
-            value={millisToMinutes(Number(formData.dangerThreshold), 'm')}
-            onChange={(event) => handleThresholdChange('dangerThreshold', event)}
-          >
-            <NumberInputField />
-          </NumberInput>
+          <InputGroup size='sm' width='140px'>
+            <NumberInput
+              {...numberInputProps}
+              id='dangerThreshold'
+              variant='ontime-filled-on-light'
+              value={millisToMinutes(Number(formData.dangerThreshold), 'm')}
+              onChange={(event) => handleThresholdChange('dangerThreshold', event)}
+            >
+              <NumberInputField />
+            </NumberInput>
+            <InputRightAddon children='Minutes'></InputRightAddon>
+          </InputGroup>
         </FormControl>
         <div className={style.modalFields}>
           <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
