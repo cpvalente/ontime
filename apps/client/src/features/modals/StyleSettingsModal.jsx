@@ -130,7 +130,7 @@ export default function StyleSettingsModal() {
               <NumberInput
                 {...numberInputProps}
                 value={millisToMinutes(Number(formData.warningThreshold), 'm')}
-                onChange={(event) => handleThresholdChange('warningThreshold', event)}
+                onChange={(event) => handleThresholdChange('warningThreshold', Number(event))}
               >
                 <NumberInputField />
                 <NumberInputStepper>
@@ -144,7 +144,7 @@ export default function StyleSettingsModal() {
               <NumberInput
                 {...numberInputProps}
                 value={millisToMinutes(Number(formData.dangerThreshold), 'm')}
-                onChange={(event) => handleThresholdChange('dangerThreshold', event)}
+                onChange={(event) => handleThresholdChange('dangerThreshold', Number(event))}
               >
                 <NumberInputField />
                 <NumberInputStepper>

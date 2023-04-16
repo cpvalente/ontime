@@ -1,19 +1,30 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FormControl, FormLabel, ModalBody } from '@chakra-ui/react';
+import {
+  FormControl,
+  ModalBody,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Switch,
+} from '@chakra-ui/react';
 import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
 import { useEmitLog } from '@/common/stores/logger';
 
 import { postView } from '../../common/api/ontimeApi';
-import EnableBtn from '../../common/components/buttons/EnableBtn';
 import PopoverPicker from '../../common/components/input/color-picker-input/PopoverPicker';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
+import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
 import { openLink } from '../../common/utils/linkUtils';
 
+import { numberInputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
+import styles from './Modal.module.scss';
 import style from './Modals.module.scss';
 
 export default function ViewsSettingsModal() {
@@ -75,16 +86,24 @@ export default function ViewsSettingsModal() {
     [formData],
   );
 
+  function handleThresholdChange(field, value) {
+    const temp = { ...formData };
+    value = forgivingStringToMillis(value);
+    temp[field] = value;
+    setFormData(temp);
+    setChanged(true);
+  }
+
   return (
     <ModalBody className={style.modalBody}>
       <p className={style.notes}>
         Options related to the viewers
         <br />
-        🔥 Changes take effect immediately 🔥
+        🔥 Changes take effect on Save 🔥
       </p>
       <form onSubmit={submitHandler}>
         <div className={style.hSeparator}>Style Options</div>
-        <div className={style.blockNotes}>
+        {/* <div className={style.blockNotes}>
           <span className={style.inlineFlex}>
             <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
             CSS Style Overrides
@@ -122,24 +141,88 @@ export default function ViewsSettingsModal() {
           >
             over at Gitbook
           </a>
-        </div>
-        <div className={style.modalFields}>
-          <div className={style.modalInline}>
-            <FormControl>
-              <FormLabel htmlFor='overrideStyles'>
-                Override CSS Styles
-                <span className={style.labelNote}>
-                  <br />
-                  Enable / Disable override
-                </span>
-              </FormLabel>
-              <EnableBtn
-                active={formData.overrideStyles}
-                text={formData.overrideStyles ? 'Style Override Enabled' : 'Style Override Disabled'}
-                actionHandler={() => handleChange('overrideStyles', !formData.overrideStyles)}
-              />
-            </FormControl>
+        </div> */}
+        <div className={styles.splitSection}>
+          <div>
+            <span className={`${styles.sectionTitle} ${styles.main}`}>Override CSS Styles</span>
+            <span className={styles.sectionSubtitle}>Enable / Disable override</span>
           </div>
+          <Switch onChange={() => handleChange('overrideStyles', !formData.overrideStyles)} variant='ontime-on-light' />
+        </div>
+        <hr className={styles.divider} />
+        <div className={styles.splitSection}>
+          <div>
+            <span className={`${styles.sectionTitle} ${styles.main}`}>Normal Color</span>
+            <span className={styles.sectionSubtitle}>Change timer Normal Color</span>
+          </div>
+          <PopoverPicker
+            name='normalColor'
+            color={formData.normalColor}
+            onChange={(event) => handleChange('normalColor', event)}
+          ></PopoverPicker>
+        </div>
+        <div className={styles.splitSection}>
+          <div>
+            <span className={`${styles.sectionTitle} ${styles.main}`}>Warning Color</span>
+            <span className={styles.sectionSubtitle}>Change timer Warning Color</span>
+          </div>
+          <PopoverPicker
+            name='warningColor'
+            color={formData.warningColor}
+            onChange={(event) => handleChange('warningColor', event)}
+          ></PopoverPicker>
+        </div>
+        <FormControl className={styles.splitSection}>
+          <label htmlFor='warningThreshold'>
+            <span className={styles.sectionTitle}>Warning Time</span>
+            <span className={styles.sectionSubtitle}>The time when the color changes</span>
+          </label>
+          <NumberInput
+            {...numberInputProps}
+            id='warningThreshold'
+            variant='ontime-filled-on-light'
+            value={millisToMinutes(Number(formData.warningThreshold), 'm')}
+            onChange={(event) => handleThresholdChange('warningThreshold', Number(event))}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </FormControl>
+        <hr className={styles.divider} />
+        <div className={styles.splitSection}>
+          <div>
+            <span className={`${styles.sectionTitle} ${styles.main}`}>Danger Color</span>
+            <span className={styles.sectionSubtitle}>Change timer Danger Color</span>
+          </div>
+          <PopoverPicker
+            name='dangerColor'
+            color={formData.dangerColor}
+            onChange={(event) => handleChange('dangerColor', event)}
+          ></PopoverPicker>
+        </div>
+        <FormControl className={styles.splitSection}>
+          <label htmlFor='dangerThreshold'>
+            <span className={styles.sectionTitle}>Danger Time</span>
+            <span className={styles.sectionSubtitle}>The time when the color changes</span>
+          </label>
+          <NumberInput
+            {...numberInputProps}
+            id='dangerThreshold'
+            variant='ontime-filled-on-light'
+            value={millisToMinutes(Number(formData.dangerThreshold), 'm')}
+            onChange={(event) => handleThresholdChange('dangerThreshold', Number(event))}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </FormControl>
+        <div className={style.modalFields}>
           <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
         </div>
       </form>

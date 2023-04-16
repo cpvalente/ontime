@@ -20,11 +20,11 @@ export const dbModel: DatabaseModel = {
   },
   viewSettings: {
     overrideStyles: false,
-    normalColor: '#ffffff',
-    warningColor: '#F0D500',
-    warningThreshold: '90%',
-    dangerColor: '#CA0B00',
-    dangerThreshold: '95%',
+    normalColor: '#ffffffcc',
+    warningColor: '#FFAB33',
+    warningThreshold: 3,
+    dangerColor: '#ED3333',
+    dangerThreshold: 1,
   },
   aliases: [],
   userFields: {
