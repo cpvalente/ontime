@@ -14,7 +14,6 @@ import {
 import AliasesModal from './AliasesModal';
 import AppSettingsModal from './AppSettingsModal';
 import EventSettingsModal from './EventSettingsModal';
-import StyleSettingsModal from './StyleSettingsModal';
 import TableOptionsModal from './TableOptionsModal';
 import ViewsSettingsModal from './ViewsSettingsModal';
 
@@ -46,7 +45,6 @@ export default function ModalManager(props: ModalManagerProps) {
             <Tab>Event Data</Tab>
             <Tab>URL Aliases</Tab>
             <Tab>Cuesheet</Tab>
-            <Tab>Style</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -63,9 +61,6 @@ export default function ModalManager(props: ModalManagerProps) {
             </TabPanel>
             <TabPanel>
               <TableOptionsModal />
-            </TabPanel>
-            <TabPanel>
-              <StyleSettingsModal />
             </TabPanel>
           </TabPanels>
         </Tabs>
