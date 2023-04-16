@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FormControl, ModalBody, NumberInput, NumberInputField, Switch } from '@chakra-ui/react';
+import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
+import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
-// import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
-// import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { useEmitLog } from '@/common/stores/logger';
 
 import { postView } from '../../common/api/ontimeApi';
@@ -10,8 +10,8 @@ import PopoverPicker from '../../common/components/input/color-picker-input/Popo
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
 import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
+import { openLink } from '../../common/utils/linkUtils';
 
-// import { openLink } from '../../common/utils/linkUtils';
 import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
@@ -69,7 +69,6 @@ export default function ViewsSettingsModal() {
    */
   const handleChange = useCallback(
     (field, value) => {
-      console.log(`handleChange ${field}${value}`);
       const temp = { ...formData };
       temp[field] = value;
       setFormData(temp);
@@ -86,53 +85,18 @@ export default function ViewsSettingsModal() {
     setChanged(true);
   }
 
+  const stylingDocsUrl = 'https://cpvalente.gitbook.io/ontime/features/custom-styling';
+
   return (
     <form onSubmit={submitHandler} className={styles.sectionContainer} id='viewSettings'>
       <ModalBody className={style.modalBody}>
         <p className={style.notes}>
           Options related to the viewers
           <br />
-          🔥 Changes take effect on Save 🔥
-        </p>
-        {/* <div className={style.blockNotes}>
-          <span className={style.inlineFlex}>
-            <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
-            CSS Style Overrides
-          </span>
-          This feature allows user defined CSS to override the application stylesheets as a way to customise viewers
-          appearance.
-          <br />
-          Currently the feature affects the following views
-          <br />
-          <ul className={style.featureList}>
-            <li>
-              <IoCheckmarkSharp /> Stage timer
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Clock
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Minimal timer
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Backstage screen
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Public screen
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Countdown
-            </li>
-          </ul>
-          Read more about it in the documentation{' '}
-          <a
-            href='#!'
-            onClick={() => openLink('https://cpvalente.gitbook.io/ontime/features/custom-styling')}
-            className={style.if}
-          >
-            over at Gitbook
+          <a href={stylingDocsUrl} target='_blank' rel='noreferrer'>
+            Read the docs
           </a>
-        </div> */}
+        </p>
         <div className={style.hSeparator}>Style Options</div>
         <div className={styles.splitSection}>
           <div>
