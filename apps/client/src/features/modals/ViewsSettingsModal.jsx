@@ -9,9 +9,9 @@ import {
   NumberInputStepper,
   Switch,
 } from '@chakra-ui/react';
-import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
-import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
+// import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
+// import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 import { useEmitLog } from '@/common/stores/logger';
 
 import { postView } from '../../common/api/ontimeApi';
@@ -19,8 +19,8 @@ import PopoverPicker from '../../common/components/input/color-picker-input/Popo
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
 import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
-import { openLink } from '../../common/utils/linkUtils';
 
+// import { openLink } from '../../common/utils/linkUtils';
 import { numberInputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
@@ -159,8 +159,9 @@ export default function ViewsSettingsModal() {
             name='normalColor'
             color={formData.normalColor}
             onChange={(event) => handleChange('normalColor', event)}
-          ></PopoverPicker>
+          />
         </div>
+        <hr className={styles.divider} />
         <div className={styles.splitSection}>
           <div>
             <span className={`${styles.sectionTitle} ${styles.main}`}>Warning Color</span>
@@ -170,7 +171,7 @@ export default function ViewsSettingsModal() {
             name='warningColor'
             color={formData.warningColor}
             onChange={(event) => handleChange('warningColor', event)}
-          ></PopoverPicker>
+          />
         </div>
         <FormControl className={styles.splitSection}>
           <label htmlFor='warningThreshold'>
@@ -201,7 +202,7 @@ export default function ViewsSettingsModal() {
             name='dangerColor'
             color={formData.dangerColor}
             onChange={(event) => handleChange('dangerColor', event)}
-          ></PopoverPicker>
+          />
         </div>
         <FormControl className={styles.splitSection}>
           <label htmlFor='dangerThreshold'>

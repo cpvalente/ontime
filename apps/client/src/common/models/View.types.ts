@@ -13,4 +13,5 @@ export type OverridableOptions = {
   hideMessagesOverlay?: boolean;
   hideEndMessage?: boolean;
   language?: string;
+  showProgressBar?: boolean;
 };

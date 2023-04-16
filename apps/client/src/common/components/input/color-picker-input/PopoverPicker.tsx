@@ -5,11 +5,13 @@ import style from './PopoverPicker.module.scss';
 
 interface PopoverPickerProps {
   color: string;
+  width?: string;
+  height?: string;
   onChange: (color: string) => void;
 }
 
 export default function PopoverPicker(props: PopoverPickerProps) {
-  const { color, onChange } = props;
+  const { color, width = '28px', height = '28px', onChange } = props;
 
   const presetColors = [
     '#ffffffcc', // $timer-color
@@ -30,7 +32,7 @@ export default function PopoverPicker(props: PopoverPickerProps) {
   return (
     <Popover placement='top'>
       <PopoverTrigger>
-        <div className={style.swatch} style={{ backgroundColor: color }} />
+        <div className={style.swatch} style={{ backgroundColor: color, width: width, height: height }} />
       </PopoverTrigger>
       <PopoverContent>
         <PopoverBody>

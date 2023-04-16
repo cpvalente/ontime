@@ -18,22 +18,10 @@ $progress-bar-br: 6px;
 
 .progress-bar__indicator {
   position: absolute;
-  height: $progress-bar-size;;
+  height: inherit;
   background-color: black;
   opacity: 0.8;
   transition: 1s linear;
   transition-property: width;
   right: 0;
-}
-
-.progressNormal {
-  height: $progress-bar-size;
-}
-
-.progressWarning {
-  height: $progress-bar-size;
-}
-
-.progressDanger {
-  height: $progress-bar-size;
 }

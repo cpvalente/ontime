@@ -12,6 +12,7 @@ interface MultiPartProgressBar {
   dangerColor?: string;
   hidden?: boolean;
   className?: string;
+  height?: string;
 }
 
 export default function MultiPartProgressBar(props: MultiPartProgressBar) {
@@ -25,6 +26,7 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
     dangerColor,
     hidden,
     className = '',
+    height = '',
   } = props;
 
   const percentComplete = 100 - clamp(100 - (Math.max(now, 0) * 100) / complete, 0, 100);
@@ -34,7 +36,10 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
   const normalWidth = 100 - (warningWidth + dangerWidth);
 
   return (
-    <div className={`progress-bar__bg ${hidden ? 'progress-bar__bg--hidden' : ''} ${className}`}>
+    <div
+      className={`progress-bar__bg ${hidden ? 'progress-bar__bg--hidden' : ''} ${className}`}
+      style={{ height: height }}
+    >
       <div className='progressNormal' style={{ width: `${normalWidth}%`, backgroundColor: normalColor }} />
       <div className='progressWarning' style={{ width: `${warningWidth}%`, backgroundColor: warningColor }} />
       <div className='progressDanger' style={{ width: `${dangerWidth}%`, backgroundColor: dangerColor }} />
