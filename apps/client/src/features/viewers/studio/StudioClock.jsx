@@ -8,7 +8,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatDisplay } from '../../../common/utils/dateConfig';
-import { formatEventList, getEventsWithDelay, trimEventlist } from '../../../common/utils/eventsManager';
+import { formatEventList, getEventsWithDelay, trimRundown } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 
 import './StudioClock.scss';
@@ -59,7 +59,7 @@ export default function StudioClock(props) {
 
     const delayed = getEventsWithDelay(backstageEvents);
     const events = delayed.filter((e) => e.type === 'event');
-    const trimmed = trimEventlist(events, selectedId, MAX_TITLES);
+    const trimmed = trimRundown(events, selectedId, MAX_TITLES);
     const formatted = formatEventList(trimmed, selectedId, nextId, {
       showEnd: false,
     });

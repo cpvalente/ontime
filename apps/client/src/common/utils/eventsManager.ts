@@ -4,18 +4,18 @@ import { formatTime } from './time';
 
 /**
  * @description From a list of events, returns only events of type event with calculated delays
- * @param {Object[]} events - given events
+ * @param {Object[]} rundown - given rundown
  * @returns {Object[]} Filtered events with calculated delays
  */
 
-export const getEventsWithDelay = (events: OntimeRundownEntry[]): OntimeEvent[] => {
-  if (events == null) return [];
+export const getEventsWithDelay = (rundown: OntimeRundownEntry[]): OntimeEvent[] => {
+  if (rundown == null) return [];
 
   const delayedEvents: OntimeEvent[] = [];
 
   // Add running delay
   let delay = 0;
-  for (const event of events) {
+  for (const event of rundown) {
     if (event.type === SupportedEvent.Block) delay = 0;
     else if (event.type === SupportedEvent.Delay) {
       if (typeof event.duration === 'number') {
@@ -36,29 +36,29 @@ export const getEventsWithDelay = (events: OntimeRundownEntry[]): OntimeEvent[] 
 
 /**
  * @description Returns trimmed event list array
- * @param {Object[]} events - given events
+ * @param {Object[]} rundown - given rundown
  * @param {string} selectedId - id of currently selected event
  * @param {number} limit - max number of events to return
  * @returns {Object[]} Event list with maximum <limit> objects
  */
-export const trimEventlist = (events: OntimeRundownEntry[], selectedId: string, limit: number) => {
-  if (events == null) return [];
+export const trimRundown = (rundown: OntimeRundownEntry[], selectedId: string, limit: number) => {
+  if (rundown == null) return [];
 
   const BEFORE = 2;
-  const trimmedEvents = [...events];
+  const trimmedRundown = [...rundown];
 
   // limit events length if necessary
   if (limit != null) {
-    while (trimmedEvents.length > limit) {
-      const idx = trimmedEvents.findIndex((e) => e.id === selectedId);
+    while (trimmedRundown.length > limit) {
+      const idx = trimmedRundown.findIndex((e) => e.id === selectedId);
       if (idx <= BEFORE) {
-        trimmedEvents.pop();
+        trimmedRundown.pop();
       } else {
-        trimmedEvents.shift();
+        trimmedRundown.shift();
       }
     }
   }
-  return trimmedEvents;
+  return trimmedRundown;
 };
 
 type FormatEventListOptionsProp = {
@@ -66,7 +66,7 @@ type FormatEventListOptionsProp = {
 };
 /**
  * @description Returns list of events formatted to be displayed
- * @param {Object[]} events - given events
+ * @param {Object[]} rundown - given rundown
  * @param {string} selectedId - id of currently selected event
  * @param {string} nextId - id of next event
  * @param {object} [options]
@@ -74,15 +74,15 @@ type FormatEventListOptionsProp = {
  * @returns {Object[]} Formatted list of events [{time: -, title: -, isNow, isNext}]
  */
 export const formatEventList = (
-  events: OntimeEvent[],
+  rundown: OntimeEvent[],
   selectedId: string,
   nextId: string,
   options: FormatEventListOptionsProp,
 ) => {
-  if (events == null) return [];
+  if (rundown == null) return [];
   const { showEnd = false } = options;
 
-  const givenEvents = [...events];
+  const givenEvents = [...rundown];
 
   // format list
   const formattedEvents = [];
