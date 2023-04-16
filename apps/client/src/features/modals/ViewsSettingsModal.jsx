@@ -1,14 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  FormControl,
-  ModalBody,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  Switch,
-} from '@chakra-ui/react';
+import { FormControl, ModalBody, NumberInput, NumberInputField, Switch } from '@chakra-ui/react';
 
 // import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
 // import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
@@ -21,7 +12,7 @@ import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type'
 import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
 
 // import { openLink } from '../../common/utils/linkUtils';
-import { numberInputProps } from './modalHelper';
+import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
 import styles from './Modal.module.scss';
@@ -78,6 +69,7 @@ export default function ViewsSettingsModal() {
    */
   const handleChange = useCallback(
     (field, value) => {
+      console.log(`handleChange ${field}${value}`);
       const temp = { ...formData };
       temp[field] = value;
       setFormData(temp);
@@ -95,14 +87,13 @@ export default function ViewsSettingsModal() {
   }
 
   return (
-    <ModalBody className={style.modalBody}>
-      <p className={style.notes}>
-        Options related to the viewers
-        <br />
-        🔥 Changes take effect on Save 🔥
-      </p>
-      <form onSubmit={submitHandler}>
-        <div className={style.hSeparator}>Style Options</div>
+    <form onSubmit={submitHandler} className={styles.sectionContainer} id='viewSettings'>
+      <ModalBody className={style.modalBody}>
+        <p className={style.notes}>
+          Options related to the viewers
+          <br />
+          🔥 Changes take effect on Save 🔥
+        </p>
         {/* <div className={style.blockNotes}>
           <span className={style.inlineFlex}>
             <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
@@ -142,6 +133,7 @@ export default function ViewsSettingsModal() {
             over at Gitbook
           </a>
         </div> */}
+        <div className={style.hSeparator}>Style Options</div>
         <div className={styles.splitSection}>
           <div>
             <span className={`${styles.sectionTitle} ${styles.main}`}>Override CSS Styles</span>
@@ -150,6 +142,7 @@ export default function ViewsSettingsModal() {
           <Switch onChange={() => handleChange('overrideStyles', !formData.overrideStyles)} variant='ontime-on-light' />
         </div>
         <hr className={styles.divider} />
+        <div className={style.hSeparator}>Timer Options</div>
         <div className={styles.splitSection}>
           <div>
             <span className={`${styles.sectionTitle} ${styles.main}`}>Normal Color</span>
@@ -161,7 +154,6 @@ export default function ViewsSettingsModal() {
             onChange={(event) => handleChange('normalColor', event)}
           />
         </div>
-        <hr className={styles.divider} />
         <div className={styles.splitSection}>
           <div>
             <span className={`${styles.sectionTitle} ${styles.main}`}>Warning Color</span>
@@ -179,20 +171,16 @@ export default function ViewsSettingsModal() {
             <span className={styles.sectionSubtitle}>The time when the color changes</span>
           </label>
           <NumberInput
-            {...numberInputProps}
+            {...inputProps}
+            width='50px'
             id='warningThreshold'
             variant='ontime-filled-on-light'
             value={millisToMinutes(Number(formData.warningThreshold), 'm')}
-            onChange={(event) => handleThresholdChange('warningThreshold', Number(event))}
+            onChange={(event) => handleThresholdChange('warningThreshold', event)}
           >
             <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
           </NumberInput>
         </FormControl>
-        <hr className={styles.divider} />
         <div className={styles.splitSection}>
           <div>
             <span className={`${styles.sectionTitle} ${styles.main}`}>Danger Color</span>
@@ -210,23 +198,20 @@ export default function ViewsSettingsModal() {
             <span className={styles.sectionSubtitle}>The time when the color changes</span>
           </label>
           <NumberInput
-            {...numberInputProps}
+            {...inputProps}
             id='dangerThreshold'
+            width='50px'
             variant='ontime-filled-on-light'
             value={millisToMinutes(Number(formData.dangerThreshold), 'm')}
-            onChange={(event) => handleThresholdChange('dangerThreshold', Number(event))}
+            onChange={(event) => handleThresholdChange('dangerThreshold', event)}
           >
             <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
           </NumberInput>
         </FormControl>
         <div className={style.modalFields}>
           <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
         </div>
-      </form>
-    </ModalBody>
+      </ModalBody>
+    </form>
   );
 }

@@ -23,10 +23,6 @@ export default function PopoverPicker(props: PopoverPickerProps) {
     '#779BE7', // $blue-400
     '#3E75E8', // $blue-600
     '#FF7878', // $red-400
-    '#A790F5', // $violet-400
-    '#8064E1', // $violet-600
-    '#9d9d9d', // $gray-500
-    '#ececec', // $gray-100
   ];
 
   return (

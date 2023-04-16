@@ -1,3 +1,5 @@
+@use "../../../../theme/v2Styles" as *;
+
 .picker {
   width: 300px;
   background: #f0f0f4;
@@ -11,8 +13,8 @@
 .swatch {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
-  border: 3px solid #303030;
+  border-radius: $component-border-radius-md;
+  border: 1px solid #303030;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
@@ -29,7 +31,7 @@
   margin: 4px;
   border: none;
   padding: 0;
-  border-radius: 4px;
+  border-radius: $component-border-radius-sm;
   cursor: pointer;
   outline: none;
 }
