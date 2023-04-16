@@ -2,9 +2,17 @@
 @use "../../../../theme/_v2Styles" as *;
 
 .swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: $component-border-radius-sm;
-  border: 1px solid $gray-200;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  border: 1px solid $gray-300;
   cursor: pointer;
+
+  transition-property: box-shadow;
+  transition-duration: $transition-time-action;
 }
+
+.swatch:hover {
+  box-shadow: 0 0 0 1px $blue-300;
+}
+
