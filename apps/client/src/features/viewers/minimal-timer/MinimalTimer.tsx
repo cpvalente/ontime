@@ -201,7 +201,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         warningColor={viewSettings.warningColor}
         danger={viewSettings.dangerThreshold}
         dangerColor={viewSettings.dangerColor}
-        hidden={!userOptions.showProgressBar}
+        hidden={!showProgress || !userOptions.showProgressBar}
         height='50px'
       />
     </div>
