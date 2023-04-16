@@ -12,7 +12,7 @@ import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, Playback, TimerType } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { useEventEditorStore } from '../../../common/stores/eventEditor';
+import { useAppMode } from '../../../common/stores/appModeStore';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
@@ -76,8 +76,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
-  const setOpenEvent = useEventEditorStore((state) => state.setOpenEvent);
-  const removeOpenEvent = useEventEditorStore((state) => state.removeOpenEvent);
+  const setEditId = useAppMode((state) => state.setEditId);
 
   useEffect(() => {
     setRenderInner(true);
@@ -85,11 +84,11 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   const toggleOpenEvent = useCallback(() => {
     if (isOpen) {
-      removeOpenEvent();
+      setEditId(null);
     } else {
-      setOpenEvent(eventId);
+      setEditId(eventId);
     }
-  }, [eventId, isOpen, removeOpenEvent, setOpenEvent]);
+  }, [eventId, isOpen, setEditId]);
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
