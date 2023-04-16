@@ -12,7 +12,7 @@ import {
 import { useEmitLog } from '@/common/stores/logger';
 
 import { postView } from '../../common/api/ontimeApi';
-import PopoverPicker from '../../common/components/input/color-picker-input/PopoverPicker';
+import PopoverPicker from '../../common/components/input/popover-picker/PopoverPicker';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
 import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
