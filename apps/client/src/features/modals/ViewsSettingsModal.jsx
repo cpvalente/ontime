@@ -1,18 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  FormControl,
-  InputGroup,
-  InputRightAddon,
-  ModalBody,
-  NumberInput,
-  NumberInputField,
-  Switch,
-} from '@chakra-ui/react';
+import { FormControl, ModalBody, NumberInput, NumberInputField, Switch } from '@chakra-ui/react';
 
 import { useEmitLog } from '@/common/stores/logger';
 
 import { postView } from '../../common/api/ontimeApi';
-import PopoverPicker from '../../common/components/input/color-picker-input/PopoverPicker';
+import PopoverPicker from '../../common/components/input/popover-picker/PopoverPicker';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
 import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
@@ -139,18 +131,19 @@ export default function ViewsSettingsModal() {
             <span className={styles.sectionTitle}>Warning Time</span>
             <span className={styles.sectionSubtitle}>The time (in minutes) when the color changes</span>
           </label>
-          <InputGroup size='sm' width='140px'>
-            <NumberInput
-              {...numberInputProps}
-              id='warningThreshold'
-              variant='ontime-filled-on-light'
-              value={millisToMinutes(Number(formData.warningThreshold), 'm')}
-              onChange={(event) => handleThresholdChange('warningThreshold', event)}
-            >
-              <NumberInputField />
-            </NumberInput>
-            <InputRightAddon children='Minutes'></InputRightAddon>
-          </InputGroup>
+          <NumberInput
+            {...numberInputProps}
+            id='warningThreshold'
+            variant='ontime-filled-on-light'
+            value={millisToMinutes(Number(formData.warningThreshold), 'm')}
+            onChange={(event) => handleThresholdChange('warningThreshold', event)}
+            width='75px'
+            size='sm'
+            textAlign='right'
+            maxLength={5}
+          >
+            <NumberInputField />
+          </NumberInput>
         </FormControl>
         <div className={styles.splitSection}>
           <div>
@@ -168,18 +161,19 @@ export default function ViewsSettingsModal() {
             <span className={styles.sectionTitle}>Danger Time</span>
             <span className={styles.sectionSubtitle}>The time (in minutes) when the color changes</span>
           </label>
-          <InputGroup size='sm' width='140px'>
-            <NumberInput
-              {...numberInputProps}
-              id='dangerThreshold'
-              variant='ontime-filled-on-light'
-              value={millisToMinutes(Number(formData.dangerThreshold), 'm')}
-              onChange={(event) => handleThresholdChange('dangerThreshold', event)}
-            >
-              <NumberInputField />
-            </NumberInput>
-            <InputRightAddon children='Minutes'></InputRightAddon>
-          </InputGroup>
+          <NumberInput
+            {...numberInputProps}
+            id='dangerThreshold'
+            variant='ontime-filled-on-light'
+            value={millisToMinutes(Number(formData.dangerThreshold), 'm')}
+            onChange={(event) => handleThresholdChange('dangerThreshold', event)}
+            width='75px'
+            size='sm'
+            textAlign='right'
+            maxLength={5}
+          >
+            <NumberInputField />
+          </NumberInput>
         </FormControl>
         <div className={style.modalFields}>
           <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />
