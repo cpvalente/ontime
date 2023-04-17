@@ -1,9 +1,9 @@
 @use '../../../theme/viewerDefs' as *;
 
 $progress-bar-size: 12px;
-$progress-bar-br: 6px;
+$progress-bar-br: 3px;
 
-.progress-bar__bg {
+.progress-bar{
   position: relative;
   width: 100%;
   height: $progress-bar-size;
@@ -13,6 +13,7 @@ $progress-bar-br: 6px;
 
   &--hidden {
     display: none;
+    transition: display 0.5s;
   }
 }
 
@@ -24,4 +25,28 @@ $progress-bar-br: 6px;
   transition: 1s linear;
   transition-property: width;
   right: 0;
+  border-radius: $progress-bar-br;
+}
+
+.progress-bar__bg-normal {
+  position: absolute;
+  height: inherit;
+  right: 0;
+  border-radius: $progress-bar-br;
+  width: 100%;
+
+}
+.progress-bar__bg-warning {
+  position: absolute;
+  height: inherit;
+  right: 0;
+  border-radius: $progress-bar-br;
+
+}
+.progress-bar__bg-danger {
+  position: absolute;
+  height: inherit;
+  right: 0;
+  border-radius: $progress-bar-br;
+
 }

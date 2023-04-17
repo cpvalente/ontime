@@ -22,9 +22,9 @@ export const dbModel: DatabaseModel = {
     overrideStyles: false,
     normalColor: '#ffffffcc',
     warningColor: '#FFAB33',
-    warningThreshold: 3,
+    warningThreshold: 120000,
     dangerColor: '#ED3333',
-    dangerThreshold: 1,
+    dangerThreshold: 60000,
   },
   aliases: [],
   userFields: {

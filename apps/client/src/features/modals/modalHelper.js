@@ -10,8 +10,3 @@ export const portInputProps = {
   min: '1024',
   max: '65535',
 };
-
-export const numberInputProps = {
-  ...inputProps,
-  allowMouseWheel: true,
-};
