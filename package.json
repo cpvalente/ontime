@@ -30,12 +30,12 @@
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
-    "test": "vitest",
     "e2e": "cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
+    "e2e:i": "npx playwright codegen",
     "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules"
   },
   "devDependencies": {
-    "@playwright/test": "^1.32.1",
+    "@playwright/test": "^1.32.3",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
