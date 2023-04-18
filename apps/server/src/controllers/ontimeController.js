@@ -288,13 +288,3 @@ export const dbUpload = async (req, res) => {
   const file = req.file.path;
   await uploadAndParse(file, req, res, options);
 };
-
-// Create controller for POST request to '/ontime/dbpath'
-// Returns -
-export const dbPathToUpload = async (req, res) => {
-  if (!req.body.path) {
-    res.status(400).send({ message: 'Path to file not found' });
-    return;
-  }
-  await uploadAndParse(req.body.path, req, res);
-};
