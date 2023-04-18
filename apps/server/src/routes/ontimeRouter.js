@@ -2,7 +2,6 @@ import express from 'express';
 import { uploadFile } from '../utils/upload.js';
 import {
   dbDownload,
-  dbPathToUpload,
   dbUpload,
   getAliases,
   getInfo,
@@ -19,11 +18,11 @@ import {
 } from '../controllers/ontimeController.js';
 
 import {
-  viewValidator,
   validateAliases,
-  validateUserFields,
-  validateSettings,
   validateOSC,
+  validateSettings,
+  validateUserFields,
+  viewValidator,
 } from '../controllers/ontimeController.validate.js';
 
 export const router = express.Router();
@@ -69,6 +68,3 @@ router.get('/osc', getOSC);
 
 // create route between controller and '/ontime/osc' endpoint
 router.post('/osc', validateOSC, postOSC);
-
-// create route between controller and '/ontime/dbpath' endpoint
-router.post('/dbpath', dbPathToUpload);

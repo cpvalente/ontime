@@ -213,13 +213,13 @@ export const shutdown = async (exitCode = 0) => {
 
 process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
 
-process.on('unhandledRejection', async () => {
-  logger.error('SERVER', 'Error: unhandled rejection');
+process.on('unhandledRejection', async (error) => {
+  logger.error('SERVER', `Error: unhandled rejection ${error}`);
   await shutdown(1);
 });
 
-process.on('uncaughtException', async () => {
-  logger.error('SERVER', 'Error: uncaught exception');
+process.on('uncaughtException', async (error) => {
+  logger.error('SERVER', `Error: uncaught exception ${error}`);
   await shutdown(1);
 });
 
