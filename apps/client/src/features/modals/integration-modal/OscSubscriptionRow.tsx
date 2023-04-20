@@ -1,9 +1,10 @@
+import { UseFormRegister } from 'react-hook-form';
 import { Button, IconButton, Input, Switch } from '@chakra-ui/react';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { OscSubscriptionOptions, TimerLifeCycle } from 'ontime-types';
 
-import style from '../../../common/components/collapse-bar/CollapseBar.module.scss';
+import collapseStyles from '../../../common/components/collapse-bar/CollapseBar.module.scss';
 import styles from '../Modal.module.scss';
 
 interface OscSubscriptionRowProps {
@@ -15,7 +16,7 @@ interface OscSubscriptionRowProps {
   subscriptionOptions: OscSubscriptionOptions[];
   handleDelete: (cycle: TimerLifeCycle, id: string) => void;
   handleAddNew: (cycle: TimerLifeCycle) => void;
-  register: object;
+  register: UseFormRegister<any>;
 }
 
 export default function OscSubscriptionRow(props: OscSubscriptionRowProps) {
@@ -33,7 +34,7 @@ export default function OscSubscriptionRow(props: OscSubscriptionRowProps) {
           <span className={`${styles.sectionTitle} ${styles.main}`}>{title}</span>
           {visible && <span className={styles.sectionSubtitle}>{subtitle}</span>}
         </div>
-        <FiChevronUp className={visible ? style.moreCollapsed : style.moreExpanded} />
+        <FiChevronUp className={visible ? collapseStyles.moreCollapsed : collapseStyles.moreExpanded} />
       </div>
       {visible && (
         <>
