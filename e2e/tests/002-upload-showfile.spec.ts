@@ -20,7 +20,7 @@ test('test', async ({ page }) => {
     .filter({ hasText: /^SED\+10 minNew start: 10:10:00$/ })
     .getByPlaceholder('Start')
     .click();
-  await page.getByText('+10minNew start: 10:10:00').click();
+  await page.getByText('+10 minNew start: 10:10:00').click();
   await page.getByText('Second test event').click();
   await page.getByText('Lunch').click();
   await page.getByText('Third test event').click();
