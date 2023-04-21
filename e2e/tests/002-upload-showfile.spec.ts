@@ -17,7 +17,7 @@ test('test', async ({ page }) => {
   await page.getByTestId('delay-input').click();
   await page
     .locator('div')
-    .filter({ hasText: /^SED\+10minNew start: 10:10:00$/ })
+    .filter({ hasText: /^SED\+10 minNew start: 10:10:00$/ })
     .getByPlaceholder('Start')
     .click();
   await page.getByText('+10minNew start: 10:10:00').click();
