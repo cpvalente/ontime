@@ -3,7 +3,7 @@ import { OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../common/components/copy-tag/CopyTag';
 import useRundown from '../../common/hooks-query/useRundown';
-import { useEventEditorStore } from '../../common/stores/eventEditor';
+import { useAppMode } from '../../common/stores/appModeStore';
 import getDelayTo from '../../common/utils/getDelayTo';
 
 import EventEditorTimes from './composite/EventEditorTimes';
@@ -14,7 +14,7 @@ import style from './EventEditor.module.scss';
 export type EventEditorSubmitActions = keyof OntimeEvent;
 
 export default function EventEditor() {
-  const { openId } = useEventEditorStore();
+  const openId = useAppMode((state) => state.editId);
   const { data } = useRundown();
   const [event, setEvent] = useState<OntimeEvent | null>(null);
   const [delay, setDelay] = useState(0);

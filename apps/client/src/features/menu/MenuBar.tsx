@@ -1,18 +1,19 @@
 import { useCallback, useEffect } from 'react';
 import { VStack } from '@chakra-ui/react';
-import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
-import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
-import { IoScan } from '@react-icons/all-files/io5/IoScan';
+import { IoHelpCircleOutline } from '@react-icons/all-files/io5/IoHelpCircleOutline';
+import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
+import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import { downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
+import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 
 import style from './MenuBar.module.scss';
 
@@ -52,21 +53,20 @@ export default function MenuBar(props: MenuBarProps) {
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
+  const appMode = useAppMode((state) => state.mode);
+  const setAppMode = useAppMode((state) => state.setMode);
+
+  const setRunMode = () => setAppMode(AppMode.Run);
+  const setEditMode = () => setAppMode(AppMode.Edit);
+
   const actionHandler = useCallback(
     (action: Actions) => {
-      // Stop crashes when testing locally
       if (!isElectron) {
         if (action === 'help') {
           window.open('https://cpvalente.gitbook.io/ontime/');
         }
       } else {
         switch (action) {
-          case 'min':
-            sendToElectron('set-window', 'to-tray');
-            break;
-          case 'max':
-            sendToElectron('set-window', 'to-max');
-            break;
           case 'shutdown':
             sendToElectron('shutdown', 'now');
             break;
@@ -113,22 +113,7 @@ export default function MenuBar(props: MenuBarProps) {
   return (
     <VStack>
       <QuitIconBtn clickHandler={() => actionHandler('shutdown')} />
-      <TooltipActionBtn
-        {...buttonStyle}
-        icon={<IoScan />}
-        clickHandler={() => actionHandler('max')}
-        tooltip='Show full window'
-        aria-label='Show full window'
-        isDisabled={!isElectron}
-      />
-      <TooltipActionBtn
-        {...buttonStyle}
-        icon={<FiMinimize />}
-        clickHandler={() => actionHandler('min')}
-        tooltip='Minimise to tray'
-        aria-label='Minimise to tray'
-        isDisabled={!isElectron}
-      />
+
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
@@ -145,6 +130,25 @@ export default function MenuBar(props: MenuBarProps) {
         tooltip='Export showfile'
         aria-label='Export showfile'
       />
+
+      <div className={style.gap} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<IoPlay />}
+        className={appMode === AppMode.Run ? style.open : ''}
+        clickHandler={setRunMode}
+        tooltip='Run mode'
+        aria-label='Run mode'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<IoOptions />}
+        className={appMode === AppMode.Edit ? style.open : ''}
+        clickHandler={setEditMode}
+        tooltip='Edit mode'
+        aria-label='Edit mode'
+      />
+
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
@@ -165,7 +169,7 @@ export default function MenuBar(props: MenuBarProps) {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiHelpCircle />}
+        icon={<IoHelpCircleOutline />}
         clickHandler={() => actionHandler('help')}
         tooltip='Help'
         aria-label='Help'
