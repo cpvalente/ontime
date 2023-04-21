@@ -89,10 +89,10 @@
     "stylelint-config-prettier": "^9.0.4",
     "stylelint-config-standard-scss": "^6.1.0",
     "typescript": "^4.9.4",
-    "vite": "^4.0.4",
-    "vite-plugin-compression2": "^0.8.4",
+    "vite": "^4.3.1",
+    "vite-plugin-compression2": "^0.9.0",
     "vite-plugin-svgr": "^2.4.0",
-    "vite-tsconfig-paths": "^4.0.3",
-    "vitest": "^0.29.8"
+    "vite-tsconfig-paths": "^4.2.0",
+    "vitest": "^0.30.1"
   }
 }
