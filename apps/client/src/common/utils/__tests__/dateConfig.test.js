@@ -237,8 +237,53 @@ describe('test forgivingStringToMillis()', () => {
     }
   });
 
+  describe('parses time strings', () => {
+    const ts = [
+      { value: '1h2m3s', expect: 60 * 60 * 1000 + 2 * 60 * 1000 + 3 * 1000 },
+      { value: '1h3s', expect: 60 * 60 * 1000 + 3 * 1000 },
+      { value: '1h2m', expect: 60 * 60 * 1000 + 2 * 60 * 1000 },
+      { value: '10h', expect: 10 * 60 * 60 * 1000 },
+      { value: '10m', expect: 10 * 60 * 1000 },
+      { value: '10s', expect: 10 * 1000 },
+      { value: '120h', expect: 120 * 60 * 60 * 1000 },
+      { value: '120m', expect: 120 * 60 * 1000 },
+      { value: '120s', expect: 120 * 1000 },
+    ];
+
+    for (const s of ts) {
+      it(`handles ${s.value}`, () => {
+        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      });
+    }
+  });
+
+  describe('handles am/pm', () => {
+    const ampm = [
+      { value: '9:10:11am', expect: 9 * 60 * 60 * 1000 + 10 * 60 * 1000 + 11 * 1000 },
+      { value: '9:10:11a', expect: 9 * 60 * 60 * 1000 + 10 * 60 * 1000 + 11 * 1000 },
+      { value: '9:10:11pm', expect: (12 + 9) * 60 * 60 * 1000 + 10 * 60 * 1000 + 11 * 1000 },
+      { value: '9:10:11p', expect: (12 + 9) * 60 * 60 * 1000 + 10 * 60 * 1000 + 11 * 1000 },
+      { value: '9:10am', expect: 9 * 60 * 60 * 1000 + 10 * 60 * 1000 },
+      { value: '9:10a', expect: 9 * 60 * 60 * 1000 + 10 * 60 * 1000 },
+      { value: '9:10pm', expect: (12 + 9) * 60 * 60 * 1000 + 10 * 60 * 1000 },
+      { value: '9:10p', expect: (12 + 9) * 60 * 60 * 1000 + 10 * 60 * 1000 },
+      { value: '9am', expect: 9 * 60 * 60 * 1000 },
+      { value: '9a', expect: 9 * 60 * 60 * 1000 },
+      { value: '9pm', expect: (12 + 9) * 60 * 60 * 1000 },
+      { value: '9p', expect: (12 + 9) * 60 * 60 * 1000 },
+      { value: '12am', expect: 0 },
+      { value: '12pm', expect: 12 * 60 * 60 * 1000 },
+    ];
+
+    for (const s of ampm) {
+      it(`handles ${s.value}`, () => {
+        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      });
+    }
+  });
+
   describe('it infers separators when non existent', () => {
-    const docs = [
+    const testCases = [
       { value: '1', expect: 1000 * 60 }, // 00:01:00
       { value: '12', expect: 1000 * 60 * 12 }, // 00:12:00
       { value: '123', expect: 1000 * 60 * 23 + 1000 * 60 * 60 }, // 01:23:00
@@ -247,7 +292,7 @@ describe('test forgivingStringToMillis()', () => {
       { value: '123456', expect: 1000 * 60 * 34 + 1000 * 60 * 60 * 12 + 56 * 1000 }, // 12:34:56
     ];
 
-    for (const s of docs) {
+    for (const s of testCases) {
       it(`handles basic strings digits: ${s.value}`, () => {
         expect(forgivingStringToMillis(s.value)).toBe(s.expect);
       });
@@ -362,7 +407,7 @@ describe('test forgivingStringToMillis()', () => {
     }
   });
 
-  describe('test with fillLeft', () => {
+  describe('test fillLeft', () => {
     describe('function handles separators', () => {
       const testData = [
         { value: '1:2:3:10', expect: 3723000 },
