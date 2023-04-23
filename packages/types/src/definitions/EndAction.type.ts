@@ -1,5 +1,5 @@
 export enum EndAction {
-  Continue = 'continue',
+  None = 'none',
   Stop = 'stop',
   LoadNext = 'load-next',
   PlayNext = 'play-next',

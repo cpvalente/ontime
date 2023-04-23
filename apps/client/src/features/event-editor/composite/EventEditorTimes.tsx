@@ -131,7 +131,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           onChange={(event) => handleSubmit('endAction', event.target.value)}
           variant='ontime'
         >
-          <option value={EndAction.Continue}>Continue</option>
+          <option value={EndAction.None}>None</option>
           <option value={EndAction.Stop}>Stop</option>
           <option value={EndAction.LoadNext}>Load Next</option>
           <option value={EndAction.PlayNext}>Play Next</option>
