@@ -37,11 +37,11 @@ $playback-width: 450px;
   grid-template-rows: auto 1fr;
   grid-template-columns: $menu-width $rundown-width $playback-width auto;
   grid-template-areas:
-    'sett even play info'
-    'sett even mess info';
+    'sett rundown play info'
+    'sett rundown mess info';
   gap: 8px;
 
-  .editor,
+  .rundown,
   .playback,
   .messages,
   .info,
@@ -98,7 +98,7 @@ $playback-width: 450px;
       visibility: visible;
     }
 
-    .editor,
+    .rundown,
     .info,
     .settings {
       visibility: hidden;
@@ -117,7 +117,7 @@ $playback-width: 450px;
       visibility: visible;
     }
 
-    .editor,
+    .rundown,
     .messages,
     .info,
     .settings {
@@ -128,7 +128,7 @@ $playback-width: 450px;
 
 .mainContainer {
   .settings,
-  .editor,
+  .rundown,
   .messages,
   .playback,
   .info {
@@ -171,8 +171,9 @@ $playback-width: 450px;
   }
 }
 
-.editor {
-  grid-area: even;
+.rundown {
+  grid-area: rundown;
+  height: 100%;
 
   .content {
     height: calc(100% - 24px);
