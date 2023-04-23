@@ -11,9 +11,16 @@
   ],
   "overrides": [
     {
-      "files": ["e2e/**/**.spec.ts", "e2e/**/**.test.ts"],
-      "extends": ["plugin:playwright/playwright-test"]
+      "files": [
+        "e2e/**/**.spec.ts",
+        "e2e/**/**.test.ts"
+      ],
+      "extends": [
+        "plugin:playwright/playwright-test"
+      ]
     }
   ],
-  "rules": {}
+  "rules": {
+    "no-console": "warn"
+  }
 }
