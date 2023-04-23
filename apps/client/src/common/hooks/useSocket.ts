@@ -47,6 +47,7 @@ export const setPlayback = {
   start: () => socketSendJson('start'),
   pause: () => socketSendJson('pause'),
   roll: () => socketSendJson('roll'),
+  startNext: () => socketSendJson('start-next'),
   previous: () => {
     socketSendJson('previous');
   },

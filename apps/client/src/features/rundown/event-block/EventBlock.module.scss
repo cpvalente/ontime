@@ -22,6 +22,9 @@ $skip-opacity: 0.1;
   padding-right: $block-clearance;
   gap: 2px;
 
+  transition-property: background-color;
+  transition-duration: $transition-time-feedback;
+
   @mixin declare-overrides(){
     --status-color-override: #{$gray-200};
     --status-color-active-override: #{$green-400};

@@ -82,6 +82,11 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       break;
     }
 
+    case 'start-next': {
+      PlaybackService.startNext();
+      break;
+    }
+
     case 'startindex': {
       const eventIndex = Number(payload);
       if (isNaN(eventIndex) || eventIndex <= 0) {

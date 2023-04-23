@@ -1,15 +1,14 @@
-@use '../../../theme/v2Styles' as *;
-@use '../../../theme/ontimeColours' as *;
+@use '../../../../theme/v2Styles' as *;
+@use '../../../../theme/ontimeColours' as *;
 
 $button-bg-gray: $gray-1050;
 $button-color-white: $gray-50;
 
 @mixin tap-factory($theme-color) {
   font-family: $ontime-font-family;
-  font-size: 22px;
+  font-size: 1em;
   border-radius: $component-border-radius-md;
   width: 100%;
-  aspect-ratio: 3/1;
   transition-property: color, background-color;
   transition-duration: $transition-time-feedback;
   display: grid;
@@ -78,7 +77,16 @@ $button-color-white: $gray-50;
   @include tap-factory($ontime-stop);
 }
 
+.tapButton.normal {
+  aspect-ratio: 3/1;
+}
+
 .tapButton.square {
   aspect-ratio: 1;
   font-size: 14px;
+}
+
+.tapButton.fill {
+  aspect-ratio: unset;
+  height: 100%;
 }
