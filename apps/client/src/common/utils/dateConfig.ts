@@ -233,9 +233,9 @@ export function millisToDelayString(millis: number | null): undefined | string |
   const absMillis = Math.abs(millis);
 
   if (absMillis < mtm) {
-    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 's')}sec`;
+    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 's')} sec`;
   } else if (absMillis < mth && absMillis % mtm === 0) {
-    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'm')}min`;
+    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'm')} min`;
   } else {
     return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
   }

@@ -462,10 +462,10 @@ describe('millisToDelayString()', () => {
   });
   describe('converts values in seconds', () => {
     it(`shows a simple string with value in seconds`, () => {
-      expect(millisToDelayString(10000)).toBe('+10sec');
+      expect(millisToDelayString(10000)).toBe('+10 sec');
     });
     it(`... and its negative counterpart`, () => {
-      expect(millisToDelayString(-10000)).toBe('-10sec');
+      expect(millisToDelayString(-10000)).toBe('-10 sec');
     });
 
     const underAMinute = [1, 500, 1000, 6000, 55000, 59999];
@@ -479,10 +479,10 @@ describe('millisToDelayString()', () => {
 
   describe('converts values in minutes', () => {
     it(`shows a simple string with value in minutes`, () => {
-      expect(millisToDelayString(720000)).toBe('+12min');
+      expect(millisToDelayString(720000)).toBe('+12 min');
     });
     it(`... and its negative counterpart`, () => {
-      expect(millisToDelayString(-720000)).toBe('-12min');
+      expect(millisToDelayString(-720000)).toBe('-12 min');
     });
     it(`shows a simple string with value in minutes and seconds`, () => {
       expect(millisToDelayString(630000)).toBe('+00:10:30');
