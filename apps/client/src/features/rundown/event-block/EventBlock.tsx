@@ -41,6 +41,7 @@ interface EventBlockProps {
           value: unknown;
         },
   ) => void;
+  disableEdit: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -65,6 +66,7 @@ export default function EventBlock(props: EventBlockProps) {
     playback,
     isRolling,
     actionHandler,
+    disableEdit,
   } = props;
 
   const moveCursorTo = useAppMode((state) => state.setCursor);
@@ -164,6 +166,7 @@ export default function EventBlock(props: EventBlockProps) {
           playback={playback}
           isRolling={isRolling}
           actionHandler={actionHandler}
+          disableEdit={disableEdit}
         />
       )}
     </div>
