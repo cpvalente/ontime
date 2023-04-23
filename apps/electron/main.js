@@ -122,8 +122,6 @@ function createWindow() {
     height: 1000,
     minWidth: 525,
     minHeight: 405,
-    maxWidth: 1920,
-    maxHeight: 1440,
     backgroundColor: '#101010', // $gray-1350
     icon: appIcon,
     show: false,

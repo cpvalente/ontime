@@ -184,6 +184,7 @@ $playback-width: 450px;
 .info {
   grid-area: info;
   min-width: 17em;
+  max-width: 800px;
 
   .content {
     display: flex;
