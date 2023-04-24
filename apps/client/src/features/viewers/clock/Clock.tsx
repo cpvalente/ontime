@@ -36,8 +36,8 @@ export default function Clock(props: ClockProps) {
     return null;
   }
 
-  // get config from url: key, text, font, size, hidenav, hideovertime
-  // eg. http://localhost:3000/minimal?key=f00&text=fff
+  // get config from url: key, text, font, size, hidenav
+  // eg. http://localhost:3000/clock?key=f00&text=fff
   // Check for user options
   const userOptions: OverridableOptions = {
     size: 1,
@@ -126,7 +126,6 @@ export default function Clock(props: ClockProps) {
       className={`clock-view ${isMirrored ? 'mirror' : ''}`}
       style={{
         backgroundColor: userOptions.keyColour,
-        color: userOptions.textColour,
         justifyContent: userOptions.justifyContent,
         alignItems: userOptions.alignItems,
       }}
@@ -136,6 +135,7 @@ export default function Clock(props: ClockProps) {
       <div
         className='clock'
         style={{
+          color: userOptions.textColour,
           fontSize: `${(89 / (clean.length - 1)) * (userOptions.size || 1)}vw`,
           fontFamily: userOptions.font,
           top: userOptions.top,

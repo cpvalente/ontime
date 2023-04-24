@@ -33,7 +33,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     return null;
   }
 
-  // get config from url: key, text, font, size, hidenav, hideovertime
+  // get config from url: key, text, font, size, hideovertime
   // eg. http://localhost:3000/minimal?key=f00&text=fff
   // Check for user options
   const userOptions: OverridableOptions = {
