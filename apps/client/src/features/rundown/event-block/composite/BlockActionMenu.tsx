@@ -59,7 +59,7 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
         )}
         <MenuDivider />
         <MenuItem icon={<IoTrashBinSharp />} onClick={handleDelete} isDisabled={!enableDelete} color='#D20300'>
-          Delete event
+          Delete
         </MenuItem>
       </MenuList>
     </Menu>
