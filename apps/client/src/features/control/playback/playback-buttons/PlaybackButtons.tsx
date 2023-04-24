@@ -31,7 +31,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
 
   return (
     <div className={styles.buttonContainer}>
-      <TapButton onClick={() => setPlayback.startNext()} aspect='fill' className={styles.go}>
+      <TapButton disabled={isRolling} onClick={() => setPlayback.startNext()} aspect='fill' className={styles.go}>
         GO
       </TapButton>
       <div className={style.playbackContainer}>

@@ -4,7 +4,7 @@ import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
-import { IoHelpCircleOutline } from '@react-icons/all-files/io5/IoHelpCircleOutline';
+import { IoHelp } from '@react-icons/all-files/io5/IoHelp';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
@@ -30,7 +30,7 @@ interface MenuBarProps {
 type Actions = 'min' | 'max' | 'shutdown' | 'help';
 
 const buttonStyle = {
-  fontSize: '1.5em',
+  fontSize: '1.25em',
   size: 'lg',
   colorScheme: 'white',
   _hover: {
@@ -169,7 +169,7 @@ export default function MenuBar(props: MenuBarProps) {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<IoHelpCircleOutline />}
+        icon={<IoHelp />}
         clickHandler={() => actionHandler('help')}
         tooltip='Help'
         aria-label='Help'
