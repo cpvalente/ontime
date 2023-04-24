@@ -7,6 +7,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
+import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
@@ -116,19 +117,19 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   }
 
   const hideOvertime = searchParams.get('hideovertime');
-  userOptions.hideOvertime = Boolean(hideOvertime);
+  userOptions.hideOvertime = isStringBoolean(hideOvertime);
 
   const hideMessagesOverlay = searchParams.get('hidemessages');
-  userOptions.hideMessagesOverlay = Boolean(hideMessagesOverlay);
+  userOptions.hideMessagesOverlay = isStringBoolean(hideMessagesOverlay);
 
   const hideEndMessage = searchParams.get('hideendmessage');
-  userOptions.hideEndMessage = Boolean(hideEndMessage);
+  userOptions.hideEndMessage = isStringBoolean(hideEndMessage);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-  const showEndMessage = time.current < 0 && general.endMessage && !hideEndMessage;
+  const showEndMessage = (time.current ?? 0) < 0 && general.endMessage && !hideEndMessage;
   const showFinished =
     time.finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
