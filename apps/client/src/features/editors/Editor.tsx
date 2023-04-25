@@ -4,6 +4,7 @@ import { Box, useDisclosure } from '@chakra-ui/react';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import UploadModal from '../../common/components/upload-modal/UploadModal';
 import MenuBar from '../menu/MenuBar';
+import AboutModal from '../modals/about-modal/AboutModal';
 import IntegrationModal from '../modals/integration-modal/IntegrationModal';
 import ModalManager from '../modals/ModalManager';
 
@@ -23,6 +24,7 @@ export default function Editor() {
     onOpen: onIntegrationModalOpen,
     onClose: onIntegrationModalClose,
   } = useDisclosure();
+  const { isOpen: isAboutModalOpen, onOpen: onAboutModalOpen, onClose: onAboutModalClose } = useDisclosure();
 
   // Set window title
   useEffect(() => {
@@ -31,9 +33,10 @@ export default function Editor() {
 
   return (
     <>
-      <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
-      <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
       <ErrorBoundary>
+        <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
+        <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
+        <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
         <ModalManager isOpen={isSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
       <div className={styles.mainContainer} data-testid='event-editor'>
@@ -47,6 +50,8 @@ export default function Editor() {
               onUploadOpen={onUploadModalOpen}
               isIntegrationOpen={isIntegrationModalOpen}
               onIntegrationOpen={onIntegrationModalOpen}
+              isAboutOpen={isAboutModalOpen}
+              onAboutOpen={onAboutModalOpen}
             />
           </ErrorBoundary>
         </Box>

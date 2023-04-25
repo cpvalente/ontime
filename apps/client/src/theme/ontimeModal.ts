@@ -20,3 +20,14 @@ export const ontimeModal = {
     color: '#202020', // $gray-50
   },
 };
+
+export const ontimeSmallModal = {
+  ...ontimeModal,
+  body: {
+    padding: '16px',
+    fontSize: '14px',
+  },
+  dialog: {
+    minHeight: 'min(200px, 10vh)',
+  },
+};
