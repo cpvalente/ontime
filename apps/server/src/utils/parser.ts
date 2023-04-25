@@ -371,10 +371,11 @@ export const fileHandler = async (file) => {
         res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
       } else {
-        console.log('Error: No sheets found named ontime or event schedule');
+        const errorMessage = 'No sheet found named ontime or event schedule';
+        console.log(errorMessage);
         res = {
           error: true,
-          message: `No sheets found named ontime or event schedule`,
+          message: errorMessage,
         };
       }
     } catch (error) {

@@ -6,7 +6,7 @@ import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useAppMode } from '../../../common/stores/appModeStore';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { EventItemActions } from '../RundownEntry';
+import type { EventItemActions } from '../RundownEntry';
 
 import EventBlockInner from './EventBlockInner';
 
@@ -41,6 +41,7 @@ interface EventBlockProps {
           value: unknown;
         },
   ) => void;
+  disableEdit: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -65,6 +66,7 @@ export default function EventBlock(props: EventBlockProps) {
     playback,
     isRolling,
     actionHandler,
+    disableEdit,
   } = props;
 
   const moveCursorTo = useAppMode((state) => state.setCursor);
@@ -164,6 +166,7 @@ export default function EventBlock(props: EventBlockProps) {
           playback={playback}
           isRolling={isRolling}
           actionHandler={actionHandler}
+          disableEdit={disableEdit}
         />
       )}
     </div>

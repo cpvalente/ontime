@@ -461,10 +461,10 @@ describe('millisToDelayString()', () => {
     expect(millisToDelayString(0)).toBeNull();
   });
   describe('converts values in seconds', () => {
-    it(`shows a simple string with value in seconds`, () => {
+    it('shows a simple string with value in seconds', () => {
       expect(millisToDelayString(10000)).toBe('+10 sec');
     });
-    it(`... and its negative counterpart`, () => {
+    it('... and its negative counterpart', () => {
       expect(millisToDelayString(-10000)).toBe('-10 sec');
     });
 
@@ -478,16 +478,16 @@ describe('millisToDelayString()', () => {
   });
 
   describe('converts values in minutes', () => {
-    it(`shows a simple string with value in minutes`, () => {
+    it('shows a simple string with value in minutes', () => {
       expect(millisToDelayString(720000)).toBe('+12 min');
     });
-    it(`... and its negative counterpart`, () => {
+    it('... and its negative counterpart', () => {
       expect(millisToDelayString(-720000)).toBe('-12 min');
     });
-    it(`shows a simple string with value in minutes and seconds`, () => {
+    it('shows a simple string with value in minutes and seconds', () => {
       expect(millisToDelayString(630000)).toBe('+00:10:30');
     });
-    it(`... and its negative counterpart`, () => {
+    it('... and its negative counterpart', () => {
       expect(millisToDelayString(-630000)).toBe('-00:10:30');
     });
 
@@ -500,10 +500,10 @@ describe('millisToDelayString()', () => {
   });
 
   describe('converts values with full time string', () => {
-    it(`positive added time`, () => {
+    it('positive added time', () => {
       expect(millisToDelayString(45015000)).toBe('+12:30:15');
     });
-    it(`negative added time`, () => {
+    it('negative added time', () => {
       expect(millisToDelayString(-45015000)).toBe('-12:30:15');
     });
   });

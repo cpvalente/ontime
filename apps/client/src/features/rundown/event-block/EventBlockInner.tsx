@@ -51,6 +51,7 @@ interface EventBlockInnerProps {
   playback?: Playback;
   isRolling: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
+  disableEdit: boolean;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -73,6 +74,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     playback,
     isRolling,
     actionHandler,
+    disableEdit,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -159,6 +161,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           tabIndex={-1}
           backgroundColor={isOpen ? '#2B5ABC' : undefined}
           color={isOpen ? 'white' : '#f6f6f6'}
+          isDisabled={disableEdit}
         />
         <BlockActionMenu showAdd showDelay showBlock showClone enableDelete={!selected} actionHandler={actionHandler} />
       </div>

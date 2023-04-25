@@ -11,7 +11,7 @@ import style from '../editors/Editor.module.scss';
 
 const RundownExport = () => {
   return (
-    <Box className={style.editor} data-testid='panel-rundown'>
+    <Box className={style.rundown} data-testid='panel-rundown'>
       <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'rundown')} />
       <ErrorBoundary>
         <RundownWrapper />

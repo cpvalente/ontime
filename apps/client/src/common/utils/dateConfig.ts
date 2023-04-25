@@ -114,13 +114,13 @@ function checkAmPm(value: string) {
  * @param {string} value
  */
 function checkMatchers(value: string) {
-  const hoursMatch = value.match(/(\d+)h/);
+  const hoursMatch = /(\d+)h/.exec(value);
   const hoursMatchValue = hoursMatch ? parse(hoursMatch[1]) : 0;
 
-  const minutesMatch = value.match(/(\d+)m/);
+  const minutesMatch = /(\d+)m/.exec(value);
   const minutesMatchValue = minutesMatch ? parse(minutesMatch[1]) : 0;
 
-  const secondsMatch = value.match(/(\d+)s/);
+  const secondsMatch = /(\d+)s/.exec(value);
   const secondsMatchValue = secondsMatch ? parse(secondsMatch[1]) : 0;
 
   if (hoursMatchValue > 0 || minutesMatchValue > 0 || secondsMatchValue > 0) {
