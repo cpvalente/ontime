@@ -35,7 +35,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       if (ms < 6000) {
         return `${millisToSeconds(ms)} seconds`;
       } else if (ms < 12000) {
-        return `1 minute`;
+        return '1 minute';
       } else {
         return `${millisToMinutes(ms)} minutes`;
       }

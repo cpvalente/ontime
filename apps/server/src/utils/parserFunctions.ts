@@ -91,7 +91,7 @@ export const parseEventData = (data, enforce): EventData => {
     };
   } else if (enforce) {
     newEventData = { ...dbModel.eventData };
-    console.log(`Created event object in db`);
+    console.log('Created event object in db');
   }
   return newEventData as EventData;
 };
@@ -126,7 +126,7 @@ export const parseSettings = (data, enforce): Settings => {
     }
   } else if (enforce) {
     newSettings = dbModel.settings;
-    console.log(`Created settings object in db`);
+    console.log('Created settings object in db');
   }
   return newSettings as Settings;
 };
@@ -153,7 +153,7 @@ export const parseViewSettings = (data, enforce): ViewSettings => {
     };
   } else if (enforce) {
     newViews = dbModel.viewSettings;
-    console.log(`Created viewSettings object in db`);
+    console.log('Created viewSettings object in db');
   }
   return newViews as ViewSettings;
 };
@@ -201,7 +201,7 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }, enforce: boolean)
       subscriptions: validatedSubscriptions,
     };
   } else if (enforce) {
-    console.log(`Created OSC object in db`);
+    console.log('Created OSC object in db');
     return { ...dbModel.osc };
   } else return {};
 };
@@ -232,7 +232,7 @@ export const parseHttp = (data, enforce) => {
   } else if (enforce) {
     // @ts-expect-error -- not yet
     newHttp.http = { ...dbModel.http };
-    console.log(`Created http object in db`);
+    console.log('Created http object in db');
   }
   return newHttp;
 };

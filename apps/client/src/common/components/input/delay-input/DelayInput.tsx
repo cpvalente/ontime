@@ -22,7 +22,7 @@ export default function DelayInput(props: DelayInputProps) {
   let ignoreChange = false;
 
   useEffect(() => {
-    if (typeof duration === undefined) {
+    if (typeof duration === 'undefined') {
       return;
     }
     setValue(millisToString(duration));
