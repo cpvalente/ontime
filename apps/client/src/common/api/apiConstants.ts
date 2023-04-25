@@ -12,9 +12,6 @@ export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const RUNTIME = ['runtimeStore'];
 
-// external stuff
-export const githubURL = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
-
 export const serverPort = import.meta.env.DEV ? STATIC_PORT : window.location.port;
 export const serverURL = import.meta.env.DEV ? `http://localhost:${serverPort}` : window.location.origin;
 export const websocketUrl = `ws://${window.location.hostname}:${serverPort}/ws`;

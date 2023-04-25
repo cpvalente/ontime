@@ -234,12 +234,6 @@ ipcMain.on('shutdown', () => {
 // Window manipulation
 ipcMain.on('set-window', (event, arg) => {
   switch (arg) {
-    case 'to-max':
-      win.maximize();
-      break;
-    case 'to-tray':
-      win.hide();
-      break;
     case 'show-dev':
       win.webContents.openDevTools({ mode: 'detach' });
       break;
@@ -250,9 +244,5 @@ ipcMain.on('set-window', (event, arg) => {
 
 // Open links external
 ipcMain.on('send-to-link', (event, arg) => {
-  if (arg === 'help') {
-    shell.openExternal(electronConfig.externalUrls.help);
-  } else {
-    shell.openExternal(arg);
-  }
+  shell.openExternal(arg);
 });

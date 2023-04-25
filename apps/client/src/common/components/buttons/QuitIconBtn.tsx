@@ -18,6 +18,7 @@ import { useEmitLog } from '../../stores/logger';
 interface QuitIconBtnProps {
   clickHandler: () => void;
   size?: Size;
+  disabled?: boolean;
 }
 
 const quitBtnStyle = {
@@ -27,6 +28,10 @@ const quitBtnStyle = {
   _hover: {
     background: '#D20300', // $red-700
     color: 'white',
+    _disabled: {
+      color: '#D20300', // $red-700
+      background: 'none',
+    },
   },
   _active: {
     background: '#9A0000', // $red-1000
@@ -37,7 +42,7 @@ const quitBtnStyle = {
 };
 
 export default function QuitIconBtn(props: QuitIconBtnProps) {
-  const { clickHandler, size = 'lg', ...rest } = props;
+  const { clickHandler, size = 'lg', disabled, ...rest } = props;
   const [isOpen, setIsOpen] = useState(false);
   const { emitInfo } = useEmitLog();
   const onClose = () => setIsOpen(false);
@@ -65,6 +70,7 @@ export default function QuitIconBtn(props: QuitIconBtnProps) {
           size={size}
           icon={<FiPower />}
           onClick={() => setIsOpen(true)}
+          isDisabled={disabled}
           {...quitBtnStyle}
           {...rest}
         />
@@ -75,9 +81,7 @@ export default function QuitIconBtn(props: QuitIconBtnProps) {
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
               Ontime Shutdown
             </AlertDialogHeader>
-            <AlertDialogBody>
-              This will shutdown the program and all running servers. Are you sure?
-            </AlertDialogBody>
+            <AlertDialogBody>This will shutdown the program and all running servers. Are you sure?</AlertDialogBody>
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose} variant='ghost'>
                 Cancel
