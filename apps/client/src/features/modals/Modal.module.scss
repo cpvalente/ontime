@@ -1,7 +1,17 @@
 @use '../../theme/v2Styles' as *;
 @use '../../theme/ontimeColours' as *;
 
-.headerNotes {
+@mixin modal-link {
+  color: $blue-500;
+  transition-property: color;
+  transition-duration: $transition-time-action;
+
+  &:hover {
+    color: $ontime-color;
+  }
+}
+
+.headerNotes  {
   font-size: $text-body-size;
   width: 100%;
   padding: 0 $section-spacing;
@@ -10,13 +20,7 @@
 
   a {
     display: block;
-    color: $blue-500;
-    transition-property: color;
-    transition-duration: $transition-time-action;
-
-    &:hover {
-      color: $ontime-color;
-    }
+    @include modal-link
   }
 }
 
@@ -97,4 +101,33 @@
 
 .showPointer {
   cursor: pointer;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+.padBottom {
+  padding-bottom: 8px;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-right: 16px;
+}
+
+.test {
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+
+  .error {
+    font-size: $error-red;
+  }
 }

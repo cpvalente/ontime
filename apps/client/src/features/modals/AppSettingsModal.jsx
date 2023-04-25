@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import {
-  Button,
   Checkbox,
   FormControl,
   FormLabel,
@@ -17,8 +16,7 @@ import { FiX } from '@react-icons/all-files/fi/FiX';
 
 import { useEmitLog } from '@/common/stores/logger';
 
-import { version } from '../../../package.json';
-import { getLatestVersion, postSettings } from '../../common/api/ontimeApi';
+import { postSettings } from '../../common/api/ontimeApi';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useSettings from '../../common/hooks-query/useSettings';
 import { ontimePlaceholderSettings } from '../../common/models/OntimeSettings';
@@ -42,9 +40,6 @@ export default function AppSettingsModal() {
 
   const [formSettings, setFormSettings] = useState(eventSettings);
 
-  const [updateMessage, setUpdateMessage] = useState(<a>Using ontime version: {version}</a>);
-  const [isFetching, setIsFetching] = useState(false);
-
   /**
    * Set formdata from server state
    */
@@ -55,9 +50,6 @@ export default function AppSettingsModal() {
       pinCode: data.pinCode,
       timeFormat: data.timeFormat,
     });
-    // getLatestVersion().then((data) => {
-    //   setVersionData(data);
-    // });
   }, [changed, data]);
 
   /**
@@ -135,32 +127,6 @@ export default function AppSettingsModal() {
     temp[field] = value;
     setFormData(temp);
     setChanged(true);
-  };
-
-  /**
-   * Handles version comparison and returns component with message
-   */
-  const versionCheck = async () => {
-    let message = <a>Using latest version</a>;
-    setIsFetching(true);
-    getLatestVersion()
-      .then((data) => {
-        const remoteVersion = data;
-        if (!remoteVersion.version.includes(version)) {
-          message = (
-            <a href={remoteVersion.url} target='_blank' rel='noreferrer'>
-              Update to version {remoteVersion.version} available
-            </a>
-          );
-        }
-      })
-      .catch(function () {
-        message = <a>Error reaching server</a>;
-      })
-      .finally(function () {
-        setUpdateMessage(message);
-        setIsFetching(false);
-      });
   };
 
   const disableModal = status !== 'success';
@@ -282,12 +248,6 @@ export default function AppSettingsModal() {
             >
               Event default public
             </Checkbox>
-          </div>
-          <div className={style.notes}>
-            {updateMessage}
-            <Button onClick={versionCheck} isLoading={isFetching}>
-              Check for updates
-            </Button>
           </div>
         </div>
         <SubmitContainer revert={revert} submitting={submitting} changed={changed} status={status} />

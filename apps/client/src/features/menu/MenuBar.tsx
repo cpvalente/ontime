@@ -25,9 +25,9 @@ interface MenuBarProps {
   onUploadOpen: () => void;
   isIntegrationOpen: boolean;
   onIntegrationOpen: () => void;
+  isAboutOpen: boolean;
+  onAboutOpen: () => void;
 }
-
-type Actions = 'min' | 'max' | 'shutdown' | 'help';
 
 const buttonStyle = {
   fontSize: '1.25em',
@@ -50,6 +50,8 @@ export default function MenuBar(props: MenuBarProps) {
     onUploadOpen,
     isIntegrationOpen,
     onIntegrationOpen,
+    isAboutOpen,
+    onAboutOpen,
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
@@ -58,28 +60,11 @@ export default function MenuBar(props: MenuBarProps) {
 
   const setRunMode = () => setAppMode(AppMode.Run);
   const setEditMode = () => setAppMode(AppMode.Edit);
-
-  const actionHandler = useCallback(
-    (action: Actions) => {
-      if (!isElectron) {
-        if (action === 'help') {
-          window.open('https://cpvalente.gitbook.io/ontime/');
-        }
-      } else {
-        switch (action) {
-          case 'shutdown':
-            sendToElectron('shutdown', 'now');
-            break;
-          case 'help':
-            sendToElectron('send-to-link', 'help');
-            break;
-          default:
-            break;
-        }
-      }
-    },
-    [sendToElectron, isElectron],
-  );
+  const sendShutdown = () => {
+    if (isElectron) {
+      sendToElectron('shutdown', 'now');
+    }
+  };
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -112,7 +97,7 @@ export default function MenuBar(props: MenuBarProps) {
 
   return (
     <VStack>
-      <QuitIconBtn clickHandler={() => actionHandler('shutdown')} />
+      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
 
       <div className={style.gap} />
       <TooltipActionBtn
@@ -169,10 +154,11 @@ export default function MenuBar(props: MenuBarProps) {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
+        className={isAboutOpen ? style.open : ''}
         icon={<IoHelp />}
-        clickHandler={() => actionHandler('help')}
-        tooltip='Help'
-        aria-label='Help'
+        clickHandler={onAboutOpen}
+        tooltip='About'
+        aria-label='About'
       />
     </VStack>
   );
