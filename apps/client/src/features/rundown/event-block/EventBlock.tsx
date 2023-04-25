@@ -6,7 +6,7 @@ import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useAppMode } from '../../../common/stores/appModeStore';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { EventItemActions } from '../RundownEntry';
+import type { EventItemActions } from '../RundownEntry';
 
 import EventBlockInner from './EventBlockInner';
 

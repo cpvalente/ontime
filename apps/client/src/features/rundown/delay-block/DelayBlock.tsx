@@ -11,7 +11,7 @@ import DelayInput from '../../../common/components/input/delay-input/DelayInput'
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 import BlockActionMenu from '../event-block/composite/BlockActionMenu';
-import { EventItemActions } from '../RundownEntry';
+import type { EventItemActions } from '../RundownEntry';
 
 import style from './DelayBlock.module.scss';
 
