@@ -8,16 +8,6 @@ import { integrationService } from './integration-service/IntegrationService.js'
 import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 
-/**
- * Aux type
- */
-type Timer = {
-  _startedAt: number;
-  _finishAt: number;
-  duration: number;
-  current: number;
-};
-
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
 
@@ -345,9 +335,8 @@ export class TimerService {
    * Loads roll information into timer service
    * @param {OntimeEvent | null} currentEvent -- both current event and next event cant be null
    * @param {OntimeEvent | null} nextEvent -- both current event and next event cant be null
-   * @param {Timer} timers
    */
-  roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null, timers: Timer) {
+  roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null) {
     this._clear();
     this.timer.clock = clock.timeNow();
 
