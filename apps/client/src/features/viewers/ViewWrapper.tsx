@@ -1,10 +1,11 @@
 import { ReactNode, useMemo } from 'react';
 import { Playback, TitleBlock } from 'ontime-types';
+import { useStore } from 'zustand';
 
 import useEventData from '../../common/hooks-query/useEventData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
-import { useRuntimeStore } from '../../common/stores/runtime';
+import { runtime } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 export type TitleManager = TitleBlock & { showNow: boolean; showNext: boolean };
@@ -27,7 +28,7 @@ const withData = (Component: ReactNode) => {
     }, [eventsData]);
 
     // websocket data
-    const data = useRuntimeStore();
+    const data = useStore(runtime);
     const { timer, titles, titlesPublic, publicMessage, timerMessage, lowerMessage, playback, onAir } = data;
     const publicSelectedId = data.loaded.selectedPublicEventId;
     const selectedId = data.loaded.selectedEventId;

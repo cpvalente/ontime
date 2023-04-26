@@ -274,6 +274,7 @@ export class TimerService {
 
       this.timer.current = updatedTimer;
       this.timer.secondaryTimer = updatedSecondaryTimer;
+      this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
 
       if (isFinished) {
         this.timer.selectedEventId = null;
@@ -355,11 +356,11 @@ export class TimerService {
       this.timer.secondaryTimer = null;
       this.secondaryTarget = null;
 
-      this.loadedTimerId = currentEvent.id;
+      // when we load a timer in roll, we do the same things as before
+      // but also pre-populate some data as to the running state
+      this.load(currentEvent);
       this.timer.startedAt = currentEvent.timeStart;
       this.timer.expectedFinish = currentEvent.timeEnd;
-      this.timer.duration = timers.duration;
-      this.timer.current = timers.current;
     } else if (nextEvent) {
       // account for day after
       const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + DAY_TO_MS : nextEvent.timeStart;
@@ -367,14 +368,13 @@ export class TimerService {
       this.timer.secondaryTimer = nextStart - this.timer.clock;
       this.secondaryTarget = nextStart;
     }
-
     this.playback = Playback.Roll;
     this._onRoll();
     this.update();
   }
 
   _onRoll() {
-    this._onLoad();
+    eventStore.set('playback', this.playback);
   }
 
   shutdown() {
