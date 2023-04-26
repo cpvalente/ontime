@@ -197,14 +197,14 @@ export class PlaybackService {
         return;
       }
 
-      const { currentEvent, nextEvent, timers } = rollTimers;
+      const { currentEvent, nextEvent } = rollTimers;
       if (!currentEvent && !nextEvent) {
         logger.warning('SERVER', 'Roll: no events found');
         PlaybackService.stop();
         return;
       }
 
-      eventTimer.roll(currentEvent, nextEvent, timers);
+      eventTimer.roll(currentEvent, nextEvent);
 
       const newState = eventTimer.playback;
       logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);

@@ -152,8 +152,10 @@ export class EventLoader {
       return null;
     }
 
-    const { nowIndex, timers, timeToNext, nextEvent, nextPublicEvent, currentEvent, currentPublicEvent } =
-      getRollTimers(timedEvents, timeNow);
+    const { nowIndex, timeToNext, nextEvent, nextPublicEvent, currentEvent, currentPublicEvent } = getRollTimers(
+      timedEvents,
+      timeNow,
+    );
 
     this.loadedEvent = currentEvent;
     this.loaded.selectedEventIndex = nowIndex;
@@ -166,7 +168,7 @@ export class EventLoader {
     this._loadThisTitles(nextEvent, 'next-private');
     this._loadThisTitles(nextPublicEvent, 'next-public');
 
-    return { currentEvent, nextEvent, timeToNext, timers };
+    return { currentEvent, nextEvent, timeToNext };
   }
 
   /**
