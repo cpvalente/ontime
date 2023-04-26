@@ -17,11 +17,12 @@ import style from './PlaybackButtons.module.scss';
 
 interface PlaybackButtonsProps {
   playback: Playback;
-  noEvents: boolean;
+  numEvents: number;
+  selectedEventIndex: number | null;
 }
 
 export default function PlaybackButtons(props: PlaybackButtonsProps) {
-  const { playback, noEvents } = props;
+  const { playback, numEvents, selectedEventIndex } = props;
 
   const isRolling = playback === Playback.Roll;
   const isPlaying = playback === Playback.Play;
@@ -29,9 +30,16 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const isArmed = playback === Playback.Armed;
   const isStopped = playback === Playback.Stop;
 
+  const isFirst = selectedEventIndex === 0;
+  const isLast = selectedEventIndex === numEvents - 1;
+  const noEvents = numEvents === 0;
+
+  const disableGo = isRolling || noEvents || isLast;
+  const disablePrev = isRolling || noEvents || isFirst;
+
   return (
     <div className={styles.buttonContainer}>
-      <TapButton disabled={isRolling} onClick={() => setPlayback.startNext()} aspect='fill' className={styles.go}>
+      <TapButton disabled={disableGo} onClick={() => setPlayback.startNext()} aspect='fill' className={styles.go}>
         GO
       </TapButton>
       <div className={style.playbackContainer}>
@@ -55,12 +63,12 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
       </div>
       <div className={style.transportContainer}>
         <Tooltip label='Previous event' openDelay={tooltipDelayMid}>
-          <TapButton onClick={() => setPlayback.previous()} disabled={isRolling || noEvents}>
+          <TapButton onClick={() => setPlayback.previous()} disabled={disablePrev}>
             <IoPlaySkipBack />
           </TapButton>
         </Tooltip>
         <Tooltip label='Next event' openDelay={tooltipDelayMid}>
-          <TapButton onClick={() => setPlayback.next()} disabled={isRolling || noEvents}>
+          <TapButton onClick={() => setPlayback.next()} disabled={disableGo}>
             <IoPlaySkipForward />
           </TapButton>
         </Tooltip>
