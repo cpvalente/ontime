@@ -37,6 +37,7 @@ export const setMessage = {
 export const usePlaybackControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.playback,
+    selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
   });
 
