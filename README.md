@@ -1,5 +1,5 @@
 [![ontime_test_CI](https://github.com/cpvalente/ontime/actions/workflows/ontime_cy.yml/badge.svg)](https://github.com/cpvalente/ontime/actions/workflows/ontime_cy.yml) [![Ontime build](https://github.com/cpvalente/ontime/actions/workflows/build.yml/badge.svg)](https://github.com/cpvalente/ontime/actions/workflows/build.yml)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Documentation in Gitbook](https://badges.aleen42.com/src/gitbook_2.svg)](https://cpvalente.gitbook.io/ontime/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Documentation in Gitbook](https://badges.aleen42.com/src/gitbook_2.svg)](https://ontime.gitbook.io)
 
 ## Download the latest releases here
 
@@ -55,7 +55,7 @@ IP.ADDRESS:4001/editor    > the control interface, same as the app
 IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
 ```
 
-More documentation is available [in our docs](https://cpvalente.gitbook.io/ontime/)
+More documentation is available [in our docs](https://ontime.gitbook.io)
 
 ## Feature List (in no specific order)
 
@@ -78,7 +78,7 @@ More documentation is available [in our docs](https://cpvalente.gitbook.io/ontim
   - WebSockets
 - [x] Roll mode: run independently using the system clock
 - [x] [Headless run](#headless-run): run server in a separate machine, configure from a browser locally
-- [x] [Countdown to anything!](https://cpvalente.gitbook.io/ontime/views/countdown): have
+- [x] [Countdown to anything!](https://ontime.gitbook.io/v2/views/countdown): have
   a countdown to any scheduled event
 - [x] Multi-platform  (available on Windows, MacOS and Linux)
 - [x] [Companion integration](https://bitfocus.io/connections/getontime-ontime)
@@ -116,7 +116,7 @@ Writing a new view for the browser can be done with basic knowledge of HTML + CS
 <br />
 See [this repository](https://github.com/cpvalente/ontime-viewer-template-v2) with a small template on
 how to get you started and read the docs about
-the [Websocket API](https://app.gitbook.com/s/-Mc0giSOToAhq0ROd0CR/control-and-feedback/websocket-api)
+the [Websocket API](https://ontime.gitbook.io/v2/control-and-feedback/websocket-api)
 
 ### Headless run️
 
@@ -197,7 +197,7 @@ Information about the project setup can be found in the [development documentati
 
 # Help
 
-Help is underway! ... and can be found [here](https://cpvalente.gitbook.io/ontime/)
+Help is underway! ... and can be found [here](https://ontime.gitbook.io)
 
 # License
 
