@@ -1,7 +1,7 @@
 export const STATIC_PORT = 4001;
 
 // REST stuff
-export const EVENTDATA_TABLE = ['eventdata'];
+export const EVENT_DATA = ['eventdata'];
 export const ALIASES = ['aliases'];
 export const USERFIELDS = ['userFields'];
 export const RUNDOWN_TABLE_KEY = 'rundown';

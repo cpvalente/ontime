@@ -93,8 +93,6 @@ export default function OscSettings() {
             />
           </FormControl>
 
-          <hr className={styles.divider} />
-
           <div className={styles.splitSection}>
             <div>
               <span className={styles.sectionTitle} style={{ fontWeight: 600 }}>

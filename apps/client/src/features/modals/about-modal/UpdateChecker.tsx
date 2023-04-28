@@ -50,7 +50,7 @@ export default function UpdateChecker(props: UpdateCheckerProps) {
   const disableButton = Boolean(updateMessage && 'version' in updateMessage);
 
   return (
-    <div className={styles.test}>
+    <div className={styles.updateSection}>
       <Button onClick={versionCheck} variant='ontime-filled' isLoading={isFetching} isDisabled={disableButton}>
         Check for updates
       </Button>

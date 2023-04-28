@@ -1,6 +1,8 @@
 @use '../../theme/v2Styles' as *;
 @use '../../theme/ontimeColours' as *;
 
+$el-padding-with-compensation: 24px; // 16 + 8
+
 @mixin modal-link {
   color: $blue-500;
   transition-property: color;
@@ -14,7 +16,7 @@
 .headerNotes  {
   font-size: $text-body-size;
   width: 100%;
-  padding: 0 $section-spacing;
+  padding: 0 $el-padding-with-compensation;
   color: $modal-note-color;
   margin-bottom: $section-spacing;
 
@@ -22,6 +24,12 @@
     display: block;
     @include modal-link
   }
+}
+
+.footerNotes  {
+  font-size: $inner-section-text-size;
+  padding: 0 $el-padding-with-compensation;
+  color: $modal-note-color;
 }
 
 .divider {
@@ -60,7 +68,7 @@
 .sectionTitle {
   font-size: $inner-section-text-size;
   display: block;
-
+  width: 100%;
   &.main {
     font-weight: 600;
   }
@@ -84,8 +92,6 @@
 .buttonSection {
   margin-top: $section-spacing;
   padding-top: $section-spacing;
-  padding-left: -24px;
-  border-top: 1px solid $gray-100;
   display: flex;
   gap: $section-spacing;
 }
@@ -120,8 +126,8 @@
   margin-right: 16px;
 }
 
-.test {
-  padding-top: 24px;
+.updateSection {
+  padding-top: $el-padding-with-compensation;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;

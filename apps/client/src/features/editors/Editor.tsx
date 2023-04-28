@@ -7,6 +7,7 @@ import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import IntegrationModal from '../modals/integration-modal/IntegrationModal';
 import ModalManager from '../modals/ModalManager';
+import QuickStart from '../modals/quick-start/QuickStart';
 
 import styles from './Editor.module.scss';
 
@@ -25,6 +26,7 @@ export default function Editor() {
     onClose: onIntegrationModalClose,
   } = useDisclosure();
   const { isOpen: isAboutModalOpen, onOpen: onAboutModalOpen, onClose: onAboutModalClose } = useDisclosure();
+  const { isOpen: isQuickStartOpen, onOpen: onQuickStartOpen, onClose: onQuickStartClose } = useDisclosure();
 
   // Set window title
   useEffect(() => {
@@ -34,6 +36,7 @@ export default function Editor() {
   return (
     <>
       <ErrorBoundary>
+        <QuickStart onClose={onQuickStartClose} isOpen={isQuickStartOpen} />
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
@@ -52,6 +55,8 @@ export default function Editor() {
               onIntegrationOpen={onIntegrationModalOpen}
               isAboutOpen={isAboutModalOpen}
               onAboutOpen={onAboutModalOpen}
+              isQuickStartOpen={isQuickStartOpen}
+              onQuickStartOpen={onQuickStartOpen}
             />
           </ErrorBoundary>
         </Box>

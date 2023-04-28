@@ -1,14 +1,14 @@
 import { removeUndefined } from '../utils/parserUtils.js';
 import { failEmptyObjects } from '../utils/routerUtils.js';
-import { DataProvider } from '../classes/data-provider/DataProvider.ts';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 // Create controller for GET request to 'event'
-export const getEvent = async (req, res) => {
+export const getEventData = async (req, res) => {
   res.json(DataProvider.getEventData());
 };
 
 // Create controller for POST request to 'event'
-export const postEvent = async (req, res) => {
+export const postEventData = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }

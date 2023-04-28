@@ -2,7 +2,7 @@ export const ontimeModal = {
   header: {
     fontWeight: 400,
     letterSpacing: '0.3px',
-    padding: '8px 16px',
+    padding: '16px 24px',
     fontSize: '20px',
     color: '#202020', // $gray-50
   },
@@ -12,7 +12,7 @@ export const ontimeModal = {
     minHeight: 'min(500px, 75vh)',
   },
   body: {
-    padding: 0,
+    padding: '8px 16px',
     display: 'flex',
     flexDirection: 'column',
   },

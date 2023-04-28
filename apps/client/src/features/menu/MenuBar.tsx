@@ -1,12 +1,13 @@
 import { useCallback, useEffect } from 'react';
 import { VStack } from '@chakra-ui/react';
-import { FiSave } from '@react-icons/all-files/fi/FiSave';
-import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
+import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
 import { IoHelp } from '@react-icons/all-files/io5/IoHelp';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
+import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import { downloadRundown } from '../../common/api/ontimeApi';
@@ -27,6 +28,8 @@ interface MenuBarProps {
   onIntegrationOpen: () => void;
   isAboutOpen: boolean;
   onAboutOpen: () => void;
+  isQuickStartOpen: boolean;
+  onQuickStartOpen: () => void;
 }
 
 const buttonStyle = {
@@ -52,6 +55,8 @@ export default function MenuBar(props: MenuBarProps) {
     onIntegrationOpen,
     isAboutOpen,
     onAboutOpen,
+    isQuickStartOpen,
+    onQuickStartOpen,
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
@@ -102,7 +107,15 @@ export default function MenuBar(props: MenuBarProps) {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiUpload />}
+        icon={<IoColorWand />}
+        className={isQuickStartOpen ? style.open : ''}
+        clickHandler={onQuickStartOpen}
+        tooltip='Show quick start'
+        aria-label='Show quick start'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<IoPushOutline />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
         tooltip='Upload showfile'
@@ -110,7 +123,7 @@ export default function MenuBar(props: MenuBarProps) {
       />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiSave />}
+        icon={<IoSaveOutline />}
         clickHandler={downloadRundown}
         tooltip='Export showfile'
         aria-label='Export showfile'
