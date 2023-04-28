@@ -102,7 +102,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
 
 .shiftRight {
   align-self: flex-end;
-  margin-right: 8px;
+  margin-right: $element-spacing;
 }
 
 .showPointer {
@@ -115,7 +115,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
 }
 
 .padBottom {
-  padding-bottom: 8px;
+  padding-bottom: $element-spacing;
 }
 
 .logo {
@@ -123,7 +123,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
   height: 48px;
   display: inline-block;
   vertical-align: text-bottom;
-  margin-right: 16px;
+  margin-right: $section-spacing;
 }
 
 .updateSection {
@@ -131,7 +131,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 4px;
+  gap: $element-inner-spacing;
 
   .error {
     font-size: $error-red;

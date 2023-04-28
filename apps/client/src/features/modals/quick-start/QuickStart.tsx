@@ -90,7 +90,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
                 <Textarea
                   variant='ontime-filled-on-light'
                   size='sm'
-                  maxLength={50}
+                  maxLength={150}
                   placeholder='Shows always start ontime'
                   {...register('publicInfo')}
                 />
@@ -113,7 +113,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
                 <Textarea
                   variant='ontime-filled-on-light'
                   size='sm'
-                  maxLength={50}
+                  maxLength={150}
                   placeholder='Wi-Fi password: 1234'
                   {...register('backstageInfo')}
                 />
