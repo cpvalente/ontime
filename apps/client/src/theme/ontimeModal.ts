@@ -12,12 +12,15 @@ export const ontimeModal = {
     minHeight: 'min(500px, 75vh)',
   },
   body: {
-    padding: '8px 16px',
+    padding: 0,
     display: 'flex',
     flexDirection: 'column',
   },
   closeButton: {
     color: '#202020', // $gray-50
+  },
+  footer: {
+    padding: '8px',
   },
 };
 

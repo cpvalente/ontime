@@ -67,11 +67,11 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
       variant='ontime'
     >
       <ModalOverlay />
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <ModalContent>
-          <ModalHeader>Ontime quick start</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody className={styles.pad}>
+      <ModalContent>
+        <ModalHeader>Ontime quick start</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody className={styles.pad}>
+          <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer}>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
                 Event title
@@ -130,27 +130,27 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
                 />
               </label>
             </div>
-          </ModalBody>
-          <div className={styles.footerNotes}>
-            Note: Application options will be kept but rundown and event data will be reset <br />
-          </div>
-          <ModalFooter className={styles.buttonSection}>
-            <Button onClick={onReset} isDisabled={disableButtons} variant='ontime-ghost-on-light' size='sm'>
-              Clear data
-            </Button>
-            <Button
-              type='submit'
-              isLoading={isSubmitting}
-              isDisabled={disableButtons}
-              variant='ontime-filled'
-              padding='0 2em'
-              size='sm'
-            >
-              New showfile
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </form>
+            <div className={styles.footerNotes}>
+              Note: Application options will be kept but rundown and event data will be reset <br />
+            </div>
+            <ModalFooter className={styles.buttonSection}>
+              <Button onClick={onReset} isDisabled={disableButtons} variant='ontime-ghost-on-light' size='sm'>
+                Clear data
+              </Button>
+              <Button
+                type='submit'
+                isLoading={isSubmitting}
+                isDisabled={disableButtons}
+                variant='ontime-filled'
+                padding='0 2em'
+                size='sm'
+              >
+                New showfile
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalBody>
+      </ModalContent>
     </Modal>
   );
 }

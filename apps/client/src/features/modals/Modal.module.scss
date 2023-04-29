@@ -39,6 +39,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
 }
 
 .sectionContainer {
+  padding: 8px 16px;
   display: flex;
   flex-direction: column;
   height: 100%
@@ -91,7 +92,6 @@ $el-padding-with-compensation: 24px; // 16 + 8
 
 .buttonSection {
   margin-top: $section-spacing;
-  padding-top: $section-spacing;
   display: flex;
   gap: $section-spacing;
 }
@@ -136,4 +136,9 @@ $el-padding-with-compensation: 24px; // 16 + 8
   .error {
     font-size: $error-red;
   }
+}
+
+.overflowContainer {
+  overflow-y: auto;
+  max-height: 40%;
 }
