@@ -58,19 +58,16 @@ const uploadAndParse = async (file, req, res, options) => {
   try {
     const result = await fileHandler(file);
 
-    // @ts-expect-error -- not yet
-    if (result?.error) {
+    if ('error' in result && result.error) {
       res.status(400).send({ message: result.message });
-    } else if (result.message === 'success') {
+    } else if ('data' in result && result.message === 'success') {
       PlaybackService.stop();
       // explicitly write objects
       if (typeof result !== 'undefined') {
-        // @ts-expect-error -- not yet
         const newRundown = result.data.rundown || [];
         if (options?.onlyRundown === 'true') {
           await DataProvider.setRundown(newRundown);
         } else {
-          // @ts-expect-error -- not yet
           await DataProvider.mergeIntoData(result.data);
         }
       }

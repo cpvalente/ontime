@@ -352,7 +352,7 @@ type ResponseError = { error: true; message: string };
  * @param {string} file - reference to file
  * @return {object} - parse result message
  */
-export const fileHandler = async (file) => {
+export const fileHandler = async (file): ResponseOK | ResponseError => {
   let res: Partial<ResponseOK | ResponseError> = {};
 
   // check which file type are we dealing with
