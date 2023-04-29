@@ -98,8 +98,7 @@
     "publicUrl": "www.getontime.no",
     "publicInfo": "WiFi: demoproject \nPassword: ontimeproject",
     "backstageUrl": "www.getontime.no",
-    "backstageInfo": "WiFi: demobackstage\nPassword: ontimeproject",
-    "endMessage": ""
+    "backstageInfo": "WiFi: demobackstage\nPassword: ontimeproject"
   },
   "settings": {
     "app": "ontime",
@@ -110,7 +109,8 @@
     "timeFormat": "24"
   },
   "viewSettings": {
-    "overrideStyles": false
+    "overrideStyles": false,
+    "endMessage": ""
   },
   "aliases": [
     {

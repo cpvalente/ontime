@@ -21,7 +21,7 @@ interface MinimalTimerProps {
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
-  const { isMirrored, pres, time, viewSettings, general } = props;
+  const { isMirrored, pres, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
@@ -129,7 +129,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isPlaying = time.playback !== Playback.Pause;
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-  const showEndMessage = (time.current ?? 0) < 0 && general.endMessage && !hideEndMessage;
+  const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
   const showFinished =
     time.finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
@@ -162,7 +162,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         </div>
       )}
       {showEndMessage ? (
-        <div className='end-message'>{general.endMessage}</div>
+        <div className='end-message'>{viewSettings.endMessage}</div>
       ) : (
         <div
           className={timerClasses}

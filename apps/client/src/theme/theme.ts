@@ -88,7 +88,7 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeTextAreaFilled },
-        'ontime-filled-onlight': { ...ontimeTextAreaFilledOnLight },
+        'ontime-filled-on-light': { ...ontimeTextAreaFilledOnLight },
       },
     },
     Tooltip: {

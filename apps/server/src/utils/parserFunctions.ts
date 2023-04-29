@@ -87,7 +87,6 @@ export const parseEventData = (data, enforce): EventData => {
       publicInfo: e.publicInfo || dbModel.eventData.publicInfo,
       backstageUrl: e.backstageUrl || dbModel.eventData.backstageUrl,
       backstageInfo: e.backstageInfo || dbModel.eventData.backstageInfo,
-      endMessage: e.endMessage || dbModel.eventData.endMessage,
     };
   } else if (enforce) {
     newEventData = { ...dbModel.eventData };
@@ -145,6 +144,7 @@ export const parseViewSettings = (data, enforce): ViewSettings => {
 
     const viewSettings = {
       overrideStyles: v.overrideStyles ?? dbModel.viewSettings.overrideStyles,
+      endMessage: v.endMessage ?? dbModel.viewSettings.endMessage,
     };
 
     // write to db

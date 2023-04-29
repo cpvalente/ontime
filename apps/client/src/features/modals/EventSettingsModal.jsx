@@ -32,7 +32,6 @@ export default function SettingsModal() {
       publicInfo: data.publicInfo,
       backstageUrl: data.backstageUrl,
       backstageInfo: data.backstageInfo,
-      endMessage: data.endMessage,
     });
   }, [changed, data]);
 
@@ -166,23 +165,6 @@ export default function SettingsModal() {
               resize={false}
               value={formData.backstageInfo}
               onChange={(event) => handleChange('backstageInfo', event.target.value)}
-            />
-          </div>
-          <div className={style.spacedEntry}>
-            <FormLabel htmlFor='endMessage'>
-              End Message
-              <span className={style.labelNote}>
-                <br />
-                Shown on presenter view when time is finished
-              </span>
-            </FormLabel>
-            <Input
-              {...inputProps}
-              maxLength={30}
-              name='endMessage'
-              placeholder='Empty message shows elapsed time'
-              value={formData.endMessage}
-              onChange={(event) => handleChange('endMessage', event.target.value)}
             />
           </div>
         </div>

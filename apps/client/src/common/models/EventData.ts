@@ -6,5 +6,4 @@ export const eventDataPlaceholder: EventData = {
   publicInfo: '',
   backstageUrl: '',
   backstageInfo: '',
-  endMessage: '',
 };

@@ -12,7 +12,7 @@ export class DataProvider {
     return data;
   }
 
-  static async setEventData(newData: EventData) {
+  static async setEventData(newData: Partial<EventData>) {
     data.eventData = { ...data.eventData, ...newData };
     await this.persist();
     return data.eventData;

@@ -11,6 +11,7 @@ import {
   getViewSettings,
   poll,
   postAliases,
+  postNew,
   postOSC,
   postSettings,
   postUserFields,
@@ -24,6 +25,7 @@ import {
   validateUserFields,
   viewValidator,
 } from '../controllers/ontimeController.validate.js';
+import { eventDataSanitizer } from '../controllers/eventDataController.validate.js';
 
 export const router = express.Router();
 
@@ -68,3 +70,6 @@ router.get('/osc', getOSC);
 
 // create route between controller and '/ontime/osc' endpoint
 router.post('/osc', validateOSC, postOSC);
+
+// create route between controller and '/ontime/new' endpoint
+router.post('/new', eventDataSanitizer, postNew);

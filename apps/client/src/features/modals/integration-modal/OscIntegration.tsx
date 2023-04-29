@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ModalBody } from '@chakra-ui/react';
 import type { OSCSettings, OscSubscription } from 'ontime-types';
 import { TimerLifeCycle } from 'ontime-types';
 import { generateId } from 'ontime-utils';
@@ -103,27 +102,25 @@ export default function OscIntegration() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='oscSubscriptions'>
-      <ModalBody>
-        {subscriptionKeys.map((cycle, idx) => {
-          return (
-            <>
-              <OscSubscriptionRow
-                key={cycle}
-                cycle={cycle as TimerLifeCycle}
-                title={sectionText[cycle as TimerLifeCycle].title}
-                subtitle={sectionText[cycle as TimerLifeCycle].subtitle}
-                visible={showSection === cycle}
-                setShowSection={setShowSection}
-                subscriptionOptions={subscriptionState[cycle as TimerLifeCycle]}
-                handleDelete={deleteSubscriptionEntry}
-                handleAddNew={addNewSubscriptionEntry}
-                register={register}
-              />
-              {idx < subscriptionKeys.length - 1 && <hr className={styles.divider} />}
-            </>
-          );
-        })}
-      </ModalBody>
+      {subscriptionKeys.map((cycle, idx) => {
+        return (
+          <>
+            <OscSubscriptionRow
+              key={cycle}
+              cycle={cycle as TimerLifeCycle}
+              title={sectionText[cycle as TimerLifeCycle].title}
+              subtitle={sectionText[cycle as TimerLifeCycle].subtitle}
+              visible={showSection === cycle}
+              setShowSection={setShowSection}
+              subscriptionOptions={subscriptionState[cycle as TimerLifeCycle]}
+              handleDelete={deleteSubscriptionEntry}
+              handleAddNew={addNewSubscriptionEntry}
+              register={register}
+            />
+            {idx < subscriptionKeys.length - 1 && <hr className={styles.divider} />}
+          </>
+        );
+      })}
       <OntimeModalFooter
         formId='oscSubscriptions'
         handleRevert={resetForm}

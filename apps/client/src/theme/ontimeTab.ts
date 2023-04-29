@@ -13,4 +13,7 @@ export const ontimeTab = {
   tablist: {
     borderBottom: '2px solid #ececec', // $gray-100
   },
+  tabpanel: {
+    padding: 0,
+  },
 };

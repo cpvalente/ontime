@@ -1,7 +1,8 @@
 import fs from 'fs';
+import type { EventData } from 'ontime-types';
 import { networkInterfaces } from 'os';
 import { generateId } from 'ontime-utils';
-import { fileHandler } from '../utils/parser.ts';
+import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
@@ -10,6 +11,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { logger } from '../classes/Logger.js';
+import { deleteAllEvents } from '../services/RundownService.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -56,9 +58,9 @@ const uploadAndParse = async (file, req, res, options) => {
   try {
     const result = await fileHandler(file);
 
-    if (result?.error) {
+    if ('error' in result && result.error) {
       res.status(400).send({ message: result.message });
-    } else if (result.message === 'success') {
+    } else if ('data' in result && result.message === 'success') {
       PlaybackService.stop();
       // explicitly write objects
       if (typeof result !== 'undefined') {
@@ -241,7 +243,10 @@ export const postViewSettings = async (req, res) => {
   }
 
   try {
-    const newData = { overrideStyles: req.body.overrideStyles };
+    const newData = {
+      overrideStyles: req.body.overrideStyles,
+      endMessage: req.body?.endMessage || '',
+    };
     await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
@@ -287,4 +292,22 @@ export const dbUpload = async (req, res) => {
   const options = req.query;
   const file = req.file.path;
   await uploadAndParse(file, req, res, options);
+};
+
+// Create controller for POST request to '/ontime/new'
+export const postNew = async (req, res) => {
+  try {
+    const newEventData: Omit<EventData, 'endMessage'> = {
+      title: req.body?.title ?? '',
+      publicUrl: req.body?.publicUrl ?? '',
+      publicInfo: req.body?.publicInfo ?? '',
+      backstageUrl: req.body?.backstageUrl ?? '',
+      backstageInfo: req.body?.backstageInfo ?? '',
+    };
+    const newData = await DataProvider.setEventData(newEventData);
+    await deleteAllEvents();
+    res.status(201).send(newData);
+  } catch (error) {
+    res.status(400).send(error);
+  }
 };

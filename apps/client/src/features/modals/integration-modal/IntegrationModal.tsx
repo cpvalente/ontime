@@ -1,4 +1,4 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+import { ModalBody, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 
 import ModalWrapper from '../ModalWrapper';
 
@@ -19,26 +19,28 @@ export default function IntegrationModal(props: IntegrationModalProps) {
 
   return (
     <ModalWrapper title='Integration Settings' isOpen={isOpen} onClose={onClose}>
-      <div className={styles.headerNotes}>
-        Manage settings related to protocol integrations
-        <a href={oscDocsUrl} target='_blank' rel='noreferrer'>
-          Read the docs
-        </a>
-      </div>
-      <Tabs variant='ontime' size='sm' isLazy>
-        <TabList>
-          <Tab>OSC</Tab>
-          <Tab>OSC Integration</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <OscSettings />
-          </TabPanel>
-          <TabPanel>
-            <OscIntegration />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+      <ModalBody>
+        <div className={styles.headerNotes}>
+          Manage settings related to protocol integrations
+          <a href={oscDocsUrl} target='_blank' rel='noreferrer'>
+            Read the docs
+          </a>
+        </div>
+        <Tabs variant='ontime' size='sm' isLazy>
+          <TabList>
+            <Tab>OSC</Tab>
+            <Tab>OSC Integration</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <OscSettings />
+            </TabPanel>
+            <TabPanel>
+              <OscIntegration />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </ModalBody>
     </ModalWrapper>
   );
 }
