@@ -110,8 +110,8 @@ export default function MenuBar(props: MenuBarProps) {
         icon={<IoColorWand />}
         className={isQuickStartOpen ? style.open : ''}
         clickHandler={onQuickStartOpen}
-        tooltip='Show quick start'
-        aria-label='Show quick start'
+        tooltip='Quick start'
+        aria-label='Quick start'
       />
       <TooltipActionBtn
         {...buttonStyle}

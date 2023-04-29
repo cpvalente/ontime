@@ -17,6 +17,7 @@ import type { EventData } from 'ontime-types';
 import { EVENT_DATA, RUNDOWN_TABLE } from '../../../common/api/apiConstants';
 import { postNew } from '../../../common/api/ontimeApi';
 import useEventData from '../../../common/hooks-query/useEventData';
+import { eventDataPlaceholder } from '../../../common/models/EventData';
 import { ontimeQueryClient } from '../../../common/queryClient';
 
 import styles from '../Modal.module.scss';
@@ -45,14 +46,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
     await ontimeQueryClient.invalidateQueries(RUNDOWN_TABLE);
   };
 
-  const onReset = () =>
-    reset({
-      title: '',
-      publicUrl: '',
-      publicInfo: '',
-      backstageUrl: '',
-      backstageInfo: '',
-    });
+  const onReset = () => reset(eventDataPlaceholder);
 
   const disableButtons = status !== 'success' || isSubmitting;
   return (
