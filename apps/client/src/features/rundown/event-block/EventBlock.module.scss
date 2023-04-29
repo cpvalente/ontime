@@ -25,7 +25,7 @@ $skip-opacity: 0.1;
   transition-property: background-color;
   transition-duration: $transition-time-feedback;
 
-  @mixin declare-overrides(){
+  @mixin declare-overrides() {
     --status-color-override: #{$gray-200};
     --status-color-active-override: #{$green-400};
   }
@@ -45,7 +45,7 @@ $skip-opacity: 0.1;
   }
 
   &.pause {
-    background-color: $orange-700;
+    background-color: rgba($ontime-paused, 0.6);
     @include declare-overrides;
   }
 
