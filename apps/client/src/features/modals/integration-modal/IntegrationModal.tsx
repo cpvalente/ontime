@@ -12,7 +12,7 @@ interface IntegrationModalProps {
   onClose: () => void;
 }
 
-const oscDocsUrl = 'https://cpvalente.gitbook.io/ontime/control-and-feedback/osc';
+const oscDocsUrl = 'https://ontime.gitbook.io/v2/control-and-feedback/osc';
 
 export default function IntegrationModal(props: IntegrationModalProps) {
   const { isOpen, onClose } = props;

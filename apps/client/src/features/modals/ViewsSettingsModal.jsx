@@ -14,6 +14,8 @@ import SubmitContainer from './SubmitContainer';
 
 import style from './Modals.module.scss';
 
+const customStylingDocsUrl = 'https://ontime.gitbook.io/v2/features/custom-styling';
+
 export default function ViewsSettingsModal() {
   const { data, status, refetch } = useViewSettings();
 
@@ -107,11 +109,7 @@ export default function ViewsSettingsModal() {
             CSS Style Overrides
           </span>
           This feature allows user defined CSS to customise viewers appearance. <br />
-          <a
-            href='#!'
-            onClick={() => openLink('https://cpvalente.gitbook.io/ontime/features/custom-styling')}
-            className={style.if}
-          >
+          <a href='#!' onClick={() => openLink(customStylingDocsUrl)} className={style.if}>
             For details on the styling and file location please refer to documentation
           </a>
         </div>
