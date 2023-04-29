@@ -130,8 +130,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
   const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
-  const showFinished =
-    time.finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
+  const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
+  const showFinished = finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
   const stageTimer = getTimerByType(time);
   let display = formatTimerDisplay(stageTimer);

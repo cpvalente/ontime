@@ -1,5 +1,5 @@
 import { ComponentType, useMemo } from 'react';
-import { Playback, TitleBlock } from 'ontime-types';
+import { TitleBlock } from 'ontime-types';
 import { useStore } from 'zustand';
 
 import useEventData from '../../common/hooks-query/useEventData';
@@ -80,7 +80,6 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
     // get clock string
     const TimeManagerType = {
       ...timer,
-      finished: playback === Playback.Play && (timer.current ?? 0) < 0 && timer.startedAt,
       playback,
     };
 
