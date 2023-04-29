@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FormControl, FormLabel, ModalBody } from '@chakra-ui/react';
-import { IoCheckmarkSharp } from '@react-icons/all-files/io5/IoCheckmarkSharp';
+import { FormControl, FormLabel, Input, ModalBody } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
-
-import { useEmitLog } from '@/common/stores/logger';
 
 import { postView } from '../../common/api/ontimeApi';
 import EnableBtn from '../../common/components/buttons/EnableBtn';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
+import { useEmitLog } from '../../common/stores/logger';
 import { openLink } from '../../common/utils/linkUtils';
+import { inputProps } from '../../features/modals/modalHelper';
 
 import SubmitContainer from './SubmitContainer';
 
@@ -83,44 +82,37 @@ export default function ViewsSettingsModal() {
         🔥 Changes take effect immediately 🔥
       </p>
       <form onSubmit={submitHandler}>
+        <div className={style.hSeparator}>Timer end message</div>
+        <div className={style.spacedEntry}>
+          <FormLabel htmlFor='endMessage'>
+            End Message
+            <span className={style.labelNote}>
+              <br />
+              Shown on presenter view when time is finished
+            </span>
+          </FormLabel>
+          <Input
+            {...inputProps}
+            maxLength={50}
+            name='endMessage'
+            placeholder='Empty message shows elapsed time'
+            value={formData.endMessage}
+            onChange={(event) => handleChange('endMessage', event.target.value)}
+          />
+        </div>
         <div className={style.hSeparator}>Style Options</div>
         <div className={style.blockNotes}>
           <span className={style.inlineFlex}>
             <IoInformationCircleOutline color='#2b6cb0' fontSize='2em' />
             CSS Style Overrides
           </span>
-          This feature allows user defined CSS to override the application stylesheets as a way to customise viewers
-          appearance.
-          <br />
-          Currently the feature affects the following views
-          <br />
-          <ul className={style.featureList}>
-            <li>
-              <IoCheckmarkSharp /> Stage timer
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Clock
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Minimal timer
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Backstage screen
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Public screen
-            </li>
-            <li>
-              <IoCheckmarkSharp /> Countdown
-            </li>
-          </ul>
-          Read more about it in the documentation{' '}
+          This feature allows user defined CSS to customise viewers appearance. <br />
           <a
             href='#!'
             onClick={() => openLink('https://cpvalente.gitbook.io/ontime/features/custom-styling')}
             className={style.if}
           >
-            over at Gitbook
+            For details on the styling and file location please refer to documentation
           </a>
         </div>
         <div className={style.modalFields}>

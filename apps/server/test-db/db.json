@@ -224,8 +224,7 @@
     "publicUrl": "www.getontime.no",
     "publicInfo": "WiFi: demoproject \nPassword: ontimeproject",
     "backstageUrl": "www.getontime.no",
-    "backstageInfo": "WiFi: demobackstage\nPassword: ontimeproject",
-    "endMessage": ""
+    "backstageInfo": "WiFi: demobackstage\nPassword: ontimeproject"
   },
   "settings": {
     "app": "ontime",
@@ -235,7 +234,8 @@
     "pinCode": "1234"
   },
   "viewSettings": {
-    "overrideStyles": false
+    "overrideStyles": false,
+    "endMessage": ""
   },
   "osc": {
     "port": 8888,

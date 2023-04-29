@@ -8,7 +8,6 @@ export const dbModel: DatabaseModel = {
     publicInfo: '',
     backstageUrl: '',
     backstageInfo: '',
-    endMessage: '',
   },
   settings: {
     app: 'ontime',
@@ -20,6 +19,7 @@ export const dbModel: DatabaseModel = {
   },
   viewSettings: {
     overrideStyles: false,
+    endMessage: '',
   },
   aliases: [],
   userFields: {

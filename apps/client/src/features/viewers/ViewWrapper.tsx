@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from 'react';
+import { ComponentType, useMemo } from 'react';
 import { Playback, TitleBlock } from 'ontime-types';
 import { useStore } from 'zustand';
 
@@ -10,22 +10,23 @@ import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 export type TitleManager = TitleBlock & { showNow: boolean; showNext: boolean };
 
-const withData = (Component: ReactNode) => {
-  return (props) => {
+const withData = <P extends object>(Component: ComponentType<P>) => {
+  // eslint-disable-next-line react/display-name -- its ok
+  return (props: P) => {
     // persisted app state
     const isMirrored = useViewOptionsStore((state) => state.mirror);
 
     // HTTP API data
-    const { data: eventsData } = useRundown();
-    const { data: genData } = useEventData();
+    const { data: rundownData } = useRundown();
+    const { data: eventData } = useEventData();
     const { data: viewSettings } = useViewSettings();
 
     const publicEvents = useMemo(() => {
-      if (Array.isArray(eventsData)) {
-        return eventsData.filter((e) => e.type === 'event' && e.title && e.isPublic);
+      if (Array.isArray(rundownData)) {
+        return rundownData.filter((e) => e.type === 'event' && e.title && e.isPublic);
       }
       return [];
-    }, [eventsData]);
+    }, [rundownData]);
 
     // websocket data
     const data = useStore(runtime);
@@ -99,12 +100,12 @@ const withData = (Component: ReactNode) => {
         publicTitle={publicTitleManager}
         time={TimeManagerType}
         events={publicEvents}
-        backstageEvents={eventsData}
+        backstageEvents={rundownData}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
         viewSettings={viewSettings}
         nextId={nextId}
-        general={genData}
+        general={eventData}
         onAir={onAir}
       />
     );
