@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
-import { FormControl, Input, ModalBody, Switch } from '@chakra-ui/react';
+import { FormControl, FormLabel, Input, ModalBody, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
 import { postView } from '../../common/api/ontimeApi';
@@ -105,6 +105,24 @@ export default function ViewsSettingsModal() {
             Read the docs
           </a>
         </p>
+        <div className={style.hSeparator}>Timer end message</div>
+        <div className={style.spacedEntry}>
+          <FormLabel htmlFor='endMessage'>
+            End Message
+            <span className={style.labelNote}>
+              <br />
+              Shown on presenter view when time is finished
+            </span>
+          </FormLabel>
+          <Input
+            {...inputProps}
+            maxLength={50}
+            name='endMessage'
+            placeholder='Empty message shows elapsed time'
+            value={formData.endMessage}
+            onChange={(event) => handleChange('endMessage', event.target.value)}
+          />
+        </div>
         <div className={style.hSeparator}>Style Options</div>
         <div className={styles.splitSection}>
           <div>
