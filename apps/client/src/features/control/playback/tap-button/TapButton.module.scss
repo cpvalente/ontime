@@ -1,0 +1,93 @@
+@use '../../../../theme/v2Styles' as *;
+@use '../../../../theme/ontimeColours' as *;
+
+$button-bg-gray: $gray-1050;
+$button-color-white: $gray-50;
+
+@mixin tap-factory($theme-color) {
+  font-family: $ontime-font-family;
+  font-size: 18px;
+  border-radius: $component-border-radius-md;
+  width: 100%;
+  transition-property: color, background-color;
+  transition-duration: $transition-time-feedback;
+  display: grid;
+  place-content: center;
+  letter-spacing: 0.5px;
+
+  background-color: $button-bg-gray;
+  color: $theme-color;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: $opacity-disabled;
+  }
+
+  &:hover:not(:disabled) {
+    color: $button-color-white;
+    background-color: $theme-color;
+  }
+
+  &:active:not(:disabled) {
+    color: $button-bg-gray;
+    background-color: $button-color-white;
+    transition-property: color, background-color;
+    transition-duration: $transition-time-action;
+  }
+
+  &.active {
+    background-color: $theme-color;
+    color: $button-color-white;
+  }
+}
+
+.tapButton.neutral {
+  @include tap-factory($gray-50);
+
+  &:hover:not(:disabled) {
+    color: $gray-50;
+    background-color: $gray-1000;
+  }
+
+  &:active:not(:disabled) {
+    color: $button-bg-gray;
+    background-color: $button-color-white;
+    transition-property: color, background-color;
+    transition-duration: $transition-time-action;
+  }
+}
+
+.tapButton.play {
+  @include tap-factory($playback-start);
+}
+
+.tapButton.roll {
+  @include tap-factory($ontime-roll);
+}
+
+.tapButton.pause {
+  @include tap-factory($ontime-paused);
+}
+
+.tapButton.ontime {
+  @include tap-factory($ontime-color);
+}
+
+.tapButton.stop {
+  @include tap-factory($ontime-stop);
+}
+
+.tapButton.normal {
+  aspect-ratio: 3/1;
+}
+
+.tapButton.square {
+  aspect-ratio: 1;
+  font-size: 14px;
+}
+
+.tapButton.fill {
+  aspect-ratio: unset;
+  height: 100%;
+  font-size: 1.5em;
+}

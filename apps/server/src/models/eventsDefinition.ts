@@ -5,7 +5,7 @@ export const event: Omit<OntimeEvent, 'id'> = {
   subtitle: '',
   presenter: '',
   note: '',
-  endAction: EndAction.Continue,
+  endAction: EndAction.None,
   timerType: TimerType.CountDown,
   timeStart: 0,
   timeEnd: 0,

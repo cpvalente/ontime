@@ -1,18 +1,20 @@
 import { useCallback, useEffect } from 'react';
 import { VStack } from '@chakra-ui/react';
-import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
-import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
-import { FiSave } from '@react-icons/all-files/fi/FiSave';
-import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
+import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
-import { IoScan } from '@react-icons/all-files/io5/IoScan';
+import { IoHelp } from '@react-icons/all-files/io5/IoHelp';
+import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
+import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
+import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import { downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
+import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 
 import style from './MenuBar.module.scss';
 
@@ -24,12 +26,14 @@ interface MenuBarProps {
   onUploadOpen: () => void;
   isIntegrationOpen: boolean;
   onIntegrationOpen: () => void;
+  isAboutOpen: boolean;
+  onAboutOpen: () => void;
+  isQuickStartOpen: boolean;
+  onQuickStartOpen: () => void;
 }
 
-type Actions = 'min' | 'max' | 'shutdown' | 'help';
-
 const buttonStyle = {
-  fontSize: '1.5em',
+  fontSize: '1.25em',
   size: 'lg',
   colorScheme: 'white',
   _hover: {
@@ -49,37 +53,23 @@ export default function MenuBar(props: MenuBarProps) {
     onUploadOpen,
     isIntegrationOpen,
     onIntegrationOpen,
+    isAboutOpen,
+    onAboutOpen,
+    isQuickStartOpen,
+    onQuickStartOpen,
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
-  const actionHandler = useCallback(
-    (action: Actions) => {
-      // Stop crashes when testing locally
-      if (!isElectron) {
-        if (action === 'help') {
-          window.open('https://cpvalente.gitbook.io/ontime/');
-        }
-      } else {
-        switch (action) {
-          case 'min':
-            sendToElectron('set-window', 'to-tray');
-            break;
-          case 'max':
-            sendToElectron('set-window', 'to-max');
-            break;
-          case 'shutdown':
-            sendToElectron('shutdown', 'now');
-            break;
-          case 'help':
-            sendToElectron('send-to-link', 'help');
-            break;
-          default:
-            break;
-        }
-      }
-    },
-    [sendToElectron, isElectron],
-  );
+  const appMode = useAppMode((state) => state.mode);
+  const setAppMode = useAppMode((state) => state.setMode);
+
+  const setRunMode = () => setAppMode(AppMode.Run);
+  const setEditMode = () => setAppMode(AppMode.Edit);
+  const sendShutdown = () => {
+    if (isElectron) {
+      sendToElectron('shutdown', 'now');
+    }
+  };
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -112,27 +102,20 @@ export default function MenuBar(props: MenuBarProps) {
 
   return (
     <VStack>
-      <QuitIconBtn clickHandler={() => actionHandler('shutdown')} />
-      <TooltipActionBtn
-        {...buttonStyle}
-        icon={<IoScan />}
-        clickHandler={() => actionHandler('max')}
-        tooltip='Show full window'
-        aria-label='Show full window'
-        isDisabled={!isElectron}
-      />
-      <TooltipActionBtn
-        {...buttonStyle}
-        icon={<FiMinimize />}
-        clickHandler={() => actionHandler('min')}
-        tooltip='Minimise to tray'
-        aria-label='Minimise to tray'
-        isDisabled={!isElectron}
-      />
+      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
+
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiUpload />}
+        icon={<IoColorWand />}
+        className={isQuickStartOpen ? style.open : ''}
+        clickHandler={onQuickStartOpen}
+        tooltip='Quick start'
+        aria-label='Quick start'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<IoPushOutline />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
         tooltip='Upload showfile'
@@ -140,11 +123,30 @@ export default function MenuBar(props: MenuBarProps) {
       />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiSave />}
+        icon={<IoSaveOutline />}
         clickHandler={downloadRundown}
         tooltip='Export showfile'
         aria-label='Export showfile'
       />
+
+      <div className={style.gap} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<IoPlay />}
+        className={appMode === AppMode.Run ? style.open : ''}
+        clickHandler={setRunMode}
+        tooltip='Run mode'
+        aria-label='Run mode'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<IoOptions />}
+        className={appMode === AppMode.Edit ? style.open : ''}
+        clickHandler={setEditMode}
+        tooltip='Edit mode'
+        aria-label='Edit mode'
+      />
+
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
@@ -165,10 +167,11 @@ export default function MenuBar(props: MenuBarProps) {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiHelpCircle />}
-        clickHandler={() => actionHandler('help')}
-        tooltip='Help'
-        aria-label='Help'
+        className={isAboutOpen ? style.open : ''}
+        icon={<IoHelp />}
+        clickHandler={onAboutOpen}
+        tooltip='About'
+        aria-label='About'
       />
     </VStack>
   );

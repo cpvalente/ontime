@@ -1,33 +1,35 @@
-import { ReactNode, useMemo } from 'react';
+import { ComponentType, useMemo } from 'react';
 import { Playback, TitleBlock } from 'ontime-types';
+import { useStore } from 'zustand';
 
 import useEventData from '../../common/hooks-query/useEventData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
-import { useRuntimeStore } from '../../common/stores/runtime';
+import { runtime } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 export type TitleManager = TitleBlock & { showNow: boolean; showNext: boolean };
 
-const withData = (Component: ReactNode) => {
-  return (props) => {
+const withData = <P extends object>(Component: ComponentType<P>) => {
+  // eslint-disable-next-line react/display-name -- its ok
+  return (props: P) => {
     // persisted app state
     const isMirrored = useViewOptionsStore((state) => state.mirror);
 
     // HTTP API data
-    const { data: eventsData } = useRundown();
-    const { data: genData } = useEventData();
+    const { data: rundownData } = useRundown();
+    const { data: eventData } = useEventData();
     const { data: viewSettings } = useViewSettings();
 
     const publicEvents = useMemo(() => {
-      if (Array.isArray(eventsData)) {
-        return eventsData.filter((e) => e.type === 'event' && e.title && e.isPublic);
+      if (Array.isArray(rundownData)) {
+        return rundownData.filter((e) => e.type === 'event' && e.title && e.isPublic);
       }
       return [];
-    }, [eventsData]);
+    }, [rundownData]);
 
     // websocket data
-    const data = useRuntimeStore();
+    const data = useStore(runtime);
     const { timer, titles, titlesPublic, publicMessage, timerMessage, lowerMessage, playback, onAir } = data;
     const publicSelectedId = data.loaded.selectedPublicEventId;
     const selectedId = data.loaded.selectedEventId;
@@ -98,12 +100,12 @@ const withData = (Component: ReactNode) => {
         publicTitle={publicTitleManager}
         time={TimeManagerType}
         events={publicEvents}
-        backstageEvents={eventsData}
+        backstageEvents={rundownData}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
         viewSettings={viewSettings}
         nextId={nextId}
-        general={genData}
+        general={eventData}
         onAir={onAir}
       />
     );

@@ -4,10 +4,9 @@ import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
-import { useCursor } from '../../../common/stores/cursorStore';
-import { useEventEditorStore } from '../../../common/stores/eventEditor';
+import { useAppMode } from '../../../common/stores/appModeStore';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { EventItemActions } from '../RundownEntry';
+import type { EventItemActions } from '../RundownEntry';
 
 import EventBlockInner from './EventBlockInner';
 
@@ -17,7 +16,6 @@ interface EventBlockProps {
   timeStart: number;
   timeEnd: number;
   duration: number;
-  index: number;
   eventIndex: number;
   eventId: string;
   isPublic: boolean;
@@ -43,6 +41,7 @@ interface EventBlockProps {
           value: unknown;
         },
   ) => void;
+  disableEdit: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -50,7 +49,6 @@ export default function EventBlock(props: EventBlockProps) {
     timeStart,
     timeEnd,
     duration,
-    index,
     eventIndex,
     eventId,
     isPublic = true,
@@ -68,12 +66,13 @@ export default function EventBlock(props: EventBlockProps) {
     playback,
     isRolling,
     actionHandler,
+    disableEdit,
   } = props;
 
-  const moveCursorTo = useCursor((state) => state.moveCursorTo);
+  const moveCursorTo = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const openId = useEventEditorStore((state) => state.openId);
+  const openId = useAppMode((state) => state.editId);
 
   const {
     isDragging,
@@ -136,7 +135,12 @@ export default function EventBlock(props: EventBlockProps) {
 
   return (
     <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
-      <div className={style.binder} style={{ ...binderColours }} tabIndex={-1} onClick={() => moveCursorTo(index)}>
+      <div
+        className={style.binder}
+        style={{ ...binderColours }}
+        tabIndex={-1}
+        onClick={() => moveCursorTo(eventId, true)}
+      >
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>
@@ -162,6 +166,7 @@ export default function EventBlock(props: EventBlockProps) {
           playback={playback}
           isRolling={isRolling}
           actionHandler={actionHandler}
+          disableEdit={disableEdit}
         />
       )}
     </div>

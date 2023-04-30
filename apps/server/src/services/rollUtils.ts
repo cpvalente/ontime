@@ -44,7 +44,6 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
   let publicNextIndex: number | null = null; // index of next public event
   let timeToNext: number | null = null; // counter: time for next event
   let publicTimeToNext: number | null = null; // counter: time for next public event
-  let timers: Timer | null = null;
 
   const orderedEvents = sortArrayByProperty(rundown, 'timeStart');
   const lastEvent = orderedEvents[orderedEvents.length - 1];
@@ -104,13 +103,6 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
         currentEvent = event;
         nowIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
         nowId = event.id;
-
-        timers = {
-          _startedAt: event.timeStart,
-          _finishAt: event.timeEnd,
-          duration: normalEnd - event.timeStart,
-          current: normalEnd - timeNow,
-        };
         nowFound = true;
 
         // it could also be public
@@ -156,7 +148,6 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
     publicIndex,
     nextIndex,
     publicNextIndex,
-    timers,
     timeToNext,
     nextEvent,
     nextPublicEvent,

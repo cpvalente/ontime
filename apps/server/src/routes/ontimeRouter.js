@@ -2,7 +2,6 @@ import express from 'express';
 import { uploadFile } from '../utils/upload.js';
 import {
   dbDownload,
-  dbPathToUpload,
   dbUpload,
   getAliases,
   getInfo,
@@ -12,6 +11,7 @@ import {
   getViewSettings,
   poll,
   postAliases,
+  postNew,
   postOSC,
   postSettings,
   postUserFields,
@@ -19,12 +19,13 @@ import {
 } from '../controllers/ontimeController.js';
 
 import {
-  viewValidator,
   validateAliases,
-  validateUserFields,
-  validateSettings,
   validateOSC,
+  validateSettings,
+  validateUserFields,
+  viewValidator,
 } from '../controllers/ontimeController.validate.js';
+import { eventDataSanitizer } from '../controllers/eventDataController.validate.js';
 
 export const router = express.Router();
 
@@ -70,5 +71,5 @@ router.get('/osc', getOSC);
 // create route between controller and '/ontime/osc' endpoint
 router.post('/osc', validateOSC, postOSC);
 
-// create route between controller and '/ontime/dbpath' endpoint
-router.post('/dbpath', dbPathToUpload);
+// create route between controller and '/ontime/new' endpoint
+router.post('/new', eventDataSanitizer, postNew);

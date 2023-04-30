@@ -19,7 +19,6 @@ export const AutoTextArea = (props: AutoTextAreaProps) => {
     };
   }, []);
 
-
   return (
     <Textarea
       overflow='hidden'
@@ -27,7 +26,7 @@ export const AutoTextArea = (props: AutoTextAreaProps) => {
       resize='none'
       ref={ref}
       transition='height none'
-      variant={isDark ? 'ontime-filled' : 'ontime-filled-onlight'}
+      variant={isDark ? 'ontime-filled' : 'ontime-filled-on-light'}
       {...rest}
     />
   );

@@ -37,6 +37,7 @@ export const setMessage = {
 export const usePlaybackControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.playback,
+    selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
   });
 
@@ -47,6 +48,7 @@ export const setPlayback = {
   start: () => socketSendJson('start'),
   pause: () => socketSendJson('pause'),
   roll: () => socketSendJson('roll'),
+  startNext: () => socketSendJson('start-next'),
   previous: () => {
     socketSendJson('previous');
   },

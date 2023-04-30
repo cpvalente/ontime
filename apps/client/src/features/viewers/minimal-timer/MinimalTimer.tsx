@@ -8,6 +8,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
+import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
@@ -21,7 +22,7 @@ interface MinimalTimerProps {
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
-  const { isMirrored, pres, time, viewSettings, general } = props;
+  const { isMirrored, pres, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
@@ -34,7 +35,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     return null;
   }
 
-  // get config from url: key, text, font, size, hidenav, hideovertime
+  // get config from url: key, text, font, size, hideovertime
   // eg. http://localhost:3000/minimal?key=f00&text=fff
   // Check for user options
   const userOptions: OverridableOptions = {
@@ -117,13 +118,13 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   }
 
   const hideOvertime = searchParams.get('hideovertime');
-  userOptions.hideOvertime = Boolean(hideOvertime);
+  userOptions.hideOvertime = isStringBoolean(hideOvertime);
 
   const hideMessagesOverlay = searchParams.get('hidemessages');
-  userOptions.hideMessagesOverlay = Boolean(hideMessagesOverlay);
+  userOptions.hideMessagesOverlay = isStringBoolean(hideMessagesOverlay);
 
   const hideEndMessage = searchParams.get('hideendmessage');
-  userOptions.hideEndMessage = Boolean(hideEndMessage);
+  userOptions.hideEndMessage = isStringBoolean(hideEndMessage);
 
   const showProgressBar = searchParams.get('showprogressbar');
   userOptions.showProgressBar = Boolean(showProgressBar);
@@ -132,7 +133,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isPlaying = time.playback !== Playback.Pause;
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-  const showEndMessage = (time.current ?? 1) < 0 && general.endMessage && !hideEndMessage;
+  const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
   const showFinished =
     time.finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
@@ -176,7 +177,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         </div>
       )}
       {showEndMessage ? (
-        <div className='end-message'>{general.endMessage}</div>
+        <div className='end-message'>{viewSettings.endMessage}</div>
       ) : (
         <div
           className={timerClasses}

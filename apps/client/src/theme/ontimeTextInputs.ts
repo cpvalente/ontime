@@ -23,13 +23,11 @@ export const ontimeInputFilled = {
 export const ontimeInputFilledOnLight = {
   field: {
     backgroundColor: 'white',
-    border: '2px solid transparent',
+    border: '2px solid #f6f6f6', // $gray-50
     _hover: {
-      backgroundColor: 'white',
       border: '2px solid #D2DDFF', // $blue-200
     },
     _focus: {
-      backgroundColor: 'white',
       border: '2px solid #578AF4', // $blue-500
     },
   },
@@ -42,16 +40,15 @@ export const ontimeTextAreaFilled = {
 export const ontimeTextAreaFilledOnLight = {
   borderRadius: '3px',
   fontWeight: '400',
-  backgroundColor: '#ececec', // $gray-100
+  backgroundColor: 'white',
   color: '#202020', // $gray-1200
-  border: '1px solid transparent',
+  border: '2px solid #f6f6f6', // $gray-50
   _hover: {
-    backgroundColor: '#cfcfcf', // $gray-300
+    border: '2px solid #D2DDFF', // $blue-200
   },
   _focus: {
-    backgroundColor: '#cfcfcf', // $gray-300
     color: '#101010',
-    border: '1px solid #578AF4', // $blue-500
+    border: '2px solid #578AF4', // $blue-500
   },
   _placeholder: { color: '#9d9d9d' }, // $gray-500
 };

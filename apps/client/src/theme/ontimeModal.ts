@@ -2,7 +2,7 @@ export const ontimeModal = {
   header: {
     fontWeight: 400,
     letterSpacing: '0.3px',
-    padding: '8px 16px',
+    padding: '16px 24px',
     fontSize: '20px',
     color: '#202020', // $gray-50
   },
@@ -18,5 +18,19 @@ export const ontimeModal = {
   },
   closeButton: {
     color: '#202020', // $gray-50
+  },
+  footer: {
+    padding: '8px',
+  },
+};
+
+export const ontimeSmallModal = {
+  ...ontimeModal,
+  body: {
+    padding: '16px',
+    fontSize: '14px',
+  },
+  dialog: {
+    minHeight: 'min(200px, 10vh)',
   },
 };

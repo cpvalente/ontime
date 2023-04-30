@@ -11,7 +11,7 @@ import {
 import { ontimeCheckboxOnDark } from './ontimeCheckbox';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
-import { ontimeModal } from './ontimeModal';
+import { ontimeModal, ontimeSmallModal } from './ontimeModal';
 import { ontimeBlockRadio } from './ontimeRadio';
 import { ontimeSelect } from './ontimeSelect';
 import { lightSwitch, ontimeSwitch } from './ontimeSwitch';
@@ -61,9 +61,15 @@ const theme = extendTheme({
         'ontime-filled-on-light': { ...ontimeInputFilledOnLight },
       },
     },
+    Menu: {
+      variants: {
+        'ontime-on-dark': { ...ontimeMenuOnDark },
+      },
+    },
     Modal: {
       variants: {
         ontime: { ...ontimeModal },
+        'ontime-small': { ...ontimeSmallModal },
       },
     },
     Radio: {
@@ -82,7 +88,7 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeTextAreaFilled },
-        'ontime-filled-onlight': { ...ontimeTextAreaFilledOnLight },
+        'ontime-filled-on-light': { ...ontimeTextAreaFilledOnLight },
       },
     },
     Tooltip: {
@@ -97,11 +103,6 @@ const theme = extendTheme({
     Select: {
       variants: {
         ontime: { ...ontimeSelect },
-      },
-    },
-    Menu: {
-      variants: {
-        'ontime-on-dark': { ...ontimeMenuOnDark },
       },
     },
   },

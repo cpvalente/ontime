@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ModalBody } from '@chakra-ui/react';
 import type { OSCSettings, OscSubscription } from 'ontime-types';
 import { TimerLifeCycle } from 'ontime-types';
 import { generateId } from 'ontime-utils';
@@ -34,7 +33,7 @@ const sectionText: { [key in TimerLifeCycle]: { title: string; subtitle: string 
     subtitle: 'Triggers when a running timer is stopped',
   },
   onUpdate: {
-    title: 'On Update',
+    title: 'On Every Second',
     subtitle: 'Triggers when timers are updated (at least once a second, can be more)',
   },
   onFinish: {
@@ -50,16 +49,26 @@ export default function OscIntegration() {
   const {
     handleSubmit,
     register,
+    reset,
     formState: { isSubmitting, isDirty, isValid },
   } = useForm<PlaceholderSettings>({
     defaultValues: data,
     values: data,
   });
 
-  const resetForm = () => data?.subscriptions || oscPlaceholderSettings.subscriptions;
-  const [subscriptionState, setSubscription] = useState<OscSubscription>(() => resetForm());
+  const [subscriptionState, setSubscription] = useState<OscSubscription>(
+    data?.subscriptions || oscPlaceholderSettings.subscriptions,
+  );
+  const [hasManualChange, setHasManualChange] = useState(false);
 
   const [showSection, setShowSection] = useState<OntimeCycle>(TimerLifeCycle.onLoad);
+
+  const resetForm = () => {
+    const originalData = data || oscPlaceholderSettings;
+    setSubscription(originalData.subscriptions);
+    // @ts-expect-error -- we know the data here is safe
+    reset(originalData);
+  };
 
   const deleteSubscriptionEntry = (cycle: OntimeCycle, id: string) => {
     setSubscription((prev) => {
@@ -67,20 +76,23 @@ export default function OscIntegration() {
       newData[cycle] = [...prev[cycle].filter((el) => el.id !== id)];
       return newData;
     });
+    setHasManualChange(true);
   };
 
   const addNewSubscriptionEntry = async (cycle: OntimeCycle) => {
     setSubscription((prev) => {
-      const newData = { ...prev };
+      const newData = structuredClone(prev);
       newData[cycle] = [...prev[cycle], { id: generateId(), message: '', enabled: false }];
       return newData;
     });
+    setHasManualChange(true);
   };
 
   const onSubmit = async (values: OSCSettings | PlaceholderSettings) => {
     try {
       // @ts-expect-error -- we know of the type mismatch, not pertinent here
       await mutateAsync(values);
+      setHasManualChange(false);
     } catch (error) {
       emitError(`Error setting OSC: ${error}`);
     }
@@ -90,31 +102,29 @@ export default function OscIntegration() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='oscSubscriptions'>
-      <ModalBody>
-        {subscriptionKeys.map((cycle, idx) => {
-          return (
-            <>
-              <OscSubscriptionRow
-                key={cycle}
-                cycle={cycle as TimerLifeCycle}
-                title={sectionText[cycle as TimerLifeCycle].title}
-                subtitle={sectionText[cycle as TimerLifeCycle].subtitle}
-                visible={showSection === cycle}
-                setShowSection={setShowSection}
-                subscriptionOptions={subscriptionState[cycle as TimerLifeCycle]}
-                handleDelete={deleteSubscriptionEntry}
-                handleAddNew={addNewSubscriptionEntry}
-                register={register}
-              />
-              {idx < subscriptionKeys.length - 1 && <hr className={styles.divider} />}
-            </>
-          );
-        })}
-      </ModalBody>
+      {subscriptionKeys.map((cycle, idx) => {
+        return (
+          <>
+            <OscSubscriptionRow
+              key={cycle}
+              cycle={cycle as TimerLifeCycle}
+              title={sectionText[cycle as TimerLifeCycle].title}
+              subtitle={sectionText[cycle as TimerLifeCycle].subtitle}
+              visible={showSection === cycle}
+              setShowSection={setShowSection}
+              subscriptionOptions={subscriptionState[cycle as TimerLifeCycle]}
+              handleDelete={deleteSubscriptionEntry}
+              handleAddNew={addNewSubscriptionEntry}
+              register={register}
+            />
+            {idx < subscriptionKeys.length - 1 && <hr className={styles.divider} />}
+          </>
+        );
+      })}
       <OntimeModalFooter
         formId='oscSubscriptions'
         handleRevert={resetForm}
-        isDirty={isDirty}
+        isDirty={isDirty || hasManualChange}
         isValid={isValid}
         isSubmitting={isSubmitting}
       />

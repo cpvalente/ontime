@@ -352,7 +352,7 @@ type ResponseError = { error: true; message: string };
  * @param {string} file - reference to file
  * @return {object} - parse result message
  */
-export const fileHandler = async (file) => {
+export const fileHandler = async (file): ResponseOK | ResponseError => {
   let res: Partial<ResponseOK | ResponseError> = {};
 
   // check which file type are we dealing with
@@ -371,10 +371,11 @@ export const fileHandler = async (file) => {
         res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
       } else {
-        console.log('Error: No sheets found named ontime or event schedule');
+        const errorMessage = 'No sheet found named ontime or event schedule';
+        console.log(errorMessage);
         res = {
           error: true,
-          message: `No sheets found named ontime or event schedule`,
+          message: errorMessage,
         };
       }
     } catch (error) {

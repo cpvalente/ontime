@@ -20,6 +20,28 @@ From the project root, run the following commands
 - __Install the project dependencies__ by running `pnpm i`
 - __Run dev mode__ by running `turbo dev`
 
+## TESTING
+
+Generally we have 2 types of tests. 
+- Unit tests for functions that contain business logic
+- End-to-end tests for core features
+
+### Unit tests
+Unit tests are contained in mostly all the apps and packages (client, server and utils)
+
+You can run unit tests by running turbo `turbo test:pipeline` from the project root.
+This will run all tests and close test runner.
+
+Alternatively you can navigate to an app or project and run `pnpm test` to run those tests in watch mode
+
+### E2E tests
+E2E tests are in a separate package. On running, [playwright](https://playwright.dev/) will spin up an instance of the webserver to test against
+These tests also run against a separate version of the DB (test-db)
+
+You can run playwright tests from project root with `pnpm e2e`
+
+When writing tests, it can be handy to run playwright in interactive mode with `pnpm e2e:i`. You would need to manually start the webserver with `pnpm dev:server`
+
 ## CREATE AN INSTALLABLE FILE (Windows | MacOS | Linux)
 
 Ontime uses Electron to distribute the application.

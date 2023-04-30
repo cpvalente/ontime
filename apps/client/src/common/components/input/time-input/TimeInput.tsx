@@ -26,19 +26,17 @@ export default function TimeInput(props: TimeInputProps) {
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
-  // avoid wrong submit on cancel
-  let ignoreChange = false;
+  const ignoreChange = useRef(false);
 
   /**
    * @description Resets input value to given
    */
   const resetValue = useCallback(() => {
     try {
-      // eslint-disable-next-line -- we use ignore change to stop submit on cancel
-      ignoreChange = true;
       setValue(millisToString(time));
     } catch (error) {
-      emitError(`Unable to parse date: ${error}`);
+      setValue(millisToString(0));
+      emitError(`Unable to parse time ${time}: ${error}`);
     }
   }, [emitError, time]);
 
@@ -97,11 +95,6 @@ export default function TimeInput(props: TimeInputProps) {
    */
   const validateAndSubmit = useCallback(
     (newValue: string) => {
-      if (ignoreChange) {
-        // eslint-disable-next-line -- we use this to prevent a wrong submit
-        ignoreChange = false;
-        return;
-      }
       const success = handleSubmit(newValue);
       if (success) {
         const ms = forgivingStringToMillis(newValue);
@@ -111,7 +104,7 @@ export default function TimeInput(props: TimeInputProps) {
         resetValue();
       }
     },
-    [delay, handleSubmit, resetValue],
+    [delay, handleSubmit, name, resetValue],
   );
 
   /**
@@ -127,6 +120,7 @@ export default function TimeInput(props: TimeInputProps) {
         validateAndSubmit((event.target as HTMLInputElement).value);
       }
       if (event.key === 'Escape') {
+        ignoreChange.current = true;
         inputRef.current?.blur();
         resetValue();
       }
@@ -136,6 +130,10 @@ export default function TimeInput(props: TimeInputProps) {
 
   const onBlurHandler = useCallback(
     (event: FocusEvent<HTMLInputElement>) => {
+      if (ignoreChange.current) {
+        ignoreChange.current = false;
+        return;
+      }
       validateAndSubmit((event.target as HTMLInputElement).value);
     },
     [validateAndSubmit],

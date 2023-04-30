@@ -17,7 +17,7 @@ export default function OntimeModalFooter(props: OntimeModalFooterProps) {
   const disableSubmit = isSubmitting || !isDirty || !isValid;
 
   return (
-    <ModalFooter className={styles.buttonSection} paddingInlineStart={0} paddingInlineEnd={0} paddingBottom={0}>
+    <ModalFooter className={styles.buttonSection}>
       <Button isDisabled={disableRevert} variant='ontime-ghost-on-light' size='sm' onClick={handleRevert}>
         Revert to saved
       </Button>

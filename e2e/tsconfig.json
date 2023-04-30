@@ -1,3 +1,6 @@
 {
-  "sourceType": "module"
+  "sourceType": "module",
+  "compilerOptions": {
+    "esModuleInterop": true
+  }
 }

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
-import { useEventEditorStore } from '../../common/stores/eventEditor';
+import { useAppMode } from '../../common/stores/appModeStore';
 import { useLocalEvent } from '../../common/stores/localEvent';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
@@ -16,7 +16,6 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 
 interface RundownEntryProps {
   type: SupportedEvent;
-  index: number;
   eventIndex: number;
   data: OntimeRundownEntry;
   selected: boolean;
@@ -27,11 +26,11 @@ interface RundownEntryProps {
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
+  disableEdit: boolean; // we disable edit when the window is extracted
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
   const {
-    index,
     eventIndex,
     data,
     selected,
@@ -42,12 +41,25 @@ export default function RundownEntry(props: RundownEntryProps) {
     previousEventId,
     playback,
     isRolling,
+    disableEdit,
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
 
-  const openId = useEventEditorStore((state) => state.openId);
-  const removeOpenEvent = useEventEditorStore((state) => state.removeOpenEvent);
+  const cursor = useAppMode((state) => state.cursor);
+  const setCursor = useAppMode((state) => state.setCursor);
+  const openId = useAppMode((state) => state.editId);
+  const setEditId = useAppMode((state) => state.setEditId);
+
+  const removeOpenEvent = useCallback(() => {
+    if (openId === data.id) {
+      setEditId(null);
+    }
+
+    if (cursor === data.id) {
+      setCursor(null);
+    }
+  }, [cursor, data.id, openId, setCursor, setEditId]);
 
   const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
@@ -146,7 +158,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}
         duration={data.duration}
-        index={index}
         eventIndex={eventIndex + 1}
         eventId={data.id}
         isPublic={data.isPublic}
@@ -164,6 +175,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         playback={playback}
         isRolling={isRolling}
         actionHandler={actionHandler}
+        disableEdit={disableEdit}
       />
     );
   } else if (data.type === SupportedEvent.Block) {

@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { Alias, OSCSettings, Settings, UserFields, ViewSettings } from 'ontime-types';
+import { Alias, EventData, OSCSettings, Settings, UserFields, ViewSettings } from 'ontime-types';
 
+import { apiRepoLatest } from '../../externals';
 import { InfoType } from '../models/Info';
 
-import { githubURL, ontimeURL } from './apiConstants';
+import { ontimeURL } from './apiConstants';
 
 /**
  * @description HTTP request to retrieve application settings
@@ -152,11 +153,23 @@ export const uploadData = async (file: string, setProgress: (value: number) => v
     .then((response) => response.data.id);
 };
 
+export type HasUpdate = {
+  url: string;
+  version: string;
+};
+
 /**
  * @description HTTP request to get the latest version and url from github
  * @return {Promise}
  */
-export async function getLatestVersion(): Promise<object> {
-  const res = await axios.get(`${githubURL}`);
-  return { url: res.data.html_url, version: res.data.tag_name };
+export async function getLatestVersion(): Promise<HasUpdate> {
+  const res = await axios.get(`${apiRepoLatest}`);
+  return {
+    url: res.data.html_url as string,
+    version: res.data.tag_name as string,
+  };
+}
+
+export async function postNew(initialData: Partial<EventData>) {
+  return axios.post(`${ontimeURL}/new`, initialData);
 }

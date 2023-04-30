@@ -7,7 +7,7 @@ import { OntimeBlock, OntimeEvent } from 'ontime-types';
 import { cx } from '../../../common/utils/styleUtils';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import BlockActionMenu from '../event-block/composite/BlockActionMenu';
-import { EventItemActions } from '../RundownEntry';
+import type { EventItemActions } from '../RundownEntry';
 
 import style from './BlockBlock.module.scss';
 

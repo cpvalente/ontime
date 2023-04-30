@@ -46,7 +46,7 @@ interface TimerProps {
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, general, pres, title, time, viewSettings } = props;
+  const { isMirrored, pres, title, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -65,7 +65,7 @@ export default function Timer(props: TimerProps) {
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
 
-  const showEndMessage = (time.current ?? 1) < 0 && general.endMessage;
+  const showEndMessage = (time.current ?? 1) < 0 && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
@@ -103,7 +103,7 @@ export default function Timer(props: TimerProps) {
 
       <div className='timer-container'>
         {showEndMessage ? (
-          <div className='end-message'>{general.endMessage}</div>
+          <div className='end-message'>{viewSettings.endMessage}</div>
         ) : (
           <div
             className={timerClasses}

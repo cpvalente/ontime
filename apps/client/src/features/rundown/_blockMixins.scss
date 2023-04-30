@@ -20,6 +20,7 @@ $block-cursor-color: $blue-400;
   border-radius: $block-border-radius;
   margin: 4px 2px;
   position: relative;
+  color: $block-text-color;
 }
 
 @mixin block-spacing() {

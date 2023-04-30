@@ -7,4 +7,5 @@ export const viewsSettingsPlaceholder: ViewSettings = {
   warningThreshold: 120000,
   dangerColor: '#ED3333',
   dangerThreshold: 60000,
+  endMessage: '',
 };

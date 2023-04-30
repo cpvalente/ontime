@@ -1,7 +1,7 @@
 export const STATIC_PORT = 4001;
 
 // REST stuff
-export const EVENTDATA_TABLE = ['eventdata'];
+export const EVENT_DATA = ['eventdata'];
 export const ALIASES = ['aliases'];
 export const USERFIELDS = ['userFields'];
 export const RUNDOWN_TABLE_KEY = 'rundown';
@@ -11,9 +11,6 @@ export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const RUNTIME = ['runtimeStore'];
-
-// external stuff
-export const githubURL = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
 
 export const serverPort = import.meta.env.DEV ? STATIC_PORT : window.location.port;
 export const serverURL = import.meta.env.DEV ? `http://localhost:${serverPort}` : window.location.origin;

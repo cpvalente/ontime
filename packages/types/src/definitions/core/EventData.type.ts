@@ -4,5 +4,4 @@ export type EventData = {
   publicInfo: string;
   backstageUrl: string;
   backstageInfo: string;
-  endMessage: string;
 };

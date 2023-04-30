@@ -116,15 +116,15 @@ export class PlaybackService {
         return true;
       }
     } else if (fallbackAction === 'stop') {
-      logger.info('PLAYBACK', `No next event found! Stopping playback`);
+      logger.info('PLAYBACK', 'No next event found! Stopping playback');
       PlaybackService.stop();
       return false;
     } else if (fallbackAction === 'pause') {
-      logger.info('PLAYBACK', `No next event found! Pausing playback`);
+      logger.info('PLAYBACK', 'No next event found! Pausing playback');
       PlaybackService.pause();
       return false;
     } else {
-      logger.info('PLAYBACK', `No next event found! Continuing playback`);
+      logger.info('PLAYBACK', 'No next event found! Continuing playback');
       return false;
     }
   }
@@ -197,14 +197,14 @@ export class PlaybackService {
         return;
       }
 
-      const { currentEvent, nextEvent, timers } = rollTimers;
+      const { currentEvent, nextEvent } = rollTimers;
       if (!currentEvent && !nextEvent) {
         logger.warning('SERVER', 'Roll: no events found');
         PlaybackService.stop();
         return;
       }
 
-      eventTimer.roll(currentEvent, nextEvent, timers);
+      eventTimer.roll(currentEvent, nextEvent);
 
       const newState = eventTimer.playback;
       logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);

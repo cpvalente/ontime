@@ -5,10 +5,11 @@ interface ModalWrapperProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
+  size?: string;
 }
 
 export default function ModalWrapper(props: PropsWithChildren<ModalWrapperProps>) {
-  const { isOpen, onClose, title, children } = props;
+  const { isOpen, onClose, title, size = 'xl', children } = props;
 
   return (
     <Modal
@@ -16,7 +17,7 @@ export default function ModalWrapper(props: PropsWithChildren<ModalWrapperProps>
       isOpen={isOpen}
       closeOnOverlayClick={false}
       motionPreset='slideInBottom'
-      size='xl'
+      size={size}
       scrollBehavior='inside'
       preserveScrollBarGap
       variant='ontime'

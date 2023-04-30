@@ -8,7 +8,6 @@ export const dbModel: DatabaseModel = {
     publicInfo: '',
     backstageUrl: '',
     backstageInfo: '',
-    endMessage: '',
   },
   settings: {
     app: 'ontime',
@@ -25,6 +24,7 @@ export const dbModel: DatabaseModel = {
     warningThreshold: 120000,
     dangerColor: '#ED3333',
     dangerThreshold: 60000,
+    endMessage: '',
   },
   aliases: [],
   userFields: {

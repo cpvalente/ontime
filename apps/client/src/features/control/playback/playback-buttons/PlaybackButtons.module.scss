@@ -1,0 +1,43 @@
+@use '../../../../theme/v2Styles' as *;
+
+.buttonContainer {
+  padding-top: $element-spacing;
+  display: grid;
+  grid-template-areas:
+          "go playback"
+          "go transport"
+          "extra extra";
+  grid-template-rows: repeat(3, 32px);
+  gap: $element-spacing;
+}
+
+.go {
+  grid-area: go;
+  font-size: 5em;
+}
+
+@mixin spaced-flex {
+  display: flex;
+  justify-content: space-evenly;
+  gap: $element-spacing;
+}
+
+.playbackContainer {
+  grid-area: playback;
+  @include spaced-flex;
+}
+
+.transportContainer {
+  grid-area: transport;
+  @include spaced-flex;
+}
+
+.extra {
+  grid-area: extra;
+  @include spaced-flex;
+}
+
+.invertX {
+  transform: rotateY(180deg);
+}
+

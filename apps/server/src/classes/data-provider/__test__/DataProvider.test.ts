@@ -8,7 +8,6 @@ describe('safeMerge', () => {
       publicUrl: 'existing public URL',
       backstageUrl: 'existing backstageUrl',
       backstageInfo: 'existing backstageInfo',
-      endMessage: 'existing endMessage',
     },
     settings: {
       app: 'ontime',
@@ -20,6 +19,7 @@ describe('safeMerge', () => {
     },
     viewSettings: {
       overrideStyles: false,
+      endMessage: 'existing endMessage',
     },
     aliases: [],
     userFields: {
@@ -75,7 +75,6 @@ describe('safeMerge', () => {
       publicInfo: 'new public info',
       backstageUrl: 'existing backstageUrl',
       backstageInfo: 'existing backstageInfo',
-      endMessage: 'existing endMessage',
     });
   });
 
@@ -145,7 +144,6 @@ describe('safeMerge', () => {
         publicInfo: '',
         backstageUrl: '',
         backstageInfo: '',
-        endMessage: '',
       },
       settings: {
         app: 'ontime',
@@ -157,6 +155,7 @@ describe('safeMerge', () => {
       },
       viewSettings: {
         overrideStyles: false,
+        endMessage: '',
       },
       aliases: [],
       userFields: {

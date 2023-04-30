@@ -1,4 +1,4 @@
-import { formatEventList, getEventsWithDelay, trimEventlist } from '../eventsManager';
+import { formatEventList, getEventsWithDelay, trimRundown } from '../eventsManager';
 
 describe('getEventsWithDelay function', () => {
   test('with positive delays', () => {
@@ -365,7 +365,7 @@ describe('test trimEventlist function', () => {
       { id: '8' },
     ];
 
-    const l = trimEventlist(testData, selectedId, limit);
+    const l = trimRundown(testData, selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
   });
@@ -383,7 +383,7 @@ describe('test trimEventlist function', () => {
       { id: '8' },
     ];
 
-    const l = trimEventlist(testData, selectedId, limit);
+    const l = trimRundown(testData, selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
   });
@@ -401,7 +401,7 @@ describe('test trimEventlist function', () => {
       { id: '9' },
     ];
 
-    const l = trimEventlist(testData, selectedId, limit);
+    const l = trimRundown(testData, selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
   });
@@ -419,7 +419,7 @@ describe('test trimEventlist function', () => {
       { id: '8' },
     ];
 
-    const l = trimEventlist(testData, selectedId, limit);
+    const l = trimRundown(testData, selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
   });
