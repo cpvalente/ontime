@@ -28,12 +28,6 @@ class ErrorBoundary extends React.Component {
       const eventId = Sentry.captureException(error);
       this.setState({ eventId, info });
     });
-
-    try {
-      this.context.emitError(error.toString());
-    } catch (e) {
-      Sentry.captureMessage(`Unable to emit error ${error} ${e}`);
-    }
     this.reportContent = `${error} ${info.componentStack}`;
   }
 
