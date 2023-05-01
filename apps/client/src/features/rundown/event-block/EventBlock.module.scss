@@ -10,9 +10,9 @@ $skip-opacity: 0.1;
 
   display: grid;
   grid-template-areas:
-          "binder ...        ...   ..."
-          "binder pb-actions times actions"
-          "binder pb-actions title title"
+          "binder ...        ...     ..."
+          "binder pb-actions times   actions"
+          "binder pb-actions title   next"
           "binder pb-actions estatus estatus"
           "binder ...        ...     ...";
 
@@ -51,6 +51,10 @@ $skip-opacity: 0.1;
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
+  }
+
+  &.past:not(.skip) {
+    opacity: 0.6;
   }
 
   &.skip {
@@ -121,7 +125,6 @@ $skip-opacity: 0.1;
   justify-content: flex-end;
 }
 
-
 .eventOptions {
   margin: $element-spacing 16px $element-spacing 0;
 }
@@ -163,6 +166,16 @@ $skip-opacity: 0.1;
   line-height: 13px;
 }
 
+
+.nextTag {
+  grid-area: next;
+  font-size: 1em;
+  color: $orange-500;
+  letter-spacing: 0.03px;
+  font-weight: 600;
+  text-align: right;
+}
+
 .eventStatus {
   grid-area: status;
   display: flex;
@@ -171,11 +184,6 @@ $skip-opacity: 0.1;
   gap: 8px;
   color: var(--status-color-override, $gray-500);
 
-  .tag {
-    padding-top: 1px;
-    font-size: 0.55em;
-    color: $active-indicator;
-  }
 
   .statusIcon {
     width: 16px;

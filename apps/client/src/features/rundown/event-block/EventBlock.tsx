@@ -26,6 +26,7 @@ interface EventBlockProps {
   delay: number;
   previousEnd: number;
   colour: string;
+  isPast: boolean;
   next: boolean;
   skip: boolean;
   selected: boolean;
@@ -59,6 +60,7 @@ export default function EventBlock(props: EventBlockProps) {
     delay,
     previousEnd,
     colour,
+    isPast,
     next,
     skip = false,
     selected,
@@ -128,6 +130,7 @@ export default function EventBlock(props: EventBlockProps) {
   const blockClasses = cx([
     style.eventBlock,
     skip ? style.skip : null,
+    isPast ? style.past : null,
     selected ? style.selected : null,
     playback ? style[playback] : null,
     hasCursor ? style.hasCursor : null,
