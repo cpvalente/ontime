@@ -200,6 +200,7 @@ export default function Rundown(props: RundownProps) {
   let thisEnd = 0;
   let previousEventId: string | undefined;
   let eventIndex = -1;
+  let isPast = Boolean(featureData?.selectedEventId);
 
   return (
     <div className={style.eventContainer}>
@@ -225,12 +226,16 @@ export default function Rundown(props: RundownProps) {
               const isSelected = featureData?.selectedEventId === entry.id;
               const isNext = featureData?.nextEventId === entry.id;
               const hasCursor = entry.id === cursor;
+              if (isSelected) {
+                isPast = false;
+              }
 
               return (
                 <div key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                   <RundownEntry
                     type={entry.type}
                     eventIndex={eventIndex}
+                    isPast={isPast}
                     data={entry}
                     selected={isSelected}
                     hasCursor={hasCursor}

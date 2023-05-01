@@ -17,6 +17,7 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 interface RundownEntryProps {
   type: SupportedEvent;
   eventIndex: number;
+  isPast: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
   hasCursor: boolean;
@@ -32,6 +33,7 @@ interface RundownEntryProps {
 export default function RundownEntry(props: RundownEntryProps) {
   const {
     eventIndex,
+    isPast,
     data,
     selected,
     hasCursor,
@@ -168,6 +170,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         delay={delay}
         previousEnd={previousEnd}
         colour={data.colour}
+        isPast={isPast}
         next={next}
         skip={data.skip}
         selected={selected}
