@@ -5,6 +5,16 @@ export enum AppMode {
   Edit = 'edit',
 }
 
+const appModeKey = 'ontime-app-mode';
+
+function getModeFromSession() {
+  return localStorage.getItem(appModeKey) === AppMode.Run ? AppMode.Run : AppMode.Edit;
+}
+
+async function persistModeToSession(mode: AppMode) {
+  localStorage.setItem(appModeKey, mode);
+}
+
 type AppModeStore = {
   mode: AppMode;
   cursor: string | null;
@@ -15,11 +25,12 @@ type AppModeStore = {
 };
 
 export const useAppMode = create<AppModeStore>()((set) => ({
-  mode: AppMode.Edit,
+  mode: getModeFromSession(),
   cursor: null,
   editId: null,
   setMode: (mode: AppMode) =>
     set((state) => {
+      persistModeToSession(mode);
       return mode === AppMode.Edit
         ? {
             editId: state.cursor,
