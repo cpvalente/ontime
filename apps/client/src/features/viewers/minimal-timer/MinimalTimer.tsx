@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -126,9 +125,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideEndMessage = searchParams.get('hideendmessage');
   userOptions.hideEndMessage = isStringBoolean(hideEndMessage);
 
-  const showProgressBar = searchParams.get('showprogressbar');
-  userOptions.showProgressBar = Boolean(showProgressBar);
-
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
   const isNegative =
@@ -193,18 +189,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
           {display}
         </div>
       )}
-      <MultiPartProgressBar
-        className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
-        now={time.current || 0}
-        complete={time.duration || 0}
-        normalColor={viewSettings.normalColor}
-        warning={viewSettings.warningThreshold}
-        warningColor={viewSettings.warningColor}
-        danger={viewSettings.dangerThreshold}
-        dangerColor={viewSettings.dangerColor}
-        hidden={!showProgress || !userOptions.showProgressBar}
-        height='50px'
-      />
     </div>
   );
 }
