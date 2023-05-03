@@ -5,18 +5,17 @@ import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInforma
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 
-import { useEmitLog } from '@/common/stores/logger';
-
-import { viewerLocations } from '../../appConstants';
-import { postAliases } from '../../common/api/ontimeApi';
-import useAliases from '../../common/hooks-query/useAliases';
-import { validateAlias } from '../../common/utils/aliases';
-import { handleLinks, host } from '../../common/utils/linkUtils';
-import { tooltipDelayFast } from '../../ontimeConfig';
+import { viewerLocations } from '../../../appConstants';
+import { postAliases } from '../../../common/api/ontimeApi';
+import useAliases from '../../../common/hooks-query/useAliases';
+import { useEmitLog } from '../../../common/stores/logger';
+import { validateAlias } from '../../../common/utils/aliases';
+import { handleLinks, host } from '../../../common/utils/linkUtils';
+import { tooltipDelayFast } from '../../../ontimeConfig';
 
 import SubmitContainer from './SubmitContainer';
 
-import style from './Modals.module.scss';
+import style from '../Modals.module.scss';
 
 export default function AliasesModal() {
   const { data, status, refetch } = useAliases();

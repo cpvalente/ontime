@@ -2,18 +2,18 @@ import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react'
 import { FormControl, FormLabel, Input, ModalBody, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
-import { postView } from '../../common/api/ontimeApi';
-import PopoverPicker from '../../common/components/input/popover-picker/PopoverPicker';
-import useViewSettings from '../../common/hooks-query/useViewSettings';
-import { viewsSettingsPlaceholder } from '../../common/models/ViewSettings.type';
-import { useEmitLog } from '../../common/stores/logger';
-import { forgivingStringToMillis, millisToMinutes } from '../../common/utils/dateConfig';
+import { postView } from '../../../common/api/ontimeApi';
+import PopoverPicker from '../../../common/components/input/popover-picker/PopoverPicker';
+import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import { viewsSettingsPlaceholder } from '../../../common/models/ViewSettings.type';
+import { useEmitLog } from '../../../common/stores/logger';
+import { forgivingStringToMillis, millisToMinutes } from '../../../common/utils/dateConfig';
+import { inputProps } from '../modalHelper';
 
-import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
-import styles from './Modal.module.scss';
-import style from './Modals.module.scss';
+import styles from '../Modal.module.scss';
+import style from '../Modals.module.scss';
 
 const stylingDocsUrl = 'https://cpvalente.gitbook.io/ontime/features/custom-styling';
 

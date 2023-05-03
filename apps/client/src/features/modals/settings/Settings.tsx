@@ -22,7 +22,7 @@ interface ModalManagerProps {
   onClose: () => void;
 }
 
-export default function ModalManager(props: ModalManagerProps) {
+export default function Settings(props: ModalManagerProps) {
   const { isOpen, onClose } = props;
   return (
     <Modal

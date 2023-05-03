@@ -16,16 +16,16 @@ import { FiX } from '@react-icons/all-files/fi/FiX';
 
 import { useEmitLog } from '@/common/stores/logger';
 
-import { postSettings } from '../../common/api/ontimeApi';
-import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
-import useSettings from '../../common/hooks-query/useSettings';
-import { ontimePlaceholderSettings } from '../../common/models/OntimeSettings';
-import { useLocalEvent } from '../../common/stores/localEvent';
+import { postSettings } from '../../../common/api/ontimeApi';
+import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
+import useSettings from '../../../common/hooks-query/useSettings';
+import { ontimePlaceholderSettings } from '../../../common/models/OntimeSettings';
+import { useLocalEvent } from '../../../common/stores/localEvent';
+import { inputProps } from '../modalHelper';
 
-import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
-import style from './Modals.module.scss';
+import style from '../Modals.module.scss';
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useSettings();

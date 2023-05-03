@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FormLabel, Input, ModalBody, Textarea } from '@chakra-ui/react';
 
-import { useEmitLog } from '@/common/stores/logger';
+import { postEventData } from '../../../common/api/eventDataApi';
+import useEventData from '../../../common/hooks-query/useEventData';
+import { eventDataPlaceholder } from '../../../common/models/EventData';
+import { useEmitLog } from '../../../common/stores/logger';
+import { inputProps } from '../modalHelper';
 
-import { postEventData } from '../../common/api/eventDataApi';
-import useEventData from '../../common/hooks-query/useEventData';
-import { eventDataPlaceholder } from '../../common/models/EventData';
-
-import { inputProps } from './modalHelper';
 import SubmitContainer from './SubmitContainer';
 
-import style from './Modals.module.scss';
+import style from '../Modals.module.scss';
 
 export default function SettingsModal() {
   const { data, status, refetch } = useEventData();

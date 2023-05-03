@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-import style from './Modals.module.scss';
+import style from '../Modals.module.scss';
 
 export default function SubmitContainer(props) {
   const { submitting, changed, revert, status } = props;

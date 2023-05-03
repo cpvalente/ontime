@@ -2,16 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { Input, ModalBody } from '@chakra-ui/react';
 import { IoInformationCircleOutline } from '@react-icons/all-files/io5/IoInformationCircleOutline';
 
-import { useEmitLog } from '@/common/stores/logger';
-
-import { postUserFields } from '../../common/api/ontimeApi';
-import useUserFields from '../../common/hooks-query/useUserFields';
-import { userFieldsPlaceholder } from '../../common/models/UserFields';
-import { handleLinks, host } from '../../common/utils/linkUtils';
+import { postUserFields } from '../../../common/api/ontimeApi';
+import useUserFields from '../../../common/hooks-query/useUserFields';
+import { userFieldsPlaceholder } from '../../../common/models/UserFields';
+import { useEmitLog } from '../../../common/stores/logger';
+import { handleLinks, host } from '../../../common/utils/linkUtils';
 
 import SubmitContainer from './SubmitContainer';
 
-import style from './Modals.module.scss';
+import style from '../Modals.module.scss';
 
 export default function TableOptionsModal() {
   const { data, status, refetch } = useUserFields();
