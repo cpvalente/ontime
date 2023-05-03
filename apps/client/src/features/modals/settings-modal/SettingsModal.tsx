@@ -3,7 +3,7 @@ import { ModalBody, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/r
 import ModalWrapper from '../ModalWrapper';
 
 import AliasesModal from './AliasesModal';
-import AppSettingsModal from './AppSettingsModal';
+import AppSettingsModal from './AppSettings';
 import EventSettingsModal from './EventSettingsModal';
 import TableOptionsModal from './TableOptionsModal';
 import ViewsSettingsModal from './ViewsSettingsModal';

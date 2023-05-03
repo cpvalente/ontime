@@ -14,13 +14,12 @@ import {
 import { FiEye } from '@react-icons/all-files/fi/FiEye';
 import { FiX } from '@react-icons/all-files/fi/FiX';
 
-import { useEmitLog } from '@/common/stores/logger';
-
 import { postSettings } from '../../../common/api/ontimeApi';
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import useSettings from '../../../common/hooks-query/useSettings';
 import { ontimePlaceholderSettings } from '../../../common/models/OntimeSettings';
 import { useLocalEvent } from '../../../common/stores/localEvent';
+import { useEmitLog } from '../../../common/stores/logger';
 import { inputProps } from '../modalHelper';
 
 import SubmitContainer from './SubmitContainer';
