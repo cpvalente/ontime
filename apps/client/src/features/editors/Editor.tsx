@@ -7,7 +7,7 @@ import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import IntegrationModal from '../modals/integration-modal/IntegrationModal';
 import QuickStart from '../modals/quick-start/QuickStart';
-import Settings from '../modals/settings/Settings';
+import SettingsModal from '../modals/settings-modal/SettingsModal';
 
 import styles from './Editor.module.scss';
 
@@ -40,7 +40,7 @@ export default function Editor() {
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
-        <Settings isOpen={isSettingsOpen} onClose={onSettingsClose} />
+        <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
       <div className={styles.mainContainer} data-testid='event-editor'>
         <Box id='settings' className={styles.settings}>
