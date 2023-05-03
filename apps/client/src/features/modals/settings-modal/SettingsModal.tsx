@@ -1,15 +1,6 @@
-import {
-  Modal,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-} from '@chakra-ui/react';
+import { ModalBody, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+
+import ModalWrapper from '../ModalWrapper';
 
 import AliasesModal from './AliasesModal';
 import AppSettingsModal from './AppSettingsModal';
@@ -25,23 +16,12 @@ interface ModalManagerProps {
 export default function SettingsModal(props: ModalManagerProps) {
   const { isOpen, onClose } = props;
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      closeOnOverlayClick={false}
-      motionPreset='slideInBottom'
-      size='xl'
-      scrollBehavior='inside'
-    >
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Ontime Settings</ModalHeader>
-        <ModalCloseButton />
-
-        <Tabs size='sm' isLazy>
+    <ModalWrapper title='Ontime Settings' isOpen={isOpen} onClose={onClose}>
+      <ModalBody>
+        <Tabs variant='ontime' size='sm' isLazy>
           <TabList>
             <Tab>App Settings</Tab>
-            <Tab>Viewers</Tab>
+            <Tab>Views</Tab>
             <Tab>Event Data</Tab>
             <Tab>URL Aliases</Tab>
             <Tab>Cuesheet</Tab>
@@ -64,7 +44,7 @@ export default function SettingsModal(props: ModalManagerProps) {
             </TabPanel>
           </TabPanels>
         </Tabs>
-      </ModalContent>
-    </Modal>
+      </ModalBody>
+    </ModalWrapper>
   );
 }
