@@ -13,9 +13,10 @@ export const dbModel: DatabaseModel = {
     app: 'ontime',
     version: 2,
     serverPort: 4001,
-    lock: null,
-    pinCode: null,
+    editorKey: null,
+    operatorKey: null,
     timeFormat: '24',
+    language: 'en',
   },
   viewSettings: {
     overrideStyles: false,
@@ -53,36 +54,5 @@ export const dbModel: DatabaseModel = {
       onUpdate: [],
       onFinish: [],
     },
-  },
-  http: {
-    user: null,
-    pwd: null,
-    messages: {
-      onLoad: {
-        url: '',
-        enabled: false,
-      },
-      onStart: {
-        url: '',
-        enabled: false,
-      },
-      onUpdate: {
-        url: '',
-        enabled: false,
-      },
-      onPause: {
-        url: '',
-        enabled: false,
-      },
-      onStop: {
-        url: '',
-        enabled: false,
-      },
-      onFinish: {
-        url: '',
-        enabled: false,
-      },
-    },
-    enabled: true,
   },
 };

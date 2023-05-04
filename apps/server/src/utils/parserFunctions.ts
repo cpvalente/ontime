@@ -112,9 +112,10 @@ export const parseSettings = (data, enforce): Settings => {
       console.log('ERROR: unknown app version, skipping');
     } else {
       const settings = {
-        lock: s.lock || null,
-        pinCode: s.pinCode || null,
+        editorKey: s.editorKey || null,
+        operatorKey: s.operatorKey || null,
         timeFormat: s.timeFormat || '24',
+        language: s.timeFormat || 'en',
       };
 
       // write to db
@@ -221,23 +222,8 @@ export const parseHttp = (data, enforce) => {
   const newHttp = {};
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
-    const h = data.http;
-    const http = {};
-
-    // @ts-expect-error -- not yet
-    if (h.user) http.user = h.user;
-    // @ts-expect-error -- not yet
-    if (h.pwd) http.pwd = h.pwd;
-
-    // @ts-expect-error -- not yet
-    newHttp.http = {
-      ...dbModel.http,
-      ...http,
-    };
   } else if (enforce) {
-    // @ts-expect-error -- not yet
-    newHttp.http = { ...dbModel.http };
-    console.log('Created http object in db');
+    /* Not yet */
   }
   return newHttp;
 };
