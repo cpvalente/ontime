@@ -7,8 +7,8 @@ import { generateId } from 'ontime-utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../common/hooks-query/useOscSettings';
 import { oscPlaceholderSettings, PlaceholderSettings } from '../../../common/models/OscSettings';
 import { useEmitLog } from '../../../common/stores/logger';
+import OntimeModalFooter from '../OntimeModalFooter';
 
-import OntimeModalFooter from './OntimeModalFooter';
 import OscSubscriptionRow from './OscSubscriptionRow';
 
 import styles from '../Modal.module.scss';
