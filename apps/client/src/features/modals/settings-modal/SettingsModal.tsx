@@ -4,6 +4,7 @@ import ModalWrapper from '../ModalWrapper';
 
 import AliasesModal from './AliasesModal';
 import AppSettingsModal from './AppSettings';
+import EditorSettings from './EditorSettings';
 import EventSettingsModal from './EventSettingsModal';
 import TableOptionsModal from './TableOptionsModal';
 import ViewsSettingsModal from './ViewsSettingsModal';
@@ -21,26 +22,30 @@ export default function SettingsModal(props: ModalManagerProps) {
         <Tabs variant='ontime' size='sm' isLazy>
           <TabList>
             <Tab>App Settings</Tab>
-            <Tab>Views</Tab>
             <Tab>Event Data</Tab>
-            <Tab>URL Aliases</Tab>
+            <Tab>Editor</Tab>
             <Tab>Cuesheet</Tab>
+            <Tab>Views</Tab>
+            <Tab>URL Aliases</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
               <AppSettingsModal />
             </TabPanel>
             <TabPanel>
-              <ViewsSettingsModal />
-            </TabPanel>
-            <TabPanel>
               <EventSettingsModal />
             </TabPanel>
             <TabPanel>
-              <AliasesModal />
+              <EditorSettings />
             </TabPanel>
             <TabPanel>
               <TableOptionsModal />
+            </TabPanel>
+            <TabPanel>
+              <ViewsSettingsModal />
+            </TabPanel>
+            <TabPanel>
+              <AliasesModal />
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -13,7 +13,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
   }
 }
 
-.headerNotes  {
+.headerNotes {
   font-size: $text-body-size;
   width: 100%;
   padding: 0 $el-padding-with-compensation;
@@ -26,7 +26,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
   }
 }
 
-.footerNotes  {
+.footerNotes {
   font-size: $inner-section-text-size;
   padding: 0 $el-padding-with-compensation;
   color: $modal-note-color;
@@ -36,6 +36,14 @@ $el-padding-with-compensation: 24px; // 16 + 8
   margin: $element-spacing 0;
   border: 0;
   border-top: 1px solid $gray-100;
+}
+
+.title {
+  font-size: $inner-section-text-size;
+  color: $gray-500;
+  padding-left: 8px;
+  margin: 8px 0;
+  text-transform: uppercase;
 }
 
 .sectionContainer {
@@ -70,6 +78,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
   font-size: $inner-section-text-size;
   display: block;
   width: 100%;
+
   &.main {
     font-weight: 600;
   }
