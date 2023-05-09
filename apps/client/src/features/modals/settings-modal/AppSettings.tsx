@@ -11,6 +11,8 @@ import OntimeModalFooter from '../OntimeModalFooter';
 
 import ModalPinInput from './ModalPinInput';
 
+import style from './SettingsModal.module.scss';
+
 export default function AppSettingsModal() {
   const { data, status, refetch } = useSettings();
   const { emitError } = useEmitLog();
@@ -41,7 +43,7 @@ export default function AppSettingsModal() {
   const disableInputs = status === 'loading';
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} id='app-settings'>
+    <form onSubmit={handleSubmit(onSubmit)} id='app-settings' className={style.sectionContainer}>
       <ModalSplitInput
         field='serverPort'
         title='Ontime is available on port'
