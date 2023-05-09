@@ -115,7 +115,7 @@ export const parseSettings = (data, enforce): Settings => {
         editorKey: s.editorKey || null,
         operatorKey: s.operatorKey || null,
         timeFormat: s.timeFormat || '24',
-        language: s.timeFormat || 'en',
+        language: s.language || 'en',
       };
 
       // write to db
