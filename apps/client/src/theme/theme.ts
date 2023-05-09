@@ -1,5 +1,6 @@
 import { extendTheme } from '@chakra-ui/react';
 
+import { ontimeAlertOnLight } from './OntimeAlert';
 import {
   ontimeButtonFilled,
   ontimeButtonOutlined,
@@ -26,6 +27,11 @@ import { ontimeTooltip } from './ontimeTooltip';
 
 const theme = extendTheme({
   components: {
+    Alert: {
+      variants: {
+        'ontime-on-light-info': { ...ontimeAlertOnLight },
+      },
+    },
     Button: {
       baseStyle: {
         letterSpacing: '0.3px',

@@ -9,6 +9,8 @@ import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
 import OntimeModalFooter from '../OntimeModalFooter';
 
+import style from './SettingsModal.module.scss';
+
 export default function EventDataForm() {
   const { data, status, refetch } = useEventData();
   const { emitError } = useEmitLog();
@@ -39,7 +41,7 @@ export default function EventDataForm() {
   const disableInputs = status === 'loading';
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} id='event-data'>
+    <form onSubmit={handleSubmit(onSubmit)} id='event-data' className={style.sectionContainer}>
       <ModalInput
         field='title'
         title='Event title'

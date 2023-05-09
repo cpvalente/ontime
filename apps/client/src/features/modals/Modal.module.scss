@@ -73,6 +73,7 @@ $el-padding-with-compensation: 24px; // 16 + 8
 
 .splitSection {
   @include sectionSpacing;
+  gap: $section-spacing;
   justify-content: space-between;
 }
 
@@ -123,6 +124,11 @@ $el-padding-with-compensation: 24px; // 16 + 8
 
 .showPointer {
   cursor: pointer;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
 }
 
 .twoColumn {
