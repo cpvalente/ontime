@@ -5,7 +5,7 @@ import ModalWrapper from '../ModalWrapper';
 import AliasesModal from './AliasesModal';
 import AppSettingsModal from './AppSettings';
 import EditorSettings from './EditorSettings';
-import EventSettingsModal from './EventSettingsModal';
+import EventDataForm from './EventDataForm';
 import TableOptionsModal from './TableOptionsModal';
 import ViewsSettingsModal from './ViewsSettingsModal';
 
@@ -33,7 +33,7 @@ export default function SettingsModal(props: ModalManagerProps) {
               <AppSettingsModal />
             </TabPanel>
             <TabPanel>
-              <EventSettingsModal />
+              <EventDataForm />
             </TabPanel>
             <TabPanel>
               <EditorSettings />

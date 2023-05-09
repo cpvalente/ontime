@@ -4,6 +4,7 @@ import type { Settings } from 'ontime-types';
 
 import { postSettings } from '../../../common/api/ontimeApi';
 import useSettings from '../../../common/hooks-query/useSettings';
+import { useEmitLog } from '../../../common/stores/logger';
 import { isOnlyNumbers } from '../../../common/utils/regex';
 import ModalSplitInput from '../ModalSplitInput';
 import OntimeModalFooter from '../OntimeModalFooter';
@@ -12,6 +13,7 @@ import ModalPinInput from './ModalPinInput';
 
 export default function AppSettingsModal() {
   const { data, status, refetch } = useSettings();
+  const { emitError } = useEmitLog();
   const {
     handleSubmit,
     register,
@@ -23,8 +25,13 @@ export default function AppSettingsModal() {
   });
 
   const onSubmit = async (formData: Settings) => {
-    await postSettings(formData);
-    refetch();
+    try {
+      await postSettings(formData);
+    } catch (error) {
+      emitError(`Error saving settings: ${error}`);
+    } finally {
+      await refetch();
+    }
   };
 
   const onReset = () => {

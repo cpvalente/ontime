@@ -64,6 +64,13 @@ $el-padding-with-compensation: 24px; // 16 + 8
   }
 }
 
+.columnSection {
+  @include sectionSpacing;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $element-inner-spacing;
+}
+
 .splitSection {
   @include sectionSpacing;
   justify-content: space-between;
