@@ -7,7 +7,7 @@ import AppSettingsModal from './AppSettings';
 import CuesheetSettings from './CuesheetSettings';
 import EditorSettings from './EditorSettings';
 import EventDataForm from './EventDataForm';
-import ViewsSettingsModal from './ViewsSettingsModal';
+import ViewSettingsForm from './ViewSettingsForm';
 
 interface ModalManagerProps {
   isOpen: boolean;
@@ -42,7 +42,7 @@ export default function SettingsModal(props: ModalManagerProps) {
               <CuesheetSettings />
             </TabPanel>
             <TabPanel>
-              <ViewsSettingsModal />
+              <ViewSettingsForm />
             </TabPanel>
             <TabPanel>
               <AliasesModal />
