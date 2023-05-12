@@ -96,13 +96,6 @@ function getApplicationMenu(isMac, askToQuit) {
                 await shell.openExternal('http://localhost:4001/lower');
               },
             },
-
-            {
-              label: 'PiP',
-              click: async () => {
-                await shell.openExternal('http://localhost:4001/pip');
-              },
-            },
             {
               label: 'Studio Clock',
               click: async () => {
@@ -160,7 +153,7 @@ function getApplicationMenu(isMac, askToQuit) {
         {
           label: 'Online documentation',
           click: async () => {
-            await shell.openExternal('https://cpvalente.gitbook.io/ontime/');
+            await shell.openExternal('https://ontime.gitbook.io/');
           },
         },
       ],

@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import { Box, IconButton } from '@chakra-ui/react';
-import { FiX } from '@react-icons/all-files/fi/FiX';
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
-import { AppMode, useAppMode } from '../../common/stores/appModeStore';
+import { useAppMode } from '../../common/stores/appModeStore';
 import { cx } from '../../common/utils/styleUtils';
 
 import EventEditor from './EventEditor';
@@ -19,13 +19,11 @@ const closeBtnStyle = {
 };
 
 const EventEditorExport = () => {
-  const appMode = useAppMode((state) => state.mode);
   const editId = useAppMode((state) => state.editId);
   const setEditId = useAppMode((state) => state.setEditId);
 
   const editorStyle = cx([style.eventEditor, !editId ? style.noEvent : null]);
   const removeOpenEvent = () => setEditId(null);
-  const canRemoveOpenId = appMode === AppMode.Run;
 
   return (
     <Box className={editorStyle}>
@@ -33,13 +31,7 @@ const EventEditorExport = () => {
         <div className={style.eventEditorLayout}>
           <EventEditor />
           <div className={style.header}>
-            <IconButton
-              aria-label='Close Menu'
-              icon={<FiX />}
-              onClick={removeOpenEvent}
-              isDisabled={!canRemoveOpenId}
-              {...closeBtnStyle}
-            />
+            <IconButton aria-label='Close Menu' icon={<IoClose />} onClick={removeOpenEvent} {...closeBtnStyle} />
           </div>
         </div>
       </ErrorBoundary>

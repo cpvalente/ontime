@@ -43,7 +43,7 @@ export default function AboutModal(props: AboutModalProps) {
               <div className={styles.padBottom}>
                 <span className={styles.sectionTitle}>Ontime</span>
                 Free Open Source Software for managing rundowns and event timers
-                <ModalLink href='www.getontime.no'>www.getontime.no</ModalLink>
+                <ModalLink href='https://www.getontime.no'>www.getontime.no</ModalLink>
               </div>
               <div className={styles.padBottom}>
                 <span className={styles.sectionTitle}>Current version</span>

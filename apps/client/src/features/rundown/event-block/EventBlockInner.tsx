@@ -113,6 +113,11 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         previousEnd={previousEnd}
       />
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+      {next && (
+        <Tooltip label='Next event' {...tooltipProps}>
+          <span className={style.nextTag}>UP NEXT</span>
+        </Tooltip>
+      )}
       <EventBlockPlayback
         eventId={eventId}
         skip={skip}
@@ -127,11 +132,6 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           {selected && <EventBlockProgressBar playback={playback} />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
-          {next && (
-            <Tooltip label='Next event' {...tooltipProps}>
-              <span className={style.tag}>NEXT</span>
-            </Tooltip>
-          )}
           <Tooltip label={`Time type: ${timerType}`} {...tooltipProps}>
             <span>
               <TimerIcon type={timerType} className={style.statusIcon} />

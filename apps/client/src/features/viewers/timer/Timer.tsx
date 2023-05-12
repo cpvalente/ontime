@@ -65,9 +65,10 @@ export default function Timer(props: TimerProps) {
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
 
+  const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const showEndMessage = (time.current ?? 1) < 0 && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
-  const showFinished = time.finished && (time.timerType !== TimerType.Clock || showEndMessage);
+  const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
   const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
   const timerColor =
@@ -130,7 +131,7 @@ export default function Timer(props: TimerProps) {
       />
 
       <AnimatePresence>
-        {title.showNow && !time.finished && (
+        {title.showNow && !finished && (
           <motion.div
             className='event now'
             key='now'
