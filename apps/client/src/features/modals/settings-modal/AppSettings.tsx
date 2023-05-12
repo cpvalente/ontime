@@ -106,6 +106,9 @@ export default function AppSettingsModal() {
           <option value='en'>English</option>
           <option value='de'>German</option>
           <option value='no'>Norwegian</option>
+          <option value='pt'>Portuguese</option>
+          <option value='es'>Spanish</option>
+          <option value='sv'>Swedish</option>
         </Select>
       </ModalSplitInput>
       <OntimeModalFooter
