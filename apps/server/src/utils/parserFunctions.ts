@@ -237,22 +237,13 @@ export const parseAliases = (data): Alias[] => {
   const newAliases: Alias[] = [];
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
-    const ids = [];
     try {
       for (const a of data.aliases) {
-        // double check unique ids
-        if (ids.indexOf(a?.id) !== -1) {
-          console.log('ERROR: ID collision on import, skipping');
-          continue;
-        }
         const newAlias = {
-          id: a.id || generateId(),
           enabled: a.enabled || false,
           alias: a.alias || '',
           pathAndParams: a.pathAndParams || '',
         };
-
-        ids.push(newAlias.id);
         newAliases.push(newAlias);
       }
       console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);

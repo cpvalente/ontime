@@ -1,7 +1,6 @@
 import fs from 'fs';
-import type { EventData } from 'ontime-types';
+import type { Alias, EventData } from 'ontime-types';
 import { networkInterfaces } from 'os';
-import { generateId } from 'ontime-utils';
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
@@ -136,10 +135,9 @@ export const postAliases = async (req, res) => {
     return;
   }
   try {
-    const newAliases = [];
+    const newAliases: Alias[] = [];
     req.body.forEach((a) => {
       newAliases.push({
-        id: generateId(),
         enabled: a.enabled,
         alias: a.alias,
         pathAndParams: a.pathAndParams,
