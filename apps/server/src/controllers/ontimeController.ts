@@ -1,7 +1,6 @@
 import fs from 'fs';
-import type { EventData } from 'ontime-types';
+import type { Alias, EventData } from 'ontime-types';
 import { networkInterfaces } from 'os';
-import { generateId } from 'ontime-utils';
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
@@ -136,10 +135,9 @@ export const postAliases = async (req, res) => {
     return;
   }
   try {
-    const newAliases = [];
+    const newAliases: Alias[] = [];
     req.body.forEach((a) => {
       newAliases.push({
-        id: generateId(),
         enabled: a.enabled,
         alias: a.alias,
         pathAndParams: a.pathAndParams,
@@ -178,15 +176,22 @@ export const postUserFields = async (req, res) => {
 // Create controller for POST request to '/ontime/settings'
 // Returns -
 export const getSettings = async (req, res) => {
-  const { version, serverPort, pinCode, timeFormat } = DataProvider.getSettings();
-
-  res.status(200).send({
-    version,
-    serverPort,
-    pinCode,
-    timeFormat,
-  });
+  const settings = DataProvider.getSettings();
+  res.status(200).send(settings);
 };
+
+function extractPin(value: string | undefined | null, fallback: string | null): string | null {
+  if (value === null) {
+    return value;
+  }
+  if (typeof value === 'undefined') {
+    return fallback;
+  }
+  if (value.length === 0) {
+    return null;
+  }
+  return value;
+}
 
 // Create controller for POST request to '/ontime/settings'
 // Returns ACK message
@@ -196,26 +201,22 @@ export const postSettings = async (req, res) => {
   }
   try {
     const settings = DataProvider.getSettings();
-    let pin = settings.pinCode;
-    if (typeof req.body?.pinCode === 'string') {
-      if (req.body?.pinCode.length === 0) {
-        pin = null;
-      } else if (req.body?.pinCode.length <= 4) {
-        pin = req.body?.pinCode;
-      }
+    const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
+    const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
+
+    let timeFormat = settings.timeFormat;
+    if (req.body?.timeFormat === '12' || req.body?.timeFormat === '24') {
+      timeFormat = req.body.timeFormat;
     }
 
-    let format = settings.timeFormat;
-    if (typeof req.body?.timeFormat === 'string') {
-      if (req.body?.timeFormat === '12' || req.body?.timeFormat === '24') {
-        format = req.body.timeFormat;
-      }
-    }
+    const language = req.body?.language || 'en';
 
     const newData = {
       ...settings,
-      pinCode: pin,
-      timeFormat: format,
+      editorKey,
+      operatorKey,
+      timeFormat,
+      language,
     };
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);

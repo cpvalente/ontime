@@ -44,8 +44,12 @@ export class DataProvider {
   }
 
   static async deleteEvent(eventId) {
-    data.rundown = Array.from(data.rundown).filter((e) => e.id !== eventId);
-    await this.persist();
+    const eventIndex = data.rundown.findIndex((e) => e.id === eventId);
+
+    if (eventIndex !== -1) {
+      data.rundown.splice(eventIndex, 1);
+      await this.persist();
+    }
   }
 
   static getRundownLength() {
@@ -165,7 +169,6 @@ export class DataProvider {
     data.settings = mergedData.settings;
     data.viewSettings = mergedData.viewSettings;
     data.osc = mergedData.osc;
-    data.http = mergedData.http;
     data.aliases = mergedData.aliases;
     data.userFields = mergedData.userFields;
     data.rundown = mergedData.rundown;

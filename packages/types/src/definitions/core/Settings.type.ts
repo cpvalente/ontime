@@ -4,7 +4,8 @@ export type Settings = {
   app: 'ontime';
   version: 2;
   serverPort: 4001;
-  lock: null | boolean;
-  pinCode: null | number | string;
+  editorKey: null | string;
+  operatorKey: null | string;
   timeFormat: TimeFormat;
+  language: string;
 };

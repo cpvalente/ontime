@@ -5,8 +5,7 @@ import useOscSettings, { useOscSettingsMutation } from '../../../common/hooks-qu
 import { PlaceholderSettings } from '../../../common/models/OscSettings';
 import { useEmitLog } from '../../../common/stores/logger';
 import { isIPAddress, isOnlyNumbers } from '../../../common/utils/regex';
-
-import OntimeModalFooter from './OntimeModalFooter';
+import OntimeModalFooter from '../OntimeModalFooter';
 
 import styles from '../Modal.module.scss';
 

@@ -10,6 +10,10 @@
   transition-property: color;
   transition-duration: $transition-time-action;
 
+  &.inline {
+    display: inline-flex;
+  }
+
   &:hover {
     color: $ontime-color;
   }

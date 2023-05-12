@@ -4,7 +4,8 @@ export const ontimePlaceholderSettings: Settings = {
   app: 'ontime',
   version: 2,
   serverPort: 4001,
-  lock: null,
-  pinCode: null,
+  editorKey: null,
+  operatorKey: null,
   timeFormat: '24',
+  language: 'en',
 };
