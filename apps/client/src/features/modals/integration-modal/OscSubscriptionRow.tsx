@@ -41,13 +41,6 @@ export default function OscSubscriptionRow(props: OscSubscriptionRowProps) {
           {subscriptionOptions.map((option, idx) => (
             <div key={option.id} className={styles.entryRow}>
               <input type='hidden' {...register(`${registerPrefix}[${idx}].id`)} value={option.id} />
-              <Switch size='sm' {...register(`${registerPrefix}[${idx}].enabled`)} />
-              <Input
-                placeholder='OSC Message'
-                size='xs'
-                variant='ontime-filled-on-light'
-                {...register(`${registerPrefix}[${idx}].message`)}
-              />
               <IconButton
                 icon={<IoRemove />}
                 onClick={() => handleDelete(cycle, option.id)}
@@ -55,6 +48,13 @@ export default function OscSubscriptionRow(props: OscSubscriptionRowProps) {
                 size='xs'
                 colorScheme='red'
               />
+              <Input
+                placeholder='OSC Message'
+                size='xs'
+                variant='ontime-filled-on-light'
+                {...register(`${registerPrefix}[${idx}].message`)}
+              />
+              <Switch variant='ontime-on-light' {...register(`${registerPrefix}[${idx}].enabled`)} />
             </div>
           ))}
           <Button
