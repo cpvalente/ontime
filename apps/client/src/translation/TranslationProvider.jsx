@@ -1,54 +1,47 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext } from 'react';
 
+import useSettings from '@/common/hooks-query/useSettings';
 import { langDe } from '@/translation/languages/de';
 import { langEn } from '@/translation/languages/en';
+import { langEs } from '@/translation/languages/es';
 import { langNo } from '@/translation/languages/no';
+import { langPt } from '@/translation/languages/pt';
 import { langSv } from '@/translation/languages/sv';
 
 const translationsList = {
   en: langEn,
+  es: langEs,
   de: langDe,
   no: langNo,
+  pt: langPt,
   sv: langSv,
 };
 
-const ALLOWED_LANGUAGES = Object.keys(translationsList);
 const DEFAULT_LANGUAGE = 'en';
 export const TranslationContext = createContext(undefined);
 
 export const TranslationProvider = ({ children }) => {
-  const [language, setLanguageState] = useState('en');
+  const { data } = useSettings();
 
   const getLocalizedString = useCallback(
-    (key, lang = language) => {
+    (key, lang = data.language) => {
       if (key in translationsList[lang]) {
         return translationsList[lang][key];
       } else if (lang !== DEFAULT_LANGUAGE) {
         return getLocalizedString(key, 'en');
       }
     },
-    [language],
+    [data.language],
   );
-
-  const setLanguage = useCallback((language) => {
-    language = language.toLowerCase();
-    if (ALLOWED_LANGUAGES.includes(language)) {
-      setLanguageState(language);
-      console.info(`Language set to ${language}`);
-    } else {
-      console.warn(`Language code ${language} does not exist.`);
-    }
-  }, []);
 
   const contextValue = {
     getLocalizedString,
-    setLanguage,
   };
 
   return <TranslationContext.Provider value={contextValue}>{children}</TranslationContext.Provider>;
 };
 
 export const useTranslation = () => {
-  const { getLocalizedString, setLanguage } = useContext(TranslationContext);
-  return { getLocalizedString, setLanguage };
+  const { getLocalizedString } = useContext(TranslationContext);
+  return { getLocalizedString };
 };

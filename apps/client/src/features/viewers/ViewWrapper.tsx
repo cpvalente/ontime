@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import { ComponentType, useMemo } from 'react';
 import { TitleBlock } from 'ontime-types';
 import { useStore } from 'zustand';
@@ -11,8 +12,7 @@ import { useViewOptionsStore } from '../../common/stores/viewOptions';
 export type TitleManager = TitleBlock & { showNow: boolean; showNext: boolean };
 
 const withData = <P extends object>(Component: ComponentType<P>) => {
-  // eslint-disable-next-line react/display-name -- its ok
-  return (props: P) => {
+  return (props: Partial<P>) => {
     // persisted app state
     const isMirrored = useViewOptionsStore((state) => state.mirror);
 
