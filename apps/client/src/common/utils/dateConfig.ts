@@ -42,7 +42,7 @@ export const millisToSeconds = (millis: number | null): number => {
 
 /**
  * @description Converts milliseconds to seconds
- * @param {number} millis - time in seconds
+ * @param {number} millis - time in milliseconds
  * @returns {number} Amount in seconds
  */
 export const millisToMinutes = (millis: number): number => {

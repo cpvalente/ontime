@@ -2,10 +2,11 @@
 @use "../../../../theme/_v2Styles" as *;
 
 .swatch {
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  border: 1px solid $gray-300;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  border: 1px solid white;
+  box-shadow: 0 0 0 1px $gray-300;
   cursor: pointer;
 
   transition-property: box-shadow;

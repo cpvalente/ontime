@@ -45,7 +45,7 @@ export async function getView(): Promise<ViewSettings> {
  * @description HTTP request to mutate view settings
  * @return {Promise}
  */
-export async function postView(data: ViewSettings) {
+export async function postViewSettings(data: ViewSettings) {
   return axios.post(`${ontimeURL}/views`, data);
 }
 

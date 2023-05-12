@@ -1,6 +1,6 @@
 import { Button, ModalFooter } from '@chakra-ui/react';
 
-import styles from '../Modal.module.scss';
+import styles from './Modal.module.scss';
 
 interface OntimeModalFooterProps {
   formId: string;

@@ -2,11 +2,16 @@ import React, { createContext, useCallback, useContext, useState } from 'react';
 
 import { langDe } from '@/translation/languages/de';
 import { langEn } from '@/translation/languages/en';
+import { langNo } from '@/translation/languages/no';
+import { langSv } from '@/translation/languages/sv';
 
 const translationsList = {
   en: langEn,
   de: langDe,
+  no: langNo,
+  sv: langSv,
 };
+
 const ALLOWED_LANGUAGES = Object.keys(translationsList);
 const DEFAULT_LANGUAGE = 'en';
 export const TranslationContext = createContext(undefined);

@@ -112,9 +112,10 @@ export const parseSettings = (data, enforce): Settings => {
       console.log('ERROR: unknown app version, skipping');
     } else {
       const settings = {
-        lock: s.lock || null,
-        pinCode: s.pinCode || null,
+        editorKey: s.editorKey || null,
+        operatorKey: s.operatorKey || null,
         timeFormat: s.timeFormat || '24',
+        language: s.language || 'en',
       };
 
       // write to db
@@ -221,23 +222,8 @@ export const parseHttp = (data, enforce) => {
   const newHttp = {};
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
-    const h = data.http;
-    const http = {};
-
-    // @ts-expect-error -- not yet
-    if (h.user) http.user = h.user;
-    // @ts-expect-error -- not yet
-    if (h.pwd) http.pwd = h.pwd;
-
-    // @ts-expect-error -- not yet
-    newHttp.http = {
-      ...dbModel.http,
-      ...http,
-    };
   } else if (enforce) {
-    // @ts-expect-error -- not yet
-    newHttp.http = { ...dbModel.http };
-    console.log('Created http object in db');
+    /* Not yet */
   }
   return newHttp;
 };
@@ -251,22 +237,13 @@ export const parseAliases = (data): Alias[] => {
   const newAliases: Alias[] = [];
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
-    const ids = [];
     try {
       for (const a of data.aliases) {
-        // double check unique ids
-        if (ids.indexOf(a?.id) !== -1) {
-          console.log('ERROR: ID collision on import, skipping');
-          continue;
-        }
         const newAlias = {
-          id: a.id || generateId(),
           enabled: a.enabled || false,
           alias: a.alias || '',
           pathAndParams: a.pathAndParams || '',
         };
-
-        ids.push(newAlias.id);
         newAliases.push(newAlias);
       }
       console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
