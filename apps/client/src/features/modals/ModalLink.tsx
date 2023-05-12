@@ -2,7 +2,6 @@ import { MouseEvent, ReactNode } from 'react';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 
 import { openLink } from '../../common/utils/linkUtils';
-
 import { cx } from '../../common/utils/styleUtils';
 
 import style from './ModalLink.module.scss';
