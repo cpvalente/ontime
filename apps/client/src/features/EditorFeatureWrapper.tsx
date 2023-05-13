@@ -1,16 +1,12 @@
-import { ReactNode } from 'react';
+import { PropsWithChildren } from 'react';
 
 import ProtectRoute from '../common/components/protect-route/ProtectRoute';
 
 import style from './FeatureWrapper.module.scss';
 
-interface FeatureWrapperProps {
-  children: ReactNode;
-}
-
-export default function FeatureWrapper({ children }: FeatureWrapperProps) {
+export default function EditorFeatureWrapper({ children }: PropsWithChildren) {
   return (
-    <ProtectRoute>
+    <ProtectRoute permission='editor'>
       <div className={style.wrapper}>{children}</div>
     </ProtectRoute>
   );

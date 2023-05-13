@@ -5,7 +5,7 @@ import TableWrapper from './TableWrapper';
 
 export default function ProtectedTable() {
   return (
-    <ProtectRoute>
+    <ProtectRoute permission='operator'>
       <TableSettingsProvider>
         <TableWrapper />
       </TableSettingsProvider>
