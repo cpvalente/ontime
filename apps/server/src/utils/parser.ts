@@ -11,7 +11,6 @@ import { deleteFile, makeString, validateDuration } from './parserUtils.js';
 import {
   parseAliases,
   parseEventData,
-  parseHttp,
   parseOsc,
   parseRundown,
   parseSettings,
@@ -282,7 +281,7 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
   // @ts-expect-error -- we are unable to type just yet
   returnData.osc = parseOsc(jsonData, enforce);
   // Import HTTP settings if any
-  returnData.http = parseHttp(jsonData, enforce);
+  // returnData.http = parseHttp(jsonData, enforce);
 
   return returnData as DatabaseModel;
 };
