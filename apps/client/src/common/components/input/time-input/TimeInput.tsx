@@ -1,4 +1,4 @@
-import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { FocusEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Input, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
 import { millisToString } from 'ontime-utils';
 
@@ -19,6 +19,20 @@ interface TimeInputProps {
   validationHandler: (entry: TimeEntryField, val: number) => boolean;
   previousEnd?: number;
   warning?: string;
+}
+
+function ButtonInitial(name: TimeEntryField) {
+  if (name === 'timeStart') return 'S';
+  if (name === 'timeEnd') return 'E';
+  if (name === 'durationOverride') return 'D';
+  return '';
+}
+
+function ButtonTooltip(name: TimeEntryField, warning?: string) {
+  if (name === 'timeStart') return `Start${warning ? `: ${warning}` : ''}`;
+  if (name === 'timeEnd') return `End${warning ? `: ${warning}` : ''}`;
+  if (name === 'durationOverride') return `Duration${warning ? `: ${warning}` : ''}`;
+  return '';
 }
 
 export default function TimeInput(props: TimeInputProps) {
@@ -142,30 +156,24 @@ export default function TimeInput(props: TimeInputProps) {
   useEffect(() => {
     if (time == null) return;
     resetValue();
-  }, [emitError, resetValue, time]);
-
-  const ButtonInitial = () => {
-    if (name === 'timeStart') return 'S';
-    if (name === 'timeEnd') return 'E';
-    if (name === 'durationOverride') return 'D';
-    return '';
-  };
-
-  const ButtonTooltip = () => {
-    if (name === 'timeStart') return `Start${warning ? `: ${warning}` : ''}`;
-    if (name === 'timeEnd') return `End${warning ? `: ${warning}` : ''}`;
-    if (name === 'durationOverride') return `Duration${warning ? `: ${warning}` : ''}`;
-    return '';
-  };
+  }, [resetValue, time]);
 
   const isDelayed = delay !== 0;
   const inputClasses = cx([style.timeInput, isDelayed ? style.delayed : null]);
   const buttonClasses = cx([style.inputButton, isDelayed ? style.delayed : null, warning ? style.warn : null]);
 
+  const TooltipLabel = useMemo(() => {
+    return ButtonTooltip(name, warning);
+  }, [name, warning]);
+
+  const ButtonText = useMemo(() => {
+    return ButtonInitial(name);
+  }, [name]);
+
   return (
     <InputGroup size='sm' className={inputClasses}>
       <InputLeftElement className={style.inputLeft}>
-        <Tooltip label={ButtonTooltip()} openDelay={tooltipDelayFast} variant='ontime-ondark'>
+        <Tooltip label={TooltipLabel} openDelay={tooltipDelayFast} variant='ontime-ondark'>
           <Button
             size='sm'
             variant='ontime-subtle-white'
@@ -175,7 +183,7 @@ export default function TimeInput(props: TimeInputProps) {
             borderRight='1px solid transparent'
             borderRadius='2px 0 0 2px'
           >
-            {ButtonInitial()}
+            {ButtonText}
           </Button>
         </Tooltip>
       </InputLeftElement>
