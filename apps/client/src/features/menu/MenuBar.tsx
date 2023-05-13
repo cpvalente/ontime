@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { VStack } from '@chakra-ui/react';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
@@ -44,7 +44,7 @@ const buttonStyle = {
   },
 };
 
-export default function MenuBar(props: MenuBarProps) {
+const MenuBar = (props: MenuBarProps) => {
   const {
     isSettingsOpen,
     onSettingsOpen,
@@ -175,4 +175,6 @@ export default function MenuBar(props: MenuBarProps) {
       />
     </VStack>
   );
-}
+};
+
+export default memo(MenuBar);

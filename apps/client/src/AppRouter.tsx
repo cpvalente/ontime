@@ -26,7 +26,7 @@ const SPublic = withData(Public);
 const SLowerThird = withData(Lower);
 const SStudio = withData(StudioClock);
 
-const FeatureWrapper = lazy(() => import('./features/FeatureWrapper'));
+const EditorFeatureWrapper = lazy(() => import('./features/EditorFeatureWrapper'));
 const RundownPanel = lazy(() => import('./features/rundown/RundownExport'));
 const TimerControl = lazy(() => import('./features/control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('./features/control/message/MessageControlExport'));
@@ -83,33 +83,33 @@ export default function AppRouter() {
       <Route
         path='/rundown'
         element={
-          <FeatureWrapper>
+          <EditorFeatureWrapper>
             <RundownPanel />
-          </FeatureWrapper>
+          </EditorFeatureWrapper>
         }
       />
       <Route
         path='/timercontrol'
         element={
-          <FeatureWrapper>
+          <EditorFeatureWrapper>
             <TimerControl />
-          </FeatureWrapper>
+          </EditorFeatureWrapper>
         }
       />
       <Route
         path='/messagecontrol'
         element={
-          <FeatureWrapper>
+          <EditorFeatureWrapper>
             <MessageControl />
-          </FeatureWrapper>
+          </EditorFeatureWrapper>
         }
       />
       <Route
         path='/info'
         element={
-          <FeatureWrapper>
+          <EditorFeatureWrapper>
             <Info />
-          </FeatureWrapper>
+          </EditorFeatureWrapper>
         }
       />
       {/*/!* Send to default if nothing found *!/*/}

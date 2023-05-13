@@ -104,7 +104,7 @@ export default function OscIntegration() {
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='oscSubscriptions'>
       {subscriptionKeys.map((cycle, idx) => {
         return (
-          <>
+          <div key={`${cycle}-${idx}`}>
             <OscSubscriptionRow
               key={cycle}
               cycle={cycle as TimerLifeCycle}
@@ -118,7 +118,7 @@ export default function OscIntegration() {
               register={register}
             />
             {idx < subscriptionKeys.length - 1 && <hr className={styles.divider} />}
-          </>
+          </div>
         );
       })}
       <OntimeModalFooter

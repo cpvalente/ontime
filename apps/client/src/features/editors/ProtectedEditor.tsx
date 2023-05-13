@@ -4,7 +4,7 @@ import Editor from './Editor';
 
 export default function ProtectedEditor() {
   return (
-    <ProtectRoute>
+    <ProtectRoute permission='editor'>
       <Editor />
     </ProtectRoute>
   );

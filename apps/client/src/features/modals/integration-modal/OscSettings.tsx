@@ -89,7 +89,7 @@ export default function OscSettings() {
           })}
         />
       </FormControl>
-
+      <div style={{ height: '16px' }} />
       <div className={styles.splitSection}>
         <div>
           <span className={styles.sectionTitle} style={{ fontWeight: 600 }}>

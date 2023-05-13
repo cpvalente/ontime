@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
@@ -136,14 +136,14 @@ export default function EventBlock(props: EventBlockProps) {
     hasCursor ? style.hasCursor : null,
   ]);
 
+  const handleFocusClick = (event: MouseEvent) => {
+    event.stopPropagation();
+    moveCursorTo(eventId, true);
+  };
+
   return (
-    <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
-      <div
-        className={style.binder}
-        style={{ ...binderColours }}
-        tabIndex={-1}
-        onClick={() => moveCursorTo(eventId, true)}
-      >
+    <div className={blockClasses} ref={setNodeRef} style={dragStyle} onClick={handleFocusClick}>
+      <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>

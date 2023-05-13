@@ -7,6 +7,11 @@ import { validateOscSubscription } from '../utils/parserFunctions.js';
 export const viewValidator = [
   check('overrideStyles').isBoolean().withMessage('overrideStyles value must be boolean'),
   check('endMessage').isString().trim().withMessage('endMessage value must be string'),
+  check('normalColor').isString().trim().withMessage('normalColor value must be string'),
+  check('warningColor').isString().trim().withMessage('warningColor value must be string'),
+  check('dangerColor').isString().trim().withMessage('dangerColor value must be string'),
+  check('warningThreshold').isNumeric().withMessage('warningThreshold value must be a number'),
+  check('dangerThreshold').isNumeric().withMessage('dangerThreshold value must a number'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
