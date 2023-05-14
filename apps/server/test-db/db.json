@@ -7,7 +7,8 @@
       "note": "Maybe a running note for the operator?",
       "timeStart": 28800000,
       "timeEnd": 30600000,
-      "timeType": "start-end",
+      "endAction": "none",
+      "timerType": "count-down",
       "duration": 1800000,
       "isPublic": false,
       "skip": false,
@@ -33,7 +34,8 @@
       "note": "",
       "timeStart": 30600000,
       "timeEnd": 34200000,
-      "timeType": "start-end",
+      "endAction": "none",
+      "timerType": "count-down",
       "duration": 3600000,
       "isPublic": false,
       "skip": false,
@@ -59,7 +61,8 @@
       "note": "",
       "timeStart": 34200000,
       "timeEnd": 34800000,
-      "timeType": "start-end",
+      "endAction": "none",
+      "timerType": "count-down",
       "duration": 600000,
       "isPublic": false,
       "skip": false,
@@ -85,7 +88,8 @@
       "note": "In green, below",
       "timeStart": 34800000,
       "timeEnd": 35400000,
-      "timeType": "start-end",
+      "endAction": "none",
+      "timerType": "count-down",
       "duration": 600000,
       "isPublic": false,
       "skip": false,
@@ -111,7 +115,8 @@
       "note": "",
       "timeStart": 0,
       "timeEnd": 600000,
-      "timeType": "start-end",
+      "endAction": "none",
+      "timerType": "count-down",
       "duration": 600000,
       "isPublic": false,
       "skip": false,
@@ -143,7 +148,8 @@
       "note": "* Until a block is found",
       "timeStart": 35400000,
       "timeEnd": 36600000,
-      "timeType": "start-end",
+      "endAction": "none",
+      "timerType": "count-down",
       "duration": 1200000,
       "isPublic": false,
       "skip": false,
@@ -169,7 +175,8 @@
       "note": "Orange and red buttons on the right",
       "timeStart": 36600000,
       "timeEnd": 43200000,
-      "timeType": "start-end",
+      "endAction": "none",
+      "timerType": "count-down",
       "duration": 6600000,
       "isPublic": false,
       "skip": false,
@@ -199,7 +206,8 @@
       "note": "Blue button on the right",
       "timeStart": 46800000,
       "timeEnd": 57600000,
-      "timeType": "start-end",
+      "endAction": "none",
+      "timerType": "count-down",
       "duration": 10800000,
       "isPublic": false,
       "skip": false,
@@ -228,13 +236,20 @@
   },
   "settings": {
     "app": "ontime",
-    "version": 1,
+    "version": 2,
     "serverPort": 4001,
-    "lock": null,
-    "pinCode": "1234"
+    "editorKey": null,
+    "operatorKey": null,
+    "timeFormat": "24",
+    "language": "en"
   },
   "viewSettings": {
     "overrideStyles": false,
+    "normalColor": "#ffffffcc",
+    "warningColor": "#FFAB33",
+    "warningThreshold": 120000,
+    "dangerColor": "#ED3333",
+    "dangerThreshold": 60000,
     "endMessage": ""
   },
   "osc": {
@@ -243,42 +258,8 @@
     "targetIP": "127.0.0.1",
     "enabled": true
   },
-  "http": {
-    "http": {
-      "user": null,
-      "pwd": null,
-      "messages": {
-        "onLoad": {
-          "url": "",
-          "enabled": false
-        },
-        "onStart": {
-          "url": "",
-          "enabled": false
-        },
-        "onUpdate": {
-          "url": "",
-          "enabled": false
-        },
-        "onPause": {
-          "url": "",
-          "enabled": false
-        },
-        "onStop": {
-          "url": "",
-          "enabled": false
-        },
-        "onFinish": {
-          "url": "",
-          "enabled": false
-        }
-      },
-      "enabled": true
-    }
-  },
   "aliases": [
     {
-      "id": "0b0b3",
       "enabled": true,
       "alias": "test",
       "pathAndParams": "lower?bg=ff2&text=f00&size=0.6&transition=5"

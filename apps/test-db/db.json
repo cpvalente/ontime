@@ -104,17 +104,22 @@
     "app": "ontime",
     "version": 2,
     "serverPort": 4001,
-    "lock": null,
-    "pinCode": "1234",
-    "timeFormat": "24"
+    "editorKey": null,
+    "operatorKey": null,
+    "timeFormat": "24",
+    "language": "en"
   },
   "viewSettings": {
     "overrideStyles": false,
+    "normalColor": "#ffffffcc",
+    "warningColor": "#FFAB33",
+    "warningThreshold": 120000,
+    "dangerColor": "#ED3333",
+    "dangerThreshold": 60000,
     "endMessage": ""
   },
   "aliases": [
     {
-      "id": "0b0b3",
       "enabled": true,
       "alias": "test",
       "pathAndParams": "lower?bg=ff2&text=f00&size=0.6&transition=5"
@@ -145,39 +150,6 @@
       "onStop": [],
       "onUpdate": [],
       "onFinish": []
-    }
-  },
-  "http": {
-    "http": {
-      "user": null,
-      "pwd": null,
-      "messages": {
-        "onLoad": {
-          "url": "",
-          "enabled": false
-        },
-        "onStart": {
-          "url": "",
-          "enabled": false
-        },
-        "onUpdate": {
-          "url": "",
-          "enabled": false
-        },
-        "onPause": {
-          "url": "",
-          "enabled": false
-        },
-        "onStop": {
-          "url": "",
-          "enabled": false
-        },
-        "onFinish": {
-          "url": "",
-          "enabled": false
-        }
-      },
-      "enabled": true
     }
   }
 }
