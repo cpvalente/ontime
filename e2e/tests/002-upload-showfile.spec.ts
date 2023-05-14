@@ -5,7 +5,7 @@ test('test', async ({ page }) => {
   await page.getByRole('button', { name: 'Event...' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
 
-  await page.getByRole('button', { name: 'Upload showfile' }).click();
+  await page.getByRole('button', { name: 'Upload project file' }).click();
   await page.getByLabel('Select file to upload').click();
   await page.getByLabel('Select file to upload').setInputFiles('e2e/tests/fixtures/test-db.json');
   await page.getByRole('button', { name: 'Upload' }).click();
