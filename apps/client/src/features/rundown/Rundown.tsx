@@ -1,4 +1,4 @@
-import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
@@ -9,11 +9,11 @@ import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useLocalEvent } from '../../common/stores/localEvent';
 import { cloneEvent, getFirstEvent, getNextEvent, getPreviousEvent } from '../../common/utils/eventsManager';
 
-import QuickAddBlock from './quick-add-block/QuickAddBlock';
-import RundownEmpty from './RundownEmpty';
-import RundownEntry from './RundownEntry';
-
 import style from './Rundown.module.scss';
+
+const QuickAddBlock = lazy(() => import('./quick-add-block/QuickAddBlock'));
+const RundownEmpty = lazy(() => import('./RundownEmpty'));
+const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
   entries: OntimeRundown;
