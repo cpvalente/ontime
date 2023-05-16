@@ -1,6 +1,4 @@
-import { TranslationObject } from '../Translation.types';
-
-export const langEn: TranslationObject = {
+export const langEn = {
   'common.end_time': 'End Time',
   'common.expected_finish': 'Expected Finish',
   'common.now': 'Now',
