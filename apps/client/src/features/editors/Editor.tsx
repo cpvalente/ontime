@@ -1,5 +1,5 @@
 import { lazy, useEffect } from 'react';
-import { Box, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import MenuBar from '../menu/MenuBar';
@@ -44,7 +44,7 @@ export default function Editor() {
         <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
       <div className={styles.mainContainer} data-testid='event-editor'>
-        <Box id='settings' className={styles.settings}>
+        <div id='settings' className={styles.settings}>
           <ErrorBoundary>
             <MenuBar
               onSettingsOpen={onSettingsOpen}
@@ -60,7 +60,7 @@ export default function Editor() {
               onQuickStartOpen={onQuickStartOpen}
             />
           </ErrorBoundary>
-        </Box>
+        </div>
         <Rundown />
         <MessageControl />
         <TimerControl />

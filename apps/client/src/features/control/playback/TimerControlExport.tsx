@@ -1,5 +1,4 @@
 import { memo } from 'react';
-import { Box } from '@chakra-ui/react';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import ErrorBoundary from '../../../common/components/error-boundary/ErrorBoundary';
@@ -11,14 +10,14 @@ import style from '../../editors/Editor.module.scss';
 
 const TimerControlExport = () => {
   return (
-    <Box className={style.playback} data-testid='panel-timer-control'>
+    <div className={style.playback} data-testid='panel-timer-control'>
       <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'timercontrol')} />
       <div className={style.content}>
         <ErrorBoundary>
           <PlaybackControl />
         </ErrorBoundary>
       </div>
-    </Box>
+    </div>
   );
 };
 

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Box, IconButton } from '@chakra-ui/react';
+import { IconButton } from '@chakra-ui/react';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
@@ -26,7 +26,7 @@ const EventEditorExport = () => {
   const removeOpenEvent = () => setEditId(null);
 
   return (
-    <Box className={editorStyle}>
+    <div className={editorStyle}>
       <ErrorBoundary>
         <div className={style.eventEditorLayout}>
           <EventEditor />
@@ -35,7 +35,7 @@ const EventEditorExport = () => {
           </div>
         </div>
       </ErrorBoundary>
-    </Box>
+    </div>
   );
 };
 
