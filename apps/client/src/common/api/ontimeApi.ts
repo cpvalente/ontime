@@ -136,7 +136,7 @@ export const downloadRundown = async () => {
 type UploadDataOptions = {
   onlyRundown?: boolean;
 };
-export const uploadData = async (file: string, setProgress: (value: number) => void, options?: UploadDataOptions) => {
+export const uploadData = async (file: File, setProgress: (value: number) => void, options?: UploadDataOptions) => {
   const formData = new FormData();
   formData.append('userFile', file);
   const onlyRundown = options?.onlyRundown || 'false';

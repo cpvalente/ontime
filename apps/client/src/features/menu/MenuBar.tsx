@@ -118,8 +118,8 @@ const MenuBar = (props: MenuBarProps) => {
         icon={<IoPushOutline />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
-        tooltip='Upload project file'
-        aria-label='Upload project file'
+        tooltip='Import project file'
+        aria-label='Import project file'
       />
       <TooltipActionBtn
         {...buttonStyle}
