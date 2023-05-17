@@ -5,10 +5,11 @@ test('test', async ({ page }) => {
   await page.getByRole('button', { name: 'Event...' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
 
-  await page.getByRole('button', { name: 'Upload project file' }).click();
-  await page.getByLabel('Select file to upload').click();
-  await page.getByLabel('Select file to upload').setInputFiles('e2e/tests/fixtures/test-db.json');
-  await page.getByRole('button', { name: 'Upload' }).click();
+  await page.getByRole('button', { name: 'Import project file' }).click();
+  await page.getByText('Click to upload Ontime project file').click();
+  await page.getByRole('dialog', { name: 'File import' }).setInputFiles('e2e/tests/fixtures/test-db.json');
+
+  await page.getByRole('button', { name: 'Import' }).click();
   await page.getByRole('button', { name: 'Close' }).click();
 
   // asset test events
