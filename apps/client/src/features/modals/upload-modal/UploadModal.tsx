@@ -114,6 +114,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
             type='file'
             onChange={handleFile}
             accept='.json, .xlsx'
+            data-testid='file-input'
           />
           <div className={style.uploadArea} onClick={handleClick}>
             Click to upload Ontime project file
