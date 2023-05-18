@@ -88,3 +88,17 @@ export const validateOSC = [
     next();
   },
 ];
+
+/**
+ * @description Validates object for POST /ontime/osc-subscriptions
+ */
+export const validateOSCSubscription = [
+  body('subscriptions')
+    .isObject()
+    .custom((value) => validateOscSubscription(value)),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
