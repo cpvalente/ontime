@@ -23,16 +23,16 @@ const formatOptions = {
 // motion
 const titleVariants = {
   hidden: {
-    y: 500,
+    x: -2500,
   },
   visible: {
-    y: 0,
+    x: 0,
     transition: {
       duration: 1,
     },
   },
   exit: {
-    y: 500,
+    x: -2500,
   },
 };
 
