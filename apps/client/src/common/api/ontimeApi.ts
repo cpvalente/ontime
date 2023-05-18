@@ -1,5 +1,13 @@
 import axios from 'axios';
-import { Alias, EventData, OSCSettings, Settings, UserFields, ViewSettings } from 'ontime-types';
+import {
+  Alias,
+  EventData,
+  OSCSettings,
+  OscSubscription,
+  Settings,
+  UserFields,
+  ViewSettings,
+} from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';
 import { InfoType } from '../models/Info';
@@ -98,6 +106,14 @@ export async function getOSC(): Promise<OSCSettings> {
  */
 export async function postOSC(data: OSCSettings) {
   return axios.post(`${ontimeURL}/osc`, data);
+}
+
+/**
+ * @description HTTP request to mutate osc subscriptions
+ * @return {Promise}
+ */
+export async function postOscSubscriptions(data: OscSubscription) {
+  return axios.post(`${ontimeURL}/osc-subscriptions`, data);
 }
 
 /**
