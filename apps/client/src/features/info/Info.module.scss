@@ -1,0 +1,47 @@
+@use '../../theme/mixins' as *;
+@use '../../theme/v2Styles' as *;
+
+.panelHeader {
+  font-size: $inner-section-text-size;
+  font-family: $ontime-font-family;
+  color: $label-gray;
+  display: flex;
+  justify-content: space-between;
+}
+
+.labels {
+  font-size: $inner-section-text-size;
+  display: flex;
+  flex-direction: column;
+  gap: $element-inner-spacing;
+}
+
+.label {
+  color: $section-white;
+}
+
+.content {
+  color: $secondary-text-gray;
+  margin-left: $element-inner-spacing;
+  font-size: $text-body-size;
+}
+
+.interfaceList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $section-spacing;
+  row-gap: $element-inner-spacing;
+
+  .interface {
+    @include action-link;
+    font-size: $inner-section-text-size;
+    white-space: nowrap;
+  }
+
+  .linkIcon {
+    margin-left: $element-inner-spacing;
+    display: inline-block;
+    transform: rotate(45deg);
+  }
+}
+

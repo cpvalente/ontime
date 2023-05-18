@@ -1,0 +1,44 @@
+@use '../../theme/ontimeColours' as *;
+@use '../../theme/v2Styles' as *;
+
+$block-gap: 4px;
+$block-element-spacing: 4px;
+$block-binder-width: 32px;
+$block-clearance: 8px;
+$block-border-radius: 8px;
+$block-text-color: $gray-50;
+$block-bg: $gray-1200;
+$block-bg2: $gray-1050; // for delay and blocks
+$block-box-shadow: rgba(0, 0, 0, 0.5) 0 0 3px 2px;
+$secondary-block-height: 40px;
+$block-cursor-color: $blue-400;
+
+@mixin block-styling() {
+  box-sizing: content-box;
+  border: 1px solid $white-10;
+  font-family: $ontime-font-family;
+  border-radius: $block-border-radius;
+  margin: 4px 2px;
+  position: relative;
+  color: $block-text-color;
+}
+
+@mixin block-spacing() {
+  padding-right: 8px;
+  gap: 2px;
+}
+
+@mixin drag-style() {
+  font-size: 20px;
+  justify-self: center;
+  opacity: 0.3;
+  cursor: grab;
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 1;
+  }
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+}

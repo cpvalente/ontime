@@ -1,5 +1,5 @@
 [![ontime_test_CI](https://github.com/cpvalente/ontime/actions/workflows/ontime_cy.yml/badge.svg)](https://github.com/cpvalente/ontime/actions/workflows/ontime_cy.yml) [![Ontime build](https://github.com/cpvalente/ontime/actions/workflows/build.yml/badge.svg)](https://github.com/cpvalente/ontime/actions/workflows/build.yml)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Documentation in Gitbook](https://badges.aleen42.com/src/gitbook_2.svg)](https://cpvalente.gitbook.io/ontime/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Documentation in Gitbook](https://badges.aleen42.com/src/gitbook_2.svg)](https://ontime.gitbook.io)
 
 ## Download the latest releases here
 
@@ -14,120 +14,115 @@
 
 Ontime is an application for managing event rundowns and running stage timers.
 
-It allows a center application to be able to distribute event information in the local network. This
-minimises needs for using Media Server outputs or expensive video distribution while allowing easy
-integration in workflows including OBS and d3.
+A single, locally hosted central application distributes your event information over the local network.
+This enables the distribution of the data to a series of views and allows integration into video and control workflows, including OBS and d3.
 
-![App Window](https://github.com/cpvalente/ontime/blob/master/.github/app.jpg)
+![App Window](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/app.jpg)
 
-![Views](https://github.com/cpvalente/ontime/blob/master/.github/02_screentypes.png)
+![Views](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/02_screentypes.png)
 
 ## Using Ontime
 
-Once installed and running, ontime starts a background server that is the heart of all processes.
-The app, is used to add / edit your running order in the event list, and running the timers using
-the Playback Control function.
+Once installed and running, Ontime starts a background server that is the heart of all processes.
+From the app, you can add / edit your running order and control the timer playback.
 
-From here, any device in the same network with a browser is able to render the views as described.
+Any device with a browser in the same network can choose one of the supported views to render the available data. 
 This is done by reaching the ontime server at the _default port 4001_ eg: `localhost:4001`
 or `192.168.1.3:4001`
-You can then use the ontime logo in the top right corner to select the desired view (event in the
-lower thirds view, where it is hidden).
+<br />
+You can then use the Ontime logo in the top left corner to select the desired view.
+The logo will be initially hidden until there is mouse interaction.
 
-In case of unattended machines or automations, it is possible to use different URL to recall
-individual views and extend with using the URL aliases feature
+In the case of unattended machines or automation, it is possible to use different URL to recall
+individual views and extend view settings using the URL aliases feature
 
 ```
-For the presentation views...
+For the presentation views
 -------------------------------------------------------------
 IP.ADDRESS:4001            > Web server default to presenter timer view
 IP.ADDRESS:4001/timer      > Presenter / Stage timer view
+IP.ADDRESS:4001/minimal    > Simple timer view
+IP.ADDRESS:4001/clock      > Simple clock view
 IP.ADDRESS:4001/sm         > Stage Manager / Backstage view
 IP.ADDRESS:4001/public     > Public / Foyer view
-IP.ADDRESS:4001/pip        > Picture in Picture view
 IP.ADDRESS:4001/lower      > Lower Thirds
 IP.ADDRESS:4001/studio     > Studio Clock
-IP.ADDRESS:4001/cuesheet   > Cue Sheet
-
-...and for the editor (the control interface, same as the app)
+```
+```
+For management views 
 -------------------------------------------------------------
-IP.ADDRESS:4001/editor
-
+IP.ADDRESS:4001/editor    > the control interface, same as the app
+IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
 ```
 
-More documentation available [here](https://cpvalente.gitbook.io/ontime/)
+More documentation is available [in our docs](https://ontime.gitbook.io)
 
 ## Feature List (in no specific order)
 
-- [x] Distribute Data over network and render in the browser
+- [x] Distribute data over network and render it in the browser
 - [x] Different screen types
     - Stage Timer
     - Backstage Info
     - Public Info
-    - Picture in Picture
     - Studio Clock
+    - Countdown
     - [Make your own?](#make-your-own-viewer)
-- [x] Configurable realtime Lower Thirds
-- [x] Cuesheets with additional custom fields
+- [x] Configurable Lower Thirds
+- [x] Cuesheets with user definable fields
 - [x] Send live messages to different screen types
-- [x] Ability to differentiate between backstage and public data
-- [x] Manage delays workflow
-- [x] Open Sound Control (OSC) Control and Feedback
-- [x] Integrate with hardware using Companion or one of the APIs
+- [x] Differentiate between backstage and public data
+- [x] Workflow for managing delays
+- [x] Protocol integrations for Control and Feedback
+  - OSC (Open Sound Control)
+  - HTTP
+  - WebSockets
 - [x] Roll mode: run independently using the system clock
-- [x] Import event list from Excel
-- [x] URL Aliases (define configurable aliases to ease onsite setup)
-- [x] Logging view
-- [x] Edit anywhere: run ontime in your local network and use any machine to reach the editor page (
-  same as app)
-- [x] Multi platform (available on Windows, MacOS and Linux)
-- [x] [Headless run](#headless-run) (run server only, configure from a browser locally)
-- [x] [Countdown to anything!](https://cpvalente.gitbook.io/ontime/views/countdown): ability to have
+- [x] [Headless run](#headless-run): run server in a separate machine, configure from a browser locally
+- [x] [Countdown to anything!](https://ontime.gitbook.io/v2/views/countdown): have
   a countdown to any scheduled event
+- [x] Multi-platform  (available on Windows, MacOS and Linux)
+- [x] [Companion integration](https://bitfocus.io/connections/getontime-ontime)
 
 ## Unopinionated
 
-We are not interested in forcing workflows and have made ontime, so it is flexible to whichever way
+We are not interested in forcing workflows and have made Ontime, so it is flexible to whichever way
 you would like to work.
 
-- [x] You do not need an order list to use the timer. Create an empty event and the OSC API works
-  just the same
-- [x] If you want just the info screens, no need to use the timer!
+- [x] If you want just the info screens, there is no need to use the timer!
 - [x] Don't have or care for a schedule?
-    - [x] a single event with no data is enough to use the OSC API and get going
+    - [x] a single event with no data is enough to use one of the APIs and use a dynamic timer
     - [x] use the order list to create a set of quick timers by setting the beginning and start
-      times to 00:00 and 00:10 (**BAM**! 10 minute timer). You can quickly recall this with OSC as
-      always
+      times to 00:00 and 00:10 (**BAM**! 10 minute timer). You can quickly recall this with OSC or any of the other available integrations
 
 ## Rich APIs for workflow integrations
 
-The app is being currently developed to a wide user base, from broadcast to entertainment and
+The app is currently being developed for a broad user base, from broadcast to entertainment and
 conference halls.
 
-Taking advantage of the integrations in Ontime, we currently use Ontime with:
+Taking advantage of the integrations, we currently use Ontime with:
 
-- `disguise`: trigger ontime from d3's timeline using the **OSC API**, **render views** using d3's
+- `disguise`: trigger Ontime from d3's timeline using the **OSC API**, and **render views** using d3's
   webmodule
 - `OBS`: **render views** using the Browser Module
-- `QLab`: trigger ontime using **OSC API**
+- `QLab`: trigger Ontime using **OSC API**
 - `Companion`: Ontime has a **companion module**. Issue report and feature requests should be done
-  in
-  the [repository getontime/ontime](https://github.com/bitfocus/companion-module-getontime-ontime)
+  in the [repository getontime/ontime](https://github.com/bitfocus/companion-module-getontime-ontime)
 
 ### Make your own viewer
 
-Ontime broadcasts its data over websockets. This allows you to build your own viewers by leveranging
-basic knowledge of HTML + CSS + Javascript (or any other language that can run in the browser).
+Ontime broadcasts its data over WebSockets. This allows you to consume its data outside the application.
 
-See [this repository](https://github.com/cpvalente/ontime-viewer-template) with a small template on
+Writing a new view for the browser can be done with basic knowledge of HTML + CSS + Javascript (or any other language that can run in the browser).
+<br />
+See [this repository](https://github.com/cpvalente/ontime-viewer-template-v2) with a small template on
 how to get you started and read the docs about
-the [Websocket API](https://app.gitbook.com/s/-Mc0giSOToAhq0ROd0CR/control-and-feedback/websocket-api)
+the [Websocket API](https://ontime.gitbook.io/v2/control-and-feedback/websocket-api)
 
 ### Headless run️
 
-You can self host and run ontime in a docker image, the run command should:
+You can self-host and run Ontime in a docker image. The run command will:
 
-- expose the necessary ports (listen in Dockerfile)
+- expose the necessary ports (listed in the Dockerfile)
 - mount a local file to persist your data (in the example: ````$(pwd)/local-data````)
 - the image name __getontime/ontime__
 
@@ -138,13 +133,7 @@ in [available Docker Hub at getontime/ontime](https://hub.docker.com/r/getontime
 docker pull getontime/ontime
 ```
 
-```bash
-# Port 4001 - ontime server port
-# Port 8888 - OSC input, bound to localhost IP Address 
-docker run -p 4001:4001 -p 127.0.0.1:8888:8888/udp --mount type=bind,source="$(pwd)/ontime-db",target=/server/preloaded-db getontime/ontime
-```
-
-or if running from the docker compose
+and use the included docker compose to get started
 
 ```bash
 docker-compose up
@@ -154,19 +143,14 @@ docker-compose up
 
 ### Continued development
 
-There are several features planned in the roadmap. These will be implemented in a development
-friendly order unless there is user demand to bump any of them.
-
-- [ ] HTTP Server (vMix integration)
-- [ ] Improvements in event interface
-- [ ] Moderator view
-- [ ] New playback mode for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
-- [ ] Lower Third Manager
-- [ ] Reach Schedule: way to speedup timer to meet a deadline
+Several features are planned in the roadmap, and we continuously adjust this to match how users interact with the app.
+<br />
+Have an idea? Reach out via [email](mail@getontime.no) or [open an issue](https://github.com/cpvalente/ontime/issues/new)
 
 ### Issues
 
-If you come across any bugs, [please open an issue]((https://github.com/cpvalente/ontime/issues/new)). Usually bugs get fixed pretty quickly when reported 
+We use Github's issue tracking for bug reporting and feature requests. <br />
+Found a bug? [Open an issue](https://github.com/cpvalente/ontime/issues/new). 
 
 #### Unsigned App
 
@@ -192,22 +176,28 @@ You can circumvent this by allowing the execution of the app manually.
 
 Long story short: Ontime app is unsigned. </br>Purchasing the certificates for both Mac and Windows
 would mean a recurrent expense and is not a priority. This is unlikely to change in future. If you
-have tips on how to improve this, or would like to sponsor the code signing,
-please [open an issue, so we can discuss it](https://github.com/cpvalente/ontime/issues/new)
+have tips on how to improve this or would like to sponsor the code signing,
+please [open an issue](https://github.com/cpvalente/ontime/issues/new)
 
 #### Safari
 
-There are some issues with Safari versions lower than 13:
-
+There are known issues with Safari versions lower than 13:
 - Spacing and text styles might have small inconsistencies
 - Table view does not work
 
-There is no plan for any further work on this since the breaking code belongs to third party
-libraries.
+There is no plan for any further work on this.
+
+# Contributing
+
+Looking to contribute? All types of help are appreciated, from coding to testing and feature specification.
+<br /><br />
+If you are a developer and would like to contribute with some code, please open an issue to discuss before opening a Pull Request.
+<br />
+Information about the project setup can be found in the [development documentation](./DEVELOPMENT.md)
 
 # Help
 
-Help is underway! ... and can be viewed [here](https://cpvalente.gitbook.io/ontime/)
+Help is underway! ... and can be found [here](https://ontime.gitbook.io)
 
 # License
 

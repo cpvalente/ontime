@@ -1,0 +1,27 @@
+.lower-third.clean {
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  color: #fffffa;
+  font-size: 4vh;
+  background-color: white;
+
+  .lower-container {
+    position: absolute;
+    padding: 1vh 2vh;
+    border-radius: 8px;
+  }
+
+  .message-container {
+    position: absolute;
+    bottom: 2vh;
+    width: 100%;
+    text-align: center;
+
+    .message {
+      font-size: 3.5vh;
+    }
+  }
+}

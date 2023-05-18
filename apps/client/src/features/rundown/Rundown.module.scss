@@ -1,0 +1,32 @@
+.eventContainer {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 4px 8px 0;
+  overflow-y: scroll;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  height: 100%;
+}
+
+.list {
+  overflow-x: clip;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty {
+  opacity: 0.3;
+  align-self: center;
+}
+
+.alignCenter {
+  text-align: center;
+  flex-direction: column;
+  .spaceTop {
+    margin-top: 24px;
+  }
+}
+
+.spacer {
+  min-height: 50vh;
+}

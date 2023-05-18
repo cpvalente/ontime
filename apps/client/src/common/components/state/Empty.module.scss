@@ -1,0 +1,17 @@
+@use '../../../theme/ontimeColours' as *;
+
+.emptyContainer {
+  width: 100%;
+  text-align: center;
+  color: $gray-1350;
+
+  .empty {
+    width: 100%;
+    opacity: 0.6;
+  }
+
+  .text {
+    font-weight: 600;
+    font-size: 2em;
+  }
+}

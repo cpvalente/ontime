@@ -1,0 +1,151 @@
+@use '../../../theme/viewerDefs' as *;
+
+.backstage {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100vh;
+
+  font-family: var(--font-family-override, $viewer-font-family);
+  background: var(--background-color-override, $viewer-background-color);
+  color: var(--color-override, $viewer-color);
+  gap: min(2vh, 16px);
+  padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+
+  display: grid;
+  grid-template-columns: 1fr 1fr 40vw;
+  grid-template-rows: auto 12px 1fr auto;
+  grid-template-areas:
+    ' header    header    header'
+    ' progress  progress  schedule-nav'
+    ' now       now       schedule'
+    ' message   message   info';
+
+  /* =================== HEADER + EXTRAS ===================*/
+
+  .event-header {
+    grid-area: header;
+    font-size: clamp(32px, 4.5vw, 64px);
+    font-weight: 600;
+    display: flex;
+  }
+
+  .clock-container {
+    margin-left: auto;
+  }
+
+  .public-container {
+    grid-area: message;
+
+    &--hidden {
+      opacity: 0;
+      transition: $viewer-transition-time;
+      transition-property: opacity;
+    }
+  }
+
+  .clock-container,
+  .public-container {
+    .label {
+      font-size: clamp(16px, 1.5vw, 24px);
+      font-weight: 600;
+      color: var(--label-color-override, $viewer-label-color);
+      text-transform: uppercase;
+    }
+
+    .time {
+      font-size: clamp(32px, 3.5vw, 50px);
+      font-weight: 600;
+      color: var(--secondary-color-override, $viewer-secondary-color);
+      letter-spacing: 0.05em;
+    }
+
+    .message {
+      font-size: clamp(16px, 1.5vw, 24px);
+      font-weight: 400;
+    }
+  }
+
+  /* =================== MAIN - NOW ===================*/
+
+  .progress-container {
+    grid-area: progress;
+    width: 100%;
+    margin: 0 auto -8px;
+  }
+
+  .now-container {
+    grid-area: now;
+    display: flex;
+    flex-direction: column;
+    gap: min(2vh, 16px);
+  }
+
+  .event {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    padding: 16px 24px;
+    border-radius: 8px;
+  }
+
+  .timer-group {
+    grid-area: timer;
+    border-top: 2px solid var(--background-color-override, $viewer-background-color);
+    margin-top: 2em;
+    padding-top: 1em;
+    display: flex;
+    gap: 7.5em;
+  }
+
+  .aux-timers {
+    font-size: max(1vw, 16px);
+
+    &__label {
+      color: var(--label-color-override, $viewer-label-color);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    &__value {
+      color: var(--secondary-color-override, $viewer-secondary-color);
+      font-size: clamp(24px, 2vw, 32px);
+      letter-spacing: 0.05em;
+    }
+  }
+
+  /* =================== MAIN - SCHEDULE ===================*/
+
+  .schedule-container {
+    grid-area: schedule;
+    overflow: hidden;
+    height: 100%;
+    margin-left: clamp(16px, 5vw, 64px);;
+  }
+
+  .schedule-nav-container {
+    grid-area: schedule-nav;
+    align-self: center;
+  }
+
+  .info {
+    grid-area: info;
+    display: flex;
+    gap: max(1vw, 16px);
+    align-self: flex-end;
+    overflow: hidden;
+
+    &__message {
+      font-size: clamp(16px, 1.5vw, 24px);
+      line-height: 1.3em;
+      white-space: pre-line;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .qr {
+      margin-left: clamp(16px, 5vw, 64px);;
+      padding: 4px;
+      background-color: white;
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline":{
+    "dev": {},
+    "dev:server": {},
+    "dev:test": {},
+    "build": {},
+    "build:local": {},
+    "build:docker": {},
+    "test": {},
+    "test:pipeline": {},
+    "e2e": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {},
+    "dist-win": {},
+    "dist-mac": {},
+    "dist-linux": {},
+    "cleanup": {}
+  }
+}

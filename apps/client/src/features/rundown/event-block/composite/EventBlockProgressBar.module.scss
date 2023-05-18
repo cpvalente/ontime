@@ -1,0 +1,26 @@
+@use '../../../../theme/v2Styles' as *;
+
+.progressBar {
+  height: 100%;
+  width: 0;
+  border-radius: 1px 0 0 1px;
+
+  transition: 1s linear;
+  transition-property: width;
+
+  &.play {
+    background-color: $playback-start;
+  }
+
+  &.overtime {
+    background-color: $playback-negative;
+  }
+
+  &.pause {
+    background-color: $ontime-paused;
+  }
+
+  &.roll {
+    background-color: $ontime-roll;
+  }
+}

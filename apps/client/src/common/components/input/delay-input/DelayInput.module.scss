@@ -1,0 +1,24 @@
+@use '../../../../theme/v2Styles' as *;
+
+$input-font-size: 15px;
+
+.delayInput {
+  display: flex;
+  gap: $element-spacing;
+  align-items: center;
+  font-size: $text-body-size;
+
+
+  .inputField {
+    font-size: $input-font-size;
+    letter-spacing: 1px;
+    max-width: 7em;
+    padding-left: 16px;
+    color: $ontime-delay-text
+  }
+}
+
+.delayOptions {
+  display: flex;
+  flex-direction: column;
+}

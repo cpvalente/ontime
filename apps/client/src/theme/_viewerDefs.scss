@@ -1,0 +1,28 @@
+@use 'v2Styles' as *;
+@use 'viewerCommon' as *;
+@use "ontimeColours" as *;
+
+// General
+$viewer-transition-time: 0.5s;
+
+// Text
+$viewer-font-family: "Open Sans", "Segoe UI", sans-serif; // --font-family-override
+$viewer-opacity-disabled: 0.6;
+
+// General styling
+$accent-color: $red-500; // --accent-color-override
+$delay-color: $ontime-delay-text;
+$viewer-label-color: rgba(white, 25%);
+
+// Main Properties of a viewer
+$viewer-background-color: $ui-black; // --background-color-override
+$viewer-color: rgba(white, 80%); // --color-override
+$viewer-secondary-color: rgba(white, 45%); // --secondary-color-override
+$viewer-card-bg-color: rgba(white, 7%); // --card-background-color-override
+$viewer-overlay-bg-color: rgba(black, 90%);
+$element-border-radius: 8px;
+
+// Properties related to timer
+$timer-color: rgba(white, 80%); // --timer-color-override
+$timer-finished-color: $playback-negative;
+$timer-bold-font-family: "Arial Black", sans-serif; // --card-background-color-override

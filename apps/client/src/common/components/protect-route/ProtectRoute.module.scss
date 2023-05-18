@@ -1,0 +1,43 @@
+@use '../../../theme/v2Styles' as *;
+
+.container {
+  display: grid;
+  place-content: center;
+  height: 100vh;
+  padding-bottom: 30vh;
+
+  background: $bg-container-l1;
+  color: $ontime-color;
+  font-family: $ontime-font-family;
+  font-weight: 200;
+  text-align: center;
+  font-size: 3vw;
+}
+
+.pin,
+.pin__failed {
+  padding: 20px;
+
+  input {
+    border-radius: 50%;
+  }
+
+  button {
+    margin-left: 20px;
+  }
+}
+
+.pin__failed {
+  input {
+    animation: colourFade 1.5s ease;
+  }
+}
+
+@keyframes colourFade {
+  from {
+    background: $action-blue;
+  }
+  to {
+    background: rgba($action-blue, 0);
+  }
+}

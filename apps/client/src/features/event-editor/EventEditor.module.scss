@@ -1,0 +1,117 @@
+@use '../../theme/v2Styles' as *;
+
+.eventEditor {
+  padding: 16px 32px 32px 32px;
+  width: 100%;
+  gap: max(16px, 2vh);
+
+  display: grid;
+  grid-template-areas:
+          'eventInfo   eventActions'
+          'timeOptions titles';
+  grid-template-columns: auto 1fr;
+
+  .timers,
+  .timeSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.eventInfo {
+  grid-area: eventInfo;
+  .eventId {
+    margin-left: $element-inner-spacing;
+    user-select: text;
+  }
+}
+
+.eventActions {
+  grid-area: eventActions;
+  margin-left: auto;
+}
+
+.timeOptions {
+  grid-area: timeOptions;
+  display: flex;
+  gap: 24px;
+}
+
+.titles {
+  grid-area: titles;
+  display: grid;
+  grid-template-areas: 'left right';
+  grid-template-columns: 1fr 1fr;
+
+  .left,
+  .right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .left {
+    grid-area: left;
+    padding: 0 16px;
+    border-left: 1px solid $border-color-ondark;
+  }
+
+  .right {
+    padding-left: 16px;
+    grid-area: right;
+    border-left: 1px solid $border-color-ondark;
+  }
+}
+
+@mixin input-label() {
+  font-size: 13px;
+  color: $label-gray;
+}
+
+.countedInput {
+  display: flex;
+  justify-content: space-between;
+  @include input-label;
+}
+
+.inputLabel {
+  display: block;
+  @include input-label;
+
+  &.delayLabel {
+    color: $ontime-delay-text;
+  }
+
+  &.publicToggle {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    gap: 8px;
+  }
+}
+
+.spacer {
+  height: 20px;
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.padTop {
+  margin-top: 8px;
+}
+
+.fullHeight {
+  height: 100%
+}

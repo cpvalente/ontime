@@ -1,0 +1,115 @@
+{
+  "name": "ontime",
+  "version": "2.0.0-beta6",
+  "author": "Carlos Valente",
+  "description": "Time keeping for live events",
+  "repository": "https://github.com/cpvalente/ontime",
+  "keywords": [
+    "lighdev",
+    "ontime",
+    "timer"
+  ],
+  "license": "AGPL-3.0-only",
+  "main": "main.js",
+  "devDependencies": {
+    "electron": "^22.3.5",
+    "electron-builder": "^23.6.0",
+    "eslint": "^8.31.0",
+    "eslint-config-prettier": "^8.6.0",
+    "prettier": "^2.8.3"
+  },
+  "scripts": {
+    "postinstall": "",
+    "dev:electron": "NODE_ENV=development electron .",
+    "dist-win": "electron-builder --publish=never  --x64 --win",
+    "dist-mac": "electron-builder --publish=never  --x64 --mac",
+    "dist-linux": "electron-builder --publish=never  --x64 --linux",
+    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "build": {
+    "productName": "ontime",
+    "appId": "no.lightdev.ontime",
+    "asar": true,
+    "dmg": {
+      "artifactName": "ontime-macOS.dmg",
+      "icon": "icon.icns"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity",
+      "icon": "icon.icns"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "artifactName": "ontime-win64.exe",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": true,
+      "runAfterFinish": false,
+      "installerIcon": "icon.ico",
+      "installerSidebar": "ontime-install.bmp",
+      "uninstallerSidebar": "ontime-uninstall.bmp"
+    },
+    "linux": {
+      "target": "AppImage",
+      "artifactName": "ontime-linux.AppImage"
+    },
+    "files": [
+      "**/*",
+      "assets/",
+      "!**/{yarn.lock,yarn-error.log}",
+      "!**/{pnpm-lock.yaml}",
+      "!**/{test,tests,__test__,__tests__}",
+      "!**/{mock,mocks,__mock__,__mocks__}",
+      "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
+    ],
+    "directories": {
+      "buildResources": "./assets/"
+    },
+    "extraResources": [
+      {
+        "from": "../client/build",
+        "to": "extraResources/client/",
+        "filter": [
+          "**/*",
+          "!**/{yarn.lock,yarn-error.log}",
+          "!**/{pnpm-lock.yaml}",
+          "!**/{test,tests,__test__,__tests__}",
+          "!**/{mock,mocks,__mock__,__mocks__}",
+          "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
+        ]
+      },
+      {
+        "from": "../server/dist/",
+        "to": "extraResources/server/",
+        "filter": [
+          "**/*",
+          "!**/{yarn.lock,yarn-error.log}",
+          "!**/{pnpm-lock.yaml}",
+          "!**/{test,tests,__test__,__tests__}",
+          "!**/{mock,mocks,__mock__,__mocks__}",
+          "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
+        ]
+      },
+      {
+        "from": "../server/src/preloaded-db/",
+        "to": "extraResources/preloaded-db/",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../server/src/external/",
+        "to": "extraResources/external/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  }
+}

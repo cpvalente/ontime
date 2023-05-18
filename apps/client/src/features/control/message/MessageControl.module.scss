@@ -1,0 +1,23 @@
+@use '../../../theme/v2Styles' as *;
+
+.messageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: $section-spacing;
+}
+
+.onAirSection {
+  margin-top: $section-spacing;
+  display: flex;
+  flex-direction: column;
+  gap: $element-spacing;
+}
+
+.label {
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+
+  &.active {
+    color: $action-text-color;
+  }
+}

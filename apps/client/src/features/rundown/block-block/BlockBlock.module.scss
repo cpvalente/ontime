@@ -1,0 +1,26 @@
+@use '../blockMixins' as *;
+
+.block {
+  @include block-spacing;
+  @include block-styling;
+
+  background-color: $block-bg2;
+
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  height: $secondary-block-height;
+  gap: 8px;
+
+  &.hasCursor {
+    outline: 1px solid $block-cursor-color;
+  }
+}
+
+.drag {
+  @include drag-style;
+}
+
+.actionMenu {
+  justify-self: flex-end;
+}

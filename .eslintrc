@@ -9,26 +9,18 @@
   "extends": [
     "eslint:recommended"
   ],
+  "overrides": [
+    {
+      "files": [
+        "e2e/**/**.spec.ts",
+        "e2e/**/**.test.ts"
+      ],
+      "extends": [
+        "plugin:playwright/playwright-test"
+      ]
+    }
+  ],
   "rules": {
-    // disallow certain object properties
-    // https://eslint.org/docs/rules/no-restricted-properties
-    "no-restricted-properties": [
-      "error",
-      {
-        "object": "global",
-        "property": "isNaN",
-        "message": "Please use Number.isNaN instead"
-      },
-      {
-        "object": "self",
-        "property": "isNaN",
-        "message": "Please use Number.isNaN instead"
-      },
-      {
-        "object": "window",
-        "property": "isNaN",
-        "message": "Please use Number.isNaN instead"
-      }
-    ]
+    "no-console": "warn"
   }
 }

@@ -1,0 +1,57 @@
+@use './theme/v2Styles' as *;
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-color: #2b2b2b rgba(255, 255, 255, 0.01);
+  scrollbar-width: thin;
+}
+
+// reset box-sizing
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body,
+html,
+.App {
+  font-family: $ontime-font-family;
+  margin: 0 auto;
+  overflow: hidden;
+  overflow: clip;
+  height: 100vh;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-app-region: drag;
+  background-color: $bg-container-l1;
+}
+
+// workaround for chakra
+// // https://github.com/chakra-ui/chakra-ui/issues/417
+option {
+  color: initial;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 2px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #2d2d2d;
+  border-radius: 2px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}

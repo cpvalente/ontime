@@ -1,0 +1,146 @@
+@use '../../../theme/viewerDefs' as *;
+
+.countdown {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100vh;
+
+  font-family: var(--font-family-override, $viewer-font-family);
+  background: var(--background-color-override, $viewer-background-color);
+  color: var(--color-override, $viewer-color);
+
+  /* =================== MAIN - SELECT ===================*/
+
+  .event-select {
+    display: flex;
+    margin-top: 8vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    &__title {
+      font-size: clamp(24px, 2vw, 32px);
+    }
+
+    &__events {
+      font-size: clamp(16px, 1.5vw, 24px);
+      margin-top: 1em;
+      overflow-y: auto;
+      height: 70vh;
+      width: 60vw;
+    }
+  }
+
+  /* =================== MAIN - EVENT CONTAINER ===================*/
+
+  .countdown-container {
+    height: 100%;
+    width: 100%;
+    gap: min(2vh, 16px);
+    padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+
+    display: grid;
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-columns: 100%;
+    grid-template-areas:
+    'header'
+    'status'
+    'clock'
+    'title'
+    'timers';
+
+    /* =================== HEADER + EXTRAS ===================*/
+
+    .clock-container {
+      grid-area: header;
+      margin-left: auto;
+      font-weight: 600;
+
+      .label {
+        font-size: clamp(16px, 1.5vw, 24px);
+        color: var(--label-color-override, $viewer-label-color);
+        text-transform: uppercase;
+      }
+
+      .time {
+        font-size: clamp(32px, 3.5vw, 50px);
+        color: var(--secondary-color-override, $viewer-secondary-color);
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .status {
+      grid-area: status;
+      color: var(--label-color-override, $viewer-label-color);
+      font-size: clamp(32px, 3.5vw, 50px);
+      font-weight: 600;
+    }
+
+    /* =================== TIMER + TITLE ===================*/
+
+    .timer {
+      grid-area: clock;
+
+      font-family: var(--font-family-override, $viewer-font-family);
+      color: var(--timer-color-override, $timer-color);
+      font-size: 15vw;
+      line-height: 0.9em;
+      text-align: center;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      opacity: 1;
+
+      &--paused {
+        opacity: $viewer-opacity-disabled;
+      }
+
+      &--finished {
+        color: $timer-finished-color;
+      }
+    }
+
+    .title {
+      grid-area: title;
+      background-color: var(--card-background-color-override, $viewer-card-bg-color);
+      padding: 16px 24px;
+      border-radius: 8px;
+
+      font-weight: 600;
+      font-size: clamp(40px, 4.5vw, 80px);
+      color: var(--accent-color-override, $accent-color);
+      line-height: 1.1em;
+      text-align: center;
+    }
+
+    /* =================== FOOTER TIMERS ===================*/
+
+    .timer-group {
+      grid-area: timers;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: flex-end;
+
+      .aux-timers {
+        text-align: center;
+        font-size: clamp(24px, 1.75vw, 32px);
+
+        &__label {
+          color: var(--label-color-override, $viewer-label-color);
+          text-transform: uppercase;
+        }
+
+        &__value {
+          font-size: clamp(32px, 3.5vw, 50px);
+          color: var(--secondary-color-override, $viewer-secondary-color);
+          letter-spacing: 0.05em;
+
+          &--delayed {
+            color: $delay-color;
+          }
+        }
+      }
+    }
+  }
+}

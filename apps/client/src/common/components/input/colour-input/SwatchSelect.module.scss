@@ -1,0 +1,24 @@
+
+.list {
+  display: flex;
+  gap: 4px;
+}
+
+.swatch {
+  cursor: pointer;
+  aspect-ratio: 1;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 16px;
+  border: 4px solid #262626;
+
+  &.selected {
+    border: 2px solid #578AF4;
+  }
+}
+
+.center {
+  display: grid;
+  place-content: center;
+  color: #578AF4;
+}

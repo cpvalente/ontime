@@ -1,0 +1,200 @@
+@use '../../../theme/v2Styles' as *;
+@use '../../../theme/ontimeColours' as *;
+@use '../blockMixins' as *;
+
+$skip-opacity: 0.1;
+
+.eventBlock {
+  @include block-styling;
+  background-color: $block-bg;
+
+  display: grid;
+  grid-template-areas:
+          "binder ...        ...     ..."
+          "binder pb-actions times   actions"
+          "binder pb-actions title   next"
+          "binder pb-actions estatus estatus"
+          "binder ...        ...     ...";
+
+  grid-template-columns: $block-binder-width auto 1fr auto;
+  grid-template-rows: 4px 36px 36px 36px 4px;
+  align-items: center;
+  padding-right: $block-clearance;
+  gap: 2px;
+
+  transition-property: background-color;
+  transition-duration: $transition-time-feedback;
+
+  @mixin declare-overrides() {
+    --status-color-override: #{$gray-200};
+    --status-color-active-override: #{$green-400};
+  }
+
+  &.selected {
+    background-color: $gray-1350;
+  }
+
+  &.play {
+    background-color: $green-700;
+    @include declare-overrides;
+  }
+
+  &.roll {
+    background-color: $blue-700;
+    @include declare-overrides;
+  }
+
+  &.pause {
+    background-color: rgba($ontime-paused, 0.6);
+    @include declare-overrides;
+  }
+
+  &.hasCursor {
+    outline: 1px solid $block-cursor-color;
+  }
+
+  &.past:not(.skip) {
+    opacity: 0.6;
+  }
+
+  &.skip {
+    border: 1px solid $white-3;
+
+    .delayNote,
+    .eventTitle,
+    .eventNote,
+    .binder,
+    .eventTimers,
+    .eventStatus {
+      opacity: $skip-opacity;
+    }
+  }
+}
+
+.binder {
+  grid-area: binder;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  position: relative;
+  cursor: pointer;
+
+  border-radius: $block-border-radius 0 0 $block-border-radius;
+
+  background-color: $gray-1050; // to override inline
+  color: $section-white;
+  font-size: 17px;
+
+  .drag {
+    @include drag-style;
+    position: absolute;
+    margin-top: 4px;
+  }
+}
+
+.playbackActions {
+  grid-area: pb-actions;
+  display: flex;
+  flex-direction: column;
+  margin: 0 8px;
+  gap: 6px;
+}
+
+.eventTimers {
+  grid-area: times;
+  display: flex;
+  align-items: center;
+  gap: $block-clearance;
+  height: 100%;
+
+  .delayNote {
+    font-size: 12px;
+    line-height: 14px;
+    color: $ontime-delay-text;
+  }
+}
+
+.eventTitle {
+  grid-area: title;
+}
+
+.eventActions {
+  grid-area: actions;
+  display: flex;
+  gap: $block-clearance;
+  justify-content: flex-end;
+}
+
+.eventOptions {
+  margin: $element-spacing 16px $element-spacing 0;
+}
+
+.progressBg {
+  grid-area: progb;
+  border-radius: 2px;
+  background-color: $gray-1100;
+  opacity: 1;
+  height: 100%;
+}
+
+.progressBg.hidden {
+  opacity: 0;
+}
+
+.flip {
+  transform: rotateY(180deg);
+}
+
+.statusElements {
+  grid-area: estatus;
+  display: grid;
+  grid-template-areas:
+          "notes status"
+          "progb progb";
+  gap: 2px;
+  grid-template-rows: auto 4px;
+  align-items: center;
+  height: 100%;
+  padding: 2px 0;
+}
+
+.eventNote {
+  grid-area: notes;
+  display: block;
+  font-size: 13px;
+  color: $block-text-color;
+  line-height: 13px;
+}
+
+
+.nextTag {
+  grid-area: next;
+  font-size: 1em;
+  color: $orange-500;
+  letter-spacing: 0.03px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.eventStatus {
+  grid-area: status;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  color: var(--status-color-override, $gray-500);
+
+
+  .statusIcon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .statusIcon.active {
+    color: var(--status-color-active-override, $active-indicator);
+  }
+
+  .statusIcon.disabled {
+    color: $gray-1000;
+  }
+}

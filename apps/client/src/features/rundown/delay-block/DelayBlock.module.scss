@@ -1,0 +1,24 @@
+@use '../blockMixins' as *;
+
+.delay {
+  @include block-spacing;
+  @include block-styling;
+
+  background-color: $block-bg2;
+
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  grid-template-areas: 'drag inpt btns';
+  align-items: center;
+  height: $secondary-block-height;
+  gap: 8px;
+
+  &.hasCursor {
+    outline: 1px solid $block-cursor-color;
+  }
+}
+
+.drag {
+  @include drag-style;
+  grid-area: drag;
+}

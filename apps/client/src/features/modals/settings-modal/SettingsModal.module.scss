@@ -1,0 +1,21 @@
+@import "../Modal.module.scss";
+
+.aliases {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: column;
+  width: 100%;
+  padding: 8px 0;
+
+  .aliasRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .grow {
+    flex: 1;
+  }
+}

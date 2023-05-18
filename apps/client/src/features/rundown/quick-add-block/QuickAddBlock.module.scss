@@ -1,0 +1,35 @@
+@use '../../../theme/v2Styles' as *;
+
+.quickAdd {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  margin: 4px 0;
+  font-size: 12px;
+  padding: 0 10px;
+}
+
+.btnRow {
+  justify-self: center;
+  display: flex;
+  gap: 10%;
+
+  .quickBtn {
+    font-weight: 400;
+    width: auto;
+    padding: 0 32px;
+  }
+}
+
+.keyboard {
+  margin-left: 8px;
+  padding: 0 4px;
+  color: $label-gray;
+  border-radius: 2px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+}

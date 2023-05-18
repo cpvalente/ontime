@@ -1,0 +1,132 @@
+@use "./ontimeColours" as *;
+
+$transition-time-action: 0.1s;
+$transition-time-feedback: 0.3s;
+
+//////////////////////////////////// general app colours
+
+$bg-black-gradient: #202020;
+$bg-black: #121212;
+$bg-black-100: #070707;
+$bg-black-200: #1a1a1a; // container borders
+$bg-black-300: #1f1f1f; // container text
+$bg-gray-1100: #232323; // container borders
+$bg-gray-1050: #242424; // container borders
+$bg-gray-1000: #262626; // container borders
+$bg-gray-950: #292929;
+$bg-gray-900: #303030;
+$bg-gray-800: #404040;
+$bg-gray-700: #505050;
+$bg-gray-500: #666666;
+$bg-gray-100: #c0c0c0; // borders and whatnot
+
+$bg-overlay: rgba(0, 0, 0, 0.85);
+
+// $ontime-accent: #4bffab);
+$ontime-accent: #58A151;
+$ontime-accent-text: mix($bg-black, $ontime-accent, 10%);
+$ontime-pink: #ff7597;
+$ontime-pink-variant: #ff6969;
+$ontime-roll: #0274B6;
+$ontime-delay: #F57C13;
+$action-blue: #3182ce;
+$ontime-paused: #c05621;
+$opacity-disabled: 0.4;
+$ontime-red: #E4281E;
+
+//rgba(255, 255, 255, 0.39); - $bg-gray-700
+//rgba(255, 255, 255, 0.13); - $bg-gray-900
+//rgba(255, 255, 255, 0.05); - $bg-gray-1000
+//rgba(255, 255, 255, 0.07) - $bg-gray-1000
+// text input bg -
+// was rgba(255, 255, 255, 0.03)
+// container level 1 - $bg-gray-1000
+// container level 2 - $bg-gray-1100
+// container level 2 border - rgba(0, 0, 0, 0.05)
+// indent in level 2 - $bg-black-300
+// outdent in level2 - $bg-gray-950
+//////////////////////////////////// editor
+
+$notes-color: #f6f6f6;
+
+$text-white: #fffffa;
+$text-gray-disabled: #505050;
+$label-gray: #aaa;
+$header-gray: $label-gray;
+$clocks: #ddd;
+$bg-gray: #f4f4f8;
+$text-delay: #F57C13;
+
+$light-bg: #2b6cb0;
+$light-bg-transparent: #2b6cb055;
+$light-text: #2b6cb022;
+
+$info-gray: #aaa;
+$info-gray-hover: #ddd;
+$warning-orange: #dd6b20;
+$error-red: #e53e3e;
+
+//////////////////////////////////// viewers
+$title-white: #fffd;
+
+//////////////////////////////////// block elements
+$bg-container-over: #0b1521;
+$bg-container-over-l1: #132337;
+$bg-container-l1: #202020;
+$bg-container-l2: #232323;
+$bg-container-l3: #2b2b2b;
+$border-l1: 1px solid $bg-gray-1000;
+$border-l3: 1px solid $bg-gray-900;
+
+$block-delay-color: #E2720D;
+$delay-text: #d69e2e;
+$block-delay-border: #d69e2e55;
+$block-block-color: #7347AD;
+$block-border: 1px solid $bg-gray-1100;
+
+//////////////////////////////////// utils
+
+@mixin ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+//////////////////////////////////// custom inputs
+$input-bg: rgba(255, 255, 255, 0.03);
+$input-hover-bg: rgba(255, 255, 255, 0.13);
+$input-bg-delayed: rgba(214, 158, 46, 0.07);
+$input-hover-bg-delayed: rgba(214, 158, 46, 0.17);
+$input-border: 1px solid transparent;
+$input-delayed-border: 1px solid $block-delay-border;
+
+//////////////////////////////////// general app element overriders
+
+// no decoration on lists
+ul {
+  list-style-type: none;
+}
+
+// no resizing on text areas
+textarea {
+  resize: none !important;
+}
+
+// Define style for a link
+a:hover {
+  color: $ontime-pink;
+}
+
+// horizontal separator
+.hSeparator {
+  width: 100%;
+  border-bottom: 1px solid $light-bg;
+  margin: 1em auto;
+  display: flex;
+  align-items: center;
+}
+
+// inline vertical separator
+.vSpan {
+  margin: 0 0.5em;
+}

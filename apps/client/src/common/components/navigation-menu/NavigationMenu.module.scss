@@ -1,0 +1,93 @@
+@use "../../../theme/v2Styles" as *;
+@use "../../../theme/mixins" as *;
+@use "../../../theme/ontimeColours" as *;
+
+$menu-bg: $gray-1200;
+$menu-hover-bg: $gray-1350;
+$menu-focus-bg: $gray-1300;
+
+$icon-color: $ui-white;
+$button-bg: $gray-1050;
+$button-size: 48px;
+
+.mirror {
+  transform: rotate(180deg);
+}
+
+.navButton {
+  z-index: 2;
+  position: absolute;
+  left: 0.5em;
+  top: 0.5em;
+  transition-property: opacity;
+  transition-duration: 0.3s;
+  opacity: 1;
+  font-size: 24px;
+  color: $icon-color;
+  background-color: $button-bg;
+  width: $button-size;
+  height: $button-size;
+  display: grid;
+  place-content: center;
+  border-radius: 3px;
+
+  &.hidden {
+    opacity: 0;
+  }
+}
+
+.menuContainer {
+  top: 0;
+  left: 0;
+  height: fit-content;
+  position: absolute;
+  background-color: $menu-bg;
+  min-width: 200px;
+  border-radius: 0 0 24px 0;
+  border-right: 1px solid $border-color-ondark;
+
+  box-shadow: $box-shadow-l2;
+  padding-bottom: 1rem;
+
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.buttonsContainer {
+  margin-top: calc(56px + 1rem);
+}
+
+.link {
+  @include action-link;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $menu-hover-bg;
+  }
+
+  &:active {
+    background-color: $border-color-ondark;
+  }
+
+  &:focus {
+    outline: none;
+    background-color: $menu-focus-bg;
+    border-left: 2px solid $action-text-color;
+  }
+
+  &.current {
+    background-color: $menu-hover-bg;
+    border-left: 4px solid $action-text-color;
+  }
+}
+
+.linkIcon {
+  display: inline-block;
+  transform: rotate(45deg);
+}
+
+.separator {
+  border-color: $border-color-ondark;
+}
