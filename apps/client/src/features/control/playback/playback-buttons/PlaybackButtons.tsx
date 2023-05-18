@@ -12,7 +12,6 @@ import { setPlayback } from '../../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
 
-import styles from './PlaybackButtons.module.scss';
 import style from './PlaybackButtons.module.scss';
 
 interface PlaybackButtonsProps {
@@ -47,8 +46,8 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   };
 
   return (
-    <div className={styles.buttonContainer}>
-      <TapButton disabled={disableGo} onClick={goModeAction} aspect='fill' className={styles.go}>
+    <div className={style.buttonContainer}>
+      <TapButton disabled={disableGo} onClick={goModeAction} aspect='fill' className={style.go}>
         {goModeText}
       </TapButton>
       <div className={style.playbackContainer}>
@@ -82,7 +81,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
           </TapButton>
         </Tooltip>
       </div>
-      <div className={styles.extra}>
+      <div className={style.extra}>
         <TapButton
           onClick={setPlayback.roll}
           disabled={!isStopped || noEvents}

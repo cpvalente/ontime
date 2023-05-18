@@ -118,15 +118,15 @@ const MenuBar = (props: MenuBarProps) => {
         icon={<IoPushOutline />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
-        tooltip='Upload showfile'
-        aria-label='Upload showfile'
+        tooltip='Import project file'
+        aria-label='Import project file'
       />
       <TooltipActionBtn
         {...buttonStyle}
         icon={<IoSaveOutline />}
         clickHandler={downloadRundown}
-        tooltip='Export showfile'
-        aria-label='Export showfile'
+        tooltip='Export project file'
+        aria-label='Export project file'
       />
 
       <div className={style.gap} />

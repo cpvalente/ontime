@@ -4,7 +4,7 @@ type ValidationStatus = {
 };
 
 export function validateFile(file: File): ValidationStatus {
-  const status:ValidationStatus = { errors: [], isValid: true };
+  const status: ValidationStatus = { errors: [], isValid: true };
   if (!file) {
     status.errors.push('No file to upload');
     status.isValid = false;

@@ -1,4 +1,4 @@
-import { lazy, useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import useAliases from './common/hooks-query/useAliases';
@@ -50,70 +50,72 @@ export default function AppRouter() {
   }, [data, location, navigate]);
 
   return (
-    <Routes>
-      <Route path='/' element={<Navigate to='/timer' />} />
-      <Route path='/speaker' element={<STimer />} />
-      <Route path='/presenter' element={<STimer />} />
-      <Route path='/stage' element={<STimer />} />
-      <Route path='/timer' element={<STimer />} />
+    <Suspense fallback={null}>
+      <Routes>
+        <Route path='/' element={<Navigate to='/timer' />} />
+        <Route path='/speaker' element={<STimer />} />
+        <Route path='/presenter' element={<STimer />} />
+        <Route path='/stage' element={<STimer />} />
+        <Route path='/timer' element={<STimer />} />
 
-      <Route path='/minimal' element={<SMinimalTimer />} />
-      <Route path='/minimalTimer' element={<SMinimalTimer />} />
-      <Route path='/simpleTimer' element={<SMinimalTimer />} />
+        <Route path='/minimal' element={<SMinimalTimer />} />
+        <Route path='/minimalTimer' element={<SMinimalTimer />} />
+        <Route path='/simpleTimer' element={<SMinimalTimer />} />
 
-      <Route path='/clock' element={<SClock />} />
+        <Route path='/clock' element={<SClock />} />
 
-      <Route path='/countdown' element={<SCountdown />} />
+        <Route path='/countdown' element={<SCountdown />} />
 
-      <Route path='/sm' element={<SBackstage />} />
-      <Route path='/backstage' element={<SBackstage />} />
+        <Route path='/sm' element={<SBackstage />} />
+        <Route path='/backstage' element={<SBackstage />} />
 
-      <Route path='/public' element={<SPublic />} />
-      <Route path='/studio' element={<SStudio />} />
-      {/*/!* Lower cannot have fallback *!/*/}
-      <Route path='/lower' element={<SLowerThird />} />
+        <Route path='/public' element={<SPublic />} />
+        <Route path='/studio' element={<SStudio />} />
+        {/*/!* Lower cannot have fallback *!/*/}
+        <Route path='/lower' element={<SLowerThird />} />
 
-      {/*/!* Protected Routes *!/*/}
-      <Route path='/editor' element={<Editor />} />
-      <Route path='/cuesheet' element={<Table />} />
-      <Route path='/cuelist' element={<Table />} />
-      <Route path='/table' element={<Table />} />
+        {/*/!* Protected Routes *!/*/}
+        <Route path='/editor' element={<Editor />} />
+        <Route path='/cuesheet' element={<Table />} />
+        <Route path='/cuelist' element={<Table />} />
+        <Route path='/table' element={<Table />} />
 
-      {/*/!* Protected Routes - Elements *!/*/}
-      <Route
-        path='/rundown'
-        element={
-          <EditorFeatureWrapper>
-            <RundownPanel />
-          </EditorFeatureWrapper>
-        }
-      />
-      <Route
-        path='/timercontrol'
-        element={
-          <EditorFeatureWrapper>
-            <TimerControl />
-          </EditorFeatureWrapper>
-        }
-      />
-      <Route
-        path='/messagecontrol'
-        element={
-          <EditorFeatureWrapper>
-            <MessageControl />
-          </EditorFeatureWrapper>
-        }
-      />
-      <Route
-        path='/info'
-        element={
-          <EditorFeatureWrapper>
-            <Info />
-          </EditorFeatureWrapper>
-        }
-      />
-      {/*/!* Send to default if nothing found *!/*/}
-      <Route path='*' element={<STimer />} />
-    </Routes>
+        {/*/!* Protected Routes - Elements *!/*/}
+        <Route
+          path='/rundown'
+          element={
+            <EditorFeatureWrapper>
+              <RundownPanel />
+            </EditorFeatureWrapper>
+          }
+        />
+        <Route
+          path='/timercontrol'
+          element={
+            <EditorFeatureWrapper>
+              <TimerControl />
+            </EditorFeatureWrapper>
+          }
+        />
+        <Route
+          path='/messagecontrol'
+          element={
+            <EditorFeatureWrapper>
+              <MessageControl />
+            </EditorFeatureWrapper>
+          }
+        />
+        <Route
+          path='/info'
+          element={
+            <EditorFeatureWrapper>
+              <Info />
+            </EditorFeatureWrapper>
+          }
+        />
+        {/*/!* Send to default if nothing found *!/*/}
+        <Route path='*' element={<STimer />} />
+      </Routes>
+    </Suspense>
   );
 }
