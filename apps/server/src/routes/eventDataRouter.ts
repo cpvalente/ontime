@@ -1,7 +1,6 @@
 import express from 'express';
-// import event controller
-import { getEventData, postEventData } from '../controllers/eventDataController.ts';
-import { eventDataSanitizer } from '../controllers/eventDataController.validate.ts';
+import { getEventData, postEventData } from '../controllers/eventDataController.js';
+import { eventDataSanitizer } from '../controllers/eventDataController.validate.js';
 
 export const router = express.Router();
 
