@@ -2,7 +2,7 @@ name: Ontime test v2
 
 on:
   pull_request:
-    branches: [ v2 ]
+    branches: '*'
   workflow_dispatch:
 
 jobs:
