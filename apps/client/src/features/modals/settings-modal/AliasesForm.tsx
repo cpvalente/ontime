@@ -54,7 +54,7 @@ export default function AliasesForm() {
 
   const addNew = () => {
     if (fields.length > 20) {
-      emitError('Maximum amount of aliases reacted (20)');
+      emitError('Maximum amount of aliases reached (20)');
       return;
     }
     append({
