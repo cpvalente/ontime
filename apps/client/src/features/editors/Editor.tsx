@@ -1,13 +1,11 @@
 import { lazy, useEffect } from 'react';
-import { Box, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
-import UploadModal from '../../common/components/upload-modal/UploadModal';
 import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
-import IntegrationModal from '../modals/integration-modal/IntegrationModal';
 import QuickStart from '../modals/quick-start/QuickStart';
-import SettingsModal from '../modals/settings-modal/SettingsModal';
+import UploadModal from '../modals/upload-modal/UploadModal';
 
 import styles from './Editor.module.scss';
 
@@ -16,6 +14,9 @@ const TimerControl = lazy(() => import('../../features/control/playback/TimerCon
 const MessageControl = lazy(() => import('../../features/control/message/MessageControlExport'));
 const Info = lazy(() => import('../../features/info/InfoExport'));
 const EventEditor = lazy(() => import('../../features/event-editor/EventEditorExport'));
+
+const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
+const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
 export default function Editor() {
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
@@ -43,7 +44,7 @@ export default function Editor() {
         <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
       <div className={styles.mainContainer} data-testid='event-editor'>
-        <Box id='settings' className={styles.settings}>
+        <div id='settings' className={styles.settings}>
           <ErrorBoundary>
             <MenuBar
               onSettingsOpen={onSettingsOpen}
@@ -59,7 +60,7 @@ export default function Editor() {
               onQuickStartOpen={onQuickStartOpen}
             />
           </ErrorBoundary>
-        </Box>
+        </div>
         <Rundown />
         <MessageControl />
         <TimerControl />

@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -22,19 +22,19 @@ connectSocket();
 function App() {
   const { isElectron, sendToElectron } = useElectronEvent();
 
-  const handleKeyPress = (event: KeyboardEvent) => {
-    // handle held key
-    if (event.repeat) return;
-    // check if the alt key is pressed
-    if (event.altKey) {
-      if (event.code === 'KeyT') {
-        // ask to see debug
-        sendToElectron('set-window', 'show-dev');
-      }
-    }
-  };
-
   useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // handle held key
+      if (event.repeat) return;
+      // check if the alt key is pressed
+      if (event.altKey) {
+        if (event.code === 'KeyT') {
+          // ask to see debug
+          sendToElectron('set-window', 'show-dev');
+        }
+      }
+    };
+
     if (isElectron) {
       document.addEventListener('keydown', handleKeyPress);
     }
@@ -43,7 +43,7 @@ function App() {
         document.removeEventListener('keydown', handleKeyPress);
       }
     };
-  }, []);
+  }, [isElectron, sendToElectron]);
 
   return (
     <ChakraProvider resetCSS theme={theme}>
@@ -52,11 +52,9 @@ function App() {
           <BrowserRouter>
             <div className='App'>
               <ErrorBoundary>
-                <Suspense fallback={null}>
-                  <TranslationProvider>
-                    <AppRouter />
-                  </TranslationProvider>
-                </Suspense>
+                <TranslationProvider>
+                  <AppRouter />
+                </TranslationProvider>
               </ErrorBoundary>
               <ReactQueryDevtools initialIsOpen={false} />
             </div>

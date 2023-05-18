@@ -139,7 +139,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
                 padding='0 2em'
                 size='sm'
               >
-                New showfile
+                New project file
               </Button>
             </ModalFooter>
           </form>

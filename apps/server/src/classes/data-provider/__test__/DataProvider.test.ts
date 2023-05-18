@@ -11,11 +11,12 @@ describe('safeMerge', () => {
     },
     settings: {
       app: 'ontime',
-      lock: true,
-      pinCode: null,
-      timeFormat: '24',
       version: 2,
       serverPort: 4001,
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
     },
     viewSettings: {
       overrideStyles: false,
@@ -82,7 +83,7 @@ describe('safeMerge', () => {
     const newData = {
       settings: {
         serverPort: 3000,
-        lock: '1234',
+        language: 'pt',
       },
     };
     const mergedData = safeMerge(existing, newData);
@@ -90,9 +91,10 @@ describe('safeMerge', () => {
       app: 'ontime',
       version: 2,
       serverPort: 3000,
-      lock: '1234',
-      pinCode: null,
+      operatorKey: null,
+      editorKey: null,
       timeFormat: '24',
+      language: 'pt',
     });
   });
 
@@ -149,9 +151,10 @@ describe('safeMerge', () => {
         app: 'ontime',
         version: 2,
         serverPort: 4001,
-        lock: null,
-        pinCode: null,
+        operatorKey: null,
+        editorKey: null,
         timeFormat: '24',
+        language: 'en',
       },
       viewSettings: {
         overrideStyles: false,
