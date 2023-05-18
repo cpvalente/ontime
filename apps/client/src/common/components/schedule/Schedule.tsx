@@ -10,7 +10,7 @@ interface ScheduleProps {
 }
 
 export default function Schedule({ className }: ScheduleProps) {
-  const { paginatedEvents, selectedEventId, isBackstage } = useSchedule();
+  const { paginatedEvents, selectedEventId, isBackstage, scheduleType } = useSchedule();
 
   if (paginatedEvents?.length < 1) {
     return <Empty text='No events to show' />;
@@ -21,10 +21,14 @@ export default function Schedule({ className }: ScheduleProps) {
   return (
     <ul className={`schedule ${className}`}>
       {paginatedEvents.map((event) => {
-        if (event.id === selectedEventId) {
-          selectedState = 'now';
-        } else if (selectedState === 'now') {
-          selectedState = 'future';
+        if (scheduleType === 'past' || scheduleType === 'future') {
+          selectedState = scheduleType;
+        } else {
+          if (event.id === selectedEventId) {
+            selectedState = 'now';
+          } else if (selectedState === 'now') {
+            selectedState = 'future';
+          }
         }
         return (
           <ScheduleItem

@@ -7,6 +7,7 @@ interface ScheduleContextState {
   events: OntimeEvent[];
   paginatedEvents: OntimeEvent[];
   selectedEventId: string | null;
+  scheduleType: 'past' | 'now' | 'future';
   numPages: number;
   visiblePage: number;
   isBackstage: boolean;
@@ -27,7 +28,7 @@ export const ScheduleProvider = ({
   events,
   selectedEventId,
   isBackstage = false,
-  eventsPerPage = 8,
+  eventsPerPage = 7,
   time = 10,
 }: PropsWithChildren<ScheduleProviderProps>) => {
   const [visiblePage, setVisiblePage] = useState(0);
@@ -36,6 +37,18 @@ export const ScheduleProvider = ({
   const eventStart = eventsPerPage * visiblePage;
   const eventEnd = eventsPerPage * (visiblePage + 1);
   const paginatedEvents = events.slice(eventStart, eventEnd);
+  const selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
+
+  const resolveScheduleType = () => {
+    if (selectedEventIndex >= eventStart && selectedEventIndex < eventEnd) {
+      return 'now';
+    }
+    if (selectedEventIndex > eventEnd) {
+      return 'past';
+    }
+    return 'future';
+  };
+  const scheduleType = resolveScheduleType();
 
   // every SCROLL_TIME go to the next array
   useInterval(() => {
@@ -51,6 +64,7 @@ export const ScheduleProvider = ({
         events,
         paginatedEvents,
         selectedEventId,
+        scheduleType,
         numPages,
         visiblePage,
         isBackstage,

@@ -84,7 +84,12 @@ export default function Backstage(props: BackstageProps) {
         </div>
       </div>
 
-      <ProgressBar className='progress-container' now={time.current} complete={time.duration} hidden={!showProgress} />
+      <ProgressBar
+        className='progress-container'
+        now={time.current ?? undefined}
+        complete={time.duration ?? undefined}
+        hidden={!showProgress}
+      />
 
       <div className='now-container'>
         <AnimatePresence>
