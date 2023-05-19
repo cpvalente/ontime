@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Button,
   Input,
   Modal,
@@ -41,9 +45,15 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
   }, [reset, data]);
 
   const onSubmit = async (data: Partial<EventData>) => {
-    await postNew(data);
-    await ontimeQueryClient.invalidateQueries(EVENT_DATA);
-    await ontimeQueryClient.invalidateQueries(RUNDOWN_TABLE);
+    try {
+      await postNew(data);
+      await ontimeQueryClient.invalidateQueries(EVENT_DATA);
+      await ontimeQueryClient.invalidateQueries(RUNDOWN_TABLE);
+
+      onClose();
+    } catch (_) {
+      /* WE DO NOT HANDLE ERRORS */
+    }
   };
 
   const onReset = () => reset(eventDataPlaceholder);
@@ -66,6 +76,15 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
         <ModalCloseButton />
         <ModalBody className={styles.pad}>
           <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer}>
+            <Alert status='info' variant='ontime-on-light-info'>
+              <AlertIcon />
+              <div className={styles.column}>
+                <AlertTitle>Note</AlertTitle>
+                <AlertDescription>
+                  On submit, application options will be kept but rundown and event data will be reset
+                </AlertDescription>
+              </div>
+            </Alert>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
                 Event title
@@ -123,9 +142,6 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
                   {...register('backstageUrl')}
                 />
               </label>
-            </div>
-            <div className={styles.footerNotes}>
-              Note: Application options will be kept but rundown and event data will be reset <br />
             </div>
             <ModalFooter className={styles.buttonSection}>
               <Button onClick={onReset} isDisabled={disableButtons} variant='ontime-ghost-on-light' size='sm'>

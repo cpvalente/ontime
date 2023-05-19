@@ -30,7 +30,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
   const { data } = useSettings();
 
   const getLocalizedString = useCallback(
-    (key: keyof typeof langEn, lang = data!.language): string => {
+    (key: keyof typeof langEn, lang = data?.language || 'en'): string => {
       if (lang in translationsList) {
         if (key in translationsList[lang as keyof typeof translationsList]) {
           return translationsList[lang as keyof typeof translationsList][key];
@@ -38,7 +38,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
       }
       return langEn[key];
     },
-    [data],
+    [data?.language],
   );
 
   const contextValue = {
