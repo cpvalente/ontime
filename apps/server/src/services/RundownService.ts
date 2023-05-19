@@ -1,21 +1,20 @@
-import {
-  OntimeBaseEvent,
-  OntimeBlock,
-  OntimeDelay,
-  OntimeEvent,
-  SupportedEvent,
-} from 'ontime-types';
+import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import {
-  block as blockDef,
-  delay as delayDef,
-  event as eventDef,
-} from '../models/eventsDefinition.js';
+import { block as blockDef, delay as delayDef, event as eventDef } from '../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../settings.js';
 import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventTimer } from './TimerService.js';
 import { sendRefetch } from '../adapters/websocketAux.js';
+
+/**
+ * Forces rundown to be recalculated
+ * To be used when we know the rundown has changed completely
+ */
+export function forceReset() {
+  eventLoader.reset();
+  sendRefetch();
+}
 
 /**
  * Checks if a list of IDs is in the current selection
