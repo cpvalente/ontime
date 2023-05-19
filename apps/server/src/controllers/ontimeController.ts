@@ -10,8 +10,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { logger } from '../classes/Logger.js';
-import { deleteAllEvents } from '../services/RundownService.js';
-import { sendRefetch } from '../adapters/websocketAux.js';
+import { deleteAllEvents, forceReset } from '../services/RundownService.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -71,7 +70,7 @@ const uploadAndParse = async (file, req, res, options) => {
           await DataProvider.mergeIntoData(result.data);
         }
       }
-      sendRefetch();
+      forceReset();
       res.sendStatus(200);
     } else {
       res.status(400).send({ message: 'Failed parsing, no data' });
