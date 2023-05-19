@@ -52,5 +52,5 @@ jobs:
         platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
         # Push is a shorthand for --output=type=registry
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:beta_${{ env.RELEASE_VERSION  }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:beta_v2
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:latest
 
