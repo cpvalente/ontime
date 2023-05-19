@@ -1,4 +1,4 @@
-import { validateOscSubscription } from '../parserFunctions.ts';
+import { validateOscObject } from '../parserFunctions.ts';
 
 test('validateOscSubscription()', () => {
   it('should return true when given a valid OscSubscription', () => {
@@ -11,35 +11,35 @@ test('validateOscSubscription()', () => {
       onFinish: [{ id: '6', message: 'test', enabled: false }],
     };
 
-    const result = validateOscSubscription(validSubscription);
+    const result = validateOscObject(validSubscription);
 
     expect(result).toBe(true);
   });
 
   it('should return false when given undefined', () => {
-    const result = validateOscSubscription(undefined);
+    const result = validateOscObject(undefined);
     expect(result).toBe(false);
   });
 
   it('should return false when given null', () => {
-    const result = validateOscSubscription(null);
+    const result = validateOscObject(null);
     expect(result).toBe(false);
   });
 
   it('should return false when given an empty object', () => {
-    const result = validateOscSubscription({});
+    const result = validateOscObject({});
     expect(result).toBe(false);
   });
 
   it('should return false when given an empty array', () => {
-    const result = validateOscSubscription([]);
+    const result = validateOscObject([]);
     expect(result).toBe(false);
   });
 
   it('should return false when given an object that is not an OscSubscription', () => {
     const invalidObject = { foo: 'bar' };
 
-    const result = validateOscSubscription(invalidObject);
+    const result = validateOscObject(invalidObject);
 
     expect(result).toBe(false);
   });
@@ -54,7 +54,7 @@ test('validateOscSubscription()', () => {
       onFinish: [{ id: '6', message: 'test', enabled: false }],
     };
 
-    const result = validateOscSubscription(invalidSubscription);
+    const result = validateOscObject(invalidSubscription);
 
     expect(result).toBe(false);
   });
@@ -69,7 +69,7 @@ test('validateOscSubscription()', () => {
       onFinish: [{ id: '6', message: 'test', enabled: 'not a boolean' }],
     };
 
-    const result = validateOscSubscription(invalidSubscription);
+    const result = validateOscObject(invalidSubscription);
 
     expect(result).toBe(false);
   });
@@ -84,7 +84,7 @@ test('validateOscSubscription()', () => {
       onFinish: [{ id: '6', message: 'test', enabled: 'not a boolean' }],
     };
 
-    const result = validateOscSubscription(invalidSubscription);
+    const result = validateOscObject(invalidSubscription);
 
     expect(result).toBe(true);
   });

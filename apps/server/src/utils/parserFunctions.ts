@@ -5,6 +5,7 @@ import {
   OntimeRundown,
   OSCSettings,
   OscSubscription,
+  OscSubscriptionOptions,
   Settings,
   TimerLifeCycle,
   UserFields,
@@ -165,10 +166,23 @@ export const parseViewSettings = (data, enforce): ViewSettings => {
 };
 
 /**
+ * Parses and validates subscription entry
+ * @param data
+ */
+export const validateOscSubscriptionEntry = (data: OscSubscriptionOptions): boolean => {
+  for (const subscription in data) {
+    if (typeof data[subscription].message !== 'string' || typeof data[subscription].enabled !== 'boolean') {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
  * Parses and validates subscription object
  * @param data
  */
-export const validateOscSubscription = (data: OscSubscription): boolean => {
+export const validateOscObject = (data: OscSubscription): boolean => {
   if (!data) {
     return false;
   }
@@ -178,7 +192,7 @@ export const validateOscSubscription = (data: OscSubscription): boolean => {
       return false;
     }
     for (const subscription of data[key]) {
-      if (!subscription.id || typeof subscription.message !== 'string' || typeof subscription.enabled !== 'boolean') {
+      if (typeof subscription.message !== 'string' || typeof subscription.enabled !== 'boolean') {
         return false;
       }
     }
@@ -194,7 +208,7 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }, enforce: boolean)
     console.log('Found OSC definition, importing...');
 
     const loadedConfig = data?.osc || {};
-    const validatedSubscriptions = validateOscSubscription(loadedConfig.subscriptions)
+    const validatedSubscriptions = validateOscObject(loadedConfig.subscriptions)
       ? loadedConfig.subscriptions
       : dbModel.osc.subscriptions;
 

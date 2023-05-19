@@ -5,7 +5,7 @@ import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
 import { dbModel } from '../../models/dataModel.js';
-import { validateOscSubscription } from '../../utils/parserFunctions.js';
+import { validateOscObject } from '../../utils/parserFunctions.js';
 
 type Action = TimerLifeCycleKey | string;
 
@@ -58,7 +58,7 @@ export class OscIntegration implements IIntegration {
   }
 
   initSubscriptions(subscriptionOptions: OscSubscription) {
-    if (validateOscSubscription(subscriptionOptions)) {
+    if (validateOscObject(subscriptionOptions)) {
       this.subscriptions = { ...subscriptionOptions };
     }
   }

@@ -269,6 +269,27 @@ export const getOSC = async (req, res) => {
   res.status(200).send(osc);
 };
 
+export const postOscSubscriptions = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const oscSubscriptions = req.body;
+    const oscSettings = DataProvider.getOsc();
+    oscSettings.subscriptions = oscSubscriptions;
+    await DataProvider.setOsc(oscSettings);
+
+    // TODO: this update could be more granular, checking that relevant data was changed
+    const { message } = oscIntegration.init(oscSettings);
+    logger.info('RX', message);
+
+    res.send(oscSettings).status(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
 // Create controller for POST request to '/ontime/osc'
 // Returns ACK message
 export const postOSC = async (req, res) => {

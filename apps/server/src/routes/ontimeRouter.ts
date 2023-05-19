@@ -13,6 +13,7 @@ import {
   postAliases,
   postNew,
   postOSC,
+  postOscSubscriptions,
   postSettings,
   postUserFields,
   postViewSettings,
@@ -21,6 +22,7 @@ import {
 import {
   validateAliases,
   validateOSC,
+  validateOscSubscription,
   validateSettings,
   validateUserFields,
   viewValidator,
@@ -70,6 +72,9 @@ router.get('/osc', getOSC);
 
 // create route between controller and '/ontime/osc' endpoint
 router.post('/osc', validateOSC, postOSC);
+
+// create route between controller and '/ontime/osc-subscriptions' endpoint
+router.post('/osc-subscriptions', validateOscSubscription, postOscSubscriptions);
 
 // create route between controller and '/ontime/new' endpoint
 router.post('/new', eventDataSanitizer, postNew);
