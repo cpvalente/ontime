@@ -26,3 +26,16 @@ $element-border-radius: 8px;
 $timer-color: rgba(white, 80%); // --timer-color-override
 $timer-finished-color: $playback-negative;
 $timer-bold-font-family: "Arial Black", sans-serif; // --card-background-color-override
+$timer-blinking-time: 1.2s;
+
+.timer--blinking {
+  animation: blinkingTimer $timer-blinking-time linear infinite;
+}
+
+@keyframes blinkingTimer {
+  50% {
+    opacity: 0;
+  }
+}
+
+

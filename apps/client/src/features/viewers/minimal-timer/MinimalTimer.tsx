@@ -153,7 +153,9 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const timerFontSize = (89 / (stageTimerCharacters - 1)) * (userOptions.size || 1);
 
-  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
+  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${
+    showFinished ? 'timer--finished timer--blinking' : ''
+  }`;
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
 
   return (

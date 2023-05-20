@@ -88,7 +88,9 @@ export default function Timer(props: TimerProps) {
   }
 
   const timerFontSize = 89 / (stageTimerCharacters - 1);
-  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
+  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${
+    showFinished ? 'timer--finished timer--blinking' : ''
+  }`;
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
