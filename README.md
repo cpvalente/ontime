@@ -12,14 +12,16 @@
 
 # Ontime
 
-Ontime is an application for managing event rundowns and running stage timers.
+Ontime is an application for creating and managing event running order and timers.
 
-A single, locally hosted central application distributes your event information over the local network.
-This enables the distribution of the data to a series of views and allows integration into video and control workflows, including OBS and d3.
+The user inputs a list of events along with scheduling and event information. 
+This will then populate a series of screens which are available to be rendered by any device in the Network.
 
-![App Window](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/app.jpg)
+This makes for a simple and cheap way to distribute over a venue using a network infrastructure instead of video outputs.
 
-![Views](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/02_screentypes.png)
+![App Window](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/app.png)
+
+![Views](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/overview.png)
 
 ## Using Ontime
 
@@ -30,8 +32,8 @@ Any device with a browser in the same network can choose one of the supported vi
 This is done by reaching the ontime server at the _default port 4001_ eg: `localhost:4001`
 or `192.168.1.3:4001`
 <br />
-You can then use the Ontime logo in the top left corner to select the desired view.
-The logo will be initially hidden until there is mouse interaction.
+You can then use the menu in the top left corner to select the desired view.
+The menu will be initially hidden until there is mouse interaction.
 
 In the case of unattended machines or automation, it is possible to use different URL to recall
 individual views and extend view settings using the URL aliases feature
@@ -62,21 +64,23 @@ More documentation is available [in our docs](https://ontime.gitbook.io)
 - [x] Distribute data over network and render it in the browser
 - [x] Different screen types
     - Stage Timer
+    - Minimal Timer
+    - Clock
     - Backstage Info
     - Public Info
     - Studio Clock
     - Countdown
     - [Make your own?](#make-your-own-viewer)
 - [x] Configurable Lower Thirds
-- [x] Cuesheets with user definable fields
+- [x] Collaborative editing with the cuesheet view
 - [x] Send live messages to different screen types
 - [x] Differentiate between backstage and public data
 - [x] Workflow for managing delays
-- [x] Protocol integrations for Control and Feedback
+- [x] Rich protocol integrations for Control and Feedback
   - OSC (Open Sound Control)
   - HTTP
   - WebSockets
-- [x] Roll mode: run independently using the system clock
+- [x] Roll mode: run standalone using the system clock
 - [x] [Headless run](#headless-run): run server in a separate machine, configure from a browser locally
 - [x] [Countdown to anything!](https://ontime.gitbook.io/v2/views/countdown): have
   a countdown to any scheduled event
@@ -85,14 +89,11 @@ More documentation is available [in our docs](https://ontime.gitbook.io)
 
 ## Unopinionated
 
-We are not interested in forcing workflows and have made Ontime, so it is flexible to whichever way
-you would like to work.
+We want Ontime to be unique by targeting freelancers instead of roles. 
 
-- [x] If you want just the info screens, there is no need to use the timer!
-- [x] Don't have or care for a schedule?
-    - [x] a single event with no data is enough to use one of the APIs and use a dynamic timer
-    - [x] use the order list to create a set of quick timers by setting the beginning and start
-      times to 00:00 and 00:10 (**BAM**! 10 minute timer). You can quickly recall this with OSC or any of the other available integrations
+We believe most freelancers work in different fields and we want to give you a tool that you can leverage across your many environments and workflows.
+
+We are not interested in forcing workflows and have made Ontime so, it is flexible to whichever way you would like to work.
 
 ## Rich APIs for workflow integrations
 
@@ -116,7 +117,7 @@ Writing a new view for the browser can be done with basic knowledge of HTML + CS
 <br />
 See [this repository](https://github.com/cpvalente/ontime-viewer-template-v2) with a small template on
 how to get you started and read the docs about
-the [Websocket API](https://ontime.gitbook.io/v2/control-and-feedback/websocket-api)
+the [Websocket API](https://ontime.gitbook.io/v2/control-and-feedback/ontime-apis#osc-and-websocket-api)
 
 ### Headless run️
 
@@ -138,6 +139,8 @@ and use the included docker compose to get started
 ```bash
 docker-compose up
 ```
+
+Related information available [in the docs](https://ontime.gitbook.io/v2/additional-notes/use-in-raspberry-pi)
 
 ## Roadmap
 
