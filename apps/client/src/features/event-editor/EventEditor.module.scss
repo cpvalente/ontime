@@ -22,8 +22,7 @@
 .eventInfo {
   grid-area: eventInfo;
   .eventId {
-    margin-left: $element-inner-spacing;
-    user-select: text;
+    margin-left:$element-spacing;
   }
 }
 
