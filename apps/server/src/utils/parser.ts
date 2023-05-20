@@ -54,6 +54,8 @@ export const parseExcel = async (excelData) => {
   let user7Index: number | null = null;
   let user8Index: number | null = null;
   let user9Index: number | null = null;
+  let endActionIndex: number | null = null;
+  let timerTypeIndex: number | null = null;
 
   excelData
     .filter((e) => e.length > 0)
@@ -103,6 +105,10 @@ export const parseExcel = async (excelData) => {
           event.skip = Boolean(column);
         } else if (j === notesIndex) {
           event.note = column;
+        } else if (j === endActionIndex) {
+          event.endAction = column;
+        } else if (j === timerTypeIndex) {
+          event.timerType = column;
         } else if (j === colourIndex) {
           event.colour = column;
         } else if (j === user0Index) {
@@ -187,6 +193,12 @@ export const parseExcel = async (excelData) => {
               case 'colour':
               case 'color':
                 colourIndex = j;
+                break;
+              case 'end action':
+                endActionIndex = j;
+                break;
+              case 'timer type':
+                timerTypeIndex = j;
                 break;
               default:
                 // look for user defined
