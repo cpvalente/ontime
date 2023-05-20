@@ -4,6 +4,7 @@ import { EndAction } from '../EndAction.type.js';
 export type TimerState = {
   clock: number; // realtime clock
   current: number | null; // running countdown
+  currentTime: string | null; // running countdown human readable
   elapsed: number | null; // elapsed time in current timer
   expectedFinish: number | null;
   addedTime: number; // time added by user, can be negative

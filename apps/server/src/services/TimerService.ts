@@ -3,7 +3,7 @@ import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState } from 'on
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
-import { DAY_TO_MS } from '../utils/time.js';
+import { DAY_TO_MS, formatDisplay } from '../utils/time.js';
 import { integrationService } from './integration-service/IntegrationService.js';
 import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
@@ -38,6 +38,7 @@ export class TimerService {
     this.timer = {
       clock: clock.timeNow(),
       current: null,
+      currentTime: null,
       elapsed: null,
       expectedFinish: null,
       addedTime: 0,
@@ -92,6 +93,7 @@ export class TimerService {
     );
     if (this.timer.startedAt === null) {
       this.timer.current = timer.duration;
+      this.timer.currentTime = timer.duration;
     }
     this.update();
   }
@@ -117,6 +119,7 @@ export class TimerService {
     this.loadedTimerId = timer.id;
     this.timer.duration = timer.duration;
     this.timer.current = timer.duration;
+    this.timer.currentTime = timer.duration;
     this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
@@ -263,6 +266,7 @@ export class TimerService {
       const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
 
       this.timer.current = updatedTimer;
+      this.timer.currentTime = formatDisplay(updatedTimer);
       this.timer.secondaryTimer = updatedSecondaryTimer;
       this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
 
@@ -301,6 +305,15 @@ export class TimerService {
           this.timer.addedTime,
           this.pausedTime,
           this.timer.clock,
+        );
+        this.timer.currentTime = formatDisplay(
+          getCurrent(
+            this.timer.startedAt,
+            this.timer.duration,
+            this.timer.addedTime,
+            this.pausedTime,
+            this.timer.clock,
+          ),
         );
 
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
