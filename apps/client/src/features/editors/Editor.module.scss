@@ -74,7 +74,7 @@ $playback-width: 450px;
     grid-template-rows: 100%;
     grid-template-columns: $menu-width $rundown-width;
     grid-template-areas:
-      'sett even';
+      'sett rundown';
 
     .info,
     .messages,
