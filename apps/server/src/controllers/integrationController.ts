@@ -32,6 +32,20 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       break;
     }
 
+    case 'set-timer-blink': {
+      if (typeof payload !== 'undefined') {
+        messageService.setTimerBlink(Boolean(payload));
+      }
+      break;
+    }
+
+    case 'set-timer-blackout': {
+      if (typeof payload !== 'undefined') {
+        messageService.setTimerBlackout(Boolean(payload));
+      }
+      break;
+    }
+
     case 'set-timer-message-text': {
       if (typeof payload !== 'string') {
         throw new Error(`Unable to parse payload: ${payload}`);

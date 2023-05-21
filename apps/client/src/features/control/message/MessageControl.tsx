@@ -1,4 +1,8 @@
 import { Button } from '@chakra-ui/react';
+import { IoEye } from '@react-icons/all-files/io5/IoEye';
+import { IoEyeOffOutline } from '@react-icons/all-files/io5/IoEyeOffOutline';
+import { IoFlashlightOutline } from '@react-icons/all-files/io5/IoFlashlightOutline';
+import { IoFlashlightSharp } from '@react-icons/all-files/io5/IoFlashlightSharp';
 import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
 import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
 
@@ -21,6 +25,30 @@ export default function MessageControl() {
         changeHandler={(newValue) => setMessage.presenterText(newValue)}
         actionHandler={() => setMessage.presenterVisible(!data.timerMessage.visible)}
       />
+      <div className={style.buttonSection}>
+        <label className={style.blinkingLabel}>Timer text blink</label>
+        <Button
+          className={style.blinkingButton}
+          variant={data.timerMessage.timerBlink ? 'ontime-filled' : 'ontime-subtle'}
+          leftIcon={
+            data.timerMessage.timerBlink ? <IoFlashlightOutline size='24px' /> : <IoFlashlightSharp size='24px' />
+          }
+          onClick={() => setMessage.timerBlink(!data.timerMessage.timerBlink)}
+          data-testid='toggle timer blink'
+        >
+          {/* {data?.onAir ? 'Timer text is blinking' : 'Timer text is solid'} */}
+        </Button>
+        <label className={style.blackoutLabel}>Blackout timer screens</label>
+        <Button
+          className={style.blackoutButton}
+          variant={data.timerMessage.timerBlackout ? 'ontime-filled' : 'ontime-subtle'}
+          leftIcon={data.timerMessage.timerBlackout ? <IoEyeOffOutline size='24px' /> : <IoEye size='24px' />}
+          onClick={() => setMessage.timerBlackout(!data.timerMessage.timerBlackout)}
+          data-testid='toggle timer blackout'
+        >
+          {/* {data?.onAir ? 'Ontime is On Air' : 'Ontime is Off Air'} */}
+        </Button>
+      </div>
       <InputRow
         label='Public / Backstage screen message'
         placeholder='Shown in public and backstage screens'
