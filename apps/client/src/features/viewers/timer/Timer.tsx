@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
+import { EventData, Message, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -39,7 +39,7 @@ const titleVariants = {
 interface TimerProps {
   isMirrored: boolean;
   general: EventData;
-  pres: Message;
+  pres: TimerMessage;
   title: TitleManager;
   time: TimeManagerType;
   viewSettings: ViewSettings;
@@ -71,14 +71,16 @@ export default function Timer(props: TimerProps) {
   const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
   const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
+  const showBlinking = pres.timerBlink;
+  const showBlackout = pres.timerBlackout;
+  const showClock = time.timerType !== TimerType.Clock;
+
   const timerColor =
     showProgress && showDanger
       ? viewSettings.dangerColor
       : showProgress && showWarning
       ? viewSettings.warningColor
       : viewSettings.normalColor;
-  const showClock = time.timerType !== TimerType.Clock;
-  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
   const stageTimer = getTimerByType(time);
   let display = formatTimerDisplay(stageTimer);
@@ -87,16 +89,15 @@ export default function Timer(props: TimerProps) {
     display = `-${display}`;
   }
 
+  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
   const timerFontSize = 89 / (stageTimerCharacters - 1);
-  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${
-    showFinished ? 'timer--finished timer--blinking' : ''
-  }`;
+  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-        <div className='message'>{pres.text}</div>
+        <div className={`message ${showBlinking ? 'blinking' : ''}`}>{pres.text}</div>
       </div>
 
       <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
@@ -104,7 +105,7 @@ export default function Timer(props: TimerProps) {
         <div className='clock'>{clock}</div>
       </div>
 
-      <div className='timer-container'>
+      <div className={`timer-container ${showBlinking ? (showOverlay ? '' : 'blinking') : ''}`}>
         {showEndMessage ? (
           <div className='end-message'>{viewSettings.endMessage}</div>
         ) : (
