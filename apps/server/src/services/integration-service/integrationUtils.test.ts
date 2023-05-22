@@ -42,3 +42,21 @@ describe('parseTemplateNested()', () => {
     expect(result).toStrictEqual(expected);
   });
 });
+
+describe('parseNestedTemplate() -> resolveAliasData()', () => {
+  it('resolves', () => {
+    const data = {
+      not: {
+        so: {
+          easy: '3',
+        },
+      },
+    };
+    const aliases = {
+      easy: 'not.so.easy',
+    };
+
+    const easyParse = parseTemplateNested('{{alias.easy}}', data, aliases);
+    expect(easyParse).toBe('3');
+  });
+});
