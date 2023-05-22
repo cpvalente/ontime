@@ -1,3 +1,5 @@
+import { isTimeString } from 'ontime-utils';
+
 const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
 const mth = 1000 * 60 * 60; // millis to hours
@@ -5,26 +7,6 @@ const mth = 1000 * 60 * 60; // millis to hours
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 export const DAY_TO_MS = 86400000;
-
-/**
- * @description Validates a time string
- * @param {string} string - time string "23:00:12"
- * @returns {boolean} string represents time
- */
-export const isTimeString = (string: string): boolean => {
-  // ^                   # Start of string
-  // (?:                 # Try to match...
-  //  (?:                #  Try to match...
-  //   ([01]?\d|2[0-3]): #   HH:
-  //  )?                 #  (optionally).
-  //  ([0-5]?\d):        #  MM: (required)
-  // )?                  # (entire group optional, so either HH:MM:, MM: or nothing)
-  // ([0-5]?\d)          # SS (required)
-  // $                   # End of string
-
-  const regex = /^(?:(?:([01]?\d|2[0-3])[:,.])?([0-5]?\d)[:,.])?([0-5]?\d)$/;
-  return regex.test(string);
-};
 
 /**
  * @description Converts an excel date to milliseconds
@@ -117,29 +99,6 @@ export const parseExcelDate = (excelDate: string): number => {
   }
   return 0;
 };
-
-/**
- * another go at simpler string formatting (counters) -- Copied from client code
- * @description Converts seconds to string representing time
- * @param {number | null} milliseconds - time in seconds
- * @param {boolean} [hideZero] - whether to show hours in case its 00
- * @returns {string} String representing absolute time 00:12:02
- */
-export function formatDisplay(milliseconds: number | null, hideZero = false): string {
-  if (typeof milliseconds !== 'number') {
-    return hideZero ? '00:00' : '00:00:00';
-  }
-
-  // add an extra 0 if necessary
-  const format = (val: number) => `0${Math.floor(val)}`.slice(-2);
-
-  const s = Math.abs(millisToSeconds(milliseconds));
-  const hours = Math.floor((s / 3600) % 24);
-  const minutes = Math.floor((s % 3600) / 60);
-
-  if (hideZero && hours < 1) return [minutes, s % 60].map(format).join(':');
-  return [hours, minutes, s % 60].map(format).join(':');
-}
 
 /**
  * @description Converts milliseconds to seconds -- Copied from client code

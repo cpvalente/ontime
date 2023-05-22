@@ -5,13 +5,13 @@ import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
+import { formatDisplay } from 'ontime-utils';
 import PropTypes from 'prop-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import useFullscreen from '../../common/hooks/useFullscreen';
 import { useTimer } from '../../common/hooks/useSocket';
 import useEventData from '../../common/hooks-query/useEventData';
-import { formatDisplay } from '../../common/utils/dateConfig';
 import { formatTime } from '../../common/utils/time';
 import { tooltipDelayFast } from '../../ontimeConfig';
 
