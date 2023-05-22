@@ -58,6 +58,7 @@ export default function EventEditor() {
         timerType={event.timerType}
       />
       <EventEditorTitles
+        key={event.id}
         eventId={event.id}
         title={event.title}
         presenter={event.presenter}
