@@ -1,3 +1,6 @@
+// logic (with some modifications) culled from:
+// https://github.com/lukasbach/chakra-ui-contextmenu/blob/main/src/ContextMenu.tsx
+
 import { createContext, ReactNode, useState } from 'react';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IconType } from '@react-icons/all-files';
