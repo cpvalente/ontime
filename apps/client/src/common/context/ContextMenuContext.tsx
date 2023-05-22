@@ -1,7 +1,7 @@
 // logic (with some modifications) culled from:
 // https://github.com/lukasbach/chakra-ui-contextmenu/blob/main/src/ContextMenu.tsx
 
-import { createContext, ReactNode, useState } from 'react';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IconType } from '@react-icons/all-files';
 
@@ -48,25 +48,28 @@ export const ContextMenuProvider = ({ children }: ContextMenuProviderProps) => {
     <ContextMenuContext.Provider value={{ createContextMenu }}>
       {children}
       {isOpen && (
-        <Menu isOpen gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
-          <MenuButton
-            className={style.contextMenuButton}
-            aria-hidden
-            w={1}
-            h={1}
-            style={{
-              left: coords.x,
-              top: coords.y,
-            }}
-          />
-          <MenuList>
-            {options.map(({ label, icon: Icon, onClick }, i) => (
-              <MenuItem key={i} icon={<Icon />} onClick={onClick}>
-                {label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
+        <>
+          <div className={style.contextMenuBackdrop} />
+          <Menu isOpen gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
+            <MenuButton
+              className={style.contextMenuButton}
+              aria-hidden
+              w={1}
+              h={1}
+              style={{
+                left: coords.x,
+                top: coords.y,
+              }}
+            />
+            <MenuList>
+              {options.map(({ label, icon: Icon, onClick }, i) => (
+                <MenuItem key={i} icon={<Icon />} onClick={onClick}>
+                  {label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+        </>
       )}
     </ContextMenuContext.Provider>
   );
