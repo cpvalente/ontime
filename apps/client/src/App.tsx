@@ -6,7 +6,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import { AppContextProvider } from './common/context/AppContext';
-import { ContextMenuProvider } from './common/context/ContextMenuContext';
 import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
@@ -50,18 +49,16 @@ function App() {
     <ChakraProvider resetCSS theme={theme}>
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
-          <ContextMenuProvider>
-            <BrowserRouter>
-              <div className='App'>
-                <ErrorBoundary>
-                  <TranslationProvider>
-                    <AppRouter />
-                  </TranslationProvider>
-                </ErrorBoundary>
-                <ReactQueryDevtools initialIsOpen={false} />
-              </div>
-            </BrowserRouter>
-          </ContextMenuProvider>
+          <BrowserRouter>
+            <div className='App'>
+              <ErrorBoundary>
+                <TranslationProvider>
+                  <AppRouter />
+                </TranslationProvider>
+              </ErrorBoundary>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </div>
+          </BrowserRouter>
         </AppContextProvider>
       </QueryClientProvider>
     </ChakraProvider>

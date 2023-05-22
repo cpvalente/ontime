@@ -2,6 +2,7 @@ import { lazy, useEffect } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
+import { ContextMenuProvider } from '../../common/context/ContextMenuContext';
 import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
@@ -43,29 +44,33 @@ export default function Editor() {
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
         <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
-      <div className={styles.mainContainer} data-testid='event-editor'>
-        <div id='settings' className={styles.settings}>
-          <ErrorBoundary>
-            <MenuBar
-              onSettingsOpen={onSettingsOpen}
-              isSettingsOpen={isSettingsOpen}
-              onSettingsClose={onSettingsClose}
-              isUploadOpen={isUploadModalOpen}
-              onUploadOpen={onUploadModalOpen}
-              isIntegrationOpen={isIntegrationModalOpen}
-              onIntegrationOpen={onIntegrationModalOpen}
-              isAboutOpen={isAboutModalOpen}
-              onAboutOpen={onAboutModalOpen}
-              isQuickStartOpen={isQuickStartOpen}
-              onQuickStartOpen={onQuickStartOpen}
-            />
-          </ErrorBoundary>
+      <ContextMenuProvider>
+        <div className={styles.mainContainer} data-testid='event-editor'>
+          <div id='settings' className={styles.settings}>
+            <ErrorBoundary>
+              <MenuBar
+                onSettingsOpen={onSettingsOpen}
+                isSettingsOpen={isSettingsOpen}
+                onSettingsClose={onSettingsClose}
+                isUploadOpen={isUploadModalOpen}
+                onUploadOpen={onUploadModalOpen}
+                isIntegrationOpen={isIntegrationModalOpen}
+                onIntegrationOpen={onIntegrationModalOpen}
+                isAboutOpen={isAboutModalOpen}
+                onAboutOpen={onAboutModalOpen}
+                isQuickStartOpen={isQuickStartOpen}
+                onQuickStartOpen={onQuickStartOpen}
+              />
+            </ErrorBoundary>
+          </div>
+
+          <Rundown />
+          <MessageControl />
+          <TimerControl />
+          <Info />
         </div>
-        <Rundown />
-        <MessageControl />
-        <TimerControl />
-        <Info />
-      </div>
+      </ContextMenuProvider>
+
       <EventEditor />
     </>
   );
