@@ -1,9 +1,11 @@
 import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
+import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
@@ -75,6 +77,9 @@ export default function EventBlock(props: EventBlockProps) {
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const openId = useAppMode((state) => state.editId);
+  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+    { label: eventId, icon: IoAdd, onClick: () => console.log(eventId) },
+  ]);
 
   const {
     isDragging,
@@ -142,7 +147,13 @@ export default function EventBlock(props: EventBlockProps) {
   };
 
   return (
-    <div className={blockClasses} ref={setNodeRef} style={dragStyle} onClick={handleFocusClick}>
+    <div
+      className={blockClasses}
+      ref={setNodeRef}
+      style={dragStyle}
+      onClick={handleFocusClick}
+      onContextMenu={onContextMenu}
+    >
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
