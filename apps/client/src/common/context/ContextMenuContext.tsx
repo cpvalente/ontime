@@ -31,7 +31,7 @@ interface ContextMenuProviderProps {
 export const ContextMenuProvider = ({ children }: ContextMenuProviderProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const [position, setCoordinates] = useState<ContextMenuCoords>({ x: 0, y: 0 });
+  const [coords, setCoords] = useState<ContextMenuCoords>({ x: 0, y: 0 });
   const [options, setOptions] = useState<Option[]>([]);
 
   const onClose = () => {
@@ -39,7 +39,7 @@ export const ContextMenuProvider = ({ children }: ContextMenuProviderProps) => {
   };
 
   const createContextMenu = (options: Option[], menuCoords: ContextMenuCoords) => {
-    setCoordinates(menuCoords);
+    setCoords(menuCoords);
     setOptions(options);
     setIsOpen(true);
   };
@@ -55,8 +55,8 @@ export const ContextMenuProvider = ({ children }: ContextMenuProviderProps) => {
             w={1}
             h={1}
             style={{
-              left: position.x,
-              top: position.y,
+              left: coords.x,
+              top: coords.y,
             }}
           />
           <MenuList>
