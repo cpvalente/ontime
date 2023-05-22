@@ -1,4 +1,4 @@
-import { mts } from '../timeConstants';
+import { mts } from '../timeConstants.js';
 
 /**
  * another go at simpler string formatting (counters) -- Copied from client code
