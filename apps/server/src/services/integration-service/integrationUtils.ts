@@ -1,43 +1,65 @@
 // any value inside double curly braces {{val}}
+import { formatDisplay } from 'ontime-utils';
+
 const placeholderRegex = /{{(.*?)}}/g;
 
-const quickAliases: Record<string, string> = {
-  clock: 'timer.clock',
-  duration: 'timer.duration',
-  expectEnd: 'timer.expectedFinish',
-  runningTimer: 'timer.current',
-  elapsedTime: 'timer.elapsed',
-  startedAt: 'timer.startedAt',
+function formatDisplayFromString(value: string, hideZero = false): string {
+  let valueInNumber = null;
+
+  if (value !== 'null') {
+    valueInNumber = Number(value) ?? null;
+  }
+  return formatDisplay(valueInNumber, hideZero);
+}
+
+type AliasesDefinition = Record<string, { key: string; cb: (value: unknown) => string }>;
+const quickAliases: AliasesDefinition = {
+  clock: { key: 'timer.clock', cb: (value: string) => formatDisplayFromString(value) },
+  duration: { key: 'timer.duration', cb: (value: string) => formatDisplayFromString(value, true) },
+  expectedEnd: {
+    key: 'timer.expectedFinish',
+    cb: (value: string) => formatDisplayFromString(value),
+  },
+  runningTimer: {
+    key: 'timer.current',
+    cb: (value: string) => formatDisplayFromString(value, true),
+  },
+  elapsedTime: {
+    key: 'timer.elapsed',
+    cb: (value: string) => formatDisplayFromString(value, true),
+  },
+  startedAt: { key: 'timer.startedAt', cb: (value: string) => formatDisplayFromString(value) },
 };
 
 /**
  * Parses a templated string to values in a nested object
  */
-export function parseTemplateNested(template: string, state: object, aliases = quickAliases): string {
-  if (template.startsWith('{{alias.')) {
-    return resolveAliasData(template, state, aliases);
-  }
-
+export function parseTemplateNested(template: string, state: object, humanReadable = quickAliases): string {
   let parsedTemplate = template;
-  let match;
-  while ((match = placeholderRegex.exec(template)) !== null) {
+  const matches = Array.from(parsedTemplate.matchAll(placeholderRegex));
+
+  for (const match of matches) {
     const variableName = match[1];
     const variableParts = variableName.split('.');
-    // iterate through variable parts, and look for the property in the state object
-    const value = variableParts.reduce((obj, key) => obj && obj[key], state);
-    if (value !== undefined) {
+    let value = undefined;
+
+    if (variableParts[0] === 'human') {
+      const lookupKey = variableParts[1];
+      if (lookupKey in humanReadable) {
+        const newTemplate = `{{${humanReadable[lookupKey].key}}}`;
+        const parsed = parseTemplateNested(newTemplate, state, humanReadable);
+        value = humanReadable[lookupKey].cb(parsed);
+      } else {
+        value = undefined;
+      }
+    } else {
+      // iterate through variable parts, and look for the property in the state object
+      value = variableParts.reduce((obj, key) => obj && obj[key], state);
+    }
+    if (typeof value !== 'undefined') {
       parsedTemplate = parsedTemplate.replace(match[0], value);
     }
   }
 
   return parsedTemplate;
-}
-
-export function resolveAliasData(template: string, state: object, aliases: Record<string, string>): string {
-  const lookupKey = template.replace('alias.', '');
-  const cleanKey = lookupKey.replace('{{', '').replace('}}', '');
-  if (cleanKey in aliases) {
-    return parseTemplateNested(`{{${aliases[cleanKey]}}}`, state, aliases);
-  }
-  return 'not-found';
 }
