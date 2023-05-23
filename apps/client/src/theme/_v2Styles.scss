@@ -3,6 +3,8 @@
 $transition-time-action: 0.1s;
 $transition-time-feedback: 0.3s;
 
+$blinking-time: 1.2s;
+
 $component-border-radius-md: 3px;
 $component-border-radius-sm: 2px;
 
@@ -51,3 +53,13 @@ $secondary-text-gray: $gray-400;
 $section-white: $ui-white;
 $inner-section-text-size: 14px;
 $text-body-size: 15px;
+
+.blink {
+  animation: blink $blinking-time linear infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

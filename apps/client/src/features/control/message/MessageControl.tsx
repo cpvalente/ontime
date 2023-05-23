@@ -28,7 +28,7 @@ export default function MessageControl() {
       <div className={style.buttonSection}>
         <label className={style.blinkLabel}>Timer text blink</label>
         <Button
-          className={style.blinkButton}
+          className={(style.blinkButton, data.timerMessage.timerBlink ? 'blink' : '')}
           variant={data.timerMessage.timerBlink ? 'ontime-filled' : 'ontime-subtle'}
           leftIcon={data.timerMessage.timerBlink ? <IoSunnyOutline size='24px' /> : <IoSunny size='24px' />}
           onClick={() => setMessage.timerBlink(!data.timerMessage.timerBlink)}
