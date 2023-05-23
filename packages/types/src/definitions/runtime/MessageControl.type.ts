@@ -3,9 +3,7 @@ export type Message = {
   visible: boolean;
 };
 
-export type TimerMessage = {
-  text: string;
-  visible: boolean;
+export type TimerMessage = Message & {
   timerBlink: boolean;
   timerBlackout: boolean;
 }
