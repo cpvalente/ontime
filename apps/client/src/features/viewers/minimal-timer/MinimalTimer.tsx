@@ -157,7 +157,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const timerFontSize = (89 / (stageTimerCharacters - 1)) * (userOptions.size || 1);
 
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''} ${
-    showBlinking ? (showOverlay ? '' : 'blinking') : ''
+    showBlinking ? (showOverlay ? '' : 'blink') : ''
   }`;
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
 
@@ -174,11 +174,11 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       <NavigationMenu />
       {!hideMessagesOverlay && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-          <div className={`message ${showBlinking ? 'blinking' : ''}`}>{pres.text}</div>
+          <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
         </div>
       )}
       {showEndMessage ? (
-        <div className={`end-message ${showBlinking ? (showOverlay ? '' : 'blinking') : ''}`}>
+        <div className={`end-message ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
           {viewSettings.endMessage}
         </div>
       ) : (

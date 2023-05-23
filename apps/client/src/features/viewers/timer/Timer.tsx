@@ -97,7 +97,7 @@ export default function Timer(props: TimerProps) {
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-        <div className={`message ${showBlinking ? 'blinking' : ''}`}>{pres.text}</div>
+        <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
       </div>
 
       <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
@@ -105,7 +105,7 @@ export default function Timer(props: TimerProps) {
         <div className='clock'>{clock}</div>
       </div>
 
-      <div className={`timer-container ${showBlinking ? (showOverlay ? '' : 'blinking') : ''}`}>
+      <div className={`timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
         {showEndMessage ? (
           <div className='end-message'>{viewSettings.endMessage}</div>
         ) : (

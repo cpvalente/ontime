@@ -28,11 +28,11 @@ $timer-finished-color: $playback-negative;
 $timer-bold-font-family: "Arial Black", sans-serif; // --card-background-color-override
 $timer-blinking-time: 1.2s;
 
-.blinking {
-  animation: blinking $timer-blinking-time linear infinite;
+.blink {
+  animation: blink $timer-blinking-time linear infinite;
 }
 
-@keyframes blinking {
+@keyframes blink {
   50% {
     opacity: 0;
   }
