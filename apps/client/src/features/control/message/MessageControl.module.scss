@@ -15,30 +15,33 @@
 
 .buttonSection {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, auto);
+  grid-template-areas:
+    "blinklabel blackoutlabel"
+    "blinkbutton blackoutbutton";
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows:  auto auto;
   gap: $element-spacing;
-
+  margin-top: -8px;
 }
 
-.blinkingLabel {
-  grid-area: 1 / 1 / 2 / 2;
+.blinkLabel {
+  grid-area: blinklabel;
   font-size: $inner-section-text-size;
   color: $label-gray;
 }
 
-.blinkingButton {
-  grid-area: 2 / 1 / 3 / 2;
+.blinkButton {
+  grid-area: blinkbutton;
 }
 
 .blackoutLabel {
-  grid-area: 1 / 2 / 2 / 3;
-    font-size: $inner-section-text-size;
+  grid-area: blackoutlabel;
+  font-size: $inner-section-text-size;
   color: $label-gray;
 }
 
 .blackoutButton {
-  grid-area: 2 / 2 / 3 / 3;
+  grid-area: blackoutbutton;
   width: 100%;
   justify-self: end;
 }
