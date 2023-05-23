@@ -56,7 +56,7 @@ describe('parseNestedTemplate() -> resolveAliasData()', () => {
       easy: { key: 'not.so.easy', cb: (value: string) => `testing-${value}` },
     };
 
-    const easyParse = parseTemplateNested('{{alias.easy}}', data, aliases);
+    const easyParse = parseTemplateNested('{{human.easy}}', data, aliases);
     expect(easyParse).toBe('testing-3');
   });
   it('handles a mixed operation', () => {
@@ -74,7 +74,7 @@ describe('parseNestedTemplate() -> resolveAliasData()', () => {
       easy: { key: 'not.so.easy', cb: (value: string) => `testing-${value}` },
     };
 
-    const easyParse = parseTemplateNested('{{other.value}} to {{alias.easy}}', data, aliases);
+    const easyParse = parseTemplateNested('{{other.value}} to {{human.easy}}', data, aliases);
     expect(easyParse).toBe('42 to testing-3');
   });
   it('returns given key when not found', () => {
@@ -92,7 +92,7 @@ describe('parseNestedTemplate() -> resolveAliasData()', () => {
       easy: { key: 'not.so.easy', cb: (value: string) => `testing-${value}` },
     };
 
-    const easyParse = parseTemplateNested('{{other.value}} to {{alias.easy}} {{alias.not.found}}', data, aliases);
-    expect(easyParse).toBe('5 to testing-3 {{alias.not.found}}');
+    const easyParse = parseTemplateNested('{{other.value}} to {{human.easy}} {{human.not.found}}', data, aliases);
+    expect(easyParse).toBe('5 to testing-3 {{human.not.found}}');
   });
 });
