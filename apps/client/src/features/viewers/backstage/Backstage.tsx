@@ -72,6 +72,8 @@ export default function Backstage(props: BackstageProps) {
     }
   }
 
+  const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
+
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <NavigationMenu />
@@ -87,7 +89,7 @@ export default function Backstage(props: BackstageProps) {
       <ProgressBar
         className='progress-container'
         now={time.current ?? undefined}
-        complete={time.duration ?? undefined}
+        complete={totalTime}
         hidden={!showProgress}
       />
 
