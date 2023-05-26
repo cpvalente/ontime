@@ -7,7 +7,6 @@
 }
 
 .onAirSection {
-  margin-top: $section-spacing;
   display: flex;
   flex-direction: column;
   gap: $element-spacing;
@@ -15,35 +14,8 @@
 
 .buttonSection {
   display: grid;
-  grid-template-areas:
-    "blinklabel blackoutlabel"
-    "blinkbutton blackoutbutton";
   grid-template-columns: 1fr 1fr;
-  grid-template-rows:  auto auto;
   gap: $element-spacing;
-  margin-top: -8px;
-}
-
-.blinkLabel {
-  grid-area: blinklabel;
-  font-size: $inner-section-text-size;
-  color: $label-gray;
-}
-
-.blinkButton {
-  grid-area: blinkbutton;
-}
-
-.blackoutLabel {
-  grid-area: blackoutlabel;
-  font-size: $inner-section-text-size;
-  color: $label-gray;
-}
-
-.blackoutButton {
-  grid-area: blackoutbutton;
-  width: 100%;
-  justify-self: end;
 }
 
 .label {
@@ -53,4 +25,8 @@
   &.active {
     color: $action-text-color;
   }
+}
+
+.padTop {
+  margin-top: $section-spacing;
 }

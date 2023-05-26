@@ -18,32 +18,6 @@ export default function MessageControl() {
   return (
     <div className={style.messageContainer}>
       <InputRow
-        label='Timer screen message'
-        placeholder='Shown in stage timer'
-        text={data.timerMessage.text || ''}
-        visible={data.timerMessage.visible || false}
-        changeHandler={(newValue) => setMessage.presenterText(newValue)}
-        actionHandler={() => setMessage.presenterVisible(!data.timerMessage.visible)}
-      />
-      <div className={style.buttonSection}>
-        <label className={style.blinkLabel}>Timer text blink</label>
-        <Button
-          className={(style.blinkButton, data.timerMessage.timerBlink ? 'blink' : '')}
-          variant={data.timerMessage.timerBlink ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={data.timerMessage.timerBlink ? <IoSunnyOutline size='24px' /> : <IoSunny size='24px' />}
-          onClick={() => setMessage.timerBlink(!data.timerMessage.timerBlink)}
-          data-testid='toggle timer blink'
-        />
-        <label className={style.blackoutLabel}>Blackout timer screens</label>
-        <Button
-          className={style.blackoutButton}
-          variant={data.timerMessage.timerBlackout ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={data.timerMessage.timerBlackout ? <IoEyeOffOutline size='24px' /> : <IoEye size='24px' />}
-          onClick={() => setMessage.timerBlackout(!data.timerMessage.timerBlackout)}
-          data-testid='toggle timer blackout'
-        />
-      </div>
-      <InputRow
         label='Public / Backstage screen message'
         placeholder='Shown in public and backstage screens'
         text={data.publicMessage.text || ''}
@@ -59,7 +33,34 @@ export default function MessageControl() {
         changeHandler={(newValue) => setMessage.lowerText(newValue)}
         actionHandler={() => setMessage.lowerVisible(!data.lowerMessage.visible)}
       />
-      <div className={style.onAirSection}>
+      <InputRow
+        label='Timer screen message'
+        placeholder='Shown in stage timer'
+        text={data.timerMessage.text || ''}
+        visible={data.timerMessage.visible || false}
+        changeHandler={(newValue) => setMessage.presenterText(newValue)}
+        actionHandler={() => setMessage.presenterVisible(!data.timerMessage.visible)}
+        className={style.padTop}
+      />
+      <div className={style.buttonSection}>
+        <label className={style.label}>Timer text blink</label>
+        <label className={style.label}>Blackout timer screens</label>
+        <Button
+          className={`${data.timerMessage.timerBlink ? style.blink : ''}`}
+          variant={data.timerMessage.timerBlink ? 'ontime-filled' : 'ontime-subtle'}
+          leftIcon={data.timerMessage.timerBlink ? <IoSunnyOutline size='24px' /> : <IoSunny size='24px' />}
+          onClick={() => setMessage.timerBlink(!data.timerMessage.timerBlink)}
+          data-testid='toggle timer blink'
+        />
+        <Button
+          className={style.blackoutButton}
+          variant={data.timerMessage.timerBlackout ? 'ontime-filled' : 'ontime-subtle'}
+          leftIcon={data.timerMessage.timerBlackout ? <IoEyeOffOutline size='24px' /> : <IoEye size='24px' />}
+          onClick={() => setMessage.timerBlackout(!data.timerMessage.timerBlackout)}
+          data-testid='toggle timer blackout'
+        />
+      </div>
+      <div className={`${style.onAirSection} ${style.padTop}`}>
         <label className={style.label}>Toggle On Air state</label>
         <Button
           variant={data.onAir ? 'ontime-filled' : 'ontime-subtle'}
