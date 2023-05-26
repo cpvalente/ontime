@@ -34,16 +34,15 @@ export default function MessageControl() {
         actionHandler={() => setMessage.lowerVisible(!data.lowerMessage.visible)}
       />
       <InputRow
-        label='Timer screen message'
+        label='Timer message'
         placeholder='Shown in stage timer'
         text={data.timerMessage.text || ''}
         visible={data.timerMessage.visible || false}
         changeHandler={(newValue) => setMessage.presenterText(newValue)}
         actionHandler={() => setMessage.presenterVisible(!data.timerMessage.visible)}
-        className={style.padTop}
       />
       <div className={style.buttonSection}>
-        <label className={style.label}>Timer text blink</label>
+        <label className={style.label}>Timer messsage blink</label>
         <label className={style.label}>Blackout timer screens</label>
         <Button
           className={`${data.timerMessage.timerBlink ? style.blink : ''}`}
