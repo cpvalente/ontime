@@ -17,7 +17,7 @@ $skip-opacity: 0.1;
           "binder ...        ...     ...";
 
   grid-template-columns: $block-binder-width auto 1fr auto;
-  grid-template-rows: 4px 36px 36px 36px 4px;
+  grid-template-rows: 0.25rem 2.25rem 2.25rem 2.25rem 0.25rem;
   align-items: center;
   padding-right: $block-clearance;
   gap: 2px;
@@ -83,12 +83,12 @@ $skip-opacity: 0.1;
 
   background-color: $gray-1050; // to override inline
   color: $section-white;
-  font-size: 17px;
+  font-size: 1rem;
 
   .drag {
     @include drag-style;
     position: absolute;
-    margin-top: 4px;
+    margin-top: 0.25rem;
   }
 }
 
@@ -96,8 +96,8 @@ $skip-opacity: 0.1;
   grid-area: pb-actions;
   display: flex;
   flex-direction: column;
-  margin: 0 8px;
-  gap: 6px;
+  margin: 0 0.5rem;
+  gap: 0.5rem;
 }
 
 .eventTimers {
@@ -108,8 +108,8 @@ $skip-opacity: 0.1;
   height: 100%;
 
   .delayNote {
-    font-size: 12px;
-    line-height: 14px;
+    font-size: 0.75rem;
+    line-height: 0.8rem;
     color: $ontime-delay-text;
   }
 }
@@ -123,10 +123,6 @@ $skip-opacity: 0.1;
   display: flex;
   gap: $block-clearance;
   justify-content: flex-end;
-}
-
-.eventOptions {
-  margin: $element-spacing 16px $element-spacing 0;
 }
 
 .progressBg {
@@ -152,7 +148,7 @@ $skip-opacity: 0.1;
           "notes status"
           "progb progb";
   gap: 2px;
-  grid-template-rows: auto 4px;
+  grid-template-rows: auto 0.25rem;
   align-items: center;
   height: 100%;
   padding: 2px 0;
@@ -161,15 +157,15 @@ $skip-opacity: 0.1;
 .eventNote {
   grid-area: notes;
   display: block;
-  font-size: 13px;
+  font-size: calc(1rem - 3px);
   color: $block-text-color;
-  line-height: 13px;
+  line-height: calc(1rem - 3px);
 }
 
 
 .nextTag {
   grid-area: next;
-  font-size: 1em;
+  font-size: 1rem;
   color: $orange-500;
   letter-spacing: 0.03px;
   font-weight: 600;
@@ -181,13 +177,13 @@ $skip-opacity: 0.1;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   color: var(--status-color-override, $gray-500);
 
 
   .statusIcon {
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
   }
 
   .statusIcon.active {
