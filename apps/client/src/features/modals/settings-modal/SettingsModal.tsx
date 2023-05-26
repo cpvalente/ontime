@@ -21,7 +21,7 @@ export default function SettingsModal(props: ModalManagerProps) {
       <ModalBody>
         <Tabs variant='ontime' size='sm' isLazy>
           <TabList>
-            <Tab>App Settings</Tab>
+            <Tab>App</Tab>
             <Tab>Event Data</Tab>
             <Tab>Editor</Tab>
             <Tab>Cuesheet</Tab>
