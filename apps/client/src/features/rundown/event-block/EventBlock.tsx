@@ -1,12 +1,15 @@
 import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoCopyOutline } from '@react-icons/all-files/io5/IoCopyOutline';
+import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
+import copyToClipboard from '../../../common/utils/copyToClipboard';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
 
@@ -72,13 +75,22 @@ export default function EventBlock(props: EventBlockProps) {
     actionHandler,
     disableEdit,
   } = props;
-
+  const { updateEvent } = useEventAction();
   const moveCursorTo = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const openId = useAppMode((state) => state.editId);
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
-    { label: eventId, icon: IoAdd, onClick: () => console.log(eventId) },
+    { label: `Copy ID: ${eventId}}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
+    {
+      label: 'Toggle public',
+      icon: IoPeopleOutline,
+      onClick: () =>
+        updateEvent({
+          id: eventId,
+          isPublic: !isPublic,
+        }),
+    },
   ]);
 
   const {
