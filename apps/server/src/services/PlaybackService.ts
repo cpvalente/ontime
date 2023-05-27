@@ -166,7 +166,16 @@ export class PlaybackService {
    * Stops timer and unloads any events
    */
   static stop() {
-    if (eventTimer.playback !== Playback.Stop) {
+    if (eventTimer.playback === Playback.Stop) return;
+
+    // we are in a roll mode we are in a mode where an event is currently running
+    if (eventTimer.playback === Playback.Roll && eventLoader.loadedEvent) {
+      // we change the playback to play mode
+      eventTimer.playback = Playback.Play;
+      // then pause it
+      this.pause();
+    } else {
+      // either we are in a roll  countdown mode or a play mode with an active event playing, we stop and reset it as usual
       eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;
@@ -197,7 +206,8 @@ export class PlaybackService {
         return;
       }
 
-      const { currentEvent, nextEvent } = rollTimers;
+      const { currentEvent, nextEvent, timeToNext } = rollTimers;
+      console.log('time to next', timeToNext);
       if (!currentEvent && !nextEvent) {
         logger.warning('SERVER', 'Roll: no events found');
         PlaybackService.stop();
