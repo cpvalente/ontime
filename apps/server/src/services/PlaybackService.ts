@@ -206,8 +206,7 @@ export class PlaybackService {
         return;
       }
 
-      const { currentEvent, nextEvent, timeToNext } = rollTimers;
-      console.log('time to next', timeToNext);
+      const { currentEvent, nextEvent } = rollTimers;
       if (!currentEvent && !nextEvent) {
         logger.warning('SERVER', 'Roll: no events found');
         PlaybackService.stop();
