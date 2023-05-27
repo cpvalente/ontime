@@ -2,7 +2,7 @@
 
 .titleEditor {
   display: block;
-  font-size: 18px;
+  font-size: calc(1rem + 2px);
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;

@@ -3,7 +3,7 @@
 $progress-bar-size: 12px;
 $progress-bar-br: 3px;
 
-.progress-bar {
+.multiprogress-bar {
   position: relative;
   width: 100%;
   height: $progress-bar-size;
@@ -17,7 +17,7 @@ $progress-bar-br: 3px;
   }
 }
 
-.progress-bar__indicator {
+.multiprogress-bar__indicator {
   position: absolute;
   height: inherit;
   background-color: black;
@@ -27,7 +27,7 @@ $progress-bar-br: 3px;
   right: 0;
 }
 
-.progress-bar__bg-normal {
+.multiprogress-bar__bg-normal {
   position: absolute;
   height: inherit;
   right: 0;
@@ -35,14 +35,14 @@ $progress-bar-br: 3px;
   width: 100%;
 }
 
-.progress-bar__bg-warning {
+.multiprogress-bar__bg-warning {
   position: absolute;
   height: inherit;
   right: 0;
   border-radius: 0 $progress-bar-br $progress-bar-br 0;
 }
 
-.progress-bar__bg-danger {
+.multiprogress-bar__bg-danger {
   position: absolute;
   height: inherit;
   right: 0;
