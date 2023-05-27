@@ -102,7 +102,7 @@ const MenuBar = (props: MenuBarProps) => {
 
   return (
     <VStack>
-      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
+      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} size='md' />
 
       <div className={style.gap} />
       <TooltipActionBtn
@@ -120,6 +120,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onUploadOpen}
         tooltip='Import project file'
         aria-label='Import project file'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -127,6 +128,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={downloadRundown}
         tooltip='Export project file'
         aria-label='Export project file'
+        size='sm'
       />
 
       <div className={style.gap} />
@@ -137,6 +139,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={setRunMode}
         tooltip='Run mode'
         aria-label='Run mode'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -145,6 +148,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={setEditMode}
         tooltip='Edit mode'
         aria-label='Edit mode'
+        size='sm'
       />
 
       <div className={style.gap} />
@@ -155,6 +159,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onIntegrationOpen}
         tooltip='Integrations'
         aria-label='Integrations'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -163,6 +168,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onSettingsOpen}
         tooltip='Settings'
         aria-label='Settings'
+        size='sm'
       />
       <div className={style.gap} />
       <TooltipActionBtn
@@ -172,6 +178,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onAboutOpen}
         tooltip='About'
         aria-label='About'
+        size='sm'
       />
     </VStack>
   );

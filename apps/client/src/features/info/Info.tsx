@@ -33,7 +33,6 @@ export default function Info() {
   return (
     <>
       <div className={style.panelHeader}>
-        <span>Ontime running on port 4001</span>
         <span>{selected}</span>
       </div>
       <CollapsableInfo title='Network Info'>

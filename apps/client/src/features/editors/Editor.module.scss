@@ -1,9 +1,9 @@
 @use '../../theme/ontimeColours' as *;
 @use '../../theme/v2Styles' as *;
 
-$menu-width: 48px;
-$rundown-width: 46em;
-$playback-width: 450px;
+$menu-width: 2.75rem;
+$rundown-width: 44.5rem;
+$playback-width: 26rem;
 
 @mixin absolute-top-right($distance) {
   position: absolute;
@@ -20,7 +20,7 @@ $playback-width: 450px;
 
 .corner {
   display: none;
-  @include absolute-top-right(8px);
+  @include absolute-top-right(0.5rem);
   transform: rotate(45deg);
 }
 
@@ -30,7 +30,7 @@ $playback-width: 450px;
   height: 100%;
   margin: auto;
   color: $ui-white;
-  padding: 16px 8px;
+  padding: 1rem 0.5rem;
   font-family: $ontime-font-family;
 
   display: grid;
@@ -39,7 +39,7 @@ $playback-width: 450px;
   grid-template-areas:
     'sett rundown play info'
     'sett rundown mess info';
-  gap: 8px;
+  gap: 0.5rem;
 
   .rundown,
   .playback,
@@ -59,7 +59,8 @@ $playback-width: 450px;
   .mainContainer {
     height: 100%;
     grid-template-rows: auto 1fr;
-    grid-template-columns: $menu-width $rundown-width auto;
+    grid-template-columns: $menu-width 1fr $playback-width;
+      background-color: pink;
 
     .info {
       visibility: hidden;
@@ -74,7 +75,7 @@ $playback-width: 450px;
     grid-template-rows: 100%;
     grid-template-columns: $menu-width $rundown-width;
     grid-template-areas:
-      'sett even';
+      'sett rundown';
 
     .info,
     .messages,
@@ -135,7 +136,7 @@ $playback-width: 450px;
     border-radius: 8px;
     height: 100%;
     background-color: $bg-container-l2;
-    padding: 0.8em 1.5em;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
   }
@@ -165,7 +166,7 @@ $playback-width: 450px;
 
   .header {
     background-color: $gray-1200;
-    padding: 8px;
+    padding: 0.5rem;
     border-left: 1px solid $white-10;
     border-radius: 0 8px 0 0;
   }
@@ -176,14 +177,14 @@ $playback-width: 450px;
   height: 100%;
 
   .content {
-    height: calc(100% - 24px);
+    height: calc(100% - 1.5rem);
     overflow: hidden;
   }
 }
 
 .info {
   grid-area: info;
-  min-width: 17em;
+  min-width: 17rem;
   max-width: 800px;
 
   .content {
@@ -199,16 +200,14 @@ $playback-width: 450px;
 
 .playback {
   grid-area: play;
-  min-height: 250px;
   max-height: 380px;
-  min-width: 450px;
 }
 
 .mainContainer > .settings {
   grid-area: sett;
   background-color: transparent;
   margin: 0;
-  padding: 0 8px 0 0;
+  padding: 0 0.5rem 0 0;
   width: fit-content;
 
   display: flex;
@@ -216,5 +215,11 @@ $playback-width: 450px;
 }
 
 .content {
-  padding-top: 24px;
+  padding-top: 1.5rem;
+}
+
+.rundown {
+  .content {
+    padding-top: 0.5rem;
+  }
 }

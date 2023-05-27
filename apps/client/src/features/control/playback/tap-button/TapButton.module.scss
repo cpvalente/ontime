@@ -6,7 +6,7 @@ $button-color-white: $gray-50;
 
 @mixin tap-factory($theme-color) {
   font-family: $ontime-font-family;
-  font-size: 18px;
+  font-size: calc(1rem + 2px);
   border-radius: $component-border-radius-md;
   width: 100%;
   transition-property: color, background-color;
@@ -77,17 +77,13 @@ $button-color-white: $gray-50;
   @include tap-factory($ontime-stop);
 }
 
-.tapButton.normal {
-  aspect-ratio: 3/1;
-}
-
 .tapButton.square {
   aspect-ratio: 1;
-  font-size: 14px;
+  font-size: calc(1rem - 2px);
 }
 
 .tapButton.fill {
   aspect-ratio: unset;
   height: 100%;
-  font-size: 1.5em;
+  font-size: 1.5rem;
 }
