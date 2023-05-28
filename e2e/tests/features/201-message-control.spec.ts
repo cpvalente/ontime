@@ -5,13 +5,14 @@ test('test', async ({ context }) => {
   const featurePage = await context.newPage();
 
   await editorPage.goto('http://localhost:4001/messagecontrol');
+  await editorPage.waitForLoadState('load', { timeout: 5000 });
 
   // stage timer message
   await editorPage.getByPlaceholder('Shown in stage timer').click();
   await expect(editorPage.getByPlaceholder('Shown in stage timer')).toBeEnabled();
 
   await editorPage.getByPlaceholder('Shown in stage timer').fill('testing stage');
-  await editorPage.getByRole('button', { name: /toggle timer screen message/i }).click({ timeout: 5000 });
+  await editorPage.getByRole('button', { name: /toggle timer message/i }).click({ timeout: 5000 });
 
   await featurePage.goto('http://localhost:4001/timer');
   await featurePage.waitForLoadState('load', { timeout: 5000 });
