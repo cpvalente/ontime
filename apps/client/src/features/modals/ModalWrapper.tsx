@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
+
 import { ModalContextProvider } from '../../common/context/ModalContext';
 
 interface ModalWrapperProps {
