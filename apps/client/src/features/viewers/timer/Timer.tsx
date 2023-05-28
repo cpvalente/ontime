@@ -62,10 +62,12 @@ export default function Timer(props: TimerProps) {
   const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
+
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
+  const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
+
   const showEndMessage = (time.current ?? 1) < 0 && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
@@ -121,7 +123,7 @@ export default function Timer(props: TimerProps) {
       <MultiPartProgressBar
         className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
         now={time.current || 0}
-        complete={time.duration || 0}
+        complete={totalTime}
         normalColor={viewSettings.normalColor}
         warning={viewSettings.warningThreshold}
         warningColor={viewSettings.warningColor}
