@@ -14,7 +14,7 @@ export const RUNTIME = ['runtimeStore'];
 
 export const serverPort = import.meta.env.DEV ? STATIC_PORT : window.location.port;
 export const serverURL = import.meta.env.DEV ? `http://localhost:${serverPort}` : window.location.origin;
-export const websocketUrl = `ws://${window.location.hostname}:${serverPort}/ws`;
+export const websocketUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.hostname}:${serverPort}/ws`;
 
 export const eventURL = `${serverURL}/eventdata`;
 export const rundownURL = `${serverURL}/events`;
