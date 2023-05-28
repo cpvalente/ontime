@@ -5,7 +5,7 @@ import { ALIASES } from '../api/apiConstants';
 import { getAliases } from '../api/ontimeApi';
 
 export default function useAliases() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: ALIASES,
     queryFn: getAliases,
     placeholderData: [],
@@ -15,5 +15,5 @@ export default function useAliases() {
     networkMode: 'always',
   });
 
-  return { data, status, isError, refetch };
+  return { data, status, isFetching, isError, refetch };
 }

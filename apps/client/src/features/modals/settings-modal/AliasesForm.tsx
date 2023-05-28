@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Button, IconButton, Input, Switch } from '@chakra-ui/react';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
@@ -9,6 +10,7 @@ import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBt
 import useAliases from '../../../common/hooks-query/useAliases';
 import { useEmitLog } from '../../../common/stores/logger';
 import { handleLinks } from '../../../common/utils/linkUtils';
+import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalLink from '../ModalLink';
 import OntimeModalFooter from '../OntimeModalFooter';
@@ -21,7 +23,7 @@ const aliasesDocsUrl = 'https://ontime.gitbook.io/v2/features/url-aliases';
 type Aliases = { aliases: Alias[] };
 
 export default function AliasesForm() {
-  const { data, status, refetch } = useAliases();
+  const { data, status, isFetching, refetch } = useAliases();
   const { emitError } = useEmitLog();
   const {
     control,
@@ -32,11 +34,20 @@ export default function AliasesForm() {
   } = useForm<Aliases>({
     defaultValues: { aliases: data },
     values: { aliases: data || [] },
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
   const { fields, append, remove } = useFieldArray({
     name: 'aliases',
     control,
   });
+
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: Aliases) => {
     try {
@@ -66,6 +77,10 @@ export default function AliasesForm() {
 
   const disableInputs = status === 'loading';
   const hasTooManyOptions = fields.length >= 20;
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='aliases' className={style.sectionContainer}>

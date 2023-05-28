@@ -38,11 +38,16 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
     register,
     reset,
     formState: { isSubmitting },
-  } = useForm({ defaultValues: data });
+  } = useForm({
+    defaultValues: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
+  });
 
   useEffect(() => {
-    reset(data);
-  }, [reset, data]);
+    if (data) reset(data);
+  }, [data, reset]);
 
   const onSubmit = async (data: Partial<EventData>) => {
     try {

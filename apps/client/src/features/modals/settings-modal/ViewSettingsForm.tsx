@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
@@ -10,6 +11,7 @@ import { mtm } from '../../../common/utils/timeConstants';
 import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
 import ModalSplitInput from '../ModalSplitInput';
+import ModalLoader from '../modal-loader/ModalLoader';
 import OntimeModalFooter from '../OntimeModalFooter';
 
 import InputMillisWithString from './InputMillisWithString';
@@ -17,7 +19,7 @@ import InputMillisWithString from './InputMillisWithString';
 import style from './SettingsModal.module.scss';
 
 export default function ViewSettingsForm() {
-  const { data, status, refetch } = useViewSettings();
+  const { data, status, refetch, isFetching } = useViewSettings();
   const { emitError } = useEmitLog();
   const {
     control,
@@ -28,7 +30,16 @@ export default function ViewSettingsForm() {
   } = useForm<ViewSettings>({
     defaultValues: data,
     values: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: ViewSettings) => {
     const parsedWarningThreshold = dirtyFields?.warningThreshold
@@ -64,6 +75,10 @@ export default function ViewSettingsForm() {
   }
 
   const disableInputs = status === 'loading';
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='view-settings' className={style.sectionContainer}>

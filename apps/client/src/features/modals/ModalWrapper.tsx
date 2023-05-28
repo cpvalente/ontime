@@ -1,8 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
 
-import { ModalContextProvider } from '../../common/context/ModalContext';
-
 interface ModalWrapperProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,7 +25,7 @@ export default function ModalWrapper(props: PropsWithChildren<ModalWrapperProps>
       <ModalContent>
         <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
-        <ModalContextProvider>{children}</ModalContextProvider>
+        {children}
       </ModalContent>
     </Modal>
   );

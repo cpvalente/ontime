@@ -6,7 +6,7 @@ import { getSettings } from '../api/ontimeApi';
 import { ontimePlaceholderSettings } from '../models/OntimeSettings';
 
 export default function useSettings() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: APP_SETTINGS,
     queryFn: getSettings,
     placeholderData: ontimePlaceholderSettings,
@@ -16,5 +16,5 @@ export default function useSettings() {
     networkMode: 'always',
   });
 
-  return { data, status, isError, refetch };
+  return { data, status, isFetching, isError, refetch };
 }

@@ -6,7 +6,7 @@ import { fetchEventData } from '../api/eventDataApi';
 import { eventDataPlaceholder } from '../models/EventData';
 
 export default function useEventData() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: EVENT_DATA,
     queryFn: fetchEventData,
     placeholderData: eventDataPlaceholder,
@@ -16,5 +16,5 @@ export default function useEventData() {
     networkMode: 'always',
   });
 
-  return { data, status, isError, refetch };
+  return { data, status, isFetching, isError, refetch };
 }

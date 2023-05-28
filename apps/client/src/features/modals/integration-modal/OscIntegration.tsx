@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { OscSubscription } from 'ontime-types';
 import { TimerLifeCycle } from 'ontime-types';
 
 import useOscSettings, { usePostOscSubscriptions } from '../../../common/hooks-query/useOscSettings';
 import { useEmitLog } from '../../../common/stores/logger';
+import ModalLoader from '../modal-loader/ModalLoader';
 import OntimeModalFooter from '../OntimeModalFooter';
 
 import OscSubscriptionRow from './OscSubscriptionRow';
@@ -41,7 +42,7 @@ const sectionText: { [key in TimerLifeCycle]: { title: string; subtitle: string 
 };
 
 export default function OscIntegration() {
-  const { data } = useOscSettings();
+  const { data, isFetching } = useOscSettings();
   const { mutateAsync } = usePostOscSubscriptions();
   const { emitError } = useEmitLog();
   const {
@@ -53,9 +54,18 @@ export default function OscIntegration() {
   } = useForm<OscSubscription>({
     defaultValues: data.subscriptions,
     values: data.subscriptions,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
 
   const [showSection, setShowSection] = useState<OntimeCycle>(TimerLifeCycle.onLoad);
+
+  useEffect(() => {
+    if (data) {
+      reset(data.subscriptions);
+    }
+  }, [data, reset]);
 
   const resetForm = () => {
     reset(data.subscriptions);
@@ -77,6 +87,10 @@ export default function OscIntegration() {
       emitError(`Error setting OSC: ${error}`);
     }
   };
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='osc-subscriptions'>
