@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Input } from '@chakra-ui/react';
 import { UserFields } from 'ontime-types';
@@ -5,6 +6,7 @@ import { UserFields } from 'ontime-types';
 import { postUserFields } from '../../../common/api/ontimeApi';
 import useUserFields from '../../../common/hooks-query/useUserFields';
 import { useEmitLog } from '../../../common/stores/logger';
+import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalLink from '../ModalLink';
 import ModalSplitInput from '../ModalSplitInput';
@@ -15,7 +17,7 @@ import style from './SettingsModal.module.scss';
 const userFieldsDocsUrl = 'https://ontime.gitbook.io/v2/features/user-fields';
 
 export default function CuesheetSettings() {
-  const { data, status, refetch } = useUserFields();
+  const { data, status, isFetching, refetch } = useUserFields();
   const { emitError } = useEmitLog();
   const {
     handleSubmit,
@@ -25,7 +27,16 @@ export default function CuesheetSettings() {
   } = useForm<UserFields>({
     defaultValues: data,
     values: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: UserFields) => {
     try {
@@ -42,6 +53,10 @@ export default function CuesheetSettings() {
   };
 
   const disableInputs = status === 'loading';
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='cuesheet-settings' className={style.sectionContainer}>

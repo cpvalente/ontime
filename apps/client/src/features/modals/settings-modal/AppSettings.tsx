@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Select } from '@chakra-ui/react';
 import type { Settings } from 'ontime-types';
@@ -6,6 +7,7 @@ import { postSettings } from '../../../common/api/ontimeApi';
 import useSettings from '../../../common/hooks-query/useSettings';
 import { useEmitLog } from '../../../common/stores/logger';
 import { isOnlyNumbers } from '../../../common/utils/regex';
+import ModalLoader from '../modal-loader/ModalLoader';
 import ModalSplitInput from '../ModalSplitInput';
 import OntimeModalFooter from '../OntimeModalFooter';
 
@@ -14,7 +16,7 @@ import ModalPinInput from './ModalPinInput';
 import style from './SettingsModal.module.scss';
 
 export default function AppSettingsModal() {
-  const { data, status, refetch } = useSettings();
+  const { data, status, isFetching, refetch } = useSettings();
   const { emitError } = useEmitLog();
   const {
     handleSubmit,
@@ -24,7 +26,16 @@ export default function AppSettingsModal() {
   } = useForm<Settings>({
     defaultValues: data,
     values: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: Settings) => {
     try {
@@ -41,6 +52,10 @@ export default function AppSettingsModal() {
   };
 
   const disableInputs = status === 'loading';
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='app-settings' className={style.sectionContainer}>

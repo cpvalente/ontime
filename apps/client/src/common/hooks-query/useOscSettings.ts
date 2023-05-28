@@ -8,7 +8,7 @@ import { oscPlaceholderSettings } from '../models/OscSettings';
 import { ontimeQueryClient } from '../queryClient';
 
 export default function useOscSettings() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: OSC_SETTINGS,
     queryFn: getOSC,
     placeholderData: oscPlaceholderSettings,
@@ -19,7 +19,7 @@ export default function useOscSettings() {
   });
 
   // we need to jump through some hoops because of the type op port
-  return { data: data! as unknown as OSCSettings, status, isError, refetch };
+  return { data: data! as unknown as OSCSettings, status, isFetching, isError, refetch };
 }
 
 export function useOscSettingsMutation() {

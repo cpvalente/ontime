@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Textarea } from '@chakra-ui/react';
 import { EventData } from 'ontime-types';
@@ -5,6 +6,7 @@ import { EventData } from 'ontime-types';
 import { postEventData } from '../../../common/api/eventDataApi';
 import useEventData from '../../../common/hooks-query/useEventData';
 import { useEmitLog } from '../../../common/stores/logger';
+import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
 import OntimeModalFooter from '../OntimeModalFooter';
@@ -12,7 +14,7 @@ import OntimeModalFooter from '../OntimeModalFooter';
 import style from './SettingsModal.module.scss';
 
 export default function EventDataForm() {
-  const { data, status, refetch } = useEventData();
+  const { data, status, isFetching, refetch } = useEventData();
   const { emitError } = useEmitLog();
   const {
     handleSubmit,
@@ -22,7 +24,16 @@ export default function EventDataForm() {
   } = useForm<EventData>({
     defaultValues: data,
     values: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: EventData) => {
     try {
@@ -39,6 +50,10 @@ export default function EventDataForm() {
   };
 
   const disableInputs = status === 'loading';
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='event-data' className={style.sectionContainer}>

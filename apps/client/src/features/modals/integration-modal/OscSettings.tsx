@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FormControl, Input, Switch } from '@chakra-ui/react';
 
@@ -5,12 +6,13 @@ import useOscSettings, { useOscSettingsMutation } from '../../../common/hooks-qu
 import { PlaceholderSettings } from '../../../common/models/OscSettings';
 import { useEmitLog } from '../../../common/stores/logger';
 import { isIPAddress, isOnlyNumbers } from '../../../common/utils/regex';
+import ModalLoader from '../modal-loader/ModalLoader';
 import OntimeModalFooter from '../OntimeModalFooter';
 
 import styles from '../Modal.module.scss';
 
 export default function OscSettings() {
-  const { data } = useOscSettings();
+  const { data, isFetching } = useOscSettings();
   const { mutateAsync } = useOscSettingsMutation();
   const { emitError } = useEmitLog();
   const {
@@ -22,8 +24,16 @@ export default function OscSettings() {
   } = useForm<PlaceholderSettings>({
     defaultValues: data,
     values: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
 
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
   const onSubmit = async (values: PlaceholderSettings) => {
     const numericPortIn = Number(values.portIn);
     const numericPortOut = Number(values.portOut);
@@ -50,6 +60,10 @@ export default function OscSettings() {
     // @ts-expect-error -- we know the types dont match
     reset(data);
   };
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='oscSettings'>

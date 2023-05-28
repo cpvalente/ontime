@@ -6,7 +6,7 @@ import { getUserFields } from '../api/ontimeApi';
 import { userFieldsPlaceholder } from '../models/UserFields';
 
 export default function useUserFields() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: USERFIELDS,
     queryFn: getUserFields,
     placeholderData: userFieldsPlaceholder,
@@ -16,5 +16,5 @@ export default function useUserFields() {
     networkMode: 'always',
   });
 
-  return { data, status, isError, refetch };
+  return { data, status, isFetching, isError, refetch };
 }
