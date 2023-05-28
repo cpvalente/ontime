@@ -16,31 +16,28 @@ $loader-size: 48px;
 .loader {
   width: $loader-size;
   height: $loader-size;
-  display: inline-block;
-  position: relative;
-}
-
-.loader::after,
-.loader::before {
-  content: '';
-  box-sizing: border-box;
-  width: $loader-size;
-  height: $loader-size;
-  border-radius: 50%;
   background: $blue-500;
-  position: absolute;
-  left: 0;
-  top: 0;
-  animation: animloader 2s linear infinite;
-}
-.loader::after {
-  animation-delay: 1s;
+  display: inline-block;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: animloader 1s ease-in infinite;
 }
 
 @keyframes animloader {
   0% {
     transform: scale(0);
-    opacity: 1;
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes animloader {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
   }
   100% {
     transform: scale(1);
