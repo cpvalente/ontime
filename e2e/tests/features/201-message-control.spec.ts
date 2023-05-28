@@ -14,6 +14,7 @@ test('test', async ({ context }) => {
   await editorPage.getByRole('button', { name: /toggle timer screen message/i }).click({ timeout: 5000 });
 
   await featurePage.goto('http://localhost:4001/timer');
+  await featurePage.waitForLoadState('load', { timeout: 5000 });
   await featurePage.getByText('testing stage').click();
 
   // public screen message
@@ -22,6 +23,7 @@ test('test', async ({ context }) => {
   await editorPage.getByRole('button', { name: 'Toggle Public / Backstage screen message' }).click();
 
   await featurePage.goto('http://localhost:4001/public');
+  await featurePage.waitForLoadState('load', { timeout: 5000 });
   await featurePage.getByText('testing public').click({ timeout: 10000 });
 
   // lower third message
@@ -29,7 +31,7 @@ test('test', async ({ context }) => {
   await editorPage.getByPlaceholder('Shown in lower third').fill('testing lower');
   await editorPage.getByRole('button', { name: /toggle lower third message/i }).click();
   await featurePage.goto('http://localhost:4001/lower');
-  // increase the timeout to accommodate animation
+  await featurePage.waitForLoadState('load', { timeout: 5000 });
   await featurePage.getByText('testing lower').click({ timeout: 10000 });
 
   // on air state
