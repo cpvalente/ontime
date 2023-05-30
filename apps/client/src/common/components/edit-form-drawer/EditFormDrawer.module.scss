@@ -1,0 +1,11 @@
+@use '../../../theme/v2Styles' as *;
+@use '../../../theme/ontimeColours' as *;
+
+.drawerHeader {
+  color: $section-white;
+  background-color: $gray-1200;
+}
+
+.drawerContent {
+  background-color: $gray-1200;
+}

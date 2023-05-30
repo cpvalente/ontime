@@ -13,6 +13,8 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
+import style from './EditFormDrawer.module.scss';
+
 export const EditFormDrawer = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -33,17 +35,19 @@ export const EditFormDrawer = () => {
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onEditDrawerClose}>
+    <Drawer isOpen={isOpen} placement='right' onClose={onEditDrawerClose} size='lg'>
       <DrawerOverlay />
       <DrawerContent>
-        <DrawerCloseButton />
-        <DrawerHeader>Create your account</DrawerHeader>
+        <DrawerHeader className={style.drawerHeader}>
+          <DrawerCloseButton _hover={{ bg: '#ebedf0', color: '#333' }} size='lg' />
+          Customise
+        </DrawerHeader>
 
-        <DrawerBody>
-          <Input placeholder='Type here...' />
+        <DrawerBody className={style.drawerContent}>
+          <Input placeholder='Type here...' variant='ontime-filled' />
         </DrawerBody>
 
-        <DrawerFooter>
+        <DrawerFooter className={style.drawerContent}>
           <Button variant='outline' mr={3} onClick={onEditDrawerClose}>
             Cancel
           </Button>
