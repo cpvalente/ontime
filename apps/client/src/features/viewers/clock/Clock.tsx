@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { EditFormDrawer } from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -132,6 +133,7 @@ export default function Clock(props: ClockProps) {
       data-testid='clock-view'
     >
       <NavigationMenu />
+      <EditFormDrawer />
       <div
         className='clock'
         style={{
