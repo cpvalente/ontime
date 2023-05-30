@@ -5,6 +5,7 @@ import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
+import { IoPencilSharp } from '@react-icons/all-files/io5/IoPencilSharp';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { navigatorConstants } from '../../../viewerConfig';
@@ -52,60 +53,61 @@ export default function NavigationMenu() {
 
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
-      <button
-        onClick={toggleMenu}
-        aria-label='toggle menu'
-        className={`${style.navButton} ${!showButton && !showMenu ? style.hidden : ''}`}
-      >
-        <IoApps />
-      </button>
-
-      {showMenu && (
-        <div className={style.menuContainer} data-testid='navigation-menu'>
-          <div className={style.buttonsContainer}>
-            <div
-              className={style.link}
-              tabIndex={0}
-              role='button'
-              onClick={handleFullscreen}
-              onKeyDown={(event) => {
-                isKeyEnter(event) && handleFullscreen();
-              }}
-            >
-              Toggle Fullscreen
-              {isFullScreen ? <IoContract /> : <IoExpand />}
+      <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
+        <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
+          <IoApps />
+        </button>
+        <button className={style.button}>
+          <IoPencilSharp />
+        </button>
+        {showMenu && (
+          <div className={style.menuContainer} data-testid='navigation-menu'>
+            <div className={style.buttonsContainer}>
+              <div
+                className={style.link}
+                tabIndex={0}
+                role='button'
+                onClick={handleFullscreen}
+                onKeyDown={(event) => {
+                  isKeyEnter(event) && handleFullscreen();
+                }}
+              >
+                Toggle Fullscreen
+                {isFullScreen ? <IoContract /> : <IoExpand />}
+              </div>
+              <div
+                className={style.link}
+                tabIndex={0}
+                role='button'
+                onClick={handleMirror}
+                onKeyDown={(event) => {
+                  isKeyEnter(event) && handleMirror();
+                }}
+              >
+                Flip Screen
+                <IoSwapVertical />
+              </div>
+              {/*<div className={style.link} tabIndex={0}>*/}
+              {/*  Rename Client*/}
+              {/*</div>*/}
             </div>
-            <div
-              className={style.link}
-              tabIndex={0}
-              role='button'
-              onClick={handleMirror}
-              onKeyDown={(event) => {
-                isKeyEnter(event) && handleMirror();
-              }}
-            >
-              Flip Screen
-              <IoSwapVertical />
-            </div>
-            {/*<div className={style.link} tabIndex={0}>*/}
-            {/*  Rename Client*/}
-            {/*</div>*/}
+            <hr className={style.separator} />
+            {navigatorConstants.map((route) => (
+              <Link
+                key={route.url}
+                to={route.url}
+                className={`${style.link} ${route.url === location.pathname ? style.current : undefined}`}
+                tabIndex={0}
+              >
+                {route.label}
+                <IoArrowUp className={style.linkIcon} />
+              </Link>
+            ))}
           </div>
-          <hr className={style.separator} />
-          {navigatorConstants.map((route) => (
-            <Link
-              key={route.url}
-              to={route.url}
-              className={`${style.link} ${route.url === location.pathname ? style.current : undefined}`}
-              tabIndex={0}
-            >
-              {route.label}
-              <IoArrowUp className={style.linkIcon} />
-            </Link>
-          ))}
-        </div>
-      )}
+        )}
+      </div>
     </div>,
+
     document.body,
   );
 }
