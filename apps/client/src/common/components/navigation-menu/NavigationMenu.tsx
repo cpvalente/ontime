@@ -1,6 +1,6 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
@@ -22,6 +22,7 @@ export default function NavigationMenu() {
   const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { mirror, toggleMirror } = useViewOptionsStore();
   const [showButton, setShowButton] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   useClickOutside(menuRef, () => setShowMenu(false));
@@ -50,6 +51,10 @@ export default function NavigationMenu() {
   const isKeyEnter = (event: KeyboardEvent<HTMLDivElement>) => event.key === 'Enter';
   const handleFullscreen = () => toggleFullScreen();
   const handleMirror = () => toggleMirror();
+  const showEditFormDrawer = () => {
+    searchParams.append('edit', 'true');
+    setSearchParams(searchParams);
+  };
 
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
@@ -57,7 +62,7 @@ export default function NavigationMenu() {
         <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
           <IoApps />
         </button>
-        <button className={style.button}>
+        <button className={style.button} onClick={showEditFormDrawer}>
           <IoPencilSharp />
         </button>
         {showMenu && (
