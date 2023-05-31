@@ -47,14 +47,14 @@ export default function MessageControl() {
         <Button
           className={`${data.timerMessage.timerBlink ? style.blink : ''}`}
           variant={data.timerMessage.timerBlink ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={data.timerMessage.timerBlink ? <IoSunnyOutline size='24px' /> : <IoSunny size='24px' />}
+          leftIcon={data.timerMessage.timerBlink ? <IoSunny size='24px' /> : <IoSunnyOutline size='24px' />}
           onClick={() => setMessage.timerBlink(!data.timerMessage.timerBlink)}
           data-testid='toggle timer blink'
         />
         <Button
           className={style.blackoutButton}
           variant={data.timerMessage.timerBlackout ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={data.timerMessage.timerBlackout ? <IoEyeOffOutline size='24px' /> : <IoEye size='24px' />}
+          leftIcon={data.timerMessage.timerBlackout ? <IoEye size='24px' /> : <IoEyeOffOutline size='24px' />}
           onClick={() => setMessage.timerBlackout(!data.timerMessage.timerBlackout)}
           data-testid='toggle timer blackout'
         />
