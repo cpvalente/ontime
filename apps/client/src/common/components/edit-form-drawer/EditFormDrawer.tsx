@@ -53,11 +53,11 @@ export default function EditFormDrawer({ options }: EditFormDrawerProps) {
           <form id='edit-params-form'>
             {options.map((field) => (
               <div key={field.title} className={style.columnSection}>
-                <label className={style.label}>
+                <label className={style.label} htmlFor={field.id}>
                   <span className={style.title}>{field.title}</span>
                   <span className={style.description}>{field.description}</span>
                 </label>
-                <EditFormInput field={field} />
+                <EditFormInput key={field.title} field={field} />
               </div>
             ))}
           </form>
