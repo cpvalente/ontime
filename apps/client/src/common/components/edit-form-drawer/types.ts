@@ -1,4 +1,5 @@
 type BaseField = {
+  id: string;
   title: string;
   description: string;
 };
