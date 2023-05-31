@@ -4,7 +4,7 @@ import { ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { CLOCK_OPTIONS } from '../../../common/components/edit-form-drawer/constants';
-import { EditFormDrawer } from '../../../common/components/edit-form-drawer/EditFormDrawer';
+import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';

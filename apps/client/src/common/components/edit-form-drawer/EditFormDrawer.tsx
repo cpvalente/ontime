@@ -9,13 +9,19 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  Input,
   useDisclosure,
 } from '@chakra-ui/react';
 
+import EditFormInput from './EditFormInput';
+import { Field } from './types';
+
 import style from './EditFormDrawer.module.scss';
 
-export const EditFormDrawer = () => {
+interface EditFormDrawerProps {
+  options: Field[];
+}
+
+export default function EditFormDrawer({ options }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -44,7 +50,17 @@ export const EditFormDrawer = () => {
         </DrawerHeader>
 
         <DrawerBody className={style.drawerContent}>
-          <Input placeholder='Type here...' variant='ontime-filled' />
+          <form id='edit-params-form'>
+            {options.map((field) => (
+              <div key={field.title} className={style.columnSection}>
+                <label className={style.label}>
+                  <span className={style.title}>{field.title}</span>
+                  <span className={style.description}>{field.description}</span>
+                </label>
+                <EditFormInput field={field} />
+              </div>
+            ))}
+          </form>
         </DrawerBody>
 
         <DrawerFooter className={style.drawerContent}>
@@ -56,4 +72,4 @@ export const EditFormDrawer = () => {
       </DrawerContent>
     </Drawer>
   );
-};
+}

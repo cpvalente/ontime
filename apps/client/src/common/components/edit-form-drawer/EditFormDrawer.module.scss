@@ -9,3 +9,27 @@
 .drawerContent {
   background-color: $gray-1200;
 }
+
+.label {
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+}
+
+.columnSection {
+  display: flex;
+  padding: $element-spacing;
+  flex-direction: column;
+  gap: $element-inner-spacing;
+}
+
+.title {
+  font-size: $inner-section-text-size;
+  display: block;
+  width: 100%;
+}
+
+.description {
+  font-size: $inner-section-text-size;
+  display: block;
+  color: $modal-note-color;
+}
