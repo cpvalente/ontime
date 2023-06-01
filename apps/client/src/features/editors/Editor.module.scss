@@ -60,7 +60,6 @@ $playback-width: 26rem;
     height: 100%;
     grid-template-rows: auto 1fr;
     grid-template-columns: $menu-width 1fr $playback-width;
-      background-color: pink;
 
     .info {
       visibility: hidden;
@@ -196,11 +195,13 @@ $playback-width: 26rem;
 
 .messages {
   grid-area: mess;
+  min-width: 24rem;
 }
 
 .playback {
   grid-area: play;
   max-height: 380px;
+  min-width: 26rem;
 }
 
 .mainContainer > .settings {
