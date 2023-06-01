@@ -76,7 +76,7 @@ export default function Backstage(props: BackstageProps) {
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
-      <NavigationMenu />
+      <NavigationMenu isEditBtnHidden />
 
       <div className='event-header'>
         {general.title}
