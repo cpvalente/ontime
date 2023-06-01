@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/edit-form-drawer/constants';
+import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -167,6 +169,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       data-testid='minimal-timer'
     >
       <NavigationMenu />
+      <EditFormDrawer paramFields={MINIMAL_TIMER_OPTIONS} />
       {!hideMessagesOverlay && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
           <div className='message'>{pres.text}</div>
