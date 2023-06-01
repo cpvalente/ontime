@@ -9,4 +9,4 @@ type StringField = { type: 'string' };
 type BooleanField = { type: 'boolean' };
 type NumberField = { type: 'number' };
 
-export type Field = BaseField & (StringField | BooleanField | NumberField | OptionsField);
+export type ParamField = BaseField & (StringField | BooleanField | NumberField | OptionsField);

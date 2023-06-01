@@ -13,15 +13,15 @@ import {
 } from '@chakra-ui/react';
 
 import EditFormInput from './EditFormInput';
-import { Field } from './types';
+import { ParamField } from './types';
 
 import style from './EditFormDrawer.module.scss';
 
 interface EditFormDrawerProps {
-  options: Field[];
+  paramFields: ParamField[];
 }
 
-export default function EditFormDrawer({ options }: EditFormDrawerProps) {
+export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -79,14 +79,14 @@ export default function EditFormDrawer({ options }: EditFormDrawerProps) {
         </DrawerHeader>
 
         <DrawerBody className={style.drawerContent}>
-          <form id='edit-params-form' onSubmit={onSettingsSubmit}>
-            {options.map((field) => (
+          <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
+            {paramFields.map((field) => (
               <div key={field.title} className={style.columnSection}>
                 <label className={style.label} htmlFor={field.id}>
                   <span className={style.title}>{field.title}</span>
                   <span className={style.description}>{field.description}</span>
                 </label>
-                <EditFormInput key={field.title} field={field} />
+                <EditFormInput key={field.title} paramField={field} />
               </div>
             ))}
           </form>

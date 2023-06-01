@@ -1,6 +1,6 @@
-import { Field } from './types';
+import { ParamField } from './types';
 
-export const CLOCK_OPTIONS: Field[] = [
+export const CLOCK_OPTIONS: ParamField[] = [
   {
     id: 'key',
     title: 'Key',

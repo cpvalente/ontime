@@ -1,23 +1,23 @@
 import { useSearchParams } from 'react-router-dom';
 import { Input, Select, Switch } from '@chakra-ui/react';
 
-import { Field } from './types';
+import { ParamField } from './types';
 
 interface EditFormInputProps {
-  field: Field;
+  paramField: ParamField;
 }
 
-export default function EditFormInput({ field }: EditFormInputProps) {
+export default function EditFormInput({ paramField }: EditFormInputProps) {
   const [searchParams] = useSearchParams();
-  const { id, type } = field;
+  const { id, type } = paramField;
 
   if (type === 'option') {
     const optionFromParams = searchParams.get(id);
-    const defaultOptionValue = field.values.find((value) => value === optionFromParams);
+    const defaultOptionValue = paramField.values.find((value) => value === optionFromParams);
 
     return (
       <Select placeholder='Select an option' variant='ontime' name={id} defaultValue={defaultOptionValue}>
-        {field.values.map((value) => (
+        {paramField.values.map((value) => (
           <option key={value} value={value}>
             {value}
           </option>

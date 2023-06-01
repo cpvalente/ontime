@@ -134,7 +134,7 @@ export default function Clock(props: ClockProps) {
       data-testid='clock-view'
     >
       <NavigationMenu />
-      <EditFormDrawer options={CLOCK_OPTIONS} />
+      <EditFormDrawer paramFields={CLOCK_OPTIONS} />
       <div
         className='clock'
         style={{
