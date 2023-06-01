@@ -109,7 +109,7 @@ export default function Countdown(props: CountdownProps) {
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
-      <NavigationMenu />
+      <NavigationMenu isEditBtnHidden />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />
       ) : (
