@@ -54,7 +54,7 @@ export default function Public(props: BackstageProps) {
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
-      <NavigationMenu />
+      <NavigationMenu isEditBtnHidden />
 
       <div className='event-header'>
         {general.title}
