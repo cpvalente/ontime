@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { FormEvent, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Button,
@@ -40,6 +40,35 @@ export default function EditFormDrawer({ options }: EditFormDrawerProps) {
     setSearchParams(searchParams);
   };
 
+  const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
+    formEvent.preventDefault();
+
+    const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
+    const newSearchParams = Object.entries(newParamsObject).reduce((newSearchParams, [id, value]) => {
+      const isIdABoolean = paramFields.some((field) => field.id === id);
+
+      // special handling for <Switch /> (aka checkboxes)
+      // unchecked checkboxes DO NOT have a value
+      // checked checkboxes will be 'true' (see <EditFormInput />)
+      if (isIdABoolean && value === 'true') {
+        newSearchParams.set(id, value);
+
+        return newSearchParams;
+      }
+
+      if (typeof value === 'string' && value.length) {
+        newSearchParams.set(id, value);
+
+        return newSearchParams;
+      }
+
+      return newSearchParams;
+    }, new URLSearchParams());
+
+    onEditDrawerClose();
+    setSearchParams(newSearchParams);
+  };
+
   return (
     <Drawer isOpen={isOpen} placement='right' onClose={onEditDrawerClose} size='lg'>
       <DrawerOverlay />
@@ -50,7 +79,7 @@ export default function EditFormDrawer({ options }: EditFormDrawerProps) {
         </DrawerHeader>
 
         <DrawerBody className={style.drawerContent}>
-          <form id='edit-params-form'>
+          <form id='edit-params-form' onSubmit={onSettingsSubmit}>
             {options.map((field) => (
               <div key={field.title} className={style.columnSection}>
                 <label className={style.label} htmlFor={field.id}>
