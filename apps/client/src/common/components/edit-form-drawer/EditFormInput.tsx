@@ -29,7 +29,8 @@ export default function EditFormInput({ field }: EditFormInputProps) {
   if (type === 'boolean') {
     const defaultCheckedValue = searchParams.get(id) === 'true' ?? false;
 
-    return <Switch variant='ontime' name={id} defaultChecked={defaultCheckedValue} />;
+    // checked value should be 'true' (see onSettingSubmit in <EditFormDrawer />)
+    return <Switch variant='ontime' name={id} defaultChecked={defaultCheckedValue} value='true' />;
   }
 
   if (type === 'number') {
