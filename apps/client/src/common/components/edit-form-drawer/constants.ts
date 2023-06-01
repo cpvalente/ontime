@@ -158,3 +158,48 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     type: 'boolean',
   },
 ];
+
+export const LOWER_THIRDS_OPTIONS: ParamField[] = [
+  {
+    id: 'preset',
+    title: 'Preset',
+    description: 'Selects a style preset',
+    type: 'number',
+  },
+  {
+    id: 'size',
+    title: 'Size',
+    description: 'Scales the current style (0.5 = 50% 1 = 100% 2 = 200%)',
+    type: 'number',
+  },
+  {
+    id: 'transition',
+    title: 'Transition',
+    description: 'Transition in time in seconds (default 5)',
+    type: 'number',
+  },
+  {
+    id: 'text',
+    title: 'Text',
+    description: 'Text colour in hexadecimal',
+    type: 'string',
+  },
+  {
+    id: 'text',
+    title: 'BG',
+    description: 'Text background colour in hexadecimal',
+    type: 'string',
+  },
+  {
+    id: 'key',
+    title: 'Key',
+    description: 'Screen background colour in hexadecimal',
+    type: 'string',
+  },
+  {
+    id: 'fadeout',
+    title: 'Fadeout',
+    description: 'Time (in seconds) the lower third displays before fading out',
+    type: 'number',
+  },
+];
