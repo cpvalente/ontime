@@ -63,11 +63,13 @@ export default function EditFormDrawer({ options }: EditFormDrawerProps) {
           </form>
         </DrawerBody>
 
-        <DrawerFooter className={style.drawerContent}>
-          <Button variant='outline' mr={3} onClick={onEditDrawerClose}>
+        <DrawerFooter className={style.drawerFooter}>
+          <Button variant='ontime-subtle' onClick={onEditDrawerClose}>
             Cancel
           </Button>
-          <Button colorScheme='blue'>Save</Button>
+          <Button variant='ontime-filled' form='edit-params-form' type='submit'>
+            Save
+          </Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
