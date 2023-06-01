@@ -71,3 +71,13 @@ export const CLOCK_OPTIONS: ParamField[] = [
     values: ['12', '24'],
   },
 ];
+
+export const TIMER_OPTIONS: ParamField[] = [
+  {
+    id: 'progress',
+    title: 'Progress Bar',
+    description: 'Whether bar counts up or down',
+    type: 'option',
+    values: ['up', 'down'],
+  },
+];
