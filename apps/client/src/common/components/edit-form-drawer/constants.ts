@@ -203,3 +203,12 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
     type: 'number',
   },
 ];
+
+export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
+  {
+    id: 'seconds',
+    title: 'Seconds',
+    description: 'Shows seconds in clock',
+    type: 'boolean',
+  },
+];
