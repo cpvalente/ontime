@@ -45,17 +45,6 @@ export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = Object.entries(newParamsObject).reduce((newSearchParams, [id, value]) => {
-      const isIdABoolean = paramFields.some((field) => field.id === id);
-
-      // special handling for <Switch /> (aka checkboxes)
-      // unchecked checkboxes DO NOT have a value
-      // checked checkboxes will be 'true' (see <EditFormInput />)
-      if (isIdABoolean && value === 'true') {
-        newSearchParams.set(id, value);
-
-        return newSearchParams;
-      }
-
       if (typeof value === 'string' && value.length) {
         newSearchParams.set(id, value);
 
