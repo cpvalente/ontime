@@ -1,6 +1,8 @@
 import { useSearchParams } from 'react-router-dom';
 import { Input, Select, Switch } from '@chakra-ui/react';
 
+import { isStringBoolean } from '../../../common/utils/viewUtils';
+
 import { ParamField } from './types';
 
 interface EditFormInputProps {
@@ -27,7 +29,7 @@ export default function EditFormInput({ paramField }: EditFormInputProps) {
   }
 
   if (type === 'boolean') {
-    const defaultCheckedValue = searchParams.get(id) === 'true' ?? false;
+    const defaultCheckedValue = isStringBoolean(searchParams.get(id)) ?? false;
 
     // checked value should be 'true', so it can be captured by the form event
     return <Switch variant='ontime' name={id} defaultChecked={defaultCheckedValue} value='true' />;
