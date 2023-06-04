@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { TIME_FORMAT_OPTION } from '../../../common/components/edit-form-drawer/constants';
+import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -109,7 +111,8 @@ export default function Countdown(props: CountdownProps) {
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
-      <NavigationMenu isEditBtnHidden />
+      <NavigationMenu />
+      <EditFormDrawer paramFields={[TIME_FORMAT_OPTION]} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />
       ) : (

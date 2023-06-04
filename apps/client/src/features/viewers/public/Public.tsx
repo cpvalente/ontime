@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { TIME_FORMAT_OPTION } from '../../../common/components/edit-form-drawer/constants';
+import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
@@ -54,8 +56,8 @@ export default function Public(props: BackstageProps) {
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
-      <NavigationMenu isEditBtnHidden />
-
+      <NavigationMenu />
+      <EditFormDrawer paramFields={[TIME_FORMAT_OPTION]} />
       <div className='event-header'>
         {general.title}
         <div className='clock-container'>
