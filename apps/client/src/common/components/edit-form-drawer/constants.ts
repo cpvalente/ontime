@@ -185,7 +185,7 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
     type: 'string',
   },
   {
-    id: 'text',
+    id: 'bg',
     title: 'BG',
     description: 'Text background colour in hexadecimal',
     type: 'string',
