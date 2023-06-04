@@ -16,11 +16,7 @@ import { useViewOptionsStore } from '../../stores/viewOptions';
 
 import style from './NavigationMenu.module.scss';
 
-interface NavigationMenuProps {
-  isEditBtnHidden?: boolean;
-}
-
-export default function NavigationMenu({ isEditBtnHidden = false }: NavigationMenuProps) {
+export default function NavigationMenu() {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
@@ -66,11 +62,9 @@ export default function NavigationMenu({ isEditBtnHidden = false }: NavigationMe
         <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
           <IoApps />
         </button>
-        {isEditBtnHidden === false && (
-          <button className={style.button} onClick={showEditFormDrawer}>
-            <IoPencilSharp />
-          </button>
-        )}
+        <button className={style.button} onClick={showEditFormDrawer}>
+          <IoPencilSharp />
+        </button>
         {showMenu && (
           <div className={style.menuContainer} data-testid='navigation-menu'>
             <div className={style.buttonsContainer}>
