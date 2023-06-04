@@ -1,11 +1,12 @@
 import { Message } from 'ontime-types';
 
 import { eventStore } from '../../stores/EventStore.js';
+import { TimerMessage } from 'ontime-types/src/definitions/runtime/MessageControl.type.js';
 
 let instance;
 
 class MessageService {
-  timerMessage: Message;
+  timerMessage: TimerMessage;
   publicMessage: Message;
   lowerMessage: Message;
   onAir: boolean;
@@ -21,6 +22,8 @@ class MessageService {
     this.timerMessage = {
       text: '',
       visible: false,
+      timerBlink: false,
+      timerBlackout: false,
     };
 
     this.publicMessage = {
@@ -100,6 +103,34 @@ class MessageService {
       this.onAir = status;
     }
     eventStore.set('onAir', this.onAir);
+    return this.getAll();
+  }
+
+  /**
+   * @description set state of timer blink, toggles if parameters are offered
+   */
+
+  setTimerBlink(status?: boolean) {
+    if (typeof status === 'undefined') {
+      this.timerMessage.timerBlink = !this.timerMessage.timerBlink;
+    } else {
+      this.timerMessage.timerBlink = status;
+    }
+    eventStore.set('timerMessage', this.timerMessage);
+    return this.getAll();
+  }
+
+  /**
+   * @description set state of timer blackout, toggles if parameters are offered
+   */
+
+  setTimerBlackout(status?: boolean) {
+    if (typeof status === 'undefined') {
+      this.timerMessage.timerBlackout = !this.timerMessage.timerBlackout;
+    } else {
+      this.timerMessage.timerBlackout = status;
+    }
+    eventStore.set('timerMessage', this.timerMessage);
     return this.getAll();
   }
 

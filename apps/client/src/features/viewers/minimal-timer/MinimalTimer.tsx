@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
+import { EventData, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -14,7 +14,7 @@ import './MinimalTimer.scss';
 
 interface MinimalTimerProps {
   isMirrored: boolean;
-  pres: Message;
+  pres: TimerMessage;
   time: TimeManagerType;
   viewSettings: ViewSettings;
   general: EventData;
@@ -136,6 +136,9 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const showProgress = time.playback !== Playback.Stop;
   const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
   const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
+  const showBlinking = pres.timerBlink;
+  const showBlackout = pres.timerBlackout;
+
   const timerColor = userOptions.textColour
     ? userOptions.textColour
     : showProgress && showDanger
@@ -153,8 +156,10 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const timerFontSize = (89 / (stageTimerCharacters - 1)) * (userOptions.size || 1);
 
-  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
-  const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
+  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''} ${
+    showBlinking ? (showOverlay ? '' : 'blink') : ''
+  }`;
+  const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
 
   return (
     <div
@@ -169,11 +174,13 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       <NavigationMenu />
       {!hideMessagesOverlay && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-          <div className='message'>{pres.text}</div>
+          <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
         </div>
       )}
       {showEndMessage ? (
-        <div className='end-message'>{viewSettings.endMessage}</div>
+        <div className={`end-message ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
+          {viewSettings.endMessage}
+        </div>
       ) : (
         <div
           className={timerClasses}

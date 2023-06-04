@@ -23,11 +23,15 @@ const config: PlaywrightTestConfig = {
   },
   use: {
     screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
     viewport: { width: 1920, height: 1080 },
     actionTimeout: 5000,
     baseURL: 'http://localhost:4001',
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
+    launchOptions: {
+      slowMo: process.env.CI ? undefined : 250
+    }
   },
   projects: [
     {
