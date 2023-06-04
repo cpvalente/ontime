@@ -14,6 +14,10 @@
   @extend .drawerContent;
   display: flex;
   gap: $element-spacing;
+
+  button[type='submit'] {
+    padding: 0 2em;
+  }
 }
 
 .label {
