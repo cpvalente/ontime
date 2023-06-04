@@ -28,7 +28,7 @@ export default function NavigationMenu() {
   useClickOutside(menuRef, () => setShowMenu(false));
 
   const toggleMenu = () => setShowMenu((prev) => !prev);
-  useKeyDown(toggleMenu, ' ', { isDisabled: searchParams.get('edit') !== null });
+  useKeyDown(toggleMenu, ' ', { isDisabled: searchParams.get('edit') === 'true' });
 
   useEffect(() => {
     let fadeOut: NodeJS.Timeout | null = null;
