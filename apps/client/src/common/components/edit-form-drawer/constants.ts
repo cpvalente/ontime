@@ -1,5 +1,13 @@
 import { ParamField } from './types';
 
+export const TIME_FORMAT_OPTION: ParamField = {
+  id: 'format',
+  title: '12  / 24 hour timer',
+  description: 'Whether to show the time in 12 or 24 hour mode. Overrides the global setting from preferences',
+  type: 'option',
+  values: ['12', '24'],
+};
+
 export const CLOCK_OPTIONS: ParamField[] = [
   {
     id: 'key',
@@ -63,13 +71,7 @@ export const CLOCK_OPTIONS: ParamField[] = [
     description: 'Whether to hide the nav logo in the right corner',
     type: 'boolean',
   },
-  {
-    id: 'format',
-    title: '12  / 24 hour timer',
-    description: 'Whether to show the time in 12 or 24 hour mode. Overrides the global setting from preferences',
-    type: 'option',
-    values: ['12', '24'],
-  },
+  TIME_FORMAT_OPTION,
 ];
 
 export const TIMER_OPTIONS: ParamField[] = [
@@ -80,6 +82,7 @@ export const TIMER_OPTIONS: ParamField[] = [
     type: 'option',
     values: ['up', 'down'],
   },
+  TIME_FORMAT_OPTION,
 ];
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
@@ -202,6 +205,7 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
     description: 'Time (in seconds) the lower third displays before fading out',
     type: 'number',
   },
+  TIME_FORMAT_OPTION,
 ];
 
 export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
@@ -211,4 +215,5 @@ export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
     description: 'Shows seconds in clock',
     type: 'boolean',
   },
+  TIME_FORMAT_OPTION,
 ];
