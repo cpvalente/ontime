@@ -39,7 +39,7 @@ export const parseRundown = (data): OntimeRundown => {
         }
 
         // double check unique ids
-        if (ids.indexOf(e?.id) !== -1) {
+        if (ids.includes(e?.id)) {
           console.log('ERROR: ID collision on import, skipping');
           continue;
         }
