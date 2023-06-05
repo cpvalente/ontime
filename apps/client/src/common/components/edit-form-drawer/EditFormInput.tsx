@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { Input, Select, Switch } from '@chakra-ui/react';
 
-import { isStringBoolean } from '../../../common/utils/viewUtils';
+import { isStringBoolean } from '../../utils/viewUtils';
 
 import { ParamField } from './types';
 

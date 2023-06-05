@@ -6,7 +6,7 @@ import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
 
 export class OscServer implements IAdapter {
-  private osc: Server;
+  private readonly osc: Server;
 
   constructor(config: OSCSettings) {
     this.osc = new Server(config.portIn, '0.0.0.0');

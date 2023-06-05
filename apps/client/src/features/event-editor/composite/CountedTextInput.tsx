@@ -26,10 +26,11 @@ export default function CountedTextInput(props: CountedTextInputProps) {
   return (
     <div className={style.column}>
       <div className={style.countedInput}>
-        <label className={style.inputLabel}>{label}</label>
+        <label className={style.inputLabel} htmlFor={field}>{label}</label>
         <span className={style.charCount}>{`${value.length} characters`}</span>
       </div>
       <Input
+        id={field}
         size='sm'
         variant='ontime-filled'
         data-testid='input-textfield'

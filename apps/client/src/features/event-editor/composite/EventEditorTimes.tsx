@@ -80,8 +80,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   return (
     <div className={style.timeOptions}>
       <div className={style.timers}>
-        <label className={inputTimeLabels}>{startLabel}</label>
+        <label className={inputTimeLabels} htmlFor='timeStart'>
+          {startLabel}
+        </label>
         <TimeInput
+          id='timeStart'
           name='timeStart'
           submitHandler={handleSubmit}
           validationHandler={timerValidationHandler}
@@ -90,8 +93,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           placeholder='Start'
           warning={warning.start}
         />
-        <label className={inputTimeLabels}>{endLabel}</label>
+        <label className={inputTimeLabels} htmlFor='timeEnd'>
+          {endLabel}
+        </label>
         <TimeInput
+          id='timeEnd'
           name='timeEnd'
           submitHandler={handleSubmit}
           validationHandler={timerValidationHandler}
@@ -100,8 +106,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           placeholder='End'
           warning={warning.end}
         />
-        <label className={style.inputLabel}>Duration</label>
+        <label className={style.inputLabel} htmlFor='durationOverride'>
+          Duration
+        </label>
         <TimeInput
+          id='durationOverride'
           name='durationOverride'
           submitHandler={handleSubmit}
           validationHandler={timerValidationHandler}

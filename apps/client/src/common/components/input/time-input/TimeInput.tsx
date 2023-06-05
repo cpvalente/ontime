@@ -11,6 +11,7 @@ import { TimeEntryField } from '../../../utils/timesManager';
 import style from './TimeInput.module.scss';
 
 interface TimeInputProps {
+  id?: TimeEntryField;
   name: TimeEntryField;
   submitHandler: (field: TimeEntryField, value: number) => void;
   time?: number;
@@ -36,7 +37,7 @@ function ButtonTooltip(name: TimeEntryField, warning?: string) {
 }
 
 export default function TimeInput(props: TimeInputProps) {
-  const { name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0, warning } = props;
+  const { id, name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0, warning } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -189,6 +190,7 @@ export default function TimeInput(props: TimeInputProps) {
       </InputLeftElement>
       <Input
         ref={inputRef}
+        id={id}
         data-testid='time-input'
         className={style.inputField}
         type='text'

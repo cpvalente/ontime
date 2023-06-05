@@ -28,7 +28,7 @@ export class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
 
   private wss: WebSocketServer | null;
-  private clientIds: Set<string>;
+  private readonly clientIds: Set<string>;
 
   constructor() {
     if (instance) {

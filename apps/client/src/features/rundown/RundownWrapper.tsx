@@ -1,6 +1,6 @@
 import Empty from '../../common/components/state/Empty';
 import useRundown from '../../common/hooks-query/useRundown';
-import RundownMenu from '../../features/menu/RundownMenu';
+import RundownMenu from '../menu/RundownMenu';
 
 import Rundown from './Rundown';
 
