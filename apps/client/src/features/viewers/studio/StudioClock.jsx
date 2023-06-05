@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { millisToString } from 'ontime-utils';
+import { formatDisplay, millisToString } from 'ontime-utils';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -9,7 +9,6 @@ import EditFormDrawer from '../../../common/components/edit-form-drawer/EditForm
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { formatDisplay } from '../../../common/utils/dateConfig';
 import { formatEventList, getEventsWithDelay, trimRundown } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 

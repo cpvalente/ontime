@@ -302,7 +302,6 @@ export class TimerService {
           this.pausedTime,
           this.timer.clock,
         );
-
         this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
       }
     }

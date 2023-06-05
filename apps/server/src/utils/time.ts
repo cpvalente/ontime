@@ -1,3 +1,5 @@
+import { isTimeString } from 'ontime-utils';
+
 const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
 const mth = 1000 * 60 * 60; // millis to hours
@@ -7,31 +9,12 @@ export const timeFormatSeconds = 'HH:mm:ss';
 export const DAY_TO_MS = 86400000;
 
 /**
- * @description Validates a time string
- * @param {string} string - time string "23:00:12"
- * @returns {boolean} string represents time
- */
-export const isTimeString = (string) => {
-  // ^                   # Start of string
-  // (?:                 # Try to match...
-  //  (?:                #  Try to match...
-  //   ([01]?\d|2[0-3]): #   HH:
-  //  )?                 #  (optionally).
-  //  ([0-5]?\d):        #  MM: (required)
-  // )?                  # (entire group optional, so either HH:MM:, MM: or nothing)
-  // ([0-5]?\d)          # SS (required)
-  // $                   # End of string
-
-  const regex = /^(?:(?:([01]?\d|2[0-3])[:,.])?([0-5]?\d)[:,.])?([0-5]?\d)$/;
-  return regex.test(string);
-};
-
-/**
  * @description Converts an excel date to milliseconds
  * @argument {string} date - excel string date
  * @returns {number} - time in milliseconds
  */
-export const dateToMillis = (date) => {
+
+export const dateToMillis = (date: Date): number => {
   const h = date.getHours();
   const m = date.getMinutes();
   const s = date.getSeconds();
@@ -44,7 +27,7 @@ export const dateToMillis = (date) => {
  * @param valueAsString
  * @return {number}
  */
-const parse = (valueAsString) => {
+const parse = (valueAsString: string): number => {
   const parsed = parseInt(valueAsString, 10);
   if (isNaN(parsed)) {
     return 0;
@@ -58,7 +41,7 @@ const parse = (valueAsString) => {
  * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value, fillLeft = true) => {
+export const forgivingStringToMillis = (value: string, fillLeft = true): number => {
   let millis = 0;
 
   // split string at known separators    : , .
@@ -106,13 +89,25 @@ export const forgivingStringToMillis = (value, fillLeft = true) => {
  * @returns {number} - time in milliseconds
 
  */
-export const parseExcelDate = (excelDate) => {
+export const parseExcelDate = (excelDate: string): number => {
   // attempt converting to date object
   const date = new Date(excelDate);
-  if (date instanceof Date && !isNaN(date)) {
+  if (date instanceof Date && !isNaN(date.getTime())) {
     return dateToMillis(date);
   } else if (isTimeString(excelDate)) {
     return forgivingStringToMillis(excelDate);
   }
   return 0;
+};
+
+/**
+ * @description Converts milliseconds to seconds -- Copied from client code
+ * @param {number | null} millis - time in seconds
+ * @returns {number} Amount in seconds
+ */
+export const millisToSeconds = (millis: number | null): number => {
+  if (millis === null) {
+    return 0;
+  }
+  return millis < 0 ? Math.ceil(millis / mts) : Math.floor(millis / mts);
 };

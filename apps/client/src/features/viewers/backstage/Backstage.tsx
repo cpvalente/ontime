@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
 import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
+import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { TIME_FORMAT_OPTION } from '../../../common/components/edit-form-drawer/constants';
@@ -14,7 +15,6 @@ import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatDisplay } from '../../../common/utils/dateConfig';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
