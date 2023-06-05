@@ -169,7 +169,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       style={{
         backgroundColor: userOptions.keyColour,
         justifyContent: userOptions.justifyContent,
-        alignItems: userOptions.alignItems,
+        alignContent: userOptions.alignItems,
       }}
       data-testid='minimal-timer'
     >

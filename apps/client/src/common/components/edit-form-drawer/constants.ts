@@ -9,9 +9,10 @@ export const TIME_FORMAT_OPTION: ParamField = {
 };
 
 export const CLOCK_OPTIONS: ParamField[] = [
+  TIME_FORMAT_OPTION,
   {
     id: 'key',
-    title: 'Key',
+    title: 'Key Colour',
     description: 'Background colour in hexadecimal',
     type: 'string',
   },
@@ -65,30 +66,14 @@ export const CLOCK_OPTIONS: ParamField[] = [
     description: 'Offsets the timer vertical position by a given amount in pixels',
     type: 'number',
   },
-  {
-    id: 'hidenav',
-    title: 'Hide Nav',
-    description: 'Whether to hide the nav logo in the right corner',
-    type: 'boolean',
-  },
-  TIME_FORMAT_OPTION,
 ];
 
-export const TIMER_OPTIONS: ParamField[] = [
-  {
-    id: 'progress',
-    title: 'Progress Bar',
-    description: 'Whether bar counts up or down',
-    type: 'option',
-    values: ['up', 'down'],
-  },
-  TIME_FORMAT_OPTION,
-];
+export const TIMER_OPTIONS: ParamField[] = [TIME_FORMAT_OPTION];
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   {
     id: 'key',
-    title: 'Key',
+    title: 'Key Colour',
     description: 'Background colour in hexadecimal',
     type: 'string',
   },
@@ -141,12 +126,6 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     title: 'Offset Vertical',
     description: 'Offsets the timer vertical position by a given amount in pixels',
     type: 'number',
-  },
-  {
-    id: 'hidenav',
-    title: 'Hide Nav',
-    description: 'Whether to hide the nav logo in the right corner',
-    type: 'boolean',
   },
   {
     id: 'hideovertime',
@@ -160,13 +139,19 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     description: 'Whether to hide the overlay from showing timer screen messages',
     type: 'boolean',
   },
+  {
+    id: 'hideendmessage',
+    title: 'Hide End Message',
+    description: 'Whether to hide end message and continue showing the clock if timer is in overtime',
+    type: 'boolean',
+  },
 ];
 
 export const LOWER_THIRDS_OPTIONS: ParamField[] = [
   {
     id: 'preset',
     title: 'Preset',
-    description: 'Selects a style preset',
+    description: 'Selects a style preset (0-1)',
     type: 'number',
   },
   {
@@ -183,19 +168,19 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
   },
   {
     id: 'text',
-    title: 'Text',
+    title: 'Text Colour',
     description: 'Text colour in hexadecimal',
     type: 'string',
   },
   {
     id: 'bg',
-    title: 'BG',
+    title: 'Text Background',
     description: 'Text background colour in hexadecimal',
     type: 'string',
   },
   {
     id: 'key',
-    title: 'Key',
+    title: 'Key Colour',
     description: 'Screen background colour in hexadecimal',
     type: 'string',
   },
@@ -205,15 +190,14 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
     description: 'Time (in seconds) the lower third displays before fading out',
     type: 'number',
   },
-  TIME_FORMAT_OPTION,
 ];
 
 export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
+  TIME_FORMAT_OPTION,
   {
     id: 'seconds',
-    title: 'Seconds',
+    title: 'Show Seconds',
     description: 'Shows seconds in clock',
     type: 'boolean',
   },
-  TIME_FORMAT_OPTION,
 ];

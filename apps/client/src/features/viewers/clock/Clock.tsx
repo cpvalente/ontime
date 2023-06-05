@@ -129,7 +129,7 @@ export default function Clock(props: ClockProps) {
       style={{
         backgroundColor: userOptions.keyColour,
         justifyContent: userOptions.justifyContent,
-        alignItems: userOptions.alignItems,
+        alignContent: userOptions.alignItems,
       }}
       data-testid='clock-view'
     >
