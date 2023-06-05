@@ -21,10 +21,7 @@ export default function LowerClean(props) {
     if (!options.fadeOut) return;
 
     // Calculate time
-    const fadeOutTime =
-      (parseInt(options.fadeOut, 10) +
-        (options.transitionIn || defaults.transitionIn)) *
-      1000;
+    const fadeOutTime = (parseInt(options.fadeOut, 10) + (options.transitionIn || defaults.transitionIn)) * 1000;
     if (isNaN(fadeOutTime)) return;
 
     const timeout = setTimeout(() => {
@@ -86,8 +83,7 @@ export default function LowerClean(props) {
         fontSize: `${sizeMultiplier}vh`,
       }}
     >
-
-      <NavigationMenu />
+      <NavigationMenu isEditBtnHidden />
 
       <AnimatePresence>
         {showLower && (

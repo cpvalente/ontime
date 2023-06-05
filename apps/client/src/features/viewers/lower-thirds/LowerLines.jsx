@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import { LOWER_THIRDS_OPTIONS } from '../../../common/components/edit-form-drawer/constants';
+import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 
 import './LowerLines.scss';
@@ -20,10 +22,7 @@ export default function LowerLines(props) {
     if (!options.fadeOut) return;
 
     // Calculate time
-    const fadeOutTime =
-      (parseInt(options.fadeOut, 10) +
-        (options.transitionIn || defaults.transitionIn)) *
-      1000;
+    const fadeOutTime = (parseInt(options.fadeOut, 10) + (options.transitionIn || defaults.transitionIn)) * 1000;
     if (isNaN(fadeOutTime)) return;
 
     const timeout = setTimeout(() => {
@@ -129,8 +128,8 @@ export default function LowerLines(props) {
         fontSize: `${sizeMultiplier}vh`,
       }}
     >
-
       <NavigationMenu />
+      <EditFormDrawer paramFields={LOWER_THIRDS_OPTIONS} />
 
       <AnimatePresence>
         {showLower && (
@@ -142,24 +141,15 @@ export default function LowerLines(props) {
             animate='visible'
             exit='exit'
           >
-            <motion.div
-              className='title-container'
-              variants={titleContainerVariants}
-            >
+            <motion.div className='title-container' variants={titleContainerVariants}>
               <motion.div className='title' variants={titleVariants}>
                 {title.titleNow}
               </motion.div>
               <div className='title-decor' />
             </motion.div>
-            <motion.div
-              className='subtitle-container'
-              variants={subtitleContainerVariants}
-            >
+            <motion.div className='subtitle-container' variants={subtitleContainerVariants}>
               <div className='sub-decor' />
-              <motion.div
-                className='subtitle'
-                variants={subtitleVariants}
-              >
+              <motion.div className='subtitle' variants={subtitleVariants}>
                 {title.presenterNow}
               </motion.div>
             </motion.div>
