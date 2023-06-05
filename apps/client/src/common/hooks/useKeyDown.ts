@@ -8,7 +8,7 @@ export const useKeyDown: UseKeyDown = (callback, targetKey, options = {}) => {
   const onKeyDown = useCallback(
     (event: KeyboardEvent) => {
       const targetKeyPressed = event.key === targetKey && !event.repeat;
-      if (targetKeyPressed && isDisabled === false) {
+      if (targetKeyPressed && !isDisabled) {
         event.preventDefault();
         callback();
       }
