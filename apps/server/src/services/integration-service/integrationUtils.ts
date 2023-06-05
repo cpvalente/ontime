@@ -7,7 +7,10 @@ function formatDisplayFromString(value: string, hideZero = false): string {
   let valueInNumber = null;
 
   if (value !== 'null') {
-    valueInNumber = Number(value) ?? null;
+    const parsedValue = Number(value);
+    if (!Number.isNaN(parsedValue)) {
+      valueInNumber = parsedValue;
+    }
   }
   return formatDisplay(valueInNumber, hideZero);
 }
