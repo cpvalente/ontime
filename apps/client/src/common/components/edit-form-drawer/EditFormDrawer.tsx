@@ -40,6 +40,11 @@ export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
     setSearchParams(searchParams);
   };
 
+  const clearParams = () => {
+    setSearchParams();
+    onClose();
+  };
+
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
     formEvent.preventDefault();
 
@@ -53,8 +58,6 @@ export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
 
       return newSearchParams;
     }, new URLSearchParams());
-
-    onEditDrawerClose();
     setSearchParams(newSearchParams);
   };
 
@@ -82,6 +85,9 @@ export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
         </DrawerBody>
 
         <DrawerFooter className={style.drawerFooter}>
+          <Button variant='ontime-ghosted' onClick={clearParams} type="reset">
+            Clear
+          </Button>
           <Button variant='ontime-subtle' onClick={onEditDrawerClose}>
             Cancel
           </Button>
