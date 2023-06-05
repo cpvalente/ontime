@@ -1,5 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 import React from 'react';
+// skipcq: JS-C1003 - sentry does not expose itself as an ES Module.
 import * as Sentry from '@sentry/react';
 
 import style from './ErrorBoundary.module.scss';
