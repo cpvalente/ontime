@@ -27,6 +27,7 @@ $button-size: 48px;
   position: fixed;
   left: 0;
   top: 0;
+  z-index: 2;
 
   &.hidden {
     opacity: 0;
@@ -46,7 +47,6 @@ $button-size: 48px;
 
 .navButton {
   @extend .button;
-  z-index: 2;
 }
 
 .menuContainer {
