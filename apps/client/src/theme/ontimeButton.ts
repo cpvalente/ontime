@@ -47,6 +47,11 @@ export const ontimeButtonSubtle = {
   },
 };
 
+export const ontimeButtonGhosted = {
+  ...ontimeButtonSubtle,
+  backgroundColor: 'transparent',
+};
+
 export const ontimeButtonSubtleOnLight = {
   backgroundColor: '#ececec', // $gray-100
   color: '#595959', // $gray-800

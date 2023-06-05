@@ -13,7 +13,13 @@
 .drawerFooter {
   @extend .drawerContent;
   display: flex;
+  justify-content: start;
   gap: $element-spacing;
+
+  button[type='reset'] {
+    padding: 0 2em;
+    margin-right: auto;
+  }
 
   button[type='submit'] {
     padding: 0 2em;

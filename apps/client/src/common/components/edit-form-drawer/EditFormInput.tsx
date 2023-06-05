@@ -38,7 +38,7 @@ export default function EditFormInput({ paramField }: EditFormInputProps) {
   if (type === 'number') {
     const defaultNumberValue = searchParams.get(id) ?? '';
 
-    return <Input type='number' variant='ontime-filled' name={id} defaultValue={defaultNumberValue} />;
+    return <Input type='number' step='any' variant='ontime-filled' name={id} defaultValue={defaultNumberValue} />;
   }
 
   const defaultStringValue = searchParams.get(id) ?? '';
