@@ -12,16 +12,16 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import EditFormInput from './EditFormInput';
+import ParamInput from './ParamInput';
 import { ParamField } from './types';
 
-import style from './EditFormDrawer.module.scss';
+import style from './ViewParamsEditor.module.scss';
 
 interface EditFormDrawerProps {
   paramFields: ParamField[];
 }
 
-export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
+export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -40,6 +40,11 @@ export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
     setSearchParams(searchParams);
   };
 
+  const clearParams = () => {
+    setSearchParams();
+    onClose();
+  };
+
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
     formEvent.preventDefault();
 
@@ -53,8 +58,6 @@ export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
 
       return newSearchParams;
     }, new URLSearchParams());
-
-    onEditDrawerClose();
     setSearchParams(newSearchParams);
   };
 
@@ -74,7 +77,7 @@ export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
                 <label className={style.label}>
                   <span className={style.title}>{field.title}</span>
                   <span className={style.description}>{field.description}</span>
-                  <EditFormInput key={field.title} paramField={field} />
+                  <ParamInput key={field.title} paramField={field} />
                 </label>
               </div>
             ))}
@@ -82,6 +85,9 @@ export default function EditFormDrawer({ paramFields }: EditFormDrawerProps) {
         </DrawerBody>
 
         <DrawerFooter className={style.drawerFooter}>
+          <Button variant='ontime-ghosted' onClick={clearParams} type='reset'>
+            Clear
+          </Button>
           <Button variant='ontime-subtle' onClick={onEditDrawerClose}>
             Cancel
           </Button>

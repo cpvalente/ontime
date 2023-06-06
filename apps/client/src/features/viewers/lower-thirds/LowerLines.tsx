@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Message } from 'ontime-types';
 
-import { LOWER_THIRDS_OPTIONS } from '../../../common/components/edit-form-drawer/constants';
-import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { LOWER_THIRDS_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
+import { TitleManager } from '../ViewWrapper';
+
+import { LowerOptions } from './LowerWrapper';
 
 import './LowerLines.scss';
 
-export default function LowerLines(props) {
+interface LowerLinesProps {
+  lower: Message;
+  title: TitleManager;
+  options: LowerOptions;
+}
+
+export default function LowerLines(props: LowerLinesProps) {
   const { lower, title, options } = props;
-  const defaults = {
-    size: 1,
-    transitionIn: 3,
-    textColour: '#fffffa',
-    bgColour: '#00000033',
-  };
   const [showLower, setShowLower] = useState(true);
 
   // Unmount if fadeOut
@@ -22,15 +26,14 @@ export default function LowerLines(props) {
     if (!options.fadeOut) return;
 
     // Calculate time
-    const fadeOutTime = (parseInt(options.fadeOut, 10) + (options.transitionIn || defaults.transitionIn)) * 1000;
-    if (isNaN(fadeOutTime)) return;
+    const fadeOutTime = (options.fadeOut + options.transitionIn) * 1000;
 
     const timeout = setTimeout(() => {
       setShowLower(false);
     }, fadeOutTime);
 
     return () => clearTimeout(timeout);
-  }, [options.fadeOut, options.transitionIn, defaults.transitionIn]);
+  }, [options.fadeOut, options.transitionIn]);
 
   useEffect(() => {
     setShowLower(title.showNow);
@@ -41,7 +44,7 @@ export default function LowerLines(props) {
 
   // motion
   // transition segments
-  const t = options.transitionIn || defaults.transitionIn;
+  const t = options.transitionIn;
   const eight = t / 8;
   const quarter = t / 4;
   const third = t / 3;
@@ -123,19 +126,19 @@ export default function LowerLines(props) {
     <div
       className='lower-third lines'
       style={{
-        backgroundColor: options.keyColour || defaults.keyColour,
-        color: options.textColour || defaults.textColour,
+        backgroundColor: options.keyColour,
+        color: options.textColour,
         fontSize: `${sizeMultiplier}vh`,
       }}
     >
       <NavigationMenu />
-      <EditFormDrawer paramFields={LOWER_THIRDS_OPTIONS} />
+      <ViewParamsEditor paramFields={LOWER_THIRDS_OPTIONS} />
 
       <AnimatePresence>
         {showLower && (
           <motion.div
             className='lower-container'
-            style={{ backgroundColor: options.bgColour || defaults.bgColour }}
+            style={{ backgroundColor: options.bgColour }}
             variants={lowerThirdVariants}
             initial='hidden'
             animate='visible'

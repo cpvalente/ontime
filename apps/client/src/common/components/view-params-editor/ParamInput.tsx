@@ -9,7 +9,7 @@ interface EditFormInputProps {
   paramField: ParamField;
 }
 
-export default function EditFormInput({ paramField }: EditFormInputProps) {
+export default function ParamInput({ paramField }: EditFormInputProps) {
   const [searchParams] = useSearchParams();
   const { id, type } = paramField;
 
@@ -38,7 +38,7 @@ export default function EditFormInput({ paramField }: EditFormInputProps) {
   if (type === 'number') {
     const defaultNumberValue = searchParams.get(id) ?? '';
 
-    return <Input type='number' variant='ontime-filled' name={id} defaultValue={defaultNumberValue} />;
+    return <Input type='number' step='any' variant='ontime-filled' name={id} defaultValue={defaultNumberValue} />;
   }
 
   const defaultStringValue = searchParams.get(id) ?? '';

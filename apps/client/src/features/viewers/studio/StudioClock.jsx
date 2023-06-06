@@ -4,9 +4,9 @@ import { formatDisplay, millisToString } from 'ontime-utils';
 import PropTypes from 'prop-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { STUDIO_CLOCK_OPTIONS } from '../../../common/components/edit-form-drawer/constants';
-import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { STUDIO_CLOCK_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { formatEventList, getEventsWithDelay, trimRundown } from '../../../common/utils/eventsManager';
@@ -74,7 +74,7 @@ export default function StudioClock(props) {
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
-      <EditFormDrawer paramFields={STUDIO_CLOCK_OPTIONS} />
+      <ViewParamsEditor paramFields={STUDIO_CLOCK_OPTIONS} />
       <div className='clock-container'>
         <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div

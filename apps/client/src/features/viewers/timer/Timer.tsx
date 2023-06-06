@@ -3,11 +3,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { EventData, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { TIMER_OPTIONS } from '../../../common/components/edit-form-drawer/constants';
-import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import { TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
@@ -100,7 +100,7 @@ export default function Timer(props: TimerProps) {
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
-      <EditFormDrawer paramFields={TIMER_OPTIONS} />
+      <ViewParamsEditor paramFields={TIMER_OPTIONS} />
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
       </div>

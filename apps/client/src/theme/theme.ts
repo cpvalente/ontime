@@ -3,6 +3,7 @@ import { extendTheme } from '@chakra-ui/react';
 import { ontimeAlertOnLight } from './OntimeAlert';
 import {
   ontimeButtonFilled,
+  ontimeButtonGhosted,
   ontimeButtonOutlined,
   ontimeButtonSubtle,
   ontimeButtonSubtleOnLight,
@@ -42,6 +43,7 @@ const theme = extendTheme({
         'ontime-filled': { ...ontimeButtonFilled },
         'ontime-outlined': { ...ontimeButtonOutlined },
         'ontime-subtle': { ...ontimeButtonSubtle },
+        'ontime-ghosted': { ...ontimeButtonGhosted },
         'ontime-subtle-white': { ...ontimeButtonSubtleWhite },
         'ontime-subtle-on-light': { ...ontimeButtonSubtleOnLight },
         'ontime-ghost-on-light': { ...ontimeGhostOnLight },

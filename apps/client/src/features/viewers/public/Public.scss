@@ -87,7 +87,7 @@
     grid-area: schedule;
     overflow: hidden;
     height: 100%;
-    margin-left: 16px;
+    margin-left: clamp(16px, 5vw, 64px);;
   }
 
   .schedule-nav-container {
