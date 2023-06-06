@@ -9,7 +9,7 @@ interface EditFormInputProps {
   paramField: ParamField;
 }
 
-export default function EditFormInput({ paramField }: EditFormInputProps) {
+export default function ParamInput({ paramField }: EditFormInputProps) {
   const [searchParams] = useSearchParams();
   const { id, type } = paramField;
 

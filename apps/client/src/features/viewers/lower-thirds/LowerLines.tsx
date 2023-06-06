@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message } from 'ontime-types';
 
-import { LOWER_THIRDS_OPTIONS } from '../../../common/components/edit-form-drawer/constants';
-import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { LOWER_THIRDS_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { TitleManager } from '../ViewWrapper';
 
 import { LowerOptions } from './LowerWrapper';
@@ -132,7 +132,7 @@ export default function LowerLines(props: LowerLinesProps) {
       }}
     >
       <NavigationMenu />
-      <EditFormDrawer paramFields={LOWER_THIRDS_OPTIONS} />
+      <ViewParamsEditor paramFields={LOWER_THIRDS_OPTIONS} />
 
       <AnimatePresence>
         {showLower && (

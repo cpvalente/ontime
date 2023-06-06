@@ -4,9 +4,9 @@ import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent, ViewSettings
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
-import { TIME_FORMAT_OPTION } from '../../../common/components/edit-form-drawer/constants';
-import EditFormDrawer from '../../../common/components/edit-form-drawer/EditFormDrawer';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import getDelayTo from '../../../common/utils/getDelayTo';
@@ -112,7 +112,7 @@ export default function Countdown(props: CountdownProps) {
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <NavigationMenu />
-      <EditFormDrawer paramFields={[TIME_FORMAT_OPTION]} />
+      <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />
       ) : (
