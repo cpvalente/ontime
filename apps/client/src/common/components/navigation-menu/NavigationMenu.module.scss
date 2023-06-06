@@ -47,6 +47,7 @@ $button-size: 48px;
 
 .navButton {
   @extend .button;
+  z-index: 3;
 }
 
 .menuContainer {
