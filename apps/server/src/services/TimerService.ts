@@ -25,8 +25,9 @@ export class TimerService {
    * @constructor
    * @param {object} [timerConfig]
    * @param {number} [timerConfig.refresh]
+   * @param {number} [timerConfig.updateInterval]
    */
-  constructor(timerConfig?: { refresh?: number; updateInterval?: number }) {
+  constructor(timerConfig: { refresh?: number; updateInterval?: number } = {}) {
     this._clear();
     this._interval = setInterval(() => this.update(), timerConfig?.refresh ?? 1000);
     this._updateInterval = timerConfig?.updateInterval ?? 1000;
