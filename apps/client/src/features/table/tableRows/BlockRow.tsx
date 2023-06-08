@@ -1,8 +1,9 @@
-import PropTypes from 'prop-types';
-
 import style from '../Table.module.scss';
 
-export default function BlockRow(props) {
+interface BlockRowProps {
+  row: any;
+}
+export default function BlockRow(props: BlockRowProps) {
   const { row } = props;
   return (
     <tr {...row.getRowProps()}>
@@ -10,7 +11,3 @@ export default function BlockRow(props) {
     </tr>
   );
 }
-
-BlockRow.propTypes = {
-  row: PropTypes.object.isRequired,
-};

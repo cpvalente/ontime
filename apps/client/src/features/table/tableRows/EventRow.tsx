@@ -1,10 +1,15 @@
-import PropTypes from 'prop-types';
-
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
 
 import style from '../Table.module.scss';
 
-export default function EventRow(props) {
+interface EventRowProps {
+  row: any;
+  index: number;
+  selectedId: string | null;
+  delay: number;
+}
+
+export default function EventRow(props: EventRowProps) {
   const { row, index, selectedId, delay } = props;
   const selected = row.original.id === selectedId;
 
@@ -37,10 +42,3 @@ export default function EventRow(props) {
     </tr>
   );
 }
-
-EventRow.propTypes = {
-  row: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
-  selectedId: PropTypes.string,
-  delay: PropTypes.number,
-};

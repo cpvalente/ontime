@@ -4,6 +4,7 @@ import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
   DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   TouchSensor,
@@ -11,7 +12,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import PropTypes from 'prop-types';
+import type { OntimeRundown, OntimeRundownEntry, UserFields } from 'ontime-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
@@ -27,7 +28,14 @@ import { defaultColumnOrder, defaultHiddenColumns } from './defaults';
 
 import style from './Table.module.scss';
 
-export default function OntimeTable({ tableData, userFields, selectedId, handleUpdate }) {
+interface OntimeTableProps {
+  tableData: OntimeRundown;
+  userFields: UserFields;
+  selectedId: string | null;
+  handleUpdate: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => void;
+}
+
+export default function OntimeTable({ tableData, userFields, selectedId, handleUpdate }: OntimeTableProps) {
   const { followSelected, showSettings } = useContext(TableSettingsContext);
   const [columnOrder, saveColumnOrder] = useLocalStorage('table-order', defaultColumnOrder);
   const [columnSize, saveColumnSize] = useLocalStorage('table-sizes', {});
@@ -56,7 +64,7 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
     },
     useColumnOrder,
     useBlockLayout,
-    useResizeColumns
+    useResizeColumns,
   );
 
   const sensors = useSensors(
@@ -74,7 +82,7 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleResetReordering = useCallback(() => {
@@ -96,31 +104,34 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
     saveHiddenColumns([]);
   }, [saveHiddenColumns, toggleHideAllColumns]);
 
-  const handleOnDragEnd = useCallback((event) => {
-    const { delta, active, over } = event;
+  const handleOnDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { delta, active, over } = event;
 
-    // cancel if delta y is greater than 200
-    if (delta.y > 200) return;
+      // cancel if delta y is greater than 200
+      if (delta.y > 200) return;
 
-    const cols = [...columnOrder];
+      const cols = [...columnOrder];
 
-    // get index of from
-    const fromIndex = cols.findIndex((i) => i === active.id);
+      // get index of from
+      const fromIndex = cols.findIndex((i) => i === active.id);
 
-    // get index of to
-    const toIndex = cols.findIndex((i) => i === over.id);
+      // get index of to
+      const toIndex = cols.findIndex((i) => i === over.id);
 
-    if (toIndex === -1) {
-      return;
-    }
+      if (toIndex === -1) {
+        return;
+      }
 
-    // reorder
-    const [reorderedItem] = cols.splice(fromIndex, 1);
-    cols.splice(toIndex, 0, reorderedItem);
+      // reorder
+      const [reorderedItem] = cols.splice(fromIndex, 1);
+      cols.splice(toIndex, 0, reorderedItem);
 
-    saveColumnOrder(cols);
-    setColumnOrder(cols);
-  }, [columnOrder, saveColumnOrder, setColumnOrder]);
+      saveColumnOrder(cols);
+      setColumnOrder(cols);
+    },
+    [columnOrder, saveColumnOrder, setColumnOrder],
+  );
 
   // save hidden columns object to local storage
   useEffect(() => {
@@ -139,7 +150,7 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
 
   // scroll to active cue
   useEffect(() => {
-    if (followSelected) {
+    if (followSelected && selectedId) {
       const el = document.getElementById(selectedId);
       if (el) {
         el.scrollIntoView({
@@ -172,23 +183,14 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
           {headerGroups.map((headerGroup) => {
             const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
             return (
-              <DndContext
-                key={key}
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleOnDragEnd}
-              >
+              <DndContext key={key} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOnDragEnd}>
                 <tr {...restHeaderGroupProps}>
                   <th className={style.indexColumn}>
                     <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
                       #
                     </Tooltip>
                   </th>
-                  <SortableContext
-                    key={key}
-                    items={headerGroup.headers}
-                    strategy={horizontalListSortingStrategy}
-                  >
+                  <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
                     {headerGroup.headers.map((column) => {
                       const { key } = column.getHeaderProps();
                       return <SortableCell key={key} column={column} />;
@@ -209,13 +211,7 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
             if (type === 'event') {
               eventIndex++;
               return (
-                <EventRow
-                  key={key}
-                  row={row}
-                  index={eventIndex}
-                  selectedId={selectedId}
-                  delay={cumulativeDelay}
-                />
+                <EventRow key={key} row={row} index={eventIndex} selectedId={selectedId} delay={cumulativeDelay} />
               );
             }
             if (type === 'delay') {
@@ -234,12 +230,3 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
     </>
   );
 }
-
-OntimeTable.propTypes = {
-  tableData: PropTypes.array,
-  userFields: PropTypes.object,
-  handleUpdate: PropTypes.func.isRequired,
-  selectedId: PropTypes.string,
-  showSettings: PropTypes.bool,
-  followSelected: PropTypes.bool,
-};

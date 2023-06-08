@@ -1,4 +1,5 @@
 import { stringify } from 'csv-stringify/browser/esm/sync';
+import { EventData, OntimeEntryCommonKeys, OntimeRundown, UserFields } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 /**
@@ -8,12 +9,12 @@ import { millisToString } from 'ontime-utils';
  * @return {string}
  */
 
-export const parseField = (field, data) => {
+export const parseField = (field: keyof OntimeRundown, data: unknown): string => {
   let val;
   switch (field) {
     case 'timeStart':
     case 'timeEnd':
-      val = millisToString(data);
+      val = millisToString(data as number | null);
       break;
     case 'isPublic':
       val = data ? 'x' : '';
@@ -25,17 +26,18 @@ export const parseField = (field, data) => {
   if (typeof data === 'undefined') {
     return '';
   }
-  return val;
+  // all other values are strings
+  return val as string;
 };
 
 /**
  * @description Creates an array of arrays usable by xlsx for export
  * @param {object} headerData
- * @param {array} tableData
+ * @param {array} rundown
  * @param {object} userFields
  * @return {(string[])[]}
  */
-export const makeTable = (headerData, tableData, userFields) => {
+export const makeTable = (headerData: EventData, rundown: OntimeRundown, userFields: UserFields): string[][] => {
   const data = [
     ['Ontime · Schedule Template'],
     ['Event Name', headerData?.title || ''],
@@ -44,14 +46,14 @@ export const makeTable = (headerData, tableData, userFields) => {
     [],
   ];
 
-  const fieldOrder = [
+  const fieldOrder: OntimeEntryCommonKeys[] = [
     'timeStart',
     'timeEnd',
     'title',
     'presenter',
     'subtitle',
     'isPublic',
-    'notes',
+    'note',
     'colour',
     'user0',
     'user1',
@@ -77,15 +79,15 @@ export const makeTable = (headerData, tableData, userFields) => {
   ];
 
   for (const field in userFields) {
-    const fieldValue = userFields[field];
+    const fieldValue = userFields[field as keyof UserFields];
     const displayName = `${field}${fieldValue !== field && fieldValue !== '' ? `:${fieldValue}` : ''}`;
     fieldTitles.push(displayName);
   }
 
   data.push(fieldTitles);
 
-  tableData.forEach((entry) => {
-    const row = [];
+  rundown.forEach((entry) => {
+    const row: string[] = [];
     fieldOrder.forEach((field) => row.push(parseField(field, entry[field])));
     data.push(row);
   });
@@ -98,8 +100,8 @@ export const makeTable = (headerData, tableData, userFields) => {
  * @param {array[]} arrayOfArrays
  * @return {string}
  */
-export const makeCSV = (arrayOfArrays) => {
-  let csvData = 'data:text/csv;charset=utf-8,';
+export const makeCSV = (arrayOfArrays: string[][]) => {
+  const csvData = 'data:text/csv;charset=utf-8,';
   const stringifiedData = stringify(arrayOfArrays);
   return csvData + stringifiedData;
 };

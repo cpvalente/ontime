@@ -1,13 +1,16 @@
 import { Tooltip } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import PropTypes from 'prop-types';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
 
 import styles from '../Table.module.scss';
 
-export default function SortableCell({ column }) {
+interface SortableCellProps {
+  column: object;
+}
+
+export default function SortableCell({ column }: SortableCellProps) {
   const { style, ...restColumn } = column.getHeaderProps();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column.id,
@@ -31,7 +34,3 @@ export default function SortableCell({ column }) {
     </th>
   );
 }
-
-SortableCell.propTypes = {
-  column: PropTypes.object.isRequired,
-};

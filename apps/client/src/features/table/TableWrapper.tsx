@@ -1,5 +1,7 @@
 import { useCallback, useContext, useEffect } from 'react';
+import { EventData, OntimeRundownEntry } from 'ontime-types';
 
+import Empty from '../../common/components/state/Empty';
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
@@ -25,14 +27,18 @@ export default function TableWrapper() {
   }, []);
 
   const handleUpdate = useCallback(
-    async (rowIndex, accessor, payload) => {
+    async (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => {
+      if (!rundown) {
+        return;
+      }
+
       if (rowIndex == null || accessor == null || payload == null) {
         return;
       }
 
       // check if value is the same
       const event = rundown[rowIndex];
-      if (event == null) {
+      if (!event) {
         return;
       }
 
@@ -63,7 +69,7 @@ export default function TableWrapper() {
   );
 
   const exportHandler = useCallback(
-    (headerData) => {
+    (headerData: EventData) => {
       if (!headerData || !rundown || !userFields) {
         return;
       }
@@ -80,9 +86,10 @@ export default function TableWrapper() {
     [rundown, userFields],
   );
 
-  if (typeof rundown === 'undefined' || typeof userFields === 'undefined') {
-    return <span>loading...</span>;
+  if (!rundown || !userFields) {
+    return <Empty text='Loading...' />;
   }
+
   return (
     <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper} data-testid='cuesheet'>
       <TableHeader handleCSVExport={exportHandler} featureData={featureData} />

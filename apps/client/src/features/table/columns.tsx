@@ -1,16 +1,21 @@
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
+import { OntimeEntryCommonKeys, UserFields } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
 
 import EditableCell from './tableElements/EditableCell';
 
 import style from './Table.module.scss';
-import { millisToString } from 'ontime-utils';
+
+type Size = {
+  [key in OntimeEntryCommonKeys]: string;
+};
 
 /**
  * React - Table column object
  * @param sizes
  * @param userFields
  */
-export const makeColumns = (sizes, userFields) => {
+export const makeColumns = (sizes: Size, userFields: UserFields) => {
   return [
     {
       Header: 'Public',

@@ -1,5 +1,4 @@
 import { Button } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
 
 import style from '../Table.module.scss';
 
@@ -10,14 +9,16 @@ const buttonProps = {
   variant: 'ghost',
 };
 
-export default function TableSettings(props) {
-  const {
-    columns,
-    handleResetResizing,
-    handleResetReordering,
-    handleResetToggles,
-    handleClearToggles,
-  } = props;
+interface TableSettingsProps {
+  columns: any;
+  handleResetResizing: () => void;
+  handleResetReordering: () => void;
+  handleResetToggles: () => void;
+  handleClearToggles: () => void;
+}
+
+export default function TableSettings(props: TableSettingsProps) {
+  const { columns, handleResetResizing, handleResetReordering, handleResetToggles, handleClearToggles } = props;
 
   return (
     <div className={style.tableSettings}>
@@ -46,11 +47,3 @@ export default function TableSettings(props) {
     </div>
   );
 }
-
-TableSettings.propTypes = {
-  columns: PropTypes.array,
-  handleResetResizing: PropTypes.func.isRequired,
-  handleResetReordering: PropTypes.func.isRequired,
-  handleResetToggles: PropTypes.func.isRequired,
-  handleClearToggles: PropTypes.func.isRequired,
-};

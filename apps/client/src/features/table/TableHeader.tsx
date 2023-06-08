@@ -5,8 +5,8 @@ import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
+import { EventData, Playback } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
-import PropTypes from 'prop-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import useFullscreen from '../../common/hooks/useFullscreen';
@@ -19,11 +19,27 @@ import PlaybackIcon from './tableElements/PlaybackIcon';
 
 import style from './Table.module.scss';
 
-export default function TableHeader({ handleCSVExport, featureData }) {
+interface TableHeaderProps {
+  handleCSVExport: (headerData: EventData) => void;
+  featureData: {
+    playback: Playback;
+    selectedEventIndex: number | null;
+    numEvents: number;
+    titleNow: string | null;
+  };
+}
+
+export default function TableHeader({ handleCSVExport, featureData }: TableHeaderProps) {
   const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } = useContext(TableSettingsContext);
   const timer = useTimer();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { data: event } = useEventData();
+
+  const exportCsv = () => {
+    if (event) {
+      handleCSVExport(event);
+    }
+  };
 
   const selected = !featureData.numEvents
     ? 'No events'
@@ -32,7 +48,7 @@ export default function TableHeader({ handleCSVExport, featureData }) {
       }`;
 
   // prepare presentation variables
-  const isOvertime = timer.current < 0;
+  const isOvertime = (timer.current ?? 0) < 0;
   const timerNow = `${isOvertime ? '-' : ''}${formatDisplay(timer.current)}`;
   const timeNow = formatTime(timer.clock, {
     showSeconds: true,
@@ -85,7 +101,7 @@ export default function TableHeader({ handleCSVExport, featureData }) {
         </Tooltip>
         <Divider />
         <Tooltip openDelay={tooltipDelayFast} label='Export to CSV'>
-          <span className={style.actionText} onClick={() => handleCSVExport(event)}>
+          <span className={style.actionText} onClick={exportCsv}>
             CSV
           </span>
         </Tooltip>
@@ -93,14 +109,3 @@ export default function TableHeader({ handleCSVExport, featureData }) {
     </div>
   );
 }
-
-TableHeader.propTypes = {
-  handleCSVExport: PropTypes.func.isRequired,
-  featureData: PropTypes.shape({
-    playback: PropTypes.string,
-    selectedEventId: PropTypes.string,
-    selectedEventIndex: PropTypes.number,
-    numEvents: PropTypes.number,
-    titleNow: PropTypes.string,
-  }),
-};
