@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { formatDisplay, millisToString } from 'ontime-utils';
-import PropTypes from 'prop-types';
+import type { OntimeRundown, ViewSettings } from 'ontime-types';
+import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -9,8 +9,16 @@ import { STUDIO_CLOCK_OPTIONS } from '../../../common/components/view-params-edi
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { formatEventList, getEventsWithDelay, trimRundown } from '../../../common/utils/eventsManager';
+import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { secondsInMillis } from '../../../common/utils/dateConfig';
+import {
+  formatEventList,
+  getEventsWithDelay,
+  type ScheduleEvent,
+  trimRundown,
+} from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
+import { TitleManager } from '../ViewWrapper';
 
 import './StudioClock.scss';
 
@@ -19,25 +27,25 @@ const formatOptions = {
   format: 'hh:mm',
 };
 
-StudioClock.propTypes = {
-  isMirrored: PropTypes.bool,
-  title: PropTypes.object,
-  time: PropTypes.object,
-  backstageEvents: PropTypes.array,
-  selectedId: PropTypes.string,
-  nextId: PropTypes.string,
-  onAir: PropTypes.bool,
-  viewSettings: PropTypes.object,
-};
+interface StudioClockProps {
+  isMirrored: boolean;
+  title: TitleManager;
+  time: TimeManagerType;
+  backstageEvents: OntimeRundown;
+  selectedId: string | null;
+  nextId: string | null;
+  onAir: boolean;
+  viewSettings: ViewSettings;
+}
 
-export default function StudioClock(props) {
+export default function StudioClock(props: StudioClockProps) {
   const { isMirrored, title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
 
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
 
-  const [schedule, setSchedule] = useState([]);
+  const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
@@ -59,16 +67,16 @@ export default function StudioClock(props) {
     }
 
     const delayed = getEventsWithDelay(backstageEvents);
-    const events = delayed.filter((e) => e.type === 'event');
-    const trimmed = trimRundown(events, selectedId, MAX_TITLES);
-    const formatted = formatEventList(trimmed, selectedId, nextId, {
+    const trimmed = trimRundown(delayed, selectedId || '', MAX_TITLES);
+
+    const formatted = formatEventList(trimmed, selectedId || '', nextId || '', {
       showEnd: false,
     });
     setSchedule(formatted);
   }, [backstageEvents, nextId, selectedId]);
 
   const clock = formatTime(time.clock, formatOptions);
-  const [, , secondsNow] = millisToString(time.clock).split(':');
+  const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
 
   return (

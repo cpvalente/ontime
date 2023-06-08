@@ -41,7 +41,7 @@ export const getEventsWithDelay = (rundown: OntimeRundownEntry[]): OntimeEvent[]
  * @param {number} limit - max number of events to return
  * @returns {Object[]} Event list with maximum <limit> objects
  */
-export const trimRundown = (rundown: OntimeRundownEntry[], selectedId: string, limit: number) => {
+export const trimRundown = (rundown: OntimeEvent[], selectedId: string, limit: number): OntimeEvent[] => {
   if (rundown == null) return [];
 
   const BEFORE = 2;
@@ -78,7 +78,7 @@ export const formatEventList = (
   selectedId: string,
   nextId: string,
   options: FormatEventListOptionsProp,
-) => {
+): ScheduleEvent[] => {
   if (rundown == null) return [];
   const { showEnd = false } = options;
 
@@ -101,6 +101,15 @@ export const formatEventList = (
   }
 
   return formattedEvents;
+};
+
+export type ScheduleEvent = {
+  id: string;
+  time: string;
+  title: string;
+  isNow: boolean;
+  isNext: boolean;
+  colour: string;
 };
 
 /**
