@@ -33,7 +33,7 @@ const sectionText: { [key in TimerLifeCycle]: { title: string; subtitle: string 
   },
   onUpdate: {
     title: 'On Every Second',
-    subtitle: 'Triggers when timers are updated (at least once a second, can be more)',
+    subtitle: 'Triggers when a running timer is updated (at least once a second, can be more)',
   },
   onFinish: {
     title: 'On Finish',
