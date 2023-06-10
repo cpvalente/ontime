@@ -8,7 +8,7 @@ import { DateTime } from 'luxon';
  * @returns {string} String representing time 00:12:02
  */
 export function millisToString(millis: number | null, showSeconds = true, fallback = '...') {
-  if (millis === null) {
+  if (millis == null) {
     return fallback;
   }
 
