@@ -43,6 +43,7 @@ importers:
       '@tanstack/eslint-plugin-query': ^4.26.2
       '@tanstack/react-query': ^4.28.0
       '@tanstack/react-query-devtools': ^4.29.0
+      '@tanstack/react-table': ^8.9.2
       '@testing-library/jest-dom': ^5.16.5
       '@testing-library/react': ^13.1.1
       '@testing-library/user-event': ^14.1.1
@@ -105,6 +106,7 @@ importers:
       '@sentry/tracing': 7.46.0
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query-devtools': 4.29.0_q4teel2yjbizrm4naiaqcdpjum
+      '@tanstack/react-table': 8.9.2_biqbaboplfbrettd7655fr4n2y
       autosize: 5.0.2
       axios: 1.2.2
       color: 4.2.3
@@ -2545,6 +2547,23 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       use-sync-external-store: 1.2.0_react@18.2.0
+    dev: false
+
+  /@tanstack/react-table/8.9.2_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Irvw4wqVF9hhuYzmNrlae4IKdlmgSyoRWnApSLebvYzqHoi5tEsYzBj6YPd0hX78aB/L+4w/jgK2eBQVpGfThQ==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      '@tanstack/table-core': 8.9.2
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /@tanstack/table-core/8.9.2:
+    resolution: {integrity: sha512-ajc0OF+karBAdaSz7OK09rCoAHB1XI1+wEhu+tDNMPc+XcO+dTlXXN/Vc0a8vym4kElvEjXEDd9c8Zfgt4bekA==}
+    engines: {node: '>=12'}
     dev: false
 
   /@testing-library/dom/8.19.1:

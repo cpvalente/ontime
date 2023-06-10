@@ -9,6 +9,8 @@ import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
 
 import TableHeader from './table-header/TableHeader';
+import Cuesheet from './Cuesheet';
+import { makeCuesheetColumns } from './cuesheetCols';
 import OntimeTable from './OntimeTable';
 import { makeCSV, makeTable } from './tableUtils';
 
@@ -90,9 +92,13 @@ export default function TableWrapper() {
     return <Empty text='Loading...' />;
   }
 
+  // should be behind use memo
+  const columns = makeCuesheetColumns(userFields);
+
   return (
     <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper} data-testid='cuesheet'>
       <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
+      <Cuesheet data={rundown} columns={columns} />
       <OntimeTable
         tableData={rundown}
         userFields={userFields}

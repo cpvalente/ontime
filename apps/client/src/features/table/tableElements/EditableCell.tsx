@@ -54,3 +54,41 @@ export default function EditableCell(props: EditableCellProps) {
     />
   );
 }
+
+interface CuesheetEditableProps {
+  value: string;
+  index: number;
+  column: keyof OntimeRundownEntry;
+  handleUpdate?: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => void;
+}
+
+export function CuesheetEditable(props: CuesheetEditableProps) {
+  const { value: initialValue, index, column, handleUpdate = () => undefined } = props;
+  const { theme } = useContext(TableSettingsContext);
+
+  // We need to keep and update the state of the cell normally
+  const [value, setValue] = useState(initialValue);
+
+  const onChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => setValue(event.target.value), []);
+
+  // We'll only update the external data when the input is blurred
+  const onBlur = useCallback(() => handleUpdate(index, column, value), [handleUpdate, column, index, value]);
+
+  // If the initialValue is changed external, sync it up with our state
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  return (
+    <AutoTextArea
+      size='sm'
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
+      rows={3}
+      transition='none'
+      spellCheck={false}
+      isDark={theme === 'dark'}
+    />
+  );
+}

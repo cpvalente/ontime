@@ -14,6 +14,7 @@
     "@sentry/tracing": "^7.46.0",
     "@tanstack/react-query": "^4.28.0",
     "@tanstack/react-query-devtools": "^4.29.0",
+    "@tanstack/react-table": "^8.9.2",
     "autosize": "^5.0.2",
     "axios": "^1.2.0",
     "color": "^4.2.3",
