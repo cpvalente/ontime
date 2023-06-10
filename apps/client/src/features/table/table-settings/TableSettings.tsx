@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react';
+import { Button, Checkbox, Switch } from '@chakra-ui/react';
 
 import style from '../Table.module.scss';
 
@@ -6,7 +6,7 @@ import style from '../Table.module.scss';
 const buttonProps = {
   colorScheme: 'blue',
   size: 'sm',
-  variant: 'ghost',
+  variant: 'ontime-filled',
 };
 
 interface TableSettingsProps {

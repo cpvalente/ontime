@@ -8,14 +8,14 @@ import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline'
 import { EventData, Playback } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
-import { TableSettingsContext } from '../../common/context/TableSettingsContext';
-import useFullscreen from '../../common/hooks/useFullscreen';
-import { useTimer } from '../../common/hooks/useSocket';
-import useEventData from '../../common/hooks-query/useEventData';
-import { formatTime } from '../../common/utils/time';
-import { tooltipDelayFast } from '../../ontimeConfig';
+import { TableSettingsContext } from '../../../common/context/TableSettingsContext';
+import useFullscreen from '../../../common/hooks/useFullscreen';
+import { useTimer } from '../../../common/hooks/useSocket';
+import useEventData from '../../../common/hooks-query/useEventData';
+import { formatTime } from '../../../common/utils/time';
+import { tooltipDelayFast } from '../../../ontimeConfig';
 
-import PlaybackIcon from './tableElements/PlaybackIcon';
+import PlaybackIcon from '../tableElements/PlaybackIcon';
 
 import style from './TableHeader.module.scss';
 

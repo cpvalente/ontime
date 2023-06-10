@@ -8,8 +8,8 @@ import { useCuesheet } from '../../common/hooks/useSocket';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
 
+import TableHeader from './table-header/TableHeader';
 import OntimeTable from './OntimeTable';
-import TableHeader from './TableHeader';
 import { makeCSV, makeTable } from './tableUtils';
 
 import style from './Table.module.scss';

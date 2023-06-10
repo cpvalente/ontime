@@ -19,7 +19,7 @@ import { useLocalStorage } from '../../common/hooks/useLocalStorage';
 import { tooltipDelayFast } from '../../ontimeConfig';
 
 import SortableCell from './tableElements/SortableCell';
-import TableSettings from './tableElements/TableSettings';
+import TableSettings from './table-settings/TableSettings';
 import BlockRow from './tableRows/BlockRow';
 import DelayRow from './tableRows/DelayRow';
 import EventRow from './tableRows/EventRow';
