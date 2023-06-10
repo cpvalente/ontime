@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { Divider, Tooltip } from '@chakra-ui/react';
-import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
-import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
+import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
 import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
+import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { EventData, Playback } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
@@ -17,7 +17,7 @@ import { tooltipDelayFast } from '../../ontimeConfig';
 
 import PlaybackIcon from './tableElements/PlaybackIcon';
 
-import style from './Table.module.scss';
+import style from './TableHeader.module.scss';
 
 interface TableHeaderProps {
   handleCSVExport: (headerData: EventData) => void;
@@ -49,7 +49,7 @@ export default function TableHeader({ handleCSVExport, featureData }: TableHeade
 
   // prepare presentation variables
   const isOvertime = (timer.current ?? 0) < 0;
-  const timerNow = `${isOvertime ? '-' : ''}${formatDisplay(timer.current)}`;
+  const timerNow = timer.current == null ? '-' : `${isOvertime ? '-' : ''}${formatDisplay(timer.current)}`;
   const timeNow = formatTime(timer.clock, {
     showSeconds: true,
     format: 'hh:mm:ss a',
@@ -57,51 +57,46 @@ export default function TableHeader({ handleCSVExport, featureData }: TableHeade
 
   return (
     <div className={style.header}>
-      <div className={style.headerName}>{event?.title || ''}</div>
-      <div className={style.headerNow}>{featureData.titleNow}</div>
-      <div className={style.headerPlayback}>
-        <span className={style.label}>{selected}</span>
-        <br />
+      <div className={style.event}>
+        <div className={style.title}>{event?.title || '-'}</div>
+        <div className={style.eventNow}>{featureData?.titleNow || '-'}</div>
+      </div>
+      <div className={style.playback}>
+        <div className={style.playbackLabel}>{selected}</div>
         <PlaybackIcon state={featureData.playback} />
       </div>
-      <div className={style.headerRunning}>
-        <span className={style.label}>Running Timer</span>
-        <br />
-        <span className={style.timer}>{timerNow}</span>
+      <div className={style.timer}>
+        <div className={style.timerLabel}>Running Timer</div>
+        <div className={style.value}>{timerNow}</div>
       </div>
-      <div className={style.headerClock}>
-        <span className={style.label}>Time Now</span>
-        <br />
-        <span className={style.timer}>{timeNow}</span>
+      <div className={style.clock}>
+        <div className={style.clockLabel}>Time Now</div>
+        <div className={style.value}>{timeNow}</div>
       </div>
       <div className={style.headerActions}>
         <Tooltip openDelay={tooltipDelayFast} label='Follow selected'>
-          <span className={followSelected ? style.actionIcon : style.actionDisabled}>
-            <FiTarget onClick={() => toggleFollow()} />
+          <span onClick={() => toggleFollow()} className={followSelected ? style.actionIcon : style.actionDisabled}>
+            <IoLocate />
           </span>
         </Tooltip>
         <Tooltip openDelay={tooltipDelayFast} label='Show settings'>
-          <span className={showSettings ? style.actionIcon : style.actionDisabled}>
-            <FiSettings onClick={() => toggleSettings()} />
+          <span onClick={() => toggleSettings()} className={showSettings ? style.actionIcon : style.actionDisabled}>
+            <IoSettingsOutline />
           </span>
         </Tooltip>
         <Tooltip openDelay={tooltipDelayFast} label='Toggle dark mode'>
-          <span className={style.actionIcon}>
-            <IoMoon onClick={() => toggleTheme()} />
+          <span onClick={() => toggleTheme()} className={style.actionIcon}>
+            <IoMoon />
           </span>
         </Tooltip>
         <Tooltip openDelay={tooltipDelayFast} label='Toggle Fullscreen'>
-          <span className={style.actionIcon}>
-            {isFullScreen ? (
-              <IoContract onClick={() => toggleFullScreen()} />
-            ) : (
-              <IoExpand onClick={() => toggleFullScreen()} />
-            )}
+          <span onClick={() => toggleFullScreen()} className={style.actionIcon}>
+            {isFullScreen ? <IoContract /> : <IoExpand />}
           </span>
         </Tooltip>
         <Divider />
         <Tooltip openDelay={tooltipDelayFast} label='Export to CSV'>
-          <span className={style.actionText} onClick={exportCsv}>
+          <span className={style.actionIcon} onClick={exportCsv}>
             CSV
           </span>
         </Tooltip>
