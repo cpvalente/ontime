@@ -186,6 +186,15 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       return { topic: 'timer', payload: timer };
     }
 
+    case 'update-duration': {
+      try {
+        const parsedPayload = JSON.parse(payload.toString());
+        PlaybackService.updateEventDuration(parsedPayload.id, parsedPayload.duration);
+      } catch (error) {
+        throw new Error(`Error updating duration: ${error}`);
+      }
+    }
+
     default: {
       throw new Error(`Unhandled message ${type}`);
     }

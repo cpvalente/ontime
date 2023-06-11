@@ -224,4 +224,14 @@ export class PlaybackService {
         : logger.info('PLAYBACK', `Removed ${delayTime} min delay`);
     }
   }
+
+  /**
+   * Updates the duration of the event with the given id
+   * @param {string} eventId
+   * @param {number} newDuration
+   */
+  static updateEventDuration(eventId: string, newDuration: number) {
+    EventLoader.updateEventDuration(eventId, newDuration);
+    logger.info('PLAYBACK', `Updated duration of event with ID ${eventId} to ${newDuration}`);
+  }
 }
