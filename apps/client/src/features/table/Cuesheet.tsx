@@ -1,7 +1,9 @@
+import { Tooltip } from '@chakra-ui/react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeBlock, OntimeDelay, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { millisToDelayString } from '../../common/utils/dateConfig';
+import { tooltipDelayFast } from '../../ontimeConfig';
 
 interface CuesheetProps {
   data: OntimeRundown;
@@ -28,6 +30,11 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
+            <th>
+              <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
+                #
+              </Tooltip>
+            </th>
             {headerGroup.headers.map((header) => (
               <th colSpan={header.colSpan} key={header.column.columnDef.id}>
                 <div>
@@ -63,8 +70,14 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
           }
 
           if (entryType === SupportedEvent.Event) {
+            const id = row.id;
+
+            // user facing indexes are 1 based
+            const index = row.index + 1;
+
             return (
-              <tr key={row.id}>
+              <tr key={id}>
+                <td>{index}</td>
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                 ))}
