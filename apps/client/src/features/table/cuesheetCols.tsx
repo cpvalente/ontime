@@ -16,13 +16,14 @@ function makeTimer(row: CellContext<OntimeRundownEntry, unknown>) {
   return millisToString(cellValue);
 }
 
-function makeUserField(row: CellContext<OntimeRundownEntry, unknown>) {
-  const cellValue = row.getValue() as string;
-  // TODO: could we find a more stable reference?
-  // @ts-expect-error -- we know this exists
-  const index = row.index;
-  const column = row.column.id as keyof OntimeRundownEntry;
-  return <CuesheetEditable value={cellValue} index={index} column={column} />;
+function makeUserField({ getValue, row: { index }, column: { id }, table }) {
+  const update = (newValue: string) => {
+    table.options.meta?.handleUpdate(index, id, newValue);
+  };
+
+  const initialValue = getValue() as string;
+
+  return <CuesheetEditable value={initialValue} handleUpdate={update} />;
 }
 
 export function makeCuesheetColumns(userFields: UserFields): ColumnDef<OntimeRundownEntry>[] {

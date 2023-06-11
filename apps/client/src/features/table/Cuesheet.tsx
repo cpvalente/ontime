@@ -6,13 +6,17 @@ import { millisToDelayString } from '../../common/utils/dateConfig';
 interface CuesheetProps {
   data: OntimeRundown;
   columns: ColumnDef<OntimeRundownEntry>[];
+  handleUpdate: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => void;
 }
 
-export default function Cuesheet({ data, columns }: CuesheetProps) {
+export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps) {
   // TODO: remove debug stuff
   const table = useReactTable({
     data,
     columns,
+    meta: {
+      handleUpdate,
+    },
     getCoreRowModel: getCoreRowModel(),
     debugTable: true,
     debugHeaders: true,

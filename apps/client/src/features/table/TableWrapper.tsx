@@ -98,7 +98,7 @@ export default function TableWrapper() {
   return (
     <div className={theme === 'dark' ? style.tableWrapper__dark : style.tableWrapper} data-testid='cuesheet'>
       <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
-      <Cuesheet data={rundown} columns={columns} />
+      <Cuesheet data={rundown} columns={columns} handleUpdate={handleUpdate} />
       <OntimeTable
         tableData={rundown}
         userFields={userFields}
