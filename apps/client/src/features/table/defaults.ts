@@ -1,4 +1,4 @@
-import { OntimeEntryCommonKeys, UserFields } from 'ontime-types';
+import { OntimeEntryCommonKeys, OntimeEvent } from 'ontime-types';
 
 /**
  * @description set default column order
@@ -27,7 +27,7 @@ export const defaultColumnOrder: OntimeEntryCommonKeys[] = [
 /**
  * @description set default hidden columns
  */
-export const defaultHiddenColumns: (keyof UserFields)[] = [
+export const defaultHiddenColumns: (keyof OntimeEvent)[] = [
   'user0',
   'user1',
   'user2',

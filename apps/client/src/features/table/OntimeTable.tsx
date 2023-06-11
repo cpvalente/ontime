@@ -169,7 +169,7 @@ export default function OntimeTable({ tableData, userFields, selectedId, handleU
 
   return (
     <>
-      {showSettings && (
+      {false && (
         <TableSettings
           columns={allColumns}
           handleResetResizing={handleResetResizing}
