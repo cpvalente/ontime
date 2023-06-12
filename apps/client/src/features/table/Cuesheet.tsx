@@ -103,12 +103,16 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
     table.toggleAllColumnsVisible(true);
   };
 
+  const resetColumnResizing = () => {
+    setColumnSizing({});
+  };
+
   return (
     <>
       {showSettings && (
         <CuesheetSettings
           columns={table.getAllLeafColumns()}
-          handleResetResizing={() => console.log('reset resize')}
+          handleResetResizing={resetColumnResizing}
           handleResetReordering={resetColumnOrder}
           handleClearToggles={setAllVisible}
         />
