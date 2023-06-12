@@ -1,0 +1,34 @@
+th {
+  position: relative;
+
+  .resizer {
+    //position: absolute;
+    //right: 0;
+    //top: 0;
+    //height: 100%;
+    //width: 5px;
+    //background: red;
+    cursor: col-resize;
+    //user-select: none;
+    //touch-action: none;
+    //opacity: 0;
+
+    display: inline-block;
+    width: 10px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateX(50%);
+    z-index: 1;
+    background: red;
+
+    user-select: none;
+    touch-action: none;
+  }
+
+  .resizer.isResizing {
+    background: blue;
+  }
+}
+

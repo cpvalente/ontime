@@ -33,9 +33,9 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
   const { followSelected, showSettings } = useContext(TableSettingsContext);
   const [columnVisibility, setColumnVisibility] = useLocalStorage('table-hidden', {});
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
+  const [columnSizing, setColumnSizing] = useLocalStorage('table-sizes', {});
 
   const handleOnDragEnd = (event: DragEndEvent) => {
-    console.log(event);
     const { delta, active, over } = event;
 
     // cancel if delta y is greater than 200
@@ -63,14 +63,17 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
   const table = useReactTable({
     data,
     columns,
+    columnResizeMode: 'onChange',
     state: {
       columnOrder,
       columnVisibility,
+      columnSizing,
     },
     meta: {
       handleUpdate,
     },
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -124,12 +127,17 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
                     </Tooltip>
                   </th>
                   <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
-                    {headerGroup.headers.map((header) => (
-                      <DraggableColumnHeader
-                        key={header.column.columnDef.id}
-                        header={header}
-                      />
-                    ))}
+                    {headerGroup.headers.map((header) => {
+                      const width = header.getSize();
+
+                      return (
+                        <DraggableColumnHeader key={header.column.columnDef.id} header={header} style={{ width }}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                        </DraggableColumnHeader>
+                      );
+                    })}
                   </SortableContext>
                 </tr>
               </DndContext>
