@@ -34,6 +34,7 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        alias: '',
       },
       {
         title: 'Good Morning',
@@ -62,6 +63,7 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        alias: '',
       },
       {
         title: 'Stage 2 setup',
@@ -89,6 +91,7 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        alias: '',
       },
       {
         title: 'Working Procedures',
@@ -134,6 +137,7 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        alias: '',
       },
       {
         title: 'A day being carlos',
@@ -161,6 +165,7 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        alias: '',
       },
       {
         title: 'Hamburgers and Cheese',
@@ -188,6 +193,7 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        alias: '',
       },
     ],
     eventData: {
@@ -243,6 +249,7 @@ describe('test json parser with valid def', () => {
       user7: '',
       user8: '',
       user9: '',
+      alias: '',
     };
     expect(first).toStrictEqual(expected);
   });
@@ -275,6 +282,7 @@ describe('test json parser with valid def', () => {
       user7: '',
       user8: '',
       user9: '',
+      alias: '',
     };
     expect(second).toStrictEqual(expected);
   });
@@ -703,6 +711,7 @@ describe('test parseExcel function', () => {
         user7: 'a7',
         user8: 'a8',
         user9: 'a9',
+        alias: '',
         colour: 'red',
         type: 'event',
       },
