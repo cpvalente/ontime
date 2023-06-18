@@ -1,12 +1,12 @@
 @use '../../../theme/ontimeColours' as *;
 @use '../../../theme/v2Styles' as *;
 
-$subdued-colour: $gray-900;
-$active-colour: $gray-700;
+$label-colour: $gray-700;
+$active-colour: $gray-500;
 
 @mixin label {
-  font-size: calc(1rem - 2px);
-  color: $active-colour;
+  font-size: $inner-section-text-size;
+  color: $label-colour;
   text-align: center;
   align-self: end;
 }
@@ -18,9 +18,6 @@ $active-colour: $gray-700;
 }
 
 .header {
-  font-family: "Open Sans", sans-serif;
-  font-size: 1rem;
-
   grid-area: header;
   display: grid;
   width: 100%;
@@ -63,7 +60,7 @@ $active-colour: $gray-700;
   svg {
     font-size: 2rem;
     height: 3rem;
-    color: $subdued-colour;
+    color: $label-colour;
   }
 }
 
@@ -97,22 +94,19 @@ $active-colour: $gray-700;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.5rem;
-  color: $active-colour;
+  font-size: 1.125rem;
+  color: $label-colour;
   height: 100%;
 
-  transition-duration: $transition-time-feedback;
-  transition-property: color;
-
-  .actionDisabled {
-    color: $subdued-colour;
-  }
-
-  .actionIcon, .actionDisabled {
+  .actionIcon {
     cursor: pointer;
 
     &:hover {
       color: $active-colour;
+    }
+
+    &.enabled {
+      color: $active-indicator;
     }
   }
 }

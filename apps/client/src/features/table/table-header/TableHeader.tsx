@@ -1,9 +1,8 @@
 import { useContext } from 'react';
-import { Divider, Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@chakra-ui/react';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
-import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { EventData, Playback } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
@@ -14,7 +13,6 @@ import { useTimer } from '../../../common/hooks/useSocket';
 import useEventData from '../../../common/hooks-query/useEventData';
 import { formatTime } from '../../../common/utils/time';
 import { tooltipDelayFast } from '../../../ontimeConfig';
-
 import PlaybackIcon from '../tableElements/PlaybackIcon';
 
 import style from './TableHeader.module.scss';
@@ -30,7 +28,7 @@ interface TableHeaderProps {
 }
 
 export default function TableHeader({ handleCSVExport, featureData }: TableHeaderProps) {
-  const { followSelected, showSettings, toggleTheme, toggleSettings, toggleFollow } = useContext(TableSettingsContext);
+  const { followSelected, showSettings, toggleSettings, toggleFollow } = useContext(TableSettingsContext);
   const timer = useTimer();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { data: event } = useEventData();
@@ -74,19 +72,14 @@ export default function TableHeader({ handleCSVExport, featureData }: TableHeade
         <div className={style.value}>{timeNow}</div>
       </div>
       <div className={style.headerActions}>
-        <Tooltip openDelay={tooltipDelayFast} label='Follow selected'>
-          <span onClick={() => toggleFollow()} className={followSelected ? style.actionIcon : style.actionDisabled}>
+        <Tooltip openDelay={tooltipDelayFast} label='Toggle follow'>
+          <span onClick={() => toggleFollow()} className={`${style.actionIcon} ${followSelected ? style.enabled : ''}`}>
             <IoLocate />
           </span>
         </Tooltip>
-        <Tooltip openDelay={tooltipDelayFast} label='Show settings'>
-          <span onClick={() => toggleSettings()} className={showSettings ? style.actionIcon : style.actionDisabled}>
+        <Tooltip openDelay={tooltipDelayFast} label='Toggle settings'>
+          <span onClick={() => toggleSettings()} className={`${style.actionIcon} ${showSettings ? style.enabled : ''}`}>
             <IoSettingsOutline />
-          </span>
-        </Tooltip>
-        <Tooltip openDelay={tooltipDelayFast} label='Toggle dark mode'>
-          <span onClick={() => toggleTheme()} className={style.actionIcon}>
-            <IoMoon />
           </span>
         </Tooltip>
         <Tooltip openDelay={tooltipDelayFast} label='Toggle Fullscreen'>
@@ -94,8 +87,7 @@ export default function TableHeader({ handleCSVExport, featureData }: TableHeade
             {isFullScreen ? <IoContract /> : <IoExpand />}
           </span>
         </Tooltip>
-        <Divider />
-        <Tooltip openDelay={tooltipDelayFast} label='Export to CSV'>
+        <Tooltip openDelay={tooltipDelayFast} label='Export rundown to CSV'>
           <span className={style.actionIcon} onClick={exportCsv}>
             CSV
           </span>
