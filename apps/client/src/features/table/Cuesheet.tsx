@@ -12,53 +12,32 @@ import {
 } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { OntimeBlock, OntimeDelay, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
 import { millisToDelayString } from '../../common/utils/dateConfig';
+import { getAccessibleColour } from '../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../ontimeConfig';
 
 import { CuesheetSettings } from './table-settings/TableSettings';
-import { DraggableColumnHeader } from './tableElements/SortableCell';
+import { SortableCell } from './tableElements/SortableCell';
 import { initialColumnOrder } from './cuesheetCols';
+
+import style from './Cuesheet.module.scss';
 
 interface CuesheetProps {
   data: OntimeRundown;
   columns: ColumnDef<OntimeRundownEntry>[];
   handleUpdate: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => void;
+  selectedId: string | null;
 }
 
-export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps) {
+export default function Cuesheet({ data, columns, handleUpdate, selectedId }: CuesheetProps) {
   const { followSelected, showSettings } = useContext(TableSettingsContext);
   const [columnVisibility, setColumnVisibility] = useLocalStorage('table-hidden', {});
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
   const [columnSizing, setColumnSizing] = useLocalStorage('table-sizes', {});
-
-  const handleOnDragEnd = (event: DragEndEvent) => {
-    const { delta, active, over } = event;
-
-    // cancel if delta y is greater than 200
-    if (delta.y > 200) return;
-    // cancel if we do not have an over id
-    if (over?.id == null) return;
-
-    // get index of from
-    const fromIndex = columnOrder.indexOf(active.id as string);
-
-    // get index of to
-    const toIndex = columnOrder.indexOf(over.id as string);
-
-    if (toIndex === -1) {
-      return;
-    }
-
-    const reorderedCols = [...columnOrder];
-    const reorderedItem = reorderedCols.splice(fromIndex, 1);
-    reorderedCols.splice(toIndex, 0, reorderedItem[0]);
-
-    saveColumnOrder(reorderedCols);
-  };
 
   const table = useReactTable({
     data,
@@ -95,6 +74,31 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
     }),
   );
 
+  const handleOnDragEnd = (event: DragEndEvent) => {
+    const { delta, active, over } = event;
+
+    // cancel if delta y is greater than 200
+    if (delta.y > 200) return;
+    // cancel if we do not have an over id
+    if (over?.id == null) return;
+
+    // get index of from
+    const fromIndex = columnOrder.indexOf(active.id as string);
+
+    // get index of to
+    const toIndex = columnOrder.indexOf(over.id as string);
+
+    if (toIndex === -1) {
+      return;
+    }
+
+    const reorderedCols = [...columnOrder];
+    const reorderedItem = reorderedCols.splice(fromIndex, 1);
+    reorderedCols.splice(toIndex, 0, reorderedItem[0]);
+
+    saveColumnOrder(reorderedCols);
+  };
+
   const resetColumnOrder = () => {
     saveColumnOrder(initialColumnOrder);
   };
@@ -117,15 +121,15 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
           handleClearToggles={setAllVisible}
         />
       )}
-      <table>
-        <thead>
+      <table className={style.cuesheet}>
+        <thead className={style.tableHeader}>
           {table.getHeaderGroups().map((headerGroup) => {
             const key = headerGroup.id;
 
             return (
               <DndContext key={key} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOnDragEnd}>
                 <tr key={headerGroup.id}>
-                  <th>
+                  <th className={style.indexColumn}>
                     <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
                       #
                     </Tooltip>
@@ -135,11 +139,11 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
                       const width = header.getSize();
 
                       return (
-                        <DraggableColumnHeader key={header.column.columnDef.id} header={header} style={{ width }}>
+                        <SortableCell key={header.column.columnDef.id} header={header} style={{ width }}>
                           {header.isPlaceholder
                             ? null
                             : flexRender(header.column.columnDef.header, header.getContext())}
-                        </DraggableColumnHeader>
+                        </SortableCell>
                       );
                     })}
                   </SortableContext>
@@ -157,17 +161,20 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
               const title = (row.original as OntimeBlock).title;
 
               return (
-                <tr key={row.id}>
-                  <td>{title}</td>
+                <tr key={row.id} className={style.blockRow}>
+                  <td colSpan={99}>{title}</td>
                 </tr>
               );
             }
             if (entryType === SupportedEvent.Delay) {
               const delayVal = (row.original as OntimeDelay).duration;
-              const delayTime = delayVal !== 0 ? millisToDelayString(delayVal) : null;
+              if (delayVal === 0) {
+                return null;
+              }
+              const delayTime = millisToDelayString(delayVal);
               return (
-                <tr key={row.id}>
-                  <td>{delayTime}</td>
+                <tr key={row.id} className={style.delayRow}>
+                  <td colSpan={99}>{delayTime}</td>
                 </tr>
               );
             }
@@ -178,12 +185,27 @@ export default function Cuesheet({ data, columns, handleUpdate }: CuesheetProps)
               // user facing indexes are 1 based
               const index = row.index + 1;
 
+              const bgFallback = 'transparent';
+              const bgColour = (row.original as OntimeEvent).colour || bgFallback;
+              const textColour = bgColour === bgFallback ? undefined : getAccessibleColour(bgColour);
+
+              let rowBgColour: string | undefined;
+              if (row.original.id === selectedId) {
+                rowBgColour = '#D20300'; // $red-700
+              }
+
               return (
-                <tr key={id}>
-                  <td>{index}</td>
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
+                <tr key={id} className={style.eventRow}>
+                  <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour?.color }}>
+                    {index}
+                  </td>
+                  {row.getVisibleCells().map((cell) => {
+                    return (
+                      <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             }
