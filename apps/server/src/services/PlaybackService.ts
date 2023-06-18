@@ -62,6 +62,21 @@ export class PlaybackService {
   }
 
   /**
+   * starts event matching given Alias
+   * @param {string} eventAlias
+   * @return {boolean} success
+   */
+  static startByAlias(eventAlias: string): boolean {
+    const event = EventLoader.getEventWithAlias(eventAlias);
+    const success = PlaybackService.loadEvent(event);
+    if (success) {
+      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      PlaybackService.start();
+    }
+    return success;
+  }
+
+  /**
    * loads event matching given ID
    * @param {string} eventId
    * @return {boolean} success
@@ -82,6 +97,20 @@ export class PlaybackService {
    */
   static loadByIndex(eventIndex: number): boolean {
     const event = EventLoader.getEventAtIndex(eventIndex);
+    const success = PlaybackService.loadEvent(event);
+    if (success) {
+      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+    }
+    return success;
+  }
+
+  /**
+   * loads event matching given Alias
+   * @param {string} eventAlias
+   * @return {boolean} success
+   */
+  static loadByAlias(eventAlias: string): boolean {
+    const event = EventLoader.getEventWithId(eventAlias);
     const success = PlaybackService.loadEvent(event);
     if (success) {
       logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);

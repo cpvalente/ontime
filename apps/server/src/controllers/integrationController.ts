@@ -123,6 +123,20 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       PlaybackService.startById(payload);
       break;
     }
+
+    case 'startalias': {
+      if (!payload || typeof payload !== 'string') {
+        throw new Error(`Event alias not recognised: ${payload}`);
+      }
+
+      try {
+        PlaybackService.startByAlias(payload);
+      } catch (error) {
+        throw new Error(`Error loading event:: ${error}`);
+      }
+      break;
+    }
+
     case 'pause': {
       PlaybackService.pause();
       break;
@@ -184,6 +198,20 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
 
       try {
         PlaybackService.loadById(payload.toString().toLowerCase());
+      } catch (error) {
+        throw new Error(`OSC IN: error calling goto ${error}`);
+      }
+      break;
+    }
+
+    case 'gotoalias':
+    case 'loadalias': {
+      if (!payload) {
+        throw new Error(`Event ID not recognised: ${payload}`);
+      }
+
+      try {
+        PlaybackService.loadByAlias(payload.toString().toLowerCase());
       } catch (error) {
         throw new Error(`OSC IN: error calling goto ${error}`);
       }
