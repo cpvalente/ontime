@@ -56,6 +56,7 @@ export const parseExcel = async (excelData) => {
   let user9Index: number | null = null;
   let endActionIndex: number | null = null;
   let timerTypeIndex: number | null = null;
+  let aliasIndex: number | null = null;
 
   excelData
     .filter((e) => e.length > 0)
@@ -127,6 +128,8 @@ export const parseExcel = async (excelData) => {
           event.user8 = column;
         } else if (j === user9Index) {
           event.user9 = column;
+        } else if (j === aliasIndex) {
+          event.alias = column;
         } else {
           if (typeof column === 'string') {
             const col = column.toLowerCase();
@@ -193,6 +196,9 @@ export const parseExcel = async (excelData) => {
                 break;
               case 'timer type':
                 timerTypeIndex = j;
+                break;
+              case 'alias':
+                aliasIndex = j;
                 break;
               default:
                 // look for user defined
@@ -336,6 +342,7 @@ export const validateEvent = (eventArgs) => {
       user7: makeString(e.user7, d.user7),
       user8: makeString(e.user8, d.user8),
       user9: makeString(e.user9, d.user9),
+      alias: makeString(e.alias, d.alias),
       // deciding not to validate colour
       // this adds flexibility to the user to write hex codes, rgb,
       // but also colour names like blue and red

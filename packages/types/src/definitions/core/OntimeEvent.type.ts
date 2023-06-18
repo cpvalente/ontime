@@ -49,4 +49,5 @@ export type OntimeEvent = OntimeBaseEvent & {
   user8: string;
   user9: string;
   revision: number;
+  alias: string;
 };
