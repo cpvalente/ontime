@@ -23,6 +23,7 @@ import {
   ontimeInputFilledOnLight,
   ontimeTextAreaFilled,
   ontimeTextAreaFilledOnLight,
+  ontimeTextAreaTransparent,
 } from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
 
@@ -96,6 +97,7 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeTextAreaFilled },
+        'ontime-transparent': { ...ontimeTextAreaTransparent },
         'ontime-filled-on-light': { ...ontimeTextAreaFilledOnLight },
       },
     },

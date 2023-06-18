@@ -36,6 +36,13 @@ export const ontimeInputFilledOnLight = {
 export const ontimeTextAreaFilled = {
   ...commonStyles,
 };
+export const ontimeTextAreaTransparent = {
+  ...commonStyles,
+  backgroundColor: 'transparent',
+  _hover: {
+    backgroundColor: 'rgba(255, 255, 255, 0.10)', // $white-10
+  },
+};
 
 export const ontimeTextAreaFilledOnLight = {
   borderRadius: '3px',
