@@ -86,6 +86,16 @@ export class EventLoader {
   }
 
   /**
+   * returns an event given its alias
+   * @param {string} eventAlias
+   * @return {object | undefined}
+   */
+  static getEventWithAlias(eventAlias) {
+    const timedEvents = EventLoader.getTimedEvents();
+    return timedEvents.find((event) => event.alias === eventAlias);
+  }
+
+  /**
    * loads an event given its id
    * @param {string} eventId
    * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
@@ -102,6 +112,16 @@ export class EventLoader {
    */
   loadByIndex(eventIndex) {
     const event = EventLoader.getEventAtIndex(eventIndex);
+    return this.loadEvent(event);
+  }
+
+  /**
+   * loads an event given its index
+   * @param {number} eventAlias
+   * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
+   */
+  loadByAlias(eventAlias) {
+    const event = EventLoader.getEventWithAlias(eventAlias);
     return this.loadEvent(event);
   }
 
