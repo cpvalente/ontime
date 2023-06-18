@@ -3,11 +3,13 @@ import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { OntimeRundownEntry, UserFields } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
-import { CuesheetEditable } from './tableElements/EditableCell';
+import { EditableCell } from './tableElements/EditableCell';
+
+import style from './Cuesheet.module.scss';
 
 function makePublic(row: CellContext<OntimeRundownEntry, unknown>) {
   const cellValue = row.getValue();
-  return cellValue ? <IoCheckmark /> : '';
+  return cellValue ? <IoCheckmark className={style.check} /> : '';
 }
 
 function makeTimer(row: CellContext<OntimeRundownEntry, unknown>) {
@@ -16,14 +18,15 @@ function makeTimer(row: CellContext<OntimeRundownEntry, unknown>) {
   return millisToString(cellValue);
 }
 
-function makeUserField({ getValue, row: { index }, column: { id }, table }) {
+function makeUserField({ getValue, row: { index }, column: { id }, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = (newValue: string) => {
+    // @ts-expect-error -- we inject this into react-table
     table.options.meta?.handleUpdate(index, id, newValue);
   };
 
   const initialValue = getValue() as string;
 
-  return <CuesheetEditable value={initialValue} handleUpdate={update} />;
+  return <EditableCell value={initialValue} handleUpdate={update} />;
 }
 
 export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRundownEntry>[] {
@@ -33,24 +36,28 @@ export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRu
       id: 'isPublic',
       header: 'Public',
       cell: makePublic,
+      size: 50,
     },
     {
       accessorKey: 'timeStart',
       id: 'timeStart',
       header: 'Start',
       cell: makeTimer,
+      size: 75,
     },
     {
       accessorKey: 'timeEnd',
       id: 'timeEnd',
       header: 'End',
       cell: makeTimer,
+      size: 75,
     },
     {
       accessorKey: 'duration',
       id: 'duration',
       header: 'Duration',
       cell: makeTimer,
+      size: 75,
     },
     {
       accessorKey: 'title',
@@ -139,4 +146,4 @@ export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRu
   ];
 }
 
-export const initialColumnOrder: string[] = makeCuesheetColumns().map((column) => (column.id as string));
+export const initialColumnOrder: string[] = makeCuesheetColumns().map((column) => column.id as string);
