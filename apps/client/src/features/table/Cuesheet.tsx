@@ -1,5 +1,4 @@
 import { useContext, useRef } from 'react';
-import { useVirtual } from 'react-virtual';
 import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
@@ -12,7 +11,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
@@ -57,14 +56,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     getCoreRowModel: getCoreRowModel(),
   });
   const tableContainerRef = useRef<HTMLDivElement>(null);
-
-  const { rows } = table.getRowModel();
-  const rowVirtualizer = useVirtual({
-    parentRef: tableContainerRef,
-    size: rows.length,
-    overscan: 10,
-  });
-  const { virtualItems: virtualRows, totalSize } = rowVirtualizer;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -121,9 +112,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     setColumnSizing({});
   };
 
-  const paddingTop = virtualRows.length > 0 ? virtualRows?.[0]?.start || 0 : 0;
-  const paddingBottom = virtualRows.length > 0 ? totalSize - (virtualRows?.[virtualRows.length - 1]?.end || 0) : 0;
-
   return (
     <>
       {showSettings && (
@@ -168,14 +156,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
           </thead>
 
           <tbody>
-            {paddingTop > 0 && (
-              <tr>
-                <td style={{ height: `${paddingTop}px` }} />
-              </tr>
-            )}
-
-            {virtualRows.map((virtualRow) => {
-              const row = rows[virtualRow.index] as Row<OntimeRundownEntry>;
+            {table.getRowModel().rows.map((row) => {
               const entryType = row.original.type as SupportedEvent;
 
               if (entryType === SupportedEvent.Block) {
@@ -231,11 +212,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 );
               }
             })}
-            {paddingBottom > 0 && (
-              <tr>
-                <td style={{ height: `${paddingBottom}px` }} />
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
