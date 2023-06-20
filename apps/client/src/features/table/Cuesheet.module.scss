@@ -34,6 +34,15 @@ $table-header-font-size: calc(1rem - 3px);
   }
 }
 
+.tableHeader,
+.eventRow {
+  .indexColumn {
+    min-width: 2rem;
+    text-align: right;
+    font-weight: 400;
+  }
+}
+
 .tableHeader {
   position: sticky;
   top: 0;
@@ -42,12 +51,6 @@ $table-header-font-size: calc(1rem - 3px);
 
   font-size: $table-header-font-size;
   color: $gray-700;
-  font-weight: 400;
-}
-
-.indexColumn {
-  min-width: 2rem;
-  text-align: right;
   font-weight: 400;
 }
 
@@ -66,10 +69,10 @@ $table-header-font-size: calc(1rem - 3px);
   background-color: $gray-1350;
   font-size: 1rem;
   height: 2.5rem;
-  vertical-align: bottom;
 
   td {
-    padding-left: 1rem;
+    align-self: flex-end;
+    padding: 0.25rem 1rem;
   }
 }
 
@@ -78,6 +81,7 @@ $table-header-font-size: calc(1rem - 3px);
   color: $ontime-delay-text;
 
   td {
+    width: 100vw;
     text-align: center;
     padding: 0.5rem 0;
   }
