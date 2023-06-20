@@ -80,6 +80,7 @@ importers:
       react-hook-form: ^7.43.5
       react-qr-code: ^2.0.11
       react-router-dom: ^6.3.0
+      react-virtual: ^2.10.4
       sass: ^1.57.1
       typeface-open-sans: ^1.1.13
       typescript: ^4.9.4
@@ -116,6 +117,7 @@ importers:
       react-hook-form: 7.43.5_react@18.2.0
       react-qr-code: 2.0.11_react@18.2.0
       react-router-dom: 6.6.2_biqbaboplfbrettd7655fr4n2y
+      react-virtual: 2.10.4_react@18.2.0
       typeface-open-sans: 1.1.13
       web-vitals: 3.1.1
       zustand: 4.3.6_react@18.2.0
@@ -2181,6 +2183,10 @@ packages:
 
   /@popperjs/core/2.11.8:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
+    dev: false
+
+  /@reach/observe-rect/1.2.0:
+    resolution: {integrity: sha512-Ba7HmkFgfQxZqqaeIWWkNK0rEhpxVQHIoVyW1YDSkGsGIXzcaW4deC8B0pZrNSSyLTdIk7y+5olKt5+g0GmFIQ==}
     dev: false
 
   /@react-icons/all-files/4.1.0_react@18.2.0:
@@ -6910,6 +6916,15 @@ packages:
       invariant: 2.2.4
       react: 18.2.0
       tslib: 2.5.3
+    dev: false
+
+  /react-virtual/2.10.4_react@18.2.0:
+    resolution: {integrity: sha512-Ir6+oPQZTVHfa6+JL9M7cvMILstFZH/H3jqeYeKI4MSUX+rIruVwFC6nGVXw9wqAw8L0Kg2KvfXxI85OvYQdpQ==}
+    peerDependencies:
+      react: ^16.6.3 || ^17.0.0
+    dependencies:
+      '@reach/observe-rect': 1.2.0
+      react: 18.2.0
     dev: false
 
   /react/18.2.0:

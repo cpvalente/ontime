@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, memo, useCallback, useEffect, useState } from 'react';
 
 import { AutoTextArea } from '../../../common/components/input/auto-text-area/AutoTextArea';
 
@@ -7,7 +7,7 @@ interface EditableCellProps {
   handleUpdate: (newValue: string) => void;
 }
 
-export function EditableCell(props: EditableCellProps) {
+const EditableCell = (props: EditableCellProps) => {
   const { value: initialValue, handleUpdate } = props;
 
   // We need to keep and update the state of the cell normally
@@ -35,4 +35,6 @@ export function EditableCell(props: EditableCellProps) {
       style={{ padding: 0 }}
     />
   );
-}
+};
+
+export default memo(EditableCell);

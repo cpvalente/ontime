@@ -4,14 +4,16 @@
 $table-font-size: calc(1rem - 2px);
 $table-header-font-size: calc(1rem - 3px);
 
-.cuesheet {
+.cuesheetContainer {
   grid-area: table;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   overflow: auto;
-  display: flex;
-  flex-direction: column;
+}
 
+.cuesheet {
   font-size: $table-font-size;
   font-weight: 400;
 

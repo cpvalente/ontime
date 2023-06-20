@@ -1,4 +1,5 @@
-import { useContext } from 'react';
+import { useContext, useRef } from 'react';
+import { useVirtual } from 'react-virtual';
 import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
@@ -11,7 +12,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table';
 import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { TableSettingsContext } from '../../common/context/TableSettingsContext';
@@ -55,6 +56,15 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(),
   });
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const { rows } = table.getRowModel();
+  const rowVirtualizer = useVirtual({
+    parentRef: tableContainerRef,
+    size: rows.length,
+    overscan: 10,
+  });
+  const { virtualItems: virtualRows, totalSize } = rowVirtualizer;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -111,6 +121,9 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     setColumnSizing({});
   };
 
+  const paddingTop = virtualRows.length > 0 ? virtualRows?.[0]?.start || 0 : 0;
+  const paddingBottom = virtualRows.length > 0 ? totalSize - (virtualRows?.[virtualRows.length - 1]?.end || 0) : 0;
+
   return (
     <>
       {showSettings && (
@@ -121,97 +134,111 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
           handleClearToggles={setAllVisible}
         />
       )}
-      <table className={style.cuesheet}>
-        <thead className={style.tableHeader}>
-          {table.getHeaderGroups().map((headerGroup) => {
-            const key = headerGroup.id;
+      <div ref={tableContainerRef} className={style.cuesheetContainer}>
+        <table className={style.cuesheet}>
+          <thead className={style.tableHeader}>
+            {table.getHeaderGroups().map((headerGroup) => {
+              const key = headerGroup.id;
 
-            return (
-              <DndContext key={key} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOnDragEnd}>
-                <tr key={headerGroup.id}>
-                  <th className={style.indexColumn}>
-                    <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
-                      #
-                    </Tooltip>
-                  </th>
-                  <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
-                    {headerGroup.headers.map((header) => {
-                      const width = header.getSize();
+              return (
+                <DndContext key={key} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOnDragEnd}>
+                  <tr key={headerGroup.id}>
+                    <th className={style.indexColumn}>
+                      <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
+                        #
+                      </Tooltip>
+                    </th>
+                    <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
+                      {headerGroup.headers.map((header) => {
+                        const width = header.getSize();
 
+                        return (
+                          <SortableCell key={header.column.columnDef.id} header={header} style={{ width }}>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(header.column.columnDef.header, header.getContext())}
+                          </SortableCell>
+                        );
+                      })}
+                    </SortableContext>
+                  </tr>
+                </DndContext>
+              );
+            })}
+          </thead>
+
+          <tbody>
+            {paddingTop > 0 && (
+              <tr>
+                <td style={{ height: `${paddingTop}px` }} />
+              </tr>
+            )}
+
+            {virtualRows.map((virtualRow) => {
+              const row = rows[virtualRow.index] as Row<OntimeRundownEntry>;
+              const entryType = row.original.type as SupportedEvent;
+
+              if (entryType === SupportedEvent.Block) {
+                const title = (row.original as OntimeBlock).title;
+
+                return (
+                  <tr key={row.id} className={style.blockRow}>
+                    <td colSpan={99}>{title}</td>
+                  </tr>
+                );
+              }
+              if (entryType === SupportedEvent.Delay) {
+                const delayVal = (row.original as OntimeDelay).duration;
+                if (delayVal === 0) {
+                  return null;
+                }
+                const delayTime = millisToDelayString(delayVal);
+                return (
+                  <tr key={row.id} className={style.delayRow}>
+                    <td colSpan={99}>{delayTime}</td>
+                  </tr>
+                );
+              }
+
+              if (entryType === SupportedEvent.Event) {
+                const id = row.id;
+
+                // user facing indexes are 1 based
+                const index = row.index + 1;
+
+                const bgFallback = 'transparent';
+                const bgColour = (row.original as OntimeEvent).colour || bgFallback;
+                const textColour = bgColour === bgFallback ? undefined : getAccessibleColour(bgColour);
+
+                let rowBgColour: string | undefined;
+                if (row.original.id === selectedId) {
+                  rowBgColour = '#D20300'; // $red-700
+                }
+
+                return (
+                  <tr key={id} className={style.eventRow}>
+                    <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour?.color }}>
+                      {index}
+                    </td>
+                    {row.getVisibleCells().map((cell) => {
                       return (
-                        <SortableCell key={header.column.columnDef.id} header={header} style={{ width }}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(header.column.columnDef.header, header.getContext())}
-                        </SortableCell>
+                        <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
                       );
                     })}
-                  </SortableContext>
-                </tr>
-              </DndContext>
-            );
-          })}
-        </thead>
-
-        <tbody>
-          {table.getRowModel().rows.map((row) => {
-            const entryType = row.original.type as SupportedEvent;
-
-            if (entryType === SupportedEvent.Block) {
-              const title = (row.original as OntimeBlock).title;
-
-              return (
-                <tr key={row.id} className={style.blockRow}>
-                  <td colSpan={99}>{title}</td>
-                </tr>
-              );
-            }
-            if (entryType === SupportedEvent.Delay) {
-              const delayVal = (row.original as OntimeDelay).duration;
-              if (delayVal === 0) {
-                return null;
+                  </tr>
+                );
               }
-              const delayTime = millisToDelayString(delayVal);
-              return (
-                <tr key={row.id} className={style.delayRow}>
-                  <td colSpan={99}>{delayTime}</td>
-                </tr>
-              );
-            }
-
-            if (entryType === SupportedEvent.Event) {
-              const id = row.id;
-
-              // user facing indexes are 1 based
-              const index = row.index + 1;
-
-              const bgFallback = 'transparent';
-              const bgColour = (row.original as OntimeEvent).colour || bgFallback;
-              const textColour = bgColour === bgFallback ? undefined : getAccessibleColour(bgColour);
-
-              let rowBgColour: string | undefined;
-              if (row.original.id === selectedId) {
-                rowBgColour = '#D20300'; // $red-700
-              }
-
-              return (
-                <tr key={id} className={style.eventRow}>
-                  <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour?.color }}>
-                    {index}
-                  </td>
-                  {row.getVisibleCells().map((cell) => {
-                    return (
-                      <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            }
-          })}
-        </tbody>
-      </table>
+            })}
+            {paddingBottom > 0 && (
+              <tr>
+                <td style={{ height: `${paddingBottom}px` }} />
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
