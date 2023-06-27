@@ -1,11 +1,11 @@
-import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from 'ontime-types';
+import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
 import { generateId } from 'ontime-utils';
-import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay as delayDef, event as eventDef } from '../models/eventsDefinition.js';
-import { MAX_EVENTS } from '../settings.js';
-import { EventLoader, eventLoader } from '../classes/event-loader/EventLoader.js';
-import { eventTimer } from './TimerService.js';
-import { sendRefetch } from '../adapters/websocketAux.js';
+import { DataProvider } from '../../classes/data-provider/DataProvider.js';
+import { block as blockDef, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
+import { MAX_EVENTS } from '../../settings.js';
+import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
+import { eventTimer } from '../TimerService.js';
+import { sendRefetch } from '../../adapters/websocketAux.js';
 
 /**
  * Forces rundown to be recalculated
@@ -220,34 +220,29 @@ export async function reorderEvent(eventId, from, to) {
   return reorderedItem;
 }
 
-/**
- * applies delay value for given event
- * @param eventId
- * @returns {Promise<void>}
- */
-export async function applyDelay(eventId: string) {
-  const rundown = DataProvider.getRundown();
+export function _applyDelay(eventId: string, rundown: OntimeRundown): OntimeRundown {
+  const updatedRundown = [...rundown];
   let delayIndex = null;
   let delayValue = 0;
 
-  for (const [index, event] of rundown.entries()) {
+  for (const [index, event] of updatedRundown.entries()) {
     // look for delay
-    if (delayIndex === null) {
-      if (event.id === eventId && event.type === SupportedEvent.Delay) {
-        delayValue = event.duration;
-        delayIndex = index;
-      }
+    if (delayIndex === null && event.type === SupportedEvent.Delay && event.id === eventId) {
+      delayValue = event.duration;
+      delayIndex = index;
+      continue;
     }
 
     // apply delay value to all items until block or end
-    else {
-      if (event.type === SupportedEvent.Event) {
-        event.timeStart = Math.max(0, event.timeStart + delayValue);
-        event.timeEnd = Math.max(event.duration, event.timeStart + delayValue);
-        event.revision += 1;
-      } else if (event.type === SupportedEvent.Block) {
-        break;
-      }
+    if (event.type === SupportedEvent.Event) {
+      updatedRundown[index] = {
+        ...event,
+        timeStart: Math.max(0, event.timeStart + delayValue),
+        timeEnd: Math.max(event.duration, event.timeStart + delayValue),
+        revision: event.revision + 1,
+      };
+    } else if (event.type === SupportedEvent.Block) {
+      break;
     }
   }
 
@@ -256,10 +251,20 @@ export async function applyDelay(eventId: string) {
   }
 
   // delete delay
-  rundown.splice(delayIndex, 1);
+  updatedRundown.splice(delayIndex, 1);
 
-  // update rundown
-  await DataProvider.setRundown(rundown);
+  return updatedRundown;
+}
+
+/**
+ * applies delay value for given event
+ * @param eventId
+ * @returns {Promise<void>}
+ */
+export async function applyDelay(eventId: string) {
+  const rundown: OntimeRundown = DataProvider.getRundown();
+  const newRundown: OntimeRundown = _applyDelay(eventId, rundown);
+  await DataProvider.setRundown(newRundown);
   updateTimer();
   sendRefetch();
 }

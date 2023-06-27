@@ -10,7 +10,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { logger } from '../classes/Logger.js';
-import { deleteAllEvents, forceReset } from '../services/RundownService.js';
+import { deleteAllEvents, forceReset } from '../services/rundown-service/RundownService.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state

@@ -7,7 +7,7 @@ import {
   deleteEvent,
   editEvent,
   reorderEvent,
-} from '../services/RundownService.ts';
+} from '../services/rundown-service/RundownService.ts';
 
 // Create controller for GET request to '/events'
 // Returns -
