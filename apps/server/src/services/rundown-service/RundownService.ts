@@ -238,7 +238,7 @@ export function _applyDelay(eventId: string, rundown: OntimeRundown): OntimeRund
       updatedRundown[index] = {
         ...event,
         timeStart: Math.max(0, event.timeStart + delayValue),
-        timeEnd: Math.max(event.duration, event.timeStart + delayValue),
+        timeEnd: Math.max(event.duration, event.timeEnd + delayValue),
         revision: event.revision + 1,
       };
     } else if (event.type === SupportedEvent.Block) {

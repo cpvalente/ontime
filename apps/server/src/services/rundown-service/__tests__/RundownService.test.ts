@@ -72,6 +72,7 @@ describe('applyDelay()', () => {
     expect(rundown.length).toBe(3);
     expect(updatedRundown[0].timeStart).toBe(rundown[0].timeStart);
     expect(updatedRundown[1].timeStart).toBe(rundown[1].duration + rundown[2].timeStart);
+    expect(updatedRundown[1].timeEnd).toBe(rundown[1].duration + rundown[2].timeEnd);
   });
   it('stops propagating on blocks', () => {
     const rundown = [
