@@ -1,4 +1,3 @@
-import { DataProvider } from '../classes/data-provider/DataProvider.ts';
 import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,
@@ -6,19 +5,15 @@ import {
   deleteAllEvents,
   deleteEvent,
   editEvent,
+  getDelayedRundown,
   reorderEvent,
 } from '../services/rundown-service/RundownService.ts';
 
 // Create controller for GET request to '/events'
 // Returns -
 export const rundownGetAll = async (req, res) => {
-  res.json(DataProvider.getRundown());
-};
-
-// Create controller for GET request to '/events/:eventId'
-// Returns -
-export const getEventById = async (req, res) => {
-  res.json(DataProvider.getEventById(req.params?.eventId));
+  const delayedRundown = getDelayedRundown();
+  res.json(delayedRundown);
 };
 
 // Create controller for POST request to '/events/'
