@@ -7,7 +7,7 @@ import {
   editEvent,
   getDelayedRundown,
   reorderEvent,
-} from '../services/rundown-service/RundownService.ts';
+} from '../services/rundown-service/RundownService.js';
 
 // Create controller for GET request to '/events'
 // Returns -
