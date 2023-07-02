@@ -1,13 +1,16 @@
 import { SupportedEvent } from 'ontime-types';
 
-import useRundown from '../../common/hooks-query/useRundown';
+// import useRundown from '../../common/hooks-query/useRundown';
+import { data } from './auxData';
 
 import style from './Operator.module.scss';
+
+const status: 'loading' | 'success' = 'success';
 
 export default function Operator() {
   // this is the data that you need, the status flag should give you possibility to create a loading state
   // for debugging data use the react query dev tools (flower thing in the bottom left corner)
-  const { data, status } = useRundown();
+  // const { data, status } = useRundown();
 
   if (!data || status === 'loading') {
     return <>loading</>;
