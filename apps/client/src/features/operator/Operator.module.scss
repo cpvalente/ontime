@@ -1,0 +1,26 @@
+// remember we are targeting phones and tablets
+.operator {
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+  padding: 2rem;
+  font-size: 0.8rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@mixin event-block() {
+  padding: 0.5rem;
+}
+
+.scheduledEvent {
+  @include event-block();
+  background-color: hotpink;
+}
+
+.block {
+  @include event-block();
+  background-color: wheat;
+}
