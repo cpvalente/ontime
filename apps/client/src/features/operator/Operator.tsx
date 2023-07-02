@@ -4,6 +4,8 @@ import useRundown from '../../common/hooks-query/useRundown';
 
 import style from './Operator.module.scss';
 
+import OpBlock from './op-block/OpBlock';
+
 export default function Operator() {
   // this is the data that you need, the status flag should give you possibility to create a loading state
   // for debugging data use the react query dev tools (flower thing in the bottom left corner)
@@ -23,7 +25,7 @@ export default function Operator() {
         if (entry.type === SupportedEvent.Event) {
           return (
             <div key={entry.id} className={style.scheduledEvent}>
-              {JSON.stringify(entry, null, 2)}
+              <OpBlock entry={JSON.stringify(entry, null, 2)} />
             </div>
           );
         }
@@ -32,7 +34,8 @@ export default function Operator() {
         if (entry.type === SupportedEvent.Block) {
           return (
             <div key={entry.id} className={style.block}>
-              {JSON.stringify(entry, null, 2)}
+              {/* {JSON.stringify(entry, null, 2)} */}
+              <OpBlock entry={JSON.stringify(entry, null, 2)} />
             </div>
           );
         }
