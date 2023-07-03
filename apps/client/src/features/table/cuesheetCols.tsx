@@ -1,21 +1,51 @@
+import { useCallback } from 'react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { OntimeRundownEntry, UserFields } from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, UserFields } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import EditableCell from './tableElements/EditableCell';
 
 import style from './Cuesheet.module.scss';
-import { useCallback } from 'react';
+import { IoChevronUp } from '@react-icons/all-files/io5/IoChevronUp';
+import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
+import { Tooltip } from '@chakra-ui/react';
+import { tooltipDelayFast } from '../../ontimeConfig';
+import { millisToDelayString } from '../../common/utils/dateConfig';
 
 function makePublic(row: CellContext<OntimeRundownEntry, unknown>) {
   const cellValue = row.getValue();
   return cellValue ? <IoCheckmark className={style.check} /> : '';
 }
 
+function makeDelay(row: CellContext<OntimeRundownEntry, unknown>) {
+  const cellValue = row.getValue() as number | undefined;
+  if (cellValue && cellValue > 0) {
+    return (
+      <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(cellValue)}>
+        <span className={style.delaySymbol}>
+          <IoChevronUp />
+        </span>
+      </Tooltip>
+    );
+  }
+  if (cellValue && cellValue < 0) {
+    return (
+      <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(cellValue)}>
+        <span className={style.delaySymbol}>
+          <IoChevronDown />
+        </span>
+      </Tooltip>
+    );
+  }
+  return;
+}
+
 function makeTimer(row: CellContext<OntimeRundownEntry, unknown>) {
-  // TODO: add optional delay
-  const cellValue = row.getValue() as number | null;
+  let cellValue = (row.getValue() as number | null) ?? 0;
+  if (cellValue != null) {
+    cellValue += (row.row.original as OntimeEvent)?.delay ?? 0;
+  }
   return millisToString(cellValue);
 }
 
@@ -41,7 +71,14 @@ export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRu
       id: 'isPublic',
       header: 'Public',
       cell: makePublic,
-      size: 50,
+      size: 45,
+    },
+    {
+      accessorKey: 'delay',
+      id: 'delay',
+      header: 'Delay',
+      cell: makeDelay,
+      size: 45,
     },
     {
       accessorKey: 'timeStart',
@@ -61,7 +98,7 @@ export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRu
       accessorKey: 'duration',
       id: 'duration',
       header: 'Duration',
-      cell: makeTimer,
+      cell: (row) => millisToString(row.getValue() as number | null),
       size: 75,
     },
     {
