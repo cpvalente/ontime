@@ -1,11 +1,23 @@
 import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
+import { block as blockDef, delay as delayDef, event, event as eventDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
 import { eventTimer } from '../TimerService.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
+import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
+
+const delayedRundownCacheKey = 'delayed-rundown';
+
+export function getDelayedRundown(): OntimeRundown {
+  function calculateRundown() {
+    const rundown = DataProvider.getRundown();
+    return calculateRuntimeDelays(rundown);
+  }
+
+  return getCached(delayedRundownCacheKey, calculateRundown);
+}
 
 /**
  * Forces rundown to be recalculated
@@ -14,6 +26,7 @@ import { sendRefetch } from '../../adapters/websocketAux.js';
 export function forceReset() {
   eventLoader.reset();
   sendRefetch();
+  runtimeCacheStore.invalidate(delayedRundownCacheKey);
 }
 
 /**
@@ -73,7 +86,7 @@ const isNewNext = () => {
 };
 
 /**
- * Updates timer object
+ * Updates timer service when a relevant piece of data changes
  */
 export function updateTimer(affectedIds?: string[]) {
   const runningEventId = eventLoader.loaded.selectedEventId;
@@ -131,13 +144,13 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   const id = generateId();
 
   switch (eventData.type) {
-    case 'event':
+    case SupportedEvent.Event:
       newEvent = { ...eventDef, ...eventData, id } as Partial<OntimeEvent>;
       break;
-    case 'delay':
+    case SupportedEvent.Delay:
       newEvent = { ...delayDef, ...eventData, id } as Partial<OntimeDelay>;
       break;
-    case 'block':
+    case SupportedEvent.Block:
       newEvent = { ...blockDef, ...eventData, id } as Partial<OntimeBlock>;
       break;
   }
@@ -153,9 +166,34 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   } catch (error) {
     throw new Error(error);
   }
+
+  // notify timer service of changed events
   updateTimer([id]);
+
+  // notify event loader that rundown size has changed
   updateChangeNumEvents();
+
+  // update delay cache
+  let delayedRundown = DataProvider.getRundown();
+  switch (eventData.type) {
+    case SupportedEvent.Event: {
+      // we use the delay of the event before
+      const eventIndex = delayedRundown.findIndex((event) => event.id === id);
+      (delayedRundown[eventIndex] as OntimeEvent).delay = getDelayAt(eventIndex - 1, delayedRundown);
+      newEvent = { ...eventDef, ...eventData, id } as Partial<OntimeEvent>;
+      break;
+    }
+    case SupportedEvent.Delay:
+    case SupportedEvent.Block:
+      // we invalidate delays from here
+      delayedRundown = calculateRuntimeDelaysFrom(id, delayedRundown);
+      break;
+  }
+  runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
+
+  // advice socket subscribers of change
   sendRefetch();
+
   return newEvent;
 }
 
@@ -166,8 +204,22 @@ export async function editEvent(eventData) {
     throw new Error('No event with ID found');
   }
   const newEvent = await DataProvider.updateEventById(eventId, eventData);
+
+  // notify timer service of changed events
   updateTimer([eventId]);
+
+  let delayedRundown = DataProvider.getRundown();
+  if (eventInMemory.type === SupportedEvent.Delay) {
+    // we invalidate delays from here
+    if (eventData.duration !== eventInMemory.duration) {
+      delayedRundown = calculateRuntimeDelaysFrom(eventId, delayedRundown);
+    }
+  }
+  runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
+
+  // advice socket subscribers of change
   sendRefetch();
+
   return newEvent;
 }
 
@@ -177,9 +229,31 @@ export async function editEvent(eventData) {
  * @returns {Promise<void>}
  */
 export async function deleteEvent(eventId) {
+  const deletedIndex = DataProvider.getIndexOf(eventId);
+  if (deletedIndex < 0) {
+    return;
+  }
+
+  const deletedEvent = DataProvider.getEventById(eventId);
   await DataProvider.deleteEvent(eventId);
+
   updateTimer([eventId]);
+
+  // notify event loader that rundown size has changed
   updateChangeNumEvents();
+
+  // update delay cache
+  let delayedRundown = DataProvider.getRundown();
+  switch (deletedEvent.type) {
+    case SupportedEvent.Delay:
+    case SupportedEvent.Block:
+      // we invalidate delays from here
+      delayedRundown = calculateRuntimeDelaysFrom(delayedRundown[deletedIndex].id, delayedRundown);
+      break;
+  }
+  runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
+
+  // advice socket subscribers of change
   sendRefetch();
 }
 
@@ -190,24 +264,24 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await DataProvider.clearRundown();
   updateTimer();
-  updateChangeNumEvents();
-  sendRefetch();
+  forceReset();
 }
 
 /**
  * reorders a given event
- * @param {string} eventId
- * @param {number} from
- * @param {number} to
+ * @param {string} eventId - ID of event from, for sanity check
+ * @param {number} from - index of event from
+ * @param {number} to - index of event to
  * @returns {Promise<void>}
  */
-export async function reorderEvent(eventId, from, to) {
+export async function reorderEvent(eventId: string, from: number, to: number) {
   const rundown = DataProvider.getRundown();
-  const index = rundown.findIndex((event) => event.id === eventId);
+  const indexFrom = rundown.findIndex((event) => event.id === eventId);
 
-  if (index !== from) {
+  if (indexFrom !== from) {
     throw new Error('ID not found at index');
   }
+
   const [reorderedItem] = rundown.splice(from, 1);
 
   // reinsert item at to
@@ -215,12 +289,25 @@ export async function reorderEvent(eventId, from, to) {
 
   // save rundown
   await DataProvider.setRundown(rundown);
+
   updateTimer();
+
+  // TODO: only calculate delays if moved is block or delay
+  let delayedRundown = calculateRuntimeDelaysFrom(eventId, rundown);
+  delayedRundown = calculateRuntimeDelaysFrom(rundown[indexFrom].id, rundown);
+  runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
+
   sendRefetch();
   return reorderedItem;
 }
 
-export function _applyDelay(eventId: string, rundown: OntimeRundown): OntimeRundown {
+export function _applyDelay(
+  eventId: string,
+  rundown: OntimeRundown,
+): {
+  delayIndex: number | null;
+  updatedRundown: OntimeRundown;
+} {
   const updatedRundown = [...rundown];
   let delayIndex = null;
   let delayValue = 0;
@@ -246,14 +333,7 @@ export function _applyDelay(eventId: string, rundown: OntimeRundown): OntimeRund
     }
   }
 
-  if (delayIndex === null) {
-    throw new Error(`Delay event with ID ${eventId} not found`);
-  }
-
-  // delete delay
-  updatedRundown.splice(delayIndex, 1);
-
-  return updatedRundown;
+  return { delayIndex, updatedRundown };
 }
 
 /**
@@ -263,10 +343,76 @@ export function _applyDelay(eventId: string, rundown: OntimeRundown): OntimeRund
  */
 export async function applyDelay(eventId: string) {
   const rundown: OntimeRundown = DataProvider.getRundown();
-  const newRundown: OntimeRundown = _applyDelay(eventId, rundown);
-  await DataProvider.setRundown(newRundown);
-  updateTimer();
-  sendRefetch();
+  const { delayIndex, updatedRundown } = _applyDelay(eventId, rundown);
+  if (delayIndex === null) {
+    throw new Error(`Delay event with ID ${eventId} not found`);
+  }
+  await DataProvider.setRundown(updatedRundown);
+  await deleteEvent(event);
+}
+
+export function calculateRuntimeDelays(rundown: OntimeRundown) {
+  let accumulatedDelay = 0;
+  const updatedRundown = [...rundown];
+
+  for (const [index, event] of updatedRundown.entries()) {
+    if (event.type === SupportedEvent.Delay) {
+      accumulatedDelay += event.duration;
+    } else if (event.type === SupportedEvent.Block) {
+      accumulatedDelay = 0;
+    } else if (event.type === SupportedEvent.Event) {
+      updatedRundown[index] = {
+        ...event,
+        delay: accumulatedDelay,
+      };
+    }
+  }
+  return updatedRundown;
+}
+
+export function calculateRuntimeDelaysFrom(eventId: string, rundown: OntimeRundown) {
+  const index = rundown.findIndex((event) => event.id === eventId);
+  if (index === -1) {
+    throw new Error('ID not found at index');
+  }
+
+  let accumulatedDelay = getDelayAt(index, rundown);
+  const updatedRundown = [...rundown];
+
+  for (let i = index; i < rundown.length; i++) {
+    const event = rundown[index];
+    if (event.type === SupportedEvent.Delay) {
+      accumulatedDelay += event.duration;
+    } else if (event.type === SupportedEvent.Block) {
+      break;
+    } else if (event.type === SupportedEvent.Event) {
+      updatedRundown[index] = {
+        ...event,
+        delay: accumulatedDelay,
+      };
+    }
+  }
+  return updatedRundown;
+}
+
+export function getDelayAt(eventIndex: number, rundown: OntimeRundown): number {
+  const event = rundown[eventIndex];
+
+  if (eventIndex < 0) {
+    return 0;
+  }
+
+  if (event.type === SupportedEvent.Delay) {
+    return event.duration + getDelayAt(eventIndex - 1, rundown);
+  }
+
+  if (event.type === SupportedEvent.Block) {
+    return 0;
+  }
+
+  if (event.type === SupportedEvent.Event) {
+    return event.delay ?? 0;
+  }
 }
 
 /**

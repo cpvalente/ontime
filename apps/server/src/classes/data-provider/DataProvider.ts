@@ -27,6 +27,10 @@ export class DataProvider {
     await this.persist();
   }
 
+  static getIndexOf(eventId) {
+    return data.rundown.findIndex((e) => e.id === eventId);
+  }
+
   static getEventById(eventId) {
     return data.rundown.find((e) => e.id === eventId);
   }
