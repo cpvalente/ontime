@@ -1,18 +1,26 @@
 // remember we are targeting phones and tablets
+
 .operator {
   width: 100vw;
   height: 100vh;
-  background-color: white;
   padding: 2rem;
   font-size: 0.8rem;
-
   display: flex;
   flex-direction: column;
   gap: 2px;
+  color:white;
+}
+
+.allBlocks{
+  flex: 1;
+  overflow: scroll;
 }
 
 @mixin event-block() {
-  padding: 0.5rem;
+  padding: 0.2rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .scheduledEvent {
@@ -22,5 +30,5 @@
 
 .block {
   @include event-block();
-  background-color: wheat;
+  background-color: gray;
 }
