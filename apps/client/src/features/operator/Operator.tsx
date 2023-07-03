@@ -3,8 +3,9 @@ import { SupportedEvent } from 'ontime-types';
 import useRundown from '../../common/hooks-query/useRundown';
 
 import style from './Operator.module.scss';
-
+import OpEvent from './op-event/OpEvent';
 import OpBlock from './op-block/OpBlock';
+import TimeBlock from './time-block/TimeBlock';
 
 export default function Operator() {
   // this is the data that you need, the status flag should give you possibility to create a loading state
@@ -17,6 +18,7 @@ export default function Operator() {
 
   return (
     <div className={style.operator}>
+      <div className={style.allBlocks}>
       {data.map((entry) => {
         // there are three types of events, you a filter them by using the type property
         // for this view, we do not show the delay event
@@ -25,23 +27,24 @@ export default function Operator() {
         if (entry.type === SupportedEvent.Event) {
           return (
             <div key={entry.id} className={style.scheduledEvent}>
-              <OpBlock entry={JSON.stringify(entry, null, 2)} />
+              <OpEvent data={entry} />
             </div>
           );
         }
+        
 
         // this is a block entry (like a section title)
         if (entry.type === SupportedEvent.Block) {
           return (
             <div key={entry.id} className={style.block}>
-              {/* {JSON.stringify(entry, null, 2)} */}
-              <OpBlock entry={JSON.stringify(entry, null, 2)} />
+              <OpBlock data={entry} />
             </div>
           );
         }
-
         return null;
       })}
+      </div>
+      <TimeBlock/>
     </div>
   );
 }

@@ -1,11 +1,13 @@
 import style from './OpBlock.module.scss';
 
 type Props = {
-    entry: string;
-}
+  data: any;
+};
 
-export default function OpBlock({entry}: Props) {
+export default function OpBlock({ data }: Props) {
   return (
-    <div>OpBlock</div>
-  )
+    <>
+    <div className={style.title}>{data.title}</div>
+    </>
+  );
 }
