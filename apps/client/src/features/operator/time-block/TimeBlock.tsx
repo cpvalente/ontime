@@ -1,5 +1,5 @@
 import styles from './TimeBlock.module.scss';
-import { Play } from 'lucide-react';
+import { FiPlay } from '@react-icons/all-files/fi/FiPlay';
 import { useTimer } from '../../../common/hooks/useSocket';
 import { formatTime } from '../../../common/utils/time';
 
@@ -13,7 +13,7 @@ export default function TimeBlock({}: Props) {
   });
   return (
     <div className={styles.block}>
-      <Play size={17} />
+      <FiPlay size={17} />
       <div className={styles.clock}>{timeNow} <div>00:10:00</div></div>
     </div>
   );
