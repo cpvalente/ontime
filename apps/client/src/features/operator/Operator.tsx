@@ -19,32 +19,31 @@ export default function Operator() {
   return (
     <div className={style.operator}>
       <div className={style.allBlocks}>
-      {data.map((entry) => {
-        // there are three types of events, you a filter them by using the type property
-        // for this view, we do not show the delay event
+        {data.map((entry) => {
+          // there are three types of events, you a filter them by using the type property
+          // for this view, we do not show the delay event
 
-        // this is a scheduled event
-        if (entry.type === SupportedEvent.Event) {
-          return (
-            <div key={entry.id} className={style.scheduledEvent}>
-              <OpEvent data={entry} />
-            </div>
-          );
-        }
-        
+          // this is a scheduled event
+          if (entry.type === SupportedEvent.Event) {
+            return (
+              <div key={entry.id} className={style.scheduledEvent}>
+                <OpEvent data={entry} />
+              </div>
+            );
+          }
 
-        // this is a block entry (like a section title)
-        if (entry.type === SupportedEvent.Block) {
-          return (
-            <div key={entry.id} className={style.block}>
-              <OpBlock data={entry} />
-            </div>
-          );
-        }
-        return null;
-      })}
+          // this is a block entry (like a section title)
+          if (entry.type === SupportedEvent.Block) {
+            return (
+              <div key={entry.id} className={style.block}>
+                <OpBlock data={entry} />
+              </div>
+            );
+          }
+          return null;
+        })}
       </div>
-      <TimeBlock/>
+      <TimeBlock />
     </div>
   );
 }

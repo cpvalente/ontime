@@ -1,27 +1,26 @@
-.alias{
-    background-color: red;
-    width: fit-content;
-    height: fit-content;
-    padding: 0.2rem;
-    align-items: center;
+.alias {
+  background-color: red;
+  width: fit-content;
+  height: fit-content;
+  padding: 0.2rem;
+  align-items: center;
 }
 
-.title{
-    font-size: 1rem;
+.title {
+  font-size: 1rem;
 }
 
-.time{
-    display: flex;
-    flex-direction: column;
-    font-size: 0.65rem;
-    text-align: right;
+.time {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.65rem;
+  text-align: right;
 }
 
 .time > div {
-    margin-bottom: -4px; /* Adjust the value as needed */
-  }
+  margin-bottom: -4px; /* Adjust the value as needed */
+}
 
-
-.title{
-    flex: 1;
+.title {
+  flex: 1;
 }

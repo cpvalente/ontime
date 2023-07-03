@@ -7,7 +7,7 @@ type Props = {
 export default function OpBlock({ data }: Props) {
   return (
     <>
-    <div className={style.title}>{data.title}</div>
+      <div className={style.title}>{data.title}</div>
     </>
   );
 }

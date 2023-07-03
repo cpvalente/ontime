@@ -14,7 +14,9 @@ export default function TimeBlock({}: Props) {
   return (
     <div className={styles.block}>
       <FiPlay size={17} />
-      <div className={styles.clock}>{timeNow} <div>00:10:00</div></div>
+      <div className={styles.clock}>
+        {timeNow} <div>00:10:00</div>
+      </div>
     </div>
   );
 }

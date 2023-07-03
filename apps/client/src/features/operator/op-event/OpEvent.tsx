@@ -1,4 +1,3 @@
-import { EventData } from 'ontime-types';
 import style from './OpEvent.module.scss';
 import { formatTime } from '../../../common/utils/time';
 
@@ -12,7 +11,7 @@ export default function OpEvent({ data }: Props) {
   return (
     <>
       <div className={style.alias}>{data.note}</div>
-      <div  className={style.title}>
+      <div className={style.title}>
         {data.title} - {data.subtitle}
       </div>
       <div className={style.time}>
