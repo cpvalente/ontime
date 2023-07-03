@@ -1,8 +1,12 @@
 interface CacheData {
-  data: any;
+  data: unknown;
 }
 
 const runtimeCache: Map<string, CacheData> = new Map();
+
+export function checkCached(key: string): boolean {
+  return Object.hasOwn(runtimeCache, key);
+}
 
 export function getCached<T>(key: string, callback: () => T): T {
   if (!Object.hasOwn(runtimeCache, key)) {
@@ -17,6 +21,16 @@ export function getCached<T>(key: string, callback: () => T): T {
   return runtimeCache.get(key).data as T;
 }
 
+export function setCached<T>(key: string, value: T): T {
+  try {
+    runtimeCache.set(key, { data: value });
+  } catch (error) {
+    console.log(`Failed retrieving data from callback: ${error}`);
+  }
+
+  return runtimeCache.get(key).data as T;
+}
+
 export function invalidate(key) {
   runtimeCache.delete(key);
 }
@@ -24,3 +38,15 @@ export function invalidate(key) {
 export function clear() {
   runtimeCache.clear();
 }
+
+function createCacheStore() {
+  return {
+    checkCached,
+    getCached,
+    setCached,
+    invalidate,
+    clear,
+  };
+}
+
+export const runtimeCacheStore = createCacheStore();
