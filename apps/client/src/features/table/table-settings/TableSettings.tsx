@@ -1,6 +1,9 @@
+import { useContext } from 'react';
 import { Button, Checkbox, Switch } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
+
+import { TableSettingsContext } from '../../../common/context/TableSettingsContext';
 
 import style from './TableSettings.module.scss';
 
@@ -19,6 +22,7 @@ interface CuesheetSettingsProps {
 
 export function CuesheetSettings(props: CuesheetSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
+  const { showDelayBlock, toggleDelayVisibility } = useContext(TableSettingsContext);
 
   return (
     <div className={style.tableSettings}>
@@ -30,7 +34,7 @@ export function CuesheetSettings(props: CuesheetSettingsProps) {
             const visible = column.getIsVisible();
 
             return (
-              <label key={column.id} className={style.option}>
+              <label key={`${column.id}-${visible}`} className={style.option}>
                 <Checkbox
                   variant='ontime-ondark'
                   defaultChecked={visible}
@@ -43,8 +47,12 @@ export function CuesheetSettings(props: CuesheetSettingsProps) {
         </div>
         <div className={style.sectionTitle}>Table Options</div>
         <label className={style.option}>
-          <Switch variant='ontime' size='sm' />
-          Show delays
+          <Switch variant='ontime' size='sm' isChecked={showDelayBlock} onChange={toggleDelayVisibility} />
+          Show delay blocks
+        </label>
+        <label className={style.option}>
+          <Switch variant='ontime' size='sm' isChecked={false} onChange={() => undefined} />
+          Hide past events
         </label>
       </div>
       <div className={style.rightPanel}>

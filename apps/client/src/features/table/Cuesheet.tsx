@@ -1,4 +1,4 @@
-import { useContext, useRef } from 'react';
+import { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
@@ -26,6 +26,8 @@ import { initialColumnOrder } from './cuesheetCols';
 
 import style from './Cuesheet.module.scss';
 
+const pastOpacity = '0.2';
+
 interface CuesheetProps {
   data: OntimeRundown;
   columns: ColumnDef<OntimeRundownEntry>[];
@@ -34,10 +36,12 @@ interface CuesheetProps {
 }
 
 export default function Cuesheet({ data, columns, handleUpdate, selectedId }: CuesheetProps) {
-  const { followSelected, showSettings } = useContext(TableSettingsContext);
+  const { followSelected, showSettings, showDelayBlock } = useContext(TableSettingsContext);
   const [columnVisibility, setColumnVisibility] = useLocalStorage('table-hidden', {});
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
   const [columnSizing, setColumnSizing] = useLocalStorage('table-sizes', {});
+
+  const selectedRef = useRef<HTMLTableRowElement | null>(null);
 
   const table = useReactTable({
     data,
@@ -75,6 +79,34 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     }),
   );
 
+  // when selection moves, view should follow
+  useEffect(() => {
+    function scrollToComponent(
+      componentRef: MutableRefObject<HTMLTableRowElement>,
+      scrollRef: MutableRefObject<HTMLDivElement>,
+    ) {
+      const componentRect = componentRef.current.getBoundingClientRect();
+      const scrollRect = scrollRef.current.getBoundingClientRect();
+      const top = componentRect.top - scrollRect.top + scrollRef.current.scrollTop - 100;
+      scrollRef.current.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    if (!followSelected) {
+      return;
+    }
+
+    if (selectedRef.current && tableContainerRef.current) {
+      // Use requestAnimationFrame to ensure the component is fully loaded
+      window.requestAnimationFrame(() => {
+        scrollToComponent(
+          selectedRef as MutableRefObject<HTMLTableRowElement>,
+          tableContainerRef as MutableRefObject<HTMLDivElement>,
+        );
+      });
+    }
+    // eslint-disable-next-line -- the prompt seems incorrect
+  }, [selectedRef.current, tableContainerRef.current]);
+
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { delta, active, over } = event;
 
@@ -111,6 +143,9 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
   const resetColumnResizing = () => {
     setColumnSizing({});
   };
+
+  let eventIndex = -1;
+  let isPast = Boolean(selectedId);
 
   return (
     <>
@@ -158,34 +193,42 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
           <tbody>
             {table.getRowModel().rows.map((row) => {
               const entryType = row.original.type as SupportedEvent;
+              const key = row.original.id;
+              const isSelected = selectedId === key;
+              if (isSelected) {
+                isPast = false;
+              }
 
               if (entryType === SupportedEvent.Block) {
                 const title = (row.original as OntimeBlock).title;
 
                 return (
-                  <tr key={row.id} className={style.blockRow}>
-                    <td colSpan={99}>{title}</td>
+                  <tr key={key} className={style.blockRow}>
+                    <td>{title}</td>
                   </tr>
                 );
               }
               if (entryType === SupportedEvent.Delay) {
                 const delayVal = (row.original as OntimeDelay).duration;
-                if (delayVal === 0) {
+
+                if (!showDelayBlock || delayVal === 0) {
                   return null;
                 }
+
                 const delayTime = millisToDelayString(delayVal);
                 return (
-                  <tr key={row.id} className={style.delayRow}>
-                    <td colSpan={99}>{delayTime}</td>
+                  <tr key={key} className={style.delayRow}>
+                    <td>{delayTime}</td>
                   </tr>
                 );
               }
 
               if (entryType === SupportedEvent.Event) {
-                const id = row.id;
-
-                // user facing indexes are 1 based
-                const index = row.index + 1;
+                eventIndex++;
+                const isSelected = key === selectedId;
+                if (isSelected) {
+                  isPast = false;
+                }
 
                 const bgFallback = 'transparent';
                 const bgColour = (row.original as OntimeEvent).colour || bgFallback;
@@ -195,11 +238,15 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 if (row.original.id === selectedId) {
                   rowBgColour = '#D20300'; // $red-700
                 }
-
                 return (
-                  <tr key={id} className={style.eventRow}>
+                  <tr
+                    key={key}
+                    className={style.eventRow}
+                    style={{ opacity: `${isPast ? pastOpacity : '1'}` }}
+                    ref={isSelected ? selectedRef : undefined}
+                  >
                     <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour?.color }}>
-                      {index}
+                      {eventIndex}
                     </td>
                     {row.getVisibleCells().map((cell) => {
                       return (

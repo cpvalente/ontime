@@ -92,6 +92,14 @@ $table-header-font-size: calc(1rem - 3px);
   margin: 0 auto;
 }
 
+.delaySymbol {
+  svg {
+    font-size: 1.5rem;
+    color: $ontime-delay;
+    margin: 0 auto;
+  }
+}
+
 .resizer {
   cursor: col-resize;
   opacity: 0;
