@@ -6,10 +6,12 @@ interface CuesheetSettings {
   showSettings: boolean;
   followSelected: boolean;
   showDelayBlock: boolean;
+  showPrevious: boolean;
 
   toggleSettings: (val?: boolean) => void;
   toggleFollow: (val?: boolean) => void;
   toggleDelayVisibility: (val?: boolean) => void;
+  togglePreviousVisibility: (val?: boolean) => void;
 }
 
 function toggle(oldValue: boolean, value?: boolean) {
@@ -22,6 +24,7 @@ function toggle(oldValue: boolean, value?: boolean) {
 enum CuesheetKeys {
   Follow = 'ontime-cuesheet-follow-selected',
   DelayVisibility = 'ontime-cuesheet-show-delay',
+  PreviousVisibility = 'ontime-cuesheet-show-previous',
 }
 
 export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
@@ -42,5 +45,11 @@ export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
       const value = toggle(state.showDelayBlock, newValue);
       localStorage.setItem(CuesheetKeys.DelayVisibility, String(value));
       return { showDelayBlock: value };
+    }),
+  togglePreviousVisibility: (newValue?: boolean) =>
+    set((state) => {
+      const value = toggle(state.showPrevious, newValue);
+      localStorage.setItem(CuesheetKeys.PreviousVisibility, String(value));
+      return { showPrevious: value };
     }),
 }));

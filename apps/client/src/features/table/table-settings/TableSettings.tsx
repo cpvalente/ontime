@@ -54,7 +54,7 @@ export function CuesheetSettings(props: CuesheetSettingsProps) {
           </label>
           <label className={style.option}>
             <Switch variant='ontime' size='sm' isChecked={showPrevious} onChange={() => togglePreviousVisibility()} />
-            Hide past events
+            Show past events
           </label>
         </div>
       </div>

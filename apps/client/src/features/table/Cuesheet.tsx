@@ -39,6 +39,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
   const followSelected = useCuesheetSettings((state) => state.followSelected);
   const showSettings = useCuesheetSettings((state) => state.showSettings);
   const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
+  const showPrevious = useCuesheetSettings((state) => state.showPrevious);
 
   const [columnVisibility, setColumnVisibility] = useLocalStorage('table-hidden', {});
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
@@ -231,6 +232,10 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 const isSelected = key === selectedId;
                 if (isSelected) {
                   isPast = false;
+                }
+
+                if (isPast && !showPrevious) {
+                  return null;
                 }
 
                 const bgFallback = 'transparent';
