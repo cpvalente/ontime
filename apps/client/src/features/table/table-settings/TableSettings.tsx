@@ -1,9 +1,8 @@
-import { useContext } from 'react';
 import { Button, Checkbox, Switch } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
-import { TableSettingsContext } from '../../../common/context/TableSettingsContext';
+import { useCuesheetSettings } from '../store/CuesheetSettings';
 
 import style from './TableSettings.module.scss';
 
@@ -22,7 +21,10 @@ interface CuesheetSettingsProps {
 
 export function CuesheetSettings(props: CuesheetSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
-  const { showDelayBlock, toggleDelayVisibility } = useContext(TableSettingsContext);
+  const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
+  const toggleDelayVisibility = useCuesheetSettings((state) => state.toggleDelayVisibility);
+  const showPrevious = useCuesheetSettings((state) => state.showPrevious);
+  const togglePreviousVisibility = useCuesheetSettings((state) => state.togglePreviousVisibility);
 
   return (
     <div className={style.tableSettings}>
@@ -32,7 +34,6 @@ export function CuesheetSettings(props: CuesheetSettingsProps) {
           {columns.map((column) => {
             const columnHeader = column.columnDef.header;
             const visible = column.getIsVisible();
-
             return (
               <label key={`${column.id}-${visible}`} className={style.option}>
                 <Checkbox
@@ -46,14 +47,16 @@ export function CuesheetSettings(props: CuesheetSettingsProps) {
           })}
         </div>
         <div className={style.sectionTitle}>Table Options</div>
-        <label className={style.option}>
-          <Switch variant='ontime' size='sm' isChecked={showDelayBlock} onChange={toggleDelayVisibility} />
-          Show delay blocks
-        </label>
-        <label className={style.option}>
-          <Switch variant='ontime' size='sm' isChecked={false} onChange={() => undefined} />
-          Hide past events
-        </label>
+        <div className={style.options}>
+          <label className={style.option}>
+            <Switch variant='ontime' size='sm' isChecked={showDelayBlock} onChange={() => toggleDelayVisibility()} />
+            Show delay blocks
+          </label>
+          <label className={style.option}>
+            <Switch variant='ontime' size='sm' isChecked={showPrevious} onChange={() => togglePreviousVisibility()} />
+            Hide past events
+          </label>
+        </div>
       </div>
       <div className={style.rightPanel}>
         <Button onClick={handleClearToggles} {...buttonProps}>

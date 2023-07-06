@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
@@ -7,12 +6,12 @@ import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline'
 import { EventData, Playback } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
-import { TableSettingsContext } from '../../../common/context/TableSettingsContext';
 import useFullscreen from '../../../common/hooks/useFullscreen';
 import { useTimer } from '../../../common/hooks/useSocket';
 import useEventData from '../../../common/hooks-query/useEventData';
 import { formatTime } from '../../../common/utils/time';
 import { tooltipDelayFast } from '../../../ontimeConfig';
+import { useCuesheetSettings } from '../store/CuesheetSettings';
 import PlaybackIcon from '../tableElements/PlaybackIcon';
 
 import style from './TableHeader.module.scss';
@@ -28,7 +27,10 @@ interface TableHeaderProps {
 }
 
 export default function TableHeader({ handleCSVExport, featureData }: TableHeaderProps) {
-  const { followSelected, showSettings, toggleSettings, toggleFollow } = useContext(TableSettingsContext);
+  const followSelected = useCuesheetSettings((state) => state.followSelected);
+  const showSettings = useCuesheetSettings((state) => state.showSettings);
+  const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
+  const toggleFollow = useCuesheetSettings((state) => state.toggleFollow);
   const timer = useTimer();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { data: event } = useEventData();

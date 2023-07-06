@@ -1,4 +1,4 @@
-import { MutableRefObject, useContext, useEffect, useRef } from 'react';
+import { MutableRefObject, useEffect, useRef } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
@@ -14,12 +14,12 @@ import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordin
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
-import { TableSettingsContext } from '../../common/context/TableSettingsContext';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
 import { millisToDelayString } from '../../common/utils/dateConfig';
 import { getAccessibleColour } from '../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../ontimeConfig';
 
+import { useCuesheetSettings } from './store/CuesheetSettings';
 import { CuesheetSettings } from './table-settings/TableSettings';
 import { SortableCell } from './tableElements/SortableCell';
 import { initialColumnOrder } from './cuesheetCols';
@@ -36,7 +36,10 @@ interface CuesheetProps {
 }
 
 export default function Cuesheet({ data, columns, handleUpdate, selectedId }: CuesheetProps) {
-  const { followSelected, showSettings, showDelayBlock } = useContext(TableSettingsContext);
+  const followSelected = useCuesheetSettings((state) => state.followSelected);
+  const showSettings = useCuesheetSettings((state) => state.showSettings);
+  const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
+
   const [columnVisibility, setColumnVisibility] = useLocalStorage('table-hidden', {});
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
   const [columnSizing, setColumnSizing] = useLocalStorage('table-sizes', {});
