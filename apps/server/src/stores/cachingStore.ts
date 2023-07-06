@@ -9,7 +9,7 @@ export function checkCached(key: string): boolean {
 }
 
 export function getCached<T>(key: string, callback: () => T): T {
-  if (!Object.hasOwn(runtimeCache, key)) {
+  if (!runtimeCache.has(key)) {
     try {
       const data = callback();
       runtimeCache.set(key, { data });
