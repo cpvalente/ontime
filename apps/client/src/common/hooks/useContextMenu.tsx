@@ -1,22 +1,16 @@
-import { MouseEvent, useContext } from 'react';
+import { MouseEvent } from 'react';
 
-import { ContextMenuContext, Option } from '../context/ContextMenuContext';
+import { Option, useContextMenuStore } from '../components/context-menu/ContextMenu';
 
 export const useContextMenu = <T extends HTMLElement>(options: Option[]) => {
-  const contextMenuContext = useContext(ContextMenuContext);
-
-  if (contextMenuContext === null) {
-    throw new Error('useContextMenu should be wrapped by ContextMenuProvider');
-  }
-
-  const { createContextMenu } = contextMenuContext;
+  const { setContextMenu } = useContextMenuStore();
 
   const localCreateContextMenu = (contextMenuEvent: MouseEvent<T, globalThis.MouseEvent>) => {
     // prevent browser default context menu from showing up
     contextMenuEvent.preventDefault();
 
     const { pageX, pageY } = contextMenuEvent;
-    return createContextMenu(options, { x: pageX, y: pageY });
+    return setContextMenu({ x: pageX, y: pageY }, options);
   };
 
   return [localCreateContextMenu];
