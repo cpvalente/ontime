@@ -22,12 +22,7 @@ export function getCached<T>(key: string, callback: () => T): T {
 }
 
 export function setCached<T>(key: string, value: T): T {
-  try {
-    runtimeCache.set(key, { data: value });
-  } catch (error) {
-    console.log(`Failed retrieving data from callback: ${error}`);
-  }
-
+  runtimeCache.set(key, { data: value });
   return runtimeCache.get(key).data as T;
 }
 
