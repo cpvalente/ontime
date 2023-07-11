@@ -5,7 +5,7 @@ import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
+import { IoTime} from '@react-icons/all-files/io5/IoTime';
 import { Playback } from 'ontime-types';
 
 import { setPlayback } from '../../../../common/hooks/useSocket';
@@ -88,7 +88,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
           theme={Playback.Roll}
           active={isRolling}
         >
-          <IoTimeOutline />
+          <IoTime />
         </TapButton>
         <Tooltip label='Reload event' openDelay={tooltipDelayMid}>
           <TapButton onClick={setPlayback.reload} disabled={isStopped || isRolling}>
