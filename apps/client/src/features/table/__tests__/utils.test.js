@@ -35,7 +35,7 @@ describe('parseField()', () => {
       { field: 'title', value: 'test' },
       { field: 'presenter', value: 'test' },
       { field: 'subtitle', value: 'test' },
-      { field: 'notes', value: 'test' },
+      { field: 'note', value: 'test' },
       { field: 'colour', value: 'test' },
       { field: 'user0', value: 'test' },
       { field: 'user1', value: 'test' },
