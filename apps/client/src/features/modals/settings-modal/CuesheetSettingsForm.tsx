@@ -16,7 +16,7 @@ import style from './SettingsModal.module.scss';
 
 const userFieldsDocsUrl = 'https://ontime.gitbook.io/v2/features/user-fields';
 
-export default function CuesheetSettings() {
+export default function CuesheetSettingsForm() {
   const { data, status, isFetching, refetch } = useUserFields();
   const { emitError } = useEmitLog();
   const {
