@@ -108,8 +108,8 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
         );
       });
     }
-    // eslint-disable-next-line -- the prompt seems incorrect
-  }, [selectedRef.current, tableContainerRef.current]);
+    // eslint-disable-next-line -- the prompt seems incorrect, we need the refs
+  }, [selectedRef.current, tableContainerRef.current, followSelected]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { delta, active, over } = event;
@@ -226,7 +226,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                   </tr>
                 );
               }
-
               if (entryType === SupportedEvent.Event) {
                 eventIndex++;
                 const isSelected = key === selectedId;
@@ -266,6 +265,9 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                   </tr>
                 );
               }
+
+              // currently there is no scenario where entryType is not handled above, either way...
+              return null;
             })}
           </tbody>
         </table>
