@@ -7,6 +7,13 @@ import { DAY_TO_MS } from '../utils/time.js';
 import { integrationService } from './integration-service/IntegrationService.js';
 import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
+import { logger } from '../classes/Logger.js';
+
+type initialLoadingData = {
+  startedAt?: number | null;
+  expectedFinish?: number | null;
+  current?: number | null;
+};
 
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
@@ -113,7 +120,7 @@ export class TimerService {
    * @param {string} timer.timerType
    * @param {boolean} timer.skip
    */
-  load(timer) {
+  load(timer, initialData?: initialLoadingData) {
     if (timer.skip) {
       throw new Error('Refuse load of skipped event');
     }
@@ -128,6 +135,10 @@ export class TimerService {
     this.timer.endAction = timer.endAction;
     this.pausedTime = 0;
     this.pausedAt = 0;
+
+    if (typeof initialData !== 'undefined') {
+      this.timer = { ...this.timer, ...initialData };
+    }
 
     this._onLoad();
   }
@@ -146,6 +157,9 @@ export class TimerService {
 
   start() {
     if (!this.loadedTimerId) {
+      if (this.playback === Playback.Roll) {
+        logger.error('PLAYBACK', 'Cannot start while waiting for event');
+      }
       return;
     }
 
@@ -155,12 +169,12 @@ export class TimerService {
 
     this.timer.clock = clock.timeNow();
 
-    // add paused time
+    // add paused time if it exists
     if (this.pausedTime) {
       this.timer.addedTime += this.pausedTime;
       this.pausedAt = null;
       this.pausedTime = 0;
-    } else {
+    } else if (this.timer.startedAt === null) {
       this.timer.startedAt = this.timer.clock;
     }
 
@@ -188,10 +202,6 @@ export class TimerService {
   }
 
   pause() {
-    if (this.playback !== Playback.Play) {
-      return;
-    }
-
     this.playback = Playback.Pause;
     this.timer.clock = clock.timeNow();
     this.pausedAt = this.timer.clock;
@@ -370,9 +380,11 @@ export class TimerService {
 
       // when we load a timer in roll, we do the same things as before
       // but also pre-populate some data as to the running state
-      this.load(currentEvent);
-      this.timer.startedAt = currentEvent.timeStart;
-      this.timer.expectedFinish = currentEvent.timeEnd;
+      this.load(currentEvent, {
+        startedAt: currentEvent.timeStart,
+        expectedFinish: currentEvent.timeEnd,
+        current: currentEvent.timeEnd - this.timer.clock,
+      });
     } else if (nextEvent) {
       // account for day after
       const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + DAY_TO_MS : nextEvent.timeStart;
