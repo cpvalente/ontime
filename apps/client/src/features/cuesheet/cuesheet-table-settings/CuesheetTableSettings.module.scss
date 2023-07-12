@@ -26,10 +26,6 @@
   flex-wrap: wrap;
   column-gap: 1rem;
   row-gap: 0.25em;
-
-  & > :first-child {
-    padding-left: 0.5rem;
-  }
 }
 
 .option {
