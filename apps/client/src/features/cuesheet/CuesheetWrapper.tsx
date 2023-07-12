@@ -7,14 +7,14 @@ import { useCuesheet } from '../../common/hooks/useSocket';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
 
-import TableHeader from './table-header/TableHeader';
+import CuesheetTableHeader from './cuesheet-table-header/CuesheetTableHeader';
 import Cuesheet from './Cuesheet';
 import { makeCuesheetColumns } from './cuesheetCols';
-import { makeCSV, makeTable } from './tableUtils';
+import { makeCSV, makeTable } from './cuesheetUtils';
 
-import styles from './TableWrapper.module.scss';
+import styles from './CuesheetWrapper.module.scss';
 
-export default function TableWrapper() {
+export default function CuesheetWrapper() {
   const { data: rundown } = useRundown();
   const { data: userFields } = useUserFields();
   const { updateEvent } = useEventAction();
@@ -92,7 +92,7 @@ export default function TableWrapper() {
 
   return (
     <div className={styles.tableWrapper} data-testid='cuesheet'>
-      <TableHeader handleCSVExport={exportHandler} featureData={featureData} />
+      <CuesheetTableHeader handleCSVExport={exportHandler} featureData={featureData} />
       <Cuesheet data={rundown} columns={columns} handleUpdate={handleUpdate} selectedId={featureData.selectedEventId} />
     </div>
   );

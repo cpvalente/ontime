@@ -1,11 +1,11 @@
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
 
-import TableWrapper from './TableWrapper';
+import CuesheetWrapper from './CuesheetWrapper';
 
-export default function ProtectedTable() {
+export default function ProtectedCuesheet() {
   return (
     <ProtectRoute permission='operator'>
-      <TableWrapper />
+      <CuesheetWrapper />
     </ProtectRoute>
   );
 }

@@ -4,7 +4,7 @@ import { OntimeRundownEntry } from 'ontime-types';
 
 import { useCuesheetSettings } from '../store/CuesheetSettings';
 
-import style from './TableSettings.module.scss';
+import style from './CuesheetTableSettings.module.scss';
 
 // reusable button styles
 const buttonProps = {
@@ -12,14 +12,14 @@ const buttonProps = {
   variant: 'ontime-subtle',
 };
 
-interface CuesheetSettingsProps {
+interface CuesheetTableSettingsProps {
   columns: Column<OntimeRundownEntry, unknown>[];
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
 }
 
-export function CuesheetSettings(props: CuesheetSettingsProps) {
+export default function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
   const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
   const toggleDelayVisibility = useCuesheetSettings((state) => state.toggleDelayVisibility);

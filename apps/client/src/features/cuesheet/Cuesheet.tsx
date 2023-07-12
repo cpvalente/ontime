@@ -19,8 +19,8 @@ import { millisToDelayString } from '../../common/utils/dateConfig';
 import { getAccessibleColour } from '../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../ontimeConfig';
 
+import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import { useCuesheetSettings } from './store/CuesheetSettings';
-import { CuesheetSettings } from './table-settings/TableSettings';
 import { SortableCell } from './tableElements/SortableCell';
 import { initialColumnOrder } from './cuesheetCols';
 
@@ -154,7 +154,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
   return (
     <>
       {showSettings && (
-        <CuesheetSettings
+        <CuesheetTableSettings
           columns={table.getAllLeafColumns()}
           handleResetResizing={resetColumnResizing}
           handleResetReordering={resetColumnOrder}

@@ -14,9 +14,9 @@ import { tooltipDelayFast } from '../../../ontimeConfig';
 import { useCuesheetSettings } from '../store/CuesheetSettings';
 import PlaybackIcon from '../tableElements/PlaybackIcon';
 
-import style from './TableHeader.module.scss';
+import style from './CuesheetTableHeader.module.scss';
 
-interface TableHeaderProps {
+interface CuesheetTableHeaderProps {
   handleCSVExport: (headerData: EventData) => void;
   featureData: {
     playback: Playback;
@@ -26,7 +26,7 @@ interface TableHeaderProps {
   };
 }
 
-export default function TableHeader({ handleCSVExport, featureData }: TableHeaderProps) {
+export default function CuesheetTableHeader({ handleCSVExport, featureData }: CuesheetTableHeaderProps) {
   const followSelected = useCuesheetSettings((state) => state.followSelected);
   const showSettings = useCuesheetSettings((state) => state.showSettings);
   const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
