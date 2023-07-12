@@ -5,7 +5,7 @@ interface CacheData {
 const runtimeCache: Map<string, CacheData> = new Map();
 
 export function checkCached(key: string): boolean {
-  return Object.hasOwn(runtimeCache, key);
+  return runtimeCache.has(key);
 }
 
 export function getCached<T>(key: string, callback: () => T): T {
