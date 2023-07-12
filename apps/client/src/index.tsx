@@ -18,6 +18,8 @@ Sentry.init({
   tracesSampleRate: 1.0,
   release: ONTIME_VERSION,
   enabled: import.meta.env.PROD,
+  ignoreErrors: ['top.GLOBALS', 'Unable to preload CSS'],
+  denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i],
 });
 
 root.render(

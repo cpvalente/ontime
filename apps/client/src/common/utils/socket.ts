@@ -8,13 +8,16 @@ import { runtime } from '../stores/runtime';
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 const reconnectInterval = 1000;
-let shouldReconnect = true;
-
+export let shouldReconnect = true;
+export let hasConnected = false;
+export let reconnectAttempts = 0;
 export const connectSocket = () => {
   websocket = new WebSocket(websocketUrl);
 
   websocket.onopen = () => {
     clearTimeout(reconnectTimeout as NodeJS.Timeout);
+    hasConnected = true;
+    reconnectAttempts = 0;
   };
 
   websocket.onclose = () => {
@@ -23,6 +26,7 @@ export const connectSocket = () => {
       reconnectTimeout = setTimeout(() => {
         console.warn('WebSocket: attempting reconnect');
         if (websocket && websocket.readyState === WebSocket.CLOSED) {
+          reconnectAttempts += 1;
           connectSocket();
         }
       }, reconnectInterval);
