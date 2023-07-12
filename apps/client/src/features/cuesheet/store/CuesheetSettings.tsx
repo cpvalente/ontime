@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 
 import { booleanFromLocalStorage } from '../../../common/utils/localStorage';
 
@@ -8,10 +8,10 @@ interface CuesheetSettings {
   showDelayBlock: boolean;
   showPrevious: boolean;
 
-  toggleSettings: (val?: boolean) => void;
-  toggleFollow: (val?: boolean) => void;
-  toggleDelayVisibility: (val?: boolean) => void;
-  togglePreviousVisibility: (val?: boolean) => void;
+  toggleSettings: (newValue?: boolean) => void;
+  toggleFollow: (newValue?: boolean) => void;
+  toggleDelayVisibility: (newValue?: boolean) => void;
+  togglePreviousVisibility: (newValue?: boolean) => void;
 }
 
 function toggle(oldValue: boolean, value?: boolean) {
@@ -36,20 +36,20 @@ export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
   toggleSettings: (newValue?: boolean) => set((state) => ({ showSettings: toggle(state.showSettings, newValue) })),
   toggleFollow: (newValue?: boolean) =>
     set((state) => {
-      const value = toggle(state.followSelected, newValue);
-      localStorage.setItem(CuesheetKeys.Follow, String(value));
-      return { followSelected: value };
+      const followSelected = toggle(state.followSelected, newValue);
+      localStorage.setItem(CuesheetKeys.Follow, String(followSelected));
+      return { followSelected };
     }),
   toggleDelayVisibility: (newValue?: boolean) =>
     set((state) => {
-      const value = toggle(state.showDelayBlock, newValue);
-      localStorage.setItem(CuesheetKeys.DelayVisibility, String(value));
-      return { showDelayBlock: value };
+      const showDelayBlock = toggle(state.showDelayBlock, newValue);
+      localStorage.setItem(CuesheetKeys.DelayVisibility, String(showDelayBlock));
+      return { showDelayBlock };
     }),
   togglePreviousVisibility: (newValue?: boolean) =>
     set((state) => {
-      const value = toggle(state.showPrevious, newValue);
-      localStorage.setItem(CuesheetKeys.PreviousVisibility, String(value));
-      return { showPrevious: value };
+      const showPrevious = toggle(state.showPrevious, newValue);
+      localStorage.setItem(CuesheetKeys.PreviousVisibility, String(showPrevious));
+      return { showPrevious };
     }),
 }));
