@@ -1,52 +1,63 @@
 import { useCallback } from 'react';
+import { Tooltip } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
+import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
+import { IoChevronUp } from '@react-icons/all-files/io5/IoChevronUp';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { OntimeEvent, OntimeRundownEntry, UserFields } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
+import { millisToDelayString } from '../../common/utils/dateConfig';
+import { tooltipDelayFast } from '../../ontimeConfig';
+
+import { useCuesheetSettings } from './store/CuesheetSettings';
 import EditableCell from './tableElements/EditableCell';
 
 import style from './Cuesheet.module.scss';
-import { IoChevronUp } from '@react-icons/all-files/io5/IoChevronUp';
-import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
-import { Tooltip } from '@chakra-ui/react';
-import { tooltipDelayFast } from '../../ontimeConfig';
-import { millisToDelayString } from '../../common/utils/dateConfig';
 
 function makePublic(row: CellContext<OntimeRundownEntry, unknown>) {
   const cellValue = row.getValue();
   return cellValue ? <IoCheckmark className={style.check} /> : '';
 }
 
-function makeDelay(row: CellContext<OntimeRundownEntry, unknown>) {
-  const cellValue = row.getValue() as number | undefined;
-  if (cellValue && cellValue > 0) {
+function DelayIndicator(props: { delayValue: number }) {
+  const { delayValue } = props;
+  if (delayValue < 0) {
     return (
-      <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(cellValue)}>
-        <span className={style.delaySymbol}>
-          <IoChevronUp />
-        </span>
-      </Tooltip>
-    );
-  }
-  if (cellValue && cellValue < 0) {
-    return (
-      <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(cellValue)}>
+      <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(delayValue)}>
         <span className={style.delaySymbol}>
           <IoChevronDown />
         </span>
       </Tooltip>
     );
   }
-  return;
+
+  if (delayValue > 0) {
+    return (
+      <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(delayValue)}>
+        <span className={style.delaySymbol}>
+          <IoChevronUp />
+        </span>
+      </Tooltip>
+    );
+  }
+  return null;
 }
 
-function makeTimer(row: CellContext<OntimeRundownEntry, unknown>) {
-  let cellValue = (row.getValue() as number | null) ?? 0;
-  if (cellValue != null) {
-    cellValue += (row.row.original as OntimeEvent)?.delay ?? 0;
-  }
-  return millisToString(cellValue);
+function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
+  const showDelayedTimes = useCuesheetSettings((state) => state.showDelayedTimes);
+  const cellValue = (getValue() as number | null) ?? 0;
+  const delayValue = (original as OntimeEvent)?.delay ?? 0;
+
+  console.log(delayValue)
+
+  return (
+    <span className={style.time}>
+      <DelayIndicator delayValue={delayValue} />
+      {millisToString(cellValue)}
+      {(delayValue !== 0 && showDelayedTimes) && <span className={style.delayedTime}>{` ${millisToString(cellValue + delayValue)}`}</span>}
+    </span>
+  );
 }
 
 function MakeUserField({ getValue, row: { index }, column: { id }, table }: CellContext<OntimeRundownEntry, unknown>) {
@@ -74,24 +85,17 @@ export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRu
       size: 45,
     },
     {
-      accessorKey: 'delay',
-      id: 'delay',
-      header: 'Delay',
-      cell: makeDelay,
-      size: 45,
-    },
-    {
       accessorKey: 'timeStart',
       id: 'timeStart',
       header: 'Start',
-      cell: makeTimer,
+      cell: MakeTimer,
       size: 75,
     },
     {
       accessorKey: 'timeEnd',
       id: 'timeEnd',
       header: 'End',
-      cell: makeTimer,
+      cell: MakeTimer,
       size: 75,
     },
     {

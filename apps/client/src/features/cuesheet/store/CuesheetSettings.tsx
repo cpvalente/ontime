@@ -5,13 +5,15 @@ import { booleanFromLocalStorage } from '../../../common/utils/localStorage';
 interface CuesheetSettings {
   showSettings: boolean;
   followSelected: boolean;
-  showDelayBlock: boolean;
   showPrevious: boolean;
+  showDelayBlock: boolean;
+  showDelayedTimes: boolean;
 
   toggleSettings: (newValue?: boolean) => void;
   toggleFollow: (newValue?: boolean) => void;
-  toggleDelayVisibility: (newValue?: boolean) => void;
   togglePreviousVisibility: (newValue?: boolean) => void;
+  toggleDelayVisibility: (newValue?: boolean) => void;
+  toggleDelayedTimes: (newValue?: boolean) => void;
 }
 
 function toggle(oldValue: boolean, value?: boolean) {
@@ -25,13 +27,15 @@ enum CuesheetKeys {
   Follow = 'ontime-cuesheet-follow-selected',
   DelayVisibility = 'ontime-cuesheet-show-delay',
   PreviousVisibility = 'ontime-cuesheet-show-previous',
+  DelayedTimes = 'ontime-cuesheet-show-delayed',
 }
 
 export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
   showSettings: false,
   followSelected: booleanFromLocalStorage(CuesheetKeys.Follow, false),
-  showDelayBlock: booleanFromLocalStorage(CuesheetKeys.DelayVisibility, true),
   showPrevious: booleanFromLocalStorage(CuesheetKeys.PreviousVisibility, true),
+  showDelayBlock: booleanFromLocalStorage(CuesheetKeys.DelayVisibility, true),
+  showDelayedTimes: booleanFromLocalStorage(CuesheetKeys.DelayedTimes, false),
 
   toggleSettings: (newValue?: boolean) => set((state) => ({ showSettings: toggle(state.showSettings, newValue) })),
   toggleFollow: (newValue?: boolean) =>
@@ -40,16 +44,22 @@ export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
       localStorage.setItem(CuesheetKeys.Follow, String(followSelected));
       return { followSelected };
     }),
+  togglePreviousVisibility: (newValue?: boolean) =>
+    set((state) => {
+      const showPrevious = toggle(state.showPrevious, newValue);
+      localStorage.setItem(CuesheetKeys.PreviousVisibility, String(showPrevious));
+      return { showPrevious };
+    }),
   toggleDelayVisibility: (newValue?: boolean) =>
     set((state) => {
       const showDelayBlock = toggle(state.showDelayBlock, newValue);
       localStorage.setItem(CuesheetKeys.DelayVisibility, String(showDelayBlock));
       return { showDelayBlock };
     }),
-  togglePreviousVisibility: (newValue?: boolean) =>
+  toggleDelayedTimes: (newValue?: boolean) =>
     set((state) => {
-      const showPrevious = toggle(state.showPrevious, newValue);
-      localStorage.setItem(CuesheetKeys.PreviousVisibility, String(showPrevious));
-      return { showPrevious };
+      const showDelayedTimes = toggle(state.showDelayedTimes, newValue);
+      localStorage.setItem(CuesheetKeys.DelayedTimes, String(showDelayedTimes));
+      return { showDelayedTimes };
     }),
 }));

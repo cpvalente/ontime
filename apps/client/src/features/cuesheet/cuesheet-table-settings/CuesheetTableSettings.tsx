@@ -21,15 +21,17 @@ interface CuesheetTableSettingsProps {
 
 export default function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
-  const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
-  const toggleDelayVisibility = useCuesheetSettings((state) => state.toggleDelayVisibility);
   const showPrevious = useCuesheetSettings((state) => state.showPrevious);
   const togglePreviousVisibility = useCuesheetSettings((state) => state.togglePreviousVisibility);
+  const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
+  const toggleDelayVisibility = useCuesheetSettings((state) => state.toggleDelayVisibility);
+  const showDelayedTimes = useCuesheetSettings((state) => state.showDelayedTimes);
+  const toggleDelayedTimes = useCuesheetSettings((state) => state.toggleDelayedTimes);
 
   return (
     <div className={style.tableSettings}>
       <div className={style.leftPanel}>
-        <div className={style.sectionTitle}>Toggle field visibility</div>
+        <div className={style.sectionTitle}>Toggle column visibility</div>
         <div className={style.options}>
           {columns.map((column) => {
             const columnHeader = column.columnDef.header;
@@ -49,12 +51,19 @@ export default function CuesheetTableSettings(props: CuesheetTableSettingsProps)
         <div className={style.sectionTitle}>Table Options</div>
         <div className={style.options}>
           <label className={style.option}>
-            <Switch variant='ontime' size='sm' isChecked={showDelayBlock} onChange={() => toggleDelayVisibility()} />
-            Show delay blocks
-          </label>
-          <label className={style.option}>
             <Switch variant='ontime' size='sm' isChecked={showPrevious} onChange={() => togglePreviousVisibility()} />
             Show past events
+          </label>
+        </div>
+        <div className={style.sectionTitle}>Delay Flow</div>
+        <div className={style.options}>
+          <label className={style.option}>
+            <Switch variant='ontime' size='sm' isChecked={showDelayedTimes} onChange={() => toggleDelayedTimes()} />
+            Show delayed times
+          </label>
+          <label className={style.option}>
+            <Switch variant='ontime' size='sm' isChecked={showDelayBlock} onChange={() => toggleDelayVisibility()} />
+            Show delay blocks
           </label>
         </div>
       </div>
