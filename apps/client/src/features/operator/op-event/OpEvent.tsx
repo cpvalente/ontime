@@ -1,6 +1,8 @@
-import style from './OpEvent.module.scss';
-import { formatTime } from '../../../common/utils/time';
 import { OntimeEvent } from 'ontime-types';
+
+import { formatTime } from '../../../common/utils/time';
+
+import style from './OpEvent.module.scss';
 
 type OpEventProps = {
   data: OntimeEvent;

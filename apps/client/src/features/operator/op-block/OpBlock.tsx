@@ -1,5 +1,6 @@
-import style from './OpBlock.module.scss';
 import { OntimeBlock } from 'ontime-types';
+
+import style from './OpBlock.module.scss';
 
 interface OpBlockProps {
   data: OntimeBlock;

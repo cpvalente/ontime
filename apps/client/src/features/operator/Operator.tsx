@@ -2,10 +2,11 @@ import { SupportedEvent } from 'ontime-types';
 
 import useRundown from '../../common/hooks-query/useRundown';
 
-import style from './Operator.module.scss';
-import OpEvent from './op-event/OpEvent';
 import OpBlock from './op-block/OpBlock';
+import OpEvent from './op-event/OpEvent';
 import TimeBlock from './time-block/TimeBlock';
+
+import style from './Operator.module.scss';
 
 export default function Operator() {
   // this is the data that you need, the status flag should give you possibility to create a loading state

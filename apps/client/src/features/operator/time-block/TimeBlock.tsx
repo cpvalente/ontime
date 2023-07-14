@@ -1,7 +1,9 @@
-import styles from './TimeBlock.module.scss';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+
 import { useTimer } from '../../../common/hooks/useSocket';
 import { formatTime } from '../../../common/utils/time';
+
+import styles from './TimeBlock.module.scss';
 
 export default function TimeBlock() {
   const timer = useTimer();
