@@ -2,7 +2,7 @@
 // https://github.com/lukasbach/chakra-ui-contextmenu/blob/main/src/ContextMenu.tsx
 
 import { ReactElement } from 'react';
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { IconType } from '@react-icons/all-files';
 import { create } from 'zustand';
 
@@ -17,6 +17,7 @@ export type Option = {
   label: string;
   icon: IconType;
   onClick: () => void;
+  withDivider?: boolean;
 };
 
 type ContextMenuStore = {
@@ -67,10 +68,13 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
           }}
         />
         <MenuList>
-          {options.map(({ label, icon: Icon, onClick }, i) => (
-            <MenuItem key={i} icon={<Icon />} onClick={onClick}>
-              {label}
-            </MenuItem>
+          {options.map(({ label, icon: Icon, onClick, withDivider }, i) => (
+            <>
+              {withDivider && <MenuDivider />}
+              <MenuItem key={i} icon={<Icon />} onClick={onClick}>
+                {label}
+              </MenuItem>
+            </>
           ))}
         </MenuList>
       </Menu>
