@@ -17,8 +17,8 @@ export default function Operator() {
   }
 
   return (
-    <div className={style.operator}>
-      <div className={style.allBlocks}>
+    <div className={style.operatorContainer}>
+      <div className={style.operatorEvents}>
         {data.map((entry) => {
           // there are three types of events, you a filter them by using the type property
           // for this view, we do not show the delay event

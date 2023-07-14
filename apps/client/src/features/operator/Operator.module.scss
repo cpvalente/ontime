@@ -3,7 +3,7 @@
 @use '../../../src/theme/v2Styles' as *;
 @use '../../../src/theme/ontimeColours' as *;
 
-.operator {
+.operatorContainer {
   width: 100vw;
   height: 100vh;
   padding: 2rem;
@@ -14,9 +14,9 @@
   color: white;
 }
 
-.allBlocks {
+.operatorEvents {
   flex: 1;
-  overflow: overlay;
+  overflow: auto;
 }
 
 @mixin event-block() {

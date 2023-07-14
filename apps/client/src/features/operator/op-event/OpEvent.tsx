@@ -1,11 +1,12 @@
 import style from './OpEvent.module.scss';
 import { formatTime } from '../../../common/utils/time';
+import { OntimeEvent } from 'ontime-types';
 
-type Props = {
-  data: any;
+type OpEventProps = {
+  data: OntimeEvent;
 };
 
-export default function OpEvent({ data }: Props) {
+export default function OpEvent({ data }: OpEventProps) {
   const start = formatTime(data.timeStart, { format: 'hh:mm' });
   const end = formatTime(data.timeEnd, { format: 'hh:mm' });
   return (
