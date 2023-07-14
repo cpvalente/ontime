@@ -380,13 +380,13 @@ export function calculateRuntimeDelaysFrom(eventId: string, rundown: OntimeRundo
   const updatedRundown = [...rundown];
 
   for (let i = index; i < rundown.length; i++) {
-    const event = rundown[index];
+    const event = rundown[i];
     if (event.type === SupportedEvent.Delay) {
       accumulatedDelay += event.duration;
     } else if (event.type === SupportedEvent.Block) {
       break;
     } else if (event.type === SupportedEvent.Event) {
-      updatedRundown[index] = {
+      updatedRundown[i] = {
         ...event,
         delay: accumulatedDelay,
       };
@@ -396,23 +396,21 @@ export function calculateRuntimeDelaysFrom(eventId: string, rundown: OntimeRundo
 }
 
 export function getDelayAt(eventIndex: number, rundown: OntimeRundown): number {
-  const event = rundown[eventIndex];
-
-  if (eventIndex < 0) {
+  if (eventIndex < 1) {
     return 0;
   }
+
+  // we need to check the event before
+  const event = rundown[eventIndex - 1];
 
   if (event.type === SupportedEvent.Delay) {
     return event.duration + getDelayAt(eventIndex - 1, rundown);
-  }
-
-  if (event.type === SupportedEvent.Block) {
+  } else if (event.type === SupportedEvent.Block) {
     return 0;
-  }
-
-  if (event.type === SupportedEvent.Event) {
+  } else if (event.type === SupportedEvent.Event) {
     return event.delay ?? 0;
   }
+  return 0;
 }
 
 /**
