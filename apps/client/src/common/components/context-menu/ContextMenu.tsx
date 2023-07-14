@@ -18,6 +18,7 @@ export type Option = {
   icon: IconType;
   onClick: () => void;
   withDivider?: boolean;
+  isDisabled?: boolean;
 };
 
 type ContextMenuStore = {
@@ -68,10 +69,10 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
           }}
         />
         <MenuList>
-          {options.map(({ label, icon: Icon, onClick, withDivider }, i) => (
+          {options.map(({ label, icon: Icon, onClick, withDivider, isDisabled }, i) => (
             <>
               {withDivider && <MenuDivider />}
-              <MenuItem key={i} icon={<Icon />} onClick={onClick}>
+              <MenuItem key={i} icon={<Icon />} onClick={onClick} isDisabled={isDisabled}>
                 {label}
               </MenuItem>
             </>
