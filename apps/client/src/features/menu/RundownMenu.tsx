@@ -35,15 +35,8 @@ const RundownMenu = () => {
     setCursor(null);
   }, [deleteAllEvents, setCursor, setEditId]);
 
-  const makeMany = () => {
-    for (let i = 0; i < 100; i++) {
-      addEvent({ type: SupportedEvent.Event });
-    }
-  };
-
   return (
     <div className={style.headerButtons}>
-      <Button onClick={makeMany}>make many</Button>
       <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
         <MenuButton as={Button} leftIcon={<IoAdd />} size='sm' variant='ontime-subtle'>
           Event...
