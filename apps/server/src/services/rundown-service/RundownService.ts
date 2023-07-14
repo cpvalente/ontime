@@ -292,9 +292,7 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
 
   updateTimer();
 
-  // TODO: only calculate delays if moved is block or delay
-  let delayedRundown = calculateRuntimeDelaysFrom(eventId, rundown);
-  delayedRundown = calculateRuntimeDelaysFrom(rundown[indexFrom].id, rundown);
+  const delayedRundown = calculateRuntimeDelaysFrom(eventId, rundown);
   runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
 
   sendRefetch();
