@@ -1,12 +1,11 @@
-.block{
-    padding: 0.65rem;
-    border: 1px solid hotpink;
-    display: flex;
-    justify-content: space-between;
+.TimeBlock {
+  padding: 0.65rem;
+  display: flex;
+  justify-content: space-between;
 }
 
-.clock{
-    display: flex;
-    gap: 1.5rem;
-    margin-right:1rem;
+.clock {
+  display: flex;
+  gap: 1.5rem;
+  margin-right: 1rem;
 }

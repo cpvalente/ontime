@@ -1,13 +1,11 @@
+import { OntimeBlock } from 'ontime-types';
+
 import style from './OpBlock.module.scss';
 
-type Props = {
-  data: any;
-};
+interface OpBlockProps {
+  data: OntimeBlock;
+}
 
-export default function OpBlock({ data }: Props) {
-  return (
-    <>
-    <div className={style.title}>{data.title}</div>
-    </>
-  );
+export default function OpBlock({ data }: OpBlockProps) {
+  return <div className={style.OpBlock}>{data.title}</div>;
 }
