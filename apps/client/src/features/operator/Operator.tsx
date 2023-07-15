@@ -8,6 +8,8 @@ import TimeBlock from './time-block/TimeBlock';
 
 import style from './Operator.module.scss';
 
+import NavigationMenu from '/Users/arihanvaranasi/Dev/OpenSource/ontime/apps/client/src/common/components/navigation-menu/NavigationMenu';
+
 export default function Operator() {
   // this is the data that you need, the status flag should give you possibility to create a loading state
   // for debugging data use the react query dev tools (flower thing in the bottom left corner)
@@ -19,6 +21,7 @@ export default function Operator() {
 
   return (
     <div className={style.operatorContainer}>
+      <NavigationMenu />
       <div className={style.operatorEvents}>
         {data.map((entry) => {
           // there are three types of events, you a filter them by using the type property

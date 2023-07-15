@@ -30,6 +30,9 @@
 .scheduledEvent {
   @include event-block();
   background-color: $gray-1300;
+  border-top: 1.5px white;
+  border-style: solid;
+  align-items: start;
 }
 
 .block {
