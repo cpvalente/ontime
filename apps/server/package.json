@@ -44,6 +44,7 @@
     "setdb": "shx cp ../../demo-db/db.json src/preloaded-db/db.json",
     "postinstall": "pnpm addversion && pnpm setdb",
     "dev": "cross-env NODE_ENV=development nodemon --exec \"ts-node-esm\" ./src/index.ts",
+    "dev:inspect": "cross-env NODE_ENV=development nodemon --exec \"node --inspect --loader ts-node/esm\" ./src/index.ts",
     "dev:test": "cross-env IS_TEST=true nodemon --exec \"ts-node-esm\" ./src/index.ts",
     "prebuild": "pnpm setdb",
     "build": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
