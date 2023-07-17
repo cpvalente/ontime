@@ -68,6 +68,7 @@ $table-header-font-size: calc(1rem - 3px);
 
   &.skip {
     text-decoration: line-through;
+    opacity: $opacity-disabled !important; // fighting inline styles
   }
 }
 
