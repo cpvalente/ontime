@@ -10,19 +10,11 @@ import {
   OntimeEvent,
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
-import {
-  OntimeEntryCommonKeys,
-  OntimeRundown,
-  OntimeRundownEntry,
-} from './definitions/core/Rundown.type.js';
-import {
-  OSCSettings,
-  OscSubscription,
-  OscSubscriptionOptions,
-} from './definitions/core/OscSettings.type.js';
+import { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
+import { OSCSettings, OscSubscription, OscSubscriptionOptions } from './definitions/core/OscSettings.type.js';
 import { Playback } from './definitions/runtime/Playback.type.js';
 import { Loaded } from './definitions/runtime/Playlist.type.js';
-import { Log, LogLevel, LogMessage } from './definitions/runtime/Logger.type.js';
+import { Log, LogLevel, LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 import { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 import { Settings } from './definitions/core/Settings.type.js';
 import { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
@@ -65,6 +57,7 @@ export type { OscSubscription, OSCSettings, OscSubscriptionOptions };
 // SERVER RUNTIME
 export { LogLevel };
 export type { Log, LogMessage };
+export { LogOrigin };
 export { Playback };
 export { TimerLifeCycle };
 

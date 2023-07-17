@@ -1,6 +1,8 @@
+import { Alias, EventData, LogOrigin } from 'ontime-types';
+
 import fs from 'fs';
-import type { Alias, EventData } from 'ontime-types';
 import { networkInterfaces } from 'os';
+
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
@@ -281,7 +283,7 @@ export const postOscSubscriptions = async (req, res) => {
 
     // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
-    logger.info('RX', message);
+    logger.info(LogOrigin.Rx, message);
 
     res.send(oscSettings).status(200);
   } catch (error) {
@@ -302,7 +304,7 @@ export const postOSC = async (req, res) => {
 
     // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
-    logger.info('RX', message);
+    logger.info(LogOrigin.Rx, message);
 
     res.send(oscSettings).status(200);
   } catch (error) {
