@@ -1,3 +1,4 @@
+import { OntimeEvent } from 'ontime-types';
 import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,
@@ -5,9 +6,9 @@ import {
   deleteAllEvents,
   deleteEvent,
   editEvent,
-  getDelayedRundown,
   reorderEvent,
 } from '../services/rundown-service/RundownService.js';
+import { getDelayedRundown } from '../services/rundown-service/delayedRundown.utils.js';
 
 // Create controller for GET request to '/events'
 // Returns -

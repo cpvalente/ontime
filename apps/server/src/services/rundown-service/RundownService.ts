@@ -1,23 +1,30 @@
-import { OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
+import {
+  LogOrigin,
+  OntimeBaseEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeRundown,
+  SupportedEvent,
+} from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay as delayDef, event, event as eventDef } from '../../models/eventsDefinition.js';
+import { block as blockDef, delay, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
 import { eventTimer } from '../TimerService.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
-
-const delayedRundownCacheKey = 'delayed-rundown';
-
-export function getDelayedRundown(): OntimeRundown {
-  function calculateRundown() {
-    const rundown = DataProvider.getRundown();
-    return calculateRuntimeDelays(rundown);
-  }
-
-  return getCached(delayedRundownCacheKey, calculateRundown);
-}
+import { runtimeCacheStore } from '../../stores/cachingStore.js';
+import {
+  cachedAdd,
+  cachedDelete,
+  cachedEdit,
+  cachedReorder,
+  calculateRuntimeDelaysFrom,
+  delayedRundownCacheKey,
+  getDelayedRundown,
+} from './delayedRundown.utils.js';
+import { logger } from '../../classes/Logger.js';
 
 /**
  * Forces rundown to be recalculated
@@ -143,29 +150,32 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   let newEvent: Partial<OntimeBaseEvent> = {};
   const id = generateId();
 
+  // TODO: filter the parameters that exist in the event, use the parserUtils
   switch (eventData.type) {
     case SupportedEvent.Event:
-      newEvent = { ...eventDef, ...eventData, id } as Partial<OntimeEvent>;
+      newEvent = { ...eventDef, ...eventData, id };
       break;
     case SupportedEvent.Delay:
-      newEvent = { ...delayDef, ...eventData, id } as Partial<OntimeDelay>;
+      newEvent = { ...delayDef, ...eventData, id };
       break;
     case SupportedEvent.Block:
-      newEvent = { ...blockDef, ...eventData, id } as Partial<OntimeBlock>;
+      newEvent = { ...blockDef, ...eventData, id };
       break;
   }
 
-  try {
-    const afterId = newEvent?.after;
-    if (typeof afterId === 'undefined') {
-      await DataProvider.insertEventAt(newEvent, 0);
+  let insertIndex = 0;
+  if (typeof newEvent?.after !== 'undefined') {
+    const index = DataProvider.getIndexOf(newEvent.after);
+    if (index < 0) {
+      logger.warning(LogOrigin.Server, `Could not find event with id ${newEvent.after}`);
     } else {
-      delete newEvent.after;
-      await DataProvider.insertEventAfterId(newEvent, afterId);
+      insertIndex = index + 1;
     }
-  } catch (error) {
-    throw new Error(error);
+    delete newEvent.after;
   }
+
+  // modify rundown
+  await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
 
   // notify timer service of changed events
   updateTimer([id]);
@@ -173,49 +183,17 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
 
-  // update delay cache
-  let delayedRundown = DataProvider.getRundown();
-  switch (eventData.type) {
-    case SupportedEvent.Event: {
-      // we use the delay of the event before
-      const eventIndex = delayedRundown.findIndex((event) => event.id === id);
-      (delayedRundown[eventIndex] as OntimeEvent).delay = getDelayAt(eventIndex - 1, delayedRundown);
-      newEvent = { ...eventDef, ...eventData, id } as Partial<OntimeEvent>;
-      break;
-    }
-    case SupportedEvent.Delay:
-    case SupportedEvent.Block:
-      // we invalidate delays from here
-      delayedRundown = calculateRuntimeDelaysFrom(id, delayedRundown);
-      break;
-  }
-  runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
-
   // advice socket subscribers of change
   sendRefetch();
 
   return newEvent;
 }
 
-export async function editEvent(eventData) {
-  const eventId = eventData.id;
-  const eventInMemory = DataProvider.getEventById(eventId);
-  if (typeof eventInMemory === 'undefined') {
-    throw new Error('No event with ID found');
-  }
-  const newEvent = await DataProvider.updateEventById(eventId, eventData);
+export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
+  const newEvent = await cachedEdit(eventData.id, eventData);
 
   // notify timer service of changed events
-  updateTimer([eventId]);
-
-  let delayedRundown = DataProvider.getRundown();
-  if (eventInMemory.type === SupportedEvent.Delay) {
-    // we invalidate delays from here
-    if (eventData.duration !== eventInMemory.duration) {
-      delayedRundown = calculateRuntimeDelaysFrom(eventId, delayedRundown);
-    }
-  }
-  runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
+  updateTimer([newEvent.id]);
 
   // advice socket subscribers of change
   sendRefetch();
@@ -229,29 +207,16 @@ export async function editEvent(eventData) {
  * @returns {Promise<void>}
  */
 export async function deleteEvent(eventId) {
-  const deletedIndex = DataProvider.getIndexOf(eventId);
-  if (deletedIndex < 0) {
-    return;
-  }
+  await cachedDelete(eventId);
 
-  const deletedEvent = DataProvider.getEventById(eventId);
-  await DataProvider.deleteEvent(eventId);
-
+  // notify timer service of changed events
   updateTimer([eventId]);
 
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
 
-  // update delay cache
-  let delayedRundown = DataProvider.getRundown();
-  switch (deletedEvent.type) {
-    case SupportedEvent.Delay:
-    case SupportedEvent.Block:
-      // we invalidate delays from here
-      delayedRundown = calculateRuntimeDelaysFrom(delayedRundown[deletedIndex].id, delayedRundown);
-      break;
-  }
-  runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
+  // invalidate cache
+  runtimeCacheStore.invalidate(delayedRundownCacheKey);
 
   // advice socket subscribers of change
   sendRefetch();
@@ -275,26 +240,12 @@ export async function deleteAllEvents() {
  * @returns {Promise<void>}
  */
 export async function reorderEvent(eventId: string, from: number, to: number) {
-  const rundown = DataProvider.getRundown();
-  const indexFrom = rundown.findIndex((event) => event.id === eventId);
+  const reorderedItem = await cachedReorder(eventId, from, to);
 
-  if (indexFrom !== from) {
-    throw new Error('ID not found at index');
-  }
-
-  const [reorderedItem] = rundown.splice(from, 1);
-
-  // reinsert item at to
-  rundown.splice(to, 0, reorderedItem);
-
-  // save rundown
-  await DataProvider.setRundown(rundown);
-
+  // notify timer service of changed events
   updateTimer();
 
-  const delayedRundown = calculateRuntimeDelaysFrom(eventId, rundown);
-  runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundown);
-
+  // advice socket subscribers of change
   sendRefetch();
   return reorderedItem;
 }
@@ -312,13 +263,20 @@ export function _applyDelay(
 
   for (const [index, event] of updatedRundown.entries()) {
     // look for delay
-    if (delayIndex === null && event.type === SupportedEvent.Delay && event.id === eventId) {
-      delayValue = event.duration;
-      delayIndex = index;
+    if (delayIndex === null) {
+      if (event.type === SupportedEvent.Delay && event.id === eventId) {
+        delayValue = event.duration;
+        delayIndex = index;
+
+        if (delayValue === 0) {
+          // nothing to apply
+          break;
+        }
+      }
       continue;
     }
 
-    // apply delay value to all items until block or end
+    // once delay is found, apply delay value to all items until block or end
     if (event.type === SupportedEvent.Event) {
       updatedRundown[index] = {
         ...event,
@@ -345,70 +303,9 @@ export async function applyDelay(eventId: string) {
   if (delayIndex === null) {
     throw new Error(`Delay event with ID ${eventId} not found`);
   }
+
   await DataProvider.setRundown(updatedRundown);
-  await deleteEvent(event);
-}
-
-export function calculateRuntimeDelays(rundown: OntimeRundown) {
-  let accumulatedDelay = 0;
-  const updatedRundown = [...rundown];
-
-  for (const [index, event] of updatedRundown.entries()) {
-    if (event.type === SupportedEvent.Delay) {
-      accumulatedDelay += event.duration;
-    } else if (event.type === SupportedEvent.Block) {
-      accumulatedDelay = 0;
-    } else if (event.type === SupportedEvent.Event) {
-      updatedRundown[index] = {
-        ...event,
-        delay: accumulatedDelay,
-      };
-    }
-  }
-  return updatedRundown;
-}
-
-export function calculateRuntimeDelaysFrom(eventId: string, rundown: OntimeRundown) {
-  const index = rundown.findIndex((event) => event.id === eventId);
-  if (index === -1) {
-    throw new Error('ID not found at index');
-  }
-
-  let accumulatedDelay = getDelayAt(index, rundown);
-  const updatedRundown = [...rundown];
-
-  for (let i = index; i < rundown.length; i++) {
-    const event = rundown[i];
-    if (event.type === SupportedEvent.Delay) {
-      accumulatedDelay += event.duration;
-    } else if (event.type === SupportedEvent.Block) {
-      break;
-    } else if (event.type === SupportedEvent.Event) {
-      updatedRundown[i] = {
-        ...event,
-        delay: accumulatedDelay,
-      };
-    }
-  }
-  return updatedRundown;
-}
-
-export function getDelayAt(eventIndex: number, rundown: OntimeRundown): number {
-  if (eventIndex < 1) {
-    return 0;
-  }
-
-  // we need to check the event before
-  const event = rundown[eventIndex - 1];
-
-  if (event.type === SupportedEvent.Delay) {
-    return event.duration + getDelayAt(eventIndex - 1, rundown);
-  } else if (event.type === SupportedEvent.Block) {
-    return 0;
-  } else if (event.type === SupportedEvent.Event) {
-    return event.delay ?? 0;
-  }
-  return 0;
+  await deleteEvent(eventId);
 }
 
 /**
