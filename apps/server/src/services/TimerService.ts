@@ -319,7 +319,11 @@ export class TimerService {
   }
 
   update(force = false) {
+    const previousTime = this.timer.clock;
     this.timer.clock = clock.timeNow();
+    if (previousTime > this.timer.clock) {
+      force = true;
+    }
 
     // we call integrations if we update timers
     let shouldNotify = false;
