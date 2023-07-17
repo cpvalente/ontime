@@ -240,6 +240,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 const bgFallback = 'transparent';
                 const bgColour = (row.original as OntimeEvent).colour || bgFallback;
                 const textColour = bgColour === bgFallback ? undefined : getAccessibleColour(bgColour);
+                const isSkipped = (row.original as OntimeEvent).skip;
 
                 let rowBgColour: string | undefined;
                 if (row.original.id === selectedId) {
@@ -248,7 +249,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 return (
                   <tr
                     key={key}
-                    className={style.eventRow}
+                    className={`${style.eventRow} ${isSkipped ? style.skip : ''}`}
                     style={{ opacity: `${isPast ? pastOpacity : '1'}` }}
                     ref={isSelected ? selectedRef : undefined}
                   >

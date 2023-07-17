@@ -65,6 +65,10 @@ $table-header-font-size: calc(1rem - 3px);
     border-radius: 2px;
     padding: 0.25rem;
   }
+
+  &.skip {
+    text-decoration: line-through;
+  }
 }
 
 .blockRow {
