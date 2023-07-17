@@ -148,7 +148,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     setColumnSizing({});
   };
 
-  let eventIndex = -1;
+  let eventIndex = 0;
   let isPast = Boolean(selectedId);
 
   return (
