@@ -17,6 +17,7 @@ export const parseField = (field: keyof OntimeRundown, data: unknown): string =>
       val = millisToString(data as number | null);
       break;
     case 'isPublic':
+    case 'skip':
       val = data ? 'x' : '';
       break;
     default:
@@ -55,6 +56,9 @@ export const makeTable = (headerData: EventData, rundown: OntimeRundown, userFie
     'isPublic',
     'note',
     'colour',
+    'endAction',
+    'timerType',
+    'skip',
     'user0',
     'user1',
     'user2',
@@ -74,8 +78,11 @@ export const makeTable = (headerData: EventData, rundown: OntimeRundown, userFie
     'Presenter Name',
     'Event Subtitle',
     'Is Public? (x)',
-    'Notes',
+    'Note',
     'Colour',
+    'End Action',
+    'Timer Type',
+    'Skip?',
   ];
 
   for (const field in userFields) {
@@ -89,6 +96,7 @@ export const makeTable = (headerData: EventData, rundown: OntimeRundown, userFie
   rundown.forEach((entry) => {
     const row: string[] = [];
     fieldOrder.forEach((field) => row.push(parseField(field, entry[field])));
+    console.log(data)
     data.push(row);
   });
 
