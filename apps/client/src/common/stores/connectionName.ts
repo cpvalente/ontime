@@ -9,7 +9,7 @@ interface SocketClientNameState {
 
 const clientNameKey = 'ontime-client-name';
 
-async function persistKeyToStorage(newValue: string) {
+function persistKeyToStorage(newValue: string) {
   localStorage.setItem(clientNameKey, newValue);
 }
 

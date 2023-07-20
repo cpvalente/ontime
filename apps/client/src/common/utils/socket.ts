@@ -55,9 +55,8 @@ export const connectSocket = (preferredClientName?: string) => {
       // TODO: implement partial store updates
       switch (type) {
         case 'client-name': {
-          console.log('got connection name', payload);
           socketClientName.getState().setName(payload);
-          break
+          break;
         }
         case 'ontime-log': {
           addLog(payload as Log);

@@ -29,7 +29,7 @@ export default function RenameClientModal({ isOpen, onClose }: RenameClientModal
   }, [isOpen, clientName]);
 
   const handleRename = async () => {
-    if (newName && newName !== clientName) {
+    if (newName) {
       await setClientName(newName);
       persistName(newName);
       onClose();
@@ -58,7 +58,12 @@ export default function RenameClientModal({ isOpen, onClose }: RenameClientModal
             onChange={(e) => setNewName(e.target.value)}
             variant='ontime-filled-on-light'
           />
-          <Button onClick={handleRename} width='100%' variant='ontime-filled'>
+          <Button
+            isDisabled={newName === clientName || !newName}
+            onClick={handleRename}
+            width='100%'
+            variant='ontime-filled'
+          >
             Save
           </Button>
         </ModalBody>
