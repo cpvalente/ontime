@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
 import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
+import { logAxiosError } from '../api/apiUtils';
 import {
   ReorderEntry,
   requestApplyDelay,
@@ -14,14 +14,12 @@ import {
   requestReorderEvent,
 } from '../api/eventsApi';
 import { useLocalEvent } from '../stores/localEvent';
-import { useEmitLog } from '../stores/logger';
 
 /**
  * @description Set of utilities for events
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const { emitError } = useEmitLog();
   const eventSettings = useLocalEvent((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
@@ -94,14 +92,10 @@ export const useEventAction = () => {
         // @ts-expect-error -- we know that the object is well formed now
         await _addEventMutation.mutateAsync(newEvent);
       } catch (error) {
-        if (!axios.isAxiosError(error)) {
-          emitError(`Error fetching data: ${(error as AxiosError).message}`);
-        } else {
-          emitError(`Error fetching data: ${error}`);
-        }
+        logAxiosError('Error fetching data', error);
       }
     },
-    [_addEventMutation, defaultPublic, emitError, queryClient, startTimeIsLastEnd],
+    [_addEventMutation, defaultPublic, queryClient, startTimeIsLastEnd],
   );
 
   /**
@@ -144,14 +138,10 @@ export const useEventAction = () => {
       try {
         await _updateEventMutation.mutateAsync(event);
       } catch (error) {
-        if (!axios.isAxiosError(error)) {
-          emitError(`Error updating event: ${(error as AxiosError).message}`);
-        } else {
-          emitError(`Error updating event: ${error}`);
-        }
+        logAxiosError('Error updating event', error);
       }
     },
-    [_updateEventMutation, emitError],
+    [_updateEventMutation],
   );
 
   /**
@@ -196,14 +186,10 @@ export const useEventAction = () => {
       try {
         await _deleteEventMutation.mutateAsync(eventId);
       } catch (error) {
-        if (!axios.isAxiosError(error)) {
-          emitError(`Error deleting event: ${(error as AxiosError).message}`);
-        } else {
-          emitError(`Error deleting event: ${error}`);
-        }
+        logAxiosError('Error deleting event', error);
       }
     },
-    [_deleteEventMutation, emitError],
+    [_deleteEventMutation],
   );
 
   /**
@@ -245,13 +231,9 @@ export const useEventAction = () => {
     try {
       await _deleteAllEventsMutation.mutateAsync();
     } catch (error) {
-      if (!axios.isAxiosError(error)) {
-        emitError(`Error deleting events: ${(error as AxiosError).message}`);
-      } else {
-        emitError(`Error deleting events: ${error}`);
-      }
+      logAxiosError('Error deleting events', error);
     }
-  }, [_deleteAllEventsMutation, emitError]);
+  }, [_deleteAllEventsMutation]);
 
   /**
    * Calls mutation to apply a delay
@@ -273,14 +255,10 @@ export const useEventAction = () => {
       try {
         await _applyDelayMutation.mutateAsync(delayEventId);
       } catch (error) {
-        if (!axios.isAxiosError(error)) {
-          emitError(`Error applying delay: ${(error as AxiosError).message}`);
-        } else {
-          emitError(`Error applying delay: ${error}`);
-        }
+        logAxiosError('Error applying delay', error);
       }
     },
-    [_applyDelayMutation, emitError],
+    [_applyDelayMutation],
   );
 
   /**
@@ -332,14 +310,10 @@ export const useEventAction = () => {
         };
         await _reorderEventMutation.mutateAsync(reorderObject);
       } catch (error) {
-        if (!axios.isAxiosError(error)) {
-          emitError(`Error re-ordering event: ${(error as AxiosError).message}`);
-        } else {
-          emitError(`Error re-ordering event: ${error}`);
-        }
+        logAxiosError('Error re-ordering event', error);
       }
     },
-    [_reorderEventMutation, emitError],
+    [_reorderEventMutation],
   );
 
   return { addEvent, updateEvent, deleteEvent, deleteAllEvents, applyDelay, reorderEvent };

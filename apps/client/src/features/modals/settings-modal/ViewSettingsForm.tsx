@@ -3,15 +3,15 @@ import { useForm } from 'react-hook-form';
 import { Input, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
+import { logAxiosError } from '../../../common/api/apiUtils';
 import { postViewSettings } from '../../../common/api/ontimeApi';
 import { PopoverPickerRHF } from '../../../common/components/input/popover-picker/PopoverPicker';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-import { useEmitLog } from '../../../common/stores/logger';
 import { mtm } from '../../../common/utils/timeConstants';
+import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
 import ModalSplitInput from '../ModalSplitInput';
-import ModalLoader from '../modal-loader/ModalLoader';
 import OntimeModalFooter from '../OntimeModalFooter';
 
 import InputMillisWithString from './InputMillisWithString';
@@ -20,7 +20,6 @@ import style from './SettingsModal.module.scss';
 
 export default function ViewSettingsForm() {
   const { data, status, refetch, isFetching } = useViewSettings();
-  const { emitError } = useEmitLog();
   const {
     control,
     handleSubmit,
@@ -60,7 +59,7 @@ export default function ViewSettingsForm() {
     try {
       await postViewSettings(newData);
     } catch (error) {
-      emitError(`Error saving view settings: ${error}`);
+      logAxiosError('Error saving view settings', error);
     } finally {
       await refetch();
     }

@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import { Input, Textarea } from '@chakra-ui/react';
 import { EventData } from 'ontime-types';
 
+import { logAxiosError } from '../../../common/api/apiUtils';
 import { postEventData } from '../../../common/api/eventDataApi';
 import useEventData from '../../../common/hooks-query/useEventData';
-import { useEmitLog } from '../../../common/stores/logger';
 import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
@@ -15,7 +15,6 @@ import style from './SettingsModal.module.scss';
 
 export default function EventDataForm() {
   const { data, status, isFetching, refetch } = useEventData();
-  const { emitError } = useEmitLog();
   const {
     handleSubmit,
     register,
@@ -39,7 +38,7 @@ export default function EventDataForm() {
     try {
       await postEventData(formData);
     } catch (error) {
-      emitError(`Error saving event settings: ${error}`);
+      logAxiosError('Error saving event settings', error);
     } finally {
       await refetch();
     }
