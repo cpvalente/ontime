@@ -1,6 +1,7 @@
-import { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { useDisclosure } from '@chakra-ui/react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
@@ -14,9 +15,11 @@ import useFullscreen from '../../hooks/useFullscreen';
 import { useKeyDown } from '../../hooks/useKeyDown';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 
+import RenameClientModal from './rename-client-modal/RenameClientModal';
+
 import style from './NavigationMenu.module.scss';
 
-export default function NavigationMenu() {
+function NavigationMenu() {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
@@ -27,8 +30,10 @@ export default function NavigationMenu() {
   const menuRef = useRef<HTMLDivElement | null>(null);
   useClickOutside(menuRef, () => setShowMenu(false));
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const toggleMenu = () => setShowMenu((prev) => !prev);
-  useKeyDown(toggleMenu, ' ', { isDisabled: searchParams.get('edit') === 'true' });
+  useKeyDown(toggleMenu, ' ', { isDisabled: searchParams.get('edit') === 'true' || isOpen });
 
   useEffect(() => {
     let fadeOut: NodeJS.Timeout | null = null;
@@ -51,6 +56,7 @@ export default function NavigationMenu() {
   const isKeyEnter = (event: KeyboardEvent<HTMLDivElement>) => event.key === 'Enter';
   const handleFullscreen = () => toggleFullScreen();
   const handleMirror = () => toggleMirror();
+
   const showEditFormDrawer = () => {
     searchParams.append('edit', 'true');
     setSearchParams(searchParams);
@@ -58,6 +64,7 @@ export default function NavigationMenu() {
 
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
+      <RenameClientModal isOpen={isOpen} onClose={onClose} />
       <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
         <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
           <IoApps />
@@ -92,9 +99,17 @@ export default function NavigationMenu() {
                 Flip Screen
                 <IoSwapVertical />
               </div>
-              {/*<div className={style.link} tabIndex={0}>*/}
-              {/*  Rename Client*/}
-              {/*</div>*/}
+              <div
+                className={style.link}
+                tabIndex={0}
+                role='button'
+                onClick={onOpen}
+                onKeyDown={(event) => {
+                  isKeyEnter(event) && onOpen();
+                }}
+              >
+                Rename Client
+              </div>
             </div>
             <hr className={style.separator} />
             <Link to='/cuesheet' className={style.link} tabIndex={0}>
@@ -121,3 +136,5 @@ export default function NavigationMenu() {
     document.body,
   );
 }
+
+export default memo(NavigationMenu);

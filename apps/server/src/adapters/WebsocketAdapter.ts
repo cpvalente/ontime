@@ -47,9 +47,9 @@ export class SocketServer implements IAdapter {
     this.wss = new WebSocketServer({ path: '/ws', server });
 
     this.wss.on('connection', (ws) => {
-      const clientId = getRandomName();
+      let clientId = getRandomName();
       this.clientIds.add(clientId);
-      logger.info(LogOrigin.Rx, `${this.wss.clients.size} Connections with new: ${clientId}`);
+      logger.info(LogOrigin.Client, `${this.wss.clients.size} Connections with new: ${clientId}`);
 
       // send store payload on connect
       ws.send(
@@ -59,10 +59,17 @@ export class SocketServer implements IAdapter {
         }),
       );
 
+      ws.send(
+        JSON.stringify({
+          type: 'client-name',
+          payload: clientId,
+        }),
+      );
+
       ws.on('error', console.error);
 
       ws.on('close', () => {
-        logger.info(LogOrigin.Rx, `${this.wss.clients.size} Connections with disconnected: ${clientId}`);
+        logger.info(LogOrigin.Client, `${this.wss.clients.size} Connections with disconnected: ${clientId}`);
         this.clientIds.delete(clientId);
       });
 
@@ -71,19 +78,36 @@ export class SocketServer implements IAdapter {
           ws.close();
         }
 
-        // TODO: protocol specific stuff should be handled here
-        // eg: rename-client
-        // socket.on('rename-client', (newName) => {
-        //   if (newName) {
-        //     const previousName = this._clientNames[socket.id];
-        //     this._clientNames[socket.id] = newName;
-        //     this.info('CLIENT', `Client ${previousName} renamed to ${newName}`);
-        //   }
-        // });
-
         try {
           const message = JSON.parse(data);
           const { type, payload } = message;
+
+          if (type === 'get-client-name') {
+            ws.send(
+              JSON.stringify({
+                type: 'client-name',
+                payload: clientId,
+              }),
+            );
+            return;
+          }
+
+          if (type === 'set-client-name') {
+            if (payload) {
+              const previousName = clientId;
+              clientId = payload;
+              this.clientIds.delete(previousName);
+              this.clientIds.add(clientId);
+              logger.info(LogOrigin.Client, `Client ${previousName} renamed to ${clientId}`);
+            }
+            ws.send(
+              JSON.stringify({
+                type: 'client-name',
+                payload: clientId,
+              }),
+            );
+            return;
+          }
 
           if (type === 'hello') {
             ws.send('hi');
@@ -97,6 +121,7 @@ export class SocketServer implements IAdapter {
             return;
           }
 
+          // Protocol specific stuff handled above
           try {
             const reply = dispatchFromAdapter(type, payload, 'ws');
             if (reply) {

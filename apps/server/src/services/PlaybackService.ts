@@ -1,4 +1,5 @@
 import { LogOrigin, OntimeEvent, Playback } from 'ontime-types';
+import { validatePlayback } from 'ontime-utils';
 
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventStore } from '../stores/EventStore.js';
@@ -133,7 +134,7 @@ export class PlaybackService {
    * Starts playback on selected event
    */
   static start() {
-    if (eventTimer.playback === Playback.Armed || eventTimer.playback === Playback.Pause) {
+    if (validatePlayback(eventTimer.playback).start) {
       eventTimer.start();
       const newState = eventTimer.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
@@ -155,7 +156,7 @@ export class PlaybackService {
    * Pauses playback on selected event
    */
   static pause() {
-    if (eventTimer.playback === Playback.Play) {
+    if (validatePlayback(eventTimer.playback).pause) {
       eventTimer.pause();
       const newState = eventTimer.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
@@ -166,7 +167,7 @@ export class PlaybackService {
    * Stops timer and unloads any events
    */
   static stop() {
-    if (eventTimer.playback !== Playback.Stop) {
+    if (validatePlayback(eventTimer.playback).stop) {
       eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;
