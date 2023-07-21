@@ -105,3 +105,5 @@ export const useTimer = () => {
 
   return useRuntimeStore(featureSelector, deepCompare);
 };
+
+export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
