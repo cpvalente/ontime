@@ -76,12 +76,18 @@ export default function CuesheetWrapper() {
 
       const sheetData = makeTable(headerData, rundown, userFields);
       const csvContent = makeCSV(sheetData);
-      const encodedUri = encodeURI(csvContent);
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
       const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
+      link.setAttribute('href', url);
       link.setAttribute('download', 'ontime export.csv');
       document.body.appendChild(link);
       link.click();
+
+      // Clean up the URL.createObjectURL to release resources
+      URL.revokeObjectURL(url);
     },
     [rundown, userFields],
   );

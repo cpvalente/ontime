@@ -108,7 +108,6 @@ export const makeTable = (headerData: EventData, rundown: OntimeRundown, userFie
  * @return {string}
  */
 export const makeCSV = (arrayOfArrays: string[][]) => {
-  const csvData = 'data:text/csv;charset=utf-8,';
   const stringifiedData = stringify(arrayOfArrays);
-  return csvData + stringifiedData;
+  return stringifiedData;
 };
