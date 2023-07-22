@@ -70,7 +70,6 @@ export default function AppSettingsModal() {
           size='sm'
           textAlign='right'
           maxLength={5}
-          disabled
           variant='ontime-filled-on-light'
           {...register('serverPort', {
             required: { value: true, message: 'Required field' },

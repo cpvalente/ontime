@@ -204,6 +204,7 @@ export const postSettings = async (req, res) => {
     const settings = DataProvider.getSettings();
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
+    const serverPort = extractPin(req.body?.serverPort, settings.serverPort.toString());
 
     let timeFormat = settings.timeFormat;
     if (req.body?.timeFormat === '12' || req.body?.timeFormat === '24') {
@@ -218,6 +219,7 @@ export const postSettings = async (req, res) => {
       operatorKey,
       timeFormat,
       language,
+      serverPort: parseInt(serverPort, 10),
     };
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);
