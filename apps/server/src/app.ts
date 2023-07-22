@@ -131,7 +131,7 @@ export const initAssets = async () => {
 export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
 
-  const serverPort = 4001; // hardcoded for now
+  const { serverPort } = DataProvider.getSettings();
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 
   expressServer = http.createServer(app);
@@ -144,7 +144,7 @@ export const startServer = async () => {
 
   expressServer.listen(serverPort, '0.0.0.0');
 
-  return returnMessage;
+  return { message: returnMessage, serverPort };
 };
 
 /**
