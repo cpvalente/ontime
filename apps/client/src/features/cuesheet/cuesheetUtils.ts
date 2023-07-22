@@ -96,7 +96,6 @@ export const makeTable = (headerData: EventData, rundown: OntimeRundown, userFie
   rundown.forEach((entry) => {
     const row: string[] = [];
     fieldOrder.forEach((field) => row.push(parseField(field, entry[field])));
-    console.log(data)
     data.push(row);
   });
 

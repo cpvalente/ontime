@@ -1,186 +1,9 @@
 import { EndAction, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
-import { _applyDelay } from '../RundownService.js';
 
-describe('applyDelay()', () => {
-  it('applies its duration to following events', () => {
-    const rundown: OntimeRundown = [
-      {
-        title: '',
-        subtitle: '',
-        presenter: '',
-        note: '',
-        endAction: EndAction.None,
-        timerType: TimerType.CountDown,
-        timeStart: 600000,
-        timeEnd: 1200000,
-        duration: 600000,
-        isPublic: true,
-        skip: false,
-        colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
-        type: SupportedEvent.Event,
-        revision: 4,
-        id: '659e1',
-      },
-      {
-        duration: 600000,
-        type: SupportedEvent.Delay,
-        revision: 0,
-        id: '07986',
-      },
-      {
-        title: '',
-        subtitle: '',
-        presenter: '',
-        note: '',
-        endAction: EndAction.None,
-        timerType: TimerType.CountDown,
-        timeStart: 600000,
-        timeEnd: 1200000,
-        duration: 600000,
-        isPublic: true,
-        skip: false,
-        colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
-        type: SupportedEvent.Event,
-        revision: 4,
-        id: 'd48c2',
-      },
-    ];
+import { calculateRuntimeDelays, calculateRuntimeDelaysFrom, getDelayAt } from '../delayedRundown.utils.js';
 
-    const eventId = rundown[1].id;
-    const { delayIndex, updatedRundown } = _applyDelay(eventId, rundown);
-
-    expect(delayIndex).toBe(1);
-    // we do not delay delays anymore
-    expect(updatedRundown.length).toBe(3);
-    expect(rundown.length).toBe(3);
-    expect(updatedRundown[0].timeStart).toBe(rundown[0].timeStart);
-    expect(updatedRundown[2].timeStart).toBe(rundown[1].duration + rundown[2].timeStart);
-    expect(updatedRundown[2].timeEnd).toBe(rundown[1].duration + rundown[2].timeEnd);
-  });
-  it('stops propagating on blocks', () => {
-    const rundown: OntimeRundown = [
-      {
-        title: '',
-        subtitle: '',
-        presenter: '',
-        note: '',
-        endAction: EndAction.None,
-        timerType: TimerType.CountDown,
-        timeStart: 600000,
-        timeEnd: 1200000,
-        duration: 600000,
-        isPublic: true,
-        skip: false,
-        colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
-        type: SupportedEvent.Event,
-        revision: 0,
-        id: '659e1',
-      },
-      {
-        duration: 600000,
-        type: SupportedEvent.Delay,
-        revision: 0,
-        id: '07986',
-      },
-      {
-        title: '',
-        subtitle: '',
-        presenter: '',
-        note: '',
-        endAction: EndAction.None,
-        timerType: TimerType.CountDown,
-        timeStart: 600000,
-        timeEnd: 1200000,
-        duration: 600000,
-        isPublic: true,
-        skip: false,
-        colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
-        type: SupportedEvent.Event,
-        revision: 0,
-        id: 'd48c2',
-      },
-      {
-        title: '',
-        type: SupportedEvent.Block,
-        id: '9870d',
-      },
-      {
-        title: '',
-        subtitle: '',
-        presenter: '',
-        note: '',
-        endAction: EndAction.None,
-        timerType: TimerType.CountDown,
-        timeStart: 1200000,
-        timeEnd: 1800000,
-        duration: 600000,
-        isPublic: true,
-        skip: false,
-        colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
-        type: SupportedEvent.Event,
-        revision: 2,
-        id: '2f185',
-      },
-    ];
-
-    const eventId = rundown[1].id;
-    const { updatedRundown } = _applyDelay(eventId, rundown);
-
-    expect(updatedRundown[0].timeStart).toBe(rundown[0].timeStart);
-    expect(updatedRundown[2].timeStart).toBe(rundown[1].duration + rundown[2].timeStart);
-    expect(updatedRundown[4].timeStart).toBe(rundown[4].timeStart);
-  });
-  it('only applies given delay', () => {
+describe('calculateRuntimeDelays', () => {
+  it('calculates all delays in a given rundown', () => {
     const rundown: OntimeRundown = [
       {
         title: '',
@@ -309,11 +132,314 @@ describe('applyDelay()', () => {
       },
     ];
 
-    const eventId = rundown[1].id;
-    const { updatedRundown } = _applyDelay(eventId, rundown);
+    const updatedRundown = calculateRuntimeDelays(rundown);
 
-    expect(updatedRundown[0].timeStart).toBe(rundown[0].timeStart);
-    expect(updatedRundown[2].timeStart).toBe(rundown[1].duration + rundown[2].timeStart);
-    expect(updatedRundown[4].timeStart).toBe(rundown[1].duration + rundown[4].timeStart);
+    expect(rundown.length).toBe(updatedRundown.length);
+    expect(updatedRundown[0].delay).toBe(0);
+    expect(updatedRundown[2].delay).toBe(600000);
+    expect(updatedRundown[4].delay).toBe(600000 + 1200000);
+    expect(updatedRundown[6].delay).toBe(0);
+  });
+});
+
+describe('getDelayAt()', () => {
+  const delayedRundown: OntimeRundown = [
+    {
+      title: '',
+      subtitle: '',
+      presenter: '',
+      note: '',
+      endAction: EndAction.None,
+      timerType: TimerType.CountDown,
+      timeStart: 600000,
+      timeEnd: 1200000,
+      duration: 600000,
+      isPublic: true,
+      skip: false,
+      colour: '',
+      user0: '',
+      user1: '',
+      user2: '',
+      user3: '',
+      user4: '',
+      user5: '',
+      user6: '',
+      user7: '',
+      user8: '',
+      user9: '',
+      type: SupportedEvent.Event,
+      revision: 0,
+      id: '659e1',
+      delay: 0,
+    },
+    {
+      duration: 600000,
+      type: SupportedEvent.Delay,
+      revision: 0,
+      id: '07986',
+    },
+    {
+      title: '',
+      subtitle: '',
+      presenter: '',
+      note: '',
+      endAction: EndAction.None,
+      timerType: TimerType.CountDown,
+      timeStart: 1200000,
+      timeEnd: 1200000,
+      duration: 0,
+      isPublic: true,
+      skip: false,
+      colour: '',
+      user0: '',
+      user1: '',
+      user2: '',
+      user3: '',
+      user4: '',
+      user5: '',
+      user6: '',
+      user7: '',
+      user8: '',
+      user9: '',
+      type: SupportedEvent.Event,
+      revision: 0,
+      id: '1c48f',
+      delay: 600000,
+    },
+    {
+      duration: 1200000,
+      type: SupportedEvent.Delay,
+      revision: 0,
+      id: '7db42',
+    },
+    {
+      title: '',
+      subtitle: '',
+      presenter: '',
+      note: '',
+      endAction: EndAction.None,
+      timerType: TimerType.CountDown,
+      timeStart: 600000,
+      timeEnd: 1200000,
+      duration: 600000,
+      isPublic: true,
+      skip: false,
+      colour: '',
+      user0: '',
+      user1: '',
+      user2: '',
+      user3: '',
+      user4: '',
+      user5: '',
+      user6: '',
+      user7: '',
+      user8: '',
+      user9: '',
+      type: SupportedEvent.Event,
+      revision: 0,
+      id: 'd48c2',
+      delay: 1800000,
+    },
+    {
+      title: '',
+      type: SupportedEvent.Block,
+      id: '9870d',
+    },
+    {
+      title: '',
+      subtitle: '',
+      presenter: '',
+      note: '',
+      endAction: EndAction.None,
+      timerType: TimerType.CountDown,
+      timeStart: 1200000,
+      timeEnd: 1800000,
+      duration: 600000,
+      isPublic: true,
+      skip: false,
+      colour: '',
+      user0: '',
+      user1: '',
+      user2: '',
+      user3: '',
+      user4: '',
+      user5: '',
+      user6: '',
+      user7: '',
+      user8: '',
+      user9: '',
+      type: SupportedEvent.Event,
+      revision: 0,
+      id: '2f185',
+      delay: 0,
+    },
+  ];
+
+  it('calculates delay in a rundown', () => {
+    const delayAtStart = getDelayAt(0, delayedRundown);
+    const delayOnFirstEvent = getDelayAt(2, delayedRundown);
+    const delayOnSecondEvent = getDelayAt(4, delayedRundown);
+    const delayOnBlockedEvent = getDelayAt(0, delayedRundown);
+
+    expect(delayAtStart).toBe(0);
+    expect(delayOnFirstEvent).toBe(600000);
+    expect(delayOnSecondEvent).toBe(600000 + 1200000);
+    expect(delayOnBlockedEvent).toBe(0);
+  });
+  it('finds delay before a delay block', () => {
+    const valueOnFirstDelayBlock = getDelayAt(1, delayedRundown);
+    const valueOnSecondDelayBlock = getDelayAt(3, delayedRundown);
+    const valueAfterSecondDelayBlock = getDelayAt(4, delayedRundown);
+
+    expect(valueOnFirstDelayBlock).toBe(0);
+    expect(valueOnSecondDelayBlock).toBe(600000);
+    expect(valueAfterSecondDelayBlock).toBe(600000 + 1200000);
+  });
+  it('returns 0 after blocks', () => {
+    const valueOnBlock = getDelayAt(6, delayedRundown);
+    expect(valueOnBlock).toBe(0);
+  });
+});
+
+describe('calculateRuntimeDelaysFrom()', () => {
+  it('updates delays from given id', () => {
+    const delayedRundown: OntimeRundown = [
+      {
+        title: '',
+        subtitle: '',
+        presenter: '',
+        note: '',
+        endAction: EndAction.None,
+        timerType: TimerType.CountDown,
+        timeStart: 600000,
+        timeEnd: 1200000,
+        duration: 600000,
+        isPublic: true,
+        skip: false,
+        colour: '',
+        user0: '',
+        user1: '',
+        user2: '',
+        user3: '',
+        user4: '',
+        user5: '',
+        user6: '',
+        user7: '',
+        user8: '',
+        user9: '',
+        type: SupportedEvent.Event,
+        revision: 0,
+        id: '659e1',
+        delay: 0,
+      },
+      {
+        duration: 600000,
+        type: SupportedEvent.Delay,
+        revision: 0,
+        id: '07986',
+      },
+      {
+        title: '',
+        subtitle: '',
+        presenter: '',
+        note: '',
+        endAction: EndAction.None,
+        timerType: TimerType.CountDown,
+        timeStart: 1200000,
+        timeEnd: 1200000,
+        duration: 0,
+        isPublic: true,
+        skip: false,
+        colour: '',
+        user0: '',
+        user1: '',
+        user2: '',
+        user3: '',
+        user4: '',
+        user5: '',
+        user6: '',
+        user7: '',
+        user8: '',
+        user9: '',
+        type: SupportedEvent.Event,
+        revision: 0,
+        id: '1c48f',
+        delay: 0,
+      },
+      {
+        duration: 1200000,
+        type: SupportedEvent.Delay,
+        revision: 0,
+        id: '7db42',
+      },
+      {
+        title: '',
+        subtitle: '',
+        presenter: '',
+        note: '',
+        endAction: EndAction.None,
+        timerType: TimerType.CountDown,
+        timeStart: 600000,
+        timeEnd: 1200000,
+        duration: 600000,
+        isPublic: true,
+        skip: false,
+        colour: '',
+        user0: '',
+        user1: '',
+        user2: '',
+        user3: '',
+        user4: '',
+        user5: '',
+        user6: '',
+        user7: '',
+        user8: '',
+        user9: '',
+        type: SupportedEvent.Event,
+        revision: 0,
+        id: 'd48c2',
+        delay: 1800000,
+      },
+      {
+        title: '',
+        type: SupportedEvent.Block,
+        id: '9870d',
+      },
+      {
+        title: '',
+        subtitle: '',
+        presenter: '',
+        note: '',
+        endAction: EndAction.None,
+        timerType: TimerType.CountDown,
+        timeStart: 1200000,
+        timeEnd: 1800000,
+        duration: 600000,
+        isPublic: true,
+        skip: false,
+        colour: '',
+        user0: '',
+        user1: '',
+        user2: '',
+        user3: '',
+        user4: '',
+        user5: '',
+        user6: '',
+        user7: '',
+        user8: '',
+        user9: '',
+        type: SupportedEvent.Event,
+        revision: 0,
+        id: '2f185',
+        delay: 0,
+      },
+    ];
+
+    const updatedRundown = calculateRuntimeDelaysFrom('07986', delayedRundown);
+
+    // we only update from the 4th on
+    expect(updatedRundown[0].delay).toBe(0);
+    // 1 + 3
+    expect(updatedRundown[4].delay).toBe(600000 + 1200000);
   });
 });
