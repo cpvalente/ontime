@@ -107,6 +107,7 @@ const MenuBar = (props: MenuBarProps) => {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoColorWand />}
         className={isQuickStartOpen ? style.open : ''}
         clickHandler={onQuickStartOpen}
@@ -115,6 +116,7 @@ const MenuBar = (props: MenuBarProps) => {
       />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoPushOutline />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
@@ -125,6 +127,7 @@ const MenuBar = (props: MenuBarProps) => {
       <TooltipActionBtn
         {...buttonStyle}
         icon={<IoSaveOutline />}
+        isDisabled={appMode === AppMode.Run}
         clickHandler={downloadRundown}
         tooltip='Export project file'
         aria-label='Export project file'
@@ -154,6 +157,7 @@ const MenuBar = (props: MenuBarProps) => {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={isIntegrationOpen ? <IoExtensionPuzzle /> : <IoExtensionPuzzleOutline />}
         className={isIntegrationOpen ? style.open : ''}
         clickHandler={onIntegrationOpen}
@@ -163,6 +167,7 @@ const MenuBar = (props: MenuBarProps) => {
       />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoSettingsOutline />}
         className={isSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
