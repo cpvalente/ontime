@@ -57,7 +57,9 @@ export default function Backstage(props: BackstageProps) {
   const clock = formatTime(time.clock, formatOptions);
   const startedAt = formatTime(time.startedAt, formatOptions);
   const isNegative = (time.current ?? 0) < 0;
-  const expectedFinish = isNegative ? 'In overtime' : formatTime(time.expectedFinish, formatOptions);
+  const expectedFinish = isNegative
+    ? getLocalizedString('countdown.overtime')
+    : formatTime(time.expectedFinish, formatOptions);
 
   const qrSize = Math.max(window.innerWidth / 15, 128);
   const filteredEvents = getEventsWithDelay(backstageEvents);
