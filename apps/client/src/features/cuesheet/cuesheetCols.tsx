@@ -49,13 +49,13 @@ function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEnt
   const cellValue = (getValue() as number | null) ?? 0;
   const delayValue = (original as OntimeEvent)?.delay ?? 0;
 
-  console.log(delayValue)
-
   return (
     <span className={style.time}>
       <DelayIndicator delayValue={delayValue} />
       {millisToString(cellValue)}
-      {(delayValue !== 0 && showDelayedTimes) && <span className={style.delayedTime}>{` ${millisToString(cellValue + delayValue)}`}</span>}
+      {delayValue !== 0 && showDelayedTimes && (
+        <span className={style.delayedTime}>{` ${millisToString(cellValue + delayValue)}`}</span>
+      )}
     </span>
   );
 }
