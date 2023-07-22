@@ -22,7 +22,6 @@ interface RundownEntryProps {
   selected: boolean;
   hasCursor: boolean;
   next: boolean;
-  delay: number;
   previousEnd: number;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
@@ -38,7 +37,6 @@ export default function RundownEntry(props: RundownEntryProps) {
     selected,
     hasCursor,
     next,
-    delay,
     previousEnd,
     previousEventId,
     playback,
@@ -167,7 +165,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={delay}
+        delay={data.delay || 0}
         previousEnd={previousEnd}
         colour={data.colour}
         isPast={isPast}

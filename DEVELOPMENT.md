@@ -20,6 +20,12 @@ From the project root, run the following commands
 - __Install the project dependencies__ by running `pnpm i`
 - __Run dev mode__ by running `turbo dev`
 
+### Debugging backend
+To debug backend code in Node.js:
+- Open two separate terminals and navigate to the `apps/client` and `apps/server` directories.
+- In each terminal, run the command `pnpm dev` to start the development servers for both the client and server applications.
+- If you need to set breakpoints and inspect the code execution, enable Node.js inspect mode by running `pnpm dev:inspect`.
+
 ## TESTING
 
 Generally we have 2 types of tests. 

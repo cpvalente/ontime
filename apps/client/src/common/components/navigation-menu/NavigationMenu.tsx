@@ -112,6 +112,11 @@ function NavigationMenu() {
               </div>
             </div>
             <hr className={style.separator} />
+            <Link to='/cuesheet' className={style.link} tabIndex={0}>
+              Cuesheet
+              <IoArrowUp className={style.linkIcon} />
+            </Link>
+            <hr className={style.separator} />
             {navigatorConstants.map((route) => (
               <Link
                 key={route.url}
