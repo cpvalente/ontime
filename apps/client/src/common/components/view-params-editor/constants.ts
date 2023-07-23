@@ -5,7 +5,7 @@ export const TIME_FORMAT_OPTION: ParamField = {
   title: '12  / 24 hour timer',
   description: 'Whether to show the time in 12 or 24 hour mode. Overrides the global setting from preferences',
   type: 'option',
-  values: ['12', '24'],
+  values: { '12': '12 hour AM/PM', '24': '24 hour' },
 };
 
 export const CLOCK_OPTIONS: ParamField[] = [
@@ -45,7 +45,7 @@ export const CLOCK_OPTIONS: ParamField[] = [
     title: 'Align Horizontal',
     description: 'Moves the horizontally in page to start = left | center | end = right',
     type: 'option',
-    values: ['start', 'center', 'end'],
+    values: { start: 'Start', center: 'Center', end: 'End' },
   },
   {
     id: 'offsetx',
@@ -58,7 +58,7 @@ export const CLOCK_OPTIONS: ParamField[] = [
     title: 'Align Vertical',
     description: 'Moves the vertically in page to start = left | center | end = right',
     type: 'option',
-    values: ['start', 'center', 'end'],
+    values: { start: 'Start', center: 'Center', end: 'End' },
   },
   {
     id: 'offsety',
@@ -106,7 +106,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     title: 'Align Horizontal',
     description: 'Moves the horizontally in page to start = left | center | end = right',
     type: 'option',
-    values: ['start', 'center', 'end'],
+    values: { start: 'Start', center: 'Center', end: 'End' },
   },
   {
     id: 'offsetx',
@@ -119,7 +119,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     title: 'Align Vertical',
     description: 'Moves the vertically in page to start = left | center | end = right',
     type: 'option',
-    values: ['start', 'center', 'end'],
+    values: { start: 'Start', center: 'Center', end: 'End' },
   },
   {
     id: 'offsety',
