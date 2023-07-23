@@ -10,6 +10,20 @@
   font-size: 1rem;
 }
 
+.event {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.block {
+  width: 100%;
+}
+
+.fields {
+  font-weight: 700;
+}
+
 .time {
   display: flex;
   flex-direction: column;
@@ -23,4 +37,16 @@
 
 .title {
   flex: 1;
+}
+
+.indicator {
+  display: flex;
+  justify-content: space-between;
+}
+
+.chevron {
+  display: flex;
+  align-items: center;
+  color: yellow;
+  font-size: 16px;
 }

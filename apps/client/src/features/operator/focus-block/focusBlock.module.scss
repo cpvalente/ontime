@@ -1,0 +1,25 @@
+@use '.../../../src/theme/ontimeColours' as *;
+
+.focusBlock {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: -webkit-sticky;
+  position: sticky;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: -53px;
+}
+
+.focusButton {
+  margin: 10px;
+  background-color: $blue-500;
+  width: fit-content;
+  padding: 3px 15px 3px 15px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: medium;
+}
