@@ -1,6 +1,7 @@
 import React from 'react';
 import { SupportedEvent } from 'ontime-types';
 
+import NavigationMenu from '../.././common/components/navigation-menu/NavigationMenu';
 import useRundown from '../../common/hooks-query/useRundown';
 
 import FocusBlock from './focus-block/focus-block';
@@ -9,8 +10,6 @@ import OpEvent from './op-event/OpEvent';
 import TimeBlock from './time-block/TimeBlock';
 
 import style from './Operator.module.scss';
-
-import NavigationMenu from '/Users/arihanvaranasi/Dev/OpenSource/ontime/apps/client/src/common/components/navigation-menu/NavigationMenu';
 
 export default function Operator() {
   // this is the data that you need, the status flag should give you possibility to create a loading state
