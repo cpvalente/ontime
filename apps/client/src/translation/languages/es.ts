@@ -1,4 +1,4 @@
-import { TranslationObject } from '../Translation.types';
+import { TranslationObject } from './en';
 
 export const langEs: TranslationObject = {
   'common.end_time': 'Hora de finalización',
@@ -9,10 +9,11 @@ export const langEs: TranslationObject = {
   'common.start_time': 'Hora de inicio',
   'common.stage_timer': 'Temporizador de presentador',
   'common.started_at': 'Iniciado en',
-  'common.time_now': 'Hora actual',
+  'common.time_now': 'Ahora',
   'countdown.ended': 'Evento finalizado a las',
   'countdown.running': 'Evento en curso',
   'countdown.select_event': 'Seleccionar un evento para seguir',
   'countdown.to_start': 'Tiempo para comenzar',
   'countdown.waiting': 'Esperando el inicio del evento',
+  'countdown.overtime': 'en tiempo extra',
 };
