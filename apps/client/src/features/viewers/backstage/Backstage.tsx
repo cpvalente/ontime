@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
 import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
@@ -43,11 +43,23 @@ export default function Backstage(props: BackstageProps) {
   const { isMirrored, publ, title, time, backstageEvents, selectedId, general, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
+  const [blinkClass, setBlinkClass] = useState(false);
 
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Backstage Screen';
   }, []);
+
+  // blink on change
+  useEffect(() => {
+    setBlinkClass(false);
+
+    const timer = setTimeout(() => {
+      setBlinkClass(true);
+    }, 10);
+
+    return () => clearTimeout(timer);
+  }, [selectedId]);
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -101,7 +113,7 @@ export default function Backstage(props: BackstageProps) {
         <AnimatePresence>
           {title.showNow && (
             <motion.div
-              className='event now'
+              className={`event now ${blinkClass ? 'blink' : ''}`}
               key='now'
               variants={titleVariants}
               initial='hidden'
