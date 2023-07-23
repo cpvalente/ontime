@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Input } from '@chakra-ui/react';
 import { UserFields } from 'ontime-types';
 
+import { logAxiosError } from '../../../common/api/apiUtils';
 import { postUserFields } from '../../../common/api/ontimeApi';
 import useUserFields from '../../../common/hooks-query/useUserFields';
-import { useEmitLog } from '../../../common/stores/logger';
 import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalLink from '../ModalLink';
@@ -18,7 +18,6 @@ const userFieldsDocsUrl = 'https://ontime.gitbook.io/v2/features/user-fields';
 
 export default function CuesheetSettingsForm() {
   const { data, status, isFetching, refetch } = useUserFields();
-  const { emitError } = useEmitLog();
   const {
     handleSubmit,
     register,
@@ -42,7 +41,7 @@ export default function CuesheetSettingsForm() {
     try {
       await postUserFields(formData);
     } catch (error) {
-      emitError(`Error saving cuesheet settings: ${error}`);
+      logAxiosError('Error saving cuesheet settings', error);
     } finally {
       await refetch();
     }
