@@ -7,9 +7,10 @@ import style from './OpEvent.module.scss';
 
 type OpEventProps = {
   data: OntimeEvent;
+  id: number;
 };
 
-export default function OpEvent({ data }: OpEventProps) {
+export default function OpEvent({ data, id }: OpEventProps) {
   const start = formatTime(data.timeStart, { format: 'hh:mm' });
   const end = formatTime(data.timeEnd, { format: 'hh:mm' });
   return (
@@ -32,7 +33,7 @@ export default function OpEvent({ data }: OpEventProps) {
             </div>
           </div>
         </div>
-        <div className={style.fields}>CAM 5 Slow pan to SL</div>
+        {id % 3 == 0 && <div className={style.fields}>CAM 5 Slow pan to SL</div>}
       </div>
     </>
   );

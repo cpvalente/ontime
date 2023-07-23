@@ -30,9 +30,18 @@
 .scheduledEvent {
   @include event-block();
   background-color: $gray-1300;
+  align-items: start;
+}
+
+.activeEvent {
   border-top: 1.5px white;
   border-style: solid;
-  align-items: start;
+}
+
+.runningTimer {
+  border-top: 0.5px white;
+  border-style: solid;
+  background-color: $green-700;
 }
 
 .block {
