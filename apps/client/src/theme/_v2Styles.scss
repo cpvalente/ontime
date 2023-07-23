@@ -24,7 +24,7 @@ $ontime-delay-text: #E69056;
 $ontime-paused: #c05621;
 $ontime-stop: #E4281E;
 $playback-negative: $red-500;
-$active-indicator: #899948;
+$active-indicator: #8bb33d;
 $text-black: $gray-1350;
 
 // interface panels
@@ -51,8 +51,8 @@ $ontime-font-family: "Open Sans", "Segoe UI", sans-serif;
 $label-gray: $gray-400;
 $secondary-text-gray: $gray-400;
 $section-white: $ui-white;
-$inner-section-text-size: 14px;
-$text-body-size: 15px;
+$inner-section-text-size: calc(1rem - 2px);
+$text-body-size: calc(1rem - 1px);
 
 .blink {
   animation: blink $blinking-time linear infinite;

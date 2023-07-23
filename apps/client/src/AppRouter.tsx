@@ -5,7 +5,7 @@ import useAliases from './common/hooks-query/useAliases';
 import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
-const Table = lazy(() => import('./features/table/ProtectedTable'));
+const Cuesheet = lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
 const Operator = lazy(() => import('./features/operator/Operator'));
 
 const TimerView = lazy(() => import('./features/viewers/timer/Timer'));
@@ -80,9 +80,9 @@ export default function AppRouter() {
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
-        <Route path='/cuesheet' element={<Table />} />
-        <Route path='/cuelist' element={<Table />} />
-        <Route path='/table' element={<Table />} />
+        <Route path='/cuesheet' element={<Cuesheet />} />
+        <Route path='/cuelist' element={<Cuesheet />} />
+        <Route path='/table' element={<Cuesheet />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route

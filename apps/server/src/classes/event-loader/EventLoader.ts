@@ -1,4 +1,4 @@
-import { Loaded, OntimeEvent, TitleBlock } from 'ontime-types';
+import { Loaded, OntimeEvent, SupportedEvent, TitleBlock } from 'ontime-types';
 
 import { DataProvider } from '../data-provider/DataProvider.js';
 import { getRollTimers } from '../../services/rollUtils.js';
@@ -34,8 +34,7 @@ export class EventLoader {
    * @return {array}
    */
   static getTimedEvents(): OntimeEvent[] {
-    // return mockLoaderData.filter((event) => event.type === 'event');
-    return DataProvider.getRundown().filter((event) => event.type === 'event');
+    return DataProvider.getRundown().filter((event) => event.type === SupportedEvent.Event) as OntimeEvent[];
   }
 
   /**
@@ -43,8 +42,9 @@ export class EventLoader {
    * @return {array}
    */
   static getPlayableEvents(): OntimeEvent[] {
-    // return mockLoaderData.filter((event) => event.type === 'event' && !event.skip);
-    return DataProvider.getRundown().filter((event) => event.type === 'event' && !event.skip);
+    return DataProvider.getRundown().filter(
+      (event) => event.type === SupportedEvent.Event && !event.skip,
+    ) as OntimeEvent[];
   }
 
   /**

@@ -4,7 +4,7 @@ type BaseField = {
   description: string;
 };
 
-type OptionsField = { type: 'option'; values: string[] };
+type OptionsField = { type: 'option'; values: Record<string, string> };
 type StringField = { type: 'string' };
 type BooleanField = { type: 'boolean' };
 type NumberField = { type: 'number' };

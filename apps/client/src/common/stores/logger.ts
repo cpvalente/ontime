@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Log, LogLevel } from 'ontime-types';
+import { Log, LogLevel, LogOrigin } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
@@ -34,7 +34,7 @@ export function useEmitLog() {
   const _emit = useCallback((text: string, level: LogLevel) => {
     const log = {
       id: generateId(),
-      origin: 'CLIENT',
+      origin: LogOrigin.Client,
       time: millisToString(nowInMillis()),
       level,
       text,

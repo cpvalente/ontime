@@ -1,0 +1,44 @@
+@use '../../../theme/v2Styles' as *;
+@use '../../../theme/ontimeColours' as *;
+
+.tableSettings {
+  grid-area: settings;
+  padding: 1rem;
+  background-color: $ui-black;
+  display: flex;
+  font-size: $inner-section-text-size;
+}
+
+.leftPanel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.sectionTitle {
+  color: $gray-700;
+  text-transform: uppercase;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1rem;
+  row-gap: 0.25em;
+}
+
+.option {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  padding-left: 2rem;
+}

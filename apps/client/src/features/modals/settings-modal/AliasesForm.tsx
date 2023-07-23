@@ -5,6 +5,7 @@ import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { Alias } from 'ontime-types';
 
+import { logAxiosError } from '../../../common/api/apiUtils';
 import { postAliases } from '../../../common/api/ontimeApi';
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import useAliases from '../../../common/hooks-query/useAliases';
@@ -53,7 +54,7 @@ export default function AliasesForm() {
     try {
       await postAliases(formData.aliases);
     } catch (error) {
-      emitError(`Error saving aliases: ${error}`);
+      logAxiosError('Error saving aliases', error);
     } finally {
       await refetch();
     }

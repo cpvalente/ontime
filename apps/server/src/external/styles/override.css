@@ -6,6 +6,7 @@
   --label-color-override: #6c6c6c;
   --timer-color-override: #202020;
   --card-background-color-override: #fff;
+  --card-background-color-blink-override: #339e4e;
   --font-family-override: "Open Sans";
   --font-family-bold-override: "Arial Black";
   --timer-progress-bg-override: #fff;

@@ -1,11 +1,10 @@
 import { useInfoPanel } from '../../common/hooks/useSocket';
 
+import InfoHeader from './info-header/InfoHeader';
 import CollapsableInfo from './CollapsableInfo';
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';
 import InfoTitles from './InfoTitles';
-
-import style from './Info.module.scss';
 
 export default function Info() {
   const data = useInfoPanel();
@@ -32,9 +31,7 @@ export default function Info() {
 
   return (
     <>
-      <div className={style.panelHeader}>
-        <span>{selected}</span>
-      </div>
+      <InfoHeader selected={selected} />
       <CollapsableInfo title='Network Info'>
         <InfoNif />
       </CollapsableInfo>

@@ -5,6 +5,13 @@ import { mth, mtm, mts } from './timeConstants';
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 
+export function secondsInMillis(millis: number | null) {
+  if (!millis) {
+    return 0;
+  }
+  return Math.floor((millis % mtm) / mts);
+}
+
 /**
  * @description Converts milliseconds to seconds
  * @param {number | null} millis - time in seconds

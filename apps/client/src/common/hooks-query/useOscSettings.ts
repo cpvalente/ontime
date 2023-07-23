@@ -3,6 +3,7 @@ import { OSCSettings } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { OSC_SETTINGS } from '../api/apiConstants';
+import { logAxiosError } from '../api/apiUtils';
 import { getOSC, postOSC, postOscSubscriptions } from '../api/ontimeApi';
 import { oscPlaceholderSettings } from '../models/OscSettings';
 import { ontimeQueryClient } from '../queryClient';
@@ -25,6 +26,7 @@ export default function useOscSettings() {
 export function useOscSettingsMutation() {
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: postOSC,
+    onError: (error) => logAxiosError('Error saving OSC settings', error),
     onSuccess: (res) => ontimeQueryClient.setQueryData(OSC_SETTINGS, res.data),
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: OSC_SETTINGS }),
   });
@@ -34,6 +36,7 @@ export function useOscSettingsMutation() {
 export function usePostOscSubscriptions() {
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: postOscSubscriptions,
+    onError: (error) => logAxiosError('Error saving OSC settings', error),
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: OSC_SETTINGS }),
   });
   return { isLoading, mutateAsync };

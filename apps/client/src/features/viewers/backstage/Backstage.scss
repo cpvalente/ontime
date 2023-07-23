@@ -1,4 +1,5 @@
 @use '../../../theme/viewerDefs' as *;
+@use '../../../theme/v2Styles' as *;
 
 .backstage {
   margin: 0;
@@ -86,6 +87,10 @@
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
     padding: 16px 24px;
     border-radius: 8px;
+
+    &.blink {
+      animation: blink 0.5s ease-in-out 3;
+    }
   }
 
   .timer-group {
@@ -119,7 +124,7 @@
     grid-area: schedule;
     overflow: hidden;
     height: 100%;
-    margin-left: clamp(16px, 5vw, 64px);;
+    margin-left: clamp(16px, 5vw, 64px);
   }
 
   .schedule-nav-container {
@@ -143,9 +148,20 @@
     }
 
     .qr {
-      margin-left: clamp(16px, 5vw, 64px);;
+      margin-left: clamp(16px, 5vw, 64px);
       padding: 4px;
       background-color: white;
     }
+  }
+}
+
+/* =================== AMIMATION ===================*/
+
+@keyframes blink {
+  0% {
+    background-color: var(--card-background-color-blink-override, $playback-start);
+  }
+  20% {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
   }
 }

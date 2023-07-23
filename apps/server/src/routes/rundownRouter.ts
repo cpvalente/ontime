@@ -1,7 +1,6 @@
 import express from 'express';
 import {
   deleteEventById,
-  getEventById,
   rundownApplyDelay,
   rundownDelete,
   rundownGetAll,
@@ -20,9 +19,6 @@ export const router = express.Router();
 
 // create route between controller and '/events/' endpoint
 router.get('/', rundownGetAll);
-
-// create route between controller and '/events/:eventId' endpoint
-router.get('/:eventId', paramsMustHaveEventId, getEventById);
 
 // create route between controller and '/events/' endpoint
 router.post('/', rundownPostValidator, rundownPost);
