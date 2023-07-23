@@ -9,7 +9,7 @@ import { join, resolve } from 'path';
 
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { OSCSettings } from 'ontime-types';
+import { LogOrigin, OSCSettings } from 'ontime-types';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
@@ -159,7 +159,7 @@ export const startOSCServer = async (overrideConfig = null) => {
   const { osc } = DataProvider.getData();
 
   if (!osc.enabledIn) {
-    logger.info('RX', 'OSC Input Disabled');
+    logger.info(LogOrigin.Rx, 'OSC Input Disabled');
     return;
   }
 
@@ -170,7 +170,7 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  logger.info('RX', `Starting OSC Server on port: ${oscSettings.portIn}`);
+  logger.info(LogOrigin.Rx, `Starting OSC Server on port: ${oscSettings.portIn}`);
   oscServer = new OscServer(oscSettings);
 };
 
@@ -187,7 +187,7 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
   }
 
   const { success, message } = oscIntegration.init(osc);
-  logger.info('RX', message);
+  logger.info(LogOrigin.Rx, message);
 
   if (success) {
     integrationService.register(oscIntegration);
@@ -214,12 +214,12 @@ export const shutdown = async (exitCode = 0) => {
 process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
-  logger.error('SERVER', `Error: unhandled rejection ${error}`);
+  logger.error(LogOrigin.Server, `Error: unhandled rejection ${error}`);
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error) => {
-  logger.error('SERVER', `Error: uncaught exception ${error}`);
+  logger.error(LogOrigin.Server, `Error: uncaught exception ${error}`);
   await shutdown(1);
 });
 

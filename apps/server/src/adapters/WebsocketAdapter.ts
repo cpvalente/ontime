@@ -14,6 +14,8 @@
  * Payload: adds necessary payload for the request to be completed
  */
 
+import { LogOrigin } from 'ontime-types';
+
 import { WebSocket, WebSocketServer } from 'ws';
 
 import getRandomName from '../utils/getRandomName.js';
@@ -47,7 +49,7 @@ export class SocketServer implements IAdapter {
     this.wss.on('connection', (ws) => {
       let clientId = getRandomName();
       this.clientIds.add(clientId);
-      logger.info('CLIENT', `${this.wss.clients.size} Connections with new: ${clientId}`);
+      logger.info(LogOrigin.Client, `${this.wss.clients.size} Connections with new: ${clientId}`);
 
       // send store payload on connect
       ws.send(
@@ -67,7 +69,7 @@ export class SocketServer implements IAdapter {
       ws.on('error', console.error);
 
       ws.on('close', () => {
-        logger.info('CLIENT', `${this.wss.clients.size} Connections with disconnected: ${clientId}`);
+        logger.info(LogOrigin.Client, `${this.wss.clients.size} Connections with disconnected: ${clientId}`);
         this.clientIds.delete(clientId);
       });
 
@@ -96,7 +98,7 @@ export class SocketServer implements IAdapter {
               clientId = payload;
               this.clientIds.delete(previousName);
               this.clientIds.add(clientId);
-              logger.info('CLIENT', `Client ${previousName} renamed to ${clientId}`);
+              logger.info(LogOrigin.Client, `Client ${previousName} renamed to ${clientId}`);
             }
             ws.send(
               JSON.stringify({
@@ -127,7 +129,7 @@ export class SocketServer implements IAdapter {
               ws.send(topic, payload);
             }
           } catch (error) {
-            logger.error('RX', `WS IN: ${error}`);
+            logger.error(LogOrigin.Rx, `WS IN: ${error}`);
           }
         } catch (_) {
           // we ignore unknown

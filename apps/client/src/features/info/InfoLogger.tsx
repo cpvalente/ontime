@@ -1,18 +1,10 @@
 import { useCallback, useState } from 'react';
 import { Button } from '@chakra-ui/react';
+import { LogOrigin } from 'ontime-types';
 
 import { clearLogs, useLogData } from '../../common/stores/logger';
 
 import style from './InfoLogger.module.scss';
-
-enum LogFilter {
-  User = 'USER',
-  Client = 'CLIENT',
-  Server = 'SERVER',
-  RX = 'RX',
-  TX = 'TX',
-  Playback = 'PLAYBACK',
-}
 
 export default function InfoLogger() {
   const { logs: logData } = useLogData();
@@ -24,35 +16,35 @@ export default function InfoLogger() {
   const [showPlayback, setShowPlayback] = useState(true);
   const [showUser, setShowUser] = useState(true);
 
-  const matchers: LogFilter[] = [];
+  const matchers: LogOrigin[] = [];
   if (showUser) {
-    matchers.push(LogFilter.User);
+    matchers.push(LogOrigin.User);
   }
   if (showClient) {
-    matchers.push(LogFilter.Client);
+    matchers.push(LogOrigin.Client);
   }
   if (showServer) {
-    matchers.push(LogFilter.Server);
+    matchers.push(LogOrigin.Server);
   }
   if (showRx) {
-    matchers.push(LogFilter.RX);
+    matchers.push(LogOrigin.Rx);
   }
   if (showTx) {
-    matchers.push(LogFilter.TX);
+    matchers.push(LogOrigin.Tx);
   }
   if (showPlayback) {
-    matchers.push(LogFilter.Playback);
+    matchers.push(LogOrigin.Playback);
   }
 
   const filteredData = logData.filter((entry) => matchers.some((match) => entry.origin === match));
 
-  const disableOthers = useCallback((toEnable: LogFilter) => {
-    toEnable === LogFilter.User ? setShowUser(true) : setShowUser(false);
-    toEnable === LogFilter.Client ? setShowClient(true) : setShowClient(false);
-    toEnable === LogFilter.Server ? setShowServer(true) : setShowServer(false);
-    toEnable === LogFilter.RX ? setShowRx(true) : setShowRx(false);
-    toEnable === LogFilter.TX ? setShowTx(true) : setShowTx(false);
-    toEnable === LogFilter.Playback ? setShowPlayback(true) : setShowPlayback(false);
+  const disableOthers = useCallback((toEnable: LogOrigin) => {
+    toEnable === LogOrigin.User ? setShowUser(true) : setShowUser(false);
+    toEnable === LogOrigin.Client ? setShowClient(true) : setShowClient(false);
+    toEnable === LogOrigin.Server ? setShowServer(true) : setShowServer(false);
+    toEnable === LogOrigin.Rx ? setShowRx(true) : setShowRx(false);
+    toEnable === LogOrigin.Tx ? setShowTx(true) : setShowTx(false);
+    toEnable === LogOrigin.Playback ? setShowPlayback(true) : setShowPlayback(false);
   }, []);
 
   return (
@@ -62,55 +54,55 @@ export default function InfoLogger() {
           variant={showUser ? 'ontime-filled' : 'ontime-subtle'}
           size='xs'
           onClick={() => setShowUser((s) => !s)}
-          onAuxClick={() => disableOthers(LogFilter.User)}
+          onAuxClick={() => disableOthers(LogOrigin.User)}
           onContextMenu={(e) => e.preventDefault()}
         >
-          {LogFilter.User}
+          {LogOrigin.User}
         </Button>
         <Button
           variant={showClient ? 'ontime-filled' : 'ontime-subtle'}
           size='xs'
           onClick={() => setShowClient((s) => !s)}
-          onAuxClick={() => disableOthers(LogFilter.Client)}
+          onAuxClick={() => disableOthers(LogOrigin.Client)}
           onContextMenu={(e) => e.preventDefault()}
         >
-          {LogFilter.Client}
+          {LogOrigin.Client}
         </Button>
         <Button
           variant={showServer ? 'ontime-filled' : 'ontime-subtle'}
           size='xs'
           onClick={() => setShowServer((s) => !s)}
-          onAuxClick={() => disableOthers(LogFilter.Server)}
+          onAuxClick={() => disableOthers(LogOrigin.Server)}
           onContextMenu={(e) => e.preventDefault()}
         >
-          {LogFilter.Server}
+          {LogOrigin.Server}
         </Button>
         <Button
           variant={showPlayback ? 'ontime-filled' : 'ontime-subtle'}
           size='xs'
           onClick={() => setShowPlayback((s) => !s)}
-          onAuxClick={() => disableOthers(LogFilter.Playback)}
+          onAuxClick={() => disableOthers(LogOrigin.Playback)}
           onContextMenu={(e) => e.preventDefault()}
         >
-          {LogFilter.Playback}
+          {LogOrigin.Playback}
         </Button>
         <Button
           variant={showRx ? 'ontime-filled' : 'ontime-subtle'}
           size='xs'
           onClick={() => setShowRx((s) => !s)}
-          onAuxClick={() => disableOthers(LogFilter.RX)}
+          onAuxClick={() => disableOthers(LogOrigin.Rx)}
           onContextMenu={(e) => e.preventDefault()}
         >
-          {LogFilter.RX}
+          {LogOrigin.Rx}
         </Button>
         <Button
           variant={showTx ? 'ontime-filled' : 'ontime-subtle'}
           size='xs'
           onClick={() => setShowTx((s) => !s)}
-          onAuxClick={() => disableOthers(LogFilter.TX)}
+          onAuxClick={() => disableOthers(LogOrigin.Tx)}
           onContextMenu={(e) => e.preventDefault()}
         >
-          {LogFilter.TX}
+          {LogOrigin.Tx}
         </Button>
         <Button variant='ontime-outlined' size='xs' onClick={clearLogs}>
           Clear
