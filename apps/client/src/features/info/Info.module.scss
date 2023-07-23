@@ -2,11 +2,21 @@
 @use '../../theme/v2Styles' as *;
 
 .panelHeader {
-  font-size: $inner-section-text-size;
-  font-family: $ontime-font-family;
-  color: $label-gray;
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
+  gap: 1rem;
+
+  .title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .selected {
+    min-width: max-content;
+    font-size: $inner-section-text-size;
+    color: $label-gray;
+  }
 }
 
 .labels {
