@@ -1,12 +1,9 @@
-// remember we are targeting phones and tablets
-
 @use '../../../src/theme/v2Styles' as *;
 @use '../../../src/theme/ontimeColours' as *;
 
 .operatorContainer {
   width: 100vw;
   height: 100vh;
-  padding: 2rem;
   font-size: 0.8rem;
   display: flex;
   flex-direction: column;
@@ -20,29 +17,14 @@
 }
 
 @mixin event-block() {
-  padding: 0.2rem;
+  height: 40px;
+  padding: 0.5rem;
   display: flex;
   gap: 0.75rem;
   align-items: center;
   margin: 0.1rem;
 }
 
-.scheduledEvent {
-  @include event-block();
-  background-color: $gray-1300;
-  align-items: start;
-}
-
-.activeEvent {
-  border-top: 1.5px white;
-  border-style: solid;
-}
-
-.runningTimer {
-  border-top: 0.5px white;
-  border-style: solid;
-  background-color: $green-700;
-}
 
 .block {
   @include event-block();

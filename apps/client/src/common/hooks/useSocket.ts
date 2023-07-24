@@ -5,6 +5,14 @@ import { socketSendJson } from '../utils/socket';
 
 export const useRundownEditor = () => {
   const featureSelector = (state: RuntimeStore) => ({
+    selectedEventId: state.loaded.selectedEventId,
+  });
+
+  return useRuntimeStore(featureSelector, deepCompare);
+};
+
+export const useOperator = () => {
+  const featureSelector = (state: RuntimeStore) => ({
     playback: state.playback,
     selectedEventId: state.loaded.selectedEventId,
     nextEventId: state.loaded.nextEventId,

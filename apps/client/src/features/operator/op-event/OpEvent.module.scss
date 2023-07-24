@@ -1,13 +1,31 @@
-.alias {
-  background-color: red;
-  width: fit-content;
-  height: fit-content;
+@use '../../../../src/theme/ontimeColours' as *;
+@import '../Operator.module.scss';
+
+.scheduledEvent {
+  @include event-block();
+  background-color: $gray-1300;
+}
+
+.runningTimer {
+  background-color: $green-700;
+}
+
+.cue {
+  font-size: 0.75rem;
+  background-color: $gray-1050; // to override inline
   padding: 0.2rem;
-  align-items: center;
+  min-width: 4em; // we do not want these to resize
+  text-align: center;
+  border-radius: 2px;
+
+  &:after {
+    content: '\200b';
+  }
 }
 
 .title {
   font-size: 1rem;
+  letter-spacing: 0.02px;
 }
 
 .event {
@@ -21,7 +39,10 @@
 }
 
 .fields {
+  display: block;
   font-weight: 700;
+  color: $orange-500;
+  letter-spacing: 0.02px;
 }
 
 .time {
@@ -42,11 +63,4 @@
 .indicator {
   display: flex;
   justify-content: space-between;
-}
-
-.chevron {
-  display: flex;
-  align-items: center;
-  color: yellow;
-  font-size: 16px;
 }

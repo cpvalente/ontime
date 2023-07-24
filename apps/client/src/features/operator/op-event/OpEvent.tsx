@@ -1,22 +1,38 @@
-import { IoChevronUp } from '@react-icons/all-files/io5/IoChevronUp';
-import { OntimeEvent } from 'ontime-types';
+import { OntimeEvent, UserFields } from 'ontime-types';
 
+import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
+import { useTimer } from '../../../common/hooks/useSocket';
+import { getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 
 import style from './OpEvent.module.scss';
 
 type OpEventProps = {
   data: OntimeEvent;
-  id: number;
+  index: number;
+  isSelected: boolean;
+  subscribed?: keyof UserFields;
 };
 
-export default function OpEvent({ data, id }: OpEventProps) {
+function RollingTime() {
+  const timer = useTimer();
+  return <>{formatTime(timer.current, { showSeconds: true, format: 'hh:mm:ss' })}</>;
+}
+
+export default function OpEvent({ data, index, isSelected, subscribed }: OpEventProps) {
   const start = formatTime(data.timeStart, { format: 'hh:mm' });
   const end = formatTime(data.timeEnd, { format: 'hh:mm' });
+
+  const cueColours = data.colour && getAccessibleColour(data.colour);
+  const subscribedData = (subscribed ? data?.[subscribed] : undefined) || '';
+
+  // @arihanv when selected, the whole row should become green
   return (
-    <>
-      <div className={style.alias}>{data.note}</div>
-      <div className={style.block}>
+    <div className={`${isSelected ? style.runningTimer : undefined}`}>
+      <div className={style.scheduledEvent}>
+        <div className={style.cue} style={{ ...cueColours }}>
+          {index}
+        </div>
         <div className={style.event}>
           <div className={style.title}>
             {data.title} - {data.subtitle}
@@ -26,15 +42,14 @@ export default function OpEvent({ data, id }: OpEventProps) {
               {start} - {end}
             </div>
             <div className={style.indicator}>
-              <div className={style.chevron}>
-                <IoChevronUp />
-              </div>
-              --:--:--
+              <DelayIndicator delayValue={data.delay} />
+              {isSelected ? <RollingTime /> : formatTime(data.duration, { showSeconds: true, format: 'hh:mm:ss' })}
             </div>
           </div>
         </div>
-        {id % 3 == 0 && <div className={style.fields}>CAM 5 Slow pan to SL</div>}
       </div>
-    </>
+      {/** @arihanv we likely want to animate the height of the fields div  */}
+      <div className={style.fields}>{subscribedData}</div>
+    </div>
   );
 }

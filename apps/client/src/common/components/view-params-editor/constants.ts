@@ -201,3 +201,31 @@ export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
     type: 'boolean',
   },
 ];
+
+export const OPERATOR_OPTIONS: ParamField[] = [
+  TIME_FORMAT_OPTION,
+  {
+    id: 'hidepast',
+    title: 'Hide Past Events',
+    description: 'Whether to events that have passed',
+    type: 'boolean',
+  },
+  {
+    id: 'subscribe',
+    title: 'Highlight Field',
+    description: 'Choose a field to highlight',
+    type: 'option',
+    values: {
+      user0: 'user0',
+      user1: 'user1',
+      user2: 'user2',
+      user3: 'user3',
+      user4: 'user4',
+      user5: 'user5',
+      user6: 'user6',
+      user7: 'user7',
+      user8: 'user8',
+      user9: 'user9',
+    },
+  },
+];

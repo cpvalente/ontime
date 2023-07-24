@@ -2,10 +2,24 @@
   padding: 0.65rem;
   display: flex;
   justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: rgba(0, 0, 0, 0.35) 0 3px 6px 6px
+}
+
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .clock {
   display: flex;
   gap: 1.5rem;
   margin-right: 1rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: gray;
 }

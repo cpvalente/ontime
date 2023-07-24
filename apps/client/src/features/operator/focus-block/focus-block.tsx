@@ -1,14 +1,17 @@
-import { BiTargetLock } from '@react-icons/all-files/bi/BiTargetLock';
+import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
 
 import style from './focusBlock.module.scss';
 
 export default function FocusBlock() {
+  const handleClick = () => console.log('click follow');
+
+  // @arihavn, can we find a way to have a single button here, no need for the div
   return (
-    <button className={style.focusBlock}>
-      <div className={style.focusButton}>
-        <BiTargetLock size={20} />
+    <div className={style.focusBlock}>
+      <button className={style.focusButton} onClick={handleClick}>
+        <IoLocate size={16} />
         Follow
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }
