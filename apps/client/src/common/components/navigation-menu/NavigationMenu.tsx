@@ -58,7 +58,7 @@ function NavigationMenu() {
   const handleMirror = () => toggleMirror();
 
   const showEditFormDrawer = () => {
-    searchParams.append('edit', 'true');
+    searchParams.set('edit', 'true');
     setSearchParams(searchParams);
   };
 
