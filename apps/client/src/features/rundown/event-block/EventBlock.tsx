@@ -1,9 +1,11 @@
 import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoCopyOutline } from '@react-icons/all-files/io5/IoCopyOutline';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
@@ -11,6 +13,7 @@ import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
+import { useEventIdSwapping } from '../Rundown';
 import type { EventItemActions } from '../RundownEntry';
 
 import EventBlockInner from './EventBlockInner';
@@ -76,6 +79,7 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { updateEvent } = useEventAction();
+  const { eventIdToBeSwapped, setEventId } = useEventIdSwapping();
   const moveCursorTo = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -90,6 +94,18 @@ export default function EventBlock(props: EventBlockProps) {
           id: eventId,
           isPublic: !isPublic,
         }),
+    },
+    {
+      label: 'Add to swap',
+      icon: IoAdd,
+      onClick: () => setEventId(eventId),
+      withDivider: true,
+    },
+    {
+      label: `Swap with: ${eventIdToBeSwapped ? eventIdToBeSwapped : ''}`,
+      icon: IoSwapVertical,
+      onClick: () => console.log(eventId),
+      isDisabled: !eventIdToBeSwapped || eventIdToBeSwapped === eventId,
     },
   ]);
 
