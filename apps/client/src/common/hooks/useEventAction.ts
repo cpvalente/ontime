@@ -9,9 +9,11 @@ import {
   requestApplyDelay,
   requestDelete,
   requestDeleteAll,
+  requestEventSwap,
   requestPostEvent,
   requestPutEvent,
   requestReorderEvent,
+  SwapEntry,
 } from '../api/eventsApi';
 import { useLocalEvent } from '../stores/localEvent';
 
@@ -322,5 +324,76 @@ export const useEventAction = () => {
     [_reorderEventMutation],
   );
 
-  return { addEvent, updateEvent, deleteEvent, deleteAllEvents, applyDelay, reorderEvent };
+  /**
+   * Calls mutation to reorder an event
+   * @private
+   */
+  const _swapEvents = useMutation({
+    mutationFn: requestEventSwap,
+    // we optimistically update here
+    onMutate: async (data) => {
+      // cancel ongoing queries
+      await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
+
+      // Snapshot the previous value
+      const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
+
+      const events = [...(previousEvents as OntimeRundown)];
+      const fromEvent = events.find((event) => event.id === data.from);
+      const toEvent = events.find((event) => event.id === data.to);
+
+      if (fromEvent && toEvent) {
+        // logic to swap events
+      }
+
+      // optimistically update object
+      queryClient.setQueryData(RUNDOWN_TABLE, events);
+
+      // Return a context with the previous and new events
+      return { previousEvents };
+    },
+
+    // Mutation fails, rollback undoes optimist update
+    onError: (_error, _eventId, context) => {
+      queryClient.setQueryData(RUNDOWN_TABLE, context?.previousEvents);
+    },
+    // Mutation finished, failed or successful
+    // Fetch anyway, just to be sure
+    onSettled: () => {
+      queryClient.invalidateQueries(RUNDOWN_TABLE);
+    },
+    networkMode: 'always',
+  });
+
+  /**
+   * Swaps the schedule of two events
+   */
+  const swapEvents = useCallback(
+    async (fromEventId: string, toEventId: string) => {
+      try {
+        const swapObject: SwapEntry = {
+          from: fromEventId,
+          to: toEventId,
+        };
+        await _swapEvents.mutateAsync(swapObject);
+      } catch (error) {
+        if (!axios.isAxiosError(error)) {
+          emitError(`Error re-ordering event: ${(error as AxiosError).message}`);
+        } else {
+          emitError(`Error re-ordering event: ${error}`);
+        }
+      }
+    },
+    [emitError, _swapEvents],
+  );
+
+  return {
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    deleteAllEvents,
+    applyDelay,
+    reorderEvent,
+    swapEvents,
+  };
 };
