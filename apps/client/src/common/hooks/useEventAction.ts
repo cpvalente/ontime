@@ -28,9 +28,10 @@ export const useEventAction = () => {
    * Calls mutation to add new event
    * @private
    */
-  const _addEventMutation = useMutation(requestPostEvent, {
+  const _addEventMutation = useMutation({
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
+    mutationFn: requestPostEvent,
     onSettled: () => {
       queryClient.invalidateQueries(RUNDOWN_TABLE);
     },
@@ -102,7 +103,8 @@ export const useEventAction = () => {
    * Calls mutation to update existing event
    * @private
    */
-  const _updateEventMutation = useMutation(requestPutEvent, {
+  const _updateEventMutation = useMutation({
+    mutationFn: requestPutEvent,
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -117,11 +119,11 @@ export const useEventAction = () => {
       // Return a context with the previous and new events
       return { previousEvent, newEvent };
     },
-
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _newEvent, context) => {
       queryClient.setQueryData([RUNDOWN_TABLE_KEY, context?.newEvent.id], context?.previousEvent);
     },
+
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: async () => {
@@ -148,7 +150,8 @@ export const useEventAction = () => {
    * Calls mutation to delete an event
    * @private
    */
-  const _deleteEventMutation = useMutation(requestDelete, {
+  const _deleteEventMutation = useMutation({
+    mutationFn: requestDelete,
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
@@ -196,7 +199,8 @@ export const useEventAction = () => {
    * Calls mutation to delete all events
    * @private
    */
-  const _deleteAllEventsMutation = useMutation(requestDeleteAll, {
+  const _deleteAllEventsMutation = useMutation({
+    mutationFn: requestDeleteAll,
     // we optimistically update here
     onMutate: async () => {
       // cancel ongoing queries
@@ -239,7 +243,8 @@ export const useEventAction = () => {
    * Calls mutation to apply a delay
    * @private
    */
-  const _applyDelayMutation = useMutation(requestApplyDelay, {
+  const _applyDelayMutation = useMutation({
+    mutationFn: requestApplyDelay,
     // Mutation finished, failed or successful
     onSettled: () => {
       queryClient.invalidateQueries(RUNDOWN_TABLE);
@@ -265,7 +270,8 @@ export const useEventAction = () => {
    * Calls mutation to reorder an event
    * @private
    */
-  const _reorderEventMutation = useMutation(requestReorderEvent, {
+  const _reorderEventMutation = useMutation({
+    mutationFn: requestReorderEvent,
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
