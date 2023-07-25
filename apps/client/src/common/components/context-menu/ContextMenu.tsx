@@ -1,7 +1,7 @@
 // logic (with some modifications) culled from:
 // https://github.com/lukasbach/chakra-ui-contextmenu/blob/main/src/ContextMenu.tsx
 
-import { ReactElement } from 'react';
+import { Fragment, ReactElement } from 'react';
 import { Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { IconType } from '@react-icons/all-files';
 import { create } from 'zustand';
@@ -70,12 +70,12 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
         />
         <MenuList>
           {options.map(({ label, icon: Icon, onClick, withDivider, isDisabled }, i) => (
-            <>
+            <Fragment key={label}>
               {withDivider && <MenuDivider />}
               <MenuItem key={i} icon={<Icon />} onClick={onClick} isDisabled={isDisabled}>
                 {label}
               </MenuItem>
-            </>
+            </Fragment>
           ))}
         </MenuList>
       </Menu>
