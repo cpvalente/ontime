@@ -2,6 +2,7 @@ import { lazy, MutableRefObject, useCallback, useEffect, useRef, useState } from
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
+import { create } from 'zustand';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
@@ -15,6 +16,16 @@ import RundownEmpty from './RundownEmpty';
 import style from './Rundown.module.scss';
 
 const RundownEntry = lazy(() => import('./RundownEntry'));
+
+interface EventIdSwappingStore {
+  eventIdToBeSwapped: string | null;
+  setEventId: (newEventId: string) => void;
+}
+
+export const useEventIdSwapping = create<EventIdSwappingStore>((set) => ({
+  eventIdToBeSwapped: null,
+  setEventId: (newEventId) => set(() => ({ eventIdToBeSwapped: newEventId })),
+}));
 
 interface RundownProps {
   entries: OntimeRundown;
