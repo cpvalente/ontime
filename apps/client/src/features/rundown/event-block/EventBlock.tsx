@@ -85,7 +85,7 @@ export default function EventBlock(props: EventBlockProps) {
   const [isVisible, setIsVisible] = useState(false);
   const openId = useAppMode((state) => state.editId);
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
-    { label: `Copy ID: ${eventId}}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
+    { label: `Copy ID: ${eventId}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
     {
       label: 'Toggle public',
       icon: IoPeopleOutline,
