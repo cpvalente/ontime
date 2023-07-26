@@ -377,14 +377,10 @@ export const useEventAction = () => {
         };
         await _swapEvents.mutateAsync(swapObject);
       } catch (error) {
-        if (!axios.isAxiosError(error)) {
-          emitError(`Error re-ordering event: ${(error as AxiosError).message}`);
-        } else {
-          emitError(`Error re-ordering event: ${error}`);
-        }
+        logAxiosError('Error re-ordering event', error);
       }
     },
-    [emitError, _swapEvents],
+    [_swapEvents],
   );
 
   return {
