@@ -336,20 +336,44 @@ export const useEventAction = () => {
       await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
+      const previousEvents: OntimeRundown = queryClient.getQueryData(RUNDOWN_TABLE) ?? [];
 
-      const events = [...(previousEvents as OntimeRundown)];
-      const fromEvent = events.find((event) => event.id === data.from);
-      const toEvent = events.find((event) => event.id === data.to);
+      const fromEvent = previousEvents.find((event) => event.id === data.from);
+      const toEvent = previousEvents.find((event) => event.id === data.to);
 
-      if (fromEvent && toEvent) {
-        // logic to swap events
+      if (!fromEvent || !toEvent) {
+        // Return a context with the previous and new events
+        return { previousEvents };
       }
 
-      // optimistically update object
-      queryClient.setQueryData(RUNDOWN_TABLE, events);
+      if (fromEvent.type === SupportedEvent.Event && toEvent.type === SupportedEvent.Event) {
+        const eventsWithSwap = previousEvents.map((event) => {
+          if (event.id === data.from) {
+            return {
+              ...toEvent,
+              timeStart: fromEvent.timeStart,
+              timeEnd: fromEvent.timeEnd,
+              duration: fromEvent.duration,
+            };
+          }
 
-      // Return a context with the previous and new events
+          if (event.id === data.to) {
+            return {
+              ...fromEvent,
+              timeStart: toEvent.timeStart,
+              timeEnd: toEvent.timeEnd,
+              duration: toEvent.duration,
+            };
+          }
+
+          return event;
+        });
+
+        // optimistically update object
+        queryClient.setQueryData(RUNDOWN_TABLE, eventsWithSwap);
+      }
+
+      // Return a context with the previous events
       return { previousEvents };
     },
 
@@ -369,13 +393,9 @@ export const useEventAction = () => {
    * Swaps the schedule of two events
    */
   const swapEvents = useCallback(
-    async (fromEventId: string, toEventId: string) => {
+    async ({ from, to }: SwapEntry) => {
       try {
-        const swapObject: SwapEntry = {
-          from: fromEventId,
-          to: toEventId,
-        };
-        await _swapEvents.mutateAsync(swapObject);
+        await _swapEvents.mutateAsync({ from, to });
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
