@@ -20,11 +20,13 @@ const RundownEntry = lazy(() => import('./RundownEntry'));
 interface EventIdSwappingStore {
   eventIdToBeSwapped: string | null;
   setEventId: (newEventId: string | null) => void;
+  clearEventId: () => void;
 }
 
 export const useEventIdSwapping = create<EventIdSwappingStore>((set) => ({
   eventIdToBeSwapped: null,
   setEventId: (newEventId) => set(() => ({ eventIdToBeSwapped: newEventId })),
+  clearEventId: () => set(() => ({ eventIdToBeSwapped: null })),
 }));
 
 interface RundownProps {
