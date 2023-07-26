@@ -22,7 +22,7 @@
     "postinstall": "",
     "dev:electron": "NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never  --x64 --win",
-    "dist-mac": "electron-builder --publish=never  --universal --mac",
+    "dist-mac": "electron-builder --publish=never  --arm64 --mac && electron-builder --publish=never  --x64 --mac",
     "dist-linux": "electron-builder --publish=never  --x64 --linux",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
@@ -31,7 +31,7 @@
     "appId": "no.lightdev.ontime",
     "asar": true,
     "dmg": {
-      "artifactName": "ontime-macOS.dmg",
+      "artifactName": "ontime-macOS-${arch}.dmg",
       "icon": "icon.icns"
     },
     "mac": {
