@@ -9,7 +9,6 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -78,8 +77,7 @@ export default function EventBlock(props: EventBlockProps) {
     actionHandler,
     disableEdit,
   } = props;
-  const { updateEvent, swapEvents } = useEventAction();
-  const { eventIdToBeSwapped, setEventId } = useEventIdSwapping();
+  const { eventIdToBeSwapped, setEventId, clearEventId } = useEventIdSwapping();
   const moveCursorTo = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -90,9 +88,9 @@ export default function EventBlock(props: EventBlockProps) {
       label: 'Toggle public',
       icon: IoPeopleOutline,
       onClick: () =>
-        updateEvent({
-          id: eventId,
-          isPublic: !isPublic,
+        actionHandler('update', {
+          field: 'isPublic',
+          value: !isPublic,
         }),
     },
     {
@@ -102,11 +100,12 @@ export default function EventBlock(props: EventBlockProps) {
       withDivider: true,
     },
     {
-      label: `Swap with: ${eventIdToBeSwapped ? eventIdToBeSwapped : ''}`,
+      label: `Swap this event with ${eventIdToBeSwapped || ''}`,
       icon: IoSwapVertical,
       onClick: () => {
         if (eventIdToBeSwapped) {
-          swapEvents(eventIdToBeSwapped, eventId).then(() => setEventId(null));
+          actionHandler('swap', { field: 'id', value: eventIdToBeSwapped });
+          clearEventId();
         }
       },
       isDisabled: !eventIdToBeSwapped || eventIdToBeSwapped === eventId,
