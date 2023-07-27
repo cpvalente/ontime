@@ -22,7 +22,7 @@
     "postinstall": "",
     "dev:electron": "NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never  --x64 --win",
-    "dist-mac": "electron-builder --publish=never  --arm64 --mac && electron-builder --publish=never  --x64 --mac",
+    "dist-mac": "electron-builder --publish=never  --mac",
     "dist-linux": "electron-builder --publish=never  --x64 --linux",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
@@ -35,7 +35,13 @@
       "icon": "icon.icns"
     },
     "mac": {
-      "target": "dmg",
+      "target": {
+        "target": "dmg",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      },
       "category": "public.app-category.productivity",
       "icon": "icon.icns"
     },
