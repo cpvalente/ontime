@@ -206,7 +206,7 @@ export default function Rundown(props: RundownProps) {
   let previousEnd = 0;
   let thisEnd = 0;
   let previousEventId: string | undefined;
-  let eventIndex = -1;
+  let eventIndex = 0;
   let isPast = Boolean(featureData?.selectedEventId);
 
   return (
@@ -216,7 +216,7 @@ export default function Rundown(props: RundownProps) {
           <div className={style.list}>
             {statefulEntries.map((entry, index) => {
               if (index === 0) {
-                eventIndex = -1;
+                eventIndex = 0;
               }
               if (entry.type === SupportedEvent.Event) {
                 eventIndex++;
@@ -233,21 +233,25 @@ export default function Rundown(props: RundownProps) {
               }
 
               return (
-                <div key={entry.id} ref={hasCursor ? cursorRef : undefined}>
-                  <RundownEntry
-                    type={entry.type}
-                    eventIndex={eventIndex}
-                    isPast={isPast}
-                    data={entry}
-                    selected={isSelected}
-                    hasCursor={hasCursor}
-                    next={isNext}
-                    previousEnd={previousEnd}
-                    previousEventId={previousEventId}
-                    playback={isSelected ? featureData.playback : undefined}
-                    isRolling={featureData.playback === Playback.Roll}
-                    disableEdit={isExtracted}
-                  />
+                <>
+                  <div className={style.entryWrapper}>
+                    {entry.type === SupportedEvent.Event && <div className={style.entryIndex}>{eventIndex}</div>}
+                    <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
+                      <RundownEntry
+                        type={entry.type}
+                        isPast={isPast}
+                        data={entry}
+                        selected={isSelected}
+                        hasCursor={hasCursor}
+                        next={isNext}
+                        previousEnd={previousEnd}
+                        previousEventId={previousEventId}
+                        playback={isSelected ? featureData.playback : undefined}
+                        isRolling={featureData.playback === Playback.Roll}
+                        disableEdit={isExtracted}
+                      />
+                    </div>
+                  </div>
                   {((showQuickEntry && hasCursor) || isLast) && (
                     <QuickAddBlock
                       showKbd={hasCursor}
@@ -257,7 +261,7 @@ export default function Rundown(props: RundownProps) {
                       disableAddBlock={entry.type === SupportedEvent.Block}
                     />
                   )}
-                </div>
+                </>
               );
             })}
             <div className={style.spacer} />

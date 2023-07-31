@@ -16,7 +16,6 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 
 interface RundownEntryProps {
   type: SupportedEvent;
-  eventIndex: number;
   isPast: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
@@ -30,19 +29,8 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const {
-    eventIndex,
-    isPast,
-    data,
-    selected,
-    hasCursor,
-    next,
-    previousEnd,
-    previousEventId,
-    playback,
-    isRolling,
-    disableEdit,
-  } = props;
+  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, disableEdit } =
+    props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
 
@@ -155,10 +143,10 @@ export default function RundownEntry(props: RundownEntryProps) {
   if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
+        cue={data.cue}
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}
         duration={data.duration}
-        eventIndex={eventIndex + 1}
         eventId={data.id}
         isPublic={data.isPublic}
         endAction={data.endAction}

@@ -90,6 +90,12 @@ $skip-opacity: 0.1;
     position: absolute;
     margin-top: 0.25rem;
   }
+
+  .cue {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    rotate: -90deg;
+  }
 }
 
 .playbackActions {

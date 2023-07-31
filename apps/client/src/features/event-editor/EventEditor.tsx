@@ -1,38 +1,45 @@
-import { useEffect, useState } from 'react';
-import { OntimeEvent } from 'ontime-types';
+import { useCallback, useEffect, useState } from 'react';
+import { OntimeEvent, SupportedEvent } from 'ontime-types';
 
 import CopyTag from '../../common/components/copy-tag/CopyTag';
+import { useEventAction } from '../../common/hooks/useEventAction';
 import useRundown from '../../common/hooks-query/useRundown';
 import { useAppMode } from '../../common/stores/appModeStore';
-import getDelayTo from '../../common/utils/getDelayTo';
 
+import EventEditorDataLeft from './composite/EventEditorDataLeft';
+import EventEditorDataRight from './composite/EventEditorDataRight';
 import EventEditorTimes from './composite/EventEditorTimes';
-import EventEditorTitles from './composite/EventEditorTitles';
 
 import style from './EventEditor.module.scss';
 
 export type EventEditorSubmitActions = keyof OntimeEvent;
+export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
 
 export default function EventEditor() {
   const openId = useAppMode((state) => state.editId);
   const { data } = useRundown();
+  const { updateEvent } = useEventAction();
+
   const [event, setEvent] = useState<OntimeEvent | null>(null);
-  const [delay, setDelay] = useState(0);
 
   useEffect(() => {
     if (!data || !openId) {
+      setEvent(null);
       return;
     }
 
-    const eventIndex = data.findIndex((event) => event.id === openId);
-    if (eventIndex > -1) {
-      const event = data[eventIndex];
-      if (event.type === 'event') {
-        setDelay(getDelayTo(data, eventIndex));
-        setEvent(data[eventIndex] as OntimeEvent);
-      }
+    const event = data.find((event) => event.id === openId);
+    if (event && event.type === SupportedEvent.Event) {
+      setEvent(event as OntimeEvent);
     }
-  }, [data, event, openId]);
+  }, [data, openId]);
+
+  const handleSubmit = useCallback(
+    (field: EditorUpdateFields, value: string) => {
+      updateEvent({ id: event?.id, [field]: value });
+    },
+    [event?.id, updateEvent],
+  );
 
   if (!event) {
     return <span>Loading...</span>;
@@ -40,34 +47,35 @@ export default function EventEditor() {
 
   return (
     <div className={style.eventEditor}>
-      <div className={style.eventInfo}>
-        Event ID
-        <span className={style.eventId}>
-          <CopyTag label={event.id}>{event.id}</CopyTag>
-        </span>
-      </div>
-      <div className={style.eventActions}>
-        <CopyTag label='OSC trigger'>{`/ontime/gotoid/${event.id}`}</CopyTag>
-      </div>
       <EventEditorTimes
         eventId={event.id}
         timeStart={event.timeStart}
         timeEnd={event.timeEnd}
         duration={event.duration}
-        delay={delay}
+        delay={event.delay ?? 0}
         isPublic={event.isPublic}
         endAction={event.endAction}
         timerType={event.timerType}
       />
-      <EventEditorTitles
-        key={event.id}
+      <EventEditorDataLeft
+        key={`${event.id}-left`}
         eventId={event.id}
+        cue={event.cue}
         title={event.title}
         presenter={event.presenter}
         subtitle={event.subtitle}
+        handleSubmit={handleSubmit}
+      />
+      <EventEditorDataRight
+        key={`${event.id}-right`}
         note={event.note}
         colour={event.colour}
-      />
+        handleSubmit={handleSubmit}
+      >
+        <CopyTag label='Event ID'>{event.id}</CopyTag>
+        <CopyTag label='OSC trigger by id'>{`/ontime/gotoid/${event.id}`}</CopyTag>
+        <CopyTag label='OSC trigger by cue'>{`/ontime/gotocue/${event.cue}`}</CopyTag>
+      </EventEditorDataRight>
     </div>
   );
 }
