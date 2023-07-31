@@ -42,10 +42,23 @@ export default function AppRouter() {
     if (!data) return;
 
     for (const d of data) {
-      if (`/${d.alias}` === location.pathname && d.enabled) {
-        const connector = d.pathAndParams.includes('?') ? '&' : '?';
-        navigate(`/${d.pathAndParams}${connector}alias=${d.alias}`);
-        break;
+      if (location.search.indexOf('alias=') > -1) {
+        // if the alias fits the alias on this page, if the URL is diferent, we redirect user to the new URL
+        let aliasOnPage = location.search.substring(location.search.indexOf('alias=') + 6);
+        if (aliasOnPage.indexOf('&') > -1) {
+          // take care of scenario where there is an & after the alias
+          aliasOnPage = aliasOnPage.substring(0, aliasOnPage.indexOf('&'));
+        }
+        let fullLocationPath = location.pathname + location.search;
+        // we need to remove the &alias=ALIAS_NAME or ?alias=ALIAS_NAME at the end of the URL
+        fullLocationPath = fullLocationPath.replaceAll(`alias=${d.alias}`, '');
+        fullLocationPath = fullLocationPath.substring(0, fullLocationPath.length - 1);
+        if (d.alias !== '' && d.enabled && d.alias === aliasOnPage && d.pathAndParams !== fullLocationPath) {
+          //console.log('found a match, same alias but different route so I will redirect to: ', d.pathAndParams);
+          const connector = d.pathAndParams.includes('?') ? '&' : '?';
+          navigate(`${d.pathAndParams}${connector}alias=${d.alias}`);
+          break;
+        }
       }
     }
   }, [data, location, navigate]);
