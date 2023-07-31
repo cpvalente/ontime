@@ -26,6 +26,7 @@ export type OntimeBlock = OntimeBaseEvent & {
 
 export type OntimeEvent = OntimeBaseEvent & {
   type: SupportedEvent.Event;
+  cue: string;
   title: string;
   subtitle: string;
   presenter: string;

@@ -9,21 +9,13 @@ import {
 } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
+import { block as blockDef, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
 import { eventTimer } from '../TimerService.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import {
-  cachedAdd,
-  cachedDelete,
-  cachedEdit,
-  cachedReorder,
-  calculateRuntimeDelaysFrom,
-  delayedRundownCacheKey,
-  getDelayedRundown,
-} from './delayedRundown.utils.js';
+import { cachedAdd, cachedDelete, cachedEdit, cachedReorder, delayedRundownCacheKey } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 
 /**
@@ -150,29 +142,31 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   let newEvent: Partial<OntimeBaseEvent> = {};
   const id = generateId();
 
-  // TODO: filter the parameters that exist in the event, use the parserUtils
-  switch (eventData.type) {
-    case SupportedEvent.Event:
-      newEvent = { ...eventDef, ...eventData, id };
-      break;
-    case SupportedEvent.Delay:
-      newEvent = { ...delayDef, ...eventData, id };
-      break;
-    case SupportedEvent.Block:
-      newEvent = { ...blockDef, ...eventData, id };
-      break;
-  }
-
   let insertIndex = 0;
-  if (typeof newEvent?.after !== 'undefined') {
-    const index = DataProvider.getIndexOf(newEvent.after);
+  if (typeof eventData?.after !== 'undefined') {
+    const index = DataProvider.getIndexOf(eventData.after);
     if (index < 0) {
-      logger.warning(LogOrigin.Server, `Could not find event with id ${newEvent.after}`);
+      logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
     } else {
       insertIndex = index + 1;
     }
-    delete newEvent.after;
   }
+
+  // TODO: filter the parameters that exist in the event, use the parserUtils
+  switch (eventData.type) {
+    case SupportedEvent.Event: {
+      const cue = eventData?.cue || insertIndex.toString();
+      newEvent = { ...eventDef, ...eventData, id, cue } as OntimeEvent;
+      break;
+    }
+    case SupportedEvent.Delay:
+      newEvent = { ...delayDef, ...eventData, id } as OntimeDelay;
+      break;
+    case SupportedEvent.Block:
+      newEvent = { ...blockDef, ...eventData, id } as OntimeBlock;
+      break;
+  }
+  delete eventData.after;
 
   // modify rundown
   await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
@@ -190,6 +184,10 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 }
 
 export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
+  if (eventData.type === SupportedEvent.Event && eventData?.cue === '') {
+    throw new Error(`Cue value invalid`);
+  }
+
   const newEvent = await cachedEdit(eventData.id, eventData);
 
   // notify timer service of changed events

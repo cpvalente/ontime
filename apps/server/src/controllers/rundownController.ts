@@ -1,4 +1,3 @@
-import { OntimeEvent } from 'ontime-types';
 import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,

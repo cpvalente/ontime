@@ -38,6 +38,7 @@ export const parseExcel = async (excelData) => {
   let timeStartIndex: number | null = null;
   let timeEndIndex: number | null = null;
   let titleIndex: number | null = null;
+  let cueIndex: number | null = null;
   let presenterIndex: number | null = null;
   let subtitleIndex: number | null = null;
   let isPublicIndex: number | null = null;
@@ -91,6 +92,8 @@ export const parseExcel = async (excelData) => {
           event.timeEnd = parseExcelDate(column);
         } else if (j === titleIndex) {
           event.title = column;
+        } else if (j === cueIndex) {
+          event.cue = column;
         } else if (j === presenterIndex) {
           event.presenter = column;
         } else if (j === subtitleIndex) {
@@ -156,6 +159,10 @@ export const parseExcel = async (excelData) => {
               case 'end':
               case 'finish':
                 timeEndIndex = j;
+                break;
+              case 'cue':
+              case 'page':
+                titleIndex = j;
                 break;
               case 'event title':
               case 'title':
@@ -295,12 +302,15 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
 /**
  * @description Enforces formatting for events
  * @param {object} eventArgs - attributes of event
+ * @param cueFallback
  * @returns {object|null} - formatted object or null in case is invalid
  */
 
-export const validateEvent = (eventArgs) => {
+export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string) => {
   // ensure id is defined and unique
   const id = eventArgs.id || generateId();
+  const cue = eventArgs.cue || cueFallback;
+
   let event = null;
 
   // return if object is empty
@@ -342,6 +352,7 @@ export const validateEvent = (eventArgs) => {
       // CSS.supports is only available in frontend
       colour: makeString(e.colour, d.colour),
       id,
+      cue,
       type: 'event',
     };
   }

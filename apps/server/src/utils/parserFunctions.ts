@@ -30,6 +30,7 @@ export const parseRundown = (data): OntimeRundown => {
     console.log('Found rundown definition, importing...');
     const rundown = [];
     try {
+      let eventIndex = 0;
       const ids = [];
       for (const e of data.rundown) {
         // cap number of events
@@ -43,6 +44,7 @@ export const parseRundown = (data): OntimeRundown => {
           console.log('ERROR: ID collision on import, skipping');
           continue;
         }
+
         // validate the right endAction is used
         if (e.endAction && !Object.values(EndAction).includes(e.endAction)) {
           e.endAction = EndAction.None;
@@ -54,8 +56,10 @@ export const parseRundown = (data): OntimeRundown => {
           e.timerType = TimerType.CountDown;
           console.log('WARNING: invalid Timer Type provided, using default');
         }
+
         if (e.type === 'event') {
-          const event = validateEvent(e);
+          eventIndex += 1;
+          const event = validateEvent(e, eventIndex.toString());
           if (event != null) {
             rundown.push(event);
             ids.push(event.id);
