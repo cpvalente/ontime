@@ -49,15 +49,19 @@ export default function AppRouter() {
           // take care of scenario where there is an & after the alias
           aliasOnPage = aliasOnPage.substring(0, aliasOnPage.indexOf('&'));
         }
-        let fullLocationPath = location.pathname + location.search;
-        // we need to remove the &alias=ALIAS_NAME or ?alias=ALIAS_NAME at the end of the URL
-        fullLocationPath = fullLocationPath.replaceAll(`alias=${d.alias}`, '');
-        fullLocationPath = fullLocationPath.substring(0, fullLocationPath.length - 1);
-        if (d.alias !== '' && d.enabled && d.alias === aliasOnPage && d.pathAndParams !== fullLocationPath) {
-          //console.log('found a match, same alias but different route so I will redirect to: ', d.pathAndParams);
-          const connector = d.pathAndParams.includes('?') ? '&' : '?';
-          navigate(`${d.pathAndParams}${connector}alias=${d.alias}`);
-          break;
+        // if we have the same alias and its enabled and its not empty
+        if (d.alias !== '' && d.enabled && d.alias === aliasOnPage) {
+          let fullLocationPath = location.pathname + location.search;
+          // we need to remove the &alias=ALIAS_NAME or ?alias=ALIAS_NAME at the end of the URL
+          fullLocationPath = fullLocationPath.replaceAll(`alias=${d.alias}`, '');
+          fullLocationPath = fullLocationPath.substring(0, fullLocationPath.length - 1);
+          // if the location path is different
+          if (d.pathAndParams !== fullLocationPath) {
+            //console.log('found a match, same alias but different route so I will redirect to: ', d.pathAndParams);
+            const connector = d.pathAndParams.includes('?') ? '&' : '?';
+            navigate(`${d.pathAndParams}${connector}alias=${d.alias}`);
+            break;
+          }
         }
       }
     }
