@@ -25,7 +25,11 @@ export function openLink(url) {
  * @param alias (this is optional)
  */
 export function handleLinks(event, location, alias = '') {
-  const appendAlias = alias && alias !== '' ? `?alias=${alias}` : '';
+  let appendAlias = '';
+  const connector = location.includes('?') ? '&' : '?';
+  if (alias && alias !== '') {
+    appendAlias = `${connector}alias=${alias}`;
+  }
   // we handle the link manually
   event.preventDefault();
   openLink(`http://${host}/${location}${appendAlias}`);
