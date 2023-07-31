@@ -32,5 +32,5 @@ export function handleLinks(event, location, alias = '') {
   }
   // we handle the link manually
   event.preventDefault();
-  openLink(`http://${host}/${location}${appendAlias}`);
+  openLink(`http://${host}${location}${appendAlias}`);
 }
