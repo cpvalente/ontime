@@ -22,9 +22,11 @@ export function openLink(url) {
  * Handles opening external links
  * @param event
  * @param location
+ * @param alias (this is optional)
  */
-export function handleLinks(event, location) {
+export function handleLinks(event, location, alias = '') {
+  const appendAlias = alias && alias !== '' ? `?alias=${alias}` : '';
   // we handle the link manually
   event.preventDefault();
-  openLink(`http://${host}/${location}`);
+  openLink(`http://${host}/${location}${appendAlias}`);
 }

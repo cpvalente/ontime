@@ -43,7 +43,7 @@ export default function AppRouter() {
 
     for (const d of data) {
       if (`/${d.alias}` === location.pathname && d.enabled) {
-        navigate(`/${d.pathAndParams}`);
+        navigate(`/${d.pathAndParams}?alias=${d.alias}`);
         break;
       }
     }
