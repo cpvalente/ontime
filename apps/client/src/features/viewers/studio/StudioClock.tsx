@@ -12,9 +12,10 @@ import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
-import { type ScheduleEvent, formatEventList, trimRundown } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 import { TitleManager } from '../ViewWrapper';
+
+import { type ScheduleEvent, formatEventList, trimRundown } from './studioClock.utils';
 
 import './StudioClock.scss';
 
