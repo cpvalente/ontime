@@ -1,84 +1,4 @@
-import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
-
-import { formatTime } from './time';
-
-/**
- * @description Returns trimmed event list array
- * @param {Object[]} rundown - given rundown
- * @param {string} selectedId - id of currently selected event
- * @param {number} limit - max number of events to return
- * @returns {Object[]} Event list with maximum <limit> objects
- */
-export const trimRundown = (rundown: OntimeEvent[], selectedId: string, limit: number): OntimeEvent[] => {
-  if (rundown == null) return [];
-
-  const BEFORE = 2;
-  const trimmedRundown = [...rundown];
-
-  // limit events length if necessary
-  if (limit != null) {
-    while (trimmedRundown.length > limit) {
-      const idx = trimmedRundown.findIndex((e) => e.id === selectedId);
-      if (idx <= BEFORE) {
-        trimmedRundown.pop();
-      } else {
-        trimmedRundown.shift();
-      }
-    }
-  }
-  return trimmedRundown;
-};
-
-type FormatEventListOptionsProp = {
-  showEnd?: boolean;
-};
-/**
- * @description Returns list of events formatted to be displayed
- * @param {Object[]} rundown - given rundown
- * @param {string} selectedId - id of currently selected event
- * @param {string} nextId - id of next event
- * @param {object} [options]
- * @param {boolean} [options.showEnd] - whether to show the end time
- * @returns {Object[]} Formatted list of events [{time: -, title: -, isNow, isNext}]
- */
-export const formatEventList = (
-  rundown: OntimeEvent[],
-  selectedId: string,
-  nextId: string,
-  options: FormatEventListOptionsProp,
-): ScheduleEvent[] => {
-  if (rundown == null) return [];
-  const { showEnd = false } = options;
-
-  const givenEvents = [...rundown];
-
-  // format list
-  const formattedEvents = [];
-  for (const event of givenEvents) {
-    const start = formatTime(event.timeStart + (event.delay || 0));
-    const end = formatTime(event.timeEnd + (event.delay || 0));
-
-    formattedEvents.push({
-      id: event.id,
-      time: showEnd ? `${start} - ${end}` : start,
-      title: event.title,
-      isNow: event.id === selectedId,
-      isNext: event.id === nextId,
-      colour: event.colour,
-    });
-  }
-
-  return formattedEvents;
-};
-
-export type ScheduleEvent = {
-  id: string;
-  time: string;
-  title: string;
-  isNow: boolean;
-  isNext: boolean;
-  colour: string;
-};
+import { OntimeEvent, SupportedEvent } from 'ontime-types';
 
 /**
  * @description Creates a safe duplicate of an event
@@ -90,6 +10,7 @@ export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
   return {
     type: SupportedEvent.Event,
     title: event.title,
+    // CUE!!!!
     subtitle: event.subtitle,
     presenter: event.presenter,
     note: event.note,
@@ -101,42 +22,3 @@ export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
     after: after,
   };
 };
-
-/**
- * Gets first event in rundown, if it exists
- * @param {OntimeRundownEntry[]} rundown
- * @return {OntimeEvent | null}
- */
-export function getFirstEvent(rundown: OntimeRundownEntry[]) {
-  return rundown.length ? rundown[0] : null;
-}
-
-/**
- * Gets next event in rundown, if it exists
- * @param {OntimeRundownEntry[]} rundown
- * @param {string} currentId
- * @return {OntimeEvent | null}
- */
-export function getNextEvent(rundown: OntimeRundownEntry[], currentId: string) {
-  const index = rundown.findIndex((event) => event.id === currentId);
-  if (index !== -1 && index + 1 < rundown.length) {
-    return rundown[index + 1];
-  } else {
-    return null;
-  }
-}
-
-/**
- * Gets previous event in rundown, if it exists
- * @param {OntimeRundownEntry[]} rundown
- * @param {string} currentId
- * @return {OntimeEvent | null}
- */
-export function getPreviousEvent(rundown: OntimeRundownEntry[], currentId: string) {
-  const index = rundown.findIndex((event) => event.id === currentId);
-  if (index !== -1 && index - 1 >= 0) {
-    return rundown[index - 1];
-  } else {
-    return null;
-  }
-}

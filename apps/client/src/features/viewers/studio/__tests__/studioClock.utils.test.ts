@@ -1,4 +1,4 @@
-import { formatEventList, trimRundown } from '../eventsManager';
+import { formatEventList, trimRundown } from '../studioClock.utils';
 
 describe('test trimEventlist function', () => {
   const limit = 8;
