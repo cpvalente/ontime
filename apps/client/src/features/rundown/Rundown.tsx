@@ -2,12 +2,13 @@ import { lazy, MutableRefObject, useCallback, useEffect, useRef, useState } from
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
+import { getFirstEvent, getNextEvent, getPreviousEvent } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useLocalEvent } from '../../common/stores/localEvent';
-import { cloneEvent, getFirstEvent, getNextEvent, getPreviousEvent } from '../../common/utils/eventsManager';
+import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
