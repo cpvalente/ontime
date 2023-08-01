@@ -3,38 +3,6 @@ import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 import { formatTime } from './time';
 
 /**
- * @description From a list of events, returns only events of type event with calculated delays
- * @param {Object[]} rundown - given rundown
- * @returns {Object[]} Filtered events with calculated delays
- */
-
-export const getEventsWithDelay = (rundown: OntimeRundownEntry[]): OntimeEvent[] => {
-  if (rundown == null) return [];
-
-  const delayedEvents: OntimeEvent[] = [];
-
-  // Add running delay
-  let delay = 0;
-  for (const event of rundown) {
-    if (event.type === SupportedEvent.Block) delay = 0;
-    else if (event.type === SupportedEvent.Delay) {
-      if (typeof event.duration === 'number') {
-        delay += event.duration;
-      }
-    } else if (event.type === SupportedEvent.Event) {
-      const delayedEvent = { ...event };
-      if (delay !== 0) {
-        delayedEvent.timeStart = Math.max(delayedEvent.timeStart + delay, 0);
-        delayedEvent.timeEnd = Math.max(delayedEvent.timeEnd + delay, 0);
-      }
-      delayedEvents.push(delayedEvent);
-    }
-  }
-
-  return delayedEvents;
-};
-
-/**
  * @description Returns trimmed event list array
  * @param {Object[]} rundown - given rundown
  * @param {string} selectedId - id of currently selected event
@@ -87,8 +55,8 @@ export const formatEventList = (
   // format list
   const formattedEvents = [];
   for (const event of givenEvents) {
-    const start = formatTime(event.timeStart);
-    const end = formatTime(event.timeEnd);
+    const start = formatTime(event.timeStart + (event.delay || 0));
+    const end = formatTime(event.timeEnd + (event.delay || 0));
 
     formattedEvents.push({
       id: event.id,

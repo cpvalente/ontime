@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { OntimeRundown, ViewSettings } from 'ontime-types';
+import type { OntimeEvent, OntimeRundown, ViewSettings } from 'ontime-types';
+import { SupportedEvent } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -11,12 +12,7 @@ import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
-import {
-  formatEventList,
-  getEventsWithDelay,
-  type ScheduleEvent,
-  trimRundown,
-} from '../../../common/utils/eventsManager';
+import { type ScheduleEvent, formatEventList, trimRundown } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 import { TitleManager } from '../ViewWrapper';
 
@@ -66,8 +62,8 @@ export default function StudioClock(props: StudioClockProps) {
       return;
     }
 
-    const delayed = getEventsWithDelay(backstageEvents);
-    const trimmed = trimRundown(delayed, selectedId || '', MAX_TITLES);
+    const delayed = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
+    const trimmed = trimRundown(delayed as OntimeEvent[], selectedId || '', MAX_TITLES);
 
     const formatted = formatEventList(trimmed, selectedId || '', nextId || '', {
       showEnd: false,
