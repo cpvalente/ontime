@@ -37,12 +37,12 @@ export const validateAlias = (alias: string) => {
  * @param alias (this is optional)
  */
 export function generateFullPath(pathAndParams: string, alias = '') {
+  // we generate the path and attach the alias if present
   const fullPath = resolvePath(pathAndParams);
   const urlParams = new URLSearchParams(fullPath.search);
   if (alias !== '') {
     urlParams.append('alias', alias);
   }
-  // we handle the link manually
   return `${fullPath.pathname}?${urlParams.toString()}`;
 }
 
