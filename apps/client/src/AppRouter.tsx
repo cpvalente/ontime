@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate, useSearchParams } from 'react-router-dom';
 
 import useAliases from './common/hooks-query/useAliases';
 import withData from './features/viewers/ViewWrapper';
+import { getAliasRoute } from './common/utils/aliases';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Table = lazy(() => import('./features/table/ProtectedTable'));
@@ -34,38 +35,18 @@ const Info = lazy(() => import('./features/info/InfoExport'));
 
 export default function AppRouter() {
   const { data } = useAliases();
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   // navigate if is alias route
   useEffect(() => {
     if (!data) return;
-
-    for (const d of data) {
-      if (location.search.indexOf('alias=') > -1) {
-        // if the alias fits the alias on this page, if the URL is diferent, we redirect user to the new URL
-        let aliasOnPage = location.search.substring(location.search.indexOf('alias=') + 6);
-        if (aliasOnPage.indexOf('&') > -1) {
-          // take care of scenario where there is an & after the alias
-          aliasOnPage = aliasOnPage.substring(0, aliasOnPage.indexOf('&'));
-        }
-        // if we have the same alias and its enabled and its not empty
-        if (d.alias !== '' && d.enabled && d.alias === aliasOnPage) {
-          let fullLocationPath = location.pathname + location.search;
-          // we need to remove the &alias=ALIAS_NAME or ?alias=ALIAS_NAME at the end of the URL
-          fullLocationPath = fullLocationPath.replaceAll(`alias=${d.alias}`, '');
-          fullLocationPath = fullLocationPath.substring(0, fullLocationPath.length - 1);
-          // if the location path is different
-          if (d.pathAndParams !== fullLocationPath) {
-            //console.log('found a match, same alias but different route so I will redirect to: ', d.pathAndParams);
-            const connector = d.pathAndParams.includes('?') ? '&' : '?';
-            navigate(`${d.pathAndParams}${connector}alias=${d.alias}`);
-            break;
-          }
-        }
-      }
+    const url = getAliasRoute(data, searchParams);
+    // navigate to this route if its not empty
+    if (url !== '') {
+      navigate(url);
     }
-  }, [data, location, navigate]);
+  }, [data, searchParams, navigate]);
 
   return (
     <Suspense fallback={null}>
