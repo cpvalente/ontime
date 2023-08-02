@@ -1,3 +1,5 @@
+import { generateFullPath } from './aliases';
+
 /**
  * Returns hostname
  * @type {string}
@@ -25,12 +27,8 @@ export function openLink(url) {
  * @param alias (this is optional)
  */
 export function handleLinks(event, location, alias = '') {
-  let appendAlias = '';
-  const connector = location.includes('?') ? '&' : '?';
-  if (alias && alias !== '') {
-    appendAlias = `${connector}alias=${alias}`;
-  }
+  const fullPath = generateFullPath(location, alias);
   // we handle the link manually
   event.preventDefault();
-  openLink(`http://${host}${location}${appendAlias}`);
+  openLink(`http://${host}${fullPath}`);
 }
