@@ -15,12 +15,12 @@ export default function ParamInput({ paramField }: EditFormInputProps) {
 
   if (type === 'option') {
     const optionFromParams = searchParams.get(id);
-    const defaultOptionValue = paramField.values.find((value) => value === optionFromParams);
+    const defaultOptionValue = optionFromParams || undefined;
 
     return (
       <Select placeholder='Select an option' variant='ontime' name={id} defaultValue={defaultOptionValue}>
-        {paramField.values.map((value) => (
-          <option key={value} value={value}>
+        {Object.entries(paramField.values).map(([key, value]) => (
+          <option key={key} value={key}>
             {value}
           </option>
         ))}

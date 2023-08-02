@@ -28,14 +28,6 @@ export async function requestPutEvent(data: Partial<OntimeRundownEntry>) {
   return axios.put(rundownURL, data);
 }
 
-/**
- * @description HTTP request to modify event
- * @return {Promise}
- */
-export async function requestPatchEvent(data: OntimeRundownEntry) {
-  return axios.patch(rundownURL, data);
-}
-
 export type ReorderEntry = {
   eventId: string;
   from: number;

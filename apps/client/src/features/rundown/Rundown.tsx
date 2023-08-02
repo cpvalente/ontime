@@ -203,7 +203,6 @@ export default function Rundown(props: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
   }
 
-  let cumulativeDelay = 0;
   let previousEnd = 0;
   let thisEnd = 0;
   let previousEventId: string | undefined;
@@ -217,14 +216,9 @@ export default function Rundown(props: RundownProps) {
           <div className={style.list}>
             {statefulEntries.map((entry, index) => {
               if (index === 0) {
-                cumulativeDelay = 0;
                 eventIndex = -1;
               }
-              if (entry.type === SupportedEvent.Delay && entry.duration !== null) {
-                cumulativeDelay += entry.duration;
-              } else if (entry.type === SupportedEvent.Block) {
-                cumulativeDelay = 0;
-              } else if (entry.type === SupportedEvent.Event) {
+              if (entry.type === SupportedEvent.Event) {
                 eventIndex++;
                 previousEnd = thisEnd;
                 thisEnd = entry.timeEnd;
@@ -248,7 +242,6 @@ export default function Rundown(props: RundownProps) {
                     selected={isSelected}
                     hasCursor={hasCursor}
                     next={isNext}
-                    delay={cumulativeDelay}
                     previousEnd={previousEnd}
                     previousEventId={previousEventId}
                     playback={isSelected ? featureData.playback : undefined}

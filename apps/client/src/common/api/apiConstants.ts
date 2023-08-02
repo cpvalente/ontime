@@ -10,11 +10,20 @@ export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const RUNTIME = ['runtimeStore'];
 
-export const serverPort = window.location.port;
-export const serverURL = window.location.origin;
-export const websocketUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${
-  window.location.hostname
-}:${serverPort}/ws`;
+
+
+
+
+
+
+
+const location = window.location;
+const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
+
+export const serverPort = location.port;
+export const serverURL = location.origin;
+export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}/ws`;
+
 
 export const eventURL = `${serverURL}/eventdata`;
 export const rundownURL = `${serverURL}/events`;

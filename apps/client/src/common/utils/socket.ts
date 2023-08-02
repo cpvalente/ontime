@@ -2,6 +2,7 @@ import { Log, RuntimeStore } from 'ontime-types';
 
 import { RUNTIME, websocketUrl } from '../api/apiConstants';
 import { ontimeQueryClient } from '../queryClient';
+import { socketClientName } from '../stores/connectionName';
 import { addLog } from '../stores/logger';
 import { runtime } from '../stores/runtime';
 
@@ -11,13 +12,17 @@ const reconnectInterval = 1000;
 export let shouldReconnect = true;
 export let hasConnected = false;
 export let reconnectAttempts = 0;
-export const connectSocket = () => {
+export const connectSocket = (preferredClientName?: string) => {
   websocket = new WebSocket(websocketUrl);
 
   websocket.onopen = () => {
     clearTimeout(reconnectTimeout as NodeJS.Timeout);
     hasConnected = true;
     reconnectAttempts = 0;
+
+    if (preferredClientName) {
+      socketSendJson('set-client-name', preferredClientName);
+    }
   };
 
   websocket.onclose = () => {
@@ -49,6 +54,10 @@ export const connectSocket = () => {
 
       // TODO: implement partial store updates
       switch (type) {
+        case 'client-name': {
+          socketClientName.getState().setName(payload);
+          break;
+        }
         case 'ontime-log': {
           addLog(payload as Log);
           break;

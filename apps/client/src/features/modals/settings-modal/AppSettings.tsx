@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import { Input, Select } from '@chakra-ui/react';
 import type { Settings } from 'ontime-types';
 
+import { logAxiosError } from '../../../common/api/apiUtils';
 import { postSettings } from '../../../common/api/ontimeApi';
 import useSettings from '../../../common/hooks-query/useSettings';
-import { useEmitLog } from '../../../common/stores/logger';
 import { isOnlyNumbers } from '../../../common/utils/regex';
 import ModalLoader from '../modal-loader/ModalLoader';
 import ModalSplitInput from '../ModalSplitInput';
@@ -17,7 +17,6 @@ import style from './SettingsModal.module.scss';
 
 export default function AppSettingsModal() {
   const { data, status, isFetching, refetch } = useSettings();
-  const { emitError } = useEmitLog();
   const {
     handleSubmit,
     register,
@@ -41,7 +40,7 @@ export default function AppSettingsModal() {
     try {
       await postSettings(formData);
     } catch (error) {
-      emitError(`Error saving settings: ${error}`);
+      logAxiosError('Error saving settings', error);
     } finally {
       await refetch();
     }
@@ -62,7 +61,7 @@ export default function AppSettingsModal() {
       <ModalSplitInput
         field='serverPort'
         title='Ontime is available on port'
-        description='Default 4001'
+        description='Default 4001 (needs app restart to change)'
         error={errors.serverPort?.message}
       >
         <Input
