@@ -125,6 +125,7 @@ export const parseSettings = (data, enforce): Settings => {
       console.log('ERROR: unknown app version, skipping');
     } else {
       const settings = {
+        serverPort: s.serverPort || dbModel.settings.serverPort,
         editorKey: s.editorKey || null,
         operatorKey: s.operatorKey || null,
         timeFormat: s.timeFormat || '24',
