@@ -1,5 +1,5 @@
 // rundown logic
-export { getFirstEvent, getNextEvent, getPreviousEvent } from './src/rundown-utils/rundownUtils';
+export { getFirst, getNext, getPrevious } from './src/rundown-utils/rundownUtils.js';
 
 // time data logic
 export { formatDisplay } from './src/date-utils/formatDisplay.js';

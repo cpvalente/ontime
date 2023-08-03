@@ -2,7 +2,7 @@ import { lazy, MutableRefObject, useCallback, useEffect, useRef, useState } from
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
-import { getFirstEvent, getNextEvent, getPreviousEvent } from 'ontime-utils';
+import { getFirst, getNext, getPrevious } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
@@ -94,7 +94,7 @@ export default function Rundown(props: RundownProps) {
             if (entries.length < 1) {
               return;
             }
-            const nextEvent = cursor == null ? getFirstEvent(entries) : getNextEvent(entries, cursor);
+            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor);
             if (nextEvent) {
               moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
             }
@@ -105,7 +105,7 @@ export default function Rundown(props: RundownProps) {
               return;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
-            const previousEvent = cursor == null ? getFirstEvent(entries) : getPreviousEvent(entries, cursor);
+            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor);
             if (previousEvent) {
               moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
             }
