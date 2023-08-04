@@ -92,6 +92,12 @@ $skip-opacity: 0.1;
   }
 
   .cue {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 5.5rem;
+    text-align: center;
+
     font-weight: 600;
     letter-spacing: 0.5px;
     rotate: -90deg;
