@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Navigate, Route, Routes, useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import useAliases from './common/hooks-query/useAliases';
 import withData from './features/viewers/ViewWrapper';
@@ -37,16 +37,17 @@ export default function AppRouter() {
   const { data } = useAliases();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // navigate if is alias route
   useEffect(() => {
     if (!data) return;
-    const url = getAliasRoute(data, searchParams);
+    const url = getAliasRoute(location, data, searchParams);
     // navigate to this route if its not empty
     if (url !== '') {
       navigate(url);
     }
-  }, [data, searchParams, navigate]);
+  }, [data, searchParams, navigate, location]);
 
   return (
     <Suspense fallback={null}>
