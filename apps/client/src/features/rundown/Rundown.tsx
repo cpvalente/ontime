@@ -234,7 +234,7 @@ export default function Rundown(props: RundownProps) {
               }
 
               return (
-                <>
+                <Fragment key={entry.id}>
                   <div className={style.entryWrapper}>
                     {entry.type === SupportedEvent.Event && <div className={style.entryIndex}>{eventIndex}</div>}
                     <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
@@ -262,7 +262,7 @@ export default function Rundown(props: RundownProps) {
                       disableAddBlock={entry.type === SupportedEvent.Block}
                     />
                   )}
-                </>
+                </Fragment>
               );
             })}
             <div className={style.spacer} />
