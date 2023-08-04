@@ -26,9 +26,8 @@ export function openLink(url) {
  * @param location
  * @param alias (this is optional)
  */
-export function handleLinks(event, location, alias = '') {
-  const fullPath = generateFullPath(location, alias);
+export function handleLinks(event, location) {
   // we handle the link manually
   event.preventDefault();
-  openLink(`http://${host}${fullPath}`);
+  openLink(`http://${host}/${location}`);
 }
