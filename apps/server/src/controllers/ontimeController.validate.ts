@@ -63,6 +63,7 @@ export const validateSettings = [
   body('operatorKey').isString().isLength({ min: 0, max: 4 }).optional({ nullable: true }),
   body('timeFormat').isString().isIn(['12', '24']),
   body('language').isString(),
+  body('serverPort').isNumeric().optional(),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
