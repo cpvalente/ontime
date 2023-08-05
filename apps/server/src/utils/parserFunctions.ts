@@ -219,7 +219,12 @@ export const validateOscObject = (data: OscSubscription): boolean => {
 /**
  * Parse osc portion of an entry
  */
-export const parseOsc = (data: { osc?: Partial<OSCSettings> }, enforce: boolean): Partial<OSCSettings> => {
+export const parseOsc = (
+  data: {
+    osc?: Partial<OSCSettings>;
+  },
+  enforce: boolean,
+): OSCSettings | Record<string, never> => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 
