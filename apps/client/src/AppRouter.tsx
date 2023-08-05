@@ -1,9 +1,7 @@
-import { lazy, Suspense, useEffect } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-
-import useAliases from './common/hooks-query/useAliases';
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import withData from './features/viewers/ViewWrapper';
-import { getAliasRoute } from './common/utils/aliases';
+import withAlias from './features/AliasWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Table = lazy(() => import('./features/table/ProtectedTable'));
@@ -18,14 +16,14 @@ const Public = lazy(() => import('./features/viewers/public/Public'));
 const Lower = lazy(() => import('./features/viewers/lower-thirds/LowerWrapper'));
 const StudioClock = lazy(() => import('./features/viewers/studio/StudioClock'));
 
-const STimer = withData(TimerView);
-const SMinimalTimer = withData(MinimalTimerView);
-const SClock = withData(ClockView);
-const SCountdown = withData(Countdown);
-const SBackstage = withData(Backstage);
-const SPublic = withData(Public);
-const SLowerThird = withData(Lower);
-const SStudio = withData(StudioClock);
+const STimer = withAlias(withData(TimerView));
+const SMinimalTimer = withAlias(withData(MinimalTimerView));
+const SClock = withAlias(withData(ClockView));
+const SCountdown = withAlias(withData(Countdown));
+const SBackstage = withAlias(withData(Backstage));
+const SPublic = withAlias(withData(Public));
+const SLowerThird = withAlias(withData(Lower));
+const SStudio = withAlias(withData(StudioClock));
 
 const EditorFeatureWrapper = lazy(() => import('./features/EditorFeatureWrapper'));
 const RundownPanel = lazy(() => import('./features/rundown/RundownExport'));
@@ -34,21 +32,6 @@ const MessageControl = lazy(() => import('./features/control/message/MessageCont
 const Info = lazy(() => import('./features/info/InfoExport'));
 
 export default function AppRouter() {
-  const { data } = useAliases();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // navigate if is alias route
-  useEffect(() => {
-    if (!data) return;
-    const url = getAliasRoute(location, data, searchParams);
-    // navigate to this route if its not empty
-    if (url) {
-      navigate(url);
-    }
-  }, [data, searchParams, navigate, location]);
-
   return (
     <Suspense fallback={null}>
       <Routes>
