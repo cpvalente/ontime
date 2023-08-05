@@ -4,7 +4,7 @@
 import fs from 'fs';
 import xlsx from 'node-xlsx';
 import { generateId } from 'ontime-utils';
-import { DatabaseModel, EventData, OntimeEvent, OntimeRundown, UserFields } from 'ontime-types';
+import { DatabaseModel, EventData, OntimeEvent, OntimeRundown, SupportedEvent, UserFields } from 'ontime-types';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString, validateDuration } from './parserUtils.js';
@@ -250,7 +250,7 @@ export const parseExcel = async (excelData) => {
       if (Object.keys(event).length > 0) {
         // if any data was found, push to array
         // take care of it in the next step
-        rundown.push({ ...event, type: 'event' });
+        rundown.push({ ...event, type: SupportedEvent.Event } as OntimeEvent);
       }
     });
   return {
@@ -291,7 +291,6 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
   // Import user fields if any
   returnData.userFields = parseUserFields(jsonData);
   // Import OSC settings if any
-  // @ts-expect-error -- we are unable to type just yet
   returnData.osc = parseOsc(jsonData, enforce);
   // Import HTTP settings if any
   // returnData.http = parseHttp(jsonData, enforce);
@@ -346,10 +345,6 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
       user7: makeString(e.user7, d.user7),
       user8: makeString(e.user8, d.user8),
       user9: makeString(e.user9, d.user9),
-      // deciding not to validate colour
-      // this adds flexibility to the user to write hex codes, rgb,
-      // but also colour names like blue and red
-      // CSS.supports is only available in frontend
       colour: makeString(e.colour, d.colour),
       id,
       cue,
@@ -387,8 +382,7 @@ export const fileHandler = async (file): ResponseOK | ResponseError => {
         res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
       } else {
-        const errorMessage = 'No sheet found named ontime or event schedule';
-        console.log(errorMessage);
+        const errorMessage = 'No sheet found named "ontime" or "event schedule"';
         res = {
           error: true,
           message: errorMessage,
