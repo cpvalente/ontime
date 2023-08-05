@@ -161,7 +161,7 @@ app.whenReady().then(() => {
       // Load page served by node or use React dev run
       const clientUrl = isProduction
         ? electronConfig.reactAppUrl.production(port)
-        : electronConfig.reactAppUrl.development;
+        : electronConfig.reactAppUrl.development(port);
 
       win
         .loadURL(clientUrl)

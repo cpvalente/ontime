@@ -3,7 +3,7 @@ module.exports = {
     shutdownCode: 99,
   },
   reactAppUrl: {
-    development: 'http://localhost:3000/editor',
+    development: (port = 4001) => `http://localhost:${port}/editor`,
     production: (port = 4001) => `http://localhost:${port}/editor`,
   },
   server: {
