@@ -60,8 +60,7 @@ export default function Rundown(props: RundownProps) {
       if (type === 'clone') {
         const cursorEvent = entries.find((event) => event.id === cursor);
         if (cursorEvent?.type === SupportedEvent.Event) {
-          const newEvent = cloneEvent(cursorEvent);
-          newEvent.after = cursorEvent.id;
+          const newEvent = cloneEvent(cursorEvent, cursorEvent.id);
           addEvent(newEvent);
         }
       } else if (type === SupportedEvent.Event) {

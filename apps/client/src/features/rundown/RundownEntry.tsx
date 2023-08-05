@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import { getCueCandidate } from 'ontime-utils';
 
+import { RUNDOWN_TABLE } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { ontimeQueryClient } from '../../common/queryClient';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { useLocalEvent } from '../../common/stores/localEvent';
 import { useEmitLog } from '../../common/stores/logger';
@@ -92,6 +95,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         }
         case 'clone': {
           const newEvent = cloneEvent(data as OntimeEvent, data.id);
+          newEvent.cue = getCueCandidate(ontimeQueryClient.getQueryData(RUNDOWN_TABLE) || [], data.id);
           addEvent(newEvent);
           break;
         }

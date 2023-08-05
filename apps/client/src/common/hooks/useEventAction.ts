@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { getCueCandidate } from 'ontime-utils';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -62,6 +63,8 @@ export const useEventAction = () => {
           lastEventId: options?.lastEventId,
           after: options?.after,
         };
+
+        newEvent.cue = getCueCandidate(queryClient.getQueryData(RUNDOWN_TABLE) || [], options?.after);
 
         // hard coding duration value to be as expected for now
         // this until timeOptions gets implemented
