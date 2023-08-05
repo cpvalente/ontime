@@ -44,7 +44,7 @@ export default function AppRouter() {
     if (!data) return;
     const url = getAliasRoute(location, data, searchParams);
     // navigate to this route if its not empty
-    if (url !== '') {
+    if (url) {
       navigate(url);
     }
   }, [data, searchParams, navigate, location]);
