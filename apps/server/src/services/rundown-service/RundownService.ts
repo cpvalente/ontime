@@ -7,9 +7,9 @@ import {
   OntimeRundown,
   SupportedEvent,
 } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { generateId, getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
+import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
 import { eventTimer } from '../TimerService.js';
@@ -17,6 +17,7 @@ import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
 import { cachedAdd, cachedDelete, cachedEdit, cachedReorder, delayedRundownCacheKey } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
+import { validateEvent } from '../../utils/parser.js';
 
 /**
  * Forces rundown to be recalculated
@@ -152,18 +153,16 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
     }
   }
 
-  // TODO: filter the parameters that exist in the event, use the parserUtils
   switch (eventData.type) {
     case SupportedEvent.Event: {
-      const cue = eventData?.cue || insertIndex.toString();
-      newEvent = { ...eventDef, ...eventData, id, cue } as OntimeEvent;
+      newEvent = validateEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
       break;
     }
     case SupportedEvent.Delay:
-      newEvent = { ...delayDef, ...eventData, id } as OntimeDelay;
+      newEvent = { ...delayDef, duration: eventData.duration, id } as OntimeDelay;
       break;
     case SupportedEvent.Block:
-      newEvent = { ...blockDef, ...eventData, id } as OntimeBlock;
+      newEvent = { ...blockDef, title: eventData.title, id } as OntimeBlock;
       break;
   }
   delete eventData.after;
