@@ -1,5 +1,3 @@
-import { generateFullPath } from './aliases';
-
 /**
  * Returns hostname
  * @type {string}
@@ -24,7 +22,6 @@ export function openLink(url) {
  * Handles opening external links
  * @param event
  * @param location
- * @param alias (this is optional)
  */
 export function handleLinks(event, location) {
   // we handle the link manually
