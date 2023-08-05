@@ -162,7 +162,7 @@ export const parseExcel = async (excelData) => {
                 break;
               case 'cue':
               case 'page':
-                titleIndex = j;
+                cueIndex = j;
                 break;
               case 'event title':
               case 'title':
