@@ -37,7 +37,7 @@ const EventEditorDataLeft = (props: EventEditorLeftProps) => {
             readOnly
           />
         </div>
-        <CountedTextInput field='cue' label='Cue' initialValue={cue} submitHandler={handleSubmit} maxLength={5} />
+        <CountedTextInput field='cue' label='Cue' initialValue={cue} submitHandler={handleSubmit} maxLength={10} />
       </div>
       <CountedTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
       <CountedTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />
