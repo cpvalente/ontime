@@ -189,7 +189,7 @@ export default function EventBlock(props: EventBlockProps) {
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>
-        {eventIndex}
+        {eventIndex + 1}
       </div>
       {isVisible && (
         <EventBlockInner
