@@ -18,15 +18,15 @@ import style from './Rundown.module.scss';
 const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface EventIdSwappingStore {
-  eventIdToBeSwapped: string | null;
-  setEventId: (newEventId: string | null) => void;
-  clearEventId: () => void;
+  event: { index: number | null; id: string | null };
+  setEvent: (newEventId: string | null, newEventIndex: number | null) => void;
+  clearEvent: () => void;
 }
 
 export const useEventIdSwapping = create<EventIdSwappingStore>((set) => ({
-  eventIdToBeSwapped: null,
-  setEventId: (newEventId) => set(() => ({ eventIdToBeSwapped: newEventId })),
-  clearEventId: () => set(() => ({ eventIdToBeSwapped: null })),
+  event: { index: null, id: null },
+  setEvent: (newEventId, newEventIndex) => set(() => ({ event: { index: newEventIndex, id: newEventId } })),
+  clearEvent: () => set(() => ({ event: { index: null, id: null } })),
 }));
 
 interface RundownProps {

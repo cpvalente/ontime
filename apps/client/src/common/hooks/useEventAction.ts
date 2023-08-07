@@ -325,7 +325,7 @@ export const useEventAction = () => {
   );
 
   /**
-   * Calls mutation to reorder an event
+   * Calls mutation to swap events
    * @private
    */
   const _swapEvents = useMutation({
@@ -338,8 +338,8 @@ export const useEventAction = () => {
       // Snapshot the previous value
       const previousEvents: OntimeRundown = queryClient.getQueryData(RUNDOWN_TABLE) ?? [];
 
-      const fromEvent = previousEvents.find((event) => event.id === data.from);
-      const toEvent = previousEvents.find((event) => event.id === data.to);
+      const fromEvent = previousEvents.at(data.from);
+      const toEvent = previousEvents.at(data.to);
 
       if (!fromEvent || !toEvent) {
         // Return a context with the previous and new events
@@ -347,8 +347,8 @@ export const useEventAction = () => {
       }
 
       if (fromEvent.type === SupportedEvent.Event && toEvent.type === SupportedEvent.Event) {
-        const eventsWithSwap = previousEvents.map((event) => {
-          if (event.id === data.from) {
+        const eventsWithSwap = previousEvents.map((event, i) => {
+          if (i === data.from) {
             return {
               ...toEvent,
               timeStart: fromEvent.timeStart,
@@ -357,7 +357,7 @@ export const useEventAction = () => {
             };
           }
 
-          if (event.id === data.to) {
+          if (i === data.to) {
             return {
               ...fromEvent,
               timeStart: toEvent.timeStart,

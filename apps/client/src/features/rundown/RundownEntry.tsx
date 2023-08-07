@@ -96,8 +96,8 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
         }
         case 'swap': {
-          if (typeof payload === 'object') {
-            swapEvents({ from: payload.value as string, to: data.id });
+          if (typeof payload === 'number') {
+            swapEvents({ from: payload, to: eventIndex });
           }
           break;
         }
@@ -156,6 +156,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       startTimeIsLastEnd,
       updateEvent,
       swapEvents,
+      eventIndex,
     ],
   );
 

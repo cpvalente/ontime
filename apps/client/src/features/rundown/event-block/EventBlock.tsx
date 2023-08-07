@@ -77,7 +77,7 @@ export default function EventBlock(props: EventBlockProps) {
     actionHandler,
     disableEdit,
   } = props;
-  const { eventIdToBeSwapped, setEventId, clearEventId } = useEventIdSwapping();
+  const { event, setEvent, clearEvent } = useEventIdSwapping();
   const moveCursorTo = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -96,19 +96,19 @@ export default function EventBlock(props: EventBlockProps) {
     {
       label: 'Add to swap',
       icon: IoAdd,
-      onClick: () => setEventId(eventId),
+      onClick: () => setEvent(eventId, eventIndex),
       withDivider: true,
     },
     {
-      label: `Swap this event with ${eventIdToBeSwapped || ''}`,
+      label: `Swap this event with ${event.id ?? ''}`,
       icon: IoSwapVertical,
       onClick: () => {
-        if (eventIdToBeSwapped) {
-          actionHandler('swap', { field: 'id', value: eventIdToBeSwapped });
-          clearEventId();
+        if (typeof event.index === 'number') {
+          actionHandler('swap', +event.index);
+          clearEvent();
         }
       },
-      isDisabled: !eventIdToBeSwapped || eventIdToBeSwapped === eventId,
+      isDisabled: event.index == null || event.id === eventId,
     },
   ]);
 
