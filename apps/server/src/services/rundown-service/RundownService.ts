@@ -9,7 +9,7 @@ import {
 } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
+import { block as blockDef, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
 import { eventTimer } from '../TimerService.js';
@@ -20,9 +20,8 @@ import {
   cachedDelete,
   cachedEdit,
   cachedReorder,
-  calculateRuntimeDelaysFrom,
+  cachedSwap,
   delayedRundownCacheKey,
-  getDelayedRundown,
 } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 
@@ -290,6 +289,22 @@ export function _applyDelay(
   }
 
   return { delayIndex, updatedRundown };
+}
+
+/**
+ * swaps two events
+ * @param {number} from - index of event from
+ * @param {number} to - index of event to
+ * @returns {Promise<void>}
+ */
+export async function swapEvents(from: number, to: number) {
+  await cachedSwap(from, to);
+
+  // notify timer service of changed events
+  updateTimer();
+
+  // advice socket subscribers of change
+  sendRefetch();
 }
 
 /**

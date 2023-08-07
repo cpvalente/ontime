@@ -30,8 +30,8 @@ export const rundownReorderValidator = [
 ];
 
 export const rundownSwapValidator = [
-  body('from').isString().exists(),
-  body('to').isString().exists(),
+  body('from').isNumeric().exists(),
+  body('to').isNumeric().exists(),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });

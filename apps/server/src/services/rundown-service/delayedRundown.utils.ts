@@ -172,6 +172,41 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
 }
 
 /**
+ * Swaps two events
+ * @param {number} fromEventIndex
+ * @param {number} toEventIndex
+ */
+export async function cachedSwap(fromEventIndex: number, toEventIndex: number) {
+  const updatedRundown = DataProvider.getRundown();
+
+  const fromEvent = updatedRundown.at(fromEventIndex);
+  const toEvent = updatedRundown.at(toEventIndex);
+
+  if (!fromEvent || !toEvent) {
+    invalidateFromError();
+  }
+
+  if (fromEvent.type === SupportedEvent.Event && toEvent.type === SupportedEvent.Event) {
+    updatedRundown[fromEventIndex] = {
+      ...toEvent,
+      timeStart: fromEvent.timeStart,
+      timeEnd: fromEvent.timeEnd,
+      duration: fromEvent.duration,
+    };
+
+    updatedRundown[toEventIndex] = {
+      ...fromEvent,
+      timeStart: toEvent.timeStart,
+      timeEnd: toEvent.timeEnd,
+      duration: toEvent.duration,
+    };
+
+    runtimeCacheStore.invalidate(delayedRundownCacheKey);
+    await DataProvider.setRundown(updatedRundown);
+  }
+}
+
+/**
  * Calculates all delays in a given rundown
  * @param rundown
  */

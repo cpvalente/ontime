@@ -6,6 +6,7 @@ import {
   deleteEvent,
   editEvent,
   reorderEvent,
+  swapEvents,
 } from '../services/rundown-service/RundownService.js';
 import { getDelayedRundown } from '../services/rundown-service/delayedRundown.utils.js';
 import { RequestHandler } from 'express';
@@ -56,6 +57,20 @@ export const rundownReorder: RequestHandler = async (req, res) => {
     const { eventId, from, to } = req.body;
     const event = await reorderEvent(eventId, from, to);
     res.status(200).send(event);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+export const rundownSwap: RequestHandler = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const { from, to } = req.body;
+    await swapEvents(from, to);
+    res.sendStatus(200);
   } catch (error) {
     res.status(400).send(error);
   }
