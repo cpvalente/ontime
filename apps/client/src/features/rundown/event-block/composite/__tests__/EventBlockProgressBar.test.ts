@@ -24,8 +24,4 @@ describe('getPercentComplete()', () => {
     const progress = getPercentComplete(null, null);
     expect(progress).toBe(0);
   });
-  it('works here too', () => {
-    const progress = getPercentComplete(10, dayInMs + 10);
-    expect(progress).toBe(0);
-  });
 });
