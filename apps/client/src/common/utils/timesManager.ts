@@ -1,15 +1,12 @@
-export type TimeEntryField = 'timeStart' | 'timeEnd' | 'durationOverride';
+import { dayInMs } from 'ontime-utils';
 
-/**
- * @description Milliseconds in a day
- */
-export const DAY_TO_MS = 86400000;
+export type TimeEntryField = 'timeStart' | 'timeEnd' | 'durationOverride';
 
 /**
  * @description calculates duration from given values
  */
 export const calculateDuration = (start: number, end: number): number =>
-  start > end ? end + DAY_TO_MS - start : end - start;
+  start > end ? end + dayInMs - start : end - start;
 
 /**
  * @description Checks which field the value relates to

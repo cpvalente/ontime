@@ -1,4 +1,6 @@
-import { calculateDuration, DAY_TO_MS } from '../timesManager';
+import { dayInMs } from 'ontime-utils';
+
+import { calculateDuration } from '../timesManager';
 
 describe('calculateDuration()', () => {
   describe('Given start and end values', () => {
@@ -15,7 +17,7 @@ describe('calculateDuration()', () => {
       const testStart = 3;
       const testEnd = 2;
       const val = calculateDuration(testStart, testEnd);
-      expect(val).toBe(testEnd + DAY_TO_MS - testStart);
+      expect(val).toBe(testEnd + dayInMs - testStart);
     });
     it('when both are equal', () => {
       const testStart = 1;

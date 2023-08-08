@@ -1,4 +1,5 @@
-import { DAY_TO_MS } from '../../../../common/utils/timeConstants';
+import { dayInMs } from 'ontime-utils';
+
 import { fetchTimerData, sanitiseTitle, TimerMessage } from '../countdown.helpers';
 
 describe('sanitiseTitle() function', () => {
@@ -73,11 +74,11 @@ describe('fetchTimerData() function', () => {
     const timeNow = 15000;
     const followId = 'testId';
     const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
-    const time = { clock: timeNow, current: DAY_TO_MS + endMockValue - startMockValue };
+    const time = { clock: timeNow, current: dayInMs + endMockValue - startMockValue };
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(TimerMessage.waiting);
-    expect(timer).toBe(DAY_TO_MS + endMockValue - startMockValue);
+    expect(timer).toBe(dayInMs + endMockValue - startMockValue);
   });
 
   it('handle an current event that finishes after midnight', () => {
@@ -86,11 +87,11 @@ describe('fetchTimerData() function', () => {
     const timeNow = 15000;
     const followId = 'testId';
     const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
-    const time = { clock: timeNow, current: DAY_TO_MS + endMockValue - startMockValue };
+    const time = { clock: timeNow, current: dayInMs + endMockValue - startMockValue };
 
     const { message, timer } = fetchTimerData(time, follow, followId);
     expect(message).toBe(TimerMessage.running);
-    expect(timer).toBe(DAY_TO_MS + endMockValue - startMockValue);
+    expect(timer).toBe(dayInMs + endMockValue - startMockValue);
   });
 
   it('handle an event that finishes after midnight but hasnt started', () => {
@@ -99,7 +100,7 @@ describe('fetchTimerData() function', () => {
     const timeNow = 2000;
     const followId = 'testId';
     const follow = { id: followId, timeStart: startMockValue, timeEnd: endMockValue };
-    const time = { clock: timeNow, current: DAY_TO_MS + endMockValue - startMockValue };
+    const time = { clock: timeNow, current: dayInMs + endMockValue - startMockValue };
 
     const { message, timer } = fetchTimerData(time, follow, 'notthesameevent');
     expect(message).toBe(TimerMessage.toStart);

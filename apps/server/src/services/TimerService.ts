@@ -1,9 +1,9 @@
 import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
-import { DAY_TO_MS } from '../utils/time.js';
 import { integrationService } from './integration-service/IntegrationService.js';
 import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
@@ -267,7 +267,6 @@ export class TimerService {
       _finishAt:
         this.timer.expectedFinish >= this.timer.startedAt
           ? this.timer.expectedFinish
-          : this.timer.expectedFinish + DAY_TO_MS,
 
       clock: this.timer.clock,
       secondaryTimer: this.timer.secondaryTimer,
@@ -391,7 +390,7 @@ export class TimerService {
       });
     } else if (nextEvent) {
       // account for day after
-      const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + DAY_TO_MS : nextEvent.timeStart;
+      const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
       // nothing now, but something coming up
       this.timer.secondaryTimer = nextStart - this.timer.clock;
       this.secondaryTarget = nextStart;
