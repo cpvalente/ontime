@@ -97,8 +97,9 @@ const isNewNext = () => {
  */
 export function updateTimer(affectedIds?: string[]) {
   const runningEventId = eventLoader.loaded.selectedEventId;
+  const nextEventId = eventLoader.loaded.nextEventId;
 
-  if (runningEventId === null) {
+  if (runningEventId === null && nextEventId === null) {
     return false;
   }
 
