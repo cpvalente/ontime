@@ -1,12 +1,10 @@
-import { isEmptyObject, mergeObject, removeUndefined } from '../parserUtils.js';
+import { isEmptyObject, mergeObject, removeUndefined, validateDuration } from '../parserUtils.js';
+import { dayInMs } from 'ontime-utils';
 
 describe('isEmptyObject()', () => {
   test('finds an empty object', () => {
     const isEmpty = isEmptyObject({});
     expect(isEmpty).toBe(true);
-  });
-  test('throws on other types', () => {
-    expect(() => isEmptyObject(12)).toThrow();
   });
   test('resolves an object with methods', () => {
     const isEmpty = isEmptyObject({ test: 'yes' });
@@ -88,5 +86,23 @@ describe('removeUndefined()', () => {
       third: 'null',
     };
     expect(removeUndefined(obj)).toStrictEqual(obj);
+  });
+});
+
+describe('validateDuration()', () => {
+  it('is the difference between end and start', () => {
+    const duration = validateDuration(10, 20);
+    expect(duration).toBe(10);
+  });
+  it('handles no difference', () => {
+    const duration1 = validateDuration(0, 0);
+    const duration2 = validateDuration(dayInMs, dayInMs);
+    expect(duration1).toBe(0);
+    expect(duration2).toBe(0);
+  });
+  it('handles events that go over midnight', () => {
+    const duration = validateDuration(51, 50);
+    expect(duration).not.toBe(-50);
+    expect(duration).toBe(dayInMs - 1);
   });
 });

@@ -1,4 +1,4 @@
-import { isEmptyObject } from './parserUtils.js';
+import { isEmptyObject } from './parserUtils.ts';
 
 /**
  * @description initial checks for an empty of malformed request object
