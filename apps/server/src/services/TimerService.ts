@@ -112,6 +112,7 @@ export class TimerService {
   /**
    * Loads given timer to object
    * @param {object} timer
+   * @param initialData
    * @param {number} timer.id
    * @param {number} timer.timeStart
    * @param {number} timer.timeEnd
@@ -267,6 +268,7 @@ export class TimerService {
       _finishAt:
         this.timer.expectedFinish >= this.timer.startedAt
           ? this.timer.expectedFinish
+          : this.timer.expectedFinish + dayInMs,
 
       clock: this.timer.clock,
       secondaryTimer: this.timer.secondaryTimer,
