@@ -386,6 +386,8 @@ export const useEventAction = () => {
    */
   const swapEvents = useCallback(
     async ({ from, to }: SwapEntry) => {
+      // TODO: before calling `/swapEvents`,
+      // we should determine the events are of type `OntimeEvent`
       try {
         await _swapEvents.mutateAsync({ from, to });
       } catch (error) {
