@@ -8,6 +8,7 @@ import { integrationService } from './integration-service/IntegrationService.js'
 import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
+import { validateDuration } from '../utils/parserUtils.js';
 
 type initialLoadingData = {
   startedAt?: number | null;
@@ -90,7 +91,7 @@ export class TimerService {
     // TODO: check if any relevant information warrants update
 
     // update relevant information and force update
-    this.timer.duration = timer.duration;
+    this.timer.duration = validateDuration(timer.duration, timer.timeEnd);
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
 
@@ -104,7 +105,7 @@ export class TimerService {
       this.timer.addedTime,
     );
     if (this.timer.startedAt === null) {
-      this.timer.current = timer.duration;
+      this.timer.current = this.timer.duration;
     }
     this.update(true);
   }
@@ -129,8 +130,8 @@ export class TimerService {
     this._clear();
 
     this.loadedTimerId = timer.id;
-    this.timer.duration = timer.duration;
-    this.timer.current = timer.duration;
+    this.timer.duration = validateDuration(timer.duration, timer.timeEnd);
+    this.timer.current = this.timer.duration;
     this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
@@ -383,12 +384,16 @@ export class TimerService {
       this.timer.secondaryTimer = null;
       this.secondaryTarget = null;
 
+      // account for event that finishes the day after
+      const endTime =
+        currentEvent.timeEnd < currentEvent.timeStart ? currentEvent.timeEnd + dayInMs : currentEvent.timeEnd;
+
       // when we load a timer in roll, we do the same things as before
       // but also pre-populate some data as to the running state
       this.load(currentEvent, {
         startedAt: currentEvent.timeStart,
         expectedFinish: currentEvent.timeEnd,
-        current: currentEvent.timeEnd - this.timer.clock,
+        current: endTime - this.timer.clock,
       });
     } else if (nextEvent) {
       // account for day after
