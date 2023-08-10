@@ -51,8 +51,8 @@ export async function requestApplyDelay(eventId: string) {
 }
 
 export type SwapEntry = {
-  from: number;
-  to: number;
+  from: string;
+  to: string;
 };
 
 /**

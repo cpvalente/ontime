@@ -293,11 +293,11 @@ export function _applyDelay(
 
 /**
  * swaps two events
- * @param {number} from - index of event from
- * @param {number} to - index of event to
+ * @param {string} from - id of event from
+ * @param {string} to - id of event to
  * @returns {Promise<void>}
  */
-export async function swapEvents(from: number, to: number) {
+export async function swapEvents(from: string, to: string) {
   await cachedSwap(from, to);
 
   // notify timer service of changed events

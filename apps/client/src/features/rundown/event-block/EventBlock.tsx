@@ -12,8 +12,8 @@ import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { useEventIdSwapping } from '../Rundown';
 import type { EventItemActions } from '../RundownEntry';
+import { useEventIdSwapping } from '../useEventIdSwapping';
 
 import EventBlockInner from './EventBlockInner';
 
@@ -77,7 +77,7 @@ export default function EventBlock(props: EventBlockProps) {
     actionHandler,
     disableEdit,
   } = props;
-  const { event, setEvent, clearEvent } = useEventIdSwapping();
+  const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const moveCursorTo = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -96,19 +96,17 @@ export default function EventBlock(props: EventBlockProps) {
     {
       label: 'Add to swap',
       icon: IoAdd,
-      onClick: () => setEvent(eventId, eventIndex),
+      onClick: () => setSelectedEventId(eventId),
       withDivider: true,
     },
     {
-      label: `Swap this event with ${event.id ?? ''}`,
+      label: `Swap this event with ${selectedEventId ?? ''}`,
       icon: IoSwapVertical,
       onClick: () => {
-        if (typeof event.index === 'number') {
-          actionHandler('swap', +event.index);
-          clearEvent();
-        }
+        actionHandler('swap', { field: 'id', value: selectedEventId });
+        clearSelectedEventId();
       },
-      isDisabled: event.index == null || event.id === eventId,
+      isDisabled: selectedEventId == null || selectedEventId === eventId,
     },
   ]);
 
