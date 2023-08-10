@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { OntimeEvent, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -331,47 +331,39 @@ export const useEventAction = () => {
   const _swapEvents = useMutation({
     mutationFn: requestEventSwap,
     // we optimistically update here
-    onMutate: async (data) => {
+    onMutate: async ({ from, to }) => {
       // cancel ongoing queries
       await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
 
       // Snapshot the previous value
-      const previousEvents: OntimeRundown = queryClient.getQueryData(RUNDOWN_TABLE) ?? [];
+      const previousEvents = [...(queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown)];
 
-      const fromEvent = previousEvents.at(data.from);
-      const toEvent = previousEvents.at(data.to);
+      const fromEventIndex = previousEvents.findIndex((event) => event.id === from);
+      const toEventIndex = previousEvents.findIndex((event) => event.id === to);
+
+      const fromEvent = previousEvents.at(fromEventIndex) as OntimeEvent | undefined;
+      const toEvent = previousEvents.at(toEventIndex) as OntimeEvent | undefined;
 
       if (!fromEvent || !toEvent) {
-        // Return a context with the previous and new events
         return { previousEvents };
       }
 
-      if (fromEvent.type === SupportedEvent.Event && toEvent.type === SupportedEvent.Event) {
-        const eventsWithSwap = previousEvents.map((event, i) => {
-          if (i === data.from) {
-            return {
-              ...toEvent,
-              timeStart: fromEvent.timeStart,
-              timeEnd: fromEvent.timeEnd,
-              duration: fromEvent.duration,
-            };
-          }
+      previousEvents[fromEventIndex] = {
+        ...toEvent,
+        timeStart: fromEvent.timeStart,
+        timeEnd: fromEvent.timeEnd,
+        duration: fromEvent.duration,
+      };
 
-          if (i === data.to) {
-            return {
-              ...fromEvent,
-              timeStart: toEvent.timeStart,
-              timeEnd: toEvent.timeEnd,
-              duration: toEvent.duration,
-            };
-          }
+      previousEvents[toEventIndex] = {
+        ...fromEvent,
+        timeStart: toEvent.timeStart,
+        timeEnd: toEvent.timeEnd,
+        duration: toEvent.duration,
+      };
 
-          return event;
-        });
-
-        // optimistically update object
-        queryClient.setQueryData(RUNDOWN_TABLE, eventsWithSwap);
-      }
+      // optimistically update object
+      queryClient.setQueryData(RUNDOWN_TABLE, previousEvents);
 
       // Return a context with the previous events
       return { previousEvents };

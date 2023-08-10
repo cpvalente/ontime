@@ -173,37 +173,39 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
 
 /**
  * Swaps two events
- * @param {number} fromEventIndex
- * @param {number} toEventIndex
+ * @param {string} fromEventId
+ * @param {string} toEventId
  */
-export async function cachedSwap(fromEventIndex: number, toEventIndex: number) {
-  const updatedRundown = DataProvider.getRundown();
+export async function cachedSwap(fromEventId: string, toEventId: string) {
+  const fromEventIndex = DataProvider.getIndexOf(fromEventId);
+  const toEventIndex = DataProvider.getIndexOf(toEventId);
 
-  const fromEvent = updatedRundown.at(fromEventIndex);
-  const toEvent = updatedRundown.at(toEventIndex);
-
-  if (!fromEvent || !toEvent) {
+  if (fromEventIndex === -1 || toEventIndex === -1) {
     invalidateFromError();
+    throw new Error('ID not found at index');
   }
 
-  if (fromEvent.type === SupportedEvent.Event && toEvent.type === SupportedEvent.Event) {
-    updatedRundown[fromEventIndex] = {
-      ...toEvent,
-      timeStart: fromEvent.timeStart,
-      timeEnd: fromEvent.timeEnd,
-      duration: fromEvent.duration,
-    };
+  const rundownToUpdate = DataProvider.getRundown();
 
-    updatedRundown[toEventIndex] = {
-      ...fromEvent,
-      timeStart: toEvent.timeStart,
-      timeEnd: toEvent.timeEnd,
-      duration: toEvent.duration,
-    };
+  const fromEvent = rundownToUpdate.at(fromEventIndex) as OntimeEvent;
+  const toEvent = rundownToUpdate.at(toEventIndex) as OntimeEvent;
 
-    runtimeCacheStore.invalidate(delayedRundownCacheKey);
-    await DataProvider.setRundown(updatedRundown);
-  }
+  rundownToUpdate[fromEventIndex] = {
+    ...toEvent,
+    timeStart: fromEvent.timeStart,
+    timeEnd: fromEvent.timeEnd,
+    duration: fromEvent.duration,
+  };
+
+  rundownToUpdate[toEventIndex] = {
+    ...fromEvent,
+    timeStart: toEvent.timeStart,
+    timeEnd: toEvent.timeEnd,
+    duration: toEvent.duration,
+  };
+
+  await DataProvider.setRundown(rundownToUpdate);
+  runtimeCacheStore.setCached(delayedRundownCacheKey, rundownToUpdate);
 }
 
 /**
