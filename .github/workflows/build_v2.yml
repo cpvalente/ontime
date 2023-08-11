@@ -35,7 +35,9 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: './apps/electron/dist/ontime-macOS.dmg'
+          files: |
+            './apps/electron/dist/ontime-macOS-x64.dmg'
+            './apps/electron/dist/ontime-macOS-arm64.dmg'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
