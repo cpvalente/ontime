@@ -30,6 +30,7 @@
   ],
   "eventData": {
     "title": "Ontime demo event",
+    "description": "Demo event for Ontime",
     "publicUrl": "www.getontime.no",
     "publicInfo": "WiFi: demoproject \nPassword: ontimeproject",
     "backstageUrl": "www.getontime.no",

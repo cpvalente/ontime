@@ -6,7 +6,7 @@ import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
-import { useLocalEvent } from '../../common/stores/localEvent';
+import { useEditorSettings } from '../../common/stores/editorSettings';
 import { cloneEvent, getFirstEvent, getNextEvent, getPreviousEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
@@ -26,7 +26,7 @@ export default function Rundown(props: RundownProps) {
 
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent } = useEventAction();
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
   const showQuickEntry = eventSettings.showQuickEntry;

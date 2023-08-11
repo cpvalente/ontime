@@ -1,5 +1,6 @@
 import { Alias, EventData, LogOrigin } from 'ontime-types';
 
+import { RequestHandler } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 
@@ -325,10 +326,11 @@ export const dbUpload = async (req, res) => {
 };
 
 // Create controller for POST request to '/ontime/new'
-export const postNew = async (req, res) => {
+export const postNew: RequestHandler = async (req, res) => {
   try {
-    const newEventData: Omit<EventData, 'endMessage'> = {
+    const newEventData: EventData = {
       title: req.body?.title ?? '',
+      description: req.body?.description ?? '',
       publicUrl: req.body?.publicUrl ?? '',
       publicInfo: req.body?.publicInfo ?? '',
       backstageUrl: req.body?.backstageUrl ?? '',

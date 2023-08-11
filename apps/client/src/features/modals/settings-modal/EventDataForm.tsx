@@ -71,6 +71,21 @@ export default function EventDataForm() {
           {...register('title')}
         />
       </ModalInput>
+      <ModalInput
+        field='description'
+        title='Event description'
+        description='Free field, shown in editor'
+        error={errors.description?.message}
+      >
+        <Input
+          {...inputProps}
+          variant='ontime-filled-on-light'
+          maxLength={100}
+          placeholder='Euro Love, Malmö 2024'
+          isDisabled={disableInputs}
+          {...register('description')}
+        />
+      </ModalInput>
       <div style={{ height: '16px' }} />
       <ModalInput field='publicInfo' title='Public Info' description='Information shown in public screens'>
         <Textarea

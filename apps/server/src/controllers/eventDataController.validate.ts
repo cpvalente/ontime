@@ -2,6 +2,7 @@ import { body, validationResult } from 'express-validator';
 
 export const eventDataSanitizer = [
   body('title').optional().isString().trim(),
+  body('description').optional().isString().trim(),
   body('publicUrl').optional().isString().trim(),
   body('publicInfo').optional().isString().trim(),
   body('backstageUrl').optional().isString().trim(),
