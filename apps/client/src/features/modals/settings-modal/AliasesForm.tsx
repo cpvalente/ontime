@@ -131,7 +131,7 @@ export default function AliasesForm() {
                 isDisabled={disableInputs}
               />
               <TooltipActionBtn
-                clickHandler={(event) => handleLinks(event, alias.pathAndParams)}
+                clickHandler={(event) => handleLinks(event, alias.alias)}
                 tooltip='Test alias'
                 aria-label='Test alias'
                 size='xs'

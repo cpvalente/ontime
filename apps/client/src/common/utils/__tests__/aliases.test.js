@@ -1,4 +1,5 @@
-import { validateAlias } from '../aliases';
+import { resolvePath } from 'react-router-dom';
+import { validateAlias, generateURLFromAlias, getAliasRoute } from '../aliases';
 
 describe('An alias fails if incorrect', () => {
   const testsToFail = [
@@ -22,4 +23,80 @@ describe('An alias fails if incorrect', () => {
       expect(validateAlias(t).status).toBeFalsy();
     }),
   );
+});
+describe('generateURLFromAlias and getAliasRoute function', () => {
+  test('generate the expected url from an alias', () => {
+    const testData = [
+      {
+        enabled: true,
+        alias: 'demopage',
+        pathAndParams: '/timer?user=guest',
+      },
+    ];
+
+    const expected = [
+      {
+        url: '/timer?user=guest&alias=demopage',
+      },
+    ];
+
+    expect(generateURLFromAlias(testData[0])).toStrictEqual(expected[0].url);
+  });
+  test('generate the url to redirect to when the current URL is just the alias', () => {
+    const aliases = [
+      {
+        enabled: true,
+        alias: 'demopage',
+        pathAndParams: '/timer?user=guest',
+      },
+    ];
+    // let current location be the alias
+    const location = resolvePath(aliases[0].alias);
+
+    const expected = [
+      {
+        url: '/timer?user=guest&alias=demopage',
+      },
+    ];
+
+    expect(getAliasRoute(location, aliases, null)).toStrictEqual(expected[0].url);
+  });
+  test('generate the url to redirect to when the current URL the same url but with a change of params', () => {
+    const aliases = [
+      {
+        enabled: true,
+        alias: 'demopage',
+        pathAndParams: '/timer?user=guest',
+      },
+    ];
+    // let current location be the actual url with alias attached to it
+    const location = resolvePath(aliases[0].pathAndParams);
+    const urlSearchParams = new URLSearchParams(location.search);
+    urlSearchParams.append('alias', aliases[0].alias); //
+
+    // update current alias with extra param
+    aliases[0].pathAndParams += '&eventId=674';
+    const expected = [
+      {
+        url: '/timer?user=guest&eventId=674&alias=demopage',
+      },
+    ];
+
+    expect(getAliasRoute(location, aliases, urlSearchParams)).toStrictEqual(expected[0].url);
+  });
+  test('generate no url to redirect to when the current URL the same url', () => {
+    const aliases = [
+      {
+        enabled: true,
+        alias: 'demopage',
+        pathAndParams: '/timer?user=guest',
+      },
+    ];
+    // let current location be the actual url with alias attached to it
+    const location = resolvePath(aliases[0].pathAndParams);
+    const urlSearchParams = new URLSearchParams(location.search);
+    urlSearchParams.append('alias', aliases[0].alias); //
+
+    expect(getAliasRoute(location, aliases, urlSearchParams)).toBeNull();
+  });
 });
