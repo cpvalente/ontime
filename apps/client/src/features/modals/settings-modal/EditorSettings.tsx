@@ -1,15 +1,16 @@
 import { Switch } from '@chakra-ui/react';
 
-import { useLocalEvent } from '../../../common/stores/localEvent';
+import { useEditorSettings } from '../../../common/stores/editorSettings';
 import ModalSplitInput from '../ModalSplitInput';
 
 import style from './SettingsModal.module.scss';
 
 export default function EditorSettings() {
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
-  const setShowQuickEntry = useLocalEvent((state) => state.setShowQuickEntry);
-  const setStartTimeIsLastEnd = useLocalEvent((state) => state.setStartTimeIsLastEnd);
-  const setDefaultPublic = useLocalEvent((state) => state.setDefaultPublic);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
+  const setShowQuickEntry = useEditorSettings((state) => state.setShowQuickEntry);
+  const setStartTimeIsLastEnd = useEditorSettings((state) => state.setStartTimeIsLastEnd);
+  const setDefaultPublic = useEditorSettings((state) => state.setDefaultPublic);
+  const setShowNif = useEditorSettings((state) => state.setShowNif);
 
   return (
     <div className={style.sectionContainer}>
@@ -37,6 +38,18 @@ export default function EditorSettings() {
           variant='ontime-on-light'
           defaultChecked={eventSettings.defaultPublic}
           onChange={(event) => setDefaultPublic(event.target.checked)}
+        />
+      </ModalSplitInput>
+      <span className={style.title}>Info settings</span>
+      <ModalSplitInput
+        field=''
+        title='Show network'
+        description='Whether to available show network interfaces in the panel'
+      >
+        <Switch
+          variant='ontime-on-light'
+          defaultChecked={eventSettings.showQuickEntry}
+          onChange={(event) => setShowNif(event.target.checked)}
         />
       </ModalSplitInput>
     </div>

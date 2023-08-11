@@ -3,7 +3,7 @@ import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontim
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useAppMode } from '../../common/stores/appModeStore';
-import { useLocalEvent } from '../../common/stores/localEvent';
+import { useEditorSettings } from '../../common/stores/editorSettings';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
 import { calculateDuration } from '../../common/utils/timesManager';
@@ -61,7 +61,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     }
   }, [cursor, data.id, openId, setCursor, setEditId]);
 
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
