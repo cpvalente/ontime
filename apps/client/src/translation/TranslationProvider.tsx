@@ -5,6 +5,7 @@ import useSettings from '../common/hooks-query/useSettings';
 import { langDe } from './languages/de';
 import { langEn } from './languages/en';
 import { langEs } from './languages/es';
+import { langFr } from './languages/fr';
 import { langNo } from './languages/no';
 import { langPt } from './languages/pt';
 import { langSv } from './languages/sv';
@@ -12,6 +13,7 @@ import { langSv } from './languages/sv';
 const translationsList = {
   en: langEn,
   es: langEs,
+  fr: langFr,
   de: langDe,
   no: langNo,
   pt: langPt,

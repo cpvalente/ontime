@@ -14,6 +14,6 @@ export const langSv: TranslationObject = {
   'countdown.running': 'Evenemang pågår',
   'countdown.select_event': 'Välj ett evenemang att följa',
   'countdown.to_start': 'Tid till start',
-  'countdown.waiting': '"Väntar på att evenemanget ska starta',
+  'countdown.waiting': 'Väntar på att evenemanget ska starta',
   'countdown.overtime': 'i övertid',
 };
