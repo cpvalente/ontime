@@ -30,21 +30,23 @@ let splash;
 let tray = null;
 
 async function startBackend() {
-  await (async () => {
-    // in dev mode, we expect both UI and server to be running
-    if (!isProduction) {
-      return;
-    }
+  // in dev mode, we expect both UI and server to be running
+  if (!isProduction) {
+    return;
+  }
 
-    const ontimeServer = require(nodePath);
-    const { initAssets, startServer, startOSCServer, startIntegrations } = ontimeServer;
+  const ontimeServer = require(nodePath);
+  const { initAssets, startServer, startOSCServer, startIntegrations } = ontimeServer;
 
-    await initAssets();
+  await initAssets();
 
-    loaded = await startServer();
-    await startOSCServer();
-    await startIntegrations();
-  })();
+  const result = await startServer();
+  loaded = result.message;
+
+  await startOSCServer();
+  await startIntegrations();
+
+  return result.serverPort;
 }
 
 /**
@@ -155,9 +157,11 @@ app.whenReady().then(() => {
   });
 
   startBackend()
-    .then(() => {
+    .then((port) => {
       // Load page served by node or use React dev run
-      const clientUrl = isProduction ? electronConfig.reactAppUrl.production : electronConfig.reactAppUrl.development;
+      const clientUrl = isProduction
+        ? electronConfig.reactAppUrl.production(port)
+        : electronConfig.reactAppUrl.development(port);
 
       win
         .loadURL(clientUrl)

@@ -1,5 +1,3 @@
-export const STATIC_PORT = 4001;
-
 // REST stuff
 export const EVENT_DATA = ['eventdata'];
 export const ALIASES = ['aliases'];
@@ -15,8 +13,9 @@ export const RUNTIME = ['runtimeStore'];
 const location = window.location;
 const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
 
+const STATIC_PORT = 4001;
 export const serverPort = import.meta.env.DEV ? STATIC_PORT : location.port;
-export const serverURL = import.meta.env.DEV ? `http://${location.hostname}:${serverPort}` : location.origin;
+export const serverURL = `${location.protocol}//${location.hostname}:${serverPort}`;
 export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}/ws`;
 
 export const eventURL = `${serverURL}/eventdata`;
