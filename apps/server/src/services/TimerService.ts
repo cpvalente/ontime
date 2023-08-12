@@ -170,6 +170,8 @@ export class TimerService {
     }
 
     this.timer.clock = clock.timeNow();
+    this.timer.secondaryTimer = null;
+    this.secondaryTarget = null;
 
     // add paused time if it exists
     if (this.pausedTime) {
