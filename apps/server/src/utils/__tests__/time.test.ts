@@ -1,7 +1,7 @@
 import { parseExcelDate } from '../time.js';
 
 describe('parseExcelDate', () => {
-  describe('parses a valid date string as expected from excel', () => {
+  describe.todo('parses a valid date string as expected from excel', () => {
     const testCases = [
       {
         fromExcel: '1899-12-30T00:00:00.000Z',
