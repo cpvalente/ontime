@@ -1,4 +1,4 @@
-import { parseExcelDate } from '../time';
+import { parseExcelDate } from '../time.js';
 
 describe('parseExcelDate', () => {
   it('parses a valid date string as expected from excel', () => {
