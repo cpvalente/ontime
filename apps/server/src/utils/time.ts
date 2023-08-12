@@ -14,6 +14,7 @@ export const timeFormatSeconds = 'HH:mm:ss';
  */
 
 export const dateToMillis = (date: Date): number => {
+  // TODO: Use UTC
   const h = date.getHours();
   const m = date.getMinutes();
   const s = date.getSeconds();
@@ -92,7 +93,6 @@ export const parseExcelDate = (excelDate: string): number => {
   // attempt converting to date object
   const date = new Date(excelDate);
   if (date instanceof Date && !isNaN(date.getTime())) {
-    console.log('got excel', Intl.DateTimeFormat().resolvedOptions().timeZone, excelDate, date, dateToMillis(date));
     return dateToMillis(date);
   } else if (isTimeString(excelDate)) {
     return forgivingStringToMillis(excelDate);
