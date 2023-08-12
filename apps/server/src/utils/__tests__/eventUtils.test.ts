@@ -13,7 +13,7 @@ describe('getPreviousPlayable()', () => {
       ];
       const { index, id } = getPreviousPlayable(events, events[4].id);
       expect(index).toBe(3);
-      expect(id).toBe(103);
+      expect(id).toBe('103');
     });
   });
 
