@@ -5,7 +5,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { integrationService } from './integration-service/IntegrationService.js';
-import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
+import { getCurrent, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 
@@ -280,7 +280,7 @@ export class TimerService {
 
     this.timer.current = updatedTimer;
     this.timer.secondaryTimer = updatedSecondaryTimer;
-    this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
+    this.timer.elapsed = this.timer.duration - this.timer.current;
 
     if (isFinished) {
       this.timer.selectedEventId = null;
@@ -299,7 +299,8 @@ export class TimerService {
       this.pausedTime = this.timer.clock - this.pausedAt;
     }
 
-    if (this.playback === Playback.Play && this.timer.current <= 0 && this.timer.finishedAt === null) {
+    const finishedNow = this.timer.current <= 0 && this.timer.finishedAt === null;
+    if (this.playback === Playback.Play && finishedNow) {
       this.timer.finishedAt = this.timer.clock;
       this._onFinish();
     } else {
@@ -318,7 +319,7 @@ export class TimerService {
       this.pausedTime,
       this.timer.clock,
     );
-    this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
+    this.timer.elapsed = this.timer.duration - this.timer.current;
   }
 
   update(force = false) {

@@ -16,7 +16,14 @@ import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader
 import { eventTimer } from '../TimerService.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import { cachedAdd, cachedDelete, cachedEdit, cachedReorder, delayedRundownCacheKey } from './delayedRundown.utils.js';
+import {
+  cachedAdd,
+  cachedClear,
+  cachedDelete,
+  cachedEdit,
+  cachedReorder,
+  delayedRundownCacheKey,
+} from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { clock } from '../Clock.js';
 
@@ -221,9 +228,6 @@ export async function deleteEvent(eventId) {
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
 
-  // invalidate cache
-  runtimeCacheStore.invalidate(delayedRundownCacheKey);
-
   // advice socket subscribers of change
   sendRefetch();
 }
@@ -233,7 +237,9 @@ export async function deleteEvent(eventId) {
  * @returns {Promise<void>}
  */
 export async function deleteAllEvents() {
-  await DataProvider.clearRundown();
+  await cachedClear();
+
+  // notify timer service of changed events
   updateTimer();
   forceReset();
 }

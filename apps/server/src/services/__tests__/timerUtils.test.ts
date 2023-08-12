@@ -1,6 +1,6 @@
 import { dayInMs } from 'ontime-utils';
 
-import { getCurrent, getElapsed, getExpectedFinish } from '../timerUtils.js';
+import { getCurrent, getExpectedFinish } from '../timerUtils.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {
@@ -134,23 +134,7 @@ describe('getCurrent()', () => {
   });
 });
 
-describe('getElapsedTime()', () => {
-  it('time since we started', () => {
-    const startedAt = 0;
-    const clock = 5;
-    const elapsed = getElapsed(startedAt, clock);
-    expect(elapsed).toBe(5);
-  });
-  it('rolls past midnight', () => {
-    const startedAt = 10;
-    const clock = 5;
-    const elapsed = getElapsed(startedAt, clock);
-
-    expect(elapsed).toBe(dayInMs - startedAt + clock);
-  });
-});
-
-describe('getExpectedFinish() getElapsedTime() and getCurrentTime() combined', () => {
+describe('getExpectedFinish() and getCurrentTime() combined', () => {
   it('without added times, they combine to be duration', () => {
     const startedAt = 0;
     const duration = 10;
@@ -159,8 +143,8 @@ describe('getExpectedFinish() getElapsedTime() and getCurrentTime() combined', (
     const addedTime = 0;
     const clock = 0;
     const expectedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
-    const elapsed = getElapsed(startedAt, clock);
     const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    const elapsed = duration - current;
     expect(expectedFinish).toBe(10);
     expect(elapsed).toBe(0);
     expect(current).toBe(10);
@@ -174,10 +158,10 @@ describe('getExpectedFinish() getElapsedTime() and getCurrentTime() combined', (
     const addedTime = 2;
     const clock = 5;
     const expectedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
-    const elapsed = getElapsed(startedAt, clock);
     const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    const elapsed = duration - current;
     expect(expectedFinish).toBe(13);
-    expect(elapsed).toBe(5);
+    expect(elapsed).toBe(2);
     expect(current).toBe(8);
   });
 });

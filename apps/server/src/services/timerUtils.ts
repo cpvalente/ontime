@@ -47,18 +47,3 @@ export function getCurrent(
   }
   return startedAt + duration + addedTime + pausedTime - clock;
 }
-
-/**
- * Calculates elapsed time
- */
-export function getElapsed(startedAt: number | null, clock: number): number | null {
-  if (startedAt === null) {
-    return null;
-  }
-
-  // we are in the day after
-  if (startedAt > clock) {
-    return dayInMs - startedAt + clock;
-  }
-  return clock - startedAt;
-}
