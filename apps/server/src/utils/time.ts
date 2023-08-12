@@ -8,8 +8,8 @@ export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 
 /**
- * @description Converts an excel date to milliseconds
- * @argument {string} date - excel string date
+ * @description Converts a date object to milliseconds
+ * @argument {Date} date
  * @returns {number} - time in milliseconds
  */
 
@@ -92,8 +92,12 @@ export const parseExcelDate = (excelDate: string): number => {
   // attempt converting to date object
   const date = new Date(excelDate);
   if (date instanceof Date && !isNaN(date.getTime())) {
+    console.log('got excel', Intl.DateTimeFormat().resolvedOptions().timeZone, excelDate, date, dateToMillis(date));
+
     return dateToMillis(date);
   } else if (isTimeString(excelDate)) {
+    console.log('got string', excelDate, forgivingStringToMillis(excelDate));
+
     return forgivingStringToMillis(excelDate);
   }
   return 0;
