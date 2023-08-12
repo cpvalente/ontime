@@ -3,11 +3,11 @@
 
 import fs from 'fs';
 import xlsx from 'node-xlsx';
-import { generateId } from 'ontime-utils';
+import { generateId, calculateDuration } from 'ontime-utils';
 import { DatabaseModel, EventData, OntimeEvent, OntimeRundown, SupportedEvent, UserFields } from 'ontime-types';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { deleteFile, makeString, validateDuration } from './parserUtils.js';
+import { deleteFile, makeString } from './parserUtils.js';
 import {
   parseAliases,
   parseEventData,
@@ -331,7 +331,7 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
       timeEnd: end,
       endAction: makeString(e.endAction, d.endAction),
       timerType: makeString(e.timerType, d.timerType),
-      duration: validateDuration(start, end),
+      duration: calculateDuration(start, end),
       isPublic: typeof e.isPublic === 'boolean' ? e.isPublic : d.isPublic,
       skip: typeof e.skip === 'boolean' ? e.skip : d.skip,
       note: makeString(e.note, d.note),

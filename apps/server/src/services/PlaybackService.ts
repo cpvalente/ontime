@@ -1,4 +1,4 @@
-import { LogOrigin, OntimeEvent, Playback } from 'ontime-types';
+import { LogOrigin, OntimeEvent } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';

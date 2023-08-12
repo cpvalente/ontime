@@ -2,7 +2,7 @@
   "name": "ontime-utils",
   "type": "module",
   "exports": "./index.ts",
-  "version": "2.0.9",
+  "version": "2.3.9",
   "private": true,
   "description": "shared logic for ontime",
   "scripts": {

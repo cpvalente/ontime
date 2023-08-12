@@ -1,4 +1,6 @@
-import { getCurrent, getElapsed, getExpectedFinish } from '../timerUtils.js';
+import { dayInMs } from 'ontime-utils';
+
+import { getCurrent, getExpectedFinish } from '../timerUtils.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {
@@ -64,6 +66,15 @@ describe('getExpectedFinish()', () => {
     const calculatedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
     expect(calculatedFinish).toBe(1);
   });
+  it('finish can be the day after', () => {
+    const startedAt = 10;
+    const finishedAt = null;
+    const duration = dayInMs;
+    const pausedTime = 0;
+    const addedTime = 0;
+    const calculatedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
+    expect(calculatedFinish).toBe(10);
+  });
 });
 
 describe('getCurrent()', () => {
@@ -94,23 +105,36 @@ describe('getCurrent()', () => {
     const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
     expect(current).toBe(19);
   });
-});
-
-describe('getElapsedTime()', () => {
-  it('time since we started', () => {
-    const startedAt = 0;
-    const clock = 5;
-    const elapsed = getElapsed(startedAt, clock);
-    expect(elapsed).toBe(5);
-  });
-  it('clock cannot be lower than started time', () => {
+  it('counts over midnight', () => {
     const startedAt = 10;
+    const duration = dayInMs + 10;
+    const pausedTime = 0;
+    const addedTime = 0;
+    const clock = 10;
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    expect(current).toBe(dayInMs + 10);
+  });
+  it('rolls over midnight', () => {
+    const startedAt = 10;
+    const duration = dayInMs + 10;
+    const pausedTime = 0;
+    const addedTime = 0;
     const clock = 5;
-    expect(() => getElapsed(startedAt, clock)).toThrow();
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    expect(current).toBe(15);
+  });
+  it('midnight holds delays', () => {
+    const startedAt = 10;
+    const duration = dayInMs + 10;
+    const pausedTime = 10;
+    const addedTime = 10;
+    const clock = 5;
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    expect(current).toBe(35);
   });
 });
 
-describe('getExpectedFinish() getElapsedTime() and getCurrentTime() combined', () => {
+describe('getExpectedFinish() and getCurrentTime() combined', () => {
   it('without added times, they combine to be duration', () => {
     const startedAt = 0;
     const duration = 10;
@@ -119,8 +143,8 @@ describe('getExpectedFinish() getElapsedTime() and getCurrentTime() combined', (
     const addedTime = 0;
     const clock = 0;
     const expectedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
-    const elapsed = getElapsed(startedAt, clock);
     const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    const elapsed = duration - current;
     expect(expectedFinish).toBe(10);
     expect(elapsed).toBe(0);
     expect(current).toBe(10);
@@ -134,10 +158,10 @@ describe('getExpectedFinish() getElapsedTime() and getCurrentTime() combined', (
     const addedTime = 2;
     const clock = 5;
     const expectedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
-    const elapsed = getElapsed(startedAt, clock);
     const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    const elapsed = duration - current;
     expect(expectedFinish).toBe(13);
-    expect(elapsed).toBe(5);
+    expect(elapsed).toBe(2);
     expect(current).toBe(8);
   });
 });

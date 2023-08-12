@@ -1,14 +1,10 @@
 import { OntimeEvent } from 'ontime-types';
-
-/**
- * Utility variable: 24 hour in milliseconds .
- */
-export const DAY_TO_MS = 86400000;
+import { dayInMs } from 'ontime-utils';
 
 /**
  * handle events that span over midnight
  */
-export const normaliseEndTime = (start: number, end: number) => (end < start ? end + DAY_TO_MS : end);
+export const normaliseEndTime = (start: number, end: number) => (end < start ? end + dayInMs : end);
 
 /**
  * @description Sorts an array of objects by given property
@@ -21,13 +17,6 @@ export const sortArrayByProperty = <T>(arr: T[], property: string): T[] => {
   return [...arr].sort((a, b) => {
     return a[property] - b[property];
   });
-};
-
-type Timer = {
-  _startedAt: number;
-  _finishAt: number;
-  duration: number;
-  current: number;
 };
 
 /**
@@ -61,7 +50,7 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
     const firstEvent = orderedEvents[0];
     nextIndex = 0;
     nextEvent = firstEvent;
-    timeToNext = firstEvent.timeStart + DAY_TO_MS - timeNow;
+    timeToNext = firstEvent.timeStart + dayInMs - timeNow;
 
     if (firstEvent.isPublic) {
       nextPublicEvent = firstEvent;
@@ -89,6 +78,10 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
       // When does the event end (handle midnight)
       const normalEnd = normaliseEndTime(event.timeStart, event.timeEnd);
 
+      const hasNotEnded = normalEnd > timeNow;
+      const isFromDayBefore = normalEnd > dayInMs && timeNow < event.timeEnd;
+      const hasStarted = isFromDayBefore || timeNow >= event.timeStart;
+
       if (normalEnd <= timeNow) {
         // event ran already
 
@@ -98,7 +91,7 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
           currentPublicEvent = event;
           publicIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
         }
-      } else if (normalEnd > timeNow && timeNow >= event.timeStart && !nowFound) {
+      } else if (hasNotEnded && hasStarted && !nowFound) {
         // event is running
         currentEvent = event;
         nowIndex = rundown.findIndex((rundownEvent) => rundownEvent.id === event.id);
@@ -185,6 +178,10 @@ export const updateRoll = (currentTimers: CurrentTimers) => {
     // if we have something selected and a timer, we are running
 
     updatedTimer = _finishAt - clock;
+    if (updatedTimer > dayInMs) {
+      updatedTimer -= dayInMs;
+    }
+
     if (updatedTimer < 0) {
       isPrimaryFinished = true;
       // we need a new event

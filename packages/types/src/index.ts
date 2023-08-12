@@ -23,6 +23,7 @@ import { TimerType } from './definitions/TimerType.type.js';
 import { TitleBlock } from './definitions/runtime/TitleBlock.type.js';
 import { UserFields } from './definitions/core/UserFields.type.js';
 import { ViewSettings } from './definitions/core/Views.type.js';
+import { MaybeNumber } from './utils/utils.type.js';
 
 // DATA MODEL
 export type { DatabaseModel };
@@ -69,3 +70,6 @@ export type { TimerState };
 export type { TitleBlock };
 
 // CLIENT
+
+// UTILITIES
+export type { MaybeNumber };

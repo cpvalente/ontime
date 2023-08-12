@@ -1,5 +1,7 @@
 import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
+import { dayInMs } from '../timeConstants';
+
 /**
  * Gets first event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
@@ -92,3 +94,17 @@ export function getPreviousEvent(rundown: OntimeRundownEntry[], currentId: strin
   }
   return null;
 }
+
+/**
+ * @description calculates event duration considering midnight
+ * @param {number} timeStart
+ * @param {number} timeEnd
+ * @returns {number}
+ */
+export const calculateDuration = (timeStart: number, timeEnd: number): number => {
+  // Durations must be positive
+  if (timeEnd < timeStart) {
+    return timeEnd + dayInMs - timeStart;
+  }
+  return timeEnd - timeStart;
+};

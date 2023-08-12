@@ -7,7 +7,7 @@ import { nowInMillis } from '../utils/time';
 
 export function logAxiosError(prepend: string, error: unknown) {
   const message = axios.isAxiosError(error)
-    ? `${prepend}, ${(error as AxiosError).response?.statusText}: ${(error as AxiosError).response?.data}`
+    ? `${prepend} ${(error as AxiosError).response?.statusText ?? ''}: ${(error as AxiosError).response?.data ?? ''}`
     : `${prepend}: ${error}`;
 
   addLog({
