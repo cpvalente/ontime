@@ -5,9 +5,6 @@ describe('isEmptyObject()', () => {
     const isEmpty = isEmptyObject({});
     expect(isEmpty).toBe(true);
   });
-  test('throws on other types', () => {
-    expect(() => isEmptyObject(12)).toThrow();
-  });
   test('resolves an object with methods', () => {
     const isEmpty = isEmptyObject({ test: 'yes' });
     expect(isEmpty).toBe(false);

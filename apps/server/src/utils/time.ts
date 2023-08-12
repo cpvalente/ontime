@@ -6,7 +6,6 @@ const mth = 1000 * 60 * 60; // millis to hours
 
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
-export const DAY_TO_MS = 86400000;
 
 /**
  * @description Converts an excel date to milliseconds

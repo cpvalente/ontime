@@ -5,26 +5,20 @@ import {
   OntimeDelay,
   OntimeEvent,
   OntimeRundown,
+  Playback,
   SupportedEvent,
 } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
+import { block as blockDef, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
 import { eventTimer } from '../TimerService.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import {
-  cachedAdd,
-  cachedDelete,
-  cachedEdit,
-  cachedReorder,
-  calculateRuntimeDelaysFrom,
-  delayedRundownCacheKey,
-  getDelayedRundown,
-} from './delayedRundown.utils.js';
+import { cachedAdd, cachedDelete, cachedEdit, cachedReorder, delayedRundownCacheKey } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
+import { clock } from '../Clock.js';
 
 /**
  * Forces rundown to be recalculated
@@ -97,8 +91,9 @@ const isNewNext = () => {
  */
 export function updateTimer(affectedIds?: string[]) {
   const runningEventId = eventLoader.loaded.selectedEventId;
+  const nextEventId = eventLoader.loaded.nextEventId;
 
-  if (runningEventId === null) {
+  if (runningEventId === null && nextEventId === null) {
     return false;
   }
 
@@ -119,11 +114,22 @@ export function updateTimer(affectedIds?: string[]) {
 
   if (eventInMemory) {
     eventLoader.reset();
-    const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
-    if (!loadedEvent) {
-      eventTimer.stop();
+
+    if (eventTimer.playback === Playback.Roll) {
+      const rollTimers = eventLoader.findRoll(clock.timeNow());
+      if (rollTimers === null) {
+        eventTimer.stop();
+      } else {
+        const { currentEvent, nextEvent } = rollTimers;
+        eventTimer.roll(currentEvent, nextEvent);
+      }
     } else {
-      eventTimer.hotReload(loadedEvent);
+      const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
+      if (loadedEvent) {
+        eventTimer.hotReload(loadedEvent);
+      } else {
+        eventTimer.stop();
+      }
     }
     return true;
   }
