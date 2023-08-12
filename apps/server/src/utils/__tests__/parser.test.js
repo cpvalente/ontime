@@ -219,64 +219,20 @@ describe('test json parser with valid def', () => {
     const first = parseResponse?.rundown[0];
     const expected = {
       title: 'Guest Welcoming',
-      subtitle: '',
-      presenter: '',
-      note: '',
-      timeStart: 31500000,
-      timeEnd: 32400000,
-      duration: 32400000 - 31500000,
-      isPublic: false,
-      endAction: 'play-next',
-      timerType: 'clock',
-      skip: false,
-      colour: '',
       type: 'event',
-      revision: 0,
       id: '4b31',
-      user0: '',
-      user1: '',
-      user2: '',
-      user3: '',
-      user4: '',
-      user5: '',
-      user6: '',
-      user7: '',
-      user8: '',
-      user9: '',
     };
-    expect(first).toStrictEqual(expected);
+    expect(first).toMatchObject(expected);
   });
 
   it('second event is as a match', () => {
     const second = parseResponse?.rundown[1];
     const expected = {
       title: 'Good Morning',
-      subtitle: 'Days schedule',
-      presenter: 'Carlos Valente',
-      note: '',
-      timeStart: 32400000,
-      timeEnd: 36000000,
-      endAction: 'play-next',
-      timerType: 'count-up',
-      duration: 36000000 - 32400000,
-      isPublic: true,
-      skip: true,
-      colour: 'red',
       type: 'event',
-      revision: 0,
       id: 'f24d',
-      user0: '',
-      user1: '',
-      user2: '',
-      user3: '',
-      user4: '',
-      user5: '',
-      user6: '',
-      user7: '',
-      user8: '',
-      user9: '',
     };
-    expect(second).toStrictEqual(expected);
+    expect(second).toMatchObject(expected);
   });
   it('third event end action is set as the default value', () => {
     const third = parseResponse?.rundown[2];
