@@ -1,12 +1,4 @@
-import { dayInMs } from 'ontime-utils';
-
 export type TimeEntryField = 'timeStart' | 'timeEnd' | 'durationOverride';
-
-/**
- * @description calculates duration from given values
- */
-export const calculateDuration = (start: number, end: number): number =>
-  start > end ? end + dayInMs - start : end - start;
 
 /**
  * @description Checks which field the value relates to

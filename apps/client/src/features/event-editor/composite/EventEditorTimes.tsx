@@ -1,13 +1,13 @@
 import { memo, useState } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
-import { calculateDuration, TimeEntryField, validateEntry } from '../../../common/utils/timesManager';
+import { TimeEntryField, validateEntry } from '../../../common/utils/timesManager';
 
 import style from '../EventEditor.module.scss';
 

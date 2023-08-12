@@ -14,20 +14,6 @@ export const makeString = (val: any, fallback = ''): string => {
 };
 
 /**
- * @description validates a duration value against options
- * @param {number} timeStart
- * @param {number} timeEnd
- * @returns {number}
- */
-export const validateDuration = (timeStart: number, timeEnd: number) => {
-  // Durations must be positive
-  if (timeEnd < timeStart) {
-    return timeEnd + dayInMs - timeStart;
-  }
-  return timeEnd - timeStart;
-};
-
-/**
  * @description Delete file from system
  * @param {string} file - reference to file
  */

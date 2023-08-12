@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import { calculateDuration } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { useLocalEvent } from '../../common/stores/localEvent';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
-import { calculateDuration } from '../../common/utils/timesManager';
 
 import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';

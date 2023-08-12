@@ -3,6 +3,7 @@ export { validatePlayback } from './src/validate-action/validatePlayback.js';
 
 // rundown utils
 export { generateId } from './src/generate-id/generateId.js';
+export { calculateDuration } from './src/rundown-utils/rundownUtils.js';
 
 // format utils
 export { formatDisplay } from './src/date-utils/formatDisplay.js';

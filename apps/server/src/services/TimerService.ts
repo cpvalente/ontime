@@ -1,5 +1,5 @@
 import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
@@ -8,7 +8,6 @@ import { integrationService } from './integration-service/IntegrationService.js'
 import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
-import { validateDuration } from '../utils/parserUtils.js';
 
 type initialLoadingData = {
   startedAt?: number | null;
@@ -91,7 +90,7 @@ export class TimerService {
     // TODO: check if any relevant information warrants update
 
     // update relevant information and force update
-    this.timer.duration = validateDuration(timer.timeStart, timer.timeEnd);
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
 
@@ -130,7 +129,7 @@ export class TimerService {
     this._clear();
 
     this.loadedTimerId = timer.id;
-    this.timer.duration = validateDuration(timer.timeStart, timer.timeEnd);
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
     this.timer.current = this.timer.duration;
     this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;
