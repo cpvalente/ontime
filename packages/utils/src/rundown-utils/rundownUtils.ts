@@ -1,6 +1,6 @@
 import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
-import { dayInMs } from '../timeConstants';
+import { dayInMs } from '../timeConstants.js';
 
 /**
  * Gets first event in rundown, if it exists
