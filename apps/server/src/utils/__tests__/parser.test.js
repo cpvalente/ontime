@@ -4,7 +4,6 @@ import { parseExcel, parseJson, validateEvent } from '../parser.ts';
 import { makeString } from '../parserUtils.ts';
 import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.ts';
 import { EndAction, TimerType } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
 
 describe('test json parser with valid def', () => {
   const testData = {

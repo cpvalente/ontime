@@ -174,7 +174,6 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
 export async function cachedClear() {
   await DataProvider.clearRundown();
   runtimeCacheStore.setCached(delayedRundownCacheKey, []);
-  console.log(DataProvider.getRundown(), getDelayedRundown());
 }
 
 /**
