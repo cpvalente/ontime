@@ -93,11 +93,8 @@ export const parseExcelDate = (excelDate: string): number => {
   const date = new Date(excelDate);
   if (date instanceof Date && !isNaN(date.getTime())) {
     console.log('got excel', Intl.DateTimeFormat().resolvedOptions().timeZone, excelDate, date, dateToMillis(date));
-
     return dateToMillis(date);
   } else if (isTimeString(excelDate)) {
-    console.log('got string', excelDate, forgivingStringToMillis(excelDate));
-
     return forgivingStringToMillis(excelDate);
   }
   return 0;
