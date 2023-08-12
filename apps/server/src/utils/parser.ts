@@ -4,7 +4,16 @@
 import fs from 'fs';
 import xlsx from 'node-xlsx';
 import { generateId, calculateDuration } from 'ontime-utils';
-import { DatabaseModel, EventData, OntimeEvent, OntimeRundown, SupportedEvent, UserFields } from 'ontime-types';
+import {
+  DatabaseModel,
+  EndAction,
+  EventData,
+  OntimeEvent,
+  OntimeRundown,
+  SupportedEvent,
+  TimerType,
+  UserFields,
+} from 'ontime-types';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString } from './parserUtils.js';
@@ -105,9 +114,17 @@ export const parseExcel = async (excelData) => {
         } else if (j === notesIndex) {
           event.note = column;
         } else if (j === endActionIndex) {
-          event.endAction = column;
+          if (column === '') {
+            event.endAction = EndAction.None;
+          } else {
+            event.endAction = column;
+          }
         } else if (j === timerTypeIndex) {
-          event.timerType = column;
+          if (column === '') {
+            event.timerType = TimerType.CountDown;
+          } else {
+            event.timerType = column;
+          }
         } else if (j === colourIndex) {
           event.colour = column;
         } else if (j === user0Index) {
@@ -133,6 +150,7 @@ export const parseExcel = async (excelData) => {
         } else {
           if (typeof column === 'string') {
             const col = column.toLowerCase();
+
             // look for keywords
             // need to make sure it is a string first
             switch (col) {
