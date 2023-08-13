@@ -3,7 +3,6 @@ import { Loaded, OntimeEvent, SupportedEvent, TitleBlock } from 'ontime-types';
 import { DataProvider } from '../data-provider/DataProvider.js';
 import { getRollTimers } from '../../services/rollUtils.js';
 import { eventStore } from '../../stores/EventStore.js';
-import { editEvent } from '../../services/RundownService.js';
 
 let instance;
 
@@ -257,21 +256,6 @@ export class EventLoader {
     this._loadEvent();
 
     return this.getLoaded();
-  }
-
-  /**
-   * Updates the duration of the event with the given id
-   * @param {string} eventId
-   * @param {number} newDuration
-   */
-  static updateEventDuration(eventId: string, newDuration: number) {
-    const event = EventLoader.getEventWithId(eventId);
-    if (event) {
-      const newEventTimeEnd = event.timeStart + newDuration;
-      editEvent({ id: eventId, duration: newDuration, timeEnd: newEventTimeEnd });
-    } else {
-      throw new Error(`Event with ID ${eventId} not found`);
-    }
   }
 
   /**

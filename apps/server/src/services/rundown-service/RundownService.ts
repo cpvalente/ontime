@@ -327,3 +327,18 @@ export async function applyDelay(eventId: string) {
 function updateChangeNumEvents() {
   eventLoader.updateNumEvents();
 }
+
+/**
+ * Updates the duration of the event with the given id
+ * @param {string} eventId
+ * @param {number} newDuration
+ */
+export function updateEventDuration(eventId: string, newDuration: number) {
+  const event = EventLoader.getEventWithId(eventId);
+  if (event) {
+    const newEventTimeEnd = event.timeStart + newDuration;
+    editEvent({ id: eventId, duration: newDuration, timeEnd: newEventTimeEnd });
+  } else {
+    throw new Error(`Event with ID ${eventId} not found`);
+  }
+}

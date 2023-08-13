@@ -6,6 +6,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { eventTimer } from './TimerService.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
+import { updateEventDuration } from './rundown-service/RundownService.js';
 
 /**
  * Service manages playback status of app
@@ -232,7 +233,7 @@ export class PlaybackService {
    * @param {number} newDuration
    */
   static updateEventDuration(eventId: string, newDuration: number) {
-    EventLoader.updateEventDuration(eventId, newDuration);
-    logger.info('PLAYBACK', `Updated duration of event with ID ${eventId} to ${newDuration}`);
+    updateEventDuration(eventId, newDuration);
+    logger.info(LogOrigin.Playback, `Updated duration of event with ID ${eventId}`);
   }
 }
