@@ -15,14 +15,14 @@ import {
   requestReorderEvent,
   SwapEntry,
 } from '../api/eventsApi';
-import { useLocalEvent } from '../stores/localEvent';
+import { useEditorSettings } from '../stores/editorSettings';
 
 /**
  * @description Set of utilities for events
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 

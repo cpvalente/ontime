@@ -104,6 +104,18 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
             </div>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
+                Event description
+                <Input
+                  variant='ontime-filled-on-light'
+                  size='sm'
+                  maxLength={100}
+                  placeholder='Euro Love, Malmö 2024'
+                  {...register('description')}
+                />
+              </label>
+            </div>
+            <div className={styles.entryRow}>
+              <label className={styles.sectionTitle}>
                 Public Info
                 <Textarea
                   variant='ontime-filled-on-light'

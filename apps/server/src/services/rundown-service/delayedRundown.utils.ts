@@ -118,7 +118,7 @@ export async function cachedDelete(eventId: string) {
     if (delayedRundown.findIndex((event) => event.id === eventId) >= 0) {
       invalidateFromError();
     }
-    return;
+    throw new Error(`Event with id ${eventId} not found`);
   }
 
   let updatedRundown = DataProvider.getRundown();
@@ -169,6 +169,12 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
   await DataProvider.setRundown(updatedRundown);
 
   return reorderedEvent;
+}
+
+export async function cachedClear() {
+  await DataProvider.clearRundown();
+  runtimeCacheStore.setCached(delayedRundownCacheKey, []);
+  console.log(DataProvider.getRundown(), getDelayedRundown());
 }
 
 /**
