@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { OntimeEvent, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
+import { swapOntimeEvents } from '../../../../../packages/utils/src/rundown-utils/rundownUtils.js';
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
 import {
@@ -336,31 +337,12 @@ export const useEventAction = () => {
       await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
 
       // Snapshot the previous value
-      const previousEvents = [...(queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown)];
+      const rundown = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
 
-      const fromEventIndex = previousEvents.findIndex((event) => event.id === from);
-      const toEventIndex = previousEvents.findIndex((event) => event.id === to);
+      const fromEventIndex = rundown.findIndex((event) => event.id === from);
+      const toEventIndex = rundown.findIndex((event) => event.id === to);
 
-      const fromEvent = previousEvents.at(fromEventIndex) as OntimeEvent | undefined;
-      const toEvent = previousEvents.at(toEventIndex) as OntimeEvent | undefined;
-
-      if (!fromEvent || !toEvent) {
-        return { previousEvents };
-      }
-
-      previousEvents[fromEventIndex] = {
-        ...toEvent,
-        timeStart: fromEvent.timeStart,
-        timeEnd: fromEvent.timeEnd,
-        duration: fromEvent.duration,
-      };
-
-      previousEvents[toEventIndex] = {
-        ...fromEvent,
-        timeStart: toEvent.timeStart,
-        timeEnd: toEvent.timeEnd,
-        duration: toEvent.duration,
-      };
+      const previousEvents = swapOntimeEvents(rundown, fromEventIndex, toEventIndex);
 
       // optimistically update object
       queryClient.setQueryData(RUNDOWN_TABLE, previousEvents);

@@ -1,4 +1,5 @@
 import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
+import { swapOntimeEvents } from '../../../../../packages/utils/src/rundown-utils/rundownUtils.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
@@ -174,7 +175,6 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
 export async function cachedClear() {
   await DataProvider.clearRundown();
   runtimeCacheStore.setCached(delayedRundownCacheKey, []);
-  console.log(DataProvider.getRundown(), getDelayedRundown());
 }
 
 /**
@@ -186,29 +186,20 @@ export async function cachedSwap(fromEventId: string, toEventId: string) {
   const fromEventIndex = DataProvider.getIndexOf(fromEventId);
   const toEventIndex = DataProvider.getIndexOf(toEventId);
 
-  if (fromEventIndex === -1 || toEventIndex === -1) {
-    invalidateFromError();
-    throw new Error('ID not found at index');
+  const rundown = DataProvider.getRundown();
+  const rundownToUpdate = swapOntimeEvents(rundown, fromEventIndex, toEventIndex);
+
+  const delayedRundown = getDelayedRundown();
+  const fromCachedEvent = delayedRundown.at(fromEventIndex);
+  const toCachedEvent = delayedRundown.at(toEventIndex);
+
+  if (fromCachedEvent.id !== fromEventId || toCachedEvent.id !== toEventId) {
+    // something went wrong, we invalidate the cache
+    runtimeCacheStore.invalidate(delayedRundownCacheKey);
+  } else {
+    const delayedRundownToUpdate = swapOntimeEvents(delayedRundown, fromEventIndex, toEventIndex);
+    runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundownToUpdate);
   }
-
-  const rundownToUpdate = DataProvider.getRundown();
-
-  const fromEvent = rundownToUpdate.at(fromEventIndex) as OntimeEvent;
-  const toEvent = rundownToUpdate.at(toEventIndex) as OntimeEvent;
-
-  rundownToUpdate[fromEventIndex] = {
-    ...toEvent,
-    timeStart: fromEvent.timeStart,
-    timeEnd: fromEvent.timeEnd,
-    duration: fromEvent.duration,
-  };
-
-  rundownToUpdate[toEventIndex] = {
-    ...fromEvent,
-    timeStart: toEvent.timeStart,
-    timeEnd: toEvent.timeEnd,
-    duration: toEvent.duration,
-  };
 
   await DataProvider.setRundown(rundownToUpdate);
   runtimeCacheStore.setCached(delayedRundownCacheKey, rundownToUpdate);
