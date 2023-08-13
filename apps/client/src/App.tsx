@@ -6,8 +6,10 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import { AppContextProvider } from './common/context/AppContext';
+import { ContextMenuProvider } from './common/context/ContextMenuContext';
 import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
+import { socketClientName } from './common/stores/connectionName';
 import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
@@ -17,7 +19,8 @@ import AppRouter from './AppRouter';
 // @ts-expect-error no types from font import
 import('typeface-open-sans');
 
-connectSocket();
+const preferredClientName = socketClientName.getState().name;
+connectSocket(preferredClientName);
 
 function App() {
   const { isElectron, sendToElectron } = useElectronEvent();
@@ -49,16 +52,18 @@ function App() {
     <ChakraProvider resetCSS theme={theme}>
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
-          <BrowserRouter>
-            <div className='App'>
-              <ErrorBoundary>
-                <TranslationProvider>
-                  <AppRouter />
-                </TranslationProvider>
-              </ErrorBoundary>
-              <ReactQueryDevtools initialIsOpen={false} />
-            </div>
-          </BrowserRouter>
+          <ContextMenuProvider>
+            <BrowserRouter>
+              <div className='App'>
+                <ErrorBoundary>
+                  <TranslationProvider>
+                    <AppRouter />
+                  </TranslationProvider>
+                </ErrorBoundary>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </div>
+            </BrowserRouter>
+          </ContextMenuProvider>
         </AppContextProvider>
       </QueryClientProvider>
     </ChakraProvider>

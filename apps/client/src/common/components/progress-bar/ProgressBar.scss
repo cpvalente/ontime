@@ -18,5 +18,6 @@ $progress-bar-br: 6px;
   height: $progress-bar-size;
   background-color: var(--timer-progress-override, $accent-color);
   transition: 1s linear;
+  border-radius: $progress-bar-br 0 0 $progress-bar-br;
   transition-property: width;
 }

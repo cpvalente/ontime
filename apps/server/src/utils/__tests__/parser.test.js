@@ -1,9 +1,10 @@
 import { vi } from 'vitest';
 import { dbModel } from '../../models/dataModel.ts';
 import { parseExcel, parseJson, validateEvent } from '../parser.ts';
-import { makeString, validateDuration } from '../parserUtils.js';
+import { makeString } from '../parserUtils.ts';
 import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.ts';
 import { EndAction, TimerType } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -587,10 +588,10 @@ describe('test parseExcel function', () => {
       ['Ontime ┬À Schedule Template'],
       [],
       ['Event Name', 'Test Event'],
-      ['Event URL', 'www.carlosvalente.com'],
+      ['Public URL', 'www.public.com'],
+      ['Backstage URL', 'www.backstage.com'],
       ['Public Info', 'test public info'],
       ['Backstage Info', 'test backstage info'],
-      ['End Message', 'test end message'],
       [],
       [],
       [
@@ -599,6 +600,8 @@ describe('test parseExcel function', () => {
         'Event Title',
         'Presenter Name',
         'Event Subtitle',
+        'End Action',
+        'Timer type',
         'Is Public? (x)',
         'Skip? (x)',
         'Notes',
@@ -620,6 +623,8 @@ describe('test parseExcel function', () => {
         'Guest Welcome',
         'Carlos',
         'Getting things started',
+        '',
+        '',
         'x',
         '',
         'Ballyhoo',
@@ -645,6 +650,8 @@ describe('test parseExcel function', () => {
         'A song from the hearth',
         'Still Carlos',
         'Derailing early',
+        'clock',
+        'load-next',
         '',
         '',
         'Rainbow chase',
@@ -669,11 +676,10 @@ describe('test parseExcel function', () => {
 
     const expectedParsedEvent = {
       title: 'Test Event',
-      publicUrl: '',
-      backstageUrl: '',
+      publicUrl: 'www.public.com',
+      backstageUrl: 'www.backstage.com',
       publicInfo: 'test public info',
       backstageInfo: 'test backstage info',
-      endMessage: 'test end message',
     };
 
     const expectedParsedRundown = [
@@ -683,6 +689,8 @@ describe('test parseExcel function', () => {
         title: 'Guest Welcome',
         presenter: 'Carlos',
         subtitle: 'Getting things started',
+        timerType: 'count-down',
+        endAction: 'none',
         isPublic: true,
         skip: false,
         note: 'Ballyhoo',
@@ -705,6 +713,8 @@ describe('test parseExcel function', () => {
         title: 'A song from the hearth',
         presenter: 'Still Carlos',
         subtitle: 'Derailing early',
+        timerType: 'clock',
+        endAction: 'load-next',
         isPublic: false,
         skip: true,
         note: 'Rainbow chase',
@@ -887,36 +897,5 @@ describe('test views import', () => {
     };
     const parsed = parseViewSettings(testData, true);
     expect(parsed).toStrictEqual(expectedParsedViewSettings);
-  });
-});
-
-describe('test validateDuration()', () => {
-  describe('handles valid inputs', () => {
-    const valid = [
-      { test: 'zero values', timeStart: 0, timeEnd: 0 },
-      { test: 'end after start', timeStart: 0, timeEnd: 1 },
-    ];
-
-    valid.forEach((t) => {
-      it(t.test, () => {
-        const d = validateDuration(t.timeStart, t.timeEnd);
-        expect(d).toBe(t.timeEnd - t.timeStart);
-      });
-    });
-  });
-
-  describe('handles edge cases', () => {
-    // edge cases
-    const testData = [
-      { test: 'negative 0', timeStart: -0, timeEnd: -0, expected: 0 },
-      { test: 'end before start', timeStart: 2, timeEnd: 1, expected: 0 },
-    ];
-
-    testData.forEach((t) => {
-      it(t.test, () => {
-        const d = validateDuration(t.timeStart, t.timeEnd);
-        expect(d).toBe(t.expected);
-      });
-    });
   });
 });

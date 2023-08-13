@@ -6,7 +6,7 @@ import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
-import { useLocalEvent } from '../../common/stores/localEvent';
+import { useEditorSettings } from '../../common/stores/editorSettings';
 import { cloneEvent, getFirstEvent, getNextEvent, getPreviousEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
@@ -26,7 +26,7 @@ export default function Rundown(props: RundownProps) {
 
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent } = useEventAction();
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
   const showQuickEntry = eventSettings.showQuickEntry;
@@ -203,7 +203,6 @@ export default function Rundown(props: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
   }
 
-  let cumulativeDelay = 0;
   let previousEnd = 0;
   let thisEnd = 0;
   let previousEventId: string | undefined;
@@ -217,14 +216,9 @@ export default function Rundown(props: RundownProps) {
           <div className={style.list}>
             {statefulEntries.map((entry, index) => {
               if (index === 0) {
-                cumulativeDelay = 0;
                 eventIndex = -1;
               }
-              if (entry.type === SupportedEvent.Delay && entry.duration !== null) {
-                cumulativeDelay += entry.duration;
-              } else if (entry.type === SupportedEvent.Block) {
-                cumulativeDelay = 0;
-              } else if (entry.type === SupportedEvent.Event) {
+              if (entry.type === SupportedEvent.Event) {
                 eventIndex++;
                 previousEnd = thisEnd;
                 thisEnd = entry.timeEnd;
@@ -248,7 +242,6 @@ export default function Rundown(props: RundownProps) {
                     selected={isSelected}
                     hasCursor={hasCursor}
                     next={isNext}
-                    delay={cumulativeDelay}
                     previousEnd={previousEnd}
                     previousEventId={previousEventId}
                     playback={isSelected ? featureData.playback : undefined}

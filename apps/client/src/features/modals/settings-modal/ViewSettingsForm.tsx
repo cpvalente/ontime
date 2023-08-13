@@ -1,12 +1,14 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
+import { logAxiosError } from '../../../common/api/apiUtils';
 import { postViewSettings } from '../../../common/api/ontimeApi';
 import { PopoverPickerRHF } from '../../../common/components/input/popover-picker/PopoverPicker';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-import { useEmitLog } from '../../../common/stores/logger';
 import { mtm } from '../../../common/utils/timeConstants';
+import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
 import ModalSplitInput from '../ModalSplitInput';
@@ -17,8 +19,7 @@ import InputMillisWithString from './InputMillisWithString';
 import style from './SettingsModal.module.scss';
 
 export default function ViewSettingsForm() {
-  const { data, status, refetch } = useViewSettings();
-  const { emitError } = useEmitLog();
+  const { data, status, refetch, isFetching } = useViewSettings();
   const {
     control,
     handleSubmit,
@@ -28,7 +29,16 @@ export default function ViewSettingsForm() {
   } = useForm<ViewSettings>({
     defaultValues: data,
     values: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: ViewSettings) => {
     const parsedWarningThreshold = dirtyFields?.warningThreshold
@@ -49,7 +59,7 @@ export default function ViewSettingsForm() {
     try {
       await postViewSettings(newData);
     } catch (error) {
-      emitError(`Error saving view settings: ${error}`);
+      logAxiosError('Error saving view settings', error);
     } finally {
       await refetch();
     }
@@ -64,6 +74,10 @@ export default function ViewSettingsForm() {
   }
 
   const disableInputs = status === 'loading';
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='view-settings' className={style.sectionContainer}>

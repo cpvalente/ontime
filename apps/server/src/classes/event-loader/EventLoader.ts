@@ -1,4 +1,4 @@
-import { Loaded, OntimeEvent, TitleBlock } from 'ontime-types';
+import { Loaded, OntimeEvent, SupportedEvent, TitleBlock } from 'ontime-types';
 
 import { DataProvider } from '../data-provider/DataProvider.js';
 import { getRollTimers } from '../../services/rollUtils.js';
@@ -35,8 +35,7 @@ export class EventLoader {
    * @return {array}
    */
   static getTimedEvents(): OntimeEvent[] {
-    // return mockLoaderData.filter((event) => event.type === 'event');
-    return DataProvider.getRundown().filter((event) => event.type === 'event');
+    return DataProvider.getRundown().filter((event) => event.type === SupportedEvent.Event) as OntimeEvent[];
   }
 
   /**
@@ -44,8 +43,9 @@ export class EventLoader {
    * @return {array}
    */
   static getPlayableEvents(): OntimeEvent[] {
-    // return mockLoaderData.filter((event) => event.type === 'event' && !event.skip);
-    return DataProvider.getRundown().filter((event) => event.type === 'event' && !event.skip);
+    return DataProvider.getRundown().filter(
+      (event) => event.type === SupportedEvent.Event && !event.skip,
+    ) as OntimeEvent[];
   }
 
   /**
@@ -370,46 +370,83 @@ export class EventLoader {
    * @private
    */
   private _loadThisTitles(event, type) {
-    if (!event) {
-      return;
+    if (type === 'now') {
+      if (event === null) {
+        // public
+        this.titlesPublic.titleNow = null;
+        this.titlesPublic.subtitleNow = null;
+        this.titlesPublic.presenterNow = null;
+        this.titlesPublic.noteNow = null;
+        this.loaded.selectedPublicEventId = null;
+
+        // private
+        this.titles.titleNow = null;
+        this.titles.subtitleNow = null;
+        this.titles.presenterNow = null;
+        this.titles.noteNow = null;
+        this.loaded.selectedEventId = null;
+      } else {
+        // public
+        this.titlesPublic.titleNow = event.title;
+        this.titlesPublic.subtitleNow = event.subtitle;
+        this.titlesPublic.presenterNow = event.presenter;
+        this.titlesPublic.noteNow = event.note;
+        this.loaded.selectedPublicEventId = event.id;
+
+        // private
+        this.titles.titleNow = event.title;
+        this.titles.subtitleNow = event.subtitle;
+        this.titles.presenterNow = event.presenter;
+        this.titles.noteNow = event.note;
+        this.loaded.selectedEventId = event.id;
+      }
+    } else if (type === 'now-public') {
+      if (event === null) {
+        this.titlesPublic.titleNow = null;
+        this.titlesPublic.subtitleNow = null;
+        this.titlesPublic.presenterNow = null;
+        this.titlesPublic.noteNow = null;
+        this.loaded.selectedPublicEventId = null;
+      } else {
+        this.titlesPublic.titleNow = event.title;
+        this.titlesPublic.subtitleNow = event.subtitle;
+        this.titlesPublic.presenterNow = event.presenter;
+        this.titlesPublic.noteNow = event.note;
+        this.loaded.selectedPublicEventId = event.id;
+      }
+    } else if (type === 'now-private') {
+      if (event === null) {
+        this.titles.titleNow = null;
+        this.titles.subtitleNow = null;
+        this.titles.presenterNow = null;
+        this.titles.noteNow = null;
+        this.loaded.selectedEventId = null;
+      } else {
+        this.titles.titleNow = event.title;
+        this.titles.subtitleNow = event.subtitle;
+        this.titles.presenterNow = event.presenter;
+        this.titles.noteNow = event.note;
+        this.loaded.selectedEventId = event.id;
+      }
     }
 
-    switch (type) {
-      // now, load to both public and private
-      case 'now':
+    // next, load to both public and private
+    else if (type === 'next') {
+      if (event === null) {
         // public
-        this.titlesPublic.titleNow = event.title;
-        this.titlesPublic.subtitleNow = event.subtitle;
-        this.titlesPublic.presenterNow = event.presenter;
-        this.titlesPublic.noteNow = event.note;
-        this.loaded.selectedPublicEventId = event.id;
+        this.titlesPublic.titleNext = null;
+        this.titlesPublic.subtitleNext = null;
+        this.titlesPublic.presenterNext = null;
+        this.titlesPublic.noteNext = null;
+        this.loaded.nextPublicEventId = null;
 
         // private
-        this.titles.titleNow = event.title;
-        this.titles.subtitleNow = event.subtitle;
-        this.titles.presenterNow = event.presenter;
-        this.titles.noteNow = event.note;
-        this.loaded.selectedEventId = event.id;
-        break;
-
-      case 'now-public':
-        this.titlesPublic.titleNow = event.title;
-        this.titlesPublic.subtitleNow = event.subtitle;
-        this.titlesPublic.presenterNow = event.presenter;
-        this.titlesPublic.noteNow = event.note;
-        this.loaded.selectedPublicEventId = event.id;
-        break;
-
-      case 'now-private':
-        this.titles.titleNow = event.title;
-        this.titles.subtitleNow = event.subtitle;
-        this.titles.presenterNow = event.presenter;
-        this.titles.noteNow = event.note;
-        this.loaded.selectedEventId = event.id;
-        break;
-
-      // next, load to both public and private
-      case 'next':
+        this.titles.titleNext = null;
+        this.titles.subtitleNext = null;
+        this.titles.presenterNext = null;
+        this.titles.noteNext = null;
+        this.loaded.nextEventId = null;
+      } else {
         // public
         this.titlesPublic.titleNext = event.title;
         this.titlesPublic.subtitleNext = event.subtitle;
@@ -423,26 +460,37 @@ export class EventLoader {
         this.titles.presenterNext = event.presenter;
         this.titles.noteNext = event.note;
         this.loaded.nextEventId = event.id;
-        break;
-
-      case 'next-public':
+      }
+    } else if (type === 'next-public') {
+      if (event === null) {
+        this.titlesPublic.titleNext = null;
+        this.titlesPublic.subtitleNext = null;
+        this.titlesPublic.presenterNext = null;
+        this.titlesPublic.noteNext = null;
+        this.loaded.nextPublicEventId = null;
+      } else {
         this.titlesPublic.titleNext = event.title;
         this.titlesPublic.subtitleNext = event.subtitle;
         this.titlesPublic.presenterNext = event.presenter;
         this.titlesPublic.noteNext = event.note;
         this.loaded.nextPublicEventId = event.id;
-        break;
-
-      case 'next-private':
+      }
+    } else if (type === 'next-private') {
+      if (event === null) {
+        this.titles.titleNext = null;
+        this.titles.subtitleNext = null;
+        this.titles.presenterNext = null;
+        this.titles.noteNext = null;
+        this.loaded.nextEventId = null;
+      } else {
         this.titles.titleNext = event.title;
         this.titles.subtitleNext = event.subtitle;
         this.titles.presenterNext = event.presenter;
         this.titles.noteNext = event.note;
         this.loaded.nextEventId = event.id;
-        break;
-
-      default:
-        throw new Error(`Unhandled title type: ${type}`);
+      }
+    } else {
+      throw new Error(`Unhandled title type: ${type}`);
     }
   }
 }

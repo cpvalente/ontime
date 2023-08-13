@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import { calculateDuration } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useAppMode } from '../../common/stores/appModeStore';
-import { useLocalEvent } from '../../common/stores/localEvent';
+import { useEditorSettings } from '../../common/stores/editorSettings';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
-import { calculateDuration } from '../../common/utils/timesManager';
 
 import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
@@ -22,7 +22,6 @@ interface RundownEntryProps {
   selected: boolean;
   hasCursor: boolean;
   next: boolean;
-  delay: number;
   previousEnd: number;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
@@ -38,7 +37,6 @@ export default function RundownEntry(props: RundownEntryProps) {
     selected,
     hasCursor,
     next,
-    delay,
     previousEnd,
     previousEventId,
     playback,
@@ -63,7 +61,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     }
   }, [cursor, data.id, openId, setCursor, setEditId]);
 
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
@@ -167,7 +165,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={delay}
+        delay={data.delay || 0}
         previousEnd={previousEnd}
         colour={data.colour}
         isPast={isPast}

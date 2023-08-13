@@ -7,7 +7,7 @@
     'ind clk clk btn'
     '... sta fin btn';
   grid-template-rows: 1fr auto;
-  grid-template-columns: 1.5em 1fr 1fr 5em;
+  grid-template-columns: 1.25rem 1fr 1fr 5rem;
   gap: $element-inner-spacing;
   justify-items: start;
 }
@@ -15,7 +15,7 @@
 .timer {
   grid-area: clk;
   white-space: nowrap;
-  max-width: 300px;
+  max-width: 18.75rem;
 }
 
 .indicators {
@@ -51,7 +51,7 @@
 .indNegativeActive {
   margin: 0 auto;
   width: 90%;
-  height: 4px;
+  height: 0.25rem;
 }
 
 .indNegativeActive {
@@ -80,7 +80,7 @@
 .start,
 .finish,
 .roll {
-  height: 24px;
+  height: 1.5rem;
 }
 
 .start {

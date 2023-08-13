@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EventData, Message, Playback, TimerType, ViewSettings } from 'ontime-types';
+import { EventData, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import { TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
@@ -39,7 +41,7 @@ const titleVariants = {
 interface TimerProps {
   isMirrored: boolean;
   general: EventData;
-  pres: Message;
+  pres: TimerMessage;
   title: TitleManager;
   time: TimeManagerType;
   viewSettings: ViewSettings;
@@ -62,23 +64,27 @@ export default function Timer(props: TimerProps) {
   const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
+
   const isNegative =
     (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
+  const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
+
   const showEndMessage = (time.current ?? 1) < 0 && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
   const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
+  const showBlinking = pres.timerBlink;
+  const showBlackout = pres.timerBlackout;
+  const showClock = time.timerType !== TimerType.Clock;
+
   const timerColor =
     showProgress && showDanger
       ? viewSettings.dangerColor
       : showProgress && showWarning
       ? viewSettings.warningColor
       : viewSettings.normalColor;
-  const showClock = time.timerType !== TimerType.Clock;
-  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
 
   const stageTimer = getTimerByType(time);
   let display = formatTimerDisplay(stageTimer);
@@ -87,14 +93,16 @@ export default function Timer(props: TimerProps) {
     display = `-${display}`;
   }
 
+  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
   const timerFontSize = 89 / (stageTimerCharacters - 1);
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
+      <ViewParamsEditor paramFields={TIMER_OPTIONS} />
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-        <div className='message'>{pres.text}</div>
+        <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
       </div>
 
       <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
@@ -102,7 +110,7 @@ export default function Timer(props: TimerProps) {
         <div className='clock'>{clock}</div>
       </div>
 
-      <div className='timer-container'>
+      <div className={`timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
         {showEndMessage ? (
           <div className='end-message'>{viewSettings.endMessage}</div>
         ) : (
@@ -121,7 +129,7 @@ export default function Timer(props: TimerProps) {
       <MultiPartProgressBar
         className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
         now={time.current || 0}
-        complete={time.duration || 0}
+        complete={totalTime}
         normalColor={viewSettings.normalColor}
         warning={viewSettings.warningThreshold}
         warningColor={viewSettings.warningColor}

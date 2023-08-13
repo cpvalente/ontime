@@ -39,7 +39,7 @@ export const parseRundown = (data): OntimeRundown => {
         }
 
         // double check unique ids
-        if (ids.indexOf(e?.id) !== -1) {
+        if (ids.includes(e?.id)) {
           console.log('ERROR: ID collision on import, skipping');
           continue;
         }
@@ -96,6 +96,7 @@ export const parseEventData = (data, enforce): EventData => {
     newEventData = {
       ...dbModel.eventData,
       title: e.title || dbModel.eventData.title,
+      description: e.description || dbModel.eventData.description,
       publicUrl: e.publicUrl || dbModel.eventData.publicUrl,
       publicInfo: e.publicInfo || dbModel.eventData.publicInfo,
       backstageUrl: e.backstageUrl || dbModel.eventData.backstageUrl,

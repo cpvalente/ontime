@@ -1,4 +1,4 @@
-import { TranslationObject } from '../Translation.types';
+import { TranslationObject } from './en';
 
 export const langPt: TranslationObject = {
   'common.end_time': 'Hora de término',
@@ -15,4 +15,5 @@ export const langPt: TranslationObject = {
   'countdown.select_event': 'Selecione um evento para acompanhar',
   'countdown.to_start': 'Tempo para iniciar',
   'countdown.waiting': 'Aguardando o início do evento',
+  'countdown.overtime': 'em tempo extra',
 };

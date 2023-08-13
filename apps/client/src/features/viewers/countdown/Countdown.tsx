@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent, ViewSettings } from 'ontime-types';
+import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatDisplay } from '../../../common/utils/dateConfig';
 import getDelayTo from '../../../common/utils/getDelayTo';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -110,6 +112,7 @@ export default function Countdown(props: CountdownProps) {
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <NavigationMenu />
+      <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />
       ) : (

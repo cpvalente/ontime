@@ -9,11 +9,11 @@ import UploadModal from '../modals/upload-modal/UploadModal';
 
 import styles from './Editor.module.scss';
 
-const Rundown = lazy(() => import('../../features/rundown/RundownExport'));
-const TimerControl = lazy(() => import('../../features/control/playback/TimerControlExport'));
-const MessageControl = lazy(() => import('../../features/control/message/MessageControlExport'));
-const Info = lazy(() => import('../../features/info/InfoExport'));
-const EventEditor = lazy(() => import('../../features/event-editor/EventEditorExport'));
+const Rundown = lazy(() => import('../rundown/RundownExport'));
+const TimerControl = lazy(() => import('../control/playback/TimerControlExport'));
+const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
+const Info = lazy(() => import('../info/InfoExport'));
+const EventEditor = lazy(() => import('../event-editor/EventEditorExport'));
 
 const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));

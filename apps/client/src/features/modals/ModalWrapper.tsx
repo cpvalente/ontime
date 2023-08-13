@@ -10,7 +10,6 @@ interface ModalWrapperProps {
 
 export default function ModalWrapper(props: PropsWithChildren<ModalWrapperProps>) {
   const { isOpen, onClose, title, size = 'xl', children } = props;
-
   return (
     <Modal
       onClose={onClose}

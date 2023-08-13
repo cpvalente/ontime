@@ -1,6 +1,5 @@
 import { memo } from 'react';
-
-import { formatDisplay } from '../../utils/dateConfig';
+import { formatDisplay } from 'ontime-utils';
 
 import './TimerDisplay.scss';
 

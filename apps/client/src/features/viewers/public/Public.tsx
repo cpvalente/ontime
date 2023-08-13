@@ -9,6 +9,8 @@ import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
@@ -55,7 +57,7 @@ export default function Public(props: BackstageProps) {
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
       <NavigationMenu />
-
+      <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
       <div className='event-header'>
         {general.title}
         <div className='clock-container'>

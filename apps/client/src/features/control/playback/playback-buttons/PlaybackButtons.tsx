@@ -5,8 +5,9 @@ import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
+import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { Playback } from 'ontime-types';
+import { validatePlayback } from 'ontime-utils';
 
 import { setPlayback } from '../../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
@@ -34,7 +35,13 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const noEvents = numEvents === 0;
 
   const disableGo = isRolling || noEvents || (isLast && !isArmed);
-  const disablePrev = isRolling || noEvents || isFirst;
+  const disablePrev = noEvents || isFirst;
+
+  const playbackCan = validatePlayback(playback);
+  const disableStart = !playbackCan.start;
+  const disablePause = !playbackCan.pause;
+  const disableRoll = !playbackCan.roll || noEvents;
+  const disableStop = !playbackCan.stop;
 
   const goModeText = selectedEventIndex === null || isArmed ? 'Start' : 'Next';
   const goModeAction = () => {
@@ -51,21 +58,11 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
         {goModeText}
       </TapButton>
       <div className={style.playbackContainer}>
-        <TapButton
-          onClick={setPlayback.start}
-          disabled={isStopped || isRolling}
-          theme={Playback.Play}
-          active={isPlaying}
-        >
+        <TapButton onClick={setPlayback.start} disabled={disableStart} theme={Playback.Play} active={isPlaying}>
           <IoPlay />
         </TapButton>
 
-        <TapButton
-          onClick={setPlayback.pause}
-          disabled={isStopped || isRolling || isArmed}
-          theme={Playback.Pause}
-          active={isPaused}
-        >
+        <TapButton onClick={setPlayback.pause} disabled={disablePause} theme={Playback.Pause} active={isPaused}>
           <IoPause />
         </TapButton>
       </div>
@@ -82,21 +79,16 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
         </Tooltip>
       </div>
       <div className={style.extra}>
-        <TapButton
-          onClick={setPlayback.roll}
-          disabled={!isStopped || noEvents}
-          theme={Playback.Roll}
-          active={isRolling}
-        >
-          <IoTimeOutline />
+        <TapButton onClick={setPlayback.roll} disabled={disableRoll} theme={Playback.Roll} active={isRolling}>
+          <IoTime />
         </TapButton>
         <Tooltip label='Reload event' openDelay={tooltipDelayMid}>
-          <TapButton onClick={setPlayback.reload} disabled={isStopped || isRolling}>
+          <TapButton onClick={setPlayback.reload} disabled={isStopped}>
             <IoReload className={style.invertX} />
           </TapButton>
         </Tooltip>
         <Tooltip label='Unload Event' openDelay={tooltipDelayMid}>
-          <TapButton onClick={setPlayback.stop} disabled={isStopped && !isRolling} theme={Playback.Stop}>
+          <TapButton onClick={setPlayback.stop} disabled={disableStop} theme={Playback.Stop}>
             <IoStop />
           </TapButton>
         </Tooltip>

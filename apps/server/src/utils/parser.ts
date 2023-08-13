@@ -3,11 +3,11 @@
 
 import fs from 'fs';
 import xlsx from 'node-xlsx';
-import { generateId } from 'ontime-utils';
+import { generateId, calculateDuration } from 'ontime-utils';
 import { DatabaseModel, EventData, OntimeEvent, OntimeRundown, UserFields } from 'ontime-types';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { deleteFile, makeString, validateDuration } from './parserUtils.js';
+import { deleteFile, makeString } from './parserUtils.js';
 import {
   parseAliases,
   parseEventData,
@@ -65,7 +65,6 @@ export const parseExcel = async (excelData) => {
       let publicInfoNext = false;
       let backstageUrlNext = false;
       let backstageInfoNext = false;
-      let endMessageNext = false;
 
       const event: Partial<OntimeEvent> = {};
 
@@ -81,14 +80,11 @@ export const parseExcel = async (excelData) => {
           eventData.publicInfo = column;
           publicInfoNext = false;
         } else if (backstageUrlNext) {
-          eventData.publicUrl = column;
+          eventData.backstageUrl = column;
           backstageUrlNext = false;
         } else if (backstageInfoNext) {
           eventData.backstageInfo = column;
           backstageInfoNext = false;
-        } else if (endMessageNext) {
-          eventData.endMessage = column;
-          endMessageNext = false;
         } else if (j === timeStartIndex) {
           event.timeStart = parseExcelDate(column);
         } else if (j === timeEndIndex) {
@@ -152,9 +148,6 @@ export const parseExcel = async (excelData) => {
               case 'backstage info':
                 backstageInfoNext = true;
                 break;
-              case 'end message':
-                endMessageNext = true;
-                break;
               case 'time start':
               case 'start':
                 timeStartIndex = j;
@@ -187,6 +180,7 @@ export const parseExcel = async (excelData) => {
               case 'skip':
                 skipIndex = j;
                 break;
+              case 'note':
               case 'notes':
                 notesIndex = j;
                 break;
@@ -254,7 +248,7 @@ export const parseExcel = async (excelData) => {
     });
   return {
     rundown,
-    eventData: eventData,
+    eventData,
     settings: {
       app: 'ontime',
       version: 2,
@@ -328,7 +322,7 @@ export const validateEvent = (eventArgs) => {
       timeEnd: end,
       endAction: makeString(e.endAction, d.endAction),
       timerType: makeString(e.timerType, d.timerType),
-      duration: validateDuration(start, end),
+      duration: calculateDuration(start, end),
       isPublic: typeof e.isPublic === 'boolean' ? e.isPublic : d.isPublic,
       skip: typeof e.skip === 'boolean' ? e.skip : d.skip,
       note: makeString(e.note, d.note),

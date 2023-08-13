@@ -3,12 +3,13 @@ import { OSCSettings } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { OSC_SETTINGS } from '../api/apiConstants';
+import { logAxiosError } from '../api/apiUtils';
 import { getOSC, postOSC, postOscSubscriptions } from '../api/ontimeApi';
 import { oscPlaceholderSettings } from '../models/OscSettings';
 import { ontimeQueryClient } from '../queryClient';
 
 export default function useOscSettings() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: OSC_SETTINGS,
     queryFn: getOSC,
     placeholderData: oscPlaceholderSettings,
@@ -19,12 +20,13 @@ export default function useOscSettings() {
   });
 
   // we need to jump through some hoops because of the type op port
-  return { data: data! as unknown as OSCSettings, status, isError, refetch };
+  return { data: data! as unknown as OSCSettings, status, isFetching, isError, refetch };
 }
 
 export function useOscSettingsMutation() {
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: postOSC,
+    onError: (error) => logAxiosError('Error saving OSC settings', error),
     onSuccess: (res) => ontimeQueryClient.setQueryData(OSC_SETTINGS, res.data),
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: OSC_SETTINGS }),
   });
@@ -34,6 +36,7 @@ export function useOscSettingsMutation() {
 export function usePostOscSubscriptions() {
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: postOscSubscriptions,
+    onError: (error) => logAxiosError('Error saving OSC settings', error),
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: OSC_SETTINGS }),
   });
   return { isLoading, mutateAsync };

@@ -38,11 +38,16 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
     register,
     reset,
     formState: { isSubmitting },
-  } = useForm({ defaultValues: data });
+  } = useForm({
+    defaultValues: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
+  });
 
   useEffect(() => {
-    reset(data);
-  }, [reset, data]);
+    if (data) reset(data);
+  }, [data, reset]);
 
   const onSubmit = async (data: Partial<EventData>) => {
     try {
@@ -94,6 +99,18 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
                   maxLength={50}
                   placeholder='Eurovision song contest'
                   {...register('title')}
+                />
+              </label>
+            </div>
+            <div className={styles.entryRow}>
+              <label className={styles.sectionTitle}>
+                Event description
+                <Input
+                  variant='ontime-filled-on-light'
+                  size='sm'
+                  maxLength={100}
+                  placeholder='Euro Love, Malmö 2024'
+                  {...register('description')}
                 />
               </label>
             </div>

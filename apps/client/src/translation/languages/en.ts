@@ -13,4 +13,7 @@ export const langEn = {
   'countdown.select_event': 'Select an event to follow',
   'countdown.to_start': 'Time to start',
   'countdown.waiting': 'Waiting for event start',
+  'countdown.overtime': 'in overtime',
 };
+
+export type TranslationObject = Record<keyof typeof langEn, string>;

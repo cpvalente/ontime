@@ -1,13 +1,13 @@
 import { memo, useState } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
-import { calculateDuration, TimeEntryField, validateEntry } from '../../../common/utils/timesManager';
+import { TimeEntryField, validateEntry } from '../../../common/utils/timesManager';
 
 import style from '../EventEditor.module.scss';
 
@@ -80,8 +80,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   return (
     <div className={style.timeOptions}>
       <div className={style.timers}>
-        <label className={inputTimeLabels}>{startLabel}</label>
+        <label className={inputTimeLabels} htmlFor='timeStart'>
+          {startLabel}
+        </label>
         <TimeInput
+          id='timeStart'
           name='timeStart'
           submitHandler={handleSubmit}
           validationHandler={timerValidationHandler}
@@ -90,8 +93,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           placeholder='Start'
           warning={warning.start}
         />
-        <label className={inputTimeLabels}>{endLabel}</label>
+        <label className={inputTimeLabels} htmlFor='timeEnd'>
+          {endLabel}
+        </label>
         <TimeInput
+          id='timeEnd'
           name='timeEnd'
           submitHandler={handleSubmit}
           validationHandler={timerValidationHandler}
@@ -100,8 +106,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           placeholder='End'
           warning={warning.end}
         />
-        <label className={style.inputLabel}>Duration</label>
+        <label className={style.inputLabel} htmlFor='durationOverride'>
+          Duration
+        </label>
         <TimeInput
+          id='durationOverride'
           name='durationOverride'
           submitHandler={handleSubmit}
           validationHandler={timerValidationHandler}

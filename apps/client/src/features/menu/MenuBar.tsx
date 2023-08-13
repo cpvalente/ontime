@@ -102,11 +102,12 @@ const MenuBar = (props: MenuBarProps) => {
 
   return (
     <VStack>
-      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
+      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} size='md' />
 
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoColorWand />}
         className={isQuickStartOpen ? style.open : ''}
         clickHandler={onQuickStartOpen}
@@ -115,18 +116,22 @@ const MenuBar = (props: MenuBarProps) => {
       />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoPushOutline />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
         tooltip='Import project file'
         aria-label='Import project file'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
         icon={<IoSaveOutline />}
+        isDisabled={appMode === AppMode.Run}
         clickHandler={downloadRundown}
         tooltip='Export project file'
         aria-label='Export project file'
+        size='sm'
       />
 
       <div className={style.gap} />
@@ -137,6 +142,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={setRunMode}
         tooltip='Run mode'
         aria-label='Run mode'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -145,24 +151,29 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={setEditMode}
         tooltip='Edit mode'
         aria-label='Edit mode'
+        size='sm'
       />
 
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={isIntegrationOpen ? <IoExtensionPuzzle /> : <IoExtensionPuzzleOutline />}
         className={isIntegrationOpen ? style.open : ''}
         clickHandler={onIntegrationOpen}
         tooltip='Integrations'
         aria-label='Integrations'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoSettingsOutline />}
         className={isSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
         tooltip='Settings'
         aria-label='Settings'
+        size='sm'
       />
       <div className={style.gap} />
       <TooltipActionBtn
@@ -172,6 +183,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onAboutOpen}
         tooltip='About'
         aria-label='About'
+        size='sm'
       />
     </VStack>
   );

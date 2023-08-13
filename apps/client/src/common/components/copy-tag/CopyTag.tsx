@@ -4,6 +4,7 @@ import { IoCopy } from '@react-icons/all-files/io5/IoCopy';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { Size } from '../../models/Util.type';
+import copyToClipboard from '../../utils/copyToClipboard';
 
 interface CopyTagProps {
   label: string;
@@ -14,10 +15,7 @@ interface CopyTagProps {
 export default function CopyTag(props: PropsWithChildren<CopyTagProps>) {
   const { label, className, size = 'xs', children } = props;
 
-  const handleClick = () => {
-    // we need to this as a promise because safari
-    setTimeout(async () => await navigator.clipboard.writeText(children as string));
-  };
+  const handleClick = () => copyToClipboard(children as string);
 
   return (
     <Tooltip label={label} openDelay={tooltipDelayFast}>

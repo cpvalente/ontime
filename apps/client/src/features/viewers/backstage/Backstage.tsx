@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
 import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
+import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -10,9 +11,10 @@ import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatDisplay } from '../../../common/utils/dateConfig';
 import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -41,11 +43,23 @@ export default function Backstage(props: BackstageProps) {
   const { isMirrored, publ, title, time, backstageEvents, selectedId, general, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
+  const [blinkClass, setBlinkClass] = useState(false);
 
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Backstage Screen';
   }, []);
+
+  // blink on change
+  useEffect(() => {
+    setBlinkClass(false);
+
+    const timer = setTimeout(() => {
+      setBlinkClass(true);
+    }, 10);
+
+    return () => clearTimeout(timer);
+  }, [selectedId]);
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -55,7 +69,9 @@ export default function Backstage(props: BackstageProps) {
   const clock = formatTime(time.clock, formatOptions);
   const startedAt = formatTime(time.startedAt, formatOptions);
   const isNegative = (time.current ?? 0) < 0;
-  const expectedFinish = isNegative ? 'In overtime' : formatTime(time.expectedFinish, formatOptions);
+  const expectedFinish = isNegative
+    ? getLocalizedString('countdown.overtime')
+    : formatTime(time.expectedFinish, formatOptions);
 
   const qrSize = Math.max(window.innerWidth / 15, 128);
   const filteredEvents = getEventsWithDelay(backstageEvents);
@@ -72,10 +88,12 @@ export default function Backstage(props: BackstageProps) {
     }
   }
 
+  const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
+
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <NavigationMenu />
-
+      <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
       <div className='event-header'>
         {general.title}
         <div className='clock-container'>
@@ -87,7 +105,7 @@ export default function Backstage(props: BackstageProps) {
       <ProgressBar
         className='progress-container'
         now={time.current ?? undefined}
-        complete={time.duration ?? undefined}
+        complete={totalTime}
         hidden={!showProgress}
       />
 
@@ -95,7 +113,7 @@ export default function Backstage(props: BackstageProps) {
         <AnimatePresence>
           {title.showNow && (
             <motion.div
-              className='event now'
+              className={`event now ${blinkClass ? 'blink' : ''}`}
               key='now'
               variants={titleVariants}
               initial='hidden'

@@ -24,10 +24,11 @@ export default function CountedTextArea(props: CountedTextAreaProps) {
   return (
     <div className={`${style.column} ${style.fullHeight}`}>
       <div className={style.countedInput}>
-        <label className={style.inputLabel}>{label}</label>
+        <label className={style.inputLabel} htmlFor={field}>{label}</label>
         <span className={style.charCount}>{`${value.length} characters`}</span>
       </div>
       <Textarea
+        id={field}
         size='sm'
         resize='none'
         variant='ontime-filled'

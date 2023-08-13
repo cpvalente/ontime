@@ -1,14 +1,15 @@
 import { useInfoPanel } from '../../common/hooks/useSocket';
+import { useEditorSettings } from '../../common/stores/editorSettings';
 
+import InfoHeader from './info-header/InfoHeader';
 import CollapsableInfo from './CollapsableInfo';
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';
 import InfoTitles from './InfoTitles';
 
-import style from './Info.module.scss';
-
 export default function Info() {
   const data = useInfoPanel();
+  const showNif = useEditorSettings((state) => state.eventSettings.showNif);
 
   const titlesNow = {
     title: data.titles.titleNow || '',
@@ -32,13 +33,12 @@ export default function Info() {
 
   return (
     <>
-      <div className={style.panelHeader}>
-        <span>Ontime running on port 4001</span>
-        <span>{selected}</span>
-      </div>
-      <CollapsableInfo title='Network Info'>
-        <InfoNif />
-      </CollapsableInfo>
+      <InfoHeader selected={selected} />
+      {showNif && (
+        <CollapsableInfo title='Network Info'>
+          <InfoNif />
+        </CollapsableInfo>
+      )}
       <CollapsableInfo title='Playing Now'>
         <InfoTitles data={titlesNow} />
       </CollapsableInfo>

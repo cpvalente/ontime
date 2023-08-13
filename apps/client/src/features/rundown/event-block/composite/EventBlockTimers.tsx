@@ -1,11 +1,11 @@
 import { memo, useCallback, useState } from 'react';
 import { OntimeEvent } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import { calculateDuration, TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
+import { TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
 
 import style from '../EventBlock.module.scss';
 

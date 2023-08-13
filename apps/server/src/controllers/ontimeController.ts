@@ -1,6 +1,9 @@
+import { Alias, EventData, LogOrigin } from 'ontime-types';
+
+import { RequestHandler } from 'express';
 import fs from 'fs';
-import type { Alias, EventData } from 'ontime-types';
 import { networkInterfaces } from 'os';
+
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
@@ -10,7 +13,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { logger } from '../classes/Logger.js';
-import { deleteAllEvents, forceReset } from '../services/RundownService.js';
+import { deleteAllEvents, forceReset } from '../services/rundown-service/RundownService.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -281,7 +284,7 @@ export const postOscSubscriptions = async (req, res) => {
 
     // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
-    logger.info('RX', message);
+    logger.info(LogOrigin.Rx, message);
 
     res.send(oscSettings).status(200);
   } catch (error) {
@@ -302,7 +305,7 @@ export const postOSC = async (req, res) => {
 
     // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
-    logger.info('RX', message);
+    logger.info(LogOrigin.Rx, message);
 
     res.send(oscSettings).status(200);
   } catch (error) {
@@ -323,10 +326,11 @@ export const dbUpload = async (req, res) => {
 };
 
 // Create controller for POST request to '/ontime/new'
-export const postNew = async (req, res) => {
+export const postNew: RequestHandler = async (req, res) => {
   try {
-    const newEventData: Omit<EventData, 'endMessage'> = {
+    const newEventData: EventData = {
       title: req.body?.title ?? '',
+      description: req.body?.description ?? '',
       publicUrl: req.body?.publicUrl ?? '',
       publicInfo: req.body?.publicInfo ?? '',
       backstageUrl: req.body?.backstageUrl ?? '',

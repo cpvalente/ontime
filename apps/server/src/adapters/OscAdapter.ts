@@ -1,12 +1,13 @@
+import { LogOrigin, OSCSettings } from 'ontime-types';
+
 import { Server } from 'node-osc';
-import { OSCSettings } from 'ontime-types';
 
 import { IAdapter } from './IAdapter.js';
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
 
 export class OscServer implements IAdapter {
-  private osc: Server;
+  private readonly osc: Server;
 
   constructor(config: OSCSettings) {
     this.osc = new Server(config.portIn, '0.0.0.0');
@@ -25,13 +26,13 @@ export class OscServer implements IAdapter {
 
       // get first part before (ontime)
       if (address !== 'ontime') {
-        logger.error('RX', `OSC IN: OSC messages to ontime must start with /ontime/, received: ${msg}`);
+        logger.error(LogOrigin.Rx, `OSC IN: OSC messages to ontime must start with /ontime/, received: ${msg}`);
         return;
       }
 
       // get second part (command)
       if (!path) {
-        logger.error('RX', 'OSC IN: No path found');
+        logger.error(LogOrigin.Rx, 'OSC IN: No path found');
         return;
       }
 
@@ -42,7 +43,7 @@ export class OscServer implements IAdapter {
           this.osc.emit(topic, payload);
         }
       } catch (error) {
-        logger.error('RX', `OSC IN: ${error}`);
+        logger.error(LogOrigin.Rx, `OSC IN: ${error}`);
       }
     });
   }

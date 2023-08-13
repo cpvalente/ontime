@@ -30,8 +30,8 @@ export type OntimeEvent = OntimeBaseEvent & {
   subtitle: string;
   presenter: string;
   note: string;
-  endAction: EndAction,
-  timerType: TimerType,
+  endAction: EndAction;
+  timerType: TimerType;
   timeStart: number;
   timeEnd: number;
   duration: number;
@@ -49,4 +49,5 @@ export type OntimeEvent = OntimeBaseEvent & {
   user8: string;
   user9: string;
   revision: number;
+  delay?: number; // calculated at runtime
 };
