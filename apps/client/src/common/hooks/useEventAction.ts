@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { swapOntimeEvents } from 'ontime-utils';
 
-import { swapOntimeEvents } from '../../../../../packages/utils/src/rundown-utils/rundownUtils.js';
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
 import {

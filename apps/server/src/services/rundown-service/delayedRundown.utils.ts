@@ -1,9 +1,10 @@
 import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
-import { swapOntimeEvents } from '../../../../../packages/utils/src/rundown-utils/rundownUtils.js';
+
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
 import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
+import { swapOntimeEvents } from 'ontime-utils';
 
 /**
  * Key of rundown in cache
