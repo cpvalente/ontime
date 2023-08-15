@@ -35,35 +35,57 @@ describe('getIncrement()', () => {
 describe('findCueName()', () => {
   describe('in the beginning of the rundown', () => {
     it('names cue as 1 if next event does not collide', () => {
-      const testRundown = [{ cue: '10' }, { cue: '11' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, -1);
+      const testRundown = [
+        { id: '1', cue: '10', type: SupportedEvent.Event },
+        { id: '2', cue: '11', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown);
       expect(cue).toBe('1');
     });
     it('creates decimal stem if next cue is 1', () => {
-      const testRundown = [{ cue: '1' }, { cue: '10' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, -1);
+      const testRundown = [
+        { id: '1', cue: '1', type: SupportedEvent.Event },
+        { id: '2', cue: '10', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown);
       expect(cue).toBe('0.1');
     });
   });
   describe('in the middle of the rundown', () => {
     it('names cue as an increment if next event has different stem (case of numbers)', () => {
-      const testRundown = [{ cue: '1' }, { cue: '10' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, 0);
+      const testRundown = [
+        { id: '1', cue: '1', type: SupportedEvent.Event },
+        { id: '2', cue: '10', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('2');
     });
     it('names cue as an increment if next event has different stem (case of letters)', () => {
-      const testRundown = [{ cue: 'Presenter' }, { cue: 'Interval' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, 0);
+      const testRundown = [
+        { id: '1', cue: 'Presenter', type: SupportedEvent.Event },
+        {
+          id: '2',
+          cue: 'Interval',
+          type: SupportedEvent.Event,
+        },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('Presenter2');
     });
     it('creates decimal stem if next cue has same stem (case of numbers)', () => {
-      const testRundown = [{ cue: '1' }, { cue: '2' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, 0);
+      const testRundown = [
+        { id: '1', cue: '1', type: SupportedEvent.Event },
+        { id: '2', cue: '2', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('1.1');
     });
     it('creates decimal stem if next cue has same stem (case of letters)', () => {
-      const testRundown = [{ cue: 'Presenter1' }, { cue: 'Presenter2' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, 0);
+      const testRundown = [
+        { id: '1', cue: 'Presenter1', type: SupportedEvent.Event },
+        { id: '2', cue: 'Presenter2', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('Presenter1.1');
     });
   });
@@ -73,37 +95,52 @@ describe('findCueName() with mixed events', () => {
   describe('in the beginning of the rundown', () => {
     it('names cue as 1 if next event does not collide', () => {
       const testRundown = [
-        { type: SupportedEvent.Event, cue: '10' },
-        { type: SupportedEvent.Event, cue: '11' },
+        { id: '1', cue: '10', type: SupportedEvent.Event },
+        { id: '2', cue: '11', type: SupportedEvent.Event },
       ] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, -1);
+      const cue = getCueCandidate(testRundown);
       expect(cue).toBe('1');
     });
     it('creates decimal stem if next cue is 1', () => {
-      const testRundown = [{ cue: '1' }, { cue: '10' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, -1);
+      const testRundown = [
+        { id: '1', cue: '1', type: SupportedEvent.Event },
+        { id: '2', cue: '10', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown);
       expect(cue).toBe('0.1');
     });
   });
   describe('in the middle of the rundown', () => {
     it('names cue as an increment if next event has different stem (case of numbers)', () => {
-      const testRundown = [{ cue: '1' }, { cue: '10' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, 0);
+      const testRundown = [
+        { id: '1', cue: '1', type: SupportedEvent.Event },
+        { id: '2', cue: '10', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('2');
     });
     it('names cue as an increment if next event has different stem (case of letters)', () => {
-      const testRundown = [{ cue: 'Presenter' }, { cue: 'Interval' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, 0);
+      const testRundown = [
+        { id: '1', cue: 'Presenter', type: SupportedEvent.Event },
+        { id: '2', cue: 'Interval', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('Presenter2');
     });
     it('creates decimal stem if next cue has same stem (case of numbers)', () => {
-      const testRundown = [{ cue: '1' }, { cue: '2' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, 0);
+      const testRundown = [
+        { id: '1', cue: '1', type: SupportedEvent.Event },
+        { id: '2', cue: '2', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('1.1');
     });
     it('creates decimal stem if next cue has same stem (case of letters)', () => {
-      const testRundown = [{ cue: 'Presenter1' }, { cue: 'Presenter2' }] as OntimeRundown;
-      const cue = getCueCandidate(testRundown, 0);
+      const testRundown = [
+        { id: '1', cue: 'Presenter1', type: SupportedEvent.Event },
+        { id: '2', cue: 'Presenter2', type: SupportedEvent.Event },
+      ] as OntimeRundown;
+      const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('Presenter1.1');
     });
   });

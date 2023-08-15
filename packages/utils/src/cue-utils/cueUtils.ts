@@ -40,6 +40,7 @@ export function getIncrement(input: string): string {
 export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string): string {
   function addAtTop() {
     const firstEvent = getFirstEvent(rundown);
+    console.log('sssss', firstEvent.cue);
     if (firstEvent === null) {
       return '1';
     }
