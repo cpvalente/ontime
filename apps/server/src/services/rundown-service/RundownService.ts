@@ -22,6 +22,7 @@ import {
   cachedDelete,
   cachedEdit,
   cachedReorder,
+  cachedSwap,
   delayedRundownCacheKey,
 } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
@@ -302,6 +303,22 @@ export function _applyDelay(
   }
 
   return { delayIndex, updatedRundown };
+}
+
+/**
+ * swaps two events
+ * @param {string} from - id of event from
+ * @param {string} to - id of event to
+ * @returns {Promise<void>}
+ */
+export async function swapEvents(from: string, to: string) {
+  await cachedSwap(from, to);
+
+  // notify timer service of changed events
+  updateTimer();
+
+  // advice socket subscribers of change
+  sendRefetch();
 }
 
 /**
