@@ -6,19 +6,21 @@ import {
   deleteEvent,
   editEvent,
   reorderEvent,
+  swapEvents,
 } from '../services/rundown-service/RundownService.js';
 import { getDelayedRundown } from '../services/rundown-service/delayedRundown.utils.js';
+import { RequestHandler } from 'express';
 
 // Create controller for GET request to '/events'
 // Returns -
-export const rundownGetAll = async (req, res) => {
+export const rundownGetAll: RequestHandler = async (_req, res) => {
   const delayedRundown = getDelayedRundown();
   res.json(delayedRundown);
 };
 
 // Create controller for POST request to '/events/'
 // Returns -
-export const rundownPost = async (req, res) => {
+export const rundownPost: RequestHandler = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -33,7 +35,7 @@ export const rundownPost = async (req, res) => {
 
 // Create controller for PUT request to '/events/'
 // Returns -
-export const rundownPut = async (req, res) => {
+export const rundownPut: RequestHandler = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -46,7 +48,7 @@ export const rundownPut = async (req, res) => {
   }
 };
 
-export const rundownReorder = async (req, res) => {
+export const rundownReorder: RequestHandler = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -60,9 +62,23 @@ export const rundownReorder = async (req, res) => {
   }
 };
 
+export const rundownSwap: RequestHandler = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const { from, to } = req.body;
+    await swapEvents(from, to);
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
 // Create controller for PATCH request to '/events/applydelay/:eventId'
 // Returns -
-export const rundownApplyDelay = async (req, res) => {
+export const rundownApplyDelay: RequestHandler = async (req, res) => {
   try {
     await applyDelay(req.params.eventId);
     res.sendStatus(200);
@@ -73,7 +89,7 @@ export const rundownApplyDelay = async (req, res) => {
 
 // Create controller for DELETE request to '/events/:eventId'
 // Returns -
-export const deleteEventById = async (req, res) => {
+export const deleteEventById: RequestHandler = async (req, res) => {
   try {
     await deleteEvent(req.params.eventId);
     res.sendStatus(204);
@@ -84,7 +100,7 @@ export const deleteEventById = async (req, res) => {
 
 // Create controller for DELETE request to '/events/'
 // Returns -
-export const rundownDelete = async (req, res) => {
+export const rundownDelete: RequestHandler = async (req, res) => {
   try {
     await deleteAllEvents();
     res.sendStatus(204);

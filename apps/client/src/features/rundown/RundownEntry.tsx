@@ -14,7 +14,7 @@ import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 
-export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update';
+export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update' | 'swap';
 
 interface RundownEntryProps {
   type: SupportedEvent;
@@ -34,7 +34,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, disableEdit } =
     props;
   const { emitError } = useEmitLog();
-  const { addEvent, updateEvent, deleteEvent } = useEventAction();
+  const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
 
   const cursor = useAppMode((state) => state.cursor);
   const setCursor = useAppMode((state) => state.setCursor);
@@ -83,6 +83,12 @@ export default function RundownEntry(props: RundownEntryProps) {
         }
         case 'block': {
           addEvent({ type: SupportedEvent.Block }, { after: data.id });
+          break;
+        }
+        case 'swap': {
+          const { value } = payload as FieldValue;
+          swapEvents({ from: value as string, to: data.id });
+
           break;
         }
         case 'delete': {
@@ -140,6 +146,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       removeOpenEvent,
       startTimeIsLastEnd,
       updateEvent,
+      swapEvents,
     ],
   );
 

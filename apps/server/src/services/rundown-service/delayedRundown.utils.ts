@@ -1,8 +1,10 @@
 import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
+
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
 import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
+import { swapOntimeEvents } from 'ontime-utils';
 
 /**
  * Key of rundown in cache
@@ -174,6 +176,33 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
 export async function cachedClear() {
   await DataProvider.clearRundown();
   runtimeCacheStore.setCached(delayedRundownCacheKey, []);
+}
+
+/**
+ * Swaps two events
+ * @param {string} fromEventId
+ * @param {string} toEventId
+ */
+export async function cachedSwap(fromEventId: string, toEventId: string) {
+  const fromEventIndex = DataProvider.getIndexOf(fromEventId);
+  const toEventIndex = DataProvider.getIndexOf(toEventId);
+
+  const rundown = DataProvider.getRundown();
+  const rundownToUpdate = swapOntimeEvents(rundown, fromEventIndex, toEventIndex);
+
+  const delayedRundown = getDelayedRundown();
+  const fromCachedEvent = delayedRundown.at(fromEventIndex);
+  const toCachedEvent = delayedRundown.at(toEventIndex);
+
+  if (fromCachedEvent.id !== fromEventId || toCachedEvent.id !== toEventId) {
+    // something went wrong, we invalidate the cache
+    runtimeCacheStore.invalidate(delayedRundownCacheKey);
+  } else {
+    const delayedRundownToUpdate = swapOntimeEvents(delayedRundown, fromEventIndex, toEventIndex);
+    runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundownToUpdate);
+  }
+
+  await DataProvider.setRundown(rundownToUpdate);
 }
 
 /**
