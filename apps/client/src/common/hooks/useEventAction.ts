@@ -64,7 +64,9 @@ export const useEventAction = () => {
           after: options?.after,
         };
 
-        newEvent.cue = getCueCandidate(queryClient.getQueryData(RUNDOWN_TABLE) || [], options?.after);
+        if (typeof newEvent?.cue === 'undefined') {
+          newEvent.cue = getCueCandidate(queryClient.getQueryData(RUNDOWN_TABLE) || [], options?.after);
+        }
 
         // hard coding duration value to be as expected for now
         // this until timeOptions gets implemented

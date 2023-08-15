@@ -38,33 +38,34 @@ export function getIncrement(input: string): string {
  * @param insertAfterId {string}
  */
 export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string): string {
-  if (typeof insertAfterId === 'undefined' || rundown.length === 0) {
+  function addAtTop() {
     const firstEvent = getFirstEvent(rundown);
     if (firstEvent === null) {
       return '1';
     }
     return firstEvent.cue === '1' ? '0.1' : '1';
+  }
+
+  // we did not provide a element to go after, we attempt to go first so only need to check for a cue with value 1
+  if (typeof insertAfterId === 'undefined' || rundown.length === 0) {
+    return addAtTop();
   }
 
   const afterIndex = rundown.findIndex((event) => event.id === insertAfterId);
+
+  // we did not find the previous element, insert at top
   if (afterIndex === -1) {
-    const firstEvent = getFirstEvent(rundown);
-    if (firstEvent === null) {
-      return '1';
-    }
-    return firstEvent.cue === '1' ? '0.1' : '1';
+    return addAtTop();
   }
-  const previousEvent = rundown.find((event) => event.id === insertAfterId);
+
+  // get elements around
+  const previousEvent = rundown.at(afterIndex);
   const nextEvent = getNextEvent(rundown, insertAfterId);
 
-  if (previousEvent == null) {
-    if (nextEvent == null) {
-      return '1';
-    }
-    return nextEvent.cue === '1' ? '0.1' : '1';
-  }
-
+  // try and increment the cue
   let cue = getIncrement((previousEvent as OntimeEvent).cue);
+
+  // if increment is clashing with next, we add a decimal instead
   if (cue === nextEvent?.cue) {
     cue = (previousEvent as OntimeEvent).cue + '.1';
   }
