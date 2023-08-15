@@ -203,7 +203,6 @@ export async function cachedSwap(fromEventId: string, toEventId: string) {
   }
 
   await DataProvider.setRundown(rundownToUpdate);
-  runtimeCacheStore.setCached(delayedRundownCacheKey, rundownToUpdate);
 }
 
 /**
