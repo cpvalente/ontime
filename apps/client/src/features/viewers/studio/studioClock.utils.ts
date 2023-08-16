@@ -59,23 +59,18 @@ export const formatEventList = (
   if (rundown == null) return [];
   const { showEnd = false } = options;
 
-  const givenEvents = [...rundown];
-
   // format list
-  const formattedEvents = [];
-  for (const event of givenEvents) {
+  return rundown.map((event) => {
     const start = formatTime(event.timeStart + (event.delay || 0));
     const end = formatTime(event.timeEnd + (event.delay || 0));
 
-    formattedEvents.push({
+    return {
       id: event.id,
       time: showEnd ? `${start} - ${end}` : start,
       title: event.title,
       isNow: event.id === selectedId,
       isNext: event.id === nextId,
       colour: event.colour,
-    });
-  }
-
-  return formattedEvents;
+    };
+  });
 };

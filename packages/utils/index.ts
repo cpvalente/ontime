@@ -17,3 +17,6 @@ export { millisToString } from './src/date-utils/millisToString.js';
 
 // time utils
 export { dayInMs, mts } from './src/timeConstants.js';
+
+// generic utilities
+export { isNumeric } from './src/types/types.js';

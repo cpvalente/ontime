@@ -1,3 +1,5 @@
+import { OntimeEvent, SupportedEvent } from 'ontime-types';
+
 import { formatEventList, trimRundown } from '../studioClock.utils';
 
 describe('test trimEventlist function', () => {
@@ -30,7 +32,7 @@ describe('test trimEventlist function', () => {
       { id: '8' },
     ];
 
-    const l = trimRundown(testData, selectedId, limit);
+    const l = trimRundown(testData as OntimeEvent[], selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
   });
@@ -48,7 +50,7 @@ describe('test trimEventlist function', () => {
       { id: '8' },
     ];
 
-    const l = trimRundown(testData, selectedId, limit);
+    const l = trimRundown(testData as OntimeEvent[], selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
   });
@@ -66,7 +68,7 @@ describe('test trimEventlist function', () => {
       { id: '9' },
     ];
 
-    const l = trimRundown(testData, selectedId, limit);
+    const l = trimRundown(testData as OntimeEvent[], selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
   });
@@ -84,7 +86,7 @@ describe('test trimEventlist function', () => {
       { id: '8' },
     ];
 
-    const l = trimRundown(testData, selectedId, limit);
+    const l = trimRundown(testData as OntimeEvent[], selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
   });
@@ -101,7 +103,7 @@ describe('test formatEvents function', () => {
       timeEnd: 30600000,
       isPublic: false,
       colour: '',
-      type: 'event',
+      type: SupportedEvent.Event,
       revision: 0,
       id: '5946',
     },
@@ -114,7 +116,7 @@ describe('test formatEvents function', () => {
       timeEnd: 35400000,
       isPublic: false,
       colour: '',
-      type: 'event',
+      type: SupportedEvent.Event,
       revision: 0,
       id: '8ee5',
     },
@@ -142,7 +144,7 @@ describe('test formatEvents function', () => {
       },
     ];
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
+    const parsed = formatEventList(testEvent as OntimeEvent[], selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -168,7 +170,7 @@ describe('test formatEvents function', () => {
       },
     ];
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
+    const parsed = formatEventList(testEvent as OntimeEvent[], selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
 
@@ -195,7 +197,7 @@ describe('test formatEvents function', () => {
       },
     ];
 
-    const parsed = formatEventList(testEvent, selectedId, nextId, { showEnd: true });
+    const parsed = formatEventList(testEvent as OntimeEvent[], selectedId, nextId, { showEnd: true });
     expect(parsed).toStrictEqual(expected);
   });
 });

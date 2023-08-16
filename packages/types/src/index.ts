@@ -1,5 +1,4 @@
 // DATA MODEL
-
 export type { DatabaseModel } from './definitions/DataModel.type.js';
 
 // ---> Rundown
@@ -47,5 +46,5 @@ export type { TitleBlock } from './definitions/runtime/TitleBlock.type.js';
 
 // CLIENT
 
-// UTILITIES
+// UTILITY TYPES
 export type { MaybeNumber } from './utils/utils.type.js';

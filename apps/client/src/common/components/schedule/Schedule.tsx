@@ -34,8 +34,8 @@ export default function Schedule({ className }: ScheduleProps) {
           <ScheduleItem
             key={event.id}
             selected={selectedState}
-            timeStart={event.timeStart + (event?.delay || 0)}
-            timeEnd={event.timeEnd + (event?.delay || 0)}
+            timeStart={event.timeStart + (event?.delay ?? 0)}
+            timeEnd={event.timeEnd + (event?.delay ?? 0)}
             title={event.title}
             colour={isBackstage ? event.colour : ''}
             backstageEvent={!event.isPublic}

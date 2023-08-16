@@ -1,6 +1,7 @@
 import { OntimeEvent, OntimeRundown } from 'ontime-types';
 
 import { getFirstEvent, getNextEvent } from '../rundown-utils/rundownUtils.js';
+import { isNumeric } from '../types/types.js';
 
 /**
  * Finds if last characters in input are a number and increments
@@ -39,12 +40,12 @@ export function getIncrement(input: string): string {
  */
 export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string): string {
   function addAtTop() {
-    const firstEvent = getFirstEvent(rundown);
-    console.log('sssss', firstEvent.cue);
-    if (firstEvent === null) {
-      return '1';
+    const firstEventCue = getFirstEvent(rundown)?.cue;
+
+    if (isNumeric(firstEventCue)) {
+      return (Number(firstEventCue) / 10).toString();
     }
-    return firstEvent.cue === '1' ? '0.1' : '1';
+    return '1';
   }
 
   // we did not provide a element to go after, we attempt to go first so only need to check for a cue with value 1
