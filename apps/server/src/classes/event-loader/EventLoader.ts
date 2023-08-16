@@ -86,6 +86,16 @@ export class EventLoader {
   }
 
   /**
+   * returns first event given its cue
+   * @param {string} cue
+   * @return {object | undefined}
+   */
+  static getEventWithCue(cue) {
+    const timedEvents = EventLoader.getTimedEvents();
+    return timedEvents.find((event) => event.cue === cue);
+  }
+
+  /**
    * loads an event given its id
    * @param {string} eventId
    * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}

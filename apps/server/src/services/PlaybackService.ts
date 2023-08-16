@@ -63,6 +63,21 @@ export class PlaybackService {
   }
 
   /**
+   * starts first event matching given cue
+   * @param {string} cue
+   * @return {boolean} success
+   */
+  static startByCue(cue: string): boolean {
+    const event = EventLoader.getEventWithCue(cue);
+    const success = PlaybackService.loadEvent(event);
+    if (success) {
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      PlaybackService.start();
+    }
+    return success;
+  }
+
+  /**
    * loads event matching given ID
    * @param {string} eventId
    * @return {boolean} success
@@ -83,6 +98,20 @@ export class PlaybackService {
    */
   static loadByIndex(eventIndex: number): boolean {
     const event = EventLoader.getEventAtIndex(eventIndex);
+    const success = PlaybackService.loadEvent(event);
+    if (success) {
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+    }
+    return success;
+  }
+
+  /**
+   * loads first event matching given cue
+   * @param {string} cue
+   * @return {boolean} success
+   */
+  static loadByCue(cue: string): boolean {
+    const event = EventLoader.getEventWithCue(cue);
     const success = PlaybackService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
