@@ -1,4 +1,4 @@
-import { cleanURL } from '../url';
+import { cleanURL } from '../url.js';
 
 describe('url is correctly formatted', () => {
   it('has no leading spaces', () => {

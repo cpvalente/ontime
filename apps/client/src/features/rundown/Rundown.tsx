@@ -1,13 +1,14 @@
-import { lazy, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, lazy, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
+import { getFirst, getNext, getPrevious } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
-import { cloneEvent, getFirstEvent, getNextEvent, getPreviousEvent } from '../../common/utils/eventsManager';
+import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
@@ -59,8 +60,7 @@ export default function Rundown(props: RundownProps) {
       if (type === 'clone') {
         const cursorEvent = entries.find((event) => event.id === cursor);
         if (cursorEvent?.type === SupportedEvent.Event) {
-          const newEvent = cloneEvent(cursorEvent);
-          newEvent.after = cursorEvent.id;
+          const newEvent = cloneEvent(cursorEvent, cursorEvent.id);
           addEvent(newEvent);
         }
       } else if (type === SupportedEvent.Event) {
@@ -93,7 +93,7 @@ export default function Rundown(props: RundownProps) {
             if (entries.length < 1) {
               return;
             }
-            const nextEvent = cursor == null ? getFirstEvent(entries) : getNextEvent(entries, cursor);
+            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor);
             if (nextEvent) {
               moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
             }
@@ -104,7 +104,7 @@ export default function Rundown(props: RundownProps) {
               return;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
-            const previousEvent = cursor == null ? getFirstEvent(entries) : getPreviousEvent(entries, cursor);
+            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor);
             if (previousEvent) {
               moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
             }
@@ -206,7 +206,7 @@ export default function Rundown(props: RundownProps) {
   let previousEnd = 0;
   let thisEnd = 0;
   let previousEventId: string | undefined;
-  let eventIndex = -1;
+  let eventIndex = 0;
   let isPast = Boolean(featureData?.selectedEventId);
 
   return (
@@ -216,7 +216,7 @@ export default function Rundown(props: RundownProps) {
           <div className={style.list}>
             {statefulEntries.map((entry, index) => {
               if (index === 0) {
-                eventIndex = -1;
+                eventIndex = 0;
               }
               if (entry.type === SupportedEvent.Event) {
                 eventIndex++;
@@ -233,21 +233,25 @@ export default function Rundown(props: RundownProps) {
               }
 
               return (
-                <div key={entry.id} ref={hasCursor ? cursorRef : undefined}>
-                  <RundownEntry
-                    type={entry.type}
-                    eventIndex={eventIndex}
-                    isPast={isPast}
-                    data={entry}
-                    selected={isSelected}
-                    hasCursor={hasCursor}
-                    next={isNext}
-                    previousEnd={previousEnd}
-                    previousEventId={previousEventId}
-                    playback={isSelected ? featureData.playback : undefined}
-                    isRolling={featureData.playback === Playback.Roll}
-                    disableEdit={isExtracted}
-                  />
+                <Fragment key={entry.id}>
+                  <div className={style.entryWrapper}>
+                    {entry.type === SupportedEvent.Event && <div className={style.entryIndex}>{eventIndex}</div>}
+                    <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
+                      <RundownEntry
+                        type={entry.type}
+                        isPast={isPast}
+                        data={entry}
+                        selected={isSelected}
+                        hasCursor={hasCursor}
+                        next={isNext}
+                        previousEnd={previousEnd}
+                        previousEventId={previousEventId}
+                        playback={isSelected ? featureData.playback : undefined}
+                        isRolling={featureData.playback === Playback.Roll}
+                        disableEdit={isExtracted}
+                      />
+                    </div>
+                  </div>
                   {((showQuickEntry && hasCursor) || isLast) && (
                     <QuickAddBlock
                       showKbd={hasCursor}
@@ -257,7 +261,7 @@ export default function Rundown(props: RundownProps) {
                       disableAddBlock={entry.type === SupportedEvent.Block}
                     />
                   )}
-                </div>
+                </Fragment>
               );
             })}
             <div className={style.spacer} />

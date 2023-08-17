@@ -20,10 +20,10 @@ import EventBlockInner from './EventBlockInner';
 import style from './EventBlock.module.scss';
 
 interface EventBlockProps {
+  cue: string;
   timeStart: number;
   timeEnd: number;
   duration: number;
-  eventIndex: number;
   eventId: string;
   isPublic: boolean;
   endAction: EndAction;
@@ -54,11 +54,11 @@ interface EventBlockProps {
 
 export default function EventBlock(props: EventBlockProps) {
   const {
+    eventId,
+    cue,
     timeStart,
     timeEnd,
     duration,
-    eventIndex,
-    eventId,
     isPublic = true,
     endAction,
     timerType,
@@ -187,7 +187,7 @@ export default function EventBlock(props: EventBlockProps) {
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>
-        {eventIndex}
+        <span className={style.cue}>{cue}</span>
       </div>
       {isVisible && (
         <EventBlockInner

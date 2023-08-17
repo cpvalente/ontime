@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
-import { calculateDuration } from 'ontime-utils';
+import { calculateDuration, getCueCandidate } from 'ontime-utils';
 
+import { RUNDOWN_TABLE } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { ontimeQueryClient } from '../../common/queryClient';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
 import { useEmitLog } from '../../common/stores/logger';
@@ -16,7 +18,6 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 
 interface RundownEntryProps {
   type: SupportedEvent;
-  eventIndex: number;
   isPast: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
@@ -30,19 +31,8 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const {
-    eventIndex,
-    isPast,
-    data,
-    selected,
-    hasCursor,
-    next,
-    previousEnd,
-    previousEventId,
-    playback,
-    isRolling,
-    disableEdit,
-  } = props;
+  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, disableEdit } =
+    props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
 
@@ -110,6 +100,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         }
         case 'clone': {
           const newEvent = cloneEvent(data as OntimeEvent, data.id);
+          newEvent.cue = getCueCandidate(ontimeQueryClient.getQueryData(RUNDOWN_TABLE) || [], data.id);
           addEvent(newEvent);
           break;
         }
@@ -162,10 +153,10 @@ export default function RundownEntry(props: RundownEntryProps) {
   if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
+        cue={data.cue}
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}
         duration={data.duration}
-        eventIndex={eventIndex + 1}
         eventId={data.id}
         isPublic={data.isPublic}
         endAction={data.endAction}

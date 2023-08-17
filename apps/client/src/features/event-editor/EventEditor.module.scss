@@ -6,10 +6,14 @@
   gap: max(1rem, 2vh);
 
   display: grid;
-  grid-template-areas:
-          'eventInfo   eventActions'
-          'timeOptions titles';
-  grid-template-columns: auto 1fr;
+  grid-template-areas: 'time left right';
+  grid-template-columns: auto 1fr 1fr;
+}
+
+.timeOptions {
+  grid-area: time;
+  display: flex;
+  gap: 1.5rem;
 
   .timers,
   .timeSettings {
@@ -19,51 +23,23 @@
   }
 }
 
-.eventInfo {
-  grid-area: eventInfo;
+.left,
+.right {
   display: flex;
-  align-items: center;
-
-  .eventId {  
-    margin-left:$element-spacing;
-  }
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.eventActions {
-  grid-area: eventActions;
-  margin-left: auto;
+.left {
+  grid-area: left;
+  padding: 0 1rem;
+  border-left: 1px solid $border-color-ondark;
 }
 
-.timeOptions {
-  grid-area: timeOptions;
-  display: flex;
-  gap: 1.5rem;
-}
-
-.titles {
-  grid-area: titles;
-  display: grid;
-  grid-template-areas: 'left right';
-  grid-template-columns: 1fr 1fr;
-
-  .left,
-  .right {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .left {
-    grid-area: left;
-    padding: 0 1rem;
-    border-left: 1px solid $border-color-ondark;
-  }
-
-  .right {
-    padding-left: 1rem;
-    grid-area: right;
-    border-left: 1px solid $border-color-ondark;
-  }
+.right {
+  padding-left: 1rem;
+  grid-area: right;
+  border-left: 1px solid $border-color-ondark;
 }
 
 @mixin input-label() {
@@ -94,6 +70,12 @@
   }
 }
 
+.eventActions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .spacer {
   height: 1.25rem;
 }
@@ -102,6 +84,12 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.splitTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
 .column {

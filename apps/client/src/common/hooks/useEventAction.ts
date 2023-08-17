@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
-import { swapOntimeEvents } from 'ontime-utils';
+import { getCueCandidate, swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -67,16 +67,20 @@ export const useEventAction = () => {
           after: options?.after,
         };
 
+        if (newEvent?.cue === undefined) {
+          newEvent.cue = getCueCandidate(queryClient.getQueryData(RUNDOWN_TABLE) || [], options?.after);
+        }
+
         // hard coding duration value to be as expected for now
         // this until timeOptions gets implemented
-        if (typeof newEvent?.timeStart !== 'undefined' && typeof newEvent.timeEnd !== 'undefined') {
+        if (newEvent?.timeStart !== undefined && newEvent.timeEnd !== undefined) {
           newEvent.duration = Math.max(0, newEvent?.timeEnd - newEvent?.timeStart) || 0;
         }
 
         if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
           const rundown = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
           const previousEvent = rundown.find((event) => event.id === applicationOptions.lastEventId);
-          if (typeof previousEvent !== 'undefined' && previousEvent.type === 'event') {
+          if (previousEvent !== undefined && previousEvent.type === 'event') {
             newEvent.timeStart = previousEvent.timeEnd;
             newEvent.timeEnd = previousEvent.timeEnd;
           }
@@ -126,7 +130,6 @@ export const useEventAction = () => {
     onError: (_error, _newEvent, context) => {
       queryClient.setQueryData([RUNDOWN_TABLE_KEY, context?.newEvent.id], context?.previousEvent);
     },
-
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: async () => {

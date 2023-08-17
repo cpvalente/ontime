@@ -8,12 +8,13 @@ export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
 
 /**
- * @description Converts an excel date to milliseconds
- * @argument {string} date - excel string date
+ * @description Converts a date object to milliseconds
+ * @argument {Date} date
  * @returns {number} - time in milliseconds
  */
 
 export const dateToMillis = (date: Date): number => {
+  // TODO: Use UTC
   const h = date.getHours();
   const m = date.getMinutes();
   const s = date.getSeconds();

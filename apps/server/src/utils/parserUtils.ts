@@ -1,5 +1,4 @@
 import fs from 'fs';
-import { dayInMs } from 'ontime-utils';
 
 /**
  * @description Ensures variable is string, it skips object types
