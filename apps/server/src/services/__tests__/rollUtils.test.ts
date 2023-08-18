@@ -1,5 +1,7 @@
+import { OntimeEvent } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
-import { getRollTimers, normaliseEndTime, sortArrayByProperty, updateRoll } from '../rollUtils.ts';
+
+import { getRollTimers, normaliseEndTime, sortArrayByProperty, updateRoll } from '../rollUtils.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -38,51 +40,51 @@ describe('sort simple arrays of objects', () => {
 
 // test getRollTimers()
 describe('test that roll loads selection in right order', () => {
-  const eventlist = [
+  const eventlist: Partial<OntimeEvent>[] = [
     {
-      id: 1,
+      id: '1',
       timeStart: 5,
       timeEnd: 10,
       isPublic: false,
     },
     {
-      id: 2,
+      id: '2',
       timeStart: 10,
       timeEnd: 20,
       isPublic: false,
     },
     {
-      id: 3,
+      id: '3',
       timeStart: 20,
       timeEnd: 30,
       isPublic: false,
     },
     {
-      id: 4,
+      id: '4',
       timeStart: 30,
       timeEnd: 40,
       isPublic: false,
     },
     {
-      id: 5,
+      id: '5',
       timeStart: 40,
       timeEnd: 50,
       isPublic: true,
     },
     {
-      id: 6,
+      id: '6',
       timeStart: 50,
       timeEnd: 60,
       isPublic: false,
     },
     {
-      id: 7,
+      id: '7',
       timeStart: 60,
       timeEnd: 70,
       isPublic: true,
     },
     {
-      id: 8,
+      id: '8',
       timeStart: 70,
       timeEnd: 80,
       isPublic: false,
@@ -104,7 +106,7 @@ describe('test that roll loads selection in right order', () => {
       currentPublicEvent: null,
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -123,7 +125,7 @@ describe('test that roll loads selection in right order', () => {
       currentPublicEvent: null,
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -142,7 +144,7 @@ describe('test that roll loads selection in right order', () => {
       currentPublicEvent: null,
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -161,7 +163,7 @@ describe('test that roll loads selection in right order', () => {
       currentPublicEvent: null,
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -180,7 +182,7 @@ describe('test that roll loads selection in right order', () => {
       currentPublicEvent: eventlist[4],
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -199,7 +201,7 @@ describe('test that roll loads selection in right order', () => {
       currentPublicEvent: eventlist[6],
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -218,7 +220,7 @@ describe('test that roll loads selection in right order', () => {
       currentPublicEvent: eventlist[6],
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -237,14 +239,14 @@ describe('test that roll loads selection in right order', () => {
       currentPublicEvent: null,
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
   it('handles rolls to next day with real values', () => {
-    const singleEventList = [
+    const singleEventList: Partial<OntimeEvent>[] = [
       {
-        id: 1,
+        id: '1',
         timeStart: 36000000, // 10:00
         timeEnd: 39600000, // 11:00
         isPublic: true,
@@ -263,14 +265,14 @@ describe('test that roll loads selection in right order', () => {
       currentEvent: null,
       currentPublicEvent: null,
     };
-    const state = getRollTimers(singleEventList, now);
+    const state = getRollTimers(singleEventList as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
   it('handles rolls to next day with real values', () => {
-    const singleEventList = [
+    const singleEventList: Partial<OntimeEvent>[] = [
       {
-        id: 1,
+        id: '1',
         timeStart: 36000000, // 10:00
         timeEnd: 3600000, // 01:00
         isPublic: true,
@@ -289,13 +291,13 @@ describe('test that roll loads selection in right order', () => {
       currentEvent: singleEventList[0],
       currentPublicEvent: singleEventList[0],
     };
-    const state = getRollTimers(singleEventList, now);
+    const state = getRollTimers(singleEventList as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
   it('handles rolls to next day with real values', () => {
-    const singleEventList = [
+    const singleEventList: Partial<OntimeEvent>[] = [
       {
-        id: 1,
+        id: '1',
         timeStart: 36000000, // 10:00
         timeEnd: 3600000, // 01:00
         isPublic: true,
@@ -314,20 +316,20 @@ describe('test that roll loads selection in right order', () => {
       currentEvent: singleEventList[0],
       currentPublicEvent: singleEventList[0],
     };
-    const state = getRollTimers(singleEventList, now);
+    const state = getRollTimers(singleEventList as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
   it('handles roll that goes over midnight', () => {
-    const singleEventList = [
+    const singleEventList: Partial<OntimeEvent>[] = [
       {
-        id: 1,
+        id: '1',
         timeStart: 72000000, // 20:00
         timeEnd: 60000, // 00:10
         isPublic: true,
       },
     ];
-    const now = 67504242; // 00:01
+    const now = 6000; // 00:01
     const expected = {
       nowIndex: 0,
       nowId: singleEventList[0].id,
@@ -340,28 +342,28 @@ describe('test that roll loads selection in right order', () => {
       currentEvent: singleEventList[0],
       currentPublicEvent: singleEventList[0],
     };
-    const state = getRollTimers(singleEventList, now);
+    const state = getRollTimers(singleEventList as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 });
 
 // test getRollTimers()
 describe('test that roll behaviour with overlapping times', () => {
-  const eventlist = [
+  const eventlist: Partial<OntimeEvent>[] = [
     {
-      id: 1,
+      id: '1',
       timeStart: 10,
       timeEnd: 10,
       isPublic: false,
     },
     {
-      id: 2,
+      id: '2',
       timeStart: 10,
       timeEnd: 20,
       isPublic: true,
     },
     {
-      id: 3,
+      id: '3',
       timeStart: 10,
       timeEnd: 30,
       isPublic: false,
@@ -383,7 +385,7 @@ describe('test that roll behaviour with overlapping times', () => {
       currentPublicEvent: null,
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -402,7 +404,7 @@ describe('test that roll behaviour with overlapping times', () => {
       currentPublicEvent: eventlist[1],
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -421,7 +423,7 @@ describe('test that roll behaviour with overlapping times', () => {
       currentPublicEvent: eventlist[1],
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -440,7 +442,7 @@ describe('test that roll behaviour with overlapping times', () => {
       currentPublicEvent: eventlist[1],
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
@@ -459,7 +461,7 @@ describe('test that roll behaviour with overlapping times', () => {
       currentPublicEvent: eventlist[1],
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 });
@@ -468,9 +470,9 @@ describe('test that roll behaviour with overlapping times', () => {
 describe('test that roll behaviour multi day event edge cases', () => {
   it('if the start time is the day after end time, and start time is earlier than now', () => {
     const now = 66600000; // 19:30
-    const eventlist = [
+    const eventlist: Partial<OntimeEvent>[] = [
       {
-        id: 1,
+        id: '1',
         timeStart: 66000000, // 19:20
         timeEnd: 54600000, // 16:10
         isPublic: false,
@@ -478,7 +480,7 @@ describe('test that roll behaviour multi day event edge cases', () => {
     ];
     const expected = {
       nowIndex: 0,
-      nowId: 1,
+      nowId: '1',
       publicIndex: null,
       nextIndex: null,
       publicNextIndex: null,
@@ -489,15 +491,15 @@ describe('test that roll behaviour multi day event edge cases', () => {
       currentPublicEvent: null,
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 
   it('if the start time is the day after end time, and both are later than now', () => {
     const now = 66840000; // 19:34
-    const eventlist = [
+    const eventlist: Partial<OntimeEvent>[] = [
       {
-        id: 1,
+        id: '1',
         timeStart: 67200000, // 19:40
         timeEnd: 66900000, // 19:35
         isPublic: false,
@@ -505,7 +507,7 @@ describe('test that roll behaviour multi day event edge cases', () => {
     ];
     const expected = {
       currentEvent: {
-        id: 1,
+        id: '1',
         isPublic: false,
         timeEnd: 66900000,
         timeStart: 67200000,
@@ -514,14 +516,14 @@ describe('test that roll behaviour multi day event edge cases', () => {
       nextEvent: null,
       nextIndex: null,
       nextPublicEvent: null,
-      nowId: 1,
+      nowId: '1',
       nowIndex: 0,
       publicIndex: null,
       publicNextIndex: null,
       timeToNext: null,
     };
 
-    const state = getRollTimers(eventlist, now);
+    const state = getRollTimers(eventlist as OntimeEvent[], now);
     expect(state).toStrictEqual(expected);
   });
 });
@@ -557,7 +559,7 @@ test('test typical scenarios', () => {
 describe('typical scenarios', () => {
   it('it updates running events correctly', () => {
     const timers = {
-      selectedEventId: 1,
+      selectedEventId: '1',
       current: 10,
       _finishAt: 15,
       clock: 11,
@@ -604,7 +606,7 @@ describe('typical scenarios', () => {
 
   it('flags an event end', () => {
     const timers = {
-      selectedEventId: 1,
+      selectedEventId: '1',
       current: 10,
       _finishAt: 11,
       clock: 12,
@@ -664,7 +666,7 @@ describe('typical scenarios', () => {
 
   it('counts over midnight', () => {
     const timers = {
-      selectedEventId: 1,
+      selectedEventId: '1',
       current: 25,
       _finishAt: 10 + dayInMs,
       clock: dayInMs - 10,
@@ -684,7 +686,7 @@ describe('typical scenarios', () => {
 
   it('rolls over midnight', () => {
     const timers = {
-      selectedEventId: 1,
+      selectedEventId: '1',
       current: dayInMs,
       _finishAt: 10 + dayInMs,
       clock: 10,
