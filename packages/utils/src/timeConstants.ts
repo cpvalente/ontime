@@ -1,7 +1,7 @@
 /**
  * Milliseconds in a second
  */
-export const mts = 1000; // millis to seconds
+export const mts = 1000;
 
 /**
  * Milliseconds in a day
