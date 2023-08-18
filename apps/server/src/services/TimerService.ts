@@ -91,7 +91,7 @@ export class TimerService {
     // TODO: check if any relevant information warrants update
 
     // update relevant information and force update
-    this.timer.duration = validateDuration(timer.duration, timer.timeEnd);
+    this.timer.duration = validateDuration(timer.timeStart, timer.timeEnd);
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
 
@@ -130,7 +130,7 @@ export class TimerService {
     this._clear();
 
     this.loadedTimerId = timer.id;
-    this.timer.duration = validateDuration(timer.duration, timer.timeEnd);
+    this.timer.duration = validateDuration(timer.timeStart, timer.timeEnd);
     this.timer.current = this.timer.duration;
     this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;

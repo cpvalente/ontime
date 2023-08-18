@@ -1,3 +1,5 @@
+import { dayInMs } from 'ontime-utils';
+
 import { getCurrent, getElapsed, getExpectedFinish } from '../timerUtils.js';
 
 describe('getExpectedFinish()', () => {
@@ -64,6 +66,15 @@ describe('getExpectedFinish()', () => {
     const calculatedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
     expect(calculatedFinish).toBe(1);
   });
+  it('finish can be the day after', () => {
+    const startedAt = 10;
+    const finishedAt = null;
+    const duration = dayInMs;
+    const pausedTime = 0;
+    const addedTime = 0;
+    const calculatedFinish = getExpectedFinish(startedAt, finishedAt, duration, pausedTime, addedTime);
+    expect(calculatedFinish).toBe(10);
+  });
 });
 
 describe('getCurrent()', () => {
@@ -94,6 +105,33 @@ describe('getCurrent()', () => {
     const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
     expect(current).toBe(19);
   });
+  it('counts over midnight', () => {
+    const startedAt = 10;
+    const duration = dayInMs + 10;
+    const pausedTime = 0;
+    const addedTime = 0;
+    const clock = 10;
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    expect(current).toBe(dayInMs + 10);
+  });
+  it('rolls over midnight', () => {
+    const startedAt = 10;
+    const duration = dayInMs + 10;
+    const pausedTime = 0;
+    const addedTime = 0;
+    const clock = 5;
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    expect(current).toBe(15);
+  });
+  it('midnight holds delays', () => {
+    const startedAt = 10;
+    const duration = dayInMs + 10;
+    const pausedTime = 10;
+    const addedTime = 10;
+    const clock = 5;
+    const current = getCurrent(startedAt, duration, addedTime, pausedTime, clock);
+    expect(current).toBe(35);
+  });
 });
 
 describe('getElapsedTime()', () => {
@@ -103,10 +141,12 @@ describe('getElapsedTime()', () => {
     const elapsed = getElapsed(startedAt, clock);
     expect(elapsed).toBe(5);
   });
-  it('clock cannot be lower than started time', () => {
+  it('rolls past midnight', () => {
     const startedAt = 10;
     const clock = 5;
-    expect(() => getElapsed(startedAt, clock)).toThrow();
+    const elapsed = getElapsed(startedAt, clock);
+
+    expect(elapsed).toBe(dayInMs - startedAt + clock);
   });
 });
 

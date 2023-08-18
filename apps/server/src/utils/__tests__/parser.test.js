@@ -4,6 +4,7 @@ import { parseExcel, parseJson, validateEvent } from '../parser.ts';
 import { makeString, validateDuration } from '../parserUtils.ts';
 import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.ts';
 import { EndAction, TimerType } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 describe('test json parser with valid def', () => {
   const testData = {
@@ -902,14 +903,14 @@ describe('test views import', () => {
 describe('test validateDuration()', () => {
   describe('handles valid inputs', () => {
     const valid = [
-      {test: 'zero values', timeStart: 0, timeEnd: 0},
-      {test: 'end after start', timeStart: 0, timeEnd: 1},
+      { test: 'zero values', timeStart: 0, timeEnd: 0, expected: 0 },
+      { test: 'end after start', timeStart: 0, timeEnd: 1, expected: 1 },
     ];
 
     valid.forEach((t) => {
       it(t.test, () => {
         const d = validateDuration(t.timeStart, t.timeEnd);
-        expect(d).toBe(t.timeEnd - t.timeStart);
+        expect(d).toBe(t.expected);
       });
     });
   });
@@ -917,8 +918,7 @@ describe('test validateDuration()', () => {
   describe('handles edge cases', () => {
     // edge cases
     const testData = [
-      {test: 'negative 0', timeStart: -0, timeEnd: -0, expected: 0},
-      {test: 'end before start', timeStart: 2, timeEnd: 1, expected: 0},
+      { test: 'end the day after', timeStart: 86350000, timeEnd: 3660000, expected: 3660000 + (dayInMs - 86350000) },
     ];
 
     testData.forEach((t) => {

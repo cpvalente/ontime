@@ -1,4 +1,4 @@
-type MaybeNumber = number | null;
+import { MaybeNumber } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 /**
@@ -19,7 +19,6 @@ export function getExpectedFinish(
     return finishedAt;
   }
 
-  return Math.max(startedAt + duration + pausedTime + addedTime, startedAt);
   // handle events that finish the day after
   const expectedFinish = startedAt + duration + pausedTime + addedTime;
   if (expectedFinish > dayInMs) {
@@ -52,10 +51,13 @@ export function getCurrent(
 /**
  * Calculates elapsed time
  */
-export function getElapsed(startedAt: number, clock: number) {
+export function getElapsed(startedAt: number | null, clock: number): number | null {
+  if (startedAt === null) {
+    return null;
+  }
+
   // we are in the day after
   if (startedAt > clock) {
-    throw new Error('clock cannot be higher than startedAt');
     return dayInMs - startedAt + clock;
   }
   return clock - startedAt;
