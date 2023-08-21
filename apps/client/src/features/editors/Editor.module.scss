@@ -67,6 +67,14 @@ $playback-width: 26rem;
   }
 }
 
+/* 3/3 window |we want to decide the width for the content based on the screen size at this stage */
+@media (min-width: 2075px) {
+  .mainContainer {
+    height: 100%;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 2vw 35vw 30vw auto; 
+  }
+}
 /* 1/2 window, event list only */
 @media (max-width: 1100px) {
   .mainContainer {
@@ -183,8 +191,7 @@ $playback-width: 26rem;
 
 .info {
   grid-area: info;
-  min-width: 17rem;
-  max-width: 800px;
+  min-width: 17em;
 
   .content {
     display: flex;
@@ -209,7 +216,7 @@ $playback-width: 26rem;
   background-color: transparent;
   margin: 0;
   padding: 0 0.5rem 0 0;
-  width: fit-content;
+  width: auto;
 
   display: flex;
   flex-direction: column;
