@@ -4,6 +4,7 @@ export const dbModel: DatabaseModel = {
   rundown: [],
   eventData: {
     title: '',
+    description: '',
     publicUrl: '',
     publicInfo: '',
     backstageUrl: '',

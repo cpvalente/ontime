@@ -41,7 +41,7 @@ export const isDocker = env === 'docker';
 
 // =================================================
 // resolve path to external
-const productionPath = '../../Resources/extraResources/client';
+const productionPath = '../../resources/extraResources/client';
 const devPath = '../../client/build/';
 const dockerPath = 'client/';
 

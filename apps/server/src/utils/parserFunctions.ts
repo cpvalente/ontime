@@ -1,6 +1,7 @@
 import { generateId } from 'ontime-utils';
 import {
   Alias,
+  EndAction,
   EventData,
   OntimeRundown,
   OSCSettings,
@@ -8,6 +9,7 @@ import {
   OscSubscriptionOptions,
   Settings,
   TimerLifeCycle,
+  TimerType,
   UserFields,
   ViewSettings,
 } from 'ontime-types';
@@ -28,6 +30,7 @@ export const parseRundown = (data): OntimeRundown => {
     console.log('Found rundown definition, importing...');
     const rundown = [];
     try {
+      let eventIndex = 0;
       const ids = [];
       for (const e of data.rundown) {
         // cap number of events
@@ -37,13 +40,26 @@ export const parseRundown = (data): OntimeRundown => {
         }
 
         // double check unique ids
-        if (ids.indexOf(e?.id) !== -1) {
+        if (ids.includes(e?.id)) {
           console.log('ERROR: ID collision on import, skipping');
           continue;
         }
 
+        // validate the right endAction is used
+        if (e.endAction && !Object.values(EndAction).includes(e.endAction)) {
+          e.endAction = EndAction.None;
+          console.log('WARNING: invalid End Action provided, using default');
+        }
+
+        // validate the right timerType is used
+        if (e.timerType && !Object.values(TimerType).includes(e.timerType)) {
+          e.timerType = TimerType.CountDown;
+          console.log('WARNING: invalid Timer Type provided, using default');
+        }
+
         if (e.type === 'event') {
-          const event = validateEvent(e);
+          eventIndex += 1;
+          const event = validateEvent(e, eventIndex.toString());
           if (event != null) {
             rundown.push(event);
             ids.push(event.id);
@@ -84,6 +100,7 @@ export const parseEventData = (data, enforce): EventData => {
     newEventData = {
       ...dbModel.eventData,
       title: e.title || dbModel.eventData.title,
+      description: e.description || dbModel.eventData.description,
       publicUrl: e.publicUrl || dbModel.eventData.publicUrl,
       publicInfo: e.publicInfo || dbModel.eventData.publicInfo,
       backstageUrl: e.backstageUrl || dbModel.eventData.backstageUrl,
@@ -203,7 +220,12 @@ export const validateOscObject = (data: OscSubscription): boolean => {
 /**
  * Parse osc portion of an entry
  */
-export const parseOsc = (data: { osc?: Partial<OSCSettings> }, enforce: boolean): Partial<OSCSettings> => {
+export const parseOsc = (
+  data: {
+    osc?: Partial<OSCSettings>;
+  },
+  enforce: boolean,
+): OSCSettings | Record<string, never> => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 

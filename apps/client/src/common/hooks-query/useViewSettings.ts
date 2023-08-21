@@ -6,7 +6,7 @@ import { getView } from '../api/ontimeApi';
 import { viewsSettingsPlaceholder } from '../models/ViewSettings.type';
 
 export default function useViewSettings() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: VIEW_SETTINGS,
     queryFn: getView,
     placeholderData: viewsSettingsPlaceholder,
@@ -16,5 +16,5 @@ export default function useViewSettings() {
     networkMode: 'always',
   });
 
-  return { data, status, isError, refetch };
+  return { data, status, isError, refetch, isFetching };
 }

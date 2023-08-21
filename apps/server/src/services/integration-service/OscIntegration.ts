@@ -37,7 +37,7 @@ export class OscIntegration implements IIntegration {
     if (validateType || validateNull) {
       return {
         success: false,
-        message: `Config options incorrect`,
+        message: 'Config options incorrect',
       };
     }
     try {

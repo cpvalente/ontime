@@ -1,10 +1,12 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Textarea } from '@chakra-ui/react';
 import { EventData } from 'ontime-types';
 
+import { logAxiosError } from '../../../common/api/apiUtils';
 import { postEventData } from '../../../common/api/eventDataApi';
 import useEventData from '../../../common/hooks-query/useEventData';
-import { useEmitLog } from '../../../common/stores/logger';
+import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
 import OntimeModalFooter from '../OntimeModalFooter';
@@ -12,8 +14,7 @@ import OntimeModalFooter from '../OntimeModalFooter';
 import style from './SettingsModal.module.scss';
 
 export default function EventDataForm() {
-  const { data, status, refetch } = useEventData();
-  const { emitError } = useEmitLog();
+  const { data, status, isFetching, refetch } = useEventData();
   const {
     handleSubmit,
     register,
@@ -22,13 +23,22 @@ export default function EventDataForm() {
   } = useForm<EventData>({
     defaultValues: data,
     values: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: EventData) => {
     try {
       await postEventData(formData);
     } catch (error) {
-      emitError(`Error saving event settings: ${error}`);
+      logAxiosError('Error saving event settings', error);
     } finally {
       await refetch();
     }
@@ -39,6 +49,10 @@ export default function EventDataForm() {
   };
 
   const disableInputs = status === 'loading';
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='event-data' className={style.sectionContainer}>
@@ -55,6 +69,21 @@ export default function EventDataForm() {
           placeholder='Eurovision song contest'
           isDisabled={disableInputs}
           {...register('title')}
+        />
+      </ModalInput>
+      <ModalInput
+        field='description'
+        title='Event description'
+        description='Free field, shown in editor'
+        error={errors.description?.message}
+      >
+        <Input
+          {...inputProps}
+          variant='ontime-filled-on-light'
+          maxLength={100}
+          placeholder='Euro Love, Malmö 2024'
+          isDisabled={disableInputs}
+          {...register('description')}
         />
       </ModalInput>
       <div style={{ height: '16px' }} />

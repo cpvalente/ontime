@@ -1,0 +1,51 @@
+@use '../../../theme/v2Styles' as *;
+@use '../../../theme/ontimeColours' as *;
+
+.drawerContent {
+  background-color: $gray-1200;
+}
+
+.drawerHeader {
+  @extend .drawerContent;
+  color: $section-white;
+}
+
+.drawerFooter {
+  @extend .drawerContent;
+  display: flex;
+  justify-content: start;
+  gap: $element-spacing;
+
+  button[type='reset'] {
+    padding: 0 2em;
+    margin-right: auto;
+  }
+
+  button[type='submit'] {
+    padding: 0 2em;
+  }
+}
+
+.label {
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+}
+
+.columnSection {
+  display: flex;
+  padding: $element-spacing;
+  flex-direction: column;
+  gap: $element-inner-spacing;
+}
+
+.title {
+  font-size: $inner-section-text-size;
+  display: block;
+  width: 100%;
+}
+
+.description {
+  font-size: $inner-section-text-size;
+  display: block;
+  color: $modal-note-color;
+}

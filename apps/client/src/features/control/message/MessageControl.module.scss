@@ -7,10 +7,16 @@
 }
 
 .onAirSection {
-  margin-top: $section-spacing;
   display: flex;
   flex-direction: column;
   gap: $element-spacing;
+}
+
+.buttonSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $element-spacing;
+  margin-top: -0.5rem;
 }
 
 .label {
@@ -20,4 +26,8 @@
   &.active {
     color: $action-text-color;
   }
+}
+
+.padTop {
+  margin-top: $section-spacing;
 }

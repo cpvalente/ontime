@@ -1,8 +1,12 @@
+@use '../../theme/v2Styles' as *;
+
 .eventContainer {
+  flex: 1;
+
   margin-top: 1em;
   display: flex;
   flex-direction: column;
-  padding: 8px 4px 8px 0;
+  padding: 0 4px;
   overflow-y: scroll;
   -ms-overflow-style: -ms-autohiding-scrollbar;
   height: 100%;
@@ -22,11 +26,29 @@
 .alignCenter {
   text-align: center;
   flex-direction: column;
+
   .spaceTop {
-    margin-top: 24px;
+    margin-top: 1.5rem;
   }
 }
 
 .spacer {
   min-height: 50vh;
+}
+
+.entryWrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.entryIndex {
+  text-align: right;
+  min-width: 2em;
+  color: $label-gray;
+  font-size: calc(1rem - 3px);
+}
+
+.entry {
+  flex: 1;
 }

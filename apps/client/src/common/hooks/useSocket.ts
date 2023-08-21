@@ -32,6 +32,8 @@ export const setMessage = {
   lowerText: (payload: string) => socketSendJson('set-lower-message-text', payload),
   lowerVisible: (payload: boolean) => socketSendJson('set-lower-message-visible', payload),
   onAir: (payload: boolean) => socketSendJson('set-onAir', payload),
+  timerBlink: (payload: boolean) => socketSendJson('set-timer-blink', payload),
+  timerBlackout: (payload: boolean) => socketSendJson('set-timer-blackout', payload),
 };
 
 export const usePlaybackControl = () => {
@@ -103,3 +105,5 @@ export const useTimer = () => {
 
   return useRuntimeStore(featureSelector, deepCompare);
 };
+
+export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);

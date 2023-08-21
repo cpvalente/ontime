@@ -1,6 +1,6 @@
-import { Alias } from 'ontime-types';
 import isEqual from 'react-fast-compare';
 import { Location, resolvePath } from 'react-router-dom';
+import { Alias } from 'ontime-types';
 
 /**
  * Validates an alias against defined parameters

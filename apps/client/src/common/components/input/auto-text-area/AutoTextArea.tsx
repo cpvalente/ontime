@@ -3,12 +3,7 @@ import { Textarea, TextareaProps } from '@chakra-ui/react';
 // @ts-expect-error no types from library
 import autosize from 'autosize/dist/autosize';
 
-interface AutoTextAreaProps extends TextareaProps {
-  isDark?: boolean;
-}
-
-export const AutoTextArea = (props: AutoTextAreaProps) => {
-  const { isDark, ...rest } = props;
+export const AutoTextArea = (props: TextareaProps) => {
   const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -26,8 +21,8 @@ export const AutoTextArea = (props: AutoTextAreaProps) => {
       resize='none'
       ref={ref}
       transition='height none'
-      variant={isDark ? 'ontime-filled' : 'ontime-filled-on-light'}
-      {...rest}
+      variant='ontime-transparent'
+      {...props}
     />
   );
 };

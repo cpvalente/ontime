@@ -34,24 +34,30 @@ export default function useFullscreen() {
   const toggleFullScreen = useCallback(() => {
     if (!document.fullscreenElement && !(document as WebkitDocument).webkitIsFullScreen) {
       // Fullscreen mode is not active, so we can enter fullscreen mode
-      if (document.documentElement.requestFullscreen) {
+      const element = document.documentElement;
+      if (element.requestFullscreen) {
         // Standard fullscreen API is supported
-        document.documentElement.requestFullscreen();
-        // @ts-expect-error -- the whole casting dance is not worth it
-      } else if (document.documentElement.webkitRequestFullscreen) {
+        element.requestFullscreen().catch(() => {
+          /* nothing to do */
+        });
+      } else if (element.webkitRequestFullscreen) {
         // iOS Safari fullscreen API is supported
-        // @ts-expect-error -- we know this is not undefined now
-        (document.documentElement as WebkitDocument).webkitRequestFullscreen();
+        element.webkitRequestFullscreen().catch(() => {
+          /* nothing to do */
+        });
       }
     } else {
       // Fullscreen mode is active, so we can exit fullscreen mode
       if (document.exitFullscreen) {
         // Standard fullscreen API is supported
-        document.exitFullscreen();
+        document.exitFullscreen().catch((error) => {
+          console.error('Error while trying to exit fullscreen:', error);
+        });
       } else if ((document as WebkitDocument).webkitExitFullscreen) {
         // iOS Safari fullscreen API is supported
-        // @ts-expect-error -- we know this is not undefined now
-        (document as WebkitDocument).webkitExitFullscreen();
+        (document as WebkitDocument).webkitExitFullscreen().catch(() => {
+          /* nothing to do */
+        });
       }
     }
   }, []);

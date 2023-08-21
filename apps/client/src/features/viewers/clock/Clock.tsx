@@ -4,6 +4,8 @@ import { ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { CLOCK_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
@@ -127,11 +129,12 @@ export default function Clock(props: ClockProps) {
       style={{
         backgroundColor: userOptions.keyColour,
         justifyContent: userOptions.justifyContent,
-        alignItems: userOptions.alignItems,
+        alignContent: userOptions.alignItems,
       }}
       data-testid='clock-view'
     >
       <NavigationMenu />
+      <ViewParamsEditor paramFields={CLOCK_OPTIONS} />
       <div
         className='clock'
         style={{

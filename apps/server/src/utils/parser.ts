@@ -3,11 +3,20 @@
 
 import fs from 'fs';
 import xlsx from 'node-xlsx';
-import { generateId } from 'ontime-utils';
-import { DatabaseModel, EventData, OntimeEvent, OntimeRundown, UserFields } from 'ontime-types';
+import { generateId, calculateDuration } from 'ontime-utils';
+import {
+  DatabaseModel,
+  EndAction,
+  EventData,
+  OntimeEvent,
+  OntimeRundown,
+  SupportedEvent,
+  TimerType,
+  UserFields,
+} from 'ontime-types';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { deleteFile, makeString, validateDuration } from './parserUtils.js';
+import { deleteFile, makeString } from './parserUtils.js';
 import {
   parseAliases,
   parseEventData,
@@ -38,6 +47,7 @@ export const parseExcel = async (excelData) => {
   let timeStartIndex: number | null = null;
   let timeEndIndex: number | null = null;
   let titleIndex: number | null = null;
+  let cueIndex: number | null = null;
   let presenterIndex: number | null = null;
   let subtitleIndex: number | null = null;
   let isPublicIndex: number | null = null;
@@ -54,6 +64,8 @@ export const parseExcel = async (excelData) => {
   let user7Index: number | null = null;
   let user8Index: number | null = null;
   let user9Index: number | null = null;
+  let endActionIndex: number | null = null;
+  let timerTypeIndex: number | null = null;
 
   excelData
     .filter((e) => e.length > 0)
@@ -63,7 +75,6 @@ export const parseExcel = async (excelData) => {
       let publicInfoNext = false;
       let backstageUrlNext = false;
       let backstageInfoNext = false;
-      let endMessageNext = false;
 
       const event: Partial<OntimeEvent> = {};
 
@@ -79,20 +90,19 @@ export const parseExcel = async (excelData) => {
           eventData.publicInfo = column;
           publicInfoNext = false;
         } else if (backstageUrlNext) {
-          eventData.publicUrl = column;
+          eventData.backstageUrl = column;
           backstageUrlNext = false;
         } else if (backstageInfoNext) {
           eventData.backstageInfo = column;
           backstageInfoNext = false;
-        } else if (endMessageNext) {
-          eventData.endMessage = column;
-          endMessageNext = false;
         } else if (j === timeStartIndex) {
           event.timeStart = parseExcelDate(column);
         } else if (j === timeEndIndex) {
           event.timeEnd = parseExcelDate(column);
         } else if (j === titleIndex) {
           event.title = column;
+        } else if (j === cueIndex) {
+          event.cue = column;
         } else if (j === presenterIndex) {
           event.presenter = column;
         } else if (j === subtitleIndex) {
@@ -103,6 +113,18 @@ export const parseExcel = async (excelData) => {
           event.skip = Boolean(column);
         } else if (j === notesIndex) {
           event.note = column;
+        } else if (j === endActionIndex) {
+          if (column === '') {
+            event.endAction = EndAction.None;
+          } else {
+            event.endAction = column;
+          }
+        } else if (j === timerTypeIndex) {
+          if (column === '') {
+            event.timerType = TimerType.CountDown;
+          } else {
+            event.timerType = column;
+          }
         } else if (j === colourIndex) {
           event.colour = column;
         } else if (j === user0Index) {
@@ -128,6 +150,7 @@ export const parseExcel = async (excelData) => {
         } else {
           if (typeof column === 'string') {
             const col = column.toLowerCase();
+
             // look for keywords
             // need to make sure it is a string first
             switch (col) {
@@ -146,9 +169,6 @@ export const parseExcel = async (excelData) => {
               case 'backstage info':
                 backstageInfoNext = true;
                 break;
-              case 'end message':
-                endMessageNext = true;
-                break;
               case 'time start':
               case 'start':
                 timeStartIndex = j;
@@ -157,6 +177,10 @@ export const parseExcel = async (excelData) => {
               case 'end':
               case 'finish':
                 timeEndIndex = j;
+                break;
+              case 'cue':
+              case 'page':
+                cueIndex = j;
                 break;
               case 'event title':
               case 'title':
@@ -181,12 +205,19 @@ export const parseExcel = async (excelData) => {
               case 'skip':
                 skipIndex = j;
                 break;
+              case 'note':
               case 'notes':
                 notesIndex = j;
                 break;
               case 'colour':
               case 'color':
                 colourIndex = j;
+                break;
+              case 'end action':
+                endActionIndex = j;
+                break;
+              case 'timer type':
+                timerTypeIndex = j;
                 break;
               default:
                 // look for user defined
@@ -237,12 +268,12 @@ export const parseExcel = async (excelData) => {
       if (Object.keys(event).length > 0) {
         // if any data was found, push to array
         // take care of it in the next step
-        rundown.push({ ...event, type: 'event' });
+        rundown.push({ ...event, type: SupportedEvent.Event } as OntimeEvent);
       }
     });
   return {
     rundown,
-    eventData: eventData,
+    eventData,
     settings: {
       app: 'ontime',
       version: 2,
@@ -278,7 +309,6 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
   // Import user fields if any
   returnData.userFields = parseUserFields(jsonData);
   // Import OSC settings if any
-  // @ts-expect-error -- we are unable to type just yet
   returnData.osc = parseOsc(jsonData, enforce);
   // Import HTTP settings if any
   // returnData.http = parseHttp(jsonData, enforce);
@@ -289,12 +319,15 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
 /**
  * @description Enforces formatting for events
  * @param {object} eventArgs - attributes of event
+ * @param cueFallback
  * @returns {object|null} - formatted object or null in case is invalid
  */
 
-export const validateEvent = (eventArgs) => {
+export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string) => {
   // ensure id is defined and unique
   const id = eventArgs.id || generateId();
+  const cue = eventArgs.cue || cueFallback;
+
   let event = null;
 
   // return if object is empty
@@ -316,7 +349,7 @@ export const validateEvent = (eventArgs) => {
       timeEnd: end,
       endAction: makeString(e.endAction, d.endAction),
       timerType: makeString(e.timerType, d.timerType),
-      duration: validateDuration(start, end),
+      duration: calculateDuration(start, end),
       isPublic: typeof e.isPublic === 'boolean' ? e.isPublic : d.isPublic,
       skip: typeof e.skip === 'boolean' ? e.skip : d.skip,
       note: makeString(e.note, d.note),
@@ -330,12 +363,9 @@ export const validateEvent = (eventArgs) => {
       user7: makeString(e.user7, d.user7),
       user8: makeString(e.user8, d.user8),
       user9: makeString(e.user9, d.user9),
-      // deciding not to validate colour
-      // this adds flexibility to the user to write hex codes, rgb,
-      // but also colour names like blue and red
-      // CSS.supports is only available in frontend
       colour: makeString(e.colour, d.colour),
       id,
+      cue,
       type: 'event',
     };
   }
@@ -351,7 +381,7 @@ type ResponseError = { error: true; message: string };
  * @param {string} file - reference to file
  * @return {object} - parse result message
  */
-export const fileHandler = async (file): ResponseOK | ResponseError => {
+export const fileHandler = async (file): Promise<ResponseOK | ResponseError> => {
   let res: Partial<ResponseOK | ResponseError> = {};
 
   // check which file type are we dealing with
@@ -370,8 +400,7 @@ export const fileHandler = async (file): ResponseOK | ResponseError => {
         res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
       } else {
-        const errorMessage = 'No sheet found named ontime or event schedule';
-        console.log(errorMessage);
+        const errorMessage = 'No sheet found named "ontime" or "event schedule"';
         res = {
           error: true,
           message: errorMessage,

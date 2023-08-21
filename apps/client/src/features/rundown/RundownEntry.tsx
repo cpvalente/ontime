@@ -1,28 +1,28 @@
 import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import { calculateDuration, getCueCandidate } from 'ontime-utils';
 
+import { RUNDOWN_TABLE } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import { ontimeQueryClient } from '../../common/queryClient';
 import { useAppMode } from '../../common/stores/appModeStore';
-import { useLocalEvent } from '../../common/stores/localEvent';
+import { useEditorSettings } from '../../common/stores/editorSettings';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
-import { calculateDuration } from '../../common/utils/timesManager';
 
 import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 
-export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update';
+export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update' | 'swap';
 
 interface RundownEntryProps {
   type: SupportedEvent;
-  eventIndex: number;
   isPast: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
   hasCursor: boolean;
   next: boolean;
-  delay: number;
   previousEnd: number;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
@@ -31,22 +31,10 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const {
-    eventIndex,
-    isPast,
-    data,
-    selected,
-    hasCursor,
-    next,
-    delay,
-    previousEnd,
-    previousEventId,
-    playback,
-    isRolling,
-    disableEdit,
-  } = props;
+  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, disableEdit } =
+    props;
   const { emitError } = useEmitLog();
-  const { addEvent, updateEvent, deleteEvent } = useEventAction();
+  const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
 
   const cursor = useAppMode((state) => state.cursor);
   const setCursor = useAppMode((state) => state.setCursor);
@@ -63,7 +51,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     }
   }, [cursor, data.id, openId, setCursor, setEditId]);
 
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
@@ -97,6 +85,12 @@ export default function RundownEntry(props: RundownEntryProps) {
           addEvent({ type: SupportedEvent.Block }, { after: data.id });
           break;
         }
+        case 'swap': {
+          const { value } = payload as FieldValue;
+          swapEvents({ from: value as string, to: data.id });
+
+          break;
+        }
         case 'delete': {
           if (openId === data.id) {
             removeOpenEvent();
@@ -106,6 +100,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         }
         case 'clone': {
           const newEvent = cloneEvent(data as OntimeEvent, data.id);
+          newEvent.cue = getCueCandidate(ontimeQueryClient.getQueryData(RUNDOWN_TABLE) || [], data.id);
           addEvent(newEvent);
           break;
         }
@@ -151,23 +146,24 @@ export default function RundownEntry(props: RundownEntryProps) {
       removeOpenEvent,
       startTimeIsLastEnd,
       updateEvent,
+      swapEvents,
     ],
   );
 
   if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
+        cue={data.cue}
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}
         duration={data.duration}
-        eventIndex={eventIndex + 1}
         eventId={data.id}
         isPublic={data.isPublic}
         endAction={data.endAction}
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={delay}
+        delay={data.delay || 0}
         previousEnd={previousEnd}
         colour={data.colour}
         isPast={isPast}

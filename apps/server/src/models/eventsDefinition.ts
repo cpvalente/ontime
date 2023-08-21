@@ -1,6 +1,6 @@
 import { EndAction, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
 
-export const event: Omit<OntimeEvent, 'id'> = {
+export const event: Omit<OntimeEvent, 'id' | 'delay' | 'cue'> = {
   title: '',
   subtitle: '',
   presenter: '',

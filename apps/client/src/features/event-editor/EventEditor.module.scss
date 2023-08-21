@@ -1,71 +1,49 @@
 @use '../../theme/v2Styles' as *;
 
 .eventEditor {
-  padding: 16px 32px 32px 32px;
+  padding: 1rem 2rem 2rem 2rem;
   width: 100%;
-  gap: max(16px, 2vh);
+  gap: max(1rem, 2vh);
 
   display: grid;
-  grid-template-areas:
-          'eventInfo   eventActions'
-          'timeOptions titles';
-  grid-template-columns: auto 1fr;
+  grid-template-areas: 'time left right';
+  grid-template-columns: auto 1fr 1fr;
+}
+
+.timeOptions {
+  grid-area: time;
+  display: flex;
+  gap: 1.5rem;
 
   .timers,
   .timeSettings {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
   }
 }
 
-.eventInfo {
-  grid-area: eventInfo;
-  .eventId {
-    margin-left: $element-inner-spacing;
-    user-select: text;
-  }
-}
-
-.eventActions {
-  grid-area: eventActions;
-  margin-left: auto;
-}
-
-.timeOptions {
-  grid-area: timeOptions;
+.left,
+.right {
   display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.titles {
-  grid-area: titles;
-  display: grid;
-  grid-template-areas: 'left right';
-  grid-template-columns: 1fr 1fr;
+.left {
+  grid-area: left;
+  padding: 0 1rem;
+  border-left: 1px solid $border-color-ondark;
+}
 
-  .left,
-  .right {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .left {
-    grid-area: left;
-    padding: 0 16px;
-    border-left: 1px solid $border-color-ondark;
-  }
-
-  .right {
-    padding-left: 16px;
-    grid-area: right;
-    border-left: 1px solid $border-color-ondark;
-  }
+.right {
+  padding-left: 1rem;
+  grid-area: right;
+  border-left: 1px solid $border-color-ondark;
 }
 
 @mixin input-label() {
-  font-size: 13px;
+  font-size: calc(1rem - 3px);
   color: $label-gray;
 }
 
@@ -84,32 +62,44 @@
   }
 
   &.publicToggle {
-    height: 32px;
+    height: 2rem;
     display: flex;
     align-items: center;
     justify-items: center;
-    gap: 8px;
+    gap: 0.5rem;
   }
 }
 
+.eventActions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .spacer {
-  height: 20px;
+  height: 1.25rem;
 }
 
 .inline {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
+}
+
+.splitTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
 .column {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .padTop {
-  margin-top: 8px;
+  margin-top: 0.5rem;
 }
 
 .fullHeight {

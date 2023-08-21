@@ -3,7 +3,7 @@ import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { useLocalEvent } from '../../../common/stores/localEvent';
+import { useEditorSettings } from '../../../common/stores/editorSettings';
 import { useEmitLog } from '../../../common/stores/logger';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
@@ -25,7 +25,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
   const doStartTime = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
 
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 

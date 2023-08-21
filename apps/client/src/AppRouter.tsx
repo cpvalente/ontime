@@ -1,10 +1,10 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import withData from './features/viewers/ViewWrapper';
 import withAlias from './features/AliasWrapper';
+import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
-const Table = lazy(() => import('./features/table/ProtectedTable'));
+const Cuesheet = lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
 
 const TimerView = lazy(() => import('./features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
@@ -59,9 +59,9 @@ export default function AppRouter() {
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
-        <Route path='/cuesheet' element={<Table />} />
-        <Route path='/cuelist' element={<Table />} />
-        <Route path='/table' element={<Table />} />
+        <Route path='/cuesheet' element={<Cuesheet />} />
+        <Route path='/cuelist' element={<Cuesheet />} />
+        <Route path='/table' element={<Cuesheet />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route

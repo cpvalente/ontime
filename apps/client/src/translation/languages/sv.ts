@@ -1,4 +1,4 @@
-import { TranslationObject } from '../Translation.types';
+import { TranslationObject } from './en';
 
 export const langSv: TranslationObject = {
   'common.end_time': 'Sluttid',
@@ -9,10 +9,11 @@ export const langSv: TranslationObject = {
   'common.start_time': 'Starttid',
   'common.stage_timer': 'Timer för scenen',
   'common.started_at': 'Började vid',
-  'common.time_now': 'Tid nu',
+  'common.time_now': 'Klockan nu',
   'countdown.ended': 'Evenemanget avslutades vid',
   'countdown.running': 'Evenemang pågår',
   'countdown.select_event': 'Välj ett evenemang att följa',
   'countdown.to_start': 'Tid till start',
-  'countdown.waiting': '"Väntar på att evenemanget ska starta',
+  'countdown.waiting': 'Väntar på att evenemanget ska starta',
+  'countdown.overtime': 'i övertid',
 };

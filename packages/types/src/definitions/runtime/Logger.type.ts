@@ -16,3 +16,12 @@ export type LogMessage = {
   type: 'ontime-log';
   payload: Log;
 };
+
+export enum LogOrigin {
+  Client = 'CLIENT',
+  Playback = 'PLAYBACK',
+  Rx = 'RX',
+  Server = 'SERVER',
+  Tx = 'TX',
+  User = 'USER'
+}

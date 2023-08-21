@@ -1,6 +1,6 @@
-@use "../../../theme/v2Styles" as *;
-@use "../../../theme/mixins" as *;
-@use "../../../theme/ontimeColours" as *;
+@use '../../../theme/v2Styles' as *;
+@use '../../../theme/mixins' as *;
+@use '../../../theme/ontimeColours' as *;
 
 $menu-bg: $gray-1200;
 $menu-hover-bg: $gray-1350;
@@ -14,14 +14,27 @@ $button-size: 48px;
   transform: rotate(180deg);
 }
 
-.navButton {
-  z-index: 2;
-  position: absolute;
-  left: 0.5em;
-  top: 0.5em;
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  padding: 0.5em;
+
   transition-property: opacity;
   transition-duration: 0.3s;
+
   opacity: 1;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2;
+
+  &.hidden {
+    opacity: 0;
+  }
+}
+
+.button {
   font-size: 24px;
   color: $icon-color;
   background-color: $button-bg;
@@ -30,10 +43,11 @@ $button-size: 48px;
   display: grid;
   place-content: center;
   border-radius: 3px;
+}
 
-  &.hidden {
-    opacity: 0;
-  }
+.navButton {
+  @extend .button;
+  z-index: 3;
 }
 
 .menuContainer {

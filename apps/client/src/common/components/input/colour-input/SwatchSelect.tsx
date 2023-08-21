@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { TitleActions } from '../../../../features/event-editor/composite/EventEditorTitles';
+import { TitleActions } from '../../../../features/event-editor/composite/EventEditorDataLeft';
 
 import Swatch from './Swatch';
 

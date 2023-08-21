@@ -1,98 +1,19 @@
 import {
   forgivingStringToMillis,
-  formatDisplay,
-  isTimeString,
   millisToDelayString,
   millisToMinutes,
   millisToSeconds,
+  secondsInMillis,
 } from '../dateConfig';
 
-describe('test string from formatDisplay function', () => {
-  it('test with null values', () => {
-    const t = { val: null, result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
+describe('test secondsInMillis function', () => {
+  it('return 0 if value is null', () => {
+    expect(secondsInMillis(null)).toBe(0);
   });
-
-  it('test with not numbers', () => {
-    const t = { val: 'test', result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with valid millis', () => {
-    const t = { val: 3600000, result: '01:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with negative millis', () => {
-    const t = { val: -3600000, result: '01:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with 0', () => {
-    const t = { val: 0, result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with -0', () => {
-    const t = { val: -0, result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with 86400 (24 hours)', () => {
-    const t = { val: 86400000, result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with 86401 (24 hours and 1 second)', () => {
-    const t = { val: 86401000, result: '00:00:01' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with -86401 (-24 hours and 1 second)', () => {
-    const t = { val: -86401000, result: '00:00:01' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-});
-
-describe('test string from formatDisplay function with hidezero', () => {
-  it('test with null values', () => {
-    const t = { val: null, result: '00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with valid millis', () => {
-    const t = { val: 3600000, result: '01:00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with negative millis', () => {
-    const t = { val: -3600000, result: '01:00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with 0', () => {
-    const t = { val: 0, result: '00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with -0', () => {
-    const t = { val: -0, result: '00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with 86400 (24 hours)', () => {
-    const t = { val: 86400000, result: '00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with 86401 (24 hours and 1 second)', () => {
-    const t = { val: 86401000, result: '00:01' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with -86401 (-24 hours and 1 second)', () => {
-    const t = { val: -86401000, result: '00:01' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
+  it('returns the seconds value of a millis date', () => {
+    const date = 1686255053619; // Thu Jun 08 2023 20:10:53
+    const seconds = secondsInMillis(date);
+    expect(seconds).toBe(53);
   });
 });
 
@@ -168,31 +89,6 @@ describe('test millisToMinutes function', () => {
     const t = { val: -86401000, result: -1440 };
     expect(millisToMinutes(t.val, false)).toBe(t.result);
   });
-});
-
-describe('test isTimeString() function', () => {
-  it('it validates time strings', () => {
-    const ts = ['2', '2:10', '2:10:22'];
-    for (const s of ts) {
-      expect(isTimeString(s)).toBe(true);
-    }
-  });
-
-  it('it fails overloaded times', () => {
-    const ts = ['70', '89:10', '26:10:22'];
-    for (const s of ts) {
-      expect(isTimeString(s)).toBe(false);
-    }
-  });
-});
-
-describe('test isTimeString() function handle different separators', () => {
-  const ts = ['2:10', '2,10', '2.10'];
-  for (const s of ts) {
-    it(`it handles ${s}`, () => {
-      expect(isTimeString(s)).toBe(true);
-    });
-  }
 });
 
 describe('test forgivingStringToMillis()', () => {

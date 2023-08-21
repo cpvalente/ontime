@@ -32,6 +32,20 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       break;
     }
 
+    case 'set-timer-blink': {
+      if (typeof payload !== 'undefined') {
+        messageService.setTimerBlink(Boolean(payload));
+      }
+      break;
+    }
+
+    case 'set-timer-blackout': {
+      if (typeof payload !== 'undefined') {
+        messageService.setTimerBlackout(Boolean(payload));
+      }
+      break;
+    }
+
     case 'set-timer-message-text': {
       if (typeof payload !== 'string') {
         throw new Error(`Unable to parse payload: ${payload}`);
@@ -109,6 +123,15 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       PlaybackService.startById(payload);
       break;
     }
+
+    case 'startcue': {
+      if (!payload || typeof payload !== 'string') {
+        throw new Error(`Event cue not recognised: ${payload}`);
+      }
+      PlaybackService.startByCue(payload);
+      break;
+    }
+
     case 'pause': {
       PlaybackService.pause();
       break;
@@ -170,6 +193,19 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
 
       try {
         PlaybackService.loadById(payload.toString().toLowerCase());
+      } catch (error) {
+        throw new Error(`OSC IN: error calling goto ${error}`);
+      }
+      break;
+    }
+    case 'gotocue':
+    case 'loadcue': {
+      if (!payload || typeof payload !== 'string') {
+        throw new Error(`Event cue not recognised: ${payload}`);
+      }
+
+      try {
+        PlaybackService.loadByCue(payload);
       } catch (error) {
         throw new Error(`OSC IN: error calling goto ${error}`);
       }

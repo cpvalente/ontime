@@ -1,28 +1,26 @@
 import express from 'express';
 import {
   deleteEventById,
-  getEventById,
   rundownApplyDelay,
   rundownDelete,
   rundownGetAll,
   rundownPost,
   rundownPut,
   rundownReorder,
+  rundownSwap,
 } from '../controllers/rundownController.js';
 import {
   paramsMustHaveEventId,
   rundownPostValidator,
   rundownPutValidator,
   rundownReorderValidator,
+  rundownSwapValidator,
 } from '../controllers/rundownController.validate.js';
 
 export const router = express.Router();
 
 // create route between controller and '/events/' endpoint
 router.get('/', rundownGetAll);
-
-// create route between controller and '/events/:eventId' endpoint
-router.get('/:eventId', paramsMustHaveEventId, getEventById);
 
 // create route between controller and '/events/' endpoint
 router.post('/', rundownPostValidator, rundownPost);
@@ -32,6 +30,8 @@ router.put('/', rundownPutValidator, rundownPut);
 
 // create route between controller and '/events/reorder' endpoint
 router.patch('/reorder/', rundownReorderValidator, rundownReorder);
+
+router.patch('/swap', rundownSwapValidator, rundownSwap);
 
 // create route between controller and '/events/applydelay/:eventId' endpoint
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);

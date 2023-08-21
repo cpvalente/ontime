@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+// skipcq: JS-C1003 - sentry does not expose itself as an ES Module.
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 
@@ -17,6 +18,8 @@ Sentry.init({
   tracesSampleRate: 1.0,
   release: ONTIME_VERSION,
   enabled: import.meta.env.PROD,
+  ignoreErrors: ['top.GLOBALS', 'Unable to preload CSS'],
+  denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i],
 });
 
 root.render(

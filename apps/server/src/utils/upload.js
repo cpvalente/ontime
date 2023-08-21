@@ -1,5 +1,5 @@
 import multer from 'multer';
-import * as path from 'path';
+import path from 'path';
 
 import { EXCEL_MIME, JSON_MIME } from './parser.js';
 import { ensureDirectory } from './fileManagement.js';
