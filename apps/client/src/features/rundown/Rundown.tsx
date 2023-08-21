@@ -36,10 +36,8 @@ export default function Rundown(props: RundownProps) {
   const isExtracted = window.location.pathname.includes('/rundown');
 
   // cursor
-  const cursor = useAppMode((state) => state.cursor);
-  const appMode = useAppMode((state) => state.mode);
+  const { cursor, mode: appMode } = useAppMode((state) => state);
   const viewFollowsCursor = appMode === AppMode.Run;
-  const moveCursorTo = useAppMode((state) => state.setCursor);
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: cursorRef, scrollRef: scrollRef, doFollow: true });
@@ -88,8 +86,9 @@ export default function Rundown(props: RundownProps) {
     (event: KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
-      // Check if the alt key is pressed
-      if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
+      if (event.ctrlKey || event.shiftKey) {
+        // console.log(event);
+      } else if (event.altKey) {
         switch (event.code) {
           case 'ArrowDown': {
             if (entries.length < 1) {
@@ -97,7 +96,7 @@ export default function Rundown(props: RundownProps) {
             }
             const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor);
             if (nextEvent) {
-              moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
+              // moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
             }
             break;
           }
@@ -108,7 +107,7 @@ export default function Rundown(props: RundownProps) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
             const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor);
             if (previousEvent) {
-              moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
+              // moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
             }
             break;
           }
@@ -135,7 +134,7 @@ export default function Rundown(props: RundownProps) {
         }
       }
     },
-    [cursor, entries, insertAtCursor, moveCursorTo],
+    [cursor, entries, insertAtCursor],
   );
 
   // we copy the state from the store here
@@ -149,9 +148,11 @@ export default function Rundown(props: RundownProps) {
   // listen to keys
   useEffect(() => {
     document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener('keyup', (e) => {});
 
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener('keyup', (e) => {});
     };
   }, [handleKeyPress]);
 
@@ -160,8 +161,8 @@ export default function Rundown(props: RundownProps) {
     if (!viewFollowsCursor || !featureData?.selectedEventId) {
       return;
     }
-    moveCursorTo(featureData.selectedEventId);
-  }, [featureData?.selectedEventId, viewFollowsCursor, moveCursorTo]);
+    // moveCursorTo(featureData.selectedEventId);
+  }, [featureData?.selectedEventId, viewFollowsCursor]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

@@ -36,20 +36,17 @@ export default function RundownEntry(props: RundownEntryProps) {
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
 
-  const cursor = useAppMode((state) => state.cursor);
-  const setCursor = useAppMode((state) => state.setCursor);
-  const openId = useAppMode((state) => state.editId);
-  const setEditId = useAppMode((state) => state.setEditId);
+  const { cursor, idsToEdit, clearIdsToEdit } = useAppMode((state) => state);
 
   const removeOpenEvent = useCallback(() => {
-    if (openId === data.id) {
-      setEditId(null);
+    if (idsToEdit.some((id) => id === data.id)) {
+      clearIdsToEdit();
     }
 
     if (cursor === data.id) {
-      setCursor(null);
+      // setCursor(null);
     }
-  }, [cursor, data.id, openId, setCursor, setEditId]);
+  }, [cursor, data.id, idsToEdit, clearIdsToEdit]);
 
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
@@ -92,7 +89,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
         }
         case 'delete': {
-          if (openId === data.id) {
+          if (idsToEdit.some((id) => id === data.id)) {
             removeOpenEvent();
           }
           deleteEvent(data.id);
@@ -141,11 +138,11 @@ export default function RundownEntry(props: RundownEntryProps) {
       defaultPublic,
       deleteEvent,
       emitError,
-      openId,
       previousEventId,
       removeOpenEvent,
       startTimeIsLastEnd,
       updateEvent,
+      idsToEdit,
       swapEvents,
     ],
   );

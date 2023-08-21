@@ -16,23 +16,23 @@ export type EventEditorSubmitActions = keyof OntimeEvent;
 export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
 
 export default function EventEditor() {
-  const openId = useAppMode((state) => state.editId);
+  const { idsToEdit } = useAppMode((state) => state);
   const { data } = useRundown();
   const { updateEvent } = useEventAction();
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
   useEffect(() => {
-    if (!data || !openId) {
+    if (!data || idsToEdit.length === 0) {
       setEvent(null);
       return;
     }
 
-    const event = data.find((event) => event.id === openId);
+    const event = data.find((event) => event.id === idsToEdit.at(0));
     if (event && isOntimeEvent(event)) {
       setEvent(event);
     }
-  }, [data, openId]);
+  }, [data, idsToEdit]);
 
   const handleSubmit = useCallback(
     (field: EditorUpdateFields, value: string) => {

@@ -12,8 +12,7 @@ import { useAppMode } from '../../common/stores/appModeStore';
 import style from './RundownMenu.module.scss';
 
 const RundownMenu = () => {
-  const setEditId = useAppMode((state) => state.setEditId);
-  const setCursor = useAppMode((state) => state.setCursor);
+  const { clearIdsToEdit } = useAppMode((state) => state);
 
   const { addEvent, deleteAllEvents } = useEventAction();
 
@@ -31,9 +30,9 @@ const RundownMenu = () => {
 
   const deleteAll = useCallback(() => {
     deleteAllEvents();
-    setEditId(null);
-    setCursor(null);
-  }, [deleteAllEvents, setCursor, setEditId]);
+    clearIdsToEdit();
+    // setCursor(null);
+  }, [deleteAllEvents, clearIdsToEdit]);
 
   return (
     <div className={style.headerButtons}>

@@ -78,10 +78,10 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const moveCursorTo = useAppMode((state) => state.setCursor);
+  const { idsToEdit, setIdsToEdit } = useAppMode((state) => state);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const openId = useAppMode((state) => state.editId);
+
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
     { label: `Copy ID: ${eventId}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
     {
@@ -167,12 +167,13 @@ export default function EventBlock(props: EventBlockProps) {
     isPast ? style.past : null,
     selected ? style.selected : null,
     playback ? style[playback] : null,
-    hasCursor ? style.hasCursor : null,
+    idsToEdit.some((event) => event === eventId) ? style.hasCursor : null,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {
     event.stopPropagation();
-    moveCursorTo(eventId, true);
+    // moveCursorTo(eventId, true);
+    setIdsToEdit([eventId]);
   };
 
   return (
@@ -191,7 +192,7 @@ export default function EventBlock(props: EventBlockProps) {
       </div>
       {isVisible && (
         <EventBlockInner
-          isOpen={openId === eventId}
+          isOpen={idsToEdit.length === 1}
           timeStart={timeStart}
           timeEnd={timeEnd}
           duration={duration}
