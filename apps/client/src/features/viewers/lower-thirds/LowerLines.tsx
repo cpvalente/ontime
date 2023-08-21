@@ -5,7 +5,6 @@ import { Message } from 'ontime-types';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { LOWER_THIRDS_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { TitleManager } from '../ViewWrapper';
 
 import { LowerOptions } from './LowerWrapper';
 
@@ -13,12 +12,14 @@ import './LowerLines.scss';
 
 interface LowerLinesProps {
   lower: Message;
-  title: TitleManager;
+  heading: string;
+  subheading: string;
   options: LowerOptions;
+  doShow: boolean;
 }
 
 export default function LowerLines(props: LowerLinesProps) {
-  const { lower, title, options } = props;
+  const { lower, heading, subheading, options, doShow } = props;
   const [showLower, setShowLower] = useState(true);
 
   // Unmount if fadeOut
@@ -36,8 +37,8 @@ export default function LowerLines(props: LowerLinesProps) {
   }, [options.fadeOut, options.transitionIn]);
 
   useEffect(() => {
-    setShowLower(title.showNow);
-  }, [title.showNow]);
+    setShowLower(doShow);
+  }, [doShow]);
 
   // Format messages
   const showLowerMessage = lower.text !== '' && lower.visible;
@@ -146,14 +147,14 @@ export default function LowerLines(props: LowerLinesProps) {
           >
             <motion.div className='title-container' variants={titleContainerVariants}>
               <motion.div className='title' variants={titleVariants}>
-                {title.titleNow}
+                {heading}
               </motion.div>
               <div className='title-decor' />
             </motion.div>
             <motion.div className='subtitle-container' variants={subtitleContainerVariants}>
               <div className='sub-decor' />
               <motion.div className='subtitle' variants={subtitleVariants}>
-                {title.presenterNow}
+                {subheading}
               </motion.div>
             </motion.div>
           </motion.div>

@@ -1,11 +1,10 @@
 import { memo, useEffect, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { useSearchParams } from 'react-router-dom';
-import { Message, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TitleManager } from '../ViewWrapper';
 
 import LowerLines from './LowerLines';
 
@@ -17,33 +16,26 @@ export type LowerOptions = {
   keyColour?: string;
   fadeOut: number;
 };
+
 interface LowerProps {
-  title: TitleManager;
+  eventNow: OntimeEvent | null;
   lower: Message;
   viewSettings: ViewSettings;
 }
 
 // prevent triggering animation without a content change
 const areEqual = (prevProps: LowerProps, nextProps: LowerProps) => {
-  return isEqual(prevProps.title, nextProps.title) && isEqual(prevProps.lower, nextProps.lower);
+  return isEqual(prevProps.eventNow?.title, nextProps.eventNow?.title) && isEqual(prevProps.lower, nextProps.lower);
 };
 
 const Lower = (props: LowerProps) => {
-  const { title, lower, viewSettings } = props;
+  const { eventNow, lower, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
-  const [titles, setTitles] = useState<TitleManager>({
-    titleNow: '',
-    titleNext: '',
-    subtitleNow: '',
-    subtitleNext: '',
-    presenterNow: '',
-    presenterNext: '',
-    noteNow: '',
-    noteNext: '',
-    showNow: false,
-    showNext: false,
-  });
+
+  const [heading, setHeading] = useState('');
+  const [subheading, setSubheading] = useState('');
+  const [showLower, setShowLower] = useState(false);
 
   // Set window title
   useEffect(() => {
@@ -54,28 +46,29 @@ const Lower = (props: LowerProps) => {
   useEffect(() => {
     // clear titles if necessary
     // will trigger an animation out in the component
-    let timeout: NodeJS.Timeout | null = null;
-    if (
-      title?.titleNow !== titles?.titleNow ||
-      title?.subtitleNow !== titles?.subtitleNow ||
-      title?.presenterNow !== titles?.presenterNow
-    ) {
-      setTitles((t) => ({ ...t, showNow: false }));
+    let timeout: NodeJS.Timeout;
 
+    const haveTitlesChanged = eventNow?.title !== heading || eventNow?.presenter !== subheading;
+    if (haveTitlesChanged) {
+      // hide lower
+      setShowLower(false);
+
+      // schedule lower transition in
       const transitionTime = 2000;
-
       timeout = setTimeout(() => {
-        setTitles(title);
+        setHeading(eventNow?.title ?? '');
+        setSubheading(eventNow?.presenter ?? '');
+        setShowLower(eventNow?.title !== '');
       }, transitionTime);
     }
 
     return () => {
-      if (timeout != null) {
+      if (timeout) {
         clearTimeout(timeout);
       }
     };
     // eslint-disable-next-line -- we do this to keep animations
-  }, [title.titleNow, title.subtitleNow, title.presenterNow]);
+  }, [eventNow?.title, eventNow?.presenter]);
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -135,7 +128,7 @@ const Lower = (props: LowerProps) => {
     }
   }
 
-  return <LowerLines lower={lower} title={titles} options={options} />;
+  return <LowerLines lower={lower} heading={heading} subheading={subheading} options={options} doShow={showLower} />;
 };
 
 export default memo(Lower, areEqual);
