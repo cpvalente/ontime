@@ -166,7 +166,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   const id = generateId();
 
   let insertIndex = 0;
-  if (eventData?.after !== 'undefined') {
+  if (eventData?.after !== undefined) {
     const index = DataProvider.getIndexOf(eventData.after);
     if (index < 0) {
       logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
