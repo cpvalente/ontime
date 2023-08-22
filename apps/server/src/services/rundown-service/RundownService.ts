@@ -4,7 +4,6 @@ import {
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  OntimeRundown,
   Playback,
   SupportedEvent,
 } from 'ontime-types';
@@ -18,6 +17,7 @@ import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
 import {
   cachedAdd,
+  cachedApplyDelay,
   cachedClear,
   cachedDelete,
   cachedEdit,
@@ -268,46 +268,14 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
   return reorderedItem;
 }
 
-export function _applyDelay(
-  eventId: string,
-  rundown: OntimeRundown,
-): {
-  delayIndex: number | null;
-  updatedRundown: OntimeRundown;
-} {
-  const updatedRundown = [...rundown];
-  let delayIndex = null;
-  let delayValue = 0;
+export async function applyDelay(eventId: string) {
+  await cachedApplyDelay(eventId);
 
-  for (const [index, event] of updatedRundown.entries()) {
-    // look for delay
-    if (delayIndex === null) {
-      if (event.type === SupportedEvent.Delay && event.id === eventId) {
-        delayValue = event.duration;
-        delayIndex = index;
+  // notify timer service of changed events
+  updateTimer();
 
-        if (delayValue === 0) {
-          // nothing to apply
-          break;
-        }
-      }
-      continue;
-    }
-
-    // once delay is found, apply delay value to all items until block or end
-    if (event.type === SupportedEvent.Event) {
-      updatedRundown[index] = {
-        ...event,
-        timeStart: Math.max(0, event.timeStart + delayValue),
-        timeEnd: Math.max(event.duration, event.timeEnd + delayValue),
-        revision: event.revision + 1,
-      };
-    } else if (event.type === SupportedEvent.Block) {
-      break;
-    }
-  }
-
-  return { delayIndex, updatedRundown };
+  // advice socket subscribers of change
+  sendRefetch();
 }
 
 /**
@@ -324,22 +292,6 @@ export async function swapEvents(from: string, to: string) {
 
   // advice socket subscribers of change
   sendRefetch();
-}
-
-/**
- * applies delay value for given event
- * @param eventId
- * @returns {Promise<void>}
- */
-export async function applyDelay(eventId: string) {
-  const rundown: OntimeRundown = DataProvider.getRundown();
-  const { delayIndex, updatedRundown } = _applyDelay(eventId, rundown);
-  if (delayIndex === null) {
-    throw new Error(`Delay event with ID ${eventId} not found`);
-  }
-
-  await DataProvider.setRundown(updatedRundown);
-  await deleteEvent(eventId);
 }
 
 /**

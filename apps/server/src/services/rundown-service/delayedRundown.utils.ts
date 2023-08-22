@@ -1,10 +1,11 @@
 import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
+import { swapOntimeEvents } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
 import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
-import { swapOntimeEvents } from 'ontime-utils';
+import { _applyDelay } from '../delayUtils.js';
 
 /**
  * Key of rundown in cache
@@ -203,6 +204,19 @@ export async function cachedSwap(fromEventId: string, toEventId: string) {
   }
 
   await DataProvider.setRundown(rundownToUpdate);
+}
+
+export async function cachedApplyDelay(eventId: string) {
+  // update persisted rundown
+  const rundown: OntimeRundown = DataProvider.getRundown();
+  const persistedRundown = _applyDelay(eventId, rundown);
+
+  const delayedRundown = getDelayedRundown();
+  const cachedRundown = _applyDelay(eventId, delayedRundown);
+
+  // update
+  runtimeCacheStore.setCached(delayedRundownCacheKey, cachedRundown);
+  await DataProvider.setRundown(persistedRundown);
 }
 
 /**
