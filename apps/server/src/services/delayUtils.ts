@@ -1,4 +1,4 @@
-import { OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
 
 import { deleteAtIndex } from '../utils/arrayUtils.js';
 
@@ -21,16 +21,15 @@ export function _applyDelay(eventId: string, rundown: OntimeRundown): OntimeRund
   for (let i = delayIndex + 1; i < rundown.length; i++) {
     const currentEvent = updatedRundown[i];
 
-    if (currentEvent.type === SupportedEvent.Block) {
+    if (isOntimeBlock(currentEvent)) {
       break;
-    } else if (currentEvent.type === SupportedEvent.Event) {
-      const event = currentEvent as OntimeEvent;
-      event.timeStart = Math.max(0, event.timeStart + delayValue);
-      event.timeEnd = Math.max(event.duration, event.timeEnd + delayValue);
-      if (event.delay) {
-        event.delay = event.delay - delayValue;
+    } else if (isOntimeEvent(currentEvent)) {
+      currentEvent.timeStart = Math.max(0, currentEvent.timeStart + delayValue);
+      currentEvent.timeEnd = Math.max(currentEvent.duration, currentEvent.timeEnd + delayValue);
+      if (currentEvent.delay) {
+        currentEvent.delay = currentEvent.delay - delayValue;
       }
-      event.revision += 1;
+      currentEvent.revision += 1;
     }
   }
 
