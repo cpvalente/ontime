@@ -67,6 +67,9 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByPlaceholder('Event title').fill('test');
   await page.getByPlaceholder('Event title').press('Enter');
 
+  await page.getByText('SED').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Toggle public' }).click();
+
   // add a delay
   await page.getByRole('button', { name: 'Event...' }).click();
   await page.getByRole('menuitem', { name: 'Add delay at start' }).click();
