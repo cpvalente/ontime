@@ -1,4 +1,4 @@
-import { OntimeEvent, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
 import { dayInMs } from '../timeConstants.js';
 
@@ -18,8 +18,9 @@ export function getFirst(rundown: OntimeRundownEntry[]) {
  */
 export function getFirstEvent(rundown: OntimeRundownEntry[]) {
   for (let i = 0; i < rundown.length; i++) {
-    if (rundown[i].type === SupportedEvent.Event) {
-      return rundown[i] as OntimeEvent;
+    const event = rundown[i];
+    if (isOntimeEvent(event)) {
+      return event;
     }
   }
   return null;
@@ -53,8 +54,9 @@ export function getNextEvent(rundown: OntimeRundownEntry[], currentId: string): 
   }
 
   for (let i = index + 1; i < rundown.length; i++) {
-    if (rundown[i].type === SupportedEvent.Event) {
-      return rundown[i] as OntimeEvent;
+    const event = rundown[i];
+    if (isOntimeEvent(event)) {
+      return event;
     }
   }
   return null;
@@ -88,8 +90,9 @@ export function getPreviousEvent(rundown: OntimeRundownEntry[], currentId: strin
   }
 
   for (let i = index - 1; i >= 0; i--) {
-    if (rundown[i].type === SupportedEvent.Event) {
-      return rundown[i] as OntimeEvent;
+    const event = rundown[i];
+    if (isOntimeEvent(event)) {
+      return event;
     }
   }
   return null;
