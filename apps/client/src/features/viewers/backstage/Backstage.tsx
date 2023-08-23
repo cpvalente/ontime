@@ -166,7 +166,7 @@ export default function Backstage(props: BackstageProps) {
 
       <ScheduleProvider events={filteredEvents} selectedEventId={selectedId} isBackstage>
         <ScheduleNav className='schedule-nav-container' />
-        <Schedule className='schedule-container' />
+        <Schedule isProduction className='schedule-container' />
       </ScheduleProvider>
 
       <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>

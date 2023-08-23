@@ -37,7 +37,17 @@ function ButtonTooltip(name: TimeEntryField, warning?: string) {
 }
 
 export default function TimeInput(props: TimeInputProps) {
-  const { id, name, submitHandler, time = 0, delay = 0, placeholder, validationHandler, previousEnd = 0, warning } = props;
+  const {
+    id,
+    name,
+    submitHandler,
+    time = 0,
+    delay = 0,
+    placeholder,
+    validationHandler,
+    previousEnd = 0,
+    warning,
+  } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -191,7 +201,7 @@ export default function TimeInput(props: TimeInputProps) {
       <Input
         ref={inputRef}
         id={id}
-        data-testid='time-input'
+        data-testid={`time-input-${name}`}
         className={style.inputField}
         type='text'
         placeholder={placeholder}

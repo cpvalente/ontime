@@ -46,5 +46,6 @@ export type { TitleBlock } from './definitions/runtime/TitleBlock.type.js';
 
 // CLIENT
 
-// UTILITY TYPES
+// TYPE UTILITIES
+export { isOntimeBlock, isOntimeDelay, isOntimeEvent } from './utils/guards.js';
 export type { MaybeNumber } from './utils/utils.type.js';
