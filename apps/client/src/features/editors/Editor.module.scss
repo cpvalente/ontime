@@ -35,7 +35,7 @@ $playback-width: 26rem;
 
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: $menu-width $rundown-width $playback-width auto;
+  grid-template-columns:  2vw 35vw 30vw auto;
   grid-template-areas:
     'sett rundown play info'
     'sett rundown mess info';
@@ -59,7 +59,7 @@ $playback-width: 26rem;
   .mainContainer {
     height: 100%;
     grid-template-rows: auto 1fr;
-    grid-template-columns: $menu-width 1fr $playback-width;
+    grid-template-columns: $menu-width $rundown-width*0.7 $playback-width;
 
     .info {
       visibility: hidden;
@@ -184,7 +184,6 @@ $playback-width: 26rem;
 .info {
   grid-area: info;
   min-width: 17rem;
-  max-width: 800px;
 
   .content {
     display: flex;
@@ -209,7 +208,7 @@ $playback-width: 26rem;
   background-color: transparent;
   margin: 0;
   padding: 0 0.5rem 0 0;
-  width: fit-content;
+  width: auto;
 
   display: flex;
   flex-direction: column;
