@@ -132,12 +132,13 @@ export async function cachedDelete(eventId: string) {
   }
 
   let updatedRundown = DataProvider.getRundown();
+  const eventBack = { ...updatedRundown[eventIndex] };
   updatedRundown = deleteAtIndex(eventIndex, updatedRundown);
   if (eventId !== delayedRundown[eventIndex].id) {
     invalidateFromError();
   } else {
     delayedRundown = deleteAtIndex(eventIndex, delayedRundown);
-    if (isOntimeDelay(updatedRundown[eventIndex]) || isOntimeBlock(updatedRundown[eventIndex])) {
+    if (isOntimeDelay(eventBack) || isOntimeBlock(eventBack)) {
       // for events, we do not have to worry
       // the following event, would have taken the place of the deleted event by now
       delayedRundown = calculateRuntimeDelaysFromIndex(eventIndex, delayedRundown);
