@@ -47,6 +47,7 @@ test('delay blocks add time to events', async ({ page }) => {
   // cancel delay
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(page.getByTestId('panel-rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
+  await expect(page.getByText('+10 minNew start: 00:18:00')).toHaveCount(0);
 });
 
 test('delays are show correctly', async ({ page }) => {
