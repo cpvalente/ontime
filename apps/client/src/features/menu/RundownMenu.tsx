@@ -12,7 +12,7 @@ import { useAppMode } from '../../common/stores/appModeStore';
 import style from './RundownMenu.module.scss';
 
 const RundownMenu = () => {
-  const { clearIdsToEdit } = useAppMode((state) => state);
+  const { clearIdsToEdit } = useAppMode();
 
   const { addEvent, deleteAllEvents } = useEventAction();
 

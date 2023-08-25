@@ -16,7 +16,7 @@ export type EventEditorSubmitActions = keyof OntimeEvent;
 export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
 
 export default function EventEditor() {
-  const { idsToEdit } = useAppMode((state) => state);
+  const { idsToEdit } = useAppMode();
   const { data } = useRundown();
   const { updateEvent } = useEventAction();
 
@@ -28,7 +28,7 @@ export default function EventEditor() {
       return;
     }
 
-    const event = data.find((event) => event.id === idsToEdit.at(0));
+    const event = data.find((event) => event.id === idsToEdit.at(0)?.id);
     if (event && isOntimeEvent(event)) {
       setEvent(event);
     }
