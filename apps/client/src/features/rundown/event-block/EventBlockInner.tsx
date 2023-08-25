@@ -163,7 +163,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           color={isOpen ? 'white' : '#f6f6f6'}
           isDisabled={disableEdit}
         />
-        <BlockActionMenu showAdd showDelay showBlock showClone enableDelete={!selected} actionHandler={actionHandler} />
+        <BlockActionMenu showClone enableDelete={!selected} actionHandler={actionHandler} />
       </div>
     </>
   );
