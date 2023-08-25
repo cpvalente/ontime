@@ -6,12 +6,13 @@
 
   background-color: $block-bg2;
 
+  min-width: 34rem;
   display: grid;
-  grid-template-columns: 32px 1fr auto;
+  grid-template-columns: 2rem 1fr auto;
   grid-template-areas: 'drag inpt btns';
   align-items: center;
   height: $secondary-block-height;
-  gap: 8px;
+  gap: 0.5rem;
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
