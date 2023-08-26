@@ -1,6 +1,6 @@
-import { OntimeEvent, OntimeRundown } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
-import { getFirstEvent, getNextEvent } from '../rundown-utils/rundownUtils.js';
+import { getFirstEvent, getNextEvent, getPreviousEvent } from '../rundown-utils/rundownUtils.js';
 import { isNumeric } from '../types/types.js';
 
 /**
@@ -9,7 +9,7 @@ import { isNumeric } from '../types/types.js';
  */
 export function getIncrement(input: string): string {
   // Check if the input string contains a number at the end
-  const match = input.match(/^(\D*)(\d+)(\.\d+)?$/);
+  const match = input?.match(/^(\D*)(\d+)(\.\d+)?$/);
 
   if (match) {
     // If a number is found, extract the non-numeric prefix, integer part, and decimal part
@@ -61,15 +61,26 @@ export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string):
   }
 
   // get elements around
-  const previousEvent = rundown.at(afterIndex);
+  let previousEvent: OntimeRundownEntry | undefined | null | OntimeEvent = rundown.at(afterIndex);
+  if (!isOntimeEvent(previousEvent)) {
+    previousEvent = getPreviousEvent(rundown, insertAfterId) as null | OntimeEvent;
+  }
+
+  let cue = '1';
   const nextEvent = getNextEvent(rundown, insertAfterId);
 
   // try and increment the cue
-  let cue = getIncrement((previousEvent as OntimeEvent).cue);
+  if (isOntimeEvent(previousEvent)) {
+    cue = getIncrement(previousEvent.cue);
+  }
 
   // if increment is clashing with next, we add a decimal instead
   if (cue === nextEvent?.cue) {
-    cue = (previousEvent as OntimeEvent).cue + '.1';
+    if (previousEvent === null) {
+      cue = '0.1';
+    } else {
+      cue = previousEvent.cue + '.1';
+    }
   }
 
   return cue;
