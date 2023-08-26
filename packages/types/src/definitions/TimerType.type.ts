@@ -1,5 +1,6 @@
 export enum TimerType {
   CountDown = 'count-down',
   CountUp = 'count-up',
-  Clock = 'clock'
+  TimeToEnd = 'time-to-end',
+  Clock = 'clock',
 }

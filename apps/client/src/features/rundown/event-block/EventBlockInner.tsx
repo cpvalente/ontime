@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
+import { BiArrowToBottom } from '@react-icons/all-files/bi/BiArrowToBottom';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
@@ -192,6 +193,9 @@ function TimerIcon(props: { type: TimerType; className: string }) {
   }
   if (type === TimerType.Clock) {
     return <IoTime className={className} />;
+  }
+  if (type === TimerType.TimeToEnd) {
+    return <BiArrowToBottom className={className} />;
   }
   return <IoArrowDown className={className} />;
 }

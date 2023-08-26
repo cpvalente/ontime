@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
+import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
 import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { eventStore } from '../stores/EventStore.js';
@@ -24,6 +24,9 @@ export class TimerService {
   timer: TimerState;
 
   loadedTimerId: string | null;
+  private loadedTimerStart: number | null;
+  private loadedTimerEnd: number | null;
+
   private pausedTime: number;
   private pausedAt: number | null;
   private secondaryTarget: number | null;
@@ -61,6 +64,9 @@ export class TimerService {
       endAction: null,
     };
     this.loadedTimerId = null;
+    this.loadedTimerStart = null;
+    this.loadedTimerEnd = null;
+
     this.pausedTime = 0;
     this.pausedAt = null;
     this.secondaryTarget = null;
@@ -93,6 +99,8 @@ export class TimerService {
     this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -102,6 +110,8 @@ export class TimerService {
       this.timer.duration,
       this.pausedTime,
       this.timer.addedTime,
+      this.loadedTimerEnd,
+      this.timer.timerType,
     );
     if (this.timer.startedAt === null) {
       this.timer.current = this.timer.duration;
@@ -129,13 +139,21 @@ export class TimerService {
     this._clear();
 
     this.loadedTimerId = timer.id;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
+
     this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
-    this.timer.current = this.timer.duration;
     this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
     this.pausedTime = 0;
     this.pausedAt = 0;
+
+    this.timer.current = this.timer.duration;
+    if (this.timer.timerType === TimerType.TimeToEnd) {
+      const now = clock.timeNow();
+      this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
+    }
 
     if (typeof initialData !== 'undefined') {
       this.timer = { ...this.timer, ...initialData };
@@ -188,6 +206,8 @@ export class TimerService {
       this.timer.duration,
       this.pausedTime,
       this.timer.addedTime,
+      this.loadedTimerEnd,
+      this.timer.timerType,
     );
     this._onStart();
   }
@@ -310,6 +330,8 @@ export class TimerService {
         this.timer.duration,
         this.pausedTime,
         this.timer.addedTime,
+        this.loadedTimerEnd,
+        this.timer.timerType,
       );
     }
     this.timer.current = getCurrent(
@@ -318,6 +340,8 @@ export class TimerService {
       this.timer.addedTime,
       this.pausedTime,
       this.timer.clock,
+      this.loadedTimerEnd,
+      this.timer.timerType,
     );
     this.timer.elapsed = this.timer.duration - this.timer.current;
   }

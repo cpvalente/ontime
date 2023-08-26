@@ -1,4 +1,4 @@
-import { MaybeNumber } from 'ontime-types';
+import { MaybeNumber, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 /**
@@ -10,6 +10,8 @@ export function getExpectedFinish(
   duration: number,
   pausedTime: number,
   addedTime: number,
+  timeEnd: number,
+  timerType: TimerType,
 ) {
   if (startedAt === null) {
     return null;
@@ -17,6 +19,10 @@ export function getExpectedFinish(
 
   if (finishedAt !== null) {
     return finishedAt;
+  }
+
+  if (timerType === TimerType.TimeToEnd) {
+    return timeEnd + addedTime + pausedTime;
   }
 
   // handle events that finish the day after
@@ -38,11 +44,22 @@ export function getCurrent(
   addedTime: number,
   pausedTime: number,
   clock: number,
+  timeEnd: number,
+  timerType: TimerType,
 ) {
   if (startedAt === null) {
     return null;
   }
+
+  if (timerType === TimerType.TimeToEnd) {
+    if (startedAt > timeEnd) {
+      return timeEnd + addedTime + pausedTime + dayInMs - clock;
+    }
+    return timeEnd + addedTime + pausedTime - clock;
+  }
+
   if (startedAt > clock) {
+    // we are the day after the event was started
     return startedAt + duration + addedTime + pausedTime - clock - dayInMs;
   }
   return startedAt + duration + addedTime + pausedTime - clock;
