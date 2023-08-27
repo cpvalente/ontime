@@ -23,7 +23,7 @@ export default function EventEditor() {
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
   useEffect(() => {
-    if (!data || idsToEdit.length === 0) {
+    if (!data || idsToEdit.length === 0 || idsToEdit.length > 1) {
       setEvent(null);
       return;
     }
