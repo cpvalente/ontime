@@ -246,7 +246,7 @@ export function dispatchFromAdapter(
           throw new Error(`Duration not recognised: ${payload}`);
         }
 
-        PlaybackService.updateEventDuration(param, duration);
+        return PlaybackService.updateEventDuration(param, duration);
       } catch (error) {
         throw new Error(`Error updating duration: ${error}`);
       }
