@@ -17,40 +17,16 @@ test('CRUD operations on the rundown', async ({ page }) => {
   await page.getByTestId('quick-add-event').click();
 
   // test quick add options - start is last end
-  await page
-    .locator('div')
-    .filter({ hasText: /^22SEDEvent title$/ })
-    .getByTestId('time-input-timeEnd')
-    .click();
-  await page
-    .locator('div')
-    .filter({ hasText: /^22SEDEvent title$/ })
-    .getByTestId('time-input-timeEnd')
-    .fill('20m');
-  await page
-    .locator('div')
-    .filter({ hasText: /^22SEDEvent title$/ })
-    .getByTestId('time-input-timeEnd')
-    .press('Enter');
+  await page.getByTestId('entry-2').getByTestId('time-input-timeEnd').fill('20m');
   await page.getByText('Start time is last end').click();
   await page.getByTestId('quick-add-event').click();
-  await expect(
-    await page
-      .locator('div')
-      .filter({ hasText: /^33SEDEvent title$/ })
-      .getByTestId('time-input-timeStart')
-      .inputValue(),
-  ).toContain('00:20:00');
+  await expect(await page.getByTestId('entry-3').getByTestId('time-input-timeStart').inputValue()).toContain(
+    '00:20:00',
+  );
 
   // test quick add options - event is public
   await page.locator('label').filter({ hasText: 'Event is public' }).click();
   await page.getByTestId('quick-add-event').click();
 
-  await expect(
-    await page
-      .locator('div')
-      .filter({ hasText: /^44SEDEvent title$/ })
-      .getByRole('img')
-      .nth(3),
-  ).toHaveAttribute('data-isPublic', 'true');
+  await expect(await page.getByTestId('entry-4').getByRole('img').nth(3)).toHaveAttribute('data-isPublic', 'true');
 });

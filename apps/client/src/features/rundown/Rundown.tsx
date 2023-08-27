@@ -234,7 +234,7 @@ export default function Rundown(props: RundownProps) {
 
               return (
                 <Fragment key={entry.id}>
-                  <div className={style.entryWrapper}>
+                  <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
                     {entry.type === SupportedEvent.Event && <div className={style.entryIndex}>{eventIndex}</div>}
                     <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                       <RundownEntry
