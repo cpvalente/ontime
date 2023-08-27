@@ -7,7 +7,8 @@ export enum AppMode {
 
 export enum EditMode {
   Range = 'range',
-  Individual = 'single',
+  Single = 'single',
+  CherryPick = 'cherryPick',
 }
 
 const appModeKey = 'ontime-app-mode';
@@ -35,7 +36,7 @@ type AppModeStore = {
 export const useAppMode = create<AppModeStore>()((set, get) => ({
   mode: getModeFromSession(),
   cursor: null,
-  editMode: EditMode.Individual,
+  editMode: EditMode.Single,
   idsToEdit: [],
   setMode: (mode: AppMode) => {
     persistModeToSession(mode);
@@ -69,8 +70,22 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
   setEditMode: (mode) => set(() => ({ editMode: mode })),
   setIdsToEdit: (id, index) =>
     set(({ editMode, idsToEdit }) => {
-      if (editMode === EditMode.Individual) {
+      if (editMode === EditMode.Single) {
         return { idsToEdit: [{ id, index, anchor: false }] };
+      }
+
+      if (editMode === EditMode.CherryPick) {
+        const uniqueEventsWithoutAnchor = idsToEdit
+          .map(({ id, index }) => ({ id, index, anchor: false }))
+          // in case the user toggles the same event,
+          // we can preemptively filter out duplicates
+          .filter((event) => event.id !== id);
+
+        if (uniqueEventsWithoutAnchor.length !== idsToEdit.length) {
+          return { idsToEdit: uniqueEventsWithoutAnchor };
+        }
+
+        return { idsToEdit: [...uniqueEventsWithoutAnchor, { id, index, anchor: false }] };
       }
 
       if (editMode === EditMode.Range) {

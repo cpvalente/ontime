@@ -87,7 +87,13 @@ export default function Rundown(props: RundownProps) {
       // handle held key
       if (event.repeat) return;
 
-      if (['ShiftLeft', 'ShiftRight'].includes(event.code)) {
+      if (event.metaKey || event.ctrlKey) {
+        setEditMode(EditMode.CherryPick);
+
+        return;
+      }
+
+      if (event.shiftKey) {
         setEditMode(EditMode.Range);
 
         return;
@@ -142,9 +148,14 @@ export default function Rundown(props: RundownProps) {
     [cursor, entries, insertAtCursor, setEditMode],
   );
 
-  const handleKeyUp = useCallback(() => {
-    setEditMode(EditMode.Individual);
-  }, [setEditMode]);
+  const handleKeyUp = useCallback(
+    (event: KeyboardEvent) => {
+      if (['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'OSLeft', 'OSRight'].includes(event.code)) {
+        setEditMode(EditMode.Single);
+      }
+    },
+    [setEditMode],
+  );
 
   // we copy the state from the store here
   // to workaround async updates on the drag mutations
