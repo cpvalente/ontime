@@ -81,7 +81,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
-  const { setIdsToEdit, clearIdsToEdit, isEventSelected } = useAppMode();
+  const { setEventsToEdit: seteventsToEdit, clearEventsToEdit, isEventSelected } = useAppMode();
 
   useEffect(() => {
     setRenderInner(true);
@@ -89,11 +89,11 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   const toggleOpenEvent = useCallback(() => {
     if (isOpen) {
-      clearIdsToEdit();
+      clearEventsToEdit();
     } else {
-      setIdsToEdit(eventId, eventIndex);
+      seteventsToEdit(eventId, eventIndex);
     }
-  }, [eventId, eventIndex, isOpen, setIdsToEdit, clearIdsToEdit]);
+  }, [eventId, eventIndex, isOpen, seteventsToEdit, clearEventsToEdit]);
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;

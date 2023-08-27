@@ -19,10 +19,10 @@ const closeBtnStyle = {
 };
 
 const EventEditorExport = () => {
-  const { clearIdsToEdit, idsToEdit } = useAppMode();
+  const { clearEventsToEdit, eventToEdit: eventsToEdit } = useAppMode();
 
-  const editorStyle = cx([style.eventEditor, !idsToEdit.length ? style.noEvent : null]);
-  const removeOpenEvent = () => clearIdsToEdit();
+  const editorStyle = cx([style.eventEditor, !eventsToEdit.length ? style.noEvent : null]);
+  const removeOpenEvent = () => clearEventsToEdit();
 
   return (
     <div className={editorStyle}>

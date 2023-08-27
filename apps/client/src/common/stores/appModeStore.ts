@@ -25,19 +25,19 @@ type AppModeStore = {
   mode: AppMode;
   cursor: string | null;
   editMode: EditMode;
-  idsToEdit: { id: string; index: number; anchor: boolean }[];
+  eventToEdit: { id: string; index: number; anchor: boolean }[];
   isEventSelected: (id: string, index: number) => boolean;
   setMode: (mode: AppMode) => void;
   setEditMode: (mode: EditMode) => void;
-  setIdsToEdit: (id: string, index: number) => void;
-  clearIdsToEdit: () => void;
+  setEventsToEdit: (id: string, index: number) => void;
+  clearEventsToEdit: () => void;
 };
 
 export const useAppMode = create<AppModeStore>()((set, get) => ({
   mode: getModeFromSession(),
   cursor: null,
   editMode: EditMode.Single,
-  idsToEdit: [],
+  eventToEdit: [],
   setMode: (mode: AppMode) => {
     persistModeToSession(mode);
 
@@ -46,14 +46,14 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
     });
   },
   isEventSelected: (id, index) => {
-    const { idsToEdit } = get();
+    const { eventToEdit: eventsToEdit } = get();
 
-    return idsToEdit.some((event) => {
-      const doesEventsHaveAnchor = idsToEdit.some((event) => event.anchor);
+    return eventsToEdit.some((event) => {
+      const doesEventsHaveAnchor = eventsToEdit.some((event) => event.anchor);
 
       if (doesEventsHaveAnchor) {
-        const firstSelectedEvent = idsToEdit.at(0);
-        const lastSelectedEvent = idsToEdit.at(-1);
+        const firstSelectedEvent = eventsToEdit.at(0);
+        const lastSelectedEvent = eventsToEdit.at(-1);
 
         if (!firstSelectedEvent || !lastSelectedEvent) {
           return event.id === id;
@@ -68,44 +68,44 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
     });
   },
   setEditMode: (mode) => set(() => ({ editMode: mode })),
-  setIdsToEdit: (id, index) =>
-    set(({ editMode, idsToEdit }) => {
+  setEventsToEdit: (id, index) =>
+    set(({ editMode, eventToEdit: eventsToEdit }) => {
       if (editMode === EditMode.Single) {
-        return { idsToEdit: [{ id, index, anchor: false }] };
+        return { eventToEdit: [{ id, index, anchor: false }] };
       }
 
       if (editMode === EditMode.CherryPick) {
-        const uniqueEventsWithoutAnchor = idsToEdit
+        const uniqueEventsWithoutAnchor = eventsToEdit
           .map(({ id, index }) => ({ id, index, anchor: false }))
           // in case the user toggles the same event,
           // we can preemptively filter out duplicates
           .filter((event) => event.id !== id);
 
-        if (uniqueEventsWithoutAnchor.length !== idsToEdit.length) {
-          return { idsToEdit: uniqueEventsWithoutAnchor };
+        if (uniqueEventsWithoutAnchor.length !== eventsToEdit.length) {
+          return { eventToEdit: uniqueEventsWithoutAnchor };
         }
 
-        return { idsToEdit: [...uniqueEventsWithoutAnchor, { id, index, anchor: false }] };
+        return { eventToEdit: [...uniqueEventsWithoutAnchor, { id, index, anchor: false }] };
       }
 
       if (editMode === EditMode.Range) {
-        const eventWithAnchor = idsToEdit.find((id) => id.anchor);
+        const eventWithAnchor = eventsToEdit.find((id) => id.anchor);
 
         if (!eventWithAnchor) {
-          if (idsToEdit.length) {
-            const firstEvent = idsToEdit.at(0);
+          if (eventsToEdit.length) {
+            const firstEvent = eventsToEdit.at(0);
 
             if (!firstEvent) {
-              return { idsToEdit: [{ id, index, anchor: true }] };
+              return { eventToEdit: [{ id, index, anchor: true }] };
             }
 
             if (firstEvent.id === id) {
-              return { idsToEdit: [{ ...firstEvent, anchor: true }] };
+              return { eventToEdit: [{ ...firstEvent, anchor: true }] };
             }
 
             if (firstEvent.index > index) {
               return {
-                idsToEdit: [
+                eventToEdit: [
                   { id, index, anchor: false },
                   { ...firstEvent, anchor: true },
                 ],
@@ -113,32 +113,32 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
             }
 
             return {
-              idsToEdit: [
+              eventToEdit: [
                 { ...firstEvent, anchor: true },
                 { id, index, anchor: false },
               ],
             };
           }
 
-          return { idsToEdit: [{ id, index, anchor: true }] };
+          return { eventToEdit: [{ id, index, anchor: true }] };
         }
 
         if (eventWithAnchor.id === id) {
-          return { idsToEdit: [{ ...eventWithAnchor, anchor: true }] };
+          return { eventToEdit: [{ ...eventWithAnchor, anchor: true }] };
         }
 
         if (eventWithAnchor.index > index) {
           return {
-            idsToEdit: [{ id, index, anchor: false }, eventWithAnchor],
+            eventToEdit: [{ id, index, anchor: false }, eventWithAnchor],
           };
         }
 
         return {
-          idsToEdit: [eventWithAnchor, { id, index, anchor: false }],
+          eventToEdit: [eventWithAnchor, { id, index, anchor: false }],
         };
       }
 
-      return { idsToEdit: [] };
+      return { eventToEdit: [] };
     }),
-  clearIdsToEdit: () => set(() => ({ idsToEdit: [] })),
+  clearEventsToEdit: () => set(() => ({ eventToEdit: [] })),
 }));

@@ -80,7 +80,7 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { idsToEdit, setIdsToEdit, isEventSelected } = useAppMode((state) => state);
+  const { eventToEdit: eventsToEdit, setEventsToEdit, isEventSelected } = useAppMode((state) => state);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -176,7 +176,7 @@ export default function EventBlock(props: EventBlockProps) {
     event.stopPropagation();
     // moveCursorTo(eventId, true);
 
-    setIdsToEdit(eventId, eventIndex);
+    setEventsToEdit(eventId, eventIndex);
   };
 
   return (
@@ -195,7 +195,7 @@ export default function EventBlock(props: EventBlockProps) {
       </div>
       {isVisible && (
         <EventBlockInner
-          isOpen={idsToEdit.length === 1}
+          isOpen={eventsToEdit.length === 1}
           timeStart={timeStart}
           timeEnd={timeEnd}
           duration={duration}
