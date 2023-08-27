@@ -39,6 +39,7 @@ interface EventBlockInnerProps {
   timeEnd: number;
   duration: number;
   eventId: string;
+  eventIndex: number;
   isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
@@ -60,6 +61,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     isOpen,
     timeStart,
     timeEnd,
+    eventIndex,
     duration,
     eventId,
     isPublic = true,
@@ -79,7 +81,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
-  const { setIdsToEdit, clearIdsToEdit } = useAppMode((state) => state);
+  const { setIdsToEdit, clearIdsToEdit, isEventSelected } = useAppMode();
 
   useEffect(() => {
     setRenderInner(true);
@@ -89,9 +91,9 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     if (isOpen) {
       clearIdsToEdit();
     } else {
-      setIdsToEdit([eventId]);
+      setIdsToEdit(eventId, eventIndex);
     }
-  }, [eventId, isOpen, setIdsToEdit, clearIdsToEdit]);
+  }, [eventId, eventIndex, isOpen, setIdsToEdit, clearIdsToEdit]);
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
@@ -163,7 +165,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           tooltip='Event options'
           aria-label='Event options'
           tabIndex={-1}
-          backgroundColor={isOpen ? '#2B5ABC' : undefined}
+          backgroundColor={isEventSelected(eventId, eventIndex) ? '#2B5ABC' : undefined}
           color={isOpen ? 'white' : '#f6f6f6'}
           isDisabled={disableEdit}
         />

@@ -21,6 +21,7 @@ interface RundownEntryProps {
   isPast: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
+  eventIndex: number;
   hasCursor: boolean;
   next: boolean;
   previousEnd: number;
@@ -31,15 +32,26 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, disableEdit } =
-    props;
+  const {
+    isPast,
+    data,
+    selected,
+    hasCursor,
+    next,
+    previousEnd,
+    previousEventId,
+    playback,
+    isRolling,
+    disableEdit,
+    eventIndex,
+  } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
 
-  const { cursor, idsToEdit, clearIdsToEdit } = useAppMode((state) => state);
+  const { cursor, idsToEdit, clearIdsToEdit } = useAppMode();
 
   const removeOpenEvent = useCallback(() => {
-    if (idsToEdit.some((id) => id === data.id)) {
+    if (idsToEdit.some((id) => id.id === data.id)) {
       clearIdsToEdit();
     }
 
@@ -89,7 +101,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           break;
         }
         case 'delete': {
-          if (idsToEdit.some((id) => id === data.id)) {
+          if (idsToEdit.some((id) => id.id === data.id)) {
             removeOpenEvent();
           }
           deleteEvent(data.id);
@@ -150,6 +162,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
+        eventIndex={eventIndex}
         cue={data.cue}
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}

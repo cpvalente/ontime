@@ -7,7 +7,7 @@ import { getFirst, getNext, getPrevious } from 'ontime-utils';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
-import { AppMode, useAppMode } from '../../common/stores/appModeStore';
+import { AppMode, EditMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
@@ -36,7 +36,7 @@ export default function Rundown(props: RundownProps) {
   const isExtracted = window.location.pathname.includes('/rundown');
 
   // cursor
-  const { cursor, mode: appMode } = useAppMode((state) => state);
+  const { cursor, mode: appMode, setEditMode } = useAppMode();
   const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -82,13 +82,18 @@ export default function Rundown(props: RundownProps) {
   );
 
   // Handle keyboard shortcuts
-  const handleKeyPress = useCallback(
+  const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
-      if (event.ctrlKey || event.shiftKey) {
-        // console.log(event);
-      } else if (event.altKey) {
+
+      if (['ShiftLeft', 'ShiftRight'].includes(event.code)) {
+        setEditMode(EditMode.Range);
+
+        return;
+      }
+
+      if (event.altKey) {
         switch (event.code) {
           case 'ArrowDown': {
             if (entries.length < 1) {
@@ -134,8 +139,12 @@ export default function Rundown(props: RundownProps) {
         }
       }
     },
-    [cursor, entries, insertAtCursor],
+    [cursor, entries, insertAtCursor, setEditMode],
   );
+
+  const handleKeyUp = useCallback(() => {
+    setEditMode(EditMode.Individual);
+  }, [setEditMode]);
 
   // we copy the state from the store here
   // to workaround async updates on the drag mutations
@@ -147,14 +156,14 @@ export default function Rundown(props: RundownProps) {
 
   // listen to keys
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyPress);
-    document.addEventListener('keyup', (e) => {});
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
-      document.removeEventListener('keyup', (e) => {});
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [handleKeyPress]);
+  }, [handleKeyDown, handleKeyUp]);
 
   useEffect(() => {
     // in run mode, we follow selection
@@ -221,6 +230,7 @@ export default function Rundown(props: RundownProps) {
                       <RundownEntry
                         type={entry.type}
                         isPast={isPast}
+                        eventIndex={eventIndex}
                         data={entry}
                         selected={isSelected}
                         hasCursor={hasCursor}

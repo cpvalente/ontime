@@ -25,6 +25,7 @@ interface EventBlockProps {
   timeEnd: number;
   duration: number;
   eventId: string;
+  eventIndex: number;
   isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
@@ -60,6 +61,7 @@ export default function EventBlock(props: EventBlockProps) {
     timeEnd,
     duration,
     isPublic = true,
+    eventIndex,
     endAction,
     timerType,
     title,
@@ -78,7 +80,7 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { idsToEdit, setIdsToEdit } = useAppMode((state) => state);
+  const { idsToEdit, setIdsToEdit, isEventSelected } = useAppMode((state) => state);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -167,13 +169,14 @@ export default function EventBlock(props: EventBlockProps) {
     isPast ? style.past : null,
     selected ? style.selected : null,
     playback ? style[playback] : null,
-    idsToEdit.some((event) => event === eventId) ? style.hasCursor : null,
+    isEventSelected(eventId, eventIndex) ? style.hasCursor : null,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {
     event.stopPropagation();
     // moveCursorTo(eventId, true);
-    setIdsToEdit([eventId]);
+
+    setIdsToEdit(eventId, eventIndex);
   };
 
   return (
@@ -197,6 +200,7 @@ export default function EventBlock(props: EventBlockProps) {
           timeEnd={timeEnd}
           duration={duration}
           eventId={eventId}
+          eventIndex={eventIndex}
           isPublic={isPublic}
           endAction={endAction}
           timerType={timerType}
