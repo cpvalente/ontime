@@ -2,8 +2,20 @@ import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 
-export function dispatchFromAdapter(type: string, payload: unknown, source?: 'osc' | 'ws') {
-  switch (type.toLowerCase()) {
+export function dispatchFromAdapter(
+  type: string,
+  args: {
+    payload: unknown;
+    param?: string;
+  },
+  source?: 'osc' | 'ws',
+) {
+  const payload = args.payload;
+  const typeComponents = type.toLowerCase().split('/');
+  const mainType = typeComponents[0];
+  const param = args.param;
+
+  switch (mainType) {
     case 'test-ontime': {
       return { topic: 'hello' };
     }
@@ -202,8 +214,17 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
 
     case 'update-duration': {
       try {
-        const parsedPayload = JSON.parse(payload.toString());
-        PlaybackService.updateEventDuration(parsedPayload.id, parsedPayload.duration);
+        if (!param) {
+          throw new Error('No event ID provided');
+        }
+
+        const duration = Number(payload);
+
+        if (isNaN(duration)) {
+          throw new Error(`Duration not recognised: ${payload}`);
+        }
+
+        PlaybackService.updateEventDuration(param, duration);
       } catch (error) {
         throw new Error(`Error updating duration: ${error}`);
       }
