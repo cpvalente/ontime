@@ -4,12 +4,12 @@ import {
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  OntimeRundown,
+  Playback,
   SupportedEvent,
 } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { generateId, getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
-import { block as blockDef, delay, delay as delayDef, event as eventDef } from '../../models/eventsDefinition.js';
+import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
 import { eventTimer } from '../TimerService.js';
@@ -17,14 +17,17 @@ import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
 import {
   cachedAdd,
+  cachedApplyDelay,
+  cachedClear,
   cachedDelete,
   cachedEdit,
   cachedReorder,
-  calculateRuntimeDelaysFrom,
+  cachedSwap,
   delayedRundownCacheKey,
-  getDelayedRundown,
 } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
+import { validateEvent } from '../../utils/parser.js';
+import { clock } from '../Clock.js';
 
 /**
  * Forces rundown to be recalculated
@@ -97,8 +100,9 @@ const isNewNext = () => {
  */
 export function updateTimer(affectedIds?: string[]) {
   const runningEventId = eventLoader.loaded.selectedEventId;
+  const nextEventId = eventLoader.loaded.nextEventId;
 
-  if (runningEventId === null) {
+  if (runningEventId === null && nextEventId === null) {
     return false;
   }
 
@@ -119,11 +123,22 @@ export function updateTimer(affectedIds?: string[]) {
 
   if (eventInMemory) {
     eventLoader.reset();
-    const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
-    if (!loadedEvent) {
-      eventTimer.stop();
+
+    if (eventTimer.playback === Playback.Roll) {
+      const rollTimers = eventLoader.findRoll(clock.timeNow());
+      if (rollTimers === null) {
+        eventTimer.stop();
+      } else {
+        const { currentEvent, nextEvent } = rollTimers;
+        eventTimer.roll(currentEvent, nextEvent);
+      }
     } else {
-      eventTimer.hotReload(loadedEvent);
+      const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
+      if (loadedEvent) {
+        eventTimer.hotReload(loadedEvent);
+      } else {
+        eventTimer.stop();
+      }
     }
     return true;
   }
@@ -150,29 +165,29 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   let newEvent: Partial<OntimeBaseEvent> = {};
   const id = generateId();
 
-  // TODO: filter the parameters that exist in the event, use the parserUtils
-  switch (eventData.type) {
-    case SupportedEvent.Event:
-      newEvent = { ...eventDef, ...eventData, id };
-      break;
-    case SupportedEvent.Delay:
-      newEvent = { ...delayDef, ...eventData, id };
-      break;
-    case SupportedEvent.Block:
-      newEvent = { ...blockDef, ...eventData, id };
-      break;
-  }
-
   let insertIndex = 0;
-  if (typeof newEvent?.after !== 'undefined') {
-    const index = DataProvider.getIndexOf(newEvent.after);
+  if (eventData?.after !== undefined) {
+    const index = DataProvider.getIndexOf(eventData.after);
     if (index < 0) {
-      logger.warning(LogOrigin.Server, `Could not find event with id ${newEvent.after}`);
+      logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
     } else {
       insertIndex = index + 1;
     }
-    delete newEvent.after;
   }
+
+  switch (eventData.type) {
+    case SupportedEvent.Event: {
+      newEvent = validateEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
+      break;
+    }
+    case SupportedEvent.Delay:
+      newEvent = { ...delayDef, duration: eventData.duration, id } as OntimeDelay;
+      break;
+    case SupportedEvent.Block:
+      newEvent = { ...blockDef, title: eventData.title, id } as OntimeBlock;
+      break;
+  }
+  delete eventData.after;
 
   // modify rundown
   await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
@@ -190,6 +205,10 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 }
 
 export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
+  if (eventData.type === SupportedEvent.Event && eventData?.cue === '') {
+    throw new Error(`Cue value invalid`);
+  }
+
   const newEvent = await cachedEdit(eventData.id, eventData);
 
   // notify timer service of changed events
@@ -215,9 +234,6 @@ export async function deleteEvent(eventId) {
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
 
-  // invalidate cache
-  runtimeCacheStore.invalidate(delayedRundownCacheKey);
-
   // advice socket subscribers of change
   sendRefetch();
 }
@@ -227,7 +243,9 @@ export async function deleteEvent(eventId) {
  * @returns {Promise<void>}
  */
 export async function deleteAllEvents() {
-  await DataProvider.clearRundown();
+  await cachedClear();
+
+  // notify timer service of changed events
   updateTimer();
   forceReset();
 }
@@ -250,62 +268,30 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
   return reorderedItem;
 }
 
-export function _applyDelay(
-  eventId: string,
-  rundown: OntimeRundown,
-): {
-  delayIndex: number | null;
-  updatedRundown: OntimeRundown;
-} {
-  const updatedRundown = [...rundown];
-  let delayIndex = null;
-  let delayValue = 0;
+export async function applyDelay(eventId: string) {
+  await cachedApplyDelay(eventId);
 
-  for (const [index, event] of updatedRundown.entries()) {
-    // look for delay
-    if (delayIndex === null) {
-      if (event.type === SupportedEvent.Delay && event.id === eventId) {
-        delayValue = event.duration;
-        delayIndex = index;
+  // notify timer service of changed events
+  updateTimer();
 
-        if (delayValue === 0) {
-          // nothing to apply
-          break;
-        }
-      }
-      continue;
-    }
-
-    // once delay is found, apply delay value to all items until block or end
-    if (event.type === SupportedEvent.Event) {
-      updatedRundown[index] = {
-        ...event,
-        timeStart: Math.max(0, event.timeStart + delayValue),
-        timeEnd: Math.max(event.duration, event.timeEnd + delayValue),
-        revision: event.revision + 1,
-      };
-    } else if (event.type === SupportedEvent.Block) {
-      break;
-    }
-  }
-
-  return { delayIndex, updatedRundown };
+  // advice socket subscribers of change
+  sendRefetch();
 }
 
 /**
- * applies delay value for given event
- * @param eventId
+ * swaps two events
+ * @param {string} from - id of event from
+ * @param {string} to - id of event to
  * @returns {Promise<void>}
  */
-export async function applyDelay(eventId: string) {
-  const rundown: OntimeRundown = DataProvider.getRundown();
-  const { delayIndex, updatedRundown } = _applyDelay(eventId, rundown);
-  if (delayIndex === null) {
-    throw new Error(`Delay event with ID ${eventId} not found`);
-  }
+export async function swapEvents(from: string, to: string) {
+  await cachedSwap(from, to);
 
-  await DataProvider.setRundown(updatedRundown);
-  await deleteEvent(eventId);
+  // notify timer service of changed events
+  updateTimer();
+
+  // advice socket subscribers of change
+  sendRefetch();
 }
 
 /**

@@ -50,6 +50,19 @@ export async function requestApplyDelay(eventId: string) {
   return axios.patch(`${rundownURL}/applydelay/${eventId}`);
 }
 
+export type SwapEntry = {
+  from: string;
+  to: string;
+};
+
+/**
+ * @description HTTP request to swap two events
+ * @return {Promise}
+ */
+export async function requestEventSwap(data: SwapEntry) {
+  return axios.patch(`${rundownURL}/swap`, data);
+}
+
 /**
  * @description HTTP request to delete given event
  * @return {Promise}

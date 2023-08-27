@@ -1,17 +1,6 @@
 export type TimeEntryField = 'timeStart' | 'timeEnd' | 'durationOverride';
 
 /**
- * @description Milliseconds in a day
- */
-export const DAY_TO_MS = 86400000;
-
-/**
- * @description calculates duration from given values
- */
-export const calculateDuration = (start: number, end: number): number =>
-  start > end ? end + DAY_TO_MS - start : end - start;
-
-/**
  * @description Checks which field the value relates to
  */
 export const handleTimeEntry = (

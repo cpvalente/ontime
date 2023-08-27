@@ -15,10 +15,10 @@ const root = createRoot(container as Element);
 Sentry.init({
   dsn: 'https://5e4d2c4b57ab409cb98d4c08b2014755@o4504288369836032.ingest.sentry.io/4504288371343360',
   integrations: [new BrowserTracing()],
-  tracesSampleRate: 1.0,
+  tracesSampleRate: 0.3,
   release: ONTIME_VERSION,
   enabled: import.meta.env.PROD,
-  ignoreErrors: ['top.GLOBALS', 'Unable to preload CSS'],
+  ignoreErrors: ['top.GLOBALS', 'Unable to preload CSS', 'Failed to fetch dynamically imported module'],
   denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i],
 });
 

@@ -19,6 +19,13 @@
   }
 }
 
+.description {
+  color: $label-gray;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .labels {
   font-size: $inner-section-text-size;
   display: flex;

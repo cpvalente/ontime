@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { getCueCandidate, swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -9,18 +10,20 @@ import {
   requestApplyDelay,
   requestDelete,
   requestDeleteAll,
+  requestEventSwap,
   requestPostEvent,
   requestPutEvent,
   requestReorderEvent,
+  SwapEntry,
 } from '../api/eventsApi';
-import { useLocalEvent } from '../stores/localEvent';
+import { useEditorSettings } from '../stores/editorSettings';
 
 /**
  * @description Set of utilities for events
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const eventSettings = useLocalEvent((state) => state.eventSettings);
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
@@ -28,9 +31,10 @@ export const useEventAction = () => {
    * Calls mutation to add new event
    * @private
    */
-  const _addEventMutation = useMutation(requestPostEvent, {
+  const _addEventMutation = useMutation({
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
+    mutationFn: requestPostEvent,
     onSettled: () => {
       queryClient.invalidateQueries(RUNDOWN_TABLE);
     },
@@ -55,7 +59,7 @@ export const useEventAction = () => {
       const newEvent: Partial<OntimeRundownEntry> = { ...event };
 
       // ************* CHECK OPTIONS specific to events
-      if (newEvent.type === SupportedEvent.Event) {
+      if (isOntimeEvent(newEvent)) {
         const applicationOptions = {
           defaultPublic: options?.defaultPublic ?? defaultPublic,
           startTimeIsLastEnd: options?.startTimeIsLastEnd ?? startTimeIsLastEnd,
@@ -63,16 +67,20 @@ export const useEventAction = () => {
           after: options?.after,
         };
 
+        if (newEvent?.cue === undefined) {
+          newEvent.cue = getCueCandidate(queryClient.getQueryData(RUNDOWN_TABLE) || [], options?.after);
+        }
+
         // hard coding duration value to be as expected for now
         // this until timeOptions gets implemented
-        if (typeof newEvent?.timeStart !== 'undefined' && typeof newEvent.timeEnd !== 'undefined') {
+        if (newEvent?.timeStart !== undefined && newEvent.timeEnd !== undefined) {
           newEvent.duration = Math.max(0, newEvent?.timeEnd - newEvent?.timeStart) || 0;
         }
 
         if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
           const rundown = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
           const previousEvent = rundown.find((event) => event.id === applicationOptions.lastEventId);
-          if (typeof previousEvent !== 'undefined' && previousEvent.type === 'event') {
+          if (previousEvent !== undefined && previousEvent.type === 'event') {
             newEvent.timeStart = previousEvent.timeEnd;
             newEvent.timeEnd = previousEvent.timeEnd;
           }
@@ -102,7 +110,8 @@ export const useEventAction = () => {
    * Calls mutation to update existing event
    * @private
    */
-  const _updateEventMutation = useMutation(requestPutEvent, {
+  const _updateEventMutation = useMutation({
+    mutationFn: requestPutEvent,
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -117,7 +126,6 @@ export const useEventAction = () => {
       // Return a context with the previous and new events
       return { previousEvent, newEvent };
     },
-
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _newEvent, context) => {
       queryClient.setQueryData([RUNDOWN_TABLE_KEY, context?.newEvent.id], context?.previousEvent);
@@ -148,7 +156,8 @@ export const useEventAction = () => {
    * Calls mutation to delete an event
    * @private
    */
-  const _deleteEventMutation = useMutation(requestDelete, {
+  const _deleteEventMutation = useMutation({
+    mutationFn: requestDelete,
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
@@ -196,7 +205,8 @@ export const useEventAction = () => {
    * Calls mutation to delete all events
    * @private
    */
-  const _deleteAllEventsMutation = useMutation(requestDeleteAll, {
+  const _deleteAllEventsMutation = useMutation({
+    mutationFn: requestDeleteAll,
     // we optimistically update here
     onMutate: async () => {
       // cancel ongoing queries
@@ -239,7 +249,8 @@ export const useEventAction = () => {
    * Calls mutation to apply a delay
    * @private
    */
-  const _applyDelayMutation = useMutation(requestApplyDelay, {
+  const _applyDelayMutation = useMutation({
+    mutationFn: requestApplyDelay,
     // Mutation finished, failed or successful
     onSettled: () => {
       queryClient.invalidateQueries(RUNDOWN_TABLE);
@@ -265,7 +276,8 @@ export const useEventAction = () => {
    * Calls mutation to reorder an event
    * @private
    */
-  const _reorderEventMutation = useMutation(requestReorderEvent, {
+  const _reorderEventMutation = useMutation({
+    mutationFn: requestReorderEvent,
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
@@ -316,5 +328,67 @@ export const useEventAction = () => {
     [_reorderEventMutation],
   );
 
-  return { addEvent, updateEvent, deleteEvent, deleteAllEvents, applyDelay, reorderEvent };
+  /**
+   * Calls mutation to swap events
+   * @private
+   */
+  const _swapEvents = useMutation({
+    mutationFn: requestEventSwap,
+    // we optimistically update here
+    onMutate: async ({ from, to }) => {
+      // cancel ongoing queries
+      await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
+
+      // Snapshot the previous value
+      const rundown = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
+
+      const fromEventIndex = rundown.findIndex((event) => event.id === from);
+      const toEventIndex = rundown.findIndex((event) => event.id === to);
+
+      const previousEvents = swapOntimeEvents(rundown, fromEventIndex, toEventIndex);
+
+      // optimistically update object
+      queryClient.setQueryData(RUNDOWN_TABLE, previousEvents);
+
+      // Return a context with the previous events
+      return { previousEvents };
+    },
+
+    // Mutation fails, rollback undoes optimist update
+    onError: (_error, _eventId, context) => {
+      queryClient.setQueryData(RUNDOWN_TABLE, context?.previousEvents);
+    },
+    // Mutation finished, failed or successful
+    // Fetch anyway, just to be sure
+    onSettled: () => {
+      queryClient.invalidateQueries(RUNDOWN_TABLE);
+    },
+    networkMode: 'always',
+  });
+
+  /**
+   * Swaps the schedule of two events
+   */
+  const swapEvents = useCallback(
+    async ({ from, to }: SwapEntry) => {
+      // TODO: before calling `/swapEvents`,
+      // we should determine the events are of type `OntimeEvent`
+      try {
+        await _swapEvents.mutateAsync({ from, to });
+      } catch (error) {
+        logAxiosError('Error re-ordering event', error);
+      }
+    },
+    [_swapEvents],
+  );
+
+  return {
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    deleteAllEvents,
+    applyDelay,
+    reorderEvent,
+    swapEvents,
+  };
 };

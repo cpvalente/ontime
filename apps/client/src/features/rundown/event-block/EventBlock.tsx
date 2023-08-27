@@ -1,27 +1,29 @@
 import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoCopyOutline } from '@react-icons/all-files/io5/IoCopyOutline';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
+import { useEventIdSwapping } from '../useEventIdSwapping';
 
 import EventBlockInner from './EventBlockInner';
 
 import style from './EventBlock.module.scss';
 
 interface EventBlockProps {
+  cue: string;
   timeStart: number;
   timeEnd: number;
   duration: number;
-  eventIndex: number;
   eventId: string;
   isPublic: boolean;
   endAction: EndAction;
@@ -52,11 +54,11 @@ interface EventBlockProps {
 
 export default function EventBlock(props: EventBlockProps) {
   const {
+    eventId,
+    cue,
     timeStart,
     timeEnd,
     duration,
-    eventIndex,
-    eventId,
     isPublic = true,
     endAction,
     timerType,
@@ -75,21 +77,36 @@ export default function EventBlock(props: EventBlockProps) {
     actionHandler,
     disableEdit,
   } = props;
-  const { updateEvent } = useEventAction();
+  const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const moveCursorTo = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const openId = useAppMode((state) => state.editId);
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
-    { label: `Copy ID: ${eventId}}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
+    { label: `Copy ID: ${eventId}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
     {
       label: 'Toggle public',
       icon: IoPeopleOutline,
       onClick: () =>
-        updateEvent({
-          id: eventId,
-          isPublic: !isPublic,
+        actionHandler('update', {
+          field: 'isPublic',
+          value: !isPublic,
         }),
+    },
+    {
+      label: 'Add to swap',
+      icon: IoAdd,
+      onClick: () => setSelectedEventId(eventId),
+      withDivider: true,
+    },
+    {
+      label: `Swap this event with ${selectedEventId ?? ''}`,
+      icon: IoSwapVertical,
+      onClick: () => {
+        actionHandler('swap', { field: 'id', value: selectedEventId });
+        clearSelectedEventId();
+      },
+      isDisabled: selectedEventId == null || selectedEventId === eventId,
     },
   ]);
 
@@ -170,7 +187,7 @@ export default function EventBlock(props: EventBlockProps) {
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>
-        {eventIndex}
+        <span className={style.cue}>{cue}</span>
       </div>
       {isVisible && (
         <EventBlockInner

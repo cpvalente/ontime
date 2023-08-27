@@ -30,6 +30,7 @@ export const parseRundown = (data): OntimeRundown => {
     console.log('Found rundown definition, importing...');
     const rundown = [];
     try {
+      let eventIndex = 0;
       const ids = [];
       for (const e of data.rundown) {
         // cap number of events
@@ -43,6 +44,7 @@ export const parseRundown = (data): OntimeRundown => {
           console.log('ERROR: ID collision on import, skipping');
           continue;
         }
+
         // validate the right endAction is used
         if (e.endAction && !Object.values(EndAction).includes(e.endAction)) {
           e.endAction = EndAction.None;
@@ -54,8 +56,10 @@ export const parseRundown = (data): OntimeRundown => {
           e.timerType = TimerType.CountDown;
           console.log('WARNING: invalid Timer Type provided, using default');
         }
+
         if (e.type === 'event') {
-          const event = validateEvent(e);
+          eventIndex += 1;
+          const event = validateEvent(e, eventIndex.toString());
           if (event != null) {
             rundown.push(event);
             ids.push(event.id);
@@ -96,6 +100,7 @@ export const parseEventData = (data, enforce): EventData => {
     newEventData = {
       ...dbModel.eventData,
       title: e.title || dbModel.eventData.title,
+      description: e.description || dbModel.eventData.description,
       publicUrl: e.publicUrl || dbModel.eventData.publicUrl,
       publicInfo: e.publicInfo || dbModel.eventData.publicInfo,
       backstageUrl: e.backstageUrl || dbModel.eventData.backstageUrl,
@@ -125,6 +130,7 @@ export const parseSettings = (data, enforce): Settings => {
       console.log('ERROR: unknown app version, skipping');
     } else {
       const settings = {
+        serverPort: s.serverPort || dbModel.settings.serverPort,
         editorKey: s.editorKey || null,
         operatorKey: s.operatorKey || null,
         timeFormat: s.timeFormat || '24',
@@ -215,7 +221,12 @@ export const validateOscObject = (data: OscSubscription): boolean => {
 /**
  * Parse osc portion of an entry
  */
-export const parseOsc = (data: { osc?: Partial<OSCSettings> }, enforce: boolean): Partial<OSCSettings> => {
+export const parseOsc = (
+  data: {
+    osc?: Partial<OSCSettings>;
+  },
+  enforce: boolean,
+): OSCSettings | Record<string, never> => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 

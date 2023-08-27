@@ -1,8 +1,20 @@
-import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
+import {
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeRundown,
+  OntimeRundownEntry,
+} from 'ontime-types';
+import { swapOntimeEvents } from 'ontime-utils';
+
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
 import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
+import { _applyDelay } from '../delayUtils.js';
 
 /**
  * Key of rundown in cache
@@ -49,7 +61,7 @@ export async function cachedAdd(eventIndex: number, event: OntimeEvent | OntimeD
   let newDelayedRundown = insertAtIndex(eventIndex, event, delayedRundown);
 
   // update delay cache
-  if (event.type === SupportedEvent.Event) {
+  if (isOntimeEvent(event)) {
     // if it is an event, we need its delay
     (newDelayedRundown[eventIndex] as OntimeEvent).delay = getDelayAt(eventIndex, newDelayedRundown);
   } else {
@@ -77,22 +89,20 @@ export async function cachedEdit(
   }
 
   const updatedRundown = DataProvider.getRundown();
-  const newEvent = { ...updatedRundown[indexInMemory], ...patchObject };
-  if (newEvent.type === SupportedEvent.Event) {
+  const newEvent = { ...updatedRundown[indexInMemory], ...patchObject } as OntimeRundownEntry;
+  if (isOntimeEvent(newEvent)) {
     newEvent.revision++;
   }
-  // @ts-expect-error -- this merge is safe
   updatedRundown[indexInMemory] = newEvent;
 
   let newDelayedRundown = getDelayedRundown();
   if (newDelayedRundown?.[indexInMemory].id !== newEvent.id) {
     invalidateFromError();
   } else {
-    // @ts-expect-error -- this merge is safe
     newDelayedRundown[indexInMemory] = newEvent;
-    if (newEvent.type === SupportedEvent.Event) {
+    if (isOntimeEvent(newEvent)) {
       (newDelayedRundown[indexInMemory] as OntimeEvent).delay = getDelayAt(indexInMemory, newDelayedRundown);
-    } else if (newEvent.type === SupportedEvent.Delay) {
+    } else if (isOntimeDelay(newEvent)) {
       // blocks have no reason to change the rundown, from delays we need to recalculate
       newDelayedRundown = calculateRuntimeDelaysFromIndex(indexInMemory, newDelayedRundown);
     }
@@ -118,17 +128,17 @@ export async function cachedDelete(eventId: string) {
     if (delayedRundown.findIndex((event) => event.id === eventId) >= 0) {
       invalidateFromError();
     }
-    return;
+    throw new Error(`Event with id ${eventId} not found`);
   }
 
   let updatedRundown = DataProvider.getRundown();
-  const eventType = updatedRundown[eventIndex].type;
+  const eventBack = { ...updatedRundown[eventIndex] };
   updatedRundown = deleteAtIndex(eventIndex, updatedRundown);
   if (eventId !== delayedRundown[eventIndex].id) {
     invalidateFromError();
   } else {
     delayedRundown = deleteAtIndex(eventIndex, delayedRundown);
-    if (eventType === SupportedEvent.Delay || eventType === SupportedEvent.Block) {
+    if (isOntimeDelay(eventBack) || isOntimeBlock(eventBack)) {
       // for events, we do not have to worry
       // the following event, would have taken the place of the deleted event by now
       delayedRundown = calculateRuntimeDelaysFromIndex(eventIndex, delayedRundown);
@@ -171,6 +181,51 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
   return reorderedEvent;
 }
 
+export async function cachedClear() {
+  await DataProvider.clearRundown();
+  runtimeCacheStore.setCached(delayedRundownCacheKey, []);
+}
+
+/**
+ * Swaps two events
+ * @param {string} fromEventId
+ * @param {string} toEventId
+ */
+export async function cachedSwap(fromEventId: string, toEventId: string) {
+  const fromEventIndex = DataProvider.getIndexOf(fromEventId);
+  const toEventIndex = DataProvider.getIndexOf(toEventId);
+
+  const rundown = DataProvider.getRundown();
+  const rundownToUpdate = swapOntimeEvents(rundown, fromEventIndex, toEventIndex);
+
+  const delayedRundown = getDelayedRundown();
+  const fromCachedEvent = delayedRundown.at(fromEventIndex);
+  const toCachedEvent = delayedRundown.at(toEventIndex);
+
+  if (fromCachedEvent.id !== fromEventId || toCachedEvent.id !== toEventId) {
+    // something went wrong, we invalidate the cache
+    runtimeCacheStore.invalidate(delayedRundownCacheKey);
+  } else {
+    const delayedRundownToUpdate = swapOntimeEvents(delayedRundown, fromEventIndex, toEventIndex);
+    runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundownToUpdate);
+  }
+
+  await DataProvider.setRundown(rundownToUpdate);
+}
+
+export async function cachedApplyDelay(eventId: string) {
+  // update persisted rundown
+  const rundown: OntimeRundown = DataProvider.getRundown();
+  const persistedRundown = _applyDelay(eventId, rundown);
+
+  const delayedRundown = getDelayedRundown();
+  const cachedRundown = _applyDelay(eventId, delayedRundown);
+
+  // update
+  runtimeCacheStore.setCached(delayedRundownCacheKey, cachedRundown);
+  await DataProvider.setRundown(persistedRundown);
+}
+
 /**
  * Calculates all delays in a given rundown
  * @param rundown
@@ -180,11 +235,11 @@ export function calculateRuntimeDelays(rundown: OntimeRundown) {
   const updatedRundown = [...rundown];
 
   for (const [index, event] of updatedRundown.entries()) {
-    if (event.type === SupportedEvent.Delay) {
+    if (isOntimeDelay(event)) {
       accumulatedDelay += event.duration;
-    } else if (event.type === SupportedEvent.Block) {
+    } else if (isOntimeBlock(event)) {
       accumulatedDelay = 0;
-    } else if (event.type === SupportedEvent.Event) {
+    } else if (isOntimeEvent(event)) {
       updatedRundown[index] = {
         ...event,
         delay: accumulatedDelay,
@@ -209,15 +264,15 @@ export function calculateRuntimeDelaysFromIndex(eventIndex: number, rundown: Ont
 
   for (let i = eventIndex; i < rundown.length; i++) {
     const event = rundown[i];
-    if (event.type === SupportedEvent.Delay) {
+    if (isOntimeDelay(event)) {
       accumulatedDelay += event.duration;
-    } else if (event.type === SupportedEvent.Block) {
+    } else if (isOntimeBlock(event)) {
       if (i === eventIndex) {
         accumulatedDelay = 0;
       } else {
         break;
       }
-    } else if (event.type === SupportedEvent.Event) {
+    } else if (isOntimeEvent(event)) {
       updatedRundown[i] = {
         ...event,
         delay: accumulatedDelay,
@@ -250,11 +305,11 @@ export function getDelayAt(eventIndex: number, rundown: OntimeRundown): number {
   // we need to check the event before
   const event = rundown[eventIndex - 1];
 
-  if (event.type === SupportedEvent.Delay) {
+  if (isOntimeDelay(event)) {
     return event.duration + getDelayAt(eventIndex - 1, rundown);
-  } else if (event.type === SupportedEvent.Block) {
+  } else if (isOntimeBlock(event)) {
     return 0;
-  } else if (event.type === SupportedEvent.Event) {
+  } else if (isOntimeEvent(event)) {
     return event.delay ?? 0;
   }
   return 0;

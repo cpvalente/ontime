@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
+import { EventData, Message, OntimeEvent, SupportedEvent, ViewSettings } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -15,7 +15,6 @@ import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-edito
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { getEventsWithDelay } from '../../../common/utils/eventsManager';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
@@ -74,7 +73,7 @@ export default function Backstage(props: BackstageProps) {
     : formatTime(time.expectedFinish, formatOptions);
 
   const qrSize = Math.max(window.innerWidth / 15, 128);
-  const filteredEvents = getEventsWithDelay(backstageEvents);
+  const filteredEvents = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
   const showPublicMessage = publ.text && publ.visible;
   const showProgress = time.playback !== 'stop';
 
@@ -167,7 +166,7 @@ export default function Backstage(props: BackstageProps) {
 
       <ScheduleProvider events={filteredEvents} selectedEventId={selectedId} isBackstage>
         <ScheduleNav className='schedule-nav-container' />
-        <Schedule className='schedule-container' />
+        <Schedule isProduction className='schedule-container' />
       </ScheduleProvider>
 
       <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>

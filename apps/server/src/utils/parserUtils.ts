@@ -6,21 +6,10 @@ import fs from 'fs';
  * @param {string} [fallback=''] - fallback value
  * @returns {string} - value as string or fallback if not possible
  */
-export const makeString = (val, fallback = '') => {
+export const makeString = (val: any, fallback = ''): string => {
   if (typeof val === 'string') return val;
   else if (val == null || val.constructor === Object) return fallback;
   return val.toString();
-};
-
-/**
- * @description validates a duration value against options
- * @param {number} timeStart
- * @param {number} timeEnd
- * @returns {number}
- */
-export const validateDuration = (timeStart, timeEnd) => {
-  // Durations must be positive
-  return Math.max(timeEnd - timeStart, 0);
 };
 
 /**
@@ -54,7 +43,7 @@ export const validateFile = (file) => {
  * @description Verifies if object is empty
  * @param {object} obj
  */
-export const isEmptyObject = (obj) => {
+export const isEmptyObject = (obj: object) => {
   if (typeof obj === 'object' && obj !== null && !Array.isArray(obj)) {
     return Object.keys(obj).length === 0;
   }
@@ -78,7 +67,7 @@ export const mergeObject = (a, b) => {
  * @description Removes undefined
  * @param {object} obj
  */
-export const removeUndefined = (obj) => {
+export const removeUndefined = (obj: object) => {
   const patched = {};
   Object.keys({ ...obj })
     .filter((key) => typeof obj[key] !== 'undefined')

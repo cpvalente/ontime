@@ -61,7 +61,7 @@ export default function AppSettingsModal() {
       <ModalSplitInput
         field='serverPort'
         title='Ontime is available on port'
-        description='Default 4001'
+        description='Default 4001 (needs app restart to change)'
         error={errors.serverPort?.message}
       >
         <Input
@@ -69,7 +69,6 @@ export default function AppSettingsModal() {
           size='sm'
           textAlign='right'
           maxLength={5}
-          disabled
           variant='ontime-filled-on-light'
           {...register('serverPort', {
             required: { value: true, message: 'Required field' },
@@ -118,6 +117,7 @@ export default function AppSettingsModal() {
       >
         <Select backgroundColor='white' size='sm' width='auto' isDisabled={disableInputs} {...register('language')}>
           <option value='en'>English</option>
+          <option value='fr'>French</option>
           <option value='de'>German</option>
           <option value='no'>Norwegian</option>
           <option value='pt'>Portuguese</option>

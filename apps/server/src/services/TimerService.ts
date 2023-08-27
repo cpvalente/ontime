@@ -1,11 +1,11 @@
-import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
+import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
+import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
-import { DAY_TO_MS } from '../utils/time.js';
 import { integrationService } from './integration-service/IntegrationService.js';
-import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
+import { getCurrent, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 
@@ -24,6 +24,9 @@ export class TimerService {
   timer: TimerState;
 
   loadedTimerId: string | null;
+  private loadedTimerStart: number | null;
+  private loadedTimerEnd: number | null;
+
   private pausedTime: number;
   private pausedAt: number | null;
   private secondaryTarget: number | null;
@@ -61,6 +64,9 @@ export class TimerService {
       endAction: null,
     };
     this.loadedTimerId = null;
+    this.loadedTimerStart = null;
+    this.loadedTimerEnd = null;
+
     this.pausedTime = 0;
     this.pausedAt = null;
     this.secondaryTarget = null;
@@ -90,9 +96,11 @@ export class TimerService {
     // TODO: check if any relevant information warrants update
 
     // update relevant information and force update
-    this.timer.duration = timer.duration;
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -102,9 +110,11 @@ export class TimerService {
       this.timer.duration,
       this.pausedTime,
       this.timer.addedTime,
+      this.loadedTimerEnd,
+      this.timer.timerType,
     );
     if (this.timer.startedAt === null) {
-      this.timer.current = timer.duration;
+      this.timer.current = this.timer.duration;
     }
     this.update(true);
   }
@@ -112,6 +122,7 @@ export class TimerService {
   /**
    * Loads given timer to object
    * @param {object} timer
+   * @param initialData
    * @param {number} timer.id
    * @param {number} timer.timeStart
    * @param {number} timer.timeEnd
@@ -128,13 +139,21 @@ export class TimerService {
     this._clear();
 
     this.loadedTimerId = timer.id;
-    this.timer.duration = timer.duration;
-    this.timer.current = timer.duration;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
+
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
     this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
     this.pausedTime = 0;
     this.pausedAt = 0;
+
+    this.timer.current = this.timer.duration;
+    if (this.timer.timerType === TimerType.TimeToEnd) {
+      const now = clock.timeNow();
+      this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
+    }
 
     if (typeof initialData !== 'undefined') {
       this.timer = { ...this.timer, ...initialData };
@@ -168,6 +187,8 @@ export class TimerService {
     }
 
     this.timer.clock = clock.timeNow();
+    this.timer.secondaryTimer = null;
+    this.secondaryTarget = null;
 
     // add paused time if it exists
     if (this.pausedTime) {
@@ -185,6 +206,8 @@ export class TimerService {
       this.timer.duration,
       this.pausedTime,
       this.timer.addedTime,
+      this.loadedTimerEnd,
+      this.timer.timerType,
     );
     this._onStart();
   }
@@ -267,7 +290,7 @@ export class TimerService {
       _finishAt:
         this.timer.expectedFinish >= this.timer.startedAt
           ? this.timer.expectedFinish
-          : this.timer.expectedFinish + DAY_TO_MS,
+          : this.timer.expectedFinish + dayInMs,
 
       clock: this.timer.clock,
       secondaryTimer: this.timer.secondaryTimer,
@@ -277,7 +300,7 @@ export class TimerService {
 
     this.timer.current = updatedTimer;
     this.timer.secondaryTimer = updatedSecondaryTimer;
-    this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
+    this.timer.elapsed = this.timer.duration - this.timer.current;
 
     if (isFinished) {
       this.timer.selectedEventId = null;
@@ -296,7 +319,8 @@ export class TimerService {
       this.pausedTime = this.timer.clock - this.pausedAt;
     }
 
-    if (this.playback === Playback.Play && this.timer.current <= 0 && this.timer.finishedAt === null) {
+    const finishedNow = this.timer.current <= 0 && this.timer.finishedAt === null;
+    if (this.playback === Playback.Play && finishedNow) {
       this.timer.finishedAt = this.timer.clock;
       this._onFinish();
     } else {
@@ -306,6 +330,8 @@ export class TimerService {
         this.timer.duration,
         this.pausedTime,
         this.timer.addedTime,
+        this.loadedTimerEnd,
+        this.timer.timerType,
       );
     }
     this.timer.current = getCurrent(
@@ -314,8 +340,10 @@ export class TimerService {
       this.timer.addedTime,
       this.pausedTime,
       this.timer.clock,
+      this.loadedTimerEnd,
+      this.timer.timerType,
     );
-    this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
+    this.timer.elapsed = this.timer.duration - this.timer.current;
   }
 
   update(force = false) {
@@ -382,16 +410,20 @@ export class TimerService {
       this.timer.secondaryTimer = null;
       this.secondaryTarget = null;
 
+      // account for event that finishes the day after
+      const endTime =
+        currentEvent.timeEnd < currentEvent.timeStart ? currentEvent.timeEnd + dayInMs : currentEvent.timeEnd;
+
       // when we load a timer in roll, we do the same things as before
       // but also pre-populate some data as to the running state
       this.load(currentEvent, {
         startedAt: currentEvent.timeStart,
         expectedFinish: currentEvent.timeEnd,
-        current: currentEvent.timeEnd - this.timer.clock,
+        current: endTime - this.timer.clock,
       });
     } else if (nextEvent) {
       // account for day after
-      const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + DAY_TO_MS : nextEvent.timeStart;
+      const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
       // nothing now, but something coming up
       this.timer.secondaryTimer = nextStart - this.timer.clock;
       this.secondaryTarget = nextStart;

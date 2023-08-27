@@ -1,5 +1,6 @@
 import { Alias, EventData, LogOrigin } from 'ontime-types';
 
+import { RequestHandler } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 
@@ -9,7 +10,7 @@ import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { mergeObject } from '../utils/parserUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { resolveDbPath } from '../setup.js';
+import { isDocker, resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, forceReset } from '../services/rundown-service/RundownService.js';
@@ -207,6 +208,11 @@ export const postSettings = async (req, res) => {
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
 
+    if (isDocker && req.body?.serverPort) {
+      return res.status(403).json({ message: `Can't change port when running inside docker` });
+    }
+    const serverPort = parseInt(req.body?.serverPort ?? settings.serverPort, 10);
+
     let timeFormat = settings.timeFormat;
     if (req.body?.timeFormat === '12' || req.body?.timeFormat === '24') {
       timeFormat = req.body.timeFormat;
@@ -220,6 +226,7 @@ export const postSettings = async (req, res) => {
       operatorKey,
       timeFormat,
       language,
+      serverPort,
     };
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);
@@ -325,10 +332,11 @@ export const dbUpload = async (req, res) => {
 };
 
 // Create controller for POST request to '/ontime/new'
-export const postNew = async (req, res) => {
+export const postNew: RequestHandler = async (req, res) => {
   try {
-    const newEventData: Omit<EventData, 'endMessage'> = {
+    const newEventData: EventData = {
       title: req.body?.title ?? '',
+      description: req.body?.description ?? '',
       publicUrl: req.body?.publicUrl ?? '',
       publicInfo: req.body?.publicInfo ?? '',
       backstageUrl: req.body?.backstageUrl ?? '',

@@ -50,6 +50,13 @@ function MakeUserField({ getValue, row: { index }, column: { id }, table }: Cell
 export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRundownEntry>[] {
   return [
     {
+      accessorKey: 'cue',
+      id: 'cue',
+      header: 'Cue',
+      cell: (row) => row.getValue(),
+      size: 75,
+    },
+    {
       accessorKey: 'isPublic',
       id: 'isPublic',
       header: 'Public',

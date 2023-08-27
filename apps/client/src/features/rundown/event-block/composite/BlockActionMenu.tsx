@@ -11,9 +11,6 @@ import { tooltipDelayMid } from '../../../../ontimeConfig';
 import { EventItemActions } from '../../RundownEntry';
 
 interface BlockActionMenuProps {
-  showAdd?: boolean;
-  showDelay?: boolean;
-  showBlock?: boolean;
   enableDelete?: boolean;
   showClone?: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
@@ -21,7 +18,7 @@ interface BlockActionMenuProps {
 }
 
 export default function BlockActionMenu(props: BlockActionMenuProps) {
-  const { showAdd, showDelay, showBlock, enableDelete, showClone, actionHandler, className } = props;
+  const { enableDelete, showClone, actionHandler, className } = props;
 
   const handleAddEvent = useCallback(() => actionHandler('event'), [actionHandler]);
   const handleAddDelay = useCallback(() => actionHandler('delay'), [actionHandler]);
@@ -43,17 +40,17 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
         />
       </Tooltip>
       <MenuList>
-        <MenuItem icon={<IoAdd />} onClick={handleAddEvent} isDisabled={!showAdd}>
+        <MenuItem icon={<IoAdd />} onClick={handleAddEvent}>
           Add Event after
         </MenuItem>
-        <MenuItem icon={<IoTimerOutline />} onClick={handleAddDelay} isDisabled={!showDelay}>
+        <MenuItem icon={<IoTimerOutline />} onClick={handleAddDelay}>
           Add Delay after
         </MenuItem>
-        <MenuItem icon={<IoRemoveCircleOutline />} onClick={handleAddBlock} isDisabled={!showBlock}>
+        <MenuItem icon={<IoRemoveCircleOutline />} onClick={handleAddBlock}>
           Add Block after
         </MenuItem>
         {showClone && (
-          <MenuItem icon={<IoDuplicateOutline />} onClick={handleClone} isDisabled={!showBlock}>
+          <MenuItem icon={<IoDuplicateOutline />} onClick={handleClone}>
             Clone event
           </MenuItem>
         )}
