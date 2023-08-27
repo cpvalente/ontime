@@ -116,6 +116,10 @@ function NavigationMenu() {
               Cuesheet
               <IoArrowUp className={style.linkIcon} />
             </Link>
+            <Link to='/op' className={style.link} tabIndex={0}>
+              Operator
+              <IoArrowUp className={style.linkIcon} />
+            </Link>
             <hr className={style.separator} />
             {navigatorConstants.map((route) => (
               <Link
