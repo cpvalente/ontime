@@ -1,23 +1,26 @@
 import { useCallback } from 'react';
-import { Input } from '@chakra-ui/react';
+import { Input, InputProps } from '@chakra-ui/react';
+import { sanitiseCue } from 'ontime-utils';
 
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
-
-import { TitleActions } from './EventEditorTitles';
+import { EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
 
-interface CountedTextInputProps {
-  field: TitleActions;
+interface CountedTextInputProps extends InputProps {
+  field: EditorUpdateFields;
   label: string;
   initialValue: string;
-  submitHandler: (field: TitleActions, value: string) => void;
+  submitHandler: (field: EditorUpdateFields, value: string) => void;
 }
 
 export default function CountedTextInput(props: CountedTextInputProps) {
-  const { field, label, initialValue, submitHandler } = props;
+  const { field, label, initialValue, submitHandler, maxLength } = props;
 
-  const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
+  const submitCallback = useCallback(
+    (newValue: string) => submitHandler(field, sanitiseCue(newValue)),
+    [field, submitHandler],
+  );
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, {
     submitOnEnter: true,
@@ -26,7 +29,9 @@ export default function CountedTextInput(props: CountedTextInputProps) {
   return (
     <div className={style.column}>
       <div className={style.countedInput}>
-        <label className={style.inputLabel} htmlFor={field}>{label}</label>
+        <label className={style.inputLabel} htmlFor={field}>
+          {label}
+        </label>
         <span className={style.charCount}>{`${value.length} characters`}</span>
       </div>
       <Input
@@ -35,6 +40,7 @@ export default function CountedTextInput(props: CountedTextInputProps) {
         variant='ontime-filled'
         data-testid='input-textfield'
         value={value}
+        maxLength={maxLength || 50}
         onChange={onChange}
         onBlur={onBlur}
         onKeyDown={onKeyDown}

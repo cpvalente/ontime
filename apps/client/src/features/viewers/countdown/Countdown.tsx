@@ -9,7 +9,6 @@ import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-edito
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import getDelayTo from '../../../common/utils/getDelayTo';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 
@@ -72,7 +71,7 @@ export default function Countdown(props: CountdownProps) {
     if (followThis !== null) {
       setFollow(followThis);
       const idx: number = backstageEvents.findIndex((event: OntimeRundownEntry) => event.id === followThis?.id);
-      const delayToEvent = getDelayTo(backstageEvents, idx);
+      const delayToEvent = backstageEvents[idx]?.delay ?? 0;
       setDelay(delayToEvent);
     }
   }, [backstageEvents, searchParams]);

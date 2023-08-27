@@ -7,12 +7,14 @@ import {
   rundownPost,
   rundownPut,
   rundownReorder,
+  rundownSwap,
 } from '../controllers/rundownController.js';
 import {
   paramsMustHaveEventId,
   rundownPostValidator,
   rundownPutValidator,
   rundownReorderValidator,
+  rundownSwapValidator,
 } from '../controllers/rundownController.validate.js';
 
 export const router = express.Router();
@@ -28,6 +30,8 @@ router.put('/', rundownPutValidator, rundownPut);
 
 // create route between controller and '/events/reorder' endpoint
 router.patch('/reorder/', rundownReorderValidator, rundownReorder);
+
+router.patch('/swap', rundownSwapValidator, rundownSwap);
 
 // create route between controller and '/events/applydelay/:eventId' endpoint
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);

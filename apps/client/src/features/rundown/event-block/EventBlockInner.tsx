@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
+import { BiArrowToBottom } from '@react-icons/all-files/bi/BiArrowToBottom';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
@@ -144,7 +145,10 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           </Tooltip>
           <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
             <span>
-              <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
+              <IoPeople
+                className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`}
+                data-isPublic={isPublic}
+              />
             </span>
           </Tooltip>
         </div>
@@ -163,7 +167,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           color={isOpen ? 'white' : '#f6f6f6'}
           isDisabled={disableEdit}
         />
-        <BlockActionMenu showAdd showDelay showBlock showClone enableDelete={!selected} actionHandler={actionHandler} />
+        <BlockActionMenu showClone enableDelete={!selected} actionHandler={actionHandler} />
       </div>
     </>
   );
@@ -192,6 +196,9 @@ function TimerIcon(props: { type: TimerType; className: string }) {
   }
   if (type === TimerType.Clock) {
     return <IoTime className={className} />;
+  }
+  if (type === TimerType.TimeToEnd) {
+    return <BiArrowToBottom className={className} />;
   }
   return <IoArrowDown className={className} />;
 }

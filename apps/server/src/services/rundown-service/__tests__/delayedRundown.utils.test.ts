@@ -1,4 +1,4 @@
-import { EndAction, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
 
 import { calculateRuntimeDelays, calculateRuntimeDelaysFrom, getDelayAt } from '../delayedRundown.utils.js';
 
@@ -31,6 +31,7 @@ describe('calculateRuntimeDelays', () => {
         type: SupportedEvent.Event,
         revision: 0,
         id: '659e1',
+        cue: '1',
       },
       {
         duration: 600000,
@@ -64,6 +65,7 @@ describe('calculateRuntimeDelays', () => {
         type: SupportedEvent.Event,
         revision: 0,
         id: '1c48f',
+        cue: '2',
       },
       {
         duration: 1200000,
@@ -97,6 +99,7 @@ describe('calculateRuntimeDelays', () => {
         type: SupportedEvent.Event,
         revision: 0,
         id: 'd48c2',
+        cue: '3',
       },
       {
         title: '',
@@ -129,16 +132,17 @@ describe('calculateRuntimeDelays', () => {
         type: SupportedEvent.Event,
         revision: 0,
         id: '2f185',
+        cue: '4',
       },
     ];
 
     const updatedRundown = calculateRuntimeDelays(rundown);
 
     expect(rundown.length).toBe(updatedRundown.length);
-    expect(updatedRundown[0].delay).toBe(0);
-    expect(updatedRundown[2].delay).toBe(600000);
-    expect(updatedRundown[4].delay).toBe(600000 + 1200000);
-    expect(updatedRundown[6].delay).toBe(0);
+    expect((updatedRundown[0] as OntimeEvent).delay).toBe(0);
+    expect((updatedRundown[2] as OntimeEvent).delay).toBe(600000);
+    expect((updatedRundown[4] as OntimeEvent).delay).toBe(600000 + 1200000);
+    expect((updatedRundown[6] as OntimeEvent).delay).toBe(0);
   });
 });
 
@@ -171,6 +175,7 @@ describe('getDelayAt()', () => {
       revision: 0,
       id: '659e1',
       delay: 0,
+      cue: '1',
     },
     {
       duration: 600000,
@@ -205,6 +210,7 @@ describe('getDelayAt()', () => {
       revision: 0,
       id: '1c48f',
       delay: 600000,
+      cue: '2',
     },
     {
       duration: 1200000,
@@ -239,6 +245,7 @@ describe('getDelayAt()', () => {
       revision: 0,
       id: 'd48c2',
       delay: 1800000,
+      cue: '3',
     },
     {
       title: '',
@@ -272,6 +279,7 @@ describe('getDelayAt()', () => {
       revision: 0,
       id: '2f185',
       delay: 0,
+      cue: '4',
     },
   ];
 
@@ -331,6 +339,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         revision: 0,
         id: '659e1',
         delay: 0,
+        cue: '1',
       },
       {
         duration: 600000,
@@ -365,6 +374,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         revision: 0,
         id: '1c48f',
         delay: 0,
+        cue: '2',
       },
       {
         duration: 1200000,
@@ -399,6 +409,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         revision: 0,
         id: 'd48c2',
         delay: 1800000,
+        cue: '3',
       },
       {
         title: '',
@@ -432,14 +443,15 @@ describe('calculateRuntimeDelaysFrom()', () => {
         revision: 0,
         id: '2f185',
         delay: 0,
+        cue: '4',
       },
     ];
 
     const updatedRundown = calculateRuntimeDelaysFrom('07986', delayedRundown);
 
     // we only update from the 4th on
-    expect(updatedRundown[0].delay).toBe(0);
+    expect((updatedRundown[0] as OntimeEvent).delay).toBe(0);
     // 1 + 3
-    expect(updatedRundown[4].delay).toBe(600000 + 1200000);
+    expect((updatedRundown[4] as OntimeEvent).delay).toBe(600000 + 1200000);
   });
 });

@@ -5,6 +5,7 @@ import { OntimeEntryCommonKeys, OntimeEvent } from 'ontime-types';
  */
 export const defaultColumnOrder: OntimeEntryCommonKeys[] = [
   'isPublic',
+  'cue',
   'timeStart',
   'timeEnd',
   'duration',

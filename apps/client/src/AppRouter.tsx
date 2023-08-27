@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import withData from './features/viewers/ViewWrapper';
+
 import withAlias from './features/AliasWrapper';
+import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = lazy(() => import('./features/cuesheet/ProtectedCuesheet'));

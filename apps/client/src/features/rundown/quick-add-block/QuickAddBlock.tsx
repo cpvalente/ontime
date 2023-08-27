@@ -80,6 +80,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             size='xs'
             variant='ontime-subtle-white'
             className={style.quickBtn}
+            data-testid='quick-add-event'
           >
             Event {showKbd && <span className={style.keyboard}>Alt + E</span>}
           </Button>
@@ -91,6 +92,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             variant='ontime-subtle-white'
             disabled={disableAddDelay}
             className={style.quickBtn}
+            data-testid='quick-add-delay'
           >
             Delay {showKbd && <span className={style.keyboard}>Alt + D</span>}
           </Button>
@@ -102,6 +104,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             variant='ontime-subtle-white'
             disabled={disableAddBlock}
             className={style.quickBtn}
+            data-testid='quick-add-block'
           >
             Block {showKbd && <span className={style.keyboard}>Alt + B</span>}
           </Button>

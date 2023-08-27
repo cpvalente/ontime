@@ -3,7 +3,7 @@ import { Textarea } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 
-import { TitleActions } from './EventEditorTitles';
+import { TitleActions } from './EventEditorDataLeft';
 
 import style from '../EventEditor.module.scss';
 
@@ -24,7 +24,9 @@ export default function CountedTextArea(props: CountedTextAreaProps) {
   return (
     <div className={`${style.column} ${style.fullHeight}`}>
       <div className={style.countedInput}>
-        <label className={style.inputLabel} htmlFor={field}>{label}</label>
+        <label className={style.inputLabel} htmlFor={field}>
+          {label}
+        </label>
         <span className={style.charCount}>{`${value.length} characters`}</span>
       </div>
       <Textarea
