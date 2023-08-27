@@ -79,7 +79,7 @@ export default function DelayBlock(props: DelayBlockProps) {
         <Button onClick={cancelDelayHandler} size='sm' leftIcon={<IoClose />} variant='ontime-subtle-white'>
           Cancel
         </Button>
-        <BlockActionMenu showAdd enableDelete actionHandler={actionHandler} />
+        <BlockActionMenu enableDelete actionHandler={actionHandler} />
       </HStack>
     </div>
   );
