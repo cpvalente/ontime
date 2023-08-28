@@ -1,0 +1,36 @@
+@use '../../../../src/theme/ontimeColours' as *;
+@use '../../../../src/theme/v2Styles' as *;
+
+.followButton {
+  position: relative;
+  bottom: 17.5vh;
+  margin: 0 auto;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 1rem;
+  background-color: $blue-700;
+  color: #fff;
+  font-size: 1rem;
+  border-radius: 99px;
+  transition: bottom 1s;
+
+  &:active {
+    transition: background-color $transition-time-action;
+    background-color: $blue-900;
+  }
+}
+
+.hidden {
+  transition: bottom 1s;
+  bottom: -0;
+}
+
+// tablet
+@media (min-width: $min-tablet) {
+  .followButton {
+    bottom: 10vh;
+  }
+}

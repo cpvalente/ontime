@@ -26,6 +26,21 @@ export function getFirstEvent(rundown: OntimeRundownEntry[]) {
   return null;
 }
 
+export function getLastEvent(rundown: OntimeRundown): OntimeEvent | null {
+  if (rundown.length < 1) {
+    return null;
+  }
+
+  for (let i = rundown.length - 1; i > 0; i--) {
+    const event = rundown.at(i);
+    if (isOntimeEvent(event)) {
+      return event;
+    }
+  }
+
+  return null;
+}
+
 /**
  * Gets next event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown

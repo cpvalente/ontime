@@ -1,12 +1,13 @@
 import { OntimeEvent, Playback } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
 import { useTimer } from '../../../common/hooks/useSocket';
 import { formatTime } from '../../../common/utils/time';
 
-import styles from './TimeBlock.module.scss';
+import styles from './StatusBar.module.scss';
 
-export default function TimeBlock({
+export default function StatusBar({
   playback,
   lastEvent,
   selectedEventId,
@@ -23,27 +24,19 @@ export default function TimeBlock({
     }
 
     const timeEnd = lastEvent.id === selectedEventId ? timer.expectedFinish : lastEvent.timeEnd;
-    return formatTime(timeEnd, { showSeconds: true, format: 'hh:mm:ss' });
+    return millisToString(timeEnd);
   };
 
-  // TODO: format should be user defined
+  // use user defined format
   const timeNow = formatTime(timer.clock, {
     showSeconds: true,
-    format: 'hh:mm:ss',
   });
 
-  const runningTime = formatTime(timer.current, {
-    showSeconds: true,
-    format: 'hh:mm:ss',
-  });
-
-  const elapsedTime = formatTime(timer.elapsed, {
-    showSeconds: true,
-    format: 'hh:mm:ss',
-  });
+  const runningTime = millisToString(timer.current);
+  const elapsedTime = millisToString(timer.elapsed);
 
   return (
-    <div className={styles.TimeBlock}>
+    <div className={styles.statusBar}>
       <PlaybackIcon state={playback} />
       <div className={styles.clock}>
         <div className={styles.column}>

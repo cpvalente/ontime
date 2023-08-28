@@ -1,0 +1,8 @@
+@use '../../../../src/theme/ontimeColours' as *;
+@import '../Operator.module.scss';
+
+.block {
+  @include block();
+  background-color: $gray-1350;
+  font-size: 1.25rem;
+}

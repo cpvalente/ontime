@@ -1,0 +1,67 @@
+@use '../../../../src/theme/v2Styles' as *;
+@use '../../../../src/theme/ontimeColours' as *;
+@import '../Operator.module.scss';
+
+.event {
+  @include block();
+  background-color: $gray-1300;
+
+  &.subscribed {
+    background-color: $gray-1250;
+  }
+
+  &.running {
+    background-color: $red-700;
+  }
+}
+
+.titles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .title {
+    font-size: 1.5rem;
+    letter-spacing: 0.02px;
+  }
+
+  .cue {
+    font-size: 1rem;
+    background-color: $gray-1050; // to override inline
+    padding: 0 0.5rem;
+    text-align: center;
+    border-radius: $component-border-radius-sm;
+  }
+}
+
+.times {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: calc(1rem - 1px);
+
+  .runtime {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}
+
+.fields {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: $orange-500;
+
+  letter-spacing: 0.02px;
+  height: fit-content;
+
+  transition-property: height;
+  transition-duration: $transition-time-feedback;
+}
+
+// tablet
+@media (min-width: $min-tablet) {
+  .times {
+    font-size: 1rem;
+  }
+}

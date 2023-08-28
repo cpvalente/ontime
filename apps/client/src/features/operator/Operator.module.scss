@@ -4,29 +4,26 @@
 .operatorContainer {
   width: 100vw;
   height: 100vh;
-  font-size: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  color: white;
+
+  color: $ui-white;
 }
 
 .operatorEvents {
-  flex: 1;
+  width: 100vw;
+  height: 100vh;
+
   overflow: auto;
-}
-
-@mixin event-block() {
-  height: 40px;
-  padding: 0.5rem;
   display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  margin: 0.1rem;
+  flex-direction: column;
+  gap: 2px;
 }
 
+@mixin block() {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
 
-.block {
-  @include event-block();
-  background-color: $gray-1350;
+  // tablet
+  @media (min-width: $min-tablet) {
+    padding: 0.25rem 1rem;
+  }
 }

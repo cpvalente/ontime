@@ -1,0 +1,34 @@
+@use '../../../../src/theme/ontimeColours' as *;
+@use '../../../../src/theme/v2Styles' as *;
+
+.statusBar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: $gray-1350;
+  z-index: 2;
+
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid $white-10;
+  box-shadow: $large-bottom-drawer-shadow;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.clock {
+  display: flex;
+  gap: 1.5rem;
+  margin-right: 1rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: gray;
+}

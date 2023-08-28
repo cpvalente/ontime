@@ -1,6 +1,6 @@
 const commonStyles = {
   fontWeight: '400',
-  backgroundColor: '#262626', // $gray-1250
+  backgroundColor: '#262626', // $gray-1200
   color: '#e2e2e2', // $gray-200
   border: '1px solid transparent',
   _hover: {

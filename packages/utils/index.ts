@@ -1,5 +1,5 @@
 // runtime utils
-export { getFirst, getNext, getPrevious } from './src/rundown-utils/rundownUtils.js';
+export { getFirst, getLastEvent, getNext, getPrevious } from './src/rundown-utils/rundownUtils.js';
 export { validatePlayback } from './src/validate-action/validatePlayback.js';
 
 // rundown utils
