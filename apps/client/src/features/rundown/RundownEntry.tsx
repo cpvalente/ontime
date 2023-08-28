@@ -48,7 +48,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
 
-  const { cursor, eventToEdit: eventsToEdit, clearEventsToEdit } = useAppMode();
+  const { cursor, eventsToEdit, clearEventsToEdit } = useAppMode();
 
   const removeOpenEvent = useCallback(() => {
     if (eventsToEdit.some((id) => id.id === data.id)) {

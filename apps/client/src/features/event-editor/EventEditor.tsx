@@ -16,14 +16,14 @@ export type EventEditorSubmitActions = keyof OntimeEvent;
 export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
 
 export default function EventEditor() {
-  const { eventToEdit: eventsToEdit } = useAppMode();
+  const { eventsToEdit } = useAppMode();
   const { data } = useRundown();
   const { updateEvent } = useEventAction();
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
   useEffect(() => {
-    if (!data || eventsToEdit.length === 0 || eventsToEdit.length > 1) {
+    if (!data) {
       setEvent(null);
       return;
     }

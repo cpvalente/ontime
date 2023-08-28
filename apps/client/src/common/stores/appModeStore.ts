@@ -25,7 +25,7 @@ type AppModeStore = {
   mode: AppMode;
   cursor: string | null;
   editMode: EditMode;
-  eventToEdit: { id: string; index: number; anchor: boolean }[];
+  eventsToEdit: { id: string; index: number; anchor: boolean }[];
   isEventSelected: (id: string, index: number) => boolean;
   setMode: (mode: AppMode) => void;
   setEditMode: (mode: EditMode) => void;
@@ -37,7 +37,7 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
   mode: getModeFromSession(),
   cursor: null,
   editMode: EditMode.Single,
-  eventToEdit: [],
+  eventsToEdit: [],
   setMode: (mode: AppMode) => {
     persistModeToSession(mode);
 
@@ -46,7 +46,7 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
     });
   },
   isEventSelected: (id, index) => {
-    const { eventToEdit: eventsToEdit } = get();
+    const { eventsToEdit: eventsToEdit } = get();
 
     return eventsToEdit.some((event) => {
       const doesEventsHaveAnchor = eventsToEdit.some((event) => event.anchor);
@@ -69,9 +69,9 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
   },
   setEditMode: (mode) => set(() => ({ editMode: mode })),
   setEventsToEdit: (id, index) =>
-    set(({ editMode, eventToEdit: eventsToEdit }) => {
+    set(({ editMode, eventsToEdit: eventsToEdit }) => {
       if (editMode === EditMode.Single) {
-        return { eventToEdit: [{ id, index, anchor: false }] };
+        return { eventsToEdit: [{ id, index, anchor: false }] };
       }
 
       if (editMode === EditMode.CherryPick) {
@@ -82,10 +82,10 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
           .filter((event) => event.id !== id);
 
         if (uniqueEventsWithoutAnchor.length !== eventsToEdit.length) {
-          return { eventToEdit: uniqueEventsWithoutAnchor };
+          return { eventsToEdit: uniqueEventsWithoutAnchor };
         }
 
-        return { eventToEdit: [...uniqueEventsWithoutAnchor, { id, index, anchor: false }] };
+        return { eventsToEdit: [...uniqueEventsWithoutAnchor, { id, index, anchor: false }] };
       }
 
       if (editMode === EditMode.Range) {
@@ -96,16 +96,16 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
             const firstEvent = eventsToEdit.at(0);
 
             if (!firstEvent) {
-              return { eventToEdit: [{ id, index, anchor: true }] };
+              return { eventsToEdit: [{ id, index, anchor: true }] };
             }
 
             if (firstEvent.id === id) {
-              return { eventToEdit: [{ ...firstEvent, anchor: true }] };
+              return { eventsToEdit: [{ ...firstEvent, anchor: true }] };
             }
 
             if (firstEvent.index > index) {
               return {
-                eventToEdit: [
+                eventsToEdit: [
                   { id, index, anchor: false },
                   { ...firstEvent, anchor: true },
                 ],
@@ -113,32 +113,32 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
             }
 
             return {
-              eventToEdit: [
+              eventsToEdit: [
                 { ...firstEvent, anchor: true },
                 { id, index, anchor: false },
               ],
             };
           }
 
-          return { eventToEdit: [{ id, index, anchor: true }] };
+          return { eventsToEdit: [{ id, index, anchor: true }] };
         }
 
         if (eventWithAnchor.id === id) {
-          return { eventToEdit: [{ ...eventWithAnchor, anchor: true }] };
+          return { eventsToEdit: [{ ...eventWithAnchor, anchor: true }] };
         }
 
         if (eventWithAnchor.index > index) {
           return {
-            eventToEdit: [{ id, index, anchor: false }, eventWithAnchor],
+            eventsToEdit: [{ id, index, anchor: false }, eventWithAnchor],
           };
         }
 
         return {
-          eventToEdit: [eventWithAnchor, { id, index, anchor: false }],
+          eventsToEdit: [eventWithAnchor, { id, index, anchor: false }],
         };
       }
 
-      return { eventToEdit: [] };
+      return { eventsToEdit: [] };
     }),
-  clearEventsToEdit: () => set(() => ({ eventToEdit: [] })),
+  clearEventsToEdit: () => set(() => ({ eventsToEdit: [] })),
 }));
