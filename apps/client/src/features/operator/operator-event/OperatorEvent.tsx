@@ -12,6 +12,7 @@ interface OperatorEventProps {
   cue: string;
   isSelected: boolean;
   subscribed: keyof UserFields | null;
+  subscribedAlias: string;
   showSeconds: boolean;
 }
 
@@ -22,7 +23,7 @@ function RollingTime() {
 }
 
 export default function OperatorEvent(props: OperatorEventProps) {
-  const { data, cue, isSelected, subscribed, showSeconds } = props;
+  const { data, cue, isSelected, subscribed, subscribedAlias, showSeconds } = props;
 
   const start = formatTime(data.timeStart, { showSeconds });
   const end = formatTime(data.timeEnd, { showSeconds });
@@ -57,7 +58,12 @@ export default function OperatorEvent(props: OperatorEventProps) {
         </span>
       </div>
 
-      <div className={style.fields}>{subscribedData}</div>
+      {subscribedData && (
+        <div className={style.fields}>
+          {subscribedAlias && <span>{`${subscribedAlias} - `}</span>}
+          <span>{subscribedData}</span>
+        </div>
+      )}
     </div>
   );
 }

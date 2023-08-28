@@ -44,6 +44,7 @@ export default function Operator() {
 
   // get fields which the user subscribed to
   const subscribe = searchParams.get('subscribe') as keyof UserFields | null;
+  const subscribedAlias = subscribe ? userFields[subscribe] : '';
   const showSeconds = isStringBoolean(searchParams.get('showseconds'));
   const lastEvent = getLastEvent(data);
 
@@ -64,6 +65,7 @@ export default function Operator() {
                 data={entry}
                 isSelected={featureData.selectedEventId === entry.id}
                 subscribed={subscribe}
+                subscribedAlias={subscribedAlias}
                 showSeconds={showSeconds}
               />
             );
