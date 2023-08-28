@@ -2,6 +2,7 @@ import { OntimeEvent, Playback } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
+import useMediaQuery from '../../../common/context/useMediaQuery';
 import { useTimer } from '../../../common/hooks/useSocket';
 import { formatTime } from '../../../common/utils/time';
 
@@ -17,6 +18,7 @@ export default function StatusBar({
   selectedEventId: string | null;
 }) {
   const timer = useTimer();
+  const isMobile = useMediaQuery('(max-width: 450px)');
 
   const getTimeEnd = () => {
     if (lastEvent === null) {
@@ -37,16 +39,18 @@ export default function StatusBar({
 
   return (
     <div className={styles.statusBar}>
-      <PlaybackIcon state={playback} />
+      <PlaybackIcon state={playback} className={styles.playbackIcon} />
       <div className={styles.clock}>
         <div className={styles.column}>
           <span className={styles.label}>Time now</span>
           <span className={styles.timer}>{timeNow}</span>
         </div>
-        <div className={styles.column}>
-          <span className={styles.label}>Time to end</span>
-          <span className={styles.timer}>{getTimeEnd()}</span>
-        </div>
+        {!isMobile && (
+          <div className={styles.column}>
+            <span className={styles.label}>Last end</span>
+            <span className={styles.timer}>{getTimeEnd()}</span>
+          </div>
+        )}
         <div className={styles.column}>
           <span className={styles.label}>Elapsed time</span>
           <span className={styles.timer}>{elapsedTime}</span>

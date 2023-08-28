@@ -8,11 +8,17 @@
   background-color: $gray-1350;
   z-index: 2;
 
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   border-top: 1px solid $white-10;
   box-shadow: $large-bottom-drawer-shadow;
+}
+
+.playbackIcon {
+  font-size: 2rem;
+  color: $gray-700;
 }
 
 .column {
@@ -25,10 +31,21 @@
 .clock {
   display: flex;
   gap: 1.5rem;
-  margin-right: 1rem;
 }
 
 .label {
   font-size: 0.75rem;
-  color: gray;
+  color: $gray-700;
+}
+
+.timer {
+  letter-spacing: 0.5px;
+}
+
+// tablet
+@media (min-width: $min-tablet) {
+  .clock {
+    display: flex;
+    gap: 1.5rem;
+  }
 }
