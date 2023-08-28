@@ -10,6 +10,7 @@ import ViewParamsEditor from '../../common/components/view-params-editor/ViewPar
 import { useOperator } from '../../common/hooks/useSocket';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
+import { isStringBoolean } from '../../common/utils/viewUtils';
 
 import FollowButton from './follow-button/FollowButton';
 import OperatorBlock from './operator-block/OperatorBlock';
@@ -17,7 +18,6 @@ import OperatorEvent from './operator-event/OperatorEvent';
 import StatusBar from './status-bar/StatusBar';
 
 import style from './Operator.module.scss';
-import { isStringBoolean } from '../../common/utils/viewUtils';
 
 export default function Operator() {
   const { data, status } = useRundown();
