@@ -1,6 +1,13 @@
 @use '../../../../src/theme/ontimeColours' as *;
 @use '../../../../src/theme/v2Styles' as *;
 
+@mixin column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
 .statusBar {
   position: absolute;
   bottom: 0;
@@ -9,28 +16,55 @@
   z-index: 2;
 
   padding: 0.5rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   border-top: 1px solid $white-10;
   box-shadow: $large-bottom-drawer-shadow;
+
+  display: grid;
+  grid-template-areas:
+    "playback timer1B timer2B timer3B";
+  grid-template-columns: 1fr auto auto auto;
+  column-gap: 1.5rem;
+  align-items: center;
 }
 
 .playbackIcon {
+  grid-area: playback;
   font-size: 2rem;
   color: $gray-700;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+.timeNow {
+  grid-area: timer1B;
+  @include column;
 }
 
-.clock {
-  display: flex;
-  gap: 1.5rem;
+.elapsedTime {
+  grid-area: timer2B;
+  @include column;
+}
+
+.runningTime {
+  grid-area: timer3B;
+  @include column;
+}
+
+.title {
+  grid-area: title;
+  font-size: 1.5rem;
+  padding-left: 0.5rem;
+  display: none;
+}
+
+.startTime {
+  grid-area: timer2A;
+  @include column;
+  display: none;
+}
+
+.endTime {
+  grid-area: timer3A;
+  @include column;
+  display: none;
 }
 
 .label {
@@ -44,8 +78,23 @@
 
 // tablet
 @media (min-width: $min-tablet) {
-  .clock {
+  .statusBar {
+    grid-template-areas:
+    "playback timer1B timer2B timer3B"
+    "title    timer1A timer2A timer3A";
+    row-gap: 0.25rem;
+    column-gap: 2rem;
+  }
+
+  .title {
+    display: block;
+  }
+
+  .startTime {
     display: flex;
-    gap: 1.5rem;
+  }
+
+  .endTime {
+    display: flex;
   }
 }

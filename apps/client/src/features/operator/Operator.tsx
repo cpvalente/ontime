@@ -9,6 +9,7 @@ import { getOperatorOptions } from '../../common/components/view-params-editor/c
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useOperator } from '../../common/hooks/useSocket';
+import useEventData from '../../common/hooks-query/useEventData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
 import { isStringBoolean } from '../../common/utils/viewUtils';
@@ -25,6 +26,8 @@ const selectedOffset = 50;
 export default function Operator() {
   const { data, status } = useRundown();
   const { data: userFields, status: userFieldsStatus } = useUserFields();
+  const { data: projectData, status: projectDataStatus } = useEventData();
+
   const featureData = useOperator();
   const [searchParams] = useSearchParams();
 
@@ -69,7 +72,14 @@ export default function Operator() {
     }
   };
 
-  if (!data || status === 'loading' || !userFields || userFieldsStatus === 'loading') {
+  if (
+    !data ||
+    status === 'loading' ||
+    !userFields ||
+    userFieldsStatus === 'loading' ||
+    !projectData ||
+    projectDataStatus === 'loading'
+  ) {
     return <Empty text='Loading...' />;
   }
 
@@ -77,11 +87,13 @@ export default function Operator() {
   const subscribe = searchParams.get('subscribe') as keyof UserFields | null;
   const subscribedAlias = subscribe ? userFields[subscribe] : '';
   const showSeconds = isStringBoolean(searchParams.get('showseconds'));
-  const lastEvent = getLastEvent(data);
 
   const operatorOptions = getOperatorOptions(userFields);
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
+
+  const firstEvent = getLastEvent(data);
+  const lastEvent = getLastEvent(data);
 
   return (
     <div className={style.operatorContainer}>
@@ -124,7 +136,15 @@ export default function Operator() {
         <div className={style.spacer} />
       </div>
       <FollowButton isVisible={lockAutoScroll} onClickHandler={handleOffset} />
-      <StatusBar playback={featureData.playback} lastEvent={lastEvent} selectedEventId={featureData.selectedEventId} />
+      <StatusBar
+        projectTitle={projectData.title}
+        playback={featureData.playback}
+        selectedEventId={featureData.selectedEventId}
+        firstStart={firstEvent?.timeStart}
+        firstId={firstEvent?.id}
+        lastEnd={lastEvent?.timeEnd}
+        lastId={lastEvent?.id}
+      />
     </div>
   );
 }
