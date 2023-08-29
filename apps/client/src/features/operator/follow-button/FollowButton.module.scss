@@ -3,7 +3,7 @@
 
 .followButton {
   position: relative;
-  bottom: 120px;
+  bottom: 100px;
   margin: 0 auto;
   z-index: 1;
 
@@ -26,4 +26,11 @@
 .hidden {
   transition: bottom 1s;
   bottom: -0;
+}
+
+// tablet
+@media (min-width: $min-tablet) {
+  .followButton {
+    bottom: 150px;
+  }
 }
