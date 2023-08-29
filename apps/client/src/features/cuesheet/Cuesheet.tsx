@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
@@ -14,6 +14,7 @@ import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordin
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
+import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
 import { millisToDelayString } from '../../common/utils/dateConfig';
 import { getAccessibleColour } from '../../common/utils/styleUtils';
@@ -46,6 +47,8 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
   const [columnSizing, setColumnSizing] = useLocalStorage('table-sizes', {});
 
   const selectedRef = useRef<HTMLTableRowElement | null>(null);
+  const tableContainerRef = useRef<HTMLDivElement | null>(null);
+  useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followSelected });
 
   const table = useReactTable({
     data,
@@ -63,7 +66,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(),
   });
-  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -82,34 +84,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-
-  // when selection moves, view should follow
-  useEffect(() => {
-    function scrollToComponent(
-      componentRef: MutableRefObject<HTMLTableRowElement>,
-      scrollRef: MutableRefObject<HTMLDivElement>,
-    ) {
-      const componentRect = componentRef.current.getBoundingClientRect();
-      const scrollRect = scrollRef.current.getBoundingClientRect();
-      const top = componentRect.top - scrollRect.top + scrollRef.current.scrollTop - 100;
-      scrollRef.current.scrollTo({ top, behavior: 'smooth' });
-    }
-
-    if (!followSelected) {
-      return;
-    }
-
-    if (selectedRef.current && tableContainerRef.current) {
-      // Use requestAnimationFrame to ensure the component is fully loaded
-      window.requestAnimationFrame(() => {
-        scrollToComponent(
-          selectedRef as MutableRefObject<HTMLTableRowElement>,
-          tableContainerRef as MutableRefObject<HTMLDivElement>,
-        );
-      });
-    }
-    // eslint-disable-next-line -- the prompt seems incorrect, we need the refs
-  }, [selectedRef.current, tableContainerRef.current, followSelected]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { delta, active, over } = event;

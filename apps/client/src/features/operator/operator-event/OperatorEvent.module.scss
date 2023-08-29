@@ -5,6 +5,7 @@
 .event {
   @include block();
   background-color: $gray-1300;
+  opacity: 1;
 
   &.subscribed {
     background-color: $gray-1250;
@@ -12,6 +13,10 @@
 
   &.running {
     background-color: $red-700;
+  }
+
+  &.past {
+    opacity: 0.2;
   }
 }
 

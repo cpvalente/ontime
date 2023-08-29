@@ -1,3 +1,4 @@
+import { RefObject } from 'react';
 import { OntimeEvent, UserFields } from 'ontime-types';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
@@ -14,6 +15,8 @@ interface OperatorEventProps {
   subscribed: keyof UserFields | null;
   subscribedAlias: string;
   showSeconds: boolean;
+  isPast: boolean;
+  selectedRef?: RefObject<HTMLDivElement>;
 }
 
 // extract this to contain re-renders
@@ -23,7 +26,7 @@ function RollingTime() {
 }
 
 export default function OperatorEvent(props: OperatorEventProps) {
-  const { data, cue, isSelected, subscribed, subscribedAlias, showSeconds } = props;
+  const { data, cue, isSelected, subscribed, subscribedAlias, showSeconds, isPast, selectedRef } = props;
 
   const start = formatTime(data.timeStart, { showSeconds });
   const end = formatTime(data.timeEnd, { showSeconds });
@@ -35,10 +38,11 @@ export default function OperatorEvent(props: OperatorEventProps) {
     style.event,
     isSelected ? style.running : null,
     subscribedData ? style.subscribed : null,
+    isPast ? style.past : null,
   ]);
 
   return (
-    <div className={operatorClasses}>
+    <div className={operatorClasses} ref={selectedRef}>
       <div className={style.titles}>
         <span className={style.title}>
           {data.title} - {data.subtitle}

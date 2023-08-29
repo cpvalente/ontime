@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { OntimeEvent, Playback } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
@@ -37,9 +38,13 @@ export default function StatusBar({
   const runningTime = millisToString(timer.current);
   const elapsedTime = millisToString(timer.elapsed);
 
+  const PlaybackIconComponent = useMemo(() => {
+    return <PlaybackIcon state={playback} skipTooltip className={styles.playbackIcon} />;
+  }, [playback]);
+
   return (
     <div className={styles.statusBar}>
-      <PlaybackIcon state={playback} className={styles.playbackIcon} />
+      {PlaybackIconComponent}
       <div className={styles.clock}>
         <div className={styles.column}>
           <span className={styles.label}>Time now</span>

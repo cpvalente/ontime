@@ -8,11 +8,12 @@ import { tooltipDelayFast } from '../../../ontimeConfig';
 
 interface PlaybackIconProps {
   state: Playback;
+  skipTooltip?: boolean;
   className?: string;
 }
 
 export default function PlaybackIcon(props: PlaybackIconProps) {
-  const { state, className } = props;
+  const { state, skipTooltip, className } = props;
 
   // if timer is Pause or Armed
   let label = 'Timer Paused';
@@ -27,6 +28,10 @@ export default function PlaybackIcon(props: PlaybackIconProps) {
   } else if (state === Playback.Stop) {
     label = 'Timer Stopped';
     Icon = IoStop;
+  }
+
+  if (skipTooltip) {
+    return <Icon className={className} />;
   }
 
   return (
