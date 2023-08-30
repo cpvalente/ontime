@@ -80,37 +80,66 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { eventToEdit: eventsToEdit, setEventsToEdit, isEventSelected } = useAppMode((state) => state);
+  const { eventsToEdit, setEventsToEdit, isEventSelected } = useAppMode((state) => state);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>([
-    { label: `Copy ID: ${eventId}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
-    {
-      label: 'Toggle public',
-      icon: IoPeopleOutline,
-      onClick: () =>
-        actionHandler('update', {
-          field: 'isPublic',
-          value: !isPublic,
-        }),
-    },
-    {
-      label: 'Add to swap',
-      icon: IoAdd,
-      onClick: () => setSelectedEventId(eventId),
-      withDivider: true,
-    },
-    {
-      label: `Swap this event with ${selectedEventId ?? ''}`,
-      icon: IoSwapVertical,
-      onClick: () => {
-        actionHandler('swap', { field: 'id', value: selectedEventId });
-        clearSelectedEventId();
-      },
-      isDisabled: selectedEventId == null || selectedEventId === eventId,
-    },
-  ]);
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(
+    eventsToEdit.length > 1
+      ? [
+          {
+            label: 'Visiblity',
+            isGroup: true,
+            group: [
+              {
+                label: 'Make public',
+                icon: IoPeopleOutline,
+                onClick: () =>
+                  actionHandler('update', {
+                    field: 'isPublic',
+                    value: !isPublic,
+                  }),
+              },
+              {
+                label: 'Make private',
+                icon: IoPeopleOutline,
+                onClick: () =>
+                  actionHandler('update', {
+                    field: 'isPublic',
+                    value: !isPublic,
+                  }),
+              },
+            ],
+          },
+        ]
+      : [
+          { label: `Copy ID: ${eventId}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
+          {
+            label: 'Toggle public',
+            icon: IoPeopleOutline,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: !isPublic,
+              }),
+          },
+          {
+            label: 'Add to swap',
+            icon: IoAdd,
+            onClick: () => setSelectedEventId(eventId),
+            withDivider: true,
+          },
+          {
+            label: `Swap this event with ${selectedEventId ?? ''}`,
+            icon: IoSwapVertical,
+            onClick: () => {
+              actionHandler('swap', { field: 'id', value: selectedEventId });
+              clearSelectedEventId();
+            },
+            isDisabled: selectedEventId == null || selectedEventId === eventId,
+          },
+        ],
+  );
 
   const {
     isDragging,
