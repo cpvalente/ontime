@@ -65,8 +65,10 @@ export default function Operator() {
   const handleScroll = () => {
     if (selectedRef && scrollRef) {
       const selectedRect = selectedRef.current?.getBoundingClientRect();
-      if (selectedRect) {
-        const hasScrolledOutOfThreshold = selectedRect.top < 0 || selectedRect.top > selectedOffset;
+      const scrollerRect = scrollRef.current?.getBoundingClientRect();
+      if (selectedRect && scrollerRect) {
+        const distanceFromTop = selectedRect.top - scrollerRect.top;
+        const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > selectedOffset;
         setLockAutoScroll(hasScrolledOutOfThreshold);
       }
     }
@@ -99,6 +101,16 @@ export default function Operator() {
     <div className={style.operatorContainer}>
       <NavigationMenu />
       <ViewParamsEditor paramFields={operatorOptions} />
+
+      <StatusBar
+        projectTitle={projectData.title}
+        playback={featureData.playback}
+        selectedEventId={featureData.selectedEventId}
+        firstStart={firstEvent?.timeStart}
+        firstId={firstEvent?.id}
+        lastEnd={lastEvent?.timeEnd}
+        lastId={lastEvent?.id}
+      />
 
       <div className={style.operatorEvents} onScroll={handleScroll} ref={scrollRef}>
         {data.map((entry) => {
@@ -136,15 +148,6 @@ export default function Operator() {
         <div className={style.spacer} />
       </div>
       <FollowButton isVisible={lockAutoScroll} onClickHandler={handleOffset} />
-      <StatusBar
-        projectTitle={projectData.title}
-        playback={featureData.playback}
-        selectedEventId={featureData.selectedEventId}
-        firstStart={firstEvent?.timeStart}
-        firstId={firstEvent?.id}
-        lastEnd={lastEvent?.timeEnd}
-        lastId={lastEvent?.id}
-      />
     </div>
   );
 }

@@ -63,16 +63,6 @@ export default function StatusBar(props: StatusBarProps) {
 
   return (
     <div className={styles.statusBar}>
-      <span className={styles.title}>{projectTitle}</span>
-      <div className={styles.startTime}>
-        <span className={styles.label}>Scheduled start</span>
-        <span className={styles.timer}>{getTimeStart()}</span>
-      </div>
-      <div className={styles.endTime}>
-        <span className={styles.label}>Scheduled end</span>
-        <span className={styles.timer}>{getTimeEnd()}</span>
-      </div>
-
       {PlaybackIconComponent}
       <div className={styles.timeNow}>
         <span className={styles.label}>Time now</span>
@@ -85,6 +75,16 @@ export default function StatusBar(props: StatusBarProps) {
       <div className={styles.runningTime}>
         <span className={styles.label}>Running timer</span>
         <span className={styles.timer}>{runningTime}</span>
+      </div>
+
+      <span className={styles.title}>{projectTitle}</span>
+      <div className={styles.startTime}>
+        <span className={styles.label}>Scheduled start</span>
+        <span className={styles.timer}>{getTimeStart()}</span>
+      </div>
+      <div className={styles.endTime}>
+        <span className={styles.label}>Scheduled end</span>
+        <span className={styles.timer}>{getTimeEnd()}</span>
       </div>
     </div>
   );

@@ -9,15 +9,15 @@
 }
 
 .statusBar {
-  position: absolute;
-  bottom: 0;
+  position: sticky;
+  top: 0;
   width: 100%;
   background-color: $gray-1350;
   z-index: 2;
 
   padding: 0.5rem 1rem;
-  border-top: 1px solid $white-10;
-  box-shadow: $large-bottom-drawer-shadow;
+  border-bottom: 1px solid $white-10;
+  box-shadow: $large-top-drawer-shadow;
 
   display: grid;
   grid-template-areas:
@@ -50,9 +50,10 @@
 
 .title {
   grid-area: title;
-  font-size: 1.5rem;
-  padding-left: 0.5rem;
+  font-size: 1rem;
+  padding-left: 0.25rem;
   display: none;
+  line-height: 1.25em;
 }
 
 .startTime {
@@ -80,8 +81,8 @@
 @media (min-width: $min-tablet) {
   .statusBar {
     grid-template-areas:
-    "playback timer1B timer2B timer3B"
-    "title    timer1A timer2A timer3A";
+    "playback timer1B timer2A timer3A"
+    "title    title   timer2B timer3B";
     row-gap: 0.25rem;
     column-gap: 2rem;
   }

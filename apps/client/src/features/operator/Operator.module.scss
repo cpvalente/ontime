@@ -11,6 +11,7 @@
 .operatorEvents {
   width: 100vw;
   height: 100vh;
+  padding-top: 0.25rem;
 
   overflow: auto;
   display: flex;
@@ -19,7 +20,7 @@
 }
 
 .spacer {
-  min-height: 80vh;
+  min-height: 95vh;
 }
 
 @mixin block() {
