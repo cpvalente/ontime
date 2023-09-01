@@ -21,10 +21,11 @@ interface UseFollowComponentProps {
   scrollRef: MutableRefObject<HTMLElement | null>;
   doFollow: boolean;
   topOffset?: number;
+  setScrollFlag?: () => void;
 }
 
 export default function useFollowComponent(props: UseFollowComponentProps) {
-  const { followRef, scrollRef, doFollow, topOffset = 100 } = props;
+  const { followRef, scrollRef, doFollow, topOffset = 100, setScrollFlag } = props;
 
   // when cursor moves, view should follow
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function useFollowComponent(props: UseFollowComponentProps) {
     if (followRef.current && scrollRef.current) {
       // Use requestAnimationFrame to ensure the component is fully loaded
       window.requestAnimationFrame(() => {
+        setScrollFlag?.();
         scrollToComponent(
           followRef as MutableRefObject<HTMLElement>,
           scrollRef as MutableRefObject<HTMLElement>,

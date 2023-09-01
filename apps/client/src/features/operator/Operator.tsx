@@ -31,6 +31,7 @@ export default function Operator() {
   const featureData = useOperator();
   const [searchParams] = useSearchParams();
 
+  const isAutomatedScroll = useRef(false);
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
   const selectedRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -39,6 +40,7 @@ export default function Operator() {
     scrollRef: scrollRef,
     doFollow: !lockAutoScroll,
     topOffset: selectedOffset,
+    setScrollFlag: () => (isAutomatedScroll.current = true),
   });
 
   // Set window title
@@ -63,12 +65,21 @@ export default function Operator() {
   };
 
   const handleScroll = () => {
+    // prevent considering automated scrolls as user scrolls
+    console.log('handling', isAutomatedScroll);
+    if (isAutomatedScroll.current) {
+      isAutomatedScroll.current = false;
+      return;
+    }
+
     if (selectedRef?.current && scrollRef?.current) {
       const selectedRect = selectedRef.current.getBoundingClientRect();
       const scrollerRect = scrollRef.current.getBoundingClientRect();
       if (selectedRect && scrollerRect) {
         const distanceFromTop = selectedRect.top - scrollerRect.top;
         const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > selectedOffset;
+        console.log('distanceFromTop', distanceFromTop, hasScrolledOutOfThreshold);
+
         setLockAutoScroll(hasScrolledOutOfThreshold);
       }
     }
