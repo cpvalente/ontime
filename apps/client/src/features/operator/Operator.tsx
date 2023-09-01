@@ -66,7 +66,6 @@ export default function Operator() {
 
   const handleScroll = () => {
     // prevent considering automated scrolls as user scrolls
-    console.log('handling', isAutomatedScroll);
     if (isAutomatedScroll.current) {
       isAutomatedScroll.current = false;
       return;
@@ -78,8 +77,6 @@ export default function Operator() {
       if (selectedRect && scrollerRect) {
         const distanceFromTop = selectedRect.top - scrollerRect.top;
         const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > selectedOffset;
-        console.log('distanceFromTop', distanceFromTop, hasScrolledOutOfThreshold);
-
         setLockAutoScroll(hasScrolledOutOfThreshold);
       }
     }
