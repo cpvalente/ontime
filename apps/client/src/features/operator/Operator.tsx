@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SupportedEvent, UserFields } from 'ontime-types';
-import { getLastEvent } from 'ontime-utils';
+import { isOntimeEvent, SupportedEvent, UserFields } from 'ontime-types';
+import { getFirstEvent, getLastEvent } from 'ontime-utils';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import Empty from '../../common/components/state/Empty';
@@ -63,9 +63,9 @@ export default function Operator() {
   };
 
   const handleScroll = () => {
-    if (selectedRef && scrollRef) {
-      const selectedRect = selectedRef.current?.getBoundingClientRect();
-      const scrollerRect = scrollRef.current?.getBoundingClientRect();
+    if (selectedRef?.current && scrollRef?.current) {
+      const selectedRect = selectedRef.current.getBoundingClientRect();
+      const scrollerRect = scrollRef.current.getBoundingClientRect();
       if (selectedRect && scrollerRect) {
         const distanceFromTop = selectedRect.top - scrollerRect.top;
         const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > selectedOffset;
@@ -74,14 +74,10 @@ export default function Operator() {
     }
   };
 
-  if (
-    !data ||
-    status === 'loading' ||
-    !userFields ||
-    userFieldsStatus === 'loading' ||
-    !projectData ||
-    projectDataStatus === 'loading'
-  ) {
+  const missingData = !data || !userFields || !projectData;
+  const isLoading = status === 'loading' || userFieldsStatus === 'loading' || projectDataStatus === 'loading';
+
+  if (missingData || isLoading) {
     return <Empty text='Loading...' />;
   }
 
@@ -94,7 +90,7 @@ export default function Operator() {
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 
-  const firstEvent = getLastEvent(data);
+  const firstEvent = getFirstEvent(data);
   const lastEvent = getLastEvent(data);
 
   return (
@@ -114,7 +110,7 @@ export default function Operator() {
 
       <div className={style.operatorEvents} onScroll={handleScroll} ref={scrollRef}>
         {data.map((entry) => {
-          if (entry.type === SupportedEvent.Event) {
+          if (isOntimeEvent(entry)) {
             const isSelected = featureData.selectedEventId === entry.id;
             if (isSelected) {
               isPast = false;

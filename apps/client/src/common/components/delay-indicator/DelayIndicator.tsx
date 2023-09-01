@@ -7,7 +7,11 @@ import { millisToDelayString } from '../../utils/dateConfig';
 
 import style from './DelayIndicator.module.scss';
 
-export default function DelayIndicator(props: { delayValue?: number }) {
+interface DelayIndicatorProps {
+  delayValue?: number;
+}
+
+export default function DelayIndicator(props: DelayIndicatorProps) {
   const { delayValue } = props;
 
   if (typeof delayValue === 'number') {

@@ -48,7 +48,7 @@ export default function useFollowComponent(props: UseFollowComponentProps) {
 
   const scrollToRefComponent = useCallback(
     (componentRef = followRef, containerRef = scrollRef, offset = topOffset) => {
-      if (followRef.current && containerRef.current) {
+      if (componentRef.current && containerRef.current) {
         // @ts-expect-error -- we know this are not null
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         scrollToComponent(componentRef!, scrollRef!, offset);
