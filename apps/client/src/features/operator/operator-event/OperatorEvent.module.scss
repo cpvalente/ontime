@@ -6,16 +6,19 @@
   @include block();
   background-color: $gray-1300;
   opacity: 1;
+  border-top: 1px solid $white-1;
 
   &.subscribed {
     background-color: $gray-1250;
   }
 
   &.running {
+    border-top: 1px solid $white-10;
     background-color: $red-700;
   }
 
   &.past {
+    border-top: 1px solid transparent;
     opacity: 0.2;
   }
 }
@@ -28,6 +31,7 @@
   .title {
     font-size: 1.5rem;
     letter-spacing: 0.5px;
+    color: $ui-white;
   }
 
   .cue {
@@ -44,6 +48,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: calc(1rem - 1px);
+  color: $white-90;
 
   .runtime {
     display: flex;
@@ -54,8 +59,19 @@
 
 .fields {
   font-size: 1.25rem;
-  font-weight: 500;
-  color: $orange-500;
+  font-weight: 600;
+  color: $ui-black;
+  margin-top: 0.25rem;
+
+  .field {
+    padding: 0 0.25rem;
+    background-color: $orange-600;
+    margin-right: 0.5rem;
+  }
+
+  .value {
+    color: $orange-500
+  }
 
   letter-spacing: 0.5px;
   height: fit-content;

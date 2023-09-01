@@ -64,8 +64,8 @@ export default function OperatorEvent(props: OperatorEventProps) {
 
       {subscribedData && (
         <div className={style.fields}>
-          {subscribedAlias && <span>{`${subscribedAlias} - `}</span>}
-          <span>{subscribedData}</span>
+          {subscribedAlias && <span className={style.field}>{`${subscribedAlias}`}</span>}
+          <span className={style.value}>{subscribedData}</span>
         </div>
       )}
     </div>
