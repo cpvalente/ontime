@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
+import { EndAction, TimerType } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, validateEvent } from '../parser.js';
