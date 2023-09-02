@@ -1,5 +1,5 @@
 import { stringify } from 'csv-stringify/browser/esm/sync';
-import { EventData, OntimeEntryCommonKeys, OntimeRundown, UserFields } from 'ontime-types';
+import { OntimeEntryCommonKeys, OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 /**
@@ -38,10 +38,11 @@ export const parseField = (field: keyof OntimeRundown, data: unknown): string =>
  * @param {object} userFields
  * @return {(string[])[]}
  */
-export const makeTable = (headerData: EventData, rundown: OntimeRundown, userFields: UserFields): string[][] => {
+export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, userFields: UserFields): string[][] => {
   const data = [
     ['Ontime · Schedule Template'],
-    ['Event Name', headerData?.title || ''],
+    ['Project Title', headerData?.title || ''],
+    ['Project Description', headerData?.description || ''],
     ['Public URL', headerData?.publicUrl || ''],
     ['Backstage URL', headerData?.backstageUrl || ''],
     [],

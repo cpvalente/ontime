@@ -13,8 +13,8 @@ export {
 export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
-// ---> Event Data
-export type { EventData } from './definitions/core/EventData.type.js';
+// ---> Project Data
+export type { ProjectData } from './definitions/core/ProjectData.type.js';
 
 // ---> Settings
 export type { Settings } from './definitions/core/Settings.type.js';
