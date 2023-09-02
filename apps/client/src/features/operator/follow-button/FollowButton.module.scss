@@ -31,12 +31,8 @@
 // tablet
 @media (min-width: $min-tablet) {
   .followButton {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     gap: 1rem;
     padding: 0.25rem 1rem;
-
-    &:not(.hidden) {
-      bottom: 12.5rem;
-    }
   }
 }

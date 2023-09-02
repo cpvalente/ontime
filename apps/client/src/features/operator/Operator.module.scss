@@ -22,13 +22,3 @@
 .spacer {
   min-height: 95vh;
 }
-
-@mixin block() {
-  width: 100%;
-  padding: 0.25rem 0.5rem;
-
-  // tablet
-  @media (min-width: $min-tablet) {
-    padding: 0.25rem 1rem;
-  }
-}

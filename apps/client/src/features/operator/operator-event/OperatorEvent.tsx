@@ -1,4 +1,4 @@
-import { RefObject } from 'react';
+import { MutableRefObject } from 'react';
 import { OntimeEvent, UserFields } from 'ontime-types';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
@@ -16,7 +16,7 @@ interface OperatorEventProps {
   subscribedAlias: string;
   showSeconds: boolean;
   isPast: boolean;
-  selectedRef?: RefObject<HTMLDivElement>;
+  selectedRef?: MutableRefObject<HTMLDivElement>;
 }
 
 // extract this to contain re-renders
@@ -43,31 +43,29 @@ export default function OperatorEvent(props: OperatorEventProps) {
 
   return (
     <div className={operatorClasses} ref={selectedRef}>
-      <div className={style.titles}>
-        <span className={style.title}>
-          {data.title} - {data.subtitle}
-        </span>
-        <span className={style.cue} style={{ ...cueColours }}>
-          {cue}
-        </span>
+      <div className={style.binder} style={{ ...cueColours }}>
+        <span className={style.cue}>{cue}</span>
       </div>
 
-      <div className={style.times}>
-        <span className={style.schedule}>
-          {start} - {end}
-        </span>
-        <span className={style.runtime}>
-          <DelayIndicator delayValue={data.delay} />
-          {isSelected ? <RollingTime /> : formatTime(data.duration, { showSeconds: true, format: 'hh:mm:ss' })}
-        </span>
-      </div>
+      <span className={style.mainField}>{data.title}</span>
+      <span className={style.schedule}>
+        {start} - {end}
+      </span>
 
-      {subscribedData && (
-        <div className={style.fields}>
-          {subscribedAlias && <span className={style.field}>{`${subscribedAlias}`}</span>}
-          <span className={style.value}>{subscribedData}</span>
-        </div>
-      )}
+      <span className={style.secondaryField}>{data.subtitle}</span>
+      <span className={style.running}>
+        <DelayIndicator delayValue={data.delay} />
+        {isSelected ? <RollingTime /> : formatTime(data.duration, { showSeconds: true, format: 'hh:mm:ss' })}
+      </span>
+
+      <div className={style.fields}>
+        {subscribedData && (
+          <>
+            <span className={style.field}>{subscribedAlias}</span>
+            <span className={style.value}>{subscribedData}</span>
+          </>
+        )}
+      </div>
     </div>
   );
 }
