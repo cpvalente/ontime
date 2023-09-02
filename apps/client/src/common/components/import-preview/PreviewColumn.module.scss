@@ -10,6 +10,7 @@
   grid-template-columns: auto 1fr;
   grid-template-rows: repeat(6, auto);
   gap: 1px;
+  font-size: calc(1rem - 2px);
 }
 
 .field {
