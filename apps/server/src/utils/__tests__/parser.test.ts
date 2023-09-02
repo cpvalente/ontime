@@ -192,7 +192,7 @@ describe('test json parser with valid def', () => {
         user9: '',
       },
     ],
-    eventData: {
+    project: {
       title: 'This is a test definition',
       url: 'www.carlosvalente.com',
       publicInfo: 'WiFi: demoproject \nPassword: ontimeproject',
@@ -246,7 +246,7 @@ describe('test json parser with valid def', () => {
   });
 
   it('loaded event settings', () => {
-    const eventTitle = parseResponse?.eventData?.title;
+    const eventTitle = parseResponse?.project?.title;
     expect(eventTitle).toBe('This is a test definition');
   });
 
@@ -420,10 +420,10 @@ describe('test corrupt data', () => {
     expect(parsedDef.rundown.length).toBe(0);
   });
 
-  it('handles missing event data', async () => {
-    const emptyEventData = {
+  it('handles missing project data', async () => {
+    const emptyProjectData = {
       rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
-      eventData: {},
+      project: {},
       settings: {
         app: 'ontime',
         version: 2,
@@ -433,8 +433,8 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJson(emptyEventData);
-    expect(parsedDef.eventData).toStrictEqual(dbModel.eventData);
+    const parsedDef = await parseJson(emptyProjectData);
+    expect(parsedDef.project).toStrictEqual(dbModel.project);
   });
 
   it('handles missing settings', async () => {
@@ -651,7 +651,7 @@ describe('test parseExcel function', () => {
       [],
     ];
 
-    const expectedParsedEvent = {
+    const expectedParsedProjectData = {
       title: 'Test Event',
       description: 'test description',
       publicUrl: 'www.public.com',
@@ -707,7 +707,7 @@ describe('test parseExcel function', () => {
     ];
 
     const parsedData = await parseExcel(testdata);
-    expect(parsedData.eventData).toStrictEqual(expectedParsedEvent);
+    expect(parsedData.project).toStrictEqual(expectedParsedProjectData);
     expect(parsedData.rundown).toBeDefined();
     expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
     expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);
