@@ -161,6 +161,24 @@ export const uploadData = async (file: File, setProgress: (value: number) => voi
     .then((response) => response.data.id);
 };
 
+export async function postPreviewExcel(file: File, setProgress: (value: number) => void, options?: UploadDataOptions) {
+  const formData = new FormData();
+  formData.append('userFile', file);
+  const response = await axios
+    .post(`${ontimeURL}/previewExcel`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        const complete = progressEvent?.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+        setProgress(complete);
+      },
+    })
+    .then((response) => response);
+
+  return response;
+}
+
 export type HasUpdate = {
   url: string;
   version: string;

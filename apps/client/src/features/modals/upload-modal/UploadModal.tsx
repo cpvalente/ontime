@@ -18,7 +18,7 @@ import { IoWarningOutline } from '@react-icons/all-files/io5/IoWarningOutline';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { RUNDOWN_TABLE } from '../../../common/api/apiConstants';
-import { uploadData } from '../../../common/api/ontimeApi';
+import { postPreviewExcel, uploadData } from '../../../common/api/ontimeApi';
 import { useEmitLog } from '../../../common/stores/logger';
 import ModalSplitInput from '../ModalSplitInput';
 
@@ -58,17 +58,25 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
 
   const handleSubmit = useCallback(async () => {
     setSubmitting(true);
+    console.log(file);
     if (file) {
-      try {
-        const options = {
-          onlyRundown: overrideOptionRef.current?.checked || false,
-        };
-        await uploadData(file, setProgress, options);
-      } catch (error) {
-        emitError(`Failed uploading file: ${error}`);
-      } finally {
-        await queryClient.invalidateQueries(RUNDOWN_TABLE);
-        setSuccess(true);
+      // not the most robust, but ok for now
+      if (file.name.endsWith('.xlsx')) {
+        console.log('pushing to preview');
+        const r = await postPreviewExcel(file, setProgress, {});
+        console.log('got from preview', r);
+      } else {
+        try {
+          const options = {
+            onlyRundown: overrideOptionRef.current?.checked || false,
+          };
+          await uploadData(file, setProgress, options);
+        } catch (error) {
+          emitError(`Failed uploading file: ${error}`);
+        } finally {
+          await queryClient.invalidateQueries(RUNDOWN_TABLE);
+          setSuccess(true);
+        }
       }
     }
     setSubmitting(false);

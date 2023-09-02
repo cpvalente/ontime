@@ -17,6 +17,7 @@ import {
   postSettings,
   postUserFields,
   postViewSettings,
+  previewExcel,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -39,6 +40,9 @@ router.get('/db', dbDownload);
 
 // create route between controller and '/ontime/db' endpoint
 router.post('/db', uploadFile, dbUpload);
+
+// create route between controller and '/ontime/db' endpoint
+router.post('/previewExcel', uploadFile, previewExcel);
 
 // create route between controller and '/ontime/settings' endpoint
 router.get('/settings', getSettings);
