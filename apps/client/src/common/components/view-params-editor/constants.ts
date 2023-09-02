@@ -220,6 +220,28 @@ export const getOperatorOptions = (userFields: UserFields): ParamField[] => {
       type: 'boolean',
     },
     {
+      id: 'main',
+      title: 'Main data field',
+      description: 'Field to be shown in the first line of text',
+      type: 'option',
+      values: {
+        title: 'Title',
+        subtitle: 'Subtitle',
+        presenter: 'Presenter',
+      },
+    },
+    {
+      id: 'secondary',
+      title: 'Secondary data field',
+      description: 'Field to be shown in the second line of text',
+      type: 'option',
+      values: {
+        title: 'Title',
+        subtitle: 'Subtitle',
+        presenter: 'Presenter',
+      },
+    },
+    {
       id: 'subscribe',
       title: 'Highlight Field',
       description: 'Choose a field to highlight',

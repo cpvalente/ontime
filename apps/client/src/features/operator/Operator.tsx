@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, SupportedEvent, UserFields } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, SupportedEvent, UserFields } from 'ontime-types';
 import { getFirstEvent, getLastEvent } from 'ontime-utils';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
@@ -23,6 +23,7 @@ import style from './Operator.module.scss';
 
 const selectedOffset = 50;
 
+type TitleFields = Pick<OntimeEvent, 'title' | 'subtitle' | 'presenter'>;
 export default function Operator() {
   const { data, status } = useRundown();
   const { data: userFields, status: userFieldsStatus } = useUserFields();
@@ -91,6 +92,8 @@ export default function Operator() {
 
   // get fields which the user subscribed to
   const subscribe = searchParams.get('subscribe') as keyof UserFields | null;
+  const main = searchParams.get('main') as keyof TitleFields | null;
+  const secondary = searchParams.get('secondary') as keyof TitleFields | null;
   const subscribedAlias = subscribe ? userFields[subscribe] : '';
   const showSeconds = isStringBoolean(searchParams.get('showseconds'));
 
@@ -129,13 +132,23 @@ export default function Operator() {
               return null;
             }
 
+            const mainField = main ? entry?.[main] || entry.title : entry.title;
+            const secondaryField = secondary ? entry?.[secondary] || entry.subtitle : entry.subtitle;
+            const subscribedData = (subscribe ? entry?.[subscribe] : undefined) || '';
+
             return (
               <OperatorEvent
                 key={entry.id}
+                colour={entry.colour}
                 cue={entry.cue}
-                data={entry}
+                main={mainField}
+                secondary={secondaryField}
+                timeStart={entry.timeStart}
+                timeEnd={entry.timeEnd}
+                duration={entry.duration}
+                delay={entry.delay}
                 isSelected={isSelected}
-                subscribed={subscribe}
+                subscribed={subscribedData}
                 subscribedAlias={subscribedAlias}
                 showSeconds={showSeconds}
                 isPast={isPast}

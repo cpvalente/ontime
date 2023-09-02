@@ -1,5 +1,4 @@
 import { RefObject } from 'react';
-import { OntimeEvent, UserFields } from 'ontime-types';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import { useTimer } from '../../../common/hooks/useSocket';
@@ -9,10 +8,16 @@ import { formatTime } from '../../../common/utils/time';
 import style from './OperatorEvent.module.scss';
 
 interface OperatorEventProps {
-  data: OntimeEvent;
+  colour: string;
   cue: string;
+  main: string;
+  secondary: string;
+  timeStart: number;
+  timeEnd: number;
+  duration: number;
+  delay?: number;
   isSelected: boolean;
-  subscribed: keyof UserFields | null;
+  subscribed?: string;
   subscribedAlias: string;
   showSeconds: boolean;
   isPast: boolean;
@@ -26,18 +31,32 @@ function RollingTime() {
 }
 
 export default function OperatorEvent(props: OperatorEventProps) {
-  const { data, cue, isSelected, subscribed, subscribedAlias, showSeconds, isPast, selectedRef } = props;
+  const {
+    colour,
+    cue,
+    main,
+    secondary,
+    timeStart,
+    timeEnd,
+    duration,
+    delay,
+    isSelected,
+    subscribed,
+    subscribedAlias,
+    showSeconds,
+    isPast,
+    selectedRef,
+  } = props;
 
-  const start = formatTime(data.timeStart, { showSeconds });
-  const end = formatTime(data.timeEnd, { showSeconds });
+  const start = formatTime(timeStart, { showSeconds });
+  const end = formatTime(timeEnd, { showSeconds });
 
-  const cueColours = data.colour && getAccessibleColour(data.colour);
-  const subscribedData = (subscribed ? data?.[subscribed] : undefined) || '';
+  const cueColours = colour && getAccessibleColour(colour);
 
   const operatorClasses = cx([
     style.event,
     isSelected ? style.running : null,
-    subscribedData ? style.subscribed : null,
+    subscribed ? style.subscribed : null,
     isPast ? style.past : null,
   ]);
 
@@ -47,22 +66,22 @@ export default function OperatorEvent(props: OperatorEventProps) {
         <span className={style.cue}>{cue}</span>
       </div>
 
-      <span className={style.mainField}>{data.title}</span>
+      <span className={style.mainField}>{main}</span>
       <span className={style.schedule}>
         {start} - {end}
       </span>
 
-      <span className={style.secondaryField}>{data.subtitle}</span>
+      <span className={style.secondaryField}>{secondary}</span>
       <span className={style.running}>
-        <DelayIndicator delayValue={data.delay} />
-        {isSelected ? <RollingTime /> : formatTime(data.duration, { showSeconds: true, format: 'hh:mm:ss' })}
+        <DelayIndicator delayValue={delay} />
+        {isSelected ? <RollingTime /> : formatTime(duration, { showSeconds: true, format: 'hh:mm:ss' })}
       </span>
 
       <div className={style.fields}>
-        {subscribedData && (
+        {subscribed && (
           <>
             <span className={style.field}>{subscribedAlias}</span>
-            <span className={style.value}>{subscribedData}</span>
+            <span className={style.value}>{subscribed}</span>
           </>
         )}
       </div>
