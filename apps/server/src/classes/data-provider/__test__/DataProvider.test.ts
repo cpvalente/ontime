@@ -3,7 +3,7 @@ import { safeMerge } from '../DataProvider.utils.js';
 describe('safeMerge', () => {
   const existing = {
     rundown: [],
-    eventData: {
+    project: {
       title: 'existing title',
       publicUrl: 'existing public URL',
       backstageUrl: 'existing backstageUrl',
@@ -62,15 +62,15 @@ describe('safeMerge', () => {
     expect(mergedData.rundown).toEqual(newData.rundown);
   });
 
-  it('merges the event key', () => {
+  it('merges the project key', () => {
     const newData = {
-      eventData: {
+      project: {
         title: 'new title',
         publicInfo: 'new public info',
       },
     };
     const mergedData = safeMerge(existing, newData);
-    expect(mergedData.eventData).toEqual({
+    expect(mergedData.project).toEqual({
       title: 'new title',
       publicUrl: 'existing public URL',
       publicInfo: 'new public info',

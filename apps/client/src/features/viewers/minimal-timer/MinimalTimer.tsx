@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { EventData, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -19,7 +19,6 @@ interface MinimalTimerProps {
   pres: TimerMessage;
   time: TimeManagerType;
   viewSettings: ViewSettings;
-  general: EventData;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
