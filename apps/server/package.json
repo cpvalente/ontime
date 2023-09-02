@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "2.7.0",
+  "version": "2.7.2",
   "exports": "./src/index.js",
   "dependencies": {
     "body-parser": "^1.20.0",
