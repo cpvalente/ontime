@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { EVENT_DATA } from '../api/apiConstants';
-import { fetchEventData } from '../api/eventDataApi';
-import { eventDataPlaceholder } from '../models/EventData';
+import { PROJECT_DATA } from '../api/apiConstants';
+import { getProjectData } from '../api/projectDataApi';
+import { projectDataPlaceholder } from '../models/ProjectData';
 
-export default function useEventData() {
+export default function useProjectData() {
   const { data, status, isFetching, isError, refetch } = useQuery({
-    queryKey: EVENT_DATA,
-    queryFn: fetchEventData,
-    placeholderData: eventDataPlaceholder,
+    queryKey: PROJECT_DATA,
+    queryFn: getProjectData,
+    placeholderData: projectDataPlaceholder,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,

@@ -1,6 +1,6 @@
-import { EventData } from 'ontime-types';
+import { ProjectData } from 'ontime-types';
 
-export const eventDataPlaceholder: EventData = {
+export const projectDataPlaceholder: ProjectData = {
   title: '',
   description: '',
   publicUrl: '',
