@@ -1,9 +1,9 @@
-import useEventData from '../../../common/hooks-query/useEventData';
+import useProjectData from '../../../common/hooks-query/useProjectData';
 
 import style from '../Info.module.scss';
 
 export default function InfoHeader({ selected }: { selected: string }) {
-  const { data } = useEventData();
+  const { data } = useProjectData();
 
   return (
     <>

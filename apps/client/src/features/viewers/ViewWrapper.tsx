@@ -3,7 +3,7 @@ import { ComponentType, useMemo } from 'react';
 import { TitleBlock } from 'ontime-types';
 import { useStore } from 'zustand';
 
-import useEventData from '../../common/hooks-query/useEventData';
+import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { runtime } from '../../common/stores/runtime';
@@ -18,7 +18,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
 
     // HTTP API data
     const { data: rundownData } = useRundown();
-    const { data: eventData } = useEventData();
+    const { data: project } = useProjectData();
     const { data: viewSettings } = useViewSettings();
 
     const publicEvents = useMemo(() => {
@@ -104,7 +104,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
         publicSelectedId={publicSelectedId}
         viewSettings={viewSettings}
         nextId={nextId}
-        general={eventData}
+        general={project}
         onAir={onAir}
       />
     );

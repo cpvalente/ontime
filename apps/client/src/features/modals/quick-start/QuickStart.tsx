@@ -16,12 +16,12 @@ import {
   ModalOverlay,
   Textarea,
 } from '@chakra-ui/react';
-import type { EventData } from 'ontime-types';
+import type { ProjectData } from 'ontime-types';
 
-import { EVENT_DATA, RUNDOWN_TABLE } from '../../../common/api/apiConstants';
+import { PROJECT_DATA, RUNDOWN_TABLE } from '../../../common/api/apiConstants';
 import { postNew } from '../../../common/api/ontimeApi';
-import useEventData from '../../../common/hooks-query/useEventData';
-import { eventDataPlaceholder } from '../../../common/models/EventData';
+import useProjectData from '../../../common/hooks-query/useProjectData';
+import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { ontimeQueryClient } from '../../../common/queryClient';
 
 import styles from '../Modal.module.scss';
@@ -32,7 +32,7 @@ interface QuickStartProps {
 }
 
 export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
-  const { data, status } = useEventData();
+  const { data, status } = useProjectData();
   const {
     handleSubmit,
     register,
@@ -49,10 +49,10 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
     if (data) reset(data);
   }, [data, reset]);
 
-  const onSubmit = async (data: Partial<EventData>) => {
+  const onSubmit = async (data: Partial<ProjectData>) => {
     try {
       await postNew(data);
-      await ontimeQueryClient.invalidateQueries(EVENT_DATA);
+      await ontimeQueryClient.invalidateQueries(PROJECT_DATA);
       await ontimeQueryClient.invalidateQueries(RUNDOWN_TABLE);
 
       onClose();
@@ -61,7 +61,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
     }
   };
 
-  const onReset = () => reset(eventDataPlaceholder);
+  const onReset = () => reset(projectDataPlaceholder);
 
   const disableButtons = status !== 'success' || isSubmitting;
   return (
@@ -86,13 +86,13 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
               <div className={styles.column}>
                 <AlertTitle>Note</AlertTitle>
                 <AlertDescription>
-                  On submit, application options will be kept but rundown and event data will be reset
+                  On submit, application options will be kept but rundown and project data will be reset
                 </AlertDescription>
               </div>
             </Alert>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
-                Event title
+                Project title
                 <Input
                   variant='ontime-filled-on-light'
                   size='sm'
@@ -104,7 +104,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
             </div>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
-                Event description
+                Project description
                 <Input
                   variant='ontime-filled-on-light'
                   size='sm'
@@ -116,7 +116,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
             </div>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
-                Public Info
+                Public info
                 <Textarea
                   variant='ontime-filled-on-light'
                   size='sm'
@@ -128,7 +128,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
             </div>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
-                Public QR Code Url
+                Public QR code Url
                 <Input
                   variant='ontime-filled-on-light'
                   size='sm'
@@ -139,7 +139,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
             </div>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
-                Backstage Info
+                Backstage info
                 <Textarea
                   variant='ontime-filled-on-light'
                   size='sm'
@@ -151,7 +151,7 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
             </div>
             <div className={styles.entryRow}>
               <label className={styles.sectionTitle}>
-                Backstage QR Code Url
+                Backstage QR code Url
                 <Input
                   variant='ontime-filled-on-light'
                   size='sm'

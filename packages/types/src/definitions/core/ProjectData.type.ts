@@ -1,4 +1,4 @@
-export type EventData = {
+export type ProjectData = {
   title: string;
   description: string;
   publicUrl: string;
