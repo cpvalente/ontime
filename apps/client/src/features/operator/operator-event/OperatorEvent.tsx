@@ -1,4 +1,4 @@
-import { MutableRefObject } from 'react';
+import { RefObject } from 'react';
 import { OntimeEvent, UserFields } from 'ontime-types';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
@@ -16,7 +16,7 @@ interface OperatorEventProps {
   subscribedAlias: string;
   showSeconds: boolean;
   isPast: boolean;
-  selectedRef?: MutableRefObject<HTMLDivElement>;
+  selectedRef?: RefObject<HTMLDivElement>;
 }
 
 // extract this to contain re-renders
