@@ -43,6 +43,23 @@ export const dbDownload = async (req, res) => {
   });
 };
 
+async function justUploadAndParse(file, req, res, options) {
+  if (!fs.existsSync(file)) {
+    res.status(500).send({ message: 'Upload failed' });
+    return;
+  }
+
+  const result = await fileHandler(file);
+
+  if ('error' in result && result.error) {
+    throw new Error(result.message);
+  } else if ('data' in result && result.message === 'success') {
+    return result.data;
+  } else {
+    throw new Error('Failed parsing, no data');
+  }
+}
+
 /**
  * handles file upload
  * @param file
@@ -318,6 +335,23 @@ export const postOSC = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
+// Create controller for POST request to '/ontime/previewExcel'
+// Returns -
+export async function previewExcel(req, res) {
+  if (!req.file) {
+    res.status(400).send({ message: 'File not found' });
+    return;
+  }
+  const options = req.query;
+  const file = req.file.path;
+  try {
+    const data = await justUploadAndParse(file, req, res, options);
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
 
 // Create controller for POST request to '/ontime/db'
 // Returns -
