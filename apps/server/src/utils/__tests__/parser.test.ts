@@ -568,7 +568,8 @@ describe('test parseExcel function', () => {
     const testdata = [
       ['Ontime ┬À Schedule Template'],
       [],
-      ['Event Name', 'Test Event'],
+      ['Project Name', 'Test Event'],
+      ['Project Description', 'test description'],
       ['Public URL', 'www.public.com'],
       ['Backstage URL', 'www.backstage.com'],
       ['Public Info', 'test public info'],
@@ -652,6 +653,7 @@ describe('test parseExcel function', () => {
 
     const expectedParsedProjectData = {
       title: 'Test Event',
+      description: 'test description',
       publicUrl: 'www.public.com',
       backstageUrl: 'www.backstage.com',
       publicInfo: 'test public info',
