@@ -1,0 +1,23 @@
+@use "../../../theme/_ontimeColours" as *;
+
+@mixin pad-item {
+  padding-left: 0.5rem;
+  padding-right: 1rem;
+}
+
+.previewTable {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: repeat(6, auto);
+  gap: 1px;
+}
+
+.field {
+  @include pad-item;
+  background-color: $gray-100;
+}
+
+.value {
+  @include pad-item;
+  background-color: $gray-50;
+}

@@ -25,6 +25,11 @@ import ModalSplitInput from '../ModalSplitInput';
 import { validateFile } from './utils';
 
 import style from './UploadModal.module.scss';
+import PreviewProjectData from '../../../common/components/import-preview/PreviewProjectData';
+import { projectDataPlaceholder } from '../../../common/models/ProjectData';
+import CollapsableInfo from '../../info/CollapsableInfo';
+import PreviewUserField from '../../../common/components/import-preview/PreviewUserFields';
+import { userFieldsPlaceholder } from '../../../common/models/UserFields';
 
 interface UploadModalProps {
   onClose: () => void;
@@ -154,6 +159,8 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
               <Switch variant='ontime-on-light' ref={overrideOptionRef} />
             </ModalSplitInput>
           </div>
+          <PreviewProjectData project={projectDataPlaceholder} />
+          <PreviewUserField userFields={userFieldsPlaceholder} />
         </ModalBody>
         <ModalFooter className={`${style.buttonSection} ${style.pad}`}>
           <Button onClick={handleClose} isDisabled={isSubmitting} variant='ontime-ghost-on-light' size='sm'>
