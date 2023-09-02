@@ -4,6 +4,7 @@ import { millisToString } from 'ontime-utils';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
 import { useTimer } from '../../../common/hooks/useSocket';
+import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 
 import styles from './StatusBar.module.scss';
@@ -58,7 +59,9 @@ export default function StatusBar(props: StatusBarProps) {
   const elapsedTime = millisToString(timer.elapsed);
 
   const PlaybackIconComponent = useMemo(() => {
-    return <PlaybackIcon state={playback} skipTooltip className={styles.playbackIcon} />;
+    const isPlaying = playback === Playback.Play || playback === Playback.Roll;
+    const classes = cx([styles.playbackIcon, isPlaying ? styles.active : null]);
+    return <PlaybackIcon state={playback} skipTooltip className={classes} />;
   }, [playback]);
 
   return (

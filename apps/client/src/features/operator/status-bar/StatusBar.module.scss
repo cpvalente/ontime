@@ -31,6 +31,10 @@
   grid-area: playback;
   font-size: 2rem;
   color: $gray-700;
+
+  &.active {
+    color: $ui-white;
+  }
 }
 
 .timeNow {
