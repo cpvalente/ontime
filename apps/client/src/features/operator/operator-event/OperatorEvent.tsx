@@ -1,4 +1,4 @@
-import { RefObject } from 'react';
+import { memo, RefObject } from 'react';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import { useTimer } from '../../../common/hooks/useSocket';
@@ -30,7 +30,7 @@ function RollingTime() {
   return <>{formatTime(timer.current, { showSeconds: true, format: 'hh:mm:ss' })}</>;
 }
 
-export default function OperatorEvent(props: OperatorEventProps) {
+function OperatorEvent(props: OperatorEventProps) {
   const {
     colour,
     cue,
@@ -88,3 +88,5 @@ export default function OperatorEvent(props: OperatorEventProps) {
     </div>
   );
 }
+
+export default memo(OperatorEvent);
