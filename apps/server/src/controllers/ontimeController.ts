@@ -1,4 +1,4 @@
-import { Alias, EventData, LogOrigin } from 'ontime-types';
+import { Alias, LogOrigin, ProjectData } from 'ontime-types';
 
 import { RequestHandler } from 'express';
 import fs from 'fs';
@@ -31,7 +31,7 @@ export const poll = async (req, res) => {
 // Create controller for GET request to '/ontime/db'
 // Returns -
 export const dbDownload = async (req, res) => {
-  const { title } = DataProvider.getEventData();
+  const { title } = DataProvider.getProjectData();
   const fileTitle = title || 'ontime data';
 
   res.download(resolveDbPath, `${fileTitle}.json`, (err) => {
@@ -368,7 +368,7 @@ export const dbUpload = async (req, res) => {
 // Create controller for POST request to '/ontime/new'
 export const postNew: RequestHandler = async (req, res) => {
   try {
-    const newEventData: EventData = {
+    const newProjectData: ProjectData = {
       title: req.body?.title ?? '',
       description: req.body?.description ?? '',
       publicUrl: req.body?.publicUrl ?? '',
@@ -376,7 +376,7 @@ export const postNew: RequestHandler = async (req, res) => {
       backstageUrl: req.body?.backstageUrl ?? '',
       backstageInfo: req.body?.backstageInfo ?? '',
     };
-    const newData = await DataProvider.setEventData(newEventData);
+    const newData = await DataProvider.setProjectData(newProjectData);
     await deleteAllEvents();
     res.status(201).send(newData);
   } catch (error) {

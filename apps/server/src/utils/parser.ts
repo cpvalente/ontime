@@ -7,7 +7,6 @@ import { generateId, calculateDuration } from 'ontime-utils';
 import {
   DatabaseModel,
   EndAction,
-  EventData,
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
@@ -19,7 +18,7 @@ import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString } from './parserUtils.js';
 import {
   parseAliases,
-  parseEventData,
+  parseProject,
   parseOsc,
   parseRundown,
   parseSettings,
@@ -37,8 +36,9 @@ export const JSON_MIME = 'application/json';
  * @returns {object} - parsed object
  */
 export const parseExcel = async (excelData) => {
-  const eventData: Partial<EventData> = {
+  const projectData: Partial<ProjectData> = {
     title: '',
+    description: '',
     publicUrl: '',
     backstageUrl: '',
   };
@@ -71,6 +71,7 @@ export const parseExcel = async (excelData) => {
     .filter((e) => e.length > 0)
     .forEach((row) => {
       let eventTitleNext = false;
+      let projectTitleNext = false;
       let publicUrlNext = false;
       let publicInfoNext = false;
       let backstageUrlNext = false;
@@ -81,19 +82,22 @@ export const parseExcel = async (excelData) => {
       row.forEach((column, j) => {
         // check flags
         if (eventTitleNext) {
-          eventData.title = column;
+          projectData.title = column;
           eventTitleNext = false;
+        } else if (projectTitleNext) {
+          projectData.description = column;
+          projectTitleNext = false;
         } else if (publicUrlNext) {
-          eventData.publicUrl = column;
+          projectData.publicUrl = column;
           publicUrlNext = false;
         } else if (publicInfoNext) {
-          eventData.publicInfo = column;
+          projectData.publicInfo = column;
           publicInfoNext = false;
         } else if (backstageUrlNext) {
-          eventData.backstageUrl = column;
+          projectData.backstageUrl = column;
           backstageUrlNext = false;
         } else if (backstageInfoNext) {
-          eventData.backstageInfo = column;
+          projectData.backstageInfo = column;
           backstageInfoNext = false;
         } else if (j === timeStartIndex) {
           event.timeStart = parseExcelDate(column);
@@ -154,8 +158,11 @@ export const parseExcel = async (excelData) => {
             // look for keywords
             // need to make sure it is a string first
             switch (col) {
-              case 'event name':
+              case 'project name':
                 eventTitleNext = true;
+                break;
+              case 'project description':
+                projectTitleNext = true;
                 break;
               case 'public url':
                 publicUrlNext = true;
@@ -273,7 +280,7 @@ export const parseExcel = async (excelData) => {
     });
   return {
     rundown,
-    eventData,
+    project: projectData,
     settings: {
       app: 'ontime',
       version: 2,
@@ -299,7 +306,7 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
   // parse Events
   returnData.rundown = parseRundown(jsonData);
   // parse Event
-  returnData.eventData = parseEventData(jsonData, enforce);
+  returnData.project = parseProject(jsonData, enforce);
   // Settings handled partially
   returnData.settings = parseSettings(jsonData, enforce);
   // View settings handled partially
@@ -396,7 +403,7 @@ export const fileHandler = async (file): Promise<ResponseOK | ResponseError> => 
         const dataFromExcel = await parseExcel(excelData.data);
         res.data = {};
         res.data.rundown = parseRundown(dataFromExcel);
-        res.data.eventData = parseEventData(dataFromExcel, true);
+        res.data.project = parseProject(dataFromExcel, true);
         res.data.userFields = parseUserFields(dataFromExcel);
         res.message = 'success';
       } else {

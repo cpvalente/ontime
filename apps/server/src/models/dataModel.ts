@@ -2,7 +2,7 @@ import { DatabaseModel } from 'ontime-types';
 
 export const dbModel: DatabaseModel = {
   rundown: [],
-  eventData: {
+  project: {
     title: '',
     description: '',
     publicUrl: '',

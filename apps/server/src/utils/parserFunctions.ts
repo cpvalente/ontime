@@ -2,11 +2,11 @@ import { generateId } from 'ontime-utils';
 import {
   Alias,
   EndAction,
-  EventData,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
   OscSubscriptionOptions,
+  ProjectData,
   Settings,
   TimerLifeCycle,
   TimerType,
@@ -91,26 +91,26 @@ export const parseRundown = (data): OntimeRundown => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseEventData = (data, enforce): EventData => {
-  let newEventData: Partial<EventData> = {};
-  if ('eventData' in data) {
-    console.log('Found event data, importing...');
-    const e = data.eventData;
+export const parseProject = (data, enforce): ProjectData => {
+  let newProjectData: Partial<ProjectData> = {};
+  if ('project' in data) {
+    console.log('Found project data, importing...');
+    const project = data.project;
     // filter known properties and write to db
-    newEventData = {
-      ...dbModel.eventData,
-      title: e.title || dbModel.eventData.title,
-      description: e.description || dbModel.eventData.description,
-      publicUrl: e.publicUrl || dbModel.eventData.publicUrl,
-      publicInfo: e.publicInfo || dbModel.eventData.publicInfo,
-      backstageUrl: e.backstageUrl || dbModel.eventData.backstageUrl,
-      backstageInfo: e.backstageInfo || dbModel.eventData.backstageInfo,
+    newProjectData = {
+      ...dbModel.project,
+      title: project.title || dbModel.project.title,
+      description: project.description || dbModel.project.description,
+      publicUrl: project.publicUrl || dbModel.project.publicUrl,
+      publicInfo: project.publicInfo || dbModel.project.publicInfo,
+      backstageUrl: project.backstageUrl || dbModel.project.backstageUrl,
+      backstageInfo: project.backstageInfo || dbModel.project.backstageInfo,
     };
   } else if (enforce) {
-    newEventData = { ...dbModel.eventData };
-    console.log('Created event object in db');
+    newProjectData = { ...dbModel.project };
+    console.log('Created project object in db');
   }
-  return newEventData as EventData;
+  return newProjectData as ProjectData;
 };
 
 /**

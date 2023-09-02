@@ -1,5 +1,5 @@
 // REST stuff
-export const EVENT_DATA = ['eventdata'];
+export const PROJECT_DATA = ['project'];
 export const ALIASES = ['aliases'];
 export const USERFIELDS = ['userFields'];
 export const RUNDOWN_TABLE_KEY = 'rundown';
@@ -18,7 +18,7 @@ export const serverPort = import.meta.env.DEV ? STATIC_PORT : location.port;
 export const serverURL = `${location.protocol}//${location.hostname}:${serverPort}`;
 export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}/ws`;
 
-export const eventURL = `${serverURL}/eventdata`;
+export const projectDataURL = `${serverURL}/project`;
 export const rundownURL = `${serverURL}/events`;
 export const ontimeURL = `${serverURL}/ontime`;
 
