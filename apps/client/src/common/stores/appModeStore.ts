@@ -21,11 +21,13 @@ function persistModeToSession(mode: AppMode) {
   localStorage.setItem(appModeKey, mode);
 }
 
+export type EventToEdit = { id: string; index: number; anchor: boolean };
+
 type AppModeStore = {
   mode: AppMode;
   cursor: string | null;
   editMode: EditMode;
-  eventsToEdit: { id: string; index: number; anchor: boolean }[];
+  eventsToEdit: EventToEdit[];
   isEventSelected: (id: string, index: number) => boolean;
   setMode: (mode: AppMode) => void;
   setEditMode: (mode: EditMode) => void;
@@ -46,12 +48,12 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
     });
   },
   isEventSelected: (id, index) => {
-    const { eventsToEdit: eventsToEdit } = get();
+    const { eventsToEdit } = get();
 
     return eventsToEdit.some((event) => {
-      const doesEventsHaveAnchor = eventsToEdit.some((event) => event.anchor);
+      const isAnchorPresent = eventsToEdit.some((event) => event.anchor);
 
-      if (doesEventsHaveAnchor) {
+      if (isAnchorPresent) {
         const firstSelectedEvent = eventsToEdit.at(0);
         const lastSelectedEvent = eventsToEdit.at(-1);
 
@@ -69,7 +71,7 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
   },
   setEditMode: (mode) => set(() => ({ editMode: mode })),
   setEventsToEdit: (id, index) =>
-    set(({ editMode, eventsToEdit: eventsToEdit }) => {
+    set(({ editMode, eventsToEdit }) => {
       if (editMode === EditMode.Single) {
         return { eventsToEdit: [{ id, index, anchor: false }] };
       }
