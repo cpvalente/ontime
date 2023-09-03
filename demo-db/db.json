@@ -25,7 +25,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "32d31"
+      "id": "32d31",
+      "cue": "SF1.01"
     },
     {
       "title": "Latvia",
@@ -52,7 +53,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "21cd2"
+      "id": "21cd2",
+      "cue": "SF1.02"
     },
     {
       "title": "Lithuania",
@@ -79,7 +81,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "0b371"
+      "id": "0b371",
+      "cue": "SF1.03"
     },
     {
       "title": "Switzerland",
@@ -106,7 +109,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "3cd28"
+      "id": "3cd28",
+      "cue": "SF1.04"
     },
     {
       "title": "Slovenia",
@@ -133,7 +137,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "e457f"
+      "id": "e457f",
+      "cue": "SF1.05"
     },
     {
       "title": "Lunch break",
@@ -165,7 +170,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "1c420"
+      "id": "1c420",
+      "cue": "SF1.06"
     },
     {
       "title": "Bulgaria",
@@ -192,7 +198,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "b7737"
+      "id": "b7737",
+      "cue": "SF1.07"
     },
     {
       "title": "Netherlands",
@@ -219,7 +226,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "d3a80"
+      "id": "d3a80",
+      "cue": "SF1.08"
     },
     {
       "title": "Moldova",
@@ -246,7 +254,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "8276c"
+      "id": "8276c",
+      "cue": "SF1.09"
     },
     {
       "title": "Portugal",
@@ -273,7 +282,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "2340b"
+      "id": "2340b",
+      "cue": "SF1.10"
     },
     {
       "title": "Afternoon break",
@@ -305,7 +315,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "503c4"
+      "id": "503c4",
+      "cue": "SF1.11"
     },
     {
       "title": "Denmark",
@@ -332,7 +343,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "5e965"
+      "id": "5e965",
+      "cue": "SF1.12"
     },
     {
       "title": "Austria",
@@ -359,7 +371,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "bab4a"
+      "id": "bab4a",
+      "cue": "SF1.13"
     },
     {
       "title": "Greece",
@@ -386,7 +399,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "d3eb1"
+      "id": "d3eb1",
+      "cue": "SF1.14"
     }
   ],
   "eventData": {
