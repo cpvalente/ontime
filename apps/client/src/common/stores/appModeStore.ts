@@ -28,7 +28,7 @@ type AppModeStore = {
   cursor: string | null;
   editMode: EditMode;
   eventsToEdit: EventToEdit[];
-  isEventSelected: (id: string, index: number) => boolean;
+  isEventSelected: (id: string, index: number, isIndividual?: boolean) => boolean;
   setMode: (mode: AppMode) => void;
   setEditMode: (mode: EditMode) => void;
   setEventsToEdit: (id: string, index: number) => void;
@@ -47,8 +47,12 @@ export const useAppMode = create<AppModeStore>()((set, get) => ({
       return { mode };
     });
   },
-  isEventSelected: (id, index) => {
+  isEventSelected: (id, index, isIndividual = false) => {
     const { eventsToEdit } = get();
+
+    if (isIndividual && eventsToEdit.length > 1) {
+      return false;
+    }
 
     return eventsToEdit.some((event) => {
       const isAnchorPresent = eventsToEdit.some((event) => event.anchor);

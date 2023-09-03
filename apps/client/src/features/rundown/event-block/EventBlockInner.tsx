@@ -81,7 +81,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
-  const { setEventsToEdit: seteventsToEdit, clearEventsToEdit, isEventSelected } = useAppMode();
+  const { setEventsToEdit, clearEventsToEdit, isEventSelected } = useAppMode();
 
   useEffect(() => {
     setRenderInner(true);
@@ -91,9 +91,9 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     if (isOpen) {
       clearEventsToEdit();
     } else {
-      seteventsToEdit(eventId, eventIndex);
+      setEventsToEdit(eventId, eventIndex);
     }
-  }, [eventId, eventIndex, isOpen, seteventsToEdit, clearEventsToEdit]);
+  }, [eventId, eventIndex, isOpen, setEventsToEdit, clearEventsToEdit]);
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
@@ -165,7 +165,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           tooltip='Event options'
           aria-label='Event options'
           tabIndex={-1}
-          backgroundColor={isEventSelected(eventId, eventIndex) ? '#2B5ABC' : undefined}
+          backgroundColor={isEventSelected(eventId, eventIndex, true) ? '#2B5ABC' : undefined}
           color={isOpen ? 'white' : '#f6f6f6'}
           isDisabled={disableEdit}
         />
