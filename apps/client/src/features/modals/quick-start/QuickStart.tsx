@@ -81,12 +81,13 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
         <ModalCloseButton />
         <ModalBody className={styles.pad}>
           <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer}>
-            <Alert status='info' variant='ontime-on-light-info'>
+            <Alert status='warning' variant='ontime-on-light-warning'>
               <AlertIcon />
               <div className={styles.column}>
-                <AlertTitle>Note</AlertTitle>
+                <AlertTitle>Your data will be lost</AlertTitle>
                 <AlertDescription>
-                  On submit, application options will be kept but rundown and project data will be reset
+                  Application options will be kept but all other data will be lost. <br />
+                  You might want to save your project first.
                 </AlertDescription>
               </div>
             </Alert>
