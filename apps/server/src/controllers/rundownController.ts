@@ -48,6 +48,19 @@ export const rundownPut: RequestHandler = async (req, res) => {
   }
 };
 
+export const rundownBatchPut: RequestHandler = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return res.status(404);
+  }
+
+  try {
+    console.log(req.body);
+    res.status(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
 export const rundownReorder: RequestHandler = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;

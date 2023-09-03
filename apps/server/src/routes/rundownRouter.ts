@@ -8,9 +8,11 @@ import {
   rundownPut,
   rundownReorder,
   rundownSwap,
+  rundownBatchPut,
 } from '../controllers/rundownController.js';
 import {
   paramsMustHaveEventId,
+  rundownBatchPutValidator,
   rundownPostValidator,
   rundownPutValidator,
   rundownReorderValidator,
@@ -27,6 +29,8 @@ router.post('/', rundownPostValidator, rundownPost);
 
 // create route between controller and '/events/' endpoint
 router.put('/', rundownPutValidator, rundownPut);
+
+router.put('/batchEdit', rundownBatchPutValidator, rundownBatchPut);
 
 // create route between controller and '/events/reorder' endpoint
 router.patch('/reorder/', rundownReorderValidator, rundownReorder);
