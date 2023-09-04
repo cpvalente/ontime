@@ -59,7 +59,7 @@ export default function BlockBlock(props: BlockBlockProps) {
         <IoReorderTwo />
       </span>
       <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-      <BlockActionMenu className={style.actionMenu} showAdd showDelay enableDelete actionHandler={actionHandler} />
+      <BlockActionMenu className={style.actionMenu} enableDelete actionHandler={actionHandler} />
     </div>
   );
 }

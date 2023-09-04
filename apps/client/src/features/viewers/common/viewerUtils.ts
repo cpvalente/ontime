@@ -17,7 +17,7 @@ export function getTimerByType(timerObject?: TimerTypeParams): string | number |
     return timer;
   }
 
-  if (timerObject.timerType === TimerType.CountDown) {
+  if (timerObject.timerType === TimerType.CountDown || timerObject.timerType === TimerType.TimeToEnd) {
     timer = timerObject.current;
   } else if (timerObject.timerType === TimerType.CountUp) {
     timer = timerObject.elapsed;

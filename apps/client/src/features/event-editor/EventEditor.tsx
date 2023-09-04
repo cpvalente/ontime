@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { OntimeEvent, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -29,8 +29,8 @@ export default function EventEditor() {
     }
 
     const event = data.find((event) => event.id === openId);
-    if (event && event.type === SupportedEvent.Event) {
-      setEvent(event as OntimeEvent);
+    if (event && isOntimeEvent(event)) {
+      setEvent(event);
     }
   }, [data, openId]);
 

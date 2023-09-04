@@ -1,5 +1,6 @@
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
+import { serverPort } from '../../common/api/apiConstants';
 import useInfo from '../../common/hooks-query/useInfo';
 import { openLink } from '../../common/utils/linkUtils';
 
@@ -9,7 +10,7 @@ export default function InfoNif() {
   const { data } = useInfo();
 
   const handleClick = (address: string) => {
-    const baseURL = 'http://__IP__:4001';
+    const baseURL = `http://__IP__:${serverPort}`;
     openLink(baseURL.replace('__IP__', address));
   };
 

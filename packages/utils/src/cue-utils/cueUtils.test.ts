@@ -1,4 +1,4 @@
-import { OntimeRundown, SupportedEvent } from 'ontime-types';
+import { OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
 
 import { getCueCandidate, getIncrement, sanitiseCue } from './cueUtils.js';
 
@@ -32,7 +32,7 @@ describe('getIncrement()', () => {
   });
 });
 
-describe('findCueName()', () => {
+describe('getCueCandidate()', () => {
   describe('in the beginning of the rundown', () => {
     it('names cue as 1 if next event does not collide', () => {
       const testRundown = [
@@ -88,6 +88,24 @@ describe('findCueName()', () => {
       const cue = getCueCandidate(testRundown, '1');
       expect(cue).toBe('Presenter1.1');
     });
+  });
+  describe('considers edge cases', () => {
+    it('previousEvent might not be a cue', () => {
+      const testRundown = [
+        { id: '1', cue: '10', type: SupportedEvent.Event } as OntimeEvent,
+        { id: '2', type: SupportedEvent.Delay } as OntimeDelay,
+      ];
+      const cue = getCueCandidate(testRundown, '2');
+      expect(cue).toBe('11');
+    });
+  });
+  it('there might not be events before', () => {
+    const testRundown = [
+      { id: '1', type: SupportedEvent.Delay } as OntimeDelay,
+      { id: '2', type: SupportedEvent.Delay } as OntimeDelay,
+    ];
+    const cue = getCueCandidate(testRundown, '2');
+    expect(cue).toBe('1');
   });
 });
 

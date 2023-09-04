@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 import { getCueCandidate, swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN_TABLE, RUNDOWN_TABLE_KEY } from '../api/apiConstants';
@@ -59,7 +59,7 @@ export const useEventAction = () => {
       const newEvent: Partial<OntimeRundownEntry> = { ...event };
 
       // ************* CHECK OPTIONS specific to events
-      if (newEvent.type === SupportedEvent.Event) {
+      if (isOntimeEvent(newEvent)) {
         const applicationOptions = {
           defaultPublic: options?.defaultPublic ?? defaultPublic,
           startTimeIsLastEnd: options?.startTimeIsLastEnd ?? startTimeIsLastEnd,

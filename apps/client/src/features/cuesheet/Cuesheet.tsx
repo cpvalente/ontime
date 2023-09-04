@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
 import { millisToDelayString } from '../../common/utils/dateConfig';
@@ -196,15 +196,14 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
 
           <tbody>
             {table.getRowModel().rows.map((row) => {
-              const entryType = row.original.type as SupportedEvent;
               const key = row.original.id;
               const isSelected = selectedId === key;
               if (isSelected) {
                 isPast = false;
               }
 
-              if (entryType === SupportedEvent.Block) {
-                const title = (row.original as OntimeBlock).title;
+              if (isOntimeBlock(row.original)) {
+                const title = row.original.title;
 
                 return (
                   <tr key={key} className={style.blockRow}>
@@ -212,8 +211,8 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                   </tr>
                 );
               }
-              if (entryType === SupportedEvent.Delay) {
-                const delayVal = (row.original as OntimeDelay).duration;
+              if (isOntimeDelay(row.original)) {
+                const delayVal = row.original.duration;
 
                 if (!showDelayBlock || delayVal === 0) {
                   return null;
@@ -226,7 +225,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                   </tr>
                 );
               }
-              if (entryType === SupportedEvent.Event) {
+              if (isOntimeEvent(row.original)) {
                 eventIndex++;
                 const isSelected = key === selectedId;
                 if (isSelected) {
@@ -238,9 +237,9 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 }
 
                 const bgFallback = 'transparent';
-                const bgColour = (row.original as OntimeEvent).colour || bgFallback;
+                const bgColour = row.original.colour || bgFallback;
                 const textColour = bgColour === bgFallback ? undefined : getAccessibleColour(bgColour);
-                const isSkipped = (row.original as OntimeEvent).skip;
+                const isSkipped = row.original.skip;
 
                 let rowBgColour: string | undefined;
                 if (row.original.id === selectedId) {
