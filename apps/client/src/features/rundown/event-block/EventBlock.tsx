@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoCopyOutline } from '@react-icons/all-files/io5/IoCopyOutline';
+import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
@@ -80,7 +81,7 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { eventsToEdit, setEventsToEdit, isEventSelected } = useAppMode((state) => state);
+  const { eventsToEdit, setEventsToEdit, isEventSelected } = useAppMode();
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -93,11 +94,11 @@ export default function EventBlock(props: EventBlockProps) {
             group: [
               {
                 label: 'Make public',
-                icon: IoPeopleOutline,
+                icon: IoPeople,
                 onClick: () =>
                   actionHandler('update', {
                     field: 'isPublic',
-                    value: !isPublic,
+                    value: true,
                   }),
               },
               {
@@ -106,7 +107,7 @@ export default function EventBlock(props: EventBlockProps) {
                 onClick: () =>
                   actionHandler('update', {
                     field: 'isPublic',
-                    value: !isPublic,
+                    value: false,
                   }),
               },
             ],
