@@ -8,6 +8,7 @@ import { logAxiosError } from '../api/apiUtils';
 import {
   ReorderEntry,
   requestApplyDelay,
+  requestBatchPutEvents,
   requestDelete,
   requestDeleteAll,
   requestEventSwap,
@@ -150,6 +151,54 @@ export const useEventAction = () => {
       }
     },
     [_updateEventMutation],
+  );
+
+  /**
+   * Calls mutation to edit multiple events
+   * @private
+   */
+  const _batchUpdateEventsMutation = useMutation({
+    mutationFn: requestBatchPutEvents,
+    onMutate: async ({ ids, data }) => {
+      // cancel ongoing queries
+      await queryClient.cancelQueries([RUNDOWN_TABLE_KEY]);
+
+      // Snapshot the previous value
+      const previousEvents = queryClient.getQueryData([RUNDOWN_TABLE_KEY]) as OntimeRundown;
+
+      const updatedEvents = previousEvents.map((event) => {
+        const isEventEdited = ids.includes(event.id);
+
+        if (isEventEdited && isOntimeEvent(event)) {
+          return {
+            ...event,
+            // spread new changed properties, overwriting old event properties
+            ...data,
+          };
+        }
+
+        return event;
+      });
+
+      queryClient.setQueryData(RUNDOWN_TABLE, updatedEvents);
+
+      // Return a context with the previous and new events
+      return { previousEvent: previousEvents };
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries([RUNDOWN_TABLE_KEY]);
+    },
+  });
+
+  const batchUpdateEvents = useCallback(
+    async (data: Partial<OntimeRundownEntry>, eventIds: string[]) => {
+      try {
+        await _batchUpdateEventsMutation.mutateAsync({ ids: eventIds, data });
+      } catch (error) {
+        logAxiosError('Error updating event', error);
+      }
+    },
+    [_batchUpdateEventsMutation],
   );
 
   /**
@@ -390,5 +439,6 @@ export const useEventAction = () => {
     applyDelay,
     reorderEvent,
     swapEvents,
+    batchUpdateEvents,
   };
 };
