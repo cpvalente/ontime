@@ -2,6 +2,7 @@ import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,
   applyDelay,
+  batchEditEvents,
   deleteAllEvents,
   deleteEvent,
   editEvent,
@@ -54,7 +55,8 @@ export const rundownBatchPut: RequestHandler = async (req, res) => {
   }
 
   try {
-    console.log(req.body);
+    const { data, ids } = req.body;
+    await batchEditEvents(ids, data);
     res.status(200);
   } catch (error) {
     res.status(400).send(error);

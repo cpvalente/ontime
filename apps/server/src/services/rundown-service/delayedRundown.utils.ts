@@ -116,6 +116,12 @@ export async function cachedEdit(
   return newEvent;
 }
 
+export async function cachedBatchEdit(ids: string[], patchObject: Partial<OntimeEvent>) {
+  const cachedEdits = ids.map((id) => cachedEdit(id, patchObject));
+
+  await Promise.all(cachedEdits);
+}
+
 /**
  * Deletes an event with given id from rundown, ensuring replication to delayed rundown cache
  * @param eventId
