@@ -9,6 +9,8 @@ import { getCurrent, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 
+import { dump } from './dumpService.js';
+
 type initialLoadingData = {
   startedAt?: number | null;
   expectedFinish?: number | null;
@@ -172,6 +174,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onLoad);
+    dump(eventStore.poll());
   }
 
   start() {
@@ -376,6 +379,7 @@ export class TimerService {
     eventStore.set('timer', this.timer);
     if (shouldNotify) {
       integrationService.dispatch(TimerLifeCycle.onUpdate);
+      dump(eventStore.poll());
     }
   }
 

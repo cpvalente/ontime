@@ -1,3 +1,4 @@
 {
-  "ext": "js,json,ts"
+  "ext": "js,json,ts",
+  "ignore": "./dump/*.json"
 }
