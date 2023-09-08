@@ -4,6 +4,8 @@ import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { eventLoader } from '../classes/event-loader/EventLoader.js';
 
+import { dump } from '../services/dumpService.js';
+
 let store: Partial<RuntimeStore> = {};
 
 /**
@@ -43,6 +45,7 @@ export const eventStore = {
       type: 'ontime',
       payload: store,
     });
+    dump(store);
   },
 };
 
