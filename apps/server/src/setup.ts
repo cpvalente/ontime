@@ -85,3 +85,5 @@ export const resolveStylesDirectory = join(externalsStartDirectory, config.style
 export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);
 
 export const pathToStartStyles = join(currentDirectory, '/external/styles/', config.styles.filename);
+
+//TODO: make one for dump file
