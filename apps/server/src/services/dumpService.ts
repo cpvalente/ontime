@@ -10,17 +10,13 @@ export async function dump(store: Partial<RuntimeStore>, dumpPath: string = __di
 }
 
 export async function load(dumpPath: string = __dirname + '/../../dump/test.json'): Promise<Partial<RuntimeStore>> {
-    let data = await fs.readFile(path.normalize(dumpPath), 'utf-8');
+    let s: Partial<RuntimeStore> = {};
     try {
-        let s: Partial<RuntimeStore> = JSON.parse(data);
+        const data = await fs.readFile(path.normalize(dumpPath), 'utf-8')
+        s = JSON.parse(data);
         return s;
     } catch (err) {
-        logger.info('DUMP', 'fFaild to parse state file, ' + err);
+        logger.info('DUMP', 'faild to parse state file, ' + err);
+        return s;
     }
-    return null;
-    //         .catch ((err) => {
-    //     logger.info('DUMP', 'unable load to dump state file, ' + err);
-    //     return null;
-    // });
-
 }
