@@ -31,6 +31,8 @@ import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
+import { PlaybackService } from './services/PlaybackService.js';
+import { load } from './services/dumpService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -139,8 +141,13 @@ export const startServer = async () => {
   socket.init(expressServer);
 
   // provide initial payload to event store
+  const store = await load(__dirname + '/../../dump/test.json');
   eventLoader.init();
   eventStore.init(getInitialPayload());
+
+  if (store.loaded.selectedEventId) {
+    PlaybackService.loadById(store.loaded.selectedEventId);
+  }
 
   expressServer.listen(serverPort, '0.0.0.0');
 
