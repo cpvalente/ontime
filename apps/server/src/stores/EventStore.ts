@@ -7,6 +7,7 @@ import { eventLoader } from '../classes/event-loader/EventLoader.js';
 import { dump } from '../services/dumpService.js';
 
 let store: Partial<RuntimeStore> = {};
+let init = false;
 
 /**
  * A runtime store that broadcasts its payload
@@ -18,6 +19,7 @@ let store: Partial<RuntimeStore> = {};
 export const eventStore = {
   init(payload: RuntimeStore) {
     store = payload;
+    init = true;
   },
   get<T extends keyof RuntimeStore>(key: T) {
     return store[key];
@@ -41,11 +43,13 @@ export const eventStore = {
     return store;
   },
   broadcast() {
-    socket.sendAsJson({
-      type: 'ontime',
-      payload: store,
-    });
-    dump(store);
+    if (init) {
+      socket.sendAsJson({
+        type: 'ontime',
+        payload: store,
+      });
+      dump(store);
+    }
   },
 };
 
