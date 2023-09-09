@@ -48,7 +48,7 @@ export const eventStore = {
         type: 'ontime',
         payload: store,
       });
-      dump(store);
+      dump({ startedAt: store?.timer.startedAt, playback: store?.playback, selectedEventId: store.loaded?.selectedEventId });
     }
   },
 };

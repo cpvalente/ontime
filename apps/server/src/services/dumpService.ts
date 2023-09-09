@@ -1,82 +1,51 @@
-import { RuntimeStore } from 'ontime-types';
+import { Playback, RuntimeStore } from 'ontime-types';
 import { logger } from '../classes/Logger.js';
 import fs from 'fs/promises';
 import path from 'path';
+import { type } from 'os';
 
-const emptyStore: Partial<RuntimeStore> = {
-    "timer": {
-        "clock": null,
-        "current": null,
-        "elapsed": null,
-        "expectedFinish": null,
-        "addedTime": 0,
-        "startedAt": null,
-        "finishedAt": null,
-        "secondaryTimer": null,
-        "selectedEventId": null,
-        "duration": null,
-        "timerType": null,
-        "endAction": null
-    },
-    "playback": null,
-    "timerMessage": {
-        "text": "",
-        "visible": false,
-        "timerBlink": false,
-        "timerBlackout": false
-    },
-    "publicMessage": {
-        "text": "",
-        "visible": false
-    },
-    "lowerMessage": {
-        "text": "",
-        "visible": false
-    },
-    "onAir": false,
-    "loaded": {
-        "selectedEventIndex": null,
-        "selectedEventId": null,
-        "selectedPublicEventId": null,
-        "nextEventId": null,
-        "nextPublicEventId": null,
-        "numEvents": 4
-    },
-    "titles": {
-        "titleNow": null,
-        "subtitleNow": null,
-        "presenterNow": null,
-        "noteNow": null,
-        "titleNext": null,
-        "subtitleNext": null,
-        "presenterNext": null,
-        "noteNext": null
-    },
-    "titlesPublic": {
-        "titleNow": null,
-        "subtitleNow": null,
-        "presenterNow": null,
-        "noteNow": null,
-        "titleNext": null,
-        "subtitleNext": null,
-        "presenterNext": null,
-        "noteNext": null
+type OntimeDump = {
+    startedAt: number | null;
+    playback: Playback;
+    selectedEventId: string | null;
+}
+
+let oldStore: string = '';
+
+/**
+ * Reloads information for currently running timer
+ * @param {OntimeDump} store 
+ * @param {string} dumpPath path to file
+ * @param {number | null} store.startedAt
+ * @param {Playback} store.playback
+ * @param {string | null} store.selectedEventId
+ */
+export async function dump(store: Partial<OntimeDump>, dumpPath: string = __dirname + '/../../dump/test.json'): Promise<void> {
+    const newStore = JSON.stringify(store);
+    if (newStore != oldStore) {
+        fs.appendFile(path.normalize(dumpPath), newStore + '\n', 'utf-8').
+            catch((err) => { logger.error('DUMP', 'failde to dump state, ' + err) });
+        oldStore = newStore;
+        logger.info('DUMP', 'saving new state');
     }
 }
 
-export async function dump(store: Partial<RuntimeStore>, dumpPath: string = __dirname + '/../../dump/test.json'): Promise<void> {
-    fs.writeFile(path.normalize(dumpPath), JSON.stringify(store), 'utf-8').
-        catch((err) => { logger.error('DUMP', 'failde to dump state, ' + err) });
-}
+export async function load(dumpPath: string = __dirname + '/../../dump/test.json'): Promise<Partial<OntimeDump>> {
+    let s: Partial<OntimeDump> = {
+        startedAt: null,
+        playback: Playback.Armed,
+        selectedEventId: null
+    };
 
-export async function load(dumpPath: string = __dirname + '/../../dump/test.json'): Promise<Partial<RuntimeStore>> {
-    let s: Partial<RuntimeStore> = emptyStore;
     try {
-        const data = await fs.readFile(path.normalize(dumpPath), 'utf-8')
-        s = JSON.parse(data);
+        const data = await fs.readFile(path.normalize(dumpPath), 'utf-8');
+        const lines = data.split('\n');
+        s = JSON.parse(lines[lines.length - 2]);
+        await fs.unlink(path.normalize(dumpPath));
         return s;
     } catch (err) {
         logger.info('DUMP', 'faild to parse state file, ' + err);
+        await fs.unlink(path.normalize(dumpPath));
         return s;
     }
 }
