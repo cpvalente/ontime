@@ -150,7 +150,7 @@ export const startServer = async () => {
     case (Playback.Pause):
     case (Playback.Play):
       PlaybackService.loadById(store?.selectedEventId);
-      eventTimer.hotReload(eventLoader.getLoaded().loadedEvent, { startedAt: store?.startedAt }, store?.playback);
+      eventTimer.hotReload(eventLoader.getLoaded().loadedEvent, { startedAt: store?.startedAt }, store?.playback, store?.addedTime);
       break;
     case (Playback.Roll):
       PlaybackService.roll();

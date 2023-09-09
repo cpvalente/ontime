@@ -79,7 +79,7 @@ export class TimerService {
    * @param timer
    * @param initialData
    */
-  hotReload(timer, initialData?: initialLoadingData, playback?: Playback) {
+  hotReload(timer, initialData?: initialLoadingData, playback?: Playback, addedTime?: number) {
     if (typeof timer === 'undefined') {
       this.stop();
       return;
@@ -97,6 +97,7 @@ export class TimerService {
     if (typeof initialData !== 'undefined') {
       this.timer = { ...this.timer, ...initialData };
       this.playback = playback ?? this.playback;
+      this.timer.addedTime = addedTime ?? this.timer.addedTime;
       eventStore.set('playback', this.playback);
     }
 

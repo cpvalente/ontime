@@ -8,6 +8,7 @@ type OntimeDump = {
     startedAt: number | null;
     playback: Playback;
     selectedEventId: string | null;
+    addedTime: number | null;
 }
 
 let oldStore: string = '';
@@ -19,6 +20,7 @@ let oldStore: string = '';
  * @param {number | null} store.startedAt
  * @param {Playback} store.playback
  * @param {string | null} store.selectedEventId
+ * @param {number | null} store.addedTime
  */
 export async function dump(store: Partial<OntimeDump>, dumpPath: string = __dirname + '/../../dump/test.json'): Promise<void> {
     const newStore = JSON.stringify(store);
