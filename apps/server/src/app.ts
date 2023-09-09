@@ -146,7 +146,7 @@ export const startServer = async () => {
   eventStore.init(getInitialPayload());
 
   if (store.loaded.selectedEventId) {
-    PlaybackService.loadById(store.loaded.selectedEventId);
+    PlaybackService.loadById(store.loaded.selectedEventId, {startedAt: store.timer?.startedAt, expectedFinish: store.timer?.expectedFinish});
   }
 
   expressServer.listen(serverPort, '0.0.0.0');

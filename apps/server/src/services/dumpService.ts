@@ -10,7 +10,7 @@ export async function dump(store: Partial<RuntimeStore>, dumpPath: string = __di
 }
 
 export async function load(dumpPath: string = __dirname + '/../../dump/test.json'): Promise<Partial<RuntimeStore>> {
-    let s: Partial<RuntimeStore> = {};
+    let s: Partial<RuntimeStore> = null;
     try {
         const data = await fs.readFile(path.normalize(dumpPath), 'utf-8')
         s = JSON.parse(data);
