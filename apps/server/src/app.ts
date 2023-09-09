@@ -9,7 +9,7 @@ import { join, resolve } from 'path';
 
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { LogOrigin, OSCSettings } from 'ontime-types';
+import { LogOrigin, OSCSettings, Playback } from 'ontime-types';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
@@ -145,10 +145,18 @@ export const startServer = async () => {
   eventLoader.init();
   eventStore.init(getInitialPayload());
 
-  if (store.loaded.selectedEventId) {
-    PlaybackService.loadById(store.loaded.selectedEventId);
-    eventTimer.hotReload(eventLoader.getLoaded().loadedEvent, { startedAt: store.timer?.startedAt, expectedFinish: store.timer?.expectedFinish }, store?.playback);
+  switch (store.playback) {
+    case (Playback.Armed):
+    case (Playback.Pause):
+    case (Playback.Play):
+      PlaybackService.loadById(store.loaded?.selectedEventId);
+      eventTimer.hotReload(eventLoader.getLoaded().loadedEvent, { startedAt: store.timer?.startedAt, expectedFinish: store.timer?.expectedFinish }, store?.playback);
+      break;
+    case (Playback.Roll):
+      PlaybackService.roll();
+      break;
   }
+
 
   expressServer.listen(serverPort, '0.0.0.0');
 

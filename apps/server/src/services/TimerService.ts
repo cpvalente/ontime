@@ -96,9 +96,7 @@ export class TimerService {
 
     if (typeof initialData !== 'undefined') {
       this.timer = { ...this.timer, ...initialData };
-      logger.info('TIMERSERVICE', 'set playback to ' + String(playback));
       this.playback = playback ?? this.playback;
-      logger.info('TIMERSERVICE', 'playback is now to ' + String(this.playback));
       eventStore.set('playback', this.playback);
     }
 
