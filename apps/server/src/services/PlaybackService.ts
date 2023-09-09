@@ -17,7 +17,7 @@ export class PlaybackService {
    * @param {OntimeEvent} event
    * @return {boolean} success
    */
-  static loadEvent(event: OntimeEvent, initialData?): boolean {
+  static loadEvent(event: OntimeEvent): boolean {
     let success = false;
     if (!event) {
       logger.error(LogOrigin.Playback, 'No event found');
@@ -25,7 +25,7 @@ export class PlaybackService {
       logger.warning(LogOrigin.Playback, `Refused playback of skipped event ID ${event.id}`);
     } else {
       eventLoader.loadEvent(event);
-      eventTimer.load(event, initialData ?? undefined);
+      eventTimer.load(event);
       success = true;
     }
     eventStore.broadcast();
@@ -82,9 +82,9 @@ export class PlaybackService {
    * @param {string} eventId
    * @return {boolean} success
    */
-  static loadById(eventId: string, initialData?): boolean {
+  static loadById(eventId: string): boolean {
     const event = EventLoader.getEventWithId(eventId);
-    const success = PlaybackService.loadEvent(event, initialData ?? undefined);
+    const success = PlaybackService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }

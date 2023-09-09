@@ -77,8 +77,9 @@ export class TimerService {
   /**
    * Reloads information for currently running timer
    * @param timer
+   * @param initialData
    */
-  hotReload(timer) {
+  hotReload(timer, initialData?: initialLoadingData, playback?: Playback) {
     if (typeof timer === 'undefined') {
       this.stop();
       return;
@@ -91,6 +92,14 @@ export class TimerService {
 
     if (timer?.skip) {
       this.stop();
+    }
+
+    if (typeof initialData !== 'undefined') {
+      this.timer = { ...this.timer, ...initialData };
+      logger.info('TIMERSERVICE', 'set playback to ' + String(playback));
+      this.playback = playback ?? this.playback;
+      logger.info('TIMERSERVICE', 'playback is now to ' + String(this.playback));
+      eventStore.set('playback', this.playback);
     }
 
     // TODO: check if any relevant information warrants update
