@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Button, Checkbox, Switch } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
@@ -19,7 +20,7 @@ interface CuesheetTableSettingsProps {
   handleClearToggles: () => void;
 }
 
-export default function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
+function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
   const showPrevious = useCuesheetSettings((state) => state.showPrevious);
   const togglePreviousVisibility = useCuesheetSettings((state) => state.togglePreviousVisibility);
@@ -81,3 +82,5 @@ export default function CuesheetTableSettings(props: CuesheetTableSettingsProps)
     </div>
   );
 }
+
+export default memo(CuesheetTableSettings);
