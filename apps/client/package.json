@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "2.3.9",
+  "version": "2.8.1-rc-table",
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^2.7.0",
