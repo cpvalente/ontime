@@ -31,8 +31,8 @@
   }
 
   &.running {
-    border-top: 1px solid $white-10;
-    background-color: $red-700;
+    border-top: 1px solid $gray-1300;
+    background-color: var(--operator-running-bg-override, $red-700);
   }
 
   &.past {
@@ -97,7 +97,7 @@
   .field {
     font-weight: 600;
     padding: 0 0.25rem;
-    background-color: $orange-600;
+    background-color: var(--operator-highlight-override, $orange-600);
     margin-right: 0.5rem;
   }
 

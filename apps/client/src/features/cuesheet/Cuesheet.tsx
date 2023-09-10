@@ -217,7 +217,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
 
                 let rowBgColour: string | undefined;
                 if (row.original.id === selectedId) {
-                  rowBgColour = '#D20300'; // $red-700
+                  rowBgColour = 'var(--cuesheet-running-bg-override, #D20300)'; // $red-700
                 }
                 return (
                   <tr
