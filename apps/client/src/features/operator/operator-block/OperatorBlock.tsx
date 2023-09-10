@@ -1,9 +1,13 @@
+import { memo } from 'react';
+
 import style from './OperatorBlock.module.scss';
 
 interface OperatorBlockProps {
   title: string;
 }
 
-export default function OperatorBlock({ title }: OperatorBlockProps) {
+function OperatorBlock({ title }: OperatorBlockProps) {
   return <div className={style.block}>{title}</div>;
 }
+
+export default memo(OperatorBlock);
