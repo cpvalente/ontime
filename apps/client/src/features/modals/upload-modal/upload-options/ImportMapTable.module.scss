@@ -1,0 +1,22 @@
+@use '../../../../theme/v2Styles' as *;
+@use '../../../../theme/ontimeColours' as *;
+
+.importTable {
+  margin: 0.5rem;
+  font-size: $inner-section-text-size;
+  height: fit-content;
+
+  thead {
+    color: $gray-500;
+    text-transform: uppercase;
+  }
+
+  tr:hover {
+    background-color: $gray-50;
+  }
+}
+
+.label {
+  display: inline-block;
+  width: 100%;
+}

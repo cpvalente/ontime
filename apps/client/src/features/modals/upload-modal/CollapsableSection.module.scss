@@ -1,0 +1,22 @@
+@use '../../../theme/v2Styles' as *;
+@use '../../../theme/ontimeColours' as *;
+
+.header {
+  font-size: $inner-section-text-size;
+  color: $gray-500;
+  padding-left: 0.5rem;
+  margin: 0.5rem 0;
+  text-transform: uppercase;
+
+  display: flex;
+}
+
+.moreExpanded {
+  transform: scaleY(-1);
+  transition: transform $transition-time-feedback;
+}
+
+.moreCollapsed {
+  transform: scaleY(1);
+  transition: transform $transition-time-feedback;
+}
