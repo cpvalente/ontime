@@ -1,4 +1,5 @@
-import { isOntimeEvent, OntimeRundown } from 'ontime-types';
+import { ReactNode } from 'react';
+import { isOntimeEvent, OntimeRundown, UserFields } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getAccessibleColour } from '../../utils/styleUtils';
@@ -7,13 +8,14 @@ import style from './PreviewTable.module.scss';
 
 interface PreviewRundownProps {
   rundown: OntimeRundown;
+  userFields: UserFields;
 }
 
 function booleanToText(value?: boolean) {
-  return value ? 'Yes' : '';
+  return value ? 'Yes' : undefined;
 }
 
-export default function PreviewRundown({ rundown }: PreviewRundownProps) {
+export default function PreviewRundown({ rundown, userFields }: PreviewRundownProps) {
   return (
     <div className={style.container}>
       <div className={style.scrollContainer}>
@@ -35,16 +37,36 @@ export default function PreviewRundown({ rundown }: PreviewRundownProps) {
               <th>Colour</th>
               <th>Timer Type</th>
               <th>End Action</th>
-              <th>user0</th>
-              <th>user1</th>
-              <th>user2</th>
-              <th>user3</th>
-              <th>user4</th>
-              <th>user5</th>
-              <th>user6</th>
-              <th>user7</th>
-              <th>user8</th>
-              <th>user9</th>
+              <th>
+                user0 <Tag>{userFields.user0}</Tag>
+              </th>
+              <th>
+                user1 <Tag>{userFields.user1}</Tag>
+              </th>
+              <th>
+                user2 <Tag>{userFields.user2}</Tag>
+              </th>
+              <th>
+                user3 <Tag>{userFields.user3}</Tag>
+              </th>
+              <th>
+                user4 <Tag>{userFields.user4}</Tag>
+              </th>
+              <th>
+                user5 <Tag>{userFields.user5}</Tag>
+              </th>
+              <th>
+                user6 <Tag>{userFields.user6}</Tag>
+              </th>
+              <th>
+                user7 <Tag>{userFields.user7}</Tag>
+              </th>
+              <th>
+                user8 <Tag>{userFields.user8}</Tag>
+              </th>
+              <th>
+                user9 <Tag>{userFields.user9}</Tag>
+              </th>
             </tr>
           </thead>
           <tbody className={style.body}>
@@ -52,9 +74,13 @@ export default function PreviewRundown({ rundown }: PreviewRundownProps) {
               const key = event.id;
               if (isOntimeEvent(event)) {
                 const colour = event.colour ? getAccessibleColour(event.colour) : {};
+                const isPublic = booleanToText(event.isPublic);
+                const skip = booleanToText(event.skip);
                 return (
                   <tr key={key}>
-                    <th>{index + 1}</th>
+                    <th>
+                      <Tag>{index + 1}</Tag>
+                    </th>
                     <th>Event</th>
                     <th>{event.cue}</th>
                     <th>{event.title}</th>
@@ -64,11 +90,15 @@ export default function PreviewRundown({ rundown }: PreviewRundownProps) {
                     <th>{millisToString(event.timeStart)}</th>
                     <th>{millisToString(event.timeEnd)}</th>
                     <th>{millisToString(event.duration)}</th>
-                    <th>{booleanToText(event.isPublic)}</th>
-                    <th>{booleanToText(event.skip)}</th>
+                    <th>{isPublic && <Tag>{isPublic}</Tag>}</th>
+                    <th>{skip && <Tag>{skip}</Tag>}</th>
                     <th style={{ ...colour }}>{event.colour}</th>
-                    <th>{event.timerType}</th>
-                    <th>{event.endAction}</th>
+                    <th>
+                      <Tag>{event.timerType}</Tag>
+                    </th>
+                    <th>
+                      <Tag>{event.endAction}</Tag>
+                    </th>
                     <th>{event.user0}</th>
                     <th>{event.user1}</th>
                     <th>{event.user2}</th>
@@ -89,4 +119,8 @@ export default function PreviewRundown({ rundown }: PreviewRundownProps) {
       </div>
     </div>
   );
+}
+
+function Tag({ children }: { children: ReactNode }) {
+  return <span className={style.tag}>{children}</span>;
 }
