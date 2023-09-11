@@ -27,7 +27,7 @@ export const ontimeButtonOutlined = {
   },
   _active: {
     backgroundColor: '#2d2d2d', // $gray-1100
-    borderColor: '#202020', // $gray-12000
+    borderColor: '#202020', // $gray-1250
   },
 };
 
@@ -43,7 +43,7 @@ export const ontimeButtonSubtle = {
   },
   _active: {
     backgroundColor: '#2d2d2d', // $gray-1100
-    borderColor: '#202020', // $gray-12000
+    borderColor: '#202020', // $gray-1250
   },
 };
 
