@@ -269,6 +269,24 @@ describe('test json parser with valid def', () => {
 });
 
 describe('test parser edge cases', () => {
+  it('stringifies necessary values', async () => {
+    const testData = {
+      rundown: [
+        {
+          cue: 101,
+          type: 'event',
+        },
+        {
+          cue: 101.1,
+          type: 'event',
+        },
+      ],
+    };
+    const parseResponse = await parseJson(testData);
+    expect(typeof (parseResponse.rundown[0] as OntimeEvent).cue).toBe('string');
+    expect(typeof (parseResponse.rundown[1] as OntimeEvent).cue).toBe('string');
+  });
+
   it('generates missing ids', async () => {
     const testData = {
       rundown: [
@@ -579,6 +597,7 @@ describe('test parseExcel function', () => {
         'user8:test8',
         'user9:test9',
         'Colour',
+        'cue',
       ],
       [
         '1899-12-30T07:00:00.000Z',
@@ -602,6 +621,7 @@ describe('test parseExcel function', () => {
         'a8',
         'a9',
         'red',
+        101,
       ],
       [
         '1899-12-30T08:00:00.000Z',
@@ -625,6 +645,7 @@ describe('test parseExcel function', () => {
         '',
         '',
         '#F00',
+        102,
       ],
       [],
     ];
@@ -662,6 +683,7 @@ describe('test parseExcel function', () => {
         user9: 'a9',
         colour: 'red',
         type: 'event',
+        cue: '101',
       },
       {
         //timeStart: 32400000,
@@ -678,6 +700,7 @@ describe('test parseExcel function', () => {
         user5: 'b5',
         colour: '#F00',
         type: 'event',
+        cue: '102',
       },
     ];
 
