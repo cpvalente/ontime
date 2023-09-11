@@ -41,7 +41,6 @@ ontime-external/
 
 # working database
 apps/server/src/preloaded-db/db.json
-apps/server/dump
 
 # versioning file
 **/ONTIME_VERSION.js

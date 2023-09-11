@@ -32,7 +32,8 @@ import { oscIntegration } from './services/integration-service/OscIntegration.js
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
-import { load } from './services/dumpService.js';
+import { restoreService } from './services/RestoreService.js';
+import { lookup } from 'dns';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -141,19 +142,24 @@ export const startServer = async () => {
   socket.init(expressServer);
 
   // provide initial payload to event store
-  const store = await load(__dirname + '/../../dump/test.json');
   eventLoader.init();
   eventStore.init(getInitialPayload());
 
-  switch (store.playback) {
+  switch (restoreService.load?.playback) {
     case (Playback.Armed):
     case (Playback.Pause):
     case (Playback.Play):
-      PlaybackService.loadById(store?.selectedEventId);
-      eventTimer.hotReload(eventLoader.getLoaded().loadedEvent, { startedAt: store?.startedAt }, store?.playback, store?.addedTime);
+      PlaybackService.loadById(restoreService.load?.selectedEventId);
+      eventTimer.hotReload(
+        eventLoader.getLoaded().loadedEvent,
+        { startedAt: restoreService.load?.startedAt },
+        restoreService.load?.playback, restoreService.load?.addedTime);
       break;
     case (Playback.Roll):
       PlaybackService.roll();
+      break;
+    default:
+      logger.info('RESTORE', 'nothing to load');
       break;
   }
 
@@ -224,7 +230,6 @@ export const shutdown = async (exitCode = 0) => {
   integrationService.shutdown();
   logger.shutdown();
   socket.shutdown();
-  process.exit(exitCode);
 };
 
 process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
