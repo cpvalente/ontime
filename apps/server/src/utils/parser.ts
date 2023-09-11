@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck -- not ready to fully type
+
 import fs from 'fs';
 import xlsx from 'node-xlsx';
 import { generateId, calculateDuration } from 'ontime-utils';
