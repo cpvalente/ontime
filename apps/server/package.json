@@ -19,6 +19,7 @@
     "ontime-utils": "workspace:*",
     "passport": "^0.6.0",
     "passport-local": "~1.0.0",
+    "steno": "^3.0.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
