@@ -11,6 +11,7 @@ import {
   getViewSettings,
   poll,
   postAliases,
+  postGoogleJwt,
   postNew,
   postOSC,
   postOscSubscriptions,
@@ -51,6 +52,9 @@ router.get('/views', getViewSettings);
 
 // create route between controller and '/ontime/views' endpoint
 router.post('/views', viewValidator, postViewSettings);
+
+// create route between controller and '/ontime/views' endpoint
+router.post('/google-jwt', postGoogleJwt);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/aliases', getAliases);

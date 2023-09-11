@@ -3,6 +3,8 @@ import { Alias, EventData, LogOrigin } from 'ontime-types';
 import { RequestHandler } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
+import keytar from '@makepro-x/keytar';
+import { GoogleSpreadsheet } from 'google-spreadsheet';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
@@ -268,6 +270,17 @@ export const postViewSettings = async (req, res) => {
   } catch (error) {
     res.status(400).send(error);
   }
+};
+
+export const postGoogleJwt = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+  await keytar.setPassword('ontime', 'google', req.body.jwt);
+  const t = new GoogleSpreadsheet('ToDo', { token: req.body.jwt });
+  await t.loadInfo().catch(console.error);
+  console.log(t.title);
+  res.status(200).send({ message: 'OK' });
 };
 
 // Create controller for GET request to '/ontime/osc'

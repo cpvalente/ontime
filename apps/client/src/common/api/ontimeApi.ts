@@ -50,6 +50,14 @@ export async function postViewSettings(data: ViewSettings) {
 }
 
 /**
+ * @description HTTP request to send jwt to the backend
+ * @return {Promise}
+ */
+export async function postGoogleJwt(jwt: string) {
+  return axios.post(`${ontimeURL}/google-jwt`, { jwt });
+}
+
+/**
  * @description HTTP request to retrieve aliases
  * @return {Promise}
  */

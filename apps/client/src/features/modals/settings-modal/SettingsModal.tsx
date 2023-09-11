@@ -1,4 +1,5 @@
 import { ModalBody, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import ModalWrapper from '../ModalWrapper';
 
@@ -7,6 +8,7 @@ import AppSettingsModal from './AppSettings';
 import CuesheetSettingsForm from './CuesheetSettingsForm';
 import EditorSettings from './EditorSettings';
 import EventDataForm from './EventDataForm';
+import SyncForm from './SyncForm';
 import ViewSettingsForm from './ViewSettingsForm';
 
 interface ModalManagerProps {
@@ -27,6 +29,7 @@ export default function SettingsModal(props: ModalManagerProps) {
             <Tab>Cuesheet</Tab>
             <Tab>Views</Tab>
             <Tab>URL Aliases</Tab>
+            <Tab>Sync</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -46,6 +49,11 @@ export default function SettingsModal(props: ModalManagerProps) {
             </TabPanel>
             <TabPanel>
               <AliasesForm />
+            </TabPanel>
+            <TabPanel>
+              <GoogleOAuthProvider clientId='428790026655-lb7t3jpqol568748ba8psj7d5r831333.apps.googleusercontent.com'>
+                <SyncForm />
+              </GoogleOAuthProvider>
             </TabPanel>
           </TabPanels>
         </Tabs>
