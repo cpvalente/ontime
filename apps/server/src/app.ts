@@ -144,25 +144,7 @@ export const startServer = async () => {
   // provide initial payload to event store
   eventLoader.init();
   eventStore.init(getInitialPayload());
-
-  switch (restoreService.load?.playback) {
-    case (Playback.Armed):
-    case (Playback.Pause):
-    case (Playback.Play):
-      PlaybackService.loadById(restoreService.load?.selectedEventId);
-      eventTimer.hotReload(
-        eventLoader.getLoaded().loadedEvent,
-        { startedAt: restoreService.load?.startedAt },
-        restoreService.load?.playback, restoreService.load?.addedTime);
-      break;
-    case (Playback.Roll):
-      PlaybackService.roll();
-      break;
-    default:
-      logger.info('RESTORE', 'nothing to load');
-      break;
-  }
-
+  restoreService.restore();
 
   expressServer.listen(serverPort, '0.0.0.0');
 
