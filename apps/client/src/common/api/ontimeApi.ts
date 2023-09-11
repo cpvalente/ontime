@@ -1,5 +1,14 @@
-import axios from 'axios';
-import { Alias, OSCSettings, OscSubscription, ProjectData, Settings, UserFields, ViewSettings } from 'ontime-types';
+import axios, { AxiosResponse } from 'axios';
+import {
+  Alias,
+  OntimeRundown,
+  OSCSettings,
+  OscSubscription,
+  ProjectData,
+  Settings,
+  UserFields,
+  ViewSettings,
+} from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';
 import { InfoType } from '../models/Info';
@@ -161,20 +170,27 @@ export const uploadData = async (file: File, setProgress: (value: number) => voi
     .then((response) => response.data.id);
 };
 
+type Backend = {
+  rundown: OntimeRundown;
+  project: ProjectData;
+  userFields: UserFields;
+};
+
 export async function postPreviewExcel(file: File, setProgress: (value: number) => void, options?: UploadDataOptions) {
   const formData = new FormData();
   formData.append('userFile', file);
-  const response = await axios
-    .post(`${ontimeURL}/previewExcel`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        const complete = progressEvent?.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-        setProgress(complete);
-      },
-    })
-    .then((response) => response);
+  formData.append('options', JSON.stringify(options));
+  console.log('appending options', options);
+
+  const response: AxiosResponse<Backend> = await axios.post(`${ontimeURL}/previewExcel`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onUploadProgress: (progressEvent) => {
+      const complete = progressEvent?.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+      setProgress(complete);
+    },
+  });
 
   return response;
 }

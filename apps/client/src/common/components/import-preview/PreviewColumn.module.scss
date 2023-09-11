@@ -9,16 +9,14 @@
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: repeat(6, auto);
-  gap: 1px;
   font-size: calc(1rem - 2px);
 }
 
 .field {
+  font-weight: 200;
   @include pad-item;
-  background-color: $gray-100;
 }
 
 .value {
   @include pad-item;
-  background-color: $gray-50;
 }

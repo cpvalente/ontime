@@ -344,6 +344,8 @@ export async function previewExcel(req, res) {
     return;
   }
   const options = req.query;
+  const options2 = JSON.parse(req.body.options);
+  console.log(options2);
   const file = req.file.path;
   try {
     const data = await justUploadAndParse(file, req, res, options);
