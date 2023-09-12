@@ -66,7 +66,7 @@ export class RestoreService {
         const newStore = data.playback + ',' + data.selectedEventId + ',' + data.startedAt + ',' + data.addedTime + ',' + data.pausedAt + ',\n';
         if (newStore != this.lastStore) {
             this.lastStore = newStore;
-            this.file.write(newStore);
+            this.file.write(newStore).catch((err) => { logger.error('RESTORE', err) });
         }
     }
 
