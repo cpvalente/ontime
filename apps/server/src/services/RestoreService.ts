@@ -10,14 +10,6 @@ import { resolveDbDirectory } from '../setup.js'
 import path from 'path';
 import { Writer } from 'steno';
 
-type OntimeState = {
-    playback: Playback;
-    selectedEventId: string | null;
-    startedAt: number | null;
-    addedTime: number | null;
-    pausedAt: number | null
-}
-
 /**
  * Service manages saveing of timer state
  * that can then be resored when reopening
@@ -25,7 +17,11 @@ type OntimeState = {
 export class RestoreService {
     private lastStore: string = '';
     private readonly file;
-    private load: Partial<OntimeState> = { playback: Playback.Armed };
+    private playback: Playback;
+    private selectedEventId: string | null;
+    private startedAt: number | null;
+    private addedTime: number | null;
+    private pausedAt: number | null;
     private readonly ok;
     private readonly filePath;
 
@@ -36,11 +32,11 @@ export class RestoreService {
             const elements = data.split(',');
             if (elements[5] == '\n') {
                 logger.info('RESTORE', 'intact restore file');
-                this.load.playback = elements[0] as Playback;
-                this.load.selectedEventId = elements[1] != 'null' ? elements[1] : null;
-                this.load.startedAt = elements[2] != 'null' ? +elements[2] : null;
-                this.load.addedTime = elements[3] != 'null' ? +elements[3] : null;
-                this.load.pausedAt = elements[4] != 'null' ? +elements[4] : null;
+                this.playback = elements[0] as Playback;
+                this.selectedEventId = elements[1] != 'null' ? elements[1] : null;
+                this.startedAt = elements[2] != 'null' ? +elements[2] : null;
+                this.addedTime = elements[3] != 'null' ? +elements[3] : null;
+                this.pausedAt = elements[4] != 'null' ? +elements[4] : null;
                 this.ok = true;
             } else {
                 this.ok = false;
@@ -72,15 +68,15 @@ export class RestoreService {
     */
     restore() {
         if (!this.ok) return;
-        switch (restoreService.load?.playback) {
+        switch (this.playback) {
             case (Playback.Armed):
-                PlaybackService.loadById(restoreService.load?.selectedEventId);
+                PlaybackService.loadById(this.selectedEventId);
                 break;
             case (Playback.Pause):
             case (Playback.Play):
-                if (PlaybackService.loadById(restoreService.load?.selectedEventId)) {
-                    const event = EventLoader.getEventWithId(restoreService.load?.selectedEventId);
-                    eventTimer.hotReload(event, { startedAt: this.load?.startedAt }, this.load?.playback, this.load?.addedTime, this.load?.pausedAt);
+                if (PlaybackService.loadById(this.selectedEventId)) {
+                    const event = EventLoader.getEventWithId(this.selectedEventId);
+                    eventTimer.hotReload(event, { startedAt: this.startedAt }, this.playback, this.addedTime, this.pausedAt);
                 }
                 break;
             case (Playback.Roll):
