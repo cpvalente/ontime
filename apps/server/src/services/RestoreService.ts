@@ -10,7 +10,7 @@ import { resolveDbDirectory } from '../setup.js'
 import path from 'path';
 import { Writer } from 'steno';
 
-type OntimeDump = {
+type OntimeState = {
     playback: Playback;
     selectedEventId: string | null;
     startedAt: number | null;
@@ -25,7 +25,7 @@ type OntimeDump = {
 export class RestoreService {
     private lastStore: string = '';
     private readonly file;
-    private load: Partial<OntimeDump> = { playback: Playback.Armed };
+    private load: Partial<OntimeState> = { playback: Playback.Armed };
     private readonly ok;
     private readonly filePath;
 
@@ -56,14 +56,14 @@ export class RestoreService {
 
     /**
     * Saves data to csv
-    * @param {Partial<OntimeDump>} data
+    * @param {Partial<OntimeState>} data
     * @param {Playback} data.playback
     * @param {string | null} data.selectedEventId
     * @param {number | null} data.startedAt
     * @param {number | null} data.addedTime
     * @param {number | null} data.pausedAt
     */
-    async save(data: Partial<OntimeDump>) {
+    async save(data: Partial<OntimeState>) {
         const newStore = data.playback + ',' + data.selectedEventId + ',' + data.startedAt + ',' + data.addedTime + ',' + data.pausedAt + ',\n';
         if (newStore != this.lastStore) {
             this.lastStore = newStore;
