@@ -14,7 +14,7 @@ import { Writer } from 'steno';
  * Service manages saveing of timer state
  * that can then be resored when reopening
  */
-export class RestoreService {
+class RestoreService {
     private lastStore: string = '';
     private readonly file;
     private playback: Playback;
