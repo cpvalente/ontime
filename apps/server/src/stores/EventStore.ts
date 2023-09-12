@@ -7,7 +7,6 @@ import { eventLoader } from '../classes/event-loader/EventLoader.js';
 import { restoreService } from '../services/RestoreService.js';
 
 let store: Partial<RuntimeStore> = {};
-let init = false;
 
 /**
  * A runtime store that broadcasts its payload
@@ -19,7 +18,6 @@ let init = false;
 export const eventStore = {
   init(payload: RuntimeStore) {
     store = payload;
-    init = true;
   },
   get<T extends keyof RuntimeStore>(key: T) {
     return store[key];
@@ -43,13 +41,11 @@ export const eventStore = {
     return store;
   },
   broadcast() {
-    if (init) {
       socket.sendAsJson({
         type: 'ontime',
         payload: store,
       });
       restoreService.save({ startedAt: store?.timer.startedAt, playback: store?.playback, selectedEventId: store.loaded?.selectedEventId, addedTime: store.timer?.addedTime, pausedAt: eventTimer.paused });
-    }
   },
 };
 
