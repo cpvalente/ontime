@@ -13,5 +13,5 @@
   "include": [
     "src/**/*"
   ],
-  "exclude": ["node_modules", "build","dump"],
+  "exclude": ["node_modules", "build"],
 }
