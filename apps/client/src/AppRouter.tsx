@@ -6,6 +6,7 @@ import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
+const Operator = lazy(() => import('./features/operator/Operator'));
 
 const TimerView = lazy(() => import('./features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
@@ -57,6 +58,9 @@ export default function AppRouter() {
         <Route path='/studio' element={<SStudio />} />
         {/*/!* Lower cannot have fallback *!/*/}
         <Route path='/lower' element={<SLowerThird />} />
+
+        <Route path='/op' element={<Operator />} />
+        <Route path='/operator' element={<Operator />} />
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />

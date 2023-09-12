@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Input } from '@chakra-ui/react';
+import { sanitiseCue } from 'ontime-utils';
 
 import { type EditorUpdateFields } from '../EventEditor';
 
@@ -19,6 +20,10 @@ interface EventEditorLeftProps {
 const EventEditorDataLeft = (props: EventEditorLeftProps) => {
   const { eventId, cue, title, presenter, subtitle, handleSubmit } = props;
 
+  const cueSubmitHandler = (_field: string, newValue: string) => {
+    handleSubmit('cue', sanitiseCue(newValue));
+  };
+
   return (
     <div className={style.left}>
       <div className={style.splitTwo}>
@@ -37,7 +42,7 @@ const EventEditorDataLeft = (props: EventEditorLeftProps) => {
             readOnly
           />
         </div>
-        <CountedTextInput field='cue' label='Cue' initialValue={cue} submitHandler={handleSubmit} maxLength={10} />
+        <CountedTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
       </div>
       <CountedTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
       <CountedTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />

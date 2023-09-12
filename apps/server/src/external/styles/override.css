@@ -1,18 +1,23 @@
 :root {
-  --background-color-override: #ececec;
-  --color-override: #101010;
-  --secondary-color-override: #404040;
-  --accent-color-override: #fa5656;
-  --label-color-override: #6c6c6c;
-  --timer-color-override: #202020;
-  --card-background-color-override: #fff;
-  --card-background-color-blink-override: #339e4e;
-  --font-family-override: "Open Sans";
-  --font-family-bold-override: "Arial Black";
-  --timer-progress-bg-override: #fff;
-  --timer-progress-override: #202020;
+    --background-color-override: #ececec;
+    --color-override: #101010;
+    --secondary-color-override: #404040;
+    --accent-color-override: #fa5656;
+    --label-color-override: #6c6c6c;
+    --timer-color-override: #202020;
+    --card-background-color-override: #fff;
+    --card-background-color-blink-override: #339e4e;
+    --font-family-override: "Open Sans";
+    --font-family-bold-override: "Arial Black";
+    --timer-progress-bg-override: #fff;
+    --timer-progress-override: #202020;
+
+    --cuesheet-running-bg-override: #D20300;
+
+    --operator-running-bg-override: #D20300;
+    --operator-highlight-override: #FFAB33;
 }
 
 .timer {
-  color: black !important;
+    color: black !important;
 }

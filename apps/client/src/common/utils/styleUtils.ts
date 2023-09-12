@@ -3,7 +3,7 @@ import Color from 'color';
 type ColourCombination = {
   backgroundColor: string;
   color: string;
-}
+};
 
 /**
  * @description Selects text colour to maintain accessible contrast
@@ -19,11 +19,11 @@ export const getAccessibleColour = (bgColour: string): ColourCombination => {
       console.log(`Unable to parse colour: ${bgColour}`);
     }
   }
-  return { backgroundColor: '#000', color: "#fffffa" };
+  return { backgroundColor: '#000', color: '#fffffa' };
 };
 
 /**
  * @description Creates a list of classnames from array of css module conditions
  * @param classNames - css modules objects
  */
-export const cx = (classNames: any[]) => classNames.filter(Boolean).join(" ");
+export const cx = (classNames: any[]) => classNames.filter(Boolean).join(' ');

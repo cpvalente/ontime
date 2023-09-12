@@ -206,7 +206,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
 export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
   if (eventData.type === SupportedEvent.Event && eventData?.cue === '') {
-    throw new Error(`Cue value invalid`);
+    throw new Error('Cue value invalid');
   }
 
   const newEvent = await cachedEdit(eventData.id, eventData);

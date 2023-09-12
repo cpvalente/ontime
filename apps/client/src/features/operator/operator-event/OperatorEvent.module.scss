@@ -1,0 +1,111 @@
+@use '../../../../src/theme/v2Styles' as *;
+@use '../../../../src/theme/ontimeColours' as *;
+@import '../Operator.module.scss';
+
+@mixin clock-size {
+  font-size: calc(1rem - 2px);
+  @media (min-width: $min-tablet) {
+    font-size: 1rem;
+  }
+}
+
+.event {
+  opacity: 1;
+  border-top: 1px solid $white-1;
+  padding-right: 0.5rem;
+  color: $white-90;
+  background-color: $gray-1300;
+
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1.25rem 1fr auto;
+  grid-template-rows: auto auto auto;
+  column-gap: 0.5rem;
+  grid-template-areas:
+  "binder main      schedule"
+  "binder secondary running"
+  "binder fields    fields";
+
+  &.subscribed {
+    background-color: $gray-1250;
+  }
+
+  &.running {
+    border-top: 1px solid $gray-1300;
+    background-color: var(--operator-running-bg-override, $red-700);
+  }
+
+  &.past {
+    border-top: 1px solid transparent;
+    opacity: 0.2;
+  }
+}
+
+.binder {
+  grid-area: binder;
+  color: $section-white;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  position: relative;
+  background-color: $gray-1050; // to override inline
+
+  .cue {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    width: 6em;
+
+    rotate: -90deg;
+    letter-spacing: 0.5px;
+  }
+}
+
+.mainField {
+  grid-area: main;
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
+  color: $ui-white;
+}
+
+.secondaryField {
+  grid-area: secondary;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+}
+
+.schedule {
+  @include clock-size;
+  grid-area: schedule;
+  justify-self: end;
+}
+
+.running {
+  @include clock-size;
+  grid-area: running;
+  justify-self: end;
+}
+
+.fields {
+  grid-area: fields;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: $ui-black;
+  margin: 0.25rem 0;
+
+  .field {
+    font-weight: 600;
+    padding: 0 0.25rem;
+    background-color: var(--operator-highlight-override, $orange-600);
+    margin-right: 0.5rem;
+  }
+
+  .value {
+    color: $orange-500
+  }
+}
+
+.fields::after {
+  content: '\200b';
+}

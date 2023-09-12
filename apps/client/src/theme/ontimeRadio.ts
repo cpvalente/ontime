@@ -1,9 +1,9 @@
 export const ontimeBlockRadio = {
   control: {
-    borderColor: '#262626', // $gray-1250
-    backgroundColor: '#262626', // $gray-1250
+    borderColor: '#262626', // $gray-1200
+    backgroundColor: '#262626', // $gray-1200
     _checked: {
-      borderColor: '#262626', // $gray-1250
+      borderColor: '#262626', // $gray-1200
       color: '#3182ce', // $action-blue
       backgroundColor: '#3182ce', // $action-blue
     },

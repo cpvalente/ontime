@@ -1,3 +1,5 @@
+import { UserFields } from 'ontime-types';
+
 import { ParamField } from './types';
 
 export const TIME_FORMAT_OPTION: ParamField = {
@@ -201,3 +203,61 @@ export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
     type: 'boolean',
   },
 ];
+
+export const getOperatorOptions = (userFields: UserFields): ParamField[] => {
+  return [
+    TIME_FORMAT_OPTION,
+    {
+      id: 'showseconds',
+      title: 'Show seconds',
+      description: 'Schedule shows hh:mm:ss',
+      type: 'boolean',
+    },
+    {
+      id: 'hidepast',
+      title: 'Hide Past Events',
+      description: 'Whether to events that have passed',
+      type: 'boolean',
+    },
+    {
+      id: 'main',
+      title: 'Main data field',
+      description: 'Field to be shown in the first line of text',
+      type: 'option',
+      values: {
+        title: 'Title',
+        subtitle: 'Subtitle',
+        presenter: 'Presenter',
+      },
+    },
+    {
+      id: 'secondary',
+      title: 'Secondary data field',
+      description: 'Field to be shown in the second line of text',
+      type: 'option',
+      values: {
+        title: 'Title',
+        subtitle: 'Subtitle',
+        presenter: 'Presenter',
+      },
+    },
+    {
+      id: 'subscribe',
+      title: 'Highlight Field',
+      description: 'Choose a field to highlight',
+      type: 'option',
+      values: {
+        user0: userFields.user0 || 'user0',
+        user1: userFields.user1 || 'user1',
+        user2: userFields.user2 || 'user2',
+        user3: userFields.user3 || 'user3',
+        user4: userFields.user4 || 'user4',
+        user5: userFields.user5 || 'user5',
+        user6: userFields.user6 || 'user6',
+        user7: userFields.user7 || 'user7',
+        user8: userFields.user8 || 'user8',
+        user9: userFields.user9 || 'user9',
+      },
+    },
+  ];
+};
