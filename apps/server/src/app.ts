@@ -206,6 +206,11 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
 export const shutdown = async (exitCode = 0) => {
   console.log(`Ontime shutting down with code ${exitCode}`);
 
+  //TODO: clear the restore file if it was a normal exit
+  if (exitCode != 0) {
+    restoreService.clear();
+  }
+
   expressServer?.close();
   oscServer?.shutdown();
   eventTimer.shutdown();

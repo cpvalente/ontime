@@ -23,8 +23,10 @@ export class RestoreService {
     private readonly file;
     private load: Partial<OntimeDump> = { playback: Playback.Armed };
     private readonly ok;
+    private readonly filePath;
 
     constructor(filePath: string) {
+        this. filePath = filePath;
         try {
             const data = fs.readFileSync(path.join(filePath, 'RestoreService.csv'), 'utf-8');
             const elements = data.split(',');
@@ -51,8 +53,8 @@ export class RestoreService {
     async save(data: Partial<OntimeDump>) {
         const newStore = data.playback + ',' + data.selectedEventId + ',' + data.startedAt + ',' + data.addedTime + ',' + data.pausedAt + ',\n';
         if (newStore != this.lastStore) {
-            await this.file.write(newStore);
             this.lastStore = newStore;
+            this.file.write(newStore);
         }
     }
 
@@ -77,6 +79,10 @@ export class RestoreService {
                 logger.info('RESTORE', 'nothing to load');
                 break;
         }
+    }
+    
+    clear() {
+        fs.unlinkSync(path.join(this.filePath, 'RestoreService.csv'));
     }
 }
 
