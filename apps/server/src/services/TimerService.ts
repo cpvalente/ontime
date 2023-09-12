@@ -9,6 +9,8 @@ import { getCurrent, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 
+import { restoreService } from '../services/RestoreService.js';
+
 type initialLoadingData = {
   startedAt?: number | null;
   expectedFinish?: number | null;
@@ -188,6 +190,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onLoad);
+    this._saveState()
   }
 
   start() {
@@ -238,6 +241,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStart);
+    this._saveState()
   }
 
   pause() {
@@ -253,6 +257,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onPause);
+    this._saveState()
   }
 
   stop() {
@@ -270,6 +275,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStop);
+    this._saveState()
   }
 
   /**
@@ -296,6 +302,7 @@ export class TimerService {
 
     // force an update
     this.update(true);
+    this._saveState();
   }
 
   private updateRoll() {
@@ -410,6 +417,7 @@ export class TimerService {
         PlaybackService.startNext();
       }
     }
+    this._saveState()
   }
 
   /**
@@ -451,6 +459,11 @@ export class TimerService {
 
   _onRoll() {
     eventStore.set('playback', this.playback);
+    this._saveState()
+  }
+
+  _saveState() {
+    restoreService.save({ startedAt: this.timer.startedAt, playback: this.playback, selectedEventId: this.loadedTimerId, addedTime: this.timer.addedTime, pausedAt: this.pausedAt });
   }
 
   shutdown() {

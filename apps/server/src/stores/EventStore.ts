@@ -4,8 +4,6 @@ import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { eventLoader } from '../classes/event-loader/EventLoader.js';
 
-import { restoreService } from '../services/RestoreService.js';
-
 let store: Partial<RuntimeStore> = {};
 
 /**
@@ -45,7 +43,6 @@ export const eventStore = {
         type: 'ontime',
         payload: store,
       });
-      restoreService.save({ startedAt: store?.timer.startedAt, playback: store?.playback, selectedEventId: store.loaded?.selectedEventId, addedTime: store.timer?.addedTime, pausedAt: eventTimer.paused });
   },
 };
 
