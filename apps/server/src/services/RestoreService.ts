@@ -5,10 +5,11 @@ import { eventTimer } from './TimerService.js';
 import { EventLoader } from '../classes/event-loader/EventLoader.js';
 
 //File stuff
+import { tmpdir } from 'os'
 import fs from 'fs';
-import { resolveDbDirectory } from '../setup.js'
 import path from 'path';
 import { Writer } from 'steno';
+
 
 /**
  * Service manages saveing of timer state
@@ -25,10 +26,21 @@ class RestoreService {
     private readonly ok;
     private readonly filePath;
 
-    constructor(filePath: string) {
-        this.filePath = filePath;
+    constructor() {
+        this.filePath = path.join(tmpdir(), 'ontime');
+        if (!fs.existsSync(this.filePath)) {
+            try {
+                fs.mkdirSync(this.filePath);
+            } catch (err) {
+                logger.error(LogOrigin.Server, err);
+                this.ok = false;
+                return;
+            }
+        }
+
+        console.log(this.filePath);
         try {
-            const data = fs.readFileSync(path.join(filePath, 'RestoreService.csv'), 'utf-8');
+            const data = fs.readFileSync(path.join(this.filePath, 'restore.csv'), 'utf-8');
             const elements = data.split(',');
             if (elements[5] == '\n') {
                 logger.info(LogOrigin.Server, 'intact restore file');
@@ -42,10 +54,10 @@ class RestoreService {
                 this.ok = false;
             }
         } catch (err) {
-            logger.info(LogOrigin.Server, 'faild to open RestoreService.csv, ' + err);
+            logger.info(LogOrigin.Server, 'faild to open restore.csv, ' + err);
             this.ok = false;
         }
-        this.file = new Writer(path.join(filePath, 'RestoreService.csv'));
+        this.file = new Writer(path.join(this.filePath, 'restore.csv'));
     }
 
     /**
@@ -89,8 +101,8 @@ class RestoreService {
     }
 
     clear() {
-        fs.unlinkSync(path.join(this.filePath, 'RestoreService.csv'));
+        fs.unlinkSync(path.join(this.filePath, 'restore.csv'));
     }
 }
 
-export const restoreService = new RestoreService(resolveDbDirectory);
+export const restoreService = new RestoreService();
