@@ -38,7 +38,6 @@ class RestoreService {
             }
         }
 
-        console.log(this.filePath);
         try {
             const data = fs.readFileSync(path.join(this.filePath, 'restore.csv'), 'utf-8');
             const elements = data.split(',');
@@ -88,7 +87,7 @@ class RestoreService {
             case (Playback.Play):
                 if (PlaybackService.loadById(this.selectedEventId)) {
                     const event = EventLoader.getEventWithId(this.selectedEventId);
-                    eventTimer.hotReload(event, { startedAt: this.startedAt }, this.playback, this.addedTime, this.pausedAt);
+                    eventTimer.init(event, this.playback, this.selectedEventId, this.startedAt, this.addedTime, this.pausedAt);
                 }
                 break;
             case (Playback.Roll):

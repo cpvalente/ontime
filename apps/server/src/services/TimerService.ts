@@ -77,6 +77,52 @@ export class TimerService {
   }
 
   /**
+  * Reloads information for timer
+  * @param timer
+  * @param {Playback} playback
+  * @param {string} selectedEventId
+  * @param {number} startedAt
+  * @param {number} addedTime
+  * @param {number} pausedAt
+  */
+  init(timer, playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
+    if (typeof timer === 'undefined') {
+      this.stop();
+      return;
+    }
+    this.timer.selectedEventId = selectedEventId;
+    this.timer.startedAt = startedAt;
+    this.timer.addedTime = addedTime;
+    this.timer.clock = clock.timeNow();
+    this.playback = playback;
+    this.pausedAt = pausedAt;
+    eventStore.set('playback', this.playback);
+
+    // update relevant information and force update
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
+    this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
+
+    // this might not be ideal
+    this.timer.finishedAt = null;
+    this.timer.expectedFinish = getExpectedFinish(
+      this.timer.startedAt,
+      this.timer.finishedAt,
+      this.timer.duration,
+      this.pausedTime,
+      this.timer.addedTime,
+      this.loadedTimerEnd,
+      this.timer.timerType,
+    );
+    if (this.timer.startedAt === null) {
+      this.timer.current = this.timer.duration;
+    }
+    this.update(true);
+  }
+
+  /**
    * Reloads information for currently running timer
    * @param timer
    * @param initialData

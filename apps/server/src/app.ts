@@ -215,6 +215,7 @@ export const shutdown = async (exitCode = 0) => {
   integrationService.shutdown();
   logger.shutdown();
   socket.shutdown();
+  process.exit(exitCode);
 };
 
 process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
