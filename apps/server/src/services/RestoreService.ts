@@ -18,6 +18,10 @@ type OntimeDump = {
     pausedAt: number | null
 }
 
+/**
+ * Service manages saveing of timer state
+ * that can then be resored when reopening
+ */
 export class RestoreService {
     private lastStore: string = '';
     private readonly file;
@@ -26,7 +30,7 @@ export class RestoreService {
     private readonly filePath;
 
     constructor(filePath: string) {
-        this. filePath = filePath;
+        this.filePath = filePath;
         try {
             const data = fs.readFileSync(path.join(filePath, 'RestoreService.csv'), 'utf-8');
             const elements = data.split(',');
@@ -50,6 +54,15 @@ export class RestoreService {
         this.file = new Writer(path.join(filePath, 'RestoreService.csv'));
     }
 
+    /**
+    * Saves data to csv
+    * @param {Partial<OntimeDump>} data
+    * @param {Playback} data.playback
+    * @param {string | null} data.selectedEventId
+    * @param {number | null} data.startedAt
+    * @param {number | null} data.addedTime
+    * @param {number | null} data.pausedAt
+    */
     async save(data: Partial<OntimeDump>) {
         const newStore = data.playback + ',' + data.selectedEventId + ',' + data.startedAt + ',' + data.addedTime + ',' + data.pausedAt + ',\n';
         if (newStore != this.lastStore) {
@@ -58,6 +71,9 @@ export class RestoreService {
         }
     }
 
+    /**
+    * try to restore timer state from csv
+    */
     restore() {
         if (!this.ok) return;
         switch (restoreService.load?.playback) {
@@ -80,7 +96,10 @@ export class RestoreService {
                 break;
         }
     }
-    
+
+    /**
+    * delete file
+    */
     clear() {
         fs.unlinkSync(path.join(this.filePath, 'RestoreService.csv'));
     }
