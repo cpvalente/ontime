@@ -2,7 +2,7 @@ import { Playback } from 'ontime-types';
 import { logger } from '../classes/Logger.js';
 import { PlaybackService } from './PlaybackService.js';
 import { eventTimer } from './TimerService.js';
-import { eventLoader } from '../classes/event-loader/EventLoader.js';
+import { EventLoader } from '../classes/event-loader/EventLoader.js';
 
 //File stuff
 import fs from 'fs';
@@ -15,6 +15,7 @@ type OntimeDump = {
     selectedEventId: string | null;
     startedAt: number | null;
     addedTime: number | null;
+    pausedAt: number | null
 }
 
 export class RestoreService {
@@ -27,13 +28,15 @@ export class RestoreService {
         try {
             const data = fs.readFileSync(path.join(filePath, 'RestoreService.csv'), 'utf-8');
             const elements = data.split(',');
-            if (elements[4] == '\n') {
+            if (elements[5] == '\n') {
                 logger.info('RESTORE', 'intact restore file');
                 this.load.playback = elements[0] as Playback;
                 this.load.selectedEventId = elements[1] != 'null' ? elements[1] : null;
                 this.load.startedAt = elements[2] != 'null' ? +elements[2] : null;
                 this.load.addedTime = elements[3] != 'null' ? +elements[3] : null;
+                this.load.pausedAt = elements[4] != 'null' ? +elements[4] : null;
                 this.ok = true;
+                logger.info('RESTORE', JSON.stringify(this.load));
             } else {
                 logger.error('RESTORE', 'file not intact');
                 this.ok = false;
@@ -46,7 +49,7 @@ export class RestoreService {
     }
 
     async save(data: Partial<OntimeDump>) {
-        const newStore = data.playback + ',' + data.selectedEventId + ',' + data.startedAt + ',' + data.addedTime + ',\n';
+        const newStore = data.playback + ',' + data.selectedEventId + ',' + data.startedAt + ',' + data.addedTime + ',' + data.pausedAt + ',\n';
         if (newStore != this.lastStore) {
             await this.file.write(newStore);
             this.lastStore = newStore;
@@ -57,13 +60,14 @@ export class RestoreService {
         if (!this.ok) return;
         switch (restoreService.load?.playback) {
             case (Playback.Armed):
+                PlaybackService.loadById(restoreService.load?.selectedEventId);
+                break;
             case (Playback.Pause):
             case (Playback.Play):
                 if (PlaybackService.loadById(restoreService.load?.selectedEventId)) {
-                    eventTimer.hotReload(
-                        eventLoader.getLoaded().loadedEvent,
-                        { startedAt: restoreService.load?.startedAt },
-                        restoreService.load?.playback, restoreService.load?.addedTime);
+                    logger.info('RESTORE', 'pause')
+                    const event = EventLoader.getEventWithId(restoreService.load?.selectedEventId);
+                    eventTimer.hotReload(event, { startedAt: this.load?.startedAt }, this.load?.playback, this.load?.addedTime, this.load?.pausedAt);
                 }
                 break;
             case (Playback.Roll):

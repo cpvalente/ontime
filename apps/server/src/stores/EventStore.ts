@@ -48,7 +48,7 @@ export const eventStore = {
         type: 'ontime',
         payload: store,
       });
-      restoreService.save({ startedAt: store?.timer.startedAt, playback: store?.playback, selectedEventId: store.loaded?.selectedEventId, addedTime: store.timer?.addedTime });
+      restoreService.save({ startedAt: store?.timer.startedAt, playback: store?.playback, selectedEventId: store.loaded?.selectedEventId, addedTime: store.timer?.addedTime, pausedAt: eventTimer.paused });
     }
   },
 };
