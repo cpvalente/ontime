@@ -67,7 +67,7 @@ class RestoreService {
     * @param {number} pausedAt
     */
     async save(playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
-        const newStore = playback + ',' + selectedEventId + ',' + startedAt + ',' + addedTime + ',' + pausedAt + ',\n';
+        const newStore = `${playback},${selectedEventId},${startedAt},${addedTime},${pausedAt},\n`;
         if (newStore != this.lastStore) {
             this.lastStore = newStore;
             this.file.write(newStore).catch((err) => { logger.error(LogOrigin.Server, err) });
