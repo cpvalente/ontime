@@ -9,7 +9,7 @@ import { join, resolve } from 'path';
 
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { LogOrigin, OSCSettings, Playback } from 'ontime-types';
+import { LogOrigin, OSCSettings } from 'ontime-types';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
@@ -31,9 +31,7 @@ import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
-import { PlaybackService } from './services/PlaybackService.js';
 import { restoreService } from './services/RestoreService.js';
-import { lookup } from 'dns';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
