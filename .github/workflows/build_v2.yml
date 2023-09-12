@@ -5,6 +5,9 @@ on:
     tags: [ "*" ]
   workflow_dispatch:
 
+env:
+  VITE_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+
 jobs:
   build_macos:
     runs-on: macOS-latest

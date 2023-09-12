@@ -22,6 +22,7 @@ Locally, we would need to run both the React client and the node.js server in de
 From the project root, run the following commands
 
 - __Install the project dependencies__ by running `pnpm i`
+- __Copy `.env.example` to `.env`__ and set the necessary environment variables
 - __Run dev mode__ by running `turbo dev`
 
 ### Debugging backend

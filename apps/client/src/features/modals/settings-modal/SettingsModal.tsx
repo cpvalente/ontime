@@ -51,7 +51,7 @@ export default function SettingsModal(props: ModalManagerProps) {
               <AliasesForm />
             </TabPanel>
             <TabPanel>
-              <GoogleOAuthProvider clientId='428790026655-lb7t3jpqol568748ba8psj7d5r831333.apps.googleusercontent.com'>
+              <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
                 <SyncForm />
               </GoogleOAuthProvider>
             </TabPanel>

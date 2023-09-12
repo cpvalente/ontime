@@ -5,6 +5,9 @@ on:
     branches: '*'
   workflow_dispatch:
 
+env:
+  VITE_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+
 jobs:
   unit-test:
     runs-on: ubuntu-latest
