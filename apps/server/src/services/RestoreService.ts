@@ -94,9 +94,6 @@ export class RestoreService {
         }
     }
 
-    /**
-    * delete file
-    */
     clear() {
         fs.unlinkSync(path.join(this.filePath, 'RestoreService.csv'));
     }
