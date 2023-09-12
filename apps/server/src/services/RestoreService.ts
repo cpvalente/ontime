@@ -43,11 +43,28 @@ class RestoreService {
             const elements = data.split(',');
             if (elements[5] == '\n') {
                 logger.info(LogOrigin.Server, 'intact restore file');
-                this.playback = elements[0] as Playback;
-                this.selectedEventId = elements[1] != 'null' ? elements[1] : null;
-                this.startedAt = elements[2] != 'null' ? +elements[2] : null;
-                this.addedTime = elements[3] != 'null' ? +elements[3] : null;
-                this.pausedAt = elements[4] != 'null' ? +elements[4] : null;
+
+                const maybePlayback = elements[0] as Playback
+                if (!Object.values(Playback).includes(maybePlayback)) { this.hasValidData = false; return; }
+                this.playback = maybePlayback;
+
+                const maybeId = elements[1] === 'null' ? null : elements[1];
+                //TODO: Cannot access 'EventLoader' before initialization
+                // if (maybeId && EventLoader.getEventWithId(maybeId)) { this.hasValidData = false; return; }
+                this.selectedEventId = maybeId;
+
+                const maybeStartedAt = elements[2] === 'null' ? null : parseInt(elements[2]);
+                if (maybeStartedAt !== null && Number.isNaN(maybeStartedAt)) { this.hasValidData = false; return; }
+                this.startedAt = maybeStartedAt;
+
+                const maybeAddedTime = elements[3] === 'null' ? null : parseInt(elements[3]);
+                if (maybeAddedTime !== null && Number.isNaN(maybeAddedTime)) { this.hasValidData = false; return; }
+                this.addedTime = maybeAddedTime;
+
+                const maybePausedAt = elements[4] === 'null' ? null : parseInt(elements[4]);
+                if (maybePausedAt !== null && Number.isNaN(maybePausedAt)) { this.hasValidData = false; return; }
+                this.pausedAt = maybePausedAt;
+
                 this.hasValidData = true;
             } else {
                 this.hasValidData = false;
