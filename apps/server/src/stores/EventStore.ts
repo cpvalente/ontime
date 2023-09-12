@@ -39,10 +39,10 @@ export const eventStore = {
     return store;
   },
   broadcast() {
-      socket.sendAsJson({
-        type: 'ontime',
-        payload: store,
-      });
+    socket.sendAsJson({
+      type: 'ontime',
+      payload: store,
+    });
   },
 };
 
