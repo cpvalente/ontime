@@ -23,7 +23,7 @@ class RestoreService {
     private startedAt: number | null;
     private addedTime: number | null;
     private pausedAt: number | null;
-    private readonly ok;
+    private readonly hasValidData;
     private readonly filePath;
 
     constructor() {
@@ -33,7 +33,7 @@ class RestoreService {
                 fs.mkdirSync(this.filePath);
             } catch (err) {
                 logger.error(LogOrigin.Server, err);
-                this.ok = false;
+                this.hasValidData = false;
                 return;
             }
         }
@@ -48,13 +48,13 @@ class RestoreService {
                 this.startedAt = elements[2] != 'null' ? +elements[2] : null;
                 this.addedTime = elements[3] != 'null' ? +elements[3] : null;
                 this.pausedAt = elements[4] != 'null' ? +elements[4] : null;
-                this.ok = true;
+                this.hasValidData = true;
             } else {
-                this.ok = false;
+                this.hasValidData = false;
             }
         } catch (err) {
             logger.info(LogOrigin.Server, 'faild to open restore.csv, ' + err);
-            this.ok = false;
+            this.hasValidData = false;
         }
         this.file = new Writer(path.join(this.filePath, 'restore.csv'));
     }
@@ -78,7 +78,7 @@ class RestoreService {
     * try to restore timer state from csv
     */
     restore() {
-        if (!this.ok) return;
+        if (!this.hasValidData) return;
         switch (this.playback) {
             case (Playback.Armed):
                 PlaybackService.loadById(this.selectedEventId);
