@@ -1,4 +1,4 @@
-import { Playback } from 'ontime-types';
+import { LogOrigin, Playback } from 'ontime-types';
 import { logger } from '../classes/Logger.js';
 import { PlaybackService } from './PlaybackService.js';
 import { eventTimer } from './TimerService.js';
@@ -31,7 +31,7 @@ class RestoreService {
             const data = fs.readFileSync(path.join(filePath, 'RestoreService.csv'), 'utf-8');
             const elements = data.split(',');
             if (elements[5] == '\n') {
-                logger.info('RESTORE', 'intact restore file');
+                logger.info(LogOrigin.Server, 'intact restore file');
                 this.playback = elements[0] as Playback;
                 this.selectedEventId = elements[1] != 'null' ? elements[1] : null;
                 this.startedAt = elements[2] != 'null' ? +elements[2] : null;
@@ -42,7 +42,7 @@ class RestoreService {
                 this.ok = false;
             }
         } catch (err) {
-            logger.info('RESTORE', 'faild to open RestoreService.csv, ' + err);
+            logger.info(LogOrigin.Server, 'faild to open RestoreService.csv, ' + err);
             this.ok = false;
         }
         this.file = new Writer(path.join(filePath, 'RestoreService.csv'));
@@ -59,7 +59,7 @@ class RestoreService {
         const newStore = playback + ',' + selectedEventId + ',' + startedAt + ',' + addedTime + ',' + pausedAt + ',\n';
         if (newStore != this.lastStore) {
             this.lastStore = newStore;
-            this.file.write(newStore).catch((err) => { logger.error('RESTORE', err) });
+            this.file.write(newStore).catch((err) => { logger.error(LogOrigin.Server, err) });
         }
     }
 
@@ -83,7 +83,7 @@ class RestoreService {
                 PlaybackService.roll();
                 break;
             default:
-                logger.info('RESTORE', 'unknown Playback state');
+                logger.info(LogOrigin.Server, 'unknown Playback state');
                 break;
         }
     }
