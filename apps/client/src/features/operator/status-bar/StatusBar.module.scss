@@ -1,0 +1,105 @@
+@use '../../../../src/theme/ontimeColours' as *;
+@use '../../../../src/theme/v2Styles' as *;
+
+@mixin column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.statusBar {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: $gray-1350;
+  z-index: 2;
+
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid $white-10;
+  box-shadow: $large-top-drawer-shadow;
+
+  display: grid;
+  grid-template-areas:
+    "playback timer1B timer2B timer3B";
+  grid-template-columns: 1fr auto auto auto;
+  column-gap: 1.5rem;
+  align-items: center;
+}
+
+.playbackIcon {
+  grid-area: playback;
+  font-size: 2rem;
+  color: $gray-700;
+
+  &.active {
+    color: $ui-white;
+  }
+}
+
+.timeNow {
+  grid-area: timer1B;
+  @include column;
+}
+
+.elapsedTime {
+  grid-area: timer2B;
+  @include column;
+}
+
+.runningTime {
+  grid-area: timer3B;
+  @include column;
+}
+
+.title {
+  grid-area: title;
+  font-size: 1.25rem;
+  padding-left: 0.25rem;
+  display: none;
+  line-height: 1.25em;
+}
+
+.startTime {
+  grid-area: timer2A;
+  @include column;
+  display: none;
+}
+
+.endTime {
+  grid-area: timer3A;
+  @include column;
+  display: none;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: $gray-700;
+}
+
+.timer {
+  letter-spacing: 0.5px;
+}
+
+// tablet
+@media (min-width: $min-tablet) {
+  .statusBar {
+    grid-template-areas:
+    "playback timer1B timer2A timer3A"
+    "title    title   timer2B timer3B";
+    row-gap: 0.25rem;
+    column-gap: 2rem;
+  }
+
+  .title {
+    display: block;
+  }
+
+  .startTime {
+    display: flex;
+  }
+
+  .endTime {
+    display: flex;
+  }
+}

@@ -226,7 +226,7 @@ export const postSettings = async (req, res) => {
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
 
     if (isDocker && req.body?.serverPort) {
-      return res.status(403).json({ message: `Can't change port when running inside docker` });
+      return res.status(403).json({ message: 'Can`t change port when running inside docker' });
     }
     const serverPort = parseInt(req.body?.serverPort ?? settings.serverPort, 10);
 

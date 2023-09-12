@@ -51,6 +51,7 @@ export const formatTime = (milliseconds: number | null, options?: FormatOptions,
     return '...';
   }
   const timeFormat = resolver();
-  const { showSeconds = false, format: formatString = 'hh:mm a' } = options || {};
+  const fallback = options?.showSeconds ? 'hh:mm:ss a' : 'hh:mm a';
+  const { showSeconds = false, format: formatString = fallback } = options || {};
   return timeFormat === '12' ? formatFromMillis(milliseconds, formatString) : millisToString(milliseconds, showSeconds);
 };

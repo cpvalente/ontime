@@ -1,0 +1,9 @@
+@use '../../../theme/v2Styles' as *;
+
+.delaySymbol {
+  svg {
+    font-size: 1.5rem;
+    color: $ontime-delay;
+    margin: 0 auto;
+  }
+}

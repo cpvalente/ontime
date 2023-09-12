@@ -104,19 +104,19 @@ export const parseExcel = async (excelData) => {
         } else if (j === timeEndIndex) {
           event.timeEnd = parseExcelDate(column);
         } else if (j === titleIndex) {
-          event.title = column;
+          event.title = makeString(column, '');
         } else if (j === cueIndex) {
-          event.cue = column;
+          event.cue = makeString(column, '');
         } else if (j === presenterIndex) {
-          event.presenter = column;
+          event.presenter = makeString(column, '');
         } else if (j === subtitleIndex) {
-          event.subtitle = column;
+          event.subtitle = makeString(column, '');
         } else if (j === isPublicIndex) {
           event.isPublic = Boolean(column);
         } else if (j === skipIndex) {
           event.skip = Boolean(column);
         } else if (j === notesIndex) {
-          event.note = column;
+          event.note = makeString(column, '');
         } else if (j === endActionIndex) {
           if (column === '') {
             event.endAction = EndAction.None;
@@ -333,7 +333,6 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
 export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string) => {
   // ensure id is defined and unique
   const id = eventArgs.id || generateId();
-  const cue = eventArgs.cue || cueFallback;
 
   let event = null;
 
@@ -372,7 +371,7 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
       user9: makeString(e.user9, d.user9),
       colour: makeString(e.colour, d.colour),
       id,
-      cue,
+      cue: makeString(e.cue, cueFallback),
       type: 'event',
     };
   }

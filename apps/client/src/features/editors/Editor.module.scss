@@ -144,7 +144,7 @@ $playback-width: 26rem;
 .eventEditor {
   border-radius: 8px 8px 0 0;
   background-color: $bg-container-l2;
-  box-shadow: rgba(0, 0, 0, 0.35) 0 3px 6px 6px;
+  box-shadow: $large-bottom-drawer-shadow;
   border-top: 1px solid $white-20;
   position: absolute;
   bottom: 0;
@@ -164,7 +164,7 @@ $playback-width: 26rem;
   }
 
   .header {
-    background-color: $gray-1200;
+    background-color: $gray-1250;
     padding: 0.5rem;
     border-left: 1px solid $white-10;
     border-radius: 0 8px 0 0;

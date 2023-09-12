@@ -6,13 +6,13 @@ import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline'
 import { Playback, ProjectData } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
+import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
 import useFullscreen from '../../../common/hooks/useFullscreen';
 import { useTimer } from '../../../common/hooks/useSocket';
 import useProjectData from '../../../common/hooks-query/useProjectData';
 import { formatTime } from '../../../common/utils/time';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { useCuesheetSettings } from '../store/CuesheetSettings';
-import PlaybackIcon from '../tableElements/PlaybackIcon';
 
 import style from './CuesheetTableHeader.module.scss';
 

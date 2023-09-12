@@ -147,7 +147,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
             <span>
               <IoPeople
                 className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`}
-                data-isPublic={isPublic}
+                data-ispublic={isPublic}
               />
             </span>
           </Tooltip>

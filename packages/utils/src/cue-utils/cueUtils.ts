@@ -3,14 +3,18 @@ import { isOntimeEvent, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'o
 import { getFirstEvent, getNextEvent, getPreviousEvent } from '../rundown-utils/rundownUtils.js';
 import { isNumeric } from '../types/types.js';
 
+// Zero or more non-digit characters at the beginning ((\D*)).
+// One or more digits ((\d+)).
+// Optionally, a decimal part starting with a dot ((\.\d+)?).
+const regex = /^(\D*)(\d+)(\.\d+)?$/;
+
 /**
  * Finds if last characters in input are a number and increments
  * @param input {string}
  */
 export function getIncrement(input: string): string {
   // Check if the input string contains a number at the end
-  const match = input?.match(/^(\D*)(\d+)(\.\d+)?$/);
-
+  const match = regex.exec(input);
   if (match) {
     // If a number is found, extract the non-numeric prefix, integer part, and decimal part
     let [, prefix, integerPart, decimalPart] = match;

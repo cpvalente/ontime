@@ -26,7 +26,7 @@ describe('parseField()', () => {
   });
 
   it('returns an empty string on undefined fields', () => {
-    expect(parseField('presenter', undefined)).toBe('');
+    expect(parseField('presenter')).toBe('');
   });
 
   describe('simply returns any other value in any other field', () => {

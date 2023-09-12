@@ -12,9 +12,10 @@ export const RUNTIME = ['runtimeStore'];
 
 const location = window.location;
 const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
+export const isProduction = import.meta.env.MODE === 'production';
 
 const STATIC_PORT = 4001;
-export const serverPort = import.meta.env.DEV ? STATIC_PORT : location.port;
+export const serverPort = isProduction ? location.port : STATIC_PORT;
 export const serverURL = `${location.protocol}//${location.hostname}:${serverPort}`;
 export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}/ws`;
 
