@@ -43,13 +43,7 @@ export class TimerService {
     this._clear();
     this._interval = setInterval(() => this.update(), timerConfig?.refresh ?? 1000);
     this._updateInterval = timerConfig?.updateInterval ?? 1000;
-  }
-
-  
-  public get paused() : number | null {
-    return this.pausedAt;
-  }
-  
+  }  
 
   /**
    * Clears internal state
