@@ -42,7 +42,7 @@ export default function useFullscreen() {
         });
       } else if (element.webkitRequestFullscreen) {
         // iOS Safari fullscreen API is supported
-        element.webkitRequestFullscreen().catch(() => {
+        element.webkitRequestFullscreen?.().catch(() => {
           /* nothing to do */
         });
       }
@@ -55,7 +55,7 @@ export default function useFullscreen() {
         });
       } else if ((document as WebkitDocument).webkitExitFullscreen) {
         // iOS Safari fullscreen API is supported
-        (document as WebkitDocument).webkitExitFullscreen().catch(() => {
+        (document as WebkitDocument).webkitExitFullscreen?.().catch(() => {
           /* nothing to do */
         });
       }
