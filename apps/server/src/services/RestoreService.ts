@@ -43,7 +43,6 @@ export class RestoreService {
                 this.load.pausedAt = elements[4] != 'null' ? +elements[4] : null;
                 this.ok = true;
             } else {
-                logger.error('RESTORE', 'file not intact');
                 this.ok = false;
             }
         } catch (err) {
