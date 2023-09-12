@@ -303,15 +303,20 @@ function updateChangeNumEvents() {
 }
 
 /**
- * Updates the duration of the event with the given id
+ * Updates a property of the event with the given id
  * @param {string} eventId
- * @param {number} newDuration
+ * @param {keyof OntimeEvent} propertyName
+ * @param {OntimeEvent[typeof propertyName]} propertValue
  */
-export function updateEventDuration(eventId: string, newDuration: number) {
+export function updateEvent(
+  eventId: string,
+  propertyName: keyof OntimeEvent,
+  newValue: OntimeEvent[typeof propertyName],
+) {
   const event = EventLoader.getEventWithId(eventId);
+
   if (event) {
-    const newEventTimeEnd = event.timeStart + newDuration;
-    editEvent({ id: eventId, duration: newDuration, timeEnd: newEventTimeEnd });
+    editEvent({ id: eventId, [propertyName]: newValue });
   } else {
     throw new Error(`Event with ID ${eventId} not found`);
   }
