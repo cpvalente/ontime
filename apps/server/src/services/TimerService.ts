@@ -43,7 +43,7 @@ export class TimerService {
     this._clear();
     this._interval = setInterval(() => this.update(), timerConfig?.refresh ?? 1000);
     this._updateInterval = timerConfig?.updateInterval ?? 1000;
-  }  
+  }
 
   /**
    * Clears internal state
@@ -457,7 +457,7 @@ export class TimerService {
   }
 
   _saveState() {
-    restoreService.save({ startedAt: this.timer.startedAt, playback: this.playback, selectedEventId: this.loadedTimerId, addedTime: this.timer.addedTime, pausedAt: this.pausedAt });
+    restoreService.save(this.playback, this.loadedTimerId, this.timer.startedAt, this.timer.addedTime, this.pausedAt);
   }
 
   shutdown() {

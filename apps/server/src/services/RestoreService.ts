@@ -53,16 +53,14 @@ export class RestoreService {
     }
 
     /**
-    * Saves data to csv
-    * @param {Partial<OntimeState>} data
-    * @param {Playback} data.playback
-    * @param {string | null} data.selectedEventId
-    * @param {number | null} data.startedAt
-    * @param {number | null} data.addedTime
-    * @param {number | null} data.pausedAt
+    * @param {Playback} playback
+    * @param {string} selectedEventId
+    * @param {number} startedAt
+    * @param {number} addedTime
+    * @param {number} pausedAt
     */
-    async save(data: Partial<OntimeState>) {
-        const newStore = data.playback + ',' + data.selectedEventId + ',' + data.startedAt + ',' + data.addedTime + ',' + data.pausedAt + ',\n';
+    async save(playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
+        const newStore = playback + ',' + selectedEventId + ',' + startedAt + ',' + addedTime + ',' + pausedAt + ',\n';
         if (newStore != this.lastStore) {
             this.lastStore = newStore;
             this.file.write(newStore).catch((err) => { logger.error('RESTORE', err) });
