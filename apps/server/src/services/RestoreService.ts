@@ -42,7 +42,6 @@ export class RestoreService {
                 this.load.addedTime = elements[3] != 'null' ? +elements[3] : null;
                 this.load.pausedAt = elements[4] != 'null' ? +elements[4] : null;
                 this.ok = true;
-                logger.info('RESTORE', JSON.stringify(this.load));
             } else {
                 logger.error('RESTORE', 'file not intact');
                 this.ok = false;
@@ -83,7 +82,6 @@ export class RestoreService {
             case (Playback.Pause):
             case (Playback.Play):
                 if (PlaybackService.loadById(restoreService.load?.selectedEventId)) {
-                    logger.info('RESTORE', 'pause')
                     const event = EventLoader.getEventWithId(restoreService.load?.selectedEventId);
                     eventTimer.hotReload(event, { startedAt: this.load?.startedAt }, this.load?.playback, this.load?.addedTime, this.load?.pausedAt);
                 }
@@ -92,7 +90,7 @@ export class RestoreService {
                 PlaybackService.roll();
                 break;
             default:
-                logger.info('RESTORE', 'nothing to load');
+                logger.info('RESTORE', 'unknown Playback state');
                 break;
         }
     }
