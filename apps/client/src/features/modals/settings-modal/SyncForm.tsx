@@ -68,10 +68,26 @@ export default function SyncForm() {
     await postGoogleJwt(data.access_token);
   };
 
-  const login = useGoogleLogin({
-    scope: 'https://www.googleapis.com/auth/spreadsheets',
+  const loginViaGoogle = useGoogleLogin({
+    scope: 'https://www.googleapis.com/auth/spreadsheets ',
     onSuccess: onGoogleSignInResponse,
   });
+
+  const login = () => {
+    // is Electron user agent
+    if (navigator.userAgent.includes('Electron')) {
+      loginViaGoogle();
+    } else {
+      const url = new URL('http://127.0.0.1:8082');
+      url.searchParams.append(
+        'ontimeUrl',
+        `${`${location.protocol}//${
+          import.meta.env.DEV ? location.host.replace('3000', '4001') : location.host
+        }/ontime/google-jwt`}`,
+      );
+      window.location.href = url.toString();
+    }
+  };
 
   const onReset = () => {
     reset(data);
@@ -94,7 +110,7 @@ export default function SyncForm() {
       >
         <Switch {...register('overrideStyles')} variant='ontime-on-light' />
       </ModalSplitInput>
-      <button onClick={login}>Login</button>	
+      <button onClick={login}>Login</button>
       <OntimeModalFooter
         formId='view-settings'
         handleRevert={onReset}

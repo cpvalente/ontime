@@ -277,10 +277,19 @@ export const postGoogleJwt = async (req, res) => {
     return;
   }
   await keytar.setPassword('ontime', 'google', req.body.jwt);
-  const t = new GoogleSpreadsheet('ToDo', { token: req.body.jwt });
+  const t = new GoogleSpreadsheet('1MeYu40JE9vDquNDJbH02chSJARoUjEs4HOh6qX4I7Ec', { token: req.body.jwt });
   await t.loadInfo().catch(console.error);
   console.log(t.title);
   res.status(200).send({ message: 'OK' });
+};
+
+export const getGoogleJwt = async (req, res) => {
+  const jwt = req.query.accessToken;
+  await keytar.setPassword('ontime', 'google', jwt);
+  const t = new GoogleSpreadsheet('1MeYu40JE9vDquNDJbH02chSJARoUjEs4HOh6qX4I7Ec', { token: jwt });
+  await t.loadInfo().catch(console.error);
+  console.log(t.title);
+  res.redirect(process.env.NODE_ENV === 'development' ? 'http://localhost:3000/editor' : '/editor');
 };
 
 // Create controller for GET request to '/ontime/osc'

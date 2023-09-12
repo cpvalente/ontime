@@ -4,6 +4,7 @@ import {
   dbDownload,
   dbUpload,
   getAliases,
+  getGoogleJwt,
   getInfo,
   getOSC,
   getSettings,
@@ -55,6 +56,9 @@ router.post('/views', viewValidator, postViewSettings);
 
 // create route between controller and '/ontime/views' endpoint
 router.post('/google-jwt', postGoogleJwt);
+
+// create route between controller and '/ontime/views' endpoint
+router.get('/google-jwt', getGoogleJwt);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/aliases', getAliases);
