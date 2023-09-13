@@ -5,7 +5,9 @@ import { socketSendJson } from '../utils/socket';
 
 export const useRundownEditor = () => {
   const featureSelector = (state: RuntimeStore) => ({
+    playback: state.playback,
     selectedEventId: state.loaded.selectedEventId,
+    nextEventId: state.loaded.nextEventId,
   });
 
   return useRuntimeStore(featureSelector, deepCompare);
