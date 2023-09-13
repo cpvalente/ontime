@@ -128,6 +128,9 @@ $skip-opacity: 0.1;
 
 .eventTitle {
   grid-area: title;
+  overflow: hidden;
+  max-height: calc(2.5em + 2px);
+  line-height: 1.25em;
 }
 
 .eventActions {
