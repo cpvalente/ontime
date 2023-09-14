@@ -13,7 +13,6 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
-import { TitleManager } from '../ViewWrapper';
 
 import { type ScheduleEvent, formatEventList, trimRundown } from './studioClock.utils';
 
@@ -26,7 +25,7 @@ const formatOptions = {
 
 interface StudioClockProps {
   isMirrored: boolean;
-  title: TitleManager;
+  eventNext: OntimeEvent | null;
   time: TimeManagerType;
   backstageEvents: OntimeRundown;
   selectedId: string | null;
@@ -36,7 +35,7 @@ interface StudioClockProps {
 }
 
 export default function StudioClock(props: StudioClockProps) {
-  const { isMirrored, title, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
+  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
 
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
@@ -87,7 +86,7 @@ export default function StudioClock(props: StudioClockProps) {
           className='next-title'
           style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '75%' }}
         >
-          {title.titleNext}
+          {eventNext?.title ?? ''}
         </div>
         <div className={isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
           {selectedId !== null && formatDisplay(time.current)}

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EventData, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { EventData, OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -13,7 +13,6 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
-import { TitleManager } from '../ViewWrapper';
 
 import './Timer.scss';
 
@@ -42,13 +41,14 @@ interface TimerProps {
   isMirrored: boolean;
   general: EventData;
   pres: TimerMessage;
-  title: TitleManager;
+  eventNow: OntimeEvent | null;
+  eventNext: OntimeEvent | null;
   time: TimeManagerType;
   viewSettings: ViewSettings;
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, pres, title, time, viewSettings } = props;
+  const { isMirrored, pres, eventNow, eventNext, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -139,7 +139,7 @@ export default function Timer(props: TimerProps) {
       />
 
       <AnimatePresence>
-        {title.showNow && !finished && (
+        {eventNow && !finished && (
           <motion.div
             className='event now'
             key='now'
@@ -148,13 +148,13 @@ export default function Timer(props: TimerProps) {
             animate='visible'
             exit='exit'
           >
-            <TitleCard label='now' title={title.titleNow} subtitle={title.subtitleNow} presenter={title.presenterNow} />
+            <TitleCard label='now' title={eventNow.title} subtitle={eventNow.subtitle} presenter={eventNow.presenter} />
           </motion.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
-        {title.showNext && (
+        {eventNext && (
           <motion.div
             className='event next'
             key='next'
@@ -165,9 +165,9 @@ export default function Timer(props: TimerProps) {
           >
             <TitleCard
               label='next'
-              title={title.titleNext}
-              subtitle={title.subtitleNext}
-              presenter={title.presenterNext}
+              title={eventNext.title}
+              subtitle={eventNext.subtitle}
+              presenter={eventNext.presenter}
             />
           </motion.div>
         )}
