@@ -255,7 +255,7 @@ export function dispatchFromAdapter(
           throw new Error(`Cannot update unknown event property ${propertyName}`);
         }
 
-        const acceptedPayloadMap = {
+        const acceptedPropertyPayloadMap = {
           title: 'string',
           subtitle: 'string',
           presenter: 'string',
@@ -281,7 +281,7 @@ export function dispatchFromAdapter(
         };
 
         const parsePayload = (payload: unknown, propertyName: keyof OntimeEvent): boolean | string | number => {
-          switch (acceptedPayloadMap[propertyName]) {
+          switch (acceptedPropertyPayloadMap[propertyName]) {
             case 'string': {
               return String(payload);
             }
