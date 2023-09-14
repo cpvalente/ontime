@@ -12,17 +12,17 @@ export default function Info() {
   const showNif = useEditorSettings((state) => state.eventSettings.showNif);
 
   const titlesNow = {
-    title: data.titles.titleNow || '',
-    subtitle: data.titles.subtitleNow || '',
-    presenter: data.titles.presenterNow || '',
-    note: data.titles.noteNow || '',
+    title: data.eventNow?.title || '',
+    subtitle: data.eventNow?.subtitle || '',
+    presenter: data.eventNow?.presenter || '',
+    note: data.eventNow?.note || '',
   };
 
   const titlesNext = {
-    title: data.titles.titleNext || '',
-    subtitle: data.titles.subtitleNext || '',
-    presenter: data.titles.presenterNext || '',
-    note: data.titles.noteNext || '',
+    title: data.eventNext?.title || '',
+    subtitle: data.eventNext?.subtitle || '',
+    presenter: data.eventNext?.presenter || '',
+    note: data.eventNext?.note || '',
   };
 
   const selected = !data.numEvents

@@ -5,8 +5,8 @@ export type { DatabaseModel } from './definitions/DataModel.type.js';
 export { EndAction } from './definitions/EndAction.type.js';
 export {
   type OntimeBaseEvent,
-  type OntimeBlock,
   type OntimeDelay,
+  type OntimeBlock,
   type OntimeEvent,
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
@@ -42,7 +42,6 @@ export type { Message, TimerMessage } from './definitions/runtime/MessageControl
 export type { Loaded } from './definitions/runtime/Playlist.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export type { TimerState } from './definitions/runtime/TimerState.type.js';
-export type { TitleBlock } from './definitions/runtime/TitleBlock.type.js';
 
 // CLIENT
 
