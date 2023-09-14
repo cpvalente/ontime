@@ -316,7 +316,14 @@ export function updateEvent(
   const event = EventLoader.getEventWithId(eventId);
 
   if (event) {
-    editEvent({ id: eventId, [propertyName]: newValue });
+    const propertiesToUpdate = { [propertyName]: newValue };
+
+    // Handles the special case for duration
+    if (propertyName === 'duration') {
+      propertiesToUpdate.timeEnd = event.timeStart + (newValue as number);
+    }
+
+    editEvent({ id: eventId, ...propertiesToUpdate });
   } else {
     throw new Error(`Event with ID ${eventId} not found`);
   }

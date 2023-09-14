@@ -247,18 +247,41 @@ export function dispatchFromAdapter(
         const eventID = params[0];
         const propertyName = params[1] as keyof OntimeEvent;
 
-        const payloadMap = Object.fromEntries(
-          Object.entries(event).map(([key, value]) => {
-            return [key, typeof value];
-          }),
-        );
+        const isKeyOfOntimeEvent = (key: string): key is keyof OntimeEvent => {
+          return key in event;
+        };
 
-        if (!payloadMap.hasOwnProperty(propertyName)) {
+        if (!isKeyOfOntimeEvent(propertyName)) {
           throw new Error(`Cannot update unknown event property ${propertyName}`);
         }
 
+        const acceptedPayloadMap = {
+          title: 'string',
+          subtitle: 'string',
+          presenter: 'string',
+          note: 'string',
+          cue: 'string',
+
+          duration: 'number',
+
+          isPublic: 'boolean',
+          skip: 'boolean',
+
+          colour: 'string',
+          user0: 'string',
+          user1: 'string',
+          user2: 'string',
+          user3: 'string',
+          user4: 'string',
+          user5: 'string',
+          user6: 'string',
+          user7: 'string',
+          user8: 'string',
+          user9: 'string',
+        };
+
         const parsePayload = (payload: unknown, propertyName: keyof OntimeEvent): boolean | string | number => {
-          switch (payloadMap[propertyName]) {
+          switch (acceptedPayloadMap[propertyName]) {
             case 'string': {
               return String(payload);
             }
