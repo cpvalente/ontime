@@ -6,8 +6,8 @@ import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
 
+import EditableCell from './cuesheet-table-elements/EditableCell';
 import { useCuesheetSettings } from './store/CuesheetSettings';
-import EditableCell from './tableElements/EditableCell';
 
 import style from './Cuesheet.module.scss';
 
