@@ -49,16 +49,19 @@ const Lower = (props: LowerProps) => {
     let timeout: NodeJS.Timeout;
 
     const haveTitlesChanged = eventNow?.title !== heading || eventNow?.presenter !== subheading;
-    if (haveTitlesChanged) {
-      // hide lower
-      setShowLower(false);
+    const areTitlesEmpty = !eventNow?.title && !eventNow?.presenter;
 
-      // schedule lower transition in
-      const transitionTime = 2000;
+    // we have new titles
+    if (haveTitlesChanged && !areTitlesEmpty) {
+      // show lower
+      setHeading(eventNow?.title ?? '');
+      setSubheading(eventNow?.presenter ?? '');
+      setShowLower(true);
+
+      // schedule transition out
+      const transitionTime = 5000;
       timeout = setTimeout(() => {
-        setHeading(eventNow?.title ?? '');
-        setSubheading(eventNow?.presenter ?? '');
-        setShowLower(eventNow?.title !== '');
+        setShowLower(false);
       }, transitionTime);
     }
 
