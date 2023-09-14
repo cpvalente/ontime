@@ -1,33 +1,19 @@
 import { useRef } from 'react';
-import { Tooltip } from '@chakra-ui/react';
-import {
-  closestCenter,
-  DndContext,
-  DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
-import { millisToDelayString } from '../../common/utils/dateConfig';
-import { getAccessibleColour } from '../../common/utils/styleUtils';
-import { tooltipDelayFast } from '../../ontimeConfig';
 
+import BlockRow from './cuesheet-table-elements/BlockRow';
+import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
+import DelayRow from './cuesheet-table-elements/DelayRow';
+import EventRow from './cuesheet-table-elements/EventRow';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import { useCuesheetSettings } from './store/CuesheetSettings';
-import { SortableCell } from './tableElements/SortableCell';
 import { initialColumnOrder } from './cuesheetCols';
 
 import style from './Cuesheet.module.scss';
-
-const pastOpacity = '0.2';
 
 interface CuesheetProps {
   data: OntimeRundown;
@@ -67,49 +53,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 100,
-        tolerance: 50,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 100,
-        tolerance: 50,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  const handleOnDragEnd = (event: DragEndEvent) => {
-    const { delta, active, over } = event;
-
-    // cancel if delta y is greater than 200
-    if (delta.y > 200) return;
-    // cancel if we do not have an over id
-    if (over?.id == null) return;
-
-    // get index of from
-    const fromIndex = columnOrder.indexOf(active.id as string);
-
-    // get index of to
-    const toIndex = columnOrder.indexOf(over.id as string);
-
-    if (toIndex === -1) {
-      return;
-    }
-
-    const reorderedCols = [...columnOrder];
-    const reorderedItem = reorderedCols.splice(fromIndex, 1);
-    reorderedCols.splice(toIndex, 0, reorderedItem[0]);
-
-    saveColumnOrder(reorderedCols);
-  };
-
   const resetColumnOrder = () => {
     saveColumnOrder(initialColumnOrder);
   };
@@ -121,6 +64,8 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
   const resetColumnResizing = () => {
     setColumnSizing({});
   };
+
+  const headerGroups = table.getHeaderGroups;
 
   let eventIndex = 0;
   let isPast = Boolean(selectedId);
@@ -137,37 +82,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
       )}
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet}>
-          <thead className={style.tableHeader}>
-            {table.getHeaderGroups().map((headerGroup) => {
-              const key = headerGroup.id;
-
-              return (
-                <DndContext key={key} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOnDragEnd}>
-                  <tr key={headerGroup.id}>
-                    <th className={style.indexColumn}>
-                      <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
-                        #
-                      </Tooltip>
-                    </th>
-                    <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map((header) => {
-                        const width = header.getSize();
-
-                        return (
-                          <SortableCell key={header.column.columnDef.id} header={header} style={{ width }}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(header.column.columnDef.header, header.getContext())}
-                          </SortableCell>
-                        );
-                      })}
-                    </SortableContext>
-                  </tr>
-                </DndContext>
-              );
-            })}
-          </thead>
-
+          <CuesheetHeader headerGroups={headerGroups} />
           <tbody>
             {table.getRowModel().rows.map((row) => {
               const key = row.original.id;
@@ -177,13 +92,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
               }
 
               if (isOntimeBlock(row.original)) {
-                const title = row.original.title;
-
-                return (
-                  <tr key={key} className={style.blockRow}>
-                    <td>{title}</td>
-                  </tr>
-                );
+                return <BlockRow key={key} title={row.original.title} />;
               }
               if (isOntimeDelay(row.original)) {
                 const delayVal = row.original.duration;
@@ -192,12 +101,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                   return null;
                 }
 
-                const delayTime = millisToDelayString(delayVal);
-                return (
-                  <tr key={key} className={style.delayRow}>
-                    <td>{delayTime}</td>
-                  </tr>
-                );
+                return <DelayRow key={key} duration={delayVal} />;
               }
               if (isOntimeEvent(row.original)) {
                 eventIndex++;
@@ -210,25 +114,20 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                   return null;
                 }
 
-                const bgFallback = 'transparent';
-                const bgColour = row.original.colour || bgFallback;
-                const textColour = bgColour === bgFallback ? undefined : getAccessibleColour(bgColour);
-                const isSkipped = row.original.skip;
-
                 let rowBgColour: string | undefined;
-                if (row.original.id === selectedId) {
+                if (isSelected) {
                   rowBgColour = 'var(--cuesheet-running-bg-override, #D20300)'; // $red-700
                 }
+
                 return (
-                  <tr
+                  <EventRow
                     key={key}
-                    className={`${style.eventRow} ${isSkipped ? style.skip : ''}`}
-                    style={{ opacity: `${isPast ? pastOpacity : '1'}` }}
-                    ref={isSelected ? selectedRef : undefined}
+                    eventIndex={eventIndex}
+                    isPast={isPast}
+                    selectedRef={isSelected ? selectedRef : undefined}
+                    skip={row.original.skip}
+                    colour={row.original.colour}
                   >
-                    <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour?.color }}>
-                      {eventIndex}
-                    </td>
                     {row.getVisibleCells().map((cell) => {
                       return (
                         <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
@@ -236,7 +135,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                         </td>
                       );
                     })}
-                  </tr>
+                  </EventRow>
                 );
               }
 

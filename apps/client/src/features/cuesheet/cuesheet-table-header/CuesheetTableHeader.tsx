@@ -4,15 +4,14 @@ import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { Playback, ProjectData } from 'ontime-types';
-import { formatDisplay } from 'ontime-utils';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
 import useFullscreen from '../../../common/hooks/useFullscreen';
-import { useTimer } from '../../../common/hooks/useSocket';
 import useProjectData from '../../../common/hooks-query/useProjectData';
-import { formatTime } from '../../../common/utils/time';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { useCuesheetSettings } from '../store/CuesheetSettings';
+
+import CuesheetTableHeaderTimers from './CuesheetTableHeaderTimers';
 
 import style from './CuesheetTableHeader.module.scss';
 
@@ -31,7 +30,6 @@ export default function CuesheetTableHeader({ handleCSVExport, featureData }: Cu
   const showSettings = useCuesheetSettings((state) => state.showSettings);
   const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
   const toggleFollow = useCuesheetSettings((state) => state.toggleFollow);
-  const timer = useTimer();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { data: project } = useProjectData();
 
@@ -47,14 +45,6 @@ export default function CuesheetTableHeader({ handleCSVExport, featureData }: Cu
         featureData.numEvents ? featureData.numEvents : '-'
       }`;
 
-  // prepare presentation variables
-  const isOvertime = (timer.current ?? 0) < 0;
-  const timerNow = timer.current == null ? '-' : `${isOvertime ? '-' : ''}${formatDisplay(timer.current)}`;
-  const timeNow = formatTime(timer.clock, {
-    showSeconds: true,
-    format: 'hh:mm:ss a',
-  });
-
   return (
     <div className={style.header}>
       <div className={style.event}>
@@ -65,14 +55,7 @@ export default function CuesheetTableHeader({ handleCSVExport, featureData }: Cu
         <div className={style.playbackLabel}>{selected}</div>
         <PlaybackIcon state={featureData.playback} />
       </div>
-      <div className={style.timer}>
-        <div className={style.timerLabel}>Running Timer</div>
-        <div className={style.value}>{timerNow}</div>
-      </div>
-      <div className={style.clock}>
-        <div className={style.clockLabel}>Time Now</div>
-        <div className={style.value}>{timeNow}</div>
-      </div>
+      <CuesheetTableHeaderTimers />
       <div className={style.headerActions}>
         <Tooltip openDelay={tooltipDelayFast} label='Toggle follow'>
           <span onClick={() => toggleFollow()} className={`${style.actionIcon} ${followSelected ? style.enabled : ''}`}>
