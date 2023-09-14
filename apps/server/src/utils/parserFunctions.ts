@@ -93,9 +93,12 @@ export const parseRundown = (data): OntimeRundown => {
  */
 export const parseProject = (data, enforce): ProjectData => {
   let newProjectData: Partial<ProjectData> = {};
-  if ('project' in data) {
+  // we are adding this here to aid transition, should be removed once enough time has past that users have fully migrated
+  // TODO: Remove eventually
+  if ('project' in data || 'eventData' in data) {
     console.log('Found project data, importing...');
-    const project = data.project;
+    const project = data.project ?? data.eventData;
+
     // filter known properties and write to db
     newProjectData = {
       ...dbModel.project,
