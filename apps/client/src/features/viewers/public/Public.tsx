@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, ProjectData, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -32,7 +32,7 @@ interface BackstageProps {
   time: TimeManagerType;
   events: OntimeEvent[];
   publicSelectedId: string | null;
-  general: EventData;
+  general: ProjectData;
   viewSettings: ViewSettings;
 }
 
@@ -59,7 +59,7 @@ export default function Public(props: BackstageProps) {
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
       <NavigationMenu />
       <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
-      <div className='event-header'>
+      <div className='project-header'>
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>

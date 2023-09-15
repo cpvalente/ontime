@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EventData, OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -39,7 +39,6 @@ const titleVariants = {
 
 interface TimerProps {
   isMirrored: boolean;
-  general: EventData;
   pres: TimerMessage;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
