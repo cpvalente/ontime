@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { EventData, OntimeRundownEntry } from 'ontime-types';
+import { OntimeRundownEntry, ProjectData } from 'ontime-types';
 
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -69,7 +69,7 @@ export default function CuesheetWrapper() {
   );
 
   const exportHandler = useCallback(
-    (headerData: EventData) => {
+    (headerData: ProjectData) => {
       if (!headerData || !rundown || !userFields) {
         return;
       }

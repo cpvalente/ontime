@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Alias, EventData, OSCSettings, OscSubscription, Settings, UserFields, ViewSettings } from 'ontime-types';
+import { Alias, OSCSettings, OscSubscription, ProjectData, Settings, UserFields, ViewSettings } from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';
 import { InfoType } from '../models/Info';
@@ -178,6 +178,6 @@ export async function getLatestVersion(): Promise<HasUpdate> {
   };
 }
 
-export async function postNew(initialData: Partial<EventData>) {
+export async function postNew(initialData: Partial<ProjectData>) {
   return axios.post(`${ontimeURL}/new`, initialData);
 }

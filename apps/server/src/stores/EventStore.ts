@@ -56,8 +56,10 @@ export const eventStore = {
  * - Message Service    lowerMessage
  * - Message Service    onAir
  * - Event Loader       loaded
- * - Event Loader       titles
- * - Event Loader       titlesPublic
+ * - Event Loader       eventNow
+ * - Event Loader       publicEventNow
+ * - Event Loader       eventNext
+ * - Event Loader       publicEventNext
  */
 
 export const getInitialPayload = () => ({
@@ -68,6 +70,8 @@ export const getInitialPayload = () => ({
   lowerMessage: messageService.lowerMessage,
   onAir: messageService.onAir,
   loaded: eventLoader.loaded,
-  titles: eventLoader.titles,
-  titlesPublic: eventLoader.titlesPublic,
+  eventNow: eventLoader.eventNow,
+  publicEventNow: eventLoader.publicEventNow,
+  eventNext: eventLoader.eventNext,
+  publicEventNext: eventLoader.publicEventNext,
 });
