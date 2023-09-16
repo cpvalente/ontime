@@ -70,8 +70,9 @@ export const parseExcel = async (excelData) => {
   excelData
     .filter((e) => e.length > 0)
     .forEach((row) => {
-      let eventTitleNext = false;
+      // project data imports are on the column to the right
       let projectTitleNext = false;
+      let projectDescriptionNext = false;
       let publicUrlNext = false;
       let publicInfoNext = false;
       let backstageUrlNext = false;
@@ -81,12 +82,12 @@ export const parseExcel = async (excelData) => {
 
       row.forEach((column, j) => {
         // check flags
-        if (eventTitleNext) {
+        if (projectTitleNext) {
           projectData.title = column;
-          eventTitleNext = false;
-        } else if (projectTitleNext) {
-          projectData.description = column;
           projectTitleNext = false;
+        } else if (projectDescriptionNext) {
+          projectData.description = column;
+          projectDescriptionNext = false;
         } else if (publicUrlNext) {
           projectData.publicUrl = column;
           publicUrlNext = false;
@@ -159,10 +160,10 @@ export const parseExcel = async (excelData) => {
             // need to make sure it is a string first
             switch (col) {
               case 'project name':
-                eventTitleNext = true;
+                projectTitleNext = true;
                 break;
               case 'project description':
-                projectTitleNext = true;
+                projectDescriptionNext = true;
                 break;
               case 'public url':
                 publicUrlNext = true;
