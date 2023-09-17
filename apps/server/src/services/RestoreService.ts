@@ -96,23 +96,15 @@ class RestoreService {
     */
     restore() {
         if (!this.hasValidData) return;
-        switch (this.playback) {
-            case (Playback.Armed):
-                PlaybackService.loadById(this.selectedEventId);
-                break;
-            case (Playback.Pause):
-            case (Playback.Play):
-                if (PlaybackService.loadById(this.selectedEventId)) {
-                    const event = EventLoader.getEventWithId(this.selectedEventId);
-                    eventTimer.init(event, this.playback, this.selectedEventId, this.startedAt, this.addedTime, this.pausedAt);
-                }
-                break;
-            case (Playback.Roll):
-                PlaybackService.roll();
-                break;
-            default:
-                logger.info(LogOrigin.Server, 'unknown Playback state');
-                break;
+        if (this.playback === Playback.Armed) {
+            PlaybackService.loadById(this.selectedEventId);
+        } else if (this.playback === Playback.Pause || this.playback === Playback.Play) {
+            if (PlaybackService.loadById(this.selectedEventId)) {
+                const event = EventLoader.getEventWithId(this.selectedEventId);
+                eventTimer.init(event, this.playback, this.selectedEventId, this.startedAt, this.addedTime, this.pausedAt);
+            }
+        } else if (this.playback === Playback.Roll) {
+            PlaybackService.roll();
         }
     }
 
