@@ -58,6 +58,9 @@ $text-body-size: calc(1rem - 1px);
 
 // media queries
 $min-tablet: 500px;
+@media only screen and (min-width: 1596px) { // update the font when screen width is up to this size
+  $inner-section-text-size: 20px !global;
+}
 
 .blink {
   animation: blink $blinking-time linear infinite;
