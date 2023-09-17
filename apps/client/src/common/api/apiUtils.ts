@@ -5,15 +5,18 @@ import { generateId, millisToString } from 'ontime-utils';
 import { addLog } from '../stores/logger';
 import { nowInMillis } from '../utils/time';
 
-export function logAxiosError(prepend: string, error: unknown) {
-  let message;
+export function maybeAxiosError(error: unknown) {
   if (axios.isAxiosError(error)) {
     const statusText = (error as AxiosError).response?.statusText ?? '';
     const data = (error as AxiosError).response?.data ?? '';
-    message = `${prepend} ${statusText}: ${data}`;
+    return `${statusText}: ${data}`;
   } else {
-    message = `${prepend}: ${error}`;
+    return error as string;
   }
+}
+
+export function logAxiosError(prepend: string, error: unknown) {
+  const message = `${prepend}: ${maybeAxiosError(error)}`;
 
   addLog({
     id: generateId(),
