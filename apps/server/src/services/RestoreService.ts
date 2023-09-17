@@ -77,6 +77,22 @@ class RestoreService {
         this.file = new Writer(path.join(this.filePath, 'restore.csv'));
     }
 
+    private toNumberOrNull(elm: string): number | null {
+        if (elm === null) {
+            throw new Error(`Element is null`);
+        } else if (elm === 'null') {
+            return null;
+        } else if (elm === '') {
+            throw new Error(`Element is empty`);
+        } else {
+            const maybeNumber = Number(elm);
+            if (isNaN(maybeNumber)) {
+                throw new Error(`Could not phrase element to number: ${elm}`);
+            }
+            return maybeNumber;
+        }
+    }
+
     /**
     * @param {Playback} playback
     * @param {string} selectedEventId
