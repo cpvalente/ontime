@@ -1,4 +1,4 @@
-import { LogOrigin, OntimeEvent } from 'ontime-types';
+import { LogOrigin, OntimeEvent, Playback } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
@@ -239,6 +239,22 @@ export class PlaybackService {
       const newState = eventTimer.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
+  }
+
+  /**
+   * resume event matching given ID
+   * @param {string} eventId
+   * @return {boolean} success
+   */
+  static resumeId(eventId: string, playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null): boolean {
+    const event = EventLoader.getEventWithId(eventId);
+    const success = PlaybackService.loadEvent(event);
+    if (success) {
+      logger.info(LogOrigin.Playback, `Resume event with ID ${event.id}`);
+      eventTimer.init(event, playback, selectedEventId, startedAt, addedTime, pausedAt);
+    }
+    return success;
+
   }
 
   /**
