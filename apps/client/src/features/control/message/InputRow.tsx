@@ -31,7 +31,7 @@ export default function InputRow(props: InputRowProps) {
       <label className={`${style.label} ${visible ? style.active : ''}`}>{label}</label>
       <div className={style.inputItems}>
         <Input
-          size='sm'
+          size='lg'
           variant='ontime-filled'
           value={text}
           onChange={(event) => handleInputChange(event.target.value)}

@@ -78,7 +78,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Event)}
-            size='xs'
+            size='lg'
             variant='ontime-subtle-white'
             className={style.quickBtn}
             data-testid='quick-add-event'
@@ -89,7 +89,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Delay)}
-            size='xs'
+            size='lg'
             variant='ontime-subtle-white'
             disabled={disableAddDelay}
             className={style.quickBtn}
@@ -101,7 +101,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Block)}
-            size='xs'
+            size='lg'
             variant='ontime-subtle-white'
             disabled={disableAddBlock}
             className={style.quickBtn}
