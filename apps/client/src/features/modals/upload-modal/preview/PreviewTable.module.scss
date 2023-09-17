@@ -1,0 +1,45 @@
+@use "../../../../theme/_ontimeColours" as *;
+
+.container {
+  max-width: 100%;
+  max-height: max(300px, 30vh);
+  overflow: scroll;
+}
+
+.scrollContainer {
+  overflow-x: scroll;
+}
+
+.rundownPreview {
+  font-size: calc(1rem - 2px);
+  border-collapse: separate;
+}
+
+.header,
+.body {
+  th {
+    font-weight: 400;
+    height: unset;
+    line-height: calc(1rem - 2px);
+    white-space: nowrap;
+    padding-left: 0.25rem;
+    padding-right: 1rem;
+  }
+}
+
+.header {
+  th {
+    font-weight: 200;
+    text-align: left;
+  }
+
+  tr {
+    word-wrap: unset;
+  }
+}
+
+.body {
+  tr:nth-child(odd) {
+    background-color: $gray-50;
+  }
+}

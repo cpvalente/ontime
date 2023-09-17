@@ -5,79 +5,31 @@
 .uploadBody {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .uploadArea {
+  margin: 0 auto;
   width: 100%;
-  min-height: 200px;
-  border: 2px dashed $gray-50;
+  max-width: 550px;
+
+  min-height: 150px;
+  border: 2px dashed $gray-200;
   border-radius: 3px;
   display: grid;
   place-content: center;
   transition-property: background-color;
   transition-duration: $transition-time-action;
+  font-size: calc(1rem - 1px);
 
   &:hover {
     border: 2px solid $blue-500;
     background-color: $blue-50;
     cursor: pointer;
   }
+
   &.comment {
-    color: gray;
-  }
-}
-
-.uploadedItem {
-  background-color: $gray-50;
-  padding: 8px;
-  display: grid;
-  grid-template-areas:
-          "icon     title     close"
-          "icon     info      ."
-          "progress progress  progress";
-  grid-template-columns: auto 1fr auto;
-  column-gap: 16px;
-  border-radius: 3px;
-
-  .icon {
-    align-self: center;
-    grid-area: icon;
-    font-size: 32px;
-    color: $gray-700;
-  }
-
-  .fileTitle {
-    grid-area: title;
-    font-size: 14px;
-    color: $gray-1350;
-  }
-
-  .fileInfo {
-    grid-area: info;
-    font-size: 12px;
-    color: $gray-1100;
-  }
-
-  .fileProgress {
-    grid-area: progress;
-  }
-
-  .cancelUpload {
-    grid-area: close;
-    cursor: pointer;
-  }
-
-  &.error {
-    .icon {
-      color: $error-red;
-    }
-  }
-
-  &.success {
-    .icon {
-      color: $green-500;
-    }
+    color: $modal-note-color;
   }
 }
 
@@ -88,4 +40,10 @@
 
 .pad {
   margin: 8px;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }

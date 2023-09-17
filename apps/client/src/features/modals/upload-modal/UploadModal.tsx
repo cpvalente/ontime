@@ -1,7 +1,6 @@
-import { ChangeEvent, useCallback, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Button,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -9,22 +8,36 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Progress,
-  Switch,
 } from '@chakra-ui/react';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
-import { IoDocumentTextOutline } from '@react-icons/all-files/io5/IoDocumentTextOutline';
-import { IoWarningOutline } from '@react-icons/all-files/io5/IoWarningOutline';
 import { useQueryClient } from '@tanstack/react-query';
+import { OntimeRundown } from 'ontime-types';
 
 import { RUNDOWN_TABLE } from '../../../common/api/apiConstants';
-import { uploadData } from '../../../common/api/ontimeApi';
-import { useEmitLog } from '../../../common/stores/logger';
-import ModalSplitInput from '../ModalSplitInput';
+import { maybeAxiosError } from '../../../common/api/apiUtils';
+import { postPreviewExcel, uploadData } from '../../../common/api/ontimeApi';
+import { projectDataPlaceholder } from '../../../common/models/ProjectData';
+import { userFieldsPlaceholder } from '../../../common/models/UserFields';
+import { cx } from '../../../common/utils/styleUtils';
 
-import { validateFile } from './utils';
+import PreviewExcel from './preview/PreviewExcel';
+import ExcelFileOptions from './upload-options/ExcelFileOptions';
+import OntimeFileOptions from './upload-options/OntimeFileOptions';
+import UploadStepTracker from './upload-step/UploadStep';
+import UploadFile from './UploadFile';
+import { useUploadModalContextStore } from './uploadModalContext';
+import { defaultExcelImportMap, ExcelImportMapKeys, isExcelFile, isOntimeFile } from './uploadUtils';
 
 import style from './UploadModal.module.scss';
+
+export type UploadStep = 'upload' | 'review';
+
+export interface OntimeInputOptions {
+  onlyImportRundown?: boolean;
+}
+
+export type ExcelInputOptions = {
+  [K in ExcelImportMapKeys]: string;
+};
 
 interface UploadModalProps {
   onClose: () => void;
@@ -33,65 +46,111 @@ interface UploadModalProps {
 
 export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const queryClient = useQueryClient();
-  const { emitError } = useEmitLog();
-  const [errors, setErrors] = useState<string | undefined>();
-  const [isSubmitting, setSubmitting] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState(0);
-  const overrideOptionRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [success, setSuccess] = useState(false);
 
-  const handleFile = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const fileUploaded = event?.target?.files?.[0];
-    if (!fileUploaded) return;
+  const { file, setProgress, clear } = useUploadModalContextStore();
 
-    const validate = validateFile(fileUploaded);
-    setErrors(validate.errors?.[0]);
+  const [uploadStep, setUploadStep] = useState<UploadStep>('upload');
+  const [submitting, setSubmitting] = useState(false);
+  const [rundown, setRundown] = useState<OntimeRundown>([]);
+  const [userFields, setUserFields] = useState(userFieldsPlaceholder);
+  const [project, setProject] = useState(projectDataPlaceholder);
 
-    if (validate.isValid) {
-      setFile(fileUploaded);
-    } else {
-      setFile(null);
-    }
-  }, []);
+  const [errors, setErrors] = useState('');
 
-  const handleSubmit = useCallback(async () => {
-    setSubmitting(true);
+  const ontimeFileOptions = useRef<Partial<OntimeInputOptions>>({});
+  const excelFileOptions = useRef<Partial<ExcelInputOptions>>(defaultExcelImportMap);
+
+  useEffect(() => {
+    clear();
+    setUploadStep('upload');
+    setSubmitting(false);
+    setRundown([]);
+    setUserFields(userFieldsPlaceholder);
+    setProject(projectDataPlaceholder);
+    setErrors('');
+  }, [clear, isOpen]);
+
+  const handleParse = async () => {
     if (file) {
+      setSubmitting(true);
       try {
-        const options = {
-          onlyRundown: overrideOptionRef.current?.checked || false,
-        };
-        await uploadData(file, setProgress, options);
+        if (isOntimeFile(file)) {
+          await handleOntimeFile(file);
+          await queryClient.invalidateQueries(RUNDOWN_TABLE);
+        } else if (isExcelFile(file)) {
+          await handleExcelFile(file);
+        }
       } catch (error) {
-        emitError(`Failed uploading file: ${error}`);
+        setErrors(`Failed uploading file: ${error}`);
       } finally {
-        await queryClient.invalidateQueries(RUNDOWN_TABLE);
-        setSuccess(true);
+        setSubmitting(false);
       }
     }
-    setSubmitting(false);
-  }, [emitError, file, queryClient]);
 
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
+    async function handleExcelFile(file: File) {
+      const options = excelFileOptions.current;
+      // TODO: option type should be central, to also be used by backend
+      try {
+        const response = await postPreviewExcel(file, setProgress, options);
+        if (response.status === 200) {
+          setRundown(response.data.rundown);
+          setUserFields(response.data.userFields);
+          setProject(response.data.project);
+          setUploadStep('review');
+        }
+      } catch (error) {
+        const message = maybeAxiosError(error);
+        setErrors(`Error importing excel ${message}`);
+      }
+    }
 
-  const clearFile = () => {
-    setFile(null);
+    async function handleOntimeFile(file: File) {
+      const options = {
+        onlyRundown: Boolean(ontimeFileOptions.current.onlyImportRundown),
+      };
+      await uploadData(file, setProgress, options);
+    }
   };
 
   const handleClose = () => {
-    clearFile();
-    setSuccess(false);
-    setErrors(undefined);
-    setProgress(0);
+    clear();
+    setRundown([]);
+    setUserFields(userFieldsPlaceholder);
+    setProject(projectDataPlaceholder);
     onClose();
   };
 
-  const disableSubmit = !file || isSubmitting;
+  const handleFinalise = async () => {
+    if (file) {
+      setSubmitting(true);
+      try {
+        const options = {
+          //onlyRundown: overrideOptionRef.current?.checked || false,
+        };
+        await uploadData(file, setProgress, options);
+        handleClose();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        await queryClient.invalidateQueries(RUNDOWN_TABLE);
+        setSubmitting(false);
+      }
+    }
+  };
 
+  const isUpload = uploadStep === 'upload';
+  const isExcel = isExcelFile(file);
+  const isOntime = isOntimeFile(file);
+
+  const handleGoBack = isUpload ? undefined : () => setUploadStep('upload');
+  const handleSubmit = isUpload ? handleParse : handleFinalise;
+  const disableSubmit = isUpload && !file;
+  const disableGoBack = isUpload;
+  const submitText = isUpload ? 'Upload' : 'Finish';
+
+  const modalClasses = cx([style.modalWidthOverride, isExcel ? style.doExtend : null]);
+
+  console.log('debug', isExcel, modalClasses);
   return (
     <Modal
       onClose={handleClose}
@@ -101,65 +160,43 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
       size='xl'
       scrollBehavior='inside'
       preserveScrollBarGap
-      variant='ontime-small'
+      variant='ontime-upload'
     >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>File import</ModalHeader>
         <ModalCloseButton />
         <ModalBody className={style.uploadBody}>
-          <Input
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            type='file'
-            onChange={handleFile}
-            accept='.json, .xlsx'
-            data-testid='file-input'
-          />
-          <div className={style.uploadArea} onClick={handleClick}>
-            Click to upload Ontime project file
-          </div>
-          {file && (
-            <div className={`${style.uploadedItem} ${success ? style.success : ''}`}>
-              <IoClose className={style.cancelUpload} onClick={clearFile} />
-              <IoDocumentTextOutline className={style.icon} />
-              <span className={style.fileTitle}>{file.name}</span>
-              <span className={style.fileInfo}>{`${(file.size / 1024).toFixed(2)}kb - ${file.type}`}</span>
-              <Progress variant='ontime-on-light' className={style.fileProgress} value={progress} />
-            </div>
+          {isExcel && <UploadStepTracker uploadStep={uploadStep} />}
+          {uploadStep === 'upload' ? (
+            <>
+              <UploadFile />
+              {errors && <div className={style.error}>{errors}</div>}
+              {isOntime && <OntimeFileOptions optionsRef={ontimeFileOptions} />}
+              {isExcel && <ExcelFileOptions optionsRef={excelFileOptions} />}
+            </>
+          ) : (
+            <PreviewExcel rundown={rundown} project={project} userFields={userFields} />
           )}
-          {errors && (
-            <div className={`${style.uploadedItem} ${style.error}`}>
-              <IoWarningOutline className={style.icon} />
-              <span className={style.fileTitle}>{errors}</span>
-              <span className={style.fileInfo}>Please try again</span>
-              <Progress className={style.fileProgress} value={progress} />
-            </div>
-          )}
-          <div className={style.uploadOptions}>
-            <span className={style.title}>Import options</span>
-            <ModalSplitInput
-              field=''
-              title='Only import rundown'
-              description='All other options, including application settings will be discarded'
-            >
-              <Switch variant='ontime-on-light' ref={overrideOptionRef} />
-            </ModalSplitInput>
-          </div>
         </ModalBody>
         <ModalFooter className={`${style.buttonSection} ${style.pad}`}>
-          <Button onClick={handleClose} isDisabled={isSubmitting} variant='ontime-ghost-on-light' size='sm'>
-            Cancel
+          <Button
+            onClick={handleGoBack}
+            isDisabled={disableGoBack || submitting}
+            variant='ontime-ghost-on-light'
+            size='sm'
+          >
+            Go Back
           </Button>
           <Button
             onClick={handleSubmit}
-            isLoading={isSubmitting}
+            isLoading={submitting}
             isDisabled={disableSubmit}
             variant='ontime-filled'
             padding='0 2em'
             size='sm'
           >
-            Import
+            {submitText}
           </Button>
         </ModalFooter>
       </ModalContent>

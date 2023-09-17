@@ -1,0 +1,10 @@
+@use "../../../../theme/_ontimeColours" as *;
+
+.tag {
+  font-size: 10px;
+  background-color: $blue-500;
+  color: $pure-white;
+  border-radius: 2px;
+  padding: 0 0.25rem;
+  white-space: nowrap;
+}
