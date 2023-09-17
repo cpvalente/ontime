@@ -3,21 +3,20 @@ import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
-import { EventData, Playback } from 'ontime-types';
-import { formatDisplay } from 'ontime-utils';
+import { Playback, ProjectData } from 'ontime-types';
 
+import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
 import useFullscreen from '../../../common/hooks/useFullscreen';
-import { useTimer } from '../../../common/hooks/useSocket';
-import useEventData from '../../../common/hooks-query/useEventData';
-import { formatTime } from '../../../common/utils/time';
+import useProjectData from '../../../common/hooks-query/useProjectData';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { useCuesheetSettings } from '../store/CuesheetSettings';
-import PlaybackIcon from '../tableElements/PlaybackIcon';
+
+import CuesheetTableHeaderTimers from './CuesheetTableHeaderTimers';
 
 import style from './CuesheetTableHeader.module.scss';
 
 interface CuesheetTableHeaderProps {
-  handleCSVExport: (headerData: EventData) => void;
+  handleCSVExport: (headerData: ProjectData) => void;
   featureData: {
     playback: Playback;
     selectedEventIndex: number | null;
@@ -31,13 +30,12 @@ export default function CuesheetTableHeader({ handleCSVExport, featureData }: Cu
   const showSettings = useCuesheetSettings((state) => state.showSettings);
   const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
   const toggleFollow = useCuesheetSettings((state) => state.toggleFollow);
-  const timer = useTimer();
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const { data: event } = useEventData();
+  const { data: project } = useProjectData();
 
   const exportCsv = () => {
-    if (event) {
-      handleCSVExport(event);
+    if (project) {
+      handleCSVExport(project);
     }
   };
 
@@ -47,32 +45,17 @@ export default function CuesheetTableHeader({ handleCSVExport, featureData }: Cu
         featureData.numEvents ? featureData.numEvents : '-'
       }`;
 
-  // prepare presentation variables
-  const isOvertime = (timer.current ?? 0) < 0;
-  const timerNow = timer.current == null ? '-' : `${isOvertime ? '-' : ''}${formatDisplay(timer.current)}`;
-  const timeNow = formatTime(timer.clock, {
-    showSeconds: true,
-    format: 'hh:mm:ss a',
-  });
-
   return (
     <div className={style.header}>
       <div className={style.event}>
-        <div className={style.title}>{event?.title || '-'}</div>
+        <div className={style.title}>{project?.title || '-'}</div>
         <div className={style.eventNow}>{featureData?.titleNow || '-'}</div>
       </div>
       <div className={style.playback}>
         <div className={style.playbackLabel}>{selected}</div>
         <PlaybackIcon state={featureData.playback} />
       </div>
-      <div className={style.timer}>
-        <div className={style.timerLabel}>Running Timer</div>
-        <div className={style.value}>{timerNow}</div>
-      </div>
-      <div className={style.clock}>
-        <div className={style.clockLabel}>Time Now</div>
-        <div className={style.value}>{timeNow}</div>
-      </div>
+      <CuesheetTableHeaderTimers />
       <div className={style.headerActions}>
         <Tooltip openDelay={tooltipDelayFast} label='Toggle follow'>
           <span onClick={() => toggleFollow()} className={`${style.actionIcon} ${followSelected ? style.enabled : ''}`}>

@@ -42,26 +42,10 @@ export const runtimeStorePlaceholder = {
     nextEventId: null,
     nextPublicEventId: null,
   },
-  titles: {
-    titleNow: null,
-    subtitleNow: null,
-    presenterNow: null,
-    noteNow: null,
-    titleNext: null,
-    subtitleNext: null,
-    presenterNext: null,
-    noteNext: null,
-  },
-  titlesPublic: {
-    titleNow: null,
-    subtitleNow: null,
-    presenterNow: null,
-    noteNow: null,
-    titleNext: null,
-    subtitleNext: null,
-    presenterNext: null,
-    noteNext: null,
-  },
+  eventNow: null,
+  eventNext: null,
+  publicEventNow: null,
+  publicEventNext: null,
 };
 
 export const runtime = createStore<RuntimeStore>(() => ({

@@ -28,5 +28,5 @@ test('CRUD operations on the rundown', async ({ page }) => {
   await page.locator('label').filter({ hasText: 'Event is public' }).click();
   await page.getByTestId('quick-add-event').click();
 
-  await expect(await page.getByTestId('entry-4').getByRole('img').nth(3)).toHaveAttribute('data-isPublic', 'true');
+  await expect(await page.getByTestId('entry-4').getByRole('img').nth(3)).toHaveAttribute('data-ispublic', 'true');
 });

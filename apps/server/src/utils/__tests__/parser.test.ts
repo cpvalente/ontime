@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
+import { EndAction, TimerType } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, validateEvent } from '../parser.js';
@@ -192,7 +192,7 @@ describe('test json parser with valid def', () => {
         user9: '',
       },
     ],
-    eventData: {
+    project: {
       title: 'This is a test definition',
       url: 'www.carlosvalente.com',
       publicInfo: 'WiFi: demoproject \nPassword: ontimeproject',
@@ -246,7 +246,7 @@ describe('test json parser with valid def', () => {
   });
 
   it('loaded event settings', () => {
-    const eventTitle = parseResponse?.eventData?.title;
+    const eventTitle = parseResponse?.project?.title;
     expect(eventTitle).toBe('This is a test definition');
   });
 
@@ -269,6 +269,24 @@ describe('test json parser with valid def', () => {
 });
 
 describe('test parser edge cases', () => {
+  it('stringifies necessary values', async () => {
+    const testData = {
+      rundown: [
+        {
+          cue: 101,
+          type: 'event',
+        },
+        {
+          cue: 101.1,
+          type: 'event',
+        },
+      ],
+    };
+    const parseResponse = await parseJson(testData);
+    expect(typeof (parseResponse.rundown[0] as OntimeEvent).cue).toBe('string');
+    expect(typeof (parseResponse.rundown[1] as OntimeEvent).cue).toBe('string');
+  });
+
   it('generates missing ids', async () => {
     const testData = {
       rundown: [
@@ -402,10 +420,10 @@ describe('test corrupt data', () => {
     expect(parsedDef.rundown.length).toBe(0);
   });
 
-  it('handles missing event data', async () => {
-    const emptyEventData = {
+  it('handles missing project data', async () => {
+    const emptyProjectData = {
       rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
-      eventData: {},
+      project: {},
       settings: {
         app: 'ontime',
         version: 2,
@@ -415,8 +433,8 @@ describe('test corrupt data', () => {
       },
     };
 
-    const parsedDef = await parseJson(emptyEventData);
-    expect(parsedDef.eventData).toStrictEqual(dbModel.eventData);
+    const parsedDef = await parseJson(emptyProjectData);
+    expect(parsedDef.project).toStrictEqual(dbModel.project);
   });
 
   it('handles missing settings', async () => {
@@ -550,7 +568,8 @@ describe('test parseExcel function', () => {
     const testdata = [
       ['Ontime ┬À Schedule Template'],
       [],
-      ['Event Name', 'Test Event'],
+      ['Project Name', 'Test Event'],
+      ['Project Description', 'test description'],
       ['Public URL', 'www.public.com'],
       ['Backstage URL', 'www.backstage.com'],
       ['Public Info', 'test public info'],
@@ -579,6 +598,7 @@ describe('test parseExcel function', () => {
         'user8:test8',
         'user9:test9',
         'Colour',
+        'cue',
       ],
       [
         '1899-12-30T07:00:00.000Z',
@@ -602,6 +622,7 @@ describe('test parseExcel function', () => {
         'a8',
         'a9',
         'red',
+        101,
       ],
       [
         '1899-12-30T08:00:00.000Z',
@@ -625,12 +646,14 @@ describe('test parseExcel function', () => {
         '',
         '',
         '#F00',
+        102,
       ],
       [],
     ];
 
-    const expectedParsedEvent = {
+    const expectedParsedProjectData = {
       title: 'Test Event',
+      description: 'test description',
       publicUrl: 'www.public.com',
       backstageUrl: 'www.backstage.com',
       publicInfo: 'test public info',
@@ -662,6 +685,7 @@ describe('test parseExcel function', () => {
         user9: 'a9',
         colour: 'red',
         type: 'event',
+        cue: '101',
       },
       {
         //timeStart: 32400000,
@@ -678,11 +702,12 @@ describe('test parseExcel function', () => {
         user5: 'b5',
         colour: '#F00',
         type: 'event',
+        cue: '102',
       },
     ];
 
     const parsedData = await parseExcel(testdata);
-    expect(parsedData.eventData).toStrictEqual(expectedParsedEvent);
+    expect(parsedData.project).toStrictEqual(expectedParsedProjectData);
     expect(parsedData.rundown).toBeDefined();
     expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
     expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);

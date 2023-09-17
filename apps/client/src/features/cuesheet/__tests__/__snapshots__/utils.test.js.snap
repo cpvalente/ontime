@@ -6,7 +6,11 @@ exports[`makeTable() > returns array of arrays with given fields 1`] = `
     "Ontime · Schedule Template",
   ],
   [
-    "Event Name",
+    "Project Title",
+    "",
+  ],
+  [
+    "Project Description",
     "",
   ],
   [

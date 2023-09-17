@@ -1,10 +1,11 @@
-import { Fragment, lazy, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
 import { getFirst, getNext, getPrevious } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
+import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
@@ -41,6 +42,7 @@ export default function Rundown(props: RundownProps) {
   const moveCursorTo = useAppMode((state) => state.setCursor);
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  useFollowComponent({ followRef: cursorRef, scrollRef: scrollRef, doFollow: true });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor));
@@ -152,28 +154,6 @@ export default function Rundown(props: RundownProps) {
       document.removeEventListener('keydown', handleKeyPress);
     };
   }, [handleKeyPress]);
-
-  // when cursor moves, view should follow
-  useEffect(() => {
-    function scrollToComponent(
-      componentRef: MutableRefObject<HTMLDivElement>,
-      scrollRef: MutableRefObject<HTMLDivElement>,
-    ) {
-      const componentRect = componentRef.current.getBoundingClientRect();
-      const scrollRect = scrollRef.current.getBoundingClientRect();
-      const top = componentRect.top - scrollRect.top + scrollRef.current.scrollTop - 100;
-      scrollRef.current.scrollTo({ top, behavior: 'smooth' });
-    }
-
-    if (cursorRef.current && scrollRef.current) {
-      // Use requestAnimationFrame to ensure the component is fully loaded
-      window.requestAnimationFrame(() => {
-        scrollToComponent(cursorRef as MutableRefObject<HTMLDivElement>, scrollRef as MutableRefObject<HTMLDivElement>);
-      });
-    }
-
-    // eslint-disable-next-line -- the prompt seems incorrect
-  }, [cursorRef?.current, scrollRef]);
 
   useEffect(() => {
     // in run mode, we follow selection

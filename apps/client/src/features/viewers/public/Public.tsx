@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, ProjectData, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -16,7 +16,6 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
-import { TitleManager } from '../ViewWrapper';
 
 import './Public.scss';
 
@@ -28,16 +27,18 @@ const formatOptions = {
 interface BackstageProps {
   isMirrored: boolean;
   publ: Message;
-  publicTitle: TitleManager;
+  publicEventNow: OntimeEvent | null;
+  publicEventNext: OntimeEvent | null;
   time: TimeManagerType;
   events: OntimeEvent[];
   publicSelectedId: string | null;
-  general: EventData;
+  general: ProjectData;
   viewSettings: ViewSettings;
 }
 
 export default function Public(props: BackstageProps) {
-  const { isMirrored, publ, publicTitle, time, events, publicSelectedId, general, viewSettings } = props;
+  const { isMirrored, publ, publicEventNow, publicEventNext, time, events, publicSelectedId, general, viewSettings } =
+    props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -58,7 +59,7 @@ export default function Public(props: BackstageProps) {
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
       <NavigationMenu />
       <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
-      <div className='event-header'>
+      <div className='project-header'>
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
@@ -68,7 +69,7 @@ export default function Public(props: BackstageProps) {
 
       <div className='now-container'>
         <AnimatePresence>
-          {publicTitle.showNow && (
+          {publicEventNow && (
             <motion.div
               className='event now'
               key='now'
@@ -79,16 +80,16 @@ export default function Public(props: BackstageProps) {
             >
               <TitleCard
                 label='now'
-                title={publicTitle.titleNow}
-                subtitle={publicTitle.subtitleNow}
-                presenter={publicTitle.presenterNow}
+                title={publicEventNow.title}
+                subtitle={publicEventNow.subtitle}
+                presenter={publicEventNow.presenter}
               />
             </motion.div>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
-          {publicTitle.showNext && (
+          {publicEventNext && (
             <motion.div
               className='event next'
               key='next'
@@ -99,9 +100,9 @@ export default function Public(props: BackstageProps) {
             >
               <TitleCard
                 label='next'
-                title={publicTitle.titleNext}
-                subtitle={publicTitle.subtitleNext}
-                presenter={publicTitle.presenterNext}
+                title={publicEventNext.title}
+                subtitle={publicEventNext.subtitle}
+                presenter={publicEventNext.presenter}
               />
             </motion.div>
           )}

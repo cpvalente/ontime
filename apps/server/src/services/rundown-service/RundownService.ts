@@ -116,8 +116,8 @@ export function updateTimer(affectedIds?: string[]) {
 
   if (safeOption) {
     eventLoader.reset();
-    const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
-    eventTimer.hotReload(loadedEvent);
+    const { eventNow } = eventLoader.loadById(runningEventId) || {};
+    eventTimer.hotReload(eventNow);
     return true;
   }
 
@@ -133,9 +133,9 @@ export function updateTimer(affectedIds?: string[]) {
         eventTimer.roll(currentEvent, nextEvent);
       }
     } else {
-      const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
-      if (loadedEvent) {
-        eventTimer.hotReload(loadedEvent);
+      const { eventNow } = eventLoader.loadById(runningEventId) || {};
+      if (eventNow) {
+        eventTimer.hotReload(eventNow);
       } else {
         eventTimer.stop();
       }
@@ -144,8 +144,8 @@ export function updateTimer(affectedIds?: string[]) {
   }
 
   if (isNext) {
-    const { loadedEvent } = eventLoader.loadById(runningEventId) || {};
-    eventTimer.hotReload(loadedEvent);
+    const { eventNow } = eventLoader.loadById(runningEventId) || {};
+    eventTimer.hotReload(eventNow);
     return true;
   }
   return false;
@@ -206,7 +206,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
 export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
   if (eventData.type === SupportedEvent.Event && eventData?.cue === '') {
-    throw new Error(`Cue value invalid`);
+    throw new Error('Cue value invalid');
   }
 
   const newEvent = await cachedEdit(eventData.id, eventData);

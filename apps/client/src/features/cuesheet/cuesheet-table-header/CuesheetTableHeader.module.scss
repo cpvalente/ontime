@@ -101,12 +101,12 @@ $active-colour: $gray-500;
   .actionIcon {
     cursor: pointer;
 
-    &:hover {
-      color: $active-colour;
-    }
-
     &.enabled {
       color: $active-indicator;
+    }
+
+    &:hover {
+      color: $active-colour;
     }
   }
 }

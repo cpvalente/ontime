@@ -61,6 +61,11 @@ $table-header-font-size: calc(1rem - 3px);
 .eventRow {
   vertical-align: top;
 
+  &:hover {
+    outline: 1px solid $blue-700;
+    outline-offset: -1px;
+  }
+
   td {
     background-color: $gray-1250;
     border-radius: 2px;
@@ -110,14 +115,6 @@ $table-header-font-size: calc(1rem - 3px);
 
   > * {
     @include ellipsis-overflow;
-  }
-}
-
-.delaySymbol {
-  svg {
-    font-size: 1.5rem;
-    color: $ontime-delay;
-    margin: 0 auto;
   }
 }
 

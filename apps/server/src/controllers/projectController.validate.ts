@@ -1,6 +1,6 @@
 import { body, validationResult } from 'express-validator';
 
-export const eventDataSanitizer = [
+export const projectSanitiser = [
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
   body('publicUrl').optional().isString().trim(),

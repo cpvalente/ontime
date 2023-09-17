@@ -1,15 +1,12 @@
 /* eslint-disable react/display-name */
 import { ComponentType, useMemo } from 'react';
-import { TitleBlock } from 'ontime-types';
 import { useStore } from 'zustand';
 
-import useEventData from '../../common/hooks-query/useEventData';
+import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { runtime } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
-
-export type TitleManager = TitleBlock & { showNow: boolean; showNext: boolean };
 
 const withData = <P extends object>(Component: ComponentType<P>) => {
   return (props: Partial<P>) => {
@@ -18,7 +15,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
 
     // HTTP API data
     const { data: rundownData } = useRundown();
-    const { data: eventData } = useEventData();
+    const { data: project } = useProjectData();
     const { data: viewSettings } = useViewSettings();
 
     const publicEvents = useMemo(() => {
@@ -30,44 +27,22 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
 
     // websocket data
     const data = useStore(runtime);
-    const { timer, titles, titlesPublic, publicMessage, timerMessage, lowerMessage, playback, onAir } = data;
-    const publicSelectedId = data.loaded.selectedPublicEventId;
-    const selectedId = data.loaded.selectedEventId;
-    const nextId = data.loaded.nextEventId;
-
-    /********************************************/
-    /***  + titleManager                      ***/
-    /***  WRAP INFORMATION RELATED TO TITLES  ***/
-    /***  ----------------------------------  ***/
-    /********************************************/
-    // is there a now field?
-    let showNow = true;
-    if (!titles.titleNow && !titles.subtitleNow && !titles.presenterNow) showNow = false;
-
-    // is there a next field?
-    let showNext = true;
-    if (!titles.titleNext && !titles.subtitleNext && !titles.presenterNext) showNext = false;
-
-    const titleManager: TitleManager = { ...titles, showNow: showNow, showNext: showNext };
-
-    /********************************************/
-    /***  + publicTitleManager               ***/
-    /***  WRAP INFORMATION RELATED TO TITLES  ***/
-    /***  ----------------------------------  ***/
-    /********************************************/
-    // is there a now field?
-    let showPublicNow = true;
-    if (!titlesPublic.titleNow && !titlesPublic.subtitleNow && !titlesPublic.presenterNow) showPublicNow = false;
-
-    // is there a next field?
-    let showPublicNext = true;
-    if (!titlesPublic.titleNext && !titlesPublic.subtitleNext && !titlesPublic.presenterNext) showPublicNext = false;
-
-    const publicTitleManager: TitleManager = {
-      ...titlesPublic,
-      showNow: showPublicNow,
-      showNext: showPublicNext,
-    };
+    const {
+      timer,
+      publicMessage,
+      timerMessage,
+      lowerMessage,
+      playback,
+      onAir,
+      eventNext,
+      publicEventNext,
+      publicEventNow,
+      eventNow,
+      loaded,
+    } = data;
+    const publicSelectedId = loaded.selectedPublicEventId;
+    const selectedId = loaded.selectedEventId;
+    const nextId = loaded.nextEventId;
 
     /******************************************/
     /***  + TimeManagerType                     ***/
@@ -75,9 +50,6 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
     /***  --------------------------------  ***/
     /******************************************/
 
-    // inject info:
-    // is timer finished
-    // get clock string
     const TimeManagerType = {
       ...timer,
       playback,
@@ -95,8 +67,10 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
         pres={timerMessage}
         publ={publicMessage}
         lower={lowerMessage}
-        title={titleManager}
-        publicTitle={publicTitleManager}
+        eventNow={eventNow}
+        publicEventNow={publicEventNow}
+        eventNext={eventNext}
+        publicEventNext={publicEventNext}
         time={TimeManagerType}
         events={publicEvents}
         backstageEvents={rundownData}
@@ -104,7 +78,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
         publicSelectedId={publicSelectedId}
         viewSettings={viewSettings}
         nextId={nextId}
-        general={eventData}
+        general={project}
         onAir={onAir}
       />
     );

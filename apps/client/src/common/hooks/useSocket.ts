@@ -13,6 +13,15 @@ export const useRundownEditor = () => {
   return useRuntimeStore(featureSelector, deepCompare);
 };
 
+export const useOperator = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    playback: state.playback,
+    selectedEventId: state.loaded.selectedEventId,
+  });
+
+  return useRuntimeStore(featureSelector, deepCompare);
+};
+
 export const useMessageControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     timerMessage: state.timerMessage,
@@ -70,7 +79,8 @@ export const setPlayback = {
 
 export const useInfoPanel = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    titles: state.titles,
+    eventNow: state.eventNow,
+    eventNext: state.eventNext,
     playback: state.playback,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
@@ -85,7 +95,7 @@ export const useCuesheet = () => {
     selectedEventId: state.loaded.selectedEventId,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
-    titleNow: state.titles.titleNow,
+    titleNow: state.eventNow?.title || '',
   });
 
   return useRuntimeStore(featureSelector, deepCompare);
