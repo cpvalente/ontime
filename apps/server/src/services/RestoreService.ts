@@ -41,7 +41,8 @@ class RestoreService {
         try {
             const data = fs.readFileSync(path.join(this.filePath, 'restore.csv'), 'utf-8');
             const elements = data.split(',');
-            if (elements[5] == '\n') {
+            // we expect that a well terminated string, has a newline in the 5th element
+            if (elements[5] === '\n') {
                 logger.info(LogOrigin.Server, 'Found resumable state');
 
                 const maybePlayback = elements[0] as Playback
