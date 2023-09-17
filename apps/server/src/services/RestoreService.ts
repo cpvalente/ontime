@@ -42,34 +42,27 @@ class RestoreService {
             const data = fs.readFileSync(path.join(this.filePath, 'restore.csv'), 'utf-8');
             const elements = data.split(',');
             // we expect that a well terminated string, has a newline in the 5th element
-            if (elements[5] === '\n') {
-                logger.info(LogOrigin.Server, 'Found resumable state');
-
-                const maybePlayback = elements[0] as Playback
-                if (!Object.values(Playback).includes(maybePlayback)) { this.hasValidData = false; return; }
-                this.playback = maybePlayback;
-
-                const maybeId = elements[1] === 'null' ? null : elements[1];
-                //TODO: Cannot access 'EventLoader' before initialization
-                // if (maybeId && EventLoader.getEventWithId(maybeId)) { this.hasValidData = false; return; }
-                this.selectedEventId = maybeId;
-
-                const maybeStartedAt = elements[2] === 'null' ? null : parseInt(elements[2]);
-                if (maybeStartedAt !== null && Number.isNaN(maybeStartedAt)) { this.hasValidData = false; return; }
-                this.startedAt = maybeStartedAt;
-
-                const maybeAddedTime = elements[3] === 'null' ? null : parseInt(elements[3]);
-                if (maybeAddedTime !== null && Number.isNaN(maybeAddedTime)) { this.hasValidData = false; return; }
-                this.addedTime = maybeAddedTime;
-
-                const maybePausedAt = elements[4] === 'null' ? null : parseInt(elements[4]);
-                if (maybePausedAt !== null && Number.isNaN(maybePausedAt)) { this.hasValidData = false; return; }
-                this.pausedAt = maybePausedAt;
-
-                this.hasValidData = true;
-            } else {
-                this.hasValidData = false;
+            if (elements[5] !== '\n') {
+                throw new Error(`Missing newline character in restore file`);
             }
+            const maybePlayback = elements[0] as Playback
+            if (!Object.values(Playback).includes(maybePlayback)) {
+                throw new Error(`Could not phrase element to Playback state: ${elements[0]}`);
+            }
+            this.playback = maybePlayback;
+
+            const maybeId = elements[1] === 'null' ? null : elements[1];
+            //TODO: Cannot access 'EventLoader' before initialization
+            // if (maybeId && EventLoader.getEventWithId(maybeId)) { this.hasValidData = false; return; }
+            this.selectedEventId = maybeId;
+
+            this.startedAt = this.toNumberOrNull(elements[2]);
+            this.addedTime = this.toNumberOrNull(elements[3]);
+            this.pausedAt = this.toNumberOrNull(elements[4]);
+
+            logger.info(LogOrigin.Server, 'Found resumable state');
+            this.hasValidData = true;
+
         } catch (error) {
             logger.info(LogOrigin.Server, `Failed to restore state: ${error}`);
             this.hasValidData = false;
