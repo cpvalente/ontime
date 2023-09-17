@@ -125,7 +125,6 @@ export class TimerService {
   /**
    * Reloads information for currently running timer
    * @param timer
-   * @param initialData
    */
   hotReload(timer) {
     if (typeof timer === 'undefined') {
