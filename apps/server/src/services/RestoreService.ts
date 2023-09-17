@@ -42,7 +42,7 @@ class RestoreService {
             const data = fs.readFileSync(path.join(this.filePath, 'restore.csv'), 'utf-8');
             const elements = data.split(',');
             if (elements[5] == '\n') {
-                logger.info(LogOrigin.Server, 'intact restore file');
+                logger.info(LogOrigin.Server, 'Found resumable state');
 
                 const maybePlayback = elements[0] as Playback
                 if (!Object.values(Playback).includes(maybePlayback)) { this.hasValidData = false; return; }
@@ -69,8 +69,8 @@ class RestoreService {
             } else {
                 this.hasValidData = false;
             }
-        } catch (err) {
-            logger.info(LogOrigin.Server, 'faild to open restore.csv, ' + err);
+        } catch (error) {
+            logger.info(LogOrigin.Server, `Failed to restore state: ${error}`);
             this.hasValidData = false;
         }
         this.file = new Writer(path.join(this.filePath, 'restore.csv'));
