@@ -55,11 +55,11 @@ $playback-width: 26rem;
 }
 
 /* 2/3 window, hide info */
-@media (max-width: 1450px) and (min-height: 700px) {
+@media (max-width: 1595px) and (min-height: 700px) {
   .mainContainer {
     height: 100%;
     grid-template-rows: auto 1fr;
-    grid-template-columns: $menu-width $rundown-width*0.7 $playback-width;
+    grid-template-columns: $menu-width $rundown-width*0.9 $playback-width * 1.4;
 
     .info {
       visibility: hidden;
