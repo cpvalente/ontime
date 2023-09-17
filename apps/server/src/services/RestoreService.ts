@@ -105,7 +105,7 @@ class RestoreService {
         if (this.playback === Playback.Armed) {
             PlaybackService.loadById(this.selectedEventId);
         } else if (this.playback === Playback.Pause || this.playback === Playback.Play) {
-            PlaybackService.resumeId(this.selectedEventId, this.playback, this.selectedEventId, this.startedAt, this.addedTime, this.pausedAt);
+            PlaybackService.resumeById(this.selectedEventId, this.playback, this.selectedEventId, this.startedAt, this.addedTime, this.pausedAt);
         } else if (this.playback === Playback.Roll) {
             PlaybackService.roll();
         }

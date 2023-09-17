@@ -85,7 +85,7 @@ export class TimerService {
   * @param {number} addedTime
   * @param {number} pausedAt
   */
-  init(timer, playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
+  resume(timer, playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
     if (typeof timer === 'undefined') {
       this.stop();
       return;
