@@ -5,7 +5,7 @@ import { eventTimer } from './TimerService.js';
 import { EventLoader } from '../classes/event-loader/EventLoader.js';
 
 //File stuff
-import { tmpdir } from 'os'
+import { getAppDataPath } from '../setup.js'
 import fs from 'fs';
 import path from 'path';
 import { Writer } from 'steno';
@@ -27,15 +27,11 @@ class RestoreService {
     private readonly filePath;
 
     constructor() {
-        this.filePath = path.join(tmpdir(), 'ontime');
+        this.filePath = getAppDataPath();
         if (!fs.existsSync(this.filePath)) {
-            try {
-                fs.mkdirSync(this.filePath);
-            } catch (err) {
-                logger.error(LogOrigin.Server, err);
-                this.hasValidData = false;
-                return;
-            }
+            logger.error(LogOrigin.Server, `Could not open app path ${this.filePath}`);
+            this.hasValidData = false;
+            return;
         }
 
         try {
