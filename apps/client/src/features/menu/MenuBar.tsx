@@ -1,5 +1,14 @@
-import { memo, useCallback, useEffect } from 'react';
-import { VStack } from '@chakra-ui/react';
+import { memo, useCallback, useEffect, useState } from 'react';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  VStack,
+} from '@chakra-ui/react';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
@@ -100,6 +109,36 @@ const MenuBar = (props: MenuBarProps) => {
     };
   }, [handleKeyPress, isElectron]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const onModalClose = (exportType?: 'csv' | 'json') => {
+    setIsModalOpen(false);
+
+    if (!exportType) {
+      return;
+    }
+
+    downloadRundown(exportType);
+  };
+
+  const exportOptionsModal = () => (
+    <Modal isOpen={isModalOpen} onClose={onModalClose} motionPreset='scale' size='xl' colorScheme='blackAlpha'>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader fontWeight={400}>Choose your format</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody className={style.modalBody}>
+          <Button onClick={() => onModalClose('csv')} variant='ontime-filled' width='48%'>
+            CSV
+          </Button>
+          <Button onClick={() => onModalClose('json')} variant='ontime-filled' width='48%'>
+            JSON
+          </Button>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+
   return (
     <VStack>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} size='md' />
@@ -128,11 +167,13 @@ const MenuBar = (props: MenuBarProps) => {
         {...buttonStyle}
         icon={<IoSaveOutline />}
         isDisabled={appMode === AppMode.Run}
-        clickHandler={downloadRundown}
+        clickHandler={() => setIsModalOpen(true)}
         tooltip='Export project file'
         aria-label='Export project file'
         size='sm'
       />
+
+      {exportOptionsModal()}
 
       <div className={style.gap} />
       <TooltipActionBtn

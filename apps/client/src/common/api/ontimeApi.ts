@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Alias, OSCSettings, OscSubscription, ProjectData, Settings, UserFields, ViewSettings } from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';
+import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
 import { InfoType } from '../models/Info';
 
 import { ontimeURL } from './apiConstants';
@@ -112,29 +113,51 @@ export async function postOscSubscriptions(data: OscSubscription) {
  * @description HTTP request to download db
  * @return {Promise}
  */
-export const downloadRundown = async () => {
-  await axios({
+export const downloadRundown = async (exportType: 'csv' | 'json') => {
+  const response = await axios({
     url: `${ontimeURL}/db`,
     method: 'GET',
-    responseType: 'blob', // important
-  }).then((response) => {
-    const headerLine = response.headers['Content-Disposition'];
-    let filename = 'rundown.json';
-
-    // try and get the filename from the response
-    if (headerLine != null) {
-      const startFileNameIndex = headerLine.indexOf('"') + 1;
-      const endFileNameIndex = headerLine.lastIndexOf('"');
-      filename = headerLine.substring(startFileNameIndex, endFileNameIndex);
-    }
-
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/json' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
   });
+
+  const headerLine = response.headers['Content-Disposition'];
+  let fileName = 'rundown';
+  const { project, rundown, userFields } = response.data;
+
+  // try and get the filename from the response
+  if (headerLine != null) {
+    const startFileNameIndex = headerLine.indexOf('"') + 1;
+    const endFileNameIndex = headerLine.lastIndexOf('"');
+    fileName = headerLine.substring(startFileNameIndex, endFileNameIndex);
+  }
+
+  let downloadUrl = '';
+
+  if (exportType === 'json') {
+    fileName += '.json';
+
+    const blob = new Blob([response.data], { type: 'application/json;charset=utf-8;' });
+    downloadUrl = URL.createObjectURL(blob);
+  } else if (exportType === 'csv') {
+    const sheetData = makeTable(project, rundown, userFields);
+    const csvContent = makeCSV(sheetData);
+
+    fileName += '.csv';
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    downloadUrl = URL.createObjectURL(blob);
+  } else {
+    console.error('Invalid export type: ', exportType);
+    return;
+  }
+
+  const link = document.createElement('a');
+  link.setAttribute('href', downloadUrl);
+  link.setAttribute('download', fileName);
+  document.body.appendChild(link);
+  link.click();
+  // Clean up the URL.createObjectURL to release resources
+  URL.revokeObjectURL(downloadUrl);
+  return;
 };
 
 /**
