@@ -118,7 +118,7 @@ export default function CuesheetWrapper() {
     [rundown, userFields],
   );
 
-  const onModalClose = (exportType?: 'json' | 'csv') => {
+  const onModalClose = (exportType?: ExportType) => {
     setIsModalOpen(false);
 
     if (!exportType) {
