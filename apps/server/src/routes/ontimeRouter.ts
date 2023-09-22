@@ -31,7 +31,7 @@ import {
   validateUserFields,
   viewValidator,
 } from '../controllers/ontimeController.validate.js';
-import { eventDataSanitizer } from '../controllers/eventDataController.validate.js';
+import { projectSanitiser } from '../controllers/projectController.validate.js';
 
 export const router = express.Router();
 
@@ -93,4 +93,4 @@ router.post('/osc', validateOSC, postOSC);
 router.post('/osc-subscriptions', validateOscSubscription, postOscSubscriptions);
 
 // create route between controller and '/ontime/new' endpoint
-router.post('/new', eventDataSanitizer, postNew);
+router.post('/new', projectSanitiser, postNew);

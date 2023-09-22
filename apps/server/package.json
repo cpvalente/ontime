@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "2.8.2",
+  "version": "2.9.0",
   "exports": "./src/index.js",
   "dependencies": {
     "@makepro-x/keytar": "^7.10.2",

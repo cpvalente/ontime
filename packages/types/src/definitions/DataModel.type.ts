@@ -1,5 +1,5 @@
 import { Alias } from './core/Alias.type.js';
-import { EventData } from './core/EventData.type.js';
+import { ProjectData } from './core/ProjectData.type.js';
 import { OntimeRundown } from './core/Rundown.type.js';
 import { OSCSettings } from './core/OscSettings.type.js';
 import { Settings } from './core/Settings.type.js';
@@ -9,7 +9,7 @@ import { SyncSettings } from './core/SyncSettings.type.js';
 
 export type DatabaseModel = {
   rundown: OntimeRundown;
-  eventData: EventData;
+  project: ProjectData;
   settings: Settings;
   viewSettings: ViewSettings;
   syncSettings: SyncSettings;

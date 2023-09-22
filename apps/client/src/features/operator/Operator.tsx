@@ -9,7 +9,7 @@ import { getOperatorOptions } from '../../common/components/view-params-editor/c
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useOperator } from '../../common/hooks/useSocket';
-import useEventData from '../../common/hooks-query/useEventData';
+import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
 import { isStringBoolean } from '../../common/utils/viewUtils';
@@ -27,7 +27,7 @@ type TitleFields = Pick<OntimeEvent, 'title' | 'subtitle' | 'presenter'>;
 export default function Operator() {
   const { data, status } = useRundown();
   const { data: userFields, status: userFieldsStatus } = useUserFields();
-  const { data: projectData, status: projectDataStatus } = useEventData();
+  const { data: projectData, status: projectDataStatus } = useProjectData();
 
   const featureData = useOperator();
   const [searchParams] = useSearchParams();
