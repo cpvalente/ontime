@@ -16,6 +16,7 @@ import { isDocker, resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, forceReset } from '../services/rundown-service/RundownService.js';
+import { sync } from '../utils/google-sheets.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -397,14 +398,3 @@ export const postNew: RequestHandler = async (req, res) => {
     res.status(400).send(error);
   }
 };
-
-async function sync() {
-  const syncSettings = DataProvider.getSyncSettings();
-  if (!(syncSettings.googleSheetsEnabled && syncSettings.googleSheetId)) {
-    return;
-  }
-  const jwt = await keytar.getPassword('ontime', 'google');
-  const t = new GoogleSpreadsheet(syncSettings.googleSheetId, { token: jwt });
-  await t.loadInfo().catch(console.error);
-  console.log(t.title);
-}
