@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
 import { OntimeRundownEntry, ProjectData } from 'ontime-types';
 
 import Empty from '../../common/components/state/Empty';
@@ -7,6 +6,7 @@ import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
+import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import CuesheetTableHeader from './cuesheet-table-header/CuesheetTableHeader';
 import Cuesheet from './Cuesheet';
@@ -14,8 +14,6 @@ import { makeCuesheetColumns } from './cuesheetCols';
 import { makeCSV, makeTable } from './cuesheetUtils';
 
 import styles from './CuesheetWrapper.module.scss';
-
-type ExportType = 'csv' | 'json';
 
 export default function CuesheetWrapper() {
   const { data: rundown } = useRundown();
@@ -143,21 +141,7 @@ export default function CuesheetWrapper() {
     <div className={styles.tableWrapper} data-testid='cuesheet'>
       <CuesheetTableHeader handleExport={handleOpenModal} featureData={featureData} />
       <Cuesheet data={rundown} columns={columns} handleUpdate={handleUpdate} selectedId={featureData.selectedEventId} />
-      <Modal isOpen={isModalOpen} onClose={onModalClose} motionPreset='scale' size='xl' colorScheme='blackAlpha'>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader fontWeight={400}>Choose your format</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody className={styles.modalBody}>
-            <Button onClick={() => onModalClose('csv')} variant='ontime-filled' width='48%'>
-              CSV
-            </Button>
-            <Button onClick={() => onModalClose('json')} variant='ontime-filled' width='48%'>
-              JSON
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <ExportModal isOpen={isModalOpen} onClose={onModalClose} />
     </div>
   );
 }

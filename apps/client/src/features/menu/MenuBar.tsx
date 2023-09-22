@@ -1,14 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react';
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  VStack,
-} from '@chakra-ui/react';
+import { VStack } from '@chakra-ui/react';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
@@ -19,11 +10,12 @@ import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
-import { downloadRundown } from '../../common/api/ontimeApi';
+import { downloadCSV, downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
+import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import style from './MenuBar.module.scss';
 
@@ -111,33 +103,19 @@ const MenuBar = (props: MenuBarProps) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const onModalClose = (exportType?: 'csv' | 'json') => {
+  const onModalClose = (exportType?: ExportType) => {
     setIsModalOpen(false);
 
     if (!exportType) {
       return;
     }
 
-    downloadRundown(exportType);
+    if (exportType === 'json') {
+      downloadRundown();
+    } else if (exportType === 'csv') {
+      downloadCSV();
+    }
   };
-
-  const exportOptionsModal = () => (
-    <Modal isOpen={isModalOpen} onClose={onModalClose} motionPreset='scale' size='xl' colorScheme='blackAlpha'>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader fontWeight={400}>Choose your format</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody className={style.modalBody}>
-          <Button onClick={() => onModalClose('csv')} variant='ontime-filled' width='48%'>
-            CSV
-          </Button>
-          <Button onClick={() => onModalClose('json')} variant='ontime-filled' width='48%'>
-            JSON
-          </Button>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
-  );
 
   return (
     <VStack>
@@ -173,7 +151,7 @@ const MenuBar = (props: MenuBarProps) => {
         size='sm'
       />
 
-      {exportOptionsModal()}
+      <ExportModal onClose={onModalClose} isOpen={isModalOpen} />
 
       <div className={style.gap} />
       <TooltipActionBtn

@@ -2,8 +2,8 @@ import axios from 'axios';
 import { Alias, OSCSettings, OscSubscription, ProjectData, Settings, UserFields, ViewSettings } from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';
-import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
 import { InfoType } from '../models/Info';
+import fileDownload from '../utils/fileDownload';
 
 import { ontimeURL } from './apiConstants';
 
@@ -110,54 +110,17 @@ export async function postOscSubscriptions(data: OscSubscription) {
 }
 
 /**
- * @description HTTP request to download db
- * @return {Promise}
+ * @description HTTP request to download db in CSV format
  */
-export const downloadRundown = async (exportType: 'csv' | 'json') => {
-  const response = await axios({
-    url: `${ontimeURL}/db`,
-    method: 'GET',
-  });
+export const downloadCSV = () => {
+  return fileDownload(ontimeURL, { name: 'rundown', type: 'csv' }, { type: 'text/csv;charset=utf-8;' });
+};
 
-  const headerLine = response.headers['Content-Disposition'];
-  let fileName = 'rundown';
-  const { project, rundown, userFields } = response.data;
-
-  // try and get the filename from the response
-  if (headerLine != null) {
-    const startFileNameIndex = headerLine.indexOf('"') + 1;
-    const endFileNameIndex = headerLine.lastIndexOf('"');
-    fileName = headerLine.substring(startFileNameIndex, endFileNameIndex);
-  }
-
-  let downloadUrl = '';
-
-  if (exportType === 'json') {
-    fileName += '.json';
-
-    const blob = new Blob([response.data], { type: 'application/json;charset=utf-8;' });
-    downloadUrl = URL.createObjectURL(blob);
-  } else if (exportType === 'csv') {
-    const sheetData = makeTable(project, rundown, userFields);
-    const csvContent = makeCSV(sheetData);
-
-    fileName += '.csv';
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    downloadUrl = URL.createObjectURL(blob);
-  } else {
-    console.error('Invalid export type: ', exportType);
-    return;
-  }
-
-  const link = document.createElement('a');
-  link.setAttribute('href', downloadUrl);
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link);
-  link.click();
-  // Clean up the URL.createObjectURL to release resources
-  URL.revokeObjectURL(downloadUrl);
-  return;
+/**
+ * @description HTTP request to download db in JSON format
+ */
+export const downloadRundown = () => {
+  return fileDownload(ontimeURL, { name: 'rundown', type: 'json' }, { type: 'application/json;charset=utf-8;' });
 };
 
 /**
