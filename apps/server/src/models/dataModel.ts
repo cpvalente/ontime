@@ -56,4 +56,8 @@ export const dbModel: DatabaseModel = {
       onFinish: [],
     },
   },
+  syncSettings: {
+    googleSheetsEnabled: false,
+    googleSheetId: '',
+  },
 };

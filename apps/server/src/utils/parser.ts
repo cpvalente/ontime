@@ -23,6 +23,7 @@ import {
   parseOsc,
   parseRundown,
   parseSettings,
+  parseSyncSettings,
   parseUserFields,
   parseViewSettings,
 } from './parserFunctions.js';
@@ -304,6 +305,8 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
   returnData.settings = parseSettings(jsonData, enforce);
   // View settings handled partially
   returnData.viewSettings = parseViewSettings(jsonData, enforce);
+  // Sync settings handled partially
+  returnData.syncSettings = parseSyncSettings(jsonData, enforce);
   // Import Aliases if any
   returnData.aliases = parseAliases(jsonData);
   // Import user fields if any

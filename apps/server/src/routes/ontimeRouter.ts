@@ -8,6 +8,7 @@ import {
   getInfo,
   getOSC,
   getSettings,
+  getSyncSettings,
   getUserFields,
   getViewSettings,
   poll,
@@ -17,6 +18,7 @@ import {
   postOSC,
   postOscSubscriptions,
   postSettings,
+  postSyncSettings,
   postUserFields,
   postViewSettings,
 } from '../controllers/ontimeController.js';
@@ -53,6 +55,12 @@ router.get('/views', getViewSettings);
 
 // create route between controller and '/ontime/views' endpoint
 router.post('/views', viewValidator, postViewSettings);
+
+// create route between controller and '/ontime/sync' endpoint
+router.get('/sync', getSyncSettings);
+
+// create route between controller and '/ontime/sync' endpoint
+router.post('/sync', postSyncSettings);
 
 // create route between controller and '/ontime/views' endpoint
 router.post('/google-jwt', postGoogleJwt);

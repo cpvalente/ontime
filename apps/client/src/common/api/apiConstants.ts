@@ -8,6 +8,7 @@ export const APP_INFO = ['appinfo'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
+export const SYNC_SETTINGS = ['syncSettings'];
 export const RUNTIME = ['runtimeStore'];
 
 const location = window.location;

@@ -2,7 +2,7 @@
  * Class Event Provider is a mediator for handling the local db
  * and adds logic specific to ontime data
  */
-import { EventData, OntimeRundown, ViewSettings } from 'ontime-types';
+import { EventData, OntimeRundown, SyncSettings, ViewSettings } from 'ontime-types';
 
 import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
@@ -71,8 +71,17 @@ export class DataProvider {
     return { ...data.viewSettings };
   }
 
+  static getSyncSettings() {
+    return { ...data.syncSettings };
+  }
+
   static async setViewSettings(newData: ViewSettings) {
     data.viewSettings = { ...newData };
+    await this.persist();
+  }
+
+  static async setSyncSettings(newData: SyncSettings) {
+    data.syncSettings = { ...newData };
     await this.persist();
   }
 
@@ -104,6 +113,7 @@ export class DataProvider {
     data.aliases = mergedData.aliases;
     data.userFields = mergedData.userFields;
     data.rundown = mergedData.rundown;
+    data.syncSettings = mergedData.syncSettings;
     await this.persist();
   }
 }

@@ -22,6 +22,9 @@ export type { Settings } from './definitions/core/Settings.type.js';
 // ---> Views
 export type { ViewSettings } from './definitions/core/Views.type.js';
 
+// ---> Sync Settings
+export type { SyncSettings } from './definitions/core/SyncSettings.type.js';
+
 // ---> Aliases
 export type { Alias } from './definitions/core/Alias.type.js';
 

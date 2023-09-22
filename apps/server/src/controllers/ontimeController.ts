@@ -247,6 +247,36 @@ export const getViewSettings = async (req, res) => {
 };
 
 /**
+ * @description Get view Settings
+ * @method GET
+ */
+export const getSyncSettings = async (req, res) => {
+  const views = DataProvider.getSyncSettings();
+  res.status(200).send(views);
+};
+
+/**
+ * @description Change sync Settings
+ * @method POST
+ */
+export const postSyncSettings = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const newData = {
+      googleSheetsEnabled: !!req.body.googleSheetsEnabled,
+      googleSheetId: req.body?.googleSheetId || '',
+    };
+    await DataProvider.setSyncSettings(newData);
+    res.status(200).send(newData);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+/**
  * @description Change view Settings
  * @method POST
  */
@@ -277,19 +307,15 @@ export const postGoogleJwt = async (req, res) => {
     return;
   }
   await keytar.setPassword('ontime', 'google', req.body.jwt);
-  const t = new GoogleSpreadsheet('1MeYu40JE9vDquNDJbH02chSJARoUjEs4HOh6qX4I7Ec', { token: req.body.jwt });
-  await t.loadInfo().catch(console.error);
-  console.log(t.title);
   res.status(200).send({ message: 'OK' });
+  sync();
 };
 
 export const getGoogleJwt = async (req, res) => {
   const jwt = req.query.accessToken;
   await keytar.setPassword('ontime', 'google', jwt);
-  const t = new GoogleSpreadsheet('1MeYu40JE9vDquNDJbH02chSJARoUjEs4HOh6qX4I7Ec', { token: jwt });
-  await t.loadInfo().catch(console.error);
-  console.log(t.title);
   res.redirect(process.env.NODE_ENV === 'development' ? 'http://localhost:3000/editor' : '/editor');
+  sync();
 };
 
 // Create controller for GET request to '/ontime/osc'
@@ -371,3 +397,14 @@ export const postNew: RequestHandler = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
+async function sync() {
+  const syncSettings = DataProvider.getSyncSettings();
+  if (!(syncSettings.googleSheetsEnabled && syncSettings.googleSheetId)) {
+    return;
+  }
+  const jwt = await keytar.getPassword('ontime', 'google');
+  const t = new GoogleSpreadsheet(syncSettings.googleSheetId, { token: jwt });
+  await t.loadInfo().catch(console.error);
+  console.log(t.title);
+}

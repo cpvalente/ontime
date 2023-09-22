@@ -12,6 +12,10 @@ export function safeMerge(existing, newData) {
     settings: { ...existing.settings, ...settings },
     viewSettings: { ...existing.viewSettings, ...viewSettings },
     aliases: aliases ?? existing.aliases,
+    syncSettings: {
+      ...existing.syncSettings,
+      ...(newData?.syncSettings || {}),
+    },
     userFields: {
       ...existing.userFields,
       ...(userFields && Object.fromEntries(Object.entries(userFields).filter(([_, value]) => value !== null))),

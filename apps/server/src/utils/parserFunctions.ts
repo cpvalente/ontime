@@ -8,6 +8,7 @@ import {
   OscSubscription,
   OscSubscriptionOptions,
   Settings,
+  SyncSettings,
   TimerLifeCycle,
   TimerType,
   UserFields,
@@ -150,6 +151,16 @@ export const parseSettings = (data, enforce): Settings => {
   return newSettings as Settings;
 };
 
+/**
+ * Parse sync settings portion of an entry
+ * @param {object} data - data object
+ * @param {boolean} enforce - whether to create a definition if one is missing
+ * @returns {object} - event object data
+ */
+export const parseSyncSettings = (data, enforce): SyncSettings => {
+  console.log('parseSyncSettings: data', data.syncSettings);
+  return (data.syncSettings || dbModel.syncSettings) as SyncSettings;
+};
 /**
  * Parse settings portion of an entry
  * @param {object} data - data object

@@ -1,5 +1,14 @@
 import axios from 'axios';
-import { Alias, EventData, OSCSettings, OscSubscription, Settings, UserFields, ViewSettings } from 'ontime-types';
+import {
+  Alias,
+  EventData,
+  OSCSettings,
+  OscSubscription,
+  Settings,
+  SyncSettings,
+  UserFields,
+  ViewSettings,
+} from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';
 import { InfoType } from '../models/Info';
@@ -42,11 +51,28 @@ export async function getView(): Promise<ViewSettings> {
 }
 
 /**
+ * @description HTTP request to retrieve sync settings
+ * @return {Promise}
+ */
+export async function getSyncSettings(): Promise<SyncSettings> {
+  const res = await axios.get(`${ontimeURL}/sync`);
+  return res.data;
+}
+
+/**
  * @description HTTP request to mutate view settings
  * @return {Promise}
  */
 export async function postViewSettings(data: ViewSettings) {
   return axios.post(`${ontimeURL}/views`, data);
+}
+
+/**
+ * @description HTTP request to mutate sync settings
+ * @return {Promise}
+ */
+export async function postSyncSettings(data: SyncSettings) {
+  return axios.post(`${ontimeURL}/sync`, data);
 }
 
 /**

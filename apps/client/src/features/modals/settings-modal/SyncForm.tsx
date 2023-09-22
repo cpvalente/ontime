@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Switch } from '@chakra-ui/react';
-import { CredentialResponse, TokenResponse, useGoogleLogin } from '@react-oauth/google';
-import { ViewSettings } from 'ontime-types';
+import { Button, Input, Switch } from '@chakra-ui/react';
+import { IoLogoGoogle } from '@react-icons/all-files/io5/IoLogoGoogle';
+import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
+import { SyncSettings } from 'ontime-types';
 
 import { logAxiosError } from '../../../common/api/apiUtils';
-import { postGoogleJwt, postViewSettings } from '../../../common/api/ontimeApi';
-import useViewSettings from '../../../common/hooks-query/useViewSettings';
-import { mtm } from '../../../common/utils/timeConstants';
+import { postGoogleJwt, postSyncSettings } from '../../../common/api/ontimeApi';
+import useSyncSettings from '../../../common/hooks-query/useSyncSettings';
 import ModalLoader from '../modal-loader/ModalLoader';
+import { inputProps } from '../modalHelper';
 import ModalSplitInput from '../ModalSplitInput';
 import OntimeModalFooter from '../OntimeModalFooter';
 
@@ -17,14 +18,14 @@ import style from './SettingsModal.module.scss';
 export default function SyncForm() {
   // if not already added, add google identity api scrpt to the page
 
-  const { data, status, refetch, isFetching } = useViewSettings();
+  const { data, status, refetch, isFetching } = useSyncSettings();
   const {
     control,
     handleSubmit,
     register,
     reset,
     formState: { isSubmitting, isDirty, isValid, dirtyFields },
-  } = useForm<ViewSettings>({
+  } = useForm<SyncSettings>({
     defaultValues: data,
     values: data,
     resetOptions: {
@@ -38,26 +39,11 @@ export default function SyncForm() {
     }
   }, [data, reset]);
 
-  const onSubmit = async (formData: ViewSettings) => {
-    const parsedWarningThreshold = dirtyFields?.warningThreshold
-      ? // @ts-expect-error -- trust me
-        Number.parseInt(formData.warningThreshold) * mtm
-      : formData.warningThreshold;
-    const parsedDangerThreshold = dirtyFields?.dangerThreshold
-      ? // @ts-expect-error -- trust me
-        Number.parseInt(formData.dangerThreshold) * mtm
-      : formData.dangerThreshold;
-
-    const newData = {
-      ...formData,
-      warningThreshold: parsedWarningThreshold,
-      dangerThreshold: parsedDangerThreshold,
-    };
-
+  const onSubmit = async (formData: SyncSettings) => {
     try {
-      await postViewSettings(newData);
+      await postSyncSettings(formData);
     } catch (error) {
-      logAxiosError('Error saving view settings', error);
+      logAxiosError('Error saving sync settings', error);
     } finally {
       await refetch();
     }
@@ -75,7 +61,7 @@ export default function SyncForm() {
 
   const login = () => {
     // is Electron user agent
-    if (navigator.userAgent.includes('Electron')) {
+    if (navigator.userAgent.includes('Electron') || ['localhost', '127.0.0.1'].includes(location.hostname)) {
       loginViaGoogle();
     } else {
       const url = new URL('http://127.0.0.1:8082');
@@ -108,9 +94,28 @@ export default function SyncForm() {
         title='Enable Google Sheets Synchonization'
         description='Enable synchronization with Google Sheets. This will allow you to edit your cuesheets in Google Sheets and have them automatically synchronized with Ontime.'
       >
-        <Switch {...register('overrideStyles')} variant='ontime-on-light' />
+        <Switch {...register('googleSheetsEnabled')} variant='ontime-on-light' />
       </ModalSplitInput>
-      <button onClick={login}>Login</button>
+      <ModalSplitInput field='googleSheetId' title='Google Sheet ID' description=''>
+        <Input
+          {...inputProps}
+          width='300px'
+          variant='ontime-filled-on-light'
+          placeholder='Retrieve it from the URL when viewing a Sheet'
+          isDisabled={isSubmitting || !data?.googleSheetsEnabled}
+          {...register('googleSheetId')}
+        />
+      </ModalSplitInput>
+      <ModalSplitInput description='' field='' title='Login'>
+        <Button
+          variant='ontime-filled'
+          onClick={login}
+          style={{ width: '300px' }}
+          isDisabled={isSubmitting || !data?.googleSheetsEnabled}
+        >
+          <IoLogoGoogle style={{ marginInlineStart: 5, marginInlineEnd: 5 }} /> Login and Sync
+        </Button>
+      </ModalSplitInput>
       <OntimeModalFooter
         formId='view-settings'
         handleRevert={onReset}
