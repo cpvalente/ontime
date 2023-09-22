@@ -141,7 +141,11 @@ export default function CuesheetWrapper() {
     <div className={styles.tableWrapper} data-testid='cuesheet'>
       <CuesheetTableHeader handleExport={handleOpenModal} featureData={featureData} />
       <Cuesheet data={rundown} columns={columns} handleUpdate={handleUpdate} selectedId={featureData.selectedEventId} />
-      <ExportModal isOpen={isModalOpen} onClose={onModalClose} />
+      <ExportModal
+        isOpen={isModalOpen}
+        onClose={onModalClose}
+        buttonVariants={{ csv: 'ontime-filled', json: 'ontime-ghosted' }}
+      />
     </div>
   );
 }

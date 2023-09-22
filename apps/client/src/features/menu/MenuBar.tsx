@@ -151,7 +151,11 @@ const MenuBar = (props: MenuBarProps) => {
         size='sm'
       />
 
-      <ExportModal onClose={onModalClose} isOpen={isModalOpen} />
+      <ExportModal
+        onClose={onModalClose}
+        isOpen={isModalOpen}
+        buttonVariants={{ csv: 'ontime-ghosted', json: 'ontime-filled' }}
+      />
 
       <div className={style.gap} />
       <TooltipActionBtn
