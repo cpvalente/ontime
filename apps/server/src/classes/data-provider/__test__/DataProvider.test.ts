@@ -22,6 +22,10 @@ describe('safeMerge', () => {
       overrideStyles: false,
       endMessage: 'existing endMessage',
     },
+    syncSettings: {
+      googleSheetsEnabled: false,
+      googleSheetId: '',
+    },
     aliases: [],
     userFields: {
       user0: 'existing user0',
