@@ -120,6 +120,10 @@ function NavigationMenu() {
               Operator
               <IoArrowUp className={style.linkIcon} />
             </Link>
+            <Link to='/timeline' className={style.link} tabIndex={0}>
+              Timeline
+              <IoArrowUp className={style.linkIcon} />
+            </Link>
             <hr className={style.separator} />
             {navigatorConstants.map((route) => (
               <Link
