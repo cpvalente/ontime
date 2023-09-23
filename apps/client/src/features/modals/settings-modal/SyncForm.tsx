@@ -3,8 +3,10 @@ import { useForm } from 'react-hook-form';
 import { Button, Input, Switch } from '@chakra-ui/react';
 import { IoLogoGoogle } from '@react-icons/all-files/io5/IoLogoGoogle';
 import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
+import { useQueryClient } from '@tanstack/react-query';
 import { SyncSettings } from 'ontime-types';
 
+import { RUNDOWN_TABLE } from '../../../common/api/apiConstants';
 import { logAxiosError } from '../../../common/api/apiUtils';
 import { postGoogleJwt, postSyncSettings } from '../../../common/api/ontimeApi';
 import useSyncSettings from '../../../common/hooks-query/useSyncSettings';
@@ -19,6 +21,7 @@ export default function SyncForm() {
   // if not already added, add google identity api scrpt to the page
 
   const { data, status, refetch, isFetching } = useSyncSettings();
+  const queryClient = useQueryClient();
   const {
     control,
     handleSubmit,
@@ -50,8 +53,10 @@ export default function SyncForm() {
   };
 
   const onGoogleSignInResponse = async (data: TokenResponse) => {
-    console.log(data);
-    await postGoogleJwt(data.access_token);
+    const synced = await postGoogleJwt(data.access_token).then((d) => !!d?.data?.synced);
+    if (synced) {
+      await queryClient.invalidateQueries(RUNDOWN_TABLE);
+    }
   };
 
   const loginViaGoogle = useGoogleLogin({

@@ -3,11 +3,11 @@ import {
   Alias,
   OSCSettings,
   OscSubscription,
+  ProjectData,
   Settings,
   SyncSettings,
   UserFields,
   ViewSettings,
-  ProjectData,
 } from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';

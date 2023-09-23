@@ -308,15 +308,15 @@ export const postGoogleJwt = async (req, res) => {
     return;
   }
   await keytar.setPassword('ontime', 'google', req.body.jwt);
-  res.status(200).send({ message: 'OK' });
-  sync();
+  const synced = await sync();
+  res.status(200).send({ message: 'OK', synced });
 };
 
 export const getGoogleJwt = async (req, res) => {
   const jwt = req.query.accessToken;
   await keytar.setPassword('ontime', 'google', jwt);
+  await sync();
   res.redirect(process.env.NODE_ENV === 'development' ? 'http://localhost:3000/editor' : '/editor');
-  sync();
 };
 
 // Create controller for GET request to '/ontime/osc'

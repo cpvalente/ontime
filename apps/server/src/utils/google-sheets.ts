@@ -1,9 +1,9 @@
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { config } from 'dotenv';
-import { OntimeRundown, SyncSettings } from 'ontime-types';
+import { OntimeRundown } from 'ontime-types';
 import keytar from '@makepro-x/keytar';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import { sendRefetch } from '../adapters/websocketAux.js';
+import { forceReset } from '../services/rundown-service/RundownService.js';
 config();
 
 const idStart = 0x4f7b15;
@@ -79,8 +79,6 @@ export async function getSheetRundownData() {
     data.push(row);
   }
 
-  console.log('data');
-
   return data
     .filter((i) => i.cue && i.title)
     .map((item, i) => {
@@ -115,12 +113,13 @@ export async function getSheetRundownData() {
     }) as OntimeRundown;
 }
 
-export async function sync() {
+export async function sync(): Promise<boolean> {
   const settings = DataProvider.getSyncSettings();
   if (!(settings.googleSheetsEnabled && settings.googleSheetId)) {
-    return;
+    return false;
   }
   const rundown = await getSheetRundownData();
-  DataProvider.setRundown(rundown);
-  sendRefetch();
+  await DataProvider.setRundown(rundown);
+  forceReset();
+  return true;
 }
