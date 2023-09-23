@@ -1,8 +1,6 @@
 import { LogOrigin, Playback } from 'ontime-types';
 import { logger } from '../classes/Logger.js';
 import { PlaybackService } from './PlaybackService.js';
-import { eventTimer } from './TimerService.js';
-import { EventLoader } from '../classes/event-loader/EventLoader.js';
 
 //File stuff
 import { getAppDataPath } from '../setup.js'
@@ -23,7 +21,7 @@ class RestoreService {
     private startedAt: number | null;
     private addedTime: number | null;
     private pausedAt: number | null;
-    private readonly hasValidData;
+    private hasValidData;
     private readonly filePath;
 
     constructor() {
@@ -47,9 +45,11 @@ class RestoreService {
             }
             this.playback = maybePlayback;
 
+            if (elements[1] === null) {
+                throw new Error(`Element is null`);
+            }
             const maybeId = elements[1] === 'null' ? null : elements[1];
-            //TODO: Cannot access 'EventLoader' before initialization
-            // if (maybeId && EventLoader.getEventWithId(maybeId)) { this.hasValidData = false; return; }
+            //We cannot access 'EventLoader' now to check the ID because it has not been initialized
             this.selectedEventId = maybeId;
 
             this.startedAt = this.toNumberOrNull(elements[2]);
@@ -60,7 +60,7 @@ class RestoreService {
             this.hasValidData = true;
 
         } catch (error) {
-            logger.info(LogOrigin.Server, `Failed to restore state: ${error}`);
+            logger.info(LogOrigin.Server, `Failed to load restore state: ${error}`);
             this.hasValidData = false;
         }
         this.file = new Writer(path.join(this.filePath, 'restore.csv'));
