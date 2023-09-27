@@ -79,37 +79,39 @@ export default function PreviewRundown({ rundown, userFields }: PreviewRundownPr
                 const skip = booleanToText(event.skip);
                 return (
                   <tr key={key}>
-                    <th>
+                    <td className={style.center}>
                       <Tag>{index + 1}</Tag>
-                    </th>
-                    <th>Event</th>
-                    <th>{event.cue}</th>
-                    <th>{event.title}</th>
-                    <th>{event.subtitle}</th>
-                    <th>{event.presenter}</th>
-                    <th>{event.note}</th>
-                    <th>{millisToString(event.timeStart)}</th>
-                    <th>{millisToString(event.timeEnd)}</th>
-                    <th>{millisToString(event.duration)}</th>
-                    <th>{isPublic && <Tag>{isPublic}</Tag>}</th>
-                    <th>{skip && <Tag>{skip}</Tag>}</th>
-                    <th style={{ ...colour }}>{event.colour}</th>
-                    <th>
+                    </td>
+                    <td className={style.center}>
+                      <Tag>Event</Tag>
+                    </td>
+                    <td className={style.nowrap}>{event.cue}</td>
+                    <td>{event.title}</td>
+                    <td>{event.subtitle}</td>
+                    <td>{event.presenter}</td>
+                    <td>{event.note}</td>
+                    <td>{millisToString(event.timeStart)}</td>
+                    <td>{millisToString(event.timeEnd)}</td>
+                    <td>{millisToString(event.duration)}</td>
+                    <td>{isPublic && <Tag>{isPublic}</Tag>}</td>
+                    <td>{skip && <Tag>{skip}</Tag>}</td>
+                    <td style={{ ...colour }}>{event.colour}</td>
+                    <td>
                       <Tag>{event.timerType}</Tag>
-                    </th>
-                    <th>
+                    </td>
+                    <td>
                       <Tag>{event.endAction}</Tag>
-                    </th>
-                    <th>{event.user0}</th>
-                    <th>{event.user1}</th>
-                    <th>{event.user2}</th>
-                    <th>{event.user3}</th>
-                    <th>{event.user4}</th>
-                    <th>{event.user5}</th>
-                    <th>{event.user6}</th>
-                    <th>{event.user7}</th>
-                    <th>{event.user8}</th>
-                    <th>{event.user9}</th>
+                    </td>
+                    <td>{event.user0}</td>
+                    <td>{event.user1}</td>
+                    <td>{event.user2}</td>
+                    <td>{event.user3}</td>
+                    <td>{event.user4}</td>
+                    <td>{event.user5}</td>
+                    <td>{event.user6}</td>
+                    <td>{event.user7}</td>
+                    <td>{event.user8}</td>
+                    <td>{event.user9}</td>
                   </tr>
                 );
               }

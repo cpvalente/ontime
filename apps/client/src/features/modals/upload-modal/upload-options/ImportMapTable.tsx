@@ -19,18 +19,18 @@ export default function ImportMapTable(props: ImportMapTableProps) {
   return (
     <table className={style.importTable}>
       <thead>
-        <tr>{title}</tr>
+        <tr>
+          <td colSpan={2}>{title}</td>
+        </tr>
       </thead>
       <tbody>
         {fields.map((field) => {
           return (
             <tr key={field.title}>
-              <td>
-                <label className={style.label} htmlFor={field.title}>
-                  {field.title}
-                </label>
+              <td className={style.label}>
+                <label htmlFor={field.title}>{field.title}</label>
               </td>
-              <td>
+              <td className={style.input}>
                 <Input
                   id={field.title}
                   size='xs'

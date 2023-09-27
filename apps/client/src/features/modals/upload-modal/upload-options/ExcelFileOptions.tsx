@@ -1,10 +1,8 @@
 import { MutableRefObject } from 'react';
-import { Input } from '@chakra-ui/react';
 
-import ModalSplitInput from '../../ModalSplitInput';
+import { ExcelInputOptions } from '../UploadModal';
 
 import ImportMapTable, { type TableEntry } from './ImportMapTable';
-import { ExcelInputOptions } from '../UploadModal';
 
 import style from '../UploadModal.module.scss';
 
@@ -60,16 +58,16 @@ export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
 
   return (
     <div className={style.uploadOptions}>
-      <div className={style.twoColumn}>
+      <div className={style.twoEqualColumn}>
         <ImportMapTable title='Import options' fields={worksheet} handleOnChange={updateRef} />
       </div>
 
-      <div className={style.twoColumn}>
+      <div className={style.twoEqualColumn}>
         <ImportMapTable title='Timings' fields={timings} handleOnChange={updateRef} />
         <ImportMapTable title='Options' fields={options} handleOnChange={updateRef} />
       </div>
 
-      <div className={style.twoColumn}>
+      <div className={style.twoEqualColumn}>
         <ImportMapTable title='Titles' fields={titles} handleOnChange={updateRef} />
         <ImportMapTable title='User Fields' fields={userFields} handleOnChange={updateRef} />
       </div>

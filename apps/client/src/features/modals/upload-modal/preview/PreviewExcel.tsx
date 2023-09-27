@@ -15,9 +15,10 @@ export default function PreviewExcel(props: PreviewExcelProps) {
   const { rundown, project, userFields } = props;
 
   return (
-    <div className={style.columnSection}>
+    <div className={`${style.column} ${style.noHover}`}>
       <div className={style.title}>Review Project Data</div>
       <PreviewProjectData project={project} />
+      <div className={style.vSpacer} />
       <div className={style.title}>Review Rundown</div>
       <PreviewRundown rundown={rundown} userFields={userFields} />
     </div>

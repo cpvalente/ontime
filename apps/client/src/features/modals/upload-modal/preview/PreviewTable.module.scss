@@ -42,4 +42,19 @@
   tr:nth-child(odd) {
     background-color: $gray-50;
   }
+
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0 0.5em;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
 }
+

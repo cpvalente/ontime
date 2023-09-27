@@ -21,10 +21,10 @@ export default function UploadEntry(props: UploadEntryProps) {
   if (errors) {
     return (
       <div className={`${style.uploadedItem} ${style.error}`}>
+        <IoClose className={style.cancelUpload} onClick={handleClear} />
         <IoWarningOutline className={style.icon} />
         <span className={style.fileTitle}>{errors}</span>
         <span className={style.fileInfo}>Please try again</span>
-        <Progress className={style.fileProgress} value={progress} />
       </div>
     );
   }
