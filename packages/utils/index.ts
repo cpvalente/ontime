@@ -23,3 +23,10 @@ export { deepmerge } from './src/externals/deepmerge.js';
 
 // generic utilities
 export { isNumeric } from './src/types/types.js';
+// feature business logic - excel import
+export {
+  type ExcelImportMap,
+  type ExcelImportOptions,
+  defaultExcelImportMap,
+  isExcelImportMap,
+} from './src/feature/excel-import/excelImport.js';
