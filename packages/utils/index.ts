@@ -18,5 +18,8 @@ export { millisToString } from './src/date-utils/millisToString.js';
 // time utils
 export { dayInMs, mts } from './src/timeConstants.js';
 
+// helpers from externals
+export { deepmerge } from './src/externals/deepmerge.js';
+
 // generic utilities
 export { isNumeric } from './src/types/types.js';
