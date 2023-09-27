@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { LogLevel } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
+import { ontimeQueryClient } from '../queryClient';
 import { addLog } from '../stores/logger';
 import { nowInMillis } from '../utils/time';
 
@@ -33,4 +34,17 @@ export function logAxiosError(prepend: string, error: unknown) {
     level: LogLevel.Error,
     text: message,
   });
+}
+
+export async function invalidateAllCaches() {
+  await ontimeQueryClient.invalidateQueries([
+    'project',
+    'aliases',
+    'userFields',
+    'rundown',
+    'appinfo',
+    'oscSettings',
+    'appSettings',
+    'viewSettings',
+  ]);
 }

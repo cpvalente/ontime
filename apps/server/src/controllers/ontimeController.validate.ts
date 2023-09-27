@@ -118,3 +118,18 @@ export const validateOscSubscription = [
     next();
   },
 ];
+
+export const validatePatchProjectFile = [
+  body('rundown').isArray().optional({ nullable: false }),
+  body('project').isObject().optional({ nullable: false }),
+  body('settings').isObject().optional({ nullable: false }),
+  body('viewSettings').isObject().optional({ nullable: false }),
+  body('aliases').isArray().optional({ nullable: false }),
+  body('userFields').isObject().optional({ nullable: false }),
+  body('osc').isObject().optional({ nullable: false }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
