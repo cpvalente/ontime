@@ -42,11 +42,6 @@ describe('safeMerge', () => {
         onFinish: [],
       },
     },
-    http: {
-      enabled: true,
-      user: null,
-      pwd: null,
-    },
   };
 
   it('returns existing data if new data is not provided', () => {
@@ -187,19 +182,6 @@ describe('safeMerge', () => {
           onUpdate: [],
           onFinish: [],
         },
-      },
-      http: {
-        user: null,
-        pwd: null,
-        messages: {
-          onLoad: [],
-          onStart: [],
-          onUpdate: [],
-          onPause: [],
-          onStop: [],
-          onFinish: [],
-        },
-        enabled: true,
       },
     };
 

@@ -287,13 +287,13 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
     updateTimer();
   }
 
-  if (options.external) {
-    // advice socket subscribers of change
-    sendRefetch();
-  }
-
   if (options.reset) {
     // force rundown to be recalculated
     forceReset();
+  }
+
+  if (options.external) {
+    // advice socket subscribers of change
+    sendRefetch();
   }
 }

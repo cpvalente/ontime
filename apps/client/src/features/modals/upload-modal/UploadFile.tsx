@@ -17,18 +17,25 @@ export default function UploadFile() {
 
   const clearFile = () => {
     setFile(null);
+    setErrors('');
   };
 
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
-    const fileSelected = event?.target?.files?.[0];
-    if (!fileSelected) return;
+    setErrors('');
 
-    const validate = validateFile(fileSelected);
-    setErrors(validate.errors?.[0]);
+    const selectedFile = event?.target?.files?.[0];
+    if (!selectedFile) {
+      setFile(null);
+      return;
+    }
 
-    if (validate.isValid) {
-      setFile(fileSelected);
-    } else {
+    try {
+      validateFile(selectedFile);
+      setFile(selectedFile);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrors(error.message);
+      }
       setFile(null);
     }
   };
@@ -47,9 +54,11 @@ export default function UploadFile() {
         accept='.json, .xlsx'
         data-testid='file-input'
       />
-      <div className={style.uploadArea} onClick={handleClick}>
-        Click to upload Ontime project or xlsx file
-      </div>
+      {!file && (
+        <div className={style.uploadArea} onClick={handleClick}>
+          Click to upload Ontime project or xlsx file
+        </div>
+      )}
       {(file || errors) && (
         <UploadEntry file={file} errors={errors} progress={progress} success={success} handleClear={clearFile} />
       )}
