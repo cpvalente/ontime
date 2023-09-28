@@ -1,18 +1,18 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck -- not ready to fully type
+import {
+  generateId,
+  calculateDuration,
+  isExcelImportMap,
+  type ExcelImportMap,
+  defaultExcelImportMap,
+  validateEndAction,
+  validateTimerType,
+  type ExcelImportOptions,
+} from 'ontime-utils';
+import { DatabaseModel, OntimeEvent, OntimeRundown, SupportedEvent, ProjectData, UserFields } from 'ontime-types';
 
 import fs from 'fs';
 import xlsx from 'node-xlsx';
-import { generateId, calculateDuration } from 'ontime-utils';
-import {
-  DatabaseModel,
-  EndAction,
-  OntimeEvent,
-  OntimeRundown,
-  SupportedEvent,
-  TimerType,
-  UserFields,
-} from 'ontime-types';
+
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString } from './parserUtils.js';
@@ -33,27 +33,55 @@ export const JSON_MIME = 'application/json';
 /**
  * @description Excel array parser
  * @param {array} excelData - array with excel sheet
+ * @param {ExcelImportOptions} options - an object that contains the import map
  * @returns {object} - parsed object
  */
-export const parseExcel = async (excelData) => {
+export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>) => {
+  const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
   const projectData: Partial<ProjectData> = {
     title: '',
     description: '',
     publicUrl: '',
+    publicInfo: '',
     backstageUrl: '',
+    backstageInfo: '',
   };
-  const customUserFields: Partial<UserFields> = {};
+  const customUserFields: Partial<UserFields> = {
+    user0: importMap.user0,
+    user1: importMap.user1,
+    user2: importMap.user2,
+    user3: importMap.user3,
+    user4: importMap.user4,
+    user5: importMap.user5,
+    user6: importMap.user6,
+    user7: importMap.user7,
+    user8: importMap.user8,
+    user9: importMap.user9,
+  };
   const rundown: OntimeRundown = [];
-  let timeStartIndex: number | null = null;
-  let timeEndIndex: number | null = null;
+
+  // title stuff: strings
   let titleIndex: number | null = null;
   let cueIndex: number | null = null;
   let presenterIndex: number | null = null;
   let subtitleIndex: number | null = null;
-  let isPublicIndex: number | null = null;
-  let skipIndex: number | null = null;
   let notesIndex: number | null = null;
   let colourIndex: number | null = null;
+
+  // options: booleans
+  let isPublicIndex: number | null = null;
+  let skipIndex: number | null = null;
+
+  // times: numbers
+  // TODO: handle duration
+  let timeStartIndex: number | null = null;
+  let timeEndIndex: number | null = null;
+
+  // options: enum properties
+  let endActionIndex: number | null = null;
+  let timerTypeIndex: number | null = null;
+
+  // user fields: strings
   let user0Index: number | null = null;
   let user1Index: number | null = null;
   let user2Index: number | null = null;
@@ -64,12 +92,11 @@ export const parseExcel = async (excelData) => {
   let user7Index: number | null = null;
   let user8Index: number | null = null;
   let user9Index: number | null = null;
-  let endActionIndex: number | null = null;
-  let timerTypeIndex: number | null = null;
 
   excelData
     .filter((e) => e.length > 0)
     .forEach((row) => {
+      // these fields contain the data to its right
       let eventTitleNext = false;
       let projectTitleNext = false;
       let publicUrlNext = false;
@@ -80,24 +107,24 @@ export const parseExcel = async (excelData) => {
       const event: Partial<OntimeEvent> = {};
 
       row.forEach((column, j) => {
-        // check flags
+        // 1. we check if we have set a flag for a known field
         if (eventTitleNext) {
-          projectData.title = column;
+          projectData.title = makeString(column, '');
           eventTitleNext = false;
         } else if (projectTitleNext) {
-          projectData.description = column;
+          projectData.description = makeString(column, '');
           projectTitleNext = false;
         } else if (publicUrlNext) {
-          projectData.publicUrl = column;
+          projectData.publicUrl = makeString(column, '');
           publicUrlNext = false;
         } else if (publicInfoNext) {
-          projectData.publicInfo = column;
+          projectData.publicInfo = makeString(column, '');
           publicInfoNext = false;
         } else if (backstageUrlNext) {
-          projectData.backstageUrl = column;
+          projectData.backstageUrl = makeString(column, '');
           backstageUrlNext = false;
         } else if (backstageInfoNext) {
-          projectData.backstageInfo = column;
+          projectData.backstageInfo = makeString(column, '');
           backstageInfoNext = false;
         } else if (j === timeStartIndex) {
           event.timeStart = parseExcelDate(column);
@@ -118,155 +145,127 @@ export const parseExcel = async (excelData) => {
         } else if (j === notesIndex) {
           event.note = makeString(column, '');
         } else if (j === endActionIndex) {
-          if (column === '') {
-            event.endAction = EndAction.None;
-          } else {
-            event.endAction = column;
-          }
+          event.endAction = validateEndAction(column);
         } else if (j === timerTypeIndex) {
-          if (column === '') {
-            event.timerType = TimerType.CountDown;
-          } else {
-            event.timerType = column;
-          }
+          event.timerType = validateTimerType(column);
         } else if (j === colourIndex) {
-          event.colour = column;
+          event.colour = makeString(column, '');
         } else if (j === user0Index) {
-          event.user0 = column;
+          event.user0 = makeString(column, '');
         } else if (j === user1Index) {
-          event.user1 = column;
+          event.user1 = makeString(column, '');
         } else if (j === user2Index) {
-          event.user2 = column;
+          event.user2 = makeString(column, '');
         } else if (j === user3Index) {
-          event.user3 = column;
+          event.user3 = makeString(column, '');
         } else if (j === user4Index) {
-          event.user4 = column;
+          event.user4 = makeString(column, '');
         } else if (j === user5Index) {
-          event.user5 = column;
+          event.user5 = makeString(column, '');
         } else if (j === user6Index) {
-          event.user6 = column;
+          event.user6 = makeString(column, '');
         } else if (j === user7Index) {
-          event.user7 = column;
+          event.user7 = makeString(column, '');
         } else if (j === user8Index) {
-          event.user8 = column;
+          event.user8 = makeString(column, '');
         } else if (j === user9Index) {
-          event.user9 = column;
+          event.user9 = makeString(column, '');
         } else {
+          // 2. if there is no flag, lets see if we know the field type
           if (typeof column === 'string') {
             const col = column.toLowerCase();
 
             // look for keywords
             // need to make sure it is a string first
             switch (col) {
-              case 'project name':
+              case importMap.projectName:
                 eventTitleNext = true;
                 break;
-              case 'project description':
+              case importMap.projectDescription:
                 projectTitleNext = true;
                 break;
-              case 'public url':
+              case importMap.publicUrl:
                 publicUrlNext = true;
                 break;
-              case 'public info':
+              case importMap.publicInfo:
                 publicInfoNext = true;
                 break;
-              case 'backstage url':
+              case importMap.backstageUrl:
                 backstageUrlNext = true;
                 break;
-              case 'backstage info':
+              case importMap.backstageInfo:
                 backstageInfoNext = true;
                 break;
-              case 'time start':
-              case 'start':
+              case importMap.timeStart:
                 timeStartIndex = j;
                 break;
-              case 'time end':
-              case 'end':
-              case 'finish':
+              case importMap.timeEnd:
                 timeEndIndex = j;
                 break;
-              case 'cue':
-              case 'page':
+              case importMap.cue:
                 cueIndex = j;
                 break;
-              case 'event title':
-              case 'title':
+              case importMap.title:
                 titleIndex = j;
                 break;
-              case 'presenter name':
-              case 'speaker':
-              case 'presenter':
+              case importMap.presenter:
                 presenterIndex = j;
                 break;
-              case 'event subtitle':
-              case 'subtitle':
+              case importMap.subtitle:
                 subtitleIndex = j;
                 break;
-              case 'is public? (x)':
-              case 'is public':
-              case 'public':
+              case importMap.isPublic:
                 isPublicIndex = j;
                 break;
-              case 'skip? (x)':
-              case 'skip?':
-              case 'skip':
+              case importMap.skip:
                 skipIndex = j;
                 break;
-              case 'note':
-              case 'notes':
+              case importMap.note:
                 notesIndex = j;
                 break;
-              case 'colour':
-              case 'color':
+              case importMap.colour:
                 colourIndex = j;
                 break;
-              case 'end action':
+              case importMap.endAction:
                 endActionIndex = j;
                 break;
-              case 'timer type':
+              case importMap.timerType:
                 timerTypeIndex = j;
                 break;
-              default:
-                // look for user defined
-                if (col.startsWith('user')) {
-                  const index = column.charAt(4);
-                  // name is the bit after the :
-                  const [, name] = column.split(':');
-                  if (typeof name !== 'undefined') {
-                    if (index === '0') {
-                      customUserFields.user0 = name;
-                      user0Index = j;
-                    } else if (index === '1') {
-                      customUserFields.user1 = name;
-                      user1Index = j;
-                    } else if (index === '2') {
-                      customUserFields.user2 = name;
-                      user2Index = j;
-                    } else if (index === '3') {
-                      customUserFields.user3 = name;
-                      user3Index = j;
-                    } else if (index === '4') {
-                      customUserFields.user4 = name;
-                      user4Index = j;
-                    } else if (index === '5') {
-                      customUserFields.user5 = name;
-                      user5Index = j;
-                    } else if (index === '6') {
-                      customUserFields.user6 = name;
-                      user6Index = j;
-                    } else if (index === '7') {
-                      customUserFields.user7 = name;
-                      user7Index = j;
-                    } else if (index === '8') {
-                      customUserFields.user8 = name;
-                      user8Index = j;
-                    } else if (index === '9') {
-                      customUserFields.user9 = name;
-                      user9Index = j;
-                    }
-                  }
-                }
+              case importMap.user0:
+                user0Index = j;
                 break;
+              case importMap.user1:
+                user1Index = j;
+                break;
+              case importMap.user2:
+                user2Index = j;
+                break;
+              case importMap.user3:
+                user3Index = j;
+                break;
+              case importMap.user4:
+                user4Index = j;
+                break;
+              case importMap.user5:
+                user5Index = j;
+                break;
+              case importMap.user6:
+                user6Index = j;
+                break;
+              case importMap.user7:
+                user7Index = j;
+                break;
+              case importMap.user8:
+                user8Index = j;
+                break;
+              case importMap.user9:
+                user9Index = j;
+                break;
+
+              default:
+              // we don't know how to handle this column
+              // just ignore it
             }
           }
         }
@@ -285,17 +284,16 @@ export const parseExcel = async (excelData) => {
       app: 'ontime',
       version: 2,
     },
-    userFields: { ...dbModel.userFields, ...customUserFields },
+    userFields: customUserFields,
   };
 };
 
 /**
- * @description JSON parser function for v1 of data system
- * @param {object} jsonData - json data JSON object to be parsed
- * @param {boolean} [enforce=false] - flag, tells to create an object anyway
+ * @description JSON parser function for ontime project file
+ * @param {object} jsonData - project file to be parsed
  * @returns {object} - parsed object
  */
-export const parseJson = async (jsonData, enforce = false): Promise<DatabaseModel | null> => {
+export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
   if (!jsonData || typeof jsonData !== 'object') {
     return null;
   }
@@ -306,17 +304,17 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
   // parse Events
   returnData.rundown = parseRundown(jsonData);
   // parse Event
-  returnData.project = parseProject(jsonData, enforce);
+  returnData.project = parseProject(jsonData) ?? dbModel.project;
   // Settings handled partially
-  returnData.settings = parseSettings(jsonData, enforce);
+  returnData.settings = parseSettings(jsonData) ?? dbModel.settings;
   // View settings handled partially
-  returnData.viewSettings = parseViewSettings(jsonData, enforce);
+  returnData.viewSettings = parseViewSettings(jsonData) ?? dbModel.viewSettings;
   // Import Aliases if any
   returnData.aliases = parseAliases(jsonData);
   // Import user fields if any
   returnData.userFields = parseUserFields(jsonData);
   // Import OSC settings if any
-  returnData.osc = parseOsc(jsonData, enforce);
+  returnData.osc = parseOsc(jsonData) ?? dbModel.osc;
   // Import HTTP settings if any
   // returnData.http = parseHttp(jsonData, enforce);
 
@@ -379,68 +377,56 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
   return event;
 };
 
-type ResponseOK = { data: Partial<DatabaseModel>; message: 'success' };
-type ResponseError = { error: true; message: string };
+type ResponseOK = {
+  data: Partial<DatabaseModel>;
+};
 
 /**
  * @description Middleware function that checks file type and calls relevant parser
  * @param {string} file - reference to file
+ * @param options - import options
  * @return {object} - parse result message
  */
-export const fileHandler = async (file): Promise<ResponseOK | ResponseError> => {
-  let res: Partial<ResponseOK | ResponseError> = {};
+export const fileHandler = async (file: string, options: ExcelImportOptions): Promise<Partial<ResponseOK>> => {
+  const res: Partial<ResponseOK> = {};
 
   // check which file type are we dealing with
   if (file.endsWith('.xlsx')) {
-    try {
-      const excelData = xlsx
-        .parse(file, { cellDates: true })
-        .find(({ name }) => name.toLowerCase() === 'ontime' || name.toLowerCase() === 'event schedule');
+    // we need to check that the options are applicable
+    if (!isExcelImportMap(options)) {
+      throw new Error('Got incorrect options to excel import', JSON.parse(options));
+    }
 
-      // we only look at worksheets called ontime or event schedule
-      if (excelData?.data) {
-        const dataFromExcel = await parseExcel(excelData.data);
-        res.data = {};
-        res.data.rundown = parseRundown(dataFromExcel);
-        res.data.project = parseProject(dataFromExcel, true);
-        res.data.userFields = parseUserFields(dataFromExcel);
-        res.message = 'success';
-      } else {
-        const errorMessage = 'No sheet found named "ontime" or "event schedule"';
-        res = {
-          error: true,
-          message: errorMessage,
-        };
-      }
-    } catch (error) {
-      res = { error: true, message: `Error parsing file: ${error}` };
+    const excelData = xlsx
+      .parse(file, { cellDates: true })
+      .find(({ name }) => name.toLowerCase() === options.worksheet);
+
+    if (excelData?.data) {
+      const dataFromExcel = parseExcel(excelData.data, options);
+      // we run the parsed data through an extra step to ensure the objects shape
+      res.data = {};
+      res.data.rundown = parseRundown(dataFromExcel);
+      res.data.project = parseProject(dataFromExcel);
+      res.data.userFields = parseUserFields(dataFromExcel);
+      return res;
+    } else {
+      throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
     }
   }
 
   if (file.endsWith('.json')) {
     // if json check version
-    const rawdata = fs.readFileSync(file);
+    const rawdata = fs.readFileSync(file).toString();
     let uploadedJson = null;
 
-    try {
-      uploadedJson = JSON.parse(rawdata);
-    } catch (error) {
-      return { error: true, message: 'Error parsing JSON file' };
+    uploadedJson = JSON.parse(rawdata);
+    if (uploadedJson.settings.version !== 2) {
+      throw new Error(`Project version unknown ${uploadedJson.settings.version}`);
     }
+    res.data = await parseJson(uploadedJson);
 
-    if (uploadedJson.settings.version === 2) {
-      try {
-        res.data = await parseJson(uploadedJson);
-        res.message = 'success';
-      } catch (error) {
-        res = { error: true, message: `Error parsing file: ${error}` };
-      }
-    } else {
-      res = { error: true, message: 'Error parsing file, version unknown' };
-    }
+    // delete file
+    await deleteFile(file);
+    return res;
   }
-
-  // delete file
-  await deleteFile(file);
-  return res;
 };

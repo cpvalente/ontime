@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { deepmerge } from 'ontime-utils';
 
 /**
  * @description Ensures variable is string, it skips object types
@@ -52,16 +53,30 @@ export const isEmptyObject = (obj: object) => {
 
 /**
  * @description Merges two objects, suppressing undefined keys
- * @param {object} a
- * @param {object} b
+ * @param {object} a - any object
+ * @param {object} b - a potential partial object of same time as a
  */
-export const mergeObject = (a, b) => {
-  const merged = {};
-  Object.keys({ ...a, ...b }).map((key) => {
-    merged[key] = typeof b[key] === 'undefined' ? a[key] : b[key];
-  });
+export function mergeObject<T extends Record<string, any>>(a: T, b: Partial<Record<keyof T, any>>): T {
+  const merged = { ...a };
+
+  for (const key in b) {
+    const aValue = a[key];
+    const bValue = b[key];
+
+    // ignore keys that do not exist in original object
+    if (!Object.hasOwn(merged, key)) {
+      continue;
+    }
+
+    if (typeof bValue === 'object' && bValue !== null && typeof aValue === 'object' && aValue !== null) {
+      // @ts-expect-error -- library side, ignore for now
+      merged[key] = deepmerge(aValue, bValue);
+    } else if (bValue !== undefined) {
+      merged[key] = bValue;
+    }
+  }
   return merged;
-};
+}
 
 /**
  * @description Removes undefined

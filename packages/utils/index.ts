@@ -23,6 +23,12 @@ export { deepmerge } from './src/externals/deepmerge.js';
 
 // generic utilities
 export { isNumeric } from './src/types/types.js';
+
+// model validation
+export { validateEndAction, validateTimerType } from './src/validate-events/validateEvent.js';
+
+// feature business logic
+
 // feature business logic - excel import
 export {
   type ExcelImportMap,
