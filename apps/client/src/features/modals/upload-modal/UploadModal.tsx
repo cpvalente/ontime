@@ -32,6 +32,7 @@ import { useUploadModalContextStore } from './uploadModalContext';
 import { isExcelFile, isOntimeFile } from './uploadUtils';
 
 import style from './UploadModal.module.scss';
+import { PROJECT_DATA, RUNDOWN_TABLE, USERFIELDS } from '../../../common/api/apiConstants';
 
 export type UploadStep = 'upload' | 'review';
 
@@ -132,7 +133,12 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
       setSubmitting(true);
       try {
         await patchData({ rundown, userFields, project });
-        await queryClient.invalidateQueries(['rundown', 'userFields', 'project']);
+        queryClient.setQueryData(RUNDOWN_TABLE, rundown);
+        queryClient.setQueryData(USERFIELDS, userFields);
+        queryClient.setQueryData(PROJECT_DATA, project);
+        await queryClient.invalidateQueries({
+          queryKey: [...RUNDOWN_TABLE, ...USERFIELDS, ...PROJECT_DATA],
+        });
         doClose = true;
       } catch (error) {
         const message = maybeAxiosError(error);
