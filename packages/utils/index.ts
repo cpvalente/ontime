@@ -1,12 +1,13 @@
 // runtime utils
 export { getFirst, getFirstEvent, getLastEvent, getNext, getPrevious } from './src/rundown-utils/rundownUtils.js';
 export { validatePlayback } from './src/validate-action/validatePlayback.js';
+export { validateTimes } from './src/validate-events/validateEvent.js';
+export { calculateDuration } from './src/validate-events/validateEvent.js';
 
 // rundown utils
 export { sanitiseCue } from './src/cue-utils/cueUtils.js';
 export { getCueCandidate } from './src/cue-utils/cueUtils.js';
 export { generateId } from './src/generate-id/generateId.js';
-export { calculateDuration } from './src/rundown-utils/rundownUtils.js';
 export { swapOntimeEvents } from './src/rundown-utils/rundownUtils.js';
 
 // format utils

@@ -1,14 +1,23 @@
 import {
   generateId,
-  calculateDuration,
   isExcelImportMap,
   type ExcelImportMap,
   defaultExcelImportMap,
   validateEndAction,
   validateTimerType,
   type ExcelImportOptions,
+  validateTimes,
 } from 'ontime-utils';
-import { DatabaseModel, OntimeEvent, OntimeRundown, SupportedEvent, ProjectData, UserFields } from 'ontime-types';
+import {
+  DatabaseModel,
+  OntimeEvent,
+  OntimeRundown,
+  SupportedEvent,
+  ProjectData,
+  UserFields,
+  EndAction,
+  TimerType,
+} from 'ontime-types';
 
 import fs from 'fs';
 import xlsx from 'node-xlsx';
@@ -73,9 +82,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   let skipIndex: number | null = null;
 
   // times: numbers
-  // TODO: handle duration
   let timeStartIndex: number | null = null;
   let timeEndIndex: number | null = null;
+  let durationIndex: number | null = null;
 
   // options: enum properties
   let endActionIndex: number | null = null;
@@ -130,6 +139,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
           event.timeStart = parseExcelDate(column);
         } else if (j === timeEndIndex) {
           event.timeEnd = parseExcelDate(column);
+        } else if (j === durationIndex) {
+          event.duration = parseExcelDate(column);
         } else if (j === titleIndex) {
           event.title = makeString(column, '');
         } else if (j === cueIndex) {
@@ -202,6 +213,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
               case importMap.timeEnd:
                 timeEndIndex = j;
                 break;
+              case importMap.duration:
+                durationIndex = j;
+                break;
               case importMap.cue:
                 cueIndex = j;
                 break;
@@ -273,10 +287,10 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
 
       if (Object.keys(event).length > 0) {
         // if any data was found, push to array
-        // take care of it in the next step
         rundown.push({ ...event, type: SupportedEvent.Event } as OntimeEvent);
       }
     });
+
   return {
     rundown,
     project: projectData,
@@ -344,16 +358,18 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
     const start = e.timeStart != null && typeof e.timeStart === 'number' ? e.timeStart : d.timeStart;
     const end = e.timeEnd != null && typeof e.timeEnd === 'number' ? e.timeEnd : d.timeEnd;
 
+    const { timeStart, timeEnd, duration } = validateTimes(start, end, e.duration);
+
     event = {
       ...d,
       title: makeString(e.title, d.title),
       subtitle: makeString(e.subtitle, d.subtitle),
       presenter: makeString(e.presenter, d.presenter),
-      timeStart: start,
-      timeEnd: end,
-      endAction: makeString(e.endAction, d.endAction),
-      timerType: makeString(e.timerType, d.timerType),
-      duration: calculateDuration(start, end),
+      timeStart,
+      timeEnd,
+      duration,
+      endAction: validateEndAction(e.endAction, EndAction.None),
+      timerType: validateTimerType(e.timerType, TimerType.CountDown),
       isPublic: typeof e.isPublic === 'boolean' ? e.isPublic : d.isPublic,
       skip: typeof e.skip === 'boolean' ? e.skip : d.skip,
       note: makeString(e.note, d.note),
@@ -368,8 +384,8 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
       user8: makeString(e.user8, d.user8),
       user9: makeString(e.user9, d.user9),
       colour: makeString(e.colour, d.colour),
-      id,
       cue: makeString(e.cue, cueFallback),
+      id,
       type: 'event',
     };
   }
