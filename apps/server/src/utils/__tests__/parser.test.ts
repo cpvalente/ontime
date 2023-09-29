@@ -525,7 +525,7 @@ describe('test event validator', () => {
     expect(typeof validated.timeStart).toEqual('number');
     expect(validated.timeStart).toEqual(0);
     expect(typeof validated.timeEnd).toEqual('number');
-    expect(validated.timeEnd).toEqual(0);
+    expect(validated.timeEnd).toEqual(2);
   });
 
   it('handles bad objects', () => {

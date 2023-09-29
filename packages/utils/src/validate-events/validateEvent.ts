@@ -40,10 +40,15 @@ export const calculateDuration = (timeStart: number, timeEnd: number): number =>
   return timeEnd - timeStart;
 };
 
-export function validateTimes(_start?: number | null, _end?: number | null, _duration?: number | null) {
-  const timeStart = _start ?? 0;
-  const timeEnd = _end ?? 0;
-  const duration = _duration ?? 0;
+function convertToInteger(value: unknown): number {
+  const result = Number(value);
+  return isNaN(result) ? 0 : Math.floor(result);
+}
+
+export function validateTimes(_start?: unknown, _end?: unknown, _duration?: unknown) {
+  const timeStart = convertToInteger(_start);
+  const timeEnd = convertToInteger(_end);
+  const duration = convertToInteger(_duration);
 
   if (_start != null && _end != null) {
     // Case 1. if we have start and end, duration must be derived
@@ -56,7 +61,7 @@ export function validateTimes(_start?: number | null, _end?: number | null, _dur
       return { timeStart, duration, timeEnd };
     }
     // Case 3. we have a duration and infer the rest
-    return { timeStart, duration: _duration, timeEnd: _duration };
+    return { timeStart, duration, timeEnd: duration };
   }
 
   if (_start != null) {

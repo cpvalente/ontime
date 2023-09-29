@@ -86,4 +86,11 @@ describe('validateTimes()', () => {
     expect(timeEnd).toBe(10);
     expect(duration).toBe(10);
   });
+
+  it('ensures values are integers', () => {
+    const { timeStart, timeEnd, duration } = validateTimes(0.000001, 10.312335342, 10);
+    expect(timeStart).toBe(0);
+    expect(timeEnd).toBe(10);
+    expect(duration).toBe(10);
+  });
 });
