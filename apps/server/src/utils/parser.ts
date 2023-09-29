@@ -106,8 +106,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
     .filter((e) => e.length > 0)
     .forEach((row) => {
       // these fields contain the data to its right
-      let eventTitleNext = false;
       let projectTitleNext = false;
+      let projectDescriptionNext = false;
       let publicUrlNext = false;
       let publicInfoNext = false;
       let backstageUrlNext = false;
@@ -117,12 +117,12 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
 
       row.forEach((column, j) => {
         // 1. we check if we have set a flag for a known field
-        if (eventTitleNext) {
+        if (projectTitleNext) {
           projectData.title = makeString(column, '');
-          eventTitleNext = false;
-        } else if (projectTitleNext) {
-          projectData.description = makeString(column, '');
           projectTitleNext = false;
+        } else if (projectDescriptionNext) {
+          projectData.description = makeString(column, '');
+          projectDescriptionNext = false;
         } else if (publicUrlNext) {
           projectData.publicUrl = makeString(column, '');
           publicUrlNext = false;
@@ -190,10 +190,10 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
             // need to make sure it is a string first
             switch (col) {
               case importMap.projectName:
-                eventTitleNext = true;
+                projectTitleNext = true;
                 break;
               case importMap.projectDescription:
-                projectTitleNext = true;
+                projectDescriptionNext = true;
                 break;
               case importMap.publicUrl:
                 publicUrlNext = true;
