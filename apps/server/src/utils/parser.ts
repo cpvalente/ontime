@@ -355,10 +355,8 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
 
     const e = eventArgs;
     const d = eventDef;
-    const start = e.timeStart != null && typeof e.timeStart === 'number' ? e.timeStart : d.timeStart;
-    const end = e.timeEnd != null && typeof e.timeEnd === 'number' ? e.timeEnd : d.timeEnd;
 
-    const { timeStart, timeEnd, duration } = validateTimes(start, end, e.duration);
+    const { timeStart, timeEnd, duration } = validateTimes(e.timeStart, e.timeEnd, e.duration);
 
     event = {
       ...d,
