@@ -90,17 +90,17 @@ export const forgivingStringToMillis = (value: string, fillLeft = true): number 
 
  */
 export const parseExcelDate = (excelDate: unknown): number => {
-  if (typeof excelDate !== 'string') {
-    return 0;
+  if (excelDate instanceof Date) {
+    return dateToMillis(excelDate);
+  } else if (typeof excelDate === 'string') {
+    const date = new Date(excelDate);
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      return dateToMillis(date);
+    } else if (isTimeString(excelDate)) {
+      return forgivingStringToMillis(excelDate);
+    }
   }
 
-  // attempt converting to date object
-  const date = new Date(excelDate);
-  if (date instanceof Date && !isNaN(date.getTime())) {
-    return dateToMillis(date);
-  } else if (isTimeString(excelDate)) {
-    return forgivingStringToMillis(excelDate);
-  }
   return 0;
 };
 
