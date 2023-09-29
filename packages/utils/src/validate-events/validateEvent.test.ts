@@ -2,7 +2,7 @@ import { EndAction, TimerType } from 'ontime-types';
 import { expect } from 'vitest';
 
 import { dayInMs } from '../timeConstants.js';
-import { validateEndAction, validateTimerType, validateTimes } from './validateEvent.js';
+import { calculateDuration, validateEndAction, validateTimerType, validateTimes } from './validateEvent.js';
 
 describe('validateEndAction()', () => {
   it('recognises a string representation of an action', () => {
@@ -92,5 +92,27 @@ describe('validateTimes()', () => {
     expect(timeStart).toBe(0);
     expect(timeEnd).toBe(10);
     expect(duration).toBe(10);
+  });
+});
+
+describe('calculateDuration()', () => {
+  describe('Given start and end values', () => {
+    it('is the difference between end and start', () => {
+      const duration = calculateDuration(10, 20);
+      expect(duration).toBe(10);
+    });
+  });
+
+  describe('Handles edge cases', () => {
+    it('handles events that go over midnight', () => {
+      const duration = calculateDuration(51, 50);
+      expect(duration).toBe(dayInMs - 1);
+    });
+    it('handles no difference', () => {
+      const duration1 = calculateDuration(0, 0);
+      const duration2 = calculateDuration(dayInMs, dayInMs);
+      expect(duration1).toBe(0);
+      expect(duration2).toBe(0);
+    });
   });
 });
