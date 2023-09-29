@@ -1,16 +1,14 @@
 import { Input } from '@chakra-ui/react';
-
-import { ExcelInputOptions } from '../UploadModal';
+import { ExcelImportMap } from 'ontime-utils';
 
 import style from './ImportMapTable.module.scss';
 
-// TODO: make this generic
-export type TableEntry = { label: string; title: keyof ExcelInputOptions; value: string };
+export type TableEntry = { label: string; title: keyof ExcelImportMap; value: string };
 
 interface ImportMapTableProps {
   title: string;
   fields: TableEntry[];
-  handleOnChange: (field: keyof ExcelInputOptions, value: string) => void;
+  handleOnChange: (field: keyof ExcelImportMap, value: string) => void;
 }
 
 export default function ImportMapTable(props: ImportMapTableProps) {

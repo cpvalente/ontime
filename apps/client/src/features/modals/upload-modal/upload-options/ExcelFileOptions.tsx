@@ -1,19 +1,18 @@
 import { MutableRefObject } from 'react';
-
-import { ExcelInputOptions } from '../UploadModal';
+import { ExcelImportMap } from 'ontime-utils';
 
 import ImportMapTable, { type TableEntry } from './ImportMapTable';
 
 import style from '../UploadModal.module.scss';
 
 interface ExcelFileOptionsProps {
-  optionsRef: MutableRefObject<ExcelInputOptions>;
+  optionsRef: MutableRefObject<ExcelImportMap>;
 }
 
 export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
   const { optionsRef } = props;
 
-  const updateRef = <T extends keyof ExcelInputOptions>(field: T, value: ExcelInputOptions[T]) => {
+  const updateRef = <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {
     // avoid unnecessary changes
     if (optionsRef.current[field] !== value) {
       optionsRef.current = { ...optionsRef.current, [field]: value };
@@ -39,6 +38,7 @@ export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
 
   const options: TableEntry[] = [
     { label: 'Is Public', title: 'isPublic', value: optionsRef.current.isPublic },
+    { label: 'Skip', title: 'skip', value: optionsRef.current.skip },
     { label: 'Timer Type', title: 'timerType', value: optionsRef.current.timerType },
     { label: 'End Action', title: 'endAction', value: optionsRef.current.endAction },
   ];
