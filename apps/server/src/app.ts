@@ -7,6 +7,8 @@ import cors from 'cors';
 // import utils
 import { join, resolve } from 'path';
 
+import { Playback } from 'ontime-types';
+
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { LogOrigin, OSCSettings } from 'ontime-types';
@@ -31,6 +33,7 @@ import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
+import { PlaybackService } from './services/PlaybackService.js';
 import { restoreService } from './services/RestoreService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -142,7 +145,17 @@ export const startServer = async () => {
   // provide initial payload to event store
   eventLoader.init();
   eventStore.init(getInitialPayload());
-  restoreService.restore();
+  // restoreService.restore();
+  const restorePoint = restoreService.load();
+  if (restorePoint !== null) {
+    if (restorePoint.playback === Playback.Armed) {
+      PlaybackService.loadById(restorePoint.selectedEventId);
+  } else if (restorePoint.playback === Playback.Pause || restorePoint.playback === Playback.Play) {
+      PlaybackService.resumeById(restorePoint.selectedEventId, restorePoint.playback, restorePoint.selectedEventId, restorePoint.startedAt, restorePoint.addedTime, restorePoint.pausedAt);
+  } else if (restorePoint.playback === Playback.Roll) {
+      PlaybackService.roll();
+  }
+  }
 
   expressServer.listen(serverPort, '0.0.0.0');
 
