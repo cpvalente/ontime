@@ -111,7 +111,9 @@ class RestoreService {
     }
 
     clear() {
-        fs.unlinkSync(path.join(this.filePath, 'restore.csv'));
+        if (fs.existsSync(path.join(this.filePath, 'restore.csv'))) {
+            fs.unlinkSync(path.join(this.filePath, 'restore.csv'));
+        }
     }
 }
 
