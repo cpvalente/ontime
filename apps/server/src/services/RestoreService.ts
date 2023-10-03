@@ -8,7 +8,6 @@ import fs from 'fs';
 import path from 'path';
 import { Writer } from 'steno';
 
-
 /**
  * Service manages saveing of timer state
  * that can then be resored when reopening
@@ -62,6 +61,7 @@ class RestoreService {
         } catch (error) {
             logger.info(LogOrigin.Server, `Failed to load restore state: ${error}`);
             this.hasValidData = false;
+            return;
         }
         this.file = new Writer(path.join(this.filePath, 'restore.csv'));
     }
@@ -97,17 +97,16 @@ class RestoreService {
         }
     }
 
-    /**
-    * try to restore timer state from csv
-    */
-    restore() {
-        if (!this.hasValidData) return;
-        if (this.playback === Playback.Armed) {
-            PlaybackService.loadById(this.selectedEventId);
-        } else if (this.playback === Playback.Pause || this.playback === Playback.Play) {
-            PlaybackService.resumeById(this.selectedEventId, this.playback, this.selectedEventId, this.startedAt, this.addedTime, this.pausedAt);
-        } else if (this.playback === Playback.Roll) {
-            PlaybackService.roll();
+    load() {
+        if (!this.hasValidData) {
+            return null;
+        }
+        return {
+            playback: this.playback,
+            selectedEventId: this.selectedEventId,
+            startedAt: this.startedAt,
+            addedTime: this.addedTime,
+            pausedAt: this.pausedAt
         }
     }
 
