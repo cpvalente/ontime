@@ -23,8 +23,8 @@ class RestoreService {
                 fs.writeFileSync(this.filePath, '', 'utf-8');
             } catch (error) {
                 logger.error(LogOrigin.Server, `Could not create restore file ${error}`);
+                return;
             }
-            return;
         }
         this.file = new Writer(this.filePath);
     }
@@ -105,8 +105,12 @@ class RestoreService {
     }
 
     clear() {
-        if (fs.existsSync(this.filePath)) {
-            fs.unlinkSync(this.filePath);
+        if (fs.existsSync(path.join(this.filePath, 'restore.csv'))) {
+            try {
+                fs.unlinkSync(path.join(this.filePath, 'restore.csv'));
+            } catch (error) {
+                logger.error(LogOrigin.Server, `Failed to delete restore file: ${error}`);
+            }
         }
     }
 }
