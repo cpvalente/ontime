@@ -142,11 +142,10 @@ export const startServer = async () => {
 
   socket.init(expressServer);
 
+  const restorePoint = restoreService.load();
   // provide initial payload to event store
   eventLoader.init();
   eventStore.init(getInitialPayload());
-  // restoreService.restore();
-  const restorePoint = restoreService.load();
   if (restorePoint !== null) {
     if (restorePoint.playback === Playback.Armed) {
       PlaybackService.loadById(restorePoint.selectedEventId);

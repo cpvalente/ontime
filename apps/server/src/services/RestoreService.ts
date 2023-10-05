@@ -1,6 +1,5 @@
 import { LogOrigin, Playback } from 'ontime-types';
 import { logger } from '../classes/Logger.js';
-import { PlaybackService } from './PlaybackService.js';
 
 //File stuff
 import { getAppDataPath } from '../setup.js'
@@ -15,55 +14,19 @@ import { Writer } from 'steno';
 class RestoreService {
     private lastStore: string = '';
     private readonly file;
-    private playback: Playback;
-    private selectedEventId: string | null;
-    private startedAt: number | null;
-    private addedTime: number | null;
-    private pausedAt: number | null;
-    private hasValidData;
     private readonly filePath;
 
     constructor() {
-        this.filePath = getAppDataPath();
+        this.filePath = path.join(getAppDataPath(), 'restore.csv');
         if (!fs.existsSync(this.filePath)) {
-            logger.error(LogOrigin.Server, `Could not open app path ${this.filePath}`);
-            this.hasValidData = false;
+            try {
+                fs.writeFileSync(this.filePath, '', 'utf-8');
+            } catch (error) {
+                logger.error(LogOrigin.Server, `Could not create restore file ${error}`);
+            }
             return;
         }
-
-        try {
-            const data = fs.readFileSync(path.join(this.filePath, 'restore.csv'), 'utf-8');
-            const elements = data.split(',');
-            // we expect that a well terminated string, has a newline in the 5th element
-            if (elements[5] !== '\n') {
-                throw new Error(`Missing newline character in restore file`);
-            }
-            const maybePlayback = elements[0] as Playback
-            if (!Object.values(Playback).includes(maybePlayback)) {
-                throw new Error(`Could not phrase element to Playback state: ${elements[0]}`);
-            }
-            this.playback = maybePlayback;
-
-            if (elements[1] === null) {
-                throw new Error(`Element is null`);
-            }
-            const maybeId = elements[1] === 'null' ? null : elements[1];
-            //We cannot access 'EventLoader' now to check the ID because it has not been initialized
-            this.selectedEventId = maybeId;
-
-            this.startedAt = this.toNumberOrNull(elements[2]);
-            this.addedTime = this.toNumberOrNull(elements[3]);
-            this.pausedAt = this.toNumberOrNull(elements[4]);
-
-            logger.info(LogOrigin.Server, 'Found resumable state');
-            this.hasValidData = true;
-
-        } catch (error) {
-            logger.info(LogOrigin.Server, `Failed to load restore state: ${error}`);
-            this.hasValidData = false;
-            return;
-        }
-        this.file = new Writer(path.join(this.filePath, 'restore.csv'));
+        this.file = new Writer(this.filePath);
     }
 
     private toNumberOrNull(elm: string): number | null {
@@ -90,6 +53,9 @@ class RestoreService {
     * @param {number} pausedAt
     */
     async save(playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
+        if (this.file === undefined) {
+            logger.error(LogOrigin.Server, `Restore writer not created`)
+        }
         const newStore = `${playback},${selectedEventId},${startedAt},${addedTime},${pausedAt},\n`;
         if (newStore != this.lastStore) {
             this.lastStore = newStore;
@@ -98,21 +64,49 @@ class RestoreService {
     }
 
     load() {
-        if (!this.hasValidData) {
+        let restorePoint = {
+            playback: null,
+            selectedEventId: null,
+            startedAt: null,
+            addedTime: null,
+            pausedAt: null
+        }
+        try {
+            const data = fs.readFileSync(this.filePath, 'utf-8');
+            const elements = data.split(',');
+            // we expect that a well terminated string, has a newline in the 5th element
+            if (elements[5] !== '\n') {
+                throw new Error(`Missing newline character in restore file`);
+            }
+            const maybePlayback = elements[0] as Playback
+            if (!Object.values(Playback).includes(maybePlayback)) {
+                throw new Error(`Could not phrase element to Playback state: ${elements[0]}`);
+            }
+            restorePoint.playback = maybePlayback;
+
+            if (elements[1] === null) {
+                throw new Error(`Element is null`);
+            }
+            const maybeId = elements[1] === 'null' ? null : elements[1];
+            //We cannot access 'EventLoader' now to check the ID because it has not been initialized
+            restorePoint.selectedEventId = maybeId;
+
+            restorePoint.startedAt = this.toNumberOrNull(elements[2]);
+            restorePoint.addedTime = this.toNumberOrNull(elements[3]);
+            restorePoint.pausedAt = this.toNumberOrNull(elements[4]);
+
+            logger.info(LogOrigin.Server, 'Found resumable state');
+
+        } catch (error) {
+            logger.info(LogOrigin.Server, `Failed to load restore state: ${error}`);
             return null;
         }
-        return {
-            playback: this.playback,
-            selectedEventId: this.selectedEventId,
-            startedAt: this.startedAt,
-            addedTime: this.addedTime,
-            pausedAt: this.pausedAt
-        }
+        return restorePoint;
     }
 
     clear() {
-        if (fs.existsSync(path.join(this.filePath, 'restore.csv'))) {
-            fs.unlinkSync(path.join(this.filePath, 'restore.csv'));
+        if (fs.existsSync(this.filePath)) {
+            fs.unlinkSync(this.filePath);
         }
     }
 }
