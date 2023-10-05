@@ -54,7 +54,8 @@ class RestoreService {
     */
     async save(playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
         if (this.file === undefined) {
-            logger.error(LogOrigin.Server, `Restore writer not created`)
+            logger.error(LogOrigin.Server, `Restore writer not created`);
+            return;
         }
         const newStore = `${playback},${selectedEventId},${startedAt},${addedTime},${pausedAt},\n`;
         if (newStore != this.lastStore) {
