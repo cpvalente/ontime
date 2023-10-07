@@ -8,6 +8,9 @@ import cors from 'cors';
 import { join, resolve } from 'path';
 
 import { Playback } from 'ontime-types';
+import path from 'path';
+import { getAppDataPath } from './setup.js'
+
 
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
@@ -34,7 +37,7 @@ import { oscIntegration } from './services/integration-service/OscIntegration.js
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
-import { restoreService } from './services/RestoreService.js';
+import { RestoreService } from './services/RestoreService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -142,18 +145,25 @@ export const startServer = async () => {
 
   socket.init(expressServer);
 
-  const restorePoint = restoreService.load();
+  const restorePoint = RestoreService.load(path.join(getAppDataPath(), 'restore.csv'));
+
+  try {
+    RestoreService.create(path.join(getAppDataPath(), 'restore.csv'));
+  } catch (error) {
+    logger.error(LogOrigin.Server, error);
+  }
+  // logger.error(LogOrigin.Server, `Could not create restore file ${error}`);
   // provide initial payload to event store
   eventLoader.init();
   eventStore.init(getInitialPayload());
   if (restorePoint !== null) {
     if (restorePoint.playback === Playback.Armed) {
       PlaybackService.loadById(restorePoint.selectedEventId);
-  } else if (restorePoint.playback === Playback.Pause || restorePoint.playback === Playback.Play) {
+    } else if (restorePoint.playback === Playback.Pause || restorePoint.playback === Playback.Play) {
       PlaybackService.resumeById(restorePoint.selectedEventId, restorePoint.playback, restorePoint.selectedEventId, restorePoint.startedAt, restorePoint.addedTime, restorePoint.pausedAt);
-  } else if (restorePoint.playback === Playback.Roll) {
+    } else if (restorePoint.playback === Playback.Roll) {
       PlaybackService.roll();
-  }
+    }
   }
 
   expressServer.listen(serverPort, '0.0.0.0');
@@ -216,9 +226,9 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
 export const shutdown = async (exitCode = 0) => {
   console.log(`Ontime shutting down with code ${exitCode}`);
 
-  //TODO: clear the restore file if it was a normal exit
+  //clear the restore file if it was a normal exit
   if (exitCode != 0) {
-    restoreService.clear();
+    RestoreService.clear();
   }
 
   expressServer?.close();

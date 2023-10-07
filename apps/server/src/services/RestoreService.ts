@@ -1,35 +1,33 @@
 import { LogOrigin, Playback } from 'ontime-types';
 import { logger } from '../classes/Logger.js';
+import { EventLoader } from '../classes/event-loader/EventLoader.js';
 
 //File stuff
-import { getAppDataPath } from '../setup.js'
 import fs from 'fs';
-import path from 'path';
 import { Writer } from 'steno';
 
 /**
  * Service manages saveing of timer state
  * that can then be resored when reopening
  */
-class RestoreService {
-    private lastStore: string = '';
-    private readonly file;
-    private readonly filePath;
+export class RestoreService {
 
-    constructor() {
-        this.filePath = path.join(getAppDataPath(), 'restore.csv');
-        if (!fs.existsSync(this.filePath)) {
+    private static lastStore: string = '';
+    private static file: Writer;
+    private static filePath: string;
+
+    static create(filePath: string) {
+        if (!fs.existsSync(filePath)) {
             try {
-                fs.writeFileSync(this.filePath, '', 'utf-8');
+                fs.writeFileSync(filePath, '', 'utf-8');
             } catch (error) {
-                logger.error(LogOrigin.Server, `Could not create restore file ${error}`);
-                return;
+                throw new Error(`Could not create restore file ${error}`);
             }
         }
-        this.file = new Writer(this.filePath);
+        RestoreService.file = new Writer(filePath);
     }
 
-    private toNumberOrNull(elm: string): number | null {
+    private static toNumberOrNull(elm: string): number | null {
         if (elm === null) {
             throw new Error(`Element is null`);
         } else if (elm === 'null') {
@@ -52,19 +50,19 @@ class RestoreService {
     * @param {number} addedTime
     * @param {number} pausedAt
     */
-    async save(playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
+    static async save(playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
         if (this.file === undefined) {
-            logger.error(LogOrigin.Server, `Restore writer not created`);
+            logger.error(LogOrigin.Server, `Can not save restore file before it is created`);
             return;
         }
         const newStore = `${playback},${selectedEventId},${startedAt},${addedTime},${pausedAt},\n`;
-        if (newStore != this.lastStore) {
-            this.lastStore = newStore;
+        if (newStore != RestoreService.lastStore) {
+            RestoreService.lastStore = newStore;
             this.file.write(newStore).catch((err) => { logger.error(LogOrigin.Server, err) });
         }
     }
 
-    load() {
+    static load(filePath: string) {
         let restorePoint = {
             playback: null,
             selectedEventId: null,
@@ -73,7 +71,7 @@ class RestoreService {
             pausedAt: null
         }
         try {
-            const data = fs.readFileSync(this.filePath, 'utf-8');
+            const data = fs.readFileSync(filePath, 'utf-8');
             const elements = data.split(',');
             // we expect that a well terminated string, has a newline in the 5th element
             if (elements[5] !== '\n') {
@@ -86,15 +84,17 @@ class RestoreService {
             restorePoint.playback = maybePlayback;
 
             if (elements[1] === null) {
-                throw new Error(`Element is null`);
+                throw new Error(`Element 1 is null`);
             }
             const maybeId = elements[1] === 'null' ? null : elements[1];
-            //We cannot access 'EventLoader' now to check the ID because it has not been initialized
+            if (maybeId !== null && EventLoader.getEventWithId(maybeId) === undefined) {
+                throw new Error(`Event ID dose not exits: ${maybeId}`);
+            }
             restorePoint.selectedEventId = maybeId;
 
-            restorePoint.startedAt = this.toNumberOrNull(elements[2]);
-            restorePoint.addedTime = this.toNumberOrNull(elements[3]);
-            restorePoint.pausedAt = this.toNumberOrNull(elements[4]);
+            restorePoint.startedAt = RestoreService.toNumberOrNull(elements[2]);
+            restorePoint.addedTime = RestoreService.toNumberOrNull(elements[3]);
+            restorePoint.pausedAt = RestoreService.toNumberOrNull(elements[4]);
 
             logger.info(LogOrigin.Server, 'Found resumable state');
 
@@ -105,10 +105,11 @@ class RestoreService {
         return restorePoint;
     }
 
-    clear() {
-        if (fs.existsSync(path.join(this.filePath, 'restore.csv'))) {
+    static clear() {
+        RestoreService.file = undefined;
+        if (fs.existsSync(RestoreService.filePath)) {
             try {
-                fs.unlinkSync(path.join(this.filePath, 'restore.csv'));
+                fs.unlinkSync(RestoreService.filePath);
             } catch (error) {
                 logger.error(LogOrigin.Server, `Failed to delete restore file: ${error}`);
             }
@@ -116,4 +117,3 @@ class RestoreService {
     }
 }
 
-export const restoreService = new RestoreService();

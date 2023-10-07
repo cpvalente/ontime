@@ -9,7 +9,7 @@ import { getCurrent, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 
-import { restoreService } from '../services/RestoreService.js';
+import { RestoreService } from '../services/RestoreService.js';
 
 type initialLoadingData = {
   startedAt?: number | null;
@@ -493,7 +493,7 @@ export class TimerService {
   }
 
   _saveState() {
-    restoreService.save(this.playback, this.loadedTimerId, this.timer.startedAt, this.timer.addedTime, this.pausedAt);
+    RestoreService.save(this.playback, this.loadedTimerId, this.timer.startedAt, this.timer.addedTime, this.pausedAt);
   }
 
   shutdown() {
