@@ -14,10 +14,11 @@
 
 Ontime is an application for creating and managing event running order and timers.
 
-The user inputs a list of events along with scheduling and event information. 
+The user inputs a list of events along with scheduling and event information.
 This will then populate a series of screens which are available to be rendered by any device in the Network.
 
-This makes for a simple and cheap way to distribute over a venue using a network infrastructure instead of video outputs.
+This makes for a simple and cheap way to distribute over a venue using a network infrastructure instead of video
+outputs.
 
 ![App Window](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/app.png)
 
@@ -28,7 +29,7 @@ This makes for a simple and cheap way to distribute over a venue using a network
 Once installed and running, Ontime starts a background server that is the heart of all processes.
 From the app, you can add / edit your running order and control the timer playback.
 
-Any device with a browser in the same network can choose one of the supported views to render the available data. 
+Any device with a browser in the same network can choose one of the supported views to render the available data.
 This is done by reaching the ontime server at the _default port 4001_ eg: `localhost:4001`
 or `192.168.1.3:4001`
 <br />
@@ -50,8 +51,9 @@ IP.ADDRESS:4001/public     > Public / Foyer view
 IP.ADDRESS:4001/lower      > Lower Thirds
 IP.ADDRESS:4001/studio     > Studio Clock
 ```
+
 ```
-For management views 
+For management views
 -------------------------------------------------------------
 IP.ADDRESS:4001/editor    > the control interface, same as the app
 IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
@@ -63,14 +65,14 @@ More documentation is available [in our docs](https://ontime.gitbook.io)
 
 - [x] Distribute data over network and render it in the browser
 - [x] Different screen types
-    - Stage Timer
-    - Minimal Timer
-    - Clock
-    - Backstage Info
-    - Public Info
-    - Studio Clock
-    - Countdown
-    - [Make your own?](#make-your-own-viewer)
+  - Stage Timer
+  - Minimal Timer
+  - Clock
+  - Backstage Info
+  - Public Info
+  - Studio Clock
+  - Countdown
+  - [Make your own?](#make-your-own-viewer)
 - [x] Configurable Lower Thirds
 - [x] Collaborative editing with the cuesheet view
 - [x] Send live messages to different screen types
@@ -83,17 +85,19 @@ More documentation is available [in our docs](https://ontime.gitbook.io)
 - [x] Roll mode: run standalone using the system clock
 - [x] [Headless run](#headless-run): run server in a separate machine, configure from a browser locally
 - [x] [Countdown to anything!](https://ontime.gitbook.io/v2/views/countdown): have
-  a countdown to any scheduled event
-- [x] Multi-platform  (available on Windows, MacOS and Linux)
+      a countdown to any scheduled event
+- [x] Multi-platform (available on Windows, MacOS and Linux)
 - [x] [Companion integration](https://bitfocus.io/connections/getontime-ontime)
 
 ## Unopinionated
 
-We want Ontime to be unique by targeting freelancers instead of roles. 
+We want Ontime to be unique by targeting freelancers instead of roles.
 
-We believe most freelancers work in different fields and we want to give you a tool that you can leverage across your many environments and workflows.
+We believe most freelancers work in different fields and we want to give you a tool that you can leverage across your
+many environments and workflows.
 
-We are not interested in forcing workflows and have made Ontime so, it is flexible to whichever way you would like to work.
+We are not interested in forcing workflows and have made Ontime so, it is flexible to whichever way you would like to
+work.
 
 ## Rich APIs for workflow integrations
 
@@ -113,7 +117,8 @@ Taking advantage of the integrations, we currently use Ontime with:
 
 Ontime broadcasts its data over WebSockets. This allows you to consume its data outside the application.
 
-Writing a new view for the browser can be done with basic knowledge of HTML + CSS + Javascript (or any other language that can run in the browser).
+Writing a new view for the browser can be done with basic knowledge of HTML + CSS + Javascript (or any other language
+that can run in the browser).
 <br />
 See [this repository](https://github.com/cpvalente/ontime-viewer-template-v2) with a small template on
 how to get you started and read the docs about
@@ -121,26 +126,11 @@ the [Websocket API](https://ontime.gitbook.io/v2/control-and-feedback/ontime-api
 
 ### Headless run️
 
-You can self-host and run Ontime in a docker image. The run command will:
+You can self-host and run Ontime in a docker image.
 
-- expose the necessary ports (listed in the Dockerfile)
-- mount a local file to persist your data (in the example: ````$(pwd)/local-data````)
-- the image name __getontime/ontime__
+The docker image along with documentation is [available Docker Hub at getontime/ontime](https://hub.docker.com/r/getontime/ontime)
 
-The docker image is
-in [available Docker Hub at getontime/ontime](https://hub.docker.com/r/getontime/ontime)
-
-```bash
-docker pull getontime/ontime
-```
-
-and use the included docker compose to get started
-
-```bash
-docker-compose up
-```
-
-Related information available [in the docs](https://ontime.gitbook.io/v2/additional-notes/use-in-raspberry-pi)
+If you want to run this image in a Raspberry Pi, please see [the docs](https://ontime.gitbook.io/v2/additional-notes/use-in-raspberry-pi)
 
 ## Roadmap
 
@@ -148,32 +138,32 @@ Related information available [in the docs](https://ontime.gitbook.io/v2/additio
 
 Several features are planned in the roadmap, and we continuously adjust this to match how users interact with the app.
 <br />
-Have an idea? Reach out via [email](mail@getontime.no) or [open an issue](https://github.com/cpvalente/ontime/issues/new)
+Have an idea? Reach out via [email](mail@getontime.no)
+or [open an issue](https://github.com/cpvalente/ontime/issues/new)
 
 ### Issues
 
 We use Github's issue tracking for bug reporting and feature requests. <br />
-Found a bug? [Open an issue](https://github.com/cpvalente/ontime/issues/new). 
+Found a bug? [Open an issue](https://github.com/cpvalente/ontime/issues/new).
 
 #### Unsigned App
 
 When installing the app you would see warning screens from the Operating System like:
 
-```Microsoft Defender SmartScreen prevented an unrecognised app from starting. Running this app might put your PC at risk.```
+`Microsoft Defender SmartScreen prevented an unrecognised app from starting. Running this app might put your PC at risk.`
 
 or
 
-```Ontime can't be opened because it is from an unidentified developer```
+`Ontime can't be opened because it is from an unidentified developer`
 
 or in Linux
 
-```Could Not Display "ontime-linux.AppImage```
+`Could Not Display "ontime-linux.AppImage`
 
 You can circumvent this by allowing the execution of the app manually.
 
 - In Windows: click more and select "Run Anyway"
-- in macOS: after attempting to run the installer, navigate to System Preferences ->  Security &
-  Privacy and allow the execution of the app
+- in macOS: the solution in macOS is different across versions, please refer to the [apple documentation](https://support.apple.com/en-gb/guide/mac-help/mh40616/mac)
 - In Linux: right-click the AppImage file -> Properties -> Permissions -> select Allow Executing
   File as a Program
 
@@ -185,6 +175,7 @@ please [open an issue](https://github.com/cpvalente/ontime/issues/new)
 #### Safari
 
 There are known issues with Safari versions lower than 13:
+
 - Spacing and text styles might have small inconsistencies
 - Table view does not work
 
@@ -194,7 +185,8 @@ There is no plan for any further work on this.
 
 Looking to contribute? All types of help are appreciated, from coding to testing and feature specification.
 <br /><br />
-If you are a developer and would like to contribute with some code, please open an issue to discuss before opening a Pull Request.
+If you are a developer and would like to contribute with some code, please open an issue to discuss before opening a
+Pull Request.
 <br />
 Information about the project setup can be found in the [development documentation](./DEVELOPMENT.md)
 
