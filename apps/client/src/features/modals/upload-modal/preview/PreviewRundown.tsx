@@ -71,51 +71,48 @@ export default function PreviewRundown({ rundown, userFields }: PreviewRundownPr
             </tr>
           </thead>
           <tbody className={style.body}>
-            {rundown.map((event, index) => {
+            {rundown.filter(isOntimeEvent).map((event, index) => {
               const key = event.id;
-              if (isOntimeEvent(event)) {
-                const colour = event.colour ? getAccessibleColour(event.colour) : {};
-                const isPublic = booleanToText(event.isPublic);
-                const skip = booleanToText(event.skip);
-                return (
-                  <tr key={key}>
-                    <td className={style.center}>
-                      <Tag>{index + 1}</Tag>
-                    </td>
-                    <td className={style.center}>
-                      <Tag>Event</Tag>
-                    </td>
-                    <td className={style.nowrap}>{event.cue}</td>
-                    <td>{event.title}</td>
-                    <td>{event.subtitle}</td>
-                    <td>{event.presenter}</td>
-                    <td>{event.note}</td>
-                    <td>{millisToString(event.timeStart)}</td>
-                    <td>{millisToString(event.timeEnd)}</td>
-                    <td>{millisToString(event.duration)}</td>
-                    <td>{isPublic && <Tag>{isPublic}</Tag>}</td>
-                    <td>{skip && <Tag>{skip}</Tag>}</td>
-                    <td style={{ ...colour }}>{event.colour}</td>
-                    <td>
-                      <Tag>{event.timerType}</Tag>
-                    </td>
-                    <td>
-                      <Tag>{event.endAction}</Tag>
-                    </td>
-                    <td>{event.user0}</td>
-                    <td>{event.user1}</td>
-                    <td>{event.user2}</td>
-                    <td>{event.user3}</td>
-                    <td>{event.user4}</td>
-                    <td>{event.user5}</td>
-                    <td>{event.user6}</td>
-                    <td>{event.user7}</td>
-                    <td>{event.user8}</td>
-                    <td>{event.user9}</td>
-                  </tr>
-                );
-              }
-              return null;
+              const colour = event.colour ? getAccessibleColour(event.colour) : {};
+              const isPublic = booleanToText(event.isPublic);
+              const skip = booleanToText(event.skip);
+              return (
+                <tr key={key}>
+                  <td className={style.center}>
+                    <Tag>{index + 1}</Tag>
+                  </td>
+                  <td className={style.center}>
+                    <Tag>Event</Tag>
+                  </td>
+                  <td className={style.nowrap}>{event.cue}</td>
+                  <td>{event.title}</td>
+                  <td>{event.subtitle}</td>
+                  <td>{event.presenter}</td>
+                  <td>{event.note}</td>
+                  <td>{millisToString(event.timeStart)}</td>
+                  <td>{millisToString(event.timeEnd)}</td>
+                  <td>{millisToString(event.duration)}</td>
+                  <td>{isPublic && <Tag>{isPublic}</Tag>}</td>
+                  <td>{skip && <Tag>{skip}</Tag>}</td>
+                  <td style={{ ...colour }}>{event.colour}</td>
+                  <td>
+                    <Tag>{event.timerType}</Tag>
+                  </td>
+                  <td>
+                    <Tag>{event.endAction}</Tag>
+                  </td>
+                  <td>{event.user0}</td>
+                  <td>{event.user1}</td>
+                  <td>{event.user2}</td>
+                  <td>{event.user3}</td>
+                  <td>{event.user4}</td>
+                  <td>{event.user5}</td>
+                  <td>{event.user6}</td>
+                  <td>{event.user7}</td>
+                  <td>{event.user8}</td>
+                  <td>{event.user9}</td>
+                </tr>
+              );
             })}
           </tbody>
         </table>

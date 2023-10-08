@@ -45,8 +45,6 @@ export const dbDownload = async (req, res) => {
   });
 };
 
-// TODO: docs
-// TODO: cleanup usage
 /**
  * Parses a file and returns the result objects
  * @param file
@@ -350,7 +348,7 @@ export async function patchPartialProjectFile(req, res) {
 }
 
 /**
- * uploads and parses a given file
+ * uploads, parses and applies the data from a given file
  */
 export const dbUpload = async (req, res) => {
   if (!req.file) {

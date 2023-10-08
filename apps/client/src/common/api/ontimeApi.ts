@@ -166,7 +166,6 @@ export const uploadProjectFile = async (
   formData.append('userFile', file);
 
   const onlyRundown = Boolean(options?.onlyRundown);
-  console.log('debug here', onlyRundown, options);
 
   await axios
     .post(`${ontimeURL}/db?onlyRundown=${onlyRundown}`, formData, {

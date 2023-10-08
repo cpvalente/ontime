@@ -20,7 +20,10 @@ export function maybeAxiosError(error: unknown) {
     }
     return `${statusText}: ${data}`;
   } else {
-    return error as string;
+    if (typeof error !== 'string') {
+      return JSON.stringify(error);
+    }
+    return error;
   }
 }
 

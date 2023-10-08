@@ -413,19 +413,22 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
 
     const excelData = xlsx
       .parse(file, { cellDates: true })
-      .find(({ name }) => name.toLowerCase() === options.worksheet);
+      .find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase());
 
-    if (excelData?.data) {
-      const dataFromExcel = parseExcel(excelData.data, options);
-      // we run the parsed data through an extra step to ensure the objects shape
-      res.data = {};
-      res.data.rundown = parseRundown(dataFromExcel);
-      res.data.project = parseProject(dataFromExcel);
-      res.data.userFields = parseUserFields(dataFromExcel);
-      return res;
-    } else {
+    if (!excelData?.data) {
       throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
     }
+
+    const dataFromExcel = parseExcel(excelData.data, options);
+    // we run the parsed data through an extra step to ensure the objects shape
+    res.data = {};
+    res.data.rundown = parseRundown(dataFromExcel);
+    if (res.data.rundown.length < 1) {
+      throw new Error(`Could not find data to import in the worksheet ${options.worksheet}`);
+    }
+    res.data.project = parseProject(dataFromExcel);
+    res.data.userFields = parseUserFields(dataFromExcel);
+    return res;
   }
 
   if (file.endsWith('.json')) {

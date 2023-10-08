@@ -38,12 +38,6 @@
   gap: $element-inner-spacing;
 }
 
-.noHover {
-  &:hover {
-    background-color: inherit;
-  }
-}
-
 .title {
   font-size: $inner-section-text-size;
   display: block;

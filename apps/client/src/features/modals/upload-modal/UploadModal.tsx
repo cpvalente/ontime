@@ -13,6 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
 
+import { PROJECT_DATA, RUNDOWN_TABLE, USERFIELDS } from '../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/apiUtils';
 import {
   patchData,
@@ -32,7 +33,6 @@ import { useUploadModalContextStore } from './uploadModalContext';
 import { isExcelFile, isOntimeFile } from './uploadUtils';
 
 import style from './UploadModal.module.scss';
-import { PROJECT_DATA, RUNDOWN_TABLE, USERFIELDS } from '../../../common/api/apiConstants';
 
 export type UploadStep = 'upload' | 'review';
 

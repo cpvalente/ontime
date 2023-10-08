@@ -3,6 +3,11 @@ export function validateFile(file: File) {
     throw new Error('No file to upload');
   }
 
+  // Check if file is empty
+  if (file.size === 0) {
+    throw new Error('File is empty');
+  }
+
   // Limit file size of a project file to around 1MB
   if (file.name.endsWith('.json') && file.size > 1_000_000) {
     throw new Error('File size limit (1MB) exceeded');

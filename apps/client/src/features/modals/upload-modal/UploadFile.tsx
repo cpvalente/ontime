@@ -13,7 +13,6 @@ export default function UploadFile() {
   const { file, setFile, progress } = useUploadModalContextStore();
 
   const [errors, setErrors] = useState<string | undefined>();
-  const success = false;
 
   const clearFile = () => {
     setFile(null);
@@ -35,6 +34,8 @@ export default function UploadFile() {
     } catch (error) {
       if (error instanceof Error) {
         setErrors(error.message);
+      } else {
+        setErrors('An unexpected error occurred while validating the file.');
       }
       setFile(null);
     }
@@ -55,13 +56,11 @@ export default function UploadFile() {
         data-testid='file-input'
       />
       {!file && (
-        <div className={style.uploadArea} onClick={handleClick}>
+        <div className={style.uploadArea} onClick={handleClick} role='button'>
           Click to upload Ontime project or xlsx file
         </div>
       )}
-      {(file || errors) && (
-        <UploadEntry file={file} errors={errors} progress={progress} success={success} handleClear={clearFile} />
-      )}
+      {(file || errors) && <UploadEntry file={file} errors={errors} progress={progress} handleClear={clearFile} />}
     </>
   );
 }

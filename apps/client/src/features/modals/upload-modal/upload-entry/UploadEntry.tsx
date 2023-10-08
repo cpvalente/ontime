@@ -11,12 +11,11 @@ interface UploadEntryProps {
   file: File | null;
   errors?: string;
   progress: number;
-  success: boolean;
   handleClear: () => void;
 }
 
 export default function UploadEntry(props: UploadEntryProps) {
-  const { file, errors, progress, success, handleClear } = props;
+  const { file, errors, progress, handleClear } = props;
 
   if (errors) {
     return (
@@ -39,7 +38,7 @@ export default function UploadEntry(props: UploadEntryProps) {
     }
 
     return (
-      <div className={`${style.uploadedItem} ${success ? style.success : ''}`}>
+      <div className={style.uploadedItem}>
         <IoClose className={style.cancelUpload} onClick={handleClear} />
         <IoDocumentTextOutline className={style.icon} />
         <span className={style.fileTitle}>{file.name}</span>
