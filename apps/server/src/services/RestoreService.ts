@@ -24,6 +24,11 @@ export class RestoreService {
                 throw new Error(`Could not create restore file ${error}`);
             }
         }
+        try {
+            fs.accessSync(filePath, fs.constants.W_OK);
+        } catch (error) {
+            throw new Error(`Restore file is not writable ${error}`);
+        }
         RestoreService.file = new Writer(filePath);
     }
 
