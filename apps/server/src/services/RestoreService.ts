@@ -19,7 +19,7 @@ export class RestoreService {
     static create(filePath: string) {
         if (!fs.existsSync(filePath)) {
             try {
-                fs.writeFileSync(filePath, '', 'utf-8');
+                fs.writeFileSync(filePath, 'stop,null,null,null,null,\n', 'utf-8');
             } catch (error) {
                 throw new Error(`Could not create restore file ${error}`);
             }
