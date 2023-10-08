@@ -114,6 +114,41 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
       let backstageInfoNext = false;
 
       const event: Partial<OntimeEvent> = {};
+      const handlers = {
+        [importMap.projectName]: () => (projectTitleNext = true),
+        [importMap.projectDescription]: () => (projectDescriptionNext = true),
+        [importMap.publicUrl]: () => (publicUrlNext = true),
+        [importMap.publicInfo]: () => (publicInfoNext = true),
+        [importMap.backstageUrl]: () => (backstageUrlNext = true),
+        [importMap.backstageInfo]: () => (backstageInfoNext = true),
+
+        [importMap.timeStart]: (index: number) => (timeStartIndex = index),
+        [importMap.timeEnd]: (index: number) => (timeEndIndex = index),
+        [importMap.duration]: (index: number) => (durationIndex = index),
+
+        [importMap.cue]: (index: number) => (cueIndex = index),
+        [importMap.title]: (index: number) => (titleIndex = index),
+        [importMap.presenter]: (index: number) => (presenterIndex = index),
+        [importMap.subtitle]: (index: number) => (subtitleIndex = index),
+        [importMap.isPublic]: (index: number) => (isPublicIndex = index),
+        [importMap.skip]: (index: number) => (skipIndex = index),
+        [importMap.note]: (index: number) => (notesIndex = index),
+        [importMap.colour]: (index: number) => (colourIndex = index),
+
+        [importMap.endAction]: (index: number) => (endActionIndex = index),
+        [importMap.timerType]: (index: number) => (timerTypeIndex = index),
+
+        [importMap.user0]: (index: number) => (user0Index = index),
+        [importMap.user1]: (index: number) => (user1Index = index),
+        [importMap.user2]: (index: number) => (user2Index = index),
+        [importMap.user3]: (index: number) => (user3Index = index),
+        [importMap.user4]: (index: number) => (user4Index = index),
+        [importMap.user5]: (index: number) => (user5Index = index),
+        [importMap.user6]: (index: number) => (user6Index = index),
+        [importMap.user7]: (index: number) => (user7Index = index),
+        [importMap.user8]: (index: number) => (user8Index = index),
+        [importMap.user9]: (index: number) => (user9Index = index),
+      } as const;
 
       row.forEach((column, j) => {
         // 1. we check if we have set a flag for a known field
@@ -186,101 +221,11 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
           if (typeof column === 'string') {
             const col = column.toLowerCase();
 
-            // look for keywords
-            // need to make sure it is a string first
-            switch (col) {
-              case importMap.projectName:
-                projectTitleNext = true;
-                break;
-              case importMap.projectDescription:
-                projectDescriptionNext = true;
-                break;
-              case importMap.publicUrl:
-                publicUrlNext = true;
-                break;
-              case importMap.publicInfo:
-                publicInfoNext = true;
-                break;
-              case importMap.backstageUrl:
-                backstageUrlNext = true;
-                break;
-              case importMap.backstageInfo:
-                backstageInfoNext = true;
-                break;
-              case importMap.timeStart:
-                timeStartIndex = j;
-                break;
-              case importMap.timeEnd:
-                timeEndIndex = j;
-                break;
-              case importMap.duration:
-                durationIndex = j;
-                break;
-              case importMap.cue:
-                cueIndex = j;
-                break;
-              case importMap.title:
-                titleIndex = j;
-                break;
-              case importMap.presenter:
-                presenterIndex = j;
-                break;
-              case importMap.subtitle:
-                subtitleIndex = j;
-                break;
-              case importMap.isPublic:
-                isPublicIndex = j;
-                break;
-              case importMap.skip:
-                skipIndex = j;
-                break;
-              case importMap.note:
-                notesIndex = j;
-                break;
-              case importMap.colour:
-                colourIndex = j;
-                break;
-              case importMap.endAction:
-                endActionIndex = j;
-                break;
-              case importMap.timerType:
-                timerTypeIndex = j;
-                break;
-              case importMap.user0:
-                user0Index = j;
-                break;
-              case importMap.user1:
-                user1Index = j;
-                break;
-              case importMap.user2:
-                user2Index = j;
-                break;
-              case importMap.user3:
-                user3Index = j;
-                break;
-              case importMap.user4:
-                user4Index = j;
-                break;
-              case importMap.user5:
-                user5Index = j;
-                break;
-              case importMap.user6:
-                user6Index = j;
-                break;
-              case importMap.user7:
-                user7Index = j;
-                break;
-              case importMap.user8:
-                user8Index = j;
-                break;
-              case importMap.user9:
-                user9Index = j;
-                break;
-
-              default:
-              // we don't know how to handle this column
-              // just ignore it
+            if (handlers[col]) {
+              handlers[col](j);
             }
+            // else. we don't know how to handle this column
+            // just ignore it
           }
         }
       });
