@@ -3,6 +3,7 @@ import { LogOrigin, Playback } from 'ontime-types';
 import { logger } from '../../classes/Logger.js';
 import { eventLoader } from '../../classes/event-loader/EventLoader.js';
 import fs from 'fs';
+import { getAppDataPath } from '../../setup.js';
 
 describe('load()', () => {
     const loggereMock = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
@@ -48,7 +49,7 @@ describe('load()', () => {
         const testLoad = RestoreService.load('./testRestore.csv');
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
-        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Failed to load restore state: Error: Missing newline character in restore file');
+        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Missing newline character in restore file');
         fs.unlinkSync('./testRestore.csv');
     });
 
@@ -58,7 +59,7 @@ describe('load()', () => {
         const testLoad = RestoreService.load('./testRestore.csv');
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
-        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Failed to load restore state: Error: Could not phrase element to Playback state: Play');
+        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Could not phrase element to Playback state: Play');
         fs.unlinkSync('./testRestore.csv');
     });
 
@@ -68,7 +69,7 @@ describe('load()', () => {
         const testLoad = RestoreService.load('./testRestore.csv');
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
-        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Failed to load restore state: Error: Event ID dose not exits: abcd');
+        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Event ID dose not exits: abcd');
         fs.unlinkSync('./testRestore.csv');
     });
 
@@ -78,7 +79,7 @@ describe('load()', () => {
         const testLoad = RestoreService.load('./testRestore.csv');
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
-        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Failed to load restore state: Error: Could not phrase element to number: bad');
+        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Could not phrase element to number: bad');
         fs.unlinkSync('./testRestore.csv');
     });
 
@@ -88,7 +89,7 @@ describe('load()', () => {
         const testLoad = RestoreService.load('./testRestore.csv');
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
-        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Failed to load restore state: Error: Element is empty');
+        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Element is empty');
         fs.unlinkSync('./testRestore.csv');
     });
 
@@ -96,7 +97,22 @@ describe('load()', () => {
         const testLoad = RestoreService.load('./testRestore.csv');
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
-        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Failed to load restore state: Error: ENOENT: no such file or directory, open \'./testRestore.csv\'');
+        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: ENOENT: no such file or directory, open \'./testRestore.csv\'');
     });
 
+
+
+});
+
+
+describe('create/clear()', () => {
+    const testFolder = getAppDataPath() + '/test'
+    const testFile = testFolder + '/test.csv'
+    it('creates and remove file', () => {
+        RestoreService.create(testFile);
+        expect(fs.existsSync(testFile)).toStrictEqual(true);
+        RestoreService.clear(testFile);
+        expect(fs.existsSync(testFile)).toStrictEqual(false);
+        fs.rmSync(testFolder, { recursive: true, force: true });
+    });
 });

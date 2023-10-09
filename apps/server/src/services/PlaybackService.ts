@@ -242,24 +242,24 @@ export class PlaybackService {
   }
 
   /**
-   * resume event matching given ID
-   * @param {string} eventId
-   * @param {Playback} playback
-   * @param {string} selectedEventId
-   * @param {number} startedAt
-   * @param {number} addedTime
-   * @param {number} pausedAt
-   * @return {boolean} success
-   */
-  static resumeById(eventId: string, playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null): boolean {
-    const event = EventLoader.getEventWithId(eventId);
-    const success = PlaybackService.loadEvent(event);
-    if (success) {
-      logger.info(LogOrigin.Playback, `Resume event with ID ${event.id}`);
-      eventTimer.resume(event, playback, selectedEventId, startedAt, addedTime, pausedAt);
+   * @description resume correct playback state given a restore point
+   * @param restorePoint
+  */
+  static resume(restorePoint) {
+    if (restorePoint !== null) {
+      if (restorePoint.playback === Playback.Armed) {
+        PlaybackService.loadById(restorePoint.selectedEventId);
+      } else if (restorePoint.playback === Playback.Pause || restorePoint.playback === Playback.Play) {
+        const event = EventLoader.getEventWithId(restorePoint.selectedEventId);
+        const success = PlaybackService.loadEvent(event);
+        if (success) {
+          logger.info(LogOrigin.Playback, `Resume event with ID ${event.id}`);
+          eventTimer.resume(event, restorePoint.playback, restorePoint.selectedEventId, restorePoint.startedAt, restorePoint.addedTime, restorePoint.pausedAt);
+        }
+      } else if (restorePoint.playback === Playback.Roll) {
+        PlaybackService.roll();
+      }
     }
-    return success;
-
   }
 
   /**
