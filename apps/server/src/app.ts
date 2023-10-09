@@ -212,13 +212,12 @@ export const shutdown = async (exitCode = 0) => {
   console.log(`Ontime shutting down with code ${exitCode}`);
 
   //clear the restore file if it was a normal exit
-  if (exitCode !== 0) {
+  // 0 means it was a SIGNAL 
+  // 1 means crash -> keep the file
+  // 99 means it was the UI
+  if (exitCode === 0 || exitCode === 99) {
     RestoreService.clear(resolveRestoreFile);
   }
-// TODO:
-  // 99 means it was the interface
-  // 1 means crash
-  // 2 means it was a SIGNAL 
   
   expressServer?.close();
   oscServer?.shutdown();
