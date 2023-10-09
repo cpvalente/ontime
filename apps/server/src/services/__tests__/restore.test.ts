@@ -4,17 +4,22 @@ import { logger } from '../../classes/Logger.js';
 import { eventLoader } from '../../classes/event-loader/EventLoader.js';
 import fs from 'fs';
 import { getAppDataPath } from '../../setup.js';
+import { ensureFile } from '../../utils/fileManagement.js';
 
 describe('load()', () => {
     const loggereMock = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
 
     eventLoader.init();
 
+    const testFolder = getAppDataPath() + '/test';
+    const testFile = testFolder + '/test.csv';
+    
 
     it('loads working file with times', () => {
         const newStore = `play,d3eb1,1234,5678,9087,\n`;
-        fs.writeFileSync('./testRestore.csv', newStore, 'utf-8');
-        const testLoad = RestoreService.load('./testRestore.csv');
+        ensureFile(testFile);
+        fs.writeFileSync(testFile, newStore, 'utf-8');
+        const testLoad = RestoreService.load(testFile);
         const expected = {
             playback: Playback.Play,
             selectedEventId: 'd3eb1',
@@ -24,13 +29,14 @@ describe('load()', () => {
         };
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Found resumable state');
-        fs.unlinkSync('./testRestore.csv');
+        fs.unlinkSync(testFile);
     });
 
     it('loads working file without times', () => {
         const newStore = `stop,null,null,null,null,\n`;
-        fs.writeFileSync('./testRestore.csv', newStore, 'utf-8');
-        const testLoad = RestoreService.load('./testRestore.csv');
+        ensureFile(testFile);
+        fs.writeFileSync(testFile, newStore, 'utf-8');
+        const testLoad = RestoreService.load(testFile);
         const expected = {
             playback: Playback.Stop,
             selectedEventId: null,
@@ -40,64 +46,69 @@ describe('load()', () => {
         };
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Found resumable state');
-        fs.unlinkSync('./testRestore.csv');
+        fs.unlinkSync(testFile);
     });
 
     it('dose not load missing newline', () => {
         const newStore = `play,d3eb1,1234,1234,1234,`;
-        fs.writeFileSync('./testRestore.csv', newStore, 'utf-8');
-        const testLoad = RestoreService.load('./testRestore.csv');
+        ensureFile(testFile);
+        fs.writeFileSync(testFile, newStore, 'utf-8');
+        const testLoad = RestoreService.load(testFile);
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Missing newline character in restore file');
-        fs.unlinkSync('./testRestore.csv');
+        fs.unlinkSync(testFile);
     });
 
     it('dose not load wrong play state', () => {
         const newStore = `Play,d3eb1,1234,1234,1234,\n`;
-        fs.writeFileSync('./testRestore.csv', newStore, 'utf-8');
-        const testLoad = RestoreService.load('./testRestore.csv');
+        ensureFile(testFile);
+        fs.writeFileSync(testFile, newStore, 'utf-8');
+        const testLoad = RestoreService.load(testFile);
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Could not phrase element to Playback state: Play');
-        fs.unlinkSync('./testRestore.csv');
+        fs.unlinkSync(testFile);
     });
 
     it('dose not load non existing ID', () => {
         const newStore = `play,abcd,1234,1234,1234,\n`;
-        fs.writeFileSync('./testRestore.csv', newStore, 'utf-8');
-        const testLoad = RestoreService.load('./testRestore.csv');
+        ensureFile(testFile);
+        fs.writeFileSync(testFile, newStore, 'utf-8');
+        const testLoad = RestoreService.load(testFile);
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Event ID dose not exits: abcd');
-        fs.unlinkSync('./testRestore.csv');
+        fs.unlinkSync(testFile);
     });
 
     it('dose not load wrong numbers', () => {
         const newStore = `play,d3eb1,bad,1234,1234,\n`;
-        fs.writeFileSync('./testRestore.csv', newStore, 'utf-8');
-        const testLoad = RestoreService.load('./testRestore.csv');
+        ensureFile(testFile);
+        fs.writeFileSync(testFile, newStore, 'utf-8');
+        const testLoad = RestoreService.load(testFile);
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Could not phrase element to number: bad');
-        fs.unlinkSync('./testRestore.csv');
+        fs.unlinkSync(testFile);
     });
 
     it('dose not load empty numbers', () => {
         const newStore = `play,d3eb1,,1234,1234,\n`;
-        fs.writeFileSync('./testRestore.csv', newStore, 'utf-8');
-        const testLoad = RestoreService.load('./testRestore.csv');
+        ensureFile(testFile);
+        fs.writeFileSync(testFile, newStore, 'utf-8');
+        const testLoad = RestoreService.load(testFile);
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Element is empty');
-        fs.unlinkSync('./testRestore.csv');
+        fs.unlinkSync(testFile);
     });
 
     it('dose not load missing file', () => {
-        const testLoad = RestoreService.load('./testRestore.csv');
+        const testLoad = RestoreService.load(testFile);
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
-        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: ENOENT: no such file or directory, open \'./testRestore.csv\'');
+        expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, expect.stringContaining('Invalid restore state: Error: ENOENT: no such file or directory, open'));
     });
 
 
