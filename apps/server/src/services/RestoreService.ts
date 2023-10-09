@@ -3,8 +3,23 @@ import { logger } from '../classes/Logger.js';
 import { EventLoader } from '../classes/event-loader/EventLoader.js';
 
 //File stuff
-import fs from 'fs';
+import { unlinkSync, readFileSync } from 'fs';
 import { Writer } from 'steno';
+import { ensureFile } from '../utils/fileManagement.js';
+
+// let attemps = 0;
+// let abort = false
+
+// if (attempts < 3) {
+//     create file// attempts ++
+
+// } else {
+//     console.log('Cannot reach file system')
+//     abort = true;
+// }
+
+
+
 
 /**
  * Service manages saveing of timer state
@@ -14,31 +29,22 @@ export class RestoreService {
 
     private static lastStore: string = '';
     private static file: Writer;
-    private static filePath: string;
 
     static create(filePath: string) {
-        if (!fs.existsSync(filePath)) {
-            try {
-                fs.writeFileSync(filePath, 'stop,null,null,null,null,\n', 'utf-8');
-            } catch (error) {
-                throw new Error(`Could not create restore file ${error}`);
-            }
-        }
         try {
-            fs.accessSync(filePath, fs.constants.W_OK);
+            ensureFile(filePath);
+            RestoreService.file = new Writer(filePath);
         } catch (error) {
-            throw new Error(`Restore file is not writable ${error}`);
+            logger.error(LogOrigin.Server, `Could not ensure restore file ${error}`);
+            return;
         }
-        RestoreService.file = new Writer(filePath);
     }
 
     private static toNumberOrNull(elm: string): number | null {
-        if (elm === null) {
-            throw new Error(`Element is null`);
+        if (!elm) {
+            throw new Error(`Element is empty`);
         } else if (elm === 'null') {
             return null;
-        } else if (elm === '') {
-            throw new Error(`Element is empty`);
         } else {
             const maybeNumber = Number(elm);
             if (isNaN(maybeNumber)) {
@@ -76,8 +82,9 @@ export class RestoreService {
             pausedAt: null
         }
         try {
-            const data = fs.readFileSync(filePath, 'utf-8');
+            const data = readFileSync(filePath, 'utf-8');
             const elements = data.split(',');
+
             // we expect that a well terminated string, has a newline in the 5th element
             if (elements[5] !== '\n') {
                 throw new Error(`Missing newline character in restore file`);
@@ -88,8 +95,8 @@ export class RestoreService {
             }
             restorePoint.playback = maybePlayback;
 
-            if (elements[1] === null) {
-                throw new Error(`Element 1 is null`);
+            if (!elements[1]) {
+                throw new Error(`Element 1 is empty`);
             }
             const maybeId = elements[1] === 'null' ? null : elements[1];
             if (maybeId !== null && EventLoader.getEventWithId(maybeId) === undefined) {
@@ -104,20 +111,18 @@ export class RestoreService {
             logger.info(LogOrigin.Server, 'Found resumable state');
 
         } catch (error) {
-            logger.info(LogOrigin.Server, `Failed to load restore state: ${error}`);
+            logger.info(LogOrigin.Server, `Invalid restore state: ${error}`);
             return null;
         }
         return restorePoint;
     }
 
-    static clear() {
+    static clear(filePath: string) {
         RestoreService.file = undefined;
-        if (fs.existsSync(RestoreService.filePath)) {
-            try {
-                fs.unlinkSync(RestoreService.filePath);
-            } catch (error) {
-                logger.error(LogOrigin.Server, `Failed to delete restore file: ${error}`);
-            }
+        try {
+            unlinkSync(filePath);
+        } catch (error) {
+            logger.error(LogOrigin.Server, `Failed to delete restore file: ${error}`);
         }
     }
 }
