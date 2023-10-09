@@ -7,6 +7,8 @@ import { unlinkSync, readFileSync } from 'fs';
 import { Writer } from 'steno';
 import { ensureFile } from '../utils/fileManagement.js';
 
+
+//TODO:
 // let attemps = 0;
 // let abort = false
 

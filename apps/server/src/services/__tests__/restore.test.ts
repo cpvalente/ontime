@@ -11,7 +11,7 @@ describe('load()', () => {
 
     eventLoader.init();
 
-    const testFolder = getAppDataPath() + '/test';
+    const testFolder = './test';
     const testFile = testFolder + '/test.csv';
     
 
