@@ -1,4 +1,4 @@
-import { LogOrigin, OntimeEvent } from 'ontime-types';
+import { LogOrigin, OntimeEvent, Playback } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
@@ -238,6 +238,27 @@ export class PlaybackService {
 
       const newState = eventTimer.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
+    }
+  }
+
+  /**
+   * @description resume correct playback state given a restore point
+   * @param restorePoint
+  */
+  static resume(restorePoint) {
+    if (restorePoint !== null) {
+      if (restorePoint.playback === Playback.Armed) {
+        PlaybackService.loadById(restorePoint.selectedEventId);
+      } else if (restorePoint.playback === Playback.Pause || restorePoint.playback === Playback.Play) {
+        const event = EventLoader.getEventWithId(restorePoint.selectedEventId);
+        const success = PlaybackService.loadEvent(event);
+        if (success) {
+          logger.info(LogOrigin.Playback, `Resume event with ID ${event.id}`);
+          eventTimer.resume(event, restorePoint.playback, restorePoint.selectedEventId, restorePoint.startedAt, restorePoint.addedTime, restorePoint.pausedAt);
+        }
+      } else if (restorePoint.playback === Playback.Roll) {
+        PlaybackService.roll();
+      }
     }
   }
 

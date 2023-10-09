@@ -9,6 +9,8 @@ import { getCurrent, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 
+import { RestoreService } from '../services/RestoreService.js';
+
 type initialLoadingData = {
   startedAt?: number | null;
   expectedFinish?: number | null;
@@ -72,6 +74,52 @@ export class TimerService {
     this.secondaryTarget = null;
 
     this._lastUpdate = null;
+  }
+
+  /**
+  * Reloads information for timer
+  * @param timer
+  * @param {Playback} playback
+  * @param {string} selectedEventId
+  * @param {number} startedAt
+  * @param {number} addedTime
+  * @param {number} pausedAt
+  */
+  resume(timer, playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
+    if (typeof timer === 'undefined') {
+      this.stop();
+      return;
+    }
+    this.timer.selectedEventId = selectedEventId;
+    this.timer.startedAt = startedAt;
+    this.timer.addedTime = addedTime;
+    this.timer.clock = clock.timeNow();
+    this.playback = playback;
+    this.pausedAt = pausedAt;
+    eventStore.set('playback', this.playback);
+
+    // update relevant information and force update
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
+    this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
+
+    // this might not be ideal
+    this.timer.finishedAt = null;
+    this.timer.expectedFinish = getExpectedFinish(
+      this.timer.startedAt,
+      this.timer.finishedAt,
+      this.timer.duration,
+      this.pausedTime,
+      this.timer.addedTime,
+      this.loadedTimerEnd,
+      this.timer.timerType,
+    );
+    if (this.timer.startedAt === null) {
+      this.timer.current = this.timer.duration;
+    }
+    this.update(true);
   }
 
   /**
@@ -172,6 +220,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onLoad);
+    this._saveState()
   }
 
   start() {
@@ -222,6 +271,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStart);
+    this._saveState()
   }
 
   pause() {
@@ -237,6 +287,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onPause);
+    this._saveState()
   }
 
   stop() {
@@ -254,6 +305,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStop);
+    this._saveState()
   }
 
   /**
@@ -280,6 +332,7 @@ export class TimerService {
 
     // force an update
     this.update(true);
+    this._saveState();
   }
 
   private updateRoll() {
@@ -394,6 +447,7 @@ export class TimerService {
         PlaybackService.startNext();
       }
     }
+    this._saveState()
   }
 
   /**
@@ -435,6 +489,11 @@ export class TimerService {
 
   _onRoll() {
     eventStore.set('playback', this.playback);
+    this._saveState()
+  }
+
+  _saveState() {
+    RestoreService.save(this.playback, this.loadedTimerId, this.timer.startedAt, this.timer.addedTime, this.pausedAt);
   }
 
   shutdown() {

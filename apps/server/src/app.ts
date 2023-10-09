@@ -7,7 +7,7 @@ import cors from 'cors';
 // import utils
 import { join, resolve } from 'path';
 
-import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
+import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath, resolveRestoreFile } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { LogOrigin, OSCSettings } from 'ontime-types';
 
@@ -31,6 +31,9 @@ import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
+import { PlaybackService } from './services/PlaybackService.js';
+import { RestoreService } from './services/RestoreService.js';
+import { config } from './config/config.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -138,9 +141,15 @@ export const startServer = async () => {
 
   socket.init(expressServer);
 
+  const restorePoint = RestoreService.load(resolveRestoreFile);
+  RestoreService.create(resolveRestoreFile);
+
+  // logger.error(LogOrigin.Server, `Could not create restore file ${error}`);
   // provide initial payload to event store
   eventLoader.init();
   eventStore.init(getInitialPayload());
+
+  PlaybackService.resume(restorePoint);
 
   expressServer.listen(serverPort, '0.0.0.0');
 
@@ -202,6 +211,15 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
 export const shutdown = async (exitCode = 0) => {
   console.log(`Ontime shutting down with code ${exitCode}`);
 
+  //clear the restore file if it was a normal exit
+  if (exitCode !== 0) {
+    RestoreService.clear(resolveRestoreFile);
+  }
+// TODO:
+  // 99 means it was the interface
+  // 1 means crash
+  // 2 means it was a SIGNAL 
+  
   expressServer?.close();
   oscServer?.shutdown();
   eventTimer.shutdown();
