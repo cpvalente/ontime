@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "2.7.2",
+  "version": "2.9.0",
   "exports": "./src/index.js",
   "dependencies": {
     "body-parser": "^1.20.0",
@@ -19,7 +19,6 @@
     "ontime-utils": "workspace:*",
     "passport": "^0.6.0",
     "passport-local": "~1.0.0",
-    "steno": "^3.0.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
