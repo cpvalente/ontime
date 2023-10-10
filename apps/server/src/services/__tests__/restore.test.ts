@@ -1,3 +1,4 @@
+import { assert, describe, expect, it } from 'vitest'
 import { RestoreService } from '../RestoreService.js';
 import { LogOrigin, Playback } from 'ontime-types';
 import { logger } from '../../classes/Logger.js';
@@ -16,13 +17,13 @@ describe('load()', () => {
     
 
     it('loads working file with times', () => {
-        const newStore = `play,d3eb1,1234,5678,9087,\n`;
+        const newStore = `play,da5b4,1234,5678,9087,\n`;
         ensureFile(testFile);
         fs.writeFileSync(testFile, newStore, 'utf-8');
         const testLoad = RestoreService.load(testFile);
         const expected = {
             playback: Playback.Play,
-            selectedEventId: 'd3eb1',
+            selectedEventId: 'da5b4',
             startedAt: 1234,
             addedTime: 5678,
             pausedAt: 9087
@@ -50,7 +51,7 @@ describe('load()', () => {
     });
 
     it('dose not load missing newline', () => {
-        const newStore = `play,d3eb1,1234,1234,1234,`;
+        const newStore = `play,da5b4,1234,1234,1234,`;
         ensureFile(testFile);
         fs.writeFileSync(testFile, newStore, 'utf-8');
         const testLoad = RestoreService.load(testFile);
@@ -61,7 +62,7 @@ describe('load()', () => {
     });
 
     it('dose not load wrong play state', () => {
-        const newStore = `Play,d3eb1,1234,1234,1234,\n`;
+        const newStore = `Play,da5b4,1234,1234,1234,\n`;
         ensureFile(testFile);
         fs.writeFileSync(testFile, newStore, 'utf-8');
         const testLoad = RestoreService.load(testFile);
@@ -83,7 +84,7 @@ describe('load()', () => {
     });
 
     it('dose not load wrong numbers', () => {
-        const newStore = `play,d3eb1,bad,1234,1234,\n`;
+        const newStore = `play,da5b4,bad,1234,1234,\n`;
         ensureFile(testFile);
         fs.writeFileSync(testFile, newStore, 'utf-8');
         const testLoad = RestoreService.load(testFile);
@@ -94,7 +95,7 @@ describe('load()', () => {
     });
 
     it('dose not load empty numbers', () => {
-        const newStore = `play,d3eb1,,1234,1234,\n`;
+        const newStore = `play,da5b4,,1234,1234,\n`;
         ensureFile(testFile);
         fs.writeFileSync(testFile, newStore, 'utf-8');
         const testLoad = RestoreService.load(testFile);
