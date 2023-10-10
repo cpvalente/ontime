@@ -12,7 +12,7 @@ describe('load()', () => {
 
     eventLoader.init();
 
-    const testFolder = './test';
+    const testFolder = getAppDataPath() + '/test'
     const testFile = testFolder + '/test.csv';
     
 
@@ -30,7 +30,7 @@ describe('load()', () => {
         };
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Found resumable state');
-        fs.unlinkSync(testFile);
+        fs.rmSync(testFolder, { recursive: true, force: true });
     });
 
     it('loads working file without times', () => {
@@ -47,7 +47,7 @@ describe('load()', () => {
         };
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Found resumable state');
-        fs.unlinkSync(testFile);
+        fs.rmSync(testFolder, { recursive: true, force: true });
     });
 
     it('dose not load missing newline', () => {
@@ -58,7 +58,7 @@ describe('load()', () => {
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Missing newline character in restore file');
-        fs.unlinkSync(testFile);
+        fs.rmSync(testFolder, { recursive: true, force: true });
     });
 
     it('dose not load wrong play state', () => {
@@ -69,7 +69,7 @@ describe('load()', () => {
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Could not phrase element to Playback state: Play');
-        fs.unlinkSync(testFile);
+        fs.rmSync(testFolder, { recursive: true, force: true });
     });
 
     it('dose not load non existing ID', () => {
@@ -80,7 +80,7 @@ describe('load()', () => {
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Event ID dose not exits: abcd');
-        fs.unlinkSync(testFile);
+        fs.rmSync(testFolder, { recursive: true, force: true });
     });
 
     it('dose not load wrong numbers', () => {
@@ -91,7 +91,7 @@ describe('load()', () => {
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Could not phrase element to number: bad');
-        fs.unlinkSync(testFile);
+        fs.rmSync(testFolder, { recursive: true, force: true });
     });
 
     it('dose not load empty numbers', () => {
@@ -102,7 +102,7 @@ describe('load()', () => {
         const expected = null;
         expect(testLoad).toStrictEqual(expected);
         expect(loggereMock).toHaveBeenLastCalledWith(LogOrigin.Server, 'Invalid restore state: Error: Element is empty');
-        fs.unlinkSync(testFile);
+        fs.rmSync(testFolder, { recursive: true, force: true });
     });
 
     it('dose not load missing file', () => {
