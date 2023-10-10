@@ -54,7 +54,7 @@
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "lint": "eslint .",
     "test": "cross-env IS_TEST=true vitest",
-    "test:pipeline": "vitest run",
+    "test:pipeline": "cross-env IS_TEST=true vitest run",
     "typecheck": "tsc --noEmit",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   }
