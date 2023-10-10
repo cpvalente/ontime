@@ -7,22 +7,6 @@ import { unlinkSync, readFileSync } from 'fs';
 import { Writer } from 'steno';
 import { ensureFile } from '../utils/fileManagement.js';
 
-
-//TODO:
-// let attemps = 0;
-// let abort = false
-
-// if (attempts < 3) {
-//     create file// attempts ++
-
-// } else {
-//     console.log('Cannot reach file system')
-//     abort = true;
-// }
-
-
-
-
 /**
  * Service manages saveing of timer state
  * that can then be resored when reopening
@@ -33,13 +17,19 @@ export class RestoreService {
     private static file: Writer;
 
     static create(filePath: string) {
-        try {
-            ensureFile(filePath);
-            RestoreService.file = new Writer(filePath);
-        } catch (error) {
-            logger.error(LogOrigin.Server, `Could not ensure restore file ${error}`);
-            return;
-        }
+        let attempts = 0;
+        do {
+            try {
+                ensureFile(filePath);
+                RestoreService.file = new Writer(filePath);
+                logger.info(LogOrigin.Server, `Restore file ensured`);
+                return;
+            } catch (error) {
+                logger.info(LogOrigin.Server, `Could not ensure restore file attempt:${attempts+1} ${error}`);
+                attempts++;
+            }
+        } while (attempts < 3);
+        logger.error(LogOrigin.Server, `Could not ensure restore file after ${attempts+1} attempts`);
     }
 
     private static toNumberOrNull(elm: string): number | null {

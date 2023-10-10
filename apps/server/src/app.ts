@@ -144,7 +144,6 @@ export const startServer = async () => {
   const restorePoint = RestoreService.load(resolveRestoreFile);
   RestoreService.create(resolveRestoreFile);
 
-  // logger.error(LogOrigin.Server, `Could not create restore file ${error}`);
   // provide initial payload to event store
   eventLoader.init();
   eventStore.init(getInitialPayload());
