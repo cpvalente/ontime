@@ -1,0 +1,10 @@
+build
+coverage
+dist
+node_modules
+
+playwright-report
+
+**/*.toml
+**/*.yml
+**/*.json
