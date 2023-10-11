@@ -30,7 +30,7 @@ import OntimeFileOptions from './upload-options/OntimeFileOptions';
 import UploadStepTracker from './upload-step/UploadStep';
 import UploadFile from './UploadFile';
 import { useUploadModalContextStore } from './uploadModalContext';
-import { isExcelFile, isOntimeFile } from './uploadUtils';
+import { getPersistedOptions, isExcelFile, isOntimeFile, persistOptions } from './uploadUtils';
 
 import style from './UploadModal.module.scss';
 
@@ -57,7 +57,30 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const ontimeFileOptions = useRef<Partial<ProjectFileImportOptions>>({});
   const excelFileOptions = useRef<ExcelImportMap>(defaultExcelImportMap);
 
-  /* if the modal re-opens, we want to restart all states */
+  const updateOntimeFileOptions = <T extends keyof ProjectFileImportOptions>(
+    field: T,
+    value: ProjectFileImportOptions[T],
+  ) => {
+    ontimeFileOptions.current = { ...ontimeFileOptions.current, [field]: value };
+  };
+
+  const updateExcelFileOptions = <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {
+    if (excelFileOptions.current[field] !== value) {
+      excelFileOptions.current = { ...excelFileOptions.current, [field]: value };
+    }
+  };
+
+  // We want to populate the options with any previous options given by the user
+  useEffect(() => {
+    const excelOptions = getPersistedOptions('excel');
+    if (excelOptions) {
+      console.log(1, excelFileOptions.current);
+      excelFileOptions.current = excelOptions;
+      console.log(2, excelFileOptions.current);
+    }
+  }, []);
+
+  // if the modal re-opens, we want to restart all states
   useEffect(() => {
     clear();
     setUploadStep('upload');
@@ -81,10 +104,14 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
         if (isOntimeFile(file)) {
           // TODO: we would also like to have preview for ontime project files
           const options = ontimeFileOptions.current;
+          console.log('denuig', options);
           await handleOntimeFile(file, options);
           doClose = true;
         } else if (isExcelFile(file)) {
           const options = excelFileOptions.current;
+          console.log('denuig', options);
+
+          persistOptions({ optionType: 'excel', options });
           await handleExcelFile(file, options);
           await invalidateAllCaches();
         }
@@ -188,8 +215,8 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
           {uploadStep === 'upload' ? (
             <>
               <UploadFile />
-              {isOntime && <OntimeFileOptions optionsRef={ontimeFileOptions} />}
-              {isExcel && <ExcelFileOptions optionsRef={excelFileOptions} />}
+              {isOntime && <OntimeFileOptions optionsRef={ontimeFileOptions} updateOptions={updateOntimeFileOptions} />}
+              {isExcel && <ExcelFileOptions optionsRef={excelFileOptions} updateOptions={updateExcelFileOptions} />}
             </>
           ) : (
             <PreviewExcel

@@ -7,17 +7,11 @@ import style from '../UploadModal.module.scss';
 
 interface ExcelFileOptionsProps {
   optionsRef: MutableRefObject<ExcelImportMap>;
+  updateOptions: <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => void;
 }
 
 export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
-  const { optionsRef } = props;
-
-  const updateRef = <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {
-    // avoid unnecessary changes
-    if (optionsRef.current[field] !== value) {
-      optionsRef.current = { ...optionsRef.current, [field]: value };
-    }
-  };
+  const { optionsRef, updateOptions } = props;
 
   const worksheet: TableEntry[] = [{ label: 'Worksheet', title: 'worksheet', value: optionsRef.current.worksheet }];
 
@@ -59,17 +53,17 @@ export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
   return (
     <div className={style.uploadOptions}>
       <div className={style.twoEqualColumn}>
-        <ImportMapTable title='Import options' fields={worksheet} handleOnChange={updateRef} />
+        <ImportMapTable title='Import options' fields={worksheet} handleOnChange={updateOptions} />
       </div>
 
       <div className={style.twoEqualColumn}>
-        <ImportMapTable title='Timings' fields={timings} handleOnChange={updateRef} />
-        <ImportMapTable title='Options' fields={options} handleOnChange={updateRef} />
+        <ImportMapTable title='Timings' fields={timings} handleOnChange={updateOptions} />
+        <ImportMapTable title='Options' fields={options} handleOnChange={updateOptions} />
       </div>
 
       <div className={style.twoEqualColumn}>
-        <ImportMapTable title='Titles' fields={titles} handleOnChange={updateRef} />
-        <ImportMapTable title='User Fields' fields={userFields} handleOnChange={updateRef} />
+        <ImportMapTable title='Titles' fields={titles} handleOnChange={updateOptions} />
+        <ImportMapTable title='User Fields' fields={userFields} handleOnChange={updateOptions} />
       </div>
     </div>
   );

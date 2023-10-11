@@ -8,14 +8,11 @@ import style from '../UploadModal.module.scss';
 
 interface OntimeFileOptionsProps {
   optionsRef: MutableRefObject<Partial<ProjectFileImportOptions>>;
+  updateOptions: <T extends keyof ProjectFileImportOptions>(field: T, value: ProjectFileImportOptions[T]) => void;
 }
 
 export default function OntimeFileOptions(props: OntimeFileOptionsProps) {
-  const { optionsRef } = props;
-
-  const updateRef = <T extends keyof ProjectFileImportOptions>(field: T, value: ProjectFileImportOptions[T]) => {
-    optionsRef.current = { ...optionsRef.current, [field]: value };
-  };
+  const { optionsRef, updateOptions } = props;
 
   return (
     <div className={style.uploadOptions}>
@@ -24,7 +21,7 @@ export default function OntimeFileOptions(props: OntimeFileOptionsProps) {
         <Switch
           variant='ontime-on-light'
           onChange={(e) => {
-            updateRef('onlyRundown', e.target.checked);
+            updateOptions('onlyRundown', e.target.checked);
           }}
           defaultChecked={Boolean(optionsRef.current.onlyRundown)}
         />

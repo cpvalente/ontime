@@ -1,3 +1,7 @@
+import { ExcelImportMap } from 'ontime-utils';
+
+import { ProjectFileImportOptions } from '../../../common/api/ontimeApi';
+
 export function validateFile(file: File) {
   if (!file) {
     throw new Error('No file to upload');
@@ -30,4 +34,26 @@ export function isExcelFile(file: File | null) {
 
 export function isOntimeFile(file: File | null) {
   return file?.name.endsWith('.json');
+}
+
+type PersistedOntimeOptions = {
+  optionType: 'ontime';
+  options: Partial<ProjectFileImportOptions>;
+};
+
+type PersistedExcelOptions = {
+  optionType: 'excel';
+  options: ExcelImportMap;
+};
+
+export function persistOptions(options: PersistedOntimeOptions | PersistedExcelOptions) {
+  localStorage.setItem(`ontime-import-options-${options.optionType}`, JSON.stringify(options.options));
+}
+
+export function getPersistedOptions(optionType: 'excel' | 'ontime') {
+  const options = localStorage.getItem(`ontime-import-options-${optionType}`);
+  if (!options) {
+    return null;
+  }
+  return JSON.parse(options);
 }
