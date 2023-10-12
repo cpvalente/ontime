@@ -244,7 +244,7 @@ export class PlaybackService {
   /**
    * @description resume correct playback state given a restore point
    * @param restorePoint
-  */
+   */
   static resume(restorePoint) {
     if (restorePoint !== null) {
       if (restorePoint.playback === Playback.Armed) {
@@ -254,7 +254,14 @@ export class PlaybackService {
         const success = PlaybackService.loadEvent(event);
         if (success) {
           logger.info(LogOrigin.Playback, `Resume event with ID ${event.id}`);
-          eventTimer.resume(event, restorePoint.playback, restorePoint.selectedEventId, restorePoint.startedAt, restorePoint.addedTime, restorePoint.pausedAt);
+          eventTimer.resume(
+            event,
+            restorePoint.playback,
+            restorePoint.selectedEventId,
+            restorePoint.startedAt,
+            restorePoint.addedTime,
+            restorePoint.pausedAt,
+          );
         }
       } else if (restorePoint.playback === Playback.Roll) {
         PlaybackService.roll();

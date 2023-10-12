@@ -77,14 +77,14 @@ export class TimerService {
   }
 
   /**
-  * Reloads information for timer
-  * @param timer
-  * @param {Playback} playback
-  * @param {string} selectedEventId
-  * @param {number} startedAt
-  * @param {number} addedTime
-  * @param {number} pausedAt
-  */
+   * Reloads information for timer
+   * @param timer
+   * @param {Playback} playback
+   * @param {string} selectedEventId
+   * @param {number} startedAt
+   * @param {number} addedTime
+   * @param {number} pausedAt
+   */
   resume(timer, playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
     if (typeof timer === 'undefined') {
       this.stop();
@@ -220,7 +220,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onLoad);
-    this._saveState()
+    this._saveState();
   }
 
   start() {
@@ -271,7 +271,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStart);
-    this._saveState()
+    this._saveState();
   }
 
   pause() {
@@ -287,7 +287,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onPause);
-    this._saveState()
+    this._saveState();
   }
 
   stop() {
@@ -305,7 +305,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStop);
-    this._saveState()
+    this._saveState();
   }
 
   /**
@@ -447,7 +447,7 @@ export class TimerService {
         PlaybackService.startNext();
       }
     }
-    this._saveState()
+    this._saveState();
   }
 
   /**
@@ -489,7 +489,7 @@ export class TimerService {
 
   _onRoll() {
     eventStore.set('playback', this.playback);
-    this._saveState()
+    this._saveState();
   }
 
   _saveState() {

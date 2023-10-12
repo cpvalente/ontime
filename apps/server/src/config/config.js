@@ -9,5 +9,5 @@ export const config = {
     directory: 'styles',
     filename: 'override.css',
   },
-  restoreFile: 'restore.csv'
+  restoreFile: 'restore.csv',
 };

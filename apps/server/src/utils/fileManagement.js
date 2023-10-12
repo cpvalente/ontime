@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { dirname } from 'path'
+import { dirname } from 'path';
 
 /**
  * @description Creates a directory if it doesn't exist
