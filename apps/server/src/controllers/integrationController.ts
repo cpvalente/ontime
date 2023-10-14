@@ -3,7 +3,7 @@ import { OntimeEvent } from 'ontime-types';
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { parse } from './integrationController.config.js';
+import { parse, updateEvent } from './integrationController.config.js';
 import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 import { event } from '../models/eventsDefinition.js';
 
@@ -257,9 +257,9 @@ export function dispatchFromAdapter(
           throw new Error(`Cannot update unknown event property ${propertyName}`);
         }
 
-        const parsedPayload = parse(payload, propertyName);
+        const parsedPayload = parse(propertyName, payload);
 
-        return PlaybackService.updateEvent(eventID, propertyName, parsedPayload);
+        return updateEvent(eventID, propertyName, parsedPayload);
       } catch (error) {
         throw new Error(`Error updating duration: ${error}`);
       }

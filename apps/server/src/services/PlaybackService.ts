@@ -6,7 +6,6 @@ import { eventStore } from '../stores/EventStore.js';
 import { eventTimer } from './TimerService.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
-import { updateEvent } from './rundown-service/RundownService.js';
 
 /**
  * Service manages playback status of app
@@ -254,20 +253,5 @@ export class PlaybackService {
         ? logger.info(LogOrigin.Playback, `Added ${delayTime} min delay`)
         : logger.info(LogOrigin.Playback, `Removed ${delayTime} min delay`);
     }
-  }
-
-  /**
-   * Updates a property of the event with the given id
-   * @param {string} eventId
-   * @param {keyof OntimeEvent} propertyName
-   * @param {OntimeEvent[typeof propertyName]} propertyValue
-   */
-  static updateEvent(
-    eventId: string,
-    propertyName: keyof OntimeEvent,
-    propertyValue: OntimeEvent[typeof propertyName],
-  ) {
-    updateEvent(eventId, propertyName, propertyValue);
-    logger.info(LogOrigin.Playback, `Updated ${propertyName} of event with ID ${eventId} to ${propertyValue}`);
   }
 }

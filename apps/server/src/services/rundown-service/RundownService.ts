@@ -301,30 +301,3 @@ export async function swapEvents(from: string, to: string) {
 function updateChangeNumEvents() {
   eventLoader.updateNumEvents();
 }
-
-/**
- * Updates a property of the event with the given id
- * @param {string} eventId
- * @param {keyof OntimeEvent} propertyName
- * @param {OntimeEvent[typeof propertyName]} propertValue
- */
-export function updateEvent(
-  eventId: string,
-  propertyName: keyof OntimeEvent,
-  newValue: OntimeEvent[typeof propertyName],
-) {
-  const event = EventLoader.getEventWithId(eventId);
-
-  if (event) {
-    const propertiesToUpdate = { [propertyName]: newValue };
-
-    // Handles the special case for duration
-    if (propertyName === 'duration') {
-      propertiesToUpdate.timeEnd = event.timeStart + (newValue as number);
-    }
-
-    editEvent({ id: eventId, ...propertiesToUpdate });
-  } else {
-    throw new Error(`Event with ID ${eventId} not found`);
-  }
-}

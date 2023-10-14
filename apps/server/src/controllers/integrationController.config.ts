@@ -1,4 +1,8 @@
+import { LogOrigin, OntimeEvent } from 'ontime-types';
+import { EventLoader } from '../classes/event-loader/EventLoader.js';
+import { editEvent } from '../services/rundown-service/RundownService.js';
 import { coerceString, coerceNumber, coerceBoolean } from '../utils/coerceType.js';
+import { logger } from '../classes/Logger.js';
 
 const whitelistedPayload = {
   title: coerceString,
@@ -31,4 +35,39 @@ export function parse(field: string, value: unknown) {
   }
   const parserFn = whitelistedPayload[field];
   return parserFn(value);
+}
+
+/**
+ * Updates a property of the event with the given id
+ * @param {string} eventId
+ * @param {keyof OntimeEvent} propertyName
+ * @param {OntimeEvent[typeof propertyName]} newValue
+ */
+export function updateEvent(
+  eventId: string,
+  propertyName: keyof OntimeEvent,
+  newValue: OntimeEvent[typeof propertyName],
+) {
+  const event = EventLoader.getEventWithId(eventId);
+
+  if (event) {
+    let valueToUpdate = newValue;
+
+    // Duration needs to be converted to milliseconds
+    if (propertyName === 'duration' && typeof valueToUpdate === 'number') {
+      valueToUpdate = valueToUpdate * 1000;
+    }
+
+    const propertiesToUpdate = { [propertyName]: valueToUpdate };
+
+    // Handles the special case for duration
+    if (propertyName === 'duration') {
+      propertiesToUpdate.timeEnd = event.timeStart + (valueToUpdate as number);
+    }
+
+    editEvent({ id: eventId, ...propertiesToUpdate });
+    logger.info(LogOrigin.Playback, `Updated ${propertyName} of event with ID ${eventId} to ${valueToUpdate}`);
+  } else {
+    throw new Error(`Event with ID ${eventId} not found`);
+  }
 }
