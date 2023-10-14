@@ -3,6 +3,8 @@ import { OntimeEvent } from 'ontime-types';
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
+import { parse } from './integrationController.config.js';
+import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 import { event } from '../models/eventsDefinition.js';
 
 export function dispatchFromAdapter(
@@ -244,60 +246,18 @@ export function dispatchFromAdapter(
           throw new Error('Invalid parameters');
         }
 
+        if (!payload || typeof payload !== 'string') {
+          throw new Error(`Invalid payload: ${payload}`);
+        }
+
         const eventID = params[0];
         const propertyName = params[1] as keyof OntimeEvent;
 
-        const isKeyOfOntimeEvent = (key: string): key is keyof OntimeEvent => {
-          return key in event;
-        };
-
-        if (!isKeyOfOntimeEvent(propertyName)) {
+        if (!isKeyOfType(propertyName, event)) {
           throw new Error(`Cannot update unknown event property ${propertyName}`);
         }
 
-        const acceptedPropertyPayloadMap = {
-          title: 'string',
-          subtitle: 'string',
-          presenter: 'string',
-          note: 'string',
-          cue: 'string',
-
-          duration: 'number',
-
-          isPublic: 'boolean',
-          skip: 'boolean',
-
-          colour: 'string',
-          user0: 'string',
-          user1: 'string',
-          user2: 'string',
-          user3: 'string',
-          user4: 'string',
-          user5: 'string',
-          user6: 'string',
-          user7: 'string',
-          user8: 'string',
-          user9: 'string',
-        };
-
-        const parsePayload = (payload: unknown, propertyName: keyof OntimeEvent): boolean | string | number => {
-          switch (acceptedPropertyPayloadMap[propertyName]) {
-            case 'string': {
-              return String(payload);
-            }
-            case 'number': {
-              return Number(payload);
-            }
-            case 'boolean': {
-              return Boolean(payload);
-            }
-            default: {
-              throw new Error('Unhandled payload type');
-            }
-          }
-        };
-
-        const parsedPayload = parsePayload(payload, propertyName);
+        const parsedPayload = parse(payload, propertyName);
 
         return PlaybackService.updateEvent(eventID, propertyName, parsedPayload);
       } catch (error) {
