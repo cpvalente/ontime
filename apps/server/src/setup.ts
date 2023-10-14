@@ -86,5 +86,5 @@ export const resolveStylesPath = join(resolveStylesDirectory, config.styles.file
 
 export const pathToStartStyles = join(currentDirectory, '/external/styles/', config.styles.filename);
 
-//path to restore file
+// path to restore file
 export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);
