@@ -115,6 +115,7 @@ export class RestoreService {
       try {
         await this.write(stringifiedStore);
         this.lastStore = stringifiedStore;
+        this.failedCreateAttempts = 0;
       } catch (_err) {
         this.failedCreateAttempts += 1;
       }
@@ -144,13 +145,15 @@ export class RestoreService {
   /**
    * Clears the restore file
    */
-  clear() {
-    this.file = undefined;
-    try {
-      unlinkSync(this.filePath);
-    } catch (_error) {
-      // nothing to do
+  async clear() {
+    if (this.file && this.failedCreateAttempts <= 3) {
+      try {
+        await this.file.write('');
+      } catch (_error) {
+        // nothing to do
+      }
     }
+    this.file = undefined;
   }
 }
 

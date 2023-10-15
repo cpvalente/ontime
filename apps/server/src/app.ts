@@ -141,7 +141,7 @@ export const startServer = async () => {
   socket.init(expressServer);
 
   // load restore point if it exists
-  const maybeRestorePoint = await restoreService.load();
+  const maybeRestorePoint = restoreService.load();
 
   if (maybeRestorePoint) {
     logger.info(LogOrigin.Server, 'Found resumable state');
@@ -219,7 +219,7 @@ export const shutdown = async (exitCode = 0) => {
   // 1 means crash -> keep the file
   // 99 means it was the UI
   if (exitCode === 0 || exitCode === 99) {
-    restoreService.clear();
+    await restoreService.clear();
   }
 
   expressServer?.close();
