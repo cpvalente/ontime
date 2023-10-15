@@ -86,18 +86,41 @@ export class TimerService {
   }
 
   /**
-   * Reloads information for timer
-   * @param {number} startedAt
-   * @param {number} addedTime
-   * @param {number} pausedAt
+   * Resumes a given playback state, same as load
+   * @param {RestorePoint} restorePoint
+   * @param {OntimeEvent} timer
    */
-  resume(startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
-    this.timer.startedAt = startedAt;
-    this.timer.addedTime = addedTime;
-    this.timer.clock = clock.timeNow();
-    this.pausedAt = pausedAt;
+  resume(timer: OntimeEvent, restorePoint: RestorePoint) {
+    this._clear();
 
-    this.update(true);
+    // this is pretty much the same as load, with a few exceptions
+    this.loadedTimerId = timer.id;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
+
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
+    this.playback = restorePoint.playback;
+    this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
+    this.timer.startedAt = restorePoint.startedAt;
+    this.timer.addedTime = restorePoint.addedTime;
+    this.pausedTime = 0;
+    this.pausedAt = restorePoint.pausedAt;
+
+    this.timer.current = this.timer.duration;
+    if (this.timer.timerType === TimerType.TimeToEnd) {
+      const now = clock.timeNow();
+      this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
+    }
+
+    this._onResume();
+  }
+
+  _onResume() {
+    eventStore.batchSet({
+      playback: this.playback,
+      timer: this.timer,
+    });
   }
 
   /**
@@ -147,17 +170,10 @@ export class TimerService {
 
   /**
    * Loads given timer to object
-   * @param {object} timer
-   * @param initialData
-   * @param {number} timer.id
-   * @param {number} timer.timeStart
-   * @param {number} timer.timeEnd
-   * @param {number} timer.duration
-   * @param {string} timer.timerBehaviour
-   * @param {string} timer.timerType
-   * @param {boolean} timer.skip
+   * @param {OntimeEvent} timer
+   * @param {initialLoadingData} initialData
    */
-  load(timer, initialData?: initialLoadingData) {
+  load(timer: OntimeEvent, initialData?: initialLoadingData) {
     if (timer.skip) {
       throw new Error('Refuse load of skipped event');
     }
@@ -181,7 +197,7 @@ export class TimerService {
       this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
     }
 
-    if (typeof initialData !== 'undefined') {
+    if (initialData) {
       this.timer = { ...this.timer, ...initialData };
     }
 

@@ -249,27 +249,23 @@ export class PlaybackService {
   static resume(restorePoint: RestorePoint) {
     const willResume = () => logger.info(LogOrigin.Server, 'Resuming playback');
 
-    if (restorePoint.playback === Playback.Armed) {
-      willResume();
-      PlaybackService.loadById(restorePoint.selectedEventId);
-      return;
-    }
-
-    if (restorePoint.playback === Playback.Pause || restorePoint.playback === Playback.Play) {
-      const event = EventLoader.getEventWithId(restorePoint.selectedEventId);
-      const success = PlaybackService.loadEvent(event);
-      if (success) {
-        willResume();
-        // event timer already got the event from the playbackService
-        // TODO: this will cause a flash of outdated data
-        eventTimer.resume(restorePoint.startedAt, restorePoint.addedTime, restorePoint.pausedAt);
-      }
-      return;
-    }
-
     if (restorePoint.playback === Playback.Roll) {
       willResume();
       PlaybackService.roll();
+    }
+
+    if (restorePoint.selectedEventId) {
+      const event = EventLoader.getEventWithId(restorePoint.selectedEventId);
+      // the db would have to change for the event not to exist
+      // we do not kow the reason for the crash, so we check anyway
+      if (!event) {
+        return;
+      }
+
+      eventLoader.loadEvent(event);
+      eventTimer.resume(event, restorePoint);
+      eventStore.broadcast();
+      return;
     }
   }
 

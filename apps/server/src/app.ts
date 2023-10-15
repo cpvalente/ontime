@@ -139,6 +139,7 @@ export const startServer = async () => {
   expressServer = http.createServer(app);
 
   socket.init(expressServer);
+  eventLoader.init();
 
   // load restore point if it exists
   const maybeRestorePoint = restoreService.load();
@@ -151,8 +152,8 @@ export const startServer = async () => {
   eventTimer.setRestoreCallback((newState: RestorePoint) => restoreService.save(newState));
 
   // provide initial payload to event store
-  eventLoader.init();
-  eventStore.init(getInitialPayload());
+  const initialPayload = getInitialPayload();
+  eventStore.init(initialPayload);
 
   expressServer.listen(serverPort, '0.0.0.0');
 
@@ -219,7 +220,7 @@ export const shutdown = async (exitCode = 0) => {
   // 1 means crash -> keep the file
   // 99 means it was the UI
   if (exitCode === 0 || exitCode === 99) {
-    await restoreService.clear();
+    //await restoreService.clear();
   }
 
   expressServer?.close();

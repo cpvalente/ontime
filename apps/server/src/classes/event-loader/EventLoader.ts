@@ -235,7 +235,7 @@ export class EventLoader {
    * loads an event given its id
    * @param {object} event
    */
-  loadEvent(event) {
+  loadEvent(event?: OntimeEvent) {
     if (typeof event === 'undefined') {
       return null;
     }
