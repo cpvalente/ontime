@@ -1,10 +1,9 @@
-import { LogOrigin, Playback } from 'ontime-types';
+import { Playback } from 'ontime-types';
 
 import { unlinkSync, readFileSync } from 'fs';
 import { Writer } from 'steno';
 
 import { resolveRestoreFile } from '../setup.js';
-import { logger } from '../classes/Logger.js';
 
 export type RestorePoint = {
   playback: Playback;
@@ -135,7 +134,6 @@ export class RestoreService {
         return null;
       }
 
-      logger.info(LogOrigin.Server, 'Found resumable state');
       return maybeRestorePoint;
     } catch (_error) {
       // no need to notify the user
@@ -150,8 +148,8 @@ export class RestoreService {
     this.file = undefined;
     try {
       unlinkSync(this.filePath);
-    } catch (error) {
-      logger.error(LogOrigin.Server, `Failed to delete restore file: ${error}`);
+    } catch (_error) {
+      // nothing to do
     }
   }
 }

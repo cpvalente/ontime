@@ -1,9 +1,8 @@
-import { LogOrigin, Playback } from 'ontime-types';
-
 import { describe, expect, it, vi } from 'vitest';
 
+import { Playback } from 'ontime-types';
+
 import { isRestorePoint, RestorePoint, RestoreService } from '../RestoreService.js';
-import { logger } from '../../classes/Logger.js';
 
 describe('isRestorePoint()', () => {
   it('validates a well defined object', () => {
@@ -60,13 +59,10 @@ describe('RestoreService()', () => {
         pausedAt: 9087,
       };
 
-      const loggerMock = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
       const restoreService = new RestoreService('/path/to/restore/file');
       vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => JSON.stringify(expected));
 
       const testLoad = restoreService.load();
-
-      expect(loggerMock).toHaveBeenLastCalledWith(LogOrigin.Server, expect.stringMatching('Found resumable state'));
       expect(testLoad).toStrictEqual(expected);
     });
 
@@ -79,13 +75,10 @@ describe('RestoreService()', () => {
         pausedAt: null,
       };
 
-      const loggerMock = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
       const restoreService = new RestoreService('/path/to/restore/file');
       vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => JSON.stringify(expected));
 
       const testLoad = restoreService.load();
-
-      expect(loggerMock).toHaveBeenLastCalledWith(LogOrigin.Server, expect.stringMatching('Found resumable state'));
       expect(testLoad).toStrictEqual(expected);
     });
 
@@ -102,7 +95,6 @@ describe('RestoreService()', () => {
       vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => JSON.stringify(expected));
 
       const testLoad = restoreService.load();
-
       expect(testLoad).toBe(null);
     });
   });
@@ -120,7 +112,6 @@ describe('RestoreService()', () => {
       const restoreService = new RestoreService('/path/to/restore/file');
       const writeSpy = vi.spyOn<any, any>(restoreService, 'write').mockImplementation(() => undefined);
       restoreService.save(testData);
-
       expect(writeSpy).toHaveBeenCalledWith(JSON.stringify(testData));
     });
   });
