@@ -1,6 +1,6 @@
 import { Playback } from 'ontime-types';
 
-import { unlinkSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { Writer } from 'steno';
 
 import { resolveRestoreFile } from '../setup.js';
