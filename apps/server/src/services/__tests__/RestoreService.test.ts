@@ -45,6 +45,16 @@ describe('isRestorePoint()', () => {
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
     });
+    it('with incorrect value', () => {
+      const restorePoint = {
+        playback: 'roll',
+        selectedEventId: '123',
+        startedAt: 'testing',
+        addedTime: null,
+        pausedAt: null,
+      };
+      expect(isRestorePoint(restorePoint)).toBe(false);
+    });
   });
 });
 
