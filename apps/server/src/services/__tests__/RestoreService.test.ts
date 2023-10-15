@@ -110,7 +110,7 @@ describe('RestoreService()', () => {
   });
 
   describe('save()', () => {
-    it('saves data to file', () => {
+    it('saves data to file', async () => {
       const testData: RestorePoint = {
         playback: Playback.Play,
         selectedEventId: '1234',
@@ -121,7 +121,7 @@ describe('RestoreService()', () => {
 
       const restoreService = new RestoreService('/path/to/restore/file');
       const writeSpy = vi.spyOn<any, any>(restoreService, 'write').mockImplementation(() => undefined);
-      restoreService.save(testData);
+      await restoreService.save(testData);
       expect(writeSpy).toHaveBeenCalledWith(JSON.stringify(testData));
     });
   });

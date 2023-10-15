@@ -149,7 +149,7 @@ export const startServer = async () => {
     PlaybackService.resume(maybeRestorePoint);
   }
 
-  eventTimer.setRestoreCallback((newState: RestorePoint) => restoreService.save(newState));
+  eventTimer.setRestoreCallback(async (newState: RestorePoint) => restoreService.save(newState));
 
   // provide initial payload to event store
   const initialPayload = getInitialPayload();

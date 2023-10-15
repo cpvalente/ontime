@@ -16,6 +16,8 @@ type initialLoadingData = {
   current?: number | null;
 };
 
+type RestoreCallback = (newState: RestorePoint) => Promise<void>;
+
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
   private _updateInterval: number;
@@ -32,8 +34,7 @@ export class TimerService {
   private pausedAt: number | null;
   private secondaryTarget: number | null;
 
-  private saveRestorePoint: (newState: RestorePoint) => void | null;
-
+  private saveRestorePoint: RestoreCallback;
   /**
    * @constructor
    * @param {object} [timerConfig]
@@ -50,7 +51,7 @@ export class TimerService {
    * Provides callback to save restore point
    * @param cb
    */
-  setRestoreCallback(cb: (newState: RestorePoint) => void) {
+  setRestoreCallback(cb: RestoreCallback) {
     this.saveRestorePoint = cb;
   }
 
@@ -486,9 +487,9 @@ export class TimerService {
     this._saveState();
   }
 
-  _saveState() {
+  async _saveState() {
     if (this.saveRestorePoint) {
-      this.saveRestorePoint({
+      await this.saveRestorePoint({
         playback: this.playback,
         selectedEventId: this.loadedTimerId,
         startedAt: this.timer.startedAt,
