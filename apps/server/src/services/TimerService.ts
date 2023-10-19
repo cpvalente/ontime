@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
+import { EndAction, LogOrigin, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
 import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { eventStore } from '../stores/EventStore.js';
@@ -8,14 +8,15 @@ import { integrationService } from './integration-service/IntegrationService.js'
 import { getCurrent, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
-
-import { RestoreService } from '../services/RestoreService.js';
+import type { RestorePoint } from './RestoreService.js';
 
 type initialLoadingData = {
   startedAt?: number | null;
   expectedFinish?: number | null;
   current?: number | null;
 };
+
+type RestoreCallback = (newState: RestorePoint) => Promise<void>;
 
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
@@ -33,6 +34,7 @@ export class TimerService {
   private pausedAt: number | null;
   private secondaryTarget: number | null;
 
+  private saveRestorePoint: RestoreCallback;
   /**
    * @constructor
    * @param {object} [timerConfig]
@@ -43,6 +45,14 @@ export class TimerService {
     this._clear();
     this._interval = setInterval(() => this.update(), timerConfig?.refresh ?? 1000);
     this._updateInterval = timerConfig?.updateInterval ?? 1000;
+  }
+
+  /**
+   * Provides callback to save restore point
+   * @param cb
+   */
+  setRestoreCallback(cb: RestoreCallback) {
+    this.saveRestorePoint = cb;
   }
 
   /**
@@ -77,49 +87,41 @@ export class TimerService {
   }
 
   /**
-   * Reloads information for timer
-   * @param timer
-   * @param {Playback} playback
-   * @param {string} selectedEventId
-   * @param {number} startedAt
-   * @param {number} addedTime
-   * @param {number} pausedAt
+   * Resumes a given playback state, same as load
+   * @param {RestorePoint} restorePoint
+   * @param {OntimeEvent} timer
    */
-  resume(timer, playback: Playback, selectedEventId: string | null, startedAt: number | null, addedTime: number | null, pausedAt: number | null) {
-    if (typeof timer === 'undefined') {
-      this.stop();
-      return;
-    }
-    this.timer.selectedEventId = selectedEventId;
-    this.timer.startedAt = startedAt;
-    this.timer.addedTime = addedTime;
-    this.timer.clock = clock.timeNow();
-    this.playback = playback;
-    this.pausedAt = pausedAt;
-    eventStore.set('playback', this.playback);
+  resume(timer: OntimeEvent, restorePoint: RestorePoint) {
+    this._clear();
 
-    // update relevant information and force update
-    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
-    this.timer.timerType = timer.timerType;
-    this.timer.endAction = timer.endAction;
+    // this is pretty much the same as load, with a few exceptions
+    this.loadedTimerId = timer.id;
     this.loadedTimerStart = timer.timeStart;
     this.loadedTimerEnd = timer.timeEnd;
 
-    // this might not be ideal
-    this.timer.finishedAt = null;
-    this.timer.expectedFinish = getExpectedFinish(
-      this.timer.startedAt,
-      this.timer.finishedAt,
-      this.timer.duration,
-      this.pausedTime,
-      this.timer.addedTime,
-      this.loadedTimerEnd,
-      this.timer.timerType,
-    );
-    if (this.timer.startedAt === null) {
-      this.timer.current = this.timer.duration;
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
+    this.playback = restorePoint.playback;
+    this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
+    this.timer.startedAt = restorePoint.startedAt;
+    this.timer.addedTime = restorePoint.addedTime;
+    this.pausedTime = 0;
+    this.pausedAt = restorePoint.pausedAt;
+
+    this.timer.current = this.timer.duration;
+    if (this.timer.timerType === TimerType.TimeToEnd) {
+      const now = clock.timeNow();
+      this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
     }
-    this.update(true);
+
+    this._onResume();
+  }
+
+  _onResume() {
+    eventStore.batchSet({
+      playback: this.playback,
+      timer: this.timer,
+    });
   }
 
   /**
@@ -169,17 +171,10 @@ export class TimerService {
 
   /**
    * Loads given timer to object
-   * @param {object} timer
-   * @param initialData
-   * @param {number} timer.id
-   * @param {number} timer.timeStart
-   * @param {number} timer.timeEnd
-   * @param {number} timer.duration
-   * @param {string} timer.timerBehaviour
-   * @param {string} timer.timerType
-   * @param {boolean} timer.skip
+   * @param {OntimeEvent} timer
+   * @param {initialLoadingData} initialData
    */
-  load(timer, initialData?: initialLoadingData) {
+  load(timer: OntimeEvent, initialData?: initialLoadingData) {
     if (timer.skip) {
       throw new Error('Refuse load of skipped event');
     }
@@ -203,7 +198,7 @@ export class TimerService {
       this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
     }
 
-    if (typeof initialData !== 'undefined') {
+    if (initialData) {
       this.timer = { ...this.timer, ...initialData };
     }
 
@@ -226,7 +221,7 @@ export class TimerService {
   start() {
     if (!this.loadedTimerId) {
       if (this.playback === Playback.Roll) {
-        logger.error('PLAYBACK', 'Cannot start while waiting for event');
+        logger.error(LogOrigin.Playback, 'Cannot start while waiting for event');
       }
       return;
     }
@@ -492,8 +487,16 @@ export class TimerService {
     this._saveState();
   }
 
-  _saveState() {
-    RestoreService.save(this.playback, this.loadedTimerId, this.timer.startedAt, this.timer.addedTime, this.pausedAt);
+  async _saveState() {
+    if (this.saveRestorePoint) {
+      await this.saveRestorePoint({
+        playback: this.playback,
+        selectedEventId: this.loadedTimerId,
+        startedAt: this.timer.startedAt,
+        addedTime: this.timer.addedTime,
+        pausedAt: this.pausedAt,
+      });
+    }
   }
 
   shutdown() {

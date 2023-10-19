@@ -6,6 +6,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { eventTimer } from './TimerService.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
+import { RestorePoint } from './RestoreService.js';
 
 /**
  * Service manages playback status of app
@@ -242,30 +243,29 @@ export class PlaybackService {
   }
 
   /**
-   * @description resume correct playback state given a restore point
+   * @description resume playback state given a restore point
    * @param restorePoint
    */
-  static resume(restorePoint) {
-    if (restorePoint !== null) {
-      if (restorePoint.playback === Playback.Armed) {
-        PlaybackService.loadById(restorePoint.selectedEventId);
-      } else if (restorePoint.playback === Playback.Pause || restorePoint.playback === Playback.Play) {
-        const event = EventLoader.getEventWithId(restorePoint.selectedEventId);
-        const success = PlaybackService.loadEvent(event);
-        if (success) {
-          logger.info(LogOrigin.Playback, `Resume event with ID ${event.id}`);
-          eventTimer.resume(
-            event,
-            restorePoint.playback,
-            restorePoint.selectedEventId,
-            restorePoint.startedAt,
-            restorePoint.addedTime,
-            restorePoint.pausedAt,
-          );
-        }
-      } else if (restorePoint.playback === Playback.Roll) {
-        PlaybackService.roll();
+  static resume(restorePoint: RestorePoint) {
+    const willResume = () => logger.info(LogOrigin.Server, 'Resuming playback');
+
+    if (restorePoint.playback === Playback.Roll) {
+      willResume();
+      PlaybackService.roll();
+    }
+
+    if (restorePoint.selectedEventId) {
+      const event = EventLoader.getEventWithId(restorePoint.selectedEventId);
+      // the db would have to change for the event not to exist
+      // we do not kow the reason for the crash, so we check anyway
+      if (!event) {
+        return;
       }
+
+      eventLoader.loadEvent(event);
+      eventTimer.resume(event, restorePoint);
+      eventStore.broadcast();
+      return;
     }
   }
 

@@ -1,126 +1,160 @@
-import { LogOrigin, Playback } from 'ontime-types';
-import { logger } from '../classes/Logger.js';
-import { EventLoader } from '../classes/event-loader/EventLoader.js';
+import { Playback } from 'ontime-types';
 
-//File stuff
-import { unlinkSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { Writer } from 'steno';
-import { ensureFile } from '../utils/fileManagement.js';
+
+import { resolveRestoreFile } from '../setup.js';
+
+export type RestorePoint = {
+  playback: Playback;
+  selectedEventId: string | null;
+  startedAt: number | null;
+  addedTime: number | null;
+  pausedAt: number | null;
+};
 
 /**
- * Service manages saveing of timer state
- * that can then be resored when reopening
+ * Utility validates a RestorePoint
+ * @param obj
+ * @return boolean
  */
-export class RestoreService {
-  private static lastStore: string = '';
-  private static file: Writer;
-
-  static create(filePath: string) {
-    let attempts = 0;
-    do {
-      try {
-        ensureFile(filePath);
-        RestoreService.file = new Writer(filePath);
-        logger.info(LogOrigin.Server, `Restore file ensured`);
-        return;
-      } catch (error) {
-        logger.info(LogOrigin.Server, `Could not ensure restore file attempt:${attempts + 1} ${error}`);
-        attempts++;
-      }
-    } while (attempts < 3);
-    logger.error(LogOrigin.Server, `Could not ensure restore file after ${attempts + 1} attempts`);
+export function isRestorePoint(obj: unknown): obj is RestorePoint {
+  if (!obj) {
+    return false;
   }
 
-  private static toNumberOrNull(elm: string): number | null {
-    if (!elm) {
-      throw new Error(`Element is empty`);
-    } else if (elm === 'null') {
-      return null;
-    } else {
-      const maybeNumber = Number(elm);
-      if (isNaN(maybeNumber)) {
-        throw new Error(`Could not phrase element to number: ${elm}`);
+  const restorePoint = obj as RestorePoint;
+
+  if (typeof restorePoint.playback !== 'string' || !Object.values(Playback).includes(restorePoint.playback)) {
+    return false;
+  }
+
+  if (typeof restorePoint.selectedEventId !== 'string' && restorePoint.selectedEventId !== null) {
+    return false;
+  }
+
+  if (typeof restorePoint.startedAt !== 'number' && restorePoint.startedAt !== null) {
+    return false;
+  }
+
+  if (typeof restorePoint.addedTime !== 'number' && restorePoint.addedTime !== null) {
+    return false;
+  }
+
+  if (typeof restorePoint.pausedAt !== 'number' && restorePoint.pausedAt !== null) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Utility interface to allow dependency injection during test
+ */
+
+/**
+ * Service manages saving of application state
+ * that can then be restored when reopening
+ */
+export class RestoreService {
+  private readonly filePath: string | null;
+
+  private lastStore: string | null;
+  private file: Writer | null;
+  private failedCreateAttempts: number;
+
+  constructor(filePath: string) {
+    this.filePath = filePath;
+
+    this.lastStore = null;
+    this.file = null;
+    this.failedCreateAttempts = 0;
+  }
+
+  /**
+   * Utility, creates a restore file
+   */
+  create() {
+    this.file = new Writer(this.filePath);
+  }
+
+  /**
+   * Utility, reads from file
+   * @private
+   */
+  private read() {
+    return readFileSync(this.filePath, 'utf-8');
+  }
+
+  /**
+   * Utility writes payload to file
+   * @throws
+   * @param stringifiedState
+   */
+  private async write(stringifiedState: string) {
+    // Create a file if it doesnt exist
+    if (!this.file) {
+      this.create();
+    }
+    // steno is async, and it uses a queue to avoid unnecessary re-writes
+    await this.file.write(stringifiedState);
+  }
+
+  /**
+   * Saves runtime data to restore file
+   * @param newState RestorePoint
+   */
+  async save(newState: RestorePoint) {
+    // after three failed attempts, mark the service as unavailable
+    if (this.failedCreateAttempts > 3) {
+      return;
+    }
+
+    const stringifiedStore = JSON.stringify(newState);
+    if (stringifiedStore !== this.lastStore) {
+      try {
+        await this.write(stringifiedStore);
+        this.lastStore = stringifiedStore;
+        this.failedCreateAttempts = 0;
+      } catch (_err) {
+        this.failedCreateAttempts += 1;
       }
-      return maybeNumber;
     }
   }
 
   /**
-   * @param {Playback} playback
-   * @param {string} selectedEventId
-   * @param {number} startedAt
-   * @param {number} addedTime
-   * @param {number} pausedAt
+   * Attempts reading a restore point from a given file path
+   * Returns null if none found, restore point otherwise
    */
-  static async save(
-    playback: Playback,
-    selectedEventId: string | null,
-    startedAt: number | null,
-    addedTime: number | null,
-    pausedAt: number | null,
-  ) {
-    if (this.file === undefined) {
-      logger.error(LogOrigin.Server, `Can not save restore file before it is created`);
-      return;
-    }
-    const newStore = `${playback},${selectedEventId},${startedAt},${addedTime},${pausedAt},\n`;
-    if (newStore != RestoreService.lastStore) {
-      RestoreService.lastStore = newStore;
-      this.file.write(newStore).catch((err) => {
-        logger.error(LogOrigin.Server, err);
-      });
-    }
-  }
-
-  static load(filePath: string) {
-    let restorePoint = {
-      playback: null,
-      selectedEventId: null,
-      startedAt: null,
-      addedTime: null,
-      pausedAt: null,
-    };
+  load(): RestorePoint | null {
     try {
-      const data = readFileSync(filePath, 'utf-8');
-      const elements = data.split(',');
+      const data = this.read();
+      const maybeRestorePoint = JSON.parse(data);
 
-      // we expect that a well terminated string, has a newline in the 5th element
-      if (elements[5] !== '\n') {
-        throw new Error(`Missing newline character in restore file`);
+      if (!isRestorePoint(maybeRestorePoint)) {
+        return null;
       }
-      const maybePlayback = elements[0] as Playback;
-      if (!Object.values(Playback).includes(maybePlayback)) {
-        throw new Error(`Could not phrase element to Playback state: ${elements[0]}`);
-      }
-      restorePoint.playback = maybePlayback;
 
-      if (!elements[1]) {
-        throw new Error(`Element 1 is empty`);
-      }
-      const maybeId = elements[1] === 'null' ? null : elements[1];
-      if (maybeId !== null && EventLoader.getEventWithId(maybeId) === undefined) {
-        throw new Error(`Event ID dose not exits: ${maybeId}`);
-      }
-      restorePoint.selectedEventId = maybeId;
-
-      restorePoint.startedAt = RestoreService.toNumberOrNull(elements[2]);
-      restorePoint.addedTime = RestoreService.toNumberOrNull(elements[3]);
-      restorePoint.pausedAt = RestoreService.toNumberOrNull(elements[4]);
-
-      logger.info(LogOrigin.Server, 'Found resumable state');
-    } catch (error) {
-      logger.info(LogOrigin.Server, `Invalid restore state: ${error}`);
+      return maybeRestorePoint;
+    } catch (_error) {
+      // no need to notify the user
       return null;
     }
-    return restorePoint;
   }
 
-  static clear(filePath: string) {
-    RestoreService.file = undefined;
-    try {
-      unlinkSync(filePath);
-    } catch (error) {
-      logger.error(LogOrigin.Server, `Failed to delete restore file: ${error}`);
+  /**
+   * Clears the restore file
+   */
+  async clear() {
+    if (this.file && this.failedCreateAttempts <= 3) {
+      try {
+        await this.file.write('');
+      } catch (_error) {
+        // nothing to do
+      }
     }
+    this.file = undefined;
   }
 }
+
+export const restoreService = new RestoreService(resolveRestoreFile);
