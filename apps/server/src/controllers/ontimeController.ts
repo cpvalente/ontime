@@ -207,8 +207,9 @@ export const postSettings = async (req, res) => {
     const settings = DataProvider.getSettings();
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
+    const hasChangedPort = settings.serverPort !== req.body?.serverPort;
 
-    if (isDocker && req.body?.serverPort) {
+    if (isDocker && hasChangedPort) {
       return res.status(403).json({ message: 'Can`t change port when running inside docker' });
     }
     const serverPort = parseInt(req.body?.serverPort ?? settings.serverPort, 10);
