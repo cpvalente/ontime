@@ -51,22 +51,17 @@ export function updateEvent(
   const event = EventLoader.getEventWithId(eventId);
 
   if (event) {
-    let valueToUpdate = newValue;
-
-    // Duration needs to be converted to milliseconds
-    if (propertyName === 'duration' && typeof valueToUpdate === 'number') {
-      valueToUpdate = valueToUpdate * 1000;
-    }
-
-    const propertiesToUpdate = { [propertyName]: valueToUpdate };
+    let propertiesToUpdate = { [propertyName]: newValue };
 
     // Handles the special case for duration
+    // needs to be converted to milliseconds
     if (propertyName === 'duration') {
-      propertiesToUpdate.timeEnd = event.timeStart + (valueToUpdate as number);
+      propertiesToUpdate.duration = (newValue as number) * 1000;
+      propertiesToUpdate.timeEnd = event.timeStart + propertiesToUpdate.duration;
     }
 
     editEvent({ id: eventId, ...propertiesToUpdate }).then(() => {
-      logger.info(LogOrigin.Playback, `Updated ${propertyName} of event with ID ${eventId} to ${valueToUpdate}`);
+      logger.info(LogOrigin.Playback, `Updated ${propertyName} of event with ID ${eventId} to ${newValue}`);
     });
   } else {
     throw new Error(`Event with ID ${eventId} not found`);
