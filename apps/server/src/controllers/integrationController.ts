@@ -246,8 +246,8 @@ export function dispatchFromAdapter(
           throw new Error('Invalid parameters');
         }
 
-        if (!payload || typeof payload !== 'string') {
-          throw new Error(`Invalid payload: ${payload}`);
+        if (payload === undefined) {
+          throw new Error(`Undefined payload`);
         }
 
         const eventID = params[0];
@@ -261,7 +261,7 @@ export function dispatchFromAdapter(
 
         return updateEvent(eventID, propertyName, parsedPayload);
       } catch (error) {
-        throw new Error(`Error updating duration: ${error}`);
+        throw new Error(`Error updating event: ${error}`);
       }
     }
 
