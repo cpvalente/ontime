@@ -15,13 +15,13 @@ export class OscServer implements IAdapter {
     this.osc.on('error', console.error);
 
     this.osc.on('message', (msg) => {
-      // message should look like /ontime/{path} {args} where
+      // message should look like /ontime/{path}/{params?} {args} where
       // ontime: fixed message for app
       // path: command to be called
       // args: extra data, only used on some API entries (delay, goto)
 
       // split message
-      const [, address, path] = msg[0].split('/');
+      const [, address, path, ...params] = msg[0].split('/');
       const args = msg[1];
 
       // get first part before (ontime)
@@ -37,7 +37,14 @@ export class OscServer implements IAdapter {
       }
 
       try {
-        const reply = dispatchFromAdapter(path, args, 'osc');
+        const reply = dispatchFromAdapter(
+          path,
+          {
+            payload: args,
+            params,
+          },
+          'osc',
+        );
         if (reply) {
           const { topic, payload } = reply;
           this.osc.emit(topic, payload);
