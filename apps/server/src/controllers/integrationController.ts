@@ -1,4 +1,4 @@
-import { OntimeEvent } from 'ontime-types';
+import { LogOrigin, OntimeEvent } from 'ontime-types';
 
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
@@ -6,7 +6,9 @@ import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
 import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 import { event } from '../models/eventsDefinition.js';
+import { logger } from '../classes/Logger.js';
 
+//TODO: simplify the Error path
 export function dispatchFromAdapter(
   type: string,
   args: {
@@ -241,27 +243,26 @@ export function dispatchFromAdapter(
 
     // ontime/change/{eventID}/{propertyName}
     case 'change': {
+      if (params.length < 2) {
+        logger.error(LogOrigin.Rx, `${source}: To few parameters`);
+        return;
+      }
+      if (payload === undefined) {
+        logger.error(LogOrigin.Rx, `${source}: Undefined payload`);
+        return;
+      }
+      const eventID = params[0];
+      const propertyName = params[1] as keyof OntimeEvent;
+      if (!isKeyOfType(propertyName, event)) {
+        logger.error(LogOrigin.Rx, `${source}: Cannot update unknown event property ${propertyName}`);
+        return;
+      }
       try {
-        if (params.length < 2) {
-          throw new Error('Invalid parameters');
-        }
-
-        if (payload === undefined) {
-          throw new Error(`Undefined payload`);
-        }
-
-        const eventID = params[0];
-        const propertyName = params[1] as keyof OntimeEvent;
-
-        if (!isKeyOfType(propertyName, event)) {
-          throw new Error(`Cannot update unknown event property ${propertyName}`);
-        }
-
         const parsedPayload = parse(propertyName, payload);
-
         return updateEvent(eventID, propertyName, parsedPayload);
       } catch (error) {
-        throw new Error(`Error updating event: ${error}`);
+        logger.error(LogOrigin.Rx, `${source}: ${error}`);
+        return;
       }
     }
 
