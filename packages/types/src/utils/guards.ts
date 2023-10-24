@@ -1,6 +1,5 @@
 import { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
 import { OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
-import { event } from '../../../../apps/server/src/models/eventsDefinition.js';
 
 type MaybeEvent = OntimeRundownEntry | null | undefined;
 
