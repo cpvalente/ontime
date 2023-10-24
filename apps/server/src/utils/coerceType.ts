@@ -1,5 +1,5 @@
 /**
- * @description Converts an unknown value to a string, if it's not null or undefined. Throws an error otherwise.
+ * @description Converts a value to a number if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a string.
  * @returns {string} - The converted value as a string.
  * @throws {Error} Throws an error if the value is null or undefined.
@@ -12,7 +12,7 @@ export function coerceString(value: unknown): string {
 }
 
 /**
- * @description Converts an unknown value to a boolean, if it's not null or undefined. Throws an error otherwise.
+ * @description Converts a value to a number if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a boolean.
  * @returns {boolean} - The converted value as a boolean.
  * @throws {Error} Throws an error if the value is null or undefined.
@@ -25,7 +25,7 @@ export function coerceBoolean(value: unknown): boolean {
 }
 
 /**
- * @description Converts an unknown value to a number, if it's not null or undefined. Parses the value and checks if it's a valid number. Throws an error otherwise.
+ * @description Converts a value to a number if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a number.
  * @returns {number} - The converted value as a number.
  * @throws {Error} Throws an error if the value is null, undefined or not a valid number.
