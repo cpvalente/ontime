@@ -1,3 +1,5 @@
+import { LogOrigin, OSCSettings } from 'ontime-types';
+
 import 'dotenv/config';
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
@@ -6,10 +8,8 @@ import cors from 'cors';
 
 // import utils
 import { join, resolve } from 'path';
-
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { LogOrigin, OSCSettings } from 'ontime-types';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
@@ -31,6 +31,8 @@ import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
+import { PlaybackService } from './services/PlaybackService.js';
+import { RestorePoint, restoreService } from './services/RestoreService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -137,10 +139,21 @@ export const startServer = async () => {
   expressServer = http.createServer(app);
 
   socket.init(expressServer);
+  eventLoader.init();
+
+  // load restore point if it exists
+  const maybeRestorePoint = restoreService.load();
+
+  if (maybeRestorePoint) {
+    logger.info(LogOrigin.Server, 'Found resumable state');
+    PlaybackService.resume(maybeRestorePoint);
+  }
+
+  eventTimer.setRestoreCallback(async (newState: RestorePoint) => restoreService.save(newState));
 
   // provide initial payload to event store
-  eventLoader.init();
-  eventStore.init(getInitialPayload());
+  const initialPayload = getInitialPayload();
+  eventStore.init(initialPayload);
 
   expressServer.listen(serverPort, '0.0.0.0');
 
@@ -201,6 +214,14 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
  */
 export const shutdown = async (exitCode = 0) => {
   console.log(`Ontime shutting down with code ${exitCode}`);
+
+  // clear the restore file if it was a normal exit
+  // 0 means it was a SIGNAL
+  // 1 means crash -> keep the file
+  // 99 means it was the UI
+  if (exitCode === 0 || exitCode === 99) {
+    await restoreService.clear();
+  }
 
   expressServer?.close();
   oscServer?.shutdown();

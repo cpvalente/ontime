@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
+import { EndAction, LogOrigin, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
 import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { eventStore } from '../stores/EventStore.js';
@@ -8,12 +8,15 @@ import { integrationService } from './integration-service/IntegrationService.js'
 import { getCurrent, getExpectedFinish } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
+import type { RestorePoint } from './RestoreService.js';
 
 type initialLoadingData = {
   startedAt?: number | null;
   expectedFinish?: number | null;
   current?: number | null;
 };
+
+type RestoreCallback = (newState: RestorePoint) => Promise<void>;
 
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
@@ -31,6 +34,7 @@ export class TimerService {
   private pausedAt: number | null;
   private secondaryTarget: number | null;
 
+  private saveRestorePoint: RestoreCallback;
   /**
    * @constructor
    * @param {object} [timerConfig]
@@ -41,6 +45,14 @@ export class TimerService {
     this._clear();
     this._interval = setInterval(() => this.update(), timerConfig?.refresh ?? 1000);
     this._updateInterval = timerConfig?.updateInterval ?? 1000;
+  }
+
+  /**
+   * Provides callback to save restore point
+   * @param cb
+   */
+  setRestoreCallback(cb: RestoreCallback) {
+    this.saveRestorePoint = cb;
   }
 
   /**
@@ -72,6 +84,44 @@ export class TimerService {
     this.secondaryTarget = null;
 
     this._lastUpdate = null;
+  }
+
+  /**
+   * Resumes a given playback state, same as load
+   * @param {RestorePoint} restorePoint
+   * @param {OntimeEvent} timer
+   */
+  resume(timer: OntimeEvent, restorePoint: RestorePoint) {
+    this._clear();
+
+    // this is pretty much the same as load, with a few exceptions
+    this.loadedTimerId = timer.id;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
+
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
+    this.playback = restorePoint.playback;
+    this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
+    this.timer.startedAt = restorePoint.startedAt;
+    this.timer.addedTime = restorePoint.addedTime;
+    this.pausedTime = 0;
+    this.pausedAt = restorePoint.pausedAt;
+
+    this.timer.current = this.timer.duration;
+    if (this.timer.timerType === TimerType.TimeToEnd) {
+      const now = clock.timeNow();
+      this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
+    }
+
+    this._onResume();
+  }
+
+  _onResume() {
+    eventStore.batchSet({
+      playback: this.playback,
+      timer: this.timer,
+    });
   }
 
   /**
@@ -121,17 +171,10 @@ export class TimerService {
 
   /**
    * Loads given timer to object
-   * @param {object} timer
-   * @param initialData
-   * @param {number} timer.id
-   * @param {number} timer.timeStart
-   * @param {number} timer.timeEnd
-   * @param {number} timer.duration
-   * @param {string} timer.timerBehaviour
-   * @param {string} timer.timerType
-   * @param {boolean} timer.skip
+   * @param {OntimeEvent} timer
+   * @param {initialLoadingData} initialData
    */
-  load(timer, initialData?: initialLoadingData) {
+  load(timer: OntimeEvent, initialData?: initialLoadingData) {
     if (timer.skip) {
       throw new Error('Refuse load of skipped event');
     }
@@ -155,7 +198,7 @@ export class TimerService {
       this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
     }
 
-    if (typeof initialData !== 'undefined') {
+    if (initialData) {
       this.timer = { ...this.timer, ...initialData };
     }
 
@@ -172,12 +215,13 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onLoad);
+    this._saveState();
   }
 
   start() {
     if (!this.loadedTimerId) {
       if (this.playback === Playback.Roll) {
-        logger.error('PLAYBACK', 'Cannot start while waiting for event');
+        logger.error(LogOrigin.Playback, 'Cannot start while waiting for event');
       }
       return;
     }
@@ -222,6 +266,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStart);
+    this._saveState();
   }
 
   pause() {
@@ -237,6 +282,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onPause);
+    this._saveState();
   }
 
   stop() {
@@ -254,6 +300,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStop);
+    this._saveState();
   }
 
   /**
@@ -280,6 +327,7 @@ export class TimerService {
 
     // force an update
     this.update(true);
+    this._saveState();
   }
 
   private updateRoll() {
@@ -394,6 +442,7 @@ export class TimerService {
         PlaybackService.startNext();
       }
     }
+    this._saveState();
   }
 
   /**
@@ -435,6 +484,19 @@ export class TimerService {
 
   _onRoll() {
     eventStore.set('playback', this.playback);
+    this._saveState();
+  }
+
+  async _saveState() {
+    if (this.saveRestorePoint) {
+      await this.saveRestorePoint({
+        playback: this.playback,
+        selectedEventId: this.loadedTimerId,
+        startedAt: this.timer.startedAt,
+        addedTime: this.timer.addedTime,
+        pausedAt: this.pausedAt,
+      });
+    }
   }
 
   shutdown() {
