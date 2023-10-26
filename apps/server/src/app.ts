@@ -139,7 +139,7 @@ export const startServer = async () => {
   expressServer = http.createServer(app);
 
   socket.init(expressServer);
-  eventLoader.init();
+  await eventLoader.init();
 
   // load restore point if it exists
   const maybeRestorePoint = restoreService.load();

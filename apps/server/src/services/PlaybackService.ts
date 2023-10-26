@@ -126,7 +126,7 @@ export class PlaybackService {
   static async loadPrevious(): Promise<void> {
     const previousEvent = await eventLoader.findPrevious();
     if (previousEvent) {
-      const success = PlaybackService.loadEvent(previousEvent);
+      const success = await PlaybackService.loadEvent(previousEvent);
       if (success) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${previousEvent.id}`);
       }
@@ -141,7 +141,7 @@ export class PlaybackService {
   static async loadNext(fallbackAction?: 'stop' | 'pause'): Promise<boolean> {
     const nextEvent = await eventLoader.findNext();
     if (nextEvent) {
-      const success = PlaybackService.loadEvent(nextEvent);
+      const success = await PlaybackService.loadEvent(nextEvent);
       if (success) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${nextEvent.id}`);
         return true;
@@ -175,8 +175,8 @@ export class PlaybackService {
    * Starts playback on next event
    * @param {string} [fallbackAction] - 'stop', 'pause'
    */
-  static startNext(fallbackAction?: 'stop' | 'pause') {
-    const success = PlaybackService.loadNext(fallbackAction);
+  static async startNext(fallbackAction?: 'stop' | 'pause') {
+    const success = await PlaybackService.loadNext(fallbackAction);
     if (success) {
       PlaybackService.start();
     }

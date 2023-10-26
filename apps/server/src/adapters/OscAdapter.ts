@@ -36,7 +36,7 @@ export class OscServer implements IAdapter {
         return;
       }
 
-      (async () => {
+      void (async () => {
         try {
           const reply = await dispatchFromAdapter(path, args, 'osc');
           if (reply) {

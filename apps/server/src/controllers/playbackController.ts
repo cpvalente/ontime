@@ -17,7 +17,7 @@ export const pbStart = async (req, res) => {
   } else if (eventIndex) {
     const index = Number(eventIndex);
     if (!isNaN(index)) {
-      const success = PlaybackService.startByIndex(eventIndex - 1);
+      const success = await PlaybackService.startByIndex(eventIndex - 1);
       success ? res.sendStatus(202) : res.status(400).send('Invalid event index');
     } else {
       res.status(400).send('Invalid event index');

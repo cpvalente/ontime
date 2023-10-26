@@ -112,7 +112,7 @@ export async function updateTimer(affectedIds?: string[]) {
   // 2. the edited event is in memory (now or next) running
   const eventInMemory = safeOption ? false : affectedLoaded(affectedIds);
   // 3. the edited event replaces next event
-  const isNext = isNewNext();
+  const isNext = await isNewNext();
 
   if (safeOption) {
     await eventLoader.reset();
@@ -197,7 +197,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   await updateTimer([id]);
 
   // notify event loader that rundown size has changed
-  updateChangeNumEvents();
+  await updateChangeNumEvents();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -233,7 +233,7 @@ export async function deleteEvent(eventId) {
   await updateTimer([eventId]);
 
   // notify event loader that rundown size has changed
-  updateChangeNumEvents();
+  await updateChangeNumEvents();
 
   // advice socket subscribers of change
   sendRefetch();
