@@ -14,7 +14,7 @@ import { RequestHandler } from 'express';
 // Create controller for GET request to '/events'
 // Returns -
 export const rundownGetAll: RequestHandler = async (_req, res) => {
-  const delayedRundown = getDelayedRundown();
+  const delayedRundown = await getDelayedRundown();
   res.json(delayedRundown);
 };
 
