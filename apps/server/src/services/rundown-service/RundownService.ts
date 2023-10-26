@@ -133,7 +133,7 @@ export async function updateTimer(affectedIds?: string[]) {
         eventTimer.roll(currentEvent, nextEvent);
       }
     } else {
-    const eventNow = (await eventLoader.loadById(runningEventId))?.eventNow;
+      const eventNow = (await eventLoader.loadById(runningEventId))?.eventNow;
       if (eventNow) {
         eventTimer.hotReload(eventNow);
       } else {

@@ -57,9 +57,7 @@ export class EventLoader {
    */
   static async getPlayableEvents(): Promise<OntimeEvent[]> {
     const rundown = await DataProvider.getRundown();
-    return rundown.filter(
-      (event) => event.type === SupportedEvent.Event && !event.skip,
-    ) as OntimeEvent[];
+    return rundown.filter((event) => event.type === SupportedEvent.Event && !event.skip) as OntimeEvent[];
   }
 
   /**
@@ -106,7 +104,7 @@ export class EventLoader {
    * @param {string} eventId
    * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
-  async loadById(eventId)  {
+  async loadById(eventId) {
     const event = await EventLoader.getEventWithId(eventId);
     return this.loadEvent(event);
   }
@@ -206,7 +204,7 @@ export class EventLoader {
   /**
    * Forces event loader to update the event count
    */
-  async updateNumEvents() { 
+  async updateNumEvents() {
     const playableEvents = await EventLoader.getPlayableEvents();
     this.loaded.numEvents = playableEvents.length;
     eventStore.set('loaded', this.loaded);

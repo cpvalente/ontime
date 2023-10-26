@@ -193,7 +193,7 @@ export const startOSCServer = async (overrideConfig = null) => {
 export const startIntegrations = async (config?: { osc: OSCSettings }) => {
   checkStart(OntimeStartOrder.InitIO);
 
-  const { osc } = config ?? await DataProvider.getData();
+  const { osc } = config ?? (await DataProvider.getData());
 
   if (!osc) {
     return 'OSC Invalid configuration';
