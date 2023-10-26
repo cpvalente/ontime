@@ -8,10 +8,10 @@ export function checkCached(key: string): boolean {
   return runtimeCache.has(key);
 }
 
-export function getCached<T>(key: string, callback: () => T): T {
+export async function getCached<T>(key: string, callback: () => (T | Promise<T>)): Promise<T> {
   if (!runtimeCache.has(key)) {
     try {
-      const data = callback();
+      const data = await callback();
       runtimeCache.set(key, { data });
     } catch (error) {
       console.log(`Failed retrieving data from callback: ${error}`);

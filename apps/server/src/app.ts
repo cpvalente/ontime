@@ -133,7 +133,7 @@ export const initAssets = async () => {
 export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
 
-  const { serverPort } = DataProvider.getSettings();
+  const { serverPort } = await DataProvider.getSettings();
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 
   expressServer = http.createServer(app);
@@ -169,7 +169,7 @@ export const startServer = async () => {
 export const startOSCServer = async (overrideConfig = null) => {
   checkStart(OntimeStartOrder.InitIO);
 
-  const { osc } = DataProvider.getData();
+  const { osc } = await DataProvider.getData();
 
   if (!osc.enabledIn) {
     logger.info(LogOrigin.Rx, 'OSC Input Disabled');
@@ -193,7 +193,7 @@ export const startOSCServer = async (overrideConfig = null) => {
 export const startIntegrations = async (config?: { osc: OSCSettings }) => {
   checkStart(OntimeStartOrder.InitIO);
 
-  const { osc } = config ?? DataProvider.getData();
+  const { osc } = config ?? await DataProvider.getData();
 
   if (!osc) {
     return 'OSC Invalid configuration';

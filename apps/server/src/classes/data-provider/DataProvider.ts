@@ -8,7 +8,7 @@ import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
 
 export class DataProvider {
-  static getData() {
+  static async getData() {
     return data;
   }
 
@@ -18,7 +18,7 @@ export class DataProvider {
     return data.project;
   }
 
-  static getProjectData() {
+  static async getProjectData() {
     return data.project;
   }
 
@@ -27,21 +27,20 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getIndexOf(eventId: string) {
+  static async getIndexOf(eventId: string) {
     return data.rundown.findIndex((e) => e.id === eventId);
   }
 
-  static getRundownLength() {
+  static async getRundownLength() {
     return data.rundown.length;
   }
 
   static async clearRundown() {
     data.rundown = [];
-    // @ts-expect-error -- not sure how to type, this is library side
-    await db.write();
+    await this.persist();
   }
 
-  static getSettings() {
+  static async getSettings() {
     return data.settings;
   }
 
@@ -50,11 +49,11 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getOsc() {
+  static async getOsc() {
     return data.osc;
   }
 
-  static getAliases() {
+  static async getAliases() {
     return data.aliases;
   }
 
@@ -63,11 +62,11 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getUserFields() {
+  static async getUserFields() {
     return { ...data.userFields };
   }
 
-  static getViewSettings() {
+  static async getViewSettings() {
     return { ...data.viewSettings };
   }
 
@@ -86,7 +85,7 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getRundown() {
+  static async getRundown() {
     return [...data.rundown];
   }
 

@@ -18,14 +18,14 @@ export class PlaybackService {
    * @param {OntimeEvent} event
    * @return {boolean} success
    */
-  static loadEvent(event: OntimeEvent): boolean {
+  static async loadEvent(event: OntimeEvent): Promise<boolean> {
     let success = false;
     if (!event) {
       logger.error(LogOrigin.Playback, 'No event found');
     } else if (event.skip) {
       logger.warning(LogOrigin.Playback, `Refused playback of skipped event ID ${event.id}`);
     } else {
-      eventLoader.loadEvent(event);
+      await eventLoader.loadEvent(event);
       eventTimer.load(event);
       success = true;
     }
@@ -38,9 +38,9 @@ export class PlaybackService {
    * @param {string} eventId
    * @return {boolean} success
    */
-  static startById(eventId: string): boolean {
-    const event = EventLoader.getEventWithId(eventId);
-    const success = PlaybackService.loadEvent(event);
+  static async startById(eventId: string): Promise<boolean> {
+    const event = await EventLoader.getEventWithId(eventId);
+    const success = await PlaybackService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
       PlaybackService.start();
@@ -53,9 +53,9 @@ export class PlaybackService {
    * @param {number} eventIndex
    * @return {boolean} success
    */
-  static startByIndex(eventIndex: number): boolean {
-    const event = EventLoader.getEventAtIndex(eventIndex);
-    const success = PlaybackService.loadEvent(event);
+  static async startByIndex(eventIndex: number): Promise<boolean> {
+    const event = await EventLoader.getEventAtIndex(eventIndex);
+    const success = await PlaybackService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
       PlaybackService.start();
@@ -68,9 +68,9 @@ export class PlaybackService {
    * @param {string} cue
    * @return {boolean} success
    */
-  static startByCue(cue: string): boolean {
-    const event = EventLoader.getEventWithCue(cue);
-    const success = PlaybackService.loadEvent(event);
+  static async startByCue(cue: string): Promise<boolean> {
+    const event = await EventLoader.getEventWithCue(cue);
+    const success = await PlaybackService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
       PlaybackService.start();
@@ -83,9 +83,9 @@ export class PlaybackService {
    * @param {string} eventId
    * @return {boolean} success
    */
-  static loadById(eventId: string): boolean {
-    const event = EventLoader.getEventWithId(eventId);
-    const success = PlaybackService.loadEvent(event);
+  static async loadById(eventId: string): Promise<boolean> {
+    const event = await EventLoader.getEventWithId(eventId);
+    const success = await PlaybackService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -97,9 +97,9 @@ export class PlaybackService {
    * @param {number} eventIndex
    * @return {boolean} success
    */
-  static loadByIndex(eventIndex: number): boolean {
-    const event = EventLoader.getEventAtIndex(eventIndex);
-    const success = PlaybackService.loadEvent(event);
+  static async loadByIndex(eventIndex: number): Promise<boolean> {
+    const event = await EventLoader.getEventAtIndex(eventIndex);
+    const success = await PlaybackService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -111,9 +111,9 @@ export class PlaybackService {
    * @param {string} cue
    * @return {boolean} success
    */
-  static loadByCue(cue: string): boolean {
-    const event = EventLoader.getEventWithCue(cue);
-    const success = PlaybackService.loadEvent(event);
+  static async loadByCue(cue: string): Promise<boolean> {
+    const event = await EventLoader.getEventWithCue(cue);
+    const success = await PlaybackService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -123,8 +123,8 @@ export class PlaybackService {
   /**
    * Loads event before currently selected
    */
-  static loadPrevious() {
-    const previousEvent = eventLoader.findPrevious();
+  static async loadPrevious(): Promise<void> {
+    const previousEvent = await eventLoader.findPrevious();
     if (previousEvent) {
       const success = PlaybackService.loadEvent(previousEvent);
       if (success) {
@@ -138,8 +138,8 @@ export class PlaybackService {
    * @param {string} [fallbackAction] - 'stop', 'pause'
    * @return {boolean} success
    */
-  static loadNext(fallbackAction?: 'stop' | 'pause'): boolean {
-    const nextEvent = eventLoader.findNext();
+  static async loadNext(fallbackAction?: 'stop' | 'pause'): Promise<boolean> {
+    const nextEvent = await eventLoader.findNext();
     if (nextEvent) {
       const success = PlaybackService.loadEvent(nextEvent);
       if (success) {
@@ -196,9 +196,9 @@ export class PlaybackService {
   /**
    * Stops timer and unloads any events
    */
-  static stop() {
+  static async stop() {
     if (validatePlayback(eventTimer.playback).stop) {
-      eventLoader.reset();
+      await eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
@@ -217,9 +217,9 @@ export class PlaybackService {
   /**
    * Sets playback to roll
    */
-  static roll() {
-    if (EventLoader.getPlayableEvents()) {
-      const rollTimers = eventLoader.findRoll(clock.timeNow());
+  static async roll() {
+    if (await EventLoader.getPlayableEvents()) {
+      const rollTimers = await eventLoader.findRoll(clock.timeNow());
 
       // nothing to play
       if (rollTimers === null) {
@@ -246,7 +246,7 @@ export class PlaybackService {
    * @description resume playback state given a restore point
    * @param restorePoint
    */
-  static resume(restorePoint: RestorePoint) {
+  static async resume(restorePoint: RestorePoint) {
     const willResume = () => logger.info(LogOrigin.Server, 'Resuming playback');
 
     if (restorePoint.playback === Playback.Roll) {
@@ -255,14 +255,14 @@ export class PlaybackService {
     }
 
     if (restorePoint.selectedEventId) {
-      const event = EventLoader.getEventWithId(restorePoint.selectedEventId);
+      const event = await EventLoader.getEventWithId(restorePoint.selectedEventId);
       // the db would have to change for the event not to exist
       // we do not kow the reason for the crash, so we check anyway
       if (!event) {
         return;
       }
 
-      eventLoader.loadEvent(event);
+      await eventLoader.loadEvent(event);
       eventTimer.resume(event, restorePoint);
       eventStore.broadcast();
       return;

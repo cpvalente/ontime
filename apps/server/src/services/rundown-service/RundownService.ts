@@ -33,8 +33,8 @@ import { clock } from '../Clock.js';
  * Forces rundown to be recalculated
  * To be used when we know the rundown has changed completely
  */
-export function forceReset() {
-  eventLoader.reset();
+export async function forceReset() {
+  await eventLoader.reset();
   sendRefetch();
   runtimeCacheStore.invalidate(delayedRundownCacheKey);
 }
@@ -58,8 +58,8 @@ const affectedLoaded = (affectedIds: string[]) => {
 /**
  * Checks if timer replaces the loaded next
  */
-const isNewNext = () => {
-  const timedEvents = EventLoader.getTimedEvents();
+const isNewNext = async () => {
+  const timedEvents = await EventLoader.getTimedEvents();
   const now = eventLoader.loaded.selectedEventId;
   const next = eventLoader.loaded.nextEventId;
 
@@ -98,7 +98,7 @@ const isNewNext = () => {
 /**
  * Updates timer service when a relevant piece of data changes
  */
-export function updateTimer(affectedIds?: string[]) {
+export async function updateTimer(affectedIds?: string[]) {
   const runningEventId = eventLoader.loaded.selectedEventId;
   const nextEventId = eventLoader.loaded.nextEventId;
 
@@ -115,8 +115,8 @@ export function updateTimer(affectedIds?: string[]) {
   const isNext = isNewNext();
 
   if (safeOption) {
-    eventLoader.reset();
-    const { eventNow } = eventLoader.loadById(runningEventId) || {};
+    await eventLoader.reset();
+    const eventNow = (await eventLoader.loadById(runningEventId))?.eventNow;
     eventTimer.hotReload(eventNow);
     return true;
   }
@@ -125,7 +125,7 @@ export function updateTimer(affectedIds?: string[]) {
     eventLoader.reset();
 
     if (eventTimer.playback === Playback.Roll) {
-      const rollTimers = eventLoader.findRoll(clock.timeNow());
+      const rollTimers = await eventLoader.findRoll(clock.timeNow());
       if (rollTimers === null) {
         eventTimer.stop();
       } else {
@@ -133,7 +133,7 @@ export function updateTimer(affectedIds?: string[]) {
         eventTimer.roll(currentEvent, nextEvent);
       }
     } else {
-      const { eventNow } = eventLoader.loadById(runningEventId) || {};
+    const eventNow = (await eventLoader.loadById(runningEventId))?.eventNow;
       if (eventNow) {
         eventTimer.hotReload(eventNow);
       } else {
@@ -144,7 +144,7 @@ export function updateTimer(affectedIds?: string[]) {
   }
 
   if (isNext) {
-    const { eventNow } = eventLoader.loadById(runningEventId) || {};
+    const eventNow = (await eventLoader.loadById(runningEventId))?.eventNow;
     eventTimer.hotReload(eventNow);
     return true;
   }
@@ -157,7 +157,7 @@ export function updateTimer(affectedIds?: string[]) {
  * @return {unknown[]}
  */
 export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
-  const numEvents = DataProvider.getRundownLength();
+  const numEvents = await DataProvider.getRundownLength();
   if (numEvents > MAX_EVENTS) {
     throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
   }
@@ -167,7 +167,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
   let insertIndex = 0;
   if (eventData?.after !== undefined) {
-    const index = DataProvider.getIndexOf(eventData.after);
+    const index = await DataProvider.getIndexOf(eventData.after);
     if (index < 0) {
       logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
     } else {
@@ -177,7 +177,8 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
   switch (eventData.type) {
     case SupportedEvent.Event: {
-      newEvent = validateEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
+      const rundown = await DataProvider.getRundown();
+      newEvent = validateEvent(eventData, getCueCandidate(rundown, eventData?.after)) as OntimeEvent;
       break;
     }
     case SupportedEvent.Delay:

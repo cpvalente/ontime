@@ -46,16 +46,18 @@ export class EventLoader {
    * returns all events that contain time data
    * @return {array}
    */
-  static getTimedEvents(): OntimeEvent[] {
-    return DataProvider.getRundown().filter((event) => event.type === SupportedEvent.Event) as OntimeEvent[];
+  static async getTimedEvents(): Promise<OntimeEvent[]> {
+    const rundown = await DataProvider.getRundown();
+    return rundown.filter((event) => event.type === SupportedEvent.Event) as OntimeEvent[];
   }
 
   /**
    * returns all events that can be loaded
    * @return {array}
    */
-  static getPlayableEvents(): OntimeEvent[] {
-    return DataProvider.getRundown().filter(
+  static async getPlayableEvents(): Promise<OntimeEvent[]> {
+    const rundown = await DataProvider.getRundown();
+    return rundown.filter(
       (event) => event.type === SupportedEvent.Event && !event.skip,
     ) as OntimeEvent[];
   }
@@ -64,8 +66,9 @@ export class EventLoader {
    * returns number of events
    * @return {number}
    */
-  static getNumEvents() {
-    return EventLoader.getTimedEvents().length;
+  static async getNumEvents(): Promise<number> {
+    const timedEvents = await EventLoader.getTimedEvents();
+    return timedEvents.length;
   }
 
   /**
@@ -73,8 +76,8 @@ export class EventLoader {
    * @param {number} eventIndex
    * @return {OntimeEvent | undefined}
    */
-  static getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
-    const timedEvents = EventLoader.getTimedEvents();
+  static async getEventAtIndex(eventIndex: number): Promise<OntimeEvent | undefined> {
+    const timedEvents = await EventLoader.getTimedEvents();
     return timedEvents?.[eventIndex];
   }
 
@@ -83,8 +86,8 @@ export class EventLoader {
    * @param {string} eventId
    * @return {object | undefined}
    */
-  static getEventWithId(eventId): OntimeEvent | undefined {
-    const timedEvents = EventLoader.getTimedEvents();
+  static async getEventWithId(eventId): Promise<OntimeEvent | undefined> {
+    const timedEvents = await EventLoader.getTimedEvents();
     return timedEvents.find((event) => event.id === eventId);
   }
 
@@ -93,8 +96,8 @@ export class EventLoader {
    * @param {string} cue
    * @return {object | undefined}
    */
-  static getEventWithCue(cue) {
-    const timedEvents = EventLoader.getTimedEvents();
+  static async getEventWithCue(cue): Promise<OntimeEvent | undefined> {
+    const timedEvents = await EventLoader.getTimedEvents();
     return timedEvents.find((event) => event.cue === cue);
   }
 
@@ -103,8 +106,8 @@ export class EventLoader {
    * @param {string} eventId
    * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
-  loadById(eventId) {
-    const event = EventLoader.getEventWithId(eventId);
+  async loadById(eventId)  {
+    const event = await EventLoader.getEventWithId(eventId);
     return this.loadEvent(event);
   }
 
@@ -113,8 +116,8 @@ export class EventLoader {
    * @param {number} eventIndex
    * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
-  loadByIndex(eventIndex) {
-    const event = EventLoader.getEventAtIndex(eventIndex);
+  async loadByIndex(eventIndex) {
+    const event = await EventLoader.getEventAtIndex(eventIndex);
     return this.loadEvent(event);
   }
 
@@ -122,8 +125,8 @@ export class EventLoader {
    * finds the previous event
    * @return {object | undefined}
    */
-  findPrevious() {
-    const timedEvents = EventLoader.getPlayableEvents();
+  async findPrevious() {
+    const timedEvents = await EventLoader.getPlayableEvents();
     if (timedEvents === null || !timedEvents.length || this.loaded.selectedEventIndex === 0) {
       return null;
     }
@@ -141,8 +144,8 @@ export class EventLoader {
    * finds the next event
    * @return {object | undefined}
    */
-  findNext() {
-    const timedEvents = EventLoader.getPlayableEvents();
+  async findNext() {
+    const timedEvents = await EventLoader.getPlayableEvents();
     if (timedEvents === null || !timedEvents.length || this.loaded.selectedEventIndex === this.loaded.numEvents - 1) {
       return null;
     }
@@ -159,8 +162,8 @@ export class EventLoader {
    * finds next event within Roll context
    * @param {number} timeNow - current time in ms
    */
-  findRoll(timeNow) {
-    const timedEvents = EventLoader.getPlayableEvents();
+  async findRoll(timeNow) {
+    const timedEvents = await EventLoader.getPlayableEvents();
     if (!timedEvents.length) {
       return null;
     }
@@ -203,15 +206,18 @@ export class EventLoader {
   /**
    * Forces event loader to update the event count
    */
-  updateNumEvents() {
-    this.loaded.numEvents = EventLoader.getPlayableEvents().length;
+  async updateNumEvents() { 
+    const playableEvents = await EventLoader.getPlayableEvents();
+    this.loaded.numEvents = playableEvents.length;
     eventStore.set('loaded', this.loaded);
   }
 
   /**
    * Resets instance state
    */
-  reset(emit = true) {
+  async reset(emit = true) {
+    const playableEvents = await EventLoader.getPlayableEvents();
+
     this.eventNow = null;
     this.publicEventNow = null;
     this.eventNext = null;
@@ -222,7 +228,7 @@ export class EventLoader {
       selectedPublicEventId: null,
       nextEventId: null,
       nextPublicEventId: null,
-      numEvents: EventLoader.getPlayableEvents().length,
+      numEvents: playableEvents.length,
     };
 
     // workaround for socket not being ready in constructor
@@ -235,13 +241,13 @@ export class EventLoader {
    * loads an event given its id
    * @param {object} event
    */
-  loadEvent(event?: OntimeEvent) {
+  async loadEvent(event?: OntimeEvent) {
     if (typeof event === 'undefined') {
       return null;
     }
-    const timedEvents = EventLoader.getPlayableEvents();
+    const timedEvents = await EventLoader.getPlayableEvents();
     const eventIndex = timedEvents.findIndex((eventInMemory) => eventInMemory.id === event.id);
-    const playableEvents = EventLoader.getPlayableEvents();
+    const playableEvents = await EventLoader.getPlayableEvents();
 
     // we know some stuff now
     this.loaded.selectedEventIndex = eventIndex;
