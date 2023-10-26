@@ -23,6 +23,18 @@ export class EventLoader {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
+    this.eventNow = null;
+    this.publicEventNow = null;
+    this.eventNext = null;
+    this.publicEventNext = null;
+    this.loaded = {
+      selectedEventIndex: null,
+      selectedEventId: null,
+      selectedPublicEventId: null,
+      nextEventId: null,
+      nextPublicEventId: null,
+      numEvents: 0,
+    };
   }
 
   // we need to delay init until the store is ready
@@ -71,7 +83,7 @@ export class EventLoader {
    * @param {string} eventId
    * @return {object | undefined}
    */
-  static getEventWithId(eventId) {
+  static getEventWithId(eventId): OntimeEvent | undefined {
     const timedEvents = EventLoader.getTimedEvents();
     return timedEvents.find((event) => event.id === eventId);
   }
@@ -223,7 +235,7 @@ export class EventLoader {
    * loads an event given its id
    * @param {object} event
    */
-  loadEvent(event) {
+  loadEvent(event?: OntimeEvent) {
     if (typeof event === 'undefined') {
       return null;
     }

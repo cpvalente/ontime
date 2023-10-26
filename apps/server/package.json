@@ -19,6 +19,7 @@
     "ontime-utils": "workspace:*",
     "passport": "^0.6.0",
     "passport-local": "~1.0.0",
+    "steno": "^3.1.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
@@ -52,8 +53,8 @@
     "build:docker": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "lint": "eslint .",
-    "test": "vitest",
-    "test:pipeline": "vitest run",
+    "test": "cross-env IS_TEST=true vitest",
+    "test:pipeline": "cross-env IS_TEST=true vitest run",
     "typecheck": "tsc --noEmit",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   }
