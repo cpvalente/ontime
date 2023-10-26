@@ -122,7 +122,7 @@ export async function updateTimer(affectedIds?: string[]) {
   }
 
   if (eventInMemory) {
-    eventLoader.reset();
+    await eventLoader.reset();
 
     if (eventTimer.playback === Playback.Roll) {
       const rollTimers = await eventLoader.findRoll(clock.timeNow());
@@ -194,7 +194,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
 
   // notify timer service of changed events
-  updateTimer([id]);
+  await updateTimer([id]);
 
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
@@ -213,7 +213,7 @@ export async function editEvent(eventData: Partial<OntimeEvent> | Partial<Ontime
   const newEvent = await cachedEdit(eventData.id, eventData);
 
   // notify timer service of changed events
-  updateTimer([newEvent.id]);
+  await updateTimer([newEvent.id]);
 
   // advice socket subscribers of change
   sendRefetch();
@@ -230,7 +230,7 @@ export async function deleteEvent(eventId) {
   await cachedDelete(eventId);
 
   // notify timer service of changed events
-  updateTimer([eventId]);
+  await updateTimer([eventId]);
 
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
@@ -247,8 +247,8 @@ export async function deleteAllEvents() {
   await cachedClear();
 
   // notify timer service of changed events
-  updateTimer();
-  forceReset();
+  await updateTimer();
+  await forceReset();
 }
 
 /**
@@ -262,7 +262,7 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
   const reorderedItem = await cachedReorder(eventId, from, to);
 
   // notify timer service of changed events
-  updateTimer();
+  await updateTimer();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -273,7 +273,7 @@ export async function applyDelay(eventId: string) {
   await cachedApplyDelay(eventId);
 
   // notify timer service of changed events
-  updateTimer();
+  await updateTimer();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -289,7 +289,7 @@ export async function swapEvents(from: string, to: string) {
   await cachedSwap(from, to);
 
   // notify timer service of changed events
-  updateTimer();
+  await updateTimer();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -299,6 +299,6 @@ export async function swapEvents(from: string, to: string) {
  * Forces update in the store
  * Called when we make changes to the rundown object
  */
-function updateChangeNumEvents() {
-  eventLoader.updateNumEvents();
+async function updateChangeNumEvents() {
+  await eventLoader.updateNumEvents();
 }

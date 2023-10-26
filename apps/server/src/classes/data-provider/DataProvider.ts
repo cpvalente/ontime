@@ -8,8 +8,8 @@ import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
 
 export class DataProvider {
-  static async getData() {
-    return data;
+  static getData(): Promise<any> {
+    return Promise.resolve(data);
   }
 
   static async setProjectData(newData: Partial<ProjectData>) {
@@ -18,8 +18,8 @@ export class DataProvider {
     return data.project;
   }
 
-  static async getProjectData() {
-    return data.project;
+  static getProjectData(): Promise<any> {
+    return Promise.resolve(data.project);
   }
 
   static async setRundown(newData: OntimeRundown) {
@@ -40,8 +40,8 @@ export class DataProvider {
     await this.persist();
   }
 
-  static async getSettings() {
-    return data.settings;
+  static getSettings(): Promise<any> {
+    return Promise.resolve(data.settings);
   }
 
   static async setSettings(newData) {
@@ -49,12 +49,12 @@ export class DataProvider {
     await this.persist();
   }
 
-  static async getOsc() {
-    return data.osc;
+  static getOsc(): Promise<any> {
+    return Promise.resolve(data.osc);
   }
 
-  static async getAliases() {
-    return data.aliases;
+  static getAliases(): Promise<any> {
+    return Promise.resolve(data.aliases);
   }
 
   static async setAliases(newData) {
@@ -62,12 +62,12 @@ export class DataProvider {
     await this.persist();
   }
 
-  static async getUserFields() {
-    return { ...data.userFields };
+  static getUserFields(): Promise<any> {
+    return Promise.resolve({ ...data.userFields });
   }
 
-  static async getViewSettings() {
-    return { ...data.viewSettings };
+  static getViewSettings(): Promise<any> {
+    return Promise.resolve({ ...data.viewSettings });
   }
 
   static async setViewSettings(newData: ViewSettings) {
@@ -85,8 +85,8 @@ export class DataProvider {
     await this.persist();
   }
 
-  static async getRundown() {
-    return [...data.rundown];
+  static getRundown(): Promise<any> {
+    return Promise.resolve([...data.rundown]);
   }
 
   static async persist() {

@@ -63,7 +63,7 @@ const uploadAndParse = async (file, req, res, options) => {
     if ('error' in result && result.error) {
       res.status(400).send({ message: result.message });
     } else if ('data' in result && result.message === 'success') {
-      PlaybackService.stop();
+      await PlaybackService.stop();
       // explicitly write objects
       if (typeof result !== 'undefined') {
         const newRundown = result.data.rundown || [];
@@ -73,7 +73,7 @@ const uploadAndParse = async (file, req, res, options) => {
           await DataProvider.mergeIntoData(result.data);
         }
       }
-      forceReset();
+      await forceReset();
       res.sendStatus(200);
     } else {
       res.status(400).send({ message: 'Failed parsing, no data' });

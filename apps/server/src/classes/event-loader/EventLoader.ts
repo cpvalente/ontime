@@ -38,8 +38,8 @@ export class EventLoader {
   }
 
   // we need to delay init until the store is ready
-  init() {
-    this.reset(false);
+  async init() {
+    await this.reset(false);
   }
 
   /**

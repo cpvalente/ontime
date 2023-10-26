@@ -148,11 +148,11 @@ export class PlaybackService {
       }
     } else if (fallbackAction === 'stop') {
       logger.info(LogOrigin.Playback, 'No next event found! Stopping playback');
-      PlaybackService.stop();
+      await PlaybackService.stop();
       return false;
     } else if (fallbackAction === 'pause') {
       logger.info(LogOrigin.Playback, 'No next event found! Pausing playback');
-      PlaybackService.pause();
+      await PlaybackService.pause();
       return false;
     } else {
       logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
@@ -208,9 +208,9 @@ export class PlaybackService {
   /**
    * Reloads current event
    */
-  static reload() {
+  static async reload() {
     if (eventTimer.loadedTimerId) {
-      this.loadById(eventTimer.loadedTimerId);
+      await this.loadById(eventTimer.loadedTimerId);
     }
   }
 
@@ -224,14 +224,14 @@ export class PlaybackService {
       // nothing to play
       if (rollTimers === null) {
         logger.warning(LogOrigin.Server, 'Roll: no events found');
-        PlaybackService.stop();
+        await PlaybackService.stop();
         return;
       }
 
       const { currentEvent, nextEvent } = rollTimers;
       if (!currentEvent && !nextEvent) {
         logger.warning(LogOrigin.Server, 'Roll: no events found');
-        PlaybackService.stop();
+        await PlaybackService.stop();
         return;
       }
 
@@ -251,7 +251,7 @@ export class PlaybackService {
 
     if (restorePoint.playback === Playback.Roll) {
       willResume();
-      PlaybackService.roll();
+      await PlaybackService.roll();
     }
 
     if (restorePoint.selectedEventId) {

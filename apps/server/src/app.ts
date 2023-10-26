@@ -146,7 +146,7 @@ export const startServer = async () => {
 
   if (maybeRestorePoint) {
     logger.info(LogOrigin.Server, 'Found resumable state');
-    PlaybackService.resume(maybeRestorePoint);
+    await PlaybackService.resume(maybeRestorePoint);
   }
 
   eventTimer.setRestoreCallback(async (newState: RestorePoint) => restoreService.save(newState));
