@@ -56,6 +56,8 @@ E2E tests are in a separate package. On running, [playwright](https://playwright
 webserver to test against
 These tests also run against a separate version of the DB (test-db)
 
+Before running the E2E, you should first build the project with `pnpm build:local`.
+
 You can run playwright tests from project root with `pnpm e2e`
 
 When writing tests, it can be handy to run playwright in interactive mode with `pnpm e2e:i`. You would need to manually
