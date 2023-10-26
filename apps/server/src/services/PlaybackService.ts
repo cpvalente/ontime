@@ -152,7 +152,7 @@ export class PlaybackService {
       return false;
     } else if (fallbackAction === 'pause') {
       logger.info(LogOrigin.Playback, 'No next event found! Pausing playback');
-      await PlaybackService.pause();
+      PlaybackService.pause();
       return false;
     } else {
       logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');

@@ -92,7 +92,7 @@ export async function dispatchFromAdapter(type: string, payload: unknown, source
     }
 
     case 'start': {
-      await PlaybackService.start();
+      PlaybackService.start();
       break;
     }
 
@@ -133,7 +133,7 @@ export async function dispatchFromAdapter(type: string, payload: unknown, source
     }
 
     case 'pause': {
-      await PlaybackService.pause();
+      PlaybackService.pause();
       break;
     }
     case 'previous': {

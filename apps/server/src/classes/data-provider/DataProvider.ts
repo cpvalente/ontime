@@ -27,12 +27,12 @@ export class DataProvider {
     await this.persist();
   }
 
-  static async getIndexOf(eventId: string) {
-    return data.rundown.findIndex((e) => e.id === eventId);
+  static getIndexOf(eventId: string): Promise<any> {
+    return Promise.resolve(data.rundown.findIndex((e) => e.id === eventId));
   }
 
-  static async getRundownLength() {
-    return data.rundown.length;
+  static getRundownLength(): Promise<number> {
+    return Promise.resolve(data.rundown.length);
   }
 
   static async clearRundown() {

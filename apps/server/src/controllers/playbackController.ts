@@ -23,7 +23,7 @@ export const pbStart = async (req, res) => {
       res.status(400).send('Invalid event index');
     }
   } else {
-    await PlaybackService.start();
+    PlaybackService.start();
     res.sendStatus(202);
   }
 };
@@ -31,7 +31,7 @@ export const pbStart = async (req, res) => {
 // Create controller for POST request to '/playback/pause'
 // Pauses timer object
 export const pbPause = async (req, res) => {
-  await PlaybackService.pause();
+  PlaybackService.pause();
   res.sendStatus(202);
 };
 
