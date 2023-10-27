@@ -6,7 +6,6 @@ import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
 import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 import { event } from '../models/eventsDefinition.js';
-import { logger } from '../classes/Logger.js';
 
 //TODO: simplify the Error path
 export function dispatchFromAdapter(
