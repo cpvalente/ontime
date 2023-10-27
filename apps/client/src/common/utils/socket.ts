@@ -69,46 +69,55 @@ export const connectSocket = (preferredClientName?: string) => {
           }
           break;
         }
-        case 'ontime-playback': {
+        // case 'ontime-playback': {
+        //   const state = runtime.getState();
+        //   state.playback = payload;
+        //   runtime.setState(state);
+        //   break;
+        // }
+        // case 'ontime-timer': {
+        //   const state = runtime.getState();
+        //   state.timer = payload;
+        //   runtime.setState(state);
+        //   break;
+        // }
+        // case 'ontime-loaded': {
+        //   const state = runtime.getState();
+        //   state.loaded = payload;
+        //   runtime.setState(state);
+        //   break;
+        // }
+        // case 'ontime-timerMessage': {
+        //   const state = runtime.getState();
+        //   state.timerMessage = payload;
+        //   runtime.setState(state);
+        //   break;
+        // }
+        // case 'ontime-publicMessage': {
+        //   const state = runtime.getState();
+        //   state.publicMessage = payload;
+        //   runtime.setState(state);
+        //   break;
+        // }
+        // case 'ontime-lowerMessage': {
+        //   const state = runtime.getState();
+        //   state.lowerMessage = payload;
+        //   runtime.setState(state);
+        //   break;
+        // }
+        // case 'ontime-onAir': {
+        //   const state = runtime.getState();
+        //   state.onAir = payload;
+        //   runtime.setState(state);
+        //   break;
+        // }
+        default: {
+          const key = type.split('-')[1];
           const state = runtime.getState();
-          state.playback = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-timer': {
-          const state = runtime.getState();
-          state.timer = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-loaded': {
-          const state = runtime.getState();
-          state.loaded = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-timerMessage': {
-          const state = runtime.getState();
-          state.timerMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-publicMessage': {
-          const state = runtime.getState();
-          state.publicMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-lowerMessage': {
-          const state = runtime.getState();
-          state.lowerMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-onAir': {
-          const state = runtime.getState();
-          state.onAir = payload;
-          runtime.setState(state);
+          if (key in state) {
+            runtime.setState({[key]: payload});
+          }
+
           break;
         }
       }
