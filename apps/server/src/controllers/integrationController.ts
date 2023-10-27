@@ -244,26 +244,18 @@ export function dispatchFromAdapter(
     // ontime/change/{eventID}/{propertyName}
     case 'change': {
       if (params.length < 2) {
-        logger.error(LogOrigin.Rx, `${source}: To few parameters`);
-        return;
+        throw new Error(`To few parameters`);
       }
       if (payload === undefined) {
-        logger.error(LogOrigin.Rx, `${source}: Undefined payload`);
-        return;
+        throw new Error(`Undefined payload`);
       }
       const eventID = params[0];
       const propertyName = params[1] as keyof OntimeEvent;
       if (!isKeyOfType(propertyName, event)) {
-        logger.error(LogOrigin.Rx, `${source}: Cannot update unknown event property ${propertyName}`);
-        return;
+        throw new Error(`Cannot update unknown event property ${propertyName}`);
       }
-      try {
-        const parsedPayload = parse(propertyName, payload);
-        return updateEvent(eventID, propertyName, parsedPayload);
-      } catch (error) {
-        logger.error(LogOrigin.Rx, `${source}: ${error}`);
-        return;
-      }
+      const parsedPayload = parse(propertyName, payload);
+      return updateEvent(eventID, propertyName, parsedPayload);
     }
 
     default: {
