@@ -7,11 +7,15 @@
     "allowJs": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["vitest/globals"],
+    "strictNullChecks": true,
     "outDir": "dist"
   },
   "include": [
     "src/**/*"
   ],
-  "exclude": ["node_modules", "build"],
+  "exclude": [
+    "node_modules",
+    "build",
+    "src/**/*.test.ts"
+  ]
 }
