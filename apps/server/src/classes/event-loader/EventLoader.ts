@@ -93,7 +93,7 @@ export class EventLoader {
    * @param {string} cue
    * @return {object | undefined}
    */
-  static getEventWithCue(cue) {
+  static getEventWithCue(cue: string) {
     const timedEvents = EventLoader.getTimedEvents();
     return timedEvents.find((event) => event.cue === cue);
   }
@@ -103,7 +103,7 @@ export class EventLoader {
    * @param {string} eventId
    * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
-  loadById(eventId) {
+  loadById(eventId: string) {
     const event = EventLoader.getEventWithId(eventId);
     return this.loadEvent(event);
   }
@@ -113,7 +113,7 @@ export class EventLoader {
    * @param {number} eventIndex
    * @returns {{loadedEvent: null, selectedEventId: null, nextEventId: null, selectedPublicEventId: null, nextPublicEventId: null, numEvents: null, titles: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null, noteNow: null, noteNext: null}, titlesPublic: {presenterNext: null, titleNow: null, subtitleNow: null, titleNext: null, subtitleNext: null, presenterNow: null}, selectedEventIndex: null}}
    */
-  loadByIndex(eventIndex) {
+  loadByIndex(eventIndex: number) {
     const event = EventLoader.getEventAtIndex(eventIndex);
     return this.loadEvent(event);
   }
@@ -159,7 +159,7 @@ export class EventLoader {
    * finds next event within Roll context
    * @param {number} timeNow - current time in ms
    */
-  findRoll(timeNow) {
+  findRoll(timeNow: number) {
     const timedEvents = EventLoader.getPlayableEvents();
     if (!timedEvents.length) {
       return null;
@@ -275,7 +275,7 @@ export class EventLoader {
    * @param {object} event
    * @param {array} rundown
    */
-  private _loadEventNow(event, rundown) {
+  private _loadEventNow(event: OntimeEvent, rundown: OntimeEvent[]) {
     this.eventNow = event;
 
     // check if current is also public
@@ -290,7 +290,8 @@ export class EventLoader {
       if (this.loaded.selectedEventIndex === 0) return;
 
       // iterate backwards to find it
-      for (let i = this.loaded.selectedEventIndex; i >= 0; i--) {
+      // we know that this function is only called if we have an event
+      for (let i = this.loaded.selectedEventIndex as number; i >= 0; i--) {
         if (rundown[i].isPublic) {
           this.publicEventNow = rundown[i];
           this.loaded.selectedPublicEventId = rundown[i].id;
@@ -304,7 +305,7 @@ export class EventLoader {
    * @description look for next events
    * @private
    */
-  private _loadEventNext(rundown) {
+  private _loadEventNext(rundown: OntimeEvent[]) {
     // assume there are no next events
     this.eventNext = null;
     this.publicEventNext = null;

@@ -4,7 +4,11 @@ import { deleteAtIndex } from '../utils/arrayUtils.js';
 
 export function _applyDelay(eventId: string, rundown: OntimeRundown): OntimeRundown {
   const delayIndex = rundown.findIndex((event) => event.id === eventId);
-  const delayEvent = rundown.at(delayIndex);
+  if (delayIndex < 0) {
+    return rundown;
+  }
+
+  const delayEvent = rundown.at(delayIndex)!;
 
   if (delayEvent.type !== SupportedEvent.Delay) {
     throw new Error('Given event ID is not a delay');

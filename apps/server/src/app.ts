@@ -3,7 +3,7 @@ import { LogOrigin, OSCSettings } from 'ontime-types';
 import 'dotenv/config';
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
-import http from 'http';
+import http, { Server } from 'http';
 import cors from 'cors';
 
 // import utils
@@ -28,7 +28,7 @@ import { eventTimer } from './services/TimerService.js';
 import { eventLoader } from './classes/event-loader/EventLoader.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
-import { oscIntegration } from './services/integration-service/OscIntegration.js';
+import { OscIntegration, oscIntegration } from './services/integration-service/OscIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
@@ -106,8 +106,8 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitAssets;
-let expressServer = null;
-let oscServer = null;
+let expressServer: Server | null = null;
+let oscServer: OscServer | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
@@ -166,7 +166,7 @@ export const startServer = async () => {
  * @param overrideConfig
  * @return {Promise<void>}
  */
-export const startOSCServer = async (overrideConfig = null) => {
+export const startOSCServer = async (overrideConfig?: { port: number }) => {
   checkStart(OntimeStartOrder.InitIO);
 
   const { osc } = DataProvider.getData();

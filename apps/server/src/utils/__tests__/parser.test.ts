@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
 
 import { EndAction, TimerType } from 'ontime-types';
+import { OntimeEvent } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, validateEvent } from '../parser.js';
@@ -434,6 +435,7 @@ describe('test corrupt data', () => {
     };
 
     const parsedDef = await parseJson(emptyProjectData);
+    // @ts-ignore
     expect(parsedDef.project).toStrictEqual(dbModel.project);
   });
 

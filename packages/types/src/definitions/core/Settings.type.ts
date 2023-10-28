@@ -1,4 +1,4 @@
-import { TimeFormat } from './TimeFormat.type';
+import { TimeFormat } from './TimeFormat.type.js';
 
 export type Settings = {
   app: 'ontime';

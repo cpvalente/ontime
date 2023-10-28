@@ -16,10 +16,11 @@ class IntegrationService {
     this.integrations = this.integrations.filter((int) => int !== integrationService);
   }
 
-  dispatch(action: TimerLifeCycleKey) {
-    const state = eventStore.poll();
+  dispatch(action: TimerLifeCycleKey, state?: object) {
+    // TODO: eventStore snapshot should be passed in
+    const currentState = state || eventStore.poll();
     this.integrations.forEach((integration) => {
-      integration.dispatch(action, state);
+      integration.dispatch(action, currentState);
     });
   }
 

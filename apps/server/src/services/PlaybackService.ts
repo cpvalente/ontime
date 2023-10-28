@@ -18,7 +18,7 @@ export class PlaybackService {
    * @param {OntimeEvent} event
    * @return {boolean} success
    */
-  static loadEvent(event: OntimeEvent): boolean {
+  static loadEvent(event?: OntimeEvent): boolean {
     let success = false;
     if (!event) {
       logger.error(LogOrigin.Playback, 'No event found');
@@ -42,7 +42,7 @@ export class PlaybackService {
     const event = EventLoader.getEventWithId(eventId);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${(event as OntimeEvent).id}`);
       PlaybackService.start();
     }
     return success;
@@ -57,7 +57,7 @@ export class PlaybackService {
     const event = EventLoader.getEventAtIndex(eventIndex);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${(event as OntimeEvent).id}`);
       PlaybackService.start();
     }
     return success;
@@ -72,7 +72,7 @@ export class PlaybackService {
     const event = EventLoader.getEventWithCue(cue);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${(event as OntimeEvent).id}`);
       PlaybackService.start();
     }
     return success;
@@ -87,7 +87,7 @@ export class PlaybackService {
     const event = EventLoader.getEventWithId(eventId);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${(event as OntimeEvent).id}`);
     }
     return success;
   }
@@ -101,7 +101,7 @@ export class PlaybackService {
     const event = EventLoader.getEventAtIndex(eventIndex);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${(event as OntimeEvent).id}`);
     }
     return success;
   }
@@ -115,7 +115,7 @@ export class PlaybackService {
     const event = EventLoader.getEventWithCue(cue);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${(event as OntimeEvent).id}`);
     }
     return success;
   }
@@ -158,6 +158,7 @@ export class PlaybackService {
       logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
       return false;
     }
+    return false;
   }
 
   /**

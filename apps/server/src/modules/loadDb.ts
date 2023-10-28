@@ -73,8 +73,8 @@ export const dbLoadingProcess = loadDb();
 
 const init = async () => {
   const dbProvider = await dbLoadingProcess;
-  db = dbProvider.db;
-  data = dbProvider.data;
+  db = dbProvider!.db;
+  data = dbProvider!.data;
 };
 
 init();

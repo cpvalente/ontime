@@ -5,7 +5,7 @@ export type TimerLifeCycleKey = keyof typeof TimerLifeCycle;
 export default interface IIntegration {
   subscriptions: OscSubscription;
   init: (config: unknown) => OperationReturn;
-  dispatch: (action: TimerLifeCycleKey, state?: object) => OperationReturn;
+  dispatch: (action: TimerLifeCycleKey, state?: object) => void;
   emit: (...args: unknown[]) => unknown;
   shutdown: () => void;
 }

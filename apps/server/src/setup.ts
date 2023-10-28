@@ -16,13 +16,13 @@ export function getAppDataPath(): string {
 
   switch (process.platform) {
     case 'darwin': {
-      return path.join(process.env.HOME, 'Library', 'Application Support', 'Ontime');
+      return path.join(process.env.HOME!, 'Library', 'Application Support', 'Ontime');
     }
     case 'win32': {
-      return path.join(process.env.APPDATA, 'Ontime');
+      return path.join(process.env.APPDATA!, 'Ontime');
     }
     case 'linux': {
-      return path.join(process.env.HOME, '.Ontime');
+      return path.join(process.env.HOME!, '.Ontime');
     }
     default: {
       throw new Error('Could not resolve public folder for platform');

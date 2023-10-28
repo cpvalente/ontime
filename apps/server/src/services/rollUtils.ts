@@ -19,13 +19,26 @@ export const sortArrayByProperty = <T>(arr: T[], property: string): T[] => {
   });
 };
 
+type RollTimers = {
+  nowIndex: number | null;
+  nowId: string | null;
+  publicIndex: number | null;
+  nextIndex: number | null;
+  publicNextIndex: number | null;
+  timeToNext: number | null;
+  nextEvent: OntimeEvent | null;
+  nextPublicEvent: OntimeEvent | null;
+  currentEvent: OntimeEvent | null;
+  currentPublicEvent: OntimeEvent | null;
+};
+
 /**
  * Finds loading information given a current rundown and time
  * @param {OntimeEvent[]} rundown - List of playable events
  * @param {number} timeNow - time now in ms
- * @returns {{}}
+ * @returns RollTimers
  */
-export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
+export const getRollTimers = (rundown: OntimeEvent[], timeNow: number): RollTimers => {
   let nowIndex: number | null = null; // index of event now
   let nowId: string | null = null; // id of event now
   let publicIndex: number | null = null; // index of public event now
@@ -146,7 +159,7 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
     nextPublicEvent,
     currentEvent,
     currentPublicEvent,
-  };
+  } as RollTimers;
 };
 
 type CurrentTimers = {

@@ -18,12 +18,12 @@ export function getCached<T>(key: string, callback: () => T): T {
     }
   }
 
-  return runtimeCache.get(key).data as T;
+  return runtimeCache.get(key)?.data as T;
 }
 
 export function setCached<T>(key: string, value: T): T {
   runtimeCache.set(key, { data: value });
-  return runtimeCache.get(key).data as T;
+  return runtimeCache.get(key)?.data as T;
 }
 
 export function invalidate(key) {
