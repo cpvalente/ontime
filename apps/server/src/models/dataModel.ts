@@ -1,4 +1,5 @@
 import { DatabaseModel } from 'ontime-types';
+import { ClockSource, ClockType } from '../services/Clock.js';
 
 export const dbModel: DatabaseModel = {
   rundown: [],
@@ -18,6 +19,7 @@ export const dbModel: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
+    clockSource: { type: ClockType.System, input: 0 },
   },
   viewSettings: {
     overrideStyles: false,

@@ -1,5 +1,4 @@
 import easymidi from 'easymidi';
-
 enum Source {
   System = 'system',
   MIDI = 'MIDI',
@@ -31,7 +30,7 @@ class Clock {
 
     this.source = source || Source.System;
     if (source === Source.MIDI) {
-      this.midiIn = new easymidi.Input('loopMIDI Port');
+      this.midiIn = new easymidi.Input(easymidi.getInputs()[0]);
       this.midiIn.on('mtc', (mtc) => {
         switch (mtc.type) {
           case 0: {
@@ -117,3 +116,8 @@ class Clock {
 }
 
 export const clock = new Clock(Source.MIDI);
+export { Source as ClockType };
+export type ClockSource = {
+  type: Source.MIDI | Source.System;
+  input: number;
+};

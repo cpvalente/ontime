@@ -125,6 +125,45 @@ export default function AppSettingsModal() {
           <option value='sv'>Swedish</option>
         </Select>
       </ModalSplitInput>
+      <ModalSplitInput
+        field='clockSource.type'
+        title='Clock Source'
+        description='Language for static fields in views'
+        error={errors.clockSource?.message}
+      >
+        <Select
+          backgroundColor='white'
+          size='sm'
+          width='auto'
+          isDisabled={disableInputs}
+          {...register('clockSource.type')}
+        >
+          <option value='system'>System</option>
+          <option value='MIDI'>MIDI</option>
+        </Select>
+      </ModalSplitInput>
+      <ModalSplitInput
+        field='clockSource.input'
+        title='MIDI input'
+        description='If Clock source is midi, select the midi port'
+        error={errors.serverPort?.message}
+      >
+        <Input
+          width='75px'
+          size='sm'
+          textAlign='right'
+          maxLength={1}
+          variant='ontime-filled-on-light'
+          {...register('clockSource.input', {
+            max: { value: 10, message: 'Midi Port Index' },
+            min: { value: 0, message: 'Midi Port Index' },
+            pattern: {
+              value: isOnlyNumbers,
+              message: 'Value should be numeric',
+            },
+          })}
+        />
+      </ModalSplitInput>
       <OntimeModalFooter
         formId='app-settings'
         handleRevert={onReset}
