@@ -132,7 +132,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   {
     id: 'hideovertime',
     title: 'Hide Overtime',
-    description: 'Whether to supress overtime styles (red borders and red text)',
+    description: 'Whether to suppress overtime styles (red borders and red text)',
     type: 'boolean',
   },
   {
