@@ -139,8 +139,8 @@ export const parseSettings = (data, enforce): Settings => {
         timeFormat: s.timeFormat || '24',
         language: s.language || 'en',
         clockSource: {
-          type: s.clockSource.type || 'system',
-          input: s.clockSource.input || 0,
+          type: s?.clockSource?.type || 'system',
+          input: s?.clockSource?.input || 0,
         },
       };
 
