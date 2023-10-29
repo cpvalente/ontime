@@ -23,10 +23,10 @@ export default function ExportModal(props: ExportModalProps) {
         <ModalCloseButton />
         <ModalBody className={styles.modalBody}>
           <Button onClick={() => onClose('csv')} variant={buttonVariants.csv} width='48%'>
-            Download CSV
+            rundown as CSV
           </Button>
           <Button onClick={() => onClose('json')} variant={buttonVariants.json} width='48%'>
-            Download project file
+            Project file
           </Button>
         </ModalBody>
       </ModalContent>

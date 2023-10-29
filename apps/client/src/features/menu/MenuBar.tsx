@@ -154,7 +154,7 @@ const MenuBar = (props: MenuBarProps) => {
       <ExportModal
         onClose={onModalClose}
         isOpen={isModalOpen}
-        buttonVariants={{ csv: 'ontime-ghosted', json: 'ontime-filled' }}
+        buttonVariants={{ csv: 'ontime-subtle-on-light', json: 'ontime-filled' }}
       />
 
       <div className={style.gap} />
