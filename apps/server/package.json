@@ -17,6 +17,7 @@
     "multer": "^1.4.5-lts.1",
     "node-osc": "^8.0.10",
     "node-xlsx": "^0.21.0",
+    "ntp-time-sync": "^0.3.1",
     "ontime-utils": "workspace:*",
     "passport": "^0.6.0",
     "passport-local": "~1.0.0",

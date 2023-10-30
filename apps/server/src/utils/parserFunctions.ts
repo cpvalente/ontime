@@ -127,7 +127,7 @@ export const parseSettings = (data, enforce): Settings => {
   if ('settings' in data) {
     console.log('Found settings definition, importing...');
     const s = data.settings;
-    console.log(s)
+    console.log(s);
     // skip if file definition is missing
     if (s.app == null || s.version == null) {
       console.log('ERROR: unknown app version, skipping');
@@ -140,7 +140,8 @@ export const parseSettings = (data, enforce): Settings => {
         language: s.language || 'en',
         clockSource: {
           type: s?.clockSource?.type || 'system',
-          input: s?.clockSource?.input || 0,
+          settings: s?.clockSource?.settings || '',
+          offset: Number(s?.clockSource?.offset) || 0,
         },
       };
 

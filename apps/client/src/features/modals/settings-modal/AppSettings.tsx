@@ -139,29 +139,38 @@ export default function AppSettingsModal() {
           {...register('clockSource.type')}
         >
           <option value='system'>System</option>
-          <option value='MIDI'>MIDI</option>
+          <option value='MIDI'>MIDI - MTC</option>
+          <option value='NTP'>NTP</option>
         </Select>
       </ModalSplitInput>
       <ModalSplitInput
-        field='clockSource.input'
-        title='MIDI input'
-        description='If Clock source is midi, select the midi port'
-        error={errors.serverPort?.message}
+        field='clockSource.settings'
+        title='Clock input settings'
+        description='Midi port/NTP source'
+        error={errors.clockSource?.message}
       >
         <Input
-          width='75px'
           size='sm'
-          textAlign='right'
-          maxLength={1}
+          width='auto'
           variant='ontime-filled-on-light'
-          {...register('clockSource.input', {
-            max: { value: 10, message: 'Midi Port Index' },
-            min: { value: 0, message: 'Midi Port Index' },
-            pattern: {
-              value: isOnlyNumbers,
-              message: 'Value should be numeric',
-            },
-          })}
+          placeholder={data?.clockSource.settings}
+          isDisabled={disableInputs}
+          {...register('clockSource.settings')}
+        />
+      </ModalSplitInput>
+      <ModalSplitInput
+        field='clockSource.offset'
+        title='Clock offset'
+        description='Clock offset'
+        error={errors.clockSource?.message}
+      >
+        <Input
+          size='sm'
+          width='auto'
+          type='number'
+          variant='ontime-filled-on-light'
+          isDisabled={disableInputs}
+          {...register('clockSource.offset')}
         />
       </ModalSplitInput>
       <OntimeModalFooter

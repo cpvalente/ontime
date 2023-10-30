@@ -1,8 +1,10 @@
+import { logger } from '../classes/Logger.js';
+import { LogOrigin } from 'ontime-types';
 import easymidi from 'easymidi';
 import { ClockInterface } from './Clock.js';
 
 export class MidiClock implements ClockInterface {
-  private readonly midiIn;
+  private midiIn: easymidi.Input;
   private midiState = {
     rate: 0,
     hourMsbit: 0,
@@ -16,8 +18,21 @@ export class MidiClock implements ClockInterface {
     total: 0,
   };
 
-  constructor(inputIndex: number) {
-    this.midiIn = new easymidi.Input(easymidi.getInputs()[inputIndex]);
+  public tcOffset: number = 0;
+
+  public set settings(v: string) {
+    let index = easymidi.getInputs().findIndex((midiInput) => midiInput === v);
+    if (index === -1) {
+      if (this.midiIn === undefined) {
+        index = 0;
+      } else {
+        index = easymidi.getInputs().findIndex((midiInput) => midiInput === this.midiIn.name);
+      }
+    }
+
+    this.midiIn?.close();
+    this.midiIn = new easymidi.Input(easymidi.getInputs()[index]);
+    console.log(LogOrigin.Server, `CLOCK: MTC: Source is now ${this.midiIn.name}`);
     this.midiIn.on('mtc', (mtc) => {
       switch (mtc.type) {
         case 0: {
@@ -62,7 +77,22 @@ export class MidiClock implements ClockInterface {
     });
   }
 
+  public get settings(): string {
+    if (this.midiIn === undefined) {
+      this.settings = easymidi.getInputs()[0];
+    }
+    return this.midiIn.name;
+  }
+
+  constructor() {}
+
+  public close() {
+    this.midiIn.close();
+  }
+
   public getTime(): number {
-    return this.midiState.total;
+    let elapsed = this.midiState.total + this.tcOffset;
+    elapsed = elapsed % 86400000;
+    return elapsed;
   }
 }

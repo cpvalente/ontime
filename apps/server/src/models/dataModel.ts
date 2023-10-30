@@ -19,7 +19,7 @@ export const dbModel: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
-    clockSource: { type: ClockType.System, input: 0 },
+    clockSource: { type: ClockType.System, settings: '', offset: 0 },
   },
   viewSettings: {
     overrideStyles: false,

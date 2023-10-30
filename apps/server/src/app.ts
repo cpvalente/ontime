@@ -33,6 +33,7 @@ import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
+import { clock } from './services/Clock.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -133,7 +134,11 @@ export const initAssets = async () => {
 export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
 
-  const { serverPort } = DataProvider.getSettings();
+  const { serverPort, clockSource } = DataProvider.getSettings();
+
+  clock.setSource(clockSource.type, clockSource.settings);
+  clock.setOffset(clockSource.offset);
+
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 
   expressServer = http.createServer(app);

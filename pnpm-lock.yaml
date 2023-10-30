@@ -191,6 +191,7 @@ importers:
       node-osc: ^8.0.10
       node-xlsx: ^0.21.0
       nodemon: ^2.0.20
+      ntp-time-sync: ^0.3.1
       ontime-types: workspace:*
       ontime-utils: workspace:*
       passport: ^0.6.0
@@ -215,6 +216,7 @@ importers:
       multer: 1.4.5-lts.1
       node-osc: 8.0.10
       node-xlsx: 0.21.0
+      ntp-time-sync: 0.3.1
       ontime-utils: link:../../packages/utils
       passport: 0.6.0
       passport-local: 1.0.0
@@ -6345,6 +6347,18 @@ packages:
     resolution: {integrity: sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==}
     engines: {node: '>=10'}
     dev: true
+
+  /ntp-packet-parser/0.3.1:
+    resolution: {integrity: sha512-bzg5oAy4zNrsyFkGPBNCG2EY63mTFOVdndWpakePs37oSZgaKe+l9HuVGn9oR4IfYcp0d9vYXVPDY36rW8CwTQ==}
+    engines: {node: ^14 || ^16 || ^18}
+    dev: false
+
+  /ntp-time-sync/0.3.1:
+    resolution: {integrity: sha512-j0UBn82TPv7zBmhGdFXX15Gu1YO6Fehf3B+2UHSjhltrGjlvWjmQ4W9bKqGCAkLF+B9tn2014mxc9NaCop+WcQ==}
+    engines: {node: ^14 || ^16 || ^18}
+    dependencies:
+      ntp-packet-parser: 0.3.1
+    dev: false
 
   /nwsapi/2.2.2:
     resolution: {integrity: sha512-90yv+6538zuvUMnN+zCr8LuV6bPFdq50304114vJYJ8RDyK8D5O9Phpbd6SZWgI7PwzmmfN1upeOJlvybDSgCw==}

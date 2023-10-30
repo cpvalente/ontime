@@ -177,7 +177,7 @@ export const postUserFields = async (req, res) => {
   }
 };
 
-// Create controller for POST request to '/ontime/settings'
+// Create controller for GET request to '/ontime/settings'
 // Returns -
 export const getSettings = async (req, res) => {
   const settings = DataProvider.getSettings();
@@ -204,6 +204,7 @@ export const postSettings = async (req, res) => {
     return;
   }
   try {
+    console.log(req.body);
     const settings = DataProvider.getSettings();
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
@@ -219,6 +220,7 @@ export const postSettings = async (req, res) => {
     }
 
     const language = req.body?.language || 'en';
+    const clockSource = req.body?.clockSource;
 
     const newData = {
       ...settings,
@@ -227,6 +229,7 @@ export const postSettings = async (req, res) => {
       timeFormat,
       language,
       serverPort,
+      clockSource,
     };
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);
