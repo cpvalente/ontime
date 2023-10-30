@@ -31,7 +31,7 @@ export const poll = async (req, res) => {
 // Create controller for GET request to '/ontime/db'
 // Returns -
 export const dbDownload = async (req, res) => {
-  const { title } = DataProvider.getProjectData();
+  const { title } = await DataProvider.getProjectData();
   const fileTitle = title || 'ontime data';
 
   res.download(resolveDbPath, `${fileTitle}.json`, (err) => {
@@ -63,7 +63,7 @@ const uploadAndParse = async (file, req, res, options) => {
     if ('error' in result && result.error) {
       res.status(400).send({ message: result.message });
     } else if ('data' in result && result.message === 'success') {
-      PlaybackService.stop();
+      await PlaybackService.stop();
       // explicitly write objects
       if (typeof result !== 'undefined') {
         const newRundown = result.data.rundown || [];
@@ -73,7 +73,7 @@ const uploadAndParse = async (file, req, res, options) => {
           await DataProvider.mergeIntoData(result.data);
         }
       }
-      forceReset();
+      await forceReset();
       res.sendStatus(200);
     } else {
       res.status(400).send({ message: 'Failed parsing, no data' });
@@ -109,8 +109,8 @@ const getNetworkInterfaces = () => {
 // Create controller for POST request to '/ontime/info'
 // Returns -
 export const getInfo = async (req, res) => {
-  const { version, serverPort } = DataProvider.getSettings();
-  const osc = DataProvider.getOsc();
+  const { version, serverPort } = await DataProvider.getSettings();
+  const osc = await DataProvider.getOsc();
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
@@ -128,7 +128,7 @@ export const getInfo = async (req, res) => {
 // Create controller for POST request to '/ontime/aliases'
 // Returns -
 export const getAliases = async (req, res) => {
-  const aliases = DataProvider.getAliases();
+  const aliases = await DataProvider.getAliases();
   res.status(200).send(aliases);
 };
 
@@ -157,7 +157,7 @@ export const postAliases = async (req, res) => {
 // Create controller for GET request to '/ontime/userfields'
 // Returns -
 export const getUserFields = async (req, res) => {
-  const userFields = DataProvider.getUserFields();
+  const userFields = await DataProvider.getUserFields();
   res.status(200).send(userFields);
 };
 
@@ -168,7 +168,7 @@ export const postUserFields = async (req, res) => {
     return;
   }
   try {
-    const persistedData = DataProvider.getUserFields();
+    const persistedData = await DataProvider.getUserFields();
     const newData = mergeObject(persistedData, req.body);
     await DataProvider.setUserFields(newData);
     res.status(200).send(newData);
@@ -180,7 +180,7 @@ export const postUserFields = async (req, res) => {
 // Create controller for POST request to '/ontime/settings'
 // Returns -
 export const getSettings = async (req, res) => {
-  const settings = DataProvider.getSettings();
+  const settings = await DataProvider.getSettings();
   res.status(200).send(settings);
 };
 
@@ -204,7 +204,7 @@ export const postSettings = async (req, res) => {
     return;
   }
   try {
-    const settings = DataProvider.getSettings();
+    const settings = await DataProvider.getSettings();
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
     const serverPort = Number(req.body?.serverPort);
@@ -245,7 +245,7 @@ export const postSettings = async (req, res) => {
  * @method GET
  */
 export const getViewSettings = async (req, res) => {
-  const views = DataProvider.getViewSettings();
+  const views = await DataProvider.getViewSettings();
   res.status(200).send(views);
 };
 
@@ -278,7 +278,7 @@ export const postViewSettings = async (req, res) => {
 // Create controller for GET request to '/ontime/osc'
 // Returns -
 export const getOSC = async (req, res) => {
-  const osc = DataProvider.getOsc();
+  const osc = await DataProvider.getOsc();
   res.status(200).send(osc);
 };
 
@@ -289,7 +289,7 @@ export const postOscSubscriptions = async (req, res) => {
 
   try {
     const oscSubscriptions = req.body;
-    const oscSettings = DataProvider.getOsc();
+    const oscSettings = await DataProvider.getOsc();
     oscSettings.subscriptions = oscSubscriptions;
     await DataProvider.setOsc(oscSettings);
 

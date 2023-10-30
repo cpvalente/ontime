@@ -33,8 +33,8 @@ import { clock } from '../Clock.js';
  * Forces rundown to be recalculated
  * To be used when we know the rundown has changed completely
  */
-export function forceReset() {
-  eventLoader.reset();
+export async function forceReset() {
+  await eventLoader.reset();
   sendRefetch();
   runtimeCacheStore.invalidate(delayedRundownCacheKey);
 }
@@ -58,8 +58,8 @@ const affectedLoaded = (affectedIds: string[]) => {
 /**
  * Checks if timer replaces the loaded next
  */
-const isNewNext = () => {
-  const timedEvents = EventLoader.getTimedEvents();
+const isNewNext = async () => {
+  const timedEvents = await EventLoader.getTimedEvents();
   const now = eventLoader.loaded.selectedEventId;
   const next = eventLoader.loaded.nextEventId;
 
@@ -98,7 +98,7 @@ const isNewNext = () => {
 /**
  * Updates timer service when a relevant piece of data changes
  */
-export function updateTimer(affectedIds?: string[]) {
+export async function updateTimer(affectedIds?: string[]) {
   const runningEventId = eventLoader.loaded.selectedEventId;
   const nextEventId = eventLoader.loaded.nextEventId;
 
@@ -112,20 +112,20 @@ export function updateTimer(affectedIds?: string[]) {
   // 2. the edited event is in memory (now or next) running
   const eventInMemory = safeOption ? false : affectedLoaded(affectedIds);
   // 3. the edited event replaces next event
-  const isNext = isNewNext();
+  const isNext = await isNewNext();
 
   if (safeOption) {
-    eventLoader.reset();
-    const { eventNow } = eventLoader.loadById(runningEventId) || {};
+    await eventLoader.reset();
+    const eventNow = (await eventLoader.loadById(runningEventId))?.eventNow;
     eventTimer.hotReload(eventNow);
     return true;
   }
 
   if (eventInMemory) {
-    eventLoader.reset();
+    await eventLoader.reset();
 
     if (eventTimer.playback === Playback.Roll) {
-      const rollTimers = eventLoader.findRoll(clock.timeNow());
+      const rollTimers = await eventLoader.findRoll(clock.timeNow());
       if (rollTimers === null) {
         eventTimer.stop();
       } else {
@@ -133,7 +133,7 @@ export function updateTimer(affectedIds?: string[]) {
         eventTimer.roll(currentEvent, nextEvent);
       }
     } else {
-      const { eventNow } = eventLoader.loadById(runningEventId) || {};
+      const eventNow = (await eventLoader.loadById(runningEventId))?.eventNow;
       if (eventNow) {
         eventTimer.hotReload(eventNow);
       } else {
@@ -144,7 +144,7 @@ export function updateTimer(affectedIds?: string[]) {
   }
 
   if (isNext) {
-    const { eventNow } = eventLoader.loadById(runningEventId) || {};
+    const eventNow = (await eventLoader.loadById(runningEventId))?.eventNow;
     eventTimer.hotReload(eventNow);
     return true;
   }
@@ -157,7 +157,7 @@ export function updateTimer(affectedIds?: string[]) {
  * @return {unknown[]}
  */
 export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
-  const numEvents = DataProvider.getRundownLength();
+  const numEvents = await DataProvider.getRundownLength();
   if (numEvents > MAX_EVENTS) {
     throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
   }
@@ -167,7 +167,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
   let insertIndex = 0;
   if (eventData?.after !== undefined) {
-    const index = DataProvider.getIndexOf(eventData.after);
+    const index = await DataProvider.getIndexOf(eventData.after);
     if (index < 0) {
       logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
     } else {
@@ -177,7 +177,8 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
   switch (eventData.type) {
     case SupportedEvent.Event: {
-      newEvent = validateEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
+      const rundown = await DataProvider.getRundown();
+      newEvent = validateEvent(eventData, getCueCandidate(rundown, eventData?.after)) as OntimeEvent;
       break;
     }
     case SupportedEvent.Delay:
@@ -193,10 +194,10 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
 
   // notify timer service of changed events
-  updateTimer([id]);
+  await updateTimer([id]);
 
   // notify event loader that rundown size has changed
-  updateChangeNumEvents();
+  await updateChangeNumEvents();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -212,7 +213,7 @@ export async function editEvent(eventData: Partial<OntimeEvent> | Partial<Ontime
   const newEvent = await cachedEdit(eventData.id, eventData);
 
   // notify timer service of changed events
-  updateTimer([newEvent.id]);
+  await updateTimer([newEvent.id]);
 
   // advice socket subscribers of change
   sendRefetch();
@@ -229,10 +230,10 @@ export async function deleteEvent(eventId) {
   await cachedDelete(eventId);
 
   // notify timer service of changed events
-  updateTimer([eventId]);
+  await updateTimer([eventId]);
 
   // notify event loader that rundown size has changed
-  updateChangeNumEvents();
+  await updateChangeNumEvents();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -246,8 +247,8 @@ export async function deleteAllEvents() {
   await cachedClear();
 
   // notify timer service of changed events
-  updateTimer();
-  forceReset();
+  await updateTimer();
+  await forceReset();
 }
 
 /**
@@ -261,7 +262,7 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
   const reorderedItem = await cachedReorder(eventId, from, to);
 
   // notify timer service of changed events
-  updateTimer();
+  await updateTimer();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -272,7 +273,7 @@ export async function applyDelay(eventId: string) {
   await cachedApplyDelay(eventId);
 
   // notify timer service of changed events
-  updateTimer();
+  await updateTimer();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -288,7 +289,7 @@ export async function swapEvents(from: string, to: string) {
   await cachedSwap(from, to);
 
   // notify timer service of changed events
-  updateTimer();
+  await updateTimer();
 
   // advice socket subscribers of change
   sendRefetch();
@@ -298,6 +299,6 @@ export async function swapEvents(from: string, to: string) {
  * Forces update in the store
  * Called when we make changes to the rundown object
  */
-function updateChangeNumEvents() {
-  eventLoader.updateNumEvents();
+async function updateChangeNumEvents() {
+  await eventLoader.updateNumEvents();
 }

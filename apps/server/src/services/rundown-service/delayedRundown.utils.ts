@@ -38,9 +38,9 @@ export function invalidateFromError(errorMessage = 'Found mismatch between store
  * Returns rundown with calculated delays
  * Ensures request goes through the caching layer
  */
-export function getDelayedRundown(): OntimeRundown {
-  function calculateRundown() {
-    const rundown = DataProvider.getRundown();
+export function getDelayedRundown(): Promise<OntimeRundown> {
+  async function calculateRundown() {
+    const rundown = await DataProvider.getRundown();
     return calculateRuntimeDelays(rundown);
   }
 
@@ -54,10 +54,10 @@ export function getDelayedRundown(): OntimeRundown {
  */
 export async function cachedAdd(eventIndex: number, event: OntimeEvent | OntimeDelay | OntimeBlock) {
   // TODO: create wrapper function
-  const rundown = DataProvider.getRundown();
+  const rundown = await DataProvider.getRundown();
   const newRundown = insertAtIndex(eventIndex, event, rundown);
 
-  const delayedRundown = getDelayedRundown();
+  const delayedRundown = await getDelayedRundown();
   let newDelayedRundown = insertAtIndex(eventIndex, event, delayedRundown);
 
   // update delay cache
@@ -83,19 +83,19 @@ export async function cachedEdit(
   eventId: string,
   patchObject: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>,
 ) {
-  const indexInMemory = DataProvider.getIndexOf(eventId);
+  const indexInMemory = await DataProvider.getIndexOf(eventId);
   if (indexInMemory < 0) {
     throw new Error('No event with ID found');
   }
 
-  const updatedRundown = DataProvider.getRundown();
+  const updatedRundown = await DataProvider.getRundown();
   const newEvent = { ...updatedRundown[indexInMemory], ...patchObject } as OntimeRundownEntry;
   if (isOntimeEvent(newEvent)) {
     newEvent.revision++;
   }
   updatedRundown[indexInMemory] = newEvent;
 
-  let newDelayedRundown = getDelayedRundown();
+  let newDelayedRundown = await getDelayedRundown();
   if (newDelayedRundown?.[indexInMemory].id !== newEvent.id) {
     invalidateFromError();
   } else {
@@ -121,8 +121,8 @@ export async function cachedEdit(
  * @param eventId
  */
 export async function cachedDelete(eventId: string) {
-  const eventIndex = DataProvider.getIndexOf(eventId);
-  let delayedRundown = getDelayedRundown();
+  const eventIndex = await DataProvider.getIndexOf(eventId);
+  let delayedRundown = await getDelayedRundown();
 
   if (eventIndex < 0) {
     if (delayedRundown.findIndex((event) => event.id === eventId) >= 0) {
@@ -131,7 +131,7 @@ export async function cachedDelete(eventId: string) {
     throw new Error(`Event with id ${eventId} not found`);
   }
 
-  let updatedRundown = DataProvider.getRundown();
+  let updatedRundown = await DataProvider.getRundown();
   const eventBack = { ...updatedRundown[eventIndex] };
   updatedRundown = deleteAtIndex(eventIndex, updatedRundown);
   if (eventId !== delayedRundown[eventIndex].id) {
@@ -156,17 +156,17 @@ export async function cachedDelete(eventId: string) {
  * @param to
  */
 export async function cachedReorder(eventId: string, from: number, to: number) {
-  const indexCheck = DataProvider.getIndexOf(eventId);
+  const indexCheck = await DataProvider.getIndexOf(eventId);
   if (indexCheck !== from) {
     invalidateFromError();
     throw new Error('ID not found at index');
   }
 
-  let updatedRundown = DataProvider.getRundown();
+  let updatedRundown = await DataProvider.getRundown();
   const reorderedEvent = updatedRundown[from];
   updatedRundown = reorderArray(updatedRundown, from, to);
 
-  const delayedRundown = getDelayedRundown();
+  const delayedRundown = await getDelayedRundown();
   if (eventId !== delayedRundown[from].id) {
     invalidateFromError();
   } else {
@@ -192,13 +192,13 @@ export async function cachedClear() {
  * @param {string} toEventId
  */
 export async function cachedSwap(fromEventId: string, toEventId: string) {
-  const fromEventIndex = DataProvider.getIndexOf(fromEventId);
-  const toEventIndex = DataProvider.getIndexOf(toEventId);
+  const fromEventIndex = await DataProvider.getIndexOf(fromEventId);
+  const toEventIndex = await DataProvider.getIndexOf(toEventId);
 
-  const rundown = DataProvider.getRundown();
+  const rundown = await DataProvider.getRundown();
   const rundownToUpdate = swapOntimeEvents(rundown, fromEventIndex, toEventIndex);
 
-  const delayedRundown = getDelayedRundown();
+  const delayedRundown = await getDelayedRundown();
   const fromCachedEvent = delayedRundown.at(fromEventIndex);
   const toCachedEvent = delayedRundown.at(toEventIndex);
 
@@ -215,10 +215,10 @@ export async function cachedSwap(fromEventId: string, toEventId: string) {
 
 export async function cachedApplyDelay(eventId: string) {
   // update persisted rundown
-  const rundown: OntimeRundown = DataProvider.getRundown();
+  const rundown: OntimeRundown = await DataProvider.getRundown();
   const persistedRundown = _applyDelay(eventId, rundown);
 
-  const delayedRundown = getDelayedRundown();
+  const delayedRundown = await getDelayedRundown();
   const cachedRundown = _applyDelay(eventId, delayedRundown);
 
   // update

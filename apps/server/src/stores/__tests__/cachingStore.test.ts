@@ -14,20 +14,20 @@ describe('cachingStore()', () => {
     expect(runtimeCacheStore.checkCached('non-existent-key')).toBe(false);
   });
 
-  it('should get an item from the cache', () => {
+  it('should get an item from the cache', async () => {
     // Add an item to the cache
     runtimeCacheStore.setCached('key', 'value');
 
     // Get the item from the cache
-    const result = runtimeCacheStore.getCached('key', () => 'default-value');
+    const result = await runtimeCacheStore.getCached('key', () => 'default-value');
 
     // Check the returned value
     expect(result).toBe('value');
   });
 
-  it('should retrieve default value when item is not cached', () => {
+  it('should retrieve default value when item is not cached', async () => {
     // Get an item that is not in the cache
-    const result = runtimeCacheStore.getCached('non-existent-key', () => 'default-value');
+    const result = await runtimeCacheStore.getCached('non-existent-key', () => 'default-value');
 
     // Check the returned value
     expect(result).toBe('default-value');

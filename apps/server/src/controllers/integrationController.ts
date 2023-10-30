@@ -2,7 +2,7 @@ import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 
-export function dispatchFromAdapter(type: string, payload: unknown, source?: 'osc' | 'ws') {
+export async function dispatchFromAdapter(type: string, payload: unknown, source?: 'osc' | 'ws') {
   switch (type.toLowerCase()) {
     case 'test-ontime': {
       return { topic: 'hello' };
@@ -11,7 +11,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
     case 'ontime-poll': {
       return {
         topic: 'poll',
-        payload: eventStore.poll(),
+        payload: await eventStore.poll(),
       };
     }
 
@@ -97,7 +97,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
     }
 
     case 'start-next': {
-      PlaybackService.startNext();
+      await PlaybackService.startNext();
       break;
     }
 
@@ -109,7 +109,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
 
       try {
         // Indexes in frontend are 1 based
-        PlaybackService.startByIndex(eventIndex - 1);
+        await PlaybackService.startByIndex(eventIndex - 1);
       } catch (error) {
         throw new Error(`Error loading event:: ${error}`);
       }
@@ -120,7 +120,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       if (!payload || typeof payload !== 'string') {
         throw new Error(`Event ID not recognised: ${payload}`);
       }
-      PlaybackService.startById(payload);
+      await PlaybackService.startById(payload);
       break;
     }
 
@@ -128,7 +128,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       if (!payload || typeof payload !== 'string') {
         throw new Error(`Event cue not recognised: ${payload}`);
       }
-      PlaybackService.startByCue(payload);
+      await PlaybackService.startByCue(payload);
       break;
     }
 
@@ -137,24 +137,24 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       break;
     }
     case 'previous': {
-      PlaybackService.loadPrevious();
+      await PlaybackService.loadPrevious();
       break;
     }
     case 'next': {
-      PlaybackService.loadNext();
+      await PlaybackService.loadNext();
       break;
     }
     case 'unload':
     case 'stop': {
-      PlaybackService.stop();
+      await PlaybackService.stop();
       break;
     }
     case 'reload': {
-      PlaybackService.reload();
+      await PlaybackService.reload();
       break;
     }
     case 'roll': {
-      PlaybackService.roll();
+      await PlaybackService.roll();
       break;
     }
     case 'delay': {
@@ -179,7 +179,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
 
       try {
         // Indexes in frontend are 1 based
-        PlaybackService.loadByIndex(eventIndex - 1);
+        await PlaybackService.loadByIndex(eventIndex - 1);
       } catch (error) {
         throw new Error(`Event index not recognised or out of range ${error}`);
       }
@@ -192,7 +192,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       }
 
       try {
-        PlaybackService.loadById(payload.toString().toLowerCase());
+        await PlaybackService.loadById(payload.toString().toLowerCase());
       } catch (error) {
         throw new Error(`OSC IN: error calling goto ${error}`);
       }
@@ -205,7 +205,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       }
 
       try {
-        PlaybackService.loadByCue(payload);
+        await PlaybackService.loadByCue(payload);
       } catch (error) {
         throw new Error(`OSC IN: error calling goto ${error}`);
       }
@@ -213,12 +213,12 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
     }
 
     case 'get-playback': {
-      const playback = eventStore.get('playback');
+      const playback = await eventStore.get('playback');
       return { topic: 'playback', payload: playback };
     }
 
     case 'get-timer': {
-      const timer = eventStore.get('timer');
+      const timer = await eventStore.get('timer');
       return { topic: 'timer', payload: timer };
     }
 

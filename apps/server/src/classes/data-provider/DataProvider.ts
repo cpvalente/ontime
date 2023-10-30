@@ -8,8 +8,8 @@ import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
 
 export class DataProvider {
-  static getData() {
-    return data;
+  static getData(): Promise<any> {
+    return Promise.resolve(data);
   }
 
   static async setProjectData(newData: Partial<ProjectData>) {
@@ -18,8 +18,8 @@ export class DataProvider {
     return data.project;
   }
 
-  static getProjectData() {
-    return data.project;
+  static getProjectData(): Promise<any> {
+    return Promise.resolve(data.project);
   }
 
   static async setRundown(newData: OntimeRundown) {
@@ -27,22 +27,21 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getIndexOf(eventId: string) {
-    return data.rundown.findIndex((e) => e.id === eventId);
+  static getIndexOf(eventId: string): Promise<any> {
+    return Promise.resolve(data.rundown.findIndex((e) => e.id === eventId));
   }
 
-  static getRundownLength() {
-    return data.rundown.length;
+  static getRundownLength(): Promise<number> {
+    return Promise.resolve(data.rundown.length);
   }
 
   static async clearRundown() {
     data.rundown = [];
-    // @ts-expect-error -- not sure how to type, this is library side
-    await db.write();
+    await this.persist();
   }
 
-  static getSettings() {
-    return data.settings;
+  static getSettings(): Promise<any> {
+    return Promise.resolve(data.settings);
   }
 
   static async setSettings(newData) {
@@ -50,12 +49,12 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getOsc() {
-    return data.osc;
+  static getOsc(): Promise<any> {
+    return Promise.resolve(data.osc);
   }
 
-  static getAliases() {
-    return data.aliases;
+  static getAliases(): Promise<any> {
+    return Promise.resolve(data.aliases);
   }
 
   static async setAliases(newData) {
@@ -63,12 +62,12 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getUserFields() {
-    return { ...data.userFields };
+  static getUserFields(): Promise<any> {
+    return Promise.resolve({ ...data.userFields });
   }
 
-  static getViewSettings() {
-    return { ...data.viewSettings };
+  static getViewSettings(): Promise<any> {
+    return Promise.resolve({ ...data.viewSettings });
   }
 
   static async setViewSettings(newData: ViewSettings) {
@@ -86,8 +85,8 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getRundown() {
-    return [...data.rundown];
+  static getRundown(): Promise<any> {
+    return Promise.resolve([...data.rundown]);
   }
 
   static async persist() {

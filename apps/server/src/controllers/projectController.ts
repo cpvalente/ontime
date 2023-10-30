@@ -8,7 +8,7 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 // Create controller for GET request to 'project'
 export const getProject: RequestHandler = async (req, res) => {
-  res.json(DataProvider.getProjectData());
+  res.json(await DataProvider.getProjectData());
 };
 
 // Create controller for POST request to 'project'
