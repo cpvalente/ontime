@@ -42,7 +42,7 @@ export default function MessageControl() {
         actionHandler={() => setMessage.presenterVisible(!data.timerMessage.visible)}
       />
       <div className={style.buttonSection}>
-        <label className={style.label}>Timer messsage blink</label>
+        <label className={style.label}>Timer message blink</label>
         <label className={style.label}>Blackout timer screens</label>
         <Button
           className={`${data.timerMessage.timerBlink ? style.blink : ''}`}
