@@ -3,6 +3,7 @@ import { Alias, OSCSettings, OscSubscription, ProjectData, Settings, UserFields,
 
 import { apiRepoLatest } from '../../externals';
 import { InfoType } from '../models/Info';
+import fileDownload from '../utils/fileDownload';
 
 import { ontimeURL } from './apiConstants';
 
@@ -109,32 +110,17 @@ export async function postOscSubscriptions(data: OscSubscription) {
 }
 
 /**
- * @description HTTP request to download db
- * @return {Promise}
+ * @description HTTP request to download db in CSV format
  */
-export const downloadRundown = async () => {
-  await axios({
-    url: `${ontimeURL}/db`,
-    method: 'GET',
-    responseType: 'blob', // important
-  }).then((response) => {
-    const headerLine = response.headers['Content-Disposition'];
-    let filename = 'rundown.json';
+export const downloadCSV = () => {
+  return fileDownload(ontimeURL, { name: 'rundown', type: 'csv' }, { type: 'text/csv;charset=utf-8;' });
+};
 
-    // try and get the filename from the response
-    if (headerLine != null) {
-      const startFileNameIndex = headerLine.indexOf('"') + 1;
-      const endFileNameIndex = headerLine.lastIndexOf('"');
-      filename = headerLine.substring(startFileNameIndex, endFileNameIndex);
-    }
-
-    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/json' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-  });
+/**
+ * @description HTTP request to download db in JSON format
+ */
+export const downloadRundown = () => {
+  return fileDownload(ontimeURL, { name: 'rundown', type: 'json' }, { type: 'application/json;charset=utf-8;' });
 };
 
 /**
