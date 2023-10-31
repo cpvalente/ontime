@@ -1,7 +1,9 @@
 import { createContext, PropsWithChildren, useContext, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent } from 'ontime-types';
 
 import { useInterval } from '../../hooks/useInterval';
+import { isStringBoolean } from '../../utils/viewUtils';
 
 interface ScheduleContextState {
   events: OntimeEvent[];
@@ -32,12 +34,24 @@ export const ScheduleProvider = ({
   time = 10,
 }: PropsWithChildren<ScheduleProviderProps>) => {
   const [visiblePage, setVisiblePage] = useState(0);
+  const [searchParams] = useSearchParams();
 
-  const numPages = Math.ceil(events.length / eventsPerPage);
+  // look for overrides from views
+  const hidePast = isStringBoolean(searchParams.get('hidePast'));
+  const stopCycle = isStringBoolean(searchParams.get('stopCycle'));
+
+  let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
+
+  const viewEvents = [...events];
+  if (hidePast) {
+    viewEvents.splice(0, selectedEventIndex + 1);
+    selectedEventIndex = 0;
+  }
+
+  const numPages = Math.ceil(viewEvents.length / eventsPerPage);
   const eventStart = eventsPerPage * visiblePage;
   const eventEnd = eventsPerPage * (visiblePage + 1);
-  const paginatedEvents = events.slice(eventStart, eventEnd);
-  const selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
+  const paginatedEvents = viewEvents.slice(eventStart, eventEnd);
 
   const resolveScheduleType = () => {
     if (selectedEventIndex >= eventStart && selectedEventIndex < eventEnd) {
@@ -52,6 +66,9 @@ export const ScheduleProvider = ({
 
   // every SCROLL_TIME go to the next array
   useInterval(() => {
+    if (stopCycle) {
+      return;
+    }
     if (events.length > eventsPerPage) {
       const next = (visiblePage + 1) % numPages;
       setVisiblePage(next);
