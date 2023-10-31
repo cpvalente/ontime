@@ -295,7 +295,7 @@ export const postOscSubscriptions = async (req, res) => {
 
     // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Rx, message);
+    logger.info(LogOrigin.Tx, message);
 
     res.send(oscSettings).status(200);
   } catch (error) {
@@ -316,7 +316,7 @@ export const postOSC = async (req, res) => {
 
     // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Rx, message);
+    logger.info(LogOrigin.Tx, message);
 
     res.send(oscSettings).status(200);
   } catch (error) {
