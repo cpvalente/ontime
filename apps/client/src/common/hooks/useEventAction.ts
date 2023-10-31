@@ -161,10 +161,10 @@ export const useEventAction = () => {
     mutationFn: requestBatchPutEvents,
     onMutate: async ({ ids, data }) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries([RUNDOWN_TABLE_KEY]);
+      await queryClient.cancelQueries(RUNDOWN_TABLE);
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData([RUNDOWN_TABLE_KEY]) as OntimeRundown;
+      const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
 
       const updatedEvents = previousEvents.map((event) => {
         const isEventEdited = ids.includes(event.id);
@@ -172,7 +172,6 @@ export const useEventAction = () => {
         if (isEventEdited && isOntimeEvent(event)) {
           return {
             ...event,
-            // spread new changed properties, overwriting old event properties
             ...data,
           };
         }
@@ -183,10 +182,10 @@ export const useEventAction = () => {
       queryClient.setQueryData(RUNDOWN_TABLE, updatedEvents);
 
       // Return a context with the previous and new events
-      return { previousEvent: previousEvents };
+      return { previousEvents };
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries([RUNDOWN_TABLE_KEY]);
+      await queryClient.invalidateQueries(RUNDOWN_TABLE);
     },
   });
 
