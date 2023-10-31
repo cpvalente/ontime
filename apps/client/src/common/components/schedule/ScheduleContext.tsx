@@ -67,9 +67,8 @@ export const ScheduleProvider = ({
   // every SCROLL_TIME go to the next array
   useInterval(() => {
     if (stopCycle) {
-      return;
-    }
-    if (events.length > eventsPerPage) {
+      setVisiblePage(0);
+    } else if (events.length > eventsPerPage) {
       const next = (visiblePage + 1) % numPages;
       setVisiblePage(next);
     }
