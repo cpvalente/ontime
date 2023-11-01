@@ -3,6 +3,7 @@ import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
+import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { Playback, ProjectData } from 'ontime-types';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
@@ -74,7 +75,7 @@ export default function CuesheetTableHeader({ handleExport, featureData }: Cuesh
         </Tooltip>
         <Tooltip openDelay={tooltipDelayFast} label='Export rundown'>
           <span className={style.actionIcon} onClick={exportProject}>
-            Export
+            <IoSaveOutline />
           </span>
         </Tooltip>
       </div>
