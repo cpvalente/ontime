@@ -74,7 +74,7 @@ export default function CuesheetTableHeader({ handleExport, featureData }: Cuesh
           </span>
         </Tooltip>
         <Tooltip openDelay={tooltipDelayFast} label='Export rundown'>
-          <span className={style.actionIcon} onClick={exportProject}>
+          <span className={style.actionIcon} onClick={exportProject} data-testid='export-rundown' >
             <IoSaveOutline />
           </span>
         </Tooltip>

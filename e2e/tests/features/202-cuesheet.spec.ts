@@ -19,8 +19,8 @@ test('cuesheet displays events and exports csv', async ({ page }) => {
   await page.getByRole('cell', { name: '+10 min' }).click();
   await page.getByRole('cell', { name: 'Lunch' }).click();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByTestId('cuesheet').getByText('Export').click();
-  await page.getByText('CSV').click();
+  await page.getByTestId('cuesheet').getByTestId('export-rundown').click();
+  await page.getByText('Rundown as CSV').click();
 
   // From here we test the CSV download feature
 
