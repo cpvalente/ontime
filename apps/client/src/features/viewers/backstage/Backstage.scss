@@ -89,7 +89,10 @@
     border-radius: 8px;
 
     &.blink {
-      animation: blink 0.5s ease-in-out 3;
+      animation-name: blink;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: 3;
+      animation-duration: 1s;
     }
   }
 
@@ -159,9 +162,12 @@
 
 @keyframes blink {
   0% {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+  }
+  50% {
     background-color: var(--card-background-color-blink-override, $playback-start);
   }
-  20% {
+  100% {
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
   }
 }
