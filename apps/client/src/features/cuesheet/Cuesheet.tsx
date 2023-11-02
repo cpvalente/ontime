@@ -14,6 +14,7 @@ import { useCuesheetSettings } from './store/CuesheetSettings';
 import { initialColumnOrder } from './cuesheetCols';
 
 import style from './Cuesheet.module.scss';
+import Color from 'color';
 
 interface CuesheetProps {
   data: OntimeRundown;
@@ -117,6 +118,9 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 let rowBgColour: string | undefined;
                 if (isSelected) {
                   rowBgColour = 'var(--cuesheet-running-bg-override, #D20300)'; // $red-700
+                } else if (row.original.colour) {
+                  const colour = new Color(row.original.colour || undefined).alpha(0.25);
+                  rowBgColour = colour.hsl().string();
                 }
 
                 return (
