@@ -44,7 +44,8 @@ export const ScheduleProvider = ({
 
   const viewEvents = [...events];
   if (hidePast) {
-    viewEvents.splice(0, selectedEventIndex + 1);
+    // we want to show the event after the next
+    viewEvents.splice(0, selectedEventIndex + 2);
     selectedEventIndex = 0;
   }
 

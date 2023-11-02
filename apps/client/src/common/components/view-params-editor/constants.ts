@@ -205,7 +205,7 @@ export const BACKSTAGE_OPTIONS: ParamField[] = [
   {
     id: 'stopCycle',
     title: 'Stop cycling through event pages',
-    description: 'Schedule will auto not cycle through events',
+    description: 'Schedule will not auto-cycle through events',
     type: 'boolean',
   },
 ];
@@ -221,7 +221,7 @@ export const PUBLIC_OPTIONS: ParamField[] = [
   {
     id: 'stopCycle',
     title: 'Stop cycling through event pages',
-    description: 'Schedule will auto not cycle through events',
+    description: 'Schedule will not auto-cycle through events',
     type: 'boolean',
   },
 ];
