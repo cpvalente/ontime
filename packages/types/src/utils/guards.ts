@@ -14,3 +14,9 @@ export function isOntimeDelay(event: MaybeEvent): event is OntimeDelay {
 export function isOntimeBlock(event: MaybeEvent): event is OntimeBlock {
   return event?.type === SupportedEvent.Block;
 }
+
+type AnyKeys<T> = keyof T;
+
+export function isKeyOfType<T extends object>(key: PropertyKey, obj: T): key is AnyKeys<T> {
+  return key in obj;
+}

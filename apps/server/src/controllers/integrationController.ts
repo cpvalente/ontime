@@ -1,9 +1,26 @@
+import { LogOrigin, OntimeEvent } from 'ontime-types';
+
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
+import { parse, updateEvent } from './integrationController.config.js';
+import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
+import { event } from '../models/eventsDefinition.js';
 
-export function dispatchFromAdapter(type: string, payload: unknown, source?: 'osc' | 'ws') {
-  switch (type.toLowerCase()) {
+export function dispatchFromAdapter(
+  type: string,
+  args: {
+    payload: unknown;
+    params?: Array<string>;
+  },
+  source?: 'osc' | 'ws',
+) {
+  const payload = args.payload;
+  const typeComponents = type.toLowerCase().split('/');
+  const mainType = typeComponents[0];
+  const params = args.params || [];
+
+  switch (mainType) {
     case 'test-ontime': {
       return { topic: 'hello' };
     }
@@ -220,6 +237,23 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
     case 'get-timer': {
       const timer = eventStore.get('timer');
       return { topic: 'timer', payload: timer };
+    }
+
+    // ontime/change/{eventID}/{propertyName}
+    case 'change': {
+      if (params.length < 2) {
+        throw new Error(`To few parameters`);
+      }
+      if (payload === undefined) {
+        throw new Error(`Undefined payload`);
+      }
+      const eventID = params[0];
+      const propertyName = params[1] as keyof OntimeEvent;
+      if (!isKeyOfType(propertyName, event)) {
+        throw new Error(`Cannot update unknown event property ${propertyName}`);
+      }
+      const parsedPayload = parse(propertyName, payload);
+      return updateEvent(eventID, propertyName, parsedPayload);
     }
 
     default: {

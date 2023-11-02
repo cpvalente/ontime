@@ -180,8 +180,8 @@ export class EventLoader {
     this.loaded.selectedEventIndex = nowIndex;
     this.loaded.selectedEventId = currentEvent?.id || null;
     this.loaded.numEvents = timedEvents.length;
-    this.loaded.nextEventId = nextEvent.id;
-    this.loaded.nextPublicEventId = nextPublicEvent.id;
+    this.loaded.nextEventId = nextEvent?.id || null;
+    this.loaded.nextPublicEventId = nextPublicEvent?.id || null;
 
     return { currentEvent, nextEvent, timeToNext };
   }

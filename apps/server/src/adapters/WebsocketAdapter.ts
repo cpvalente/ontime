@@ -123,7 +123,13 @@ export class SocketServer implements IAdapter {
 
           // Protocol specific stuff handled above
           try {
-            const reply = dispatchFromAdapter(type, payload, 'ws');
+            const reply = dispatchFromAdapter(
+              type,
+              {
+                payload,
+              },
+              'ws',
+            );
             if (reply) {
               const { topic, payload } = reply;
               ws.send(topic, payload);

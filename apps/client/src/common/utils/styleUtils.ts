@@ -10,7 +10,7 @@ type ColourCombination = {
  * @param bgColour
  * @return {{backgroundColor, color: string}}
  */
-export const getAccessibleColour = (bgColour: string): ColourCombination => {
+export const getAccessibleColour = (bgColour?: string): ColourCombination => {
   if (bgColour) {
     try {
       const textColor = Color(bgColour).isLight() ? 'black' : '#fffffa';
