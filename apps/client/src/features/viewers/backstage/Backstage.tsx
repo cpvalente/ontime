@@ -130,10 +130,12 @@ export default function Backstage(props: BackstageProps) {
                   <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
                   <div className='aux-timers__value'>{startedAt}</div>
                 </div>
+                <div className='timer-gap' />
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.expected_finish')}</div>
                   <div className='aux-timers__value'>{expectedFinish}</div>
                 </div>
+                <div className='timer-gap' />
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.stage_timer')}</div>
                   <div className='aux-timers__value'>{stageTimer}</div>
