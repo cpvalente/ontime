@@ -183,6 +183,8 @@ export class EventLoader {
     this.loaded.nextEventId = nextEvent?.id || null;
     this.loaded.nextPublicEventId = nextPublicEvent?.id || null;
 
+    this._loadEvent();
+
     return { currentEvent, nextEvent, timeToNext };
   }
 
