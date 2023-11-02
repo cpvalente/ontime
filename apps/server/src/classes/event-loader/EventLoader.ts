@@ -281,6 +281,7 @@ export class EventLoader {
     // check if current is also public
     if (event.isPublic) {
       this.publicEventNow = event;
+      this.loaded.selectedPublicEventId = event.id;
     } else {
       // assume there is no public event
       this.publicEventNow = null;
