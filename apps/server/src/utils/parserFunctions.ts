@@ -3,6 +3,7 @@ import {
   Alias,
   EndAction,
   OntimeRundown,
+  HTTPSettings,
   OSCSettings,
   Subscription,
   SubscriptionOptions,
@@ -190,7 +191,7 @@ export const parseViewSettings = (data, enforce): ViewSettings => {
  * Parses and validates subscription entry
  * @param data
  */
-export const validateOscSubscriptionEntry = (data: OscSubscriptionOptions): boolean => {
+export const validateOscSubscriptionEntry = (data: SubscriptionOptions): boolean => {
   for (const subscription in data) {
     if (typeof data[subscription].message !== 'string' || typeof data[subscription].enabled !== 'boolean') {
       return false;
@@ -203,7 +204,7 @@ export const validateOscSubscriptionEntry = (data: OscSubscriptionOptions): bool
  * Parses and validates subscription object
  * @param data
  */
-export const validateOscObject = (data: OscSubscription): boolean => {
+export const validateOscObject = (data: Subscription): boolean => {
   if (!data) {
     return false;
   }
@@ -253,20 +254,76 @@ export const parseOsc = (
 };
 
 /**
+ * Parses and validates subscription entry
+ * @param data
+ */
+export const validateHttpSubscriptionEntry = (data: SubscriptionOptions): boolean => {
+  for (const subscription in data) {
+    if (typeof data[subscription].message !== 'string' || typeof data[subscription].enabled !== 'boolean') {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
+ * Parses and validates subscription object
+ * @param data
+ */
+export const validateHttpObject = (data: Subscription): boolean => {
+  if (!data) {
+    return false;
+  }
+  const timerKeys = Object.keys(TimerLifeCycle);
+  for (const key of timerKeys) {
+    if (!(key in data) || !Array.isArray(data[key])) {
+      return false;
+    }
+    for (const subscription of data[key]) {
+      if (typeof subscription.message !== 'string' || typeof subscription.enabled !== 'boolean') {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+/**
  * Parse Http portion of an entry
  * @param {object} data - data object
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseHttp = (data, enforce) => {
-  const newHttp = {};
+export const parseHttp = (
+  data: {
+    http?: Partial<HTTPSettings>;
+  },
+  enforce: boolean,
+): HTTPSettings | Record<string, never> => {
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
+
+    const loadedConfig = data?.http || {};
+    const validatedSubscriptions = validateHttpObject(loadedConfig.subscriptions)
+      ? loadedConfig.subscriptions
+      : dbModel.http.subscriptions;
+
+    return {
+      portIn: loadedConfig.portIn ?? dbModel.http.portIn,
+      portOut: loadedConfig.portOut ?? dbModel.http.portOut,
+      targetIP: loadedConfig.targetIP ?? dbModel.http.targetIP,
+      enabledIn: loadedConfig.enabledIn ?? dbModel.http.enabledIn,
+      enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
+      subscriptions: validatedSubscriptions,
+    };
   } else if (enforce) {
-    /* Not yet */
-  }
-  return newHttp;
+    console.log('Created HTTP object in db');
+    return { ...dbModel.http };
+  } else return {};
 };
+
+
+
 
 /**
  * Parse aliases portion of an entry

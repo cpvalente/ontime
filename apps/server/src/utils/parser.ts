@@ -20,6 +20,7 @@ import {
   parseAliases,
   parseProject,
   parseOsc,
+  parseHttp,
   parseRundown,
   parseSettings,
   parseUserFields,
@@ -319,7 +320,7 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
   // Import OSC settings if any
   returnData.osc = parseOsc(jsonData, enforce);
   // Import HTTP settings if any
-  // returnData.http = parseHttp(jsonData, enforce);
+  returnData.http = parseHttp(jsonData, enforce);
 
   return returnData as DatabaseModel;
 };

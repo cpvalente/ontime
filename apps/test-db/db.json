@@ -148,5 +148,16 @@
       "onUpdate": [],
       "onFinish": []
     }
+  },
+  "http": {
+    "enabledOut": true,
+    "subscriptions": {
+      "onLoad": [],
+      "onStart": [],
+      "onPause": [],
+      "onStop": [],
+      "onUpdate": [],
+      "onFinish": []
+    }
   }
 }

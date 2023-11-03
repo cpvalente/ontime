@@ -56,4 +56,15 @@ export const dbModel: DatabaseModel = {
       onFinish: [],
     },
   },
+  http: {
+    enabledOut: false,
+    subscriptions: {
+      onLoad: [],
+      onStart: [],
+      onPause: [],
+      onStop: [],
+      onUpdate: [],
+      onFinish: [],
+    },
+  },
 };

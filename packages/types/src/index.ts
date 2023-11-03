@@ -33,6 +33,7 @@ export type { Subscription, SubscriptionOptions } from './definitions/core/Subsc
 // ---> OSC
 export type { OSCSettings } from './definitions/core/OscSettings.type.js';
 // ---> HTTP
+export type { HTTPSettings } from './definitions/core/HttpSettings.type.js';
 
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
