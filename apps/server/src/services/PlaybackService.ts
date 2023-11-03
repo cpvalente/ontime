@@ -271,12 +271,12 @@ export class PlaybackService {
 
   /**
    * Adds time to current event
-   * @param {number} time time in seconds
+   * @param {number} time time to add in seconds
    */
   static addTime(time: number) {
     if (eventTimer.loadedTimerId) {
       const timeInMs = time * 1000;
-      eventTimer.delay(timeInMs);
+      eventTimer.addTime(timeInMs);
       timeInMs > 0
         ? logger.info(LogOrigin.Playback, `Added ${time} sec`)
         : logger.info(LogOrigin.Playback, `Removed ${time} sec`);
