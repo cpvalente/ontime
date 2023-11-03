@@ -1,5 +1,5 @@
 import { ArgumentType, Client, Message } from 'node-osc';
-import { OSCSettings, OscSubscription } from 'ontime-types';
+import { OSCSettings, Subscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
@@ -15,7 +15,7 @@ type Action = TimerLifeCycleKey | string;
  */
 export class OscIntegration implements IIntegration {
   protected oscClient: null | Client;
-  subscriptions: OscSubscription;
+  subscriptions: Subscription;
 
   constructor() {
     this.oscClient = null;
@@ -57,7 +57,7 @@ export class OscIntegration implements IIntegration {
     }
   }
 
-  initSubscriptions(subscriptionOptions: OscSubscription) {
+  initSubscriptions(subscriptionOptions: Subscription) {
     if (validateOscObject(subscriptionOptions)) {
       this.subscriptions = { ...subscriptionOptions };
     }

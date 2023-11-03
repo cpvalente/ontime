@@ -28,9 +28,10 @@ export type { Alias } from './definitions/core/Alias.type.js';
 // ---> User Fields
 export type { UserFields } from './definitions/core/UserFields.type.js';
 
+// ---> Integration, Subscription
+export type { Subscription, SubscriptionOptions } from './definitions/core/Subscription.type.js';
 // ---> OSC
-export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './definitions/core/OscSettings.type.js';
-
+export type { OSCSettings } from './definitions/core/OscSettings.type.js';
 // ---> HTTP
 
 // SERVER RUNTIME
