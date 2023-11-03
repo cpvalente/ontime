@@ -1,5 +1,6 @@
 /* eslint-disable react/display-name */
 import { ComponentType, useMemo } from 'react';
+import { SupportedEvent } from 'ontime-types';
 import { useStore } from 'zustand';
 
 import useProjectData from '../../common/hooks-query/useProjectData';
@@ -20,7 +21,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
 
     const publicEvents = useMemo(() => {
       if (Array.isArray(rundownData)) {
-        return rundownData.filter((e) => e.type === 'event' && e.title && e.isPublic);
+        return rundownData.filter((e) => e.type === SupportedEvent.Event && e.title && e.isPublic);
       }
       return [];
     }, [rundownData]);

@@ -183,6 +183,8 @@ export class EventLoader {
     this.loaded.nextEventId = nextEvent?.id || null;
     this.loaded.nextPublicEventId = nextPublicEvent?.id || null;
 
+    this._loadEvent();
+
     return { currentEvent, nextEvent, timeToNext };
   }
 
@@ -281,6 +283,7 @@ export class EventLoader {
     // check if current is also public
     if (event.isPublic) {
       this.publicEventNow = event;
+      this.loaded.selectedPublicEventId = event.id;
     } else {
       // assume there is no public event
       this.publicEventNow = null;

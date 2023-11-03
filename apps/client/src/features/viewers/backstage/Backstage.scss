@@ -99,7 +99,11 @@
     margin-top: 2em;
     padding-top: 1em;
     display: flex;
-    gap: 7.5em;
+  }
+
+  .timer-gap {
+    flex: 1;
+    max-width: 7.5em;
   }
 
   .aux-timers {
