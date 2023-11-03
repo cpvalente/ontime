@@ -35,23 +35,16 @@ export const ScheduleProvider = ({
   const [searchParams] = useSearchParams();
 
   // look for overrides from views
-  const hidePast = isStringBoolean(searchParams.get('hidePast'));
   const eventsPerPage = Number(searchParams.get('eventsPerPage') ?? 7);
   const followSelected = isStringBoolean(searchParams.get('followSelected'));
 
-  let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
-
   const viewEvents = [...events];
-  if (hidePast) {
-    // we want to show the event after the next
-    viewEvents.splice(0, selectedEventIndex + 2);
-    selectedEventIndex = 0;
-  }
 
   const numPages = Math.ceil(viewEvents.length / eventsPerPage);
   const eventStart = eventsPerPage * visiblePage;
   const eventEnd = eventsPerPage * (visiblePage + 1);
-  const paginatedEvents = viewEvents.slice(eventStart, eventEnd);
+  const paginatedEvents = events.slice(eventStart, eventEnd);
+  const selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
 
   const resolveScheduleType = () => {
     if (selectedEventIndex >= eventStart && selectedEventIndex < eventEnd) {
