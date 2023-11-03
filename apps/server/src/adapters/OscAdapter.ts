@@ -5,6 +5,7 @@ import { Server } from 'node-osc';
 import { IAdapter } from './IAdapter.js';
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
+import { error } from 'console';
 
 export class OscServer implements IAdapter {
   private readonly osc: Server;
@@ -12,7 +13,7 @@ export class OscServer implements IAdapter {
   constructor(config: OSCSettings) {
     this.osc = new Server(config.portIn, '0.0.0.0');
 
-    this.osc.on('error', console.error);
+    this.osc.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
 
     this.osc.on('message', (msg) => {
       // message should look like /ontime/{path}/{params?} {args} where
