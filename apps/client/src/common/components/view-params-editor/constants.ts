@@ -197,44 +197,32 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
 export const BACKSTAGE_OPTIONS: ParamField[] = [
   TIME_FORMAT_OPTION,
   {
-    id: 'hidePast',
-    title: 'Hide past events',
-    description: 'Scheduler will only show upcoming events',
-    type: 'boolean',
-  },
-  {
-    id: 'stopCycle',
-    title: 'Stop cycling through event pages',
-    description: 'Schedule will not auto-cycle through events',
-    type: 'boolean',
-  },
-  {
     id: 'eventsPerPage',
     title: 'Number of events on page',
     description: '',
     type: 'number',
+  },
+  {
+    id: 'followSelected',
+    title: 'Follow selected event',
+    description: '',
+    type: 'boolean',
   },
 ];
 
 export const PUBLIC_OPTIONS: ParamField[] = [
   TIME_FORMAT_OPTION,
   {
-    id: 'hidePast',
-    title: 'Hide past events',
-    description: 'Scheduler will only show upcoming events',
-    type: 'boolean',
-  },
-  {
-    id: 'stopCycle',
-    title: 'Stop cycling through event pages',
-    description: 'Schedule will not auto-cycle through events',
-    type: 'boolean',
-  },
-  {
     id: 'eventsPerPage',
     title: 'Number of events on page',
     description: '',
     type: 'number',
+  },
+  {
+    id: 'followSelected',
+    title: 'Follow selected event',
+    description: '',
+    type: 'boolean',
   },
 ];
 export const STUDIO_CLOCK_OPTIONS: ParamField[] = [

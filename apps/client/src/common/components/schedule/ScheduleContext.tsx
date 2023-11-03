@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent } from 'ontime-types';
 
@@ -36,9 +36,8 @@ export const ScheduleProvider = ({
 
   // look for overrides from views
   const hidePast = isStringBoolean(searchParams.get('hidePast'));
-  const stopCycle = isStringBoolean(searchParams.get('stopCycle'));
   const eventsPerPage = Number(searchParams.get('eventsPerPage') ?? 7);
-
+  const followSelected = isStringBoolean(searchParams.get('followSelected'));
 
   let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
 
@@ -67,13 +66,18 @@ export const ScheduleProvider = ({
 
   // every SCROLL_TIME go to the next array
   useInterval(() => {
-    if (stopCycle) {
-      setVisiblePage(0);
-    } else if (events.length > eventsPerPage) {
+    if (events.length > eventsPerPage && !followSelected) {
       const next = (visiblePage + 1) % numPages;
       setVisiblePage(next);
     }
   }, time * 1000);
+
+  //Show page with selectedEventIndex or the next one if the selected is the last event on the page
+  useEffect(() => {
+    if (followSelected && events.length > eventsPerPage) {
+      setVisiblePage(Math.floor((selectedEventIndex + 1) / eventsPerPage));
+    }
+  }, [selectedEventId]);
 
   return (
     <ScheduleContext.Provider
