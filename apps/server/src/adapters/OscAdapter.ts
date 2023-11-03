@@ -5,7 +5,6 @@ import { Server } from 'node-osc';
 import { IAdapter } from './IAdapter.js';
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
-import { error } from 'console';
 
 export class OscServer implements IAdapter {
   private readonly osc: Server;
