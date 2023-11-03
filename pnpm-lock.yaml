@@ -171,7 +171,7 @@ importers:
     specifiers:
       '@types/express': ^4.17.17
       '@types/node': ^16.11.7
-      '@types/node-osc': ^6.0.0
+      '@types/node-osc': ^6.0.2
       '@types/websocket': ^1.0.5
       '@typescript-eslint/eslint-plugin': ^5.48.1
       '@typescript-eslint/parser': ^5.48.1
@@ -187,7 +187,7 @@ importers:
       express-validator: ^6.14.2
       lowdb: ^5.0.5
       multer: ^1.4.5-lts.1
-      node-osc: ^8.0.10
+      node-osc: ^9.0.2
       node-xlsx: ^0.21.0
       nodemon: ^2.0.20
       ontime-types: workspace:*
@@ -211,7 +211,7 @@ importers:
       express-validator: 6.14.2
       lowdb: 5.0.5
       multer: 1.4.5-lts.1
-      node-osc: 8.0.10
+      node-osc: 9.0.2
       node-xlsx: 0.21.0
       ontime-utils: link:../../packages/utils
       passport: 0.6.0
@@ -221,7 +221,7 @@ importers:
     devDependencies:
       '@types/express': 4.17.17
       '@types/node': 16.18.11
-      '@types/node-osc': 6.0.0
+      '@types/node-osc': 6.0.2
       '@types/websocket': 1.0.5
       '@typescript-eslint/eslint-plugin': 5.48.1_3jon24igvnqaqexgwtxk6nkpse
       '@typescript-eslint/parser': 5.48.1_iukboom6ndih5an6iafl45j2fe
@@ -2082,7 +2082,7 @@ packages:
       '@jest/schemas': 29.0.0
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
       '@types/yargs': 17.0.19
       chalk: 4.1.2
     dev: true
@@ -2652,7 +2652,7 @@ packages:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
     dev: true
 
   /@types/cacheable-request/6.0.3:
@@ -2660,7 +2660,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
       '@types/responselike': 1.0.0
     dev: true
 
@@ -2693,7 +2693,7 @@ packages:
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
     dev: true
 
   /@types/debug/4.1.7:
@@ -2709,7 +2709,7 @@ packages:
   /@types/express-serve-static-core/4.17.33:
     resolution: {integrity: sha512-TPBqmR/HRYI3eC2E5hmiivIzv+bidAfXofM+sbonAGvyDhySGw9/PQZFt2BLOrjUUR++4eJVpx6KnLQK1Fk9tA==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: true
@@ -2726,7 +2726,7 @@ packages:
   /@types/fs-extra/9.0.13:
     resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
     dev: true
 
   /@types/glob/7.2.0:
@@ -2734,7 +2734,7 @@ packages:
     requiresBuild: true
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
     dev: true
     optional: true
 
@@ -2772,7 +2772,7 @@ packages:
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
     dev: true
 
   /@types/lodash.mergewith/4.6.7:
@@ -2802,8 +2802,10 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
 
-  /@types/node-osc/6.0.0:
-    resolution: {integrity: sha512-25DwJOFe1KueUZz2oIURT3qCMQ28Jdvy9JqGz8d0mKM1Mlx0agHD9N3S0hMKajVCjw7TGtf3gGjbl5gDCFfIWQ==}
+  /@types/node-osc/6.0.2:
+    resolution: {integrity: sha512-/TxCH+NlDoI3hFA6b2O91dpnPAqBDkLb2HEIv5hMVdKnCiWTdJJv2sVnQdX38sBgnals8TjCQEGii+OcMVf2fg==}
+    dependencies:
+      '@types/node': 18.16.16
     dev: true
 
   /@types/node/16.18.11:
@@ -2833,7 +2835,7 @@ packages:
     resolution: {integrity: sha512-ULqvZNGMv0zRFvqn8/4LSPtnmN4MfhlPNtJCTpKuIIxGVGZ2rYWzFXrvEBoh9CVyqSE7D6YFRJ1hydLHI6kbWw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
       xmlbuilder: 15.1.1
     dev: true
     optional: true
@@ -2865,7 +2867,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
     dev: true
 
   /@types/scheduler/0.16.2:
@@ -2879,7 +2881,7 @@ packages:
     resolution: {integrity: sha512-z5xyF6uh8CbjAu9760KDKsH2FcDxZ2tFCsA4HIMWE6IkiYMXfVoa+4f9KX+FN0ZLsaMw1WNG2ETLA6N+/YA+cg==}
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
     dev: true
 
   /@types/stack-utils/2.0.1:
@@ -2918,7 +2920,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
     dev: true
     optional: true
 
@@ -3493,6 +3495,7 @@ packages:
   /astral-regex/2.0.0:
     resolution: {integrity: sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==}
     engines: {node: '>=8'}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -5821,7 +5824,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.3.1
-      '@types/node': 18.15.11
+      '@types/node': 18.16.16
       chalk: 4.1.2
       ci-info: 3.7.1
       graceful-fs: 4.2.11
@@ -6278,9 +6281,9 @@ packages:
       whatwg-url: 5.0.0
     dev: true
 
-  /node-osc/8.0.10:
-    resolution: {integrity: sha512-Lr4HdSh59V7+Tm6HfVfHoRpAbjCTdRvsm3Q7wcEb9BbVAqaDjEgvnelA1fIZa5MBRic9rHZAIPs6xzeuvKH1ng==}
-    engines: {node: ^14.18 || ^16.13 || >=18}
+  /node-osc/9.0.2:
+    resolution: {integrity: sha512-q+VQL7DMWRL5+yvzRlWVig8BD9raotLs6onHU4e8MaFgxmYuIwcXhsvQeyUZFiKP6y/qGUXU6K0T99gVmISwmA==}
+    engines: {node: ^18.17.0 || >=20.5.0}
     dependencies:
       osc-min: 1.1.2
     dev: false
