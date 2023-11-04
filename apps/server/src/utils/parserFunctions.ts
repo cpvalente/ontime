@@ -191,7 +191,7 @@ export const parseViewSettings = (data, enforce): ViewSettings => {
  * Parses and validates subscription entry
  * @param data
  */
-export const validateOscSubscriptionEntry = (data: SubscriptionOptions): boolean => {
+export const validateSubscriptionEntry = (data: SubscriptionOptions): boolean => {
   for (const subscription in data) {
     if (typeof data[subscription].message !== 'string' || typeof data[subscription].enabled !== 'boolean') {
       return false;
@@ -254,19 +254,6 @@ export const parseOsc = (
 };
 
 /**
- * Parses and validates subscription entry
- * @param data
- */
-export const validateHttpSubscriptionEntry = (data: SubscriptionOptions): boolean => {
-  for (const subscription in data) {
-    if (typeof data[subscription].message !== 'string' || typeof data[subscription].enabled !== 'boolean') {
-      return false;
-    }
-  }
-  return true;
-};
-
-/**
  * Parses and validates subscription object
  * @param data
  */
@@ -309,10 +296,6 @@ export const parseHttp = (
       : dbModel.http.subscriptions;
 
     return {
-      portIn: loadedConfig.portIn ?? dbModel.http.portIn,
-      portOut: loadedConfig.portOut ?? dbModel.http.portOut,
-      targetIP: loadedConfig.targetIP ?? dbModel.http.targetIP,
-      enabledIn: loadedConfig.enabledIn ?? dbModel.http.enabledIn,
       enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
       subscriptions: validatedSubscriptions,
     };

@@ -1,5 +1,5 @@
 import { body, check, validationResult } from 'express-validator';
-import { validateOscObject, validateOscSubscriptionEntry } from '../utils/parserFunctions.js';
+import { validateOscObject, validateSubscriptionEntry } from '../utils/parserFunctions.js';
 
 /**
  * @description Validates object for POST /ontime/views
@@ -93,25 +93,25 @@ export const validateOSC = [
 /**
  * @description Validates object for POST /ontime/osc-subscriptions
  */
-export const validateOscSubscription = [
+export const validateSubscription = [
   body('onLoad')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateSubscriptionEntry(value)),
   body('onStart')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateSubscriptionEntry(value)),
   body('onPause')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateSubscriptionEntry(value)),
   body('onStop')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateSubscriptionEntry(value)),
   body('onUpdate')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateSubscriptionEntry(value)),
   body('onFinish')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateSubscriptionEntry(value)),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
