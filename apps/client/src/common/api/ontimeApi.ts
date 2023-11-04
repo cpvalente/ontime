@@ -94,6 +94,18 @@ export async function getOSC(): Promise<OSCSettings> {
 }
 
 /**
+ * @description HTTP request to retrieve http settings
+ * @return {Promise}
+ */
+export async function getHTTP(): Promise<HTTPSettings> {
+  console.log('getHTTP')
+  const res = await axios.get(`${ontimeURL}/http`);
+  console.log(res)
+
+  return res.data;
+}
+
+/**
  * @description HTTP request to mutate osc settings
  * @return {Promise}
  */
@@ -105,8 +117,16 @@ export async function postOSC(data: OSCSettings) {
  * @description HTTP request to mutate osc subscriptions
  * @return {Promise}
  */
-export async function postOscSubscriptions(data: OscSubscription) {
+export async function postOscSubscriptions(data: Subscription) {
   return axios.post(`${ontimeURL}/osc-subscriptions`, data);
+}
+
+/**
+ * @description HTTP request to mutate osc subscriptions
+ * @return {Promise}
+ */
+export async function postHttpSubscriptions(data: Subscription) {
+  return axios.post(`${ontimeURL}/http-subscriptions`, data);
 }
 
 /**

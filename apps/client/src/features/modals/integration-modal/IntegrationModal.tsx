@@ -5,6 +5,8 @@ import ModalWrapper from '../ModalWrapper';
 import OscIntegration from './OscIntegration';
 import OscSettings from './OscSettings';
 
+import HttpIntegration from './HttpIntegration';
+
 import styles from '../Modal.module.scss';
 
 interface IntegrationModalProps {
@@ -30,6 +32,7 @@ export default function IntegrationModal(props: IntegrationModalProps) {
           <TabList>
             <Tab>OSC</Tab>
             <Tab>OSC Integration</Tab>
+            <Tab>HTML Integration</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -37,6 +40,9 @@ export default function IntegrationModal(props: IntegrationModalProps) {
             </TabPanel>
             <TabPanel>
               <OscIntegration />
+            </TabPanel>
+            <TabPanel>
+              <HttpIntegration />
             </TabPanel>
           </TabPanels>
         </Tabs>

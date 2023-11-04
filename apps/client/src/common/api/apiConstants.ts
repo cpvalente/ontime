@@ -6,6 +6,7 @@ export const RUNDOWN_TABLE_KEY = 'rundown';
 export const RUNDOWN_TABLE = [RUNDOWN_TABLE_KEY];
 export const APP_INFO = ['appinfo'];
 export const OSC_SETTINGS = ['oscSettings'];
+export const HTTP_SETTINGS = ['httpSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const RUNTIME = ['runtimeStore'];
