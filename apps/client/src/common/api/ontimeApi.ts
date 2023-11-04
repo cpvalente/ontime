@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Alias, OSCSettings, OscSubscription, ProjectData, Settings, UserFields, ViewSettings } from 'ontime-types';
+import { Alias, OSCSettings, Subscription, ProjectData, Settings, UserFields, ViewSettings, HTTPSettings } from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';
 import { InfoType } from '../models/Info';
