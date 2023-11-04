@@ -1,12 +1,13 @@
 //TODO: cleanup stuff left over from OSC copy
 import http from 'node:http';
-import { HTTPSettings, Subscription } from 'ontime-types';
+import { HTTPSettings, LogOrigin, Subscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
 import { dbModel } from '../../models/dataModel.js';
 import { validateHttpObject } from '../../utils/parserFunctions.js';
+import { logger } from '../../classes/Logger.js';
 
 type Action = TimerLifeCycleKey | string;
 
@@ -35,7 +36,7 @@ export class HttpIntegration implements IIntegration {
       // this.httpClient?.close();
       return {
         success: true,
-        message: `HTTP integration client}`,
+        message: `HTTP integration client`,
       };
     } catch (error) {
       return {
@@ -79,19 +80,25 @@ export class HttpIntegration implements IIntegration {
   }
 
   emit(path: string) {
-    http.get(path, (res) => {
-      if (res.statusCode < 300) {
-        return {
-          success: true,
-          message: 'HTTP Message sent',
-        };
-      } else {
-        return {
-          success: false,
-          message: `Error sending message responds: ${res.statusCode}`,
-        };
-      }
-    });
+    http
+      .get(path, (res) => {
+        if (res.statusCode < 300) {
+          res.resume();
+          return {
+            success: true,
+            message: 'HTTP Message sent',
+          };
+        } else {
+          res.resume();
+          return {
+            success: false,
+            message: `Error sending message responds: ${res.statusCode}`,
+          };
+        }
+      })
+      .on('error', (err) => {
+        logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
+      });
   }
 
   shutdown() {
