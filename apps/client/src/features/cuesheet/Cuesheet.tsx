@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import Color from 'color';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
 import useFollowComponent from '../../common/hooks/useFollowComponent';
@@ -14,7 +15,6 @@ import { useCuesheetSettings } from './store/CuesheetSettings';
 import { initialColumnOrder } from './cuesheetCols';
 
 import style from './Cuesheet.module.scss';
-import Color from 'color';
 
 interface CuesheetProps {
   data: OntimeRundown;
@@ -119,8 +119,13 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 if (isSelected) {
                   rowBgColour = 'var(--cuesheet-running-bg-override, #D20300)'; // $red-700
                 } else if (row.original.colour) {
-                  const colour = new Color(row.original.colour || undefined).alpha(0.25);
-                  rowBgColour = colour.hsl().string();
+                  try {
+                    // the colour is user defined and might be invalid
+                    const colour = new Color(row.original.colour).alpha(0.25);
+                    rowBgColour = colour.hsl().string();
+                  } catch (_error) {
+                    /* we do not handle errors here */
+                  }
                 }
 
                 return (
