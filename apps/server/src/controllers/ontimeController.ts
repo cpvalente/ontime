@@ -12,6 +12,7 @@ import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { isDocker, resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
+import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, forceReset } from '../services/rundown-service/RundownService.js';
 
@@ -282,15 +283,23 @@ export const getOSC = async (req, res) => {
   res.status(200).send(osc);
 };
 
+// Create controller for GET request to '/ontime/http'
+// Returns -
+export const getHTTP = async (req, res) => {
+  const http = DataProvider.getHttp();
+  console.log('get http', http)
+  res.status(200).send(http);
+};
+
 export const postOscSubscriptions = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
-    const oscSubscriptions = req.body;
+    const subscriptions = req.body;
     const oscSettings = DataProvider.getOsc();
-    oscSettings.subscriptions = oscSubscriptions;
+    oscSettings.subscriptions = subscriptions;
     await DataProvider.setOsc(oscSettings);
 
     // TODO: this update could be more granular, checking that relevant data was changed
@@ -298,6 +307,27 @@ export const postOscSubscriptions = async (req, res) => {
     logger.info(LogOrigin.Tx, message);
 
     res.send(oscSettings).status(200);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+export const postHttpSubscriptions = async (req, res) => {
+  console.log('http post sub')
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const subscriptions = req.body;
+    const httpSettings = DataProvider.getHttp();
+    httpSettings.subscriptions = subscriptions;
+    await DataProvider.setHttp(httpSettings);
+
+    const { message } = httpIntegration.init(httpSettings);
+    logger.info(LogOrigin.Tx, message);
+
+    res.send(httpSettings).status(200);
   } catch (error) {
     res.status(400).send(error);
   }

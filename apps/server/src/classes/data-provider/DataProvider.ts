@@ -54,6 +54,10 @@ export class DataProvider {
     return data.osc;
   }
 
+  static getHttp() {
+    return data.http;
+  }
+
   static getAliases() {
     return data.aliases;
   }
@@ -83,6 +87,11 @@ export class DataProvider {
 
   static async setOsc(newData) {
     data.osc = { ...newData };
+    await this.persist();
+  }
+
+  static async setHttp(newData) {
+    data.http = { ...newData };
     await this.persist();
   }
 

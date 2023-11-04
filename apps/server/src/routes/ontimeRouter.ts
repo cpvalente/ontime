@@ -6,6 +6,7 @@ import {
   getAliases,
   getInfo,
   getOSC,
+  getHTTP,
   getSettings,
   getUserFields,
   getViewSettings,
@@ -14,6 +15,7 @@ import {
   postNew,
   postOSC,
   postOscSubscriptions,
+  postHttpSubscriptions,
   postSettings,
   postUserFields,
   postViewSettings,
@@ -75,6 +77,12 @@ router.post('/osc', validateOSC, postOSC);
 
 // create route between controller and '/ontime/osc-subscriptions' endpoint
 router.post('/osc-subscriptions', validateSubscription, postOscSubscriptions);
+
+// create route between controller and '/ontime/http' endpoint
+router.get('/http', getHTTP);
+
+// create route between controller and '/ontime/osc-subscriptions' endpoint
+router.post('/http-subscriptions', validateSubscription, postHttpSubscriptions);
 
 // create route between controller and '/ontime/new' endpoint
 router.post('/new', projectSanitiser, postNew);
