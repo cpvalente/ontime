@@ -174,19 +174,6 @@ export function dispatchFromAdapter(
       PlaybackService.roll();
       break;
     }
-    case 'addtime': {
-      const time = Number(payload);
-      if (isNaN(time)) {
-        throw new Error(`Time not recognised ${payload}`);
-      }
-      try {
-        PlaybackService.addTime(time);
-      } catch (error) {
-        throw new Error(`Could not add time: ${error}`);
-      }
-      break;
-    }
-    //deprecated
     case 'delay': {
       const delayTime = Number(payload);
       if (isNaN(delayTime)) {

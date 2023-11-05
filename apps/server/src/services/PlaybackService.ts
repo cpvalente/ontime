@@ -270,25 +270,16 @@ export class PlaybackService {
   }
 
   /**
-   * Adds time to current event
-   * @param {number} time time in seconds
-   */
-  static addTime(time: number) {
-    if (eventTimer.loadedTimerId) {
-      const timeInMs = time * 1000;
-      eventTimer.delay(timeInMs);
-      timeInMs > 0
-        ? logger.info(LogOrigin.Playback, `Added ${time} sec`)
-        : logger.info(LogOrigin.Playback, `Removed ${time} sec`);
-    }
-  }
-
-  /**
    * Adds delay to current event
-   * @deprecated Use addTime
    * @param {number} delayTime time in minutes
    */
   static setDelay(delayTime: number) {
-    this.addTime(delayTime * 60);
+    if (eventTimer.loadedTimerId) {
+      const delayInMs = delayTime * 1000 * 60;
+      eventTimer.delay(delayInMs);
+      delayInMs > 0
+        ? logger.info(LogOrigin.Playback, `Added ${delayTime} min delay`)
+        : logger.info(LogOrigin.Playback, `Removed ${delayTime} min delay`);
+    }
   }
 }
