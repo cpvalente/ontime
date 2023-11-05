@@ -7,6 +7,7 @@ import { parse, updateEvent } from './integrationController.config.js';
 import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 import { event } from '../models/eventsDefinition.js';
 
+//TODO: re-throwing the error does not add any extra information or value
 export function dispatchFromAdapter(
   type: string,
   args: {

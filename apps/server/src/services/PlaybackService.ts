@@ -271,7 +271,7 @@ export class PlaybackService {
 
   /**
    * Adds time to current event
-   * @param {number} time time to add in seconds
+   * @param {number} time - time to add in seconds
    */
   static addTime(time: number) {
     if (eventTimer.loadedTimerId) {
