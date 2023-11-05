@@ -287,7 +287,6 @@ export const getOSC = async (req, res) => {
 // Returns -
 export const getHTTP = async (req, res) => {
   const http = DataProvider.getHttp();
-  console.log('get http', http)
   res.status(200).send(http);
 };
 
@@ -313,7 +312,6 @@ export const postOscSubscriptions = async (req, res) => {
 };
 
 export const postHttpSubscriptions = async (req, res) => {
-  console.log('http post sub')
   if (failEmptyObjects(req.body, res)) {
     return;
   }
