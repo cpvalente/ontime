@@ -9,6 +9,8 @@ import { dbModel } from '../../models/dataModel.js';
 import { validateHttpObject } from '../../utils/parserFunctions.js';
 import { logger } from '../../classes/Logger.js';
 
+import { URL } from 'node:url';
+
 type Action = TimerLifeCycleKey | string;
 
 /**
@@ -16,10 +18,11 @@ type Action = TimerLifeCycleKey | string;
  * @class
  */
 export class HttpIntegration implements IIntegration {
+  protected httpAgent: null | http.Agent;
   subscriptions: Subscription;
 
   constructor() {
-    // this.httpClient = null;
+    this.httpAgent = null;
     this.subscriptions = dbModel.http.subscriptions;
   }
 
@@ -33,15 +36,18 @@ export class HttpIntegration implements IIntegration {
 
     try {
       // this allows re-calling the init function during runtime
-      // this.httpClient?.close();
+      this.httpAgent?.destroy();
+      // this.httpAgent = new http.Agent({ keepAlive: true, timeout: 2000, maxSockets: 5, maxFreeSockets: 40 });
+      //TODO: find the correct settings
+      this.httpAgent = new http.Agent({ keepAlive: true, timeout: 1000, maxFreeSockets: 1, maxSockets: 1});
       return {
         success: true,
-        message: `HTTP integration client`,
+        message: `HTTP integration client ready`,
       };
     } catch (error) {
       return {
         success: false,
-        message: `Failed initialising HTTP: ${error}`,
+        message: `Failed initialising HTTP integration: ${error}`,
       };
     }
   }
@@ -53,7 +59,7 @@ export class HttpIntegration implements IIntegration {
   }
 
   dispatch(action: Action, state?: object) {
-    if (false) {
+    if (!this.httpAgent) {
       return {
         success: false,
         message: 'Client not initialised',
@@ -74,14 +80,19 @@ export class HttpIntegration implements IIntegration {
       const { enabled, message } = sub;
       if (enabled && message) {
         const parsedMessage = parseTemplateNested(message, state || {});
-        this.emit(parsedMessage);
+        try {
+          const parsedUrl = new URL(parsedMessage);
+          this.emit(parsedUrl);
+        } catch (err) {
+          logger.error(LogOrigin.Tx, `HTTP Integration: ${err}`);
+        }
       }
     });
   }
 
-  emit(path: string) {
+  emit(path: URL) {
     http
-      .get(path, (res) => {
+      .get(path, { agent: this.httpAgent }, (res) => {
         if (res.statusCode < 300) {
           res.resume();
           return {
@@ -103,10 +114,10 @@ export class HttpIntegration implements IIntegration {
 
   shutdown() {
     console.log('Shutting down HTTP integration');
-    // if (this.httpClient) {
-    //   // this.httpClient?.close();
-    //   this.httpClient = null;
-    // }
+    if (this.httpAgent) {
+      this.httpAgent?.destroy();
+      this.httpAgent = null;
+    }
   }
 }
 
