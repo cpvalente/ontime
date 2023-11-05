@@ -7,14 +7,14 @@ import type { UploadStep } from '../UploadModal';
 import style from './UploadStep.module.scss';
 
 export default function UploadStepTracker({ uploadStep }: { uploadStep: UploadStep }) {
-  const isUpload = uploadStep === 'upload';
+  const isImporting = uploadStep === 'import';
   const isReview = uploadStep === 'review';
 
   return (
     <div className={style.stepRow}>
-      <div className={isUpload ? style.active : style.idle}>
+      <div className={isImporting ? style.active : style.idle}>
         <IoCheckmarkCircle />
-        Upload
+        Import
       </div>
       <IoChevronForward className={isReview ? style.activeIcon : style.inactiveIcon} />
       <div className={isReview ? style.active : style.inactive}>

@@ -6,13 +6,9 @@
   overflow: scroll;
 }
 
-.scrollContainer {
-  overflow-x: scroll;
-}
-
 .rundownPreview {
   font-size: calc(1rem - 2px);
-  border-collapse: separate;
+  overflow-x: scroll;
 }
 
 .header,
@@ -28,6 +24,12 @@
 }
 
 .header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  box-shadow: 0 2px $gray-50;
+  z-index: 3;
+
   th {
     font-weight: 200;
     text-align: left;
@@ -39,10 +41,6 @@
 }
 
 .body {
-  tr:nth-child(odd) {
-    background-color: $gray-50;
-  }
-
   td {
     text-align: left;
     vertical-align: top;
@@ -56,5 +54,18 @@
   .nowrap {
     white-space: nowrap;
   }
+
+  .secondaryRow {
+    padding: 0.25em 0.25em;
+    background-color: $gray-50;
+  }
 }
 
+table tr td:first-child,
+table tr th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: white;
+  box-shadow: 1px 0 $gray-50;
+}

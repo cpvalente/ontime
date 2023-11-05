@@ -26,7 +26,7 @@ export default function ImportMapTable(props: ImportMapTableProps) {
           return (
             <tr key={field.title}>
               <td className={style.label}>
-                <label htmlFor={field.title}>{field.title}</label>
+                <label htmlFor={field.title}>{field.label}</label>
               </td>
               <td className={style.input}>
                 <Input

@@ -53,7 +53,7 @@ export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
   return (
     <div className={style.uploadOptions}>
       <div className={style.twoEqualColumn}>
-        <ImportMapTable title='Import options' fields={worksheet} handleOnChange={updateOptions} />
+        <ImportMapTable title='Sheet settings' fields={worksheet} handleOnChange={updateOptions} />
       </div>
 
       <div className={style.twoEqualColumn}>

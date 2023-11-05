@@ -57,7 +57,7 @@ export default function UploadFile() {
       />
       {!file && (
         <div className={style.uploadArea} onClick={handleClick} role='button'>
-          Click to upload Ontime project or xlsx file
+          Click to import Ontime project or xlsx rundown
         </div>
       )}
       {(file || errors) && <UploadEntry file={file} errors={errors} progress={progress} handleClear={clearFile} />}

@@ -34,7 +34,7 @@ import { getPersistedOptions, isExcelFile, isOntimeFile, persistOptions } from '
 
 import style from './UploadModal.module.scss';
 
-export type UploadStep = 'upload' | 'review';
+export type UploadStep = 'import' | 'review';
 
 interface UploadModalProps {
   onClose: () => void;
@@ -46,7 +46,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
 
   const { file, setProgress, clear } = useUploadModalContextStore();
 
-  const [uploadStep, setUploadStep] = useState<UploadStep>('upload');
+  const [uploadStep, setUploadStep] = useState<UploadStep>('import');
   const [submitting, setSubmitting] = useState(false);
   const [rundown, setRundown] = useState<OntimeRundown | null>(null);
   const [userFields, setUserFields] = useState<UserFields | null>(null);
@@ -74,16 +74,14 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   useEffect(() => {
     const excelOptions = getPersistedOptions('excel');
     if (excelOptions) {
-      console.log(1, excelFileOptions.current);
       excelFileOptions.current = excelOptions;
-      console.log(2, excelFileOptions.current);
     }
   }, []);
 
   // if the modal re-opens, we want to restart all states
   useEffect(() => {
     clear();
-    setUploadStep('upload');
+    setUploadStep('import');
     setSubmitting(false);
     setRundown(null);
     setUserFields(null);
@@ -104,12 +102,10 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
         if (isOntimeFile(file)) {
           // TODO: we would also like to have preview for ontime project files
           const options = ontimeFileOptions.current;
-          console.log('denuig', options);
           await handleOntimeFile(file, options);
           doClose = true;
         } else if (isExcelFile(file)) {
           const options = excelFileOptions.current;
-          console.log('denuig', options);
 
           persistOptions({ optionType: 'excel', options });
           await handleExcelFile(file, options);
@@ -180,20 +176,20 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   };
 
   const undoReview = () => {
-    setUploadStep('upload');
+    setUploadStep('import');
     setErrors('');
   };
 
-  const isUpload = uploadStep === 'upload';
+  const isImporting = uploadStep === 'import';
   const isReview = uploadStep === 'review';
   const isExcel = isExcelFile(file);
   const isOntime = isOntimeFile(file);
 
-  const handleGoBack = isUpload ? undefined : undoReview;
-  const handleSubmit = isUpload ? handleUpload : handleFinalise;
-  const disableSubmit = (isUpload && !file) || (isReview && rundown === null);
-  const disableGoBack = isUpload;
-  const submitText = isUpload ? 'Upload' : 'Finish';
+  const handleGoBack = isImporting ? undefined : undoReview;
+  const handleSubmit = isImporting ? handleUpload : handleFinalise;
+  const disableSubmit = (isImporting && !file) || (isReview && rundown === null);
+  const disableGoBack = isImporting;
+  const submitText = isImporting ? 'Import' : 'Finish';
 
   return (
     <Modal
@@ -212,7 +208,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
         <ModalCloseButton />
         <ModalBody className={style.uploadBody}>
           {isExcel && <UploadStepTracker uploadStep={uploadStep} />}
-          {uploadStep === 'upload' ? (
+          {uploadStep === 'import' ? (
             <>
               <UploadFile />
               {isOntime && <OntimeFileOptions optionsRef={ontimeFileOptions} updateOptions={updateOntimeFileOptions} />}
