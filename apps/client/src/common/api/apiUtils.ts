@@ -39,15 +39,16 @@ export function logAxiosError(prepend: string, error: unknown) {
   });
 }
 
+/**
+ * Utility function invalidates react-query caches
+ */
 export async function invalidateAllCaches() {
-  await ontimeQueryClient.invalidateQueries([
-    'project',
-    'aliases',
-    'userFields',
-    'rundown',
-    'appinfo',
-    'oscSettings',
-    'appSettings',
-    'viewSettings',
-  ]);
+  await ontimeQueryClient.invalidateQueries(['project']);
+  await ontimeQueryClient.invalidateQueries(['aliases']);
+  await ontimeQueryClient.invalidateQueries(['userFields']);
+  await ontimeQueryClient.invalidateQueries(['rundown']);
+  await ontimeQueryClient.invalidateQueries(['appinfo']);
+  await ontimeQueryClient.invalidateQueries(['oscSettings']);
+  await ontimeQueryClient.invalidateQueries(['appSettings']);
+  await ontimeQueryClient.invalidateQueries(['viewSettings']);
 }

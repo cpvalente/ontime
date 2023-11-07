@@ -103,13 +103,12 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
           // TODO: we would also like to have preview for ontime project files
           const options = ontimeFileOptions.current;
           await handleOntimeFile(file, options);
+          await invalidateAllCaches();
           doClose = true;
         } else if (isExcelFile(file)) {
           const options = excelFileOptions.current;
-
           persistOptions({ optionType: 'excel', options });
           await handleExcelFile(file, options);
-          await invalidateAllCaches();
         }
       } catch (error) {
         const message = maybeAxiosError(error);
@@ -224,7 +223,6 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
         </ModalBody>
         <ModalFooter>
           <div className={style.feedbackSection}>{errors && <div className={style.error}>{errors}</div>}</div>
-
           <div className={`${style.buttonSection} ${style.pad}`}>
             <Button
               onClick={handleGoBack}
