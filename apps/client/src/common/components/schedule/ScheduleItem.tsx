@@ -14,16 +14,7 @@ interface ScheduleItemProps {
 }
 
 export default function ScheduleItem(props: ScheduleItemProps) {
-  const {
-    selected,
-    timeStart,
-    timeEnd,
-    title,
-    presenter,
-    backstageEvent,
-    colour,
-    skip,
-  } = props;
+  const { selected, timeStart, timeEnd, title, presenter, backstageEvent, colour, skip } = props;
 
   const start = formatTime(timeStart, { format: 'hh:mm' });
   const end = formatTime(timeEnd, { format: 'hh:mm' });
