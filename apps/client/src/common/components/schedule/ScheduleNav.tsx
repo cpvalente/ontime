@@ -13,12 +13,11 @@ export default function ScheduleNav({ className }: ScheduleNavProps) {
     <div className={`schedule-nav ${className}`}>
       {numPages > 1 &&
         [...Array(numPages).keys()].map((i) => (
-            <div
-              key={i}
-              className={i === visiblePage ? 'schedule-nav__item schedule-nav__item--selected' : 'schedule-nav__item'}
-            />
-          ),
-        )}
+          <div
+            key={i}
+            className={i === visiblePage ? 'schedule-nav__item schedule-nav__item--selected' : 'schedule-nav__item'}
+          />
+        ))}
     </div>
   );
 }

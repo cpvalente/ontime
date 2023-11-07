@@ -8,34 +8,18 @@
     "browser": true,
     "node": true
   },
-  "parser": "@typescript-eslint/parser",
   "extends": [
-    "eslint:recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "eslint-config-prettier",
-    "plugin:@tanstack/eslint-plugin-query/recommended",
-    "prettier"
+    "plugin:@tanstack/eslint-plugin-query/recommended"
   ],
   "plugins": [
     "react",
     "testing-library",
     "simple-import-sort",
-    "@tanstack/query",
-    "@typescript-eslint",
-    "prettier"
+    "@tanstack/query"
   ],
   "rules": {
-    "@typescript-eslint/no-non-null-assertion": "warn",
-    "prettier/prettier": [
-      "error",
-      {
-        "endOfLine": "auto"
-      }
-    ],
-    "no-useless-concat": "warn",
-    "prefer-template": "warn",
     "react/jsx-no-bind": [
       "error",
       {

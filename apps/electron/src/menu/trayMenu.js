@@ -13,7 +13,7 @@ function getTrayMenu(showApp, askToQuit) {
       label: 'Shutdown',
       click: () => askToQuit(),
     },
-  ]
+  ];
 }
 
-module.exports = { getTrayMenu }
+module.exports = { getTrayMenu };

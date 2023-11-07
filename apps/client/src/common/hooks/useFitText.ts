@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 export type TLogLevel = 'debug' | 'info' | 'warn' | 'error' | 'none';
 
@@ -26,13 +20,13 @@ const LOG_LEVEL: Record<TLogLevel, number> = {
 };
 
 const useFitText = ({
-                      logLevel: logLevelOption = 'info',
-                      maxFontSize = 100,
-                      minFontSize = 20,
-                      onFinish,
-                      onStart,
-                      resolution = 5,
-                    }: TOptions = {}) => {
+  logLevel: logLevelOption = 'info',
+  maxFontSize = 100,
+  minFontSize = 20,
+  onFinish,
+  onStart,
+  resolution = 5,
+}: TOptions = {}) => {
   const logLevel = LOG_LEVEL[logLevelOption];
 
   const initState = useCallback(() => {
@@ -112,8 +106,7 @@ const useFitText = ({
     const isWithinResolution = Math.abs(fontSize - fontSizePrev) <= resolution;
     const isOverflow =
       !!ref.current &&
-      (ref.current.scrollHeight > ref.current.offsetHeight ||
-        ref.current.scrollWidth > ref.current.offsetWidth);
+      (ref.current.scrollHeight > ref.current.offsetHeight || ref.current.scrollWidth > ref.current.offsetWidth);
     const isFailed = isOverflow && fontSize === fontSizePrev;
     const isAsc = fontSize > fontSizePrev;
 
@@ -123,9 +116,7 @@ const useFitText = ({
       if (isFailed) {
         isCalculatingRef.current = false;
         if (logLevel <= LOG_LEVEL.info) {
-          console.info(
-            `[use-fit-text] reached \`minFontSize = ${minFontSize}\` without fitting text`,
-          );
+          console.info(`[use-fit-text] reached \`minFontSize = ${minFontSize}\` without fitting text`);
         }
       } else if (isOverflow) {
         setState({
@@ -160,16 +151,7 @@ const useFitText = ({
       fontSizeMin: newMin,
       fontSizePrev: fontSize,
     });
-  }, [
-    calcKey,
-    fontSize,
-    fontSizeMax,
-    fontSizeMin,
-    fontSizePrev,
-    onFinish,
-    ref,
-    resolution,
-  ]);
+  }, [calcKey, fontSize, fontSizeMax, fontSizeMin, fontSizePrev, onFinish, ref, resolution]);
 
   return { fontSize: `${fontSize}%`, ref };
 };

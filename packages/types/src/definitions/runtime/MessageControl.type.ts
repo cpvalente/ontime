@@ -6,4 +6,4 @@ export type Message = {
 export type TimerMessage = Message & {
   timerBlink: boolean;
   timerBlackout: boolean;
-}
+};

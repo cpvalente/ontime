@@ -8,23 +8,23 @@ function getApplicationMenu(isMac, askToQuit) {
   return [
     ...(isMac
       ? [
-        {
-          label: 'Ontime',
-          submenu: [
-            { role: 'about' },
-            { type: 'separator' },
-            { role: 'hide' },
-            { role: 'hideOthers' },
-            { role: 'unhide' },
-            { type: 'separator' },
-            {
-              label: 'quit',
-              click: () => askToQuit(),
-              accelerator: 'Cmd+Q',
-            },
-          ],
-        },
-      ]
+          {
+            label: 'Ontime',
+            submenu: [
+              { role: 'about' },
+              { type: 'separator' },
+              { role: 'hide' },
+              { role: 'hideOthers' },
+              { role: 'unhide' },
+              { type: 'separator' },
+              {
+                label: 'quit',
+                click: () => askToQuit(),
+                accelerator: 'Cmd+Q',
+              },
+            ],
+          },
+        ]
       : []),
     {
       label: 'File',
@@ -41,15 +41,15 @@ function getApplicationMenu(isMac, askToQuit) {
         { role: 'paste' },
         ...(isMac
           ? [
-            { role: 'pasteAndMatchStyle' },
-            { role: 'delete' },
-            { role: 'selectAll' },
-            { type: 'separator' },
-            {
-              label: 'Speech',
-              submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
-            },
-          ]
+              { role: 'pasteAndMatchStyle' },
+              { role: 'delete' },
+              { role: 'selectAll' },
+              { type: 'separator' },
+              {
+                label: 'Speech',
+                submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
+              },
+            ]
           : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
       ],
     },
@@ -161,4 +161,4 @@ function getApplicationMenu(isMac, askToQuit) {
   ];
 }
 
-module.exports = { getApplicationMenu }
+module.exports = { getApplicationMenu };
