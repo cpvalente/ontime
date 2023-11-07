@@ -20,6 +20,7 @@
   },
   "scripts": {
     "postinstall": "",
+    "lint": "eslint .",
     "dev:electron": "cross-env NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never  --x64 --win",
     "dist-mac": "electron-builder --publish=never  --mac",

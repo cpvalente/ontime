@@ -37,9 +37,7 @@ export default function ScheduleItem(props: ScheduleItemProps) {
         {`${start} → ${end} ${backstageEvent ? '*' : ''}`}
       </div>
       <div className='entry-title'>{title}</div>
-      {presenter && (
-        <div className='entry-presenter'>{presenter}</div>
-      )}
+      {presenter && <div className='entry-presenter'>{presenter}</div>}
     </li>
   );
 }

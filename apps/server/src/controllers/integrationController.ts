@@ -14,7 +14,7 @@ export function dispatchFromAdapter(
     payload: unknown;
     params?: Array<string>;
   },
-  source?: 'osc' | 'ws',
+  _source?: 'osc' | 'ws',
 ) {
   const payload = args.payload;
   const typeComponents = type.toLowerCase().split('/');
