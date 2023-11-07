@@ -70,7 +70,10 @@ export default function PreviewRundown({ rundown, userFields }: PreviewRundownPr
           </tr>
         </thead>
         <tbody className={style.body}>
-          {rundown.filter(isOntimeEvent).map((event, index) => {
+          {rundown.map((event, index) => {
+            if (!isOntimeEvent(event)) {
+              return null;
+            }
             const key = event.id;
             const colour = event.colour ? getAccessibleColour(event.colour) : {};
             const isPublic = booleanToText(event.isPublic);

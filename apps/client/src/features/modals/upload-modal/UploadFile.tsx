@@ -12,7 +12,7 @@ export default function UploadFile() {
 
   const { file, setFile, progress } = useUploadModalContextStore();
 
-  const [errors, setErrors] = useState<string | undefined>();
+  const [errors, setErrors] = useState<string>('');
 
   const clearFile = () => {
     setFile(null);

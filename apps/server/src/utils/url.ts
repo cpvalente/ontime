@@ -3,17 +3,27 @@
  * @param {string} url - URL to be checked
  * @returns {string} Sanitized url
  */
-export const cleanURL = (url) => {
+export const cleanURL = (url: string): string => {
   // trim whitespaces
-  let r = url.trim();
+  let sanitised = url.trim();
 
   // clear any whitespaces
-  r = r.split(' ').join('%20');
+  sanitised = sanitised.split(' ').join('%20');
 
   // contain only allowed characters
-  r = r.replace(/([@\s<>[\]{}|\\^])+/g, '');
-  // starts with http://
-  if (!r.startsWith('http://')) r = `http://${r}`;
+  sanitised = sanitised.replace(/%40/g, '@');
+  sanitised = sanitised.replace(/%5B/g, '[');
+  sanitised = sanitised.replace(/%5D/g, ']');
+  sanitised = sanitised.replace(/%7B/g, '{');
+  sanitised = sanitised.replace(/%7D/g, '}');
+  sanitised = sanitised.replace(/%7C/g, '|');
+  sanitised = sanitised.replace(/%5C/g, '\\');
+  sanitised = sanitised.replace(/%5E/g, '^');
+  sanitised = sanitised.replace(/%60/g, '`');
+  sanitised = sanitised.replace(/%20/g, '+');
 
-  return r;
+  // starts with http://
+  if (!sanitised.startsWith('http://')) sanitised = `http://${sanitised}`;
+
+  return sanitised;
 };

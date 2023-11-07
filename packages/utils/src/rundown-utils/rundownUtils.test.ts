@@ -1,6 +1,5 @@
 import { OntimeRundown, SupportedEvent } from 'ontime-types';
 
-import { dayInMs } from '../timeConstants.js';
 import { getNextEvent, getPreviousEvent } from './rundownUtils';
 
 describe('getNextEvent()', () => {

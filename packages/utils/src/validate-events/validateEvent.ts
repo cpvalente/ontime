@@ -2,10 +2,20 @@ import { EndAction, TimerType } from 'ontime-types';
 
 import { dayInMs } from '../timeConstants.js';
 
+/**
+ * Checks if given value is a valid type of EndAction, returns the fallback otherwise
+ * @param {EndAction} maybeAction
+ * @param {EndAction} [fallback]
+ */
 export function validateEndAction(maybeAction: unknown, fallback = EndAction.None) {
   return Object.values(EndAction).includes(maybeAction as any) ? (maybeAction as EndAction) : fallback;
 }
 
+/**
+ * Checks if given value is a valid type of TimerType, returns the fallback otherwise
+ * @param {TimerType} maybeTimerType
+ * @param {TimerType} [fallback]
+ */
 export function validateTimerType(maybeTimerType: unknown, fallback = TimerType.CountDown) {
   return Object.values(TimerType).includes(maybeTimerType as any) ? (maybeTimerType as TimerType) : fallback;
 }
@@ -24,11 +34,23 @@ export const calculateDuration = (timeStart: number, timeEnd: number): number =>
   return timeEnd - timeStart;
 };
 
+/**
+ * Converts a given value to an int, returns 0 otherwise
+ * @param value
+ * number
+ */
 function convertToInteger(value: unknown): number {
   const result = Number(value);
   return isNaN(result) ? 0 : Math.floor(result);
 }
 
+/**
+ * Ensures the time input variables are valid in relationship to each other
+ * Infers values if necessary
+ * @param _start
+ * @param _end
+ * @param _duration
+ */
 export function validateTimes(_start?: unknown, _end?: unknown, _duration?: unknown) {
   const timeStart = convertToInteger(_start);
   const timeEnd = convertToInteger(_end);

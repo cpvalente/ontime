@@ -2,6 +2,11 @@ import { ExcelImportMap } from 'ontime-utils';
 
 import { ProjectFileImportOptions } from '../../../common/api/ontimeApi';
 
+/**
+ * Validates a file according to the app upload contract
+ * @throws
+ * @param file
+ */
 export function validateFile(file: File) {
   if (!file) {
     throw new Error('No file to upload');
