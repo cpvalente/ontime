@@ -7,6 +7,7 @@ import { parse, updateEvent } from './integrationController.config.js';
 import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 import { event } from '../models/eventsDefinition.js';
 
+//TODO: re-throwing the error does not add any extra information or value
 export function dispatchFromAdapter(
   type: string,
   args: {
@@ -174,6 +175,19 @@ export function dispatchFromAdapter(
       PlaybackService.roll();
       break;
     }
+    case 'addtime': {
+      const time = Number(payload);
+      if (isNaN(time)) {
+        throw new Error(`Time not recognised ${payload}`);
+      }
+      try {
+        PlaybackService.addTime(time);
+      } catch (error) {
+        throw new Error(`Could not add time: ${error}`);
+      }
+      break;
+    }
+    //deprecated
     case 'delay': {
       const delayTime = Number(payload);
       if (isNaN(delayTime)) {
