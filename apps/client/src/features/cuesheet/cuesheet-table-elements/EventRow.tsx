@@ -19,9 +19,8 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const bgFallback = 'transparent';
-  const bgColour = colour || bgFallback;
-  const textColour = bgColour === bgFallback ? undefined : getAccessibleColour(bgColour);
+  const bgColour = colour;
+  const textColour = getAccessibleColour(bgColour);
 
   useLayoutEffect(() => {
     const observer = new IntersectionObserver(

@@ -16,7 +16,7 @@ import CuesheetTableHeaderTimers from './CuesheetTableHeaderTimers';
 import style from './CuesheetTableHeader.module.scss';
 
 interface CuesheetTableHeaderProps {
-  handleCSVExport: (headerData: ProjectData) => void;
+  handleExport: (headerData: ProjectData) => void;
   featureData: {
     playback: Playback;
     selectedEventIndex: number | null;
@@ -25,7 +25,7 @@ interface CuesheetTableHeaderProps {
   };
 }
 
-export default function CuesheetTableHeader({ handleCSVExport, featureData }: CuesheetTableHeaderProps) {
+export default function CuesheetTableHeader({ handleExport, featureData }: CuesheetTableHeaderProps) {
   const followSelected = useCuesheetSettings((state) => state.followSelected);
   const showSettings = useCuesheetSettings((state) => state.showSettings);
   const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
@@ -33,9 +33,9 @@ export default function CuesheetTableHeader({ handleCSVExport, featureData }: Cu
   const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { data: project } = useProjectData();
 
-  const exportCsv = () => {
+  const exportProject = () => {
     if (project) {
-      handleCSVExport(project);
+      handleExport(project);
     }
   };
 
@@ -72,9 +72,9 @@ export default function CuesheetTableHeader({ handleCSVExport, featureData }: Cu
             {isFullScreen ? <IoContract /> : <IoExpand />}
           </span>
         </Tooltip>
-        <Tooltip openDelay={tooltipDelayFast} label='Export rundown to CSV'>
-          <span className={style.actionIcon} onClick={exportCsv}>
-            CSV
+        <Tooltip openDelay={tooltipDelayFast} label='Export rundown'>
+          <span className={style.actionIcon} onClick={exportProject}>
+            Export
           </span>
         </Tooltip>
       </div>

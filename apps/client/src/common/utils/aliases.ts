@@ -47,7 +47,7 @@ export const getAliasRoute = (location: Location, data: Alias[], searchParams: U
   const aliasOnPage = searchParams.get('alias');
   for (const d of data) {
     if (aliasOnPage) {
-      // if the alias fits the alias on this page, but the URL is diferent, we redirect user to the new URL
+      // if the alias fits the alias on this page, but the URL is different, we redirect user to the new URL
       // if we have the same alias and its enabled and its not empty
       if (d.alias !== '' && d.enabled && d.alias === aliasOnPage) {
         const newAliasPath = resolvePath(d.pathAndParams);

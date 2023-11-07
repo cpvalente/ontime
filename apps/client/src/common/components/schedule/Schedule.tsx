@@ -1,5 +1,3 @@
-import Empty from '../state/Empty';
-
 import { useSchedule } from './ScheduleContext';
 import ScheduleItem from './ScheduleItem';
 
@@ -13,8 +11,9 @@ interface ScheduleProps {
 export default function Schedule({ isProduction, className }: ScheduleProps) {
   const { paginatedEvents, selectedEventId, isBackstage, scheduleType } = useSchedule();
 
+  // TODO: design a nice placeholder for empty schedules
   if (paginatedEvents?.length < 1) {
-    return <Empty text='No events to show' />;
+    return null;
   }
 
   let selectedState: 'past' | 'now' | 'future' = 'past';

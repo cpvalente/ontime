@@ -23,6 +23,18 @@ export class EventLoader {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
+    this.eventNow = null;
+    this.publicEventNow = null;
+    this.eventNext = null;
+    this.publicEventNext = null;
+    this.loaded = {
+      selectedEventIndex: null,
+      selectedEventId: null,
+      selectedPublicEventId: null,
+      nextEventId: null,
+      nextPublicEventId: null,
+      numEvents: 0,
+    };
   }
 
   // we need to delay init until the store is ready
@@ -71,7 +83,7 @@ export class EventLoader {
    * @param {string} eventId
    * @return {object | undefined}
    */
-  static getEventWithId(eventId) {
+  static getEventWithId(eventId): OntimeEvent | undefined {
     const timedEvents = EventLoader.getTimedEvents();
     return timedEvents.find((event) => event.id === eventId);
   }
@@ -168,8 +180,10 @@ export class EventLoader {
     this.loaded.selectedEventIndex = nowIndex;
     this.loaded.selectedEventId = currentEvent?.id || null;
     this.loaded.numEvents = timedEvents.length;
-    this.loaded.nextEventId = nextEvent.id;
-    this.loaded.nextPublicEventId = nextPublicEvent.id;
+    this.loaded.nextEventId = nextEvent?.id || null;
+    this.loaded.nextPublicEventId = nextPublicEvent?.id || null;
+
+    this._loadEvent();
 
     return { currentEvent, nextEvent, timeToNext };
   }
@@ -223,7 +237,7 @@ export class EventLoader {
    * loads an event given its id
    * @param {object} event
    */
-  loadEvent(event) {
+  loadEvent(event?: OntimeEvent) {
     if (typeof event === 'undefined') {
       return null;
     }
@@ -269,6 +283,7 @@ export class EventLoader {
     // check if current is also public
     if (event.isPublic) {
       this.publicEventNow = event;
+      this.loaded.selectedPublicEventId = event.id;
     } else {
       // assume there is no public event
       this.publicEventNow = null;
