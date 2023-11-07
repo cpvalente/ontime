@@ -50,6 +50,11 @@
         "varsIgnorePattern": "^_"
       }
     ],
-    "prettier/prettier": "warn"
+    "prettier/prettier": [
+      "warn",
+      {
+        "endOfLine": "auto"
+      }
+    ]
   }
 }
