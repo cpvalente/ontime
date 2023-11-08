@@ -7,7 +7,7 @@ import useHttpSettings, { usePostHttpSubscriptions } from '../../../common/hooks
 import { useEmitLog } from '../../../common/stores/logger';
 import ModalLoader from '../modal-loader/ModalLoader';
 import OntimeModalFooter from '../OntimeModalFooter';
-import { Switch } from '@chakra-ui/react';
+// import { Switch } from '@chakra-ui/react';
 import SubscriptionRow from './SubscriptionRow';
 
 import styles from '../Modal.module.scss';
