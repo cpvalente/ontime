@@ -10,7 +10,6 @@ import { validateHttpObject } from '../../utils/parserFunctions.js';
 import { logger } from '../../classes/Logger.js';
 
 import { URL } from 'node:url';
-
 type Action = TimerLifeCycleKey | string;
 
 /**
@@ -39,7 +38,9 @@ export class HttpIntegration implements IIntegration {
       this.httpAgent?.destroy();
       // this.httpAgent = new http.Agent({ keepAlive: true, timeout: 2000, maxSockets: 5, maxFreeSockets: 40 });
       //TODO: find the correct settings
-      this.httpAgent = new http.Agent({ keepAlive: true, timeout: 1000, maxFreeSockets: 1, maxSockets: 1});
+      // this.httpAgent = new http.Agent({ keepAlive: true, timeout: 1000, maxFreeSockets: 10, maxSockets: 5});
+      this.httpAgent = new http.Agent({ keepAlive: false, timeout: 1000 });
+      // this.httpAgent = new http.Agent();
       return {
         success: true,
         message: `HTTP integration client ready`,
@@ -90,22 +91,13 @@ export class HttpIntegration implements IIntegration {
     });
   }
 
-  emit(path: URL) {
+  async emit(path: URL) {
     http
       .get(path, { agent: this.httpAgent }, (res) => {
-        if (res.statusCode < 300) {
-          res.resume();
-          return {
-            success: true,
-            message: 'HTTP Message sent',
-          };
-        } else {
-          res.resume();
-          return {
-            success: false,
-            message: `Error sending message responds: ${res.statusCode}`,
-          };
+        if (res.statusCode !== 200) {
+          logger.error(LogOrigin.Tx, `HTTP Error: ${res.statusCode}`);
         }
+        res.resume();
       })
       .on('error', (err) => {
         logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
