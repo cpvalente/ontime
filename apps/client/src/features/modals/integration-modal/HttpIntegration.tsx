@@ -7,7 +7,7 @@ import useHttpSettings, { usePostHttpSubscriptions } from '../../../common/hooks
 import { useEmitLog } from '../../../common/stores/logger';
 import ModalLoader from '../modal-loader/ModalLoader';
 import OntimeModalFooter from '../OntimeModalFooter';
-
+import { Switch } from '@chakra-ui/react';
 import SubscriptionRow from './SubscriptionRow';
 
 import styles from '../Modal.module.scss';
@@ -91,10 +91,17 @@ export default function HttpIntegration() {
   if (isFetching) {
     return <ModalLoader />;
   }
-  const placeholder = 'http://x.x.x.x:xxxx/api/path'
-
+  const placeholder = 'http://x.x.x.x:xxxx/api/path';
+//TODO: add golobal off
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='http-subscriptions'>
+      {/* <div className={styles.splitSection}>
+        <div>
+          <span className={`${styles.sectionTitle} ${styles.main}`}>HTTP Output</span>
+          <span className={styles.sectionSubtitle}>Ontime data feedback</span>
+        </div>
+        <Switch {...register('enabledOut')} variant='ontime-on-light' />
+      </div> */}
       <SubscriptionRow
         cycle={TimerLifeCycle.onLoad}
         title={sectionText.onLoad.title}
