@@ -83,9 +83,20 @@ export class HttpIntegration implements IIntegration {
         const parsedMessage = parseTemplateNested(message, state || {});
         try {
           const parsedUrl = new URL(parsedMessage);
+          if (parsedUrl.protocol !== 'http:') {
+            logger.error(LogOrigin.Tx, `HTTP Integration: Only HTTP allowed, got ${parsedUrl.protocol}`);
+            return {
+              success: false,
+              message: `Only HTTP allowed, got ${parsedUrl.protocol}`,
+            };
+          }
           this.emit(parsedUrl);
         } catch (err) {
           logger.error(LogOrigin.Tx, `HTTP Integration: ${err}`);
+          return {
+            success: false,
+            message: `${err}`,
+          };
         }
       }
     });
