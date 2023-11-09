@@ -1,5 +1,14 @@
 import axios from 'axios';
-import { Alias, OSCSettings, Subscription, ProjectData, Settings, UserFields, ViewSettings, HTTPSettings } from 'ontime-types';
+import {
+  Alias,
+  OSCSettings,
+  Subscription,
+  ProjectData,
+  Settings,
+  UserFields,
+  ViewSettings,
+  HTTPSettings,
+} from 'ontime-types';
 
 import { apiRepoLatest } from '../../externals';
 import { InfoType } from '../models/Info';
@@ -98,9 +107,9 @@ export async function getOSC(): Promise<OSCSettings> {
  * @return {Promise}
  */
 export async function getHTTP(): Promise<HTTPSettings> {
-  console.log('getHTTP')
+  console.log('getHTTP');
   const res = await axios.get(`${ontimeURL}/http`);
-  console.log(res)
+  console.log(res);
 
   return res.data;
 }

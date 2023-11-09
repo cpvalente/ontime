@@ -91,7 +91,7 @@ export default function OscIntegration() {
   if (isFetching) {
     return <ModalLoader />;
   }
-const placeholder = 'OSC message'
+  const placeholder = 'OSC message';
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='osc-subscriptions'>
       <SubscriptionRow

@@ -17,11 +17,11 @@ interface SubscriptionRowProps {
   setShowSection: (cycle: TimerLifeCycle) => void;
   register: UseFormRegister<Subscription>;
   control: Control<Subscription>;
-  placeholder: string
+  placeholder: string;
 }
 
 export default function SubscriptionRow(props: SubscriptionRowProps) {
-  const { cycle, title, subtitle, visible, setShowSection, register, control , placeholder} = props;
+  const { cycle, title, subtitle, visible, setShowSection, register, control, placeholder } = props;
   const { emitError } = useEmitLog();
   const { fields, append, remove } = useFieldArray({
     name: cycle,
