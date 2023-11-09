@@ -7,12 +7,14 @@ import { getFirst, getNext, getPrevious } from 'ontime-utils';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
-import { AppMode, EditMode, useAppMode } from '../../common/stores/appModeStore';
+import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
+import { isMacOS } from '../../common/utils/deviceUtils';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
+import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
 
@@ -36,7 +38,8 @@ export default function Rundown(props: RundownProps) {
   const isExtracted = window.location.pathname.includes('/rundown');
 
   // cursor
-  const { cursor, mode: appMode, setEditMode } = useAppMode();
+  const { cursor, mode: appMode } = useAppMode();
+  const { setEditMode } = useEventSelection();
   const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -87,14 +90,14 @@ export default function Rundown(props: RundownProps) {
       // handle held key
       if (event.repeat) return;
 
-      if (event.metaKey || event.ctrlKey) {
-        setEditMode(EditMode.CherryPick);
+      if ((isMacOS() && event.metaKey) || event.ctrlKey) {
+        setEditMode('cherryPick');
 
         return;
       }
 
       if (event.shiftKey) {
-        setEditMode(EditMode.Range);
+        setEditMode('range');
 
         return;
       }
@@ -150,8 +153,8 @@ export default function Rundown(props: RundownProps) {
 
   const handleKeyUp = useCallback(
     (event: KeyboardEvent) => {
-      if (['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'OSLeft', 'OSRight'].includes(event.code)) {
-        setEditMode(EditMode.Single);
+      if (['Shift', 'Meta', 'Control'].includes(event.key)) {
+        setEditMode('single');
       }
     },
     [setEditMode],

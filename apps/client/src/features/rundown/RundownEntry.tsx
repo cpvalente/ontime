@@ -14,6 +14,7 @@ import { cloneEvent } from '../../common/utils/eventsManager';
 import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
+import { useEventSelection } from './useEventSelection';
 
 export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update' | 'swap';
 
@@ -49,7 +50,8 @@ export default function RundownEntry(props: RundownEntryProps) {
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
   const { data: rundown = [] } = useRundown();
-  const { cursor, eventsToEdit, clearEventsToEdit } = useAppMode();
+  const { cursor } = useAppMode();
+  const { eventsToEdit, clearEventsToEdit } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
     if (eventsToEdit.some((id) => id.id === data.id)) {
@@ -116,24 +118,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           // we need to bulk edit
           if (eventsToEdit.length > 1) {
             const changes: Partial<OntimeEvent> = { [field]: value };
-            const isAnchorPresent = eventsToEdit.some((event) => event.anchor);
             const idsOfRundownEvents = rundown.filter(isOntimeEvent).map((event) => event.id);
-
-            if (isAnchorPresent) {
-              const firstEvent = eventsToEdit.at(0);
-              const lastEvent = eventsToEdit.at(-1);
-
-              if (firstEvent && lastEvent) {
-                // get range based on indexes
-                const eventIds = idsOfRundownEvents.slice(firstEvent.index - 1, lastEvent.index);
-
-                // we don't need to check whether selected ids exist in rundown event ids
-                // since eventIds are a range from rundown events
-
-                batchUpdateEvents(changes, eventIds);
-                return clearEventsToEdit();
-              }
-            }
 
             const eventIds = eventsToEdit.map((event) => event.id);
             // check every selected event id to see if they match rundown event ids

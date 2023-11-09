@@ -4,7 +4,7 @@ import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 import CopyTag from '../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useRundown from '../../common/hooks-query/useRundown';
-import { useAppMode } from '../../common/stores/appModeStore';
+import { useEventSelection } from '../../features/rundown/useEventSelection';
 
 import EventEditorDataLeft from './composite/EventEditorDataLeft';
 import EventEditorDataRight from './composite/EventEditorDataRight';
@@ -16,7 +16,7 @@ export type EventEditorSubmitActions = keyof OntimeEvent;
 export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
 
 export default function EventEditor() {
-  const { eventsToEdit } = useAppMode();
+  const { eventsToEdit } = useEventSelection();
   const { data } = useRundown();
   const { updateEvent } = useEventAction();
 

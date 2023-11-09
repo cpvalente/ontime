@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, MouseEvent, useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { BiArrowToBottom } from '@react-icons/all-files/bi/BiArrowToBottom';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
@@ -13,10 +13,10 @@ import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, Playback, TimerType } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { useAppMode } from '../../../common/stores/appModeStore';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
+import { useEventSelection } from '../useEventSelection';
 
 import BlockActionMenu from './composite/BlockActionMenu';
 import EventBlockPlayback from './composite/EventBlockPlayback';
@@ -34,7 +34,6 @@ const tooltipProps = {
 };
 
 interface EventBlockInnerProps {
-  isOpen: boolean;
   timeStart: number;
   timeEnd: number;
   duration: number;
@@ -58,10 +57,8 @@ interface EventBlockInnerProps {
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
   const {
-    isOpen,
     timeStart,
     timeEnd,
-    eventIndex,
     duration,
     eventId,
     isPublic = true,
@@ -81,19 +78,23 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
-  const { setEventsToEdit, clearEventsToEdit, isEventSelected } = useAppMode();
+  const { clearEventsToEdit, isEventSelected, eventsToEdit } = useEventSelection();
+
+  const isOpen = eventsToEdit.length === 1 && isEventSelected(eventId);
 
   useEffect(() => {
     setRenderInner(true);
   }, []);
 
-  const toggleOpenEvent = useCallback(() => {
-    if (isOpen) {
-      clearEventsToEdit();
-    } else {
-      setEventsToEdit(eventId, eventIndex);
-    }
-  }, [eventId, eventIndex, isOpen, setEventsToEdit, clearEventsToEdit]);
+  const toggleOpenEvent = useCallback(
+    (event: MouseEvent) => {
+      if (isOpen) {
+        event.stopPropagation();
+        clearEventsToEdit();
+      }
+    },
+    [clearEventsToEdit, isOpen],
+  );
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
@@ -165,7 +166,8 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           tooltip='Event options'
           aria-label='Event options'
           tabIndex={-1}
-          backgroundColor={isEventSelected(eventId, eventIndex, true) ? '#2B5ABC' : undefined}
+          // backgroundColor on TooltipActionBtn should show only if 1 event is selected
+          backgroundColor={isOpen ? '#2B5ABC' : undefined}
           color={isOpen ? 'white' : '#f6f6f6'}
           isDisabled={disableEdit}
         />

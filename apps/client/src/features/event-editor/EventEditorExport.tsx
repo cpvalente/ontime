@@ -3,8 +3,8 @@ import { IconButton } from '@chakra-ui/react';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
-import { useAppMode } from '../../common/stores/appModeStore';
 import { cx } from '../../common/utils/styleUtils';
+import { useEventSelection } from '../../features/rundown/useEventSelection';
 
 import EventEditor from './EventEditor';
 
@@ -19,7 +19,7 @@ const closeBtnStyle = {
 };
 
 const EventEditorExport = () => {
-  const { clearEventsToEdit, eventsToEdit } = useAppMode();
+  const { clearEventsToEdit, eventsToEdit } = useEventSelection();
 
   const editorStyle = cx([
     style.eventEditor,

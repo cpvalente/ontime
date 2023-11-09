@@ -10,11 +10,12 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useAppMode } from '../../../common/stores/appModeStore';
+import useRundown from '../../../common/hooks-query/useRundown';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
 import { useEventIdSwapping } from '../useEventIdSwapping';
+import { useEventSelection } from '../useEventSelection';
 
 import EventBlockInner from './EventBlockInner';
 
@@ -81,7 +82,8 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { eventsToEdit, setEventsToEdit, isEventSelected } = useAppMode();
+  const { eventsToEdit, isEventSelected, setEventsToEdit } = useEventSelection();
+  const { data: rundown = [] } = useRundown();
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -199,14 +201,13 @@ export default function EventBlock(props: EventBlockProps) {
     isPast ? style.past : null,
     selected ? style.selected : null,
     playback ? style[playback] : null,
-    isEventSelected(eventId, eventIndex) ? style.hasCursor : null,
+    isEventSelected(eventId) ? style.hasCursor : null,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {
     event.stopPropagation();
     // moveCursorTo(eventId, true);
-
-    setEventsToEdit(eventId, eventIndex);
+    setEventsToEdit(eventId, eventIndex, rundown);
   };
 
   return (
@@ -225,7 +226,6 @@ export default function EventBlock(props: EventBlockProps) {
       </div>
       {isVisible && (
         <EventBlockInner
-          isOpen={eventsToEdit.length === 1}
           timeStart={timeStart}
           timeEnd={timeEnd}
           duration={duration}
