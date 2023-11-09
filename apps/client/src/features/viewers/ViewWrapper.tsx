@@ -40,6 +40,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
       publicEventNow,
       eventNow,
       loaded,
+      external,
     } = data;
     const publicSelectedId = loaded.selectedPublicEventId;
     const selectedId = loaded.selectedEventId;
@@ -81,6 +82,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
         nextId={nextId}
         general={project}
         onAir={onAir}
+        external={external}
       />
     );
   };

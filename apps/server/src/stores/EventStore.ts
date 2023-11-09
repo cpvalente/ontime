@@ -20,14 +20,16 @@ export const eventStore = {
   get<T extends keyof RuntimeStore>(key: T) {
     return store[key];
   },
-  set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) {
+  set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T], defere = false) {
     store[key] = value;
     // TODO: Partial updates seems to cause issues on the client
     // socket.send({
     //   type: `ontime-${key}`,
     //   payload: value,
     // });
-    this.broadcast();
+    if (!defere) {
+      this.broadcast();
+    }
   },
   batchSet<K extends keyof RuntimeStore>(values: Record<K, RuntimeStore[K]>) {
     Object.entries(values).forEach(([key, value]) => {
@@ -74,4 +76,5 @@ export const getInitialPayload = () => ({
   publicEventNow: eventLoader.publicEventNow,
   eventNext: eventLoader.eventNext,
   publicEventNext: eventLoader.publicEventNext,
+  external: '',
 });

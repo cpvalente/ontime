@@ -21,4 +21,6 @@ export type RuntimeStore = {
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
+
+  external: string;
 };
