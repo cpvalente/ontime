@@ -331,7 +331,7 @@ export const parseJson = async (jsonData, enforce = false): Promise<DatabaseMode
  * @returns {object|null} - formatted object or null in case is invalid
  */
 
-export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string) => {
+export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string): OntimeEvent | null => {
   // ensure id is defined and unique
   const id = eventArgs.id || generateId();
 

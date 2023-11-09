@@ -91,6 +91,10 @@ export class OscIntegration implements IIntegration {
   }
 
   emit(path: string, payload?: ArgumentType) {
+    if (!this.oscClient) {
+      return;
+    }
+
     const message = new Message(path);
     if (payload) {
       try {

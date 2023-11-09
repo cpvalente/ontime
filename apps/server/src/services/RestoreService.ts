@@ -57,7 +57,7 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
  * that can then be restored when reopening
  */
 export class RestoreService {
-  private readonly filePath: string | null;
+  private readonly filePath: string;
 
   private lastStore: string | null;
   private file: Writer | null;
@@ -97,6 +97,7 @@ export class RestoreService {
       this.create();
     }
     // steno is async, and it uses a queue to avoid unnecessary re-writes
+    // @ts-expect-error -- we know we have a writer here
     await this.file.write(stringifiedState);
   }
 
@@ -153,7 +154,7 @@ export class RestoreService {
         // nothing to do
       }
     }
-    this.file = undefined;
+    this.file = null;
   }
 }
 

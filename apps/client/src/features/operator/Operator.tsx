@@ -4,11 +4,12 @@ import { isOntimeEvent, OntimeEvent, SupportedEvent, UserFields } from 'ontime-t
 import { getFirstEvent, getLastEvent } from 'ontime-utils';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
+import ProgressBar from '../../common/components/progress-bar/ProgressBar';
 import Empty from '../../common/components/state/Empty';
 import { getOperatorOptions } from '../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
-import { useOperator } from '../../common/hooks/useSocket';
+import { useOperator, useTimer } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
@@ -28,6 +29,7 @@ export default function Operator() {
   const { data, status } = useRundown();
   const { data: userFields, status: userFieldsStatus } = useUserFields();
   const { data: projectData, status: projectDataStatus } = useProjectData();
+  const timer = useTimer();
 
   const featureData = useOperator();
   const [searchParams] = useSearchParams();
@@ -137,23 +139,26 @@ export default function Operator() {
             const subscribedData = (subscribe ? entry?.[subscribe] : undefined) || '';
 
             return (
-              <OperatorEvent
-                key={entry.id}
-                colour={entry.colour}
-                cue={entry.cue}
-                main={mainField}
-                secondary={secondaryField}
-                timeStart={entry.timeStart}
-                timeEnd={entry.timeEnd}
-                duration={entry.duration}
-                delay={entry.delay}
-                isSelected={isSelected}
-                subscribed={subscribedData}
-                subscribedAlias={subscribedAlias}
-                showSeconds={showSeconds}
-                isPast={isPast}
-                selectedRef={isSelected ? selectedRef : undefined}
-              />
+              <>
+                {isSelected && <ProgressBar now={timer.current} complete={timer.duration} />}
+                <OperatorEvent
+                  key={entry.id}
+                  colour={entry.colour}
+                  cue={entry.cue}
+                  main={mainField}
+                  secondary={secondaryField}
+                  timeStart={entry.timeStart}
+                  timeEnd={entry.timeEnd}
+                  duration={entry.duration}
+                  delay={entry.delay}
+                  isSelected={isSelected}
+                  subscribed={subscribedData}
+                  subscribedAlias={subscribedAlias}
+                  showSeconds={showSeconds}
+                  isPast={isPast}
+                  selectedRef={isSelected ? selectedRef : undefined}
+                />
+              </>
             );
           }
 

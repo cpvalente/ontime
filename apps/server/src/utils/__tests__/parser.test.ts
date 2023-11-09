@@ -435,6 +435,7 @@ describe('test corrupt data', () => {
     };
 
     const parsedDef = await parseJson(emptyProjectData);
+    // @ts-ignore
     expect(parsedDef.project).toStrictEqual(dbModel.project);
   });
 

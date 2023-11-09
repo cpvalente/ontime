@@ -199,8 +199,8 @@ export async function cachedSwap(fromEventId: string, toEventId: string) {
   const rundownToUpdate = swapOntimeEvents(rundown, fromEventIndex, toEventIndex);
 
   const delayedRundown = getDelayedRundown();
-  const fromCachedEvent = delayedRundown.at(fromEventIndex);
-  const toCachedEvent = delayedRundown.at(toEventIndex);
+  const fromCachedEvent = delayedRundown.at(fromEventIndex)!;
+  const toCachedEvent = delayedRundown.at(toEventIndex)!;
 
   if (fromCachedEvent.id !== fromEventId || toCachedEvent.id !== toEventId) {
     // something went wrong, we invalidate the cache

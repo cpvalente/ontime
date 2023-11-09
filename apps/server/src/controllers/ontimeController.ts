@@ -89,10 +89,10 @@ const uploadAndParse = async (file, req, res, options) => {
  */
 const getNetworkInterfaces = () => {
   const nets = networkInterfaces();
-  const results = [];
+  const results: { name: string; address: string }[] = [];
 
   for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
+    for (const net of nets[name]!) {
       // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
       if (net.family === 'IPv4' && !net.internal) {
         results.push({

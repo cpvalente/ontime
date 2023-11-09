@@ -1,7 +1,11 @@
 import { generateId } from 'ontime-utils';
 import {
   Alias,
+  DatabaseModel,
   EndAction,
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
@@ -24,15 +28,15 @@ import { MAX_EVENTS } from '../settings.js';
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseRundown = (data): OntimeRundown => {
+export const parseRundown = (data: DatabaseModel): OntimeRundown => {
   let newRundown: OntimeRundown = [];
   if ('rundown' in data) {
     console.log('Found rundown definition, importing...');
-    const rundown = [];
+    const rundown: OntimeRundown = [];
     try {
       let eventIndex = 0;
-      const ids = [];
-      for (const e of data.rundown) {
+      const ids: string[] = [];
+      for (const entry of data.rundown) {
         // cap number of events
         if (rundown.length >= MAX_EVENTS) {
           console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
@@ -40,38 +44,37 @@ export const parseRundown = (data): OntimeRundown => {
         }
 
         // double check unique ids
-        if (ids.includes(e?.id)) {
+        if (ids.includes(entry?.id)) {
           console.log('ERROR: ID collision on import, skipping');
           continue;
         }
 
-        // validate the right endAction is used
-        if (e.endAction && !Object.values(EndAction).includes(e.endAction)) {
-          e.endAction = EndAction.None;
-          console.log('WARNING: invalid End Action provided, using default');
-        }
-
-        // validate the right timerType is used
-        if (e.timerType && !Object.values(TimerType).includes(e.timerType)) {
-          e.timerType = TimerType.CountDown;
-          console.log('WARNING: invalid Timer Type provided, using default');
-        }
-
-        if (e.type === 'event') {
+        if (isOntimeEvent(entry)) {
           eventIndex += 1;
-          const event = validateEvent(e, eventIndex.toString());
+          // validate the right endAction is used
+          if (entry.endAction && !Object.values(EndAction).includes(entry.endAction)) {
+            entry.endAction = EndAction.None;
+            console.log('WARNING: invalid End Action provided, using default');
+          }
+
+          // validate the right timerType is used
+          if (entry.timerType && !Object.values(TimerType).includes(entry.timerType)) {
+            entry.timerType = TimerType.CountDown;
+            console.log('WARNING: invalid Timer Type provided, using default');
+          }
+          const event = validateEvent(entry, eventIndex.toString());
           if (event != null) {
             rundown.push(event);
             ids.push(event.id);
           }
-        } else if (e.type === 'delay') {
+        } else if (isOntimeDelay(entry)) {
           rundown.push({
             ...delayDef,
-            duration: e.duration,
-            id: e.id || generateId(),
+            duration: entry.duration,
+            id: entry.id || generateId(),
           });
-        } else if (e.type === 'block') {
-          rundown.push({ ...blockDef, title: e.title, id: e.id || generateId() });
+        } else if (isOntimeBlock(entry)) {
+          rundown.push({ ...blockDef, title: entry.title, id: entry.id || generateId() });
         } else {
           console.log('ERROR: undefined event type, skipping');
         }
@@ -203,7 +206,7 @@ export const validateOscSubscriptionEntry = (data: OscSubscriptionOptions): bool
  * Parses and validates subscription object
  * @param data
  */
-export const validateOscObject = (data: OscSubscription): boolean => {
+export const validateOscObject = (data?: OscSubscription): boolean => {
   if (!data) {
     return false;
   }
@@ -234,8 +237,8 @@ export const parseOsc = (
     console.log('Found OSC definition, importing...');
 
     const loadedConfig = data?.osc || {};
-    const validatedSubscriptions = validateOscObject(loadedConfig.subscriptions)
-      ? loadedConfig.subscriptions
+    const validatedSubscriptions: OscSubscription = validateOscObject(loadedConfig.subscriptions)
+      ? (loadedConfig.subscriptions as OscSubscription)
       : dbModel.osc.subscriptions;
 
     return {
