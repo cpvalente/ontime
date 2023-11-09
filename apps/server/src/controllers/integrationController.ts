@@ -33,6 +33,12 @@ export function dispatchFromAdapter(
       };
     }
 
+    case 'external': {
+      eventStore.set('external', String(payload), true);
+      console.log('external', String(payload))
+      return;
+    }
+
     case 'set-onair': {
       if (typeof payload !== 'undefined') {
         messageService.setOnAir(Boolean(payload));
