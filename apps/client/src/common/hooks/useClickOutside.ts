@@ -6,7 +6,6 @@ export default function useClickOutside<T extends HTMLElement = HTMLElement>(
   ref: RefObject<T>,
   callback: ClickOutsideEventHandler,
 ) {
-
   useEffect(() => {
     function handleClick(event: MouseEvent) {
       const element = ref?.current;

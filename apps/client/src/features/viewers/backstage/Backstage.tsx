@@ -11,7 +11,7 @@ import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
-import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-editor/constants';
+import { BACKSTAGE_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -92,7 +92,7 @@ export default function Backstage(props: BackstageProps) {
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
+      <ViewParamsEditor paramFields={BACKSTAGE_OPTIONS} />
       <div className='project-header'>
         {general.title}
         <div className='clock-container'>
@@ -130,10 +130,12 @@ export default function Backstage(props: BackstageProps) {
                   <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
                   <div className='aux-timers__value'>{startedAt}</div>
                 </div>
+                <div className='timer-gap' />
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.expected_finish')}</div>
                   <div className='aux-timers__value'>{expectedFinish}</div>
                 </div>
+                <div className='timer-gap' />
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.stage_timer')}</div>
                   <div className='aux-timers__value'>{stageTimer}</div>

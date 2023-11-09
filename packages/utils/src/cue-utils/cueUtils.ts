@@ -17,6 +17,7 @@ export function getIncrement(input: string): string {
   const match = regex.exec(input);
   if (match) {
     // If a number is found, extract the non-numeric prefix, integer part, and decimal part
+    // eslint-disable-next-line prefer-const -- some items in the destructuring are modified
     let [, prefix, integerPart, decimalPart] = match;
 
     if (decimalPart) {

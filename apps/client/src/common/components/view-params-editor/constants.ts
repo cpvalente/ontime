@@ -132,7 +132,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   {
     id: 'hideovertime',
     title: 'Hide Overtime',
-    description: 'Whether to supress overtime styles (red borders and red text)',
+    description: 'Whether to suppress overtime styles (red borders and red text)',
     type: 'boolean',
   },
   {
@@ -194,6 +194,37 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
   },
 ];
 
+export const BACKSTAGE_OPTIONS: ParamField[] = [
+  TIME_FORMAT_OPTION,
+  {
+    id: 'hidePast',
+    title: 'Hide past events',
+    description: 'Scheduler will only show upcoming events',
+    type: 'boolean',
+  },
+  {
+    id: 'stopCycle',
+    title: 'Stop cycling through event pages',
+    description: 'Schedule will not auto-cycle through events',
+    type: 'boolean',
+  },
+];
+
+export const PUBLIC_OPTIONS: ParamField[] = [
+  TIME_FORMAT_OPTION,
+  {
+    id: 'hidePast',
+    title: 'Hide past events',
+    description: 'Scheduler will only show upcoming events',
+    type: 'boolean',
+  },
+  {
+    id: 'stopCycle',
+    title: 'Stop cycling through event pages',
+    description: 'Schedule will not auto-cycle through events',
+    type: 'boolean',
+  },
+];
 export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
   TIME_FORMAT_OPTION,
   {

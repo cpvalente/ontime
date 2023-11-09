@@ -1,5 +1,6 @@
 import { resolvePath } from 'react-router-dom';
-import { validateAlias, generateURLFromAlias, getAliasRoute } from '../aliases';
+
+import { generateURLFromAlias, getAliasRoute, validateAlias } from '../aliases';
 
 describe('An alias fails if incorrect', () => {
   const testsToFail = [

@@ -35,14 +35,12 @@ export default function useFollowComponent(props: UseFollowComponentProps) {
 
     if (followRef.current && scrollRef.current) {
       // Use requestAnimationFrame to ensure the component is fully loaded
-      window.requestAnimationFrame(() => {
-        setScrollFlag?.();
-        scrollToComponent(
-          followRef as MutableRefObject<HTMLElement>,
-          scrollRef as MutableRefObject<HTMLElement>,
-          topOffset,
-        );
-      });
+      setScrollFlag?.();
+      scrollToComponent(
+        followRef as MutableRefObject<HTMLElement>,
+        scrollRef as MutableRefObject<HTMLElement>,
+        topOffset,
+      );
     }
 
     // eslint-disable-next-line -- the prompt seems incorrect

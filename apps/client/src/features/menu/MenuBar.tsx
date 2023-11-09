@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { VStack } from '@chakra-ui/react';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
@@ -10,11 +10,12 @@ import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
-import { downloadRundown } from '../../common/api/ontimeApi';
+import { downloadCSV, downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
+import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import style from './MenuBar.module.scss';
 
@@ -100,6 +101,22 @@ const MenuBar = (props: MenuBarProps) => {
     };
   }, [handleKeyPress, isElectron]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const onModalClose = (exportType?: ExportType) => {
+    setIsModalOpen(false);
+
+    if (!exportType) {
+      return;
+    }
+
+    if (exportType === 'json') {
+      downloadRundown();
+    } else if (exportType === 'csv') {
+      downloadCSV();
+    }
+  };
+
   return (
     <VStack>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} size='md' />
@@ -128,11 +145,13 @@ const MenuBar = (props: MenuBarProps) => {
         {...buttonStyle}
         icon={<IoSaveOutline />}
         isDisabled={appMode === AppMode.Run}
-        clickHandler={downloadRundown}
+        clickHandler={() => setIsModalOpen(true)}
         tooltip='Export project file'
         aria-label='Export project file'
         size='sm'
       />
+
+      <ExportModal onClose={onModalClose} isOpen={isModalOpen} />
 
       <div className={style.gap} />
       <TooltipActionBtn

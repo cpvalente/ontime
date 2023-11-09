@@ -200,7 +200,7 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
   }
 
   const { success, message } = oscIntegration.init(osc);
-  logger.info(LogOrigin.Rx, message);
+  logger.info(LogOrigin.Tx, message);
 
   if (success) {
     integrationService.register(oscIntegration);

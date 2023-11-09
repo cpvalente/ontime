@@ -1,7 +1,7 @@
+/* eslint-disable no-console -- we are mocking the console */
 import { vi } from 'vitest';
 
-import { EndAction, TimerType } from 'ontime-types';
-import { OntimeEvent } from 'ontime-types';
+import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, validateEvent } from '../parser.js';

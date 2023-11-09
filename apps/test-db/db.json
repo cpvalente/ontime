@@ -1,16 +1,20 @@
 {
   "rundown": [
     {
-      "title": "First test event",
+      "type": "block",
+      "id": "18797"
+    },
+    {
+      "title": "title 1",
       "subtitle": "",
       "presenter": "",
       "note": "",
       "endAction": "none",
       "timerType": "count-down",
-      "timeStart": 32400000,
-      "timeEnd": 36000000,
-      "duration": 3600000,
-      "isPublic": true,
+      "timeStart": 60000,
+      "timeEnd": 120000,
+      "duration": 60000,
+      "isPublic": false,
       "skip": false,
       "colour": "",
       "user0": "",
@@ -29,22 +33,16 @@
       "cue": "1"
     },
     {
-      "duration": 600000,
-      "type": "delay",
-      "revision": 0,
-      "id": "b1d5a"
-    },
-    {
-      "title": "Second test event",
+      "title": "title 2",
       "subtitle": "",
       "presenter": "",
       "note": "",
       "endAction": "none",
       "timerType": "count-down",
-      "timeStart": 36000000,
-      "timeEnd": 39600000,
-      "duration": 3600000,
-      "isPublic": true,
+      "timeStart": 120000,
+      "timeEnd": 180000,
+      "duration": 60000,
+      "isPublic": false,
       "skip": false,
       "colour": "",
       "user0": "",
@@ -63,12 +61,7 @@
       "cue": "2"
     },
     {
-      "title": "Lunch",
-      "type": "block",
-      "id": "91682"
-    },
-    {
-      "title": "Third test event",
+      "title": "title 3",
       "subtitle": "",
       "presenter": "",
       "note": "",

@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "2.9.0",
+  "version": "2.13.1",
   "description": "Time keeping for live events",
   "keywords": [
     "lighdev",
@@ -25,6 +25,7 @@
     "dev": "turbo run dev",
     "dev:electron": "turbo run dev --filter=ontime",
     "dev:server": "turbo run dev --filter=ontime-server",
+    "lint": "turbo run lint",
     "build": "turbo run build",
     "build:local": "turbo run build:local",
     "dist-win": "turbo run dist-win",

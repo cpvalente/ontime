@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "2.9.0",
+  "version": "2.13.1",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -20,6 +20,7 @@
   },
   "scripts": {
     "postinstall": "",
+    "lint": "eslint . --quiet",
     "dev:electron": "cross-env NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never  --x64 --win",
     "dist-mac": "electron-builder --publish=never  --mac",
