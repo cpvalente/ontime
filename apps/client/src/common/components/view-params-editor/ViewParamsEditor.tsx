@@ -1,5 +1,5 @@
 import { FormEvent, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import {
   Button,
   Drawer,
@@ -40,7 +40,7 @@ interface EditFormDrawerProps {
 export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
-
+  const { pathname } = useLocation();
   const [storedViewParams, setStoredViewParams] = useLocalStorage<SavedViewParams>('ontime-views', {});
 
   useEffect(() => {
@@ -52,7 +52,6 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   }, [searchParams, onOpen]);
 
   useEffect(() => {
-    const pathname = location.pathname;
     const viewParamsObjFromLocalStorage = storedViewParams[pathname];
 
     if (viewParamsObjFromLocalStorage !== undefined) {
@@ -63,7 +62,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     // linter is asking for `setSearchParams` in the useEffect deps
     // rule is disabled since adding `setSearchParams` results in unnecessary re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storedViewParams]);
+  }, [storedViewParams, pathname]);
 
   const onEditDrawerClose = () => {
     onClose();
@@ -73,7 +72,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   };
 
   const clearParams = () => {
-    setStoredViewParams({ ...storedViewParams, [location.pathname]: {} });
+    setStoredViewParams({ ...storedViewParams, [pathname]: {} });
     setSearchParams();
     onClose();
   };
@@ -84,7 +83,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject);
 
-    setStoredViewParams({ ...storedViewParams, [location.pathname]: newParamsObject });
+    setStoredViewParams({ ...storedViewParams, [pathname]: newParamsObject });
     setSearchParams(newSearchParams);
   };
 
