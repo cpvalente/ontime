@@ -18,7 +18,7 @@
   "license": "AGPL-3.0-only",
   "engines": {
     "node": "~16.16.0",
-    "pnpm": ">=7"
+    "pnpm": ">=8"
   },
   "type": "module",
   "scripts": {
