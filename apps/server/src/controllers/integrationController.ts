@@ -35,7 +35,6 @@ export function dispatchFromAdapter(
 
     case 'external': {
       eventStore.set('external', String(payload), true);
-      console.log('external', String(payload))
       return;
     }
 
