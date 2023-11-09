@@ -12,10 +12,26 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
+import { useLocalStorage } from '../../../common/hooks/useLocalStorage';
+
 import ParamInput from './ParamInput';
 import { ParamField } from './types';
 
 import style from './ViewParamsEditor.module.scss';
+
+type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
+type SavedViewParams = Record<string, ViewParamsObj>;
+
+const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj) =>
+  Object.entries(paramsObj).reduce((newSearchParams, [id, value]) => {
+    if (typeof value === 'string' && value.length) {
+      newSearchParams.set(id, value);
+
+      return newSearchParams;
+    }
+
+    return newSearchParams;
+  }, new URLSearchParams());
 
 interface EditFormDrawerProps {
   paramFields: ParamField[];
@@ -25,6 +41,8 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
 
+  const [storedViewParams, setStoredViewParams] = useLocalStorage<SavedViewParams>('ontime-views', {});
+
   useEffect(() => {
     const isEditing = searchParams.get('edit');
 
@@ -32,6 +50,20 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
       return onOpen();
     }
   }, [searchParams, onOpen]);
+
+  useEffect(() => {
+    const pathname = location.pathname;
+    const viewParamsObjFromLocalStorage = storedViewParams[pathname];
+
+    if (viewParamsObjFromLocalStorage !== undefined) {
+      const defaultSearchParams = getURLSearchParamsFromObj(viewParamsObjFromLocalStorage);
+      setSearchParams(defaultSearchParams);
+    }
+
+    // linter is asking for `setSearchParams` in the useEffect deps
+    // rule is disabled since adding `setSearchParams` results in unnecessary re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storedViewParams]);
 
   const onEditDrawerClose = () => {
     onClose();
@@ -49,15 +81,9 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     formEvent.preventDefault();
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
-    const newSearchParams = Object.entries(newParamsObject).reduce((newSearchParams, [id, value]) => {
-      if (typeof value === 'string' && value.length) {
-        newSearchParams.set(id, value);
+    const newSearchParams = getURLSearchParamsFromObj(newParamsObject);
 
-        return newSearchParams;
-      }
-
-      return newSearchParams;
-    }, new URLSearchParams());
+    setStoredViewParams({ ...storedViewParams, [location.pathname]: newParamsObject });
     setSearchParams(newSearchParams);
   };
 
