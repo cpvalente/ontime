@@ -15,6 +15,7 @@ import { useTranslation } from '../../../translation/TranslationProvider';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
+import { externalData } from '../../../common/utils/external';
 
 const formatOptions = {
   showSeconds: true,
@@ -44,10 +45,11 @@ interface TimerProps {
   eventNext: OntimeEvent | null;
   time: TimeManagerType;
   viewSettings: ViewSettings;
+  external: string
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, pres, eventNow, eventNext, time, viewSettings } = props;
+  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -86,6 +88,7 @@ export default function Timer(props: TimerProps) {
       : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
+  const showExternal = externalData(external)
   let display = formatTimerDisplay(stageTimer);
   const stageTimerCharacters = display.replace('/:/g', '').length;
   if (isNegative) {
@@ -121,6 +124,9 @@ export default function Timer(props: TimerProps) {
             }}
           >
             {display}
+            {showExternal ?  <br />: ''}
+            {showExternal ?  `${showExternal}`: ''}
+            
           </div>
         )}
       </div>
