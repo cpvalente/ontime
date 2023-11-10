@@ -28,6 +28,7 @@ import {
   viewValidator,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
+import { getApi } from '../adapters/HttpAdapter.js';
 
 export const router = express.Router();
 
@@ -78,3 +79,6 @@ router.post('/osc-subscriptions', validateOscSubscription, postOscSubscriptions)
 
 // create route between controller and '/ontime/new' endpoint
 router.post('/new', projectSanitiser, postNew);
+
+// /ontime/api/*
+router.get('/api', getApi);
