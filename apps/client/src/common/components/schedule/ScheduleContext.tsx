@@ -21,7 +21,6 @@ interface ScheduleProviderProps {
   events: OntimeEvent[];
   selectedEventId: string | null;
   isBackstage?: boolean;
-  eventsPerPage?: number;
   time?: number;
 }
 
@@ -30,7 +29,6 @@ export const ScheduleProvider = ({
   events,
   selectedEventId,
   isBackstage = false,
-  eventsPerPage = 7,
   time = 10,
 }: PropsWithChildren<ScheduleProviderProps>) => {
   const [visiblePage, setVisiblePage] = useState(0);
@@ -39,6 +37,7 @@ export const ScheduleProvider = ({
   // look for overrides from views
   const hidePast = isStringBoolean(searchParams.get('hidePast'));
   const stopCycle = isStringBoolean(searchParams.get('stopCycle'));
+  const eventsPerPage = Number(searchParams.get('eventsPerPage') ?? 7);
 
   let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
 

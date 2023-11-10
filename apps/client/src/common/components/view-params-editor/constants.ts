@@ -208,6 +208,12 @@ export const BACKSTAGE_OPTIONS: ParamField[] = [
     description: 'Schedule will not auto-cycle through events',
     type: 'boolean',
   },
+  {
+    id: 'eventsPerPage',
+    title: 'Number of events on page',
+    description: '',
+    type: 'number',
+  },
 ];
 
 export const PUBLIC_OPTIONS: ParamField[] = [
@@ -223,6 +229,12 @@ export const PUBLIC_OPTIONS: ParamField[] = [
     title: 'Stop cycling through event pages',
     description: 'Schedule will not auto-cycle through events',
     type: 'boolean',
+  },
+  {
+    id: 'eventsPerPage',
+    title: 'Number of events on page',
+    description: '',
+    type: 'number',
   },
 ];
 export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
