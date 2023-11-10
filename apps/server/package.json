@@ -5,6 +5,7 @@
   "version": "2.9.0",
   "exports": "./src/index.js",
   "dependencies": {
+    "@julusian/midi": "^3.1.0",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",

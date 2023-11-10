@@ -115,6 +115,13 @@
         "filter": [
           "**/*"
         ]
+      },  
+      {
+        "from": "../server/node_modules/@julusian/midi/prebuilds",
+        "to": "extraResources/server/prebuilds/",
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   }
