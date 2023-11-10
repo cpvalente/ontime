@@ -6,6 +6,6 @@ import 'vitest';
 // https://github.com/testing-library/jest-dom/issues/123
 declare global {
   namespace Vi {
-    interface Assertion<T = any> extends TestingLibraryMatchers<T, void> {}
+    type Assertion<T = any> = TestingLibraryMatchers<T, void>;
   }
 }

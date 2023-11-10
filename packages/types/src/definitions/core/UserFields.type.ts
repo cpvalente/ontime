@@ -9,5 +9,4 @@ export type UserFields = {
   user7: string;
   user8: string;
   user9: string;
-}
-
+};

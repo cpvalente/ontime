@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "2.9.0",
+  "version": "2.13.1",
   "description": "Time keeping for live events",
   "keywords": [
     "lighdev",
@@ -18,13 +18,14 @@
   "license": "AGPL-3.0-only",
   "engines": {
     "node": "~16.16.0",
-    "pnpm": ">=7"
+    "pnpm": ">=8"
   },
   "type": "module",
   "scripts": {
     "dev": "turbo run dev",
     "dev:electron": "turbo run dev --filter=ontime",
     "dev:server": "turbo run dev --filter=ontime-server",
+    "lint": "turbo run lint",
     "build": "turbo run build",
     "build:local": "turbo run build:local",
     "dist-win": "turbo run dist-win",

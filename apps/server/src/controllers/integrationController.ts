@@ -1,9 +1,27 @@
+import { OntimeEvent } from 'ontime-types';
+
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
+import { parse, updateEvent } from './integrationController.config.js';
+import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
+import { event } from '../models/eventsDefinition.js';
 
-export function dispatchFromAdapter(type: string, payload: unknown, source?: 'osc' | 'ws') {
-  switch (type.toLowerCase()) {
+//TODO: re-throwing the error does not add any extra information or value
+export function dispatchFromAdapter(
+  type: string,
+  args: {
+    payload: unknown;
+    params?: Array<string>;
+  },
+  _source?: 'osc' | 'ws',
+) {
+  const payload = args.payload;
+  const typeComponents = type.toLowerCase().split('/');
+  const mainType = typeComponents[0];
+  const params = args.params || [];
+
+  switch (mainType) {
     case 'test-ontime': {
       return { topic: 'hello' };
     }
@@ -157,6 +175,19 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       PlaybackService.roll();
       break;
     }
+    case 'addtime': {
+      const time = Number(payload);
+      if (isNaN(time)) {
+        throw new Error(`Time not recognised ${payload}`);
+      }
+      try {
+        PlaybackService.addTime(time);
+      } catch (error) {
+        throw new Error(`Could not add time: ${error}`);
+      }
+      break;
+    }
+    //deprecated
     case 'delay': {
       const delayTime = Number(payload);
       if (isNaN(delayTime)) {
@@ -220,6 +251,23 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
     case 'get-timer': {
       const timer = eventStore.get('timer');
       return { topic: 'timer', payload: timer };
+    }
+
+    // ontime/change/{eventID}/{propertyName}
+    case 'change': {
+      if (params.length < 2) {
+        throw new Error('Too few parameters, 3 expected');
+      }
+      if (payload === undefined) {
+        throw new Error('No payload found');
+      }
+      const eventID = params[0];
+      const propertyName = params[1] as keyof OntimeEvent;
+      if (!isKeyOfType(propertyName, event)) {
+        throw new Error(`Cannot update unknown event property ${propertyName}`);
+      }
+      const parsedPayload = parse(propertyName, payload);
+      return updateEvent(eventID, propertyName, parsedPayload);
     }
 
     default: {

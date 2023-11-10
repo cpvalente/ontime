@@ -21,7 +21,9 @@ import style from './SettingsModal.module.scss';
 const aliasesDocsUrl = 'https://ontime.gitbook.io/v2/features/url-aliases';
 
 // we wrap the array in an object to be simplify react-hook-form
-type Aliases = { aliases: Alias[] };
+type Aliases = {
+  aliases: Alias[];
+};
 
 export default function AliasesForm() {
   const { data, status, isFetching, refetch } = useAliases();
@@ -93,8 +95,7 @@ export default function AliasesForm() {
           <AlertDescription>
             Custom aliases allow providing a short name for any ontime URL. <br />
             It serves two primary purposes: <br />
-            - Providing dynamic URLs for automation or unattended screens <br />
-            - Simplifying complex URLs
+            - Providing dynamic URLs for automation or unattended screens <br />- Simplifying complex URLs
             <ModalLink href={aliasesDocsUrl}>For more information, see the docs</ModalLink>
           </AlertDescription>
         </div>

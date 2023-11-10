@@ -6,4 +6,4 @@ export type ViewSettings = {
   warningThreshold: number;
   dangerColor: string;
   dangerThreshold: number;
-}
+};

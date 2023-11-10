@@ -208,11 +208,16 @@ export const postSettings = async (req, res) => {
     const settings = DataProvider.getSettings();
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
+    const serverPort = Number(req.body?.serverPort);
+    if (isNaN(serverPort)) {
+      return res.status(400).send(`Invalid value found for server port: ${req.body?.serverPort}`);
+    }
 
-    if (isDocker && req.body?.serverPort) {
+    const hasChangedPort = settings.serverPort !== serverPort;
+
+    if (isDocker && hasChangedPort) {
       return res.status(403).json({ message: 'Can`t change port when running inside docker' });
     }
-    const serverPort = parseInt(req.body?.serverPort ?? settings.serverPort, 10);
 
     let timeFormat = settings.timeFormat;
     if (req.body?.timeFormat === '12' || req.body?.timeFormat === '24') {
@@ -293,7 +298,7 @@ export const postOscSubscriptions = async (req, res) => {
 
     // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Rx, message);
+    logger.info(LogOrigin.Tx, message);
 
     res.send(oscSettings).status(200);
   } catch (error) {
@@ -314,7 +319,7 @@ export const postOSC = async (req, res) => {
 
     // TODO: this update could be more granular, checking that relevant data was changed
     const { message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Rx, message);
+    logger.info(LogOrigin.Tx, message);
 
     res.send(oscSettings).status(200);
   } catch (error) {
