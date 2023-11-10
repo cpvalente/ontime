@@ -9,6 +9,7 @@ class MessageService {
   timerMessage: TimerMessage;
   publicMessage: Message;
   lowerMessage: Message;
+  externalMessage: Message;
   onAir: boolean;
 
   constructor() {
@@ -36,7 +37,30 @@ class MessageService {
       visible: false,
     };
 
+    this.externalMessage = {
+      text: '',
+      visible: false,
+    };
+
     this.onAir = false;
+  }
+
+  /**
+   * @description sets message on stage timer screen
+   */
+  setExternalText(payload: string) {
+    this.externalMessage.text = payload;
+    eventStore.set('externalMessage', this.externalMessage);
+    return this.getAll();
+  }
+
+  /**
+   * @description sets message visibility on stage timer screen
+   */
+  setExternalVisibility(status: boolean) {
+    this.externalMessage.visible = status;
+    eventStore.set('externalMessage', this.externalMessage);
+    return this.getAll();
   }
 
   /**

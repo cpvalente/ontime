@@ -33,11 +33,6 @@ export function dispatchFromAdapter(
       };
     }
 
-    case 'external': {
-      eventStore.set('external', String(payload), true);
-      return;
-    }
-
     case 'set-onair': {
       if (typeof payload !== 'undefined') {
         messageService.setOnAir(Boolean(payload));
@@ -114,6 +109,20 @@ export function dispatchFromAdapter(
       break;
     }
 
+    case 'set-external-message-text': {
+      if (typeof payload !== 'string') {
+        throw new Error(`Unable to parse payload: ${payload}`);
+      }
+      messageService.setExternalText(payload);
+      return;
+    }
+    case 'set-external-message-visible': {
+      if (typeof payload === 'undefined') {
+        throw new Error(`Unable to parse payload: ${payload}`);
+      }
+      messageService.setExternalVisibility(Boolean(payload));
+      break;
+    }
     case 'start': {
       PlaybackService.start();
       break;

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -15,7 +15,6 @@ import { useTranslation } from '../../../translation/TranslationProvider';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
-import { externalData } from '../../../common/utils/external';
 
 const formatOptions = {
   showSeconds: true,
@@ -41,18 +40,17 @@ const titleVariants = {
 interface TimerProps {
   isMirrored: boolean;
   pres: TimerMessage;
+  external: Message;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   time: TimeManagerType;
   viewSettings: ViewSettings;
-  external: string
 }
 
 export default function Timer(props: TimerProps) {
   const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
-
   useEffect(() => {
     document.title = 'ontime - Timer';
   }, []);
@@ -88,7 +86,6 @@ export default function Timer(props: TimerProps) {
       : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
-  const showExternal = externalData(external)
   let display = formatTimerDisplay(stageTimer);
   const stageTimerCharacters = display.replace('/:/g', '').length;
   if (isNegative) {
@@ -124,11 +121,13 @@ export default function Timer(props: TimerProps) {
             }}
           >
             {display}
-            {showExternal ?  <br />: ''}
-            {showExternal ?  `${showExternal}`: ''}
-            
           </div>
         )}
+        <div className={`clock-container`}>
+          <div className='clock' style={{ textAlign: 'center' }}>
+            {external.visible ? external.text : ' '}
+          </div>
+        </div>
       </div>
 
       <MultiPartProgressBar

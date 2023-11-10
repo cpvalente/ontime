@@ -33,6 +33,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
       publicMessage,
       timerMessage,
       lowerMessage,
+      externalMessage,
       playback,
       onAir,
       eventNext,
@@ -40,7 +41,6 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
       publicEventNow,
       eventNow,
       loaded,
-      external,
     } = data;
     const publicSelectedId = loaded.selectedPublicEventId;
     const selectedId = loaded.selectedEventId;
@@ -69,6 +69,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
         pres={timerMessage}
         publ={publicMessage}
         lower={lowerMessage}
+        external={externalMessage}
         eventNow={eventNow}
         publicEventNow={publicEventNow}
         eventNext={eventNext}
@@ -82,7 +83,6 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
         nextId={nextId}
         general={project}
         onAir={onAir}
-        external={external}
       />
     );
   };

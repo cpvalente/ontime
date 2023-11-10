@@ -13,6 +13,7 @@ export type RuntimeStore = {
   timerMessage: TimerMessage;
   publicMessage: Message;
   lowerMessage: Message;
+  externalMessage: Message;
   onAir: boolean;
 
   // event loader
@@ -21,6 +22,4 @@ export type RuntimeStore = {
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
-
-  external: string;
 };

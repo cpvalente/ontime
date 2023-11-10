@@ -70,11 +70,11 @@ export const getInitialPayload = () => ({
   timerMessage: messageService.timerMessage,
   publicMessage: messageService.publicMessage,
   lowerMessage: messageService.lowerMessage,
+  externalMessage: messageService.externalMessage,
   onAir: messageService.onAir,
   loaded: eventLoader.loaded,
   eventNow: eventLoader.eventNow,
   publicEventNow: eventLoader.publicEventNow,
   eventNext: eventLoader.eventNext,
   publicEventNext: eventLoader.publicEventNext,
-  external: '',
 });
