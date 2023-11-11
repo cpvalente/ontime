@@ -12,6 +12,8 @@ class MessageService {
   externalMessage: Message;
   onAir: boolean;
 
+  private reateLimit: NodeJS.Timer;
+
   constructor() {
     if (instance) {
       throw new Error('There can be only one');
@@ -45,12 +47,22 @@ class MessageService {
     this.onAir = false;
   }
 
+  private _OnTimeOut() {
+    eventStore.batchSet(this.getAll())
+    this.reateLimit = null
+  }
+
   /**
    * @description sets message on stage timer screen
    */
   setExternalText(payload: string) {
-    this.externalMessage.text = payload;
-    eventStore.set('externalMessage', this.externalMessage);
+    if (this.externalMessage.text !== payload) {
+      this.externalMessage.text = payload;
+      if (!this.reateLimit) {
+        eventStore.set('externalMessage', this.externalMessage);
+        this.reateLimit = setTimeout(this._OnTimeOut.bind(this), 1000);
+      }
+    }
     return this.getAll();
   }
 
