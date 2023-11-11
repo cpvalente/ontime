@@ -20,7 +20,7 @@ jobs:
           node-version: 16
 
       - name: Setup pnpm
-      - uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v2
         with:
           version: 8
 
