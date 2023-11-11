@@ -32,6 +32,7 @@
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
     "e2e": "cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
+    "e2e:ui": "cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
     "e2e:i": "npx playwright codegen",
     "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules"
   },

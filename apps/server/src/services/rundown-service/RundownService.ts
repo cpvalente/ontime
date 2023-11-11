@@ -35,7 +35,6 @@ import { clock } from '../Clock.js';
  */
 export function forceReset() {
   eventLoader.reset();
-  sendRefetch();
   runtimeCacheStore.invalidate(delayedRundownCacheKey);
 }
 
@@ -192,14 +191,10 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   // modify rundown
   await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
 
-  // notify timer service of changed events
-  updateTimer([id]);
+  notifyChanges({ timer: [id], external: true });
 
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
-
-  // advice socket subscribers of change
-  sendRefetch();
 
   return newEvent;
 }
@@ -211,11 +206,7 @@ export async function editEvent(eventData: Partial<OntimeEvent> | Partial<Ontime
 
   const newEvent = await cachedEdit(eventData.id, eventData);
 
-  // notify timer service of changed events
-  updateTimer([newEvent.id]);
-
-  // advice socket subscribers of change
-  sendRefetch();
+  notifyChanges({ timer: [newEvent.id], external: true });
 
   return newEvent;
 }
@@ -228,14 +219,9 @@ export async function editEvent(eventData: Partial<OntimeEvent> | Partial<Ontime
 export async function deleteEvent(eventId) {
   await cachedDelete(eventId);
 
-  // notify timer service of changed events
-  updateTimer([eventId]);
-
+  notifyChanges({ timer: [eventId], external: true });
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
-
-  // advice socket subscribers of change
-  sendRefetch();
 }
 
 /**
@@ -245,9 +231,7 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await cachedClear();
 
-  // notify timer service of changed events
-  updateTimer();
-  forceReset();
+  notifyChanges({ timer: true, external: true, reset: true });
 }
 
 /**
@@ -260,22 +244,15 @@ export async function deleteAllEvents() {
 export async function reorderEvent(eventId: string, from: number, to: number) {
   const reorderedItem = await cachedReorder(eventId, from, to);
 
-  // notify timer service of changed events
-  updateTimer();
+  notifyChanges({ timer: true, external: true });
 
-  // advice socket subscribers of change
-  sendRefetch();
   return reorderedItem;
 }
 
 export async function applyDelay(eventId: string) {
   await cachedApplyDelay(eventId);
 
-  // notify timer service of changed events
-  updateTimer();
-
-  // advice socket subscribers of change
-  sendRefetch();
+  notifyChanges({ timer: true, external: true });
 }
 
 /**
@@ -287,11 +264,7 @@ export async function applyDelay(eventId: string) {
 export async function swapEvents(from: string, to: string) {
   await cachedSwap(from, to);
 
-  // notify timer service of changed events
-  updateTimer();
-
-  // advice socket subscribers of change
-  sendRefetch();
+  notifyChanges({ timer: true, external: true });
 }
 
 /**
@@ -300,4 +273,27 @@ export async function swapEvents(from: string, to: string) {
  */
 function updateChangeNumEvents() {
   eventLoader.updateNumEvents();
+}
+
+/**
+ * Notify services of changes in the rundown
+ */
+export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean; reset?: boolean }) {
+  if (options.timer) {
+    // notify timer service of changed events
+    if (Array.isArray(options.timer)) {
+      updateTimer(options.timer);
+    }
+    updateTimer();
+  }
+
+  if (options.reset) {
+    // force rundown to be recalculated
+    forceReset();
+  }
+
+  if (options.external) {
+    // advice socket subscribers of change
+    sendRefetch();
+  }
 }

@@ -2,8 +2,8 @@ export const ontimeModal = {
   header: {
     fontWeight: 400,
     letterSpacing: '0.3px',
-    padding: '16px 24px',
-    fontSize: '20px',
+    padding: '1rem 1.5rem',
+    fontSize: '1.25rem',
     color: '#202020', // $gray-50
   },
   dialog: {
@@ -20,17 +20,29 @@ export const ontimeModal = {
     color: '#202020', // $gray-50
   },
   footer: {
-    padding: '8px',
+    padding: '0.5rem',
   },
 };
 
 export const ontimeSmallModal = {
   ...ontimeModal,
   body: {
-    padding: '16px',
-    fontSize: '14px',
+    padding: '1rem',
+    fontSize: 'calc(1rem - 2px)',
   },
   dialog: {
     minHeight: 'min(200px, 10vh)',
+  },
+};
+
+export const ontimeUploadModal = {
+  ...ontimeSmallModal,
+  body: {
+    padding: '1rem',
+    fontSize: 'calc(1rem - 2px)',
+  },
+  dialog: {
+    minHeight: 'min(200px, 10vh)',
+    maxWidth: 'min(800px, 80vh)',
   },
 };

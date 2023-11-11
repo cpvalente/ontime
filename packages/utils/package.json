@@ -11,6 +11,7 @@
     "cleanup": "rm -rf .turbo && rm -rf node_modules"
   },
   "dependencies": {
+    "deepmerge-ts": "^5.1.0",
     "luxon": "^3.3.0",
     "nanoid": "^4.0.1"
   },

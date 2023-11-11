@@ -22,7 +22,7 @@ const withAlias = <P extends object>(Component: ComponentType<P>) => {
       }
     }, [data, searchParams, navigate, location]);
 
-    return <Component {...props} />;
+    return <Component {...(props as P)} />;
   };
 };
 

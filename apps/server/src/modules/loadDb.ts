@@ -42,7 +42,7 @@ const parseDb = async (fileToRead, adapterToUse) => {
     adapterToUse.data = dbModel;
   }
 
-  return parseJson(adapterToUse.data, true);
+  return parseJson(adapterToUse.data);
 };
 
 /**

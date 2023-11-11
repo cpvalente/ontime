@@ -89,14 +89,18 @@ export const forgivingStringToMillis = (value: string, fillLeft = true): number 
  * @returns {number} - time in milliseconds
 
  */
-export const parseExcelDate = (excelDate: string): number => {
-  // attempt converting to date object
-  const date = new Date(excelDate);
-  if (date instanceof Date && !isNaN(date.getTime())) {
-    return dateToMillis(date);
-  } else if (isTimeString(excelDate)) {
-    return forgivingStringToMillis(excelDate);
+export const parseExcelDate = (excelDate: unknown): number => {
+  if (excelDate instanceof Date) {
+    return dateToMillis(excelDate);
+  } else if (typeof excelDate === 'string') {
+    const date = new Date(excelDate);
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      return dateToMillis(date);
+    } else if (isTimeString(excelDate)) {
+      return forgivingStringToMillis(excelDate);
+    }
   }
+
   return 0;
 };
 
