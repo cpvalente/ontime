@@ -41,6 +41,14 @@ export default function MessageControl() {
         changeHandler={(newValue) => setMessage.presenterText(newValue)}
         actionHandler={() => setMessage.presenterVisible(!data.timerMessage.visible)}
       />
+      <InputRow
+        label='External message'
+        placeholder='Show under timer'
+        text={data.externalMessage.text || ''}
+        visible={data.externalMessage.visible || false}
+        changeHandler={(newValue) => setMessage.externalText(newValue)}
+        actionHandler={() => setMessage.externalVisible(!data.externalMessage.visible)}
+      />
       <div className={style.buttonSection}>
         <label className={style.label}>Timer message blink</label>
         <label className={style.label}>Blackout timer screens</label>
