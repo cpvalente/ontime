@@ -1,5 +1,5 @@
 import { FormEvent, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import {
   Button,
   Drawer,
@@ -12,10 +12,26 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
+import { useLocalStorage } from '../../../common/hooks/useLocalStorage';
+
 import ParamInput from './ParamInput';
 import { ParamField } from './types';
 
 import style from './ViewParamsEditor.module.scss';
+
+type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
+type SavedViewParams = Record<string, ViewParamsObj>;
+
+const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj) =>
+  Object.entries(paramsObj).reduce((newSearchParams, [id, value]) => {
+    if (typeof value === 'string' && value.length) {
+      newSearchParams.set(id, value);
+
+      return newSearchParams;
+    }
+
+    return newSearchParams;
+  }, new URLSearchParams());
 
 interface EditFormDrawerProps {
   paramFields: ParamField[];
@@ -24,6 +40,8 @@ interface EditFormDrawerProps {
 export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const { pathname } = useLocation();
+  const [storedViewParams, setStoredViewParams] = useLocalStorage<SavedViewParams>('ontime-views', {});
 
   useEffect(() => {
     const isEditing = searchParams.get('edit');
@@ -33,6 +51,19 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     }
   }, [searchParams, onOpen]);
 
+  useEffect(() => {
+    const viewParamsObjFromLocalStorage = storedViewParams[pathname];
+
+    if (viewParamsObjFromLocalStorage !== undefined) {
+      const defaultSearchParams = getURLSearchParamsFromObj(viewParamsObjFromLocalStorage);
+      setSearchParams(defaultSearchParams);
+    }
+
+    // linter is asking for `setSearchParams` in the useEffect deps
+    // rule is disabled since adding `setSearchParams` results in unnecessary re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storedViewParams, pathname]);
+
   const onEditDrawerClose = () => {
     onClose();
 
@@ -41,6 +72,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   };
 
   const clearParams = () => {
+    setStoredViewParams({ ...storedViewParams, [pathname]: {} });
     setSearchParams();
     onClose();
   };
@@ -49,15 +81,9 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     formEvent.preventDefault();
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
-    const newSearchParams = Object.entries(newParamsObject).reduce((newSearchParams, [id, value]) => {
-      if (typeof value === 'string' && value.length) {
-        newSearchParams.set(id, value);
+    const newSearchParams = getURLSearchParamsFromObj(newParamsObject);
 
-        return newSearchParams;
-      }
-
-      return newSearchParams;
-    }, new URLSearchParams());
+    setStoredViewParams({ ...storedViewParams, [pathname]: newParamsObject });
     setSearchParams(newSearchParams);
   };
 

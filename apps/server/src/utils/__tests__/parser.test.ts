@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- we are mocking the console */
 import { vi } from 'vitest';
 
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';

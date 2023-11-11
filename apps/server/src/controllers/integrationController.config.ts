@@ -30,7 +30,7 @@ const whitelistedPayload = {
 };
 
 export function parse(field: string, value: unknown) {
-  if (!whitelistedPayload.hasOwnProperty(field)) {
+  if (!Object.hasOwn(whitelistedPayload, field)) {
     throw new Error(`Field ${field} not permitted`);
   }
   const parserFn = whitelistedPayload[field];
@@ -51,7 +51,7 @@ export function updateEvent(
   const event = EventLoader.getEventWithId(eventId);
 
   if (event) {
-    let propertiesToUpdate = { [propertyName]: newValue };
+    const propertiesToUpdate = { [propertyName]: newValue };
 
     // Handles the special case for duration
     // needs to be converted to milliseconds

@@ -20,12 +20,29 @@ jobs:
           node-version: 16
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v2
         with:
-          version: 7.26.3
+          version: 8
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Run code quality per package
+      - name: React - Run linter
+        run: pnpm lint
+        working-directory: ./apps/client
+
+      - name: Server - Run linter
+        run: pnpm lint
+        working-directory: ./apps/server
+
+      - name: Utils - Run linter
+        run: pnpm lint
+        working-directory: ./packages/utils
+
+      - name: Types - Run linter
+        run: pnpm lint
+        working-directory: ./packages/types
 
       # We choose to run tests separately
       - name: React - Run unit tests

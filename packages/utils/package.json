@@ -5,7 +5,7 @@
   "private": true,
   "description": "shared logic for ontime",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --quiet",
     "test": "vitest",
     "test:pipeline": "vitest run",
     "cleanup": "rm -rf .turbo && rm -rf node_modules"

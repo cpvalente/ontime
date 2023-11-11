@@ -3,17 +3,14 @@ import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, 
 import styles from './ExportModal.module.scss';
 
 export type ExportType = 'csv' | 'json';
+
 interface ExportModalProps {
   isOpen: boolean;
   onClose: (type?: ExportType) => void;
-  buttonVariants: {
-    csv: string;
-    json: string;
-  };
 }
 
 export default function ExportModal(props: ExportModalProps) {
-  const { isOpen, onClose, buttonVariants } = props;
+  const { isOpen, onClose } = props;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} motionPreset='scale' size='xl' colorScheme='blackAlpha'>
@@ -22,10 +19,10 @@ export default function ExportModal(props: ExportModalProps) {
         <ModalHeader className={styles.modalHeader}>Download options</ModalHeader>
         <ModalCloseButton />
         <ModalBody className={styles.modalBody}>
-          <Button onClick={() => onClose('csv')} variant={buttonVariants.csv} width='48%'>
-            rundown as CSV
+          <Button onClick={() => onClose('csv')} variant='ontime-subtle-on-light' width='48%'>
+            Rundown as CSV
           </Button>
-          <Button onClick={() => onClose('json')} variant={buttonVariants.json} width='48%'>
+          <Button onClick={() => onClose('json')} variant='ontime-filled' width='48%'>
             Project file
           </Button>
         </ModalBody>

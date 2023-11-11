@@ -23,9 +23,9 @@ jobs:
         version: 16.16.0
         
     - name: Setup pnpm
-      uses: pnpm/action-setup@v2.2.4
+    - uses: pnpm/action-setup@v2
       with:
-        version: 7.26.3
+        version: 8
           
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
