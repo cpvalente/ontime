@@ -169,6 +169,13 @@
     transition: opacity $viewer-transition-time;
     justify-self: center;
     align-self: center;
+    text-overflow: clip;
+    white-space: nowrap;
+    width: 60%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    // overflow: hidden;
     
     .external {
       text-align: center;

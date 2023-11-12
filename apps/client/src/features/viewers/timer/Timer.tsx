@@ -125,7 +125,7 @@ export default function Timer(props: TimerProps) {
         )}
       </div>
       <div className={`external-container ${external.visible ? '' : 'external-container--hidden'}`}>
-        <div className='external'>{external.text}</div>
+        <div className='external'>{external.text} &nbsp;</div>
       </div>
 
       <MultiPartProgressBar
