@@ -44,9 +44,12 @@ class Clock {
       case Source.MIDI: {
         this.source = new MidiClock();
         this.source.settings = settings;
+        break;
       }
       case Source.NTP: {
         this.source = new NtpClock();
+        this.source.settings = settings;
+        break;
       }
     }
   }
