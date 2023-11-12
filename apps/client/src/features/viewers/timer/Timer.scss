@@ -160,3 +160,25 @@
     font-weight: 600;
   }
 }
+
+  /* =================== EXTERNAL MESSAGE ===================*/
+
+  .external-container {
+    grid-area: clock;
+    font-weight: 600;
+    transition: opacity $viewer-transition-time;
+    justify-self: center;
+    align-self: center;
+    
+    .external {
+      text-align: center;
+      font-size: 5vw;
+      // font-size: clamp(32px, 3.5vw, 50px);
+      color: var(--secondary-color-override, $viewer-secondary-color);
+      letter-spacing: 0.05em;
+    }
+
+    &--hidden {
+      opacity: 0;
+    }
+  }

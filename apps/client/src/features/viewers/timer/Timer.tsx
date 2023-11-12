@@ -123,11 +123,9 @@ export default function Timer(props: TimerProps) {
             {display}
           </div>
         )}
-        <div className={`clock-container`}>
-          <div className='clock' style={{ textAlign: 'center' }}>
-            {external.visible ? external.text : ' '}
-          </div>
-        </div>
+      </div>
+      <div className={`external-container ${external.visible ? '' : 'external-container--hidden'}`}>
+        <div className='external'>{external.text}</div>
       </div>
 
       <MultiPartProgressBar
