@@ -210,8 +210,8 @@ export const BACKSTAGE_OPTIONS: ParamField[] = [
   },
   {
     id: 'eventsPerPage',
-    title: 'Number of events on page',
-    description: '',
+    title: 'Events per page',
+    description: 'Sets the number of events on the page, can cause overlow',
     type: 'number',
   },
 ];
@@ -232,8 +232,8 @@ export const PUBLIC_OPTIONS: ParamField[] = [
   },
   {
     id: 'eventsPerPage',
-    title: 'Number of events on page',
-    description: '',
+    title: 'Events per page',
+    description: 'Sets the number of events on the page, can cause overlow',
     type: 'number',
   },
 ];
