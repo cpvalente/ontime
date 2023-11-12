@@ -8,7 +8,7 @@ import { dayInMs } from '../timeConstants.js';
  * @param {EndAction} [fallback]
  */
 export function validateEndAction(maybeAction: unknown, fallback = EndAction.None) {
-  return Object.values(EndAction).includes(maybeAction as any) ? (maybeAction as EndAction) : fallback;
+  return Object.values(EndAction).includes(maybeAction as EndAction) ? (maybeAction as EndAction) : fallback;
 }
 
 /**
@@ -17,7 +17,7 @@ export function validateEndAction(maybeAction: unknown, fallback = EndAction.Non
  * @param {TimerType} [fallback]
  */
 export function validateTimerType(maybeTimerType: unknown, fallback = TimerType.CountDown) {
-  return Object.values(TimerType).includes(maybeTimerType as any) ? (maybeTimerType as TimerType) : fallback;
+  return Object.values(TimerType).includes(maybeTimerType as TimerType) ? (maybeTimerType as TimerType) : fallback;
 }
 
 /**

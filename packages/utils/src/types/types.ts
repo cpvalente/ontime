@@ -1,4 +1,4 @@
-export function isNumeric(num: any) {
+export function isNumeric(num: unknown) {
   if (typeof num === 'number' && !isNaN(num)) {
     return true;
   }
