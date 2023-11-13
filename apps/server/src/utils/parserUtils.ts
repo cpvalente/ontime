@@ -3,11 +3,11 @@ import { deepmerge } from 'ontime-utils';
 
 /**
  * @description Ensures variable is string, it skips object types
- * @param {any} val - variable to convert
+ * @param val - variable to convert
  * @param {string} [fallback=''] - fallback value
  * @returns {string} - value as string or fallback if not possible
  */
-export const makeString = (val: any, fallback = ''): string => {
+export const makeString = (val: unknown, fallback = ''): string => {
   if (typeof val === 'string') return val;
   else if (val == null || val.constructor === Object) return fallback;
   return val.toString();
@@ -56,7 +56,7 @@ export const isEmptyObject = (obj: object) => {
  * @param {object} a - any object
  * @param {object} b - a potential partial object of same time as a
  */
-export function mergeObject<T extends Record<string, any>>(a: T, b: Partial<Record<keyof T, any>>): T {
+export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
   const merged = { ...a };
 
   for (const key in b) {

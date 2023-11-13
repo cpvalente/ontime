@@ -3,8 +3,12 @@ import { UseFormRegister } from 'react-hook-form';
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { IoEyeOutline } from '@react-icons/all-files/io5/IoEyeOutline';
 
+interface FormInput {
+  [key: string]: string;
+}
+
 interface ModalPinInputProps {
-  register: UseFormRegister<any>;
+  register: UseFormRegister<FormInput>;
   formName: string;
   isDisabled?: boolean;
 }
