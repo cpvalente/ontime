@@ -3,7 +3,6 @@ import { socket } from '../adapters/WebsocketAdapter.js';
 import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { eventLoader } from '../classes/event-loader/EventLoader.js';
-
 let store: Partial<RuntimeStore> = {};
 
 /**
@@ -20,16 +19,14 @@ export const eventStore = {
   get<T extends keyof RuntimeStore>(key: T) {
     return store[key];
   },
-  set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T], defere = false) {
+  set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) {
     store[key] = value;
     // TODO: Partial updates seems to cause issues on the client
     // socket.send({
     //   type: `ontime-${key}`,
     //   payload: value,
     // });
-    if (!defere) {
-      this.broadcast();
-    }
+    this.broadcast();
   },
   batchSet<K extends keyof RuntimeStore>(values: Record<K, RuntimeStore[K]>) {
     Object.entries(values).forEach(([key, value]) => {

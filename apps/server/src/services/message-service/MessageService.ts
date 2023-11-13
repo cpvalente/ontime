@@ -2,7 +2,7 @@ import { Message } from 'ontime-types';
 
 import { eventStore } from '../../stores/EventStore.js';
 import { TimerMessage } from 'ontime-types/src/definitions/runtime/MessageControl.type.js';
-
+import { throttle } from '../../utils/throttle.js';
 let instance;
 
 class MessageService {
@@ -11,8 +11,7 @@ class MessageService {
   lowerMessage: Message;
   externalMessage: Message;
   onAir: boolean;
-
-  private reateLimit: NodeJS.Timer;
+  private readonly throttledSet: Function;
 
   constructor() {
     if (instance) {
@@ -45,11 +44,7 @@ class MessageService {
     };
 
     this.onAir = false;
-  }
-
-  private _OnTimeOut() {
-    eventStore.batchSet(this.getAll())
-    this.reateLimit = null
+    this.throttledSet = throttle(eventStore.set, 64)
   }
 
   /**
@@ -58,10 +53,7 @@ class MessageService {
   setExternalText(payload: string) {
     if (this.externalMessage.text !== payload) {
       this.externalMessage.text = payload;
-      if (!this.reateLimit) {
-        eventStore.set('externalMessage', this.externalMessage);
-        this.reateLimit = setTimeout(this._OnTimeOut.bind(this), 1000);
-      }
+      this.throttledSet('externalMessage', this.externalMessage);
     }
     return this.getAll();
   }
