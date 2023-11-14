@@ -149,7 +149,7 @@ export const postAliases = async (req, res) => {
     await DataProvider.setAliases(newAliases);
     res.status(200).send(newAliases);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -172,7 +172,7 @@ export const postUserFields = async (req, res) => {
     await DataProvider.setUserFields(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -235,7 +235,7 @@ export const postSettings = async (req, res) => {
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -270,7 +270,7 @@ export const postViewSettings = async (req, res) => {
     await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -298,7 +298,7 @@ export const postOscSubscriptions = async (req, res) => {
 
     res.send(oscSettings).status(200);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -319,7 +319,7 @@ export const postOSC = async (req, res) => {
 
     res.send(oscSettings).status(200);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -348,7 +348,7 @@ export async function patchPartialProjectFile(req, res) {
     }
     res.status(200).send();
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 }
 
@@ -409,6 +409,6 @@ export const postNew: RequestHandler = async (req, res) => {
     await deleteAllEvents();
     res.status(201).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };

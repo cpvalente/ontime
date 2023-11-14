@@ -46,7 +46,6 @@ export class DataProvider {
 
   static async clearRundown() {
     data.rundown = [];
-    // @ts-expect-error -- not sure how to type, this is library side
     await db.write();
   }
 
@@ -100,7 +99,6 @@ export class DataProvider {
   }
 
   static async persist() {
-    // @ts-expect-error -- not sure how to type, this is library side
     await db.write();
   }
 

@@ -29,7 +29,7 @@ export const rundownPost: RequestHandler = async (req, res) => {
     const newEvent = await addEvent(req.body);
     res.status(201).send(newEvent);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -44,7 +44,7 @@ export const rundownPut: RequestHandler = async (req, res) => {
     const event = await editEvent(req.body);
     res.status(200).send(event);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -58,7 +58,7 @@ export const rundownReorder: RequestHandler = async (req, res) => {
     const event = await reorderEvent(eventId, from, to);
     res.status(200).send(event);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -72,7 +72,7 @@ export const rundownSwap: RequestHandler = async (req, res) => {
     await swapEvents(from, to);
     res.sendStatus(200);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -83,7 +83,7 @@ export const rundownApplyDelay: RequestHandler = async (req, res) => {
     await applyDelay(req.params.eventId);
     res.sendStatus(200);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -94,7 +94,7 @@ export const deleteEventById: RequestHandler = async (req, res) => {
     await deleteEvent(req.params.eventId);
     res.sendStatus(204);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -105,6 +105,6 @@ export const rundownDelete: RequestHandler = async (req, res) => {
     await deleteAllEvents();
     res.sendStatus(204);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };

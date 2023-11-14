@@ -11,7 +11,6 @@ export function maybeAxiosError(error: unknown) {
     const statusText = (error as AxiosError).response?.statusText ?? '';
     let data = (error as AxiosError).response?.data ?? '';
     if (typeof data === 'object') {
-      // TODO: use error instead, when migrated
       if ('message' in data) {
         data = JSON.stringify(data.message);
       } else {

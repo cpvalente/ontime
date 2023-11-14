@@ -30,6 +30,6 @@ export const postProject: RequestHandler = async (req, res) => {
     const newData = await DataProvider.setProjectData(newEvent);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };

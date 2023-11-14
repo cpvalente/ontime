@@ -100,7 +100,7 @@ export const useEventAction = () => {
         // @ts-expect-error -- we know that the object is well formed now
         await _addEventMutation.mutateAsync(newEvent);
       } catch (error) {
-        logAxiosError('Error fetching data', error);
+        logAxiosError('Failed adding event', error);
       }
     },
     [_addEventMutation, defaultPublic, queryClient, startTimeIsLastEnd],

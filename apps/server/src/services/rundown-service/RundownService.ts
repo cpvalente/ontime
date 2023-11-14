@@ -158,7 +158,7 @@ export function updateTimer(affectedIds?: string[]) {
 export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
   const numEvents = DataProvider.getRundownLength();
   if (numEvents > MAX_EVENTS) {
-    throw new Error(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
+    throw new Error(`Reached limit number of ${MAX_EVENTS} events`);
   }
 
   let newEvent: Partial<OntimeBaseEvent> = {};
