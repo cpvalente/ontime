@@ -67,7 +67,7 @@ async function loadDb() {
   return { db, data };
 }
 
-export let db = {};
+export let db = {} as Low<DatabaseModel>;
 export let data = {} as DatabaseModel;
 export const dbLoadingProcess = loadDb();
 
