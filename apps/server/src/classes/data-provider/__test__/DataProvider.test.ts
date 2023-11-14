@@ -11,7 +11,7 @@ describe('safeMerge', () => {
     },
     settings: {
       app: 'ontime',
-      version: 2,
+      version: '2.0.0',
       serverPort: 4001,
       editorKey: null,
       operatorKey: null,
@@ -84,7 +84,7 @@ describe('safeMerge', () => {
     const mergedData = safeMerge(existing, newData);
     expect(mergedData.settings).toEqual({
       app: 'ontime',
-      version: 2,
+      version: '2.0.0',
       serverPort: 3000,
       operatorKey: null,
       editorKey: null,
@@ -144,7 +144,7 @@ describe('safeMerge', () => {
       },
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
         serverPort: 4001,
         operatorKey: null,
         editorKey: null,

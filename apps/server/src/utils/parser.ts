@@ -241,7 +241,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
     project: projectData,
     settings: {
       app: 'ontime',
-      version: 2,
+      version: '2.0.0',
     },
     userFields: customUserFields,
   };
