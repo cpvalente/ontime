@@ -382,9 +382,6 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     let uploadedJson = null;
 
     uploadedJson = JSON.parse(rawdata);
-    if (uploadedJson.settings.version !== 2) {
-      throw new Error(`Project version unknown ${uploadedJson.settings.version}`);
-    }
     res.data = await parseJson(uploadedJson);
 
     // delete file
