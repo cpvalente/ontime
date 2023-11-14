@@ -33,6 +33,9 @@ export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './def
 
 // ---> HTTP
 
+// SERVER RESPONSES
+export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';
+
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 export { Playback } from './definitions/runtime/Playback.type.js';
