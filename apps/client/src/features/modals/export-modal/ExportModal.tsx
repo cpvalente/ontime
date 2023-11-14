@@ -1,4 +1,12 @@
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+} from '@chakra-ui/react';
 
 import styles from './ExportModal.module.scss';
 
@@ -13,12 +21,12 @@ export default function ExportModal(props: ExportModalProps) {
   const { isOpen, onClose } = props;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} motionPreset='scale' size='xl' colorScheme='blackAlpha'>
+    <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' size='xl' variant='ontime-small'>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader className={styles.modalHeader}>Download options</ModalHeader>
         <ModalCloseButton />
-        <ModalBody className={styles.modalBody}>
+        <ModalBody className={styles.buttonRow}>
           <Button onClick={() => onClose('csv')} variant='ontime-subtle-on-light' width='48%'>
             Rundown as CSV
           </Button>
