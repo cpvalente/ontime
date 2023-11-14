@@ -13,16 +13,16 @@ export default function ExportModal(props: ExportModalProps) {
   const { isOpen, onClose } = props;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} motionPreset='scale' size='xl' colorScheme='blackAlpha'>
+    <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' size='xl' variant='ontime-small'>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader className={styles.modalHeader}>Download options</ModalHeader>
         <ModalCloseButton />
-        <ModalBody className={styles.modalBody}>
-          <Button onClick={() => onClose('csv')} variant='ontime-subtle-on-light' width='48%'>
+        <ModalBody className={styles.buttonRow}>
+          <Button onClick={() => onClose('csv')} variant='ontime-subtle-on-light' width='100%'>
             Rundown as CSV
           </Button>
-          <Button onClick={() => onClose('json')} variant='ontime-filled' width='48%'>
+          <Button onClick={() => onClose('json')} variant='ontime-filled' width='100%'>
             Project file
           </Button>
         </ModalBody>
