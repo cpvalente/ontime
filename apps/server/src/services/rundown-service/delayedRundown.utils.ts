@@ -1,4 +1,5 @@
 import {
+  GetRundownCached,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
@@ -43,7 +44,7 @@ export function invalidateFromError(errorMessage = 'Found mismatch between store
  * Returns rundown with calculated delays
  * Ensures request goes through the caching layer
  */
-export function getRundownCache() {
+export function getRundownCache(): GetRundownCached {
   function calculateRundown() {
     const rundown = DataProvider.getRundown();
     return calculateRuntimeDelays(rundown);
