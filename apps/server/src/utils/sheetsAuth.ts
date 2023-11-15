@@ -105,7 +105,8 @@ class sheet {
     } catch (_) {}
     return false;
   }
-
+  
+  //TODO: this only works on local networks
   public async openAuthServer(): Promise<string | false> {
     if (sheet.authUrl) {
       return sheet.authUrl;
