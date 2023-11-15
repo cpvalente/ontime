@@ -21,6 +21,10 @@ class sheet {
   private readonly token = getAppDataPath() + '/token.json';
   private static authUrl: null | string = null;
 
+  /**
+   * checks the authorized state
+   * @returns {Promise<boolean>}
+   */
   public async authorized(): Promise<boolean> {
     if (await this.loadToken()) {
       if (await this.refreshToken()) {
@@ -31,13 +35,20 @@ class sheet {
     }
   }
 
+  /**
+   * `parse` a given sheet
+   * @param {string} sheetId - https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
+   * @param {string} worksheet - the name of the worksheet containg ontime data
+   * @param {ExcelImportOptions} options
+   * @returns {Promise<Partial<ResponseOK>>}
+   * @throws
+   */
   public async parse(sheetId: string, worksheet: string, options: ExcelImportOptions) {
     if (!sheet.client) {
       if (!(await this.authorized())) {
         throw new Error(`Sheet not authorized`);
       }
     }
-    console.log(sheetId, worksheet, options);
     const res: Partial<ResponseOK> = {};
 
     if (!isExcelImportMap(options)) {
@@ -65,14 +76,21 @@ class sheet {
     }
   }
 
+  /**
+   * saves Object to appdata path as client_secret.json
+   * @param {Object} secrets
+   */
   public async saveClientSecrets(secrets: Object) {
     //TODO: test that this is actualy a client file?
     //invalidate previus auths
     sheet.client = null;
     sheet.authUrl = null;
-    await writeFile(getAppDataPath() + '/credentials.json', JSON.stringify(secrets), 'utf-8');
+    await writeFile(this.client_secret, JSON.stringify(secrets), 'utf-8');
   }
 
+  /**
+   * saves curent client appdata path as token.json
+   */
   private async saveToken() {
     const payload = JSON.stringify({
       type: 'authorized_user',
@@ -80,12 +98,16 @@ class sheet {
       client_secret: sheet.client._clientSecret,
       refresh_token: sheet.client.credentials.refresh_token,
     });
-    await writeFile(getAppDataPath() + '/token.json', payload, 'utf-8');
+    await writeFile(this.token, payload, 'utf-8');
   }
 
+  /**
+   * loads client from appdata path token.json
+   * @returns {Promise<boolean>}
+   */
   private async loadToken(): Promise<boolean> {
     try {
-      const token = JSON.parse(await readFile(getAppDataPath() + '/token.json', 'utf-8'));
+      const token = JSON.parse(await readFile(this.token, 'utf-8'));
       sheet.client = new OAuth2Client({ clientId: token.client_id, clientSecret: token.client_secret });
       sheet.client.credentials.refresh_token = token.refresh_token;
       return true;
@@ -95,6 +117,10 @@ class sheet {
     }
   }
 
+  /**
+   * refresh the client token
+   * @returns {Promise<boolean>}
+   */
   async refreshToken(): Promise<boolean> {
     if (!sheet.client?.credentials?.refresh_token) return false;
     try {
@@ -105,9 +131,14 @@ class sheet {
     } catch (_) {}
     return false;
   }
-  
-  //TODO: this only works on local networks
+
+  /**
+   * create local Auth Server - returns url to serve on success
+   * @returns {Promise<string | false>}
+   * @throws
+   */
   public async openAuthServer(): Promise<string | false> {
+    //TODO: this only works on local networks
     if (sheet.authUrl) {
       return sheet.authUrl;
     }
@@ -191,10 +222,13 @@ class sheet {
       sheet.authUrl = authorizeUrl;
       return authorizeUrl;
     });
-    setTimeout(() => {
-      sheet.authUrl = null;
-      server.unref;
-    }, 2 * 60 * 1000);
+    setTimeout(
+      () => {
+        sheet.authUrl = null;
+        server.unref;
+      },
+      2 * 60 * 1000,
+    );
   }
 }
 
