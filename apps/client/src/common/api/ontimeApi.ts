@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import {
   Alias,
   DatabaseModel,
+  GetInfo,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
@@ -13,7 +14,6 @@ import {
 import { ExcelImportMap } from 'ontime-utils';
 
 import { apiRepoLatest } from '../../externals';
-import { InfoType } from '../models/Info';
 import fileDownload from '../utils/fileDownload';
 
 import { ontimeURL } from './apiConstants';
@@ -39,7 +39,7 @@ export async function postSettings(data: Settings) {
  * @description HTTP request to retrieve application info
  * @return {Promise}
  */
-export async function getInfo(): Promise<InfoType> {
+export async function getInfo(): Promise<GetInfo> {
   const res = await axios.get(`${ontimeURL}/info`);
   return res.data;
 }
