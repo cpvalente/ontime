@@ -38,6 +38,7 @@
     "dev": "cross-env BROWSER=none vite",
     "build": "vite build",
     "build:local": "cross-env NODE_ENV=local vite build",
+    "build:electron": "cross-env NODE_ENV=local vite build",
     "build:docker": "vite build",
     "lint": "eslint . --quiet",
     "test": "vitest",
