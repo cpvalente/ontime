@@ -3,6 +3,9 @@ import { socket } from '../adapters/WebsocketAdapter.js';
 import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { eventLoader } from '../classes/event-loader/EventLoader.js';
+
+export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
+
 let store: Partial<RuntimeStore> = {};
 
 /**
