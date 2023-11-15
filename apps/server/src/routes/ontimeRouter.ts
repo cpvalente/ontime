@@ -19,6 +19,10 @@ import {
   postUserFields,
   postViewSettings,
   previewExcel,
+  sheetAuthUrl,
+  sheetAuthState,
+  sheetClientFile,
+  previewSheet,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -48,6 +52,18 @@ router.patch('/db', validatePatchProjectFile, patchPartialProjectFile);
 
 // create route between controller and '/ontime/preview-spreadsheet' endpoint
 router.post('/preview-spreadsheet', uploadFile, previewExcel);
+
+// create route between controller and '/ontime/preview-sheet' endpoint
+router.post('/preview-sheet', uploadFile, previewSheet);
+
+// create route between controller and '/ontime/sheets-auth-client' endpoint
+router.get('/sheets-auth-client', sheetClientFile);
+
+// create route between controller and '/ontime/sheets-auth-url' endpoint
+router.get('/sheets-auth-url', sheetAuthUrl);
+
+// create route between controller and '/ontime/sheets-auth-state' endpoint
+router.get('/sheets-auth-state', sheetAuthState);
 
 // create route between controller and '/ontime/settings' endpoint
 router.get('/settings', getSettings);

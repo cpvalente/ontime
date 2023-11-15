@@ -17,6 +17,8 @@ import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 
+import { Sheet } from '../utils/sheetsAuth.js';
+
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
 export const poll = async (req, res) => {
@@ -387,6 +389,63 @@ export async function previewExcel(req, res) {
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
+  }
+}
+
+/**
+ * downloads and parses an sheet
+ * @returns parsed result
+ */
+export async function previewSheet(req, res) {
+  if (!req.body.sheetid) {
+    res.status(400).send({ message: 'missing sheet id' });
+    return;
+  }
+  try {
+    const options = JSON.parse(req.body.options);
+    const data = await Sheet.parse(req.body.sheetid, req.body.worksheet, options);
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}
+
+/**
+ * uploads Client secrets file
+ * @returns parsed result
+ */
+export async function sheetClientFile(req, res) {
+  if (!req.file) {
+    res.status(400).send({ message: 'File not found' });
+    return;
+  }
+
+  try {
+    const clientSecret = JSON.parse(req.body.options);
+    await Sheet.saveClientSecrets(clientSecret);
+    res.status(200).send('OK');
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}
+
+/**
+ * @returns sheet auth state
+ */
+export async function sheetAuthState(req, res) {
+  const send = (await Sheet.authorized()) ? 'true' : 'false';
+  res.status(200).send(send);
+}
+
+/**
+ * @returns link to sheet auth url
+ */
+export async function sheetAuthUrl(req, res) {
+  const successful = await Sheet.openAuthServer();
+  if (successful === false) {
+    res.status(500).send('bad');
+  } else {
+    res.status(200).send(successful);
   }
 }
 
