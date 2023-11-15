@@ -24,20 +24,20 @@ export default function useOscSettings() {
 }
 
 export function useOscSettingsMutation() {
-  const { isLoading, mutateAsync } = useMutation({
+  const { isPending, mutateAsync } = useMutation({
     mutationFn: postOSC,
     onError: (error) => logAxiosError('Error saving OSC settings', error),
     onSuccess: (res) => ontimeQueryClient.setQueryData(OSC_SETTINGS, res.data),
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: OSC_SETTINGS }),
   });
-  return { isLoading, mutateAsync };
+  return { isPending, mutateAsync };
 }
 
 export function usePostOscSubscriptions() {
-  const { isLoading, mutateAsync } = useMutation({
+  const { isPending, mutateAsync } = useMutation({
     mutationFn: postOscSubscriptions,
     onError: (error) => logAxiosError('Error saving OSC settings', error),
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: OSC_SETTINGS }),
   });
-  return { isLoading, mutateAsync };
+  return { isPending, mutateAsync };
 }

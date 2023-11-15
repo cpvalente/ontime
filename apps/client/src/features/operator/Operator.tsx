@@ -84,7 +84,7 @@ export default function Operator() {
   };
 
   const missingData = !data || !userFields || !projectData;
-  const isLoading = status === 'loading' || userFieldsStatus === 'loading' || projectDataStatus === 'loading';
+  const isLoading = status === 'pending' || userFieldsStatus === 'pending' || projectDataStatus === 'pending';
 
   if (missingData || isLoading) {
     return <Empty text='Loading...' />;

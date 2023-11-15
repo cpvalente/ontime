@@ -52,8 +52,8 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
   const onSubmit = async (data: Partial<ProjectData>) => {
     try {
       await postNew(data);
-      await ontimeQueryClient.invalidateQueries(PROJECT_DATA);
-      await ontimeQueryClient.invalidateQueries(RUNDOWN_TABLE);
+      await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_DATA });
+      await ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN_TABLE });
 
       onClose();
     } catch (_) {

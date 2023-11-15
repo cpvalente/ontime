@@ -36,7 +36,7 @@ export const useEventAction = () => {
     // Fetch anyway, just to be sure
     mutationFn: requestPostEvent,
     onSettled: () => {
-      queryClient.invalidateQueries(RUNDOWN_TABLE);
+      queryClient.invalidateQueries({ queryKey: RUNDOWN_TABLE });
     },
     networkMode: 'always',
   });
@@ -115,7 +115,7 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries([RUNDOWN_TABLE_KEY, newEvent.id]);
+      await queryClient.cancelQueries({ queryKey: [RUNDOWN_TABLE_KEY, newEvent.id] });
 
       // Snapshot the previous value
       const previousEvent = queryClient.getQueryData([RUNDOWN_TABLE_KEY, newEvent.id]);
@@ -133,7 +133,7 @@ export const useEventAction = () => {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: async () => {
-      await queryClient.invalidateQueries([RUNDOWN_TABLE_KEY]);
+      await queryClient.invalidateQueries({ queryKey: [RUNDOWN_TABLE_KEY] });
     },
     networkMode: 'always',
   });
@@ -161,7 +161,7 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries([RUNDOWN_TABLE_KEY, eventId]);
+      await queryClient.cancelQueries({ queryKey: [RUNDOWN_TABLE_KEY, eventId] });
 
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
@@ -182,7 +182,7 @@ export const useEventAction = () => {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(RUNDOWN_TABLE);
+      queryClient.invalidateQueries({ queryKey: RUNDOWN_TABLE });
     },
     networkMode: 'always',
   });
@@ -210,7 +210,7 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async () => {
       // cancel ongoing queries
-      await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
+      await queryClient.cancelQueries({ queryKey: RUNDOWN_TABLE, exact: true });
 
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
@@ -229,7 +229,7 @@ export const useEventAction = () => {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(RUNDOWN_TABLE);
+      queryClient.invalidateQueries({ queryKey: RUNDOWN_TABLE });
     },
     networkMode: 'always',
   });
@@ -253,7 +253,7 @@ export const useEventAction = () => {
     mutationFn: requestApplyDelay,
     // Mutation finished, failed or successful
     onSettled: () => {
-      queryClient.invalidateQueries(RUNDOWN_TABLE);
+      queryClient.invalidateQueries({ queryKey: RUNDOWN_TABLE });
     },
     networkMode: 'always',
   });
@@ -281,7 +281,7 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
+      await queryClient.cancelQueries({ queryKey: RUNDOWN_TABLE, exact: true });
 
       // Snapshot the previous value
       const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE);
@@ -304,7 +304,7 @@ export const useEventAction = () => {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(RUNDOWN_TABLE);
+      queryClient.invalidateQueries({ queryKey: RUNDOWN_TABLE });
     },
     networkMode: 'always',
   });
@@ -337,7 +337,7 @@ export const useEventAction = () => {
     // we optimistically update here
     onMutate: async ({ from, to }) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries(RUNDOWN_TABLE, { exact: true });
+      await queryClient.cancelQueries({ queryKey: RUNDOWN_TABLE, exact: true });
 
       // Snapshot the previous value
       const rundown = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
@@ -361,7 +361,7 @@ export const useEventAction = () => {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries(RUNDOWN_TABLE);
+      queryClient.invalidateQueries({ queryKey: RUNDOWN_TABLE });
     },
     networkMode: 'always',
   });

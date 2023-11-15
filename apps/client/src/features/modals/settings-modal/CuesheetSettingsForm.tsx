@@ -51,7 +51,7 @@ export default function CuesheetSettingsForm() {
     reset(data);
   };
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
 
   if (isFetching) {
     return <ModalLoader />;
