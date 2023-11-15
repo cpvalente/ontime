@@ -11,7 +11,7 @@ class MessageService {
   lowerMessage: Message;
   externalMessage: Message;
   onAir: boolean;
-  private readonly throttledSet: Function;
+  private throttledSet: Function;
 
   constructor() {
     if (instance) {
@@ -44,7 +44,15 @@ class MessageService {
     };
 
     this.onAir = false;
-    this.throttledSet = throttle(eventStore.set, 64)
+    this.throttledSet = null;
+    setTimeout(() => {
+      this.throttledSet = throttle((key, value) => eventStore.set(key, value), 2000);
+      setInterval(() => {
+        const newVal = new Date().getSeconds().toString();
+        console.log('1 make messsage', newVal);
+        this.setExternalText(newVal);
+      }, 100);
+    }, 1000);
   }
 
   /**
@@ -53,6 +61,7 @@ class MessageService {
   setExternalText(payload: string) {
     if (this.externalMessage.text !== payload) {
       this.externalMessage.text = payload;
+      console.log('2 schedule send');
       this.throttledSet('externalMessage', this.externalMessage);
     }
     return this.getAll();
