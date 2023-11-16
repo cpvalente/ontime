@@ -55,12 +55,7 @@ class MessageService {
 
   init(publish: PublishFn) {
     this.publish = publish;
-    this.throttledSet = throttle((key, value) => this.publish(key, value), 2000);
-    setInterval(() => {
-      const newVal = new Date().getSeconds().toString();
-      console.log('1 make messsage', newVal);
-      this.setExternalText(newVal);
-    }, 100);
+    this.throttledSet = throttle((key, value) => this.publish(key, value), 100);
   }
 
   /**
@@ -69,7 +64,6 @@ class MessageService {
   setExternalText(payload: string) {
     if (this.externalMessage.text !== payload) {
       this.externalMessage.text = payload;
-      console.log('2 schedule send');
       this.throttledSet('externalMessage', this.externalMessage);
     }
     return this.getAll();
