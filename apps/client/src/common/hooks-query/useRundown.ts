@@ -9,7 +9,7 @@ const cachedRundownPlaceholder = { rundown: [], revision: -1 };
 
 // TODO: can we leverage structural sharing to see if data has changed?
 export default function useRundown() {
-  const { data, status, isError, refetch } = useQuery<GetRundownCached>({
+  return useQuery<GetRundownCached>({
     queryKey: RUNDOWN,
     queryFn: fetchCachedRundown,
     placeholderData: cachedRundownPlaceholder,
@@ -26,6 +26,4 @@ export default function useRundown() {
     //   return hasDataChanged ? oldData : newData;
     // },
   });
-
-  return { data, status, isError, refetch };
 }
