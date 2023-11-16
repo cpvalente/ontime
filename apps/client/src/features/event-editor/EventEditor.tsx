@@ -28,7 +28,8 @@ export default function EventEditor() {
       return;
     }
 
-    const event = data.find((event) => event.id === eventsToEdit.at(0)?.id);
+    const event = data.find((event) => eventsToEdit.has(event.id));
+
     if (event && isOntimeEvent(event)) {
       setEvent(event);
     }

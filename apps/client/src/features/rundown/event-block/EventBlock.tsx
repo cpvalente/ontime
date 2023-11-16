@@ -88,7 +88,7 @@ export default function EventBlock(props: EventBlockProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(
-    eventsToEdit.length > 1
+    eventsToEdit.size > 1
       ? [
           {
             label: 'Visiblity',

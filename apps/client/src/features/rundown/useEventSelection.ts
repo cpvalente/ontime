@@ -1,19 +1,11 @@
 import { isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { create } from 'zustand';
 
-// culled from:
-// https://stackoverflow.com/questions/54134156/javascript-merge-two-arrays-of-objects-only-if-not-duplicate-based-on-specifi
-const deduplicateEventsToEdit = (initialArr: EventToEdit[], newArr: EventToEdit[]) => {
-  const eventIds = new Set(initialArr.map((event) => event.id));
-  return [...initialArr, ...newArr.filter((event) => !eventIds.has(event.id))];
-};
-
 type EditMode = 'range' | 'single' | 'cherryPick';
-type EventToEdit = { id: string; index: number };
 
 interface EventSelectionStore {
   editMode: EditMode;
-  eventsToEdit: EventToEdit[];
+  eventsToEdit: Set<string>;
   anchoredEventIndex: number | null;
   isEventSelected: (id: string) => boolean;
   setEditMode: (mode: EditMode) => void;
@@ -23,12 +15,12 @@ interface EventSelectionStore {
 
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   editMode: 'single',
-  eventsToEdit: [],
+  eventsToEdit: new Set(),
   anchoredEventIndex: null,
   isEventSelected: (id) => {
     const { eventsToEdit } = get();
 
-    return eventsToEdit.some((event) => event.id === id);
+    return eventsToEdit.has(id);
   },
   setEditMode: (mode) => set(() => ({ editMode: mode })),
   setEventsToEdit: (id, indexPlusOne, rundown) => {
@@ -37,51 +29,56 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
     const { editMode, eventsToEdit, anchoredEventIndex } = get();
 
     if (editMode === 'single') {
-      return set(() => ({ eventsToEdit: [{ id, index }], anchoredEventIndex: index }));
+      const setWithSingleEvent = new Set<string>([id]);
+
+      return set(() => ({ eventsToEdit: setWithSingleEvent, anchoredEventIndex: index }));
     }
 
     if (editMode === 'cherryPick') {
-      const deduplicatedEventsToEdit = eventsToEdit.filter(({ id: eventId }) => eventId !== id);
+      const deduplicatedEventsToEdit = new Set([...eventsToEdit].filter((eventId) => eventId !== id));
 
-      if (deduplicatedEventsToEdit.length !== eventsToEdit.length) {
-        const nextAvailableEvent = eventsToEdit.at(index);
+      if (deduplicatedEventsToEdit.size !== eventsToEdit.size) {
+        // const lastEventIdInSet = [...eventsToEdit].at(-1);
 
-        console.log(nextAvailableEvent, eventsToEdit, { index, id });
+        // if (lastEventIdInSet === id) {
+        // }
 
         return set(() => ({
           eventsToEdit: deduplicatedEventsToEdit,
-          anchoredEventIndex: nextAvailableEvent?.index,
+          anchoredEventIndex: indexPlusOne,
         }));
       }
 
       return set(() => ({
-        eventsToEdit: [{ id, index }].concat(deduplicatedEventsToEdit),
-        anchoredEventIndex: index,
+        eventsToEdit: deduplicatedEventsToEdit.add(id),
       }));
     }
 
     if (editMode === 'range') {
-      const events = rundown.filter(isOntimeEvent).map((event, i) => ({ id: event.id, index: i }));
+      const eventIds = rundown.filter(isOntimeEvent).map((event) => event.id);
+
+      console.log(anchoredEventIndex);
 
       if (anchoredEventIndex === null) {
-        const eventsUntilIndex = events.slice(0, index);
-        return set(() => ({ eventsToEdit: eventsUntilIndex, anchoredEventIndex: index }));
+        const eventsUntilIndex = eventIds.slice(0, index);
+
+        return set(() => ({ eventsToEdit: new Set(eventsUntilIndex), anchoredEventIndex: index }));
       }
 
       if (anchoredEventIndex > index) {
-        const eventsFromIndex = events.slice(index, anchoredEventIndex);
+        const eventsFromIndex = eventIds.slice(index, anchoredEventIndex);
 
         return set(() => ({
-          eventsToEdit: [{ id, index }].concat(deduplicateEventsToEdit(eventsToEdit, eventsFromIndex)),
+          eventsToEdit: new Set([...eventsToEdit, ...eventsFromIndex]),
         }));
       }
 
-      const eventsUntilIndex = events.slice(anchoredEventIndex, index + 1);
+      const eventsUntilIndex = eventIds.slice(anchoredEventIndex, indexPlusOne);
 
       return set(() => ({
-        eventsToEdit: deduplicateEventsToEdit(eventsToEdit, eventsUntilIndex),
+        eventsToEdit: new Set([...eventsToEdit, ...eventsUntilIndex]),
       }));
     }
   },
-  clearEventsToEdit: () => set(() => ({ eventsToEdit: [] })),
+  clearEventsToEdit: () => set(() => ({ eventsToEdit: new Set<string>() })),
 }));
