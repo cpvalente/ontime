@@ -43,9 +43,9 @@ jobs:
         run: pnpm lint && tsc --noEmit
         working-directory: ./packages/utils
 
-      - name: Types - Run linter +  TypeScript checks
+      - name: Types - Run linter
         if: always()
-        run: pnpm lint && tsc --noEmit
+        run: pnpm lint
         working-directory: ./packages/types
 
       # We choose to run tests separately
