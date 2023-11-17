@@ -28,24 +28,24 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Run code quality per package
-      - name: React - Run linter
+      - name: React - Run linter +  TypeScript checks
         if: always()
-        run: pnpm lint
+        run: pnpm lint && tsc --noEmit
         working-directory: ./apps/client
 
-      - name: Server - Run linter
+      - name: Server - Run linter +  TypeScript checks
         if: always()
-        run: pnpm lint
+        run: pnpm lint && tsc --noEmit
         working-directory: ./apps/server
 
-      - name: Utils - Run linter
+      - name: Utils - Run linter +  TypeScript checks
         if: always()
-        run: pnpm lint
+        run: pnpm lint && tsc --noEmit
         working-directory: ./packages/utils
 
-      - name: Types - Run linter
+      - name: Types - Run linter +  TypeScript checks
         if: always()
-        run: pnpm lint
+        run: pnpm lint && tsc --noEmit
         working-directory: ./packages/types
 
       # We choose to run tests separately
