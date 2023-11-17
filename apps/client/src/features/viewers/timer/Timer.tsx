@@ -77,6 +77,7 @@ export default function Timer(props: TimerProps) {
   const showBlinking = pres.timerBlink;
   const showBlackout = pres.timerBlackout;
   const showClock = time.timerType !== TimerType.Clock;
+  const showExternal = external.visible && external.text;
 
   const timerColor =
     showProgress && showDanger
@@ -93,7 +94,13 @@ export default function Timer(props: TimerProps) {
   }
 
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
-  const timerFontSize = 89 / (stageTimerCharacters - 1);
+  let timerFontSize = 89 / (stageTimerCharacters - 1);
+  // we need to shrink the timer if the external is going to be there
+  if (showExternal) {
+    timerFontSize *= 0.6;
+  }
+  const externalFontSize = 70 / (external.text.length - 1);
+  const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   return (
@@ -109,7 +116,7 @@ export default function Timer(props: TimerProps) {
         <div className='clock'>{clock}</div>
       </div>
 
-      <div className={`timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
+      <div className={timerContainerClasses}>
         {showEndMessage ? (
           <div className='end-message'>{viewSettings.endMessage}</div>
         ) : (
@@ -123,9 +130,12 @@ export default function Timer(props: TimerProps) {
             {display}
           </div>
         )}
-      </div>
-      <div className={`external-container ${external.visible ? '' : 'external-container--hidden'}`}>
-        <div className='external'>{external.text} &nbsp;</div>
+        <div
+          className={`external${!showExternal ? '' : ' external--hidden'}`}
+          style={{ fontSize: `${externalFontSize}vw` }}
+        >
+          {external.text}
+        </div>
       </div>
 
       <MultiPartProgressBar
