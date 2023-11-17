@@ -15,6 +15,8 @@ import style from './MessageControl.module.scss';
 export default function MessageControl() {
   const data = useMessageControl();
 
+  const activeExternal = data.externalMessage.visible ? style.active : undefined;
+
   return (
     <div className={style.messageContainer}>
       <InputRow
@@ -41,14 +43,6 @@ export default function MessageControl() {
         changeHandler={(newValue) => setMessage.presenterText(newValue)}
         actionHandler={() => setMessage.presenterVisible(!data.timerMessage.visible)}
       />
-      <InputRow
-        label='External message'
-        placeholder='Show under timer'
-        text={data.externalMessage.text || ''}
-        visible={data.externalMessage.visible || false}
-        changeHandler={(newValue) => setMessage.externalText(newValue)}
-        actionHandler={() => setMessage.externalVisible(!data.externalMessage.visible)}
-      />
       <div className={style.buttonSection}>
         <label className={style.label}>Timer message blink</label>
         <label className={style.label}>Blackout timer screens</label>
@@ -66,6 +60,13 @@ export default function MessageControl() {
           onClick={() => setMessage.timerBlackout(!data.timerMessage.timerBlackout)}
           data-testid='toggle timer blackout'
         />
+      </div>
+      <div>
+        <label className={style.label}>External Message</label>
+        <div className={`${style.inline} ${activeExternal}`}>
+          <span className={style.inlineText}>{data.externalMessage.text || '-'}</span>
+          <span className={style.inlineIcon}>{data.externalMessage.visible ? <IoEye /> : <IoEyeOffOutline />} </span>
+        </div>
       </div>
       <div className={`${style.onAirSection} ${style.padTop}`}>
         <label className={style.label}>Toggle On Air state</label>
