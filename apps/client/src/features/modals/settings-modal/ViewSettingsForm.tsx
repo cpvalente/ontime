@@ -79,7 +79,7 @@ export default function ViewSettingsForm() {
     return null;
   }
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
 
   if (isFetching || isFetchingInfo) {
     return <ModalLoader />;

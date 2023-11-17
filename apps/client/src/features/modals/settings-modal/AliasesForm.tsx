@@ -78,7 +78,7 @@ export default function AliasesForm() {
     });
   };
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
   const hasTooManyOptions = fields.length >= 20;
 
   if (isFetching) {
