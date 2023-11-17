@@ -48,7 +48,7 @@ export default function AliasesForm() {
 
   useEffect(() => {
     if (data) {
-      reset(data);
+      reset({ aliases: data });
     }
   }, [data, reset]);
 

@@ -50,7 +50,7 @@ export default function AppSettingsModal() {
     reset(data);
   };
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
 
   if (isFetching) {
     return <ModalLoader />;

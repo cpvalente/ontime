@@ -1,6 +1,6 @@
-/* eslint-disable react/display-name */
 import { ComponentType, useMemo } from 'react';
-import { SupportedEvent } from 'ontime-types';
+import { TimeManagerType } from 'common/models/TimeManager.type';
+import { Message, OntimeEvent, ProjectData, SupportedEvent, TimerMessage, ViewSettings } from 'ontime-types';
 import { useStore } from 'zustand';
 
 import useProjectData from '../../common/hooks-query/useProjectData';
@@ -9,8 +9,32 @@ import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { runtime } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
-const withData = <P extends object>(Component: ComponentType<P>) => {
-  return (props: Partial<P>) => {
+type WithDataProps = {
+  isMirrored: boolean;
+  pres: TimerMessage;
+  publ: Message;
+  lower: Message;
+  eventNow: OntimeEvent | null;
+  publicEventNow: OntimeEvent | null;
+  eventNext: OntimeEvent | null;
+  publicEventNext: OntimeEvent | null;
+  time: TimeManagerType;
+  events: OntimeEvent[];
+  backstageEvents: OntimeEvent[];
+  selectedId: string | null;
+  publicSelectedId: string | null;
+  nextId: string | null;
+  general: ProjectData;
+  viewSettings: ViewSettings;
+  onAir: boolean;
+};
+
+function getDisplayName(Component: React.ComponentType<any>): string {
+  return Component.displayName || Component.name || 'Component';
+}
+
+const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
+  const WithDataComponent = (props: P) => {
     // persisted app state
     const isMirrored = useViewOptionsStore((state) => state.mirror);
 
@@ -84,6 +108,9 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
       />
     );
   };
+
+  WithDataComponent.displayName = `WithData(${getDisplayName(Component)})`;
+  return WithDataComponent;
 };
 
 export default withData;
