@@ -1,5 +1,6 @@
 import { DatabaseModel } from 'ontime-types';
 import { ClockSource, ClockType } from '../services/Clock.js';
+import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
 export const dbModel: DatabaseModel = {
   rundown: [],
@@ -13,7 +14,7 @@ export const dbModel: DatabaseModel = {
   },
   settings: {
     app: 'ontime',
-    version: 2,
+    version: ONTIME_VERSION,
     serverPort: 4001,
     editorKey: null,
     operatorKey: null,

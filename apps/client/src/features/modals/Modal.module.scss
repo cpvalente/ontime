@@ -41,8 +41,8 @@ $el-padding-with-compensation: 24px; // 16 + 8
 .title {
   font-size: $inner-section-text-size;
   color: $gray-500;
-  padding-left: 8px;
-  margin: 8px 0;
+  padding-left: 0.5rem;
+  margin: 0.5rem 0;
   text-transform: uppercase;
 }
 
@@ -107,6 +107,16 @@ $el-padding-with-compensation: 24px; // 16 + 8
   color: $error-red;
 }
 
+.success {
+  @include subsection;
+  color: $action-blue;
+}
+
+.feedbackSection {
+  justify-content: flex-start;
+
+}
+
 .buttonSection {
   margin-top: $section-spacing;
   display: flex;
@@ -115,6 +125,10 @@ $el-padding-with-compensation: 24px; // 16 + 8
 
 .spacer {
   flex-grow: 1;
+}
+
+.vSpacer {
+  height: 2rem;
 }
 
 .shiftRight {
@@ -133,6 +147,12 @@ $el-padding-with-compensation: 24px; // 16 + 8
 .twoColumn {
   display: grid;
   grid-template-columns: auto 1fr;
+}
+
+.twoEqualColumn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .padBottom {

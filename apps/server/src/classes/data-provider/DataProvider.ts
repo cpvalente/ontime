@@ -2,7 +2,16 @@
  * Class Event Provider is a mediator for handling the local db
  * and adds logic specific to ontime data
  */
-import { ProjectData, OntimeRundown, ViewSettings } from 'ontime-types';
+import {
+  ProjectData,
+  OntimeRundown,
+  ViewSettings,
+  DatabaseModel,
+  OSCSettings,
+  UserFields,
+  Alias,
+  Settings,
+} from 'ontime-types';
 
 import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
@@ -37,7 +46,6 @@ export class DataProvider {
 
   static async clearRundown() {
     data.rundown = [];
-    // @ts-expect-error -- not sure how to type, this is library side
     await db.write();
   }
 
@@ -45,7 +53,7 @@ export class DataProvider {
     return data.settings;
   }
 
-  static async setSettings(newData) {
+  static async setSettings(newData: Settings) {
     data.settings = { ...newData };
     await this.persist();
   }
@@ -58,7 +66,7 @@ export class DataProvider {
     return data.aliases;
   }
 
-  static async setAliases(newData) {
+  static async setAliases(newData: Alias[]) {
     data.aliases = newData;
     await this.persist();
   }
@@ -76,12 +84,12 @@ export class DataProvider {
     await this.persist();
   }
 
-  static async setUserFields(newData) {
+  static async setUserFields(newData: UserFields) {
     data.userFields = { ...newData };
     await this.persist();
   }
 
-  static async setOsc(newData) {
+  static async setOsc(newData: OSCSettings) {
     data.osc = { ...newData };
     await this.persist();
   }
@@ -91,11 +99,10 @@ export class DataProvider {
   }
 
   static async persist() {
-    // @ts-expect-error -- not sure how to type, this is library side
     await db.write();
   }
 
-  static async mergeIntoData(newData) {
+  static async mergeIntoData(newData: Partial<DatabaseModel>) {
     const mergedData = safeMerge(data, newData);
     data.project = mergedData.project;
     data.settings = mergedData.settings;

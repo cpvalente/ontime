@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { GetInfo } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { APP_INFO } from '../api/apiConstants';
@@ -6,7 +7,7 @@ import { getInfo } from '../api/ontimeApi';
 import { ontimePlaceholderInfo } from '../models/Info';
 
 export default function useInfo() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, status, isError, refetch, isFetching } = useQuery<GetInfo>({
     queryKey: APP_INFO,
     queryFn: getInfo,
     placeholderData: ontimePlaceholderInfo,
@@ -16,5 +17,5 @@ export default function useInfo() {
     networkMode: 'always',
   });
 
-  return { data, status, isError, refetch };
+  return { data, status, isError, refetch, isFetching };
 }

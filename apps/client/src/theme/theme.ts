@@ -13,7 +13,8 @@ import {
 import { ontimeCheckboxOnDark } from './ontimeCheckbox';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
-import { ontimeModal, ontimeSmallModal } from './ontimeModal';
+import { ontimeModal, ontimeSmallModal, ontimeUploadModal } from './ontimeModal';
+import { ontimeProgressGray } from './OntimeProgress';
 import { ontimeBlockRadio } from './ontimeRadio';
 import { ontimeSelect } from './ontimeSelect';
 import { lightSwitch, ontimeSwitch } from './ontimeSwitch';
@@ -79,6 +80,12 @@ const theme = extendTheme({
       variants: {
         ontime: { ...ontimeModal },
         'ontime-small': { ...ontimeSmallModal },
+        'ontime-upload': { ...ontimeUploadModal },
+      },
+    },
+    Progress: {
+      variants: {
+        'ontime-on-light': { ...ontimeProgressGray },
       },
     },
     Radio: {

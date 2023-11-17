@@ -45,7 +45,7 @@ describe('mergeObject()', () => {
       third: '',
     });
   });
-  test.skip('it only merges fields of the first object', () => {
+  test('it only merges fields of the first object', () => {
     const a = {
       first: 'yes',
       second: 'yes',
@@ -63,6 +63,35 @@ describe('mergeObject()', () => {
       second: null,
       third: '',
     });
+  });
+  test('merges nested objects', () => {
+    // Define a sample object with nested properties
+    const a = {
+      name: 'John',
+      address: {
+        city: 'New York',
+        postalCode: '10001',
+      },
+    };
+
+    // Define a partial object with nested properties for merging
+    const b = {
+      name: 'Doe',
+      address: {
+        city: 'San Francisco',
+        state: 'CA',
+      },
+    };
+
+    const merged = mergeObject(a, b);
+
+    expect(merged.name).toBe('Doe');
+    expect(merged.address.city).toBe('San Francisco');
+    // @ts-expect-error -- its ok, just checking
+    expect(merged.address.state).toBe('CA');
+    expect(merged.address.postalCode).toBe('10001');
+    expect(merged.address).not.toBe(a.address);
+    expect(merged.address).not.toBe(b.address);
   });
 });
 

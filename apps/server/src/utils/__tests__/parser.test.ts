@@ -201,7 +201,7 @@ describe('test json parser with valid def', () => {
     },
     settings: {
       app: 'ontime',
-      version: 2,
+      version: '2.0.0',
       timeFormat: '24',
     },
     viewSettings: {},
@@ -260,7 +260,7 @@ describe('test json parser with valid def', () => {
   it('settings are for right app and version', () => {
     const settings = parseResponse?.settings;
     expect(settings.app).toBe('ontime');
-    expect(settings.version).toBe(2);
+    expect(settings.version).toEqual(expect.any(String));
   });
 
   it('missing settings', () => {
@@ -387,7 +387,7 @@ describe('test corrupt data', () => {
       },
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -410,7 +410,7 @@ describe('test corrupt data', () => {
       },
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -427,7 +427,7 @@ describe('test corrupt data', () => {
       project: {},
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -444,7 +444,7 @@ describe('test corrupt data', () => {
       event: {},
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
     };
 
@@ -526,7 +526,7 @@ describe('test event validator', () => {
     expect(typeof validated.timeStart).toEqual('number');
     expect(validated.timeStart).toEqual(0);
     expect(typeof validated.timeEnd).toEqual('number');
-    expect(validated.timeEnd).toEqual(0);
+    expect(validated.timeEnd).toEqual(2);
   });
 
   it('handles bad objects', () => {
@@ -580,24 +580,24 @@ describe('test parseExcel function', () => {
       [
         'Time Start',
         'Time End',
-        'Event Title',
-        'Presenter Name',
-        'Event Subtitle',
+        'Title',
+        'Presenter',
+        'Subtitle',
         'End Action',
         'Timer type',
-        'Is Public? (x)',
-        'Skip? (x)',
+        'Public',
+        'Skip',
         'Notes',
-        'User0:test0',
-        'User1:test1',
-        'User2:test2',
-        'User3:test3',
-        'User4:test4',
-        'User5:test5',
-        'User6:test6',
-        'user7:test7',
-        'user8:test8',
-        'user9:test9',
+        'test0',
+        'test1',
+        'test2',
+        'test3',
+        'test4',
+        'test5',
+        'test6',
+        'test7',
+        'test8',
+        'test9',
         'Colour',
         'cue',
       ],
@@ -651,6 +651,19 @@ describe('test parseExcel function', () => {
       ],
       [],
     ];
+
+    const partialOptions = {
+      user0: 'test0',
+      user1: 'test1',
+      user2: 'test2',
+      user3: 'test3',
+      user4: 'test4',
+      user5: 'test5',
+      user6: 'test6',
+      user7: 'test7',
+      user8: 'test8',
+      user9: 'test9',
+    };
 
     const expectedParsedProjectData = {
       title: 'Test Event',
@@ -707,7 +720,7 @@ describe('test parseExcel function', () => {
       },
     ];
 
-    const parsedData = await parseExcel(testdata);
+    const parsedData = parseExcel(testdata, partialOptions);
     expect(parsedData.project).toStrictEqual(expectedParsedProjectData);
     expect(parsedData.rundown).toBeDefined();
     expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
@@ -721,7 +734,7 @@ describe('test aliases import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       aliases: [
         {
@@ -760,7 +773,7 @@ describe('test userFields import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       userFields: testUserFields,
     };
@@ -787,7 +800,7 @@ describe('test userFields import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       userFields: testUserFields,
     };
@@ -801,7 +814,7 @@ describe('test userFields import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
     };
 
@@ -815,7 +828,7 @@ describe('test userFields import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       userFields: {
         notThis: 'this shouldng be accepted',
@@ -834,9 +847,18 @@ describe('test views import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
-      viewSettings: {},
+      viewSettings: {
+        normalColor: '#ffffffcc',
+        warningColor: '#FFAB33',
+        warningThreshold: 120000,
+        dangerColor: '#ED3333',
+        dangerThreshold: 60000,
+        endMessage: '',
+        overrideStyles: false,
+        notAthing: true,
+      },
       views: {
         overrideStyles: true,
       },
@@ -850,7 +872,7 @@ describe('test views import', () => {
       endMessage: '',
       overrideStyles: false,
     };
-    const parsed = parseViewSettings(testData, false);
+    const parsed = parseViewSettings(testData);
     expect(parsed).toStrictEqual(expectedParsedViewSettings);
   });
 
@@ -859,19 +881,10 @@ describe('test views import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
     };
-    const expectedParsedViewSettings = {
-      normalColor: '#ffffffcc',
-      warningColor: '#FFAB33',
-      warningThreshold: 120000,
-      dangerColor: '#ED3333',
-      dangerThreshold: 60000,
-      endMessage: '',
-      overrideStyles: false,
-    };
-    const parsed = parseViewSettings(testData, true);
-    expect(parsed).toStrictEqual(expectedParsedViewSettings);
+    const parsed = parseViewSettings(testData);
+    expect(parsed).toStrictEqual({});
   });
 });

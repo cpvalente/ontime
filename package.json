@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "2.13.1",
+  "version": "2.16.2",
   "description": "Time keeping for live events",
   "keywords": [
     "lighdev",
@@ -26,26 +26,40 @@
     "dev:electron": "turbo run dev --filter=ontime",
     "dev:server": "turbo run dev --filter=ontime-server",
     "lint": "turbo run lint",
+    "lint-staged": "turbo run lint-staged --concurrency=1",
     "build": "turbo run build",
     "build:local": "turbo run build:local",
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
     "e2e": "cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
+    "e2e:ui": "cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
     "e2e:i": "npx playwright codegen",
     "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules"
   },
   "devDependencies": {
     "@playwright/test": "^1.34.3",
-    "@types/node": "^18.11.18",
-    "@typescript-eslint/eslint-plugin": "^5.48.0",
-    "@typescript-eslint/parser": "^5.48.0",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.31.0",
-    "eslint-config-prettier": "^8.6.0",
+    "eslint": "^8.53.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-playwright": "^0.12.0",
-    "prettier": "^2.8.2",
-    "turbo": "^1.8.8",
-    "typescript": "^4.8.3"
+    "husky": "^8.0.3",
+    "lint-staged": "^15.1.0",
+    "prettier": "^3.0.3",
+    "turbo": "^1.10.16",
+    "typescript": "^5.2.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "pnpm lint"
+    ]
   }
 }
