@@ -5,6 +5,7 @@
   "version": "2.13.1",
   "exports": "./src/index.js",
   "dependencies": {
+    "@googleapis/sheets": "^5.0.5",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
@@ -13,7 +14,6 @@
     "express-static-gzip": "^2.1.7",
     "express-validator": "^6.14.2",
     "google-auth-library": "^9.2.0",
-    "googleapis": "^128.0.0",
     "lowdb": "^5.0.5",
     "multer": "^1.4.5-lts.1",
     "node-osc": "^9.0.2",

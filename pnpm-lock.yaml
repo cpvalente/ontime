@@ -249,6 +249,9 @@ importers:
 
   apps/server:
     dependencies:
+      '@googleapis/sheets':
+        specifier: ^5.0.5
+        version: 5.0.5
       body-parser:
         specifier: ^1.20.0
         version: 1.20.1
@@ -273,9 +276,6 @@ importers:
       google-auth-library:
         specifier: ^9.2.0
         version: 9.2.0
-      googleapis:
-        specifier: ^128.0.0
-        version: 128.0.0
       lowdb:
         specifier: ^5.0.5
         version: 5.0.5
@@ -2230,6 +2230,16 @@ packages:
     resolution: {integrity: sha512-Kn7K8dx/5U6+cT1yEhpX1w4PCSg0M+XyRILPgvwcEBjerFWCwQj5sbr3/VmxqV0JGHCBCzyd6LxypEuehypY1w==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
+
+  /@googleapis/sheets@5.0.5:
+    resolution: {integrity: sha512-XMoONmgAJm2jYeTYHX4054VcEkElxlgqmnHvt0wAurzEHoGJLdUHhTAJXGPLgSs4WVMPtgU8HLrmk7/U+Qlw7A==}
+    engines: {node: '>=12.0.0'}
+    dependencies:
+      googleapis-common: 7.0.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
 
   /@humanwhocodes/config-array@0.11.13:
     resolution: {integrity: sha512-JSBDMiDKSzQVngfRjOdFXgFfklaXI4K9nLF49Auh21lmBWRLIK3+xTErTWD4KU54pb6coM6ESE7Awz/FNU3zgQ==}
@@ -5744,17 +5754,6 @@ packages:
       qs: 6.11.0
       url-template: 2.0.8
       uuid: 9.0.1
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-    dev: false
-
-  /googleapis@128.0.0:
-    resolution: {integrity: sha512-+sLtVYNazcxaSD84N6rihVX4QiGoqRdnlz2SwmQQkadF31XonDfy4ufk3maMg27+FiySrH0rd7V8p+YJG6cknA==}
-    engines: {node: '>=14.0.0'}
-    dependencies:
-      google-auth-library: 9.2.0
-      googleapis-common: 7.0.1
     transitivePeerDependencies:
       - encoding
       - supports-color

@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import { readFile, writeFile } from 'fs/promises';
-import { google } from 'googleapis';
+import { sheets } from '@googleapis/sheets';
 import http from 'http';
 import { URL } from 'url';
 import { logger } from '../classes/Logger.js';
@@ -55,7 +55,7 @@ class sheet {
       throw new Error('Got incorrect options to excel import', JSON.parse(options));
     }
 
-    const rq = await google.sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
+    const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
       spreadsheetId: sheetId,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
