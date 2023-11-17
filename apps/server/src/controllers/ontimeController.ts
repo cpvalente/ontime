@@ -226,7 +226,7 @@ export const postSettings = async (req, res) => {
     }
 
     const language = req.body?.language || 'en';
-    const clockSource = req.body?.clockSource;
+    const clockSettings = req.body?.clockSettings;
 
     const newData = {
       ...settings,
@@ -235,7 +235,7 @@ export const postSettings = async (req, res) => {
       timeFormat,
       language,
       serverPort,
-      clockSource,
+      clockSettings,
     };
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);

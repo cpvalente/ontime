@@ -134,10 +134,10 @@ export const initAssets = async () => {
 export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
 
-  const { serverPort, clockSource } = DataProvider.getSettings();
+  const { serverPort, clockSettings } = DataProvider.getSettings();
 
-  clock.setSource(clockSource.type, clockSource.settings);
-  clock.setOffset(clockSource.offset);
+  clock.setSource(clockSettings.source, clockSettings.settings);
+  clock.setOffset(clockSettings.offset);
 
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 

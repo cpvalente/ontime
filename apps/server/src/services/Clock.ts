@@ -2,11 +2,7 @@ import { MidiClock } from './Clock.midi.js';
 import { NtpClock } from './Clock.ntp.js';
 import { SystemClock } from './Clock.system.js';
 
-enum Source {
-  System = 'system',
-  MIDI = 'MIDI',
-  NTP = 'NTP',
-}
+import { ClockSource } from 'ontime-types';
 
 export interface ClockInterface {
   getTime: () => number; //milliseconds since midnight
@@ -20,7 +16,7 @@ class Clock {
   private source: ClockInterface;
   private readonly sytemTime: ClockInterface;
 
-  constructor(source?: Source) {
+  constructor(source?: ClockSource) {
     if (Clock.instance) {
       return Clock.instance;
     }
@@ -32,21 +28,21 @@ class Clock {
     }
   }
 
-  setSource(s: Source, settings: string) {
+  setSource(s: ClockSource, settings: string) {
     if (this.source !== undefined) {
       this.source.close();
     }
     switch (s) {
-      case Source.System: {
+      case ClockSource.System: {
         this.source = this.sytemTime;
         break;
       }
-      case Source.MIDI: {
+      case ClockSource.MIDI: {
         this.source = new MidiClock();
         this.source.settings = settings;
         break;
       }
-      case Source.NTP: {
+      case ClockSource.NTP: {
         this.source = new NtpClock();
         this.source.settings = settings;
         break;
@@ -70,10 +66,4 @@ class Clock {
   }
 }
 
-export const clock = new Clock(Source.System);
-export { Source as ClockType };
-export type ClockSource = {
-  type: Source;
-  settings: string;
-  offset: number;
-};
+export const clock = new Clock(ClockSource.System);

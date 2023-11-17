@@ -120,10 +120,10 @@ export const parseSettings = (data): Settings => {
         operatorKey: s.operatorKey || null,
         timeFormat: s.timeFormat || '24',
         language: s.language || 'en',
-        clockSource: {
-          type: s?.clockSource?.type || 'system',
-          settings: s?.clockSource?.settings || '',
-          offset: Number(s?.clockSource?.offset) || 0,
+        clockSettings: {
+          source: s?.clockSettings?.source || 'system',
+          settings: s?.clockSettings?.settings || '',
+          offset: Number(s?.clockSettings?.offset) || 0,
         },
       };
 

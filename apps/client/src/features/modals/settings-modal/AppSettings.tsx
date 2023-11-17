@@ -125,54 +125,6 @@ export default function AppSettingsModal() {
           <option value='sv'>Swedish</option>
         </Select>
       </ModalSplitInput>
-      <ModalSplitInput
-        field='clockSource.type'
-        title='Clock Source'
-        description='Language for static fields in views'
-        error={errors.clockSource?.message}
-      >
-        <Select
-          backgroundColor='white'
-          size='sm'
-          width='auto'
-          isDisabled={disableInputs}
-          {...register('clockSource.type')}
-        >
-          <option value='system'>System</option>
-          <option value='MIDI'>MIDI - MTC</option>
-          <option value='NTP'>NTP</option>
-        </Select>
-      </ModalSplitInput>
-      <ModalSplitInput
-        field='clockSource.settings'
-        title='Clock input settings'
-        description='Midi port/NTP source'
-        error={errors.clockSource?.message}
-      >
-        <Input
-          size='sm'
-          width='auto'
-          variant='ontime-filled-on-light'
-          placeholder={data?.clockSource.settings}
-          isDisabled={disableInputs}
-          {...register('clockSource.settings')}
-        />
-      </ModalSplitInput>
-      <ModalSplitInput
-        field='clockSource.offset'
-        title='Clock offset'
-        description='Clock offset'
-        error={errors.clockSource?.message}
-      >
-        <Input
-          size='sm'
-          width='auto'
-          type='number'
-          variant='ontime-filled-on-light'
-          isDisabled={disableInputs}
-          {...register('clockSource.offset')}
-        />
-      </ModalSplitInput>
       <OntimeModalFooter
         formId='app-settings'
         handleRevert={onReset}

@@ -1,5 +1,5 @@
 import { TimeFormat } from './TimeFormat.type';
-import { ClockSource } from '../../../../../apps/server/src/services/Clock.js';
+import { ClockSettings } from './Clock.types';
 
 export type Settings = {
   app: 'ontime';
@@ -9,5 +9,5 @@ export type Settings = {
   operatorKey: null | string;
   timeFormat: TimeFormat;
   language: string;
-  clockSource: ClockSource;
+  clockSettings: ClockSettings;
 };
