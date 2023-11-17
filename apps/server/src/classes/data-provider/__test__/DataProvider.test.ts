@@ -1,4 +1,4 @@
-import { Alias, DatabaseModel, OntimeRundown, Settings, UserFields } from 'ontime-types';
+import { Alias, DatabaseModel, OntimeRundown, Settings } from 'ontime-types';
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
