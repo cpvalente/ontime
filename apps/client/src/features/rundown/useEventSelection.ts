@@ -38,11 +38,6 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       const deduplicatedEventsToEdit = new Set([...eventsToEdit].filter((eventId) => eventId !== id));
 
       if (deduplicatedEventsToEdit.size !== eventsToEdit.size) {
-        // const lastEventIdInSet = [...eventsToEdit].at(-1);
-
-        // if (lastEventIdInSet === id) {
-        // }
-
         return set(() => ({
           eventsToEdit: deduplicatedEventsToEdit,
           anchoredEventIndex: indexPlusOne,
@@ -56,8 +51,6 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
 
     if (editMode === 'range') {
       const eventIds = rundown.filter(isOntimeEvent).map((event) => event.id);
-
-      console.log(anchoredEventIndex);
 
       if (anchoredEventIndex === null) {
         const eventsUntilIndex = eventIds.slice(0, index);
