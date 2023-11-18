@@ -256,3 +256,12 @@ export const getSheetsAuthUrl = async () => {
   const res = await axios.get(`${ontimeURL}/sheet-authurl`);
   return res.data;
 };
+
+export const postPreviewSheet = async (sheetId: string, worksheet: string, options?: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet-preview`, {
+    sheetid: sheetId,
+    worksheet: worksheet,
+    options: options,
+  });
+  return response.data.data;
+};

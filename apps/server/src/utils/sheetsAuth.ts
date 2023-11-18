@@ -6,7 +6,7 @@ import { URL } from 'url';
 import { logger } from '../classes/Logger.js';
 import { getAppDataPath } from '../setup.js';
 import { DatabaseModel, LogOrigin } from 'ontime-types';
-import { ExcelImportOptions, isExcelImportMap } from 'ontime-utils';
+import { ExcelImportOptions, isExcelImportMap, defaultExcelImportMap } from 'ontime-utils';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
 import { ensureDirectory } from './fileManagement.js';
@@ -45,7 +45,7 @@ class sheet {
    * @returns {Promise<Partial<ResponseOK>>}
    * @throws
    */
-  public async parse(sheetId: string, worksheet: string, options: ExcelImportOptions) {
+  public async parse(sheetId: string, worksheet: string, options = defaultExcelImportMap) {
     if (!sheet.client) {
       if (!(await this.authorized())) {
         throw new Error(`Sheet not authorized`);

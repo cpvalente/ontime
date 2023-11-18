@@ -31,6 +31,7 @@ import {
   validateOscSubscription,
   validatePatchProjectFile,
   validateSettings,
+  validateSheetPreview,
   validateUserFields,
   viewValidator,
 } from '../controllers/ontimeController.validate.js';
@@ -101,7 +102,5 @@ router.get('/sheet-authstatus', sheetAuthState);
 // create route between controller and '/ontime/sheet-authstatus' endpoint
 router.get('/sheet-authurl', sheetAuthUrl);
 
-router.get('/sheet-authurl', previewSheet);
-
 // create route between controller and '/ontime/preview-sheet' endpoint
-router.get('/sheet-preview', previewSheet);
+router.post('/sheet-preview', validateSheetPreview, previewSheet);

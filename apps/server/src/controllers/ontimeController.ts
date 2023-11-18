@@ -397,13 +397,8 @@ export async function previewExcel(req, res) {
  * @returns parsed result
  */
 export async function previewSheet(req, res) {
-  if (!req.body.sheetid) {
-    res.status(400).send({ message: 'missing sheet id' });
-    return;
-  }
   try {
-    const options = JSON.parse(req.body.options);
-    const data = await Sheet.parse(req.body.sheetid, req.body.worksheet, options);
+    const data = await Sheet.parse(req.body.sheetid, req.body.worksheet);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -421,13 +416,15 @@ export async function sheetClientFile(req, res) {
   }
 
   try {
-    const client = JSON.parse( fs.readFileSync(req.file.path as string, 'utf-8'));
+    const client = JSON.parse(fs.readFileSync(req.file.path as string, 'utf-8'));
     await Sheet.saveClientSecrets(client);
     res.status(200).send('OK');
   } catch (error) {
     res.status(500).send({ message: error.toString() });
   }
-  fs.unlink(req.file.path, (err) => {if(err) (logger.error(LogOrigin.Server, err.message))});
+  fs.unlink(req.file.path, (err) => {
+    if (err) logger.error(LogOrigin.Server, err.message);
+  });
 }
 
 /**
