@@ -415,18 +415,19 @@ export async function previewSheet(req, res) {
  * @returns parsed result
  */
 export async function sheetClientFile(req, res) {
-  if (!req.file) {
+  if (!req.file.path) {
     res.status(400).send({ message: 'File not found' });
     return;
   }
 
   try {
-    const clientSecret = JSON.parse(req.body.options);
-    await Sheet.saveClientSecrets(clientSecret);
+    const client = JSON.parse( fs.readFileSync(req.file.path as string, 'utf-8'));
+    await Sheet.saveClientSecrets(client);
     res.status(200).send('OK');
   } catch (error) {
     res.status(500).send({ message: error.toString() });
   }
+  fs.unlink(req.file.path, (err) => {if(err) (logger.error(LogOrigin.Server, err.message))});
 }
 
 /**

@@ -103,3 +103,6 @@ router.post('/osc-subscriptions', validateOscSubscription, postOscSubscriptions)
 
 // create route between controller and '/ontime/new' endpoint
 router.post('/new', projectSanitiser, postNew);
+
+// create route between controller and '/ontime/sheet-client' endpoint
+router.post('/sheet-clientsecrect', uploadFile, sheetClientFile);

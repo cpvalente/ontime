@@ -10,6 +10,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+import { uploadSheetClientFile } from '../../../common/api/ontimeApi';
 
 interface SheetsModalProps {
   onClose: () => void;
@@ -31,6 +32,8 @@ export default function SheetsModal(props: SheetsModalProps) {
     if (!selectedFile) {
       setFile(null);
       return;
+    } else {
+      uploadSheetClientFile(selectedFile)
     }
     setFile(selectedFile);
   };
@@ -64,7 +67,7 @@ export default function SheetsModal(props: SheetsModalProps) {
           />
           <div>Need to add some help here</div>
           <div>
-            <Button onClick={handleClick}>Upload Token</Button>
+            <Button onClick={handleClick}>Upload Client Secrect</Button>
           </div>
           {file && <div>We got a file</div>}
           <div>You are authenticated</div>

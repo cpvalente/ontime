@@ -227,3 +227,25 @@ export async function getLatestVersion(): Promise<HasUpdate> {
 export async function postNew(initialData: Partial<ProjectData>) {
   return axios.post(`${ontimeURL}/new`, initialData);
 }
+
+/**
+ * @description sheet Client File
+ * @return {Promise}
+ */
+export const uploadSheetClientFile = async (
+  file: File
+) => {
+  const formData = new FormData();
+  formData.append('userFile', file);
+
+  await axios
+    .post(`${ontimeURL}/sheet-clientsecrect`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        const complete = progressEvent?.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+      },
+    })
+    .then((response) => response.data.id);
+};
