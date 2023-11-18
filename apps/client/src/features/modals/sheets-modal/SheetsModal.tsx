@@ -45,7 +45,12 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   const sheetid = useRef<HTMLInputElement>(null);
   const worksheet = useRef<HTMLInputElement>(null);
-  const handleClose = () => onClose();
+  const handleClose = () => {
+    setRundown(null);
+    setProject(null);
+    setUserFields(null);
+    onClose();
+  };
   const handleClick = () => {
     fileInputRef.current?.click();
   };
