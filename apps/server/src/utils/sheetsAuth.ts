@@ -36,6 +36,7 @@ class sheet {
       return false;
     }
   }
+  
 
   /**
    * `parse` a given sheet
@@ -45,7 +46,7 @@ class sheet {
    * @returns {Promise<Partial<ResponseOK>>}
    * @throws
    */
-  public async parse(sheetId: string, worksheet: string, options = defaultExcelImportMap) {
+  public async pull(sheetId: string, worksheet: string, options = defaultExcelImportMap) {
     if (!sheet.client) {
       if (!(await this.authorized())) {
         throw new Error(`Sheet not authorized`);

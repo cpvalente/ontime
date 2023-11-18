@@ -398,7 +398,7 @@ export async function previewExcel(req, res) {
  */
 export async function previewSheet(req, res) {
   try {
-    const data = await Sheet.parse(req.body.sheetid, req.body.worksheet);
+    const data = await Sheet.pull(req.body.sheetid, req.body.worksheet);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
