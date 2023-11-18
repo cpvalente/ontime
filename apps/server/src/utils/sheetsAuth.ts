@@ -143,7 +143,6 @@ class sheet {
    */
   public async openAuthServer(): Promise<string | false> {
     //TODO: this only works on local networks
-    //FIXME: the authUrl is not returnd before the second call
     if (sheet.authUrl) {
       return sheet.authUrl;
     }
@@ -213,20 +212,19 @@ class sheet {
     } else if (redirectUri.port !== '') {
       listenPort = Number(redirectUri.port);
     }
-    server.listen(listenPort, () => {
-      const address = server.address();
-      if (typeof address !== 'string') {
-        redirectUri.port = String(address.port);
-      }
-      // open the browser to the authorize url to start the workflow
-      const authorizeUrl = client.generateAuthUrl({
-        redirect_uri: redirectUri.toString(),
-        access_type: 'offline',
-        scope: this.scope,
-      });
-      sheet.authUrl = authorizeUrl;
-      return authorizeUrl;
+    //FIXME: the server might not start correctly
+    server.listen(listenPort, () => {});
+    const address = server.address();
+    if (typeof address !== 'string') {
+      redirectUri.port = String(address.port);
+    }
+    // open the browser to the authorize url to start the workflow
+    const authorizeUrl = client.generateAuthUrl({
+      redirect_uri: redirectUri.toString(),
+      access_type: 'offline',
+      scope: this.scope,
     });
+    sheet.authUrl = authorizeUrl;
     setTimeout(
       () => {
         sheet.authUrl = null;
@@ -234,6 +232,7 @@ class sheet {
       },
       2 * 60 * 1000,
     );
+    return authorizeUrl;
   }
 }
 
