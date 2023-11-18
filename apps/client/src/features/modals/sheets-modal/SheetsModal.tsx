@@ -10,7 +10,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { uploadSheetClientFile } from '../../../common/api/ontimeApi';
+import { getSheetsAuthStatus, getSheetsAuthUrl, uploadSheetClientFile } from '../../../common/api/ontimeApi';
 
 interface SheetsModalProps {
   onClose: () => void;
@@ -21,6 +21,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   const { isOpen, onClose } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [authState, setAuthState] = useState<boolean>(true);
 
   const handleClose = () => onClose();
   const handleClick = () => {
@@ -33,13 +34,26 @@ export default function SheetsModal(props: SheetsModalProps) {
       setFile(null);
       return;
     } else {
-      uploadSheetClientFile(selectedFile)
+      uploadSheetClientFile(selectedFile);
     }
     setFile(selectedFile);
   };
 
-  const handleAuthenticate = () => {}
-  const handlePullData = () => {}
+  //TODO: do smoething better here
+  getSheetsAuthStatus().then((data) => {
+    setAuthState(data);
+  });
+
+  const handleAuthenticate = () => {
+    getSheetsAuthUrl().then((data) => {
+      console.log(data);
+      if (data == 'bad') {
+      } else {
+        window.open(data, '_blank', 'noreferrer');
+      }
+    });
+  };
+  const handlePullData = () => {};
 
   return (
     <Modal
@@ -69,8 +83,8 @@ export default function SheetsModal(props: SheetsModalProps) {
           <div>
             <Button onClick={handleClick}>Upload Client Secrect</Button>
           </div>
-          {file && <div>We got a file</div>}
-          <div>You are authenticated</div>
+          {authState && <div>You are authenticated</div>}
+          {!authState && <div>You are not authenticated</div>}
           <div>
             <Button variant='ontime-filled' padding='0 2em' onClick={handlePullData}>
               Pull data

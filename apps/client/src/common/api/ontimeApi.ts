@@ -232,12 +232,9 @@ export async function postNew(initialData: Partial<ProjectData>) {
  * @description sheet Client File
  * @return {Promise}
  */
-export const uploadSheetClientFile = async (
-  file: File
-) => {
+export const uploadSheetClientFile = async (file: File) => {
   const formData = new FormData();
   formData.append('userFile', file);
-
   await axios
     .post(`${ontimeURL}/sheet-clientsecrect`, formData, {
       headers: {
@@ -248,4 +245,14 @@ export const uploadSheetClientFile = async (
       },
     })
     .then((response) => response.data.id);
+};
+
+export const getSheetsAuthStatus = async () => {
+  const res = await axios.get(`${ontimeURL}/sheet-authstatus`);
+  return res.data;
+};
+
+export const getSheetsAuthUrl = async () => {
+  const res = await axios.get(`${ontimeURL}/sheet-authurl`);
+  return res.data;
 };

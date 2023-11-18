@@ -143,6 +143,7 @@ class sheet {
    */
   public async openAuthServer(): Promise<string | false> {
     //TODO: this only works on local networks
+    //FIXME: the authUrl is not returnd before the second call
     if (sheet.authUrl) {
       return sheet.authUrl;
     }
