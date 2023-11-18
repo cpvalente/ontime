@@ -12,9 +12,10 @@ import {
 } from '@dnd-kit/core';
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { flexRender, HeaderGroup } from '@tanstack/react-table';
-import { OntimeRundownEntry } from 'ontime-types';
+import { OntimeRundownEntry, UserFields } from 'ontime-types';
 
 import { useLocalStorage } from '../../../common/hooks/useLocalStorage';
+import useUserFields from '../../../common/hooks-query/useUserFields';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { initialColumnOrder } from '../cuesheetCols';
 
@@ -28,6 +29,8 @@ interface CuesheetHeaderProps {
 
 function CuesheetHeader(props: CuesheetHeaderProps) {
   const { headerGroups } = props;
+  const { data: userFields } = useUserFields();
+
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
@@ -89,10 +92,19 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
               <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
                 {headerGroup.headers.map((header) => {
                   const width = header.getSize();
+                  let headerContent = header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext());
+
+                  if (userFields) {
+                    if (Object.values(userFields).includes(header.id)) {
+                      headerContent = userFields[header.id as keyof UserFields];
+                    }
+                  }
 
                   return (
                     <SortableCell key={header.column.columnDef.id} header={header} style={{ width }}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      {headerContent}
                     </SortableCell>
                   );
                 })}
