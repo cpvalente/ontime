@@ -1,11 +1,11 @@
 import { OAuth2Client } from 'google-auth-library';
 import { readFile, writeFile } from 'fs/promises';
-import { sheets } from '@googleapis/sheets';
+import { sheets, sheets_v4 } from '@googleapis/sheets';
 import http from 'http';
 import { URL } from 'url';
 import { logger } from '../classes/Logger.js';
 import { getAppDataPath } from '../setup.js';
-import { DatabaseModel, LogOrigin } from 'ontime-types';
+import { DatabaseModel, LogOrigin, OntimeRundownEntry, isOntimeEvent } from 'ontime-types';
 import { ExcelImportOptions, isExcelImportMap, defaultExcelImportMap } from 'ontime-utils';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
@@ -36,7 +36,18 @@ class sheet {
       return false;
     }
   }
-  
+
+  public async push(sheetId: string, worksheet: string, options = defaultExcelImportMap) {
+    if (!sheet.client) {
+      if (!(await this.authorized())) {
+        throw new Error(`Sheet not authorized`);
+      }
+    }
+
+    if (!isExcelImportMap(options)) {
+      throw new Error('Got incorrect options to excel import', JSON.parse(options));
+    }
+  }
 
   /**
    * `parse` a given sheet
@@ -135,6 +146,55 @@ class sheet {
       }
     } catch (_) {}
     return false;
+  }
+
+  /**
+   * @param index - the index of the event in Sheet dimentions
+   */
+  private cellRequenstFromEvent(event: OntimeRundownEntry, index: number): sheets_v4.Schema$Request['updateCells'] {
+    const titelCol = 1
+    // index += titelRow;
+    let r: sheets_v4.Schema$CellData[] = [];
+    Object.entries(this.metadata['rundown'])
+      .filter(([key, value]) => value !== undefined)
+      .sort(([aKey, a], [bKey, b]) => a['col'] - b['col'])
+      .forEach(([key, value]) => {
+        if (isOntimeEvent(event)) {
+          if (key === 'colour') {
+            r.push({
+              userEnteredValue: { stringValue: event.colour },
+              userEnteredFormat: { backgroundColor: hexToRgb(event?.colour ?? null) },
+            });
+          } else if (typeof event[key] === 'number') {
+            r.push({
+              userEnteredValue: { stringValue: millisToString(event[key], true) },
+            });
+          } else if (typeof event[key] === 'string') {
+            r.push({
+              userEnteredValue: { stringValue: event[key] },
+            });
+          } else if (typeof event[key] === 'boolean') {
+            r.push({
+              userEnteredValue: { stringValue: event[key] ? 'x' : '' },
+            });
+          } else {
+            r.push({});
+          }
+        }
+      });
+    return {
+      start: {
+        sheetId: 0, //FIXME: get from smalest medata col
+        rowIndex: index,
+        columnIndex: titelCol,
+      },
+      fields: 'userEnteredValue,userEnteredFormat.backgroundColor',
+      rows: [
+        {
+          values: r,
+        },
+      ],
+    };
   }
 
   /**
