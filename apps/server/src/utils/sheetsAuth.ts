@@ -9,6 +9,7 @@ import { DatabaseModel, LogOrigin } from 'ontime-types';
 import { ExcelImportOptions, isExcelImportMap } from 'ontime-utils';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
+import { ensureDirectory } from './fileManagement.js';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -17,8 +18,9 @@ type ResponseOK = {
 class sheet {
   private static client: null | OAuth2Client = null;
   private readonly scope = 'https://www.googleapis.com/auth/spreadsheets';
-  private readonly client_secret = getAppDataPath() + '/client_secret.json';
-  private readonly token = getAppDataPath() + '/token.json';
+  private readonly sheetsFolder = getAppDataPath() + '/sheets';
+  private readonly client_secret = this.sheetsFolder + '/client_secret.json';
+  private readonly token = this.sheetsFolder + '/token.json';
   private static authUrl: null | string = null;
 
   /**
@@ -81,6 +83,8 @@ class sheet {
    * @param {Object} secrets
    */
   public async saveClientSecrets(secrets: Object) {
+    ensureDirectory(this.sheetsFolder);
+    logger.info(LogOrigin.Server, 'Sheets: got new client_secret');
     //TODO: test that this is actualy a client file?
     //invalidate previus auths
     sheet.client = null;
@@ -142,7 +146,7 @@ class sheet {
     if (sheet.authUrl) {
       return sheet.authUrl;
     }
-    const creadFile = await readFile(getAppDataPath() + '/credentials.json', 'utf-8').catch((err) =>
+    const creadFile = await readFile(this.client_secret, 'utf-8').catch((err) =>
       logger.error(LogOrigin.Server, `${err}`),
     );
     if (!creadFile) {
