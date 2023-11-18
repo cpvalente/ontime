@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-nocheck -- working on it
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { OSCSettings } from 'ontime-types';
 

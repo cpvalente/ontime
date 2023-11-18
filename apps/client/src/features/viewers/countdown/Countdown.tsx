@@ -121,7 +121,9 @@ export default function Countdown(props: CountdownProps) {
             <div className='time'>{clock}</div>
           </div>
 
-          <div className='status'>{getLocalizedString(`countdown.${runningMessage}`)}</div>
+          {runningMessage !== TimerMessage.unhandled && (
+            <div className='status'>{getLocalizedString(`countdown.${runningMessage}`)}</div>
+          )}
 
           <span className={`timer ${standby ? 'timer--paused' : ''} ${isRunningFinished ? 'timer--finished' : ''}`}>
             {formattedTimer}
