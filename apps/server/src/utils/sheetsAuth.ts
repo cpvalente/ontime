@@ -42,10 +42,10 @@ class sheet {
    * test existance of sheet and workssheet and get is index
    * @param {string} sheetId - https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
    * @param {string} worksheet - the name of the worksheet containg ontime data
-   * @returns {Promise<false | number>} - false if not found | id of worksheet
+   * @returns {Promise<false | {worksheetId: number, range: string}>} - false if not found | id of worksheet
    * @throws
    */
-  public async exist(sheetId: string, worksheet: string): Promise<false | number> {
+  public async exist(sheetId: string, worksheet: string): Promise<false | { worksheetId: number; range: string }> {
     const spreadsheets = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.get({
       spreadsheetId: sheetId,
     });
@@ -53,7 +53,11 @@ class sheet {
     if (spreadsheets.status === 200) {
       const w = spreadsheets.data.sheets.find((p) => p.properties.title == worksheet);
       if (w !== undefined) {
-        return w.properties.sheetId;
+        const endCell = this.getA1Notation(
+          w.properties.gridProperties.rowCount,
+          w.properties.gridProperties.columnCount,
+        );
+        return { worksheetId: w.properties.sheetId, range: worksheet + '!A1:' + endCell };
       }
     }
     return false;
@@ -66,8 +70,8 @@ class sheet {
       }
     }
 
-    const worksheetId = await this.exist(sheetId, worksheet);
-    if (!worksheetId) {
+    const sheetInfo = await this.exist(sheetId, worksheet);
+    if (!sheetInfo) {
       throw new Error(`Sheet not dose not exits`);
     }
 
@@ -78,7 +82,7 @@ class sheet {
       spreadsheetId: sheetId,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
-      range: worksheet + '!A:Z', //FIXME: this is an abitrary range
+      range: sheetInfo.range,
     });
     if (rq.status === 200) {
       //TODO: projectMetadata
@@ -92,12 +96,17 @@ class sheet {
       updateRundown.push({
         insertDimension: {
           inheritFromBefore: false,
-          range: { dimension: 'ROWS', startIndex: titleRow + 1, endIndex: titleRow + 2, sheetId: worksheetId },
+          range: {
+            dimension: 'ROWS',
+            startIndex: titleRow + 1,
+            endIndex: titleRow + 2,
+            sheetId: sheetInfo.worksheetId,
+          },
         },
       });
       //and delete the rest
       updateRundown.push({
-        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: worksheetId } },
+        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: sheetInfo.worksheetId } },
       });
       // insert the lenght of the rundown
       updateRundown.push({
@@ -107,7 +116,7 @@ class sheet {
             dimension: 'ROWS',
             startIndex: titleRow + 1,
             endIndex: titleRow + rundown.length,
-            sheetId: worksheetId,
+            sheetId: sheetInfo.worksheetId,
           },
         },
       });
@@ -121,13 +130,15 @@ class sheet {
       }
       //update the corespunding row with event data
       rundown.forEach((entry, index) =>
-        updateRundown.push(this.cellRequenstFromEvent(entry, index, worksheetId, rundownMetadata, titleCol as number)),
+        updateRundown.push(
+          this.cellRequenstFromEvent(entry, index, sheetInfo.worksheetId, rundownMetadata, titleCol as number),
+        ),
       );
       const writeResponds = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.batchUpdate({
         spreadsheetId: sheetId,
         requestBody: {
           includeSpreadsheetInResponse: false,
-          responseRanges: [worksheet + '!A:Z'], //FIXME:
+          responseRanges: [sheetInfo.range],
           requests: updateRundown,
         },
       });
@@ -162,11 +173,16 @@ class sheet {
       throw new Error('Got incorrect options to excel import', JSON.parse(options));
     }
 
+    const sheetInfo = await this.exist(sheetId, worksheet);
+    if (!sheetInfo) {
+      throw new Error(`Sheet not dose not exits`);
+    }
+
     const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
       spreadsheetId: sheetId,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
-      range: worksheet + '!A:Z', //FIXME: this is an abitrary range
+      range: sheetInfo.range,
     });
     if (rq.status === 200) {
       res.data = {};
@@ -198,7 +214,7 @@ class sheet {
   }
 
   /**
-   * saves curent client appdata path as token.json
+   * @description saves curent client appdata path as token.json
    */
   private async saveToken() {
     const payload = JSON.stringify({
@@ -244,7 +260,13 @@ class sheet {
   }
 
   /**
-   * @param index - the index of the event in rundown dimentions
+   * @description - creates updateCells request from ontime event
+   * @param {OntimeRundownEntry} event
+   * @param {number} index - index of the event
+   * @param {number} worksheetId
+   * @param {any} metadata - object with all the cell positions of the title of each attribute
+   * @param {number} titleCol - smallest col index
+   * @returns {sheets_v4.Schema} - list of update requests
    */
   private cellRequenstFromEvent(
     event: OntimeRundownEntry,
@@ -253,7 +275,6 @@ class sheet {
     metadata,
     titleCol: number,
   ): sheets_v4.Schema$Request {
-
     const r: sheets_v4.Schema$CellData[] = [];
     const tmp = Object.entries(metadata)
       .filter(([_, value]) => value !== undefined)
@@ -385,7 +406,7 @@ class sheet {
     } else if (redirectUri.port !== '') {
       listenPort = Number(redirectUri.port);
     }
-    //FIXME: the server might not start correctly
+    //TODO: the server might not start correctly
     server.listen(listenPort, () => {});
     const address = server.address();
     if (typeof address !== 'string') {
@@ -406,6 +427,29 @@ class sheet {
       2 * 60 * 1000,
     );
     return authorizeUrl;
+  }
+
+  /**
+   *
+   * @param {number} row - The row number of the cell reference. Row 1 is row number 0.
+   * @param {number} column - The column number of the cell reference. A is column number 0.
+   * @returns {string} Returns a cell reference as a string using A1 Notation
+   * @author https://www.labnol.org/convert-column-a1-notation-210601
+   * @example
+   *
+   *   getA1Notation(2, 4) returns "E3"
+   *   getA1Notation(2, 4) returns "E3"
+   *
+   */
+  private getA1Notation(row, column) {
+    const a1Notation = [`${row + 1}`];
+    const totalAlphabets = 'Z'.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+    let block = column;
+    while (block >= 0) {
+      a1Notation.unshift(String.fromCharCode((block % totalAlphabets) + 'A'.charCodeAt(0)));
+      block = Math.floor(block / totalAlphabets) - 1;
+    }
+    return a1Notation.join('');
   }
 }
 
