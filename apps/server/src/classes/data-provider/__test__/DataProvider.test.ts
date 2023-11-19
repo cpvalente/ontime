@@ -1,3 +1,4 @@
+import { Alias, DatabaseModel, OntimeRundown, Settings } from 'ontime-types';
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
@@ -5,13 +6,15 @@ describe('safeMerge', () => {
     rundown: [],
     project: {
       title: 'existing title',
+      description: 'existing description',
       publicUrl: 'existing public URL',
       backstageUrl: 'existing backstageUrl',
+      publicInfo: 'existing backstageInfo',
       backstageInfo: 'existing backstageInfo',
     },
     settings: {
       app: 'ontime',
-      version: 2,
+      version: '2.0.0',
       serverPort: 4001,
       editorKey: null,
       operatorKey: null,
@@ -42,7 +45,7 @@ describe('safeMerge', () => {
         onFinish: [],
       },
     },
-  };
+  } as DatabaseModel;
 
   it('returns existing data if new data is not provided', () => {
     const mergedData = safeMerge(existing, undefined);
@@ -51,7 +54,7 @@ describe('safeMerge', () => {
 
   it('merges the rundown key', () => {
     const newData = {
-      rundown: [{ name: 'item 1' }, { name: 'item 2' }],
+      rundown: [{ title: 'item 1' }, { title: 'item 2' }] as OntimeRundown,
     };
     const mergedData = safeMerge(existing, newData);
     expect(mergedData.rundown).toEqual(newData.rundown);
@@ -64,9 +67,11 @@ describe('safeMerge', () => {
         publicInfo: 'new public info',
       },
     };
+    // @ts-expect-error -- just testing
     const mergedData = safeMerge(existing, newData);
     expect(mergedData.project).toEqual({
       title: 'new title',
+      description: 'existing description',
       publicUrl: 'existing public URL',
       publicInfo: 'new public info',
       backstageUrl: 'existing backstageUrl',
@@ -79,12 +84,12 @@ describe('safeMerge', () => {
       settings: {
         serverPort: 3000,
         language: 'pt',
-      },
+      } as Settings,
     };
     const mergedData = safeMerge(existing, newData);
     expect(mergedData.settings).toEqual({
       app: 'ontime',
-      version: 2,
+      version: '2.0.0',
       serverPort: 3000,
       operatorKey: null,
       editorKey: null,
@@ -108,6 +113,7 @@ describe('safeMerge', () => {
         },
       },
     };
+    //@ts-expect-error -- testing partial merge
     const mergedData = safeMerge(existing, newData);
     expect(mergedData.osc).toEqual({
       portIn: 7777,
@@ -135,7 +141,7 @@ describe('safeMerge', () => {
   it('should merge the aliases key when present', () => {
     const existingData = {
       rundown: [],
-      event: {
+      project: {
         title: '',
         publicUrl: '',
         publicInfo: '',
@@ -144,7 +150,7 @@ describe('safeMerge', () => {
       },
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
         serverPort: 4001,
         operatorKey: null,
         editorKey: null,
@@ -183,10 +189,13 @@ describe('safeMerge', () => {
           onFinish: [],
         },
       },
-    };
+    } as DatabaseModel;
 
     const newData = {
-      aliases: ['alias1', 'alias2'],
+      aliases: [
+        { enabled: true, alias: 'alias1', pathAndParams: '' },
+        { enabled: true, alias: 'alias2', pathAndParams: '' },
+      ] as Alias[],
     };
 
     const mergedData = safeMerge(existingData, newData);
@@ -217,6 +226,7 @@ describe('safeMerge', () => {
       user3: 'David',
     };
 
+    //@ts-expect-error -- testing partial merge
     const result = safeMerge(existing, newData);
     expect(result.userFields).toEqual(expected);
   });

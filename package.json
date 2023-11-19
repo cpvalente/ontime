@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "2.13.1",
+  "version": "2.16.2",
   "description": "Time keeping for live events",
   "keywords": [
     "lighdev",
@@ -29,6 +29,7 @@
     "lint-staged": "turbo run lint-staged --concurrency=1",
     "build": "turbo run build",
     "build:local": "turbo run build:local",
+    "build:electron": "turbo run build:electron",
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",

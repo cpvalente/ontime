@@ -1,6 +1,6 @@
-import { Alias, DatabaseModel, LogOrigin, ProjectData } from 'ontime-types';
+import { Alias, DatabaseModel, GetInfo, LogOrigin, ProjectData } from 'ontime-types';
 
-import { RequestHandler } from 'express';
+import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 
@@ -9,7 +9,7 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { isDocker, resolveDbPath } from '../setup.js';
+import { isDocker, pathToStartStyles, resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
@@ -107,15 +107,16 @@ const getNetworkInterfaces = () => {
   return results;
 };
 
-// Create controller for POST request to '/ontime/info'
+// Create controller for GET request to '/ontime/info'
 // Returns -
-export const getInfo = async (req, res) => {
+export const getInfo = async (req: Request, res: Response<GetInfo>) => {
   const { version, serverPort } = DataProvider.getSettings();
   const osc = DataProvider.getOsc();
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
   ni.unshift({ name: 'localhost', address: '127.0.0.1' });
+  const cssOverride = pathToStartStyles;
 
   // send object with network information
   res.status(200).send({
@@ -123,6 +124,7 @@ export const getInfo = async (req, res) => {
     version,
     serverPort,
     osc,
+    cssOverride,
   });
 };
 

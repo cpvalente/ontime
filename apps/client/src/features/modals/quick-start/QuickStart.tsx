@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import type { ProjectData } from 'ontime-types';
 
-import { PROJECT_DATA, RUNDOWN_TABLE } from '../../../common/api/apiConstants';
+import { PROJECT_DATA, RUNDOWN } from '../../../common/api/apiConstants';
 import { postNew } from '../../../common/api/ontimeApi';
 import useProjectData from '../../../common/hooks-query/useProjectData';
 import { projectDataPlaceholder } from '../../../common/models/ProjectData';
@@ -52,8 +52,8 @@ export default function QuickStart({ onClose, isOpen }: QuickStartProps) {
   const onSubmit = async (data: Partial<ProjectData>) => {
     try {
       await postNew(data);
-      await ontimeQueryClient.invalidateQueries(PROJECT_DATA);
-      await ontimeQueryClient.invalidateQueries(RUNDOWN_TABLE);
+      await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_DATA });
+      await ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
 
       onClose();
     } catch (_) {

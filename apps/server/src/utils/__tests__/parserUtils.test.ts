@@ -34,13 +34,13 @@ describe('mergeObject()', () => {
       third: 'yes',
     };
     const b = {
-      first: 0,
+      first: 'no',
       second: null,
       third: '',
     };
     const merged = mergeObject(a, b);
     expect(merged).toStrictEqual({
-      first: 0,
+      first: 'no',
       second: null,
       third: '',
     });
@@ -57,6 +57,7 @@ describe('mergeObject()', () => {
       third: '',
       forth: 'not-this',
     };
+    // @ts-expect-error -- testing changing type
     const merged = mergeObject(a, b);
     expect(merged).toStrictEqual({
       first: 0,
@@ -83,6 +84,7 @@ describe('mergeObject()', () => {
       },
     };
 
+    // @ts-expect-error -- testing missing property
     const merged = mergeObject(a, b);
 
     expect(merged.name).toBe('Doe');

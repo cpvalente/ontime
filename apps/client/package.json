@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "2.13.1",
+  "version": "2.16.2",
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^2.7.0",
@@ -12,8 +12,8 @@
     "@react-icons/all-files": "^4.1.0",
     "@sentry/react": "^7.46.0",
     "@sentry/tracing": "^7.46.0",
-    "@tanstack/react-query": "^4.28.0",
-    "@tanstack/react-query-devtools": "^4.29.0",
+    "@tanstack/react-query": "^5.8.4",
+    "@tanstack/react-query-devtools": "^5.8.4",
     "@tanstack/react-table": "^8.9.2",
     "autosize": "^6.0.1",
     "axios": "^1.2.0",
@@ -38,6 +38,7 @@
     "dev": "cross-env BROWSER=none vite",
     "build": "vite build",
     "build:local": "cross-env NODE_ENV=local vite build",
+    "build:electron": "cross-env NODE_ENV=local vite build",
     "build:docker": "vite build",
     "lint": "eslint . --quiet",
     "test": "vitest",
@@ -58,7 +59,7 @@
   },
   "devDependencies": {
     "@sentry/vite-plugin": "^0.4.0",
-    "@tanstack/eslint-plugin-query": "^4.26.2",
+    "@tanstack/eslint-plugin-query": "^5.8.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^14.1.1",

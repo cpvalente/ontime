@@ -201,7 +201,7 @@ describe('test json parser with valid def', () => {
     },
     settings: {
       app: 'ontime',
-      version: 2,
+      version: '2.0.0',
       timeFormat: '24',
     },
     viewSettings: {},
@@ -260,7 +260,7 @@ describe('test json parser with valid def', () => {
   it('settings are for right app and version', () => {
     const settings = parseResponse?.settings;
     expect(settings.app).toBe('ontime');
-    expect(settings.version).toBe(2);
+    expect(settings.version).toEqual(expect.any(String));
   });
 
   it('missing settings', () => {
@@ -387,7 +387,7 @@ describe('test corrupt data', () => {
       },
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -410,7 +410,7 @@ describe('test corrupt data', () => {
       },
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -427,7 +427,7 @@ describe('test corrupt data', () => {
       project: {},
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
         serverPort: 4001,
         lock: null,
         timeFormat: '24',
@@ -444,7 +444,7 @@ describe('test corrupt data', () => {
       event: {},
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
     };
 
@@ -734,7 +734,7 @@ describe('test aliases import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       aliases: [
         {
@@ -773,7 +773,7 @@ describe('test userFields import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       userFields: testUserFields,
     };
@@ -800,7 +800,7 @@ describe('test userFields import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       userFields: testUserFields,
     };
@@ -814,7 +814,7 @@ describe('test userFields import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
     };
 
@@ -828,7 +828,7 @@ describe('test userFields import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       userFields: {
         notThis: 'this shouldng be accepted',
@@ -847,7 +847,7 @@ describe('test views import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
       viewSettings: {
         normalColor: '#ffffffcc',
@@ -881,7 +881,7 @@ describe('test views import', () => {
       rundown: [],
       settings: {
         app: 'ontime',
-        version: 2,
+        version: '2.0.0',
       },
     };
     const parsed = parseViewSettings(testData);

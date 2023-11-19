@@ -1,4 +1,5 @@
 import {
+  GetRundownCached,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
@@ -15,6 +16,11 @@ import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
 import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
 import { _applyDelay } from '../delayUtils.js';
+
+/**
+ * Keep incremental revision number of rundown for runtime
+ */
+let rundownRevision = 0;
 
 /**
  * Key of rundown in cache
@@ -38,7 +44,25 @@ export function invalidateFromError(errorMessage = 'Found mismatch between store
  * Returns rundown with calculated delays
  * Ensures request goes through the caching layer
  */
-export function getDelayedRundown(): OntimeRundown {
+export function getRundownCache(): GetRundownCached {
+  function calculateRundown() {
+    const rundown = DataProvider.getRundown();
+    return calculateRuntimeDelays(rundown);
+  }
+
+  const cached = getCached(delayedRundownCacheKey, calculateRundown);
+
+  return {
+    rundown: cached,
+    revision: rundownRevision,
+  };
+}
+
+/**
+ * Returns rundown with calculated delays
+ * Ensures request goes through the caching layer
+ */
+export function getDelayedRundown() {
   function calculateRundown() {
     const rundown = DataProvider.getRundown();
     return calculateRuntimeDelays(rundown);
@@ -72,6 +96,8 @@ export async function cachedAdd(eventIndex: number, event: OntimeEvent | OntimeD
   runtimeCacheStore.setCached(delayedRundownCacheKey, newDelayedRundown);
   // we need to delay updating this to ensure add operation happens on same dataset
   await DataProvider.setRundown(newRundown);
+
+  rundownRevision++;
 }
 
 /**
@@ -113,6 +139,8 @@ export async function cachedEdit(
   // we need to delay updating this to ensure edit operation happens on same dataset
   await DataProvider.setRundown(updatedRundown);
 
+  rundownRevision++;
+
   return newEvent;
 }
 
@@ -147,6 +175,8 @@ export async function cachedDelete(eventId: string) {
   }
   // we need to delay updating this to ensure edit operation happens on same dataset
   await DataProvider.setRundown(updatedRundown);
+
+  rundownRevision++;
 }
 
 /**
@@ -178,12 +208,15 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
   // we need to delay updating this to ensure edit operation happens on same dataset
   await DataProvider.setRundown(updatedRundown);
 
+  rundownRevision++;
+
   return reorderedEvent;
 }
 
 export async function cachedClear() {
   await DataProvider.clearRundown();
   runtimeCacheStore.setCached(delayedRundownCacheKey, []);
+  rundownRevision++;
 }
 
 /**
@@ -211,6 +244,8 @@ export async function cachedSwap(fromEventId: string, toEventId: string) {
   }
 
   await DataProvider.setRundown(rundownToUpdate);
+
+  rundownRevision++;
 }
 
 export async function cachedApplyDelay(eventId: string) {
@@ -224,6 +259,8 @@ export async function cachedApplyDelay(eventId: string) {
   // update
   runtimeCacheStore.setCached(delayedRundownCacheKey, cachedRundown);
   await DataProvider.setRundown(persistedRundown);
+
+  rundownRevision++;
 }
 
 /**

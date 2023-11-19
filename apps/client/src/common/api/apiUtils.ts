@@ -42,12 +42,12 @@ export function logAxiosError(prepend: string, error: unknown) {
  * Utility function invalidates react-query caches
  */
 export async function invalidateAllCaches() {
-  await ontimeQueryClient.invalidateQueries(['project']);
-  await ontimeQueryClient.invalidateQueries(['aliases']);
-  await ontimeQueryClient.invalidateQueries(['userFields']);
-  await ontimeQueryClient.invalidateQueries(['rundown']);
-  await ontimeQueryClient.invalidateQueries(['appinfo']);
-  await ontimeQueryClient.invalidateQueries(['oscSettings']);
-  await ontimeQueryClient.invalidateQueries(['appSettings']);
-  await ontimeQueryClient.invalidateQueries(['viewSettings']);
+  await ontimeQueryClient.invalidateQueries({ queryKey: ['project'] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: ['aliases'] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: ['userFields'] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: ['rundown'] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: ['appinfo'] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: ['oscSettings'] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: ['appSettings'] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: ['viewSettings'] });
 }

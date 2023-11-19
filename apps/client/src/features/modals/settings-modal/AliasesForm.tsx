@@ -48,7 +48,7 @@ export default function AliasesForm() {
 
   useEffect(() => {
     if (data) {
-      reset(data);
+      reset({ aliases: data });
     }
   }, [data, reset]);
 
@@ -78,7 +78,7 @@ export default function AliasesForm() {
     });
   };
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
   const hasTooManyOptions = fields.length >= 20;
 
   if (isFetching) {

@@ -1,19 +1,25 @@
-import { Settings } from 'ontime-types';
+import { GetInfo, OSCSettings } from 'ontime-types';
 
-type NetworkInterfaceType = {
-  name: string;
-  address: string;
-};
-
-export type InfoType = {
-  networkInterfaces: NetworkInterfaceType[];
-  settings: Pick<Settings, 'version' | 'serverPort'>;
-};
-
-export const ontimePlaceholderInfo: InfoType = {
-  networkInterfaces: [],
-  settings: {
-    version: 2,
-    serverPort: 4001,
+export const oscPlaceholderSettings: OSCSettings = {
+  portIn: 0,
+  portOut: 0,
+  targetIP: '',
+  enabledIn: false,
+  enabledOut: false,
+  subscriptions: {
+    onLoad: [],
+    onStart: [],
+    onPause: [],
+    onStop: [],
+    onUpdate: [],
+    onFinish: [],
   },
+};
+
+export const ontimePlaceholderInfo: GetInfo = {
+  networkInterfaces: [],
+  version: '2.0.0',
+  serverPort: 4001,
+  osc: oscPlaceholderSettings,
+  cssOverride: '',
 };

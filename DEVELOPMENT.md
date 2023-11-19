@@ -76,7 +76,7 @@ You can generate a distribution for your OS by running the following steps.
 From the project root, run the following commands
 
 - __Install the project dependencies__ by running `pnpm i`
-- __Build the UI and server__ by running `turbo build:local`
+- __Build the UI and server__ by running `turbo build:electron`
 - __Create the package__ by running `turbo dist-win`, `turbo dist-mac` or `turbo dist-linux`
 
 The build distribution assets will be at `.apps/electron/dist`
