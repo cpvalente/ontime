@@ -12,6 +12,7 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
@@ -106,7 +107,7 @@ export default function Timer(props: TimerProps) {
 
       <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
         <div className='label'>{getLocalizedString('common.time_now')}</div>
-        <div className='clock'>{clock}</div>
+        <SuperscriptTime time={clock} className='clock' />
       </div>
 
       <div className={`timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
