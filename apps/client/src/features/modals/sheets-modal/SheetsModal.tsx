@@ -11,21 +11,21 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
+import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
+
+import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
+import { maybeAxiosError } from '../../../common/api/apiUtils';
 import {
   getSheetsAuthStatus,
   getSheetsAuthUrl,
-  postPreviewSheet,
-  uploadSheetClientFile,
   patchData,
+  postPreviewSheet,
   postPushSheet,
+  uploadSheetClientFile,
 } from '../../../common/api/ontimeApi';
-import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
-
-import PreviewExcel from '../upload-modal/preview/PreviewExcel';
 import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { userFieldsPlaceholder } from '../../../common/models/UserFields';
-import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
-import { maybeAxiosError } from '../../../common/api/apiUtils';
+import PreviewExcel from '../upload-modal/preview/PreviewExcel';
 
 interface SheetsModalProps {
   onClose: () => void;
@@ -35,7 +35,6 @@ interface SheetsModalProps {
 export default function SheetsModal(props: SheetsModalProps) {
   const { isOpen, onClose } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
   const [authState, setAuthState] = useState<boolean>(true);
 
   const [rundown, setRundown] = useState<OntimeRundown | null>(null);
@@ -59,12 +58,10 @@ export default function SheetsModal(props: SheetsModalProps) {
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event?.target?.files?.[0];
     if (!selectedFile) {
-      setFile(null);
       return;
     } else {
       uploadSheetClientFile(selectedFile);
     }
-    setFile(selectedFile);
   };
 
   //TODO: do smoething better here
@@ -75,8 +72,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   const handleAuthenticate = () => {
     getSheetsAuthUrl().then((data) => {
       console.log(data);
-      if (data == 'bad') {
-      } else {
+      if (data != 'bad') {
         window.open(data, '_blank', 'noreferrer');
       }
     });

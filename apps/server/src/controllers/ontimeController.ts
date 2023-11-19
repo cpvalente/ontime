@@ -413,7 +413,7 @@ export async function previewSheet(req, res) {
  */
 export async function pushSheet(req, res) {
   try {
-    const data = await Sheet.push(req.body.sheetid, req.body.worksheet);
+    await Sheet.push(req.body.sheetid, req.body.worksheet);
     res.status(200).send('ok');
   } catch (error) {
     res.status(500).send({ message: error.toString() });

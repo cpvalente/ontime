@@ -6,7 +6,7 @@ import { URL } from 'url';
 import { logger } from '../classes/Logger.js';
 import { getAppDataPath } from '../setup.js';
 import { DatabaseModel, LogOrigin, OntimeRundownEntry, isOntimeEvent } from 'ontime-types';
-import { ExcelImportOptions, isExcelImportMap, defaultExcelImportMap, millisToString } from 'ontime-utils';
+import { isExcelImportMap, defaultExcelImportMap, millisToString } from 'ontime-utils';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
 import { ensureDirectory } from './fileManagement.js';
@@ -81,7 +81,8 @@ class sheet {
       range: worksheet + '!A:Z', //FIXME: this is an abitrary range
     });
     if (rq.status === 200) {
-      const { projectMetadata, rundownMetadata } = parseExcel(rq.data.values, options);
+      //TODO: projectMetadata
+      const { rundownMetadata } = parseExcel(rq.data.values, options);
       const rundown = DataProvider.getRundown();
       const titleRow = Object.values(rundownMetadata)[0]['row'];
 
@@ -184,9 +185,9 @@ class sheet {
 
   /**
    * saves Object to appdata path as client_secret.json
-   * @param {Object} secrets
+   * @param {} secrets
    */
-  public async saveClientSecrets(secrets: Object) {
+  public async saveClientSecrets(secrets) {
     ensureDirectory(this.sheetsFolder);
     logger.info(LogOrigin.Server, 'Sheets: got new client_secret');
     //TODO: test that this is actualy a client file?
@@ -236,7 +237,9 @@ class sheet {
       if (response?.credentials) {
         return true;
       }
-    } catch (_) {}
+    } catch (_) {
+      logger.info(LogOrigin.Server, 'Sheets token expired');
+    }
     return false;
   }
 
@@ -250,12 +253,13 @@ class sheet {
     metadata,
     titleCol: number,
   ): sheets_v4.Schema$Request {
-    let r: sheets_v4.Schema$CellData[] = [];
-    const tmp = Object.entries(metadata)
-      .filter(([key, value]) => value !== undefined)
-      .sort(([aKey, a], [bKey, b]) => a['col'] - b['col']);
 
-    tmp.forEach(([key, value], index, arr) => {
+    const r: sheets_v4.Schema$CellData[] = [];
+    const tmp = Object.entries(metadata)
+      .filter(([_, value]) => value !== undefined)
+      .sort(([_a, a], [_b, b]) => a['col'] - b['col']);
+
+    tmp.forEach(([_, value], index, arr) => {
       if (index != 0) {
         if (arr[index - 1][1]['col'] + 1 < value['col']) {
           arr.splice(index, 0, ['blank', { col: arr[index - 1][1]['col'] + 1 }]);
@@ -263,7 +267,7 @@ class sheet {
       }
     });
 
-    tmp.forEach(([key, value]) => {
+    tmp.forEach(([key, _]) => {
       if (isOntimeEvent(event)) {
         if (key === 'blank') {
           r.push({});
@@ -429,30 +433,5 @@ your keyfile, and add a 'redirect_uris' section.  For example:
   "http://localhost:3000/oauth2callback"
 ]
 `;
-
-function hexToRgb(hex: string) {
-  if (hex === '' || hex[0] !== '#') {
-    return { red: 1, green: 1, blue: 1 };
-  }
-  const bigint = parseInt(hex.slice(1), 16);
-  const r = ((bigint >> 16) & 255) / 255;
-  const g = ((bigint >> 8) & 255) / 255;
-  const b = (bigint & 255) / 255;
-  return { red: r, green: g, blue: b };
-}
-
-type sheetPos = {
-  row: number;
-  col: number;
-};
-
-function isEqualPartial<T>(a: T, b: Partial<T>) {
-  for (const [key, value] of Object.entries(a)) {
-    if (b[key] !== undefined && value !== b[key]) {
-      return false;
-    }
-  }
-  return true;
-}
 
 export const Sheet = new sheet();

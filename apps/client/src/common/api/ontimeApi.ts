@@ -239,10 +239,7 @@ export const uploadSheetClientFile = async (file: File) => {
     .post(`${ontimeURL}/sheet-clientsecrect`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        const complete = progressEvent?.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-      },
+      }
     })
     .then((response) => response.data.id);
 };

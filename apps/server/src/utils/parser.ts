@@ -46,8 +46,8 @@ export const JSON_MIME = 'application/json';
  * @returns {object} - parsed object
  */
 export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>) => {
-  let projectMetadata = {};
-  let rundownMetadata = {};
+  const projectMetadata = {};
+  const rundownMetadata = {};
   const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
   const projectData: Partial<ProjectData> = {
     title: '',
