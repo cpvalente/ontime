@@ -245,12 +245,7 @@ export const validateHttpObject = (data: Subscription): boolean => {
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseHttp = (
-  data: {
-    http?: Partial<HTTPSettings>;
-  },
-  enforce: boolean,
-): HTTPSettings | Record<string, never> => {
+export const parseHttp = (data: { http?: Partial<HTTPSettings> }): HTTPSettings => {
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
 
@@ -263,14 +258,8 @@ export const parseHttp = (
       enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
       subscriptions: validatedSubscriptions,
     };
-  } else if (enforce) {
-    console.log('Created HTTP object in db');
-    return { ...dbModel.http };
-  } else return {};
+  }
 };
-
-
-
 
 /**
  * Parse aliases portion of an entry
