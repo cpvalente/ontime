@@ -38,11 +38,37 @@ class sheet {
     }
   }
 
+  /**
+   * test existance of sheet and workssheet and get is index
+   * @param {string} sheetId - https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
+   * @param {string} worksheet - the name of the worksheet containg ontime data
+   * @returns {Promise<false | number>} - false if not found | id of worksheet
+   * @throws
+   */
+  public async exist(sheetId: string, worksheet: string): Promise<false | number> {
+    const spreadsheets = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    if (spreadsheets.status === 200) {
+      const w = spreadsheets.data.sheets.find((p) => p.properties.title == worksheet);
+      if (w !== undefined) {
+        return w.properties.sheetId;
+      }
+    }
+    return false;
+  }
+
   public async push(sheetId: string, worksheet: string, options = defaultExcelImportMap) {
     if (!sheet.client) {
       if (!(await this.authorized())) {
         throw new Error(`Sheet not authorized`);
       }
+    }
+
+    const worksheetId = await this.exist(sheetId, worksheet);
+    if (!worksheetId) {
+      throw new Error(`Sheet not dose not exits`);
     }
 
     if (!isExcelImportMap(options)) {
@@ -65,12 +91,12 @@ class sheet {
       updateRundown.push({
         insertDimension: {
           inheritFromBefore: false,
-          range: { dimension: 'ROWS', startIndex: titleRow + 1, endIndex: titleRow + 2, sheetId: 0 },
+          range: { dimension: 'ROWS', startIndex: titleRow + 1, endIndex: titleRow + 2, sheetId: worksheetId },
         },
       });
       //and delete the rest
       updateRundown.push({
-        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: 0 } },
+        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: worksheetId } },
       });
       // insert the lenght of the rundown
       updateRundown.push({
@@ -80,7 +106,7 @@ class sheet {
             dimension: 'ROWS',
             startIndex: titleRow + 1,
             endIndex: titleRow + rundown.length,
-            sheetId: 0,
+            sheetId: worksheetId,
           },
         },
       });
@@ -94,7 +120,7 @@ class sheet {
       }
       //update the corespunding row with event data
       rundown.forEach((entry, index) =>
-        updateRundown.push(this.cellRequenstFromEvent(entry, index, rundownMetadata, titleCol as number)),
+        updateRundown.push(this.cellRequenstFromEvent(entry, index, worksheetId, rundownMetadata, titleCol as number)),
       );
       const writeResponds = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.batchUpdate({
         spreadsheetId: sheetId,
@@ -220,6 +246,7 @@ class sheet {
   private cellRequenstFromEvent(
     event: OntimeRundownEntry,
     index: number,
+    worksheetId: number,
     metadata,
     titleCol: number,
   ): sheets_v4.Schema$Request {
@@ -231,12 +258,10 @@ class sheet {
     tmp.forEach(([key, value], index, arr) => {
       if (index != 0) {
         if (arr[index - 1][1]['col'] + 1 < value['col']) {
-          console.log('missing', key, value['col'], arr[index - 1][1]['col']);
           arr.splice(index, 0, ['blank', { col: arr[index - 1][1]['col'] + 1 }]);
         }
       }
     });
-    console.log(tmp);
 
     tmp.forEach(([key, value]) => {
       if (isOntimeEvent(event)) {
@@ -266,7 +291,7 @@ class sheet {
     return {
       updateCells: {
         start: {
-          sheetId: 0, //FIXME:
+          sheetId: worksheetId,
           rowIndex: index + Object.values(metadata)[0]['row'] + 1,
           columnIndex: titleCol,
         },
