@@ -1,8 +1,8 @@
-import { TimeFormat } from './TimeFormat.type';
+import { TimeFormat } from './TimeFormat.type.js';
 
 export type Settings = {
   app: 'ontime';
-  version: 2;
+  version: string;
   serverPort: number;
   editorKey: null | string;
   operatorKey: null | string;

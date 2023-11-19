@@ -10,6 +10,7 @@ import {
   getSettings,
   getUserFields,
   getViewSettings,
+  patchPartialProjectFile,
   poll,
   postAliases,
   postNew,
@@ -19,12 +20,14 @@ import {
   postSettings,
   postUserFields,
   postViewSettings,
+  previewExcel,
 } from '../controllers/ontimeController.js';
 
 import {
   validateAliases,
   validateOSC,
   validateSubscription,
+  validatePatchProjectFile,
   validateSettings,
   validateUserFields,
   viewValidator,
@@ -41,6 +44,12 @@ router.get('/db', dbDownload);
 
 // create route between controller and '/ontime/db' endpoint
 router.post('/db', uploadFile, dbUpload);
+
+// create route between controller and '/ontime/excel' endpoint
+router.patch('/db', validatePatchProjectFile, patchPartialProjectFile);
+
+// create route between controller and '/ontime/preview-spreadsheet' endpoint
+router.post('/preview-spreadsheet', uploadFile, previewExcel);
 
 // create route between controller and '/ontime/settings' endpoint
 router.get('/settings', getSettings);

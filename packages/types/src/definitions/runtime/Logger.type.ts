@@ -23,5 +23,5 @@ export enum LogOrigin {
   Rx = 'RX',
   Server = 'SERVER',
   Tx = 'TX',
-  User = 'USER'
+  User = 'USER',
 }

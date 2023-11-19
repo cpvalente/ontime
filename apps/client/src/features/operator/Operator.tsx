@@ -12,6 +12,7 @@ import { useOperator } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
+import { debounce } from '../../common/utils/debounce';
 import { isStringBoolean } from '../../common/utils/viewUtils';
 
 import FollowButton from './follow-button/FollowButton';
@@ -32,7 +33,6 @@ export default function Operator() {
   const featureData = useOperator();
   const [searchParams] = useSearchParams();
 
-  const isAutomatedScroll = useRef(false);
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
   const selectedRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -41,7 +41,6 @@ export default function Operator() {
     scrollRef: scrollRef,
     doFollow: !lockAutoScroll,
     topOffset: selectedOffset,
-    setScrollFlag: () => (isAutomatedScroll.current = true),
   });
 
   // Set window title
@@ -65,13 +64,8 @@ export default function Operator() {
     setLockAutoScroll(false);
   };
 
-  const handleScroll = () => {
-    // prevent considering automated scrolls as user scrolls
-    if (isAutomatedScroll.current) {
-      isAutomatedScroll.current = false;
-      return;
-    }
-
+  // prevent considering automated scrolls as user scrolls
+  const handleUserScroll = () => {
     if (selectedRef?.current && scrollRef?.current) {
       const selectedRect = selectedRef.current.getBoundingClientRect();
       const scrollerRect = scrollRef.current.getBoundingClientRect();
@@ -82,9 +76,10 @@ export default function Operator() {
       }
     }
   };
+  const debouncedHandleScroll = debounce(handleUserScroll, 1000);
 
   const missingData = !data || !userFields || !projectData;
-  const isLoading = status === 'loading' || userFieldsStatus === 'loading' || projectDataStatus === 'loading';
+  const isLoading = status === 'pending' || userFieldsStatus === 'pending' || projectDataStatus === 'pending';
 
   if (missingData || isLoading) {
     return <Empty text='Loading...' />;
@@ -119,7 +114,12 @@ export default function Operator() {
         lastId={lastEvent?.id}
       />
 
-      <div className={style.operatorEvents} onScroll={handleScroll} ref={scrollRef}>
+      <div
+        className={style.operatorEvents}
+        onWheel={debouncedHandleScroll}
+        onTouchMove={debouncedHandleScroll}
+        ref={scrollRef}
+      >
         {data.map((entry) => {
           if (isOntimeEvent(entry)) {
             const isSelected = featureData.selectedEventId === entry.id;

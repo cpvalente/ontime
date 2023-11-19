@@ -1,7 +1,6 @@
 import { generateId } from 'ontime-utils';
 import {
   Alias,
-  EndAction,
   OntimeRundown,
   HTTPSettings,
   OSCSettings,
@@ -10,7 +9,6 @@ import {
   ProjectData,
   Settings,
   TimerLifeCycle,
-  TimerType,
   UserFields,
   ViewSettings,
 } from 'ontime-types';
@@ -46,18 +44,6 @@ export const parseRundown = (data): OntimeRundown => {
           continue;
         }
 
-        // validate the right endAction is used
-        if (e.endAction && !Object.values(EndAction).includes(e.endAction)) {
-          e.endAction = EndAction.None;
-          console.log('WARNING: invalid End Action provided, using default');
-        }
-
-        // validate the right timerType is used
-        if (e.timerType && !Object.values(TimerType).includes(e.timerType)) {
-          e.timerType = TimerType.CountDown;
-          console.log('WARNING: invalid Timer Type provided, using default');
-        }
-
         if (e.type === 'event') {
           eventIndex += 1;
           const event = validateEvent(e, eventIndex.toString());
@@ -89,10 +75,9 @@ export const parseRundown = (data): OntimeRundown => {
 /**
  * Parse event portion of an entry
  * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseProject = (data, enforce): ProjectData => {
+export const parseProject = (data): ProjectData => {
   let newProjectData: Partial<ProjectData> = {};
   // we are adding this here to aid transition, should be removed once enough time has past that users have fully migrated
   // TODO: Remove eventually
@@ -110,9 +95,6 @@ export const parseProject = (data, enforce): ProjectData => {
       backstageUrl: project.backstageUrl || dbModel.project.backstageUrl,
       backstageInfo: project.backstageInfo || dbModel.project.backstageInfo,
     };
-  } else if (enforce) {
-    newProjectData = { ...dbModel.project };
-    console.log('Created project object in db');
   }
   return newProjectData as ProjectData;
 };
@@ -120,10 +102,9 @@ export const parseProject = (data, enforce): ProjectData => {
 /**
  * Parse settings portion of an entry
  * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseSettings = (data, enforce): Settings => {
+export const parseSettings = (data): Settings => {
   let newSettings: Partial<Settings> = {};
   if ('settings' in data) {
     console.log('Found settings definition, importing...');
@@ -134,6 +115,7 @@ export const parseSettings = (data, enforce): Settings => {
       console.log('ERROR: unknown app version, skipping');
     } else {
       const settings = {
+        version: dbModel.settings.version,
         serverPort: s.serverPort || dbModel.settings.serverPort,
         editorKey: s.editorKey || null,
         operatorKey: s.operatorKey || null,
@@ -147,9 +129,6 @@ export const parseSettings = (data, enforce): Settings => {
         ...settings,
       };
     }
-  } else if (enforce) {
-    newSettings = dbModel.settings;
-    console.log('Created settings object in db');
   }
   return newSettings as Settings;
 };
@@ -157,10 +136,9 @@ export const parseSettings = (data, enforce): Settings => {
 /**
  * Parse settings portion of an entry
  * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseViewSettings = (data, enforce): ViewSettings => {
+export const parseViewSettings = (data): ViewSettings => {
   let newViews: Partial<ViewSettings> = {};
   if ('viewSettings' in data) {
     console.log('Found view definition, importing...');
@@ -176,13 +154,7 @@ export const parseViewSettings = (data, enforce): ViewSettings => {
       endMessage: v.endMessage ?? dbModel.viewSettings.endMessage,
     };
 
-    // write to db
-    newViews = {
-      ...viewSettings,
-    };
-  } else if (enforce) {
-    newViews = dbModel.viewSettings;
-    console.log('Created viewSettings object in db');
+    newViews = { ...viewSettings };
   }
   return newViews as ViewSettings;
 };
@@ -225,16 +197,11 @@ export const validateOscObject = (data: Subscription): boolean => {
 /**
  * Parse osc portion of an entry
  */
-export const parseOsc = (
-  data: {
-    osc?: Partial<OSCSettings>;
-  },
-  enforce: boolean,
-): OSCSettings | Record<string, never> => {
+export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 
-    const loadedConfig = data?.osc || {};
+    const loadedConfig = data.osc || {};
     const validatedSubscriptions = validateOscObject(loadedConfig.subscriptions)
       ? loadedConfig.subscriptions
       : dbModel.osc.subscriptions;
@@ -247,10 +214,7 @@ export const parseOsc = (
       enabledOut: loadedConfig.enabledOut ?? dbModel.osc.enabledOut,
       subscriptions: validatedSubscriptions,
     };
-  } else if (enforce) {
-    console.log('Created OSC object in db');
-    return { ...dbModel.osc };
-  } else return {};
+  }
 };
 
 /**

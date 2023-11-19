@@ -14,16 +14,7 @@ interface ScheduleItemProps {
 }
 
 export default function ScheduleItem(props: ScheduleItemProps) {
-  const {
-    selected,
-    timeStart,
-    timeEnd,
-    title,
-    presenter,
-    backstageEvent,
-    colour,
-    skip,
-  } = props;
+  const { selected, timeStart, timeEnd, title, presenter, backstageEvent, colour, skip } = props;
 
   const start = formatTime(timeStart, { format: 'hh:mm' });
   const end = formatTime(timeEnd, { format: 'hh:mm' });
@@ -37,9 +28,7 @@ export default function ScheduleItem(props: ScheduleItemProps) {
         {`${start} → ${end} ${backstageEvent ? '*' : ''}`}
       </div>
       <div className='entry-title'>{title}</div>
-      {presenter && (
-        <div className='entry-presenter'>{presenter}</div>
-      )}
+      {presenter && <div className='entry-presenter'>{presenter}</div>}
     </li>
   );
 }

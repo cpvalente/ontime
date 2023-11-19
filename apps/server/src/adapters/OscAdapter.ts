@@ -12,7 +12,7 @@ export class OscServer implements IAdapter {
   constructor(config: OSCSettings) {
     this.osc = new Server(config.portIn, '0.0.0.0');
 
-    this.osc.on('error', console.error);
+    this.osc.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
 
     this.osc.on('message', (msg) => {
       // message should look like /ontime/{path}/{params?} {args} where

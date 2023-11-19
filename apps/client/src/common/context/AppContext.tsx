@@ -25,7 +25,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
   const [operatorAuth, setOperatorAuth] = useState(true);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === 'pending') return;
     if (!data) return;
     const previousEditor = sessionStorage.getItem(storageKeys.editor);
 

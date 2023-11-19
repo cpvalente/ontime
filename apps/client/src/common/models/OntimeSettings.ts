@@ -2,7 +2,7 @@ import { Settings } from 'ontime-types';
 
 export const ontimePlaceholderSettings: Settings = {
   app: 'ontime',
-  version: 2,
+  version: '2.0.0',
   serverPort: 4001,
   editorKey: null,
   operatorKey: null,

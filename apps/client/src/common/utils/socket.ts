@@ -129,7 +129,7 @@ export const socketSend = (message: any) => {
   }
 };
 
-export const socketSendJson = (type: string, payload?: any) => {
+export const socketSendJson = (type: string, payload?: unknown) => {
   socketSend(
     JSON.stringify({
       type,

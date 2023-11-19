@@ -1,20 +1,22 @@
-import { Alias, LogOrigin, ProjectData } from 'ontime-types';
+import { Alias, DatabaseModel, GetInfo, LogOrigin, ProjectData } from 'ontime-types';
 
-import { RequestHandler } from 'express';
+import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
-import { mergeObject } from '../utils/parserUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { isDocker, resolveDbPath } from '../setup.js';
+import { isDocker, pathToStartStyles, resolveDbPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
-import { deleteAllEvents, forceReset } from '../services/rundown-service/RundownService.js';
+import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
+import { deepmerge } from 'ontime-utils';
+import { runtimeCacheStore } from '../stores/cachingStore.js';
+import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -45,43 +47,40 @@ export const dbDownload = async (req, res) => {
 };
 
 /**
- * handles file upload
+ * Parses a file and returns the result objects
+ * @param file
+ * @param _req
+ * @param _res
+ * @param options
+ */
+async function parseFile(file, _req, _res, options) {
+  if (!fs.existsSync(file)) {
+    throw new Error('Upload failed');
+  }
+  const result = await fileHandler(file, options);
+  return result.data;
+}
+
+/**
+ * parse an uploaded file and apply its parsed objects
  * @param file
  * @param req
  * @param res
  * @param [options]
  * @returns {Promise<void>}
  */
-const uploadAndParse = async (file, req, res, options) => {
-  if (!fs.existsSync(file)) {
-    res.status(500).send({ message: 'Upload failed' });
-    return;
-  }
+const parseAndApply = async (file, _req, res, options) => {
+  const result = await parseFile(file, _req, res, options);
 
-  try {
-    const result = await fileHandler(file);
+  PlaybackService.stop();
 
-    if ('error' in result && result.error) {
-      res.status(400).send({ message: result.message });
-    } else if ('data' in result && result.message === 'success') {
-      PlaybackService.stop();
-      // explicitly write objects
-      if (typeof result !== 'undefined') {
-        const newRundown = result.data.rundown || [];
-        if (options?.onlyRundown === 'true') {
-          await DataProvider.setRundown(newRundown);
-        } else {
-          await DataProvider.mergeIntoData(result.data);
-        }
-      }
-      forceReset();
-      res.sendStatus(200);
-    } else {
-      res.status(400).send({ message: 'Failed parsing, no data' });
-    }
-  } catch (error) {
-    res.status(400).send({ message: `Failed parsing ${error}` });
+  const newRundown = result.rundown || [];
+  if (options?.onlyRundown === 'true') {
+    await DataProvider.setRundown(newRundown);
+  } else {
+    await DataProvider.mergeIntoData(result);
   }
+  notifyChanges({ timer: true, external: true, reset: true });
 };
 
 /**
@@ -107,15 +106,16 @@ const getNetworkInterfaces = () => {
   return results;
 };
 
-// Create controller for POST request to '/ontime/info'
+// Create controller for GET request to '/ontime/info'
 // Returns -
-export const getInfo = async (req, res) => {
+export const getInfo = async (req: Request, res: Response<GetInfo>) => {
   const { version, serverPort } = DataProvider.getSettings();
   const osc = DataProvider.getOsc();
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
   ni.unshift({ name: 'localhost', address: '127.0.0.1' });
+  const cssOverride = pathToStartStyles;
 
   // send object with network information
   res.status(200).send({
@@ -123,6 +123,7 @@ export const getInfo = async (req, res) => {
     version,
     serverPort,
     osc,
+    cssOverride,
   });
 };
 
@@ -151,7 +152,7 @@ export const postAliases = async (req, res) => {
     await DataProvider.setAliases(newAliases);
     res.status(200).send(newAliases);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -170,11 +171,11 @@ export const postUserFields = async (req, res) => {
   }
   try {
     const persistedData = DataProvider.getUserFields();
-    const newData = mergeObject(persistedData, req.body);
+    const newData = deepmerge(persistedData, req.body);
     await DataProvider.setUserFields(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -237,7 +238,7 @@ export const postSettings = async (req, res) => {
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -272,7 +273,7 @@ export const postViewSettings = async (req, res) => {
     await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -307,7 +308,7 @@ export const postOscSubscriptions = async (req, res) => {
 
     res.send(oscSettings).status(200);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
@@ -348,12 +349,42 @@ export const postOSC = async (req, res) => {
 
     res.send(oscSettings).status(200);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };
 
-// Create controller for POST request to '/ontime/db'
-// Returns -
+export async function patchPartialProjectFile(req, res) {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const patchDb: Partial<DatabaseModel> = {
+      project: req.body?.project,
+      settings: req.body?.settings,
+      viewSettings: req.body?.viewSettings,
+      osc: req.body?.osc,
+      aliases: req.body?.aliases,
+      userFields: req.body?.userFields,
+      rundown: req.body?.rundown,
+    };
+
+    await DataProvider.mergeIntoData(patchDb);
+    if (patchDb.rundown !== undefined) {
+      // it is likely cheaper to invalidate cache than to calculate diff
+      PlaybackService.stop();
+      runtimeCacheStore.invalidate(delayedRundownCacheKey);
+      notifyChanges({ external: true, reset: true });
+    }
+    res.status(200).send();
+  } catch (error) {
+    res.status(400).send({ message: error.toString() });
+  }
+}
+
+/**
+ * uploads, parses and applies the data from a given file
+ */
 export const dbUpload = async (req, res) => {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
@@ -361,10 +392,39 @@ export const dbUpload = async (req, res) => {
   }
   const options = req.query;
   const file = req.file.path;
-  await uploadAndParse(file, req, res, options);
+  try {
+    await parseAndApply(file, req, res, options);
+    res.status(200).send();
+  } catch (error) {
+    res.status(400).send({ message: `Failed parsing ${error}` });
+  }
 };
 
-// Create controller for POST request to '/ontime/new'
+/**
+ * uploads and parses an excel file
+ * @returns parsed result
+ */
+export async function previewExcel(req, res) {
+  if (!req.file) {
+    res.status(400).send({ message: 'File not found' });
+    return;
+  }
+
+  try {
+    const options = JSON.parse(req.body.options);
+    const file = req.file.path;
+    const data = await parseFile(file, req, res, options);
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}
+
+/**
+ * Meant to create a new project file, it will clear only fields which are specific to a project
+ * @param req
+ * @param res
+ */
 export const postNew: RequestHandler = async (req, res) => {
   try {
     const newProjectData: ProjectData = {
@@ -379,6 +439,6 @@ export const postNew: RequestHandler = async (req, res) => {
     await deleteAllEvents();
     res.status(201).send(newData);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ message: error.toString() });
   }
 };

@@ -304,10 +304,10 @@ export class TimerService {
   }
 
   /**
-   * Delays running timer by given amount
+   * Adds time to running timer by given amount
    * @param {number} amount
    */
-  delay(amount: number) {
+  addTime(amount: number) {
     if (!this.loadedTimerId) {
       return;
     }

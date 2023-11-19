@@ -1,17 +1,20 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import {
   Alias,
   OSCSettings,
   Subscription,
+  DatabaseModel,
+  GetInfo,
+  OntimeRundown,
   ProjectData,
   Settings,
   UserFields,
   ViewSettings,
   HTTPSettings,
 } from 'ontime-types';
+import { ExcelImportMap } from 'ontime-utils';
 
 import { apiRepoLatest } from '../../externals';
-import { InfoType } from '../models/Info';
 import fileDownload from '../utils/fileDownload';
 
 import { ontimeURL } from './apiConstants';
@@ -37,7 +40,7 @@ export async function postSettings(data: Settings) {
  * @description HTTP request to retrieve application info
  * @return {Promise}
  */
-export async function getInfo(): Promise<InfoType> {
+export async function getInfo(): Promise<GetInfo> {
   const res = await axios.get(`${ontimeURL}/info`);
   return res.data;
 }
@@ -152,17 +155,25 @@ export const downloadRundown = () => {
   return fileDownload(ontimeURL, { name: 'rundown', type: 'json' }, { type: 'application/json;charset=utf-8;' });
 };
 
+// TODO: should this be extracted to shared code?
+export type ProjectFileImportOptions = {
+  onlyRundown: boolean;
+};
+
 /**
  * @description HTTP request to upload events db
  * @return {Promise}
  */
-type UploadDataOptions = {
-  onlyRundown?: boolean;
-};
-export const uploadData = async (file: File, setProgress: (value: number) => void, options?: UploadDataOptions) => {
+export const uploadProjectFile = async (
+  file: File,
+  setProgress: (value: number) => void,
+  options?: Partial<ProjectFileImportOptions>,
+) => {
   const formData = new FormData();
   formData.append('userFile', file);
-  const onlyRundown = options?.onlyRundown || 'false';
+
+  const onlyRundown = Boolean(options?.onlyRundown);
+
   await axios
     .post(`${ontimeURL}/db?onlyRundown=${onlyRundown}`, formData, {
       headers: {
@@ -175,6 +186,47 @@ export const uploadData = async (file: File, setProgress: (value: number) => voi
     })
     .then((response) => response.data.id);
 };
+
+/**
+ * @description Make patch changes to the objects in the db
+ * @return {Promise}
+ */
+export async function patchData(patchDb: Partial<DatabaseModel>) {
+  const response = await axios.patch(`${ontimeURL}/db`, patchDb);
+  return response;
+}
+
+type PostPreviewExcelResponse = {
+  rundown: OntimeRundown;
+  project: ProjectData;
+  userFields: UserFields;
+};
+
+/**
+ * @description Make patch changes to the objects in the db
+ * @return {Promise} - returns parsed rundown and userfields
+ */
+export async function postPreviewExcel(file: File, setProgress: (value: number) => void, options?: ExcelImportMap) {
+  const formData = new FormData();
+  formData.append('userFile', file);
+  formData.append('options', JSON.stringify(options));
+
+  const response: AxiosResponse<PostPreviewExcelResponse> = await axios.post(
+    `${ontimeURL}/preview-spreadsheet`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        const complete = progressEvent?.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+        setProgress(complete);
+      },
+    },
+  );
+
+  return response;
+}
 
 export type HasUpdate = {
   url: string;

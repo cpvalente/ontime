@@ -1,4 +1,4 @@
-import { LogOrigin, OntimeEvent } from 'ontime-types';
+import { OntimeEvent } from 'ontime-types';
 
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
@@ -7,13 +7,14 @@ import { parse, updateEvent } from './integrationController.config.js';
 import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 import { event } from '../models/eventsDefinition.js';
 
+//TODO: re-throwing the error does not add any extra information or value
 export function dispatchFromAdapter(
   type: string,
   args: {
     payload: unknown;
     params?: Array<string>;
   },
-  source?: 'osc' | 'ws',
+  _source?: 'osc' | 'ws',
 ) {
   const payload = args.payload;
   const typeComponents = type.toLowerCase().split('/');
@@ -174,6 +175,19 @@ export function dispatchFromAdapter(
       PlaybackService.roll();
       break;
     }
+    case 'addtime': {
+      const time = Number(payload);
+      if (isNaN(time)) {
+        throw new Error(`Time not recognised ${payload}`);
+      }
+      try {
+        PlaybackService.addTime(time);
+      } catch (error) {
+        throw new Error(`Could not add time: ${error}`);
+      }
+      break;
+    }
+    //deprecated
     case 'delay': {
       const delayTime = Number(payload);
       if (isNaN(delayTime)) {
@@ -242,10 +256,10 @@ export function dispatchFromAdapter(
     // ontime/change/{eventID}/{propertyName}
     case 'change': {
       if (params.length < 2) {
-        throw new Error(`To few parameters`);
+        throw new Error('Too few parameters, 3 expected');
       }
       if (payload === undefined) {
-        throw new Error(`Undefined payload`);
+        throw new Error('No payload found');
       }
       const eventID = params[0];
       const propertyName = params[1] as keyof OntimeEvent;

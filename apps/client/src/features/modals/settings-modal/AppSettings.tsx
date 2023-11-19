@@ -50,7 +50,7 @@ export default function AppSettingsModal() {
     reset(data);
   };
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
 
   if (isFetching) {
     return <ModalLoader />;
@@ -87,7 +87,7 @@ export default function AppSettingsModal() {
         description='Protect the editor with a pin code'
         error={errors.editorKey?.message}
       >
-        <ModalPinInput register={register} formName='editorKey' isDisabled={disableInputs} />
+        <ModalPinInput register={register as any} formName='editorKey' isDisabled={disableInputs} />
       </ModalSplitInput>
       <ModalSplitInput
         field='operatorKey'
@@ -95,7 +95,7 @@ export default function AppSettingsModal() {
         description='Protect the cuesheet with a pin code'
         error={errors.operatorKey?.message}
       >
-        <ModalPinInput register={register} formName='operatorKey' isDisabled={disableInputs} />
+        <ModalPinInput register={register as any} formName='operatorKey' isDisabled={disableInputs} />
       </ModalSplitInput>
       <div style={{ height: '16px' }} />
       <ModalSplitInput

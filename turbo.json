@@ -1,18 +1,34 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "pipeline":{
-    "dev": {},
-    "dev:server": {},
-    "dev:test": {},
-    "build": {},
-    "build:local": {},
-    "build:docker": {},
+    "dev": {
+      "cache": false
+    },
+    "dev:server": {
+      "cache": false
+    },
+    "dev:test": {
+      "cache": false
+    },
     "test": {},
     "test:pipeline": {},
+    "lint": {
+      "cache": false
+    },
+    "lint-staged": {
+      "outputs": [],
+      "cache": false
+    },
+    "typecheck": {
+      "cache": false
+    },
+    "build": {},
+    "build:local": {},
+    "build:electron": {},
+    "build:docker": {},
     "e2e": {
       "dependsOn": ["^build"]
     },
-    "lint": {},
     "dist-win": {},
     "dist-mac": {},
     "dist-linux": {},

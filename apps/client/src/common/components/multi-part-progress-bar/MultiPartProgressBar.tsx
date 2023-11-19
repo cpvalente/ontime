@@ -25,8 +25,14 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
   return (
     <div className={`multiprogress-bar ${hidden ? 'multiprogress-bar--hidden' : ''} ${className}`}>
       <div className='multiprogress-bar__bg-normal' style={{ backgroundColor: normalColor }} />
-      <div className='multiprogress-bar__bg-warning' style={{ width: `${warningWidth}%`, backgroundColor: warningColor }} />
-      <div className='multiprogress-bar__bg-danger' style={{ width: `${dangerWidth}%`, backgroundColor: dangerColor }} />
+      <div
+        className='multiprogress-bar__bg-warning'
+        style={{ width: `${warningWidth}%`, backgroundColor: warningColor }}
+      />
+      <div
+        className='multiprogress-bar__bg-danger'
+        style={{ width: `${dangerWidth}%`, backgroundColor: dangerColor }}
+      />
       <div className='multiprogress-bar__indicator' style={{ width: `${percentComplete}%` }} />
     </div>
   );

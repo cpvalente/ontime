@@ -48,7 +48,7 @@ export default function ProjectDataForm() {
     reset(data);
   };
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
 
   if (isFetching) {
     return <ModalLoader />;

@@ -175,6 +175,9 @@ $skip-opacity: 0.1;
   font-size: calc(1rem - 3px);
   color: $block-text-color;
   line-height: calc(1rem - 3px);
+
+  max-height: 2rem;
+  overflow-y: hidden;
 }
 
 

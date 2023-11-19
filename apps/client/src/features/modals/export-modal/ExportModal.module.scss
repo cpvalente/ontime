@@ -1,10 +1,9 @@
-.modalHeader {
-  font-weight: 400;
-}
+@use '../../../theme/v2Styles' as *;
 
-.modalBody {
-  display: flex;
+.buttonRow {
   justify-content: space-between;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: $section-spacing;
+  display: flex;
+  gap: $section-spacing;
+  margin: 0 0.25rem;
 }

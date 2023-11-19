@@ -13,14 +13,14 @@ export const pbStart = async (req, res) => {
   const { eventId, eventIndex } = req.query;
   if (eventId) {
     const success = PlaybackService.startById(eventId);
-    success ? res.sendStatus(202) : res.status(400).send('Invalid event ID');
+    success ? res.sendStatus(202) : res.status(400).send({ message: 'Invalid event ID' });
   } else if (eventIndex) {
     const index = Number(eventIndex);
     if (!isNaN(index)) {
       const success = PlaybackService.startByIndex(eventIndex - 1);
-      success ? res.sendStatus(202) : res.status(400).send('Invalid event index');
+      success ? res.sendStatus(202) : res.status(400).send({ message: 'Invalid event index' });
     } else {
-      res.status(400).send('Invalid event index');
+      res.status(400).send({ message: 'Invalid event index' });
     }
   } else {
     PlaybackService.start();
@@ -69,17 +69,17 @@ export const pbLoad = async (req, res) => {
   const { eventId, eventIndex } = req.query;
   if (eventId) {
     const success = PlaybackService.loadById(eventId);
-    success ? res.sendStatus(202) : res.status(400).send('Invalid event ID');
+    success ? res.sendStatus(202) : res.status(400).send({ message: 'Invalid event ID' });
   } else if (eventIndex) {
     const index = Number(eventIndex);
     if (!isNaN(index)) {
       const success = PlaybackService.loadByIndex(eventIndex - 1);
-      success ? res.sendStatus(202) : res.status(400).send('Invalid event index');
+      success ? res.sendStatus(202) : res.status(400).send({ message: 'Invalid event index' });
     } else {
-      res.status(400).send('Invalid event index');
+      res.status(400).send({ message: 'Invalid event index' });
     }
   } else {
-    res.status(400).send('No event given');
+    res.status(400).send({ message: 'No event given' });
   }
 };
 
