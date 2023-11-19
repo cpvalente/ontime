@@ -3,6 +3,10 @@ import { formatTime } from '../../utils/time';
 
 import './Schedule.scss';
 
+const formatOptions = {
+  format: 'hh:mm a',
+};
+
 interface ScheduleItemProps {
   selected: 'past' | 'now' | 'future';
   timeStart: number;
@@ -17,8 +21,8 @@ interface ScheduleItemProps {
 export default function ScheduleItem(props: ScheduleItemProps) {
   const { selected, timeStart, timeEnd, title, presenter, backstageEvent, colour, skip } = props;
 
-  const start = formatTime(timeStart, { format: 'hh:mm a' });
-  const end = formatTime(timeEnd, { format: 'hh:mm a' });
+  const start = formatTime(timeStart, formatOptions);
+  const end = formatTime(timeEnd, formatOptions);
   const userColour = colour !== '' ? colour : '';
   const selectStyle = `entry--${selected}`;
 
