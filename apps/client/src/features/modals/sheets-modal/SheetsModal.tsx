@@ -24,7 +24,7 @@ import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 import PreviewExcel from '../upload-modal/preview/PreviewExcel';
 import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { userFieldsPlaceholder } from '../../../common/models/UserFields';
-import { PROJECT_DATA, RUNDOWN_TABLE, USERFIELDS } from '../../../common/api/apiConstants';
+import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
 
 interface SheetsModalProps {
@@ -101,11 +101,11 @@ export default function SheetsModal(props: SheetsModalProps) {
       let doClose = false;
       try {
         await patchData({ rundown, userFields, project });
-        queryClient.setQueryData(RUNDOWN_TABLE, rundown);
+        queryClient.setQueryData(RUNDOWN, rundown);
         queryClient.setQueryData(USERFIELDS, userFields);
         queryClient.setQueryData(PROJECT_DATA, project);
         await queryClient.invalidateQueries({
-          queryKey: [...RUNDOWN_TABLE, ...USERFIELDS, ...PROJECT_DATA],
+          queryKey: [...RUNDOWN, ...USERFIELDS, ...PROJECT_DATA],
         });
         doClose = true;
       } catch (error) {
