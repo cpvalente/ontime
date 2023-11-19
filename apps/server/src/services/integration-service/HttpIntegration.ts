@@ -4,7 +4,6 @@ import { HTTPSettings, LogOrigin, Subscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
-import { isObject } from '../../utils/varUtils.js';
 import { dbModel } from '../../models/dataModel.js';
 import { validateHttpObject } from '../../utils/parserFunctions.js';
 import { logger } from '../../classes/Logger.js';
