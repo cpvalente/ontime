@@ -406,6 +406,19 @@ export async function previewSheet(req, res) {
 }
 
 /**
+ * downloads and parses an sheet
+ * @returns parsed result
+ */
+export async function pushSheet(req, res) {
+  try {
+    const data = await Sheet.push(req.body.sheetid, req.body.worksheet);
+    res.status(200).send('ok');
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}
+
+/**
  * uploads Client secrets file
  * @returns parsed result
  */

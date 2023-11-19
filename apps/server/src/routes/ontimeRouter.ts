@@ -23,6 +23,7 @@ import {
   sheetAuthState,
   sheetClientFile,
   previewSheet,
+  pushSheet,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -104,3 +105,6 @@ router.get('/sheet-authurl', sheetAuthUrl);
 
 // create route between controller and '/ontime/preview-sheet' endpoint
 router.post('/sheet-preview', validateSheetPreview, previewSheet);
+
+// create route between controller and '/ontime/preview-sheet' endpoint
+router.post('/sheet-push', pushSheet);

@@ -17,6 +17,7 @@ import {
   postPreviewSheet,
   uploadSheetClientFile,
   patchData,
+  postPushSheet,
 } from '../../../common/api/ontimeApi';
 import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 
@@ -85,6 +86,12 @@ export default function SheetsModal(props: SheetsModalProps) {
       setProject(data.project);
       setRundown(data.rundown);
       setUserFields(data.userFields);
+    });
+  };
+
+  const handlePushData = () => {
+    postPushSheet(sheetid.current?.value ?? '', worksheet.current?.value ?? '').then((data) => {
+      console.log(data);
     });
   };
 
@@ -180,6 +187,9 @@ export default function SheetsModal(props: SheetsModalProps) {
               <div>
                 <Button variant='ontime-filled' padding='0 2em' onClick={handlePullData}>
                   Pull data
+                </Button>
+                <Button variant='ontime-filled' padding='0 2em' onClick={handlePushData}>
+                  Push data
                 </Button>
               </div>
             </>

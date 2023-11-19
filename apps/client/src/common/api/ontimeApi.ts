@@ -265,3 +265,14 @@ export const postPreviewSheet = async (sheetId: string, worksheet: string, optio
   });
   return response.data.data;
 };
+
+export const postPushSheet = async (sheetId: string, worksheet: string, options?: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet-push`, {
+    sheetid: sheetId,
+    worksheet: worksheet,
+    options: options,
+  });
+  return response.data.data;
+};
+
+
