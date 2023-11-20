@@ -23,7 +23,7 @@ import { SortableCell } from './SortableCell';
 import style from '../Cuesheet.module.scss';
 
 interface CuesheetHeaderProps {
-  headerGroups: () => HeaderGroup<OntimeRundownEntry>[];
+  headerGroups: HeaderGroup<OntimeRundownEntry>[];
 }
 
 function CuesheetHeader(props: CuesheetHeaderProps) {
@@ -75,7 +75,7 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
 
   return (
     <thead className={style.tableHeader}>
-      {headerGroups().map((headerGroup) => {
+      {headerGroups.map((headerGroup) => {
         const key = headerGroup.id;
 
         return (
