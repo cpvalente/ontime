@@ -183,7 +183,6 @@ export const updateRoll = (currentTimers: CurrentTimers) => {
       updatedTimer -= dayInMs;
     }
 
-    console.log(Math.floor(_startAt / 1000), Math.floor(clock / 1000));
 
     if (updatedTimer < 0) {
       isPrimaryFinished = true;
