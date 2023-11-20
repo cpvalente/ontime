@@ -2,9 +2,25 @@ import { useSyncExternalStore } from 'react';
 
 const STORAGE_EVENT = 'ontime-storage';
 
+function getSnapshot(key: string): string | null {
+  try {
+    return window.localStorage.getItem(`ontime-${key}`);
+  } catch {
+    return null;
+  }
+}
+
+function getParsedJson<T>(localStorageValue: string | null, initialValue: T): T {
+  try {
+    return localStorageValue ? JSON.parse(localStorageValue) : initialValue;
+  } catch {
+    return initialValue;
+  }
+}
+
 export const useLocalStorage = <T>(key: string, initialValue: T) => {
   const localStorageValue = useSyncExternalStore(subscribe, () => getSnapshot(key));
-  const parsedLocalStorageValue: T = localStorageValue ? JSON.parse(localStorageValue) : initialValue;
+  const parsedLocalStorageValue = getParsedJson(localStorageValue, initialValue);
 
   /**
    * @description Set value to local storage
@@ -27,13 +43,4 @@ function subscribe(callback: () => void) {
   return () => {
     window.removeEventListener(STORAGE_EVENT, callback);
   };
-}
-
-function getSnapshot(key: string): string | null {
-  try {
-    return window.localStorage.getItem(`ontime-${key}`);
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
 }
