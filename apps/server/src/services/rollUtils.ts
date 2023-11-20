@@ -153,6 +153,7 @@ type CurrentTimers = {
   selectedEventId: string | null;
   current: number | null;
   _finishAt: number | null;
+  _startAt: number | null;
   clock: number | null;
   secondaryTimer: number | null;
   secondaryTarget: number | null;
@@ -164,7 +165,7 @@ type CurrentTimers = {
  * @returns {object} object with selection variables
  */
 export const updateRoll = (currentTimers: CurrentTimers) => {
-  const { selectedEventId, current, _finishAt, clock, secondaryTimer, secondaryTarget } = currentTimers;
+  const { selectedEventId, current, _finishAt, _startAt, clock, secondaryTimer, secondaryTarget } = currentTimers;
 
   // timers
   let updatedTimer = current;
@@ -182,9 +183,13 @@ export const updateRoll = (currentTimers: CurrentTimers) => {
       updatedTimer -= dayInMs;
     }
 
+    console.log(Math.floor(_startAt / 1000), Math.floor(clock / 1000));
+
     if (updatedTimer < 0) {
       isPrimaryFinished = true;
       // we need a new event
+      doRollLoad = true;
+    } else if (clock < _startAt) {
       doRollLoad = true;
     }
   } else if (secondaryTimer >= 0) {

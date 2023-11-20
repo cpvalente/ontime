@@ -703,4 +703,24 @@ describe('typical scenarios', () => {
 
     expect(updateRoll(timers)).toStrictEqual(expected);
   });
+
+  it('rolls backwards', () => {
+    const timers = {
+      selectedEventId: '1',
+      current: 11,
+      _startAt: 10,
+      _finishAt: 15,
+      clock: 9,
+      secondaryTimer: null,
+      secondaryTarget: null,
+    };
+
+    const expected = {
+      updatedTimer: timers._finishAt - timers.clock,
+      updatedSecondaryTimer: null,
+      doRollLoad: true,
+      isFinished: false,
+    };
+    expect(updateRoll(timers)).toStrictEqual(expected);
+  });
 });

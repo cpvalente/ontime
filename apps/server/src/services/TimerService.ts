@@ -339,7 +339,7 @@ export class TimerService {
         this.timer.expectedFinish >= this.timer.startedAt
           ? this.timer.expectedFinish
           : this.timer.expectedFinish + dayInMs,
-
+      _startAt: this.timer.startedAt,
       clock: this.timer.clock,
       secondaryTimer: this.timer.secondaryTimer,
       secondaryTarget: this.secondaryTarget,
