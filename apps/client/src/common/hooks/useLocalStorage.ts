@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-const STORAGE_EVENT = 'onetime-storage';
+const STORAGE_EVENT = 'ontime-storage';
 
 export const useLocalStorage = <T>(key: string, initialValue: T) => {
   const localStorageValue = useSyncExternalStore(subscribe, () => getSnapshot(key));
