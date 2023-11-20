@@ -62,11 +62,15 @@ export default function MessageControl() {
         />
       </div>
       <div>
-        <label className={style.label}>External Message</label>
-        <div className={`${style.inline} ${activeExternal}`}>
-          <span className={style.inlineText}>{data.externalMessage.text || '-'}</span>
-          <span className={style.inlineIcon}>{data.externalMessage.visible ? <IoEye /> : <IoEyeOffOutline />} </span>
-        </div>
+        <InputRow
+          label='External Message'
+          placeholder='-'
+          readonly={true}
+          text={data.externalMessage.text || ''}
+          visible={data.externalMessage.visible || false}
+          changeHandler={(newValue) => setMessage.externalText(newValue)}
+          actionHandler={() => setMessage.externalVisible(!data.externalMessage.visible)}
+        />
       </div>
       <div className={`${style.onAirSection} ${style.padTop}`}>
         <label className={style.label}>Toggle On Air state</label>
