@@ -11,6 +11,7 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import { fetchTimerData, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
@@ -118,26 +119,27 @@ export default function Countdown(props: CountdownProps) {
         <div className='countdown-container' data-testid='countdown-event'>
           <div className='clock-container'>
             <div className='label'>{getLocalizedString('common.time_now')}</div>
-            <div className='time'>{clock}</div>
+            <SuperscriptTime time={clock} className='time' />
           </div>
 
           {runningMessage !== TimerMessage.unhandled && (
             <div className='status'>{getLocalizedString(`countdown.${runningMessage}`)}</div>
           )}
 
-          <span className={`timer ${standby ? 'timer--paused' : ''} ${isRunningFinished ? 'timer--finished' : ''}`}>
-            {formattedTimer}
-          </span>
+          <SuperscriptTime
+            time={formattedTimer}
+            className={`timer ${standby ? 'timer--paused' : ''} ${isRunningFinished ? 'timer--finished' : ''}`}
+          />
           <div className='title'>{follow?.title || 'Untitled Event'}</div>
 
           <div className='timer-group'>
             <div className='aux-timers'>
               <div className='aux-timers__label'>{getLocalizedString('common.start_time')}</div>
-              <span className={`aux-timers__value ${delayedTimerStyles}`}>{startTime}</span>
+              <SuperscriptTime time={startTime} className={`aux-timers__value ${delayedTimerStyles}`} />
             </div>
             <div className='aux-timers'>
               <div className='aux-timers__label'>{getLocalizedString('common.end_time')}</div>
-              <span className={`aux-timers__value ${delayedTimerStyles}`}>{endTime}</span>
+              <SuperscriptTime time={endTime} className={`aux-timers__value ${delayedTimerStyles}`} />
             </div>
           </div>
         </div>

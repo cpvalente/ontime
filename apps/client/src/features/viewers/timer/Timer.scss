@@ -48,6 +48,7 @@
       font-size: clamp(32px, 3.5vw, 50px);
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
+      line-height: 0.95em;
     }
 
     &--hidden {
@@ -115,11 +116,11 @@
     opacity: 1;
     transition: $viewer-transition-time;
 
-  &--paused {
-    opacity: $viewer-opacity-disabled;
-    transition: $viewer-transition-time;
+    &--paused {
+      opacity: $viewer-opacity-disabled;
+      transition: $viewer-transition-time;
+    }
   }
-}
 
 
   /* =================== OVERLAY ===================*/
