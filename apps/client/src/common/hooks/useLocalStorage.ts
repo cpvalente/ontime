@@ -4,12 +4,17 @@ const STORAGE_EVENT = 'onetime-storage';
 
 export const useLocalStorage = <T>(key: string, initialValue: T) => {
   const localStorageValue = useSyncExternalStore(subscribe, () => getSnapshot(key));
-  const parsedLocalStorageValue = localStorageValue ? JSON.parse(localStorageValue) : initialValue;
+  const parsedLocalStorageValue: T = localStorageValue ? JSON.parse(localStorageValue) : initialValue;
 
+  /**
+   * @description Set value to local storage
+   * @param value
+   */
   const setLocalStorageValue = (value: T | ((val: T) => T)) => {
+    // Allow value to be a function so we have same API as useState
     const valueToStore = value instanceof Function ? value(parsedLocalStorageValue) : value;
-    localStorage.setItem(`ontime-${key}`, JSON.stringify(valueToStore));
 
+    localStorage.setItem(`ontime-${key}`, JSON.stringify(valueToStore));
     window.dispatchEvent(new StorageEvent(STORAGE_EVENT));
   };
 
@@ -28,6 +33,7 @@ function getSnapshot(key: string): string | null {
   try {
     return window.localStorage.getItem(`ontime-${key}`);
   } catch (error) {
+    console.error(error);
     return null;
   }
 }
