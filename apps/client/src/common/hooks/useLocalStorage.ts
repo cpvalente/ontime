@@ -1,53 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
-/**
- * @description utility hook to handle state in local storage
- * @param key
- * @param initialValue
- */
-export const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(`ontime-${key}`);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      return initialValue;
-    }
-  });
+const STORAGE_EVENT = 'onetime-storage';
 
-  useEffect(() => {
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.storageArea === window.localStorage && event.key === key) {
-        try {
-          const newValue = event.newValue ? JSON.parse(event.newValue) : initialValue;
-          setStoredValue(newValue);
-        } catch (_) {
-          /* empty */
-        }
-      }
-    };
+export const useLocalStorage = <T>(key: string, initialValue: T) => {
+  const localStorageValue = useSyncExternalStore(subscribe, () => getSnapshot(key));
+  const parsedLocalStorageValue = localStorageValue ? JSON.parse(localStorageValue) : initialValue;
 
-    window.addEventListener('storage', handleStorageChange);
+  const setLocalStorageValue = (value: T | ((val: T) => T)) => {
+    const valueToStore = value instanceof Function ? value(parsedLocalStorageValue) : value;
+    localStorage.setItem(`ontime-${key}`, JSON.stringify(valueToStore));
 
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [initialValue, key]);
-
-  /**
-   * @description Set value to local storage
-   * @param value
-   */
-  const setValue = (value: T | ((val: T) => T)) => {
-    try {
-      // Allow value to be a function so we have same API as useState
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(`ontime-${key}`, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.error(error);
-    }
+    window.dispatchEvent(new StorageEvent(STORAGE_EVENT));
   };
-  return [storedValue, setValue];
+
+  return [parsedLocalStorageValue, setLocalStorageValue] as const;
 };
+
+function subscribe(callback: () => void) {
+  window.addEventListener(STORAGE_EVENT, callback);
+
+  return () => {
+    window.removeEventListener(STORAGE_EVENT, callback);
+  };
+}
+
+function getSnapshot(key: string): string | null {
+  try {
+    return window.localStorage.getItem(`ontime-${key}`);
+  } catch (error) {
+    return null;
+  }
+}
