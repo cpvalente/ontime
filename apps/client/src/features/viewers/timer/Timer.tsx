@@ -97,9 +97,9 @@ export default function Timer(props: TimerProps) {
   let timerFontSize = 89 / (stageTimerCharacters - 1);
   // we need to shrink the timer if the external is going to be there
   if (showExternal) {
-    timerFontSize *= 0.6;
+    timerFontSize *= 0.8;
   }
-  const externalFontSize = 70 / (external.text.length - 1);
+  const externalFontSize = timerFontSize * 0.4
   const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
