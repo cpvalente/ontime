@@ -131,7 +131,7 @@ export default function Timer(props: TimerProps) {
           </div>
         )}
         <div
-          className={`external${!showExternal ? '' : ' external--hidden'}`}
+          className={`external${showExternal ? '' : ' external--hidden'}`}
           style={{ fontSize: `${externalFontSize}vw` }}
         >
           {external.text}
