@@ -13,13 +13,14 @@ interface InputRowProps {
   placeholder: string;
   text: string;
   visible?: boolean;
+  readonly?: boolean
   actionHandler: (action: string, payload: object) => void;
   changeHandler: (newValue: string) => void;
   className?: string;
 }
 
 export default function InputRow(props: InputRowProps) {
-  const { label, placeholder, text, visible, actionHandler, changeHandler, className } = props;
+  const { label, placeholder, text, visible, actionHandler, changeHandler, className, readonly } = props;
 
   const handleInputChange = (newValue: string) => {
     changeHandler(newValue);
@@ -33,6 +34,8 @@ export default function InputRow(props: InputRowProps) {
         <Input
           size='sm'
           variant='ontime-filled'
+          readOnly={readonly}
+          disabled={readonly}
           value={text}
           onChange={(event) => handleInputChange(event.target.value)}
           placeholder={placeholder}
