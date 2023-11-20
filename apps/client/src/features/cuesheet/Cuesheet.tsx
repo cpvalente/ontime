@@ -64,8 +64,8 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
   };
 
   const headerGroups = table.getHeaderGroups();
-  const rowModels = table.getRowModel();
-  const allLeafColumns = table.getAllColumns();
+  const rowModel = table.getRowModel();
+  const allLeafColumns = table.getAllLeafColumns();
 
   let eventIndex = 0;
   let isPast = Boolean(selectedId);
@@ -84,7 +84,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
         <table className={style.cuesheet}>
           <CuesheetHeader headerGroups={headerGroups} />
           <tbody>
-            {rowModels.rows.map((row) => {
+            {rowModel.rows.map((row) => {
               const key = row.original.id;
               const isSelected = selectedId === key;
               if (isSelected) {
