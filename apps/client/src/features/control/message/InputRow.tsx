@@ -1,4 +1,4 @@
-import { Input } from '@chakra-ui/react';
+import { IconButton, Input } from '@chakra-ui/react';
 import { IoEye } from '@react-icons/all-files/io5/IoEye';
 import { IoEyeOffOutline } from '@react-icons/all-files/io5/IoEyeOffOutline';
 
@@ -13,7 +13,7 @@ interface InputRowProps {
   placeholder: string;
   text: string;
   visible?: boolean;
-  readonly?: boolean
+  readonly?: boolean;
   actionHandler: (action: string, payload: object) => void;
   changeHandler: (newValue: string) => void;
   className?: string;
@@ -40,15 +40,25 @@ export default function InputRow(props: InputRowProps) {
           onChange={(event) => handleInputChange(event.target.value)}
           placeholder={placeholder}
         />
-        <TooltipActionBtn
-          clickHandler={() => actionHandler('update', { field: 'isPublic', value: !visible })}
-          tooltip={visible ? 'Make invisible' : 'Make visible'}
-          aria-label={`Toggle ${label}`}
-          openDelay={tooltipDelayMid}
-          icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
-          variant={visible ? 'ontime-filled' : 'ontime-subtle'}
-          size='sm'
-        />
+        {readonly ? (
+          <IconButton
+            size='sm'
+            isDisabled
+            icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
+            aria-label={`Toggle ${label}`}
+            variant={visible ? 'ontime-filled' : 'ontime-subtle'}
+          />
+        ) : (
+          <TooltipActionBtn
+            clickHandler={() => actionHandler('update', { field: 'isPublic', value: !visible })}
+            tooltip={visible ? 'Make invisible' : 'Make visible'}
+            aria-label={`Toggle ${label}`}
+            openDelay={tooltipDelayMid}
+            icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
+            variant={visible ? 'ontime-filled' : 'ontime-subtle'}
+            size='sm'
+          />
+        )}
       </div>
     </div>
   );
