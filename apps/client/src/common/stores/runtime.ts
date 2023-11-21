@@ -3,7 +3,7 @@ import { Playback, RuntimeStore } from 'ontime-types';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
-export const runtimeStorePlaceholder = {
+export const runtimeStorePlaceholder: RuntimeStore = {
   timer: {
     clock: 0,
     current: null,
@@ -30,6 +30,10 @@ export const runtimeStorePlaceholder = {
     visible: false,
   },
   lowerMessage: {
+    text: '',
+    visible: false,
+  },
+  externalMessage: {
     text: '',
     visible: false,
   },
