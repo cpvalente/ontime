@@ -4,6 +4,8 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
+import browserslistToEsbuild from 'browserslist-to-esbuild';
+// import legacy from '@vitejs/plugin-legacy';
 
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
@@ -25,6 +27,9 @@ export default defineConfig({
           env: 'production',
         },
       }),
+    // legacy({
+    //   targets: ['chrome 63'],
+    // }),
     compression({ algorithm: 'brotliCompress' }),
   ],
   server: {
@@ -36,6 +41,7 @@ export default defineConfig({
     environment: 'jsdom',
   },
   build: {
+    target: ['chrome63'],
     outDir: './build',
     sourcemap: true,
   },
