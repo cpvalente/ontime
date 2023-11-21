@@ -156,7 +156,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideProgress && (
         <MultiPartProgressBar
           className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
-          now={time.current}
+          now={time.current ?? 0}
           complete={totalTime}
           normalColor={viewSettings.normalColor}
           warning={viewSettings.warningThreshold}
