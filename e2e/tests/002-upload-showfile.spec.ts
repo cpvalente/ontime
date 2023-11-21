@@ -13,13 +13,13 @@ test('test project file upload', async ({ page }) => {
   // https://playwright.dev/docs/api/class-filechooser
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    await page.getByText('Click to upload Ontime project file').click(),
+    await page.getByText('Click to select Ontime project or xlsx rundown').click(),
   ]);
 
   await fileChooser.setFiles(fileToUpload);
 
+  // there is only one step for normal imports
   await page.getByRole('button', { name: 'Import' }).click();
-  await page.getByRole('button', { name: 'Close' }).click();
 
   // asset test events
   await page.getByPlaceholder('Start').first().click();

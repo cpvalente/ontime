@@ -19,9 +19,11 @@ interface TextInputProps extends BaseProps {
   isTextArea?: false;
 }
 
+type ResizeOptions = 'horizontal' | 'vertical' | 'none';
+
 interface TextAreaProps extends BaseProps {
   isTextArea: true;
-  resize?: 'horizontal' | 'vertical' | 'none';
+  resize?: ResizeOptions;
 }
 
 type InputProps = TextInputProps | TextAreaProps;
@@ -35,7 +37,7 @@ export default function TextInput(props: InputProps) {
   const textInputProps = useReactiveTextInput(initialText, submitCallback, { submitOnEnter: true });
   const textAreaProps = useReactiveTextInput(initialText, submitCallback);
 
-  let resize = 'none';
+  let resize: ResizeOptions = 'none';
   if (isTextArea) {
     resize = (props as TextAreaProps)?.resize ?? 'none';
   }

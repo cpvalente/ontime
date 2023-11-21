@@ -18,6 +18,11 @@
 
     --operator-running-bg-override: #D20300;
     --operator-highlight-override: #FFAB33;
+
+    --studio-active: #101010;
+    --studio-idle: #cfcfcf;
+    --studio-active-label: #101010;
+    --studio-idle-label: #595959;
 }
 
 .timer {

@@ -18,6 +18,7 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Backstage.scss';
 
@@ -97,7 +98,7 @@ export default function Backstage(props: BackstageProps) {
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
-          <div className='time'>{clock}</div>
+          <SuperscriptTime time={clock} className='time' />
         </div>
       </div>
 
@@ -128,12 +129,16 @@ export default function Backstage(props: BackstageProps) {
               <div className='timer-group'>
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
-                  <div className='aux-timers__value'>{startedAt}</div>
+                  <SuperscriptTime time={startedAt} className='aux-timers__value' />
                 </div>
                 <div className='timer-gap' />
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.expected_finish')}</div>
-                  <div className='aux-timers__value'>{expectedFinish}</div>
+                  {isNegative ? (
+                    <div className='aux-timers__value'>{expectedFinish}</div>
+                  ) : (
+                    <SuperscriptTime time={startedAt} className='aux-timers__value' />
+                  )}
                 </div>
                 <div className='timer-gap' />
                 <div className='aux-timers'>

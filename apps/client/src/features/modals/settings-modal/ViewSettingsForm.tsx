@@ -1,16 +1,18 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Input, Switch } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Input, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
 import { logAxiosError } from '../../../common/api/apiUtils';
 import { postViewSettings } from '../../../common/api/ontimeApi';
 import { PopoverPickerRHF } from '../../../common/components/input/popover-picker/PopoverPicker';
+import useInfo from '../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { mtm } from '../../../common/utils/timeConstants';
 import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
+import ModalLink from '../ModalLink';
 import ModalSplitInput from '../ModalSplitInput';
 import OntimeModalFooter from '../OntimeModalFooter';
 
@@ -18,8 +20,12 @@ import InputMillisWithString from './InputMillisWithString';
 
 import style from './SettingsModal.module.scss';
 
+const cssOverrideDocsUrl = 'https://ontime.gitbook.io/v2/features/custom-styling';
+
 export default function ViewSettingsForm() {
   const { data, status, refetch, isFetching } = useViewSettings();
+  const { data: info, isFetching: isFetchingInfo } = useInfo();
+
   const {
     control,
     handleSubmit,
@@ -73,15 +79,26 @@ export default function ViewSettingsForm() {
     return null;
   }
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
 
-  if (isFetching) {
+  if (isFetching || isFetchingInfo) {
     return <ModalLoader />;
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='view-settings' className={style.sectionContainer}>
       <span className={style.title}>General view settings</span>
+      <Alert status='info' variant='ontime-on-light-info'>
+        <AlertIcon />
+        <div className={style.column}>
+          <AlertTitle>CSS Override</AlertTitle>
+          <AlertDescription>
+            Ontime will use the CSS file at its install location. <br />
+            <span className={style.url}>{info?.cssOverride}</span>
+            <ModalLink href={cssOverrideDocsUrl}>For more information, see the docs</ModalLink>
+          </AlertDescription>
+        </div>
+      </Alert>
       <ModalSplitInput
         field='overrideStyles'
         title='Override CSS Styles'
