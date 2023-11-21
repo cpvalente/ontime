@@ -17,7 +17,7 @@ export default function StatusBarProgress(props: StatusBarProgressProps) {
 
   return (
     <MultiPartProgressBar
-      now={timer.current ?? 0}
+      now={timer.current}
       complete={totalTime}
       normalColor={viewSettings.normalColor}
       warning={viewSettings.warningThreshold}

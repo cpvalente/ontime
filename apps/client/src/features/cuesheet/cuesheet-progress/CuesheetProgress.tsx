@@ -11,7 +11,7 @@ export default function CuesheetProgress() {
 
   return (
     <MultiPartProgressBar
-      now={timer.current ?? 0}
+      now={timer.current}
       complete={totalTime}
       normalColor={data!.normalColor}
       warning={data!.warningThreshold}
