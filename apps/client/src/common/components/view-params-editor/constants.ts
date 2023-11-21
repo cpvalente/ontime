@@ -70,7 +70,33 @@ export const CLOCK_OPTIONS: ParamField[] = [
   },
 ];
 
-export const TIMER_OPTIONS: ParamField[] = [TIME_FORMAT_OPTION];
+export const TIMER_OPTIONS: ParamField[] = [
+  TIME_FORMAT_OPTION,
+  {
+    id: 'hideClock',
+    title: 'Hide Time Now',
+    description: 'Hides the Time Now field',
+    type: 'boolean',
+  },
+  {
+    id: 'hideCards',
+    title: 'Hide Cards',
+    description: 'Hides the Now and Next cards',
+    type: 'boolean',
+  },
+  {
+    id: 'hideProgress',
+    title: 'Hide progress bar',
+    description: 'Hides the progress bar',
+    type: 'boolean',
+  },
+  {
+    id: 'hideMessage',
+    title: 'Hide Presenter Message',
+    description: 'Prevents the screen from displaying messages from the presenter',
+    type: 'boolean',
+  },
+];
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   {
