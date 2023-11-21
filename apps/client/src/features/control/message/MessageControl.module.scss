@@ -27,31 +27,3 @@
     color: $action-text-color;
   }
 }
-
-.padTop {
-  margin-top: $section-spacing;
-}
-
-.inline {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.25rem;
-  color: $label-gray;
-
-  &.active {
-    color: $action-text-color;
-  }
-}
-
-.inlineText {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: $label-gray;
-  padding-left: 0.5rem;
-}
-
-.inlineIcon {
-  font-size: 1rem;
-  padding: 0 0.5rem;
-}
