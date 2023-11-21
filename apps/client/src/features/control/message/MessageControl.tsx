@@ -69,8 +69,8 @@ export default function MessageControl() {
         readonly
         text={data.externalMessage.text || ''}
         visible={data.externalMessage.visible || false}
-        changeHandler={(newValue) => setMessage.externalText(newValue)}
-        actionHandler={() => setMessage.externalVisible(!data.externalMessage.visible)}
+        changeHandler={() => undefined}
+        actionHandler={() => undefined}
       />
       <div className={style.onAirSection}>
         <label className={style.label}>Toggle On Air state</label>
