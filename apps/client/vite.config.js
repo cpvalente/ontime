@@ -28,8 +28,8 @@ export default defineConfig({
         },
       }),
     legacy({
-      targets: ['>0.2%', 'not dead', 'not op_mini all', 'Chrome >= 71'],
-      modernPolyfills: ['es/object'],
+      targets: ['>0.2%', 'not dead', 'not op_mini all', 'Chrome >= 63'],
+      modernPolyfills: true,
     }),
     compression({ algorithm: 'brotliCompress' }),
   ],
@@ -37,7 +37,7 @@ export default defineConfig({
     postcss: {
       plugins: [
         postcssPresetEnv({
-          browsers: ['>0.2%', 'not dead', 'not op_mini all', 'Chrome >= 71'],
+          browsers: ['>0.2%', 'not dead', 'not op_mini all', 'Chrome >= 63'],
         }),
       ],
     },

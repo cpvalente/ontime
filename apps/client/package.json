@@ -50,7 +50,7 @@
       ">0.2%",
       "not dead",
       "not op_mini all",
-      "Chrome >= 71"
+      "Chrome >= 63"
     ],
     "development": [
       "last 1 chrome version",
