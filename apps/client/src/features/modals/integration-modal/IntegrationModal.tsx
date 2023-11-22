@@ -31,7 +31,7 @@ export default function IntegrationModal(props: IntegrationModalProps) {
           <TabList>
             <Tab>OSC</Tab>
             <Tab>OSC Integration</Tab>
-            <Tab>HTML Integration</Tab>
+            <Tab>HTTP Integration</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>

@@ -1,4 +1,5 @@
-import { Alias, DatabaseModel, GetInfo, LogOrigin, ProjectData } from 'ontime-types';
+import { LogOrigin } from 'ontime-types';
+import type { Alias, DatabaseModel, GetInfo, HTTPSettings, ProjectData } from 'ontime-types';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
@@ -284,11 +285,25 @@ export const getOSC = async (req, res) => {
   res.status(200).send(osc);
 };
 
-// Create controller for GET request to '/ontime/http'
-// Returns -
-export const getHTTP = async (req, res) => {
-  const http = DataProvider.getHttp();
-  res.status(200).send(http);
+// Create controller for POST request to '/ontime/osc'
+// Returns ACK message
+export const postOSC = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const oscSettings = req.body;
+    await DataProvider.setOsc(oscSettings);
+
+    // TODO: this update could be more granular, checking that relevant data was changed
+    const { message } = oscIntegration.init(oscSettings);
+    logger.info(LogOrigin.Tx, message);
+
+    res.send(oscSettings).status(200);
+  } catch (error) {
+    res.status(400).send({ message: error.toString() });
+  }
 };
 
 export const postOscSubscriptions = async (req, res) => {
@@ -312,42 +327,33 @@ export const postOscSubscriptions = async (req, res) => {
   }
 };
 
-export const postHttpSubscriptions = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
-  try {
-    const subscriptions = req.body;
-    const httpSettings = DataProvider.getHttp();
-    httpSettings.subscriptions = subscriptions;
-    await DataProvider.setHttp(httpSettings);
-
-    const { message } = httpIntegration.init(httpSettings);
-    logger.info(LogOrigin.Tx, message);
-
-    res.send(httpSettings).status(200);
-  } catch (error) {
-    res.status(400).send(error);
-  }
+// Create controller for GET request to '/ontime/http'
+export const getHTTP = async (req, res: Response<HTTPSettings>) => {
+  const http = DataProvider.getHttp();
+  res.status(200).send(http);
 };
 
-// Create controller for POST request to '/ontime/osc'
-// Returns ACK message
-export const postOSC = async (req, res) => {
+// Create controller for POST request to '/ontime/http'
+export const postHTTP = async (req: Request<any, any, HTTPSettings>, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
-    const oscSettings = req.body;
-    await DataProvider.setOsc(oscSettings);
+    const settings = req.body;
+    const httpSettings = DataProvider.getHttp();
+    const hasEnabledChanged = httpSettings.enabledOut !== settings.enabledOut;
 
-    // TODO: this update could be more granular, checking that relevant data was changed
-    const { message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Tx, message);
+    httpSettings.subscriptions = settings.subscriptions;
+    httpSettings.enabledOut = settings.enabledOut;
+    await DataProvider.setHttp(httpSettings);
 
-    res.send(oscSettings).status(200);
+    if (hasEnabledChanged) {
+      const { message } = httpIntegration.init(httpSettings);
+      logger.info(LogOrigin.Tx, message);
+    }
+
+    res.send(httpSettings).status(200);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }

@@ -115,7 +115,6 @@ export class HttpIntegration implements IIntegration {
   }
 
   shutdown() {
-    console.log('Shutting down HTTP integration');
     if (this.httpAgent) {
       this.httpAgent?.destroy();
       this.httpAgent = null;

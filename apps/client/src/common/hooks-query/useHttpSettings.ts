@@ -4,11 +4,11 @@ import { HTTPSettings } from 'ontime-types';
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { HTTP_SETTINGS } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
-import { getHTTP, postHttpSubscriptions } from '../api/ontimeApi';
+import { getHTTP, postHTTP } from '../api/ontimeApi';
 import { httpPlaceholder } from '../models/Http';
 import { ontimeQueryClient } from '../queryClient';
 
-export default function useHttpSettings() {
+export function useHttpSettings() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: HTTP_SETTINGS,
     queryFn: getHTTP,
@@ -23,12 +23,11 @@ export default function useHttpSettings() {
   return { data: data! as unknown as HTTPSettings, status, isFetching, isError, refetch };
 }
 
-
-export function usePostHttpSubscriptions() {
-  const { isLoading, mutateAsync } = useMutation({
-    mutationFn: postHttpSubscriptions,
+export function usePostHttpSettings() {
+  const { isPending, mutateAsync } = useMutation({
+    mutationFn: postHTTP,
     onError: (error) => logAxiosError('Error saving HTTP settings', error),
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: HTTP_SETTINGS }),
   });
-  return { isLoading, mutateAsync };
+  return { isPending, mutateAsync };
 }

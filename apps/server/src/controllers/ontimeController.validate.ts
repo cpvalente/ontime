@@ -91,6 +91,21 @@ export const validateOSC = [
 ];
 
 /**
+ * @description Validates object for POST /ontime/http
+ */
+export const validateHTTP = [
+  body('enabledOut').exists().isBoolean(),
+  body('subscriptions')
+    .isObject()
+    .custom((value) => validateOscObject(value)),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+/**
  * @description Validates object for POST /ontime/osc-subscriptions
  */
 export const validateSubscription = [

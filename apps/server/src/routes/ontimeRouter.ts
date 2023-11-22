@@ -16,11 +16,11 @@ import {
   postNew,
   postOSC,
   postOscSubscriptions,
-  postHttpSubscriptions,
   postSettings,
   postUserFields,
   postViewSettings,
   previewExcel,
+  postHTTP,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -31,6 +31,7 @@ import {
   validateSettings,
   validateUserFields,
   viewValidator,
+  validateHTTP,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 
@@ -90,8 +91,8 @@ router.post('/osc-subscriptions', validateSubscription, postOscSubscriptions);
 // create route between controller and '/ontime/http' endpoint
 router.get('/http', getHTTP);
 
-// create route between controller and '/ontime/osc-subscriptions' endpoint
-router.post('/http-subscriptions', validateSubscription, postHttpSubscriptions);
+// create route between controller and '/ontime/http' endpoint
+router.post('/http', validateHTTP, postHTTP);
 
 // create route between controller and '/ontime/new' endpoint
 router.post('/new', projectSanitiser, postNew);
