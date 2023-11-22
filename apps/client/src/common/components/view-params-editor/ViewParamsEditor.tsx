@@ -59,10 +59,10 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
       setSearchParams(defaultSearchParams);
     }
 
-    // linter is asking for `setSearchParams` in the useEffect deps
-    // rule is disabled since adding `setSearchParams` results in unnecessary re-renders
+    // linter is asking for `setSearchParams` & `storedViewParams` in the useEffect deps
+    // rule is disabled since adding `setSearchParams` & `storedViewParams` results in unnecessary re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storedViewParams, pathname]);
+  }, [pathname]);
 
   const onEditDrawerClose = () => {
     onClose();

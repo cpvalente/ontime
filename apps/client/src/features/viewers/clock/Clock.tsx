@@ -10,6 +10,7 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime } from '../../../common/utils/time';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Clock.scss';
 
@@ -135,7 +136,8 @@ export default function Clock(props: ClockProps) {
     >
       <NavigationMenu />
       <ViewParamsEditor paramFields={CLOCK_OPTIONS} />
-      <div
+      <SuperscriptTime
+        time={clock}
         className='clock'
         style={{
           color: userOptions.textColour,
@@ -145,9 +147,7 @@ export default function Clock(props: ClockProps) {
           left: userOptions.left,
           backgroundColor: userOptions.textBackground,
         }}
-      >
-        {clock}
-      </div>
+      />
     </div>
   );
 }

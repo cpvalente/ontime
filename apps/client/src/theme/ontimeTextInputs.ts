@@ -12,6 +12,11 @@ const commonStyles = {
     border: '1px solid #578AF4', // $blue-500
   },
   _placeholder: { color: '#9d9d9d' }, // $gray-500
+  _disabled: {
+    _hover: {
+      backgroundColor: '#262626', // $gray-1200
+    },
+  },
 };
 
 export const ontimeInputFilled = {
@@ -29,6 +34,11 @@ export const ontimeInputFilledOnLight = {
     },
     _focus: {
       border: '2px solid #578AF4', // $blue-500
+    },
+    _disabled: {
+      _hover: {
+        backgroundColor: 'white',
+      },
     },
   },
 };
@@ -58,4 +68,9 @@ export const ontimeTextAreaFilledOnLight = {
     border: '2px solid #578AF4', // $blue-500
   },
   _placeholder: { color: '#9d9d9d' }, // $gray-500
+  _disabled: {
+    _hover: {
+      backgroundColor: 'white',
+    },
+  },
 };

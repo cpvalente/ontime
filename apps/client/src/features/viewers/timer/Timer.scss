@@ -48,6 +48,7 @@
       font-size: clamp(32px, 3.5vw, 50px);
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
+      line-height: 0.95em;
     }
 
     &--hidden {
@@ -78,6 +79,9 @@
     justify-self: center;
     align-self: center;
 
+    width: 100%;
+    overflow: hidden;
+
     .end-message {
       text-align: center;
       font-size: 11.5vw;
@@ -89,13 +93,15 @@
 
     .timer {
       opacity: 1;
-      font-size: 20vw;
       font-family: var(--font-family-override, $viewer-font-family);
       color: var(--timer-color-override, $timer-color);
       line-height: 0.9em;
       text-align: center;
       letter-spacing: 0.05em;
       font-weight: 600;
+
+      transition-property: font-size;
+      transition-duration: $viewer-transition-time;
 
       &--paused {
         opacity: $viewer-opacity-disabled;
@@ -108,6 +114,27 @@
     }
   }
 
+  .external {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    font-weight: 600;
+    text-align: center;
+    color: var(--external-color-override, $external-color);
+    letter-spacing: 0.5px;
+    line-height: 0.9em;
+    padding-bottom: 0.2em;
+    transition-property: opacity, height;
+    transition-duration: $viewer-transition-time;
+    border-top: 1px solid rgba(white, 0.1);
+
+    &--hidden {
+      opacity: 0;
+      height: 0;
+    }
+  }
+
   .progress-container {
     grid-area: progress;
     width: 100%;
@@ -115,12 +142,11 @@
     opacity: 1;
     transition: $viewer-transition-time;
 
-  &--paused {
-    opacity: $viewer-opacity-disabled;
-    transition: $viewer-transition-time;
+    &--paused {
+      opacity: $viewer-opacity-disabled;
+      transition: $viewer-transition-time;
+    }
   }
-}
-
 
   /* =================== OVERLAY ===================*/
 
