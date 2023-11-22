@@ -9,4 +9,5 @@ export const config = {
     filename: 'override.css',
   },
   restoreFile: 'ontime.restore',
+  rollSkipLimit: 3 * 32,
 };

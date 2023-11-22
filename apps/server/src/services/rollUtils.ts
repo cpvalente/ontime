@@ -1,5 +1,6 @@
 import { OntimeEvent } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
+import { config } from '../config/config.js';
 
 /**
  * handle events that span over midnight
@@ -167,6 +168,7 @@ type CurrentTimers = {
 export const updateRoll = (currentTimers: CurrentTimers) => {
   const { selectedEventId, current, _finishAt, _startAt, clock, secondaryTimer, secondaryTarget } = currentTimers;
 
+  console.log(currentTimers);
   // timers
   let updatedTimer = current;
   let updatedSecondaryTimer = secondaryTimer;
@@ -183,12 +185,12 @@ export const updateRoll = (currentTimers: CurrentTimers) => {
       updatedTimer -= dayInMs;
     }
 
-
     if (updatedTimer < 0) {
-      isPrimaryFinished = true;
+      if (Math.abs(updatedTimer) < config.rollSkipLimit) isPrimaryFinished = true; //Dont trigger Finished if we are over the skip limit
       // we need a new event
       doRollLoad = true;
     } else if (clock < _startAt) {
+      // we have rolled back befor this evet start so we need a new one
       doRollLoad = true;
     }
   } else if (secondaryTimer >= 0) {
