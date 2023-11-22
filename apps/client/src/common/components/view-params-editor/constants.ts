@@ -1,46 +1,53 @@
 import { UserFields } from 'ontime-types';
+import { TimeFormat } from 'ontime-types/src/definitions/core/TimeFormat.type';
 
 import { ParamField } from './types';
 
-export const TIME_FORMAT_OPTION: ParamField = {
+export const getTimeOption = (timeFormat: TimeFormat): ParamField => ({
   id: 'format',
   title: '12  / 24 hour timer',
   description: 'Whether to show the time in 12 or 24 hour mode. Overrides the global setting from preferences',
   type: 'option',
   values: { '12': '12 hour AM/PM', '24': '24 hour' },
-};
+  defaultValue: timeFormat,
+});
 
-export const CLOCK_OPTIONS: ParamField[] = [
-  TIME_FORMAT_OPTION,
+export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
+  getTimeOption(timeFormat),
   {
     id: 'key',
     title: 'Key Colour',
     description: 'Background colour in hexadecimal',
     type: 'string',
+    defaultValue: '101010',
   },
   {
     id: 'text',
     title: 'Text Colour',
     description: 'Text colour in hexadecimal',
     type: 'string',
+    defaultValue: 'fffff',
   },
   {
     id: 'textbg',
     title: 'Text Background',
     description: 'Colour of text background in hexadecimal',
     type: 'string',
+    defaultValue: '101010',
   },
   {
     id: 'font',
     title: 'Font',
     description: 'Font family, will use the fonts available in the system',
     type: 'string',
+    defaultValue: 'Arial Black',
   },
   {
     id: 'size',
     title: 'Text Size',
     description: 'Scales the current style (0.5 = 50% 1 = 100% 2 = 200%)',
     type: 'number',
+    defaultValue: 1,
   },
   {
     id: 'alignx',
@@ -48,12 +55,14 @@ export const CLOCK_OPTIONS: ParamField[] = [
     description: 'Moves the horizontally in page to start = left | center | end = right',
     type: 'option',
     values: { start: 'Start', center: 'Center', end: 'End' },
+    defaultValue: 'center',
   },
   {
     id: 'offsetx',
     title: 'Offset Horizontal',
     description: 'Offsets the timer horizontal position by a given amount in pixels',
     type: 'number',
+    defaultValue: 0,
   },
   {
     id: 'aligny',
@@ -61,16 +70,18 @@ export const CLOCK_OPTIONS: ParamField[] = [
     description: 'Moves the vertically in page to start = left | center | end = right',
     type: 'option',
     values: { start: 'Start', center: 'Center', end: 'End' },
+    defaultValue: 'center',
   },
   {
     id: 'offsety',
     title: 'Offset Vertical',
     description: 'Offsets the timer vertical position by a given amount in pixels',
     type: 'number',
+    defaultValue: 0,
   },
 ];
 
-export const TIMER_OPTIONS: ParamField[] = [TIME_FORMAT_OPTION];
+export const getTimerOptions = (timeFormat: TimeFormat): ParamField[] => [getTimeOption(timeFormat)];
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   {
@@ -78,30 +89,35 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     title: 'Key Colour',
     description: 'Background colour in hexadecimal',
     type: 'string',
+    defaultValue: '101010',
   },
   {
     id: 'text',
     title: 'Text Colour',
     description: 'Text colour in hexadecimal',
     type: 'string',
+    defaultValue: 'fffff',
   },
   {
     id: 'textbg',
     title: 'Text Background',
     description: 'Colour of text background in hexadecimal',
     type: 'string',
+    defaultValue: '101010',
   },
   {
     id: 'font',
     title: 'Font',
     description: 'Font family, will use the fonts available in the system',
     type: 'string',
+    defaultValue: 'Arial Black',
   },
   {
     id: 'size',
     title: 'Text Size',
     description: 'Scales the current style (0.5 = 50% 1 = 100% 2 = 200%)',
     type: 'number',
+    defaultValue: 1,
   },
   {
     id: 'alignx',
@@ -109,12 +125,14 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     description: 'Moves the horizontally in page to start = left | center | end = right',
     type: 'option',
     values: { start: 'Start', center: 'Center', end: 'End' },
+    defaultValue: 'center',
   },
   {
     id: 'offsetx',
     title: 'Offset Horizontal',
     description: 'Offsets the timer horizontal position by a given amount in pixels',
     type: 'number',
+    defaultValue: 0,
   },
   {
     id: 'aligny',
@@ -122,145 +140,159 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     description: 'Moves the vertically in page to start = left | center | end = right',
     type: 'option',
     values: { start: 'Start', center: 'Center', end: 'End' },
+    defaultValue: 'center',
   },
   {
     id: 'offsety',
     title: 'Offset Vertical',
     description: 'Offsets the timer vertical position by a given amount in pixels',
     type: 'number',
+    defaultValue: 0,
   },
   {
     id: 'hideovertime',
     title: 'Hide Overtime',
     description: 'Whether to suppress overtime styles (red borders and red text)',
     type: 'boolean',
+    defaultValue: false,
   },
   {
     id: 'hidemessages',
     title: 'Hide Message Overlay',
     description: 'Whether to hide the overlay from showing timer screen messages',
     type: 'boolean',
+    defaultValue: false,
   },
   {
     id: 'hideendmessage',
     title: 'Hide End Message',
     description: 'Whether to hide end message and continue showing the clock if timer is in overtime',
     type: 'boolean',
+    defaultValue: false,
   },
 ];
 
 export const LOWER_THIRDS_OPTIONS: ParamField[] = [
   {
-    id: 'preset',
-    title: 'Preset',
-    description: 'Selects a style preset (0-1)',
-    type: 'number',
-  },
-  {
     id: 'size',
     title: 'Size',
     description: 'Scales the current style (0.5 = 50% 1 = 100% 2 = 200%)',
     type: 'number',
+    defaultValue: 1,
   },
   {
     id: 'transition',
     title: 'Transition',
-    description: 'Transition in time in seconds (default 5)',
+    description: 'Transition in time in seconds (default 3)',
     type: 'number',
+    defaultValue: 3,
   },
   {
     id: 'text',
     title: 'Text Colour',
     description: 'Text colour in hexadecimal',
     type: 'string',
+    defaultValue: '#fffffa',
   },
   {
     id: 'bg',
     title: 'Text Background',
     description: 'Text background colour in hexadecimal',
     type: 'string',
+    defaultValue: '00000033',
   },
   {
     id: 'key',
     title: 'Key Colour',
     description: 'Screen background colour in hexadecimal',
     type: 'string',
+    defaultValue: '00000033',
   },
   {
     id: 'fadeout',
     title: 'Fadeout',
     description: 'Time (in seconds) the lower third displays before fading out',
     type: 'number',
+    defaultValue: 3,
   },
 ];
 
-export const BACKSTAGE_OPTIONS: ParamField[] = [
-  TIME_FORMAT_OPTION,
+export const getBackstageOptions = (timeFormat: TimeFormat): ParamField[] => [
+  getTimeOption(timeFormat),
   {
     id: 'hidePast',
     title: 'Hide past events',
     description: 'Scheduler will only show upcoming events',
     type: 'boolean',
+    defaultValue: false,
   },
   {
     id: 'stopCycle',
     title: 'Stop cycling through event pages',
     description: 'Schedule will not auto-cycle through events',
     type: 'boolean',
+    defaultValue: false,
   },
   {
     id: 'eventsPerPage',
     title: 'Events per page',
     description: 'Sets the number of events on the page, can cause overlow',
     type: 'number',
+    defaultValue: 7,
   },
 ];
 
-export const PUBLIC_OPTIONS: ParamField[] = [
-  TIME_FORMAT_OPTION,
+export const getPublicOptions = (timeFormat: TimeFormat): ParamField[] => [
+  getTimeOption(timeFormat),
   {
     id: 'hidePast',
     title: 'Hide past events',
     description: 'Scheduler will only show upcoming events',
     type: 'boolean',
+    defaultValue: false,
   },
   {
     id: 'stopCycle',
     title: 'Stop cycling through event pages',
     description: 'Schedule will not auto-cycle through events',
     type: 'boolean',
+    defaultValue: false,
   },
   {
     id: 'eventsPerPage',
     title: 'Events per page',
     description: 'Sets the number of events on the page, can cause overlow',
     type: 'number',
+    defaultValue: 7,
   },
 ];
-export const STUDIO_CLOCK_OPTIONS: ParamField[] = [
-  TIME_FORMAT_OPTION,
+export const getStudioClockOptions = (timeFormat: TimeFormat): ParamField[] => [
+  getTimeOption(timeFormat),
   {
     id: 'seconds',
     title: 'Show Seconds',
     description: 'Shows seconds in clock',
     type: 'boolean',
+    defaultValue: false,
   },
 ];
 
-export const getOperatorOptions = (userFields: UserFields): ParamField[] => {
+export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeFormat): ParamField[] => {
   return [
-    TIME_FORMAT_OPTION,
+    getTimeOption(timeFormat),
     {
       id: 'showseconds',
       title: 'Show seconds',
       description: 'Schedule shows hh:mm:ss',
       type: 'boolean',
+      defaultValue: false,
     },
     {
       id: 'hidepast',
       title: 'Hide Past Events',
       description: 'Whether to events that have passed',
       type: 'boolean',
+      defaultValue: false,
     },
     {
       id: 'main',
@@ -272,6 +304,7 @@ export const getOperatorOptions = (userFields: UserFields): ParamField[] => {
         subtitle: 'Subtitle',
         presenter: 'Presenter',
       },
+      defaultValue: undefined,
     },
     {
       id: 'secondary',
@@ -283,6 +316,7 @@ export const getOperatorOptions = (userFields: UserFields): ParamField[] => {
         subtitle: 'Subtitle',
         presenter: 'Presenter',
       },
+      defaultValue: undefined,
     },
     {
       id: 'subscribe',
@@ -301,6 +335,7 @@ export const getOperatorOptions = (userFields: UserFields): ParamField[] => {
         user8: userFields.user8 || 'user8',
         user9: userFields.user9 || 'user9',
       },
+      defaultValue: undefined,
     },
   ];
 };
