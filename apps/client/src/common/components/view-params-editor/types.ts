@@ -4,9 +4,13 @@ type BaseField = {
   description: string;
 };
 
-type OptionsField = { type: 'option'; values: Record<string, string> };
-type StringField = { type: 'string' };
-type BooleanField = { type: 'boolean' };
-type NumberField = { type: 'number' };
+type OptionsField = {
+  type: 'option';
+  values: Record<string, string>;
+  defaultValue: string | undefined;
+};
+type StringField = { type: 'string'; defaultValue: string };
+type BooleanField = { type: 'boolean'; defaultValue: boolean };
+type NumberField = { type: 'number'; defaultValue: number };
 
 export type ParamField = BaseField & (StringField | BooleanField | NumberField | OptionsField);
