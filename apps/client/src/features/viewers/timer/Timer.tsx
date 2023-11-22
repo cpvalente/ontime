@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -41,6 +41,7 @@ const titleVariants = {
 interface TimerProps {
   isMirrored: boolean;
   pres: TimerMessage;
+  external: Message;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   time: TimeManagerType;
@@ -48,10 +49,9 @@ interface TimerProps {
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, pres, eventNow, eventNext, time, viewSettings } = props;
+  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
-
   useEffect(() => {
     document.title = 'ontime - Timer';
   }, []);
@@ -78,6 +78,7 @@ export default function Timer(props: TimerProps) {
   const showBlinking = pres.timerBlink;
   const showBlackout = pres.timerBlackout;
   const showClock = time.timerType !== TimerType.Clock;
+  const showExternal = external.visible && external.text;
 
   const timerColor =
     showProgress && showDanger
@@ -94,7 +95,13 @@ export default function Timer(props: TimerProps) {
   }
 
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
-  const timerFontSize = 89 / (stageTimerCharacters - 1);
+  let timerFontSize = 89 / (stageTimerCharacters - 1);
+  // we need to shrink the timer if the external is going to be there
+  if (showExternal) {
+    timerFontSize *= 0.8;
+  }
+  const externalFontSize = timerFontSize * 0.4
+  const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   return (
@@ -110,7 +117,7 @@ export default function Timer(props: TimerProps) {
         <SuperscriptTime time={clock} className='clock' />
       </div>
 
-      <div className={`timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
+      <div className={timerContainerClasses}>
         {showEndMessage ? (
           <div className='end-message'>{viewSettings.endMessage}</div>
         ) : (
@@ -124,6 +131,12 @@ export default function Timer(props: TimerProps) {
             {display}
           </div>
         )}
+        <div
+          className={`external${showExternal ? '' : ' external--hidden'}`}
+          style={{ fontSize: `${externalFontSize}vw` }}
+        >
+          {external.text}
+        </div>
       </div>
 
       <MultiPartProgressBar

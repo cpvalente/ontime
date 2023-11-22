@@ -14,6 +14,7 @@ type WithDataProps = {
   pres: TimerMessage;
   publ: Message;
   lower: Message;
+  external: Message;
   eventNow: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
@@ -51,12 +52,12 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     }, [rundownData]);
 
     // websocket data
-    const data = useStore(runtime);
     const {
       timer,
       publicMessage,
       timerMessage,
       lowerMessage,
+      externalMessage,
       playback,
       onAir,
       eventNext,
@@ -64,7 +65,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
       publicEventNow,
       eventNow,
       loaded,
-    } = data;
+    } = useStore(runtime);
     const publicSelectedId = loaded.selectedPublicEventId;
     const selectedId = loaded.selectedEventId;
     const nextId = loaded.nextEventId;
@@ -92,6 +93,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
         pres={timerMessage}
         publ={publicMessage}
         lower={lowerMessage}
+        external={externalMessage}
         eventNow={eventNow}
         publicEventNow={publicEventNow}
         eventNext={eventNext}
