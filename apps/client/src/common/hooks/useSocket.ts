@@ -27,6 +27,7 @@ export const useMessageControl = () => {
     timerMessage: state.timerMessage,
     publicMessage: state.publicMessage,
     lowerMessage: state.lowerMessage,
+    externalMessage: state.externalMessage,
     onAir: state.onAir,
   });
 
@@ -40,6 +41,8 @@ export const setMessage = {
   publicVisible: (payload: boolean) => socketSendJson('set-public-message-visible', payload),
   lowerText: (payload: string) => socketSendJson('set-lower-message-text', payload),
   lowerVisible: (payload: boolean) => socketSendJson('set-lower-message-visible', payload),
+  externalText: (payload: string) => socketSendJson('set-external-message-text', payload),
+  externalVisible: (payload: boolean) => socketSendJson('set-external-message-visible', payload),
   onAir: (payload: boolean) => socketSendJson('set-onAir', payload),
   timerBlink: (payload: boolean) => socketSendJson('set-timer-blink', payload),
   timerBlackout: (payload: boolean) => socketSendJson('set-timer-blackout', payload),
