@@ -96,6 +96,12 @@ export const TIMER_OPTIONS: ParamField[] = [
     description: 'Prevents the screen from displaying messages from the presenter',
     type: 'boolean',
   },
+  {
+    id: 'hideExternal',
+    title: 'Hide External',
+    description: 'Prevents the screen from displaying the external field',
+    type: 'boolean',
+  },
 ];
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
