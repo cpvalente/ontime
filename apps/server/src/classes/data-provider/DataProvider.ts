@@ -113,6 +113,7 @@ export class DataProvider {
     data.aliases = mergedData.aliases;
     data.userFields = mergedData.userFields;
     data.rundown = mergedData.rundown;
+    data.previouslyUploaded = mergedData.previouslyUploaded;
     await this.persist();
   }
 }
