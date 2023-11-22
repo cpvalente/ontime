@@ -5,9 +5,9 @@ import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
 import browserslistToEsbuild from 'browserslist-to-esbuild';
-// import legacy from '@vitejs/plugin-legacy';
-
+import legacy from '@vitejs/plugin-legacy';
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
+import postcssPresetEnv from 'postcss-preset-env';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const isLocal = process.env.NODE_ENV === 'local';
@@ -27,11 +27,21 @@ export default defineConfig({
           env: 'production',
         },
       }),
-    // legacy({
-    //   targets: ['chrome 63'],
-    // }),
+    legacy({
+      targets: ['>0.2%', 'not dead', 'not op_mini all', 'Chrome >= 71'],
+      modernPolyfills: ['es/object'],
+    }),
     compression({ algorithm: 'brotliCompress' }),
   ],
+  css: {
+    postcss: {
+      plugins: [
+        postcssPresetEnv({
+          browsers: ['>0.2%', 'not dead', 'not op_mini all', 'Chrome >= 71'],
+        }),
+      ],
+    },
+  },
   server: {
     port: 3000,
   },
@@ -41,7 +51,6 @@ export default defineConfig({
     environment: 'jsdom',
   },
   build: {
-    target: ['chrome63'],
     outDir: './build',
     sourcemap: true,
   },
