@@ -11,6 +11,7 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useOperator } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
+import useSettings from '../../common/hooks-query/useSettings';
 import useUserFields from '../../common/hooks-query/useUserFields';
 import { debounce } from '../../common/utils/debounce';
 import { isStringBoolean } from '../../common/utils/viewUtils';
@@ -32,6 +33,7 @@ export default function Operator() {
 
   const featureData = useOperator();
   const [searchParams] = useSearchParams();
+  const { data: settings } = useSettings();
 
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
   const selectedRef = useRef<HTMLDivElement | null>(null);
@@ -92,7 +94,7 @@ export default function Operator() {
   const subscribedAlias = subscribe ? userFields[subscribe] : '';
   const showSeconds = isStringBoolean(searchParams.get('showseconds'));
 
-  const operatorOptions = getOperatorOptions(userFields);
+  const operatorOptions = getOperatorOptions(userFields, settings?.timeFormat ?? '24');
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 

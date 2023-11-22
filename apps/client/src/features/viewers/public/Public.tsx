@@ -9,9 +9,10 @@ import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
-import { PUBLIC_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import { getPublicOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -42,6 +43,7 @@ export default function Public(props: BackstageProps) {
     props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
+  const { data: settings } = useSettings();
 
   useEffect(() => {
     document.title = 'ontime - Public Screen';
@@ -56,10 +58,12 @@ export default function Public(props: BackstageProps) {
   const clock = formatTime(time.clock, formatOptions);
   const qrSize = Math.max(window.innerWidth / 15, 128);
 
+  const publicOptions = getPublicOptions(settings?.timeFormat ?? '24');
+
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={PUBLIC_OPTIONS} />
+      <ViewParamsEditor paramFields={publicOptions} />
       <div className='project-header'>
         {general.title}
         <div className='clock-container'>

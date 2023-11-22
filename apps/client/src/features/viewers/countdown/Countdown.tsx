@@ -5,7 +5,7 @@ import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
-import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-editor/constants';
+import { getTimeOption } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -112,7 +112,7 @@ export default function Countdown(props: CountdownProps) {
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
+      <ViewParamsEditor paramFields={[getTimeOption]} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />
       ) : (

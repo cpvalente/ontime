@@ -6,9 +6,10 @@ import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
-import { TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -49,6 +50,7 @@ interface TimerProps {
 
 export default function Timer(props: TimerProps) {
   const { isMirrored, pres, eventNow, eventNext, time, viewSettings } = props;
+  const { data: settings } = useSettings();
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -97,10 +99,12 @@ export default function Timer(props: TimerProps) {
   const timerFontSize = 89 / (stageTimerCharacters - 1);
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
+  const timerOptions = getTimerOptions(settings?.timeFormat ?? '24');
+
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={TIMER_OPTIONS} />
+      <ViewParamsEditor paramFields={timerOptions} />
       <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
         <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
       </div>

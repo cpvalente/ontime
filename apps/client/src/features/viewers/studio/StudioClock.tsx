@@ -6,10 +6,11 @@ import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
-import { STUDIO_CLOCK_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import { getStudioClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
@@ -40,6 +41,7 @@ export default function StudioClock(props: StudioClockProps) {
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
+  const { data: settings } = useSettings();
 
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
 
@@ -75,10 +77,12 @@ export default function StudioClock(props: StudioClockProps) {
   const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
 
+  const studioClockOptions = getStudioClockOptions(settings?.timeFormat ?? '24');
+
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={STUDIO_CLOCK_OPTIONS} />
+      <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
         <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
