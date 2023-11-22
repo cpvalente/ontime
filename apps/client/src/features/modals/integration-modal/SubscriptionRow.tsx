@@ -69,9 +69,9 @@ export default function SubscriptionRow(props: SubscriptionRowProps) {
                 size='xs'
                 variant='ontime-filled-on-light'
                 autoComplete='off'
-                {...register(`${cycle}.${index}.message`)}
+                {...register(`subscriptions.${cycle}.${index}.message`)}
               />
-              <Switch variant='ontime-on-light' {...register(`${cycle}.${index}.enabled`)} />
+              <Switch variant='ontime-on-light' {...register(`subscriptions.${cycle}.${index}.enabled`)} />
             </div>
           ))}
           <Button

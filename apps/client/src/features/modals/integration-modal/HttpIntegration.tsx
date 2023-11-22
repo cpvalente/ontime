@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { Subscription } from 'ontime-types';
+import { Switch } from '@chakra-ui/react';
+import type { HTTPSettings } from 'ontime-types';
 import { TimerLifeCycle } from 'ontime-types';
 
-import useHttpSettings, { usePostHttpSubscriptions } from '../../../common/hooks-query/useHttpSettings';
+import { useHttpSettings, usePostHttpSettings } from '../../../common/hooks-query/useHttpSettings';
 import { useEmitLog } from '../../../common/stores/logger';
 import ModalLoader from '../modal-loader/ModalLoader';
 import OntimeModalFooter from '../OntimeModalFooter';
@@ -14,6 +15,7 @@ import styles from '../Modal.module.scss';
 
 type OntimeCycle = keyof typeof TimerLifeCycle;
 
+const placeholder = 'http://x.x.x.x:xxxx/api/path';
 const sectionText: { [key in TimerLifeCycle]: { title: string; subtitle: string } } = {
   onLoad: {
     title: 'On Load',
@@ -43,7 +45,7 @@ const sectionText: { [key in TimerLifeCycle]: { title: string; subtitle: string 
 
 export default function HttpIntegration() {
   const { data, isFetching } = useHttpSettings();
-  const { mutateAsync } = usePostHttpSubscriptions();
+  const { mutateAsync } = usePostHttpSettings();
   const { emitError } = useEmitLog();
   const {
     control,
@@ -51,9 +53,9 @@ export default function HttpIntegration() {
     register,
     reset,
     formState: { isSubmitting, isDirty, isValid },
-  } = useForm<Subscription>({
-    defaultValues: data.subscriptions,
-    values: data.subscriptions,
+  } = useForm<HTTPSettings>({
+    defaultValues: data,
+    values: data,
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -63,26 +65,31 @@ export default function HttpIntegration() {
 
   useEffect(() => {
     if (data) {
-      reset(data.subscriptions);
+      reset(data);
     }
   }, [data, reset]);
 
   const resetForm = () => {
-    reset(data.subscriptions);
+    reset(data);
   };
 
-  const onSubmit = async (values: Subscription) => {
+  const onSubmit = async (values: HTTPSettings) => {
     try {
-      const subscriptions = {
-        onLoad: values.onLoad ?? [],
-        onStart: values.onStart ?? [],
-        onPause: values.onPause ?? [],
-        onStop: values.onStop ?? [],
-        onUpdate: values.onUpdate ?? [],
-        onFinish: values.onFinish ?? [],
+      const newSettings: HTTPSettings = {
+        enabledOut: Boolean(values.enabledOut),
+        subscriptions: {
+          onLoad: values.subscriptions.onLoad ?? [],
+          onStart: values.subscriptions.onStart ?? [],
+          onPause: values.subscriptions.onPause ?? [],
+          onStop: values.subscriptions.onStop ?? [],
+          onUpdate: values.subscriptions.onUpdate ?? [],
+          onFinish: values.subscriptions.onFinish ?? [],
+        },
       };
 
-      await mutateAsync(subscriptions);
+      console.log('debug will submit', newSettings)
+
+      await mutateAsync(newSettings);
     } catch (error) {
       emitError(`Error setting HTML: ${error}`);
     }
@@ -91,17 +98,15 @@ export default function HttpIntegration() {
   if (isFetching) {
     return <ModalLoader />;
   }
-  const placeholder = 'http://x.x.x.x:xxxx/api/path';
-  //TODO: add golobal off
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='http-subscriptions'>
-      {/* <div className={styles.splitSection}>
+      <div className={styles.splitSection}>
         <div>
           <span className={`${styles.sectionTitle} ${styles.main}`}>HTTP Output</span>
           <span className={styles.sectionSubtitle}>Ontime data feedback</span>
         </div>
         <Switch {...register('enabledOut')} variant='ontime-on-light' />
-      </div> */}
+      </div>
       <SubscriptionRow
         cycle={TimerLifeCycle.onLoad}
         title={sectionText.onLoad.title}
