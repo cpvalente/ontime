@@ -81,7 +81,44 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
   },
 ];
 
-export const getTimerOptions = (timeFormat: TimeFormat): ParamField[] => [getTimeOption(timeFormat)];
+export const getTimerOptions = (timeFormat: TimeFormat): ParamField[] => [
+  getTimeOption(timeFormat),
+  {
+    id: 'hideClock',
+    title: 'Hide Time Now',
+    description: 'Hides the Time Now field',
+    type: 'boolean',
+    defaultValue: false,
+  },
+  {
+    id: 'hideCards',
+    title: 'Hide Cards',
+    description: 'Hides the Now and Next cards',
+    type: 'boolean',
+    defaultValue: false,
+  },
+  {
+    id: 'hideProgress',
+    title: 'Hide progress bar',
+    description: 'Hides the progress bar',
+    type: 'boolean',
+    defaultValue: false,
+  },
+  {
+    id: 'hideMessage',
+    title: 'Hide Presenter Message',
+    description: 'Prevents the screen from displaying messages from the presenter',
+    type: 'boolean',
+    defaultValue: false,
+  },
+  {
+    id: 'hideExternal',
+    title: 'Hide External',
+    description: 'Prevents the screen from displaying the external field',
+    type: 'boolean',
+    defaultValue: false,
+  },
+];
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   {

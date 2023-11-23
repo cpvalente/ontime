@@ -109,6 +109,20 @@ export function dispatchFromAdapter(
       break;
     }
 
+    case 'set-external-message-text': {
+      if (typeof payload !== 'string') {
+        throw new Error(`Unable to parse payload: ${payload}`);
+      }
+      messageService.setExternalText(payload);
+      return;
+    }
+    case 'set-external-message-visible': {
+      if (typeof payload === 'undefined') {
+        throw new Error(`Unable to parse payload: ${payload}`);
+      }
+      messageService.setExternalVisibility(Boolean(payload));
+      break;
+    }
     case 'start': {
       PlaybackService.start();
       break;
