@@ -19,7 +19,7 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
     title: 'Key Colour',
     description: 'Background colour in hexadecimal',
     type: 'string',
-    defaultValue: '101010',
+    defaultValue: '00000000',
   },
   {
     id: 'text',
@@ -33,7 +33,7 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
     title: 'Text Background',
     description: 'Colour of text background in hexadecimal',
     type: 'string',
-    defaultValue: '101010',
+    defaultValue: '00000000',
   },
   {
     id: 'font',
@@ -126,7 +126,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     title: 'Key Colour',
     description: 'Background colour in hexadecimal',
     type: 'string',
-    defaultValue: '101010',
+    defaultValue: '00000000',
   },
   {
     id: 'text',
@@ -140,7 +140,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     title: 'Text Background',
     description: 'Colour of text background in hexadecimal',
     type: 'string',
-    defaultValue: '101010',
+    defaultValue: '00000000',
   },
   {
     id: 'font',
