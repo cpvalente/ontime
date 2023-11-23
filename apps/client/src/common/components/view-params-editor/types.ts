@@ -7,7 +7,7 @@ type BaseField = {
 type OptionsField = {
   type: 'option';
   values: Record<string, string>;
-  defaultValue: string | undefined;
+  defaultValue?: string;
 };
 type StringField = { type: 'string'; defaultValue: string };
 type BooleanField = { type: 'boolean'; defaultValue: boolean };

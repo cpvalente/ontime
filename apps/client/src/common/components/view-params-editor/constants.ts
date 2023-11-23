@@ -341,7 +341,6 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeForma
         subtitle: 'Subtitle',
         presenter: 'Presenter',
       },
-      defaultValue: undefined,
     },
     {
       id: 'secondary',
@@ -353,7 +352,6 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeForma
         subtitle: 'Subtitle',
         presenter: 'Presenter',
       },
-      defaultValue: undefined,
     },
     {
       id: 'subscribe',
@@ -372,7 +370,6 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeForma
         user8: userFields.user8 || 'user8',
         user9: userFields.user9 || 'user9',
       },
-      defaultValue: undefined,
     },
   ];
 };
