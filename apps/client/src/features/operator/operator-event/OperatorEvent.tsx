@@ -1,4 +1,4 @@
-import { memo, MouseEvent, RefObject } from 'react';
+import { memo, RefObject, SyntheticEvent } from 'react';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import useLongPress from '../../../common/hooks/useLongPress';
@@ -54,7 +54,7 @@ function OperatorEvent(props: OperatorEventProps) {
     onLongPress,
   } = props;
 
-  const handleLongPress = (event?: MouseEvent) => {
+  const handleLongPress = (event?: SyntheticEvent) => {
     // we dont have an event out of useLongPress
     event?.preventDefault();
     onLongPress({ id, cue, fieldLabel: subscribedAlias, fieldValue: subscribed ?? '' });

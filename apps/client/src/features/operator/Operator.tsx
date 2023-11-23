@@ -36,6 +36,8 @@ export default function Operator() {
   const { data: userFields, status: userFieldsStatus } = useUserFields();
   const { data: projectData, status: projectDataStatus } = useProjectData();
 
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+
   const featureData = useOperator();
   const [searchParams] = useSearchParams();
 
@@ -88,9 +90,13 @@ export default function Operator() {
   const debouncedHandleScroll = debounce(handleUserScroll, 1000);
 
   const handleScroll = () => {
-    setTimeout(() => {
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
+    }
+    timeoutId.current = setTimeout(() => {
       setShowEditPrompt(false);
-    }, 2000);
+    }, 700);
+
     setShowEditPrompt(true);
 
     debouncedHandleScroll();

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Textarea } from '@chakra-ui/react';
 import { OntimeEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -17,7 +17,7 @@ export default function EditModal(props: EditModalProps) {
 
   const { updateEvent } = useEventAction();
   const [loading, setLoading] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSave = async () => {
     setLoading(true);
@@ -36,10 +36,9 @@ export default function EditModal(props: EditModalProps) {
 
   return (
     <div className={style.editModal}>
-      <div>{`Editing ${fieldLabel} in cue ${event.cue}`}</div>
-      <Input
+      <div>{`Editing field ${fieldLabel} in cue ${event.cue}`}</div>
+      <Textarea
         ref={inputRef}
-        type='text'
         variant='ontime-filled'
         placeholder={`Add value for ${fieldLabel} field`}
         defaultValue={event.fieldValue}
