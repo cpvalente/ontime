@@ -28,7 +28,14 @@ export class HttpIntegration implements IIntegration {
    * Initializes httpClient
    */
   init(config: HTTPSettings) {
-    const { subscriptions } = config;
+    const { subscriptions, enabledOut } = config;
+
+    if (!enabledOut) {
+      return {
+        success: true,
+        message: `HTTP integration client disabled`,
+      };
+    }
 
     this.initSubscriptions(subscriptions);
 
