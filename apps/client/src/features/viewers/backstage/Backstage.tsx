@@ -14,6 +14,7 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getBackstageOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -44,6 +45,7 @@ export default function Backstage(props: BackstageProps) {
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [blinkClass, setBlinkClass] = useState(false);
+  const { data: settings } = useSettings();
 
   // Set window title
   useEffect(() => {
@@ -89,11 +91,12 @@ export default function Backstage(props: BackstageProps) {
   }
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
+  const backstageOptions = getBackstageOptions(settings?.timeFormat ?? '24');
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={getBackstageOptions} />
+      <ViewParamsEditor paramFields={backstageOptions} />
       <div className='project-header'>
         {general.title}
         <div className='clock-container'>
