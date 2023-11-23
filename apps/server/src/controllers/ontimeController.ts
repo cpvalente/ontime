@@ -395,6 +395,29 @@ export async function previewExcel(req, res) {
 }
 
 /**
+ * Meant to create a new project file, it will clear only fields which are specific to a project
+ * @param req
+ * @param res
+ */
+export const postNew: RequestHandler = async (req, res) => {
+  try {
+    const newProjectData: ProjectData = {
+      title: req.body?.title ?? '',
+      description: req.body?.description ?? '',
+      publicUrl: req.body?.publicUrl ?? '',
+      publicInfo: req.body?.publicInfo ?? '',
+      backstageUrl: req.body?.backstageUrl ?? '',
+      backstageInfo: req.body?.backstageInfo ?? '',
+    };
+    const newData = await DataProvider.setProjectData(newProjectData);
+    await deleteAllEvents();
+    res.status(201).send(newData);
+  } catch (error) {
+    res.status(400).send({ message: error.toString() });
+  }
+};
+
+/**
  * downloads and parses an sheet
  * @returns parsed result
  */
@@ -424,7 +447,7 @@ export async function pushSheet(req, res) {
  * uploads Client secrets file
  * @returns parsed result
  */
-export async function sheetClientFile(req, res) {
+export async function uploadGoogleSheetClientFile(req, res) {
   if (!req.file.path) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -432,8 +455,8 @@ export async function sheetClientFile(req, res) {
 
   try {
     const client = JSON.parse(fs.readFileSync(req.file.path as string, 'utf-8'));
-    await Sheet.saveClientSecrets(client);
-    res.status(200).send('OK');
+    const auth = await Sheet.saveClientSecrets(client);
+    res.status(200).send(auth);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
   }
@@ -463,24 +486,39 @@ export async function sheetAuthUrl(req, res) {
 }
 
 /**
- * Meant to create a new project file, it will clear only fields which are specific to a project
- * @param req
- * @param res
+ * @description Get google sheet Settings
+ * @method GET
  */
-export const postNew: RequestHandler = async (req, res) => {
+export const getGoogleSheetSettings = async (req, res) => {
+  const sheet = DataProvider.getGoogleSheet();
+  res.status(200).send(sheet);
+};
+
+/**
+ * @description Change view Settings
+ * @method POST
+ */
+export const postGoogleSheetSettings = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
   try {
-    const newProjectData: ProjectData = {
-      title: req.body?.title ?? '',
-      description: req.body?.description ?? '',
-      publicUrl: req.body?.publicUrl ?? '',
-      publicInfo: req.body?.publicInfo ?? '',
-      backstageUrl: req.body?.backstageUrl ?? '',
-      backstageInfo: req.body?.backstageInfo ?? '',
+    const newData = {
+      id: req.body.id,
+      worksheet: req.body.worksheet,
     };
-    const newData = await DataProvider.setProjectData(newProjectData);
-    await deleteAllEvents();
-    res.status(201).send(newData);
+    await DataProvider.setGoogleSheet(newData);
+    res.status(200).send(newData);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
+};
+
+/**
+ * @description Get google sheet state
+ * @method GET
+ */
+export const getGoogleSheetState = async (req, res) => {
+  res.status(200).send(await Sheet.getSheetState());
 };

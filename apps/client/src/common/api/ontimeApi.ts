@@ -3,6 +3,8 @@ import {
   Alias,
   DatabaseModel,
   GetInfo,
+  GoogleSheet,
+  GoogleSheetState,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
@@ -239,7 +241,7 @@ export const uploadSheetClientFile = async (file: File) => {
     .post(`${ontimeURL}/sheet-clientsecrect`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-      }
+      },
     })
     .then((response) => response.data.id);
 };
@@ -273,3 +275,30 @@ export const postPushSheet = async (sheetId: string, worksheet: string, options?
 };
 
 
+/**
+ * @description HTTP request to retrieve google sheets settings
+ * @return {Promise}
+ */
+export async function getSheetSettings(): Promise<GoogleSheet> {
+  const res = await axios.get(`${ontimeURL}/sheet-settings`);
+  return res.data;
+}
+
+/**
+ * @description HTTP request to mutate google sheets settings
+ * @return {Promise}
+ */
+export async function postSheetSettings(data: GoogleSheet): Promise<GoogleSheet> {
+  const res = await axios.post(`${ontimeURL}/sheet-settings`, data);
+  return res.data;
+}
+
+/**
+ * @description HTTP request to retrieve google sheets state
+ * @return {Promise}
+ */
+export async function getSheetstate(): Promise<GoogleSheetState> {
+  const res = await axios.get(`${ontimeURL}/sheet-state`);
+  console.log(res.data)
+  return res.data;
+}

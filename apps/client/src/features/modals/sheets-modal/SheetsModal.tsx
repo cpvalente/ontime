@@ -9,9 +9,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  useDisclosure,
 } from '@chakra-ui/react';
+import { IoCheckmarkCircleOutline } from '@react-icons/all-files/io5/IoCheckmarkCircleOutline';
+import { IoCloseCircleOutline } from '@react-icons/all-files/io5/IoCloseCircleOutline';
+
 import { useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
+import { OntimeRundown, ProjectData, UserFields, GoogleSheetState } from 'ontime-types';
 
 import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
@@ -22,6 +26,9 @@ import {
   postPreviewSheet,
   postPushSheet,
   uploadSheetClientFile,
+  getSheetSettings,
+  postSheetSettings,
+  getSheetstate,
 } from '../../../common/api/ontimeApi';
 import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { userFieldsPlaceholder } from '../../../common/models/UserFields';
@@ -34,6 +41,7 @@ interface SheetsModalProps {
 
 export default function SheetsModal(props: SheetsModalProps) {
   const { isOpen, onClose } = props;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [authState, setAuthState] = useState<boolean>(true);
 
@@ -41,14 +49,18 @@ export default function SheetsModal(props: SheetsModalProps) {
   const [userFields, setUserFields] = useState<UserFields | null>(null);
   const [project, setProject] = useState<ProjectData | null>(null);
 
+  const [sheetState, setSheetState] = useState<GoogleSheetState>({ auth: false, id: false, worksheet: false });
+
   const queryClient = useQueryClient();
 
   const sheetid = useRef<HTMLInputElement>(null);
   const worksheet = useRef<HTMLInputElement>(null);
+
   const handleClose = () => {
     setRundown(null);
     setProject(null);
     setUserFields(null);
+    // setSheetState({ auth: false, id: false, worksheet: false });
     onClose();
   };
   const handleClick = () => {
@@ -64,19 +76,37 @@ export default function SheetsModal(props: SheetsModalProps) {
     }
   };
 
-  //TODO: do smoething better here
-  getSheetsAuthStatus().then((data) => {
-    setAuthState(data);
-  });
+  const _onChange = async () => {
+    setSheetState(await getSheetstate());
+  };
 
-  const handleAuthenticate = () => {
-    getSheetsAuthUrl().then((data) => {
-      console.log(data);
-      if (data != 'bad') {
-        window.open(data, '_blank', 'noreferrer');
+  if (isOpen) {
+    //TODO: how to get this on modal open
+    getSheetSettings().then((data) => {
+      if (sheetid.current?.value != data.id || worksheet.current?.value != data.worksheet) {
+        _onChange();
+      }
+      if (sheetid.current) {
+        sheetid.current.value = data.id;
+      }
+      if (worksheet.current) {
+        worksheet.current.value = data.worksheet;
+      }
+    });
+  }
+
+  const handelSave = () => {
+    postSheetSettings({ id: sheetid.current?.value ?? '', worksheet: worksheet.current?.value ?? '' }).then((data) => {
+      _onChange();
+      if (sheetid.current) {
+        sheetid.current.value = data.id;
+      }
+      if (worksheet.current) {
+        worksheet.current.value = data.worksheet;
       }
     });
   };
+
   const handlePullData = () => {
     postPreviewSheet(sheetid.current?.value ?? '', worksheet.current?.value ?? '').then((data) => {
       setProject(data.project);
@@ -163,11 +193,12 @@ export default function SheetsModal(props: SheetsModalProps) {
                   type='text'
                   ref={sheetid}
                   id='sheetid'
-                  width='440px'
+                  width='240px'
                   size='sm'
                   textAlign='right'
                   variant='ontime-filled-on-light'
                 />
+                {sheetState.id ? <IoCheckmarkCircleOutline /> : <IoCloseCircleOutline />}
                 <br />
                 <label htmlFor='worksheet'>Worksheet </label>
                 <Input
@@ -179,6 +210,8 @@ export default function SheetsModal(props: SheetsModalProps) {
                   textAlign='right'
                   variant='ontime-filled-on-light'
                 />
+                {sheetState.worksheet ? <IoCheckmarkCircleOutline /> : <IoCloseCircleOutline />}
+
               </div>
               <div>
                 <Button variant='ontime-filled' padding='0 2em' onClick={handlePullData}>
@@ -194,8 +227,8 @@ export default function SheetsModal(props: SheetsModalProps) {
         <ModalFooter>
           <Button variant='ontime-ghost-on-light'>Reset</Button>
           {!rundown && (
-            <Button variant='ontime-filled' padding='0 2em' onClick={handleAuthenticate}>
-              Authenticate
+            <Button variant='ontime-filled' padding='0 2em' onClick={handelSave}>
+              Save
             </Button>
           )}
           {rundown && (

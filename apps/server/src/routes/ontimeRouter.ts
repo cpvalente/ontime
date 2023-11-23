@@ -21,13 +21,17 @@ import {
   previewExcel,
   sheetAuthUrl,
   sheetAuthState,
-  sheetClientFile,
+  uploadGoogleSheetClientFile,
   previewSheet,
   pushSheet,
+  getGoogleSheetSettings,
+  postGoogleSheetSettings,
+  getGoogleSheetState,
 } from '../controllers/ontimeController.js';
 
 import {
   validateAliases,
+  validateGoogleSheetSettings,
   validateOSC,
   validateOscSubscription,
   validatePatchProjectFile,
@@ -95,7 +99,7 @@ router.post('/osc-subscriptions', validateOscSubscription, postOscSubscriptions)
 router.post('/new', projectSanitiser, postNew);
 
 // create route between controller and '/ontime/sheet-client' endpoint
-router.post('/sheet-clientsecrect', uploadFile, sheetClientFile);
+router.post('/sheet-clientsecrect', uploadFile, uploadGoogleSheetClientFile);
 
 // create route between controller and '/ontime/sheet-authstatus' endpoint
 router.get('/sheet-authstatus', sheetAuthState);
@@ -108,3 +112,12 @@ router.post('/sheet-preview', validateSheetPreview, previewSheet);
 
 // create route between controller and '/ontime/preview-sheet' endpoint
 router.post('/sheet-push', pushSheet);
+
+// create route between controller and '/ontime/sheet-settings' endpoint
+router.get('/sheet-settings', getGoogleSheetSettings);
+
+// create route between controller and '/ontime/sheet-settings' endpoint
+router.post('/sheet-settings', validateGoogleSheetSettings, postGoogleSheetSettings);
+
+// create route between controller and '/ontime/sheet-state' endpoint
+router.get('/sheet-state', getGoogleSheetState);

@@ -11,6 +11,7 @@ import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
 import { ensureDirectory } from './fileManagement.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { GoogleSheetState } from 'ontime-types';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -23,6 +24,27 @@ class sheet {
   private readonly client_secret = this.sheetsFolder + '/client_secret.json';
   private readonly token = this.sheetsFolder + '/token.json';
   private static authUrl: null | string = null;
+
+  public async getSheetState(): Promise<GoogleSheetState> {
+    const ret: GoogleSheetState = {
+      auth: false,
+      id: false,
+      worksheet: false,
+    };
+    ret.auth = await this.authorized();
+    if (ret.auth) {
+      const settings = DataProvider.getGoogleSheet();
+      const x = await this.exist(settings.id, settings.worksheet);
+      if (x === true) {
+        ret.id = true;
+      } else if (x !== false) {
+        ret.id = true;
+        ret.worksheet = true;
+      }
+    }
+    logger.info(LogOrigin.Server, `Sheet State: ${ret}`);
+    return ret;
+  }
 
   /**
    * checks the authorized state
@@ -42,10 +64,13 @@ class sheet {
    * test existance of sheet and workssheet and get is index
    * @param {string} sheetId - https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
    * @param {string} worksheet - the name of the worksheet containg ontime data
-   * @returns {Promise<false | {worksheetId: number, range: string}>} - false if not found | id of worksheet
+   * @returns {Promise<false | {worksheetId: number, range: string}>} - false if not found | true if sheetId existes | id of worksheet and rage of worksheet
    * @throws
    */
-  public async exist(sheetId: string, worksheet: string): Promise<false | { worksheetId: number; range: string }> {
+  public async exist(
+    sheetId: string,
+    worksheet: string,
+  ): Promise<false | true | { worksheetId: number; range: string }> {
     const spreadsheets = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.get({
       spreadsheetId: sheetId,
     });
@@ -58,6 +83,8 @@ class sheet {
           w.properties.gridProperties.columnCount,
         );
         return { worksheetId: w.properties.sheetId, range: worksheet + '!A1:' + endCell };
+      } else {
+        return true;
       }
     }
     return false;
@@ -73,6 +100,8 @@ class sheet {
     const sheetInfo = await this.exist(sheetId, worksheet);
     if (!sheetInfo) {
       throw new Error(`Sheet not dose not exits`);
+    } else if (sheetInfo === true) {
+      throw new Error(`Worksheet not dose not exits`);
     }
 
     if (!isExcelImportMap(options)) {
@@ -176,6 +205,8 @@ class sheet {
     const sheetInfo = await this.exist(sheetId, worksheet);
     if (!sheetInfo) {
       throw new Error(`Sheet not dose not exits`);
+    } else if (sheetInfo === true) {
+      throw new Error(`Worksheet not dose not exits`);
     }
 
     const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
@@ -203,7 +234,7 @@ class sheet {
    * saves Object to appdata path as client_secret.json
    * @param {} secrets
    */
-  public async saveClientSecrets(secrets) {
+  public async saveClientSecrets(secrets): Promise<GoogleSheetState> {
     ensureDirectory(this.sheetsFolder);
     logger.info(LogOrigin.Server, 'Sheets: got new client_secret');
     //TODO: test that this is actualy a client file?
@@ -211,6 +242,7 @@ class sheet {
     sheet.client = null;
     sheet.authUrl = null;
     await writeFile(this.client_secret, JSON.stringify(secrets), 'utf-8');
+    return await this.getSheetState();
   }
 
   /**

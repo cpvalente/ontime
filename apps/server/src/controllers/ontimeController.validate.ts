@@ -145,3 +145,13 @@ export const validateSheetPreview = [
     next();
   },
 ];
+
+export const validateGoogleSheetSettings = [
+  body('id').isString().optional({ nullable: false }),
+  body('worksheet').isString().optional({ nullable: false }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
