@@ -20,6 +20,10 @@ export const dbModel: DatabaseModel = {
     timeFormat: '24',
     language: 'en',
   },
+  googleSheet: {
+    worksheet: '',
+    id: '',
+  },
   viewSettings: {
     overrideStyles: false,
     normalColor: '#ffffffcc',

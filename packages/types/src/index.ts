@@ -33,6 +33,9 @@ export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './def
 
 // ---> HTTP
 
+// ---> Google Sheet
+export type { GoogleSheet } from './definitions/core/GoogleSheet.type.js';
+
 // SERVER RESPONSES
 export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';
 export type { GetRundownCached } from './api/rundown-controller/BackendResponse.type.js';
