@@ -68,6 +68,7 @@
         font-size: clamp(32px, 3.5vw, 50px);
         color: var(--secondary-color-override, $viewer-secondary-color);
         letter-spacing: 0.05em;
+        line-height: 0.95em;
       }
     }
 
@@ -135,6 +136,7 @@
           font-size: clamp(32px, 3.5vw, 50px);
           color: var(--secondary-color-override, $viewer-secondary-color);
           letter-spacing: 0.05em;
+          line-height: 0.95em;
 
           &--delayed {
             color: $delay-color;
