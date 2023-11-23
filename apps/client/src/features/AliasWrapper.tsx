@@ -17,7 +17,6 @@ const withAlias = <P extends object>(Component: ComponentType<P>) => {
       if (!data) return;
       const url = getAliasRoute(location, data, searchParams);
       // navigate to this route if its not empty
-      console.log(url)
       if (url) {
         navigate(url);
       }
