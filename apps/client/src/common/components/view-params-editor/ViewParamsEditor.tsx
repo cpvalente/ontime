@@ -71,7 +71,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     setSearchParams(searchParams);
   };
 
-  const clearParams = () => {
+  const resetParams = () => {
     setStoredViewParams({ ...storedViewParams, [pathname]: {} });
     setSearchParams();
     onClose();
@@ -111,8 +111,8 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
         </DrawerBody>
 
         <DrawerFooter className={style.drawerFooter}>
-          <Button variant='ontime-ghosted' onClick={clearParams} type='reset'>
-            Clear
+          <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
+            Reset
           </Button>
           <Button variant='ontime-subtle' onClick={onEditDrawerClose}>
             Cancel
