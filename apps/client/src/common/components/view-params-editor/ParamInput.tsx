@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { Input, Select, Switch } from '@chakra-ui/react';
+import { Input, InputGroup, InputLeftElement, Select, Switch } from '@chakra-ui/react';
 
 import { isStringBoolean } from '../../utils/viewUtils';
 
@@ -41,12 +41,24 @@ export default function ParamInput({ paramField }: EditFormInputProps) {
   }
 
   if (type === 'number') {
+    const { prefix } = paramField;
     const defaultNumberValue = searchParams.get(id) ?? defaultValue;
 
-    return <Input type='number' step='any' variant='ontime-filled' name={id} defaultValue={defaultNumberValue} />;
+    return (
+      <InputGroup variant='ontime-filled'>
+        {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
+        <Input type='number' step='any' variant='ontime-filled' name={id} defaultValue={defaultNumberValue} />
+      </InputGroup>
+    );
   }
 
   const defaultStringValue = searchParams.get(id) ?? defaultValue;
+  const { prefix } = paramField;
 
-  return <Input variant='ontime-filled' name={id} defaultValue={defaultStringValue} />;
+  return (
+    <InputGroup variant='ontime-filled'>
+      {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
+      <Input name={id} defaultValue={defaultStringValue} />
+    </InputGroup>
+  );
 }
