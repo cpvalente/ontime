@@ -9,8 +9,9 @@ interface EditFormInputProps {
   paramField: ParamField;
 }
 
-export default function ParamInput({ paramField }: EditFormInputProps) {
+export default function ParamInput(props: EditFormInputProps) {
   const [searchParams] = useSearchParams();
+  const { paramField } = props;
   const { id, type, defaultValue } = paramField;
 
   if (type === 'option') {
