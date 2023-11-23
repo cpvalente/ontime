@@ -9,7 +9,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
 } from '@chakra-ui/react';
 import { IoCheckmarkCircleOutline } from '@react-icons/all-files/io5/IoCheckmarkCircleOutline';
 import { IoCloseCircleOutline } from '@react-icons/all-files/io5/IoCloseCircleOutline';
@@ -20,7 +19,6 @@ import { OntimeRundown, ProjectData, UserFields, GoogleSheetState } from 'ontime
 import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
 import {
-  getSheetsAuthStatus,
   getSheetsAuthUrl,
   patchData,
   postPreviewSheet,
@@ -43,7 +41,6 @@ export default function SheetsModal(props: SheetsModalProps) {
   const { isOpen, onClose } = props;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [authState, setAuthState] = useState<boolean>(true);
 
   const [rundown, setRundown] = useState<OntimeRundown | null>(null);
   const [userFields, setUserFields] = useState<UserFields | null>(null);
@@ -103,6 +100,14 @@ export default function SheetsModal(props: SheetsModalProps) {
       }
       if (worksheet.current) {
         worksheet.current.value = data.worksheet;
+      }
+    });
+  };
+
+  const handleAuthenticate = () => {
+    getSheetsAuthUrl().then((data) => {
+      if (data != 'bad') {
+        window.open(data, '_blank', 'noreferrer');
       }
     });
   };
@@ -185,8 +190,10 @@ export default function SheetsModal(props: SheetsModalProps) {
               <div>
                 <Button onClick={handleClick}>Upload Client Secrect</Button>
               </div>
-              {authState && <div>You are authenticated</div>}
-              {!authState && <div>You are not authenticated</div>}
+              <Button variant='ontime-filled' padding='0 2em' onClick={handleAuthenticate}>
+                Authenticate
+              </Button>
+              {sheetState.auth ? <div>You are authenticated</div> : <div>You are not authenticated</div>}
               <div>
                 <label htmlFor='sheetid'>Sheet ID </label>
                 <Input
@@ -211,7 +218,6 @@ export default function SheetsModal(props: SheetsModalProps) {
                   variant='ontime-filled-on-light'
                 />
                 {sheetState.worksheet ? <IoCheckmarkCircleOutline /> : <IoCloseCircleOutline />}
-
               </div>
               <div>
                 <Button variant='ontime-filled' padding='0 2em' onClick={handlePullData}>

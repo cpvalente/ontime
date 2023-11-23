@@ -246,11 +246,6 @@ export const uploadSheetClientFile = async (file: File) => {
     .then((response) => response.data.id);
 };
 
-export const getSheetsAuthStatus = async () => {
-  const res = await axios.get(`${ontimeURL}/sheet-authstatus`);
-  return res.data;
-};
-
 export const getSheetsAuthUrl = async () => {
   const res = await axios.get(`${ontimeURL}/sheet-authurl`);
   return res.data;
@@ -299,6 +294,5 @@ export async function postSheetSettings(data: GoogleSheet): Promise<GoogleSheet>
  */
 export async function getSheetstate(): Promise<GoogleSheetState> {
   const res = await axios.get(`${ontimeURL}/sheet-state`);
-  console.log(res.data)
   return res.data;
 }
