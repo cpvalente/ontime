@@ -1,18 +1,18 @@
-import { useMemo, useRef } from 'react';
+import { MouseEvent, SyntheticEvent, TouchEvent, useMemo, useRef } from 'react';
 
 type LongPressOptions = {
   threshold?: number;
-  onStart?: (e: Event) => void;
-  onFinish?: (e: Event) => void;
-  onCancel?: (e: Event) => void;
+  onStart?: (e: SyntheticEvent) => void;
+  onFinish?: (e: SyntheticEvent) => void;
+  onCancel?: (e: SyntheticEvent) => void;
 };
 
 type LongPressFns = {
-  onMouseDown: (e: React.MouseEvent) => void;
-  onMouseUp: (e: React.MouseEvent) => void;
-  onMouseLeave: (e: React.MouseEvent) => void;
-  onTouchStart: (e: React.TouchEvent) => void;
-  onTouchEnd: (e: React.TouchEvent) => void;
+  onMouseDown: (e: MouseEvent) => void;
+  onMouseUp: (e: MouseEvent) => void;
+  onMouseLeave: (e: MouseEvent) => void;
+  onTouchStart: (e: TouchEvent) => void;
+  onTouchEnd: (e: TouchEvent) => void;
 };
 
 export default function useLongPress(callback: () => void, options: LongPressOptions = {}): LongPressFns {
@@ -22,11 +22,7 @@ export default function useLongPress(callback: () => void, options: LongPressOpt
   const timerId = useRef<NodeJS.Timer>();
 
   return useMemo(() => {
-    if (typeof callback !== 'function') {
-      return {};
-    }
-
-    const start = (event: MouseEvent) => {
+    const start = (event: SyntheticEvent) => {
       if (onStart) {
         onStart(event);
       }
@@ -38,7 +34,7 @@ export default function useLongPress(callback: () => void, options: LongPressOpt
       }, threshold);
     };
 
-    const cancel = (event: MouseEvent) => {
+    const cancel = (event: SyntheticEvent) => {
       if (isLongPressActive.current) {
         if (onFinish) {
           onFinish(event);
@@ -57,20 +53,12 @@ export default function useLongPress(callback: () => void, options: LongPressOpt
       }
     };
 
-    const mouseHandlers = {
+    return {
       onMouseDown: start,
       onMouseUp: cancel,
       onMouseLeave: cancel,
-    };
-
-    const touchHandlers = {
       onTouchStart: start,
       onTouchEnd: cancel,
-    };
-
-    return {
-      ...mouseHandlers,
-      ...touchHandlers,
     };
   }, [callback, threshold, onCancel, onFinish, onStart]);
 }
