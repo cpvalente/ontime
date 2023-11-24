@@ -168,7 +168,6 @@ type CurrentTimers = {
 export const updateRoll = (currentTimers: CurrentTimers) => {
   const { selectedEventId, current, _finishAt, _startAt, clock, secondaryTimer, secondaryTarget } = currentTimers;
 
-  console.log(currentTimers);
   // timers
   let updatedTimer = current;
   let updatedSecondaryTimer = secondaryTimer;
@@ -186,7 +185,10 @@ export const updateRoll = (currentTimers: CurrentTimers) => {
     }
 
     if (updatedTimer < 0) {
-      if (Math.abs(updatedTimer) < config.rollSkipLimit) isPrimaryFinished = true; //Dont trigger Finished if we are over the skip limit
+      const hasSkipped = Math.abs(updatedTimer) > config.rollSkipLimit;
+      if (!hasSkipped) {
+        isPrimaryFinished = true;
+      }
       // we need a new event
       doRollLoad = true;
     } else if (clock < _startAt) {
