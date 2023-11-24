@@ -51,6 +51,12 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     }
   }, [searchParams, onOpen]);
 
+  /**
+   * disabling this for now, this feature needs more testing
+   * - we seem to have a bug where this is conflicting with the aliases
+   * - I wonder if the logic below needs to be inside an effect, 
+   * both localStorage and searchParams should trigger a component update when they change
+
   useEffect(() => {
     const viewParamsObjFromLocalStorage = storedViewParams[pathname];
 
@@ -63,6 +69,8 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     // rule is disabled since adding `setSearchParams` & `storedViewParams` results in unnecessary re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  */
 
   const onEditDrawerClose = () => {
     onClose();
