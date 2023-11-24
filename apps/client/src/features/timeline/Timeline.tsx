@@ -1,5 +1,4 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { Tooltip } from '@chakra-ui/react';
 import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import useRundown from '../../common/hooks-query/useRundown';
