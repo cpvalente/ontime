@@ -89,8 +89,6 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const resetParams = () => {
     setStoredViewParams({ ...storedViewParams, [pathname]: {} });
     setSearchParams();
-
-    onClose();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
