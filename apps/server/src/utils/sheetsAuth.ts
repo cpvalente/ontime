@@ -22,7 +22,6 @@ class sheet {
   private readonly scope = 'https://www.googleapis.com/auth/spreadsheets';
   private readonly sheetsFolder = getAppDataPath() + '/sheets';
   private readonly client_secret = this.sheetsFolder + '/client_secret.json';
-  private readonly token = this.sheetsFolder + '/token.json';
   private static authUrl: null | string = null;
   private worksheetId: number = 0;
   private sheetId: string = '';
@@ -39,7 +38,6 @@ class sheet {
     if (!sheet.client) {
       return ret;
     }
-    await this.loadToken();
     ret.auth = await this.refreshToken();
     if (ret.auth) {
       const settings = DataProvider.getGoogleSheet();
@@ -223,35 +221,6 @@ class sheet {
   }
 
   /**
-   * @description saves curent client appdata path as token.json
-   */
-  private async saveToken() {
-    const payload = JSON.stringify({
-      type: 'authorized_user',
-      client_id: sheet.client._clientId,
-      client_secret: sheet.client._clientSecret,
-      refresh_token: sheet.client.credentials.refresh_token,
-    });
-    await writeFile(this.token, payload, 'utf-8');
-  }
-
-  /**
-   * loads client from appdata path token.json
-   * @returns {Promise<boolean>}
-   */
-  private async loadToken(): Promise<boolean> {
-    try {
-      const token = JSON.parse(await readFile(this.token, 'utf-8'));
-      sheet.client = new OAuth2Client({ clientId: token.client_id, clientSecret: token.client_secret });
-      sheet.client.credentials.refresh_token = token.refresh_token;
-      return true;
-    } catch (err) {
-      // logger.error(LogOrigin.Server, `Sheets: ${err}`);
-      return false;
-    }
-  }
-
-  /**
    * refresh the client token
    * @returns {Promise<boolean>}
    */
@@ -399,7 +368,6 @@ class sheet {
         });
         client.credentials = tokens;
         sheet.client = client;
-        this.saveToken();
         res.end('Authentication successful! Please close this tab and return to OnTime.');
         logger.info(LogOrigin.Server, `Sheet: Authentication successful`);
       } catch (e) {
