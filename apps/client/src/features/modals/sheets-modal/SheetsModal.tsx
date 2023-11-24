@@ -10,6 +10,8 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+import { IoArrowDownCircleOutline } from '@react-icons/all-files/io5/IoArrowDownCircleOutline';
+import { IoArrowUpCircleOutline } from '@react-icons/all-files/io5/IoArrowUpCircleOutline';
 import { IoCheckmarkCircleOutline } from '@react-icons/all-files/io5/IoCheckmarkCircleOutline';
 import { IoCloseCircleOutline } from '@react-icons/all-files/io5/IoCloseCircleOutline';
 import { useQueryClient } from '@tanstack/react-query';
@@ -106,7 +108,8 @@ export default function SheetsModal(props: SheetsModalProps) {
   const handleAuthenticate = () => {
     getSheetsAuthUrl().then((data) => {
       if (data != 'bad') {
-        window.open(data, '_blank', 'noreferrer');
+        const authWindow = window.open(data, '_blank', 'noreferrer');
+        //TODO: can we detect when this window is closed
       }
     });
   };
@@ -224,10 +227,20 @@ export default function SheetsModal(props: SheetsModalProps) {
         <ModalFooter>
           {!rundown && (
             <div>
-              <Button variant='ontime-subtle-on-light' padding='0 2em' onClick={handlePullData}>
+              <Button
+                variant='ontime-subtle-on-light'
+                padding='0 2em'
+                onClick={handlePullData}
+                rightIcon={<IoArrowDownCircleOutline />}
+              >
                 Pull data
               </Button>
-              <Button variant='ontime-subtle-on-light' padding='0 2em' onClick={handlePushData}>
+              <Button
+                variant='ontime-subtle-on-light'
+                padding='0 2em'
+                onClick={handlePushData}
+                rightIcon={<IoArrowUpCircleOutline />}
+              >
                 Push data
               </Button>
             </div>

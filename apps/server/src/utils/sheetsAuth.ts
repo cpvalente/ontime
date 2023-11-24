@@ -308,6 +308,7 @@ class sheet {
     };
   }
 
+  private authServerTimeout;
   /**
    * create local Auth Server - returns url to serve on success
    * @returns {Promise<string | false>}
@@ -316,6 +317,14 @@ class sheet {
   public async openAuthServer(): Promise<string | false> {
     //TODO: this only works on local networks
     if (sheet.authUrl) {
+      clearTimeout(this.authServerTimeout);
+      this.authServerTimeout = setTimeout(
+        () => {
+          sheet.authUrl = null;
+          server.unref;
+        },
+        2 * 60 * 1000,
+      );
       return sheet.authUrl;
     }
     const creadFile = await readFile(this.client_secret, 'utf-8').catch((err) =>
@@ -396,7 +405,7 @@ class sheet {
       scope: this.scope,
     });
     sheet.authUrl = authorizeUrl;
-    setTimeout(
+    this.authServerTimeout = setTimeout(
       () => {
         sheet.authUrl = null;
         server.unref;
