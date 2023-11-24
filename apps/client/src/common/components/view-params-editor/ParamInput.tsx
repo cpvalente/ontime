@@ -35,7 +35,7 @@ export default function ParamInput(props: EditFormInputProps) {
   }
 
   if (type === 'boolean') {
-    const defaultCheckedValue = isStringBoolean(searchParams.get(id)) ?? defaultValue;
+    const defaultCheckedValue = isStringBoolean(searchParams.get(id)) || defaultValue;
 
     // checked value should be 'true', so it can be captured by the form event
     return <Switch variant='ontime' name={id} defaultChecked={defaultCheckedValue} value='true' />;

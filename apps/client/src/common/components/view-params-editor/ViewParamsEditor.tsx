@@ -22,9 +22,15 @@ import style from './ViewParamsEditor.module.scss';
 type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
 type SavedViewParams = Record<string, ViewParamsObj>;
 
-const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj) =>
-  Object.entries(paramsObj).reduce((newSearchParams, [id, value]) => {
+const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ParamField[]) => {
+  const defaultValues = paramFields.map(({ defaultValue }) => String(defaultValue));
+
+  return Object.entries(paramsObj).reduce((newSearchParams, [id, value]) => {
     if (typeof value === 'string' && value.length) {
+      if (defaultValues.includes(value)) {
+        return newSearchParams;
+      }
+
       newSearchParams.set(id, value);
 
       return newSearchParams;
@@ -32,6 +38,7 @@ const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj) =>
 
     return newSearchParams;
   }, new URLSearchParams());
+};
 
 interface EditFormDrawerProps {
   paramFields: ParamField[];
@@ -72,7 +79,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
 
   */
 
-  const onEditDrawerClose = () => {
+  const onCloseWithoutSaving = () => {
     onClose();
 
     searchParams.delete('edit');
@@ -82,21 +89,22 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const resetParams = () => {
     setStoredViewParams({ ...storedViewParams, [pathname]: {} });
     setSearchParams();
-    onEditDrawerClose();
+
+    onClose();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
     formEvent.preventDefault();
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
-    const newSearchParams = getURLSearchParamsFromObj(newParamsObject);
+    const newSearchParams = getURLSearchParamsFromObj(newParamsObject, paramFields);
 
     setStoredViewParams({ ...storedViewParams, [pathname]: newParamsObject });
     setSearchParams(newSearchParams);
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onEditDrawerClose} size='lg'>
+    <Drawer isOpen={isOpen} placement='right' onClose={onCloseWithoutSaving} size='lg'>
       <DrawerOverlay />
       <DrawerContent>
         <DrawerHeader className={style.drawerHeader}>
@@ -122,7 +130,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
           <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
             Reset
           </Button>
-          <Button variant='ontime-subtle' onClick={onEditDrawerClose}>
+          <Button variant='ontime-subtle' onClick={onCloseWithoutSaving}>
             Cancel
           </Button>
           <Button variant='ontime-filled' form='edit-params-form' type='submit'>
