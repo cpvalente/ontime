@@ -20,7 +20,6 @@ import {
   postViewSettings,
   previewExcel,
   sheetAuthUrl,
-  sheetAuthState,
   uploadGoogleSheetClientFile,
   previewSheet,
   pushSheet,
@@ -100,9 +99,6 @@ router.post('/new', projectSanitiser, postNew);
 
 // create route between controller and '/ontime/sheet-client' endpoint
 router.post('/sheet-clientsecrect', uploadFile, uploadGoogleSheetClientFile);
-
-// create route between controller and '/ontime/sheet-authstatus' endpoint
-router.get('/sheet-authstatus', sheetAuthState);
 
 // create route between controller and '/ontime/sheet-authstatus' endpoint
 router.get('/sheet-authurl', sheetAuthUrl);

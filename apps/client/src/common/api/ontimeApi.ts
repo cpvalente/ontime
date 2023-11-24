@@ -251,21 +251,13 @@ export const getSheetsAuthUrl = async () => {
   return res.data;
 };
 
-export const postPreviewSheet = async (sheetId: string, worksheet: string, options?: ExcelImportMap) => {
-  const response = await axios.post(`${ontimeURL}/sheet-preview`, {
-    sheetid: sheetId,
-    worksheet: worksheet,
-    options: options,
-  });
+export const postPreviewSheet = async () => {
+  const response = await axios.post(`${ontimeURL}/sheet-preview`);
   return response.data.data;
 };
 
-export const postPushSheet = async (sheetId: string, worksheet: string, options?: ExcelImportMap) => {
-  const response = await axios.post(`${ontimeURL}/sheet-push`, {
-    sheetid: sheetId,
-    worksheet: worksheet,
-    options: options,
-  });
+export const postPushSheet = async () => {
+  const response = await axios.post(`${ontimeURL}/sheet-push`);
   return response.data.data;
 };
 

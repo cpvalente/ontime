@@ -423,7 +423,7 @@ export const postNew: RequestHandler = async (req, res) => {
  */
 export async function previewSheet(req, res) {
   try {
-    const data = await Sheet.pull(req.body.sheetid, req.body.worksheet);
+    const data = await Sheet.pull();
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -436,7 +436,7 @@ export async function previewSheet(req, res) {
  */
 export async function pushSheet(req, res) {
   try {
-    await Sheet.push(req.body.sheetid, req.body.worksheet);
+    await Sheet.push();
     res.status(200).send('ok');
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -463,14 +463,6 @@ export async function uploadGoogleSheetClientFile(req, res) {
   fs.unlink(req.file.path, (err) => {
     if (err) logger.error(LogOrigin.Server, err.message);
   });
-}
-
-/**
- * @returns sheet auth state
- */
-export async function sheetAuthState(req, res) {
-  const send = (await Sheet.authorized()) ? 'true' : 'false';
-  res.status(200).send(send);
 }
 
 /**

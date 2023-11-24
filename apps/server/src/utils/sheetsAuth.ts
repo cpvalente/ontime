@@ -6,7 +6,7 @@ import { URL } from 'url';
 import { logger } from '../classes/Logger.js';
 import { getAppDataPath } from '../setup.js';
 import { DatabaseModel, LogOrigin, OntimeRundownEntry, isOntimeEvent } from 'ontime-types';
-import { isExcelImportMap, defaultExcelImportMap, millisToString } from 'ontime-utils';
+import { millisToString } from 'ontime-utils';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
 import { ensureDirectory } from './fileManagement.js';
@@ -24,6 +24,9 @@ class sheet {
   private readonly client_secret = this.sheetsFolder + '/client_secret.json';
   private readonly token = this.sheetsFolder + '/token.json';
   private static authUrl: null | string = null;
+  private worksheetId: number = 0;
+  private sheetId: string = '';
+  private range: string = '';
 
   public async getSheetState(): Promise<GoogleSheetState> {
     const ret: GoogleSheetState = {
@@ -31,33 +34,29 @@ class sheet {
       id: false,
       worksheet: false,
     };
-    ret.auth = await this.authorized();
+    this.sheetId = '';
+    this.worksheetId = 0;
+    if (!sheet.client) {
+      return ret;
+    }
+    await this.loadToken();
+    ret.auth = await this.refreshToken();
     if (ret.auth) {
       const settings = DataProvider.getGoogleSheet();
       const x = await this.exist(settings.id, settings.worksheet);
       if (x === true) {
         ret.id = true;
+        this.sheetId = settings.id;
       } else if (x !== false) {
         ret.id = true;
         ret.worksheet = true;
+        this.sheetId = settings.id;
+        this.worksheetId = x.worksheetId;
+        this.range = x.range;
       }
     }
     logger.info(LogOrigin.Server, `Sheet State: ${JSON.stringify(ret)}`);
     return ret;
-  }
-
-  /**
-   * checks the authorized state
-   * @returns {Promise<boolean>}
-   */
-  public async authorized(): Promise<boolean> {
-    if (await this.loadToken()) {
-      if (await this.refreshToken()) {
-        return true;
-      }
-    } else {
-      return false;
-    }
   }
 
   /**
@@ -67,7 +66,7 @@ class sheet {
    * @returns {Promise<false | {worksheetId: number, range: string}>} - false if not found | true if sheetId existes | id of worksheet and rage of worksheet
    * @throws
    */
-  public async exist(
+  private async exist(
     sheetId: string,
     worksheet: string,
   ): Promise<false | true | { worksheetId: number; range: string }> {
@@ -90,32 +89,21 @@ class sheet {
     return false;
   }
 
-  public async push(sheetId: string, worksheet: string, options = defaultExcelImportMap) {
-    if (!sheet.client) {
-      if (!(await this.authorized())) {
-        throw new Error(`Sheet not authorized`);
-      }
+  public async push() {
+    const { auth, id, worksheet } = await this.getSheetState();
+    if (!auth && !id && !worksheet) {
+      throw new Error(`Sheet not authorized or incorrect ID or worksheet`);
     }
 
-    const sheetInfo = await this.exist(sheetId, worksheet);
-    if (!sheetInfo) {
-      throw new Error(`Sheet not dose not exits`);
-    } else if (sheetInfo === true) {
-      throw new Error(`Worksheet not dose not exits`);
-    }
-
-    if (!isExcelImportMap(options)) {
-      throw new Error('Got incorrect options to excel import', JSON.parse(options));
-    }
     const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
-      spreadsheetId: sheetId,
+      spreadsheetId: this.sheetId,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
-      range: sheetInfo.range,
+      range: this.range,
     });
     if (rq.status === 200) {
       //TODO: projectMetadata
-      const { rundownMetadata } = parseExcel(rq.data.values, options);
+      const { rundownMetadata } = parseExcel(rq.data.values);
       const rundown = DataProvider.getRundown();
       const titleRow = Object.values(rundownMetadata)[0]['row'];
 
@@ -129,13 +117,13 @@ class sheet {
             dimension: 'ROWS',
             startIndex: titleRow + 1,
             endIndex: titleRow + 2,
-            sheetId: sheetInfo.worksheetId,
+            sheetId: this.worksheetId,
           },
         },
       });
       //and delete the rest
       updateRundown.push({
-        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: sheetInfo.worksheetId } },
+        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: this.worksheetId } },
       });
       // insert the lenght of the rundown
       updateRundown.push({
@@ -145,7 +133,7 @@ class sheet {
             dimension: 'ROWS',
             startIndex: titleRow + 1,
             endIndex: titleRow + rundown.length,
-            sheetId: sheetInfo.worksheetId,
+            sheetId: this.worksheetId,
           },
         },
       });
@@ -160,14 +148,14 @@ class sheet {
       //update the corespunding row with event data
       rundown.forEach((entry, index) =>
         updateRundown.push(
-          this.cellRequenstFromEvent(entry, index, sheetInfo.worksheetId, rundownMetadata, titleCol as number),
+          this.cellRequenstFromEvent(entry, index, this.worksheetId, rundownMetadata, titleCol as number),
         ),
       );
       const writeResponds = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.batchUpdate({
-        spreadsheetId: sheetId,
+        spreadsheetId: this.sheetId,
         requestBody: {
           includeSpreadsheetInResponse: false,
-          responseRanges: [sheetInfo.range],
+          responseRanges: [this.range],
           requests: updateRundown,
         },
       });
@@ -185,42 +173,31 @@ class sheet {
   /**
    * `parse` a given sheet
    * @param {string} sheetId - https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
-   * @param {string} worksheet - the name of the worksheet containg ontime data
+   * @param {string} worksheetName - the name of the worksheet containg ontime data
    * @param {ExcelImportOptions} options
    * @returns {Promise<Partial<ResponseOK>>}
    * @throws
    */
-  public async pull(sheetId: string, worksheet: string, options = defaultExcelImportMap) {
-    if (!sheet.client) {
-      if (!(await this.authorized())) {
-        throw new Error(`Sheet not authorized`);
-      }
+  public async pull() {
+    const { auth, id, worksheet } = await this.getSheetState();
+    if (!auth && !id && !worksheet) {
+      throw new Error(`Sheet not authorized or incorrect ID or worksheet`);
     }
+
     const res: Partial<ResponseOK> = {};
 
-    if (!isExcelImportMap(options)) {
-      throw new Error('Got incorrect options to excel import', JSON.parse(options));
-    }
-
-    const sheetInfo = await this.exist(sheetId, worksheet);
-    if (!sheetInfo) {
-      throw new Error(`Sheet not dose not exits`);
-    } else if (sheetInfo === true) {
-      throw new Error(`Worksheet not dose not exits`);
-    }
-
     const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
-      spreadsheetId: sheetId,
+      spreadsheetId: this.sheetId,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
-      range: sheetInfo.range,
+      range: this.range,
     });
     if (rq.status === 200) {
       res.data = {};
-      const dataFromSheet = parseExcel(rq.data.values, options);
+      const dataFromSheet = parseExcel(rq.data.values);
       res.data.rundown = parseRundown(dataFromSheet);
       if (res.data.rundown.length < 1) {
-        throw new Error(`Could not find data to import in the worksheet ${options.worksheet}`);
+        throw new Error(`Could not find data to import in the worksheet`);
       }
       res.data.project = parseProject(dataFromSheet);
       res.data.userFields = parseUserFields(dataFromSheet);
@@ -242,7 +219,7 @@ class sheet {
     sheet.client = null;
     sheet.authUrl = null;
     await writeFile(this.client_secret, JSON.stringify(secrets), 'utf-8');
-    return await this.getSheetState();
+    return;
   }
 
   /**

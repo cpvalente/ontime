@@ -13,7 +13,7 @@ import {
 import { IoCheckmarkCircleOutline } from '@react-icons/all-files/io5/IoCheckmarkCircleOutline';
 import { IoCloseCircleOutline } from '@react-icons/all-files/io5/IoCloseCircleOutline';
 import { useQueryClient } from '@tanstack/react-query';
-import { GoogleSheetState,OntimeRundown, ProjectData, UserFields } from 'ontime-types';
+import { GoogleSheetState, OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 
 import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
@@ -56,19 +56,19 @@ export default function SheetsModal(props: SheetsModalProps) {
     setRundown(null);
     setProject(null);
     setUserFields(null);
-    // setSheetState({ auth: false, id: false, worksheet: false });
     onClose();
   };
   const handleClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event?.target?.files?.[0];
     if (!selectedFile) {
       return;
     } else {
-      uploadSheetClientFile(selectedFile);
+      await uploadSheetClientFile(selectedFile);
+      _onChange();
     }
   };
 
@@ -112,7 +112,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePullData = () => {
-    postPreviewSheet(sheetid.current?.value ?? '', worksheet.current?.value ?? '').then((data) => {
+    postPreviewSheet().then((data) => {
       setProject(data.project);
       setRundown(data.rundown);
       setUserFields(data.userFields);
@@ -120,7 +120,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePushData = () => {
-    postPushSheet(sheetid.current?.value ?? '', worksheet.current?.value ?? '').then((data) => {
+    postPushSheet().then((data) => {
       console.log(data);
     });
   };
@@ -218,18 +218,20 @@ export default function SheetsModal(props: SheetsModalProps) {
                 />
                 {sheetState.worksheet ? <IoCheckmarkCircleOutline /> : <IoCloseCircleOutline />}
               </div>
-              <div>
-                <Button variant='ontime-filled' padding='0 2em' onClick={handlePullData}>
-                  Pull data
-                </Button>
-                <Button variant='ontime-filled' padding='0 2em' onClick={handlePushData}>
-                  Push data
-                </Button>
-              </div>
             </>
           )}
         </ModalBody>
         <ModalFooter>
+          {!rundown && (
+            <div>
+              <Button variant='ontime-subtle-on-light' padding='0 2em' onClick={handlePullData}>
+                Pull data
+              </Button>
+              <Button variant='ontime-subtle-on-light' padding='0 2em' onClick={handlePushData}>
+                Push data
+              </Button>
+            </div>
+          )}
           <Button variant='ontime-ghost-on-light'>Reset</Button>
           {!rundown && (
             <Button variant='ontime-filled' padding='0 2em' onClick={handelSave}>
