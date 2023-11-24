@@ -1,13 +1,16 @@
-import { memo, RefObject } from 'react';
+import { memo, RefObject, SyntheticEvent } from 'react';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
+import useLongPress from '../../../common/hooks/useLongPress';
 import { useTimer } from '../../../common/hooks/useSocket';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
+import type { EditEvent } from '../Operator';
 
 import style from './OperatorEvent.module.scss';
 
 interface OperatorEventProps {
+  id: string;
   colour: string;
   cue: string;
   main: string;
@@ -22,6 +25,7 @@ interface OperatorEventProps {
   showSeconds: boolean;
   isPast: boolean;
   selectedRef?: RefObject<HTMLDivElement>;
+  onLongPress: (event: EditEvent) => void;
 }
 
 // extract this to contain re-renders
@@ -32,6 +36,7 @@ function RollingTime() {
 
 function OperatorEvent(props: OperatorEventProps) {
   const {
+    id,
     colour,
     cue,
     main,
@@ -46,7 +51,16 @@ function OperatorEvent(props: OperatorEventProps) {
     showSeconds,
     isPast,
     selectedRef,
+    onLongPress,
   } = props;
+
+  const handleLongPress = (event?: SyntheticEvent) => {
+    // we dont have an event out of useLongPress
+    event?.preventDefault();
+    onLongPress({ id, cue, fieldLabel: subscribedAlias, fieldValue: subscribed ?? '' });
+  };
+
+  const mouseHandlers = useLongPress(handleLongPress, { threshold: 800 });
 
   const start = formatTime(timeStart, { showSeconds });
   const end = formatTime(timeEnd, { showSeconds });
@@ -61,7 +75,7 @@ function OperatorEvent(props: OperatorEventProps) {
   ]);
 
   return (
-    <div className={operatorClasses} ref={selectedRef}>
+    <div className={operatorClasses} ref={selectedRef} onContextMenu={handleLongPress} {...mouseHandlers}>
       <div className={style.binder} style={{ ...cueColours }}>
         <span className={style.cue}>{cue}</span>
       </div>

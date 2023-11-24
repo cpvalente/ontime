@@ -22,3 +22,24 @@
 .spacer {
   min-height: 95vh;
 }
+
+.editPrompt {
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  transform: translate(-50%, 0);
+  text-align: center;
+
+  background: rgba(black, 0.6);
+  border-radius: 2px;
+  padding: 0.5em 2em;
+  color: gold;
+
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: 0.3s;
+
+  &.show {
+    opacity: 1;
+  }
+}
