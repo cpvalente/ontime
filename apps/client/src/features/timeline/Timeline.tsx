@@ -1,14 +1,21 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { isOntimeEvent ,OntimeEvent } from 'ontime-types';
+import { Tooltip } from '@chakra-ui/react';
+import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import useRundown from '../../common/hooks-query/useRundown';
 
+import { useElementInfoSt9re } from './ElementInfo';
+
 import style from './Timeline.module.scss';
+
+// TODO: ignore events of 0 duration
 
 export default function Timeline() {
   const { data } = useRundown();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(window.innerWidth);
+
+  const { setIsOpen, setContextMenu, value, coords, isOpen } = useElementInfoSt9re();
 
   useLayoutEffect(() => {
     setContainerWidth(elementRef.current?.getBoundingClientRect().width);
@@ -35,19 +42,46 @@ export default function Timeline() {
 
   console.log(totalDuration);
 
+  const handleMouseEnter = (event, text) => {
+    setIsOpen(true);
+    setContextMenu({ x: event.clientX, y: event.clientY }, text);
+  };
+
+  const handleMouseLeave = (event, text) => {
+    setIsOpen(false);
+  };
+
   return (
-    <div className={style.timelineContainer}>
-      <div className={style.timeline} ref={elementRef}>
-        {events.map((event) => {
-          const relativeSize = (event.duration * containerWidth ?? 0) / totalDuration;
-          console.log({ relativeSize, duration: event.duration, containerWidth, totalDuration });
-          return (
-            <span key={event.id} style={{ width: `${relativeSize}px` }} className={style.timelineEvent}>
-              {event.cue}
-            </span>
-          );
-        })}
+    <>
+      <div className={style.timelineContainer}>
+        <div className={style.timeline} ref={elementRef}>
+          {events.map((event) => {
+            const relativeSize = (event.duration * containerWidth ?? 0) / totalDuration;
+            console.log({ relativeSize, duration: event.duration, containerWidth, totalDuration });
+            const text = `
+          ${event.cue}
+          ${event.title}
+          ${event.timeStart} - ${event.timeEnd}
+          `;
+            return (
+              <span
+                onMouseEnter={(event) => handleMouseEnter(event, text)}
+                onMouseLeave={(event) => handleMouseLeave(event, text)}
+                key={event.id}
+                style={{ width: `${relativeSize}px` }}
+                className={style.timelineEvent}
+              >
+                {event.cue}
+              </span>
+            );
+          })}
+        </div>
       </div>
-    </div>
+      {isOpen && (
+        <div style={{ zIndex: 10, background: '#000a', position: 'absolute', left: coords.x, top: coords.y }}>
+          {value}
+        </div>
+      )}
+    </>
   );
 }
