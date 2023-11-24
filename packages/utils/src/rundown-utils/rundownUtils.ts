@@ -29,7 +29,7 @@ export function getLastEvent(rundown: OntimeRundown): OntimeEvent | null {
     return null;
   }
 
-  for (let i = rundown.length - 1; i > 0; i--) {
+  for (let i = rundown.length - 1; i >= 0; i--) {
     const event = rundown.at(i);
     if (isOntimeEvent(event)) {
       return event;

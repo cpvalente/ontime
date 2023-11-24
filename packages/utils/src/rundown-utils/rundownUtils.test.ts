@@ -1,6 +1,6 @@
 import { OntimeRundown, SupportedEvent } from 'ontime-types';
 
-import { getNextEvent, getPreviousEvent } from './rundownUtils';
+import { getLastEvent, getNextEvent, getPreviousEvent } from './rundownUtils';
 
 describe('getNextEvent()', () => {
   it('returns the next event of type event', () => {
@@ -67,5 +67,22 @@ describe('getPreviousEvent()', () => {
 
     const previous = getNextEvent(testRundown as OntimeRundown, '1');
     expect(previous).toBe(null);
+  });
+});
+
+describe('getLastEvent()', () => {
+  it('finds event if is the only one in the rundown', () => {
+    const expectedId = 'a8b63';
+    const testRundown = [
+      {
+        title: 'Test title',
+        type: 'event',
+        cue: 'Testcue',
+        id: expectedId,
+      },
+    ] as OntimeRundown;
+
+    const last = getLastEvent(testRundown);
+    expect(last?.id).toBe(expectedId);
   });
 });
