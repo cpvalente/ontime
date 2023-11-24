@@ -3,7 +3,7 @@ import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import useRundown from '../../common/hooks-query/useRundown';
 
-import { useElementInfoSt9re } from './ElementInfo';
+import { useElementInfoStore, ElementInfo } from './ElementInfo';
 
 import style from './Timeline.module.scss';
 
@@ -14,7 +14,7 @@ export default function Timeline() {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(window.innerWidth);
 
-  const { setIsOpen, setContextMenu, value, coords, isOpen } = useElementInfoSt9re();
+  const { setIsOpen, setContextMenu } = useElementInfoStore();
 
   useLayoutEffect(() => {
     setContainerWidth(elementRef.current?.getBoundingClientRect().width);
@@ -57,11 +57,13 @@ export default function Timeline() {
           {events.map((event) => {
             const relativeSize = (event.duration * containerWidth ?? 0) / totalDuration;
             console.log({ relativeSize, duration: event.duration, containerWidth, totalDuration });
-            const text = `
-          ${event.cue}
-          ${event.title}
-          ${event.timeStart} - ${event.timeEnd}
-          `;
+            const text = (
+              <>
+                {event.cue} <br />
+                {event.title} <br />
+                {event.timeStart} - {event.timeEnd}
+              </>
+            );
             return (
               <span
                 onMouseEnter={(event) => handleMouseEnter(event, text)}
@@ -76,11 +78,7 @@ export default function Timeline() {
           })}
         </div>
       </div>
-      {isOpen && (
-        <div style={{ zIndex: 10, background: '#000a', position: 'absolute', left: coords.x, top: coords.y }}>
-          {value}
-        </div>
-      )}
+      <ElementInfo />
     </>
   );
 }

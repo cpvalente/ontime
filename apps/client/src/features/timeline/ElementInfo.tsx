@@ -1,4 +1,3 @@
-import { Tooltip } from '@chakra-ui/react';
 import { create } from 'zustand';
 
 type ContextMenuCoords = {
@@ -14,11 +13,31 @@ type ElementInfoStore = {
   setIsOpen: (newIsOpen: boolean) => void;
 };
 
-export const useElementInfoSt9re = create<ElementInfoStore>((set) => ({
+export const useElementInfoStore = create<ElementInfoStore>((set) => ({
   coords: { x: 0, y: 0 },
   options: [],
   isOpen: false,
-  value: "",
+  value: '',
   setContextMenu: (coords, value) => set(() => ({ coords, value, isOpen: true })),
   setIsOpen: (newIsOpen) => set(() => ({ isOpen: newIsOpen })),
 }));
+
+export function ElementInfo() {
+  const { value, coords, isOpen } = useElementInfoStore();
+
+  return (
+    <div
+      style={{
+        padding: "8px",
+        display: isOpen ? 'unset' : 'none',
+        zIndex: 10,
+        background: '#000a',
+        position: 'absolute',
+        left: coords.x,
+        top: coords.y,
+      }}
+    >
+      {value}
+    </div>
+  );
+}
