@@ -37,8 +37,9 @@ $playback-width: 26rem;
   grid-template-rows: auto 1fr;
   grid-template-columns: $menu-width $rundown-width $playback-width auto;
   grid-template-areas:
-    'sett rundown play info'
-    'sett rundown mess info';
+    'sett timeline timeline timeline'
+    'sett rundown  play     info'
+    'sett rundown  mess     info';
   gap: 0.5rem;
 
   .rundown,

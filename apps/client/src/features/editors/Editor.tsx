@@ -6,6 +6,7 @@ import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
 import UploadModal from '../modals/upload-modal/UploadModal';
+import Timeline from '../timeline/Timeline';
 
 import styles from './Editor.module.scss';
 
@@ -61,6 +62,7 @@ export default function Editor() {
             />
           </ErrorBoundary>
         </div>
+        <Timeline />
         <Rundown />
         <MessageControl />
         <TimerControl />
