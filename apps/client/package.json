@@ -41,6 +41,7 @@
     "build:electron": "cross-env NODE_ENV=local vite build",
     "build:docker": "vite build",
     "lint": "eslint . --quiet",
+    "lint-staged": "eslint",
     "test": "vitest",
     "test:pipeline": "vitest run",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build"

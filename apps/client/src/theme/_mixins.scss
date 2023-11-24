@@ -2,23 +2,6 @@
 
 //////////////////////////////////// general app elements
 
-@mixin main-container {
-  background-color: $bg-container-l1;
-  border: 1px solid $bg-container-l1;
-  border-radius: 4px;
-}
-
-@mixin second-container {
-  background-color: $bg-container-l2;
-  border-radius: 4px;
-}
-
-@mixin third-container {
-  background-color: $bg-container-l3;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 2px;
-}
-
 @mixin action-link {
   color: $action-text-color;
   display: flex;
