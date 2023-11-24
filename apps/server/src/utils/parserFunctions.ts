@@ -1,6 +1,7 @@
 import { generateId } from 'ontime-utils';
 import {
   Alias,
+  GoogleSheet,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
@@ -283,4 +284,25 @@ export const parseUserFields = (data): UserFields => {
     }
   }
   return { ...newUserFields };
+};
+
+/**
+ * Parse Google Sheet portion of an entry
+ * @param {object} data - data object
+ * @param {boolean} enforce - whether to create a definition if one is missing
+ * @returns {object} - event object data
+ */
+export const parseGoogleSheet = (data, enforce) => {
+  const newSheet: GoogleSheet = {
+    id: '',
+    worksheet: '',
+  };
+  if ('googleSheet' in data) {
+    console.log('Found Google Sheet definition, importing...');
+    newSheet.id ??= data.googleSheet?.id;
+    newSheet.worksheet ??= data.googleSheet?.worksheet;
+    return newSheet;
+  } else if (enforce) {
+    return newSheet;
+  }
 };

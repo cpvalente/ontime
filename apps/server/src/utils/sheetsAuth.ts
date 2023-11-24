@@ -42,7 +42,7 @@ class sheet {
         ret.worksheet = true;
       }
     }
-    logger.info(LogOrigin.Server, `Sheet State: ${ret}`);
+    logger.info(LogOrigin.Server, `Sheet State: ${JSON.stringify(ret)}`);
     return ret;
   }
 

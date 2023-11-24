@@ -17,6 +17,7 @@ import {
   UserFields,
   EndAction,
   TimerType,
+  GoogleSheet,
 } from 'ontime-types';
 
 import fs from 'fs';
@@ -33,6 +34,7 @@ import {
   parseSettings,
   parseUserFields,
   parseViewSettings,
+  parseGoogleSheet,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 
@@ -368,6 +370,7 @@ export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
   returnData.osc = parseOsc(jsonData) ?? dbModel.osc;
   // Import HTTP settings if any
   // returnData.http = parseHttp(jsonData, enforce);
+  returnData.googleSheet = parseGoogleSheet(jsonData, true);
 
   return returnData as DatabaseModel;
 };
