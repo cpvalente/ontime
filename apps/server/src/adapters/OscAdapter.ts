@@ -45,7 +45,7 @@ export class OscServer implements IAdapter {
           return;
         }
 
-        if (typeof args !== 'string' && typeof args !== 'number' && typeof args !== 'boolean') {
+        if (args === undefined) {
           logger.error(LogOrigin.Rx, 'OSC IN: No valid payload provided for change');
           return;
         }
@@ -53,6 +53,7 @@ export class OscServer implements IAdapter {
         const eventId = params[0];
         const property = params[1];
         const value: string | number | boolean = args as string | number | boolean;
+
         transformedPayload = {
           eventId,
           property,
