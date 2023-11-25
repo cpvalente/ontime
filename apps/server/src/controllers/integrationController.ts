@@ -7,7 +7,7 @@ import { event } from '../models/eventsDefinition.js';
 
 export type ChangeOptions = {
   eventId: string;
-  propertyName: string;
+  property: string;
   value: unknown;
 };
 
@@ -271,12 +271,12 @@ export function dispatchFromAdapter(
 
     // WS: {type: 'change', payload: { eventId, property, value } }
     case 'change': {
-      const { eventId, propertyName, value } = payload as ChangeOptions;
-      if (!isKeyOfType(propertyName, event)) {
-        throw new Error(`Cannot update unknown event property ${propertyName}`);
+      const { eventId, property, value } = payload as ChangeOptions;
+      if (!isKeyOfType(property, event)) {
+        throw new Error(`Cannot update unknown event property ${property}`);
       }
-      const parsedPayload = parse(propertyName, value);
-      return updateEvent(eventId, propertyName, parsedPayload);
+      const parsedPayload = parse(property, value);
+      return updateEvent(eventId, property, parsedPayload);
     }
 
     default: {

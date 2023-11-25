@@ -3,7 +3,7 @@ import { LogOrigin, OSCSettings } from 'ontime-types';
 import { Server } from 'node-osc';
 
 import { IAdapter } from './IAdapter.js';
-import { dispatchFromAdapter } from '../controllers/integrationController.js';
+import { dispatchFromAdapter, type ChangeOptions } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
 
 export class OscServer implements IAdapter {
@@ -57,7 +57,7 @@ export class OscServer implements IAdapter {
           eventId,
           property,
           value,
-        };
+        } satisfies ChangeOptions;
       }
 
       try {
