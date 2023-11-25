@@ -36,12 +36,35 @@ export class OscServer implements IAdapter {
         return;
       }
 
+      let transformedPayload: unknown = args;
+      // we need to transform the params for the change endpoint
+      // OSC: ontime/change/{eventID}/{propertyName} value
+      if (path === 'change') {
+        if (params.length < 2) {
+          logger.error(LogOrigin.Rx, 'OSC IN: No params provided for change');
+          return;
+        }
+
+        if (typeof args !== 'string' || typeof args !== 'number' || typeof args !== 'boolean') {
+          logger.error(LogOrigin.Rx, 'OSC IN: No valid payload provided for change');
+          return;
+        }
+
+        const eventId = params[0];
+        const property = params[1];
+        const value: string | number | boolean = args as string | number | boolean;
+        transformedPayload = {
+          eventId,
+          property,
+          value,
+        };
+      }
+
       try {
         const reply = dispatchFromAdapter(
           path,
           {
-            payload: args,
-            params,
+            payload: transformedPayload,
           },
           'osc',
         );

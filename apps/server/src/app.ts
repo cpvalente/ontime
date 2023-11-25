@@ -3,7 +3,7 @@ import { LogOrigin, OSCSettings } from 'ontime-types';
 import 'dotenv/config';
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
-import http from 'http';
+import http, { type Server } from 'http';
 import cors from 'cors';
 
 // import utils
@@ -107,8 +107,8 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitAssets;
-let expressServer = null;
-let oscServer = null;
+let expressServer: Server | null = null;
+let oscServer: OscServer | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {

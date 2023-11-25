@@ -1,5 +1,3 @@
-import { OntimeEvent } from 'ontime-types';
-
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
@@ -7,19 +5,23 @@ import { parse, updateEvent } from './integrationController.config.js';
 import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 import { event } from '../models/eventsDefinition.js';
 
+export type ChangeOptions = {
+  eventId: string;
+  propertyName: string;
+  value: unknown;
+};
+
 //TODO: re-throwing the error does not add any extra information or value
 export function dispatchFromAdapter(
   type: string,
   args: {
     payload: unknown;
-    params?: Array<string>;
   },
   _source?: 'osc' | 'ws',
 ) {
   const payload = args.payload;
   const typeComponents = type.toLowerCase().split('/');
   const mainType = typeComponents[0];
-  const params = args.params || [];
 
   switch (mainType) {
     case 'test-ontime': {
@@ -267,21 +269,14 @@ export function dispatchFromAdapter(
       return { topic: 'timer', payload: timer };
     }
 
-    // ontime/change/{eventID}/{propertyName}
+    // WS: {type: 'change', payload: { eventId, property, value } }
     case 'change': {
-      if (params.length < 2) {
-        throw new Error('Too few parameters, 3 expected');
-      }
-      if (payload === undefined) {
-        throw new Error('No payload found');
-      }
-      const eventID = params[0];
-      const propertyName = params[1] as keyof OntimeEvent;
+      const { eventId, propertyName, value } = payload as ChangeOptions;
       if (!isKeyOfType(propertyName, event)) {
         throw new Error(`Cannot update unknown event property ${propertyName}`);
       }
-      const parsedPayload = parse(propertyName, payload);
-      return updateEvent(eventID, propertyName, parsedPayload);
+      const parsedPayload = parse(propertyName, value);
+      return updateEvent(eventId, propertyName, parsedPayload);
     }
 
     default: {
