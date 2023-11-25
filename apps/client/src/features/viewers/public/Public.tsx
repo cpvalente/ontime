@@ -16,6 +16,7 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Public.scss';
 
@@ -63,7 +64,7 @@ export default function Public(props: BackstageProps) {
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
-          <div className='time'>{clock}</div>
+          <SuperscriptTime time={clock} className='time' />
         </div>
       </div>
 

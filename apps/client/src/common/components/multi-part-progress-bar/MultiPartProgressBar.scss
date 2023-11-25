@@ -10,6 +10,7 @@ $progress-bar-br: 3px;
   border-radius: $progress-bar-br;
   background-color: var(--timer-progress-bg-override, $viewer-card-bg-color);
   display: flex;
+  overflow: hidden;
 
   &--hidden {
     display: none;
@@ -31,7 +32,6 @@ $progress-bar-br: 3px;
   position: absolute;
   height: inherit;
   right: 0;
-  border-radius: $progress-bar-br;
   width: 100%;
 }
 
@@ -39,12 +39,10 @@ $progress-bar-br: 3px;
   position: absolute;
   height: inherit;
   right: 0;
-  border-radius: 0 $progress-bar-br $progress-bar-br 0;
 }
 
 .multiprogress-bar__bg-danger {
   position: absolute;
   height: inherit;
   right: 0;
-  border-radius: 0 $progress-bar-br $progress-bar-br 0;
 }

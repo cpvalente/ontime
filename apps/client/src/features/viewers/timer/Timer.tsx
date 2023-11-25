@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -11,7 +12,9 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
+import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
@@ -40,6 +43,7 @@ const titleVariants = {
 interface TimerProps {
   isMirrored: boolean;
   pres: TimerMessage;
+  external: Message;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   time: TimeManagerType;
@@ -47,9 +51,10 @@ interface TimerProps {
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, pres, eventNow, eventNext, time, viewSettings } = props;
+  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     document.title = 'ontime - Timer';
@@ -59,6 +64,26 @@ export default function Timer(props: TimerProps) {
   if (!shouldRender) {
     return null;
   }
+
+  // USER OPTIONS
+  const userOptions = {
+    hideClock: false,
+    hideCards: false,
+    hideProgress: false,
+    hideMessage: false,
+  };
+
+  const hideClock = searchParams.get('hideClock');
+  userOptions.hideClock = isStringBoolean(hideClock);
+
+  const hideCards = searchParams.get('hideCards');
+  userOptions.hideCards = isStringBoolean(hideCards);
+
+  const hideProgress = searchParams.get('hideProgress');
+  userOptions.hideProgress = isStringBoolean(hideProgress);
+
+  const hideMessage = searchParams.get('hideMessage');
+  userOptions.hideMessage = isStringBoolean(hideMessage);
 
   const clock = formatTime(time.clock, formatOptions);
   const showOverlay = pres.text !== '' && pres.visible;
@@ -77,6 +102,7 @@ export default function Timer(props: TimerProps) {
   const showBlinking = pres.timerBlink;
   const showBlackout = pres.timerBlackout;
   const showClock = time.timerType !== TimerType.Clock;
+  const showExternal = external.visible && external.text;
 
   const timerColor =
     showProgress && showDanger
@@ -93,23 +119,33 @@ export default function Timer(props: TimerProps) {
   }
 
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
-  const timerFontSize = 89 / (stageTimerCharacters - 1);
+  let timerFontSize = 89 / (stageTimerCharacters - 1);
+  // we need to shrink the timer if the external is going to be there
+  if (showExternal) {
+    timerFontSize *= 0.8;
+  }
+  const externalFontSize = timerFontSize * 0.4;
+  const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
       <ViewParamsEditor paramFields={TIMER_OPTIONS} />
-      <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-        <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
-      </div>
+      {!userOptions.hideMessage && (
+        <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
+          <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
+        </div>
+      )}
 
-      <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
-        <div className='label'>{getLocalizedString('common.time_now')}</div>
-        <div className='clock'>{clock}</div>
-      </div>
+      {!userOptions.hideClock && (
+        <div className={`clock-container ${showClock ? '' : 'clock-container--hidden'}`}>
+          <div className='label'>{getLocalizedString('common.time_now')}</div>
+          <SuperscriptTime time={clock} className='clock' />
+        </div>
+      )}
 
-      <div className={`timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
+      <div className={timerContainerClasses}>
         {showEndMessage ? (
           <div className='end-message'>{viewSettings.endMessage}</div>
         ) : (
@@ -123,54 +159,71 @@ export default function Timer(props: TimerProps) {
             {display}
           </div>
         )}
+        <div
+          className={`external${showExternal ? '' : ' external--hidden'}`}
+          style={{ fontSize: `${externalFontSize}vw` }}
+        >
+          {external.text}
+        </div>
       </div>
 
-      <MultiPartProgressBar
-        className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
-        now={time.current || 0}
-        complete={totalTime}
-        normalColor={viewSettings.normalColor}
-        warning={viewSettings.warningThreshold}
-        warningColor={viewSettings.warningColor}
-        danger={viewSettings.dangerThreshold}
-        dangerColor={viewSettings.dangerColor}
-        hidden={!showProgress}
-      />
+      {!userOptions.hideProgress && (
+        <MultiPartProgressBar
+          className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
+          now={time.current}
+          complete={totalTime}
+          normalColor={viewSettings.normalColor}
+          warning={viewSettings.warningThreshold}
+          warningColor={viewSettings.warningColor}
+          danger={viewSettings.dangerThreshold}
+          dangerColor={viewSettings.dangerColor}
+          hidden={!showProgress}
+        />
+      )}
 
-      <AnimatePresence>
-        {eventNow && !finished && (
-          <motion.div
-            className='event now'
-            key='now'
-            variants={titleVariants}
-            initial='hidden'
-            animate='visible'
-            exit='exit'
-          >
-            <TitleCard label='now' title={eventNow.title} subtitle={eventNow.subtitle} presenter={eventNow.presenter} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!userOptions.hideCards && (
+        <>
+          <AnimatePresence>
+            {eventNow && !finished && (
+              <motion.div
+                className='event now'
+                key='now'
+                variants={titleVariants}
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+              >
+                <TitleCard
+                  label='now'
+                  title={eventNow.title}
+                  subtitle={eventNow.subtitle}
+                  presenter={eventNow.presenter}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-      <AnimatePresence>
-        {eventNext && (
-          <motion.div
-            className='event next'
-            key='next'
-            variants={titleVariants}
-            initial='hidden'
-            animate='visible'
-            exit='exit'
-          >
-            <TitleCard
-              label='next'
-              title={eventNext.title}
-              subtitle={eventNext.subtitle}
-              presenter={eventNext.presenter}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <AnimatePresence>
+            {eventNext && (
+              <motion.div
+                className='event next'
+                key='next'
+                variants={titleVariants}
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+              >
+                <TitleCard
+                  label='next'
+                  title={eventNext.title}
+                  subtitle={eventNext.subtitle}
+                  presenter={eventNext.presenter}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </div>
   );
 }

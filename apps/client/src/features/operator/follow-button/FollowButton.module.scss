@@ -2,9 +2,11 @@
 @use '../../../../src/theme/v2Styles' as *;
 
 .followButton {
-  position: relative;
-  bottom: 12rem;
-  margin: 0 auto;
+  position: fixed;
+  bottom: 1.5rem;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
 
   display: flex;

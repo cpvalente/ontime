@@ -22,12 +22,14 @@ interface CuesheetTableSettingsProps {
 
 function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
-  const showPrevious = useCuesheetSettings((state) => state.showPrevious);
-  const togglePreviousVisibility = useCuesheetSettings((state) => state.togglePreviousVisibility);
-  const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
-  const toggleDelayVisibility = useCuesheetSettings((state) => state.toggleDelayVisibility);
-  const showDelayedTimes = useCuesheetSettings((state) => state.showDelayedTimes);
-  const toggleDelayedTimes = useCuesheetSettings((state) => state.toggleDelayedTimes);
+  const {
+    showPrevious,
+    toggleDelayVisibility,
+    showDelayBlock,
+    showDelayedTimes,
+    toggleDelayedTimes,
+    togglePreviousVisibility,
+  } = useCuesheetSettings();
 
   return (
     <div className={style.tableSettings}>

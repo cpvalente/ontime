@@ -13,7 +13,7 @@ $half-hours: min(1.5vh, 10px);
 $size-min: min(2.5vh, 18px);
 $half-min: min(1.25vh, 9px);
 $red-active: #c53030;
-$red-idle: #300000;
+$red-idle: #000000;
 $cyan-active: #0ff;
 $cyan-idle: #0aa;
 
@@ -56,11 +56,10 @@ $cyan-idle: #0aa;
       .hours {
         border-radius: 50%;
         position: absolute;
-        background: $red-idle;
+        background: var(--studio-idle, $red-idle);
 
         &--active {
-          background: $red-active;
-          box-shadow: 0 0 10px 2px rgba(255, 0, 0, 0.25);
+          background: var(--studio-active, $red-active);
         }
       }
 
@@ -80,7 +79,7 @@ $cyan-idle: #0aa;
     }
 
     .studio-timer {
-      color: $red-active;
+      color: var(--studio-active, $red-active);
       font-size: calc(#{$clock-size} / 3);
       margin-top: calc(50% - calc(#{$clock-size} / 7));
       line-height: 0.8em;
@@ -88,9 +87,8 @@ $cyan-idle: #0aa;
       &--with-seconds {
         font-size: calc(#{$clock-size} / 4.6);
         margin-top: calc(50% - calc(#{$clock-size} / 11));
+      }
     }
-    }
-
 
 
     .next-title:after,
@@ -100,14 +98,15 @@ $cyan-idle: #0aa;
     }
 
     .next-title {
-      color: $cyan-idle;
+      color: var(--studio-idle-label, $cyan-idle);
       text-align: center;
     }
 
     .next-countdown {
+      color: var(--studio-active-label, $cyan-active);
+
       font-size: 10vh;
       line-height: 1em;
-      color: $cyan-active;
 
       &--overtime {
         color: darken($red-active, 10%);
@@ -131,16 +130,16 @@ $cyan-idle: #0aa;
       padding-bottom: 2vh;
       font-size: 15vh;
       line-height: 0.9em;
-      color: $red-active;
+      color: var(--studio-active, $red-active);
 
       &--idle {
-        color: $red-idle;
+        color: var(--studio-idle, $red-active);
       }
     }
 
     .schedule {
       ul {
-        color: $cyan-idle;
+        color: var(--studio-idle-label, $cyan-idle);
         font-size: 3.75vh;
         line-height: 1em;
         list-style: none;
@@ -154,18 +153,18 @@ $cyan-idle: #0aa;
       }
 
       .now {
-        color: $cyan-active;
+        color: var(--studio-active-label, $cyan-active);
       }
 
       .next {
-        color: $red-active;
+        color: var(--studio-active, $red-active);
       }
 
       .user-colour {
         width: 0.35em;
         height: 0.35em;
         aspect-ratio: 1;
-        background-color: $red-idle;
+        background-color: var(--studio-idle, $red-idle);
         margin-right: 0.35em;
       }
     }

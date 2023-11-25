@@ -9,6 +9,10 @@ import { sanitiseTitle } from './countdown.helpers';
 
 import './Countdown.scss';
 
+const formatOptions = {
+  format: 'hh:mm a',
+};
+
 interface CountdownSelectProps {
   events: OntimeRundownEntry[];
 }
@@ -31,8 +35,8 @@ export default function CountdownSelect(props: CountdownSelectProps) {
           filteredEvents.map((event: OntimeEvent, counter: number) => {
             const index = counter + 1;
             const title = sanitiseTitle(event.title);
-            const start = formatTime(event.timeStart, { format: 'hh:mm' });
-            const end = formatTime(event.timeEnd, { format: 'hh:mm' });
+            const start = formatTime(event.timeStart, formatOptions);
+            const end = formatTime(event.timeEnd, formatOptions);
 
             return (
               <li key={event.id}>
