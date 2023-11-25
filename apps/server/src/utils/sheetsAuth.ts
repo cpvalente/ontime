@@ -419,15 +419,18 @@ class sheet {
    *
    * @param {number} row - The row number of the cell reference. Row 1 is row number 0.
    * @param {number} column - The column number of the cell reference. A is column number 0.
-   * @returns {string} Returns a cell reference as a string using A1 Notation
+   * @returns {string} - Returns a cell reference as a string using A1 Notation
    * @author https://www.labnol.org/convert-column-a1-notation-210601
    * @example
    *
    *   getA1Notation(2, 4) returns "E3"
-   *   getA1Notation(2, 4) returns "E3"
+   *   getA1Notation(26, 4) returns "AA3"
    *
    */
-  private getA1Notation(row, column) {
+  private getA1Notation(row: number, column: number): string {
+    if (row < 0 || column < 0) {
+      throw new Error('Index can not be less than 0');
+    }
     const a1Notation = [`${row + 1}`];
     const totalAlphabets = 'Z'.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
     let block = column;
