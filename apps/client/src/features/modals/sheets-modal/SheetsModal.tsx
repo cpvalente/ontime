@@ -108,7 +108,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   const handleAuthenticate = () => {
     getSheetsAuthUrl().then((data) => {
       if (data != 'bad') {
-        const authWindow = window.open(data, '_blank', 'noreferrer');
+        window.open(data, '_blank', 'noreferrer');
         //TODO: can we detect when this window is closed
       }
     });
