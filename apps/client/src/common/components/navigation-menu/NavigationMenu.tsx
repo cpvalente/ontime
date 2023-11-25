@@ -12,7 +12,6 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
 import useFullscreen from '../../hooks/useFullscreen';
-import { useKeyDown } from '../../hooks/useKeyDown';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 
 import RenameClientModal from './rename-client-modal/RenameClientModal';
@@ -28,13 +27,14 @@ function NavigationMenu() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
   useClickOutside(menuRef, () => setShowMenu(false));
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const toggleMenu = () => setShowMenu((prev) => !prev);
-  useKeyDown(toggleMenu, ' ', { isDisabled: searchParams.get('edit') === 'true' || isOpen });
 
+  // show on mouse move
   useEffect(() => {
     let fadeOut: NodeJS.Timeout | null = null;
     const setShowMenuTrue = () => {
