@@ -5,6 +5,7 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
+  font-size: $inner-section-text-size;
 
   .title {
     white-space: nowrap;
@@ -14,12 +15,12 @@
 
   .selected {
     min-width: max-content;
-    font-size: $inner-section-text-size;
     color: $label-gray;
   }
 }
 
 .description {
+  font-size: $inner-section-text-size;
   color: $label-gray;
   white-space: nowrap;
   overflow: hidden;
