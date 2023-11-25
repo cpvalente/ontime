@@ -3,7 +3,7 @@ import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import useRundown from '../../common/hooks-query/useRundown';
 
-import { useElementInfoStore, ElementInfo } from './ElementInfo';
+import { ElementInfo, useElementInfoStore } from './ElementInfo';
 
 import style from './Timeline.module.scss';
 
@@ -41,7 +41,10 @@ export default function Timeline() {
 
   console.log(totalDuration);
 
-  const handleMouseEnter = (event, text) => {
+  const handleMouseOver = (event, text) => {
+    // TODO: we want to separe the text from the position
+    // TODO: text and open set on mouseEnter
+    // TODO: position is throttled on mouseOver
     setIsOpen(true);
     setContextMenu({ x: event.clientX, y: event.clientY }, text);
   };
@@ -66,7 +69,7 @@ export default function Timeline() {
             );
             return (
               <span
-                onMouseEnter={(event) => handleMouseEnter(event, text)}
+                onMouseOver={(event) => handleMouseOver(event, text)}
                 onMouseLeave={(event) => handleMouseLeave(event, text)}
                 key={event.id}
                 style={{ width: `${relativeSize}px` }}
