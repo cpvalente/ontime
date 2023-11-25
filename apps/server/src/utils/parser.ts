@@ -376,7 +376,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     }
     res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
-    res.data.previouslyUploaded = fileName;
+    res.data.lastProject = fileName;
 
     return res;
   }
@@ -391,7 +391,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
       throw new Error(`Project version unknown ${uploadedJson.settings.version}`);
     }
     res.data = await parseJson(uploadedJson);
-    res.data.previouslyUploaded = fileName;
+    res.data.lastProject = fileName;
 
     return res;
   }

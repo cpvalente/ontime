@@ -14,5 +14,5 @@ export type DatabaseModel = {
   aliases: Alias[];
   userFields: UserFields;
   osc: OSCSettings;
-  previouslyUploaded?: string;
+  lastProject?: string;
 };
