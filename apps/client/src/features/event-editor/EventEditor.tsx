@@ -73,8 +73,8 @@ export default function EventEditor() {
         handleSubmit={handleSubmit}
       >
         <CopyTag label='Event ID'>{event.id}</CopyTag>
-        <CopyTag label='OSC trigger by id'>{`/ontime/gotoid/${event.id}`}</CopyTag>
-        <CopyTag label='OSC trigger by cue'>{`/ontime/gotocue/${event.cue}`}</CopyTag>
+        <CopyTag label='OSC trigger by id'>{`/ontime/gotoid "${event.id}"`}</CopyTag>
+        <CopyTag label='OSC trigger by cue'>{`/ontime/gotocue "${event.cue}"`}</CopyTag>
       </EventEditorDataRight>
     </div>
   );
