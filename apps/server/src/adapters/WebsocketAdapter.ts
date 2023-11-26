@@ -17,6 +17,7 @@
 import { LogOrigin } from 'ontime-types';
 
 import { WebSocket, WebSocketServer } from 'ws';
+import type { Server } from 'http';
 
 import getRandomName from '../utils/getRandomName.js';
 import { IAdapter } from './IAdapter.js';
@@ -43,7 +44,7 @@ export class SocketServer implements IAdapter {
     this.wss = null;
   }
 
-  init(server) {
+  init(server: Server) {
     this.wss = new WebSocketServer({ path: '/ws', server });
 
     this.wss.on('connection', (ws) => {
