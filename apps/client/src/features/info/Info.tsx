@@ -11,20 +11,6 @@ export default function Info() {
   const data = useInfoPanel();
   const showNif = useEditorSettings((state) => state.eventSettings.showNif);
 
-  const titlesNow = {
-    title: data.eventNow?.title || '',
-    subtitle: data.eventNow?.subtitle || '',
-    presenter: data.eventNow?.presenter || '',
-    note: data.eventNow?.note || '',
-  };
-
-  const titlesNext = {
-    title: data.eventNext?.title || '',
-    subtitle: data.eventNext?.subtitle || '',
-    presenter: data.eventNext?.presenter || '',
-    note: data.eventNext?.note || '',
-  };
-
   const selected = !data.numEvents
     ? 'No events'
     : `Event ${data.selectedEventIndex !== null ? data.selectedEventIndex + 1 : '-'} / ${
@@ -40,10 +26,20 @@ export default function Info() {
         </CollapsableInfo>
       )}
       <CollapsableInfo title='Playing Now'>
-        <InfoTitles data={titlesNow} />
+        <InfoTitles
+          title={data.eventNow?.title ?? ''}
+          subtitle={data.eventNow?.subtitle ?? ''}
+          presenter={data.eventNow?.presenter ?? ''}
+          note={data.eventNow?.note ?? ''}
+        />
       </CollapsableInfo>
-      <CollapsableInfo title='Playing Next'>
-        <InfoTitles data={titlesNext} />
+      <CollapsableInfo title='Up Next'>
+        <InfoTitles
+          title={data.eventNext?.title ?? ''}
+          subtitle={data.eventNext?.subtitle ?? ''}
+          presenter={data.eventNext?.presenter ?? ''}
+          note={data.eventNext?.note ?? ''}
+        />
       </CollapsableInfo>
       <CollapsableInfo title='Log'>
         <InfoLogger />

@@ -1,35 +1,42 @@
 import style from './Info.module.scss';
 
-type TitleShape = {
+interface InfoTitleProps {
   title: string;
   presenter: string;
   subtitle: string;
   note: string;
-};
+  showTimeToNext?: boolean;
+}
 
-interface InfoTitleProps {
-  data: TitleShape;
+function TimeToNext() {
+  return (
+    <div>
+      <span className={style.label}>Time to next:</span>
+      <span className={style.content}>00:00:00</span>
+    </div>
+  );
 }
 
 export default function InfoTitles(props: InfoTitleProps) {
-  const { data } = props;
+  const { title, presenter, subtitle, note, showTimeToNext } = props;
   return (
     <div className={style.labels}>
+      {showTimeToNext && <TimeToNext />}
       <div>
         <span className={style.label}>Title:</span>
-        <span className={style.content}>{data.title}</span>
+        <span className={style.content}>{title}</span>
       </div>
       <div>
         <span className={style.label}>Presenter:</span>
-        <span className={style.content}>{data.presenter}</span>
+        <span className={style.content}>{presenter}</span>
       </div>
       <div>
         <span className={style.label}>Subtitle:</span>
-        <span className={style.content}>{data.subtitle}</span>
+        <span className={style.content}>{subtitle}</span>
       </div>
       <div>
         <span className={style.label}>Note:</span>
-        <span className={style.content}>{data.note}</span>
+        <span className={style.content}>{note}</span>
       </div>
     </div>
   );
