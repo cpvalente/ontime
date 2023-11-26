@@ -38,22 +38,25 @@ class sheet {
     if (!sheet.client) {
       return ret;
     }
-    ret.auth = await this.refreshToken();
-    if (ret.auth) {
-      const settings = DataProvider.getGoogleSheet();
-      const x = await this.exist(settings.id, settings.worksheet);
-      if (x === true) {
-        ret.id = true;
-        this.sheetId = settings.id;
-      } else if (x !== false) {
-        ret.id = true;
-        ret.worksheet = true;
-        this.sheetId = settings.id;
-        this.worksheetId = x.worksheetId;
-        this.range = x.range;
+    try {
+      ret.auth = await this.refreshToken();
+      if (ret.auth) {
+        const settings = DataProvider.getGoogleSheet();
+        const x = await this.exist(settings.id, settings.worksheet);
+        if (x === true) {
+          ret.id = true;
+          this.sheetId = settings.id;
+        } else if (x !== false) {
+          ret.id = true;
+          ret.worksheet = true;
+          this.sheetId = settings.id;
+          this.worksheetId = x.worksheetId;
+          this.range = x.range;
+        }
       }
+    } catch (err) {
+      logger.error(LogOrigin.Server, `Google Sheet: Faild to refresh token ${err}`);
     }
-    logger.info(LogOrigin.Server, `Sheet State: ${JSON.stringify(ret)}`);
     return ret;
   }
 
@@ -199,17 +202,24 @@ class sheet {
 
   /**
    * saves Object to appdata path as client_secret.json
-   * @param {} secrets
+   * @param {Object} secrets
    */
-  public async saveClientSecrets(secrets): Promise<GoogleSheetState> {
-    ensureDirectory(this.sheetsFolder);
-    logger.info(LogOrigin.Server, 'Sheets: got new client_secret');
-    //TODO: test that this is actualy a client file?
-    //invalidate previus auths
+  public async saveClientSecrets(secrets: Object) {
     sheet.client = null;
     sheet.authUrl = null;
+    ensureDirectory(this.sheetsFolder);
+    if (
+      'client_id' in secrets ||
+      !('project_id' in secrets) ||
+      !('auth_uri' in secrets) ||
+      !('token_uri' in secrets) ||
+      !('auth_provider_x509_cert_url' in secrets) ||
+      !('client_secret' in secrets) ||
+      !('redirect_uris' in secrets)
+    ) {
+      throw new Error('Sheet slient secret is missing some keys');
+    }
     await writeFile(this.client_secret, JSON.stringify(secrets), 'utf-8');
-    return;
   }
 
   /**

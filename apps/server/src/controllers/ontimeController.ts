@@ -455,8 +455,8 @@ export async function uploadGoogleSheetClientFile(req, res) {
 
   try {
     const client = JSON.parse(fs.readFileSync(req.file.path as string, 'utf-8'));
-    const auth = await Sheet.saveClientSecrets(client);
-    res.status(200).send(auth);
+    await Sheet.saveClientSecrets(client);
+    res.status(200).send('OK');
   } catch (error) {
     res.status(500).send({ message: error.toString() });
   }
