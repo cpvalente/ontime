@@ -1,10 +1,11 @@
 import { ComponentType, useMemo } from 'react';
 import { TimeManagerType } from 'common/models/TimeManager.type';
-import { Message, OntimeEvent, ProjectData, SupportedEvent, TimerMessage, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, TimerMessage, ViewSettings } from 'ontime-types';
 import { useStore } from 'zustand';
 
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
+import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { runtime } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
@@ -27,6 +28,7 @@ type WithDataProps = {
   nextId: string | null;
   general: ProjectData;
   viewSettings: ViewSettings;
+  settings: Settings | undefined;
   onAir: boolean;
 };
 
@@ -43,6 +45,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     const { data: rundownData } = useRundown();
     const { data: project } = useProjectData();
     const { data: viewSettings } = useViewSettings();
+    const { data: settings } = useSettings();
 
     const publicEvents = useMemo(() => {
       if (Array.isArray(rundownData)) {
@@ -104,6 +107,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
         viewSettings={viewSettings}
+        settings={settings}
         nextId={nextId}
         general={project}
         onAir={onAir}

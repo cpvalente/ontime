@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, Playback, Settings, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
-import { TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
@@ -48,10 +48,11 @@ interface TimerProps {
   eventNext: OntimeEvent | null;
   time: TimeManagerType;
   viewSettings: ViewSettings;
+  settings: Settings | undefined;
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external } = props;
+  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -128,10 +129,12 @@ export default function Timer(props: TimerProps) {
   const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
+  const timerOptions = getTimerOptions(settings?.timeFormat ?? '24');
+
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={TIMER_OPTIONS} />
+      <ViewParamsEditor paramFields={timerOptions} />
       {!userOptions.hideMessage && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
           <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
