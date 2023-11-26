@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'url';
 import path, { dirname, join } from 'path';
-import { config } from './config/config.js';
+
+import { configService } from './services/ConfigService.js';
 
 // =================================================
 // resolve public path
@@ -68,6 +69,8 @@ export const currentDirectory = dirname(__dirname);
 
 const testDbStartDirectory = isTest ? '../' : getAppDataPath();
 export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
+
+const config = configService.getConfig();
 
 // path to public db
 export const resolveDbDirectory = join(

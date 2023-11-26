@@ -36,6 +36,7 @@ import {
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 import path from 'path';
+import { configService } from '../services/ConfigService.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -376,7 +377,8 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     }
     res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
-    res.data.lastProject = fileName;
+
+    configService.updateDatabaseConfig('uploads', fileName);
 
     return res;
   }
@@ -391,7 +393,8 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
       throw new Error(`Project version unknown ${uploadedJson.settings.version}`);
     }
     res.data = await parseJson(uploadedJson);
-    res.data.lastProject = fileName;
+
+    configService.updateDatabaseConfig('uploads', fileName);
 
     return res;
   }
