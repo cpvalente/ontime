@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState, useEffect } from 'react';
 import {
   Button,
   Input,
@@ -78,8 +78,7 @@ export default function SheetsModal(props: SheetsModalProps) {
     setSheetState(await getSheetstate());
   };
 
-  if (isOpen) {
-    //TODO: how to get this on modal open
+  useEffect(() => {
     getSheetSettings().then((data) => {
       if (sheetid.current?.value != data.id || worksheet.current?.value != data.worksheet) {
         _onChange();
@@ -91,7 +90,7 @@ export default function SheetsModal(props: SheetsModalProps) {
         worksheet.current.value = data.worksheet;
       }
     });
-  }
+  });
 
   const handelSave = () => {
     postSheetSettings({ id: sheetid.current?.value ?? '', worksheet: worksheet.current?.value ?? '' }).then((data) => {
