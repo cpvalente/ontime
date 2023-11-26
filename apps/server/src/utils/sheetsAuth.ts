@@ -133,17 +133,10 @@ class sheet {
         },
       });
 
-      //TODO: this is a mess
-      const titleCol = Object.values(rundownMetadata)
-        // .filter(([key, value]) => value !== undefined)
-        .reduce((accumulator: number, val) => Math.min(accumulator, val['col']), Number.MAX_VALUE);
-      if (titleCol == Number.MAX_VALUE) {
-        throw new Error(`could not finde starting title column`);
-      }
       //update the corespunding row with event data
       rundown.forEach((entry, index) =>
         updateRundown.push(
-          cellRequenstFromEvent(entry, index, this.worksheetId, rundownMetadata, titleCol as number),
+          cellRequenstFromEvent(entry, index, this.worksheetId, rundownMetadata),
         ),
       );
       const writeResponds = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.batchUpdate({
