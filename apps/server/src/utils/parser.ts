@@ -121,11 +121,11 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
     const handlers = {
       [importMap.projectName]: (row: number, col: number) => {
         projectTitleNext = true;
-        projectMetadata['projectName'] = { row: row, col: col };
+        projectMetadata['title'] = { row: row, col: col };
       },
       [importMap.projectDescription]: (row: number, col: number) => {
         projectDescriptionNext = true;
-        projectMetadata['projectDescription'] = { row: row, col: col };
+        projectMetadata['description'] = { row: row, col: col };
       },
       [importMap.publicUrl]: (row: number, col: number) => {
         publicUrlNext = true;

@@ -11,7 +11,7 @@ import { parseProject, parseRundown, parseUserFields } from './parserFunctions.j
 import { ensureDirectory } from './fileManagement.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { GoogleSheetState } from 'ontime-types';
-import { cellRequenstFromEvent, getA1Notation } from './googleSheetUtils.js';
+import { cellRequenstFromEvent, cellRequenstFromProjectData, getA1Notation } from './googleSheetUtils.js';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -97,9 +97,9 @@ class sheet {
       range: this.range,
     });
     if (rq.status === 200) {
-      //TODO: projectMetadata
-      const { rundownMetadata } = parseExcel(rq.data.values);
+      const { rundownMetadata, projectMetadata } = parseExcel(rq.data.values);
       const rundown = DataProvider.getRundown();
+      const projectData = DataProvider.getProjectData();
       const titleRow = Object.values(rundownMetadata)[0]['row'];
 
       const updateRundown = Array<sheets_v4.Schema$Request>();
@@ -133,12 +133,14 @@ class sheet {
         },
       });
 
-      //update the corespunding row with event data
+      //update the corresponding row with event data
       rundown.forEach((entry, index) =>
-        updateRundown.push(
-          cellRequenstFromEvent(entry, index, this.worksheetId, rundownMetadata),
-        ),
+        updateRundown.push(cellRequenstFromEvent(entry, index, this.worksheetId, rundownMetadata)),
       );
+
+      //update project data
+      updateRundown.push(cellRequenstFromProjectData(projectData, this.worksheetId, projectMetadata));
+
       const writeResponds = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.batchUpdate({
         spreadsheetId: this.sheetId,
         requestBody: {
@@ -226,8 +228,6 @@ class sheet {
     }
     return false;
   }
-
-  
 
   private authServerTimeout;
   /**

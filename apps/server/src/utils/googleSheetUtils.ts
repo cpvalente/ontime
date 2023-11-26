@@ -1,6 +1,6 @@
 import { sheets_v4 } from '@googleapis/sheets';
 import { millisToString } from 'ontime-utils';
-import { OntimeRundownEntry, isOntimeEvent } from 'ontime-types';
+import { OntimeRundownEntry, ProjectData, isOntimeEvent } from 'ontime-types';
 
 /**
  *
@@ -34,7 +34,6 @@ export function getA1Notation(row: number, column: number): string {
  * @param {number} index - index of the event
  * @param {number} worksheetId
  * @param {any} metadata - object with all the cell positions of the title of each attribute
- * @param {number} titleCol - smallest col index
  * @returns {sheets_v4.Schema} - list of update requests
  */
 export function cellRequenstFromEvent(
@@ -100,6 +99,67 @@ export function cellRequenstFromEvent(
           values: r,
         },
       ],
+    },
+  };
+}
+
+/**
+ * @description - creates updateCells request from ontime event
+ * @param {ProjectData} projectData
+ * @param {number} worksheetId
+ * @param {any} metadata - object with all the cell positions of the title of each attribute
+ * @returns {sheets_v4.Schema} - list of update requests
+ */
+export function cellRequenstFromProjectData(
+  projectData: ProjectData,
+  worksheetId: number,
+  metadata,
+): sheets_v4.Schema$Request {
+  const r: sheets_v4.Schema$RowData[] = [];
+  const tmp = Object.entries(metadata)
+    .filter(([_, value]) => value !== undefined)
+    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [string, { col: number; row: number }][];
+
+  const minRow = Object.values(metadata).reduce(
+    (accumulator: number, val) => Math.min(accumulator, val['row']),
+    Number.MAX_VALUE,
+  ) as number;
+  const minCol = tmp[0][1].col + 1;
+
+  for (const [index, e] of tmp.entries()) {
+    if (index != 0) {
+      const prevRow = tmp[index - 1][1].row;
+      const thisRow = e[1].row;
+      const diff = thisRow - prevRow;
+      if (diff > 1) {
+        const fillArr = new Array<(typeof tmp)[0]>(1).fill(['blank', { row: prevRow + 1, col: e[1].col }]);
+        tmp.splice(index, 0, ...fillArr);
+      }
+    }
+  }
+  tmp.forEach(([key, _]) => {
+    if (key == 'blank') {
+      r.push({});
+    } else {
+      r.push({
+        values: [
+          {
+            userEnteredValue: { stringValue: projectData[key] },
+          },
+        ],
+      });
+    }
+  });
+
+  return {
+    updateCells: {
+      start: {
+        sheetId: worksheetId,
+        rowIndex: minRow,
+        columnIndex: minCol,
+      },
+      fields: 'userEnteredValue',
+      rows: r,
     },
   };
 }

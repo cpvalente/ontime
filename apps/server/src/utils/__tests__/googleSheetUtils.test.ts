@@ -1,6 +1,6 @@
 import { millisToString } from 'ontime-utils';
-import { getA1Notation, cellRequenstFromEvent } from '../googleSheetUtils.js';
-import { EndAction, OntimeRundownEntry, SupportedEvent, TimerType } from 'ontime-types';
+import { getA1Notation, cellRequenstFromEvent, cellRequenstFromProjectData } from '../googleSheetUtils.js';
+import { EndAction, OntimeRundownEntry, ProjectData, SupportedEvent, TimerType } from 'ontime-types';
 
 describe('getA1Notation()', () => {
   test('A1', () => {
@@ -326,5 +326,108 @@ describe('cellRequenstFromEvent()', () => {
     expect(result2.updateCells.start.rowIndex).toStrictEqual(21);
     expect(result2.updateCells.start.columnIndex).toStrictEqual(5);
     expect(result2.updateCells.fields).toStrictEqual('userEnteredValue');
+  });
+});
+
+describe('cellRequenstFromProjectData()', () => {
+  test('string to string', () => {
+    const projectData: ProjectData = {
+      title: 'Title',
+      description: 'Description',
+      publicUrl: 'Public Url',
+      backstageUrl: 'Backstage Url',
+      publicInfo: 'Public Info',
+      backstageInfo: 'Backstage Info',
+    };
+    const metadata = {
+      title: { row: 0, col: 1 },
+      description: { row: 1, col: 1 },
+      publicUrl: { row: 2, col: 1 },
+      backstageUrl: { row: 3, col: 1 },
+      publicInfo: { row: 4, col: 1 },
+      backstageInfo: { row: 5, col: 1 },
+    };
+    const result = cellRequenstFromProjectData(projectData, 1234, metadata);
+    expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.title);
+    expect(result.updateCells.rows[1].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.description);
+    expect(result.updateCells.rows[2].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.publicUrl);
+    expect(result.updateCells.rows[3].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.backstageUrl);
+    expect(result.updateCells.rows[4].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.publicInfo);
+    expect(result.updateCells.rows[5].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.backstageInfo);
+  });
+
+  test('metadata offset from zero', () => {
+    const projectData: ProjectData = {
+      title: 'Title',
+      description: 'Description',
+      publicUrl: 'Public Url',
+      backstageUrl: 'Backstage Url',
+      publicInfo: 'Public Info',
+      backstageInfo: 'Backstage Info',
+    };
+    const metadata = {
+      title: { row: 5, col: 10 },
+      description: { row: 6, col: 10 },
+      publicUrl: { row: 7, col: 10 },
+      backstageUrl: { row: 9, col: 10 },
+      publicInfo: { row: 10, col: 10 },
+      backstageInfo: { row: 11, col: 10 },
+    };
+    const result = cellRequenstFromProjectData(projectData, 1234, metadata);
+    expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.title);
+    expect(result.updateCells.rows[1].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.description);
+    expect(result.updateCells.rows[2].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.publicUrl);
+    expect(result.updateCells.rows[4].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.backstageUrl);
+    expect(result.updateCells.rows[5].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.publicInfo);
+    expect(result.updateCells.rows[6].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.backstageInfo);
+  });
+
+  test('spacing in metadata', () => {
+    const projectData: ProjectData = {
+      title: 'Title',
+      description: 'Description',
+      publicUrl: 'Public Url',
+      backstageUrl: 'Backstage Url',
+      publicInfo: 'Public Info',
+      backstageInfo: 'Backstage Info',
+    };
+    const metadata = {
+      title: { row: 0, col: 1 },
+      description: { row: 1, col: 1 },
+      publicUrl: { row: 2, col: 1 },
+      backstageUrl: { row: 9, col: 1 },
+      publicInfo: { row: 15, col: 1 },
+      backstageInfo: { row: 50, col: 1 },
+    };
+    const result = cellRequenstFromProjectData(projectData, 1234, metadata);
+    expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.title);
+    expect(result.updateCells.rows[1].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.description);
+    expect(result.updateCells.rows[2].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.publicUrl);
+    expect(result.updateCells.rows[9].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.backstageUrl);
+    expect(result.updateCells.rows[15].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.publicInfo);
+    expect(result.updateCells.rows[50].values[0].userEnteredValue.stringValue).toStrictEqual(projectData.backstageInfo);
+  });
+
+  test('sheet setup', () => {
+    const projectData: ProjectData = {
+      title: 'Title',
+      description: 'Description',
+      publicUrl: 'Public Url',
+      backstageUrl: 'Backstage Url',
+      publicInfo: 'Public Info',
+      backstageInfo: 'Backstage Info',
+    };
+    const metadata = {
+      title: { row: 0, col: 10 },
+      description: { row: 1, col: 10 },
+      publicUrl: { row: 2, col: 10 },
+      backstageUrl: { row: 3, col: 10 },
+      publicInfo: { row: 4, col: 10 },
+      backstageInfo: { row: 5, col: 10 },
+    };
+    const result = cellRequenstFromProjectData(projectData, 1234, metadata);
+    expect(result.updateCells.start.rowIndex).toStrictEqual(0);
+    expect(result.updateCells.start.columnIndex).toStrictEqual(11);
+    expect(result.updateCells.fields).toStrictEqual('userEnteredValue');
   });
 });
