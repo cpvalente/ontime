@@ -34,7 +34,7 @@ interface CountdownProps {
   time: TimeManagerType;
   selectedId: string | null;
   viewSettings: ViewSettings;
-  settings: Settings;
+  settings: Settings | undefined;
 }
 
 export default function Countdown(props: CountdownProps) {
@@ -110,7 +110,7 @@ export default function Countdown(props: CountdownProps) {
           isSelected || runningMessage === TimerMessage.waiting,
         );
 
-  const timeOption = getTimeOption(settings.timeFormat);
+  const timeOption = getTimeOption(settings?.timeFormat ?? '24');
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>

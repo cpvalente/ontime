@@ -18,7 +18,7 @@ interface ClockProps {
   isMirrored: boolean;
   time: TimeManagerType;
   viewSettings: ViewSettings;
-  settings: Settings;
+  settings: Settings | undefined;
 }
 
 const formatOptions = {

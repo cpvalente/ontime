@@ -48,7 +48,7 @@ interface TimerProps {
   eventNext: OntimeEvent | null;
   time: TimeManagerType;
   viewSettings: ViewSettings;
-  settings: Settings;
+  settings: Settings | undefined;
 }
 
 export default function Timer(props: TimerProps) {
@@ -129,7 +129,7 @@ export default function Timer(props: TimerProps) {
   const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
-  const timerOptions = getTimerOptions(settings.timeFormat);
+  const timerOptions = getTimerOptions(settings?.timeFormat ?? '24');
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>

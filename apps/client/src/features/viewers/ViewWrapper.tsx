@@ -28,7 +28,7 @@ type WithDataProps = {
   nextId: string | null;
   general: ProjectData;
   viewSettings: ViewSettings;
-  settings: Settings;
+  settings: Settings | undefined;
   onAir: boolean;
 };
 
@@ -85,7 +85,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     };
 
     // prevent render until we get all the data we need
-    if (!viewSettings || !settings) {
+    if (!viewSettings) {
       return null;
     }
 

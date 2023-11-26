@@ -37,7 +37,7 @@ interface BackstageProps {
   selectedId: string | null;
   general: ProjectData;
   viewSettings: ViewSettings;
-  settings: Settings;
+  settings: Settings | undefined;
 }
 
 export default function Backstage(props: BackstageProps) {
@@ -91,7 +91,7 @@ export default function Backstage(props: BackstageProps) {
   }
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
-  const backstageOptions = getBackstageOptions(settings.timeFormat);
+  const backstageOptions = getBackstageOptions(settings?.timeFormat ?? '24');
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>

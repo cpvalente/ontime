@@ -35,7 +35,7 @@ interface BackstageProps {
   publicSelectedId: string | null;
   general: ProjectData;
   viewSettings: ViewSettings;
-  settings: Settings;
+  settings: Settings | undefined;
 }
 
 export default function Public(props: BackstageProps) {
@@ -67,7 +67,7 @@ export default function Public(props: BackstageProps) {
   const clock = formatTime(time.clock, formatOptions);
   const qrSize = Math.max(window.innerWidth / 15, 128);
 
-  const publicOptions = getPublicOptions(settings.timeFormat);
+  const publicOptions = getPublicOptions(settings?.timeFormat ?? '24');
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>

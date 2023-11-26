@@ -32,7 +32,7 @@ interface StudioClockProps {
   nextId: string | null;
   onAir: boolean;
   viewSettings: ViewSettings;
-  settings: Settings;
+  settings: Settings | undefined;
 }
 
 export default function StudioClock(props: StudioClockProps) {
@@ -76,7 +76,7 @@ export default function StudioClock(props: StudioClockProps) {
   const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
 
-  const studioClockOptions = getStudioClockOptions(settings.timeFormat);
+  const studioClockOptions = getStudioClockOptions(settings?.timeFormat ?? '24');
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
