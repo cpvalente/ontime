@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, Playback, Settings, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -10,7 +10,6 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
@@ -49,11 +48,11 @@ interface TimerProps {
   eventNext: OntimeEvent | null;
   time: TimeManagerType;
   viewSettings: ViewSettings;
+  settings: Settings;
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external } = props;
-  const { data: settings } = useSettings();
+  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -130,7 +129,7 @@ export default function Timer(props: TimerProps) {
   const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
-  const timerOptions = getTimerOptions(settings?.timeFormat ?? '24');
+  const timerOptions = getTimerOptions(settings.timeFormat);
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>

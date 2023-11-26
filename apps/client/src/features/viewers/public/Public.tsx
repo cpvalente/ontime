@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, ProjectData, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -12,7 +12,6 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getPublicOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -36,14 +35,24 @@ interface BackstageProps {
   publicSelectedId: string | null;
   general: ProjectData;
   viewSettings: ViewSettings;
+  settings: Settings;
 }
 
 export default function Public(props: BackstageProps) {
-  const { isMirrored, publ, publicEventNow, publicEventNext, time, events, publicSelectedId, general, viewSettings } =
-    props;
+  const {
+    isMirrored,
+    publ,
+    publicEventNow,
+    publicEventNext,
+    time,
+    events,
+    publicSelectedId,
+    general,
+    viewSettings,
+    settings,
+  } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
-  const { data: settings } = useSettings();
 
   useEffect(() => {
     document.title = 'ontime - Public Screen';
@@ -58,7 +67,7 @@ export default function Public(props: BackstageProps) {
   const clock = formatTime(time.clock, formatOptions);
   const qrSize = Math.max(window.innerWidth / 15, 128);
 
-  const publicOptions = getPublicOptions(settings?.timeFormat ?? '24');
+  const publicOptions = getPublicOptions(settings.timeFormat);
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>

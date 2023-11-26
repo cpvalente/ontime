@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent, ViewSettings } from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -8,7 +8,6 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { getTimeOption } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -35,14 +34,14 @@ interface CountdownProps {
   time: TimeManagerType;
   selectedId: string | null;
   viewSettings: ViewSettings;
+  settings: Settings;
 }
 
 export default function Countdown(props: CountdownProps) {
-  const { isMirrored, backstageEvents, time, selectedId, viewSettings } = props;
+  const { isMirrored, backstageEvents, time, selectedId, viewSettings, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
   const { getLocalizedString } = useTranslation();
-  const { data: settings } = useSettings();
 
   const [follow, setFollow] = useState<OntimeEvent | null>(null);
   const [runningTimer, setRunningTimer] = useState(0);
@@ -111,7 +110,7 @@ export default function Countdown(props: CountdownProps) {
           isSelected || runningMessage === TimerMessage.waiting,
         );
 
-  const timeOption = getTimeOption(settings?.timeFormat ?? '24');
+  const timeOption = getTimeOption(settings.timeFormat);
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>

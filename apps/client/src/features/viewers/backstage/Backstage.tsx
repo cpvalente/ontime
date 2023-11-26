@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, ProjectData, SupportedEvent, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -14,7 +14,6 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getBackstageOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -38,14 +37,15 @@ interface BackstageProps {
   selectedId: string | null;
   general: ProjectData;
   viewSettings: ViewSettings;
+  settings: Settings;
 }
 
 export default function Backstage(props: BackstageProps) {
-  const { isMirrored, publ, eventNow, eventNext, time, backstageEvents, selectedId, general, viewSettings } = props;
+  const { isMirrored, publ, eventNow, eventNext, time, backstageEvents, selectedId, general, viewSettings, settings } =
+    props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [blinkClass, setBlinkClass] = useState(false);
-  const { data: settings } = useSettings();
 
   // Set window title
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function Backstage(props: BackstageProps) {
   }
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
-  const backstageOptions = getBackstageOptions(settings?.timeFormat ?? '24');
+  const backstageOptions = getBackstageOptions(settings.timeFormat);
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>

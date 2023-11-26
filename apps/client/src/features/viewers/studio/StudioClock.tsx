@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { OntimeEvent, OntimeRundown, ViewSettings } from 'ontime-types';
+import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
 import { SupportedEvent } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
@@ -10,7 +10,6 @@ import { getStudioClockOptions } from '../../../common/components/view-params-ed
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
@@ -33,15 +32,15 @@ interface StudioClockProps {
   nextId: string | null;
   onAir: boolean;
   viewSettings: ViewSettings;
+  settings: Settings;
 }
 
 export default function StudioClock(props: StudioClockProps) {
-  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
+  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings, settings } = props;
 
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
-  const { data: settings } = useSettings();
 
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
 
@@ -77,7 +76,7 @@ export default function StudioClock(props: StudioClockProps) {
   const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
 
-  const studioClockOptions = getStudioClockOptions(settings?.timeFormat ?? '24');
+  const studioClockOptions = getStudioClockOptions(settings.timeFormat);
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>

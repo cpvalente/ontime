@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ViewSettings } from 'ontime-types';
+import { Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { getClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import useSettings from '../../../common/hooks-query/useSettings';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime } from '../../../common/utils/time';
@@ -19,6 +18,7 @@ interface ClockProps {
   isMirrored: boolean;
   time: TimeManagerType;
   viewSettings: ViewSettings;
+  settings: Settings;
 }
 
 const formatOptions = {
@@ -27,10 +27,9 @@ const formatOptions = {
 };
 
 export default function Clock(props: ClockProps) {
-  const { isMirrored, time, viewSettings } = props;
+  const { isMirrored, time, viewSettings, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
-  const { data: settings } = useSettings();
 
   useEffect(() => {
     document.title = 'ontime - Clock';
