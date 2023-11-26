@@ -80,8 +80,8 @@ export const resolveDbDirectory = join(
 export const resolveDbPath = join(resolveDbDirectory, config.database.filename);
 
 export const pathToStartDb = isTest
-  ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
-  : join(currentDirectory, '/preloaded-db/', config.database.filename);
+  ? join(currentDirectory, '../', config.database.testdb, 'db.json')
+  : join(currentDirectory, '/preloaded-db/', 'db.json');
 
 // path to public styles
 export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
