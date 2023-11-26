@@ -61,9 +61,9 @@ class sheet {
   }
 
   /**
-   * test existance of sheet and workssheet and get is index
+   * test existence of sheet and worksheet
    * @param {string} sheetId - https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
-   * @param {string} worksheet - the name of the worksheet containg ontime data
+   * @param {string} worksheet - the name of the worksheet containing ontime data
    * @returns {Promise<false | {worksheetId: number, range: string}>} - false if not found | true if sheetId existes | id of worksheet and rage of worksheet
    * @throws
    */
@@ -87,6 +87,10 @@ class sheet {
     return false;
   }
 
+  /**
+   * push sheet
+   * @throws
+   */
   public async push() {
     const { auth, id, worksheet } = await this.getSheetState();
     if (!auth && !id && !worksheet) {
@@ -164,14 +168,11 @@ class sheet {
   }
 
   /**
-   * `parse` a given sheet
-   * @param {string} sheetId - https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
-   * @param {string} worksheetName - the name of the worksheet containg ontime data
-   * @param {ExcelImportOptions} options
+   * pull sheet
    * @returns {Promise<Partial<ResponseOK>>}
    * @throws
    */
-  public async pull() {
+  public async pull(): Promise<Partial<ResponseOK>> {
     const { auth, id, worksheet } = await this.getSheetState();
     if (!auth && !id && !worksheet) {
       throw new Error(`Sheet not authorized or incorrect ID or worksheet`);
@@ -201,8 +202,9 @@ class sheet {
   }
 
   /**
-   * saves Object to appdata path as client_secret.json
+   * saves secrets Object to appdata path as client_secret.json
    * @param {Object} secrets
+   * @throws
    */
   public async saveClientSecrets(secrets: Object) {
     sheet.client = null;
@@ -241,8 +243,8 @@ class sheet {
 
   private authServerTimeout;
   /**
-   * create local Auth Server - returns url to serve on success
-   * @returns {Promise<string | false>}
+   * create local Auth Server
+   * @returns {Promise<string | false>} - returns url to serve on success
    * @throws
    */
   public async openAuthServer(): Promise<string | false> {
