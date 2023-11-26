@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import { getAppDataPath } from '../setup.js';
+import { defaultConfig } from '../config/defaultConfig.js';
 
 interface Config {
   database: {
@@ -22,7 +23,18 @@ export class ConfigService {
 
   constructor() {
     this.configPath = this.getConfigPath();
-    this.config = JSON.parse(readFileSync(this.configPath, 'utf8'));
+
+    try {
+      this.config = JSON.parse(readFileSync(this.configPath, 'utf8'));
+    } catch (err) {
+      this.createConfig();
+    }
+  }
+
+  private createConfig(): void {
+    this.config = defaultConfig;
+
+    this.saveConfig();
   }
 
   private getConfigPath(): string {
