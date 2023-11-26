@@ -11,7 +11,7 @@ import { OntimeRundownEntry, isOntimeEvent } from 'ontime-types';
  * @example
  *
  *   getA1Notation(2, 4) returns "E3"
- *   getA1Notation(26, 4) returns "AA3"
+ *   getA1Notation(99, 26) returns "AA100"
  *
  */
 export function getA1Notation(row: number, column: number): string {
@@ -42,20 +42,25 @@ export function cellRequenstFromEvent(
   index: number,
   worksheetId: number,
   metadata,
-  titleCol: number,
 ): sheets_v4.Schema$Request {
   const r: sheets_v4.Schema$CellData[] = [];
   const tmp = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
-    .sort(([_a, a], [_b, b]) => a['col'] - b['col']);
+    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [string, { col: number; row: number }][];
 
-  tmp.forEach(([_, value], index, arr) => {
+  const titleCol = tmp[0][1].col;
+
+  for (const [index, e] of tmp.entries()) {
     if (index != 0) {
-      if (arr[index - 1][1]['col'] + 1 < value['col']) {
-        arr.splice(index, 0, ['blank', { col: arr[index - 1][1]['col'] + 1 }]);
+      const prevCol = tmp[index - 1][1].col;
+      const thisCol = e[1].col;
+      const diff = thisCol - prevCol;
+      if (diff > 1) {
+        const fillArr = new Array<(typeof tmp)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
+        tmp.splice(index, 0, ...fillArr);
       }
     }
-  });
+  }
 
   tmp.forEach(([key, _]) => {
     if (isOntimeEvent(event)) {
@@ -86,7 +91,7 @@ export function cellRequenstFromEvent(
     updateCells: {
       start: {
         sheetId: worksheetId,
-        rowIndex: index + Object.values(metadata)[0]['row'] + 1,
+        rowIndex: index + tmp[0][1]['row'] + 1,
         columnIndex: titleCol,
       },
       fields: 'userEnteredValue',
