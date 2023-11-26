@@ -24,7 +24,7 @@ import xlsx from 'node-xlsx';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { deleteFile, makeString } from './parserUtils.js';
+import { makeString } from './parserUtils.js';
 import {
   parseAliases,
   parseProject,

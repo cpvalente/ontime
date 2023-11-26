@@ -46,7 +46,7 @@ export class ConfigService {
   }
 
   updateDatabaseConfig(directory: string, filename: string): void {
-    if (Boolean(process.env.IS_TEST)) return;
+    if (process.env.IS_TEST) return;
 
     this.config.database.directory = directory;
     this.config.database.filename = filename;
