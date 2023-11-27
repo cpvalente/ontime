@@ -21,6 +21,22 @@ export function coerceBoolean(value: unknown): boolean {
   if (value == null) {
     throw new Error('Invalid value received');
   }
+  if (typeof value === 'string') {
+    value = value.toLocaleLowerCase();
+    switch (value) {
+      case 'true':
+      case '1':
+      case 'yes':
+        return true;
+      case 'false':
+      case '0':
+      case 'no':
+      case '':
+        return false;
+      default:
+        throw new Error('Invalid value received');
+    }
+  }
   return Boolean(value);
 }
 
