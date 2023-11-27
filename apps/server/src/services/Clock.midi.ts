@@ -1,10 +1,11 @@
 import { LogOrigin } from 'ontime-types';
 import { Input } from '@julusian/midi';
 import { ClockInterface } from './Clock.js';
+import { millisToString } from 'ontime-utils';
 
 export class MidiClock implements ClockInterface {
   private readonly midiIn: Input;
-  private readonly midiBuffer = new Array<number>(8).fill(0);
+  private readonly midiBuffer = new Array<number>(8).fill(-1);
   private currentMs: number = 0;
   private fps: number = 0;
   public tcOffset: number = 0;
@@ -16,7 +17,7 @@ export class MidiClock implements ClockInterface {
     this.midiIn.closePort();
     this.midiIn.openPort(0);
     console.log(LogOrigin.Server, `CLOCK: MTC: Source is now ${this.midiIn.getPortName(0)}`);
-    this.midiIn.ignoreTypes(true, false, true);
+    this.midiIn.ignoreTypes(false, false, true);
     this.midiIn.on('message', (deltaTime, message) => {
       if (message[0] === 241) {
         const index = message[1] >> 4;
@@ -27,8 +28,20 @@ export class MidiClock implements ClockInterface {
           const s = this.midiBuffer[3] * 16 + this.midiBuffer[2];
           const f = this.midiBuffer[1] * 16 + this.midiBuffer[0];
           this.fps = [24, 25, 29.97, 30][this.midiBuffer[7] >> 1];
-          this.currentMs = h * 3600000 + m * 60000 + s * 1000 + f / this.fps * 1000;
+        //TODO: pausing and unpausing in reaper causes a jump of almost a minut
+          if (!this.midiBuffer.findIndex((v) => v < 0)) {
+            console.log('missing fileds');
+            return;
+          }
+          const pre = this.currentMs;
+          this.currentMs = h * 3600000 + m * 60000 + s * 1000 + (f / this.fps) * 1000;
+          console.log(this.currentMs - pre, millisToString(this.currentMs));
+          this.midiBuffer.fill(-1);
         }
+      } else if (message[0] === 240) {
+        this.fps = [24, 25, 29.97, 30][message[5] >> 5];
+        this.currentMs =
+          (message[5] & 0x1f) * 3600000 + message[6] * 60000 + message[7] * 1000 + (message[8] / this.fps) * 1000;
       }
     });
   }
