@@ -1,7 +1,8 @@
 import { dayInMs } from 'ontime-utils';
 import { TimerType } from 'ontime-types';
 
-import { getCurrent, getExpectedFinish } from '../timerUtils.js';
+import { getCurrent, getExpectedFinish, skipedOutOfEvent } from '../timerUtils.js';
+import { config } from '../../config/config.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {
@@ -352,5 +353,26 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
     expect(expectedFinish).toBe(13);
     expect(elapsed).toBe(2);
     expect(current).toBe(8);
+  });
+});
+
+describe('skipedOutOfEvent()', () => {
+  it('without added times, they combine to be duration', () => {
+    const startedAt = 1000;
+    const duration = 1000;
+    const pausedTime = 0;
+    const finishedAt = null;
+    const addedTime = 0;
+    const timerType = TimerType.CountDown;
+    const expectedFinish = startedAt + duration;
+    const previousTime = 1000;
+    let clock = previousTime;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock += config.timeSkipLimit + 10;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock = expectedFinish + 1;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(true);
+    clock = startedAt - config.timeSkipLimit - 1;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(true);
   });
 });

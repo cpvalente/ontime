@@ -2,7 +2,6 @@ import { OntimeEvent } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 import { getRollTimers, normaliseEndTime, sortArrayByProperty, updateRoll } from '../rollUtils.js';
-import { config } from '../../config/config.js';
 
 // test sortArrayByProperty()
 describe('sort simple arrays of objects', () => {
@@ -563,7 +562,6 @@ describe('typical scenarios', () => {
       selectedEventId: '1',
       current: 10,
       _finishAt: 15,
-      _startAt: 9,
       clock: 11,
       secondaryTimer: null,
       secondaryTarget: null,
@@ -586,72 +584,11 @@ describe('typical scenarios', () => {
     expect(updateRoll(timers)).toStrictEqual(expected);
   });
 
-  it('dose not skip isFinished under limit', () => {
-    const timers = {
-      selectedEventId: '1',
-      current: 13,
-      _finishAt: 15,
-      _startAt: 9,
-      clock: 14,
-      secondaryTimer: null,
-      secondaryTarget: null,
-    };
-
-    const expected = {
-      updatedTimer: timers._finishAt - timers.clock,
-      updatedSecondaryTimer: null,
-      doRollLoad: false,
-      isFinished: false,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-
-    // test that it can jump time
-    timers._finishAt = 14;
-    timers.clock += config.rollSkipLimit - 1;
-    expected.updatedTimer = timers._finishAt - timers.clock;
-    expected.doRollLoad = true;
-    expected.isFinished = true;
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
-  it('dose skips isFinished over limit', () => {
-    const timers = {
-      selectedEventId: '1',
-      current: 13,
-      _finishAt: 15,
-      _startAt: 9,
-      clock: 14,
-      secondaryTimer: null,
-      secondaryTarget: null,
-    };
-
-    const expected = {
-      updatedTimer: timers._finishAt - timers.clock,
-      updatedSecondaryTimer: null,
-      doRollLoad: false,
-      isFinished: false,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-
-    // test that it can jump time
-    timers._finishAt = 14;
-    timers.clock += config.rollSkipLimit + 1;
-    expected.updatedTimer = timers._finishAt - timers.clock;
-    expected.doRollLoad = true;
-    expected.isFinished = false;
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
   it('it updates secondary timer', () => {
     const timers = {
       selectedEventId: null,
       current: null,
       _finishAt: null,
-      _startAt: null,
       clock: 11,
       secondaryTimer: 1,
       secondaryTarget: 15,
@@ -672,7 +609,6 @@ describe('typical scenarios', () => {
       selectedEventId: '1',
       current: 10,
       _finishAt: 11,
-      _startAt: 9,
       clock: 12,
       secondaryTimer: null,
       secondaryTarget: null,
@@ -693,7 +629,6 @@ describe('typical scenarios', () => {
       selectedEventId: null,
       current: null,
       _finishAt: null,
-      _startAt: null,
       clock: 16,
       secondaryTimer: 1,
       secondaryTarget: 15,
@@ -714,7 +649,6 @@ describe('typical scenarios', () => {
       selectedEventId: null,
       current: null,
       _finishAt: null,
-      _startAt: null,
       clock: 15,
       secondaryTimer: 0,
       secondaryTarget: 15,
@@ -735,7 +669,6 @@ describe('typical scenarios', () => {
       selectedEventId: '1',
       current: 25,
       _finishAt: 10 + dayInMs,
-      _startAt: 10,
       clock: dayInMs - 10,
       secondaryTimer: null,
       secondaryTarget: null,
@@ -756,7 +689,6 @@ describe('typical scenarios', () => {
       selectedEventId: '1',
       current: dayInMs,
       _finishAt: 10 + dayInMs,
-      _startAt: 10,
       clock: 10,
       secondaryTimer: null,
       secondaryTarget: null,
@@ -769,26 +701,6 @@ describe('typical scenarios', () => {
       isFinished: false,
     };
 
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
-  it('rolls backwards', () => {
-    const timers = {
-      selectedEventId: '1',
-      current: 11,
-      _startAt: 10,
-      _finishAt: 15,
-      clock: 9,
-      secondaryTimer: null,
-      secondaryTarget: null,
-    };
-
-    const expected = {
-      updatedTimer: timers._finishAt - timers.clock,
-      updatedSecondaryTimer: null,
-      doRollLoad: true,
-      isFinished: false,
-    };
     expect(updateRoll(timers)).toStrictEqual(expected);
   });
 });

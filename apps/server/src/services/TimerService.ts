@@ -5,7 +5,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { integrationService } from './integration-service/IntegrationService.js';
-import { getCurrent, getExpectedFinish } from './timerUtils.js';
+import { getCurrent, getExpectedFinish, skipedOutOfEvent } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 import type { RestorePoint } from './RestoreService.js';
@@ -339,7 +339,6 @@ export class TimerService {
         this.timer.expectedFinish >= this.timer.startedAt
           ? this.timer.expectedFinish
           : this.timer.expectedFinish + dayInMs,
-      _startAt: this.timer.startedAt,
       clock: this.timer.clock,
       secondaryTimer: this.timer.secondaryTimer,
       secondaryTarget: this.secondaryTarget,
@@ -405,7 +404,11 @@ export class TimerService {
     let shouldNotify = false;
     if (this.playback === Playback.Roll) {
       shouldNotify = true;
-      this.updateRoll();
+      if (skipedOutOfEvent(previousTime, this.timer.clock, this.timer.startedAt, this.timer.finishedAt)) {
+        PlaybackService.roll();
+      } else {
+        this.updateRoll();
+      }
     } else if (this.timer.startedAt !== null) {
       // we only update timer if a timer has been started
       shouldNotify = true;
