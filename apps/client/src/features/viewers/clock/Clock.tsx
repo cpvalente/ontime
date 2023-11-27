@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ViewSettings } from 'ontime-types';
+import { Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
-import { CLOCK_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import { getClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime } from '../../../common/utils/time';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Clock.scss';
 
@@ -17,6 +18,7 @@ interface ClockProps {
   isMirrored: boolean;
   time: TimeManagerType;
   viewSettings: ViewSettings;
+  settings: Settings | undefined;
 }
 
 const formatOptions = {
@@ -25,7 +27,7 @@ const formatOptions = {
 };
 
 export default function Clock(props: ClockProps) {
-  const { isMirrored, time, viewSettings } = props;
+  const { isMirrored, time, viewSettings, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
@@ -123,6 +125,8 @@ export default function Clock(props: ClockProps) {
   const clock = formatTime(time.clock, formatOptions);
   const clean = clock.replace('/:/g', '');
 
+  const clockOptions = getClockOptions(settings?.timeFormat ?? '24');
+
   return (
     <div
       className={`clock-view ${isMirrored ? 'mirror' : ''}`}
@@ -134,8 +138,9 @@ export default function Clock(props: ClockProps) {
       data-testid='clock-view'
     >
       <NavigationMenu />
-      <ViewParamsEditor paramFields={CLOCK_OPTIONS} />
-      <div
+      <ViewParamsEditor paramFields={clockOptions} />
+      <SuperscriptTime
+        time={clock}
         className='clock'
         style={{
           color: userOptions.textColour,
@@ -145,9 +150,7 @@ export default function Clock(props: ClockProps) {
           left: userOptions.left,
           backgroundColor: userOptions.textBackground,
         }}
-      >
-        {clock}
-      </div>
+      />
     </div>
   );
 }

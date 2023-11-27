@@ -79,7 +79,7 @@ export default function ViewSettingsForm() {
     return null;
   }
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
 
   if (isFetching || isFetchingInfo) {
     return <ModalLoader />;
@@ -94,7 +94,7 @@ export default function ViewSettingsForm() {
           <AlertTitle>CSS Override</AlertTitle>
           <AlertDescription>
             Ontime will use the CSS file at its install location. <br />
-            <span className={style.url}>{info.cssOverride}</span>
+            <span className={style.url}>{info?.cssOverride}</span>
             <ModalLink href={cssOverrideDocsUrl}>For more information, see the docs</ModalLink>
           </AlertDescription>
         </div>

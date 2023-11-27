@@ -13,7 +13,7 @@ import { EventItemActions } from '../../RundownEntry';
 interface BlockActionMenuProps {
   enableDelete?: boolean;
   showClone?: boolean;
-  actionHandler: (action: EventItemActions, payload?: unknown) => void;
+  actionHandler: (action: EventItemActions, payload?: any) => void;
   className?: string;
 }
 

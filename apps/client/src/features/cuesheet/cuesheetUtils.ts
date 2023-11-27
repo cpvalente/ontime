@@ -9,7 +9,7 @@ import { millisToString } from 'ontime-utils';
  * @return {string}
  */
 
-export const parseField = (field: keyof OntimeRundown, data: unknown): string => {
+export const parseField = <T extends OntimeEntryCommonKeys>(field: T, data: unknown): string => {
   let val;
   switch (field) {
     case 'timeStart':
@@ -96,6 +96,7 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, userF
 
   rundown.forEach((entry) => {
     const row: string[] = [];
+    // @ts-expect-error -- not sure how to type this
     fieldOrder.forEach((field) => row.push(parseField(field, entry[field])));
     data.push(row);
   });

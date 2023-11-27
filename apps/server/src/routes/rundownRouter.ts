@@ -4,6 +4,7 @@ import {
   rundownApplyDelay,
   rundownDelete,
   rundownGetAll,
+  rundownGetCached,
   rundownPost,
   rundownPut,
   rundownReorder,
@@ -20,6 +21,9 @@ import {
 } from '../controllers/rundownController.validate.js';
 
 export const router = express.Router();
+
+// create route between controller and '/events/cached' endpoint
+router.get('/cached', rundownGetCached);
 
 // create route between controller and '/events/' endpoint
 router.get('/', rundownGetAll);

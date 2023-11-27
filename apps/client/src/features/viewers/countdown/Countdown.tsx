@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent, ViewSettings } from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
-import { TIME_FORMAT_OPTION } from '../../../common/components/view-params-editor/constants';
+import { getTimeOption } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import { fetchTimerData, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
@@ -33,10 +34,11 @@ interface CountdownProps {
   time: TimeManagerType;
   selectedId: string | null;
   viewSettings: ViewSettings;
+  settings: Settings | undefined;
 }
 
 export default function Countdown(props: CountdownProps) {
-  const { isMirrored, backstageEvents, time, selectedId, viewSettings } = props;
+  const { isMirrored, backstageEvents, time, selectedId, viewSettings, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
   const { getLocalizedString } = useTranslation();
@@ -108,34 +110,39 @@ export default function Countdown(props: CountdownProps) {
           isSelected || runningMessage === TimerMessage.waiting,
         );
 
+  const timeOption = getTimeOption(settings?.timeFormat ?? '24');
+
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={[TIME_FORMAT_OPTION]} />
+      <ViewParamsEditor paramFields={[timeOption]} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />
       ) : (
         <div className='countdown-container' data-testid='countdown-event'>
           <div className='clock-container'>
             <div className='label'>{getLocalizedString('common.time_now')}</div>
-            <div className='time'>{clock}</div>
+            <SuperscriptTime time={clock} className='time' />
           </div>
 
-          <div className='status'>{getLocalizedString(`countdown.${runningMessage}`)}</div>
+          {runningMessage !== TimerMessage.unhandled && (
+            <div className='status'>{getLocalizedString(`countdown.${runningMessage}`)}</div>
+          )}
 
-          <span className={`timer ${standby ? 'timer--paused' : ''} ${isRunningFinished ? 'timer--finished' : ''}`}>
-            {formattedTimer}
-          </span>
+          <SuperscriptTime
+            time={formattedTimer}
+            className={`timer ${standby ? 'timer--paused' : ''} ${isRunningFinished ? 'timer--finished' : ''}`}
+          />
           <div className='title'>{follow?.title || 'Untitled Event'}</div>
 
           <div className='timer-group'>
             <div className='aux-timers'>
               <div className='aux-timers__label'>{getLocalizedString('common.start_time')}</div>
-              <span className={`aux-timers__value ${delayedTimerStyles}`}>{startTime}</span>
+              <SuperscriptTime time={startTime} className={`aux-timers__value ${delayedTimerStyles}`} />
             </div>
             <div className='aux-timers'>
               <div className='aux-timers__label'>{getLocalizedString('common.end_time')}</div>
-              <span className={`aux-timers__value ${delayedTimerStyles}`}>{endTime}</span>
+              <SuperscriptTime time={endTime} className={`aux-timers__value ${delayedTimerStyles}`} />
             </div>
           </div>
         </div>

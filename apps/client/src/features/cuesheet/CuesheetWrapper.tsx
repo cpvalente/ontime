@@ -8,6 +8,7 @@ import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
 import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
+import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableHeader from './cuesheet-table-header/CuesheetTableHeader';
 import Cuesheet from './Cuesheet';
 import { makeCuesheetColumns } from './cuesheetCols';
@@ -140,6 +141,7 @@ export default function CuesheetWrapper() {
   return (
     <div className={styles.tableWrapper} data-testid='cuesheet'>
       <CuesheetTableHeader handleExport={handleOpenModal} featureData={featureData} />
+      <CuesheetProgress />
       <Cuesheet data={rundown} columns={columns} handleUpdate={handleUpdate} selectedId={featureData.selectedEventId} />
       <ExportModal isOpen={isModalOpen} onClose={onModalClose} />
     </div>

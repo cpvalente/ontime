@@ -1,3 +1,7 @@
+import { GetRundownCached } from 'ontime-types';
+
+import { Request, Response, RequestHandler } from 'express';
+
 import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,
@@ -9,14 +13,20 @@ import {
   reorderEvent,
   swapEvents,
 } from '../services/rundown-service/RundownService.js';
-import { getDelayedRundown } from '../services/rundown-service/delayedRundown.utils.js';
-import { RequestHandler } from 'express';
+import { getDelayedRundown, getRundownCache } from '../services/rundown-service/delayedRundown.utils.js';
 
 // Create controller for GET request to '/events'
 // Returns -
 export const rundownGetAll: RequestHandler = async (_req, res) => {
   const delayedRundown = getDelayedRundown();
   res.json(delayedRundown);
+};
+
+// Create controller for GET request to '/events/cached'
+// Returns -
+export const rundownGetCached: RequestHandler = async (_req: Request, res: Response<GetRundownCached>) => {
+  const cachedRundown = getRundownCache();
+  res.json(cachedRundown);
 };
 
 // Create controller for POST request to '/events/'

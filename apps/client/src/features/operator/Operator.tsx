@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { isOntimeEvent, OntimeEvent, SupportedEvent, UserFields } from 'ontime-types';
 import { getFirstEvent, getLastEvent } from 'ontime-utils';
@@ -11,9 +11,12 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useOperator } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
+import useSettings from '../../common/hooks-query/useSettings';
 import useUserFields from '../../common/hooks-query/useUserFields';
+import { debounce } from '../../common/utils/debounce';
 import { isStringBoolean } from '../../common/utils/viewUtils';
 
+import EditModal from './edit-modal/EditModal';
 import FollowButton from './follow-button/FollowButton';
 import OperatorBlock from './operator-block/OperatorBlock';
 import OperatorEvent from './operator-event/OperatorEvent';
@@ -24,15 +27,25 @@ import style from './Operator.module.scss';
 const selectedOffset = 50;
 
 type TitleFields = Pick<OntimeEvent, 'title' | 'subtitle' | 'presenter'>;
+export type EditEvent = Pick<OntimeEvent, 'id' | 'cue'> & { fieldLabel?: string; fieldValue: string };
+export type PartialEdit = EditEvent & {
+  field: keyof UserFields;
+};
+
 export default function Operator() {
   const { data, status } = useRundown();
   const { data: userFields, status: userFieldsStatus } = useUserFields();
   const { data: projectData, status: projectDataStatus } = useProjectData();
 
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+
   const featureData = useOperator();
   const [searchParams] = useSearchParams();
+  const { data: settings } = useSettings();
 
-  const isAutomatedScroll = useRef(false);
+  const [showEditPrompt, setShowEditPrompt] = useState(false);
+  const [editEvent, setEditEvent] = useState<PartialEdit | null>(null);
+
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
   const selectedRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -41,7 +54,6 @@ export default function Operator() {
     scrollRef: scrollRef,
     doFollow: !lockAutoScroll,
     topOffset: selectedOffset,
-    setScrollFlag: () => (isAutomatedScroll.current = true),
   });
 
   // Set window title
@@ -65,13 +77,8 @@ export default function Operator() {
     setLockAutoScroll(false);
   };
 
-  const handleScroll = () => {
-    // prevent considering automated scrolls as user scrolls
-    if (isAutomatedScroll.current) {
-      isAutomatedScroll.current = false;
-      return;
-    }
-
+  // prevent considering automated scrolls as user scrolls
+  const handleUserScroll = () => {
     if (selectedRef?.current && scrollRef?.current) {
       const selectedRect = selectedRef.current.getBoundingClientRect();
       const scrollerRect = scrollRef.current.getBoundingClientRect();
@@ -82,9 +89,34 @@ export default function Operator() {
       }
     }
   };
+  const debouncedHandleScroll = debounce(handleUserScroll, 1000);
+
+  const handleScroll = () => {
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
+    }
+    timeoutId.current = setTimeout(() => {
+      setShowEditPrompt(false);
+    }, 700);
+
+    setShowEditPrompt(true);
+
+    debouncedHandleScroll();
+  };
+
+  const handleEdit = useCallback(
+    (event: EditEvent) => {
+      const field = searchParams.get('subscribe') as keyof UserFields | null;
+
+      if (field) {
+        setEditEvent({ ...event, field });
+      }
+    },
+    [searchParams],
+  );
 
   const missingData = !data || !userFields || !projectData;
-  const isLoading = status === 'loading' || userFieldsStatus === 'loading' || projectDataStatus === 'loading';
+  const isLoading = status === 'pending' || userFieldsStatus === 'pending' || projectDataStatus === 'pending';
 
   if (missingData || isLoading) {
     return <Empty text='Loading...' />;
@@ -97,7 +129,7 @@ export default function Operator() {
   const subscribedAlias = subscribe ? userFields[subscribe] : '';
   const showSeconds = isStringBoolean(searchParams.get('showseconds'));
 
-  const operatorOptions = getOperatorOptions(userFields);
+  const operatorOptions = getOperatorOptions(userFields, settings?.timeFormat ?? '24');
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 
@@ -108,6 +140,7 @@ export default function Operator() {
     <div className={style.operatorContainer}>
       <NavigationMenu />
       <ViewParamsEditor paramFields={operatorOptions} />
+      {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
       <StatusBar
         projectTitle={projectData.title}
@@ -119,7 +152,13 @@ export default function Operator() {
         lastId={lastEvent?.id}
       />
 
-      <div className={style.operatorEvents} onScroll={handleScroll} ref={scrollRef}>
+      {subscribe && (
+        <div className={`${style.editPrompt} ${showEditPrompt ? style.show : undefined}`}>
+          Press and hold to edit user field
+        </div>
+      )}
+
+      <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
         {data.map((entry) => {
           if (isOntimeEvent(entry)) {
             const isSelected = featureData.selectedEventId === entry.id;
@@ -139,6 +178,7 @@ export default function Operator() {
             return (
               <OperatorEvent
                 key={entry.id}
+                id={entry.id}
                 colour={entry.colour}
                 cue={entry.cue}
                 main={mainField}
@@ -153,6 +193,7 @@ export default function Operator() {
                 showSeconds={showSeconds}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
+                onLongPress={subscribe ? handleEdit : () => undefined}
               />
             );
           }

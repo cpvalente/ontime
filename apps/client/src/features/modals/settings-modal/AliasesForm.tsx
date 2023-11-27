@@ -48,7 +48,7 @@ export default function AliasesForm() {
 
   useEffect(() => {
     if (data) {
-      reset(data);
+      reset({ aliases: data });
     }
   }, [data, reset]);
 
@@ -78,7 +78,7 @@ export default function AliasesForm() {
     });
   };
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
   const hasTooManyOptions = fields.length >= 20;
 
   if (isFetching) {
@@ -112,6 +112,7 @@ export default function AliasesForm() {
                 icon={<IoRemove />}
                 colorScheme='red'
                 isDisabled={disableInputs}
+                data-testid={`field__delete_${index}`}
               />
               <Input
                 {...inputProps}
@@ -121,6 +122,7 @@ export default function AliasesForm() {
                 variant='ontime-filled-on-light'
                 placeholder='URL Alias'
                 isDisabled={disableInputs}
+                data-testid={`field__alias_${index}`}
               />
               <Input
                 {...inputProps}
@@ -130,6 +132,7 @@ export default function AliasesForm() {
                 variant='ontime-filled-on-light'
                 placeholder='URL (portion after ontime Port)'
                 isDisabled={disableInputs}
+                data-testid={`field__url_${index}`}
               />
               <TooltipActionBtn
                 clickHandler={(event) => handleLinks(event, alias.alias)}
@@ -140,8 +143,14 @@ export default function AliasesForm() {
                 icon={<IoOpenOutline />}
                 colorScheme='red'
                 isDisabled={disableInputs}
+                data-testid={`field__test_${index}`}
               />
-              <Switch {...register(`aliases.${index}.enabled`)} variant='ontime-on-light' isDisabled={disableInputs} />
+              <Switch
+                {...register(`aliases.${index}.enabled`)}
+                variant='ontime-on-light'
+                isDisabled={disableInputs}
+                data-testid={`field__enable_${index}`}
+              />
             </li>
           );
         })}
