@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-nocheck -- working on it
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FormControl, Input, Switch } from '@chakra-ui/react';
@@ -59,7 +57,6 @@ export default function OscSettings() {
   };
 
   const resetForm = () => {
-    // @ts-expect-error -- we know the types dont match
     reset(data);
   };
 
