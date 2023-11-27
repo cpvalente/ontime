@@ -20,8 +20,8 @@ type ResponseOK = {
 class sheet {
   private static client: null | OAuth2Client = null;
   private readonly scope = 'https://www.googleapis.com/auth/spreadsheets';
-  private readonly sheetsFolder = getAppDataPath() + '/sheets';
-  private readonly client_secret = this.sheetsFolder + '/client_secret.json';
+  private readonly sheetsFolder = `${getAppDataPath()}/sheets`;
+  private readonly client_secret = `${this.sheetsFolder}/client_secret.json`;
   private static authUrl: null | string = null;
   private worksheetId: number = 0;
   private sheetId: string = '';
@@ -79,7 +79,7 @@ class sheet {
       const w = spreadsheets.data.sheets.find((p) => p.properties.title == worksheet);
       if (w !== undefined) {
         const endCell = getA1Notation(w.properties.gridProperties.rowCount, w.properties.gridProperties.columnCount);
-        return { worksheetId: w.properties.sheetId, range: worksheet + '!A1:' + endCell };
+        return { worksheetId: w.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
       } else {
         return true;
       }
