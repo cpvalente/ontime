@@ -1,5 +1,5 @@
 /**
- * @description Converts a value to a number if possible, throws otherwise
+ * @description Converts a value to a string if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a string.
  * @returns {string} - The converted value as a string.
  * @throws {Error} Throws an error if the value is null or undefined.
@@ -12,7 +12,7 @@ export function coerceString(value: unknown): string {
 }
 
 /**
- * @description Converts a value to a number if possible, throws otherwise
+ * @description Converts a value to a boolean if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a boolean.
  * @returns {boolean} - The converted value as a boolean.
  * @throws {Error} Throws an error if the value is null or undefined.
