@@ -56,3 +56,19 @@ export function coerceNumber(value: unknown): number {
   }
   return parsedValue;
 }
+
+/**
+ * @description Converts a value to a colour if possible, throws otherwise
+ * @param {unknown} value - Value to be converted to a colour.
+ * @returns {string} - The converted value as a string.
+ * @throws {Error} Throws an error if the value is null or undefined.
+ */
+export function coerceColour(value: unknown): string {
+  if (value == null) {
+    throw new Error('Invalid value received');
+  }
+  if (typeof value === 'string') {
+    value = value.toLocaleLowerCase(); //Red will not work but red will
+  }
+  return String(value);
+}

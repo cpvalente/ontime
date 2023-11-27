@@ -1,7 +1,7 @@
 import { LogOrigin, OntimeEvent } from 'ontime-types';
 import { EventLoader } from '../classes/event-loader/EventLoader.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
-import { coerceString, coerceNumber, coerceBoolean } from '../utils/coerceType.js';
+import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
 import { logger } from '../classes/Logger.js';
 
 const whitelistedPayload = {
@@ -16,7 +16,7 @@ const whitelistedPayload = {
   isPublic: coerceBoolean,
   skip: coerceBoolean,
 
-  colour: coerceString,
+  colour: coerceColour,
   user0: coerceString,
   user1: coerceString,
   user2: coerceString,
