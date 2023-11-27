@@ -272,6 +272,7 @@ export function dispatchFromAdapter(
     // WS: {type: 'change', payload: { eventId, property, value } }
     case 'change': {
       const { eventId, property, value } = payload as ChangeOptions;
+      //TODO: cue can't pass this check
       if (!isKeyOfType(property, event)) {
         throw new Error(`Cannot update unknown event property ${property}`);
       }
