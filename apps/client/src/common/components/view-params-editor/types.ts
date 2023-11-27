@@ -9,8 +9,8 @@ type OptionsField = {
   values: Record<string, string>;
   defaultValue?: string;
 };
-type StringField = { type: 'string'; defaultValue: string; prefix?: string };
-type NumberField = { type: 'number'; defaultValue: number; prefix?: string };
+type StringField = { type: 'string'; defaultValue?: string; prefix?: string; placeholder?: string };
+type NumberField = { type: 'number'; defaultValue?: number; prefix?: string; placeholder?: string };
 type BooleanField = { type: 'boolean'; defaultValue: boolean };
 
 export type ParamField = BaseField & (StringField | BooleanField | NumberField | OptionsField);
