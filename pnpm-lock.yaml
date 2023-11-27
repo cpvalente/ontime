@@ -79,10 +79,10 @@ importers:
         version: 7.46.0
       '@tanstack/react-query':
         specifier: ^4.28.0
-        version: 4.28.0(react-dom@18.2.0)(react@18.2.0)
+        version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/react-query-devtools':
         specifier: ^4.29.0
-        version: 4.29.0(@tanstack/react-query@4.28.0)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.36.1(@tanstack/react-query@4.36.1)(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/react-table':
         specifier: ^8.9.2
         version: 8.9.2(react-dom@18.2.0)(react@18.2.0)
@@ -140,7 +140,7 @@ importers:
         version: 0.4.0
       '@tanstack/eslint-plugin-query':
         specifier: ^4.26.2
-        version: 4.26.2
+        version: 4.36.1(eslint@8.53.0)
       '@testing-library/jest-dom':
         specifier: ^5.16.5
         version: 5.16.5
@@ -248,44 +248,10 @@ importers:
         version: 3.0.3
 
   apps/server:
-    specifiers:
-      '@julusian/midi': ^3.1.0
-      '@types/express': ^4.17.17
-      '@types/node': ^16.11.7
-      '@types/node-osc': ^6.0.0
-      '@types/websocket': ^1.0.5
-      '@typescript-eslint/eslint-plugin': ^5.48.1
-      '@typescript-eslint/parser': ^5.48.1
-      body-parser: ^1.20.0
-      cors: ^2.8.5
-      dotenv: ^16.0.1
-      easymidi: ^3.1.0
-      esbuild: ^0.17.5
-      eslint: ^8.31.0
-      eslint-plugin-prettier: ^4.2.1
-      express: ^4.18.2
-      express-session: ^1.17.3
-      express-static-gzip: ^2.1.7
-      express-validator: ^6.14.2
-      lowdb: ^5.0.5
-      multer: ^1.4.5-lts.1
-      node-osc: ^8.0.10
-      node-xlsx: ^0.21.0
-      nodemon: ^2.0.20
-      ntp-time-sync: ^0.3.1
-      ontime-types: workspace:*
-      ontime-utils: workspace:*
-      passport: ^0.6.0
-      passport-local: ~1.0.0
-      prettier: ^2.8.3
-      shx: ^0.3.4
-      steno: ^3.1.0
-      ts-node: ^10.9.1
-      typescript: ^4.9.4
-      vitest: ^0.30.1
-      ws: ^8.13.0
     dependencies:
-      '@julusian/midi': 3.1.0
+      '@julusian/midi':
+        specifier: ^3.1.0
+        version: 3.1.0
       body-parser:
         specifier: ^1.20.0
         version: 1.20.1
@@ -295,7 +261,6 @@ importers:
       dotenv:
         specifier: ^16.0.1
         version: 16.0.3
-      easymidi: 3.1.0
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -320,7 +285,9 @@ importers:
       node-xlsx:
         specifier: ^0.23.0
         version: 0.23.0
-      ntp-time-sync: 0.3.1
+      ntp-time-sync:
+        specifier: ^0.3.1
+        version: 0.3.1
       ontime-utils:
         specifier: workspace:*
         version: link:../../packages/utils
@@ -363,7 +330,7 @@ importers:
         version: 8.53.0
       eslint-plugin-prettier:
         specifier: ^5.0.1
-        version: 5.0.1(eslint-config-prettier@9.0.0)(eslint@8.53.0)(prettier@3.0.3)
+        version: 5.0.1(eslint@8.53.0)(prettier@3.0.3)
       nodemon:
         specifier: ^2.0.20
         version: 2.0.20
@@ -2355,7 +2322,7 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@julusian/midi/3.1.0:
+  /@julusian/midi@3.1.0:
     resolution: {integrity: sha512-sf+SzZXc6r37GJLKPQ2cXlPmWcsD0clyi1GkRVoTsTXwlA3Lc87TBR+9w0+fq6EhSdkTHOdIiUNxyB2AcrXcog==}
     engines: {node: '>=14.15'}
     requiresBuild: true
@@ -2752,38 +2719,42 @@ packages:
       defer-to-connect: 2.0.1
     dev: true
 
-  /@tanstack/eslint-plugin-query@4.26.2:
-    resolution: {integrity: sha512-ugAvl6Is+bUMLt9BlAnXK6Wi7UnGV+4RwJ2W1ToFoucPvUb2Uf+ADU38JkHaNsI/TFgE3+kePhKh0zzDBhkw0Q==}
+  /@tanstack/eslint-plugin-query@4.36.1(eslint@8.53.0):
+    resolution: {integrity: sha512-qFIYV/BuwWzg0t5mSRMcb+rzrOVtCO9EizYxeClFxuFq/c54cNhAQCnDrA3iCxFz/fqRv7I9rxxnR/ZWkX15cQ==}
+    peerDependencies:
+      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+    dependencies:
+      eslint: 8.53.0
     dev: true
 
-  /@tanstack/match-sorter-utils@8.7.6:
-    resolution: {integrity: sha512-2AMpRiA6QivHOUiBpQAVxjiHAA68Ei23ZUMNaRJrN6omWiSFLoYrxGcT6BXtuzp0Jw4h6HZCmGGIM/gbwebO2A==}
+  /@tanstack/match-sorter-utils@8.8.4:
+    resolution: {integrity: sha512-rKH8LjZiszWEvmi01NR72QWZ8m4xmXre0OOwlRGnjU01Eqz/QnN+cqpty2PJ0efHblq09+KilvyR7lsbzmXVEw==}
     engines: {node: '>=12'}
     dependencies:
       remove-accents: 0.4.2
     dev: false
 
-  /@tanstack/query-core@4.27.0:
-    resolution: {integrity: sha512-sm+QncWaPmM73IPwFlmWSKPqjdTXZeFf/7aEmWh00z7yl2FjqophPt0dE1EHW9P1giMC5rMviv7OUbSDmWzXXA==}
+  /@tanstack/query-core@4.36.1:
+    resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
     dev: false
 
-  /@tanstack/react-query-devtools@4.29.0(@tanstack/react-query@4.28.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-bzotqin4Wa/GlPgJ2dI7eggQcbMDLIOwEClHGrkyie76DbT8vEEmEV9Kbh6kriKVSqCLpa9ZrgG/f8/Bx1zIwA==}
+  /@tanstack/react-query-devtools@4.36.1(@tanstack/react-query@4.36.1)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-WYku83CKP3OevnYSG8Y/QO9g0rT75v1om5IvcWUwiUZJ4LanYGLVCZ8TdFG5jfsq4Ej/lu2wwDAULEUnRIMBSw==}
     peerDependencies:
-      '@tanstack/react-query': 4.28.0
+      '@tanstack/react-query': ^4.36.1
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@tanstack/match-sorter-utils': 8.7.6
-      '@tanstack/react-query': 4.28.0(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/match-sorter-utils': 8.8.4
+      '@tanstack/react-query': 4.36.1(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      superjson: 1.12.1
+      superjson: 1.13.3
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-query@4.28.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-8cGBV5300RHlvYdS4ea+G1JcZIt5CIuprXYFnsWggkmGoC0b5JaqG0fIX3qwDL9PTNkKvG76NGThIWbpXivMrQ==}
+  /@tanstack/react-query@4.36.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-y7ySVHFyyQblPl3J3eQBWpXZkliroki3ARnBKsdJchlgt7yJLRDUcf4B8soufgiYt3pEQIkBWBx1N9/ZPIeUWw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -2794,7 +2765,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@tanstack/query-core': 4.27.0
+      '@tanstack/query-core': 4.36.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
@@ -3593,7 +3564,6 @@ packages:
   /ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
-    dev: true
 
   /ansi-regex@6.0.1:
     resolution: {integrity: sha512-n5M855fKb2SsfMIiFFoVrABHJC8QtHwVx+mHWP3QcEqBHYienj5dHSgjbxtC0WEZXYt4wcD6zrQElDPhFuZgfA==}
@@ -4289,11 +4259,11 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /copy-anything@3.0.3:
-    resolution: {integrity: sha512-fpW2W/BqEzqPp29QS+MwwfisHCQZtiduTe/m8idFo0xbti9fIZ2WVhAsCv4ggFVH3AgCkVdpoOCtQC6gBrdhjw==}
+  /copy-anything@3.0.5:
+    resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}
     engines: {node: '>=12.13'}
     dependencies:
-      is-what: 4.1.8
+      is-what: 4.1.16
     dev: false
 
   /copy-to-clipboard@3.3.3:
@@ -4674,13 +4644,6 @@ packages:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
     dev: true
 
-  /easymidi/3.1.0:
-    resolution: {integrity: sha512-bxEwfPysM1L+SO/qwHaYu9dvTxw2QHFjGV9EMzqGQJbhEP2MupKpg6eJMkj+uoXN0Ep1JhVPLbNLPmt3UkZRTw==}
-    engines: {node: '>=14.15'}
-    dependencies:
-      '@julusian/midi': 3.1.0
-    dev: false
-
   /ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
@@ -4763,7 +4726,6 @@ packages:
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
-    dev: true
 
   /emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
@@ -5000,6 +4962,26 @@ packages:
     dependencies:
       eslint: 8.53.0
       eslint-config-prettier: 9.0.0(eslint@8.53.0)
+      prettier: 3.0.3
+      prettier-linter-helpers: 1.0.0
+      synckit: 0.8.5
+    dev: true
+
+  /eslint-plugin-prettier@5.0.1(eslint@8.53.0)(prettier@3.0.3):
+    resolution: {integrity: sha512-m3u5RnR56asrwV/lDC4GHorlW75DsFfmUcjfCYylTUs85dBRnB7VM6xG8eCMJdeDRnppzmxZVf1GEPJvl1JmNg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    peerDependencies:
+      '@types/eslint': '>=8.0.0'
+      eslint: '>=8.0.0'
+      eslint-config-prettier: '*'
+      prettier: '>=3.0.0'
+    peerDependenciesMeta:
+      '@types/eslint':
+        optional: true
+      eslint-config-prettier:
+        optional: true
+    dependencies:
+      eslint: 8.53.0
       prettier: 3.0.3
       prettier-linter-helpers: 1.0.0
       synckit: 0.8.5
@@ -6060,7 +6042,6 @@ packages:
   /is-fullwidth-code-point@3.0.0:
     resolution: {integrity: sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==}
     engines: {node: '>=8'}
-    dev: true
 
   /is-fullwidth-code-point@4.0.0:
     resolution: {integrity: sha512-O4L094N2/dZ7xqVdrXhh9r1KODPJpFms8B5sGdJLPy664AgvXsreZUyCQQNItZRDlYug4xStLjNp/sz3HvBowQ==}
@@ -6182,8 +6163,8 @@ packages:
       get-intrinsic: 1.1.3
     dev: true
 
-  /is-what@4.1.8:
-    resolution: {integrity: sha512-yq8gMao5upkPoGEU9LsB2P+K3Kt8Q3fQFCGyNCWOAnJAMzEXVV9drYb0TXr42TTliLLhKIBvulgAXgtLLnwzGA==}
+  /is-what@4.1.16:
+    resolution: {integrity: sha512-ZhMwEosbFJkA0YhFnNDgTM4ZxDRsS6HqTo7qsZM08fehyRYIYa0yHu5R6mgo1n/8MgaPBXiPimPD77baVFYg+A==}
     engines: {node: '>=12.13'}
     dev: false
 
@@ -6785,7 +6766,7 @@ packages:
     dev: true
     optional: true
 
-  /node-addon-api/5.1.0:
+  /node-addon-api@5.1.0:
     resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
     dev: false
 
@@ -6868,12 +6849,12 @@ packages:
       path-key: 4.0.0
     dev: true
 
-  /ntp-packet-parser/0.3.1:
+  /ntp-packet-parser@0.3.1:
     resolution: {integrity: sha512-bzg5oAy4zNrsyFkGPBNCG2EY63mTFOVdndWpakePs37oSZgaKe+l9HuVGn9oR4IfYcp0d9vYXVPDY36rW8CwTQ==}
     engines: {node: ^14 || ^16 || ^18}
     dev: false
 
-  /ntp-time-sync/0.3.1:
+  /ntp-time-sync@0.3.1:
     resolution: {integrity: sha512-j0UBn82TPv7zBmhGdFXX15Gu1YO6Fehf3B+2UHSjhltrGjlvWjmQ4W9bKqGCAkLF+B9tn2014mxc9NaCop+WcQ==}
     engines: {node: ^14 || ^16 || ^18}
     dependencies:
@@ -7156,7 +7137,7 @@ packages:
     hasBin: true
     dev: true
 
-  /pkg-prebuilds/0.2.1:
+  /pkg-prebuilds@0.2.1:
     resolution: {integrity: sha512-FdOlDiRqRL7i9aYzQflhGWCoiJf/8u6Qgzq48gKsRDYejtfjvGb1U5QGSzllcqpNg2a8Swx/9fMgtuVefwU+zw==}
     engines: {node: '>= 14.15.0'}
     hasBin: true
@@ -7974,7 +7955,6 @@ packages:
       emoji-regex: 8.0.0
       is-fullwidth-code-point: 3.0.0
       strip-ansi: 6.0.1
-    dev: true
 
   /string-width@5.1.2:
     resolution: {integrity: sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA==}
@@ -8025,7 +8005,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       ansi-regex: 5.0.1
-    dev: true
 
   /strip-ansi@7.1.0:
     resolution: {integrity: sha512-iq6eVVI64nQQTRYq2KtEg2d2uU7LElhTJwsH4YzIHZshxlgZms/wIc4VoDQTlG/IvVIrBKG06CrZnp0qv7hkcQ==}
@@ -8075,11 +8054,11 @@ packages:
       - supports-color
     dev: true
 
-  /superjson@1.12.1:
-    resolution: {integrity: sha512-HMTj43zvwW5bD+JCZCvFf4DkZQCmiLTen4C+W1Xogj0SPOpnhxsriogM04QmBVGH5b3kcIIOr6FqQ/aoIDx7TQ==}
+  /superjson@1.13.3:
+    resolution: {integrity: sha512-mJiVjfd2vokfDxsQPOwJ/PtanO87LhpYY88ubI5dUB1Ab58Txbyje3+jpm+/83R/fevaq/107NNhtYBLuoTrFg==}
     engines: {node: '>=10'}
     dependencies:
-      copy-anything: 3.0.3
+      copy-anything: 3.0.5
     dev: false
 
   /supports-color@5.5.0:
@@ -9034,7 +9013,6 @@ packages:
       ansi-styles: 4.3.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
-    dev: true
 
   /wrap-ansi@8.1.0:
     resolution: {integrity: sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ==}
