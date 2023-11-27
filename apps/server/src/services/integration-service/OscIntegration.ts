@@ -26,7 +26,15 @@ export class OscIntegration implements IIntegration {
    * Initializes oscClient
    */
   init(config: OSCSettings) {
-    const { targetIP, portOut, subscriptions } = config;
+    const { targetIP, portOut, subscriptions, enabledOut } = config;
+
+    if (!enabledOut) {
+      this.oscClient?.close();
+      return {
+        success: false,
+        message: 'OSC output disabled',
+      };
+    }
 
     this.initSubscriptions(subscriptions);
 
