@@ -202,11 +202,11 @@ class sheet {
   }
 
   /**
-   * saves secrets Object to appdata path as client_secret.json
-   * @param {Object} secrets
+   * saves secrets object to appdata path as client_secret.json
+   * @param {object} secrets
    * @throws
    */
-  public async saveClientSecrets(secrets: Object) {
+  public async saveClientSecrets(secrets: object) {
     sheet.client = null;
     sheet.authUrl = null;
     ensureDirectory(this.sheetsFolder);
