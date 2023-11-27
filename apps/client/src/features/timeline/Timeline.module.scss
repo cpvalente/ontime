@@ -1,16 +1,28 @@
 .timelineContainer {
   grid-area: timeline;
   width: 100%;
-  padding: 0.25rem;
   background-color: black;
-  color: black;
+  height: 40px;
+}
+
+.clockCursor {
+  position: absolute;
+  width: 1px;
+  height: 40px;
+  background-color: green;
+
+  left: 0%;
+  transition: 1s ease;
+  z-index: 2;
 }
 
 .timeline {
   background-color: rgba(white, 0.1);
 }
 
+
 .timelineEvent {
+  position: absolute;
   height: 1rem;
   font-size: calc(1rem - 2px);
   display: inline-block;
@@ -21,6 +33,26 @@
   padding-left: 0.25rem;
 
   &.isPlaying {
-      background-color: red;
+    background-color: red;
   }
+}
+
+.timelineBlock {
+  position: relative;
+  height: 1rem;
+  display: inline-block;
+  width: 3px;
+  background-color: rgba(white, 0.8);
+}
+
+.timelineDelay {
+  position: relative;
+  height: 1rem;
+  font-size: calc(1rem - 2px);
+  display: inline-block;
+  width: 0px;
+  background-color: orange;
+  border-left: 1px solid black;
+  border-radius: 2px;
+  padding-left: 0.25rem;
 }

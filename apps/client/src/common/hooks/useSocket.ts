@@ -120,3 +120,19 @@ export const useTimer = () => {
 };
 
 export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
+
+export const useTimeline = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    selectedEventId: state.loaded.selectedEventId,
+  });
+
+  return useRuntimeStore(featureSelector, deepCompare);
+};
+
+export const useTimelineCursors = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    clock: state.timer.clock,
+  });
+
+  return useRuntimeStore(featureSelector, deepCompare);
+};

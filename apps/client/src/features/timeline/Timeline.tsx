@@ -1,14 +1,39 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { isOntimeEvent ,OntimeEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import useRundown from '../../common/hooks-query/useRundown';
 
 import style from './Timeline.module.scss';
 
+interface TimelineData {
+  currentId: string | null;
+  firstStart: number;
+  lastEnd: number;
+  clock: number;
+}
+
+interface TimelineElementData {
+  id: string;
+  cue: number;
+  colour: string;
+  startTime: number;
+  endTime: number;
+  addedTime: number;
+}
+
+interface TimelineElementHoverData {
+  id: string;
+  cue: number;
+  title: number;
+  startTime: number;
+  endTime: number;
+  addedTime: number;
+}
+
 export default function Timeline() {
-  const { data } = useRundown();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(window.innerWidth);
+  const { data } = useRundown();
 
   useLayoutEffect(() => {
     setContainerWidth(elementRef.current?.getBoundingClientRect().width);
@@ -28,17 +53,14 @@ export default function Timeline() {
     return <>Loading</>;
   }
 
-  const events: OntimeEvent[] = data.filter((event) => isOntimeEvent(event));
-
-  console.log(events);
-  const totalDuration: number = events.reduce((total, event) => total + event.duration, 0);
+  const totalDuration: number = data.reduce((total, event) => total + event?.duration ?? 0, 0);
 
   console.log(totalDuration);
 
   return (
     <div className={style.timelineContainer}>
       <div className={style.timeline} ref={elementRef}>
-        {events.map((event) => {
+        {data.map((event) => {
           const relativeSize = (event.duration * containerWidth ?? 0) / totalDuration;
           console.log({ relativeSize, duration: event.duration, containerWidth, totalDuration });
           return (
