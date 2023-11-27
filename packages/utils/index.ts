@@ -17,7 +17,7 @@ export { isTimeString } from './src/date-utils/isTimeString.js';
 export { millisToString } from './src/date-utils/millisToString.js';
 
 // time utils
-export { dayInMs, mts } from './src/timeConstants.js';
+export { dayInMs, mth, mtm, mts } from './src/timeConstants.js';
 
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';

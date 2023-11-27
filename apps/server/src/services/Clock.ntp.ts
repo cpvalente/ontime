@@ -2,6 +2,7 @@ import { LogOrigin } from 'ontime-types';
 import { logger } from '../classes/Logger.js';
 import { ClockInterface } from './Clock.js';
 import { NtpTimeSync } from 'ntp-time-sync';
+import { dayInMs } from 'ontime-utils';
 
 export class NtpClock implements ClockInterface {
   private ntpOffset = 0;
@@ -29,7 +30,7 @@ export class NtpClock implements ClockInterface {
         this.ntpOffset = result.offset;
       })
       .catch((error) => {
-        console.log(LogOrigin.Server, `NTP CLock: ${error}`);
+        logger.info(LogOrigin.Server, `NTP CLock: ${error}`);
       });
 
     const diff = Math.abs(this.ntpOffset - this.activeOffset);
@@ -71,7 +72,7 @@ export class NtpClock implements ClockInterface {
     elapsed += now.getSeconds() * 1000;
     elapsed += now.getMilliseconds();
     elapsed += this.tcOffset;
-    elapsed = elapsed % 86400000;
+    elapsed = elapsed % dayInMs;
     return elapsed;
   }
 }

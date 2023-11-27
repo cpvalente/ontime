@@ -2,7 +2,7 @@ import { LogOrigin } from 'ontime-types';
 import { Input } from '@julusian/midi';
 import { ClockInterface } from './Clock.js';
 import { logger } from '../classes/Logger.js';
-import { dayInMs } from 'ontime-utils';
+import { dayInMs, mth, mtm, mts } from 'ontime-utils';
 
 export class MidiClock implements ClockInterface {
   private readonly midiIn: Input;
@@ -31,7 +31,7 @@ export class MidiClock implements ClockInterface {
             // if we dont have all fileds we cant calculate the time
             return;
           }
-          this.currentMs = h * 3600000 + m * 60000 + s * 1000 + (f / this.fps) * 1000;
+          this.currentMs = h * mth + m * mtm + s * mts + (f / this.fps) * mts;
           this.midiBuffer.fill(-1);
         }
       } else if (message[0] === 240) {

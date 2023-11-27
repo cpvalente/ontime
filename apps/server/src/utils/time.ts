@@ -1,8 +1,4 @@
-import { isTimeString } from 'ontime-utils';
-
-const mts = 1000; // millis to seconds
-const mtm = 1000 * 60; // millis to minutes
-const mth = 1000 * 60 * 60; // millis to hours
+import { isTimeString, mts, mtm, mth } from 'ontime-utils';
 
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
@@ -12,7 +8,6 @@ export const timeFormatSeconds = 'HH:mm:ss';
  * @argument {Date} date
  * @returns {number} - time in milliseconds
  */
-
 export const dateToMillis = (date: Date): number => {
   // TODO: Use UTC
   const h = date.getHours();
