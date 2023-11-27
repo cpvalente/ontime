@@ -2,9 +2,11 @@ import { useRef } from 'react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
 
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
+import { useTimer } from '../../common/hooks/useSocket';
 
 import BlockRow from './cuesheet-table-elements/BlockRow';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
@@ -137,6 +139,13 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                     colour={row.original.colour}
                   >
                     {row.getVisibleCells().map((cell) => {
+                      if (cell.column.columnDef.id === 'realStart') {
+                        return (
+                          <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
+                            <TimeToStart startTime={cell.getValue() as number} />
+                          </td>
+                        );
+                      }
                       return (
                         <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -155,4 +164,15 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
       </div>
     </>
   );
+}
+
+/**
+ * Shows the tuntil an event start
+ * - if event has started, it should show the time it started at
+ * @param {number} startTime - the schedule start of an event
+ */
+function TimeToStart({ startTime }: { startTime: number }) {
+  const timer = useTimer();
+  const timeToStart = millisToString(startTime - timer.clock);
+  return <span>{timeToStart}</span>;
 }
