@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'url';
 import path, { dirname, join } from 'path';
-
-import { configService } from './services/ConfigService.js';
+import fs from 'fs';
 
 // =================================================
 // resolve public path
@@ -70,7 +69,7 @@ export const currentDirectory = dirname(__dirname);
 const testDbStartDirectory = isTest ? '../' : getAppDataPath();
 export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
 
-const config = configService.getConfig();
+const config = JSON.parse(fs.readFileSync(join(getAppDataPath(), 'config.json'), 'utf8'));
 
 // path to public db
 export const resolveDbDirectory = join(

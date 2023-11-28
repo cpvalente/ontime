@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { Low } from 'lowdb';
+import { JSONFile } from 'lowdb/node';
 import { join } from 'path';
 
 import { getAppDataPath } from '../setup.js';
@@ -18,43 +19,34 @@ interface Config {
 }
 
 export class ConfigService {
+  private config: Low<Config>;
   private configPath: string;
-  private config: Config;
 
   constructor() {
-    this.configPath = this.getConfigPath();
+    this.configPath = join(getAppDataPath(), 'config.json');
+    const adapter = new JSONFile<Config>(this.configPath);
+    this.config = new Low<Config>(adapter);
 
-    try {
-      this.config = JSON.parse(readFileSync(this.configPath, 'utf8'));
-    } catch (err) {
-      this.createConfig();
-    }
+    this.init();
   }
 
-  private createConfig(): void {
-    this.config = defaultConfig;
-
-    this.saveConfig();
+  private async init() {
+    await this.config.read();
+    this.config.data ||= defaultConfig;
+    await this.config.write();
   }
 
-  private getConfigPath(): string {
-    return join(getAppDataPath(), 'config.json');
+  async getConfig(): Promise<Config> {
+    await this.config.read();
+    return this.config.data;
   }
 
-  getConfig(): Config {
-    return this.config;
-  }
-
-  updateDatabaseConfig(directory: string, filename: string): void {
+  async updateDatabaseConfig(directory: string, filename: string): Promise<void> {
     if (process.env.IS_TEST) return;
 
-    this.config.database.directory = directory;
-    this.config.database.filename = filename;
-    this.saveConfig();
-  }
-
-  private saveConfig(): void {
-    writeFileSync(this.configPath, JSON.stringify(this.config, null, 2));
+    this.config.data.database.directory = directory;
+    this.config.data.database.filename = filename;
+    await this.config.write();
   }
 }
 
