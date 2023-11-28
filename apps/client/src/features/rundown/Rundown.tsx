@@ -154,7 +154,7 @@ export default function Rundown(props: RundownProps) {
   const handleKeyUp = useCallback(
     (event: KeyboardEvent) => {
       if (['Shift', 'Meta', 'Control'].includes(event.key)) {
-        setEditMode('single');
+        setEditMode('click');
       }
     },
     [setEditMode],

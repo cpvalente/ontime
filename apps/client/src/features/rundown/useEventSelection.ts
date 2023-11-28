@@ -8,7 +8,7 @@ const getMergedEvents = (initialArr: string[], newArr: string[]) => {
   return [...initialArr, ...newArr.filter((id) => !eventIds.has(id))];
 };
 
-type EditMode = 'shift' | 'single' | 'ctrl';
+type EditMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
   editMode: EditMode;
@@ -20,7 +20,7 @@ interface EventSelectionStore {
 }
 
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
-  editMode: 'single',
+  editMode: 'click',
   eventsToEdit: [],
   anchoredEventIndex: null,
   setEditMode: (mode) => set(() => ({ editMode: mode })),
@@ -29,7 +29,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
     const index = indexPlusOne - 1;
     const { editMode, eventsToEdit, anchoredEventIndex } = get();
 
-    if (editMode === 'single') {
+    if (editMode === 'click') {
       return set(() => ({ eventsToEdit: [id], anchoredEventIndex: index }));
     }
 
