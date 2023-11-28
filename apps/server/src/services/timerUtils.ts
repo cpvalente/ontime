@@ -66,11 +66,11 @@ export function getCurrent(
   return startedAt + duration + addedTime + pausedTime - clock;
 }
 
-export function skipedOutOfEvent(previousTime: number, clock: number, startedAt: number, finishAt): boolean {
+export function skipedOutOfEvent(previousTime: number, clock: number, startedAt: number, expectedFinish): boolean {
   const skipTime = previousTime - clock;
   const hasSkipped = Math.abs(skipTime) > config.timeSkipLimit;
   if (hasSkipped) {
-    if (clock > finishAt || clock < startedAt) {
+    if (clock > expectedFinish || clock < startedAt) {
       return true;
     }
     // otherwise we just skipped within the event

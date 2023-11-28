@@ -404,7 +404,7 @@ export class TimerService {
     let shouldNotify = false;
     if (this.playback === Playback.Roll) {
       shouldNotify = true;
-      if (skipedOutOfEvent(previousTime, this.timer.clock, this.timer.startedAt, this.timer.finishedAt)) {
+      if (skipedOutOfEvent(previousTime, this.timer.clock, this.timer.startedAt, this.timer.expectedFinish)) {
         PlaybackService.roll();
       } else {
         this.updateRoll();
