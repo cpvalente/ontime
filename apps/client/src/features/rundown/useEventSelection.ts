@@ -1,13 +1,12 @@
 import { isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { create } from 'zustand';
 
-type EditMode = 'range' | 'single' | 'cherryPick';
+type EditMode = 'shift' | 'single' | 'ctrl';
 
 interface EventSelectionStore {
   editMode: EditMode;
   eventsToEdit: Set<string>;
   anchoredEventIndex: number | null;
-  isEventSelected: (id: string) => boolean;
   setEditMode: (mode: EditMode) => void;
   setEventsToEdit: (id: string, index: number, rundown: OntimeRundown) => void;
   clearEventsToEdit: () => void;
@@ -17,12 +16,9 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   editMode: 'single',
   eventsToEdit: new Set(),
   anchoredEventIndex: null,
-  isEventSelected: (id) => {
-    const { eventsToEdit } = get();
-
-    return eventsToEdit.has(id);
+  setEditMode: (mode) => {
+    return set(() => ({ editMode: mode }));
   },
-  setEditMode: (mode) => set(() => ({ editMode: mode })),
   setEventsToEdit: (id, indexPlusOne, rundown) => {
     // indexes coming from rundown are not 0 based
     const index = indexPlusOne - 1;
@@ -34,42 +30,47 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       return set(() => ({ eventsToEdit: setWithSingleEvent, anchoredEventIndex: index }));
     }
 
-    if (editMode === 'cherryPick') {
+    if (editMode === 'ctrl') {
       const deduplicatedEventsToEdit = new Set([...eventsToEdit].filter((eventId) => eventId !== id));
 
       if (deduplicatedEventsToEdit.size !== eventsToEdit.size) {
+        console.log([...eventsToEdit].at(indexPlusOne));
+
         return set(() => ({
           eventsToEdit: deduplicatedEventsToEdit,
-          anchoredEventIndex: indexPlusOne,
+          anchoredEventIndex: index,
         }));
       }
 
       return set(() => ({
         eventsToEdit: deduplicatedEventsToEdit.add(id),
+        anchoredEventIndex: index,
       }));
     }
 
-    if (editMode === 'range') {
+    if (editMode === 'shift') {
       const eventIds = rundown.filter(isOntimeEvent).map((event) => event.id);
 
       if (anchoredEventIndex === null) {
-        const eventsUntilIndex = eventIds.slice(0, index);
+        const eventsUntilIndex = eventIds.slice(0, index + 1);
 
         return set(() => ({ eventsToEdit: new Set(eventsUntilIndex), anchoredEventIndex: index }));
       }
 
       if (anchoredEventIndex > index) {
-        const eventsFromIndex = eventIds.slice(index, anchoredEventIndex);
+        const eventsFromIndex = eventIds.slice(index, anchoredEventIndex + 1);
 
         return set(() => ({
-          eventsToEdit: new Set([...eventsToEdit, ...eventsFromIndex]),
+          eventsToEdit: new Set(eventsFromIndex),
+          anchoredEventIndex: index,
         }));
       }
 
-      const eventsUntilIndex = eventIds.slice(anchoredEventIndex, indexPlusOne);
+      const eventsUntilIndex = eventIds.slice(anchoredEventIndex, index + 1);
 
       return set(() => ({
-        eventsToEdit: new Set([...eventsToEdit, ...eventsUntilIndex]),
+        eventsToEdit: new Set([...eventsUntilIndex, ...eventsToEdit]),
+        anchoredEventIndex: index,
       }));
     }
   },

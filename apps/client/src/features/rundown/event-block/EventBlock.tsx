@@ -82,7 +82,7 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { eventsToEdit, isEventSelected, setEventsToEdit } = useEventSelection();
+  const { eventsToEdit, setEventsToEdit } = useEventSelection();
   const { data: rundown = [] } = useRundown();
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -201,7 +201,7 @@ export default function EventBlock(props: EventBlockProps) {
     isPast ? style.past : null,
     selected ? style.selected : null,
     playback ? style[playback] : null,
-    isEventSelected(eventId) ? style.hasCursor : null,
+    eventsToEdit.has(eventId) ? style.hasCursor : null,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {

@@ -91,13 +91,13 @@ export default function Rundown(props: RundownProps) {
       if (event.repeat) return;
 
       if ((isMacOS() && event.metaKey) || event.ctrlKey) {
-        setEditMode('cherryPick');
+        setEditMode('ctrl');
 
         return;
       }
 
       if (event.shiftKey) {
-        setEditMode('range');
+        setEditMode('shift');
 
         return;
       }
