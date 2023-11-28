@@ -67,8 +67,12 @@ export function getCurrent(
 }
 
 export function skipedOutOfEvent(previousTime: number, clock: number, startedAt: number, expectedFinish): boolean {
+  if (previousTime > dayInMs - config.timeSkipLimit && clock < config.timeSkipLimit) {
+    clock += dayInMs;
+  }
   const skipTime = previousTime - clock;
   const hasSkipped = Math.abs(skipTime) > config.timeSkipLimit;
+  expectedFinish = expectedFinish >= startedAt ? expectedFinish : expectedFinish + dayInMs;
   if (hasSkipped) {
     if (clock > expectedFinish || clock < startedAt) {
       return true;

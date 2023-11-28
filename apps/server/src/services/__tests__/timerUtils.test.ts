@@ -357,22 +357,87 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
 });
 
 describe('skipedOutOfEvent()', () => {
-  it('without added times, they combine to be duration', () => {
+  it('normal roll out of event', () => {
     const startedAt = 1000;
     const duration = 1000;
-    const pausedTime = 0;
-    const finishedAt = null;
-    const addedTime = 0;
-    const timerType = TimerType.CountDown;
     const expectedFinish = startedAt + duration;
-    const previousTime = 1000;
+    const previousTime = expectedFinish - config.timeSkipLimit / 2;
     let clock = previousTime;
     expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
-    clock += config.timeSkipLimit + 10;
+    clock += config.timeSkipLimit;
     expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
-    clock = expectedFinish + 1;
+  });
+
+  it('normal roll backwards out of event', () => {
+    const startedAt = 1000;
+    const duration = 1000;
+    const expectedFinish = startedAt + duration;
+    const previousTime = startedAt + config.timeSkipLimit / 2;
+    let clock = previousTime;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock -= config.timeSkipLimit;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+  });
+
+  it('normal roll out of event over midnight', () => {
+    const startedAt = dayInMs - config.timeSkipLimit;
+    const expectedFinish = 10;
+    const previousTime = dayInMs - 1;
+    let clock = previousTime;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock = config.timeSkipLimit - 2;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+  });
+
+  it('normal roll backwards out of event over midnight', () => {
+    const startedAt = dayInMs - config.timeSkipLimit;
+    const expectedFinish = 10;
+    const previousTime = startedAt + 1;
+    let clock = previousTime;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock -= config.timeSkipLimit;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+  });
+
+  it('skip out of event', () => {
+    const startedAt = 1000;
+    const duration = 1000;
+    const expectedFinish = startedAt + duration;
+    const previousTime = expectedFinish - config.timeSkipLimit / 2;
+    let clock = previousTime;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock += config.timeSkipLimit + 1;
     expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(true);
-    clock = startedAt - config.timeSkipLimit - 1;
+  });
+
+  it('skip backwards out of event', () => {
+    const startedAt = 1000;
+    const duration = 1000;
+    const expectedFinish = startedAt + duration;
+    const previousTime = startedAt + config.timeSkipLimit / 2;
+    let clock = previousTime;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock -= config.timeSkipLimit + 1;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(true);
+  });
+
+  it('skip out of event over midnight', () => {
+    const startedAt = dayInMs - config.timeSkipLimit;
+    const expectedFinish = 10;
+    const previousTime = dayInMs - 3;
+    let clock = previousTime;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock = config.timeSkipLimit - 2;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(true);
+  });
+
+  it('skip backwards out of event over midnight', () => {
+    const startedAt = dayInMs - config.timeSkipLimit;
+    const expectedFinish = 10;
+    const previousTime = startedAt + 1;
+    let clock = previousTime;
+    expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(false);
+    clock -= config.timeSkipLimit + 1;
     expect(skipedOutOfEvent(previousTime, clock, startedAt, expectedFinish)).toBe(true);
   });
 });
