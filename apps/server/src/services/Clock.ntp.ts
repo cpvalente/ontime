@@ -2,16 +2,16 @@ import { LogOrigin } from 'ontime-types';
 import { logger } from '../classes/Logger.js';
 import { ClockInterface } from './Clock.js';
 import { NtpTimeSync } from 'ntp-time-sync';
-import { dayInMs } from 'ontime-utils';
+import { dayInMs, mth, mtm, mts } from 'ontime-utils';
 
 export class NtpClock implements ClockInterface {
   private ntpOffset = 0;
-  private activeOffset = 10 * 60 * 1000;
+  private activeOffset = 0;
   private ntpServer: NtpTimeSync;
   public tcOffset: number = 0;
-  private readonly adjustAmount = 10;
-  private readonly maxInterval = 10 * 60 * 1000; // 10 minutes
-  private readonly minInterval = 3000; // 3 seconds
+  private readonly adjustAmount = 10; // 10 ms
+  private readonly maxInterval = 10 * mtm; // 10 minutes
+  private readonly minInterval = 3 * mts; // 3 seconds
 
   private _settings: string[];
   constructor() {
@@ -26,7 +26,6 @@ export class NtpClock implements ClockInterface {
     await this.ntpServer
       .getTime(false)
       .then((result) => {
-        console.log(result);
         this.ntpOffset = result.offset;
       })
       .catch((error) => {
@@ -34,20 +33,17 @@ export class NtpClock implements ClockInterface {
       });
 
     const diff = Math.abs(this.ntpOffset - this.activeOffset);
-    const direction = Math.sign(this.ntpOffset - this.activeOffset)
+    const direction = Math.sign(this.ntpOffset - this.activeOffset);
     const nextUpdate = Math.max(this.maxInterval - 10 * diff, this.minInterval);
-    console.log(`active: ${this.activeOffset}, addust amount: ${direction * Math.min(diff, this.adjustAmount)}, next: ${nextUpdate}`);
-    this.activeOffset += (direction * Math.min(diff, this.adjustAmount));
+    this.activeOffset += direction * Math.min(diff, this.adjustAmount);
     setTimeout(() => {
       this.updateNtp();
-    }, 5000);
-    //TODO: implement dynamic interval based of result.precision
-    //but keep KoD in mind https://community.ntppool.org/t/kod-is-it-something-to-avoid-in-the-server-configuration-or-still-useful/1828
+    }, nextUpdate);
   }
 
   public set settings(v: string) {
     this._settings = v.replaceAll(' ', '').split(',');
-    console.log(LogOrigin.Server, `CLOCK: NTP: ${this._settings}`);
+    logger.info(LogOrigin.Server, `CLOCK: NTP: ${this._settings}`);
 
     this.ntpServer = NtpTimeSync.getInstance({ servers: this._settings });
   }
@@ -67,9 +63,9 @@ export class NtpClock implements ClockInterface {
     now.setUTCMilliseconds(now.getUTCMilliseconds() + this.activeOffset);
 
     // extract milliseconds since midnight
-    let elapsed = now.getHours() * 3600000;
-    elapsed += now.getMinutes() * 60000;
-    elapsed += now.getSeconds() * 1000;
+    let elapsed = now.getHours() * mth;
+    elapsed += now.getMinutes() * mtm;
+    elapsed += now.getSeconds() * mts;
     elapsed += now.getMilliseconds();
     elapsed += this.tcOffset;
     elapsed = elapsed % dayInMs;
