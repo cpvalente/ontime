@@ -26,6 +26,7 @@ export const useElementInfoStore = create<ElementInfoStore>((set) => ({
 // TODO: handle move left/ <right>  </right>
 export function ElementInfo() {
   const { value, coords, isOpen } = useElementInfoStore();
+  console.log('debug', coords)
 
   return (
     <div

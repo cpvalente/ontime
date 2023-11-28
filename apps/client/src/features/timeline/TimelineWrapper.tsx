@@ -2,13 +2,14 @@ import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { EndAction, isOntimeBlock, isOntimeDelay, isOntimeEvent } from 'ontime-types';
+import { EndAction, OntimeEvent, isOntimeBlock, isOntimeDelay, isOntimeEvent } from 'ontime-types';
 import { getFirstEvent, getLastEvent } from 'ontime-utils';
 
 import { useTimeline, useTimelineCursors } from '../../common/hooks/useSocket';
 import useRundown from '../../common/hooks-query/useRundown';
 import { cx } from '../../common/utils/styleUtils';
 
+import { ElementInfo, useElementInfoStore } from './ElementInfo';
 import { getCSSPosition } from './timeline.utils';
 
 import styles from './Timeline.module.scss';
@@ -18,6 +19,33 @@ import styles from './Timeline.module.scss';
 export default function TimelineWrapper() {
   const { data } = useRundown();
   const { selectedEventId } = useTimeline();
+
+  const { setIsOpen, setContextMenu } = useElementInfoStore();
+
+  const handleMouseOver = (event) => {
+    // TODO: we want to separe the text from the position
+    // TODO: text and open set on mouseEnter
+    // TODO: position is throttled on mouseOver
+    const eventIndex = event.relatedTarget.dataset.index;
+    if (eventIndex != null) {
+      const scheduledEvent = data[eventIndex] as OntimeEvent;
+      setIsOpen(true);
+      const el = (
+        <>
+          {scheduledEvent.cue} <br />
+          {scheduledEvent.title} <br />
+          {scheduledEvent.timeStart} - {event.timeEnd}
+        </>
+      );
+
+      console.log(event)
+      setContextMenu({ x: event.clientX, y: event.clientY }, el);
+    }
+  };
+
+  const handleMouseLeave = (event) => {
+    setIsOpen(false);
+  };
 
   // TODO: data to come from backend
   // TODO: data accounts for delays
@@ -31,14 +59,16 @@ export default function TimelineWrapper() {
   let previousEnd = firstStart;
 
   return (
-    <div className={styles.timelineContainer}>
+    <div className={styles.timelineContainer} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
       <TimelineCursors firstStart={firstStart} totalDuration={totalDuration} />
-      {data.map((event) => {
+      <ElementInfo />
+      {data.map((event, index) => {
         if (isOntimeEvent(event)) {
           previousEnd = event.timeEnd;
           return (
             <TimelineScheduledEvent
               key={event.id}
+              eventIndex={index}
               cue={event.cue}
               firstStart={firstStart}
               lastEnd={lastEnd}
@@ -118,6 +148,7 @@ function EndActionIcon(props: { action: EndAction; className?: string }) {
 }
 
 interface TimelineScheduledEventProps {
+  eventIndex: number;
   cue: string;
   firstStart: number;
   lastEnd: number;
@@ -129,7 +160,7 @@ interface TimelineScheduledEventProps {
 
 // TODO: add user colour
 function TimelineScheduledEvent(props: TimelineScheduledEventProps) {
-  const { cue, firstStart, lastEnd, startTime, endTime, isCurrent, endAction } = props;
+  const { eventIndex, cue, firstStart, lastEnd, startTime, endTime, isCurrent, endAction } = props;
 
   const position = getCSSPosition({
     scheduleStart: firstStart,
@@ -149,7 +180,7 @@ function TimelineScheduledEvent(props: TimelineScheduledEventProps) {
   };
   return (
     <>
-      <div className={classes} style={positionStyles}>
+      <div className={classes} style={positionStyles} data-index={eventIndex}>
         {cue}
       </div>
       <div className={styles.playbackMarker} style={endPosition}>
