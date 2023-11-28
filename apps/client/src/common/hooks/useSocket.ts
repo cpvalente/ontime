@@ -132,6 +132,8 @@ export const useTimeline = () => {
 export const useTimelineCursors = () => {
   const featureSelector = (state: RuntimeStore) => ({
     clock: state.timer.clock,
+    running: state.timer.current,
+    duration: state.timer.duration,
   });
 
   return useRuntimeStore(featureSelector, deepCompare);

@@ -2,14 +2,35 @@
   grid-area: timeline;
   width: 100%;
   background-color: black;
-  height: 40px;
+  position: relative;
+  border-radius: 8px;
+  font-size: calc(1rem - 2px);
+
+
+  display: grid;
+  grid-template-areas: 
+  "header"
+  "main"
+  "detail";
+  grid-template-rows: 1.25em 1.25em 1.25em;
 }
 
 .clockCursor {
   position: absolute;
   width: 1px;
-  height: 40px;
+  height: 100%;
   background-color: green;
+
+  left: 0%;
+  transition: 1s ease;
+  z-index: 2;
+}
+
+.playbackCursor {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background-color: red;
 
   left: 0%;
   transition: 1s ease;
@@ -20,35 +41,44 @@
   background-color: rgba(white, 0.1);
 }
 
-
 .timelineEvent {
+  grid-area: main;
   position: absolute;
-  height: 1rem;
-  font-size: calc(1rem - 2px);
+  height: 100%;
   display: inline-block;
+  vertical-align: middle;
   width: 0px;
-  background-color: rgba(white, 0.8);
+  background-color: rgba(white, 0.3);
   border-left: 1px solid black;
   border-radius: 2px;
   padding-left: 0.25rem;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
 
   &.isPlaying {
     background-color: red;
   }
 }
 
+.playbackMarker {
+  position: absolute;
+  grid-area: detail;
+  width: fit-content;
+  color: rgba(white, 0.3);
+}
+
 .timelineBlock {
+  grid-area: header;
   position: relative;
-  height: 1rem;
-  display: inline-block;
-  width: 3px;
-  background-color: rgba(white, 0.8);
+    color: rgba(white, 0.8);
 }
 
 .timelineDelay {
   position: relative;
   height: 1rem;
-  font-size: calc(1rem - 2px);
   display: inline-block;
   width: 0px;
   background-color: orange;

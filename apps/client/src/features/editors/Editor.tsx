@@ -62,6 +62,7 @@ export default function Editor() {
             />
           </ErrorBoundary>
         </div>
+        <TimelineWrapper />
         <Rundown />
         <MessageControl />
         <TimerControl />
