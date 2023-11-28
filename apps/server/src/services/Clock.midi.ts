@@ -14,8 +14,20 @@ export class MidiClock implements ClockInterface {
   //TODO: settings
   public set settings(v: string) {
     this.midiIn.closePort();
-    this.midiIn.openPort(0);
-    logger.info(LogOrigin.Server, `CLOCK: MTC: Source is now ${this.midiIn.getPortName(0)}`);
+    try {
+      this.midiIn.openPort(0);
+      logger.info(LogOrigin.Server, `CLOCK: MTC: Source is now ${this.midiIn.getPortName(0)}`);
+    } catch (err) {
+      logger.error(LogOrigin.Server, `CLOCK: MTC: unable to open midi port`);
+    }
+  }
+
+  public get settings(): string {
+    return this.midiIn.getPortName(0);
+  }
+
+  constructor() {
+    this.midiIn = new Input();
     this.midiIn.ignoreTypes(false, false, true);
     this.midiIn.on('message', (_, message) => {
       if (message[0] === 241) {
@@ -41,14 +53,6 @@ export class MidiClock implements ClockInterface {
           (message[5] & 0x1f) * 3600000 + message[6] * 60000 + message[7] * 1000 + (message[8] / this.fps) * 1000;
       }
     });
-  }
-
-  public get settings(): string {
-    return this.midiIn.getPortName(0);
-  }
-
-  constructor() {
-    this.midiIn = new Input();
   }
 
   public close() {
