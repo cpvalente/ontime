@@ -80,7 +80,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   const [renderInner, setRenderInner] = useState(false);
   const { clearEventsToEdit, eventsToEdit } = useEventSelection();
 
-  const isOpen = eventsToEdit.size === 1 && eventsToEdit.has(eventId);
+  const isOpen = eventsToEdit.length === 1 && eventsToEdit.includes(eventId);
 
   useEffect(() => {
     setRenderInner(true);

@@ -61,7 +61,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   const { eventsToEdit, clearEventsToEdit } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
-    if (eventsToEdit.has(data.id)) {
+    if (eventsToEdit.includes(data.id)) {
       clearEventsToEdit();
     }
 
@@ -106,7 +106,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           return swapEvents({ from: value as string, to: data.id });
         }
         case 'delete': {
-          if (eventsToEdit.has(data.id)) {
+          if (eventsToEdit.includes(data.id)) {
             removeOpenEvent();
           }
           return deleteEvent(data.id);
@@ -125,7 +125,7 @@ export default function RundownEntry(props: RundownEntryProps) {
 
           // if selected events are more than one
           // we need to bulk edit
-          if (eventsToEdit.size > 1) {
+          if (eventsToEdit.length > 1) {
             const changes: Partial<OntimeEvent> = { [field]: value };
             const idsOfRundownEvents = rundown.filter(isOntimeEvent).map((event) => event.id);
 
