@@ -62,7 +62,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       const eventIds = rundown.filter(isOntimeEvent).map((event) => event.id);
 
       if (anchoredEventIndex === null) {
-        const eventsUntilIndex = eventIds.slice(0, index + 1);
+        const eventsUntilIndex = eventIds.slice(0, indexPlusOne);
 
         return set(() => ({ eventsToEdit: eventsUntilIndex, anchoredEventIndex: index }));
       }
@@ -76,7 +76,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
         }));
       }
 
-      const eventsUntilIndex = eventIds.slice(anchoredEventIndex, index + 1);
+      const eventsUntilIndex = eventIds.slice(anchoredEventIndex, indexPlusOne);
 
       return set(() => ({
         eventsToEdit: getMergedEvents(eventsToEdit, eventsUntilIndex),

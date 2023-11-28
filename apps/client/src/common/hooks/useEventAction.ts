@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { GetRundownCached, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 import { getCueCandidate, swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
@@ -172,31 +172,33 @@ export const useEventAction = () => {
     mutationFn: requestBatchPutEvents,
     onMutate: async ({ ids, data }) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries(RUNDOWN_TABLE);
+      await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData(RUNDOWN_TABLE) as OntimeRundown;
+      const previousEvents = queryClient.getQueryData<OntimeRundown>(RUNDOWN);
 
-      const updatedEvents = previousEvents.map((event) => {
-        const isEventEdited = ids.includes(event.id);
+      if (previousEvents) {
+        const updatedEvents = previousEvents.map((event) => {
+          const isEventEdited = ids.includes(event.id);
 
-        if (isEventEdited && isOntimeEvent(event)) {
-          return {
-            ...event,
-            ...data,
-          };
-        }
+          if (isEventEdited && isOntimeEvent(event)) {
+            return {
+              ...event,
+              ...data,
+            };
+          }
 
-        return event;
-      });
+          return event;
+        });
 
-      queryClient.setQueryData(RUNDOWN_TABLE, updatedEvents);
+        queryClient.setQueryData(RUNDOWN, updatedEvents);
+      }
 
       // Return a context with the previous and new events
       return { previousEvents };
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(RUNDOWN_TABLE);
+      await queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
   });
 
