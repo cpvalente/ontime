@@ -147,7 +147,7 @@ export async function cachedEdit(
 export async function cachedBatchEdit(ids: string[], patchObject: Partial<OntimeEvent>) {
   const cachedEdits = ids.map((id) => cachedEdit(id, patchObject));
 
-  await Promise.all(cachedEdits);
+  await Promise.allSettled(cachedEdits);
 }
 
 /**
