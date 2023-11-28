@@ -7,12 +7,12 @@ import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
-import { useAppMode } from '../../common/stores/appModeStore';
+import { useEventSelection } from '../../features/rundown/useEventSelection';
 
 import style from './RundownMenu.module.scss';
 
 const RundownMenu = () => {
-  const { clearEventsToEdit } = useAppMode();
+  const { clearEventsToEdit } = useEventSelection();
 
   const { addEvent, deleteAllEvents } = useEventAction();
 
