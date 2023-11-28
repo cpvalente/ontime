@@ -4,11 +4,11 @@ import ModalWrapper from '../ModalWrapper';
 
 import AliasesForm from './AliasesForm';
 import AppSettingsModal from './AppSettings';
+import ClockSettingsModal from './ClockSettings';
 import CuesheetSettingsForm from './CuesheetSettingsForm';
 import EditorSettings from './EditorSettings';
 import ProjectDataForm from './ProjectDataForm';
 import ViewSettingsForm from './ViewSettingsForm';
-import ClockSettingsModal from './ClockSettings';
 
 interface ModalManagerProps {
   isOpen: boolean;

@@ -3,6 +3,7 @@ import { logger } from '../classes/Logger.js';
 import { ClockInterface } from './Clock.js';
 import { NtpTimeSync } from 'ntp-time-sync';
 import { dayInMs, mth, mtm, mts } from 'ontime-utils';
+import { millisToSeconds } from '../utils/time.js';
 
 export class NtpClock implements ClockInterface {
   private ntpOffset = 0;
@@ -35,6 +36,21 @@ export class NtpClock implements ClockInterface {
     const diff = Math.abs(this.ntpOffset - this.activeOffset);
     const direction = Math.sign(this.ntpOffset - this.activeOffset);
     const nextUpdate = Math.max(this.maxInterval - 10 * diff, this.minInterval);
+    if (diff < mts) {
+      logger.info(LogOrigin.Server, `NTP CLock: offset < 1 sec. Next sync in ${millisToSeconds(nextUpdate)} sec.`);
+    } else if (diff < mtm) {
+      logger.info(
+        LogOrigin.Server,
+        `NTP CLock: offset ${millisToSeconds(direction * diff)} sec. Next sync in ${millisToSeconds(nextUpdate)} sec.`,
+      );
+    } else {
+      logger.info(
+        LogOrigin.Server,
+        `NTP CLock: offset ${Math.ceil(millisToSeconds(direction * diff) / 60)} min. Next sync in ${millisToSeconds(
+          nextUpdate,
+        )} sec.`,
+      );
+    }
     this.activeOffset += direction * Math.min(diff, this.adjustAmount);
     setTimeout(() => {
       this.updateNtp();

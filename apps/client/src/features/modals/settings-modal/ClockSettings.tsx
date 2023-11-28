@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Select } from '@chakra-ui/react';
-import { ClockSource, type Settings } from 'ontime-types';
+import { type Settings, ClockSource } from 'ontime-types';
 
 import { logAxiosError } from '../../../common/api/apiUtils';
 import { postSettings } from '../../../common/api/ontimeApi';
@@ -74,10 +74,7 @@ export default function ClockSettingsModal() {
           <option value={ClockSource.NTP}>NTP</option>
         </Select>
       </ModalSplitInput>
-      <div>
-
-      {data?.clockSettings.source}
-      </div>
+      <div>{data?.clockSettings.source}</div>
       <ModalSplitInput
         field='clockSettings.settings'
         title='Clock input settings'
