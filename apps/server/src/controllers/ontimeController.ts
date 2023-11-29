@@ -335,29 +335,29 @@ export const postOscSubscriptions = async (req, res) => {
 };
 
 // Create controller for GET request to '/ontime/http'
-export const getHTTP = async (req, res: Response<HTTPSettings>) => {
+export const getHTTP = async (_req, res: Response<HTTPSettings>) => {
   const http = DataProvider.getHttp();
   res.status(200).send(http);
 };
 
 // Create controller for POST request to '/ontime/http'
-export const postHTTP = async (req: Request<any, any, HTTPSettings>, res: Response) => {
+export const postHTTP = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
-    const settings = req.body;
-    const httpSettings = DataProvider.getHttp();
-    const hasEnabledChanged = httpSettings.enabledOut !== settings.enabledOut;
-
-    httpSettings.subscriptions = settings.subscriptions;
-    httpSettings.enabledOut = settings.enabledOut;
+    const httpSettings = req.body;
     await DataProvider.setHttp(httpSettings);
 
-    if (hasEnabledChanged) {
-      const { message } = httpIntegration.init(httpSettings);
-      logger.info(LogOrigin.Tx, message);
+    integrationService.unregister(httpIntegration);
+
+    // TODO: this update could be more granular, checking that relevant data was changed
+    const { success, message } = httpIntegration.init(httpSettings);
+    logger.info(LogOrigin.Tx, message);
+
+    if (success) {
+      integrationService.register(httpIntegration);
     }
 
     res.send(httpSettings).status(200);

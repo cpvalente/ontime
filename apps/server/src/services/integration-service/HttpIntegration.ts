@@ -31,9 +31,10 @@ export class HttpIntegration implements IIntegration {
     const { subscriptions, enabledOut } = config;
 
     if (!enabledOut) {
+      this.httpAgent?.destroy();
       return {
-        success: true,
-        message: `HTTP integration client disabled`,
+        success: false,
+        message: 'HTTP output disabled',
       };
     }
 
