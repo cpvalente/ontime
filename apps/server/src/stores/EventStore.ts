@@ -1,8 +1,8 @@
 import { RuntimeStore } from 'ontime-types';
 import { socket } from '../adapters/WebsocketAdapter.js';
-import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { eventLoader } from '../classes/event-loader/EventLoader.js';
+import { state } from '../state.js';
 
 export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
 
@@ -65,8 +65,8 @@ export const eventStore = {
  */
 
 export const getInitialPayload = () => ({
-  timer: eventTimer.timer,
-  playback: eventTimer.playback,
+  timer: state.timer,
+  playback: state.playback,
   timerMessage: messageService.timerMessage,
   publicMessage: messageService.publicMessage,
   lowerMessage: messageService.lowerMessage,
