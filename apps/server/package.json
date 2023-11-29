@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "2.16.2",
+  "version": "2.21.3",
   "exports": "./src/index.js",
   "dependencies": {
     "body-parser": "^1.20.0",
@@ -54,6 +54,7 @@
     "build:docker": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "lint": "eslint . --quiet",
+    "lint-staged": "eslint",
     "test": "cross-env IS_TEST=true vitest",
     "test:pipeline": "cross-env IS_TEST=true vitest run",
     "typecheck": "tsc --noEmit",

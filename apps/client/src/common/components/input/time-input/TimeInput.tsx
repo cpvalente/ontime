@@ -212,6 +212,7 @@ export default function TimeInput(props: TimeInputProps) {
         onKeyDown={onKeyDownHandler}
         value={value}
         maxLength={8}
+        autoComplete='off'
       />
     </InputGroup>
   );
