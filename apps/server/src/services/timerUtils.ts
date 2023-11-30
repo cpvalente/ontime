@@ -1,6 +1,5 @@
 import { MaybeNumber, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
-import { config } from '../config/config.js';
 
 /**
  * Calculates expected finish time of a running timer
@@ -66,18 +65,19 @@ export function getCurrent(
   return startedAt + duration + addedTime + pausedTime - clock;
 }
 
-export function skipedOutOfEvent(previousTime: number, clock: number, startedAt: number, expectedFinish): boolean {
-  if (previousTime > dayInMs - config.timeSkipLimit && clock < config.timeSkipLimit) {
-    clock += dayInMs;
-  }
-  const skipTime = previousTime - clock;
-  const hasSkipped = Math.abs(skipTime) > config.timeSkipLimit;
-  expectedFinish = expectedFinish >= startedAt ? expectedFinish : expectedFinish + dayInMs;
-  if (hasSkipped) {
-    if (clock > expectedFinish || clock < startedAt) {
-      return true;
-    }
-    // otherwise we just skipped within the event
-  }
-  return false;
+export function skippedOutOfEvent(
+  previousTime: number,
+  clock: number,
+  startedAt: number,
+  expectedFinish: number,
+  skipLimit: number,
+): boolean {
+  const hasPassedMidnight = previousTime > dayInMs - skipLimit && clock < skipLimit;
+  const adjustedClock = hasPassedMidnight ? clock + dayInMs : clock;
+
+  const timeDifference = previousTime - adjustedClock;
+  const hasSkipped = Math.abs(timeDifference) > skipLimit;
+  const adjustedExpectedFinish = expectedFinish >= startedAt ? expectedFinish : expectedFinish + dayInMs;
+
+  return hasSkipped && (adjustedClock > adjustedExpectedFinish || adjustedClock < startedAt);
 }

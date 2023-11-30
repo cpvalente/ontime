@@ -5,7 +5,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { integrationService } from './integration-service/IntegrationService.js';
-import { getCurrent, getExpectedFinish, skipedOutOfEvent } from './timerUtils.js';
+import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './timerUtils.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 import type { RestorePoint } from './RestoreService.js';
@@ -18,10 +18,13 @@ type initialLoadingData = {
 
 type RestoreCallback = (newState: RestorePoint) => Promise<void>;
 
+export const timeSkipLimit = 3 * 32;
+
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
   private _updateInterval: number;
   private _lastUpdate: number | null;
+  private _skipThreshold: number;
 
   playback: Playback;
   timer: TimerState;
@@ -40,11 +43,13 @@ export class TimerService {
    * @param {object} [timerConfig]
    * @param {number} [timerConfig.refresh]
    * @param {number} [timerConfig.updateInterval]
+   * @param {number} [timerConfig.skipThreshold]
    */
-  constructor(timerConfig: { refresh?: number; updateInterval?: number } = {}) {
+  constructor(timerConfig: { refresh: number; updateInterval: number; skipThreshold: number }) {
     this._clear();
-    this._interval = setInterval(() => this.update(), timerConfig?.refresh ?? 1000);
-    this._updateInterval = timerConfig?.updateInterval ?? 1000;
+    this._interval = setInterval(() => this.update(), timerConfig.refresh);
+    this._updateInterval = timerConfig.updateInterval;
+    this._skipThreshold = timerConfig.skipThreshold;
   }
 
   /**
@@ -404,7 +409,15 @@ export class TimerService {
     let shouldNotify = false;
     if (this.playback === Playback.Roll) {
       shouldNotify = true;
-      if (skipedOutOfEvent(previousTime, this.timer.clock, this.timer.startedAt, this.timer.expectedFinish)) {
+      if (
+        skippedOutOfEvent(
+          previousTime,
+          this.timer.clock,
+          this.timer.startedAt,
+          this.timer.expectedFinish,
+          this._skipThreshold,
+        )
+      ) {
         PlaybackService.roll();
       } else {
         this.updateRoll();
@@ -508,4 +521,5 @@ export class TimerService {
 }
 
 // calculate at 30fps, refresh at 1fps
-export const eventTimer = new TimerService({ refresh: 32, updateInterval: 1000 });
+// we consider a skip at 3 lost updates
+export const eventTimer = new TimerService({ refresh: 32, updateInterval: 1000, skipThreshold: 32 * 3 });

@@ -9,5 +9,4 @@ export const config = {
     filename: 'override.css',
   },
   restoreFile: 'ontime.restore',
-  timeSkipLimit: 3 * 32,
 };
