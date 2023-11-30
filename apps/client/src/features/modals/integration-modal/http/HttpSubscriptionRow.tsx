@@ -2,12 +2,13 @@ import { Control, useFieldArray, UseFormRegister } from 'react-hook-form';
 import { Button, IconButton, Input, Switch } from '@chakra-ui/react';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
-import { Subscription, TimerLifeCycle } from 'ontime-types';
+import { HTTPSettings, TimerLifeCycle } from 'ontime-types';
 
-import { useEmitLog } from '../../../common/stores/logger';
+import { useEmitLog } from '../../../../common/stores/logger';
+import { startsWithHttp } from '../../../../common/utils/regex';
 
-import collapseStyles from '../../../common/components/collapse-bar/CollapseBar.module.scss';
-import styles from '../Modal.module.scss';
+import collapseStyles from '../../../../common/components/collapse-bar/CollapseBar.module.scss';
+import styles from '../../Modal.module.scss';
 
 interface SubscriptionRowProps {
   cycle: TimerLifeCycle;
@@ -15,8 +16,8 @@ interface SubscriptionRowProps {
   subtitle: string;
   visible: boolean;
   setShowSection: (cycle: TimerLifeCycle) => void;
-  register: UseFormRegister<Subscription>;
-  control: Control<Subscription>;
+  register: UseFormRegister<HTTPSettings>;
+  control: Control<HTTPSettings>;
   placeholder: string;
 }
 
@@ -24,7 +25,7 @@ export default function SubscriptionRow(props: SubscriptionRowProps) {
   const { cycle, title, subtitle, visible, setShowSection, register, control, placeholder } = props;
   const { emitError } = useEmitLog();
   const { fields, append, remove } = useFieldArray({
-    name: cycle,
+    name: `subscriptions.${cycle}`,
     control,
   });
 
@@ -69,7 +70,9 @@ export default function SubscriptionRow(props: SubscriptionRowProps) {
                 size='xs'
                 variant='ontime-filled-on-light'
                 autoComplete='off'
-                {...register(`subscriptions.${cycle}.${index}.message`)}
+                {...register(`subscriptions.${cycle}.${index}.message`, {
+                  pattern: { value: startsWithHttp, message: 'Request address must start with http://' },
+                })}
               />
               <Switch variant='ontime-on-light' {...register(`subscriptions.${cycle}.${index}.enabled`)} />
             </div>

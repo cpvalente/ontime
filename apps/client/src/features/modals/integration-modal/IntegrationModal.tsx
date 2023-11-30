@@ -2,9 +2,9 @@ import { ModalBody, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/r
 
 import ModalWrapper from '../ModalWrapper';
 
-import HttpIntegration from './HttpIntegration';
-import OscIntegration from './OscIntegration';
-import OscSettings from './OscSettings';
+import HttpIntegration from './http/HttpIntegration';
+import OscIntegration from './osc/OscIntegration';
+import OscSettings from './osc/OscSettings';
 
 import styles from '../Modal.module.scss';
 

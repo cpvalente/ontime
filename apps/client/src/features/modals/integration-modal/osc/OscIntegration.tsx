@@ -1,45 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { Subscription } from 'ontime-types';
+import type { OscSubscription } from 'ontime-types';
 import { TimerLifeCycle } from 'ontime-types';
 
-import useOscSettings, { usePostOscSubscriptions } from '../../../common/hooks-query/useOscSettings';
-import { useEmitLog } from '../../../common/stores/logger';
-import ModalLoader from '../modal-loader/ModalLoader';
-import OntimeModalFooter from '../OntimeModalFooter';
+import useOscSettings, { usePostOscSubscriptions } from '../../../../common/hooks-query/useOscSettings';
+import { useEmitLog } from '../../../../common/stores/logger';
+import ModalLoader from '../../modal-loader/ModalLoader';
+import OntimeModalFooter from '../../OntimeModalFooter';
+import { type OntimeCycle, sectionText } from '../integration.utils';
 
-import SubscriptionRow from './SubscriptionRow';
+import OscSubscriptionRow from './OscSubscriptionRow';
 
-import styles from '../Modal.module.scss';
-
-type OntimeCycle = keyof typeof TimerLifeCycle;
-
-const sectionText: { [key in TimerLifeCycle]: { title: string; subtitle: string } } = {
-  onLoad: {
-    title: 'On Load',
-    subtitle: 'Triggers when a timer is loaded',
-  },
-  onStart: {
-    title: 'On Start',
-    subtitle: 'Triggers when a timer starts',
-  },
-  onPause: {
-    title: 'On Pause',
-    subtitle: 'Triggers when a running timer is paused',
-  },
-  onStop: {
-    title: 'On Stop',
-    subtitle: 'Triggers when a running timer is stopped',
-  },
-  onUpdate: {
-    title: 'On Every Second',
-    subtitle: 'Triggers when a running timer is updated (at least once a second, can be more)',
-  },
-  onFinish: {
-    title: 'On Finish',
-    subtitle: 'Triggers when a running reaches 0',
-  },
-};
+import styles from '../../Modal.module.scss';
 
 export default function OscIntegration() {
   const { data, isFetching } = useOscSettings();
@@ -51,7 +23,7 @@ export default function OscIntegration() {
     register,
     reset,
     formState: { isSubmitting, isDirty, isValid },
-  } = useForm<Subscription>({
+  } = useForm<OscSubscription>({
     defaultValues: data.subscriptions,
     values: data.subscriptions,
     resetOptions: {
@@ -71,7 +43,7 @@ export default function OscIntegration() {
     reset(data.subscriptions);
   };
 
-  const onSubmit = async (values: Subscription) => {
+  const onSubmit = async (values: OscSubscription) => {
     try {
       const subscriptions = {
         onLoad: values.onLoad ?? [],
@@ -91,10 +63,11 @@ export default function OscIntegration() {
   if (isFetching) {
     return <ModalLoader />;
   }
+
   const placeholder = 'OSC message';
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='osc-subscriptions'>
-      <SubscriptionRow
+      <OscSubscriptionRow
         cycle={TimerLifeCycle.onLoad}
         title={sectionText.onLoad.title}
         subtitle={sectionText.onLoad.subtitle}
@@ -104,7 +77,7 @@ export default function OscIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <OscSubscriptionRow
         cycle={TimerLifeCycle.onStart}
         title={sectionText.onStart.title}
         subtitle={sectionText.onStart.subtitle}
@@ -114,7 +87,7 @@ export default function OscIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <OscSubscriptionRow
         cycle={TimerLifeCycle.onPause}
         title={sectionText.onPause.title}
         subtitle={sectionText.onPause.subtitle}
@@ -124,7 +97,7 @@ export default function OscIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <OscSubscriptionRow
         cycle={TimerLifeCycle.onStop}
         title={sectionText.onStop.title}
         subtitle={sectionText.onStop.subtitle}
@@ -134,7 +107,7 @@ export default function OscIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <OscSubscriptionRow
         cycle={TimerLifeCycle.onUpdate}
         title={sectionText.onUpdate.title}
         subtitle={sectionText.onUpdate.subtitle}
@@ -144,7 +117,7 @@ export default function OscIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <OscSubscriptionRow
         cycle={TimerLifeCycle.onFinish}
         title={sectionText.onFinish.title}
         subtitle={sectionText.onFinish.subtitle}

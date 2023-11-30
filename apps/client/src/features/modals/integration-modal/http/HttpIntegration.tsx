@@ -4,44 +4,15 @@ import { Switch } from '@chakra-ui/react';
 import type { HTTPSettings } from 'ontime-types';
 import { TimerLifeCycle } from 'ontime-types';
 
-import { useHttpSettings, usePostHttpSettings } from '../../../common/hooks-query/useHttpSettings';
-import { useEmitLog } from '../../../common/stores/logger';
-import ModalLoader from '../modal-loader/ModalLoader';
-import OntimeModalFooter from '../OntimeModalFooter';
+import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
+import { useEmitLog } from '../../../../common/stores/logger';
+import ModalLoader from '../../modal-loader/ModalLoader';
+import OntimeModalFooter from '../../OntimeModalFooter';
+import { OntimeCycle, sectionText } from '../integration.utils';
 
-import SubscriptionRow from './SubscriptionRow';
+import HttpSubscriptionRow from './HttpSubscriptionRow';
 
-import styles from '../Modal.module.scss';
-
-type OntimeCycle = keyof typeof TimerLifeCycle;
-
-const placeholder = 'http://x.x.x.x:xxxx/api/path';
-const sectionText: { [key in TimerLifeCycle]: { title: string; subtitle: string } } = {
-  onLoad: {
-    title: 'On Load',
-    subtitle: 'Triggers when a timer is loaded',
-  },
-  onStart: {
-    title: 'On Start',
-    subtitle: 'Triggers when a timer starts',
-  },
-  onPause: {
-    title: 'On Pause',
-    subtitle: 'Triggers when a running timer is paused',
-  },
-  onStop: {
-    title: 'On Stop',
-    subtitle: 'Triggers when a running timer is stopped',
-  },
-  onUpdate: {
-    title: 'On Every Second',
-    subtitle: 'Triggers when a running timer is updated (at least once a second, can be more)',
-  },
-  onFinish: {
-    title: 'On Finish',
-    subtitle: 'Triggers when a running reaches 0',
-  },
-};
+import styles from '../../Modal.module.scss';
 
 export default function HttpIntegration() {
   const { data, isFetching } = useHttpSettings();
@@ -54,6 +25,7 @@ export default function HttpIntegration() {
     reset,
     formState: { isSubmitting, isDirty, isValid },
   } = useForm<HTTPSettings>({
+    mode: 'onBlur',
     defaultValues: data,
     values: data,
     resetOptions: {
@@ -87,7 +59,7 @@ export default function HttpIntegration() {
         },
       };
 
-      console.log('debug will submit', newSettings)
+      console.log('debug will submit', newSettings);
 
       await mutateAsync(newSettings);
     } catch (error) {
@@ -98,6 +70,8 @@ export default function HttpIntegration() {
   if (isFetching) {
     return <ModalLoader />;
   }
+
+  const placeholder = 'http://x.x.x.x:xxxx/api/path';
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.sectionContainer} id='http-subscriptions'>
       <div className={styles.splitSection}>
@@ -107,7 +81,7 @@ export default function HttpIntegration() {
         </div>
         <Switch {...register('enabledOut')} variant='ontime-on-light' />
       </div>
-      <SubscriptionRow
+      <HttpSubscriptionRow
         cycle={TimerLifeCycle.onLoad}
         title={sectionText.onLoad.title}
         subtitle={sectionText.onLoad.subtitle}
@@ -117,7 +91,7 @@ export default function HttpIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <HttpSubscriptionRow
         cycle={TimerLifeCycle.onStart}
         title={sectionText.onStart.title}
         subtitle={sectionText.onStart.subtitle}
@@ -127,7 +101,7 @@ export default function HttpIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <HttpSubscriptionRow
         cycle={TimerLifeCycle.onPause}
         title={sectionText.onPause.title}
         subtitle={sectionText.onPause.subtitle}
@@ -137,7 +111,7 @@ export default function HttpIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <HttpSubscriptionRow
         cycle={TimerLifeCycle.onStop}
         title={sectionText.onStop.title}
         subtitle={sectionText.onStop.subtitle}
@@ -147,7 +121,7 @@ export default function HttpIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <HttpSubscriptionRow
         cycle={TimerLifeCycle.onUpdate}
         title={sectionText.onUpdate.title}
         subtitle={sectionText.onUpdate.subtitle}
@@ -157,7 +131,7 @@ export default function HttpIntegration() {
         control={control}
         placeholder={placeholder}
       />
-      <SubscriptionRow
+      <HttpSubscriptionRow
         cycle={TimerLifeCycle.onFinish}
         title={sectionText.onFinish.title}
         subtitle={sectionText.onFinish.subtitle}

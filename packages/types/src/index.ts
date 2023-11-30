@@ -29,11 +29,12 @@ export type { Alias } from './definitions/core/Alias.type.js';
 export type { UserFields } from './definitions/core/UserFields.type.js';
 
 // ---> Integration, Subscription
-export type { Subscription, SubscriptionOptions } from './definitions/core/Subscription.type.js';
+export type { Subscription } from './definitions/core/Subscription.type.js';
+
 // ---> OSC
-export type { OSCSettings } from './definitions/core/OscSettings.type.js';
+export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
 // ---> HTTP
-export type { HTTPSettings } from './definitions/core/HttpSettings.type.js';
+export type { HTTPSettings, HttpSubscription } from './definitions/core/HttpSettings.type.js';
 
 // SERVER RESPONSES
 export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';
