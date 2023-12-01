@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Switch } from '@chakra-ui/react';
-import type { HTTPSettings } from 'ontime-types';
+import type { HttpSettings } from 'ontime-types';
 import { TimerLifeCycle } from 'ontime-types';
 
 import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
@@ -24,7 +24,7 @@ export default function HttpIntegration() {
     register,
     reset,
     formState: { isSubmitting, isDirty, isValid },
-  } = useForm<HTTPSettings>({
+  } = useForm<HttpSettings>({
     mode: 'onBlur',
     defaultValues: data,
     values: data,
@@ -45,9 +45,9 @@ export default function HttpIntegration() {
     reset(data);
   };
 
-  const onSubmit = async (values: HTTPSettings) => {
+  const onSubmit = async (values: HttpSettings) => {
     try {
-      const newSettings: HTTPSettings = {
+      const newSettings: HttpSettings = {
         enabledOut: Boolean(values.enabledOut),
         subscriptions: {
           onLoad: values.subscriptions.onLoad ?? [],
@@ -58,8 +58,6 @@ export default function HttpIntegration() {
           onFinish: values.subscriptions.onFinish ?? [],
         },
       };
-
-      console.log('debug will submit', newSettings);
 
       await mutateAsync(newSettings);
     } catch (error) {

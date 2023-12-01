@@ -1,9 +1,9 @@
 import { Subscription } from './Subscription.type.js';
 
-type HttpSubscriptionOptions = { message: string; enabled: boolean };
+export type HttpSubscriptionOptions = { message: string; enabled: boolean };
 export type HttpSubscription = Subscription<HttpSubscriptionOptions>;
 
-export interface HTTPSettings {
+export interface HttpSettings {
   enabledOut: boolean;
   subscriptions: HttpSubscription;
 }

@@ -1,5 +1,5 @@
 import { LogOrigin } from 'ontime-types';
-import type { Alias, DatabaseModel, GetInfo, HTTPSettings, ProjectData } from 'ontime-types';
+import type { Alias, DatabaseModel, GetInfo, HttpSettings, ProjectData } from 'ontime-types';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
@@ -335,7 +335,7 @@ export const postOscSubscriptions = async (req, res) => {
 };
 
 // Create controller for GET request to '/ontime/http'
-export const getHTTP = async (_req, res: Response<HTTPSettings>) => {
+export const getHTTP = async (_req, res: Response<HttpSettings>) => {
   const http = DataProvider.getHttp();
   res.status(200).send(http);
 };

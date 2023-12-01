@@ -1,5 +1,9 @@
 import { body, check, validationResult } from 'express-validator';
-import { validateOscObject, validateSubscriptionEntry } from '../utils/parserFunctions.js';
+import {
+  validateHttpSubscriptionObject,
+  validateOscSubscriptionObject,
+  validateOscSubscriptionCycle,
+} from '../utils/parserFunctions.js';
 
 /**
  * @description Validates object for POST /ontime/views
@@ -82,7 +86,7 @@ export const validateOSC = [
   body('enabledOut').exists().isBoolean(),
   body('subscriptions')
     .isObject()
-    .custom((value) => validateOscObject(value)),
+    .custom((value) => validateOscSubscriptionObject(value)),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
@@ -97,7 +101,7 @@ export const validateHTTP = [
   body('enabledOut').exists().isBoolean(),
   body('subscriptions')
     .isObject()
-    .custom((value) => validateOscObject(value)),
+    .custom((value) => validateHttpSubscriptionObject(value)),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
@@ -108,25 +112,25 @@ export const validateHTTP = [
 /**
  * @description Validates object for POST /ontime/osc-subscriptions
  */
-export const validateSubscription = [
+export const validateOscSubscription = [
   body('onLoad')
     .isArray()
-    .custom((value) => validateSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onStart')
     .isArray()
-    .custom((value) => validateSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onPause')
     .isArray()
-    .custom((value) => validateSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onStop')
     .isArray()
-    .custom((value) => validateSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onUpdate')
     .isArray()
-    .custom((value) => validateSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onFinish')
     .isArray()
-    .custom((value) => validateSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });

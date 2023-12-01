@@ -1,6 +1,6 @@
-import { HTTPSettings } from 'ontime-types';
+import { HttpSettings } from 'ontime-types';
 
-export const httpPlaceholder: HTTPSettings = {
+export const httpPlaceholder: HttpSettings = {
   enabledOut: false,
   subscriptions: {
     onLoad: [],

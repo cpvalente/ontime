@@ -2,8 +2,8 @@ import { TimerLifeCycle, Subscription } from 'ontime-types';
 
 export type TimerLifeCycleKey = keyof typeof TimerLifeCycle;
 
-export default interface IIntegration {
-  subscriptions: Subscription;
+export default interface IIntegration<T> {
+  subscriptions: Subscription<T>;
   init: (config: unknown) => OperationReturn;
   dispatch: (action: TimerLifeCycleKey, state?: object) => OperationReturn;
   emit: (...args: unknown[]) => unknown;

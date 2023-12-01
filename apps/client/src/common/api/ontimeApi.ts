@@ -3,12 +3,12 @@ import {
   Alias,
   DatabaseModel,
   GetInfo,
-  HTTPSettings,
+  HttpSettings,
   OntimeRundown,
   OSCSettings,
+  OscSubscription,
   ProjectData,
   Settings,
-  Subscription,
   UserFields,
   ViewSettings,
 } from 'ontime-types';
@@ -109,7 +109,7 @@ export async function getOSC(): Promise<OSCSettings> {
  * @description HTTP request to retrieve http settings
  * @return {Promise}
  */
-export async function getHTTP(): Promise<HTTPSettings> {
+export async function getHTTP(): Promise<HttpSettings> {
   const res = await axios.get(`${ontimeURL}/http`);
   return res.data;
 }
@@ -118,7 +118,7 @@ export async function getHTTP(): Promise<HTTPSettings> {
  * @description HTTP request to mutate http settings
  * @return {Promise}
  */
-export async function postHTTP(data: HTTPSettings) {
+export async function postHTTP(data: HttpSettings) {
   return axios.post(`${ontimeURL}/http`, data);
 }
 
@@ -134,7 +134,7 @@ export async function postOSC(data: OSCSettings) {
  * @description HTTP request to mutate osc subscriptions
  * @return {Promise}
  */
-export async function postOscSubscriptions(data: Subscription) {
+export async function postOscSubscriptions(data: OscSubscription) {
   return axios.post(`${ontimeURL}/osc-subscriptions`, data);
 }
 

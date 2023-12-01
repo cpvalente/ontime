@@ -1,11 +1,11 @@
 //TODO: cleanup stuff left over from OSC copy
 import http from 'node:http';
-import { HTTPSettings, LogOrigin, Subscription } from 'ontime-types';
+import { HttpSettings, HttpSubscription, HttpSubscriptionOptions, LogOrigin } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { dbModel } from '../../models/dataModel.js';
-import { validateHttpObject } from '../../utils/parserFunctions.js';
+import { validateHttpSubscriptionEntry } from '../../utils/parserFunctions.js';
 import { logger } from '../../classes/Logger.js';
 
 import { URL } from 'node:url';
@@ -15,9 +15,9 @@ type Action = TimerLifeCycleKey | string;
  * @description Class contains logic towards outgoing HTTP communications
  * @class
  */
-export class HttpIntegration implements IIntegration {
+export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
   protected httpAgent: null | http.Agent;
-  subscriptions: Subscription;
+  subscriptions: HttpSubscription;
 
   constructor() {
     this.httpAgent = null;
@@ -27,7 +27,7 @@ export class HttpIntegration implements IIntegration {
   /**
    * Initializes httpClient
    */
-  init(config: HTTPSettings) {
+  init(config: HttpSettings) {
     const { subscriptions, enabledOut } = config;
 
     if (!enabledOut) {
@@ -60,8 +60,9 @@ export class HttpIntegration implements IIntegration {
     }
   }
 
-  initSubscriptions(subscriptionOptions: Subscription) {
-    if (validateHttpObject(subscriptionOptions)) {
+  initSubscriptions(subscriptionOptions: HttpSubscription) {
+    // TODO: here we have to validate the entire subscription object
+    if (validateHttpSubscriptionEntry(subscriptionOptions)) {
       this.subscriptions = { ...subscriptionOptions };
     }
   }

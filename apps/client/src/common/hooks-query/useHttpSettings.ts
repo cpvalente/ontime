@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { HTTPSettings } from 'ontime-types';
+import { HttpSettings } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { HTTP_SETTINGS } from '../api/apiConstants';
@@ -20,7 +20,7 @@ export function useHttpSettings() {
   });
 
   // we need to jump through some hoops because of the type op port
-  return { data: data! as unknown as HTTPSettings, status, isFetching, isError, refetch };
+  return { data: data! as unknown as HttpSettings, status, isFetching, isError, refetch };
 }
 
 export function usePostHttpSettings() {

@@ -32,9 +32,10 @@ export type { UserFields } from './definitions/core/UserFields.type.js';
 export type { Subscription } from './definitions/core/Subscription.type.js';
 
 // ---> OSC
-export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
+export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './definitions/core/OscSettings.type.js';
+
 // ---> HTTP
-export type { HTTPSettings, HttpSubscription } from './definitions/core/HttpSettings.type.js';
+export type { HttpSettings, HttpSubscription, HttpSubscriptionOptions } from './definitions/core/HttpSettings.type.js';
 
 // SERVER RESPONSES
 export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';

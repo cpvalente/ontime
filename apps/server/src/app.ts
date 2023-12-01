@@ -1,4 +1,4 @@
-import { HTTPSettings, LogOrigin, OSCSettings } from 'ontime-types';
+import { HttpSettings, LogOrigin, OSCSettings } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -194,7 +194,7 @@ export const startOSCServer = async (overrideConfig = null) => {
 /**
  * starts integrations
  */
-export const startIntegrations = async (config?: { osc: OSCSettings; http: HTTPSettings }) => {
+export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpSettings }) => {
   checkStart(OntimeStartOrder.InitIO);
 
   const { osc, http } = config ?? DataProvider.getData();

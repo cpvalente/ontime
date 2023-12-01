@@ -2,7 +2,7 @@ import { Control, useFieldArray, UseFormRegister } from 'react-hook-form';
 import { Button, IconButton, Input, Switch } from '@chakra-ui/react';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
-import { HTTPSettings, TimerLifeCycle } from 'ontime-types';
+import { HttpSettings, TimerLifeCycle } from 'ontime-types';
 
 import { useEmitLog } from '../../../../common/stores/logger';
 import { startsWithHttp } from '../../../../common/utils/regex';
@@ -16,8 +16,8 @@ interface SubscriptionRowProps {
   subtitle: string;
   visible: boolean;
   setShowSection: (cycle: TimerLifeCycle) => void;
-  register: UseFormRegister<HTTPSettings>;
-  control: Control<HTTPSettings>;
+  register: UseFormRegister<HttpSettings>;
+  control: Control<HttpSettings>;
   placeholder: string;
 }
 

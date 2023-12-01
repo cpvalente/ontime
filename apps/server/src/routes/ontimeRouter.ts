@@ -26,7 +26,7 @@ import {
 import {
   validateAliases,
   validateOSC,
-  validateSubscription,
+  validateOscSubscriptionObject,
   validatePatchProjectFile,
   validateSettings,
   validateUserFields,
@@ -86,7 +86,7 @@ router.get('/osc', getOSC);
 router.post('/osc', validateOSC, postOSC);
 
 // create route between controller and '/ontime/osc-subscriptions' endpoint
-router.post('/osc-subscriptions', validateSubscription, postOscSubscriptions);
+router.post('/osc-subscriptions', validateOscSubscriptionObject, postOscSubscriptions);
 
 // create route between controller and '/ontime/http' endpoint
 router.get('/http', getHTTP);
