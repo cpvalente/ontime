@@ -26,12 +26,12 @@ import {
 import {
   validateAliases,
   validateOSC,
-  validateOscSubscriptionObject,
   validatePatchProjectFile,
   validateSettings,
   validateUserFields,
   viewValidator,
   validateHTTP,
+  validateOscSubscription,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 
@@ -86,7 +86,7 @@ router.get('/osc', getOSC);
 router.post('/osc', validateOSC, postOSC);
 
 // create route between controller and '/ontime/osc-subscriptions' endpoint
-router.post('/osc-subscriptions', validateOscSubscriptionObject, postOscSubscriptions);
+router.post('/osc-subscriptions', validateOscSubscription, postOscSubscriptions);
 
 // create route between controller and '/ontime/http' endpoint
 router.get('/http', getHTTP);

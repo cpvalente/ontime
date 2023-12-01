@@ -204,6 +204,7 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 
+    // TODO: this can be improved by only merging known keys
     const loadedConfig = data.osc || {};
     const validatedSubscriptions = validateOscSubscriptionObject(loadedConfig.subscriptions)
       ? loadedConfig.subscriptions
@@ -266,6 +267,7 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
 
+    // TODO: this can be improved by only merging known keys
     const loadedConfig = data?.http || {};
     const validatedSubscriptions = validateHttpSubscriptionObject(loadedConfig.subscriptions)
       ? loadedConfig.subscriptions

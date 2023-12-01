@@ -1,14 +1,15 @@
 //TODO: cleanup stuff left over from OSC copy
 import http from 'node:http';
+import { URL } from 'node:url';
+
 import { HttpSettings, HttpSubscription, HttpSubscriptionOptions, LogOrigin } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { dbModel } from '../../models/dataModel.js';
-import { validateHttpSubscriptionEntry } from '../../utils/parserFunctions.js';
 import { logger } from '../../classes/Logger.js';
+import { validateHttpSubscriptionObject } from '../../utils/parserFunctions.js';
 
-import { URL } from 'node:url';
 type Action = TimerLifeCycleKey | string;
 
 /**
@@ -61,8 +62,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
   }
 
   initSubscriptions(subscriptionOptions: HttpSubscription) {
-    // TODO: here we have to validate the entire subscription object
-    if (validateHttpSubscriptionEntry(subscriptionOptions)) {
+    if (validateHttpSubscriptionObject(subscriptionOptions)) {
       this.subscriptions = { ...subscriptionOptions };
     }
   }
