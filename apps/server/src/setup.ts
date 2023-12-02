@@ -1,7 +1,8 @@
 import { fileURLToPath } from 'url';
 import path, { dirname, join } from 'path';
 import fs from 'fs';
-import { config as defaultConfig } from './config/config.js';
+
+import { config } from './config/config.js';
 
 // =================================================
 // resolve public path
@@ -70,20 +71,21 @@ export const currentDirectory = dirname(__dirname);
 const testDbStartDirectory = isTest ? '../' : getAppDataPath();
 export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
 
-let config;
+const lastLoadedProjectConfigPath = join(getAppDataPath(), 'config.json');
+
+let lastLoadedProject;
 
 try {
-  config = JSON.parse(fs.readFileSync(join(getAppDataPath(), 'config.json'), 'utf8'));
-} catch (err) {
-  config = defaultConfig;
+  lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+} catch {
+  fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: null }));
 }
 
+const configDbDirectory = lastLoadedProject ? 'uploads' : config.database.directory;
+
 // path to public db
-export const resolveDbDirectory = join(
-  testDbStartDirectory,
-  isTest ? config.database.testdb : config.database.directory,
-);
-export const resolveDbPath = join(resolveDbDirectory, config.database.filename);
+export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : configDbDirectory);
+export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
 
 export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, 'db.json')
