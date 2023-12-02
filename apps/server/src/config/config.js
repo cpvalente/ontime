@@ -1,4 +1,4 @@
-export const defaultConfig = {
+export const config = {
   database: {
     testdb: 'test-db',
     directory: 'db',
