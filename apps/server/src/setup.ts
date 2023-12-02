@@ -78,7 +78,9 @@ let lastLoadedProject;
 try {
   lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
 } catch {
-  fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: null }));
+  if (!isTest) {
+    fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: null }));
+  }
 }
 
 const configDbDirectory = lastLoadedProject ? 'uploads' : config.database.directory;
