@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url';
 import path, { dirname, join } from 'path';
 import fs from 'fs';
-import { defaultConfig } from './config/defaultConfig.js';
+import { defaultConfig } from './config/config.js';
 
 // =================================================
 // resolve public path

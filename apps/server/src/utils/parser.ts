@@ -378,7 +378,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
 
-    configService.updateDatabaseConfig('uploads', fileName);
+    configService.updateDatabaseConfig(fileName);
 
     return res;
   }
@@ -394,7 +394,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     }
     res.data = await parseJson(uploadedJson);
 
-    configService.updateDatabaseConfig('uploads', fileName);
+    configService.updateDatabaseConfig(fileName);
 
     return res;
   }

@@ -3,22 +3,12 @@ import { JSONFile } from 'lowdb/node';
 import { join } from 'path';
 
 import { getAppDataPath } from '../setup.js';
-import { defaultConfig } from '../config/defaultConfig.js';
 
 interface Config {
-  database: {
-    testdb: string;
-    directory: string;
-    filename: string;
-  };
-  styles: {
-    directory: string;
-    filename: string;
-  };
-  restoreFile: string;
+  lastLoadedProject: string;
 }
 
-export class ConfigService {
+class ConfigService {
   private config: Low<Config>;
   private configPath: string;
 
@@ -32,7 +22,6 @@ export class ConfigService {
 
   private async init() {
     await this.config.read();
-    this.config.data ||= defaultConfig;
     await this.config.write();
   }
 
@@ -41,11 +30,10 @@ export class ConfigService {
     return this.config.data;
   }
 
-  async updateDatabaseConfig(directory: string, filename: string): Promise<void> {
+  async updateDatabaseConfig(filename: string): Promise<void> {
     if (process.env.IS_TEST) return;
 
-    this.config.data.database.directory = directory;
-    this.config.data.database.filename = filename;
+    this.config.data.lastLoadedProject = filename;
     await this.config.write();
   }
 }
