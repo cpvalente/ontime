@@ -115,7 +115,17 @@ export async function cachedEdit(
   }
 
   const updatedRundown = DataProvider.getRundown();
-  const newEvent = { ...updatedRundown[indexInMemory], ...patchObject } as OntimeRundownEntry;
+  const eventFromRundown = updatedRundown[indexInMemory];
+
+  const isPatchObjectSameAsRundownEvent = Object.entries(patchObject).some(
+    ([key, value]) => eventFromRundown[key] === value,
+  );
+
+  if (isPatchObjectSameAsRundownEvent) {
+    return eventFromRundown;
+  }
+
+  const newEvent = { ...eventFromRundown, ...patchObject } as OntimeRundownEntry;
   if (isOntimeEvent(newEvent)) {
     newEvent.revision++;
   }
