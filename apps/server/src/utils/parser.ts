@@ -21,6 +21,7 @@ import {
 
 import fs from 'fs';
 import xlsx from 'node-xlsx';
+import path from 'path';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
@@ -35,7 +36,6 @@ import {
   parseViewSettings,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
-import path from 'path';
 import { configService } from '../services/ConfigService.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
