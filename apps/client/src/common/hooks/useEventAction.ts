@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { GetRundownCached, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { getCueCandidate, swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
@@ -175,10 +175,10 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData<OntimeRundown>(RUNDOWN);
+      const previousEvents = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
 
       if (previousEvents) {
-        const updatedEvents = previousEvents.map((event) => {
+        const updatedEvents = previousEvents.rundown.map((event) => {
           const isEventEdited = ids.includes(event.id);
 
           if (isEventEdited && isOntimeEvent(event)) {
@@ -191,7 +191,7 @@ export const useEventAction = () => {
           return event;
         });
 
-        queryClient.setQueryData(RUNDOWN, updatedEvents);
+        queryClient.setQueryData(RUNDOWN, { rundown: updatedEvents, revision: -1 });
       }
 
       // Return a context with the previous and new events
@@ -207,7 +207,7 @@ export const useEventAction = () => {
       try {
         await _batchUpdateEventsMutation.mutateAsync({ ids: eventIds, data });
       } catch (error) {
-        logAxiosError('Error updating event', error);
+        logAxiosError('Error updating events', error);
       }
     },
     [_batchUpdateEventsMutation],
