@@ -17,6 +17,7 @@ const whitelistedPayload = {
   skip: coerceBoolean,
 
   colour: coerceColour,
+
   user0: coerceString,
   user1: coerceString,
   user2: coerceString,

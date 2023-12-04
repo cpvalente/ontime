@@ -52,3 +52,4 @@ export type { TimerState } from './definitions/runtime/TimerState.type.js';
 // TYPE UTILITIES
 export { isOntimeBlock, isOntimeDelay, isOntimeEvent } from './utils/guards.js';
 export type { MaybeNumber } from './utils/utils.type.js';
+export { cssColours, type ColourKeys } from './utils/colour.js';
