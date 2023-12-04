@@ -1,5 +1,4 @@
-import http from 'node:http';
-import { URL } from 'node:url';
+import got from 'got';
 
 import { HttpSettings, HttpSubscription, HttpSubscriptionOptions, LogOrigin } from 'ontime-types';
 
@@ -16,11 +15,11 @@ type Action = TimerLifeCycleKey | string;
  * @class
  */
 export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
-  protected httpAgent: null | http.Agent;
+  // protected httpAgent: null | http.Agent;
   subscriptions: HttpSubscription;
 
   constructor() {
-    this.httpAgent = null;
+    // this.httpAgent = null;
     this.subscriptions = dbModel.http.subscriptions;
   }
 
@@ -31,7 +30,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     const { subscriptions, enabledOut } = config;
 
     if (!enabledOut) {
-      this.httpAgent?.destroy();
+      // this.httpAgent?.destroy();
       return {
         success: false,
         message: 'HTTP output disabled',
@@ -42,8 +41,8 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
 
     try {
       // this allows re-calling the init function during runtime
-      this.httpAgent?.destroy();
-      this.httpAgent = new http.Agent({ keepAlive: true, timeout: 2000 });
+      // this.httpAgent?.destroy();
+      // this.httpAgent = new http.Agent({ keepAlive: true, timeout: 2000 });
       return {
         success: true,
         message: `HTTP integration client ready`,
@@ -63,12 +62,12 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
   }
 
   dispatch(action: Action, state?: object) {
-    if (!this.httpAgent) {
-      return {
-        success: false,
-        message: 'Client not initialised',
-      };
-    }
+    // if (!this.httpAgent) {
+    //   return {
+    //     success: false,
+    //     message: 'Client not initialised',
+    //   };
+    // }
 
     if (!action) {
       return {
@@ -85,8 +84,8 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
       if (enabled && message) {
         const parsedMessage = parseTemplateNested(message, state || {});
         try {
-          const parsedUrl = new URL(parsedMessage);
-          if (parsedUrl.protocol !== 'http:') {
+          const parsedUrl = new globalThis.URL(parsedMessage);
+          if (parsedUrl.protocol != 'http:') {
             logger.error(LogOrigin.Tx, `HTTP Integration: Only HTTP allowed, got ${parsedUrl.protocol}`);
             return {
               success: false,
@@ -105,24 +104,31 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     });
   }
 
-  async emit(path: URL) {
-    http
-      .get(path, { agent: this.httpAgent }, (res) => {
-        if (res.statusCode !== 200) {
-          logger.error(LogOrigin.Tx, `HTTP Error: ${res.statusCode}`);
-        }
-        res.resume();
-      })
-      .on('error', (err) => {
-        logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
+  async emit(path: globalThis.URL) {
+    try {
+      await got.get(path, {
+        retry: { limit: 0 },
       });
+    } catch (err) {
+      logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
+    }
+    // http
+    //   .get(path, { agent: this.httpAgent }, (res) => {
+    //     if (res.statusCode !== 200) {
+    //       logger.error(LogOrigin.Tx, `HTTP Error: ${res.statusCode}`);
+    //     }
+    //     res.resume();
+    //   })
+    //   .on('error', (err) => {
+    //     logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
+    //   });
   }
 
   shutdown() {
-    if (this.httpAgent) {
-      this.httpAgent?.destroy();
-      this.httpAgent = null;
-    }
+    // if (this.httpAgent) {
+    //   this.httpAgent?.destroy();
+    //   this.httpAgent = null;
+    // }
   }
 }
 
