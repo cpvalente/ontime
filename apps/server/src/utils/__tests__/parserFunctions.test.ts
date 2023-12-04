@@ -81,21 +81,22 @@ describe('validateHttpSubscriptionCycle()', () => {
   it('should return false when given an HttpSubscription with an invalid property value', () => {
     const invalidBoolean = [{ message: 'http://', enabled: 'not a boolean' }];
     const invalidHttp = [{ message: 'test', enabled: true }];
-    const noHttps = [{ message: 'https://test', enabled: true }];
+    const noFtp = [{ message: 'ftp://test', enabled: true }];
     const noEmpty = [{ message: '', enabled: true }];
 
     // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
     expect(validateHttpSubscriptionCycle(invalidBoolean)).toBe(false);
 
     expect(validateHttpSubscriptionCycle(invalidHttp)).toBe(false);
-    expect(validateHttpSubscriptionCycle(noHttps)).toBe(false);
+    expect(validateHttpSubscriptionCycle(noFtp)).toBe(false);
     expect(validateHttpSubscriptionCycle(noEmpty)).toBe(false);
   });
   it('should return true when given an HttpSubscription matches definition', () => {
     const validHttp = [{ message: 'http://', enabled: true }];
+    const validHttps = [{ message: 'https://', enabled: true }];
 
-    const result = validateHttpSubscriptionCycle(validHttp);
-    expect(result).toBe(true);
+    expect(validateHttpSubscriptionCycle(validHttp)).toBe(true);
+    expect(validateHttpSubscriptionCycle(validHttps)).toBe(true);
   });
 });
 

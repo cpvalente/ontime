@@ -85,13 +85,13 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
         const parsedMessage = parseTemplateNested(message, state || {});
         try {
           const parsedUrl = new globalThis.URL(parsedMessage);
-          if (parsedUrl.protocol != 'http:') {
-            logger.error(LogOrigin.Tx, `HTTP Integration: Only HTTP allowed, got ${parsedUrl.protocol}`);
-            return {
-              success: false,
-              message: `Only HTTP allowed, got ${parsedUrl.protocol}`,
-            };
-          }
+          // if (parsedUrl.protocol != 'http:') {
+          //   logger.error(LogOrigin.Tx, `HTTP Integration: Only HTTP allowed, got ${parsedUrl.protocol}`);
+          //   return {
+          //     success: false,
+          //     message: `Only HTTP allowed, got ${parsedUrl.protocol}`,
+          //   };
+          // }
           this.emit(parsedUrl);
         } catch (err) {
           logger.error(LogOrigin.Tx, `HTTP Integration: ${err}`);

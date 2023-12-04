@@ -227,7 +227,8 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
  */
 export const validateHttpSubscriptionCycle = (data: HttpSubscriptionOptions[]): boolean => {
   for (const subscriptionOption of data) {
-    const isHttp = subscriptionOption.message?.startsWith('http://');
+    const isHttp =
+      subscriptionOption.message?.startsWith('http://') || subscriptionOption.message?.startsWith('https://');
     if (typeof subscriptionOption.message !== 'string' || !isHttp || typeof subscriptionOption.enabled !== 'boolean') {
       return false;
     }
