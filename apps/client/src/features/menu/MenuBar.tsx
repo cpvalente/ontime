@@ -9,6 +9,7 @@ import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
+import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
 
 import { downloadCSV, downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
@@ -31,6 +32,8 @@ interface MenuBarProps {
   onAboutOpen: () => void;
   isQuickStartOpen: boolean;
   onQuickStartOpen: () => void;
+  isClockModalOpen: boolean;
+  onClockModalOpen: () => void;
 }
 
 const buttonStyle = {
@@ -58,6 +61,8 @@ const MenuBar = (props: MenuBarProps) => {
     onAboutOpen,
     isQuickStartOpen,
     onQuickStartOpen,
+    isClockModalOpen,
+    onClockModalOpen,
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
@@ -202,6 +207,16 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onAboutOpen}
         tooltip='About'
         aria-label='About'
+        size='sm'
+      />
+      <div className={style.gap} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        className={isClockModalOpen ? style.open : ''}
+        icon={<IoTimeOutline />}
+        clickHandler={onClockModalOpen}
+        tooltip='Clock Settings'
+        aria-label='clock'
         size='sm'
       />
     </VStack>

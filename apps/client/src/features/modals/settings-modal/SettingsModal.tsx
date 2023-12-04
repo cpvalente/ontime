@@ -4,7 +4,6 @@ import ModalWrapper from '../ModalWrapper';
 
 import AliasesForm from './AliasesForm';
 import AppSettingsModal from './AppSettings';
-import ClockSettingsModal from './ClockSettings';
 import CuesheetSettingsForm from './CuesheetSettingsForm';
 import EditorSettings from './EditorSettings';
 import ProjectDataForm from './ProjectDataForm';
@@ -28,7 +27,6 @@ export default function SettingsModal(props: ModalManagerProps) {
             <Tab>Cuesheet</Tab>
             <Tab>Views</Tab>
             <Tab>URL Aliases</Tab>
-            <Tab>Clock</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -48,9 +46,6 @@ export default function SettingsModal(props: ModalManagerProps) {
             </TabPanel>
             <TabPanel>
               <AliasesForm />
-            </TabPanel>
-            <TabPanel>
-              <ClockSettingsModal />
             </TabPanel>
           </TabPanels>
         </Tabs>

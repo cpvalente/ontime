@@ -17,9 +17,11 @@ const EventEditor = lazy(() => import('../event-editor/EventEditorExport'));
 
 const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
+const ClockModal = lazy(() => import('../modals/clock-modal/ClockModal'));
 
 export default function Editor() {
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
+  const { isOpen: isClockModalOpen, onOpen: onClockModalOpen, onClose: onClockModalClose } = useDisclosure();
   const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
   const {
     isOpen: isIntegrationModalOpen,
@@ -42,6 +44,7 @@ export default function Editor() {
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
         <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
+        <ClockModal isOpen={isClockModalOpen} onClose={onClockModalClose} />
       </ErrorBoundary>
       <div className={styles.mainContainer} data-testid='event-editor'>
         <div id='settings' className={styles.settings}>
@@ -58,6 +61,8 @@ export default function Editor() {
               onAboutOpen={onAboutModalOpen}
               isQuickStartOpen={isQuickStartOpen}
               onQuickStartOpen={onQuickStartOpen}
+              isClockModalOpen={isClockModalOpen}
+              onClockModalOpen={onClockModalOpen}
             />
           </ErrorBoundary>
         </div>
