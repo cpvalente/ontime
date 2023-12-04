@@ -22,8 +22,8 @@ export function coerceBoolean(value: unknown): boolean {
     throw new Error('Invalid value received');
   }
   if (typeof value === 'string') {
-    value = value.toLocaleLowerCase();
-    switch (value) {
+    const lowerCaseValue = value.toLocaleLowerCase();
+    switch (lowerCaseValue) {
       case 'true':
       case '1':
       case 'yes':
