@@ -3,7 +3,7 @@ import { LogOrigin, OSCSettings } from 'ontime-types';
 import 'dotenv/config';
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
-import http from 'http';
+import http, { type Server } from 'http';
 import cors from 'cors';
 
 // import utils
@@ -34,6 +34,7 @@ import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
 import { clock } from './services/Clock.js';
+import { messageService } from './services/message-service/MessageService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -107,8 +108,8 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitAssets;
-let expressServer = null;
-let oscServer = null;
+let expressServer: Server | null = null;
+let oscServer: OscServer | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
@@ -159,6 +160,9 @@ export const startServer = async () => {
   // provide initial payload to event store
   const initialPayload = getInitialPayload();
   eventStore.init(initialPayload);
+
+  // eventStore set is a dependency of the services that publish to it
+  messageService.init(eventStore.set.bind(eventStore));
 
   expressServer.listen(serverPort, '0.0.0.0');
 

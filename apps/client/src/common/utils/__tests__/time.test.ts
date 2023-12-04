@@ -26,4 +26,14 @@ describe('formatTime()', () => {
     const time = formatTime(ms);
     expect(time).toStrictEqual('...');
   });
+
+  it('shows 12h format without times', () => {
+    const ms = 13 * 60 * 60 * 1000;
+    const options = {
+      showSeconds: false,
+      format: 'hh:mm a',
+    };
+    const time = formatTime(ms, options, () => '12');
+    expect(time).toStrictEqual('01:00 PM');
+  });
 });

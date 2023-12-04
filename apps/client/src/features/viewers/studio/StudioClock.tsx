@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { OntimeEvent, OntimeRundown, ViewSettings } from 'ontime-types';
+import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
 import { SupportedEvent } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
-import { STUDIO_CLOCK_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import { getStudioClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -32,10 +32,11 @@ interface StudioClockProps {
   nextId: string | null;
   onAir: boolean;
   viewSettings: ViewSettings;
+  settings: Settings | undefined;
 }
 
 export default function StudioClock(props: StudioClockProps) {
-  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings } = props;
+  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings, settings } = props;
 
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
@@ -75,10 +76,12 @@ export default function StudioClock(props: StudioClockProps) {
   const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
 
+  const studioClockOptions = getStudioClockOptions(settings?.timeFormat ?? '24');
+
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
-      <ViewParamsEditor paramFields={STUDIO_CLOCK_OPTIONS} />
+      <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
         <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, ReactNode } from 'react';
 import { Button, Checkbox, Switch } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
@@ -22,12 +22,14 @@ interface CuesheetTableSettingsProps {
 
 function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
-  const showPrevious = useCuesheetSettings((state) => state.showPrevious);
-  const togglePreviousVisibility = useCuesheetSettings((state) => state.togglePreviousVisibility);
-  const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
-  const toggleDelayVisibility = useCuesheetSettings((state) => state.toggleDelayVisibility);
-  const showDelayedTimes = useCuesheetSettings((state) => state.showDelayedTimes);
-  const toggleDelayedTimes = useCuesheetSettings((state) => state.toggleDelayedTimes);
+  const {
+    showPrevious,
+    toggleDelayVisibility,
+    showDelayBlock,
+    showDelayedTimes,
+    toggleDelayedTimes,
+    togglePreviousVisibility,
+  } = useCuesheetSettings();
 
   return (
     <div className={style.tableSettings}>
@@ -44,7 +46,7 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
                   defaultChecked={visible}
                   onChange={column.getToggleVisibilityHandler()}
                 />
-                {columnHeader}
+                {columnHeader as ReactNode}
               </label>
             );
           })}

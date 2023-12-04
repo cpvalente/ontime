@@ -1,16 +1,43 @@
-/* eslint-disable react/display-name */
 import { ComponentType, useMemo } from 'react';
-import { SupportedEvent } from 'ontime-types';
+import { TimeManagerType } from 'common/models/TimeManager.type';
+import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, TimerMessage, ViewSettings } from 'ontime-types';
 import { useStore } from 'zustand';
 
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
+import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { runtime } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
-const withData = <P extends object>(Component: ComponentType<P>) => {
-  return (props: Partial<P>) => {
+type WithDataProps = {
+  isMirrored: boolean;
+  pres: TimerMessage;
+  publ: Message;
+  lower: Message;
+  external: Message;
+  eventNow: OntimeEvent | null;
+  publicEventNow: OntimeEvent | null;
+  eventNext: OntimeEvent | null;
+  publicEventNext: OntimeEvent | null;
+  time: TimeManagerType;
+  events: OntimeEvent[];
+  backstageEvents: OntimeEvent[];
+  selectedId: string | null;
+  publicSelectedId: string | null;
+  nextId: string | null;
+  general: ProjectData;
+  viewSettings: ViewSettings;
+  settings: Settings | undefined;
+  onAir: boolean;
+};
+
+function getDisplayName(Component: React.ComponentType<any>): string {
+  return Component.displayName || Component.name || 'Component';
+}
+
+const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
+  const WithDataComponent = (props: P) => {
     // persisted app state
     const isMirrored = useViewOptionsStore((state) => state.mirror);
 
@@ -18,6 +45,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
     const { data: rundownData } = useRundown();
     const { data: project } = useProjectData();
     const { data: viewSettings } = useViewSettings();
+    const { data: settings } = useSettings();
 
     const publicEvents = useMemo(() => {
       if (Array.isArray(rundownData)) {
@@ -27,12 +55,12 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
     }, [rundownData]);
 
     // websocket data
-    const data = useStore(runtime);
     const {
       timer,
       publicMessage,
       timerMessage,
       lowerMessage,
+      externalMessage,
       playback,
       onAir,
       eventNext,
@@ -40,7 +68,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
       publicEventNow,
       eventNow,
       loaded,
-    } = data;
+    } = useStore(runtime);
     const publicSelectedId = loaded.selectedPublicEventId;
     const selectedId = loaded.selectedEventId;
     const nextId = loaded.nextEventId;
@@ -68,6 +96,7 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
         pres={timerMessage}
         publ={publicMessage}
         lower={lowerMessage}
+        external={externalMessage}
         eventNow={eventNow}
         publicEventNow={publicEventNow}
         eventNext={eventNext}
@@ -78,12 +107,16 @@ const withData = <P extends object>(Component: ComponentType<P>) => {
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
         viewSettings={viewSettings}
+        settings={settings}
         nextId={nextId}
         general={project}
         onAir={onAir}
       />
     );
   };
+
+  WithDataComponent.displayName = `WithData(${getDisplayName(Component)})`;
+  return WithDataComponent;
 };
 
 export default withData;

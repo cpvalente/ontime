@@ -15,16 +15,19 @@
   background-color: $gray-1350;
   z-index: 2;
 
-  padding: 0.5rem 1rem;
   border-bottom: 1px solid $white-10;
   box-shadow: $large-top-drawer-shadow;
+}
 
+.timers {
   display: grid;
+  padding: 0.5rem 1rem;
   grid-template-areas:
     "playback timer1B timer2B timer3B";
   grid-template-columns: 1fr auto auto auto;
   column-gap: 1.5rem;
   align-items: center;
+
 }
 
 .playbackIcon {
@@ -83,7 +86,7 @@
 
 // tablet
 @media (min-width: $min-tablet) {
-  .statusBar {
+  .timers {
     grid-template-areas:
     "playback timer1B timer2A timer3A"
     "title    title   timer2B timer3B";
@@ -102,4 +105,8 @@
   .endTime {
     display: flex;
   }
+}
+
+.progressOverride {
+  border-radius: 0;
 }

@@ -13,7 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
 
-import { PROJECT_DATA, RUNDOWN_TABLE, USERFIELDS } from '../../../common/api/apiConstants';
+import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/apiUtils';
 import {
   patchData,
@@ -155,11 +155,11 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
       setSubmitting(true);
       try {
         await patchData({ rundown, userFields, project });
-        queryClient.setQueryData(RUNDOWN_TABLE, rundown);
+        queryClient.setQueryData(RUNDOWN, { rundown, revision: -1 });
         queryClient.setQueryData(USERFIELDS, userFields);
         queryClient.setQueryData(PROJECT_DATA, project);
         await queryClient.invalidateQueries({
-          queryKey: [...RUNDOWN_TABLE, ...USERFIELDS, ...PROJECT_DATA],
+          queryKey: [...RUNDOWN, ...USERFIELDS, ...PROJECT_DATA],
         });
         doClose = true;
       } catch (error) {

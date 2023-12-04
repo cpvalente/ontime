@@ -64,3 +64,20 @@ export function getCurrent(
   }
   return startedAt + duration + addedTime + pausedTime - clock;
 }
+
+export function skippedOutOfEvent(
+  previousTime: number,
+  clock: number,
+  startedAt: number,
+  expectedFinish: number,
+  skipLimit: number,
+): boolean {
+  const hasPassedMidnight = previousTime > dayInMs - skipLimit && clock < skipLimit;
+  const adjustedClock = hasPassedMidnight ? clock + dayInMs : clock;
+
+  const timeDifference = previousTime - adjustedClock;
+  const hasSkipped = Math.abs(timeDifference) > skipLimit;
+  const adjustedExpectedFinish = expectedFinish >= startedAt ? expectedFinish : expectedFinish + dayInMs;
+
+  return hasSkipped && (adjustedClock > adjustedExpectedFinish || adjustedClock < startedAt);
+}

@@ -21,7 +21,7 @@ interface UseFollowComponentProps {
   scrollRef: MutableRefObject<HTMLElement | null>;
   doFollow: boolean;
   topOffset?: number;
-  setScrollFlag?: () => void;
+  setScrollFlag?: (newValue: boolean) => void;
 }
 
 export default function useFollowComponent(props: UseFollowComponentProps) {
@@ -34,14 +34,15 @@ export default function useFollowComponent(props: UseFollowComponentProps) {
     }
 
     if (followRef.current && scrollRef.current) {
+      setScrollFlag?.(true);
       // Use requestAnimationFrame to ensure the component is fully loaded
       window.requestAnimationFrame(() => {
-        setScrollFlag?.();
         scrollToComponent(
           followRef as MutableRefObject<HTMLElement>,
           scrollRef as MutableRefObject<HTMLElement>,
           topOffset,
         );
+        setScrollFlag?.(false);
       });
     }
 

@@ -24,10 +24,7 @@ interface CuesheetProps {
 }
 
 export default function Cuesheet({ data, columns, handleUpdate, selectedId }: CuesheetProps) {
-  const followSelected = useCuesheetSettings((state) => state.followSelected);
-  const showSettings = useCuesheetSettings((state) => state.showSettings);
-  const showDelayBlock = useCuesheetSettings((state) => state.showDelayBlock);
-  const showPrevious = useCuesheetSettings((state) => state.showPrevious);
+  const { followSelected, showSettings, showDelayBlock, showPrevious } = useCuesheetSettings();
 
   const [columnVisibility, setColumnVisibility] = useLocalStorage('table-hidden', {});
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
@@ -66,7 +63,9 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     setColumnSizing({});
   };
 
-  const headerGroups = table.getHeaderGroups;
+  const headerGroups = table.getHeaderGroups();
+  const rowModel = table.getRowModel();
+  const allLeafColumns = table.getAllLeafColumns();
 
   let eventIndex = 0;
   let isPast = Boolean(selectedId);
@@ -75,7 +74,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     <>
       {showSettings && (
         <CuesheetTableSettings
-          columns={table.getAllLeafColumns()}
+          columns={allLeafColumns}
           handleResetResizing={resetColumnResizing}
           handleResetReordering={resetColumnOrder}
           handleClearToggles={setAllVisible}
@@ -85,7 +84,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
         <table className={style.cuesheet}>
           <CuesheetHeader headerGroups={headerGroups} />
           <tbody>
-            {table.getRowModel().rows.map((row) => {
+            {rowModel.rows.map((row) => {
               const key = row.original.id;
               const isSelected = selectedId === key;
               if (isSelected) {

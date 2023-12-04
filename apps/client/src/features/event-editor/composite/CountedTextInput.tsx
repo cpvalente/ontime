@@ -40,6 +40,7 @@ export default function CountedTextInput(props: CountedTextInputProps) {
         onChange={onChange}
         onBlur={onBlur}
         onKeyDown={onKeyDown}
+        autoComplete='off'
       />
     </div>
   );

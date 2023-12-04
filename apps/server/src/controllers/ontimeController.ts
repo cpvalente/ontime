@@ -16,6 +16,7 @@ import { deleteAllEvents, notifyChanges } from '../services/rundown-service/Rund
 import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
+import { integrationService } from '../services/integration-service/IntegrationService.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -318,9 +319,15 @@ export const postOSC = async (req, res) => {
     const oscSettings = req.body;
     await DataProvider.setOsc(oscSettings);
 
+    integrationService.unregister(oscIntegration);
+
     // TODO: this update could be more granular, checking that relevant data was changed
-    const { message } = oscIntegration.init(oscSettings);
+    const { success, message } = oscIntegration.init(oscSettings);
     logger.info(LogOrigin.Tx, message);
+
+    if (success) {
+      integrationService.register(oscIntegration);
+    }
 
     res.send(oscSettings).status(200);
   } catch (error) {
