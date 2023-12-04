@@ -1,4 +1,3 @@
-//TODO: cleanup stuff left over from OSC copy
 import http from 'node:http';
 import { URL } from 'node:url';
 
@@ -44,11 +43,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     try {
       // this allows re-calling the init function during runtime
       this.httpAgent?.destroy();
-      // this.httpAgent = new http.Agent({ keepAlive: true, timeout: 2000, maxSockets: 5, maxFreeSockets: 40 });
-      //TODO: find the correct settings
-      // this.httpAgent = new http.Agent({ keepAlive: true, timeout: 1000, maxFreeSockets: 10, maxSockets: 5});
-      this.httpAgent = new http.Agent({ keepAlive: false, timeout: 1000 });
-      // this.httpAgent = new http.Agent();
+      this.httpAgent = new http.Agent({ keepAlive: true, timeout: 2000 });
       return {
         success: true,
         message: `HTTP integration client ready`,
