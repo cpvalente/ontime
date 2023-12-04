@@ -31,8 +31,8 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
 
   const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
 
-  const timerValidationHandler = (entry: TimeEntryField, val: number) => {
-    const valid = validateEntry(entry, val, timeStart, timeEnd);
+  const timerValidationHandler = (entry: TimeEntryField, val: number, proceeding: number) => {
+    const valid = validateEntry(entry, val, timeStart, timeEnd, proceeding);
     setWarnings((prev) => ({ ...prev, ...valid.warnings }));
     return valid.value;
   };

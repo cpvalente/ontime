@@ -56,8 +56,8 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
    * @return {boolean}
    */
   const handleValidation = useCallback(
-    (field: TimeEntryField, value: number) => {
-      const valid = validateEntry(field, value, timeStart, timeEnd);
+    (field: TimeEntryField, value: number, proceeding: number) => {
+      const valid = validateEntry(field, value, timeStart, timeEnd, proceeding);
       setWarnings((prev) => ({ ...prev, ...valid.warnings }));
       return valid.value;
     },

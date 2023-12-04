@@ -17,7 +17,7 @@ interface TimeInputProps {
   time?: number;
   delay?: number;
   placeholder: string;
-  validationHandler: (entry: TimeEntryField, val: number) => boolean;
+  validationHandler: (entry: TimeEntryField, val: number, proceeding: number) => boolean;
   previousEnd?: number;
   warning?: string;
 }
@@ -104,7 +104,7 @@ export default function TimeInput(props: TimeInputProps) {
       if (newValMillis === time) return false;
 
       // validate with parent
-      if (!validationHandler(name, newValMillis)) return false;
+      if (!validationHandler(name, newValMillis, previousEnd)) return false;
 
       // update entry
       submitHandler(name, newValMillis);
@@ -171,7 +171,17 @@ export default function TimeInput(props: TimeInputProps) {
 
   const isDelayed = delay !== 0;
   const inputClasses = cx([style.timeInput, isDelayed ? style.delayed : null]);
-  const buttonClasses = cx([style.inputButton, isDelayed ? style.delayed : null, warning ? style.warn : null]);
+  const buttonClasses = cx([
+    style.inputButton,
+    isDelayed ? style.delayed : null,
+    warning
+      ? warning.startsWith('Overlapping')
+        ? style.warn_overlap
+        : warning.startsWith('Spacing')
+        ? style.warn_space
+        : style.warn
+      : null,
+  ]);
 
   const TooltipLabel = useMemo(() => {
     return ButtonTooltip(name, warning);

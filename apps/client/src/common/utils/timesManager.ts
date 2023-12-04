@@ -1,3 +1,5 @@
+import { millisToString } from 'ontime-utils';
+
 export type TimeEntryField = 'timeStart' | 'timeEnd' | 'durationOverride';
 
 /**
@@ -31,6 +33,7 @@ export const validateEntry = (
   value: number,
   timeStart: number,
   timeEnd: number,
+  proceeding: number,
 ): { value: boolean; warnings: { start?: string; end?: string; duration?: string } } => {
   const validate = { value: true, warnings: { start: '', end: '', duration: '' } };
 
@@ -38,6 +41,11 @@ export const validateEntry = (
 
   if (end < start) {
     validate.warnings.start = 'Start time later than end time';
+  }
+  if (proceeding > start) {
+    validate.warnings.start = `Overlapping ${millisToString(proceeding - start)} with previous event`;
+  } else if (proceeding < start) {
+    validate.warnings.start = `Spacing is ${millisToString(start - proceeding)} to previous event`;
   }
 
   return validate;
