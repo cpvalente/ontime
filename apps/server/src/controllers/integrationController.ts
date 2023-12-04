@@ -3,7 +3,7 @@ import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
 import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
-import { event } from '../models/eventsDefinition.js';
+import { event as eventDef } from '../models/eventsDefinition.js';
 
 export type ChangeOptions = {
   eventId: string;
@@ -273,7 +273,7 @@ export function dispatchFromAdapter(
     case 'change': {
       const { eventId, property, value } = payload as ChangeOptions;
       //TODO: cue can't pass this check
-      if (!isKeyOfType(property, event)) {
+      if (!isKeyOfType(property, eventDef)) {
         throw new Error(`Cannot update unknown event property ${property}`);
       }
       const parsedPayload = parse(property, value);
