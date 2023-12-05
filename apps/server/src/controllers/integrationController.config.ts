@@ -3,7 +3,7 @@ import { EventLoader } from '../classes/event-loader/EventLoader.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
 import { logger } from '../classes/Logger.js';
-import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
+import { isKeyOfType, isOntimeEvent } from 'ontime-types/src/utils/guards.js';
 
 const whitelistedPayload = {
   title: coerceString,
@@ -51,8 +51,10 @@ export function updateEvent(
   newValue: OntimeEvent[typeof propertyName],
 ) {
   const event = EventLoader.getEventWithId(eventId);
-
   if (event) {
+    if (!isOntimeEvent(event)) {
+      throw new Error(`Can only update events`);
+    }
     const propertiesToUpdate = { [propertyName]: newValue };
 
     // Handles the special case for duration
