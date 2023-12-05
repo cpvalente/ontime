@@ -13,7 +13,8 @@ type ColourCombination = {
 export const getAccessibleColour = (bgColour?: string): ColourCombination => {
   if (bgColour) {
     try {
-      const preMultColour = Color(bgColour).mix(Color('#1a1a1a'));
+      const orgColour = Color(bgColour);
+      const preMultColour = orgColour.alpha(1).mix(Color('#1a1a1a'), 1 - orgColour.alpha());
       const textColor = preMultColour.isLight() ? 'black' : '#fffffa';
       return { backgroundColor: preMultColour.hexa(), color: textColor };
     } catch (_error) {
