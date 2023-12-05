@@ -3,6 +3,7 @@ import { EventLoader } from '../classes/event-loader/EventLoader.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
 import { logger } from '../classes/Logger.js';
+import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
 
 const whitelistedPayload = {
   title: coerceString,
@@ -30,12 +31,12 @@ const whitelistedPayload = {
   user9: coerceString,
 };
 
-export function parse(field: string, value: unknown) {
-  if (!Object.hasOwn(whitelistedPayload, field)) {
-    throw new Error(`Field ${field} not permitted`);
+export function parse(property: string, value: unknown) {
+  if (!isKeyOfType(property, whitelistedPayload)) {
+    throw new Error(`Property ${property} not permitted`);
   }
-  const parserFn = whitelistedPayload[field];
-  return parserFn(value);
+  const parserFn = whitelistedPayload[property];
+  return { parsedProperty: property, parsedPayload: parserFn(value) };
 }
 
 /**
