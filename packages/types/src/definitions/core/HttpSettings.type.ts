@@ -1,6 +1,7 @@
 import { Subscription } from './Subscription.type.js';
 
-export type HttpSubscriptionOptions = { message: string; enabled: boolean };
+type httpMethod = 'GET' | 'POST';
+export type HttpSubscriptionOptions = { url: string; options: string; enabled: boolean; method: httpMethod };
 export type HttpSubscription = Subscription<HttpSubscriptionOptions>;
 
 export interface HttpSettings {

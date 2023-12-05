@@ -1,5 +1,5 @@
 import { Control, useFieldArray, UseFormRegister } from 'react-hook-form';
-import { Button, IconButton, Input, Switch } from '@chakra-ui/react';
+import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { HttpSettings, TimerLifeCycle } from 'ontime-types';
@@ -40,8 +40,10 @@ export default function SubscriptionRow(props: SubscriptionRowProps) {
       return;
     }
     append({
-      message: '',
+      url: '',
+      options: '',
       enabled: false,
+      method: 'GET',
     });
   };
 
@@ -70,10 +72,26 @@ export default function SubscriptionRow(props: SubscriptionRowProps) {
                 size='xs'
                 variant='ontime-filled-on-light'
                 autoComplete='off'
-                {...register(`subscriptions.${cycle}.${index}.message`, {
+                {...register(`subscriptions.${cycle}.${index}.url`, {
                   pattern: { value: startsWithHttpOrS, message: 'Request address must start with http://' },
                 })}
               />
+              <Input
+                placeholder='test=testtext'
+                size='xs'
+                variant='ontime-filled-on-light'
+                autoComplete='off'
+                {...register(`subscriptions.${cycle}.${index}.options`)}
+              />
+              <Select
+                variant='ontime-on-light'
+                size='xs'
+                width='6em'
+                {...register(`subscriptions.${cycle}.${index}.method`)}
+              >
+                <option>GET</option>
+                <option>POST</option>
+              </Select>
               <Switch variant='ontime-on-light' {...register(`subscriptions.${cycle}.${index}.enabled`)} />
             </div>
           ))}
