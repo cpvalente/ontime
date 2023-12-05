@@ -5,6 +5,7 @@ import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundo
 
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';
+import { getAccessibleColour } from '../../common/utils/styleUtils';
 
 import BlockRow from './cuesheet-table-elements/BlockRow';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
@@ -120,8 +121,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 } else if (row.original.colour) {
                   try {
                     // the colour is user defined and might be invalid
-                    const colour = new Color(row.original.colour).alpha(0.25);
-                    rowBgColour = colour.hsl().string();
+                    rowBgColour = Color(getAccessibleColour(row.original.colour).backgroundColor).fade(0.75).hexa();
                   } catch (_error) {
                     /* we do not handle errors here */
                   }
