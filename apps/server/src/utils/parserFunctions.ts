@@ -280,8 +280,11 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
       ? loadedConfig.subscriptions
       : dbModel.http.subscriptions;
 
+    const retryCount = Math.max(0, loadedConfig.retryCount ?? dbModel.http.retryCount);
+
     return {
       enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
+      retryCount: retryCount,
       subscriptions: validatedSubscriptions,
     };
   }

@@ -17,7 +17,7 @@ type Action = TimerLifeCycleKey | string;
 export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
   // protected httpAgent: null | http.Agent;
   subscriptions: HttpSubscription;
-
+  private retryCount = 0;
   constructor() {
     // this.httpAgent = null;
     this.subscriptions = dbModel.http.subscriptions;
@@ -27,7 +27,9 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
    * Initializes httpClient
    */
   init(config: HttpSettings) {
-    const { subscriptions, enabledOut } = config;
+    const { subscriptions, enabledOut, retryCount } = config;
+
+    this.retryCount = retryCount;
 
     if (!enabledOut) {
       // this.httpAgent?.destroy();
@@ -102,12 +104,12 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
       if (method === 'GET') {
         await got.get(path, {
           searchParams: options,
-          retry: { limit: 0 },
+          retry: { limit: this.retryCount },
         });
       } else if (method === 'POST') {
         await got.post(path, {
           body: options,
-          retry: { limit: 0 },
+          retry: { limit: this.retryCount },
         });
       }
     } catch (err) {
