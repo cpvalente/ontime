@@ -1,4 +1,5 @@
 import { cssColours } from 'ontime-types';
+import { isColourHex } from 'ontime-utils';
 
 /**
  * @description Converts a value to a string if possible, throws otherwise
@@ -65,22 +66,19 @@ export function coerceNumber(value: unknown): number {
  * @returns {string} - The converted value as a string.
  * @throws {Error} Throws an error if the value is null or undefined.
  */
-const hexColor = new RegExp(/^#((?:[a-f\d]{1,2}){3,4})$/, 'i');
 export function coerceColour(value: unknown): string {
   if (value == null || typeof value != 'string') {
     throw new Error('Invalid colour value received');
   }
   if (value[0] == '#') {
-    const isHexColor = hexColor.exec(value);
+    const isHexColor = isColourHex(value);
     if (isHexColor) {
-      //TODO: if the hex value is 4 or 8 digits the last 1 or 2 are the trasparent part
-      // we sould remove that to not breake the css formating the app
       return value;
     } else {
       throw new Error('Invalid hex colour received');
     }
   } else {
-    const lowerCaseValue = value.toLocaleLowerCase(); //Red will not work but red will
+    const lowerCaseValue = value.toLocaleLowerCase();
     const isCssColor = lowerCaseValue in cssColours;
     if (isCssColor) {
       return lowerCaseValue;
