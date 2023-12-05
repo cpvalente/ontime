@@ -66,7 +66,7 @@ export function coerceNumber(value: unknown): number {
  * @throws {Error} Throws an error if the value is null or undefined.
  */
 export function coerceColour(value: unknown): string {
-  if (value == null || typeof value != 'string') {
+  if (typeof value !== 'string') {
     throw new Error('Invalid colour value received');
   }
   if (value[0] == '#') {
@@ -85,7 +85,6 @@ export function coerceColour(value: unknown): string {
       throw new Error('Invalid colour name received');
     }
   }
-  //TODO: do we want to change other types to colors?
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/CSS/named-color
