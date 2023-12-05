@@ -2,12 +2,15 @@ import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
+import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
+import { Coordinates, CSS } from '@dnd-kit/utilities';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoPencilSharp } from '@react-icons/all-files/io5/IoPencilSharp';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
+import { MdDragHandle } from '@react-icons/all-files/md/MdDragHandle';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
@@ -18,7 +21,30 @@ import RenameClientModal from './rename-client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
 
-function NavigationMenu() {
+type NavigationMenuProps = {
+  top?: number;
+  left?: number;
+};
+
+function NavigationMenuDragContext() {
+  const [{ x, y }, setCoordinates] = useState<Coordinates>({ x: 0, y: 0 });
+  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
+
+  const onDragEnd = ({ delta }: DragEndEvent) => {
+    setCoordinates(({ x, y }) => ({
+      x: x + delta.x,
+      y: y + delta.y,
+    }));
+  };
+
+  return (
+    <DndContext id='navigation-menu' onDragEnd={onDragEnd} sensors={sensors}>
+      <NavigationMenu top={y} left={x} />
+    </DndContext>
+  );
+}
+
+function NavigationMenu({ top, left }: NavigationMenuProps) {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
@@ -27,6 +53,9 @@ function NavigationMenu() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useDraggable({
+    id: 'navigation-menu',
+  });
 
   useClickOutside(menuRef, () => setShowMenu(false));
 
@@ -62,10 +91,14 @@ function NavigationMenu() {
     setSearchParams(searchParams);
   };
 
-  return createPortal(
+  return (
     <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
       <RenameClientModal isOpen={isOpen} onClose={onClose} />
-      <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
+      <div
+        className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}
+        ref={setNodeRef}
+        style={{ top, left, transform: CSS.Translate.toString(transform) }}
+      >
         <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
           <IoApps />
         </button>
@@ -134,11 +167,12 @@ function NavigationMenu() {
             ))}
           </div>
         )}
+        <button className={style.dragBtn} {...attributes} {...listeners}>
+          <MdDragHandle />
+        </button>
       </div>
-    </div>,
-
-    document.body,
+    </div>
   );
 }
 
-export default memo(NavigationMenu);
+export default memo(NavigationMenuDragContext);
