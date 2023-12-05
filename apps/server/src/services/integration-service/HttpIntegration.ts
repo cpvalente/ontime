@@ -85,14 +85,6 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
         const templateUrl = parseTemplateNested(url, state || {});
         const templateOptions = parseTemplateNested(options, state || {});
         try {
-          const parsedUrl = new globalThis.URL(templateUrl);
-          // if (parsedUrl.protocol != 'http:') {
-          //   logger.error(LogOrigin.Tx, `HTTP Integration: Only HTTP allowed, got ${parsedUrl.protocol}`);
-          //   return {
-          //     success: false,
-          //     message: `Only HTTP allowed, got ${parsedUrl.protocol}`,
-          //   };
-          // }
           this.emit(templateUrl, templateOptions, method);
         } catch (err) {
           logger.error(LogOrigin.Tx, `HTTP Integration: ${err}`);
@@ -114,6 +106,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
         });
       } else if (method === 'POST') {
         await got.post(path, {
+          body: options,
           retry: { limit: 0 },
         });
       }
