@@ -1,4 +1,3 @@
-import { cssColours } from 'ontime-types';
 import { isColourHex } from 'ontime-utils';
 
 /**
