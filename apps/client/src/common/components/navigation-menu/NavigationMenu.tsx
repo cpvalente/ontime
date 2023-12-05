@@ -1,7 +1,7 @@
 import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { useDisclosure } from '@chakra-ui/react';
+import { Popover, PopoverBody, PopoverContent, PopoverTrigger, Portal, useDisclosure } from '@chakra-ui/react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
 import { Coordinates, CSS } from '@dnd-kit/utilities';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
@@ -71,7 +71,7 @@ function NavigationMenu({ top, left }: NavigationMenuProps) {
       if (fadeOut) {
         clearTimeout(fadeOut);
       }
-      fadeOut = setTimeout(() => setShowButton(false), 3000);
+      fadeOut = setTimeout(() => setShowButton(true), 3000);
     };
     document.addEventListener('mousemove', setShowMenuTrue);
     return () => {
@@ -94,83 +94,87 @@ function NavigationMenu({ top, left }: NavigationMenuProps) {
   return (
     <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
       <RenameClientModal isOpen={isOpen} onClose={onClose} />
-      <div
-        className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}
-        ref={setNodeRef}
-        style={{ top, left, transform: CSS.Translate.toString(transform) }}
-      >
-        <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
-          <IoApps />
-        </button>
-        <button className={style.button} onClick={showEditFormDrawer}>
-          <IoPencilSharp />
-        </button>
-        {showMenu && (
-          <div className={style.menuContainer} data-testid='navigation-menu'>
-            <div className={style.buttonsContainer}>
-              <div
-                className={style.link}
-                tabIndex={0}
-                role='button'
-                onClick={handleFullscreen}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && handleFullscreen();
-                }}
-              >
-                Toggle Fullscreen
-                {isFullScreen ? <IoContract /> : <IoExpand />}
+      <Popover placement='bottom-start'>
+        <div
+          className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}
+          ref={setNodeRef}
+          style={{ top, left, transform: CSS.Translate.toString(transform) }}
+        >
+          <PopoverTrigger>
+            <button aria-label='toggle menu' className={style.navButton}>
+              <IoApps />
+            </button>
+          </PopoverTrigger>
+          <button className={style.button} onClick={showEditFormDrawer}>
+            <IoPencilSharp />
+          </button>
+          <button className={style.dragBtn} {...attributes} {...listeners}>
+            <MdDragHandle />
+          </button>
+          <PopoverContent className={style.menuContent} border='none' w='200px'>
+            <PopoverBody className={style.menuContainer} data-testid='navigation-menu' p={0}>
+              <div className={style.buttonsContainer}>
+                <div
+                  className={style.link}
+                  tabIndex={0}
+                  role='button'
+                  onClick={handleFullscreen}
+                  onKeyDown={(event) => {
+                    isKeyEnter(event) && handleFullscreen();
+                  }}
+                >
+                  Toggle Fullscreen
+                  {isFullScreen ? <IoContract /> : <IoExpand />}
+                </div>
+                <div
+                  className={style.link}
+                  tabIndex={0}
+                  role='button'
+                  onClick={handleMirror}
+                  onKeyDown={(event) => {
+                    isKeyEnter(event) && handleMirror();
+                  }}
+                >
+                  Flip Screen
+                  <IoSwapVertical />
+                </div>
+                <div
+                  className={style.link}
+                  tabIndex={0}
+                  role='button'
+                  onClick={onOpen}
+                  onKeyDown={(event) => {
+                    isKeyEnter(event) && onOpen();
+                  }}
+                >
+                  Rename Client
+                </div>
               </div>
-              <div
-                className={style.link}
-                tabIndex={0}
-                role='button'
-                onClick={handleMirror}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && handleMirror();
-                }}
-              >
-                Flip Screen
-                <IoSwapVertical />
-              </div>
-              <div
-                className={style.link}
-                tabIndex={0}
-                role='button'
-                onClick={onOpen}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && onOpen();
-                }}
-              >
-                Rename Client
-              </div>
-            </div>
-            <hr className={style.separator} />
-            <Link to='/cuesheet' className={style.link} tabIndex={0}>
-              Cuesheet
-              <IoArrowUp className={style.linkIcon} />
-            </Link>
-            <Link to='/op' className={style.link} tabIndex={0}>
-              Operator
-              <IoArrowUp className={style.linkIcon} />
-            </Link>
-            <hr className={style.separator} />
-            {navigatorConstants.map((route) => (
-              <Link
-                key={route.url}
-                to={route.url}
-                className={`${style.link} ${route.url === location.pathname ? style.current : undefined}`}
-                tabIndex={0}
-              >
-                {route.label}
+              <hr className={style.separator} />
+              <Link to='/cuesheet' className={style.link} tabIndex={0}>
+                Cuesheet
                 <IoArrowUp className={style.linkIcon} />
               </Link>
-            ))}
-          </div>
-        )}
-        <button className={style.dragBtn} {...attributes} {...listeners}>
-          <MdDragHandle />
-        </button>
-      </div>
+              <Link to='/op' className={style.link} tabIndex={0}>
+                Operator
+                <IoArrowUp className={style.linkIcon} />
+              </Link>
+              <hr className={style.separator} />
+              {navigatorConstants.map((route) => (
+                <Link
+                  key={route.url}
+                  to={route.url}
+                  className={`${style.link} ${route.url === location.pathname ? style.current : undefined}`}
+                  tabIndex={0}
+                >
+                  {route.label}
+                  <IoArrowUp className={style.linkIcon} />
+                </Link>
+              ))}
+            </PopoverBody>
+          </PopoverContent>
+        </div>
+      </Popover>
     </div>
   );
 }
