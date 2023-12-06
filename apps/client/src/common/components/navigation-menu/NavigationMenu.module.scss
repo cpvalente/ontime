@@ -34,10 +34,6 @@ $button-size: 48px;
   }
 }
 
-.menuContent {
-  bottom: 66px;
-}
-
 .button {
   font-size: 24px;
   color: $icon-color;
@@ -51,18 +47,13 @@ $button-size: 48px;
 
 .navButton {
   @extend .button;
-  z-index: 11;
 }
 
 .menuContainer {
-  top: 0;
-  left: 0;
   height: fit-content;
-  position: absolute;
   background-color: $menu-bg;
   min-width: 200px;
-  border-radius: 0 0 24px 0;
-  border-right: 1px solid $border-color-ondark;
+  border: 1px solid $border-color-ondark;
 
   box-shadow: $box-shadow-l2;
   padding-bottom: 1rem;
@@ -71,15 +62,18 @@ $button-size: 48px;
   overflow-y: auto;
 }
 
-.buttonsContainer {
-  margin-top: calc(56px + 1rem);
-}
-
-.dragBtn {
+.grabBtn {
   display: flex;
   justify-content: center;
   font-size: 24px;
+}
+
+.grab {
   cursor: grab;
+}
+
+.grabbing {
+  cursor: grabbing;
 }
 
 .link {

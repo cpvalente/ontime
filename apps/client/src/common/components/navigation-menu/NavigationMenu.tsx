@@ -1,5 +1,4 @@
 import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Popover, PopoverBody, PopoverContent, PopoverTrigger, Portal, useDisclosure } from '@chakra-ui/react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
@@ -21,34 +20,37 @@ import RenameClientModal from './rename-client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
 
-type NavigationMenuProps = {
-  top?: number;
-  left?: number;
-};
-
 function NavigationMenuDragContext() {
   const [{ x, y }, setCoordinates] = useState<Coordinates>({ x: 0, y: 0 });
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
+  const { mirror: isMirrored, toggleMirror } = useViewOptionsStore();
 
   const onDragEnd = ({ delta }: DragEndEvent) => {
-    setCoordinates(({ x, y }) => ({
+    return setCoordinates(({ x, y }) => ({
       x: x + delta.x,
       y: y + delta.y,
     }));
   };
 
+  const toggleIsMirrored = () => toggleMirror();
+
   return (
     <DndContext id='navigation-menu' onDragEnd={onDragEnd} sensors={sensors}>
-      <NavigationMenu top={y} left={x} />
+      <NavigationMenu top={y} left={x} isMirrored={isMirrored} toggleIsMirrored={toggleIsMirrored} />
     </DndContext>
   );
 }
+interface NavigationMenuProps {
+  top: number;
+  left: number;
+  isMirrored: boolean;
+  toggleIsMirrored: () => void;
+}
 
-function NavigationMenu({ top, left }: NavigationMenuProps) {
+function NavigationMenu({ top, left, isMirrored, toggleIsMirrored }: NavigationMenuProps) {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const { mirror, toggleMirror } = useViewOptionsStore();
   const [showButton, setShowButton] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
@@ -60,8 +62,6 @@ function NavigationMenu({ top, left }: NavigationMenuProps) {
   useClickOutside(menuRef, () => setShowMenu(false));
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const toggleMenu = () => setShowMenu((prev) => !prev);
 
   // show on mouse move
   useEffect(() => {
@@ -83,8 +83,6 @@ function NavigationMenu({ top, left }: NavigationMenuProps) {
   }, []);
 
   const isKeyEnter = (event: KeyboardEvent<HTMLDivElement>) => event.key === 'Enter';
-  const handleFullscreen = () => toggleFullScreen();
-  const handleMirror = () => toggleMirror();
 
   const showEditFormDrawer = () => {
     searchParams.set('edit', 'true');
@@ -92,9 +90,9 @@ function NavigationMenu({ top, left }: NavigationMenuProps) {
   };
 
   return (
-    <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
+    <div id='navigation-menu-portal' ref={menuRef}>
       <RenameClientModal isOpen={isOpen} onClose={onClose} />
-      <Popover placement='bottom-start'>
+      <Popover placement='auto-start'>
         <div
           className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}
           ref={setNodeRef}
@@ -108,47 +106,55 @@ function NavigationMenu({ top, left }: NavigationMenuProps) {
           <button className={style.button} onClick={showEditFormDrawer}>
             <IoPencilSharp />
           </button>
-          <button className={style.dragBtn} {...attributes} {...listeners}>
+          <button
+            className={`${style.grabBtn} ${isDragging ? style.grabbing : style.grab}`}
+            {...attributes}
+            {...listeners}
+          >
             <MdDragHandle />
           </button>
-          <PopoverContent className={style.menuContent} border='none' w='200px'>
-            <PopoverBody className={style.menuContainer} data-testid='navigation-menu' p={0}>
-              <div className={style.buttonsContainer}>
-                <div
-                  className={style.link}
-                  tabIndex={0}
-                  role='button'
-                  onClick={handleFullscreen}
-                  onKeyDown={(event) => {
-                    isKeyEnter(event) && handleFullscreen();
-                  }}
-                >
-                  Toggle Fullscreen
-                  {isFullScreen ? <IoContract /> : <IoExpand />}
-                </div>
-                <div
-                  className={style.link}
-                  tabIndex={0}
-                  role='button'
-                  onClick={handleMirror}
-                  onKeyDown={(event) => {
-                    isKeyEnter(event) && handleMirror();
-                  }}
-                >
-                  Flip Screen
-                  <IoSwapVertical />
-                </div>
-                <div
-                  className={style.link}
-                  tabIndex={0}
-                  role='button'
-                  onClick={onOpen}
-                  onKeyDown={(event) => {
-                    isKeyEnter(event) && onOpen();
-                  }}
-                >
-                  Rename Client
-                </div>
+        </div>
+        <Portal>
+          <PopoverContent border='none' w='200px'>
+            <PopoverBody
+              className={`${style.menuContainer} ${isMirrored ? style.mirror : ''}`}
+              data-testid='navigation-menu'
+              p={0}
+            >
+              <div
+                className={style.link}
+                tabIndex={0}
+                role='button'
+                onClick={toggleFullScreen}
+                onKeyDown={(event) => {
+                  isKeyEnter(event) && toggleFullScreen();
+                }}
+              >
+                Toggle Fullscreen
+                {isFullScreen ? <IoContract /> : <IoExpand />}
+              </div>
+              <div
+                className={style.link}
+                tabIndex={0}
+                role='button'
+                onClick={toggleIsMirrored}
+                onKeyDown={(event) => {
+                  isKeyEnter(event) && toggleIsMirrored();
+                }}
+              >
+                Flip Screen
+                <IoSwapVertical />
+              </div>
+              <div
+                className={style.link}
+                tabIndex={0}
+                role='button'
+                onClick={onOpen}
+                onKeyDown={(event) => {
+                  isKeyEnter(event) && onOpen();
+                }}
+              >
+                Rename Client
               </div>
               <hr className={style.separator} />
               <Link to='/cuesheet' className={style.link} tabIndex={0}>
@@ -173,7 +179,7 @@ function NavigationMenu({ top, left }: NavigationMenuProps) {
               ))}
             </PopoverBody>
           </PopoverContent>
-        </div>
+        </Portal>
       </Popover>
     </div>
   );
