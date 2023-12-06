@@ -1,6 +1,14 @@
-import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
+import { KeyboardEvent, memo, useEffect, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { Popover, PopoverBody, PopoverContent, PopoverTrigger, Portal, useDisclosure } from '@chakra-ui/react';
+import {
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Portal,
+  useBoolean,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
 import { Coordinates, CSS, Transform } from '@dnd-kit/utilities';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
@@ -12,7 +20,6 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { MdDragHandle } from '@react-icons/all-files/md/MdDragHandle';
 
 import { navigatorConstants } from '../../../viewerConfig';
-import useClickOutside from '../../hooks/useClickOutside';
 import useFullscreen from '../../hooks/useFullscreen';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 
@@ -74,27 +81,27 @@ function NavigationMenu({ top, left, isMirrored, toggleIsMirrored }: NavigationM
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const [showButton, setShowButton] = useState(false);
+  const [buttons, setButtons] = useBoolean();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
   const { attributes, isDragging, listeners, setNodeRef, transform } = useDraggable({
     id: 'navigation-menu',
   });
 
-  useClickOutside(menuRef, () => setShowMenu(false));
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isRCModalOpen, onOpen: onRCModalOpen, onClose: onRCModalClose } = useDisclosure();
+  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
 
   // show on mouse move
   useEffect(() => {
     let fadeOut: NodeJS.Timeout | null = null;
     const setShowMenuTrue = () => {
-      setShowButton(true);
+      setButtons.on();
       if (fadeOut) {
         clearTimeout(fadeOut);
       }
-      fadeOut = setTimeout(() => setShowButton(true), 3000);
+      fadeOut = setTimeout(() => {
+        setButtons.off();
+        onMenuClose();
+      }, 3000);
     };
     document.addEventListener('mousemove', setShowMenuTrue);
     return () => {
@@ -103,7 +110,7 @@ function NavigationMenu({ top, left, isMirrored, toggleIsMirrored }: NavigationM
         clearTimeout(fadeOut);
       }
     };
-  }, []);
+  }, [onMenuClose, setButtons]);
 
   const isKeyEnter = (event: KeyboardEvent<HTMLDivElement>) => event.key === 'Enter';
 
@@ -113,11 +120,11 @@ function NavigationMenu({ top, left, isMirrored, toggleIsMirrored }: NavigationM
   };
 
   return (
-    <div id='navigation-menu-portal' ref={menuRef}>
-      <RenameClientModal isOpen={isOpen} onClose={onClose} />
-      <Popover placement='auto-start'>
+    <div id='navigation-menu-portal'>
+      <RenameClientModal isOpen={isRCModalOpen} onClose={onRCModalClose} />
+      <Popover placement='auto-start' isOpen={isMenuOpen} onOpen={onMenuOpen} onClose={onMenuClose}>
         <div
-          className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}
+          className={`${style.buttonContainer} ${!buttons ? style.hidden : ''}`}
           ref={setNodeRef}
           style={{ top, left, transform: getTransformDimensions(transform, isMirrored) }}
         >
@@ -172,9 +179,9 @@ function NavigationMenu({ top, left, isMirrored, toggleIsMirrored }: NavigationM
                 className={style.link}
                 tabIndex={0}
                 role='button'
-                onClick={onOpen}
+                onClick={onRCModalOpen}
                 onKeyDown={(event) => {
-                  isKeyEnter(event) && onOpen();
+                  isKeyEnter(event) && onRCModalOpen();
                 }}
               >
                 Rename Client
