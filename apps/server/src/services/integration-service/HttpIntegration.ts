@@ -79,15 +79,14 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     }
 
     // check subscriptions for action
-    const eventSubscriptions = (this.subscriptions?.[action] as HttpSubscriptionOptions[]) || [];
+    const eventSubscriptions = this.subscriptions?.[action] || [];
 
     eventSubscriptions.forEach((sub) => {
-      const { enabled, url, options, method } = sub;
-      if (enabled && url) {
-        const templateUrl = parseTemplateNested(url, state || {});
-        const templateOptions = parseTemplateNested(options, state || {});
+      const { enabled, message } = sub;
+      if (enabled && message) {
+        const parsedMessage = parseTemplateNested(message, state || {});
         try {
-          const parsedUrl = new globalThis.URL(templateUrl);
+          const parsedUrl = new globalThis.URL(parsedMessage);
           // if (parsedUrl.protocol != 'http:') {
           //   logger.error(LogOrigin.Tx, `HTTP Integration: Only HTTP allowed, got ${parsedUrl.protocol}`);
           //   return {
@@ -95,7 +94,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
           //     message: `Only HTTP allowed, got ${parsedUrl.protocol}`,
           //   };
           // }
-          this.emit(templateUrl, templateOptions, method);
+          this.emit(parsedUrl);
         } catch (err) {
           logger.error(LogOrigin.Tx, `HTTP Integration: ${err}`);
           return {
@@ -107,18 +106,11 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     });
   }
 
-  async emit(path: string, options: string, method: 'GET' | 'POST') {
+  async emit(path: globalThis.URL) {
     try {
-      if (method === 'GET') {
-        await got.get(path, {
-          searchParams: options,
-          retry: { limit: this.retryCount },
-        });
-      } else if (method === 'POST') {
-        await got.post(path, {
-          retry: { limit: this.retryCount },
-        });
-      }
+      await got.get(path, {
+        retry: { limit: this.retryCount },
+      });
     } catch (err) {
       logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
     }

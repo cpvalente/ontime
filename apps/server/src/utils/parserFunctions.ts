@@ -227,15 +227,9 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
  */
 export const validateHttpSubscriptionCycle = (data: HttpSubscriptionOptions[]): boolean => {
   for (const subscriptionOption of data) {
-    const isHttp = subscriptionOption.url?.startsWith('http://') || subscriptionOption.url?.startsWith('https://');
-    const ishttpMethod = subscriptionOption.method == 'GET' || subscriptionOption.method == 'POST';
-    if (
-      typeof subscriptionOption.url !== 'string' ||
-      typeof subscriptionOption.options !== 'string' ||
-      !isHttp ||
-      !ishttpMethod ||
-      typeof subscriptionOption.enabled !== 'boolean'
-    ) {
+    const isHttp =
+      subscriptionOption.message?.startsWith('http://') || subscriptionOption.message?.startsWith('https://');
+    if (typeof subscriptionOption.message !== 'string' || !isHttp || typeof subscriptionOption.enabled !== 'boolean') {
       return false;
     }
   }
