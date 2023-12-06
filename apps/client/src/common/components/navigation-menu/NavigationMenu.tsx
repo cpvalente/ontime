@@ -2,7 +2,7 @@ import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Popover, PopoverBody, PopoverContent, PopoverTrigger, Portal, useDisclosure } from '@chakra-ui/react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
-import { Coordinates, CSS } from '@dnd-kit/utilities';
+import { Coordinates, CSS, Transform } from '@dnd-kit/utilities';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
@@ -20,12 +20,35 @@ import RenameClientModal from './rename-client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
 
+const getTransformDimensions = (transform: Transform | null, isMirrored: boolean) => {
+  if (isMirrored && transform) {
+    const { x, y, ...rest } = transform;
+
+    const mirroredTransform: Transform = {
+      ...rest,
+      x: x - x * 2,
+      y: y - y * 2,
+    };
+
+    return CSS.Transform.toString(mirroredTransform);
+  }
+
+  return CSS.Transform.toString(transform);
+};
+
 function NavigationMenuDragContext() {
   const [{ x, y }, setCoordinates] = useState<Coordinates>({ x: 0, y: 0 });
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
   const { mirror: isMirrored, toggleMirror } = useViewOptionsStore();
 
   const onDragEnd = ({ delta }: DragEndEvent) => {
+    if (isMirrored) {
+      return setCoordinates(({ x, y }) => ({
+        x: x - delta.x,
+        y: y - delta.y,
+      }));
+    }
+
     return setCoordinates(({ x, y }) => ({
       x: x + delta.x,
       y: y + delta.y,
@@ -96,7 +119,7 @@ function NavigationMenu({ top, left, isMirrored, toggleIsMirrored }: NavigationM
         <div
           className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}
           ref={setNodeRef}
-          style={{ top, left, transform: CSS.Translate.toString(transform) }}
+          style={{ top, left, transform: getTransformDimensions(transform, isMirrored) }}
         >
           <PopoverTrigger>
             <button aria-label='toggle menu' className={style.navButton}>
