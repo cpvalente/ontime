@@ -1,4 +1,4 @@
-import { HttpSubscription, HttpSubscriptionOptions, OscSubscription } from 'ontime-types';
+import { HttpSubscription, OscSubscription } from 'ontime-types';
 import {
   validateOscSubscriptionObject,
   validateOscSubscriptionCycle,
@@ -79,32 +79,21 @@ describe('validateOscSubscriptionObject()', () => {
 
 describe('validateHttpSubscriptionCycle()', () => {
   it('should return false when given an HttpSubscription with an invalid property value', () => {
-    const invalidBoolean = [{ url: 'http://', options: 'text=test', enabled: 'not a boolean', method: 'GET' }];
-    const invalidHttp = [{ url: 'test', options: 'text=test', enabled: true, method: 'GET' }];
-    const noFtp = [{ url: 'ftp://test', options: 'text=test', enabled: true, method: 'GET' }];
-    const noEmpty = [{ url: '', options: 'text=test', enabled: true, method: 'GET' }];
-    const invalidMethod = [{ url: '', options: 'text=test', enabled: true, method: 'GET' }];
+    const invalidBoolean = [{ message: 'http://', enabled: 'not a boolean' }];
+    const invalidHttp = [{ message: 'test', enabled: true }];
+    const noFtp = [{ message: 'ftp://test', enabled: true }];
+    const noEmpty = [{ message: '', enabled: true }];
 
     // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
     expect(validateHttpSubscriptionCycle(invalidBoolean)).toBe(false);
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    expect(validateHttpSubscriptionCycle(invalidMethod)).toBe(false);
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
+
     expect(validateHttpSubscriptionCycle(invalidHttp)).toBe(false);
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
     expect(validateHttpSubscriptionCycle(noFtp)).toBe(false);
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
     expect(validateHttpSubscriptionCycle(noEmpty)).toBe(false);
   });
   it('should return true when given an HttpSubscription matches definition', () => {
-    const validHttp: HttpSubscriptionOptions[] = [
-      { url: 'http://', options: 'text=test', enabled: true, method: 'GET' },
-      { url: 'http://', options: 'text=test', enabled: true, method: 'POST' },
-    ];
-    const validHttps: HttpSubscriptionOptions[] = [
-      { url: 'https://', options: 'text=test', enabled: true, method: 'GET' },
-      { url: 'https://', options: 'text=test', enabled: true, method: 'POST' },
-    ];
+    const validHttp = [{ message: 'http://', enabled: true }];
+    const validHttps = [{ message: 'https://', enabled: true }];
 
     expect(validateHttpSubscriptionCycle(validHttp)).toBe(true);
     expect(validateHttpSubscriptionCycle(validHttps)).toBe(true);
@@ -112,14 +101,14 @@ describe('validateHttpSubscriptionCycle()', () => {
 });
 
 describe('validateHttpSubscriptionObject()', () => {
-  it('should returnq true when given a valid HttpSubscription', () => {
+  it('should return true when given a valid HttpSubscription', () => {
     const validSubscription: HttpSubscription = {
-      onLoad: [{ url: 'http://', options: 'text=test', enabled: true, method: 'GET' }],
-      onStart: [{ url: 'http://', options: 'text=test', enabled: false, method: 'GET' }],
-      onPause: [{ url: 'http://', options: 'text=test', enabled: true, method: 'GET' }],
-      onStop: [{ url: 'http://', options: 'text=test', enabled: false, method: 'GET' }],
-      onUpdate: [{ url: 'http://', options: 'text=test', enabled: true, method: 'GET' }],
-      onFinish: [{ url: 'http://', options: 'text=test', enabled: false, method: 'GET' }],
+      onLoad: [{ message: 'http://', enabled: true }],
+      onStart: [{ message: 'http://', enabled: false }],
+      onPause: [{ message: 'http://', enabled: true }],
+      onStop: [{ message: 'http://', enabled: false }],
+      onUpdate: [{ message: 'http://', enabled: true }],
+      onFinish: [{ message: 'http://', enabled: false }],
     };
 
     const result = validateHttpSubscriptionObject(validSubscription);
