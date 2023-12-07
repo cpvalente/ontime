@@ -171,17 +171,7 @@ export default function TimeInput(props: TimeInputProps) {
 
   const isDelayed = delay !== 0;
   const inputClasses = cx([style.timeInput, isDelayed ? style.delayed : null]);
-  const buttonClasses = cx([
-    style.inputButton,
-    isDelayed ? style.delayed : null,
-    warning
-      ? warning.startsWith('Overlapping')
-        ? style.warn_overlap
-        : warning.startsWith('Spacing')
-        ? style.warn_space
-        : style.warn
-      : null,
-  ]);
+  const buttonClasses = cx([style.inputButton, isDelayed ? style.delayed : null, warning ? style.warn : null]);
 
   const TooltipLabel = useMemo(() => {
     return ButtonTooltip(name, warning);

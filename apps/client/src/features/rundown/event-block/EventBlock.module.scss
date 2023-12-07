@@ -10,11 +10,11 @@ $skip-opacity: 0.1;
 
   display: grid;
   grid-template-areas:
-          "binder ...        ...     ..."
-          "binder pb-actions times   actions"
-          "binder pb-actions title   next"
-          "binder pb-actions estatus estatus"
-          "binder ...        ...     ...";
+    'binder ...        ...     ...'
+    'binder pb-actions times   actions'
+    'binder pb-actions title   next'
+    'binder pb-actions estatus estatus'
+    'binder ...        ...     ...';
 
   grid-template-columns: $block-binder-width auto 1fr auto;
   grid-template-rows: 0.25rem 2.25rem 2.25rem 2.25rem 0.25rem;
@@ -124,6 +124,16 @@ $skip-opacity: 0.1;
     line-height: 0.8rem;
     color: $ontime-delay-text;
   }
+  .overlapNote {
+    font-size: 0.75rem;
+    line-height: 0.8rem;
+    color: $action-blue;
+  }
+  .spaceNote {
+    font-size: 0.75rem;
+    line-height: 0.8rem;
+    color: $error-red;
+  }
 }
 
 .eventTitle {
@@ -160,8 +170,8 @@ $skip-opacity: 0.1;
   grid-area: estatus;
   display: grid;
   grid-template-areas:
-          "notes status"
-          "progb progb";
+    'notes status'
+    'progb progb';
   gap: 2px;
   grid-template-rows: auto 0.25rem;
   align-items: center;
@@ -180,7 +190,6 @@ $skip-opacity: 0.1;
   overflow-y: hidden;
 }
 
-
 .nextTag {
   grid-area: next;
   font-size: 1rem;
@@ -197,7 +206,6 @@ $skip-opacity: 0.1;
   align-items: center;
   gap: 0.5rem;
   color: var(--status-color-override, $gray-500);
-
 
   .statusIcon {
     width: 1rem;

@@ -25,6 +25,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
   const { updateEvent } = useEventAction();
 
   const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
+  const [overlap, setOverlap] = useState<number>(timeStart - previousEnd);
 
   const handleSubmit = (field: TimeActions, value: number) => {
     const newEventData: Partial<OntimeEvent> = { id: eventId };
@@ -59,6 +60,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
     (field: TimeEntryField, value: number, proceeding: number) => {
       const valid = validateEntry(field, value, timeStart, timeEnd, proceeding);
       setWarnings((prev) => ({ ...prev, ...valid.warnings }));
+      setOverlap(valid.overlap);
       return valid.value;
     },
     [timeEnd, timeStart],
@@ -105,6 +107,13 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
           {delayTime}
           <br />
           {`New start: ${newTime}`}
+        </div>
+      )}
+      {overlap != 0 && (
+        <div className={overlap > 0 ? style.spaceNote : style.overlapNote}>
+          {overlap > 0 ? 'Overlap' : 'Space'}
+          <br />
+          {millisToDelayString(overlap)}
         </div>
       )}
     </div>

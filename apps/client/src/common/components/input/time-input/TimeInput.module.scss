@@ -28,21 +28,7 @@ $input-delayed-border-color: #e69056;
       color: $warning-orange;
     }
   }
-
-  .warn_overlap {
-    &::after {
-      content: '*';
-      color: $error-red;
-    }
-  }
-
-  .warn_space {
-    &::after {
-      content: '*';
-      color: $action-blue;
-    }
-  }
-
+  
   &.delayed {
     .inputField {
       border: 1px solid $input-delayed-border-color;
