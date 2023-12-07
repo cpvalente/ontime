@@ -63,7 +63,7 @@ function NavigationMenu() {
   };
 
   return createPortal(
-    <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
+    <div id='navigation-menu-portal' ref={menuRef}>
       <RenameClientModal isOpen={isOpen} onClose={onClose} />
       <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
         <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
