@@ -10,6 +10,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { Coordinates, CSS, Transform } from '@dnd-kit/utilities';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
@@ -74,7 +75,7 @@ function NavigationMenuDragContext() {
   };
 
   return (
-    <DndContext id='navigation-menu' onDragEnd={onDragEnd} sensors={sensors}>
+    <DndContext id='navigation-menu' onDragEnd={onDragEnd} sensors={sensors} modifiers={[restrictToWindowEdges]}>
       <NavigationMenu
         top={y}
         left={x}
