@@ -22,7 +22,7 @@ function NavigationMenu() {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const { mirror, toggleMirror } = useViewOptionsStore();
+  const { toggleMirror } = useViewOptionsStore();
   const [showButton, setShowButton] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
