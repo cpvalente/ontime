@@ -1,10 +1,12 @@
 import { memo, useCallback, useState } from 'react';
+import { Tooltip } from '@chakra-ui/react';
 import { OntimeEvent } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { cx } from '../../../../common/utils/styleUtils';
 import { TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
 
 import style from '../EventBlock.module.scss';
@@ -70,6 +72,13 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
   const newTime = millisToString(delayedStart);
   const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
 
+  const overlapTime =
+    overlap > 0
+      ? `Overlapping ${millisToDelayString(overlap)}`
+      : overlap < 0
+      ? `Spacing ${millisToDelayString(overlap)}`
+      : null;
+
   return (
     <div className={style.eventTimers}>
       <TimeInput
@@ -102,7 +111,18 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         previousEnd={previousEnd}
         warning={warning.duration}
       />
-      {delayTime && (
+      <Tooltip label={delayTime}>
+        <div className={cx([style.indicator, delayTime ? style.indDelay : ''])} />
+      </Tooltip>
+      <Tooltip label={overlapTime}>
+        <div className={cx([style.indicator, overlap > 0 ? style.indOverlap : overlap < 0 ? style.indSpacing : ''])} />
+      </Tooltip>
+      <Tooltip label={warning.start}>
+        <div
+          className={cx([style.indicator, warning.start == 'Start time later than end time' ? style.indNextDay : ''])}
+        />
+      </Tooltip>
+      {/* {delayTime && (
         <div className={style.delayNote}>
           {delayTime}
           <br />
@@ -115,7 +135,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
           <br />
           {millisToDelayString(overlap)}
         </div>
-      )}
+      )} */}
     </div>
   );
 };

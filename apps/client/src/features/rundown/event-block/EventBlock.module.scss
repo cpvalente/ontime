@@ -134,6 +134,25 @@ $skip-opacity: 0.1;
     line-height: 0.8rem;
     color: $error-red;
   }
+  .indicator {
+    background-color: $black-20;
+    margin: 0 auto;
+    border-radius: 6px;
+    width: 12px;
+    height: 12px;
+  }
+  .indDelay {
+    background-color: $ontime-delay;
+  }
+  .indOverlap {
+    background-color: $violet-600;
+  }
+  .indSpacing {
+    background-color: $blue-600;
+  }
+  .indNextDay {
+    background-color: $gray-600;
+  }
 }
 
 .eventTitle {
