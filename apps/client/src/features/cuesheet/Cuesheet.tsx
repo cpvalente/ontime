@@ -121,7 +121,8 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                 } else if (row.original.colour) {
                   try {
                     // the colour is user defined and might be invalid
-                    rowBgColour = Color(getAccessibleColour(row.original.colour).backgroundColor).fade(0.75).hexa();
+                    const accessibleBackgroundColor = Color(getAccessibleColour(row.original.colour).backgroundColor);
+                    rowBgColour = accessibleBackgroundColor.fade(0.75).hexa();
                   } catch (_error) {
                     /* we do not handle errors here */
                   }
