@@ -16,6 +16,7 @@ import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoPencilSharp } from '@react-icons/all-files/io5/IoPencilSharp';
+import { IoRefreshSharp } from '@react-icons/all-files/io5/IoRefreshSharp';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { MdDragHandle } from '@react-icons/all-files/md/MdDragHandle';
 
@@ -26,6 +27,8 @@ import { useViewOptionsStore } from '../../stores/viewOptions';
 import RenameClientModal from './rename-client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
+
+const defaultCoordinates: Coordinates = { x: 0, y: 0 };
 
 const getTransformDimensions = (transform: Transform | null, isMirrored: boolean) => {
   if (isMirrored && transform) {
@@ -44,7 +47,7 @@ const getTransformDimensions = (transform: Transform | null, isMirrored: boolean
 };
 
 function NavigationMenuDragContext() {
-  const [{ x, y }, setCoordinates] = useState<Coordinates>({ x: 0, y: 0 });
+  const [{ x, y }, setCoordinates] = useState<Coordinates>(defaultCoordinates);
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
   const { mirror: isMirrored, toggleMirror } = useViewOptionsStore();
 
@@ -62,11 +65,23 @@ function NavigationMenuDragContext() {
     }));
   };
 
-  const toggleIsMirrored = () => toggleMirror();
+  const toggleIsMirrored = () => {
+    toggleMirror();
+  };
+
+  const onResetMenuCoordinates = () => {
+    setCoordinates(defaultCoordinates);
+  };
 
   return (
     <DndContext id='navigation-menu' onDragEnd={onDragEnd} sensors={sensors}>
-      <NavigationMenu top={y} left={x} isMirrored={isMirrored} toggleIsMirrored={toggleIsMirrored} />
+      <NavigationMenu
+        top={y}
+        left={x}
+        isMirrored={isMirrored}
+        toggleIsMirrored={toggleIsMirrored}
+        onResetMenuCoordinates={onResetMenuCoordinates}
+      />
     </DndContext>
   );
 }
@@ -75,9 +90,10 @@ interface NavigationMenuProps {
   left: number;
   isMirrored: boolean;
   toggleIsMirrored: () => void;
+  onResetMenuCoordinates: () => void;
 }
 
-function NavigationMenu({ top, left, isMirrored, toggleIsMirrored }: NavigationMenuProps) {
+function NavigationMenu({ top, left, isMirrored, toggleIsMirrored, onResetMenuCoordinates }: NavigationMenuProps) {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
@@ -174,6 +190,18 @@ function NavigationMenu({ top, left, isMirrored, toggleIsMirrored }: NavigationM
               >
                 Flip Screen
                 <IoSwapVertical />
+              </div>
+              <div
+                className={style.link}
+                tabIndex={0}
+                role='button'
+                onClick={onResetMenuCoordinates}
+                onKeyDown={(event) => {
+                  isKeyEnter(event) && onResetMenuCoordinates();
+                }}
+              >
+                Reset Menu
+                <IoRefreshSharp />
               </div>
               <div
                 className={style.link}
