@@ -85,6 +85,27 @@ export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRu
       size: 75,
     },
     {
+      accessorKey: 'timeStart',
+      id: 'realStart',
+      header: 'Real Start',
+      cell: (row) => row.getValue(),
+      size: 75,
+    },
+    {
+      accessorKey: 'realEnd',
+      id: 'realEnd',
+      header: 'Real End',
+      cell: MakeTimer,
+      size: 75,
+    },
+    {
+      accessorKey: 'realDuration',
+      id: 'realDuration',
+      header: 'Real Duration',
+      cell: (row) => millisToString(row.getValue() as number | null),
+      size: 75,
+    },
+    {
       accessorKey: 'title',
       id: 'title',
       header: 'Title',

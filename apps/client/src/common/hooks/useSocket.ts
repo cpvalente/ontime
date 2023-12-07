@@ -84,7 +84,6 @@ export const useInfoPanel = () => {
   const featureSelector = (state: RuntimeStore) => ({
     eventNow: state.eventNow,
     eventNext: state.eventNext,
-    playback: state.playback,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
   });
