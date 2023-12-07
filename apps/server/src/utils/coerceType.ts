@@ -1,5 +1,6 @@
 import { isColourHex } from 'ontime-utils';
 
+//TODO: write tests
 /**
  * @description Converts a value to a string if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a string.
@@ -13,6 +14,7 @@ export function coerceString(value: unknown): string {
   return String(value);
 }
 
+//TODO: write tests
 /**
  * @description Converts a value to a boolean if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a boolean.
@@ -42,6 +44,7 @@ export function coerceBoolean(value: unknown): boolean {
   return Boolean(value);
 }
 
+//TODO: write tests
 /**
  * @description Converts a value to a number if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a number.
@@ -69,22 +72,15 @@ export function coerceColour(value: unknown): string {
   if (typeof value !== 'string') {
     throw new Error('Invalid colour value received');
   }
-  if (value[0] == '#') {
-    const isHexColor = isColourHex(value);
-    if (isHexColor) {
-      return value;
-    } else {
+  const lowerCaseValue = value.toLocaleLowerCase();
+  if (lowerCaseValue.startsWith('#')) {
+    if (!isColourHex(lowerCaseValue)) {
       throw new Error('Invalid hex colour received');
     }
-  } else {
-    const lowerCaseValue = value.toLocaleLowerCase();
-    const isCssColor = lowerCaseValue in cssColours;
-    if (isCssColor) {
-      return lowerCaseValue;
-    } else {
-      throw new Error('Invalid colour name received');
-    }
+  } else if (!(lowerCaseValue in cssColours)) {
+    throw new Error('Invalid colour name received');
   }
+  return lowerCaseValue;
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/CSS/named-color
