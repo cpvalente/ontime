@@ -111,7 +111,15 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         previousEnd={previousEnd}
         warning={warning.duration}
       />
-      <Tooltip label={delayTime}>
+      <Tooltip
+        label={
+          <div>
+            {delayTime}
+            <br />
+            New Time: {newTime}
+          </div>
+        }
+      >
         <div className={cx([style.indicator, delayTime ? style.indDelay : ''])} />
       </Tooltip>
       <Tooltip label={overlapTime}>
