@@ -21,7 +21,7 @@ export default function useOscSettings() {
     networkMode: 'always',
   });
 
-  return { data, status, isFetching, isError, refetch };
+  return { data: data ?? oscPlaceholderSettings, status, isFetching, isError, refetch };
 }
 
 export function useOscSettingsMutation() {
