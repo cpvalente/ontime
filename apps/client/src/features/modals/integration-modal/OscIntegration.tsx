@@ -52,8 +52,8 @@ export default function OscIntegration() {
     reset,
     formState: { isSubmitting, isDirty, isValid },
   } = useForm<OscSubscription>({
-    defaultValues: data?.subscriptions,
-    values: data?.subscriptions,
+    defaultValues: data.subscriptions,
+    values: data.subscriptions,
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -68,7 +68,7 @@ export default function OscIntegration() {
   }, [data, reset]);
 
   const resetForm = () => {
-    reset(data?.subscriptions);
+    reset(data.subscriptions);
   };
 
   const onSubmit = async (values: OscSubscription) => {
