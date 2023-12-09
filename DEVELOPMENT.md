@@ -96,3 +96,9 @@ Other useful commands
 
 - __List running processes__ by running `docker ps`
 - __Kill running process__ by running `docker kill <process-id>`
+
+
+## Legacy browser suport
+- [CasparCG v2.2.0](https://github.com/CasparCG/server/blob/master/CHANGELOG.md) -> Chromium 63
+- vMix25 -> Chromium 86
+- disguise r26 -> Chromium 106
