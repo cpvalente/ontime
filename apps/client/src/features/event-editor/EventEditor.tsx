@@ -13,7 +13,23 @@ import EventEditorTimes from './composite/EventEditorTimes';
 import style from './EventEditor.module.scss';
 
 export type EventEditorSubmitActions = keyof OntimeEvent;
-export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
+export type EditorUpdateFields =
+  | 'cue'
+  | 'title'
+  | 'presenter'
+  | 'subtitle'
+  | 'note'
+  | 'colour'
+  | 'user0'
+  | 'user1'
+  | 'user2'
+  | 'user3'
+  | 'user4'
+  | 'user5'
+  | 'user6'
+  | 'user7'
+  | 'user8'
+  | 'user9';
 
 export default function EventEditor() {
   const openId = useAppMode((state) => state.editId);
@@ -64,12 +80,22 @@ export default function EventEditor() {
         title={event.title}
         presenter={event.presenter}
         subtitle={event.subtitle}
+        colour={event.colour}
         handleSubmit={handleSubmit}
       />
       <EventEditorDataRight
         key={`${event.id}-right`}
         note={event.note}
-        colour={event.colour}
+        user0={event.user0}
+        user1={event.user1}
+        user2={event.user2}
+        user3={event.user3}
+        user4={event.user4}
+        user5={event.user5}
+        user6={event.user6}
+        user7={event.user7}
+        user8={event.user8}
+        user9={event.user9}
         handleSubmit={handleSubmit}
       >
         <CopyTag label='Event ID'>{event.id}</CopyTag>

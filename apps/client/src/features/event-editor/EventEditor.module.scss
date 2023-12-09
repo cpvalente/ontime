@@ -1,4 +1,14 @@
+@use '../../theme/ontimeColours' as *;
 @use '../../theme/v2Styles' as *;
+
+$table-font-size: calc(1rem - 2px);
+$table-header-font-size: calc(1rem - 3px);
+
+@mixin ellipsis-overflow() {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .eventEditor {
   padding: 1rem 2rem 2rem 2rem;
@@ -104,4 +114,63 @@
 
 .fullHeight {
   height: 100%
+}
+
+.notes {
+  font-size: $table-font-size;
+  font-weight: 400;
+
+  tr {
+    display: flex;
+  }
+
+  th, td {
+    margin: 1px;
+    font-weight: inherit;
+    font-size: inherit;
+    text-align: left;
+    position: relative;
+    box-shadow: none !important;
+    @include ellipsis-overflow;
+  }
+  th:first-child, td:first-child {
+    min-width: 10em;
+    width: 10em;
+  }
+
+  th:last-child, td:last-child {
+  flex-grow: 2;
+  }
+}
+
+.noteHeader {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  vertical-align: top;
+
+  font-size: $table-header-font-size;
+  color: $gray-400;
+  font-weight: 500;
+  
+  td {
+    background-color: $gray-1300 !important;
+    border-radius: 2px;
+    padding: 0.25rem;
+  }
+}
+
+.noteRow {
+  td {
+    background-color: $gray-1200 !important;
+    color: white !important;
+    border-radius: 2px;
+    padding: 0.3rem;
+    padding-left: 1em;
+  }
+
+  td:first-child {
+    text-align: center;
+  }
 }
