@@ -13,18 +13,19 @@ import OntimeModalFooter from '../OntimeModalFooter';
 
 import styles from '../Modal.module.scss';
 
-interface AboutModalProps {
+interface ClockModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function AboutModal(props: AboutModalProps) {
+export default function AboutModal(props: ClockModalProps) {
   const { isOpen, onClose } = props;
   const { data, isFetching, refetch } = useSettings();
   const {
     handleSubmit,
     register,
     reset,
+    getValues,
     formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<Settings>({
     defaultValues: data,
@@ -94,41 +95,60 @@ export default function AboutModal(props: AboutModalProps) {
                 {...register('clockSettings.source')}
               >
                 <option value={ClockSource.System}>System</option>
-                <option value={ClockSource.MIDI}>MIDI</option>
                 <option value={ClockSource.NTP}>NTP</option>
               </Select>
             </ModalSplitInput>
-            <div>{data?.clockSettings.source}</div>
-            <ModalSplitInput
-              field='clockSettings.settings'
-              title='Clock input settings'
-              description='Midi port/NTP source'
-              error={errors.clockSettings?.message}
-            >
-              <Input
-                size='sm'
-                width='auto'
-                variant='ontime-filled-on-light'
-                placeholder={data?.clockSettings.settings}
-                isDisabled={disableInputs}
-                {...register('clockSettings.settings')}
-              />
-            </ModalSplitInput>
-            <ModalSplitInput
-              field='clockSettings.offset'
-              title='Clock offset'
-              description='Clock offset'
-              error={errors.clockSettings?.message}
-            >
-              <Input
-                size='sm'
-                width='auto'
-                type='number'
-                variant='ontime-filled-on-light'
-                isDisabled={disableInputs}
-                {...register('clockSettings.offset')}
-              />
-            </ModalSplitInput>
+            {getValues('clockSettings.source') == ClockSource.System ? (
+              <ModalSplitInput
+                field='clockSettings.offset'
+                title='Clock offset'
+                description='Clock offset'
+                error={errors.clockSettings?.message}
+              >
+                <Input
+                  size='sm'
+                  width='auto'
+                  type='number'
+                  variant='ontime-filled-on-light'
+                  isDisabled={disableInputs}
+                  {...register('clockSettings.offset')}
+                />
+              </ModalSplitInput>
+            ) : (
+              <>
+                <ModalSplitInput
+                  field='clockSettings.settings'
+                  title='Clock input settings'
+                  description='NTP source'
+                  error={errors.clockSettings?.message}
+                >
+                  <Input
+                    size='sm'
+                    width='auto'
+                    variant='ontime-filled-on-light'
+                    placeholder='0.dk.pool.ntp.org, 1.dk.pool.ntp.org, 2.dk.pool.ntp.org'
+                    isDisabled={disableInputs}
+                    {...register('clockSettings.settings')}
+                  />
+                </ModalSplitInput>
+                <ModalSplitInput
+                  field='clockSettings.offset'
+                  title='Clock offset'
+                  description='Clock offset'
+                  error={errors.clockSettings?.message}
+                >
+                  <Input
+                    size='sm'
+                    width='auto'
+                    type='number'
+                    variant='ontime-filled-on-light'
+                    isDisabled={disableInputs}
+                    {...register('clockSettings.offset')}
+                  />
+                </ModalSplitInput>
+              </>
+            )}
+
             <OntimeModalFooter
               formId='app-settings'
               handleRevert={onReset}

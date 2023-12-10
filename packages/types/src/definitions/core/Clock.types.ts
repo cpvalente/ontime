@@ -1,6 +1,5 @@
 export enum ClockSource {
   System = 'system',
-  MIDI = 'MIDI',
   NTP = 'NTP',
 }
 

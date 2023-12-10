@@ -1,4 +1,3 @@
-import { MidiClock } from './Clock.midi.js';
 import { NtpClock } from './Clock.ntp.js';
 import { SystemClock } from './Clock.system.js';
 
@@ -35,11 +34,6 @@ class Clock {
     switch (s) {
       case ClockSource.System: {
         this.source = this.sytemTime;
-        break;
-      }
-      case ClockSource.MIDI: {
-        this.source = new MidiClock();
-        this.source.settings = settings;
         break;
       }
       case ClockSource.NTP: {
