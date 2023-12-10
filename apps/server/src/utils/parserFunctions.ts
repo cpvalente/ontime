@@ -1,6 +1,7 @@
 import { generateId } from 'ontime-utils';
 import {
   Alias,
+  ClockSource,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
@@ -121,8 +122,8 @@ export const parseSettings = (data): Settings => {
         timeFormat: s.timeFormat || '24',
         language: s.language || 'en',
         clockSettings: {
-          source: s?.clockSettings?.source || 'system',
-          settings: s?.clockSettings?.settings || '',
+          source: s?.clockSettings?.source || ClockSource.System,
+          settings: s?.clockSettings?.settings || {},
           offset: Number(s?.clockSettings?.offset) || 0,
         },
       };

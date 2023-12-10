@@ -1,7 +1,7 @@
 /* eslint-disable no-console -- we are mocking the console */
 import { vi } from 'vitest';
 
-import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
+import { ClockSource, EndAction, OntimeEvent, TimerType } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, validateEvent } from '../parser.js';
@@ -203,6 +203,7 @@ describe('test json parser with valid def', () => {
       app: 'ontime',
       version: '2.0.0',
       timeFormat: '24',
+      clockSettings: { source: ClockSource.System, settings: {}, offset: 0 },
     },
     viewSettings: {},
   };
