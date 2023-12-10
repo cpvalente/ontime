@@ -140,7 +140,7 @@ export default function Backstage(props: BackstageProps) {
                   {isNegative ? (
                     <div className='aux-timers__value'>{expectedFinish}</div>
                   ) : (
-                    <SuperscriptTime time={startedAt} className='aux-timers__value' />
+                    <SuperscriptTime time={expectedFinish} className='aux-timers__value' />
                   )}
                 </div>
                 <div className='timer-gap' />
