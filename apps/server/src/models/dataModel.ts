@@ -1,4 +1,4 @@
-import { DatabaseModel,  } from 'ontime-types';
+import { ClockSource, DatabaseModel } from 'ontime-types';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
 export const dbModel: DatabaseModel = {
@@ -19,7 +19,7 @@ export const dbModel: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
-    clockSettings: { source: 'system', settings: '', offset: 0 },
+    clockSettings: { source: ClockSource.System, settings: {}, offset: 0 },
   },
   viewSettings: {
     overrideStyles: false,

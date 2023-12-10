@@ -1,5 +1,5 @@
-import { TimeFormat } from './TimeFormat.type';
-import { ClockSettings } from './Clock.types';
+import { TimeFormat } from './TimeFormat.type.js';
+import { ClockSettings } from './Clock.types.js';
 
 export type Settings = {
   app: 'ontime';

@@ -3,19 +3,11 @@ export enum ClockSource {
   NTP = 'NTP',
 }
 
-export type ClockSettings = NtpClockSettings | SystemClockSettings;
 export type ClockFeedback = { state: SystemClockState | NtpClockState; message: string };
 
-type NtpClockSettings = {
-  source: ClockSource.NTP;
-  settings: {
-    ntpServers: string[];
-  };
-  offset: number;
-};
-
-type SystemClockSettings = {
-  source: ClockSource.System;
+export type ClockSettings = {
+  source: ClockSource.System | ClockSource.NTP;
+  settings: unknown;
   offset: number;
 };
 
