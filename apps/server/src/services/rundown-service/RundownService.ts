@@ -27,7 +27,7 @@ import {
 } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { validateEvent } from '../../utils/parser.js';
-import { clock } from '../Clock.js';
+import { clock } from '../clock-service/Clock.js';
 
 /**
  * Forces rundown to be recalculated

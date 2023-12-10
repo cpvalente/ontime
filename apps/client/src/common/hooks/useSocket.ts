@@ -87,6 +87,7 @@ export const useInfoPanel = () => {
     playback: state.playback,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
+    clockStatus: state.clockStatus,
   });
 
   return useRuntimeStore(featureSelector, deepCompare);

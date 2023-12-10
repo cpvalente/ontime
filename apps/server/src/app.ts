@@ -33,7 +33,7 @@ import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
-import { clock } from './services/Clock.js';
+import { clock } from './services/clock-service/Clock.js';
 import { messageService } from './services/message-service/MessageService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -137,15 +137,15 @@ export const startServer = async () => {
 
   const { serverPort, clockSettings } = DataProvider.getSettings();
 
-  clock.setSource(clockSettings.source, clockSettings.settings);
-  clock.setOffset(clockSettings.offset);
-
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 
   expressServer = http.createServer(app);
 
   socket.init(expressServer);
   eventLoader.init();
+
+  clock.setSource(clockSettings.source, clockSettings.settings);
+  clock.setOffset(clockSettings.offset);
 
   // load restore point if it exists
   const maybeRestorePoint = restoreService.load();
@@ -163,6 +163,8 @@ export const startServer = async () => {
 
   // eventStore set is a dependency of the services that publish to it
   messageService.init(eventStore.set.bind(eventStore));
+
+
 
   expressServer.listen(serverPort, '0.0.0.0');
 

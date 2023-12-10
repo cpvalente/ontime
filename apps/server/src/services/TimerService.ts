@@ -6,7 +6,7 @@ import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
 import { integrationService } from './integration-service/IntegrationService.js';
 import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './timerUtils.js';
-import { clock } from './Clock.js';
+import { clock } from './clock-service/Clock.js';
 import { logger } from '../classes/Logger.js';
 import type { RestorePoint } from './RestoreService.js';
 

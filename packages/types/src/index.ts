@@ -34,8 +34,8 @@ export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './def
 // ---> HTTP
 
 // Clock
-export { ClockSource } from './definitions/core/Clock.types.js';
-export type { ClockSettings } from './definitions/core/Clock.types.js';
+export { ClockSource, NtpClockState, SystemClockState } from './definitions/core/Clock.types.js';
+export type { ClockSettings, ClockFeedback } from './definitions/core/Clock.types.js';
 
 // SERVER RESPONSES
 export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';

@@ -1,7 +1,7 @@
 import { Log, LogLevel } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
-import { clock } from '../services/Clock.js';
+import { clock } from '../services/clock-service/Clock.js';
 import { isProduction } from '../setup.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 

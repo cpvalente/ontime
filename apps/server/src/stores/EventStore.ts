@@ -1,4 +1,4 @@
-import { RuntimeStore } from 'ontime-types';
+import { RuntimeStore, SystemClockState } from 'ontime-types';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
@@ -67,6 +67,7 @@ export const eventStore = {
 export const getInitialPayload = () => ({
   timer: eventTimer.timer,
   playback: eventTimer.playback,
+  clockStatus: { state: SystemClockState.None, message: '' },
   timerMessage: messageService.timerMessage,
   publicMessage: messageService.publicMessage,
   lowerMessage: messageService.lowerMessage,

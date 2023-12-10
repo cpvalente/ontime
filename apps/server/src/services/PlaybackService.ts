@@ -4,7 +4,7 @@ import { validatePlayback } from 'ontime-utils';
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventStore } from '../stores/EventStore.js';
 import { eventTimer } from './TimerService.js';
-import { clock } from './Clock.js';
+import { clock } from './clock-service/Clock.js';
 import { logger } from '../classes/Logger.js';
 import { RestorePoint } from './RestoreService.js';
 

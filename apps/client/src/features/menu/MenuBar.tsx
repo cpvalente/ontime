@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react';
-import { VStack } from '@chakra-ui/react';
+import { Stack, Text, VStack } from '@chakra-ui/react';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
@@ -10,12 +10,15 @@ import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { IoTimeOutline } from '@react-icons/all-files/io5/IoTimeOutline';
+import { NtpClockState, SystemClockState } from 'ontime-types';
 
 import { downloadCSV, downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
+import { useInfoPanel } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
+import { cx } from '../../common/utils/styleUtils';
 import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import style from './MenuBar.module.scss';
@@ -122,6 +125,8 @@ const MenuBar = (props: MenuBarProps) => {
     }
   };
 
+  const data = useInfoPanel();
+
   return (
     <VStack>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} size='md' />
@@ -212,15 +217,36 @@ const MenuBar = (props: MenuBarProps) => {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        className={isClockModalOpen ? style.open : ''}
-        icon={<IoTimeOutline />}
+        className={cx([isClockModalOpen ? style.open : ''])}
+        icon={<IoTimeOutline className={getClockStateClass(data.clockStatus.state)} />}
         clickHandler={onClockModalOpen}
-        tooltip='Clock Settings'
+        tooltip={
+          <Stack>
+            <Text>Clock Settings</Text>
+            <Text>{data.clockStatus.state} </Text>
+          </Stack>
+        }
         aria-label='clock'
         size='sm'
       />
     </VStack>
   );
 };
+
+function getClockStateClass(state: NtpClockState | SystemClockState) {
+  switch (state) {
+    case NtpClockState.Initializing:
+      return style.Init;
+    case NtpClockState.OffsetUnder1Sec:
+      return style.u1sec;
+    case NtpClockState.OffsetUnder1Min:
+      return style.u1min;
+    case NtpClockState.OffsetOver1Min:
+      return style.o1min;
+    case SystemClockState.None:
+    default:
+      return undefined;
+  }
+}
 
 export default memo(MenuBar);

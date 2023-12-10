@@ -1,8 +1,13 @@
 import { ClockInterface } from './Clock.js';
-export class SystemClock implements ClockInterface {
-  constructor() {}
+import { SystemClockState } from 'ontime-types';
 
-  public tcOffset: number = 0;
+export class SystemClock implements ClockInterface {
+  public feedbackCallback: (state: SystemClockState, message: string) => void;
+
+  init() {
+    this.feedbackCallback(SystemClockState.None, '');
+  }
+  public offset: number = 0;
   public close() {}
 
   public set settings(v: string) {}
@@ -19,7 +24,7 @@ export class SystemClock implements ClockInterface {
     elapsed += now.getMinutes() * 60000;
     elapsed += now.getSeconds() * 1000;
     elapsed += now.getMilliseconds();
-    elapsed += this.tcOffset;
+    elapsed += this.offset;
     elapsed = elapsed % 86400000;
     return elapsed;
   }

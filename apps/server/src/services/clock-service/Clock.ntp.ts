@@ -1,23 +1,27 @@
 import { LogOrigin } from 'ontime-types';
-import { logger } from '../classes/Logger.js';
+import { logger } from '../../classes/Logger.js';
 import { ClockInterface } from './Clock.js';
 import { NtpTimeSync } from 'ntp-time-sync';
 import { dayInMs, mth, mtm, mts } from 'ontime-utils';
-import { millisToSeconds } from '../utils/time.js';
+import { NtpClockState } from 'ontime-types';
+import { millisToSeconds } from '../../utils/time.js';
 
 export class NtpClock implements ClockInterface {
   private ntpOffset = 0;
   private activeOffset = 0;
   private ntpServer: NtpTimeSync;
-  public tcOffset: number = 0;
+  public offset: number = 0;
+  public feedbackCallback: (state: NtpClockState, message: string) => void;
+
   private readonly adjustAmount = 10; // 10 ms
   private readonly maxInterval = 10 * mtm; // 10 minutes
   private readonly minInterval = 3 * mts; // 3 seconds
 
   private _settings: string[];
-  constructor() {
-    this.ntpServer = NtpTimeSync.getInstance({});
 
+  init() {
+    this.ntpServer = NtpTimeSync.getInstance({});
+    this.feedbackCallback(NtpClockState.Initializing, '');
     setTimeout(() => {
       this.updateNtp();
     }, 5000);
@@ -37,13 +41,16 @@ export class NtpClock implements ClockInterface {
     const direction = Math.sign(this.ntpOffset - this.activeOffset);
     const nextUpdate = Math.max(this.maxInterval - 10 * diff, this.minInterval);
     if (diff < mts) {
+      this.feedbackCallback(NtpClockState.OffsetUnder1Sec, `Next sync in ${millisToSeconds(nextUpdate)}sec`);
       logger.info(LogOrigin.Server, `NTP CLock: offset < 1 sec. Next sync in ${millisToSeconds(nextUpdate)} sec.`);
     } else if (diff < mtm) {
+      this.feedbackCallback(NtpClockState.OffsetUnder1Min, `Next sync in ${millisToSeconds(nextUpdate)}sec`);
       logger.info(
         LogOrigin.Server,
         `NTP CLock: offset ${millisToSeconds(direction * diff)} sec. Next sync in ${millisToSeconds(nextUpdate)} sec.`,
       );
     } else {
+      this.feedbackCallback(NtpClockState.OffsetOver1Min, `Next sync in ${millisToSeconds(nextUpdate)}sec`);
       logger.info(
         LogOrigin.Server,
         `NTP CLock: offset ${Math.ceil(millisToSeconds(direction * diff) / 60)} min. Next sync in ${millisToSeconds(
@@ -57,8 +64,8 @@ export class NtpClock implements ClockInterface {
     }, nextUpdate);
   }
 
-  public set settings(v: string) {
-    this._settings = v.replaceAll(' ', '').split(',');
+  public set settings(v: string[]) {
+    this._settings = v;
     logger.info(LogOrigin.Server, `CLOCK: NTP: ${this._settings}`);
 
     this.ntpServer = NtpTimeSync.getInstance({ servers: this._settings });
@@ -67,7 +74,7 @@ export class NtpClock implements ClockInterface {
   public get settings(): string {
     if (this._settings === undefined) {
       //TODO: this is not allowed as per https://www.ntppool.org/vendors.html
-      this.settings = '0.pool.ntp.org,1.pool.ntp.org,2.pool.ntp.org,3.pool.ntp.org';
+      this.settings = ['0.pool.ntp.org', '1.pool.ntp.org', '2.pool.ntp.org', '3.pool.ntp.org'];
     }
     return;
   }
@@ -83,7 +90,7 @@ export class NtpClock implements ClockInterface {
     elapsed += now.getMinutes() * mtm;
     elapsed += now.getSeconds() * mts;
     elapsed += now.getMilliseconds();
-    elapsed += this.tcOffset;
+    elapsed += this.offset;
     elapsed = elapsed % dayInMs;
     return elapsed;
   }
