@@ -5,7 +5,7 @@ import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { HttpSettings, TimerLifeCycle } from 'ontime-types';
 
 import { useEmitLog } from '../../../../common/stores/logger';
-import { startsWithHttpOrS } from '../../../../common/utils/regex';
+import { startsWithHttp } from '../../../../common/utils/regex';
 
 import collapseStyles from '../../../../common/components/collapse-bar/CollapseBar.module.scss';
 import styles from '../../Modal.module.scss';
@@ -71,7 +71,7 @@ export default function SubscriptionRow(props: SubscriptionRowProps) {
                 variant='ontime-filled-on-light'
                 autoComplete='off'
                 {...register(`subscriptions.${cycle}.${index}.message`, {
-                  pattern: { value: startsWithHttpOrS, message: 'Request address must start with http://' },
+                  pattern: { value: startsWithHttp, message: 'Request address must start with http://' },
                 })}
               />
               <Switch variant='ontime-on-light' {...register(`subscriptions.${cycle}.${index}.enabled`)} />

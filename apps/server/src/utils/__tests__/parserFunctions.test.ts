@@ -93,10 +93,10 @@ describe('validateHttpSubscriptionCycle()', () => {
   });
   it('should return true when given an HttpSubscription matches definition', () => {
     const validHttp = [{ message: 'http://', enabled: true }];
-    const validHttps = [{ message: 'https://', enabled: true }];
+    const invalidHttps = [{ message: 'https://', enabled: true }];
 
     expect(validateHttpSubscriptionCycle(validHttp)).toBe(true);
-    expect(validateHttpSubscriptionCycle(validHttps)).toBe(true);
+    expect(validateHttpSubscriptionCycle(invalidHttps)).toBe(false);
   });
 });
 
