@@ -4,14 +4,14 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FormControl, Input, Switch } from '@chakra-ui/react';
 
-import useOscSettings, { useOscSettingsMutation } from '../../../common/hooks-query/useOscSettings';
-import { PlaceholderSettings } from '../../../common/models/OscSettings';
-import { useEmitLog } from '../../../common/stores/logger';
-import { isIPAddress, isOnlyNumbers } from '../../../common/utils/regex';
-import ModalLoader from '../modal-loader/ModalLoader';
-import OntimeModalFooter from '../OntimeModalFooter';
+import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
+import { PlaceholderSettings } from '../../../../common/models/OscSettings';
+import { useEmitLog } from '../../../../common/stores/logger';
+import { isIPAddress, isOnlyNumbers } from '../../../../common/utils/regex';
+import ModalLoader from '../../modal-loader/ModalLoader';
+import OntimeModalFooter from '../../OntimeModalFooter';
 
-import styles from '../Modal.module.scss';
+import styles from '../../Modal.module.scss';
 
 export default function OscSettings() {
   const { data, isFetching } = useOscSettings();

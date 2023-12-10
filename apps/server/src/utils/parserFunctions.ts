@@ -2,14 +2,17 @@ import { generateId } from 'ontime-utils';
 import {
   Alias,
   OntimeRundown,
+  HttpSettings,
   OSCSettings,
-  OscSubscription,
-  OscSubscriptionOptions,
   ProjectData,
   Settings,
   TimerLifeCycle,
   UserFields,
   ViewSettings,
+  OscSubscription,
+  HttpSubscription,
+  OscSubscriptionOptions,
+  HttpSubscriptionOptions,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -159,12 +162,12 @@ export const parseViewSettings = (data): ViewSettings => {
 };
 
 /**
- * Parses and validates subscription entry
+ * Parses and validates OSC subscription cycle options
  * @param data
  */
-export const validateOscSubscriptionEntry = (data: OscSubscriptionOptions): boolean => {
-  for (const subscription in data) {
-    if (typeof data[subscription].message !== 'string' || typeof data[subscription].enabled !== 'boolean') {
+export const validateOscSubscriptionCycle = (data: OscSubscriptionOptions[]): boolean => {
+  for (const subscriptionOption of data) {
+    if (typeof subscriptionOption.message !== 'string' || typeof subscriptionOption.enabled !== 'boolean') {
       return false;
     }
   }
@@ -172,22 +175,23 @@ export const validateOscSubscriptionEntry = (data: OscSubscriptionOptions): bool
 };
 
 /**
- * Parses and validates subscription object
+ * Parses and validates OSC subscription object
  * @param data
  */
-export const validateOscObject = (data: OscSubscription): boolean => {
+export const validateOscSubscriptionObject = (data: OscSubscription): boolean => {
   if (!data) {
     return false;
   }
+
   const timerKeys = Object.keys(TimerLifeCycle);
   for (const key of timerKeys) {
+    // must contains all keys and be an array
     if (!(key in data) || !Array.isArray(data[key])) {
       return false;
     }
-    for (const subscription of data[key]) {
-      if (typeof subscription.message !== 'string' || typeof subscription.enabled !== 'boolean') {
-        return false;
-      }
+    const isValid = validateOscSubscriptionCycle(data[key]);
+    if (!isValid) {
+      return false;
     }
   }
   return true;
@@ -200,8 +204,9 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 
+    // TODO: this can be improved by only merging known keys
     const loadedConfig = data.osc || {};
-    const validatedSubscriptions = validateOscObject(loadedConfig.subscriptions)
+    const validatedSubscriptions = validateOscSubscriptionObject(loadedConfig.subscriptions)
       ? loadedConfig.subscriptions
       : dbModel.osc.subscriptions;
 
@@ -217,19 +222,62 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
 };
 
 /**
+ * Parses and validates HTTP subscription cycle options
+ * @param data
+ */
+export const validateHttpSubscriptionCycle = (data: HttpSubscriptionOptions[]): boolean => {
+  for (const subscriptionOption of data) {
+    const isHttp = subscriptionOption.message?.startsWith('http://');
+    if (typeof subscriptionOption.message !== 'string' || !isHttp || typeof subscriptionOption.enabled !== 'boolean') {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
+ * Parses and validates HTTP subscription object
+ * @param data
+ */
+export const validateHttpSubscriptionObject = (data: HttpSubscription): boolean => {
+  if (!data) {
+    return false;
+  }
+  const timerKeys = Object.keys(TimerLifeCycle);
+  // must contains all keys and be an array
+  for (const key of timerKeys) {
+    if (!(key in data) || !Array.isArray(data[key])) {
+      return false;
+    }
+    const isValid = validateHttpSubscriptionCycle(data[key]);
+    if (!isValid) {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
  * Parse Http portion of an entry
  * @param {object} data - data object
  * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
-export const parseHttp = (data, enforce) => {
-  const newHttp = {};
+export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings => {
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
-  } else if (enforce) {
-    /* Not yet */
+
+    // TODO: this can be improved by only merging known keys
+    const loadedConfig = data?.http || {};
+    const validatedSubscriptions = validateHttpSubscriptionObject(loadedConfig.subscriptions)
+      ? loadedConfig.subscriptions
+      : dbModel.http.subscriptions;
+
+    return {
+      enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
+      subscriptions: validatedSubscriptions,
+    };
   }
-  return newHttp;
 };
 
 /**

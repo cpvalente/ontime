@@ -28,10 +28,14 @@ export type { Alias } from './definitions/core/Alias.type.js';
 // ---> User Fields
 export type { UserFields } from './definitions/core/UserFields.type.js';
 
+// ---> Integration, Subscription
+export type { Subscription } from './definitions/core/Subscription.type.js';
+
 // ---> OSC
 export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './definitions/core/OscSettings.type.js';
 
 // ---> HTTP
+export type { HttpSettings, HttpSubscription, HttpSubscriptionOptions } from './definitions/core/HttpSettings.type.js';
 
 // SERVER RESPONSES
 export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';
