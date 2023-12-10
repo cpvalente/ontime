@@ -11,9 +11,9 @@ $table-header-font-size: calc(1rem - 3px);
 }
 
 .eventEditor {
-  padding: 1rem 2rem 2rem 2rem;
+  padding: 2rem 2rem 2rem 2rem;
   width: 100%;
-  gap: max(1rem, 2vh);
+  gap: 1rem;
 
   display: grid;
   grid-template-areas: 'time left right';
@@ -38,18 +38,21 @@ $table-header-font-size: calc(1rem - 3px);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  height: 100%;
 }
 
 .left {
   grid-area: left;
   padding: 0 1rem;
   border-left: 1px solid $border-color-ondark;
+  max-height: 100%;
 }
 
 .right {
   padding-left: 1rem;
   grid-area: right;
   border-left: 1px solid $border-color-ondark;
+  max-height: 100%;
 }
 
 @mixin input-label() {
@@ -119,6 +122,12 @@ $table-header-font-size: calc(1rem - 3px);
 .notes {
   font-size: $table-font-size;
   font-weight: 400;
+  height: 10rem;
+  overflow-y: auto;
+  transition: height 250ms;
+  table {
+    width: 100%;
+  }
 
   tr {
     display: flex;
@@ -133,31 +142,42 @@ $table-header-font-size: calc(1rem - 3px);
     box-shadow: none !important;
     @include ellipsis-overflow;
   }
+
   th:first-child, td:first-child {
     min-width: 10em;
     width: 10em;
   }
 
   th:last-child, td:last-child {
-  flex-grow: 2;
+    flex-grow: 2;
+  }
+}
+
+@media only screen and (min-height: 1081px) { 
+  .notes {
+    height: 25rem;
   }
 }
 
 .noteHeader {
   position: sticky;
-  top: 0;
+  top: -3px;
   z-index: 10;
-
   vertical-align: top;
 
-  font-size: $table-header-font-size;
+  // font-size: $table-header-font-size;
   color: $gray-400;
-  font-weight: 500;
+  // font-weight: 500;
   
   td {
     background-color: $gray-1300 !important;
     border-radius: 2px;
-    padding: 0.25rem;
+    padding: 0.3rem;
+    padding-left: 1em;
+  }
+
+  td {
+    text-align: center;
   }
 }
 

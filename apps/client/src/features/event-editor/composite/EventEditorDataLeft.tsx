@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { Input } from '@chakra-ui/react';
 import { sanitiseCue } from 'ontime-utils';
 
-import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
 import { type EditorUpdateFields } from '../EventEditor';
 
 import CountedTextInput from './CountedTextInput';
@@ -14,13 +13,12 @@ interface EventEditorLeftProps {
   cue: string;
   title: string;
   presenter: string;
-  colour: string;
   subtitle: string;
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
 const EventEditorDataLeft = (props: EventEditorLeftProps) => {
-  const { eventId, colour, cue, title, presenter, subtitle, handleSubmit } = props;
+  const { eventId, cue, title, presenter, subtitle, handleSubmit } = props;
 
   const cueSubmitHandler = (_field: string, newValue: string) => {
     handleSubmit('cue', sanitiseCue(newValue));
@@ -49,12 +47,6 @@ const EventEditorDataLeft = (props: EventEditorLeftProps) => {
       <CountedTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
       <CountedTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />
       <CountedTextInput field='subtitle' label='Subtitle' initialValue={subtitle} submitHandler={handleSubmit} />
-      <div className={style.column}>
-        <label className={style.inputLabel}>Colour</label>
-        <div className={style.inline}>
-          <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
-        </div>
-      </div>
     </div>
   );
 };

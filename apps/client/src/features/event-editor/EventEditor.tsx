@@ -80,11 +80,11 @@ export default function EventEditor() {
         title={event.title}
         presenter={event.presenter}
         subtitle={event.subtitle}
-        colour={event.colour}
         handleSubmit={handleSubmit}
       />
       <EventEditorDataRight
         key={`${event.id}-right`}
+        colour={event.colour}
         note={event.note}
         user0={event.user0}
         user1={event.user1}
