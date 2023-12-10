@@ -13,13 +13,15 @@ type ColourCombination = {
 export const getAccessibleColour = (bgColour?: string): ColourCombination => {
   if (bgColour) {
     try {
-      const textColor = Color(bgColour).isLight() ? 'black' : '#fffffa';
-      return { backgroundColor: bgColour, color: textColor };
+      const originalColour = Color(bgColour);
+      const backgroundColorMix = originalColour.alpha(1).mix(Color('#1a1a1a'), 1 - originalColour.alpha());
+      const textColor = backgroundColorMix.isLight() ? 'black' : '#fffffa';
+      return { backgroundColor: backgroundColorMix.hexa(), color: textColor };
     } catch (_error) {
       /* we do not handle errors here */
     }
   }
-  return { backgroundColor: '#000', color: '#fffffa' };
+  return { backgroundColor: '#1a1a1a', color: '#fffffa' };
 };
 
 /**

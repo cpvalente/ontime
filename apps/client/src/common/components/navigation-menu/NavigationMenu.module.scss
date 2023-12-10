@@ -10,10 +10,6 @@ $icon-color: $ui-white;
 $button-bg: $gray-1050;
 $button-size: 48px;
 
-.mirror {
-  transform: rotate(180deg);
-}
-
 .buttonContainer {
   display: flex;
   flex-direction: column;

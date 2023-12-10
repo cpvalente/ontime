@@ -2,8 +2,6 @@ import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
-import { isKeyOfType } from 'ontime-types/src/utils/guards.js';
-import { event } from '../models/eventsDefinition.js';
 
 export type ChangeOptions = {
   eventId: string;
@@ -272,11 +270,8 @@ export function dispatchFromAdapter(
     // WS: {type: 'change', payload: { eventId, property, value } }
     case 'change': {
       const { eventId, property, value } = payload as ChangeOptions;
-      if (!isKeyOfType(property, event)) {
-        throw new Error(`Cannot update unknown event property ${property}`);
-      }
-      const parsedPayload = parse(property, value);
-      return updateEvent(eventId, property, parsedPayload);
+      const { parsedPayload, parsedProperty } = parse(property, value);
+      return updateEvent(eventId, parsedProperty, parsedPayload);
     }
 
     default: {
