@@ -15,11 +15,9 @@ type Action = TimerLifeCycleKey | string;
  * @class
  */
 export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
-  // protected httpAgent: null | http.Agent;
   subscriptions: HttpSubscription;
   private retryCount = 0;
   constructor() {
-    // this.httpAgent = null;
     this.subscriptions = dbModel.http.subscriptions;
   }
 
@@ -32,7 +30,6 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     this.retryCount = retryCount;
 
     if (!enabledOut) {
-      // this.httpAgent?.destroy();
       return {
         success: false,
         message: 'HTTP output disabled',
@@ -42,9 +39,6 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     this.initSubscriptions(subscriptions);
 
     try {
-      // this allows re-calling the init function during runtime
-      // this.httpAgent?.destroy();
-      // this.httpAgent = new http.Agent({ keepAlive: true, timeout: 2000 });
       return {
         success: true,
         message: `HTTP integration client ready`,
@@ -64,13 +58,6 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
   }
 
   dispatch(action: Action, state?: object) {
-    // if (!this.httpAgent) {
-    //   return {
-    //     success: false,
-    //     message: 'Client not initialised',
-    //   };
-    // }
-
     if (!action) {
       return {
         success: false,
@@ -86,14 +73,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
       if (enabled && message) {
         const parsedMessage = parseTemplateNested(message, state || {});
         try {
-          const parsedUrl = new globalThis.URL(parsedMessage);
-          // if (parsedUrl.protocol != 'http:') {
-          //   logger.error(LogOrigin.Tx, `HTTP Integration: Only HTTP allowed, got ${parsedUrl.protocol}`);
-          //   return {
-          //     success: false,
-          //     message: `Only HTTP allowed, got ${parsedUrl.protocol}`,
-          //   };
-          // }
+          const parsedUrl = new URL(parsedMessage);
           this.emit(parsedUrl);
         } catch (err) {
           logger.error(LogOrigin.Tx, `HTTP Integration: ${err}`);
@@ -106,7 +86,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     });
   }
 
-  async emit(path: globalThis.URL) {
+  async emit(path: URL) {
     try {
       await got.get(path, {
         retry: { limit: this.retryCount },
@@ -114,24 +94,9 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     } catch (err) {
       logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
     }
-    // http
-    //   .get(path, { agent: this.httpAgent }, (res) => {
-    //     if (res.statusCode !== 200) {
-    //       logger.error(LogOrigin.Tx, `HTTP Error: ${res.statusCode}`);
-    //     }
-    //     res.resume();
-    //   })
-    //   .on('error', (err) => {
-    //     logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
-    //   });
   }
 
-  shutdown() {
-    // if (this.httpAgent) {
-    //   this.httpAgent?.destroy();
-    //   this.httpAgent = null;
-    // }
-  }
+  shutdown() {}
 }
 
 export const httpIntegration = new HttpIntegration();
