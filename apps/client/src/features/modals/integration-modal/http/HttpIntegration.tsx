@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Input, Switch } from '@chakra-ui/react';
+import { Switch } from '@chakra-ui/react';
 import type { HttpSettings } from 'ontime-types';
 import { TimerLifeCycle } from 'ontime-types';
 
@@ -49,7 +49,6 @@ export default function HttpIntegration() {
     try {
       const newSettings: HttpSettings = {
         enabledOut: Boolean(values.enabledOut),
-        retryCount: 0,
         subscriptions: {
           onLoad: values.subscriptions.onLoad ?? [],
           onStart: values.subscriptions.onStart ?? [],
@@ -79,13 +78,6 @@ export default function HttpIntegration() {
           <span className={styles.sectionSubtitle}>Ontime data feedback</span>
         </div>
         <Switch {...register('enabledOut')} variant='ontime-on-light' />
-      </div>
-      <div className={styles.splitSection}>
-        <div>
-          <span className={`${styles.sectionTitle} ${styles.main}`}>Retry count</span>
-          <span className={styles.sectionSubtitle}>How many times should the connection be retried</span>
-        </div>
-        <Input size='xs' variant='ontime-filled-on-light' autoComplete='off' {...register('retryCount')} />
       </div>
 
       <HttpSubscriptionRow

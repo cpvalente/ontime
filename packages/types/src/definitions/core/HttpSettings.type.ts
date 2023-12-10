@@ -5,6 +5,5 @@ export type HttpSubscription = Subscription<HttpSubscriptionOptions>;
 
 export interface HttpSettings {
   enabledOut: boolean;
-  retryCount: number;
   subscriptions: HttpSubscription;
 }

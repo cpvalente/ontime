@@ -16,7 +16,6 @@ type Action = TimerLifeCycleKey | string;
  */
 export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
   subscriptions: HttpSubscription;
-  private retryCount = 0;
   constructor() {
     this.subscriptions = dbModel.http.subscriptions;
   }
@@ -25,9 +24,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
    * Initializes httpClient
    */
   init(config: HttpSettings) {
-    const { subscriptions, enabledOut, retryCount } = config;
-
-    this.retryCount = retryCount;
+    const { subscriptions, enabledOut } = config;
 
     if (!enabledOut) {
       return {
@@ -89,7 +86,7 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
   async emit(path: URL) {
     try {
       await got.get(path, {
-        retry: { limit: this.retryCount },
+        retry: { limit: 0 },
       });
     } catch (err) {
       logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);

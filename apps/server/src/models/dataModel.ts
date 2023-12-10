@@ -59,7 +59,6 @@ export const dbModel: DatabaseModel = {
   },
   http: {
     enabledOut: false,
-    retryCount: 0,
     subscriptions: {
       onLoad: [],
       onStart: [],
