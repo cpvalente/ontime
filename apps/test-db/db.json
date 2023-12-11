@@ -99,7 +99,7 @@
   },
   "settings": {
     "app": "ontime",
-    "version": "2.21.3",
+    "version": "2.24.8",
     "serverPort": 4001,
     "editorKey": null,
     "operatorKey": null,
