@@ -124,10 +124,10 @@ $cyan-idle: #0aa;
   .schedule-container {
     grid-area: schd;
     margin: 4vh 0;
-    font-family: digital-clock, monospace;
     text-transform: uppercase;
 
     .onAir {
+      font-family: digital-clock, monospace;
       padding-bottom: 2vh;
       font-size: 15vh;
       line-height: 0.9em;
@@ -151,6 +151,13 @@ $cyan-idle: #0aa;
         padding-left: 0.25em;
         display: flex;
         align-items: center;
+
+        .time {
+          font-family: digital-clock, monospace;
+        }
+        .title {
+          font-family: monospace;
+        }
       }
 
       .now {

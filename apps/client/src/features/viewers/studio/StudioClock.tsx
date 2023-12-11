@@ -127,7 +127,8 @@ export default function StudioClock(props: StudioClockProps) {
             {schedule.map((s) => (
               <li key={s.id} className={s.isNow ? 'now' : s.isNext ? 'next' : ''}>
                 <div className='user-colour' style={{ backgroundColor: `${s.colour !== '' ? s.colour : ''}` }} />
-                {`${s.time} ${s.title}`}
+                <span className='time'>{s.time}&nbsp;</span>
+                <span className='title'>{s.title}</span>
               </li>
             ))}
           </ul>
