@@ -1,8 +1,10 @@
 @use '../../../theme/viewerDefs' as *;
 
 @font-face {
-  font-family: "digital-clock";
-  src: local('digital-7'), url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype') ;
+  font-family: 'digital-clock';
+  src:
+    local('digital-7'),
+    url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype');
 }
 
 /* =============== CLOCK STUFF ==================*/
@@ -12,8 +14,8 @@ $size-hours: min(3vh, 20px);
 $half-hours: min(1.5vh, 10px);
 $size-min: min(2.5vh, 18px);
 $half-min: min(1.25vh, 9px);
-$red-active: #c53030;
-$red-idle: #000000;
+$red-active: #f00;
+$red-idle: #300;
 $cyan-active: #0ff;
 $cyan-idle: #0aa;
 
@@ -30,7 +32,7 @@ $cyan-idle: #0aa;
   display: grid;
   grid-template-columns: 95vh 1fr;
   gap: 2vw;
-  grid-template-areas: "clck schd";
+  grid-template-areas: 'clck schd';
 
   .clock-container {
     display: flex;
@@ -90,7 +92,6 @@ $cyan-idle: #0aa;
       }
     }
 
-
     .next-title:after,
     .next-title:after,
     .next-countdown--overtime:after {
@@ -133,13 +134,13 @@ $cyan-idle: #0aa;
       color: var(--studio-active, $red-active);
 
       &--idle {
-        color: var(--studio-idle, $red-active);
+        color: var(--studio-idle, $red-idle);
       }
     }
 
     .schedule {
       ul {
-        color: var(--studio-idle-label, $cyan-idle);
+        color: var(--studio-idle-label, $red-idle);
         font-size: 3.75vh;
         line-height: 1em;
         list-style: none;
@@ -153,11 +154,11 @@ $cyan-idle: #0aa;
       }
 
       .now {
-        color: var(--studio-active-label, $cyan-active);
+        color: var(--studio-active-label, $red-active);
       }
 
       .next {
-        color: var(--studio-active, $red-active);
+        color: var(--studio-active, $cyan-active);
       }
 
       .user-colour {
@@ -174,7 +175,7 @@ $cyan-idle: #0aa;
 @media only screen and (max-width: 1200px) {
   .studio-clock {
     display: grid;
-    grid-template-areas: "clck";
+    grid-template-areas: 'clck';
     grid-template-columns: 100%;
     place-content: center;
 
