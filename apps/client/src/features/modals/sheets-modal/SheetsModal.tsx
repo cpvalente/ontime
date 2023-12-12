@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect,useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Input,
@@ -122,9 +122,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePushData = () => {
-    postPushSheet().then((data) => {
-      console.log(data);
-    });
+    postPushSheet().then((_) => {});
   };
 
   const handleFinalise = async () => {
@@ -169,13 +167,11 @@ export default function SheetsModal(props: SheetsModalProps) {
         <ModalCloseButton />
         <ModalBody>
           {rundown && (
-            <>
-              <PreviewExcel
-                rundown={rundown ?? []}
-                project={project ?? projectDataPlaceholder}
-                userFields={userFields ?? userFieldsPlaceholder}
-              />
-            </>
+            <PreviewExcel
+              rundown={rundown ?? []}
+              project={project ?? projectDataPlaceholder}
+              userFields={userFields ?? userFieldsPlaceholder}
+            />
           )}
           {!rundown && (
             <>

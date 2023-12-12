@@ -279,7 +279,6 @@ export const postPushSheet = async () => {
   return response.data.data;
 };
 
-
 /**
  * @description HTTP request to retrieve google sheets settings
  * @return {Promise}

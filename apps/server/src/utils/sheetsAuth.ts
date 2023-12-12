@@ -12,6 +12,7 @@ import { ensureDirectory } from './fileManagement.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { GoogleSheetState } from 'ontime-types';
 import { cellRequenstFromEvent, cellRequenstFromProjectData, getA1Notation } from './googleSheetUtils.js';
+import { join } from 'path';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -20,14 +21,20 @@ type ResponseOK = {
 class sheet {
   private static client: null | OAuth2Client = null;
   private readonly scope = 'https://www.googleapis.com/auth/spreadsheets';
-  private readonly sheetsFolder = `${getAppDataPath()}/sheets`;
-  private readonly client_secret = `${this.sheetsFolder}/client_secret.json`;
+  private readonly sheetsFolder;
+  private readonly client_secret;
   private static authUrl: null | string = null;
   private worksheetId: number = 0;
   private sheetId: string = '';
   private range: string = '';
 
   constructor() {
+    const appDataPath = getAppDataPath();
+    if (appDataPath === '') {
+      throw new Error('Could not resolve public folder for platform');
+    }
+    this.sheetsFolder = join(appDataPath, 'sheets');
+    this.client_secret = join(this.sheetsFolder, 'client_secret.json');
     ensureDirectory(this.sheetsFolder);
   }
 
@@ -213,19 +220,20 @@ class sheet {
   public async saveClientSecrets(secrets: object) {
     sheet.client = null;
     sheet.authUrl = null;
-    ensureDirectory(this.sheetsFolder);
     if (
-      'client_id' in secrets ||
-      !('project_id' in secrets) ||
-      !('auth_uri' in secrets) ||
-      !('token_uri' in secrets) ||
-      !('auth_provider_x509_cert_url' in secrets) ||
-      !('client_secret' in secrets) ||
-      !('redirect_uris' in secrets)
+      !('client_id' in secrets['installed']) ||
+      !('project_id' in secrets['installed']) ||
+      !('auth_uri' in secrets['installed']) ||
+      !('token_uri' in secrets['installed']) ||
+      !('auth_provider_x509_cert_url' in secrets['installed']) ||
+      !('client_secret' in secrets['installed']) ||
+      !('redirect_uris' in secrets['installed'])
     ) {
       throw new Error('Sheet slient secret is missing some keys');
     }
-    await writeFile(this.client_secret, JSON.stringify(secrets), 'utf-8');
+    await writeFile(this.client_secret, JSON.stringify(secrets), 'utf-8').catch((err) =>
+      logger.error(LogOrigin.Server, `${err}`),
+    );
   }
 
   /**
