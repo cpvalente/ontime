@@ -27,6 +27,10 @@ class sheet {
   private sheetId: string = '';
   private range: string = '';
 
+  constructor() {
+    ensureDirectory(this.sheetsFolder);
+  }
+
   public async getSheetState(): Promise<GoogleSheetState> {
     const ret: GoogleSheetState = {
       auth: false,
