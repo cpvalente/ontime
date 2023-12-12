@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { Playback } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
@@ -27,6 +28,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
   const disableButtons = isStopped || isRolling;
   const isOvertime = timer.current !== null && timer.current < 0;
   const hasAddedTime = Boolean(timer.addedTime);
+  const [shiftState, setShiftState] = useState(false);
 
   const rollLabel = isRolling ? 'Roll mode active' : '';
 
@@ -51,6 +53,28 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
 
     return '';
   };
+
+  // Handle keyboard shortcuts
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      // handle held key
+      if (event.repeat) return;
+      // Check if the shift key is pressed
+      setShiftState(!event.altKey && !event.ctrlKey && event.shiftKey);
+    },
+    [setShiftState],
+  );
+
+  // listen to keys
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener('keyup', handleKeyPress);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener('keyup', handleKeyPress);
+    };
+  }, [handleKeyPress]);
 
   const addedTimeLabel = resolveAddedTimeLabel();
 
@@ -86,23 +110,35 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       )}
       <div className={style.btn}>
         <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.addTime(-60)} disabled={disableButtons} aspect='square'>
-            -1
+          <TapButton
+            onClick={() => setPlayback.addTime(shiftState ? -1 : -60)}
+            disabled={disableButtons}
+            aspect='square'
+          >
+            {shiftState ? '-1s' : '-1'}
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.addTime(60)} disabled={disableButtons} aspect='square'>
-            +1
+          <TapButton onClick={() => setPlayback.addTime(shiftState ? 1 : 60)} disabled={disableButtons} aspect='square'>
+            {shiftState ? '+1s' : '+1'}
           </TapButton>
         </Tooltip>
         <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.addTime(-5 * 60)} disabled={disableButtons} aspect='square'>
-            -5
+          <TapButton
+            onClick={() => setPlayback.addTime(shiftState ? -5 : -5 * 60)}
+            disabled={disableButtons}
+            aspect='square'
+          >
+            {shiftState ? '-5s' : '-5'}
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.addTime(+5 * 60)} disabled={disableButtons} aspect='square'>
-            +5
+          <TapButton
+            onClick={() => setPlayback.addTime(shiftState ? 5 : 5 * 60)}
+            disabled={disableButtons}
+            aspect='square'
+          >
+            {shiftState ? '+5s' : '+5'}
           </TapButton>
         </Tooltip>
       </div>
