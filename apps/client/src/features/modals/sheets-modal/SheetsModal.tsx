@@ -69,7 +69,9 @@ export default function SheetsModal(props: SheetsModalProps) {
     if (!selectedFile) {
       return;
     } else {
-      await uploadSheetClientFile(selectedFile);
+      await uploadSheetClientFile(selectedFile).catch((err) => {
+        console.error(err); //TODO: how to show this to the user
+      });
       _onChange();
     }
   };

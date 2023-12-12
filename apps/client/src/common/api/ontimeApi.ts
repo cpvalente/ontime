@@ -255,13 +255,14 @@ export async function postNew(initialData: Partial<ProjectData>) {
 export const uploadSheetClientFile = async (file: File) => {
   const formData = new FormData();
   formData.append('userFile', file);
-  await axios
+  const res = await axios
     .post(`${ontimeURL}/sheet-clientsecrect`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
     .then((response) => response.data.id);
+  return res;
 };
 
 export const getSheetsAuthUrl = async () => {
