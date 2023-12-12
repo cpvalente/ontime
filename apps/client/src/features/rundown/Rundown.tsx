@@ -27,7 +27,7 @@ export default function Rundown(props: RundownProps) {
   const [statefulEntries, setStatefulEntries] = useState(entries);
 
   const featureData = useRundownEditor();
-  const { addEvent, reorderEvent } = useEventAction();
+  const { addEvent, reorderEvent, swapEvents } = useEventAction();
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
@@ -133,9 +133,32 @@ export default function Rundown(props: RundownProps) {
             break;
           }
         }
+      } else if (event.altKey && event.ctrlKey && !event.shiftKey) {
+        switch (event.code) {
+          case 'ArrowDown': {
+            if (entries.length < 2 || cursor == null) {
+              return;
+            }
+            const nextEvent = getNext(entries, cursor);
+            if (nextEvent) {
+              swapEvents({ from: cursor, to: nextEvent.id });
+            }
+            break;
+          }
+          case 'ArrowUp': {
+            if (entries.length < 2 || cursor == null) {
+              return;
+            }
+            const previousEvent = getPrevious(entries, cursor);
+            if (previousEvent) {
+              swapEvents({ from: cursor, to: previousEvent.id });
+            }
+            break;
+          }
+        }
       }
     },
-    [cursor, entries, insertAtCursor, moveCursorTo],
+    [cursor, entries, insertAtCursor, moveCursorTo, swapEvents],
   );
 
   // we copy the state from the store here
