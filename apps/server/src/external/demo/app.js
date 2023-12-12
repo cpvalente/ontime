@@ -4,9 +4,7 @@
  *
  * This example does not handle disconnections
  */
-// eslint-disable-file --this is an external demo page
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
+/* eslint-disable */
 
 // this would need to resolve to the hostname of where ontime is running
 const socket = new WebSocket(`ws://${window.location.hostname}:4001/ws`);
