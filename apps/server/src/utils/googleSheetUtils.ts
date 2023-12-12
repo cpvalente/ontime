@@ -42,7 +42,7 @@ export function cellRequenstFromEvent(
   worksheetId: number,
   metadata,
 ): sheets_v4.Schema$Request {
-  const r: sheets_v4.Schema$CellData[] = [];
+  const returnRows: sheets_v4.Schema$CellData[] = [];
   const tmp = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
     .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [string, { col: number; row: number }][];
@@ -64,25 +64,25 @@ export function cellRequenstFromEvent(
   tmp.forEach(([key, _]) => {
     if (isOntimeEvent(event)) {
       if (key === 'blank') {
-        r.push({});
+        returnRows.push({});
       } else if (key === 'colour') {
-        r.push({
+        returnRows.push({
           userEnteredValue: { stringValue: event.colour },
         });
       } else if (typeof event[key] === 'number') {
-        r.push({
+        returnRows.push({
           userEnteredValue: { stringValue: millisToString(event[key], true) },
         });
       } else if (typeof event[key] === 'string') {
-        r.push({
+        returnRows.push({
           userEnteredValue: { stringValue: event[key] },
         });
       } else if (typeof event[key] === 'boolean') {
-        r.push({
+        returnRows.push({
           userEnteredValue: { stringValue: event[key] ? 'x' : '' },
         });
       } else {
-        r.push({});
+        returnRows.push({});
       }
     }
   });
@@ -96,7 +96,7 @@ export function cellRequenstFromEvent(
       fields: 'userEnteredValue',
       rows: [
         {
-          values: r,
+          values: returnRows,
         },
       ],
     },
@@ -115,7 +115,7 @@ export function cellRequenstFromProjectData(
   worksheetId: number,
   metadata,
 ): sheets_v4.Schema$Request {
-  const r: sheets_v4.Schema$RowData[] = [];
+  const returnRows: sheets_v4.Schema$RowData[] = [];
   const tmp = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
     .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [string, { col: number; row: number }][];
@@ -139,9 +139,9 @@ export function cellRequenstFromProjectData(
   }
   tmp.forEach(([key, _]) => {
     if (key == 'blank') {
-      r.push({});
+      returnRows.push({});
     } else {
-      r.push({
+      returnRows.push({
         values: [
           {
             userEnteredValue: { stringValue: projectData[key] },
@@ -159,7 +159,7 @@ export function cellRequenstFromProjectData(
         columnIndex: minCol,
       },
       fields: 'userEnteredValue',
-      rows: r,
+      rows: returnRows,
     },
   };
 }

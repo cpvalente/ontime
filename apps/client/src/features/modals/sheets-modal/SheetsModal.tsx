@@ -66,9 +66,7 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event?.target?.files?.[0];
-    if (!selectedFile) {
-      return;
-    } else {
+    if (selectedFile) {
       await uploadSheetClientFile(selectedFile).catch((err) => {
         console.error(err); //TODO: how to show this to the user
       });
@@ -124,7 +122,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePushData = () => {
-    postPushSheet().then((_) => {});
+    postPushSheet();
   };
 
   const handleFinalise = async () => {

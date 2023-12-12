@@ -523,7 +523,7 @@ export async function sheetAuthUrl(req, res) {
  * @method GET
  */
 export const getGoogleSheetSettings = async (req, res) => {
-  const sheet = DataProvider.getGoogleSheet();
+  const sheet = await DataProvider.getGoogleSheet();
   res.status(200).send(sheet);
 };
 

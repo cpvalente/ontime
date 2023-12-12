@@ -1,18 +1,17 @@
-import { OAuth2Client } from 'google-auth-library';
-import { readFile, writeFile } from 'fs/promises';
 import { sheets, sheets_v4 } from '@googleapis/sheets';
+import { readFile, writeFile } from 'fs/promises';
+import { OAuth2Client } from 'google-auth-library';
 import http from 'http';
+import { DatabaseModel, GoogleSheetState, LogOrigin } from 'ontime-types';
+import { join } from 'path';
 import { URL } from 'url';
 import { logger } from '../classes/Logger.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { getAppDataPath } from '../setup.js';
-import { DatabaseModel, LogOrigin } from 'ontime-types';
+import { ensureDirectory } from './fileManagement.js';
+import { cellRequenstFromEvent, cellRequenstFromProjectData, getA1Notation } from './googleSheetUtils.js';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
-import { ensureDirectory } from './fileManagement.js';
-import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import { GoogleSheetState } from 'ontime-types';
-import { cellRequenstFromEvent, cellRequenstFromProjectData, getA1Notation } from './googleSheetUtils.js';
-import { join } from 'path';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -24,9 +23,9 @@ class sheet {
   private readonly sheetsFolder;
   private readonly client_secret;
   private static authUrl: null | string = null;
-  private worksheetId: number = 0;
-  private sheetId: string = '';
-  private range: string = '';
+  private worksheetId = 0;
+  private sheetId = '';
+  private range = '';
 
   constructor() {
     const appDataPath = getAppDataPath();
@@ -87,10 +86,13 @@ class sheet {
     });
 
     if (spreadsheets.status === 200) {
-      const w = spreadsheets.data.sheets.find((p) => p.properties.title == worksheet);
-      if (w !== undefined) {
-        const endCell = getA1Notation(w.properties.gridProperties.rowCount, w.properties.gridProperties.columnCount);
-        return { worksheetId: w.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
+      const ourWorksheetData = spreadsheets.data.sheets.find((n) => n.properties.title == worksheet);
+      if (ourWorksheetData !== undefined) {
+        const endCell = getA1Notation(
+          ourWorksheetData.properties.gridProperties.rowCount,
+          ourWorksheetData.properties.gridProperties.columnCount,
+        );
+        return { worksheetId: ourWorksheetData.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
       } else {
         return true;
       }
@@ -317,7 +319,7 @@ class sheet {
         }
         const code = searchParams.get('code');
         const { tokens } = await client.getToken({
-          code: code,
+          code,
           redirect_uri: redirectUri.toString(),
         });
         client.credentials = tokens;
@@ -338,7 +340,7 @@ class sheet {
       listenPort = Number(redirectUri.port);
     }
     //TODO: the server might not start correctly
-    server.listen(listenPort, () => {});
+    server.listen(listenPort);
     const address = server.address();
     if (typeof address !== 'string') {
       redirectUri.port = String(address.port);
@@ -353,7 +355,7 @@ class sheet {
     this.authServerTimeout = setTimeout(
       () => {
         sheet.authUrl = null;
-        server.unref;
+        server.unref();
       },
       2 * 60 * 1000,
     );

@@ -122,123 +122,123 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
     const handlers = {
       [importMap.projectName]: (row: number, col: number) => {
         projectTitleNext = true;
-        projectMetadata['title'] = { row: row, col: col };
+        projectMetadata['title'] = { row, col };
       },
       [importMap.projectDescription]: (row: number, col: number) => {
         projectDescriptionNext = true;
-        projectMetadata['description'] = { row: row, col: col };
+        projectMetadata['description'] = { row, col };
       },
       [importMap.publicUrl]: (row: number, col: number) => {
         publicUrlNext = true;
-        projectMetadata['publicUrl'] = { row: row, col: col };
+        projectMetadata['publicUrl'] = { row, col };
       },
       [importMap.publicInfo]: (row: number, col: number) => {
         publicInfoNext = true;
-        projectMetadata['publicInfo'] = { row: row, col: col };
+        projectMetadata['publicInfo'] = { row, col };
       },
       [importMap.backstageUrl]: (row: number, col: number) => {
         backstageUrlNext = true;
-        projectMetadata['backstageUrl'] = { row: row, col: col };
+        projectMetadata['backstageUrl'] = { row, col };
       },
       [importMap.backstageInfo]: (row: number, col: number) => {
         backstageInfoNext = true;
-        projectMetadata['backstageInfo'] = { row: row, col: col };
+        projectMetadata['backstageInfo'] = { row, col };
       },
 
       [importMap.timeStart]: (row: number, col: number) => {
         timeStartIndex = col;
-        rundownMetadata['timeStart'] = { row: row, col: col };
+        rundownMetadata['timeStart'] = { row, col };
       },
       [importMap.timeEnd]: (row: number, col: number) => {
         timeEndIndex = col;
-        rundownMetadata['timeEnd'] = { row: row, col: col };
+        rundownMetadata['timeEnd'] = { row, col };
       },
       [importMap.duration]: (row: number, col: number) => {
         durationIndex = col;
-        rundownMetadata['duration'] = { row: row, col: col };
+        rundownMetadata['duration'] = { row, col };
       },
 
       [importMap.cue]: (row: number, col: number) => {
         cueIndex = col;
-        rundownMetadata['cue'] = { row: row, col: col };
+        rundownMetadata['cue'] = { row, col };
       },
       [importMap.title]: (row: number, col: number) => {
         titleIndex = col;
-        rundownMetadata['title'] = { row: row, col: col };
+        rundownMetadata['title'] = { row, col };
       },
       [importMap.presenter]: (row: number, col: number) => {
         presenterIndex = col;
-        rundownMetadata['presenter'] = { row: row, col: col };
+        rundownMetadata['presenter'] = { row, col };
       },
       [importMap.subtitle]: (row: number, col: number) => {
         subtitleIndex = col;
-        rundownMetadata['subtitle'] = { row: row, col: col };
+        rundownMetadata['subtitle'] = { row, col };
       },
       [importMap.isPublic]: (row: number, col: number) => {
         isPublicIndex = col;
-        rundownMetadata['isPublic'] = { row: row, col: col };
+        rundownMetadata['isPublic'] = { row, col };
       },
       [importMap.skip]: (row: number, col: number) => {
         skipIndex = col;
-        rundownMetadata['skip'] = { row: row, col: col };
+        rundownMetadata['skip'] = { row, col };
       },
       [importMap.note]: (row: number, col: number) => {
         notesIndex = col;
-        rundownMetadata['note'] = { row: row, col: col };
+        rundownMetadata['note'] = { row, col };
       },
       [importMap.colour]: (row: number, col: number) => {
         colourIndex = col;
-        rundownMetadata['colour'] = { row: row, col: col };
+        rundownMetadata['colour'] = { row, col };
       },
 
       [importMap.endAction]: (row: number, col: number) => {
         endActionIndex = col;
-        rundownMetadata['endAction'] = { row: row, col: col };
+        rundownMetadata['endAction'] = { row, col };
       },
       [importMap.timerType]: (row: number, col: number) => {
         timerTypeIndex = col;
-        rundownMetadata['timerType'] = { row: row, col: col };
+        rundownMetadata['timerType'] = { row, col };
       },
 
       [importMap.user0]: (row: number, col: number) => {
         user0Index = col;
-        rundownMetadata['user0'] = { row: row, col: col };
+        rundownMetadata['user0'] = { row, col };
       },
       [importMap.user1]: (row: number, col: number) => {
         user1Index = col;
-        rundownMetadata['user1'] = { row: row, col: col };
+        rundownMetadata['user1'] = { row, col };
       },
       [importMap.user2]: (row: number, col: number) => {
         user2Index = col;
-        rundownMetadata['user2'] = { row: row, col: col };
+        rundownMetadata['user2'] = { row, col };
       },
       [importMap.user3]: (row: number, col: number) => {
         user3Index = col;
-        rundownMetadata['user3'] = { row: row, col: col };
+        rundownMetadata['user3'] = { row, col };
       },
       [importMap.user4]: (row: number, col: number) => {
         user4Index = col;
-        rundownMetadata['user4'] = { row: row, col: col };
+        rundownMetadata['user4'] = { row, col };
       },
       [importMap.user5]: (row: number, col: number) => {
         user5Index = col;
-        rundownMetadata['user5'] = { row: row, col: col };
+        rundownMetadata['user5'] = { row, col };
       },
       [importMap.user6]: (row: number, col: number) => {
         user6Index = col;
-        rundownMetadata['user6'] = { row: row, col: col };
+        rundownMetadata['user6'] = { row, col };
       },
       [importMap.user7]: (row: number, col: number) => {
         user7Index = col;
-        rundownMetadata['user7'] = { row: row, col: col };
+        rundownMetadata['user7'] = { row, col };
       },
       [importMap.user8]: (row: number, col: number) => {
         user8Index = col;
-        rundownMetadata['user8'] = { row: row, col: col };
+        rundownMetadata['user8'] = { row, col };
       },
       [importMap.user9]: (row: number, col: number) => {
         user9Index = col;
-        rundownMetadata['user9'] = { row: row, col: col };
+        rundownMetadata['user9'] = { row, col };
       },
     } as const;
 
@@ -336,8 +336,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
       version: '2.0.0',
     },
     userFields: customUserFields,
-    projectMetadata: projectMetadata,
-    rundownMetadata: rundownMetadata,
+    projectMetadata,
+    rundownMetadata,
   };
 };
 
