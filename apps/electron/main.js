@@ -138,6 +138,11 @@ function createWindow() {
   });
 
   win.setMenu(null);
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 }
 
 app.disableHardwareAcceleration();
