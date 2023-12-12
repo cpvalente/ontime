@@ -89,7 +89,7 @@ export default function Rundown(props: RundownProps) {
       // handle held key
       if (event.repeat) return;
       // Check if the alt key is pressed
-      if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
+      if (event.altKey && !event.ctrlKey && !event.shiftKey) {
         switch (event.code) {
           case 'ArrowDown': {
             if (entries.length < 1) {
