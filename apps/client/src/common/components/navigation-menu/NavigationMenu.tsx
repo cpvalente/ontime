@@ -12,7 +12,6 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
 import useFullscreen from '../../hooks/useFullscreen';
-import { useKeyDown } from '../../hooks/useKeyDown';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 
 import RenameClientModal from './rename-client-modal/RenameClientModal';
@@ -23,18 +22,19 @@ function NavigationMenu() {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const { mirror, toggleMirror } = useViewOptionsStore();
+  const { toggleMirror } = useViewOptionsStore();
   const [showButton, setShowButton] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
   useClickOutside(menuRef, () => setShowMenu(false));
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const toggleMenu = () => setShowMenu((prev) => !prev);
-  useKeyDown(toggleMenu, ' ', { isDisabled: searchParams.get('edit') === 'true' || isOpen });
 
+  // show on mouse move
   useEffect(() => {
     let fadeOut: NodeJS.Timeout | null = null;
     const setShowMenuTrue = () => {
@@ -63,7 +63,7 @@ function NavigationMenu() {
   };
 
   return createPortal(
-    <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
+    <div id='navigation-menu-portal' ref={menuRef}>
       <RenameClientModal isOpen={isOpen} onClose={onClose} />
       <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
         <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>

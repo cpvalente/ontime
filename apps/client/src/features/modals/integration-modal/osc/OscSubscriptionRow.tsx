@@ -2,12 +2,12 @@ import { Control, useFieldArray, UseFormRegister } from 'react-hook-form';
 import { Button, IconButton, Input, Switch } from '@chakra-ui/react';
 import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
-import { OscSubscription, TimerLifeCycle } from 'ontime-types';
+import type { OscSubscription, TimerLifeCycle } from 'ontime-types';
 
-import { useEmitLog } from '../../../common/stores/logger';
+import { useEmitLog } from '../../../../common/stores/logger';
 
-import collapseStyles from '../../../common/components/collapse-bar/CollapseBar.module.scss';
-import styles from '../Modal.module.scss';
+import collapseStyles from '../../../../common/components/collapse-bar/CollapseBar.module.scss';
+import styles from '../../Modal.module.scss';
 
 interface OscSubscriptionRowProps {
   cycle: TimerLifeCycle;
@@ -17,10 +17,11 @@ interface OscSubscriptionRowProps {
   setShowSection: (cycle: TimerLifeCycle) => void;
   register: UseFormRegister<OscSubscription>;
   control: Control<OscSubscription>;
+  placeholder: string;
 }
 
 export default function OscSubscriptionRow(props: OscSubscriptionRowProps) {
-  const { cycle, title, subtitle, visible, setShowSection, register, control } = props;
+  const { cycle, title, subtitle, visible, setShowSection, register, control, placeholder } = props;
   const { emitError } = useEmitLog();
   const { fields, append, remove } = useFieldArray({
     name: cycle,
@@ -64,7 +65,7 @@ export default function OscSubscriptionRow(props: OscSubscriptionRowProps) {
                 colorScheme='red'
               />
               <Input
-                placeholder='OSC Message'
+                placeholder={placeholder}
                 size='xs'
                 variant='ontime-filled-on-light'
                 autoComplete='off'

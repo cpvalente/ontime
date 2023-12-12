@@ -86,22 +86,22 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       )}
       <div className={style.btn}>
         <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.delay(-1)} disabled={disableButtons} aspect='square'>
+          <TapButton onClick={() => setPlayback.addTime(-60)} disabled={disableButtons} aspect='square'>
             -1
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.delay(1)} disabled={disableButtons} aspect='square'>
+          <TapButton onClick={() => setPlayback.addTime(60)} disabled={disableButtons} aspect='square'>
             +1
           </TapButton>
         </Tooltip>
         <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.delay(-5)} disabled={disableButtons} aspect='square'>
+          <TapButton onClick={() => setPlayback.addTime(-5 * 60)} disabled={disableButtons} aspect='square'>
             -5
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.delay(+5)} disabled={disableButtons} aspect='square'>
+          <TapButton onClick={() => setPlayback.addTime(+5 * 60)} disabled={disableButtons} aspect='square'>
             +5
           </TapButton>
         </Tooltip>

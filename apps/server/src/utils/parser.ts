@@ -29,6 +29,7 @@ import {
   parseAliases,
   parseProject,
   parseOsc,
+  parseHttp,
   parseRundown,
   parseSettings,
   parseUserFields,
@@ -368,7 +369,7 @@ export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
   // Import OSC settings if any
   returnData.osc = parseOsc(jsonData) ?? dbModel.osc;
   // Import HTTP settings if any
-  // returnData.http = parseHttp(jsonData, enforce);
+  returnData.http = parseHttp(jsonData) ?? dbModel.http;
   // Import GoogleSheet settings if any
   returnData.googleSheet = parseGoogleSheet(jsonData, true);
 

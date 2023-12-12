@@ -19,8 +19,8 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const bgColour = colour;
-  const textColour = getAccessibleColour(bgColour);
+  const textColour = getAccessibleColour(colour);
+  const bgColour = textColour.backgroundColor;
 
   useLayoutEffect(() => {
     const observer = new IntersectionObserver(
@@ -55,7 +55,7 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
       style={{ opacity: `${isPast ? pastOpacity : '1'}` }}
       ref={selectedRef ?? ownRef}
     >
-      <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour?.color }}>
+      <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour.color }}>
         {eventIndex}
       </td>
       {isVisible ? children : null}

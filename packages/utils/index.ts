@@ -15,6 +15,7 @@ export { formatDisplay } from './src/date-utils/formatDisplay.js';
 export { formatFromMillis } from './src/date-utils/formatFromMillis.js';
 export { isTimeString } from './src/date-utils/isTimeString.js';
 export { millisToString } from './src/date-utils/millisToString.js';
+export { isColourHex } from './src/regex-utils/isColourHex.js';
 
 // time utils
 export { dayInMs, mts } from './src/timeConstants.js';
