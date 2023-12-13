@@ -37,6 +37,7 @@ import {
   parseGoogleSheet,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
+import { coerceBoolean } from './coerceType.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -277,9 +278,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
       } else if (j === subtitleIndex) {
         event.subtitle = makeString(column, '');
       } else if (j === isPublicIndex) {
-        event.isPublic = Boolean(column);
+        event.isPublic = coerceBoolean(column);
       } else if (j === skipIndex) {
-        event.skip = Boolean(column);
+        event.skip = coerceBoolean(column);
       } else if (j === notesIndex) {
         event.note = makeString(column, '');
       } else if (j === endActionIndex) {
