@@ -2,8 +2,6 @@
 /**
  * This is a very minimal example for a websocket client
  * You could use this as a starting point to creating your own interfaces
- *
- * This example does not handle disconnections
  */
 
 const mts = 1000; // millis to seconds
