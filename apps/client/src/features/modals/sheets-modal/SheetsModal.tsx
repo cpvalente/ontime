@@ -11,6 +11,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Select,
 } from '@chakra-ui/react';
 import { IoArrowDownCircleOutline } from '@react-icons/all-files/io5/IoArrowDownCircleOutline';
 import { IoArrowUpCircleOutline } from '@react-icons/all-files/io5/IoArrowUpCircleOutline';
@@ -49,12 +50,18 @@ export default function SheetsModal(props: SheetsModalProps) {
   const [userFields, setUserFields] = useState<UserFields | null>(null);
   const [project, setProject] = useState<ProjectData | null>(null);
 
-  const [sheetState, setSheetState] = useState<GoogleSheetState>({ auth: false, id: false, worksheet: false });
+  const [sheetState, setSheetState] = useState<GoogleSheetState>({
+    secret: false,
+    auth: false,
+    id: false,
+    worksheet: false,
+    worksheetOptions: [],
+  });
 
   const queryClient = useQueryClient();
 
   const sheetid = useRef<HTMLInputElement>(null);
-  const worksheet = useRef<HTMLInputElement>(null);
+  const worksheet = useRef<HTMLSelectElement>(null);
 
   const handleClose = () => {
     setRundown(null);
@@ -82,14 +89,21 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   useEffect(() => {
     getSheetSettings().then((data) => {
-      if (sheetid.current?.value != data.id || worksheet.current?.value != data.worksheet) {
+      if (data.id == '') {
+        return;
+      }
+      console.log(worksheet.current?.value);
+      if (
+        sheetid.current?.value != data.id ||
+        (worksheet.current?.value != data.worksheet && worksheet.current?.value)
+      ) {
         _onChange();
-      }
-      if (sheetid.current) {
-        sheetid.current.value = data.id;
-      }
-      if (worksheet.current) {
-        worksheet.current.value = data.worksheet;
+        if (sheetid.current) {
+          sheetid.current.value = data.id;
+        }
+        if (worksheet.current) {
+          worksheet.current.value = data.worksheet;
+        }
       }
     });
   });
@@ -186,14 +200,20 @@ export default function SheetsModal(props: SheetsModalProps) {
                 data-testid='file-input'
               />
               <div>Need to add some help here</div>
+              <br />
               <div>
                 <Button onClick={handleClick}>Upload Client Secrect</Button>
+                {sheetState.secret ? 'have good secret' : 'no or bad secret'}
               </div>
-              <Button variant='ontime-filled' padding='0 2em' onClick={handleAuthenticate}>
-                Authenticate
-              </Button>
-              {sheetState.auth ? <div>You are authenticated</div> : <div>You are not authenticated</div>}
-              <div>
+              <br />
+              <div style={sheetState.secret ? {} : { display: 'none' }}>
+                <Button variant='ontime-filled' padding='0 2em' onClick={handleAuthenticate}>
+                  Authenticate
+                </Button>
+                {sheetState.auth ? 'You are authenticated' : 'You are not authenticated'}
+              </div>
+              <br />
+              <div style={sheetState.auth ? {} : { display: 'none' }}>
                 <label htmlFor='sheetid'>Sheet ID </label>
                 <InputGroup size='sm'>
                   <Input
@@ -208,28 +228,20 @@ export default function SheetsModal(props: SheetsModalProps) {
                     {sheetState.id ? <IoCheckmarkCircleOutline color='green' /> : <IoCloseCircleOutline color='red' />}
                   </InputRightAddon>
                 </InputGroup>
-                <br />
-                <label htmlFor='worksheet'>Worksheet </label>
-                <InputGroup size='sm'>
-                  <Input
-                    type='text'
-                    ref={worksheet}
-                    id='worksheet'
-                    width='240px'
-                    textAlign='right'
-                    variant='ontime-filled-on-light'
-                  />
-                  <InputRightAddon>
-                    {sheetState.worksheet ? (
-                      <IoCheckmarkCircleOutline color='green' />
-                    ) : (
-                      <IoCloseCircleOutline color='red' />
-                    )}
-                  </InputRightAddon>
-                </InputGroup>
               </div>
               <br />
-              <div>
+              <div style={sheetState.id ? {} : { display: 'none' }}>
+                <label htmlFor='worksheet'>Worksheet </label>
+                <Select ref={worksheet} size='sm' id='worksheet'>
+                  {sheetState.worksheetOptions.map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <br />
+              <div style={sheetState.worksheet ? {} : { display: 'none' }}>
                 <Button
                   disabled={!sheetState.worksheet}
                   variant='ontime-subtle-on-light'

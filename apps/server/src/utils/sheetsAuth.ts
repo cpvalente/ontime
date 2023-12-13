@@ -1,5 +1,6 @@
 import { sheets, sheets_v4 } from '@googleapis/sheets';
-import { readFile, writeFile } from 'fs/promises';
+import { writeFile } from 'fs/promises';
+import { readFileSync } from 'fs';
 import { OAuth2Client } from 'google-auth-library';
 import http from 'http';
 import { DatabaseModel, GoogleSheetState, LogOrigin } from 'ontime-types';
@@ -20,8 +21,9 @@ type ResponseOK = {
 class sheet {
   private static client: null | OAuth2Client = null;
   private readonly scope = 'https://www.googleapis.com/auth/spreadsheets';
-  private readonly sheetsFolder;
-  private readonly client_secret;
+  private readonly sheetsFolder: string;
+  private readonly clientSecretFile: string;
+  private static clientSecret = null;
   private static authUrl: null | string = null;
   private worksheetId = 0;
   private sheetId = '';
@@ -33,40 +35,77 @@ class sheet {
       throw new Error('Could not resolve public folder for platform');
     }
     this.sheetsFolder = join(appDataPath, 'sheets');
-    this.client_secret = join(this.sheetsFolder, 'client_secret.json');
+    this.clientSecretFile = join(this.sheetsFolder, 'client_secret.json');
     ensureDirectory(this.sheetsFolder);
+    try {
+      sheet.clientSecret = JSON.parse(readFileSync(this.clientSecretFile, 'utf-8'));
+    } catch (_) {
+      /* empty - it is ok thet there is no clientSecret */
+    }
   }
 
   public async getSheetState(): Promise<GoogleSheetState> {
+    console.log('getSheetState');
     const ret: GoogleSheetState = {
+      secret: false,
       auth: false,
       id: false,
       worksheet: false,
+      worksheetOptions: [],
     };
+    const lastID = this.sheetId;
     this.sheetId = '';
     this.worksheetId = 0;
+
+    if (!sheet.clientSecret) {
+      return ret;
+    }
+    ret.secret = true;
     if (!sheet.client) {
       return ret;
     }
     try {
       ret.auth = await this.refreshToken();
-      if (ret.auth) {
-        const settings = DataProvider.getGoogleSheet();
-        const x = await this.exist(settings.id, settings.worksheet);
-        if (x === true) {
-          ret.id = true;
-          this.sheetId = settings.id;
-        } else if (x !== false) {
-          ret.id = true;
-          ret.worksheet = true;
-          this.sheetId = settings.id;
-          this.worksheetId = x.worksheetId;
-          this.range = x.range;
-        }
-      }
     } catch (err) {
       logger.error(LogOrigin.Server, `Google Sheet: Faild to refresh token ${err}`);
     }
+    if (!ret.auth) {
+      return ret;
+    }
+    const settings = DataProvider.getGoogleSheet();
+    if (settings.id != '' && lastID != settings.id) {
+      const spreadsheets = await sheets({ version: 'v4', auth: sheet.client })
+        .spreadsheets.get({
+          spreadsheetId: settings.id,
+          includeGridData: false,
+        })
+        .catch((err) => {
+          logger.error(LogOrigin.Server, `Google Sheet: faild to load sheet ${err}`);
+        });
+      if (!spreadsheets || spreadsheets.status != 200) {
+        return ret;
+      }
+      ret.id = true;
+      ret.worksheetOptions = spreadsheets.data.sheets.map((i) => i.properties.title);
+      if (ret.worksheetOptions.indexOf(settings.worksheet) < 0) {
+        return ret;
+      }
+      ret.worksheet = true;
+    }
+
+    //   const x = await this.exist(settings.id, settings.worksheet);
+    //   if (x === true) {
+    //     ret.id = true;
+    //     this.sheetId = settings.id;
+    //   } else if (x !== false) {
+    //     ret.id = true;
+    //     ret.worksheet = true;
+    //     this.sheetId = settings.id;
+    //     this.worksheetId = x.worksheetId;
+    //     this.range = x.range;
+    //   }
+    // }
+
     return ret;
   }
 
@@ -222,6 +261,7 @@ class sheet {
   public async saveClientSecrets(secrets: object) {
     sheet.client = null;
     sheet.authUrl = null;
+    sheet.clientSecret = null;
     if (
       !('client_id' in secrets['installed']) ||
       !('project_id' in secrets['installed']) ||
@@ -233,9 +273,10 @@ class sheet {
     ) {
       throw new Error('Sheet slient secret is missing some keys');
     }
-    await writeFile(this.client_secret, JSON.stringify(secrets), 'utf-8').catch((err) =>
+    await writeFile(this.clientSecretFile, JSON.stringify(secrets), 'utf-8').catch((err) =>
       logger.error(LogOrigin.Server, `${err}`),
     );
+    sheet.clientSecret = secrets;
   }
 
   /**
@@ -274,13 +315,8 @@ class sheet {
       );
       return sheet.authUrl;
     }
-    const creadFile = await readFile(this.client_secret, 'utf-8').catch((err) =>
-      logger.error(LogOrigin.Server, `${err}`),
-    );
-    if (!creadFile) {
-      return null;
-    }
-    const keyFile = JSON.parse(creadFile);
+
+    const keyFile = sheet.clientSecret;
     const keys = keyFile.installed || keyFile.web;
     if (!keys.redirect_uris || keys.redirect_uris.length === 0) {
       logger.error(LogOrigin.Server, `${invalidRedirectUri}`);
