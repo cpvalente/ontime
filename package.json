@@ -1,9 +1,9 @@
 {
   "name": "ontime",
-  "version": "2.21.3",
+  "version": "2.24.8",
   "description": "Time keeping for live events",
   "keywords": [
-    "lighdev",
+    "lightdev",
     "ontime",
     "timer",
     "rundown"

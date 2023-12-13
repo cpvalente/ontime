@@ -75,8 +75,8 @@ export const setPlayback = {
   reload: () => {
     socketSendJson('reload');
   },
-  delay: (amount: number) => {
-    socketSendJson('delay', amount);
+  addTime: (amount: number) => {
+    socketSendJson('addtime', amount);
   },
 };
 
