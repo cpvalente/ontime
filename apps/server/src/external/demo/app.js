@@ -18,8 +18,6 @@ let reconnectTimeout;
 const reconnectInterval = 1000;
 let reconnectAttempts = 0;
 
-console.log(window.location)
-
 const connectSocket = () => {
   const websocket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/ws`);
 
