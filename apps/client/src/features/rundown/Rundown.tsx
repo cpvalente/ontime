@@ -88,8 +88,10 @@ export default function Rundown(props: RundownProps) {
     (event: KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
-      // Check if the alt key is pressed
-      if (event.altKey && !event.ctrlKey && !event.shiftKey) {
+      // Check if the modifier combination
+      const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
+      const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
+      if (modKeysAlt) {
         switch (event.code) {
           case 'ArrowDown': {
             if (entries.length < 1) {
@@ -133,27 +135,19 @@ export default function Rundown(props: RundownProps) {
             break;
           }
         }
-      } else if (event.altKey && event.ctrlKey && !event.shiftKey) {
-        switch (event.code) {
-          case 'ArrowDown': {
-            if (entries.length < 2 || cursor == null) {
-              return;
-            }
-            const nextEvent = getNext(entries, cursor);
-            if (nextEvent) {
-              swapEvents({ from: cursor, to: nextEvent.id });
-            }
-            break;
+      } else if (modKeysCtrlAlt) {
+        if (entries.length < 2 || cursor == null) {
+          return;
+        }
+        if (event.code == 'ArrowDown') {
+          const nextEvent = getNext(entries, cursor);
+          if (nextEvent) {
+            swapEvents({ from: cursor, to: nextEvent.id });
           }
-          case 'ArrowUp': {
-            if (entries.length < 2 || cursor == null) {
-              return;
-            }
-            const previousEvent = getPrevious(entries, cursor);
-            if (previousEvent) {
-              swapEvents({ from: cursor, to: previousEvent.id });
-            }
-            break;
+        } else if (event.code == 'ArrowUp') {
+          const previousEvent = getPrevious(entries, cursor);
+          if (previousEvent) {
+            swapEvents({ from: cursor, to: previousEvent.id });
           }
         }
       }
