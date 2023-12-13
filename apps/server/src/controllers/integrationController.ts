@@ -15,13 +15,11 @@ export function dispatchFromAdapter(
   args: {
     payload: unknown;
   },
-  _source?: 'osc' | 'ws',
+  _source?: 'osc' | 'ws' | 'http',
 ) {
   const payload = args.payload;
-  const typeComponents = type.toLowerCase().split('/');
-  const mainType = typeComponents[0];
 
-  switch (mainType) {
+  switch (type.toLowerCase()) {
     case 'test-ontime': {
       return { topic: 'hello' };
     }
@@ -36,6 +34,7 @@ export function dispatchFromAdapter(
     case 'set-onair': {
       if (typeof payload !== 'undefined') {
         messageService.setOnAir(Boolean(payload));
+        return { topic: 'onAir', payload: Boolean(payload) };
       }
       break;
     }
@@ -125,7 +124,7 @@ export function dispatchFromAdapter(
     }
     case 'start': {
       PlaybackService.start();
-      break;
+      return { topic: 'playback', payload: 'start' };
     }
 
     case 'start-next': {
