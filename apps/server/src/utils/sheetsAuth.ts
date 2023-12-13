@@ -261,7 +261,7 @@ class sheet {
    * @returns {Promise<string | false>} - returns url to serve on success
    * @throws
    */
-  public async openAuthServer(): Promise<string | false> {
+  public async openAuthServer(): Promise<string | null> {
     //TODO: this only works on local networks
     if (sheet.authUrl) {
       clearTimeout(this.authServerTimeout);
@@ -278,13 +278,13 @@ class sheet {
       logger.error(LogOrigin.Server, `${err}`),
     );
     if (!creadFile) {
-      return false;
+      return null;
     }
     const keyFile = JSON.parse(creadFile);
     const keys = keyFile.installed || keyFile.web;
     if (!keys.redirect_uris || keys.redirect_uris.length === 0) {
       logger.error(LogOrigin.Server, `${invalidRedirectUri}`);
-      return false;
+      return null;
     }
 
     // create an oAuth client to authorize the API call

@@ -508,13 +508,14 @@ export async function uploadGoogleSheetClientFile(req, res) {
 
 /**
  * @returns link to sheet auth url
+ * @method GET
  */
 export async function sheetAuthUrl(req, res) {
-  const successful = await Sheet.openAuthServer();
-  if (successful === false) {
-    res.status(500).send('bad');
+  const authUrl = await Sheet.openAuthServer();
+  if (!authUrl) {
+    res.status(500).send('Unable to start auth server');
   } else {
-    res.status(200).send(successful);
+    res.status(200).send(authUrl);
   }
 }
 

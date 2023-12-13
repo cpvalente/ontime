@@ -2,6 +2,8 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Input,
+  InputGroup,
+  InputRightAddon,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -193,53 +195,64 @@ export default function SheetsModal(props: SheetsModalProps) {
               {sheetState.auth ? <div>You are authenticated</div> : <div>You are not authenticated</div>}
               <div>
                 <label htmlFor='sheetid'>Sheet ID </label>
-                <Input
-                  type='text'
-                  ref={sheetid}
-                  id='sheetid'
-                  width='240px'
-                  size='sm'
-                  textAlign='right'
-                  variant='ontime-filled-on-light'
-                />
-                {sheetState.id ? <IoCheckmarkCircleOutline /> : <IoCloseCircleOutline />}
+                <InputGroup size='sm'>
+                  <Input
+                    type='text'
+                    ref={sheetid}
+                    id='sheetid'
+                    width='240px'
+                    textAlign='right'
+                    variant='ontime-filled-on-light'
+                  />
+                  <InputRightAddon>
+                    {sheetState.id ? <IoCheckmarkCircleOutline color='green' /> : <IoCloseCircleOutline color='red' />}
+                  </InputRightAddon>
+                </InputGroup>
                 <br />
                 <label htmlFor='worksheet'>Worksheet </label>
-                <Input
-                  type='text'
-                  ref={worksheet}
-                  id='worksheet'
-                  width='240px'
-                  size='sm'
-                  textAlign='right'
-                  variant='ontime-filled-on-light'
-                />
-                {sheetState.worksheet ? <IoCheckmarkCircleOutline /> : <IoCloseCircleOutline />}
+                <InputGroup size='sm'>
+                  <Input
+                    type='text'
+                    ref={worksheet}
+                    id='worksheet'
+                    width='240px'
+                    textAlign='right'
+                    variant='ontime-filled-on-light'
+                  />
+                  <InputRightAddon>
+                    {sheetState.worksheet ? (
+                      <IoCheckmarkCircleOutline color='green' />
+                    ) : (
+                      <IoCloseCircleOutline color='red' />
+                    )}
+                  </InputRightAddon>
+                </InputGroup>
+              </div>
+              <br />
+              <div>
+                <Button
+                  disabled={!sheetState.worksheet}
+                  variant='ontime-subtle-on-light'
+                  padding='0 2em'
+                  onClick={handlePullData}
+                  rightIcon={<IoArrowDownCircleOutline />}
+                >
+                  Pull Rundown
+                </Button>
+                <Button
+                  disabled={!sheetState.worksheet}
+                  variant='ontime-subtle-on-light'
+                  padding='0 2em'
+                  onClick={handlePushData}
+                  rightIcon={<IoArrowUpCircleOutline />}
+                >
+                  Push Rundown
+                </Button>
               </div>
             </>
           )}
         </ModalBody>
         <ModalFooter>
-          {!rundown && (
-            <div>
-              <Button
-                variant='ontime-subtle-on-light'
-                padding='0 2em'
-                onClick={handlePullData}
-                rightIcon={<IoArrowDownCircleOutline />}
-              >
-                Pull data
-              </Button>
-              <Button
-                variant='ontime-subtle-on-light'
-                padding='0 2em'
-                onClick={handlePushData}
-                rightIcon={<IoArrowUpCircleOutline />}
-              >
-                Push data
-              </Button>
-            </div>
-          )}
           <Button variant='ontime-ghost-on-light'>Reset</Button>
           {!rundown && (
             <Button variant='ontime-filled' padding='0 2em' onClick={handelSave}>
