@@ -21,18 +21,16 @@ export type OptionWithoutGroup = {
   icon: IconType;
   onClick: () => void;
   withDivider?: boolean;
-  isGroup?: false;
 };
 
 export type OptionWithGroup = {
   label: string;
-  isGroup?: true;
   group: Omit<OptionWithoutGroup, 'isGroup'>[];
 };
 
 export type Option = OptionWithoutGroup | OptionWithGroup;
 
-const isOptionWithGroup = (option: Option): option is OptionWithGroup => 'isGroup' in option;
+const isOptionWithGroup = (option: Option): option is OptionWithGroup => 'group' in option;
 
 type ContextMenuStore = {
   coords: ContextMenuCoords;

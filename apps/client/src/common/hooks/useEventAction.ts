@@ -200,6 +200,7 @@ export const useEventAction = () => {
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
+    networkMode: 'always',
   });
 
   const batchUpdateEvents = useCallback(

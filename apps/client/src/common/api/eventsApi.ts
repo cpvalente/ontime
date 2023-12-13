@@ -38,7 +38,7 @@ export async function requestPutEvent(data: Partial<OntimeRundownEntry>) {
   return axios.put(rundownURL, data);
 }
 
-export type BatchEditEntry = {
+type BatchEditEntry = {
   data: Partial<OntimeRundownEntry>;
   ids: string[];
 };

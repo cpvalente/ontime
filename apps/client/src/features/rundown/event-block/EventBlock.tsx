@@ -92,7 +92,6 @@ export default function EventBlock(props: EventBlockProps) {
       ? [
           {
             label: 'Visiblity',
-            isGroup: true,
             group: [
               {
                 label: 'Make public',
