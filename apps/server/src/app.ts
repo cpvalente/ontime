@@ -66,12 +66,7 @@ app.use('/playback', playbackRouter);
 // serve static - css
 app.use('/external', express.static(externalsStartDirectory));
 app.use('/external', (req, res) => {
-  const hasFileEnding = req.url.split('.')[1];
-  if (!hasFileEnding) {
-    res.redirect(`${req.originalUrl}.html`);
-  } else {
-    res.status(404).send(`${req.originalUrl} not found`);
-  }
+  res.status(404).send(`${req.originalUrl} not found`);
 });
 
 // serve static - react, in dev/test mode we fetch the React app from module
