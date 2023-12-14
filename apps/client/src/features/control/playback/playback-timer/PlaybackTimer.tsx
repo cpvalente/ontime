@@ -5,6 +5,7 @@ import { millisToString } from 'ontime-utils';
 
 import TimerDisplay from '../../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../../common/hooks/useSocket';
+import { useEditorSettings } from '../../../../common/stores/editorSettings';
 import { millisToMinutes, millisToSeconds } from '../../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
@@ -18,6 +19,7 @@ interface PlaybackTimerProps {
 export default function PlaybackTimer(props: PlaybackTimerProps) {
   const { playback } = props;
   const timer = useTimer();
+  const { addTimeAmounts } = useEditorSettings((state) => state.eventSettings);
 
   // TODO: checkout typescript in utilities
   const started = millisToString(timer.startedAt);
@@ -77,6 +79,12 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
   }, [handleKeyPress]);
 
   const addedTimeLabel = resolveAddedTimeLabel();
+  const addTimeButtonLable = (value: number) => {
+    const isPositive = value >= 0;
+    const roundToMin = value % 60 == 0;
+    const nearestMinOrSec = roundToMin ? value / 60 : value;
+    return `${isPositive ? '+' : ''}${nearestMinOrSec}${roundToMin ? 'm' : 's'}`;
+  };
 
   return (
     <div className={style.timeContainer}>
@@ -111,11 +119,11 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       <div className={style.btn}>
         <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <TapButton
-            onClick={() => setPlayback.addTime(shiftState ? -1 : -60)}
+            onClick={() => setPlayback.addTime(shiftState ? -1 : addTimeAmounts.a)}
             disabled={disableButtons}
             aspect='square'
           >
-            {shiftState ? '-1s' : '-1'}
+            {shiftState ? addTimeButtonLable(-10) : addTimeButtonLable(addTimeAmounts.a)}
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>

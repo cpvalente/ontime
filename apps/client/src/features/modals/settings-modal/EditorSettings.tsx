@@ -1,4 +1,4 @@
-import { Switch } from '@chakra-ui/react';
+import { Input, Stack, Switch } from '@chakra-ui/react';
 
 import { useEditorSettings } from '../../../common/stores/editorSettings';
 import ModalSplitInput from '../ModalSplitInput';
@@ -8,6 +8,7 @@ import style from './SettingsModal.module.scss';
 export default function EditorSettings() {
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const setShowQuickEntry = useEditorSettings((state) => state.setShowQuickEntry);
+  const setAddtimeamounts = useEditorSettings((state) => state.setAddtimeamounts);
   const setStartTimeIsLastEnd = useEditorSettings((state) => state.setStartTimeIsLastEnd);
   const setDefaultPublic = useEditorSettings((state) => state.setDefaultPublic);
   const setShowNif = useEditorSettings((state) => state.setShowNif);
@@ -39,6 +40,22 @@ export default function EditorSettings() {
           defaultChecked={eventSettings.defaultPublic}
           onChange={(event) => setDefaultPublic(event.target.checked)}
         />
+      </ModalSplitInput>
+      <span className={style.title}>Playback settings</span>
+      <ModalSplitInput
+        field=''
+        title='Addtime amounts'
+        description='Set the amount of time the add/remove buttons take'
+      >
+        <Stack>
+          <Input
+            size='sm'
+            variant='ontime-on-light'
+            type='number'
+            defaultValue={eventSettings.addTimeAmounts.a}
+            onChange={(event) => setAddtimeamounts({ ...eventSettings.addTimeAmounts, a: Number(event.target.value) })}
+          />
+        </Stack>
       </ModalSplitInput>
       <span className={style.title}>Info settings</span>
       <ModalSplitInput
