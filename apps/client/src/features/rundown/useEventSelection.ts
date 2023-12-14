@@ -1,18 +1,11 @@
 import { isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { create } from 'zustand';
 
-// culled from:
-// https://stackoverflow.com/questions/54134156/javascript-merge-two-arrays-of-objects-only-if-not-duplicate-based-on-specifi
-const getMergedEvents = (initialArr: string[], newArr: string[]) => {
-  const eventIds = new Set(initialArr.map((id) => id));
-  return [...initialArr, ...newArr.filter((id) => !eventIds.has(id))];
-};
-
 type EditMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
   editMode: EditMode;
-  eventsToEdit: string[];
+  eventsToEdit: Set<string>;
   anchoredIndex: number | null;
   setEditMode: (mode: EditMode) => void;
   setEventsToEdit: (id: string, index: number, rundown: OntimeRundown) => void;
@@ -21,68 +14,74 @@ interface EventSelectionStore {
 
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   editMode: 'click',
-  eventsToEdit: [],
+  eventsToEdit: new Set(),
   anchoredIndex: null,
-  setEditMode: (mode) => set(() => ({ editMode: mode })),
+  setEditMode: (mode) => set({ editMode: mode }),
   setEventsToEdit: (id, indexPlusOne, rundown) => {
     // indexes coming from rundown are not 0 based
     const index = indexPlusOne - 1;
     const { editMode, eventsToEdit, anchoredIndex } = get();
 
     if (editMode === 'click') {
-      return set(() => ({ eventsToEdit: [id], anchoredIndex: index }));
+      return set({ eventsToEdit: new Set([id]), anchoredIndex: index });
     }
 
     if (editMode === 'ctrl') {
-      const deduplicatedEventsToEdit = eventsToEdit.filter((eventId) => eventId !== id);
+      if (eventsToEdit.has(id)) {
+        const eventIds = rundown.reduce(
+          (newRundown, event, i) => {
+            if (isOntimeEvent(event) && eventsToEdit.has(id)) {
+              return newRundown.concat({ id: event.id, index: i });
+            }
 
-      if (deduplicatedEventsToEdit.length !== eventsToEdit.length) {
-        const eventIds = rundown
-          .filter(isOntimeEvent)
-          .map((event, i) => ({ id: event.id, index: i }))
-          .filter(({ id }) => eventsToEdit.includes(id));
+            return newRundown;
+          },
+          [] as { id: string; index: number }[],
+        );
 
         // find the next available higher index
         // if unavailable, then grab the last index of events
         const newAnchoredIndex = eventIds.find(({ index: eventIndex }) => eventIndex > index) ?? eventIds.at(-1);
 
-        return set(() => ({
-          eventsToEdit: deduplicatedEventsToEdit,
+        eventsToEdit.delete(id);
+
+        return set({
+          eventsToEdit: eventsToEdit,
           anchoredIndex: newAnchoredIndex?.index ?? 0,
-        }));
+        });
       }
 
-      return set(() => ({
-        eventsToEdit: deduplicatedEventsToEdit.toSpliced(index, 0, id),
+      return set({
+        eventsToEdit: eventsToEdit.add(id),
         anchoredIndex: index,
-      }));
+      });
     }
 
     if (editMode === 'shift') {
-      const eventIds = rundown.filter(isOntimeEvent).map((event) => event.id);
+      const eventIds = rundown.filter(isOntimeEvent);
 
       if (anchoredIndex === null) {
-        const eventsUntilIndex = eventIds.slice(0, indexPlusOne);
+        const eventsUntilIndex = eventIds.slice(0, indexPlusOne).map((event) => event.id);
 
-        return set(() => ({ eventsToEdit: eventsUntilIndex, anchoredIndex: index }));
+        return set({ eventsToEdit: new Set(eventsUntilIndex), anchoredIndex: index });
       }
 
       if (anchoredIndex > index) {
-        const eventsFromIndex = eventIds.slice(index, anchoredIndex + 1);
+        const eventsFromIndex = eventIds.slice(index, anchoredIndex + 1).map((event) => event.id);
 
-        return set(() => ({
-          eventsToEdit: getMergedEvents(eventsToEdit, eventsFromIndex),
+        return set({
+          eventsToEdit: new Set([...eventsToEdit, ...eventsFromIndex]),
           anchoredIndex: index,
-        }));
+        });
       }
 
-      const eventsUntilIndex = eventIds.slice(anchoredIndex, indexPlusOne);
+      const eventsUntilIndex = eventIds.slice(anchoredIndex, indexPlusOne).map((event) => event.id);
 
-      return set(() => ({
-        eventsToEdit: getMergedEvents(eventsToEdit, eventsUntilIndex),
+      return set({
+        eventsToEdit: new Set([...eventsToEdit, ...eventsUntilIndex]),
         anchoredIndex: index,
-      }));
+      });
     }
   },
-  clearEventsToEdit: () => set(() => ({ eventsToEdit: [] })),
+  clearEventsToEdit: () => set({ eventsToEdit: new Set() }),
 }));

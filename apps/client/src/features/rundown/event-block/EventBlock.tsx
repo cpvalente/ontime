@@ -88,7 +88,7 @@ export default function EventBlock(props: EventBlockProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(
-    eventsToEdit.length > 1
+    eventsToEdit.size > 1
       ? [
           {
             label: 'Visiblity',
@@ -200,7 +200,7 @@ export default function EventBlock(props: EventBlockProps) {
     isPast ? style.past : null,
     selected ? style.selected : null,
     playback ? style[playback] : null,
-    eventsToEdit.includes(eventId) ? style.hasCursor : null,
+    eventsToEdit.has(eventId) ? style.hasCursor : null,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {
