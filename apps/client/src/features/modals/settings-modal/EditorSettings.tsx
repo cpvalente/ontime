@@ -1,4 +1,4 @@
-import { Input, Stack, Switch } from '@chakra-ui/react';
+import { HStack, Input, Stack, Switch } from '@chakra-ui/react';
 
 import { useEditorSettings } from '../../../common/stores/editorSettings';
 import ModalSplitInput from '../ModalSplitInput';
@@ -47,15 +47,86 @@ export default function EditorSettings() {
         title='Addtime amounts'
         description='Set the amount of time the add/remove buttons take'
       >
-        <Stack>
-          <Input
-            size='sm'
-            variant='ontime-on-light'
-            type='number'
-            defaultValue={eventSettings.addTimeAmounts.a}
-            onChange={(event) => setAddtimeamounts({ ...eventSettings.addTimeAmounts, a: Number(event.target.value) })}
-          />
-        </Stack>
+        <HStack>
+          <Stack>
+            <label>Normal values</label>
+            <Input
+              size='sm'
+              variant='ontime-on-light'
+              type='number'
+              defaultValue={eventSettings.addTimeAmounts.a}
+              onChange={(event) =>
+                setAddtimeamounts({ ...eventSettings.addTimeAmounts, a: Number(event.target.value) })
+              }
+            />
+            <Input
+              size='sm'
+              variant='ontime-on-light'
+              type='number'
+              defaultValue={eventSettings.addTimeAmounts.a}
+              onChange={(event) =>
+                setAddtimeamounts({ ...eventSettings.addTimeAmounts, b: Number(event.target.value) })
+              }
+            />
+            <Input
+              size='sm'
+              variant='ontime-on-light'
+              type='number'
+              defaultValue={eventSettings.addTimeAmounts.a}
+              onChange={(event) =>
+                setAddtimeamounts({ ...eventSettings.addTimeAmounts, c: Number(event.target.value) })
+              }
+            />
+            <Input
+              size='sm'
+              variant='ontime-on-light'
+              type='number'
+              defaultValue={eventSettings.addTimeAmounts.a}
+              onChange={(event) =>
+                setAddtimeamounts({ ...eventSettings.addTimeAmounts, d: Number(event.target.value) })
+              }
+            />
+          </Stack>
+          <Stack>
+            <label>Shift values</label>
+            <Input
+              size='sm'
+              variant='ontime-on-light'
+              type='number'
+              defaultValue={eventSettings.addTimeAmounts.aShift}
+              onChange={(event) =>
+                setAddtimeamounts({ ...eventSettings.addTimeAmounts, aShift: Number(event.target.value) })
+              }
+            />
+            <Input
+              size='sm'
+              variant='ontime-on-light'
+              type='number'
+              defaultValue={eventSettings.addTimeAmounts.bShift}
+              onChange={(event) =>
+                setAddtimeamounts({ ...eventSettings.addTimeAmounts, bShift: Number(event.target.value) })
+              }
+            />
+            <Input
+              size='sm'
+              variant='ontime-on-light'
+              type='number'
+              defaultValue={eventSettings.addTimeAmounts.cShift}
+              onChange={(event) =>
+                setAddtimeamounts({ ...eventSettings.addTimeAmounts, cShift: Number(event.target.value) })
+              }
+            />
+            <Input
+              size='sm'
+              variant='ontime-on-light'
+              type='number'
+              defaultValue={eventSettings.addTimeAmounts.dShift}
+              onChange={(event) =>
+                setAddtimeamounts({ ...eventSettings.addTimeAmounts, dShift: Number(event.target.value) })
+              }
+            />
+          </Stack>
+        </HStack>
       </ModalSplitInput>
       <span className={style.title}>Info settings</span>
       <ModalSplitInput

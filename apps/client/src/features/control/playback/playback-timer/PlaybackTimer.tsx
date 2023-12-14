@@ -119,34 +119,38 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       <div className={style.btn}>
         <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <TapButton
-            onClick={() => setPlayback.addTime(shiftState ? -1 : addTimeAmounts.a)}
+            onClick={() => setPlayback.addTime(shiftState ? addTimeAmounts.aShift : addTimeAmounts.a)}
             disabled={disableButtons}
             aspect='square'
           >
-            {shiftState ? addTimeButtonLable(-10) : addTimeButtonLable(addTimeAmounts.a)}
+            {shiftState ? addTimeButtonLable(addTimeAmounts.aShift) : addTimeButtonLable(addTimeAmounts.a)}
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.addTime(shiftState ? 1 : 60)} disabled={disableButtons} aspect='square'>
-            {shiftState ? '+1s' : '+1'}
+          <TapButton
+            onClick={() => setPlayback.addTime(shiftState ? addTimeAmounts.bShift : addTimeAmounts.b)}
+            disabled={disableButtons}
+            aspect='square'
+          >
+            {shiftState ? addTimeButtonLable(addTimeAmounts.bShift) : addTimeButtonLable(addTimeAmounts.b)}
           </TapButton>
         </Tooltip>
         <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <TapButton
-            onClick={() => setPlayback.addTime(shiftState ? -5 : -5 * 60)}
+            onClick={() => setPlayback.addTime(shiftState ? addTimeAmounts.cShift : addTimeAmounts.c)}
             disabled={disableButtons}
             aspect='square'
           >
-            {shiftState ? '-5s' : '-5'}
+            {shiftState ? addTimeButtonLable(addTimeAmounts.cShift) : addTimeButtonLable(addTimeAmounts.c)}
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <TapButton
-            onClick={() => setPlayback.addTime(shiftState ? 5 : 5 * 60)}
+            onClick={() => setPlayback.addTime(shiftState ? addTimeAmounts.dShift : addTimeAmounts.d)}
             disabled={disableButtons}
             aspect='square'
           >
-            {shiftState ? '+5s' : '+5'}
+            {shiftState ? addTimeButtonLable(addTimeAmounts.dShift) : addTimeButtonLable(addTimeAmounts.d)}
           </TapButton>
         </Tooltip>
       </div>

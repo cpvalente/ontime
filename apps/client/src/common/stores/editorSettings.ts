@@ -9,6 +9,10 @@ type EditorSettings = {
     b: number;
     c: number;
     d: number;
+    aShift: number;
+    bShift: number;
+    cShift: number;
+    dShift: number;
   };
   startTimeIsLastEnd: boolean;
   defaultPublic: boolean;
@@ -41,6 +45,10 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => ({
       b: numberFromLocalStorage(`${EditorSettingsKeys.AddTimeAmounts}b`, -60),
       c: numberFromLocalStorage(`${EditorSettingsKeys.AddTimeAmounts}c`, 5 * 60),
       d: numberFromLocalStorage(`${EditorSettingsKeys.AddTimeAmounts}d`, -5 * 60),
+      aShift: numberFromLocalStorage(`${EditorSettingsKeys.AddTimeAmounts}aShift`, 10),
+      bShift: numberFromLocalStorage(`${EditorSettingsKeys.AddTimeAmounts}bShift`, -10),
+      cShift: numberFromLocalStorage(`${EditorSettingsKeys.AddTimeAmounts}cShift`, 30),
+      dShift: numberFromLocalStorage(`${EditorSettingsKeys.AddTimeAmounts}dShift`, -30),
     },
     startTimeIsLastEnd: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, true),
     defaultPublic: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, true),
@@ -73,6 +81,10 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => ({
       localStorage.setItem(`${EditorSettingsKeys.AddTimeAmounts}b`, String(addTimeAmounts.b));
       localStorage.setItem(`${EditorSettingsKeys.AddTimeAmounts}c`, String(addTimeAmounts.c));
       localStorage.setItem(`${EditorSettingsKeys.AddTimeAmounts}d`, String(addTimeAmounts.d));
+      localStorage.setItem(`${EditorSettingsKeys.AddTimeAmounts}aShift`, String(addTimeAmounts.aShift));
+      localStorage.setItem(`${EditorSettingsKeys.AddTimeAmounts}bShift`, String(addTimeAmounts.bShift));
+      localStorage.setItem(`${EditorSettingsKeys.AddTimeAmounts}cShift`, String(addTimeAmounts.cShift));
+      localStorage.setItem(`${EditorSettingsKeys.AddTimeAmounts}dShift`, String(addTimeAmounts.dShift));
       return { eventSettings: { ...state.eventSettings, addTimeAmounts } };
     }),
 
