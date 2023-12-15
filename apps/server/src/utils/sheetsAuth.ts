@@ -25,9 +25,6 @@ class sheet {
   private readonly clientSecretFile: string;
   private static clientSecret = null;
   private static authUrl: null | string = null;
-  private worksheetId = 0;
-  private sheetId = '';
-  private range = '';
 
   constructor() {
     const appDataPath = getAppDataPath();
@@ -45,7 +42,6 @@ class sheet {
   }
 
   public async getSheetState(): Promise<GoogleSheetState> {
-    console.log('getSheetState');
     const ret: GoogleSheetState = {
       secret: false,
       auth: false,
@@ -53,9 +49,6 @@ class sheet {
       worksheet: false,
       worksheetOptions: [],
     };
-    const lastID = this.sheetId;
-    this.sheetId = '';
-    this.worksheetId = 0;
 
     if (!sheet.clientSecret) {
       return ret;
@@ -73,7 +66,7 @@ class sheet {
       return ret;
     }
     const settings = DataProvider.getGoogleSheet();
-    if (settings.id != '' && lastID != settings.id) {
+    if (settings.id != '') {
       const spreadsheets = await sheets({ version: 'v4', auth: sheet.client })
         .spreadsheets.get({
           spreadsheetId: settings.id,
@@ -92,20 +85,6 @@ class sheet {
       }
       ret.worksheet = true;
     }
-
-    //   const x = await this.exist(settings.id, settings.worksheet);
-    //   if (x === true) {
-    //     ret.id = true;
-    //     this.sheetId = settings.id;
-    //   } else if (x !== false) {
-    //     ret.id = true;
-    //     ret.worksheet = true;
-    //     this.sheetId = settings.id;
-    //     this.worksheetId = x.worksheetId;
-    //     this.range = x.range;
-    //   }
-    // }
-
     return ret;
   }
 
@@ -113,13 +92,10 @@ class sheet {
    * test existence of sheet and worksheet
    * @param {string} sheetId - https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
    * @param {string} worksheet - the name of the worksheet containing ontime data
-   * @returns {Promise<false | {worksheetId: number, range: string}>} - false if not found | true if sheetId existes | id of worksheet and rage of worksheet
+   * @returns {Promise<{worksheetId: number, range: string}>} - id of worksheet and rage of worksheet
    * @throws
    */
-  private async exist(
-    sheetId: string,
-    worksheet: string,
-  ): Promise<false | true | { worksheetId: number; range: string }> {
+  private async exist(sheetId: string, worksheet: string): Promise<{ worksheetId: number; range: string }> {
     const spreadsheets = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.get({
       spreadsheetId: sheetId,
     });
@@ -132,11 +108,10 @@ class sheet {
           ourWorksheetData.properties.gridProperties.columnCount,
         );
         return { worksheetId: ourWorksheetData.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
-      } else {
-        return true;
       }
+    } else {
+      throw new Error('Uable to open spreadsheets');
     }
-    return false;
   }
 
   /**
@@ -144,16 +119,14 @@ class sheet {
    * @throws
    */
   public async push() {
-    const { auth, id, worksheet } = await this.getSheetState();
-    if (!auth && !id && !worksheet) {
-      throw new Error(`Sheet not authorized or incorrect ID or worksheet`);
-    }
+    const { id, worksheet } = DataProvider.getGoogleSheet();
+    const { worksheetId, range } = await this.exist(id, worksheet);
 
     const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
-      spreadsheetId: this.sheetId,
+      spreadsheetId: id,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
-      range: this.range,
+      range: range,
     });
     if (rq.status === 200) {
       const { rundownMetadata, projectMetadata } = parseExcel(rq.data.values);
@@ -171,13 +144,13 @@ class sheet {
             dimension: 'ROWS',
             startIndex: titleRow + 1,
             endIndex: titleRow + 2,
-            sheetId: this.worksheetId,
+            sheetId: worksheetId,
           },
         },
       });
       //and delete the rest
       updateRundown.push({
-        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: this.worksheetId } },
+        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: worksheetId } },
       });
       // insert the lenght of the rundown
       updateRundown.push({
@@ -187,24 +160,24 @@ class sheet {
             dimension: 'ROWS',
             startIndex: titleRow + 1,
             endIndex: titleRow + rundown.length,
-            sheetId: this.worksheetId,
+            sheetId: worksheetId,
           },
         },
       });
 
       //update the corresponding row with event data
       rundown.forEach((entry, index) =>
-        updateRundown.push(cellRequenstFromEvent(entry, index, this.worksheetId, rundownMetadata)),
+        updateRundown.push(cellRequenstFromEvent(entry, index, worksheetId, rundownMetadata)),
       );
 
       //update project data
-      updateRundown.push(cellRequenstFromProjectData(projectData, this.worksheetId, projectMetadata));
+      updateRundown.push(cellRequenstFromProjectData(projectData, worksheetId, projectMetadata));
 
       const writeResponds = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.batchUpdate({
-        spreadsheetId: this.sheetId,
+        spreadsheetId: id,
         requestBody: {
           includeSpreadsheetInResponse: false,
-          responseRanges: [this.range],
+          responseRanges: [range],
           requests: updateRundown,
         },
       });
@@ -225,19 +198,18 @@ class sheet {
    * @throws
    */
   public async pull(): Promise<Partial<ResponseOK>> {
-    const { auth, id, worksheet } = await this.getSheetState();
-    if (!auth && !id && !worksheet) {
-      throw new Error(`Sheet not authorized or incorrect ID or worksheet`);
-    }
+    const { id, worksheet } = DataProvider.getGoogleSheet();
+    const { range } = await this.exist(id, worksheet);
 
     const res: Partial<ResponseOK> = {};
 
     const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
-      spreadsheetId: this.sheetId,
+      spreadsheetId: id,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
-      range: this.range,
+      range,
     });
+
     if (rq.status === 200) {
       res.data = {};
       const dataFromSheet = parseExcel(rq.data.values);
