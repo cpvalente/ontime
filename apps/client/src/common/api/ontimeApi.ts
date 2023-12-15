@@ -302,7 +302,7 @@ export async function postSheetSettings(data: GoogleSheet): Promise<GoogleSheet>
  * @description HTTP request to retrieve google sheets state
  * @return {Promise}
  */
-export async function getSheetstate(): Promise<GoogleSheetState> {
+export async function getSheetState(): Promise<GoogleSheetState> {
   const res = await axios.get(`${ontimeURL}/sheet-state`);
   return res.data;
 }

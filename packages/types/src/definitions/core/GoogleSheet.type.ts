@@ -1,6 +1,6 @@
 export type GoogleSheet = {
-  worksheet: string;
-  id: string;
+  worksheet: string | null;
+  id: string | null;
 };
 
 export type GoogleSheetState = {
@@ -9,4 +9,4 @@ export type GoogleSheetState = {
   id: boolean;
   worksheet: boolean;
   worksheetOptions: string[];
-};
+} | null;
