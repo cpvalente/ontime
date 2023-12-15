@@ -210,8 +210,8 @@ export class PlaybackService {
    * Reloads current event
    */
   static reload() {
-    if (eventTimer.loadedTimerId) {
-      this.loadById(eventTimer.loadedTimerId);
+    if (state.timer.selectedEventId) {
+      this.loadById(state.timer.selectedEventId);
     }
   }
 
@@ -275,7 +275,7 @@ export class PlaybackService {
    * @param {number} time - time to add in seconds
    */
   static addTime(time: number) {
-    if (eventTimer.loadedTimerId) {
+    if (state.timer.selectedEventId) {
       const timeInMs = time * 1000;
       eventTimer.addTime(timeInMs);
       timeInMs > 0

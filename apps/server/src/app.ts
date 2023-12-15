@@ -30,10 +30,11 @@ import { integrationService } from './services/integration-service/IntegrationSe
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
-import { eventStore, getInitialPayload } from './stores/EventStore.js';
+import { eventStore } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
-import { RestorePoint, restoreService } from './services/RestoreService.js';
+import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
+import { state } from './state.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -150,11 +151,35 @@ export const startServer = async () => {
     PlaybackService.resume(maybeRestorePoint);
   }
 
-  eventTimer.setRestoreCallback(async (newState: RestorePoint) => restoreService.save(newState));
-
-  // provide initial payload to event store
-  const initialPayload = getInitialPayload();
-  eventStore.init(initialPayload);
+  /**
+   * Module initialises the services and provides initial payload for the store
+   * Currently registered objects in store
+   * - Timer Service      timer
+   * - Timer Service      playback
+   * - Message Service    timerMessage
+   * - Message Service    publicMessage
+   * - Message Service    lowerMessage
+   * - Message Service    onAir
+   * - Event Loader       loaded
+   * - Event Loader       eventNow
+   * - Event Loader       publicEventNow
+   * - Event Loader       eventNext
+   * - Event Loader       publicEventNext
+   */
+  eventStore.init({
+    timer: state.timer,
+    playback: state.playback,
+    timerMessage: messageService.timerMessage,
+    publicMessage: messageService.publicMessage,
+    lowerMessage: messageService.lowerMessage,
+    externalMessage: messageService.externalMessage,
+    onAir: messageService.onAir,
+    loaded: eventLoader.loaded,
+    eventNow: eventLoader.eventNow,
+    publicEventNow: eventLoader.publicEventNow,
+    eventNext: eventLoader.eventNext,
+    publicEventNext: eventLoader.publicEventNext,
+  });
 
   // eventStore set is a dependency of the services that publish to it
   messageService.init(eventStore.set.bind(eventStore));
