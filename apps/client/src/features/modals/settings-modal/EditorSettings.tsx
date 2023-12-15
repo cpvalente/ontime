@@ -63,7 +63,7 @@ export default function EditorSettings() {
               size='sm'
               variant='ontime-on-light'
               type='number'
-              defaultValue={eventSettings.addTimeAmounts.a}
+              defaultValue={eventSettings.addTimeAmounts.b}
               onChange={(event) =>
                 setAddtimeamounts({ ...eventSettings.addTimeAmounts, b: Number(event.target.value) })
               }
@@ -72,7 +72,7 @@ export default function EditorSettings() {
               size='sm'
               variant='ontime-on-light'
               type='number'
-              defaultValue={eventSettings.addTimeAmounts.a}
+              defaultValue={eventSettings.addTimeAmounts.c}
               onChange={(event) =>
                 setAddtimeamounts({ ...eventSettings.addTimeAmounts, c: Number(event.target.value) })
               }
@@ -81,7 +81,7 @@ export default function EditorSettings() {
               size='sm'
               variant='ontime-on-light'
               type='number'
-              defaultValue={eventSettings.addTimeAmounts.a}
+              defaultValue={eventSettings.addTimeAmounts.d}
               onChange={(event) =>
                 setAddtimeamounts({ ...eventSettings.addTimeAmounts, d: Number(event.target.value) })
               }
