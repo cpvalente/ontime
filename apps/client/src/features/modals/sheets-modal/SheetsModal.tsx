@@ -1,9 +1,11 @@
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Button,
   Input,
-  InputGroup,
-  InputRightAddon,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,10 +15,6 @@ import {
   ModalOverlay,
   Select,
 } from '@chakra-ui/react';
-import { IoArrowDownCircleOutline } from '@react-icons/all-files/io5/IoArrowDownCircleOutline';
-import { IoArrowUpCircleOutline } from '@react-icons/all-files/io5/IoArrowUpCircleOutline';
-import { IoCheckmarkCircleOutline } from '@react-icons/all-files/io5/IoCheckmarkCircleOutline';
-import { IoCloseCircleOutline } from '@react-icons/all-files/io5/IoCloseCircleOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 
@@ -34,7 +32,10 @@ import useSheet from '../../../common/hooks-query/useSheet';
 import useSheetState from '../../../common/hooks-query/useSheetState';
 import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { userFieldsPlaceholder } from '../../../common/models/UserFields';
+import ModalLink from '../ModalLink';
 import PreviewExcel from '../upload-modal/preview/PreviewExcel';
+
+import Step from './Step';
 
 interface SheetsModalProps {
   onClose: () => void;
@@ -180,84 +181,112 @@ export default function SheetsModal(props: SheetsModalProps) {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Sheets!</ModalHeader>
+        <ModalHeader>Rundown from sheets</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {rundown && (
+          <Alert status='info' variant='ontime-on-light-info'>
+            <AlertIcon />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <AlertTitle>Sync with Google Sheets</AlertTitle>
+              <AlertDescription>
+                Add information here, maybe a link too. <br />
+                The save button is also confusing, can we clarify? should the push data and pull data not be the end
+                game buttons here?
+                <ModalLink href='our-docs'>For more information, see the docs</ModalLink>
+              </AlertDescription>
+            </div>
+          </Alert>
+          {!rundown ? (
+            <>
+              <Step step={1} title='Upload token' completed={Boolean(sheetState?.secret)} disabled={false}>
+                <Input
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  type='file'
+                  onChange={handleFile}
+                  accept='.json'
+                  data-testid='file-input'
+                />
+                <Button size='sm' variant='ontime-ghosted-on-light' onClick={handleClick}>
+                  Upload Client Secret
+                </Button>
+              </Step>
+
+              <Step
+                step={2}
+                title='Authenticate with Google'
+                completed={Boolean(sheetState?.auth)}
+                disabled={!sheetState?.secret}
+              >
+                <Button
+                  size='sm'
+                  variant='ontime-ghosted-on-light'
+                  onClick={handleAuthenticate}
+                  disabled={!sheetState?.secret}
+                >
+                  Authenticate
+                </Button>
+              </Step>
+
+              <Step step={3} title='Add Sheet ID' completed={Boolean(sheetState?.id)} disabled={!sheetState?.auth}>
+                <label htmlFor='sheetid'>
+                  Sheet ID
+                  <Input
+                    type='text'
+                    ref={sheetid}
+                    id='sheetid'
+                    size='sm'
+                    variant='ontime-filled-on-light'
+                    disabled={!sheetState?.auth}
+                  />
+                </label>
+              </Step>
+
+              <Step
+                step={4}
+                title='Select Worksheet to import'
+                completed={Boolean(sheetState?.auth)}
+                disabled={!sheetState?.worksheetOptions}
+              >
+                <label htmlFor='worksheet'>
+                  Worksheet
+                  <Select ref={worksheet} size='sm' id='worksheet' disabled={!sheetState?.worksheetOptions}>
+                    {sheetState?.worksheetOptions?.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </Select>
+                </label>
+              </Step>
+
+              <Step step={5} title='Upload / Download rundown' completed={false} disabled={!sheetState?.worksheet}>
+                <div style={{ display: 'flex', gap: '1em' }}>
+                  <Button
+                    disabled={!sheetState?.worksheet}
+                    variant='ontime-ghosted-on-light'
+                    padding='0 2em'
+                    onClick={handlePullData}
+                  >
+                    Push data
+                  </Button>
+                  <Button
+                    disabled={!sheetState?.worksheet}
+                    variant='ontime-ghosted-on-light'
+                    padding='0 2em'
+                    onClick={handlePushData}
+                  >
+                    Pull data
+                  </Button>
+                </div>
+              </Step>
+            </>
+          ) : (
             <PreviewExcel
               rundown={rundown ?? []}
               project={project ?? projectDataPlaceholder}
               userFields={userFields ?? userFieldsPlaceholder}
             />
-          )}
-          {!rundown && (
-            <>
-              <Input
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                type='file'
-                onChange={handleFile}
-                accept='.json'
-                data-testid='file-input'
-              />
-              <div>
-                <Button onClick={handleClick}>Upload Client Secret</Button>
-                {sheetState?.secret ? 'have good secret' : 'no or bad secret'}
-              </div>
-              <div style={sheetState?.secret ? {} : { display: 'none' }}>
-                <Button variant='ontime-filled' padding='0 2em' onClick={handleAuthenticate}>
-                  Authenticate
-                </Button>
-                {sheetState?.auth ? 'You are authenticated' : 'You are not authenticated'}
-              </div>
-              <div style={sheetState?.auth ? {} : { display: 'none' }}>
-                <label htmlFor='sheetid'>Sheet ID</label>
-                <InputGroup size='sm'>
-                  <Input
-                    type='text'
-                    ref={sheetid}
-                    id='sheetid'
-                    width='240px'
-                    textAlign='right'
-                    variant='ontime-filled-on-light'
-                  />
-                  <InputRightAddon>
-                    {sheetState?.id ? <IoCheckmarkCircleOutline color='green' /> : <IoCloseCircleOutline color='red' />}
-                  </InputRightAddon>
-                </InputGroup>
-              </div>
-              <div style={sheetState?.id ? {} : { display: 'none' }}>
-                <label htmlFor='worksheet'>Worksheet </label>
-                <Select ref={worksheet} size='sm' id='worksheet'>
-                  {sheetState?.worksheetOptions?.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <br />
-              <div style={sheetState?.worksheet ? {} : { display: 'none' }}>
-                <Button
-                  disabled={!sheetState?.worksheet}
-                  variant='ontime-subtle-on-light'
-                  padding='0 2em'
-                  onClick={handlePullData}
-                  rightIcon={<IoArrowDownCircleOutline />}
-                >
-                  Pull Rundown
-                </Button>
-                <Button
-                  disabled={!sheetState?.worksheet}
-                  variant='ontime-subtle-on-light'
-                  padding='0 2em'
-                  onClick={handlePushData}
-                  rightIcon={<IoArrowUpCircleOutline />}
-                >
-                  Push Rundown
-                </Button>
-              </div>
-            </>
           )}
         </ModalBody>
         <ModalFooter>
