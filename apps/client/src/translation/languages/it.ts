@@ -1,4 +1,6 @@
-export const langIt = {
+import { TranslationObject } from './en';
+
+export const langIt: TranslationObject = {
   'common.end_time': 'Ora di Fine',
   'common.expected_finish': 'Fine Prevista',
   'common.now': 'Adesso',
@@ -15,5 +17,3 @@ export const langIt = {
   'countdown.waiting': 'In attesa dell\'inizio dell\'evento',
   'countdown.overtime': 'in ritardo',
 };
-
-export type TranslationObject = Record<keyof typeof langIt, string>;
