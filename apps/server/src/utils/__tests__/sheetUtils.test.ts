@@ -1,5 +1,5 @@
 import { millisToString } from 'ontime-utils';
-import { getA1Notation, cellRequenstFromEvent, cellRequenstFromProjectData } from '../googleSheetUtils.js';
+import { getA1Notation, cellRequenstFromEvent, cellRequenstFromProjectData } from '../sheetUtils.js';
 import { EndAction, OntimeRundownEntry, ProjectData, SupportedEvent, TimerType } from 'ontime-types';
 
 describe('getA1Notation()', () => {

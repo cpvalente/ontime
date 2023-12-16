@@ -1,9 +1,9 @@
-export type GoogleSheet = {
+export type Sheet = {
   worksheet: string | null;
   id: string | null;
 };
 
-export type GoogleSheetState = {
+export type SheetState = {
   secret: boolean;
   auth: boolean;
   id: boolean;

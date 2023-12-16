@@ -488,7 +488,7 @@ export async function pushSheet(req, res) {
  * uploads Client secrets file
  * @returns parsed result
  */
-export async function uploadGoogleSheetClientFile(req, res) {
+export async function uploadSheetClientFile(req, res) {
   if (!req.file.path) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -520,11 +520,11 @@ export async function sheetAuthUrl(req, res) {
 }
 
 /**
- * @description Get google sheet Settings
+ * @description Get s sheet Settings
  * @method GET
  */
-export const getGoogleSheetSettings = async (req, res) => {
-  const sheet = await DataProvider.getGoogleSheet();
+export const getSheetSettings = async (req, res) => {
+  const sheet = await DataProvider.getSheet();
   res.status(200).send(sheet);
 };
 
@@ -532,7 +532,7 @@ export const getGoogleSheetSettings = async (req, res) => {
  * @description Change view Settings
  * @method POST
  */
-export const postGoogleSheetSettings = async (req, res) => {
+export const postSheetSettings = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -542,7 +542,7 @@ export const postGoogleSheetSettings = async (req, res) => {
       id: req.body.id,
       worksheet: req.body.worksheet,
     };
-    await DataProvider.setGoogleSheet(newData);
+    await DataProvider.setSheet(newData);
     res.status(200).send(newData);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
@@ -550,9 +550,9 @@ export const postGoogleSheetSettings = async (req, res) => {
 };
 
 /**
- * @description Get google sheet state
+ * @description Get sheet state
  * @method GET
  */
-export const getGoogleSheetState = async (req, res) => {
+export const getSheetState = async (req, res) => {
   res.status(200).send(await Sheet.getSheetState());
 };

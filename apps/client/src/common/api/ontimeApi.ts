@@ -3,14 +3,14 @@ import {
   Alias,
   DatabaseModel,
   GetInfo,
-  GoogleSheet,
-  GoogleSheetState,
   HttpSettings,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
   ProjectData,
   Settings,
+  Sheet,
+  SheetState,
   UserFields,
   ViewSettings,
 } from 'ontime-types';
@@ -281,28 +281,28 @@ export const postPushSheet = async () => {
 };
 
 /**
- * @description HTTP request to retrieve google sheets settings
+ * @description HTTP request to retrieve sheets settings
  * @return {Promise}
  */
-export async function getSheetSettings(): Promise<GoogleSheet> {
+export async function getSheetSettings(): Promise<Sheet> {
   const res = await axios.get(`${ontimeURL}/sheet-settings`);
   return res.data;
 }
 
 /**
- * @description HTTP request to mutate google sheets settings
+ * @description HTTP request to mutate sheets settings
  * @return {Promise}
  */
-export async function postSheetSettings(data: GoogleSheet): Promise<GoogleSheet> {
+export async function postSheetSettings(data: Sheet): Promise<Sheet> {
   const res = await axios.post(`${ontimeURL}/sheet-settings`, data);
   return res.data;
 }
 
 /**
- * @description HTTP request to retrieve google sheets state
+ * @description HTTP request to retrieve sheets state
  * @return {Promise}
  */
-export async function getSheetState(): Promise<GoogleSheetState> {
+export async function getSheetState(): Promise<SheetState> {
   const res = await axios.get(`${ontimeURL}/sheet-state`);
   return res.data;
 }

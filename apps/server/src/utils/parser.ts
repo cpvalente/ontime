@@ -34,7 +34,7 @@ import {
   parseSettings,
   parseUserFields,
   parseViewSettings,
-  parseGoogleSheet,
+  parseSheet,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 import { coerceBoolean } from './coerceType.js';
@@ -371,8 +371,8 @@ export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
   returnData.osc = parseOsc(jsonData) ?? dbModel.osc;
   // Import HTTP settings if any
   returnData.http = parseHttp(jsonData) ?? dbModel.http;
-  // Import GoogleSheet settings if any
-  returnData.googleSheet = parseGoogleSheet(jsonData, true);
+  // Import Sheet settings if any
+  returnData.sheet = parseSheet(jsonData, true);
 
   return returnData as DatabaseModel;
 };

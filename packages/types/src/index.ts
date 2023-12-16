@@ -37,8 +37,8 @@ export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './def
 // ---> HTTP
 export type { HttpSettings, HttpSubscription, HttpSubscriptionOptions } from './definitions/core/HttpSettings.type.js';
 
-// ---> Google Sheet
-export type { GoogleSheet, GoogleSheetState } from './definitions/core/GoogleSheet.type.js';
+// ---> Sheet
+export type { Sheet, SheetState } from './definitions/core/Sheet.type.js';
 
 // SERVER RESPONSES
 export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';

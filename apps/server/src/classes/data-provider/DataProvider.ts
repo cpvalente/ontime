@@ -11,7 +11,7 @@ import {
   UserFields,
   Alias,
   Settings,
-  GoogleSheet,
+  Sheet,
 } from 'ontime-types';
 
 import { data, db } from '../../modules/loadDb.js';
@@ -59,12 +59,12 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getGoogleSheet() {
-    return data.googleSheet;
+  static getSheet() {
+    return data.sheet;
   }
 
-  static async setGoogleSheet(newData: GoogleSheet) {
-    data.googleSheet = { ...newData };
+  static async setSheet(newData: Sheet) {
+    data.sheet = { ...newData };
     await this.persist();
   }
 

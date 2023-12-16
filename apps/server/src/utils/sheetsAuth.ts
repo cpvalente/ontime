@@ -3,14 +3,14 @@ import { writeFile } from 'fs/promises';
 import { readFileSync } from 'fs';
 import { OAuth2Client } from 'google-auth-library';
 import http from 'http';
-import { DatabaseModel, GoogleSheetState, LogOrigin } from 'ontime-types';
+import { DatabaseModel, SheetState, LogOrigin } from 'ontime-types';
 import { join } from 'path';
 import { URL } from 'url';
 import { logger } from '../classes/Logger.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { getAppDataPath } from '../setup.js';
 import { ensureDirectory } from './fileManagement.js';
-import { cellRequenstFromEvent, cellRequenstFromProjectData, getA1Notation } from './googleSheetUtils.js';
+import { cellRequenstFromEvent, cellRequenstFromProjectData, getA1Notation } from './sheetUtils.js';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
 
@@ -41,8 +41,8 @@ class sheet {
     }
   }
 
-  public async getSheetState(): Promise<GoogleSheetState> {
-    const ret: GoogleSheetState = {
+  public async getSheetState(): Promise<SheetState> {
+    const ret: SheetState = {
       secret: false,
       auth: false,
       id: false,
@@ -60,12 +60,12 @@ class sheet {
     try {
       ret.auth = await this.refreshToken();
     } catch (err) {
-      logger.error(LogOrigin.Server, `Google Sheet: Faild to refresh token ${err}`);
+      logger.error(LogOrigin.Server, `Sheet: Faild to refresh token ${err}`);
     }
     if (!ret.auth) {
       return ret;
     }
-    const settings = DataProvider.getGoogleSheet();
+    const settings = DataProvider.getSheet();
     if (settings.id != '') {
       const spreadsheets = await sheets({ version: 'v4', auth: sheet.client })
         .spreadsheets.get({
@@ -73,7 +73,7 @@ class sheet {
           includeGridData: false,
         })
         .catch((err) => {
-          logger.error(LogOrigin.Server, `Google Sheet: faild to load sheet ${err}`);
+          logger.error(LogOrigin.Server, `Sheet: faild to load sheet ${err}`);
         });
       if (!spreadsheets || spreadsheets.status != 200) {
         return ret;
@@ -119,7 +119,7 @@ class sheet {
    * @throws
    */
   public async push() {
-    const { id, worksheet } = DataProvider.getGoogleSheet();
+    const { id, worksheet } = DataProvider.getSheet();
     const { worksheetId, range } = await this.exist(id, worksheet);
 
     const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
@@ -198,7 +198,7 @@ class sheet {
    * @throws
    */
   public async pull(): Promise<Partial<ResponseOK>> {
-    const { id, worksheet } = DataProvider.getGoogleSheet();
+    const { id, worksheet } = DataProvider.getSheet();
     const { range } = await this.exist(id, worksheet);
 
     const res: Partial<ResponseOK> = {};

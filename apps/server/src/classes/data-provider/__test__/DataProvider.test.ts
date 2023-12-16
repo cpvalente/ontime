@@ -1,4 +1,4 @@
-import { Alias, DatabaseModel, GoogleSheet, OntimeRundown, Settings } from 'ontime-types';
+import { Alias, DatabaseModel, Sheet, OntimeRundown, Settings } from 'ontime-types';
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
@@ -21,7 +21,7 @@ describe('safeMerge', () => {
       timeFormat: '24',
       language: 'en',
     },
-    googleSheet: {
+    sheet: {
       worksheet: '1',
       id: '2',
     },
@@ -102,15 +102,15 @@ describe('safeMerge', () => {
     });
   });
 
-  it('merges the google sheet key', () => {
+  it('merges the sheet key', () => {
     const newData = {
-      googleSheet: {
+      sheet: {
         id: '4',
         worksheet: '5',
-      } as GoogleSheet,
+      } as Sheet,
     };
     const mergedData = safeMerge(existing, newData);
-    expect(mergedData.googleSheet).toEqual({
+    expect(mergedData.sheet).toEqual({
       id: '4',
       worksheet: '5',
     });

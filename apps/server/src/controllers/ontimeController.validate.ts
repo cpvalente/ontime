@@ -165,7 +165,7 @@ export const validateSheetPreview = [
   },
 ];
 
-export const validateGoogleSheetSettings = [
+export const validateSheetSettings = [
   body('id').isString().optional({ nullable: false }),
   body('worksheet').isString().optional({ nullable: false }),
   (req, res, next) => {
