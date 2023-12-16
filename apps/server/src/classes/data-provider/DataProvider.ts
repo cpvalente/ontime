@@ -11,7 +11,6 @@ import {
   UserFields,
   Alias,
   Settings,
-  Sheet,
 } from 'ontime-types';
 
 import { data, db } from '../../modules/loadDb.js';
@@ -56,15 +55,6 @@ export class DataProvider {
 
   static async setSettings(newData: Settings) {
     data.settings = { ...newData };
-    await this.persist();
-  }
-
-  static getSheet() {
-    return data.sheet;
-  }
-
-  static async setSheet(newData: Sheet) {
-    data.sheet = { ...newData };
     await this.persist();
   }
 

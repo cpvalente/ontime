@@ -1,4 +1,4 @@
-import { Alias, DatabaseModel, Sheet, OntimeRundown, Settings } from 'ontime-types';
+import { Alias, DatabaseModel, OntimeRundown, Settings } from 'ontime-types';
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
@@ -20,10 +20,6 @@ describe('safeMerge', () => {
       operatorKey: null,
       timeFormat: '24',
       language: 'en',
-    },
-    sheet: {
-      worksheet: '1',
-      id: '2',
     },
     viewSettings: {
       overrideStyles: false,
@@ -101,21 +97,6 @@ describe('safeMerge', () => {
       language: 'pt',
     });
   });
-
-  it('merges the sheet key', () => {
-    const newData = {
-      sheet: {
-        id: '4',
-        worksheet: '5',
-      } as Sheet,
-    };
-    const mergedData = safeMerge(existing, newData);
-    expect(mergedData.sheet).toEqual({
-      id: '4',
-      worksheet: '5',
-    });
-  });
-
   it('merges the osc key', () => {
     const newData = {
       osc: {

@@ -1,7 +1,6 @@
 import { generateId } from 'ontime-utils';
 import {
   Alias,
-  Sheet,
   OntimeRundown,
   HttpSettings,
   OSCSettings,
@@ -332,25 +331,4 @@ export const parseUserFields = (data): UserFields => {
     }
   }
   return { ...newUserFields };
-};
-
-/**
- * Parse Sheet portion of an entry
- * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
- * @returns {object} - event object data
- */
-export const parseSheet = (data, enforce) => {
-  const newSheet: Sheet = {
-    id: '',
-    worksheet: '',
-  };
-  if ('sheet' in data) {
-    console.log('Found Sheet definition, importing...');
-    newSheet.id ??= data.sheet?.id;
-    newSheet.worksheet ??= data.sheet?.worksheet;
-    return newSheet;
-  } else if (enforce) {
-    return newSheet;
-  }
 };

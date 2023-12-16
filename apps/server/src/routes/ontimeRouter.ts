@@ -25,14 +25,11 @@ import {
   uploadSheetClientFile,
   previewSheet,
   pushSheet,
-  getSheetSettings,
-  postSheetSettings,
   getSheetState,
 } from '../controllers/ontimeController.js';
 
 import {
   validateAliases,
-  validateSheetSettings,
   validateOSC,
   validatePatchProjectFile,
   validateSettings,
@@ -117,12 +114,6 @@ router.post('/sheet-preview', validateSheetPreview, previewSheet);
 
 // create route between controller and '/ontime/preview-sheet' endpoint
 router.post('/sheet-push', pushSheet);
-
-// create route between controller and '/ontime/sheet-settings' endpoint
-router.get('/sheet-settings', getSheetSettings);
-
-// create route between controller and '/ontime/sheet-settings' endpoint
-router.post('/sheet-settings', validateSheetSettings, postSheetSettings);
 
 // create route between controller and '/ontime/sheet-state' endpoint
 router.get('/sheet-state', getSheetState);

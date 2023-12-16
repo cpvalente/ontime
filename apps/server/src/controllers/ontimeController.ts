@@ -464,7 +464,8 @@ export const postNew: RequestHandler = async (req, res) => {
  */
 export async function previewSheet(req, res) {
   try {
-    const data = await Sheet.pull();
+    const { id, worksheet } = req.data;
+    const data = await Sheet.pull(id, worksheet);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -474,10 +475,12 @@ export async function previewSheet(req, res) {
 /**
  * downloads and parses an sheet
  * @returns parsed result
+ * @method POST
  */
 export async function pushSheet(req, res) {
   try {
-    await Sheet.push();
+    const { id, worksheet } = req.data;
+    await Sheet.push(id, worksheet);
     res.status(200).send('ok');
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -487,6 +490,7 @@ export async function pushSheet(req, res) {
 /**
  * uploads Client secrets file
  * @returns parsed result
+ * @method POST
  */
 export async function uploadSheetClientFile(req, res) {
   if (!req.file.path) {
@@ -520,39 +524,10 @@ export async function sheetAuthUrl(req, res) {
 }
 
 /**
- * @description Get s sheet Settings
- * @method GET
- */
-export const getSheetSettings = async (req, res) => {
-  const sheet = await DataProvider.getSheet();
-  res.status(200).send(sheet);
-};
-
-/**
- * @description Change view Settings
- * @method POST
- */
-export const postSheetSettings = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
-  try {
-    const newData = {
-      id: req.body.id,
-      worksheet: req.body.worksheet,
-    };
-    await DataProvider.setSheet(newData);
-    res.status(200).send(newData);
-  } catch (error) {
-    res.status(400).send({ message: error.toString() });
-  }
-};
-
-/**
  * @description Get sheet state
  * @method GET
  */
 export const getSheetState = async (req, res) => {
-  res.status(200).send(await Sheet.getSheetState());
+  const { id, worksheet } = req.data;
+  res.status(200).send(await Sheet.getSheetState(id, worksheet));
 };

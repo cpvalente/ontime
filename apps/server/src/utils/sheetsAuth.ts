@@ -41,7 +41,7 @@ class sheet {
     }
   }
 
-  public async getSheetState(): Promise<SheetState> {
+  public async getSheetState(id: string, worksheet: string): Promise<SheetState> {
     const ret: SheetState = {
       secret: false,
       auth: false,
@@ -65,11 +65,10 @@ class sheet {
     if (!ret.auth) {
       return ret;
     }
-    const settings = DataProvider.getSheet();
-    if (settings.id != '') {
+    if (id != '') {
       const spreadsheets = await sheets({ version: 'v4', auth: sheet.client })
         .spreadsheets.get({
-          spreadsheetId: settings.id,
+          spreadsheetId: id,
           includeGridData: false,
         })
         .catch((err) => {
@@ -80,7 +79,7 @@ class sheet {
       }
       ret.id = true;
       ret.worksheetOptions = spreadsheets.data.sheets.map((i) => i.properties.title);
-      if (ret.worksheetOptions.indexOf(settings.worksheet) < 0) {
+      if (ret.worksheetOptions.indexOf(worksheet) < 0) {
         return ret;
       }
       ret.worksheet = true;
@@ -118,8 +117,7 @@ class sheet {
    * push sheet
    * @throws
    */
-  public async push() {
-    const { id, worksheet } = DataProvider.getSheet();
+  public async push(id: string, worksheet: string) {
     const { worksheetId, range } = await this.exist(id, worksheet);
 
     const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
@@ -197,8 +195,7 @@ class sheet {
    * @returns {Promise<Partial<ResponseOK>>}
    * @throws
    */
-  public async pull(): Promise<Partial<ResponseOK>> {
-    const { id, worksheet } = DataProvider.getSheet();
+  public async pull(id: string, worksheet: string): Promise<Partial<ResponseOK>> {
     const { range } = await this.exist(id, worksheet);
 
     const res: Partial<ResponseOK> = {};
