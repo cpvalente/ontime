@@ -62,17 +62,14 @@ export class OscServer implements IAdapter {
       }
 
       try {
-        const reply = dispatchFromAdapter(
+        // we dont reply on OSC
+        dispatchFromAdapter(
           path,
           {
             payload: transformedPayload,
           },
           'osc',
         );
-        if (reply) {
-          const { topic, payload } = reply;
-          this.osc.emit(topic, payload);
-        }
       } catch (error) {
         logger.error(LogOrigin.Rx, `OSC IN: ${error}`);
       }

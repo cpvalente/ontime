@@ -132,8 +132,8 @@ export class SocketServer implements IAdapter {
               'ws',
             );
             if (reply) {
-              const { topic, payload } = reply;
-              ws.send(topic, payload);
+              const { payload } = reply;
+              ws.send(type, payload);
             }
           } catch (error) {
             logger.error(LogOrigin.Rx, `WS IN: ${error}`);

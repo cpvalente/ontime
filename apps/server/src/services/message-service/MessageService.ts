@@ -181,6 +181,7 @@ class MessageService {
       timerMessage: this.timerMessage,
       publicMessage: this.publicMessage,
       lowerMessage: this.lowerMessage,
+      externalMessage: this.externalMessage,
       onAir: this.onAir,
     };
   }
