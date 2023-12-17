@@ -1,5 +1,13 @@
 @use '../../theme/ontimeColours' as *;
 
+.menu {
+  grid-area: menu;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+}
+
 .gap {
   height: 1em;
 }

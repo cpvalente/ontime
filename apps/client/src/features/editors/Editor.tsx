@@ -1,7 +1,10 @@
 import { lazy, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
+import AppSettings from '../app-settings/AppSettings';
+import { SettingsOptionId } from '../app-settings/settingsStore';
 import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
@@ -18,7 +21,39 @@ const EventEditor = lazy(() => import('../event-editor/EventEditorExport'));
 const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
+// TODO: add breakpoints for body font size ??
+//       - 15px for normal
+//       - 16px for large screens
+
+// TODO: can we delete all the font-family stuff and leave it only at the top?
+
+// TODO: change scrollbar colours to use ontime stuff?
+
+// TODO: rename v2Styles to appStyles?
+
+// TODO: remove onAir as a setting
+
+// TODO: add error boundaries
+
+// TODO: should nav menu have same rules as app settings
+
 export default function Editor() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleSettings = (newTab?: SettingsOptionId) => {
+    if (!newTab) {
+      closeSettings();
+    } else {
+      searchParams.set('settings', newTab);
+      setSearchParams(searchParams);
+    }
+  };
+
+  const closeSettings = () => {
+    searchParams.delete('settings');
+    setSearchParams(searchParams);
+  };
+
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
   const {
@@ -34,6 +69,8 @@ export default function Editor() {
     document.title = 'ontime - Editor';
   }, []);
 
+  const showSettings: null | SettingsOptionId = searchParams.get('settings');
+
   return (
     <>
       <ErrorBoundary>
@@ -43,28 +80,39 @@ export default function Editor() {
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
         <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
-      <div className={styles.mainContainer} data-testid='event-editor'>
-        <div id='settings' className={styles.settings}>
-          <ErrorBoundary>
-            <MenuBar
-              onSettingsOpen={onSettingsOpen}
-              isSettingsOpen={isSettingsOpen}
-              onSettingsClose={onSettingsClose}
-              isUploadOpen={isUploadModalOpen}
-              onUploadOpen={onUploadModalOpen}
-              isIntegrationOpen={isIntegrationModalOpen}
-              onIntegrationOpen={onIntegrationModalOpen}
-              isAboutOpen={isAboutModalOpen}
-              onAboutOpen={onAboutModalOpen}
-              isQuickStartOpen={isQuickStartOpen}
-              onQuickStartOpen={onQuickStartOpen}
-            />
-          </ErrorBoundary>
+      <div className={styles.mainContainer} data-testid='editor-container'>
+        <ErrorBoundary>
+          <MenuBar
+            onSettingsOpen={onSettingsOpen}
+            isSettingsOpen={isSettingsOpen}
+            onSettingsClose={onSettingsClose}
+            isUploadOpen={isUploadModalOpen}
+            onUploadOpen={onUploadModalOpen}
+            isIntegrationOpen={isIntegrationModalOpen}
+            onIntegrationOpen={onIntegrationModalOpen}
+            isAboutOpen={isAboutModalOpen}
+            onAboutOpen={onAboutModalOpen}
+            isQuickStartOpen={isQuickStartOpen}
+            onQuickStartOpen={onQuickStartOpen}
+            openSettings={handleSettings}
+          />
+        </ErrorBoundary>
+        {showSettings ? (
+          <AppSettings settings={showSettings} onClose={closeSettings} />
+        ) : (
+          <div id='panels' className={styles.panelContainer}>
+            <Rundown />
+            <MessageControl />
+            <TimerControl />
+            <Info />
+          </div>
+        )}
+        <div className={styles.overview}>
+          <ErrorBoundary></ErrorBoundary>
+          {
+            // TODO: the information about the event
+          }
         </div>
-        <Rundown />
-        <MessageControl />
-        <TimerControl />
-        <Info />
       </div>
       <EventEditor />
     </>
