@@ -381,9 +381,9 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeForma
       },
     },
     {
-      id: 'preventEdit',
-      title: 'Prevent Edit',
-      description: 'Prevents entering edit mode on scroll',
+      id: 'shouldEdit',
+      title: 'Edit user field',
+      description: 'Allows editing an events user field by long pressing on it. Needs a selected highlighted field',
       type: 'boolean',
       defaultValue: false,
     },

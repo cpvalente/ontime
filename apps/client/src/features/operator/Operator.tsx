@@ -123,9 +123,9 @@ export default function Operator() {
   }
 
   // get fields which the user subscribed to
-  const preventEdit = searchParams.get('preventEdit');
+  const shouldEdit = searchParams.get('shouldEdit');
   const subscribe = searchParams.get('subscribe') as keyof UserFields | null;
-  const canEdit = !preventEdit && subscribe;
+  const canEdit = shouldEdit && subscribe;
 
   const main = searchParams.get('main') as keyof TitleFields | null;
   const secondary = searchParams.get('secondary') as keyof TitleFields | null;
