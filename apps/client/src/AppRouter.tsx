@@ -38,20 +38,14 @@ export default function AppRouter() {
     <Suspense fallback={null}>
       <Routes>
         <Route path='/' element={<Navigate to='/timer' />} />
-        <Route path='/speaker' element={<STimer />} />
-        <Route path='/presenter' element={<STimer />} />
-        <Route path='/stage' element={<STimer />} />
         <Route path='/timer' element={<STimer />} />
 
         <Route path='/minimal' element={<SMinimalTimer />} />
-        <Route path='/minimalTimer' element={<SMinimalTimer />} />
-        <Route path='/simpleTimer' element={<SMinimalTimer />} />
 
         <Route path='/clock' element={<SClock />} />
 
         <Route path='/countdown' element={<SCountdown />} />
 
-        <Route path='/sm' element={<SBackstage />} />
         <Route path='/backstage' element={<SBackstage />} />
 
         <Route path='/public' element={<SPublic />} />
@@ -65,8 +59,6 @@ export default function AppRouter() {
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
         <Route path='/cuesheet' element={<Cuesheet />} />
-        <Route path='/cuelist' element={<Cuesheet />} />
-        <Route path='/table' element={<Cuesheet />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route
