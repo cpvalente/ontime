@@ -380,5 +380,12 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeForma
         user9: userFields.user9 || 'user9',
       },
     },
+    {
+      id: 'preventEdit',
+      title: 'Prevent Edit',
+      description: 'Prevents entering edit mode on scroll',
+      type: 'boolean',
+      defaultValue: false,
+    },
   ];
 };
