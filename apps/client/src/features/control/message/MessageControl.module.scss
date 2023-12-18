@@ -12,12 +12,3 @@
   gap: $element-spacing;
   margin-top: -0.5rem;
 }
-
-.label {
-  font-size: $inner-section-text-size;
-  color: $label-gray;
-
-  &.active {
-    color: $action-text-color;
-  }
-}
