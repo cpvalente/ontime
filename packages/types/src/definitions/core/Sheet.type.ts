@@ -1,8 +1,3 @@
-export type Sheet = {
-  worksheet: string | null;
-  id: string | null;
-};
-
 export type SheetState = {
   secret: boolean;
   auth: boolean;

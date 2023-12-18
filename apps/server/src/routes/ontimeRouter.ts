@@ -33,7 +33,7 @@ import {
   validateOSC,
   validatePatchProjectFile,
   validateSettings,
-  validateSheetPreview,
+  validateSheetParams,
   validateUserFields,
   viewValidator,
   validateHTTP,
@@ -110,10 +110,10 @@ router.post('/sheet-clientsecrect', uploadFile, uploadSheetClientFile);
 router.get('/sheet-authurl', sheetAuthUrl);
 
 // create route between controller and '/ontime/preview-sheet' endpoint
-router.post('/sheet-preview', validateSheetPreview, previewSheet);
+router.post('/sheet-preview', validateSheetParams, previewSheet);
 
 // create route between controller and '/ontime/preview-sheet' endpoint
-router.post('/sheet-push', pushSheet);
+router.post('/sheet-push', validateSheetParams, pushSheet);
 
 // create route between controller and '/ontime/sheet-state' endpoint
-router.get('/sheet-state', getSheetState);
+router.post('/sheet-state', validateSheetParams, getSheetState);

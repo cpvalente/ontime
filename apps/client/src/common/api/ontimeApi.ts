@@ -9,7 +9,6 @@ import {
   OscSubscription,
   ProjectData,
   Settings,
-  Sheet,
   SheetState,
   UserFields,
   ViewSettings,
@@ -270,39 +269,28 @@ export const getSheetsAuthUrl = async () => {
   return res.data;
 };
 
-export const postPreviewSheet = async () => {
-  const response = await axios.post(`${ontimeURL}/sheet-preview`);
+export const postPreviewSheet = async (id: string, worksheet: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet-preview`, { id, worksheet });
   return response.data.data;
 };
 
-export const postPushSheet = async () => {
-  const response = await axios.post(`${ontimeURL}/sheet-push`);
+export const postPushSheet = async (id: string, worksheet: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet-push`, { id, worksheet });
   return response.data.data;
 };
-
-/**
- * @description HTTP request to retrieve sheets settings
- * @return {Promise}
- */
-export async function getSheetSettings(): Promise<Sheet> {
-  const res = await axios.get(`${ontimeURL}/sheet-settings`);
-  return res.data;
-}
-
-/**
- * @description HTTP request to mutate sheets settings
- * @return {Promise}
- */
-export async function postSheetSettings(data: Sheet): Promise<Sheet> {
-  const res = await axios.post(`${ontimeURL}/sheet-settings`, data);
-  return res.data;
-}
 
 /**
  * @description HTTP request to retrieve sheets state
  * @return {Promise}
  */
-export async function getSheetState(): Promise<SheetState> {
-  const res = await axios.get(`${ontimeURL}/sheet-state`);
+export const getSheetState = async ({ queryKey }): Promise<SheetState> => {
+  const [_key, id, worksheet] = queryKey;
+  console.log(queryKey);
+
+  const res = await axios.post(`${ontimeURL}/sheet-state`, {
+    id: '',
+    worksheet: '',
+  });
+  console.log(res.data);
   return res.data;
-}
+};

@@ -29,7 +29,7 @@ class sheet {
   constructor() {
     const appDataPath = getAppDataPath();
     if (appDataPath === '') {
-      throw new Error('Could not resolve public folder for platform');
+      throw new Error('Could not resolve sheet folser');
     }
     this.sheetsFolder = join(appDataPath, 'sheets');
     this.clientSecretFile = join(this.sheetsFolder, 'client_secret.json');
@@ -42,7 +42,7 @@ class sheet {
   }
 
   public async getSheetState(id: string, worksheet: string): Promise<SheetState> {
-    const ret: SheetState = {
+    const state: SheetState = {
       secret: false,
       auth: false,
       id: false,
@@ -50,22 +50,10 @@ class sheet {
       worksheetOptions: [],
     };
 
-    if (!sheet.clientSecret) {
-      return ret;
-    }
-    ret.secret = true;
-    if (!sheet.client) {
-      return ret;
-    }
-    try {
-      ret.auth = await this.refreshToken();
-    } catch (err) {
-      logger.error(LogOrigin.Server, `Sheet: Faild to refresh token ${err}`);
-    }
-    if (!ret.auth) {
-      return ret;
-    }
-    if (id != '') {
+    state.secret = sheet.clientSecret !== null;
+    state.auth = sheet.client !== null;
+
+    if (id != '' && state.auth) {
       const spreadsheets = await sheets({ version: 'v4', auth: sheet.client })
         .spreadsheets.get({
           spreadsheetId: id,
@@ -75,16 +63,13 @@ class sheet {
           logger.error(LogOrigin.Server, `Sheet: faild to load sheet ${err}`);
         });
       if (!spreadsheets || spreadsheets.status != 200) {
-        return ret;
+        return state;
       }
-      ret.id = true;
-      ret.worksheetOptions = spreadsheets.data.sheets.map((i) => i.properties.title);
-      if (ret.worksheetOptions.indexOf(worksheet) < 0) {
-        return ret;
-      }
-      ret.worksheet = true;
+      state.id = true;
+      state.worksheetOptions = spreadsheets.data.sheets.map((i) => i.properties.title);
+      state.worksheet = state.worksheetOptions.indexOf(worksheet) >= 0;
     }
-    return ret;
+    return state;
   }
 
   /**
@@ -246,23 +231,6 @@ class sheet {
       logger.error(LogOrigin.Server, `${err}`),
     );
     sheet.clientSecret = secrets;
-  }
-
-  /**
-   * refresh the client token
-   * @returns {Promise<boolean>}
-   */
-  async refreshToken(): Promise<boolean> {
-    if (!sheet.client?.credentials?.refresh_token) return false;
-    try {
-      const response = await sheet.client.refreshAccessToken();
-      if (response?.credentials) {
-        return true;
-      }
-    } catch (_) {
-      logger.info(LogOrigin.Server, 'Sheets token expired');
-    }
-    return false;
   }
 
   private authServerTimeout;

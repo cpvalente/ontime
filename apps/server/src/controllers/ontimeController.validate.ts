@@ -154,10 +154,9 @@ export const validatePatchProjectFile = [
 ];
 
 //TODO: is thise correct
-export const validateSheetPreview = [
+export const validateSheetParams = [
   body('sheetid').isString().optional({ nullable: false }),
   body('worksheet').isString().optional({ nullable: false }),
-  body('options').isObject().optional({ nullable: true }),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });

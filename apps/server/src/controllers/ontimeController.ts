@@ -525,9 +525,10 @@ export async function sheetAuthUrl(req, res) {
 
 /**
  * @description Get sheet state
- * @method GET
+ * @method POST
  */
 export const getSheetState = async (req, res) => {
-  const { id, worksheet } = req.data;
+  console.log('getstate', req.body);
+  const { id, worksheet } = req.body;
   res.status(200).send(await Sheet.getSheetState(id, worksheet));
 };

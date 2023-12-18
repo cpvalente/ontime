@@ -9,7 +9,6 @@ export const HTTP_SETTINGS = ['httpSettings'];
 export const APP_SETTINGS = ['appSettings'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const RUNTIME = ['runtimeStore'];
-export const SHEET = ['sheet'];
 export const SHEET_STATE = ['sheetState'];
 
 const location = window.location;
