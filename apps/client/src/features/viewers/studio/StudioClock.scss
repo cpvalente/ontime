@@ -3,8 +3,8 @@
 @font-face {
   font-family: 'digital-clock';
   src:
-    local('digital-7'),
-    url('./../../../assets/fonts/digital-7.monoitalic.ttf') format('truetype');
+    local('DSEG7'),
+    url('./../../../assets/fonts/DSEG7ClassicMini-Regular.ttf') format('truetype');
 }
 
 /* =============== CLOCK STUFF ==================*/
@@ -82,8 +82,8 @@ $cyan-idle: #0aa;
 
     .studio-timer {
       color: var(--studio-active, $red-active);
-      font-size: calc(#{$clock-size} / 3);
-      margin-top: calc(50% - calc(#{$clock-size} / 7));
+      font-size: calc(#{$clock-size} / 5);
+      margin-top: calc(50% - calc(#{$clock-size} / 6));
       line-height: 0.8em;
 
       &--with-seconds {
@@ -100,14 +100,16 @@ $cyan-idle: #0aa;
 
     .next-title {
       color: var(--studio-idle-label, $cyan-idle);
+      font-size: calc(#{$clock-size} / 10);
+      margin-top: 0.51em;
       text-align: center;
     }
 
     .next-countdown {
       color: var(--studio-active-label, $cyan-active);
 
-      font-size: 10vh;
-      line-height: 1em;
+      font-size: calc(#{$clock-size} / 10);
+      line-height: 1.5em;
 
       &--overtime {
         color: darken($red-active, 10%);
