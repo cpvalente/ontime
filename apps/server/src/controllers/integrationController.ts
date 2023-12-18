@@ -105,8 +105,24 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: newState.externalMessage };
   },
   /* Playback */
-  start: () => {
+  start: (payload) => {
+    if (payload && typeof payload === 'object') {
+      if ('index' in payload) {
+        const reply = actionHandlers.startindex(payload.index);
+        return reply;
+      }
+      if ('id' in payload) {
+        const reply = actionHandlers.startid(payload.id);
+        return reply;
+      }
+      if ('cue' in payload) {
+        const reply = actionHandlers.startcue(payload.cue);
+        return reply;
+      }
+    }
+
     PlaybackService.start();
+
     return { payload: 'start' };
   },
   'start-next': () => {
