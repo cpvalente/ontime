@@ -6,12 +6,6 @@
   gap: $section-spacing;
 }
 
-.onAirSection {
-  display: flex;
-  flex-direction: column;
-  gap: $element-spacing;
-}
-
 .buttonSection {
   display: grid;
   grid-template-columns: 1fr 1fr;
