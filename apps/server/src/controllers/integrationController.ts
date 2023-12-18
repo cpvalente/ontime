@@ -1,7 +1,7 @@
 import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
-import { messageService } from '../services/message-service/MessageService.js';
+import { isPartialTimerMessage, messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
@@ -47,18 +47,12 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: updatedEvent };
   },
   /* Message Service */
-  'set-onair': (payload) => {
-    assert.isDefined(payload);
-    const newState = messageService.setOnAir(Boolean(payload));
-    return { payload: newState.onAir };
-  },
-  onair: () => {
-    const newState = messageService.setOnAir(true);
-    return { payload: newState.onAir };
-  },
-  offair: () => {
-    const newState = messageService.setOnAir(false);
-    return { payload: newState.onAir };
+  'set-timer-message': (payload) => {
+    if (!isPartialTimerMessage(payload)) {
+      throw new Error('Payload is not a valid timer message');
+    }
+    const newState = messageService.setTimerMessage(payload);
+    return { payload: newState.timerMessage };
   },
   'set-timer-blink': (payload) => {
     assert.isDefined(payload);
