@@ -76,7 +76,7 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   'set-public-message-text': (payload) => {
     assert.isString(payload);
-    const newState = messageService.setTimerVisibility(Boolean(payload));
+    const newState = messageService.setPublicText(payload);
     return { payload: newState.publicMessage };
   },
   'set-public-message-visible': (payload) => {
