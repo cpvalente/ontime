@@ -19,7 +19,7 @@ import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 import style from './MenuBar.module.scss';
 
 interface MenuBarProps {
-  isSettingsOpen: boolean;
+  isOldSettingsOpen: boolean;
   onSettingsOpen: () => void;
   onSettingsClose: () => void;
   isUploadOpen: boolean;
@@ -31,6 +31,7 @@ interface MenuBarProps {
   isQuickStartOpen: boolean;
   onQuickStartOpen: () => void;
   openSettings: (newTab?: string) => void;
+  isSettingsOpen: boolean;
 }
 
 const buttonStyle = {
@@ -47,7 +48,7 @@ const buttonStyle = {
 
 const MenuBar = (props: MenuBarProps) => {
   const {
-    isSettingsOpen,
+    isOldSettingsOpen,
     onSettingsOpen,
     onSettingsClose,
     isUploadOpen,
@@ -59,6 +60,7 @@ const MenuBar = (props: MenuBarProps) => {
     isQuickStartOpen,
     onQuickStartOpen,
     openSettings,
+    isSettingsOpen,
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
@@ -189,7 +191,7 @@ const MenuBar = (props: MenuBarProps) => {
         {...buttonStyle}
         isDisabled={appMode === AppMode.Run}
         icon={<IoSettingsOutline />}
-        className={isSettingsOpen ? style.open : ''}
+        className={isOldSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
         tooltip='Settings'
         aria-label='Settings'
@@ -208,9 +210,9 @@ const MenuBar = (props: MenuBarProps) => {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        className={isAboutOpen ? style.open : ''}
-        icon={<IoHelp />}
-        clickHandler={() => openSettings('test')}
+        className={isSettingsOpen ? style.open : ''}
+        icon={<IoSettingsOutline />}
+        clickHandler={() => openSettings()}
         tooltip='About'
         aria-label='About'
         size='sm'

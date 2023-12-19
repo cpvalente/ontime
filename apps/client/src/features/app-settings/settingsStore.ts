@@ -39,10 +39,11 @@ export const settingPanels: SettingsOption[] = [
 ] as const;
 
 export type SettingsOptionId = (typeof settingPanels)[number]['id'];
+const firstPanel = settingPanels[0].id;
 
 type SettingsStore = {
   showSettings: SettingsOptionId | null;
-  setShowSettings: (panelId: SettingsOptionId | null) => void;
+  setShowSettings: (panelId?: SettingsOptionId | null) => void;
   hasUnsavedChanges: SettingsOptionId[];
   addUnsavedChanges: (panelId: SettingsOptionId) => void;
   removeUnsavedChanges: (panelId: SettingsOptionId) => void;
@@ -50,11 +51,17 @@ type SettingsStore = {
 
 export const useSettingsStore = create<SettingsStore>((set) => ({
   showSettings: null,
-  setShowSettings: (panelId: SettingsOptionId | null) => {
-    set((state) => ({
-      ...state,
-      showSettings: panelId,
-    }));
+  setShowSettings: (panelId?: SettingsOptionId | null) => {
+    let newPanel = panelId === undefined ? firstPanel : panelId;
+    set((state) => {
+      if (newPanel === state.showSettings) {
+        newPanel = null;
+      }
+      return {
+        ...state,
+        showSettings: newPanel,
+      };
+    });
   },
   hasUnsavedChanges: [],
   addUnsavedChanges: (panelId: SettingsOptionId) =>

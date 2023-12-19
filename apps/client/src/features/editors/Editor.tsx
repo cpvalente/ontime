@@ -4,7 +4,7 @@ import { useDisclosure } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import AppSettings from '../app-settings/AppSettings';
-import { SettingsOptionId } from '../app-settings/settingsStore';
+import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
 import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
@@ -38,23 +38,14 @@ const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'
 // TODO: should nav menu have same rules as app settings
 
 export default function Editor() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const showSettings = useSettingsStore((state) => state.showSettings);
+  const setShowSettings = useSettingsStore((state) => state.setShowSettings);
 
   const handleSettings = (newTab?: SettingsOptionId) => {
-    if (!newTab) {
-      closeSettings();
-    } else {
-      searchParams.set('settings', newTab);
-      setSearchParams(searchParams);
-    }
+    setShowSettings(newTab);
   };
 
-  const closeSettings = () => {
-    searchParams.delete('settings');
-    setSearchParams(searchParams);
-  };
-
-  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
+  const { isOpen: isOldSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
   const {
     isOpen: isIntegrationModalOpen,
@@ -69,7 +60,7 @@ export default function Editor() {
     document.title = 'ontime - Editor';
   }, []);
 
-  const showSettings: null | SettingsOptionId = searchParams.get('settings');
+  const isSettingsOpen = Boolean(showSettings);
 
   return (
     <>
@@ -78,13 +69,13 @@ export default function Editor() {
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
-        <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
+        <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
       <div className={styles.mainContainer} data-testid='editor-container'>
         <ErrorBoundary>
           <MenuBar
+            isOldSettingsOpen={isOldSettingsOpen}
             onSettingsOpen={onSettingsOpen}
-            isSettingsOpen={isSettingsOpen}
             onSettingsClose={onSettingsClose}
             isUploadOpen={isUploadModalOpen}
             onUploadOpen={onUploadModalOpen}
@@ -95,10 +86,11 @@ export default function Editor() {
             isQuickStartOpen={isQuickStartOpen}
             onQuickStartOpen={onQuickStartOpen}
             openSettings={handleSettings}
+            isSettingsOpen={isSettingsOpen}
           />
         </ErrorBoundary>
         {showSettings ? (
-          <AppSettings settings={showSettings} onClose={closeSettings} />
+          <AppSettings />
         ) : (
           <div id='panels' className={styles.panelContainer}>
             <Rundown />
