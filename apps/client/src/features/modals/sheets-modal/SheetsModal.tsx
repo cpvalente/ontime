@@ -15,14 +15,13 @@ import {
   ModalOverlay,
   Select,
 } from '@chakra-ui/react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 
-import { PROJECT_DATA, RUNDOWN, SHEET_STATE, USERFIELDS } from '../../../common/api/apiConstants';
+import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
 import {
   getSheetsAuthUrl,
-  getSheetState,
   patchData,
   postPreviewSheet,
   postPushSheet,
@@ -51,19 +50,17 @@ export default function SheetsModal(props: SheetsModalProps) {
   const [project, setProject] = useState<ProjectData | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const sheetid = useRef<HTMLInputElement>(null);
-  const worksheet = useRef<HTMLSelectElement>(null);
+  const sheetRef = useRef<HTMLInputElement>(null);
+  const worksheetRef = useRef<HTMLSelectElement>(null);
+  const [sheetId, setSheetId] = useState<string | null>(null);
+  const [worksheet, setWorksheet] = useState<string | null>(null);
 
-  const { data: sheetState, refetch } = useQuery({
-    queryKey: [SHEET_STATE, sheetid, sheetid],
-    queryFn: getSheetState,
-    placeholderData: null,
-    enabled: false,
-    networkMode: 'always',
-  });
+  const { data: sheetState, refetch } = useSheetState(sheetId, worksheet);
 
   const onChange = () => {
-    if (sheetid.current?.value && sheetid.current?.value.length > 43) {
+    if (sheetRef.current?.value && sheetRef.current?.value.length > 43 && worksheetRef.current) {
+      setSheetId(sheetRef.current.value);
+      setWorksheet(worksheetRef.current.value);
       refetch();
     }
   };
@@ -113,7 +110,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePullData = () => {
-    postPreviewSheet(sheetid.current?.value ?? '', worksheet.current?.value ?? '').then((data) => {
+    postPreviewSheet(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '').then((data) => {
       setProject(data.project);
       setRundown(data.rundown);
       setUserFields(data.userFields);
@@ -121,7 +118,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePushData = () => {
-    postPushSheet(sheetid.current?.value ?? '', worksheet.current?.value ?? '');
+    postPushSheet(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '');
   };
 
   const handleFinalise = async () => {
@@ -214,7 +211,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                   Sheet ID
                   <Input
                     type='text'
-                    ref={sheetid}
+                    ref={sheetRef}
                     id='sheetid'
                     size='sm'
                     onChange={onChange}
@@ -232,7 +229,7 @@ export default function SheetsModal(props: SheetsModalProps) {
               >
                 <label htmlFor='worksheet'>
                   Worksheet
-                  <Select ref={worksheet} size='sm' id='worksheet' disabled={!sheetState?.worksheetOptions}>
+                  <Select ref={worksheetRef} size='sm' id='worksheet' disabled={!sheetState?.worksheetOptions}>
                     {sheetState?.worksheetOptions?.map((value) => (
                       <option key={value} value={value}>
                         {value}

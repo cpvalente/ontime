@@ -283,14 +283,10 @@ export const postPushSheet = async (id: string, worksheet: string) => {
  * @description HTTP request to retrieve sheets state
  * @return {Promise}
  */
-export const getSheetState = async ({ queryKey }): Promise<SheetState> => {
-  const [_key, id, worksheet] = queryKey;
-  console.log(queryKey);
-
+export const getSheetState = async (id: string, worksheet: string): Promise<SheetState> => {
   const res = await axios.post(`${ontimeURL}/sheet-state`, {
-    id: '',
-    worksheet: '',
+    id,
+    worksheet,
   });
-  console.log(res.data);
   return res.data;
 };
