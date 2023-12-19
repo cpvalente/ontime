@@ -29,6 +29,7 @@ $half-hours: min(1.5vh, 10px);
 $size-min: min(2.5vh, 18px);
 $half-min: min(1.25vh, 9px);
 $red-active: #f00;
+$orange-active: #f60;
 $red-idle: #300;
 $cyan-active: #0ff;
 $cyan-idle: #0aa;
@@ -59,7 +60,7 @@ $cyan-idle: #0aa;
     text-align: center;
     position: relative;
     margin: 4vh auto;
-    font-family: seven-seg, monospace;
+    font-family: seven-seg;
     text-transform: uppercase;
 
     .clock-indicators {
@@ -94,45 +95,59 @@ $cyan-idle: #0aa;
       }
     }
 
-    .studio-timer {
-      color: var(--studio-active, $red-active);
+    .studio-timer-warp {
       font-size: calc(#{$clock-size} / 5);
       margin-top: calc(50% - calc(#{$clock-size} / 6));
       line-height: 0.8em;
 
-      &--with-seconds {
-        font-size: calc(#{$clock-size} / 4.6);
-        margin-top: calc(50% - calc(#{$clock-size} / 11));
+      .studio-timer {
+        color: var(--studio-active, $red-active);
+
+        &--with-seconds {
+          font-size: calc(#{$clock-size} / 4.6);
+          margin-top: calc(50% - calc(#{$clock-size} / 11));
+        }
+      }
+
+      .studio-timer::before {
+        content: '88:88';
+        filter: brightness(10%);
+        mix-blend-mode: lighten;
+        position: absolute;
       }
     }
 
-    .next-title:after,
-    .next-title:after,
-    .next-countdown--overtime:after {
-      content: '\200b';
-    }
+    // .next-title:after,
+    // .next-title:after,
 
     .next-title {
-      font-family: mono, monospace;
+      font-family: mono;
       color: var(--studio-idle-label, $cyan-idle);
       font-size: calc(#{$clock-size} / 10);
       margin-top: 0.51em;
       text-align: center;
     }
 
-    .next-countdown {
-      color: var(--studio-active-label, $cyan-active);
+    .next-countdown-warp {
+      .next-countdown {
+        color: var(--studio-active-label, $cyan-active);
+        font-size: calc(#{$clock-size} / 10);
+        line-height: 1.5em;
 
-      font-size: calc(#{$clock-size} / 10);
-      line-height: 1.5em;
-
-      &--overtime {
-        color: darken($red-active, 10%);
+        &--overtime {
+          color: var(--studio-active, $red-active);
+        }
+        &--paused {
+          color: var(--studio-active, $orange-active);
+        }
       }
-    }
 
-    .next-countdown::before {
-      content: '-';
+      .next-countdown::before {
+        content: '-88:88:88';
+        filter: brightness(10%);
+        mix-blend-mode: lighten;
+        position: absolute;
+      }
     }
   }
 
@@ -143,7 +158,7 @@ $cyan-idle: #0aa;
     margin: 4vh 0;
 
     .onAir {
-      font-family: fourteen-seg, monospace;
+      font-family: fourteen-seg;
       padding-bottom: 2vh;
       font-size: 15vh;
       line-height: 0.9em;
@@ -169,10 +184,10 @@ $cyan-idle: #0aa;
         align-items: center;
 
         .time {
-          font-family: digital-clock, monospace;
+          font-family: seven-seg;
         }
         .title {
-          font-family: monospace;
+          font-family: mono;
         }
       }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
-import { SupportedEvent } from 'ontime-types';
+import { Playback, SupportedEvent } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -12,6 +12,7 @@ import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
+import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 
 import { type ScheduleEvent, formatEventList, trimRundown } from './studioClock.utils';
@@ -75,6 +76,7 @@ export default function StudioClock(props: StudioClockProps) {
   const clock = formatTime(time.clock, formatOptions);
   const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
+  const isPaused = time.playback === Playback.Pause;
 
   const studioClockOptions = getStudioClockOptions(settings?.timeFormat ?? '24');
 
@@ -83,7 +85,9 @@ export default function StudioClock(props: StudioClockProps) {
       <NavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
-        <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
+        <div className='studio-timer-warp'>
+          <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
+        </div>
         <div
           ref={titleRef}
           className='next-title'
@@ -91,8 +95,18 @@ export default function StudioClock(props: StudioClockProps) {
         >
           {eventNext?.title ?? ''}
         </div>
-        <div className={isNegative ? 'next-countdown' : 'next-countdown next-countdown--overtime'}>
-          {selectedId !== null && formatDisplay(time.current)}
+        <div className='next-countdown-warp'>
+          <div
+            className={cx([
+              'next-countdown',
+              isNegative ? ' next-countdown--overtime' : '',
+              isPaused ? ' next-countdown--paused' : '',
+            ])}
+          >
+            {/* ! is used an a blank character */}
+            {isNegative ? '-' : '!'}
+            {selectedId !== null && formatDisplay(time.current)}
+          </div>
         </div>
         <div className='clock-indicators'>
           {activeIndicators.map((i) => (
