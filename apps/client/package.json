@@ -11,8 +11,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@react-icons/all-files": "^4.1.0",
-    "@sentry/react": "^7.46.0",
-    "@sentry/tracing": "^7.46.0",
+    "@sentry/react": "^7.88.0",
     "@tanstack/react-query": "^5.8.4",
     "@tanstack/react-query-devtools": "^5.8.4",
     "@tanstack/react-table": "^8.9.2",
@@ -61,7 +60,7 @@
     ]
   },
   "devDependencies": {
-    "@sentry/vite-plugin": "^0.4.0",
+    "@sentry/vite-plugin": "^2.10.2",
     "@tanstack/eslint-plugin-query": "^5.8.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.1.1",
