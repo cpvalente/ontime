@@ -2,6 +2,7 @@
   "name": "ontime-ui",
   "version": "3.0.0-alpha",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@chakra-ui/react": "^2.7.0",
     "@dnd-kit/core": "^6.0.8",
@@ -70,7 +71,7 @@
     "@types/testing-library__jest-dom": "^5.14.5",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
-    "@vitejs/plugin-react": "^3.0.1",
+    "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-jest": "^27.6.0",
@@ -85,10 +86,10 @@
     "prettier": "^3.0.3",
     "sass": "^1.57.1",
     "typescript": "^5.2.2",
-    "vite": "^4.3.1",
-    "vite-plugin-compression2": "^0.9.0",
-    "vite-plugin-svgr": "^2.4.0",
-    "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^0.30.1"
+    "vite": "^5.0.10",
+    "vite-plugin-compression2": "^0.11.0",
+    "vite-plugin-svgr": "^4.2.0",
+    "vite-tsconfig-paths": "^4.2.2",
+    "vitest": "^1.0.4"
   }
 }

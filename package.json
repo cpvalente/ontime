@@ -17,7 +17,7 @@
   },
   "license": "AGPL-3.0-only",
   "engines": {
-    "node": "~16.16.0",
+    "node": ">18.18.2",
     "pnpm": ">=8"
   },
   "type": "module",
@@ -50,7 +50,7 @@
     "husky": "^8.0.3",
     "lint-staged": "^15.1.0",
     "prettier": "^3.0.3",
-    "turbo": "^1.10.16",
+    "turbo": "^1.11.2",
     "typescript": "^5.2.2"
   },
   "husky": {
