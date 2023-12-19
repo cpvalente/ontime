@@ -93,7 +93,7 @@ export default function StudioClock(props: StudioClockProps) {
           className='next-title'
           style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '75%' }}
         >
-          {eventNext?.title ?? ''}
+          {eventNext?.title ?? ' '}
         </div>
         <div className='next-countdown-warp'>
           <div
@@ -103,9 +103,9 @@ export default function StudioClock(props: StudioClockProps) {
               isPaused ? ' next-countdown--paused' : '',
             ])}
           >
-            {/* ! is used an a blank character */}
+            {/* ! is used an a blank character //TODO: placeholder moves a bit when becomming active*/}
             {isNegative ? '-' : '!'}
-            {selectedId !== null && formatDisplay(time.current)}
+            {selectedId === null ? '!!!!!!!' : formatDisplay(time.current)}
           </div>
         </div>
         <div className='clock-indicators'>
@@ -141,7 +141,9 @@ export default function StudioClock(props: StudioClockProps) {
             {schedule.map((s) => (
               <li key={s.id} className={s.isNow ? 'now' : s.isNext ? 'next' : ''}>
                 <div className='user-colour' style={{ backgroundColor: `${s.colour !== '' ? s.colour : ''}` }} />
-                <span className='time'>{s.time}&nbsp;</span>
+                <span className='time-warp'>
+                  <span className='time'>{s.time}&nbsp;</span>
+                </span>
                 <span className='title'>{s.title}</span>
               </li>
             ))}

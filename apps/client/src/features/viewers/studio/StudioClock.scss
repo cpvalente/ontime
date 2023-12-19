@@ -30,7 +30,8 @@ $size-min: min(2.5vh, 18px);
 $half-min: min(1.25vh, 9px);
 $red-active: #f00;
 $orange-active: #f60;
-$red-idle: #300;
+$red-idle: #500;
+$backlight: #111;
 $cyan-active: #0ff;
 $cyan-idle: #0aa;
 
@@ -111,14 +112,12 @@ $cyan-idle: #0aa;
 
       .studio-timer::before {
         content: '88:88';
-        filter: brightness(10%);
+        // filter: brightness(10%);
         mix-blend-mode: lighten;
+        color: $backlight;
         position: absolute;
       }
     }
-
-    // .next-title:after,
-    // .next-title:after,
 
     .next-title {
       font-family: mono;
@@ -126,6 +125,7 @@ $cyan-idle: #0aa;
       font-size: calc(#{$clock-size} / 10);
       margin-top: 0.51em;
       text-align: center;
+      overflow: clip visible;
     }
 
     .next-countdown-warp {
@@ -144,7 +144,8 @@ $cyan-idle: #0aa;
 
       .next-countdown::before {
         content: '-88:88:88';
-        filter: brightness(10%);
+        color: $backlight;
+        // filter: brightness(10%);
         mix-blend-mode: lighten;
         position: absolute;
       }
@@ -165,7 +166,8 @@ $cyan-idle: #0aa;
       color: var(--studio-active, $red-active);
 
       &--idle {
-        color: var(--studio-idle, $red-idle);
+        color: $backlight;
+        // color: var(--studio-idle, $red-idle);
       }
     }
 
@@ -183,8 +185,16 @@ $cyan-idle: #0aa;
         display: flex;
         align-items: center;
 
-        .time {
-          font-family: seven-seg;
+        .time-warp {
+          .time {
+            font-family: seven-seg;
+          }
+          .time::before {
+            content: '88:88';
+            color: $backlight;
+            mix-blend-mode: lighten;
+            position: absolute;
+          }
         }
         .title {
           font-family: mono;
@@ -203,6 +213,7 @@ $cyan-idle: #0aa;
         width: 0.35em;
         height: 0.35em;
         aspect-ratio: 1;
+        border-radius: 0.35em;
         background-color: var(--studio-idle, $red-idle);
         margin-right: 0.35em;
       }
