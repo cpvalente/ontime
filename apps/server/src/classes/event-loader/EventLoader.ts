@@ -95,7 +95,7 @@ export class EventLoader {
    */
   static getEventWithCue(cue) {
     const timedEvents = EventLoader.getTimedEvents();
-    return timedEvents.find((event) => event.cue === cue);
+    return timedEvents.find((event) => event.cue.toLowerCase() === cue.toLowerCase());
   }
 
   /**
