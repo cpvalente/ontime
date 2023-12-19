@@ -45,7 +45,8 @@
     "lint-staged": "eslint",
     "test": "vitest",
     "test:pipeline": "vitest run",
-    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build"
+    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build",
+    "analyse": "npx vite-bundle-visualizer"
   },
   "browserslist": {
     "production": [
