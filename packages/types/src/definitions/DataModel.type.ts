@@ -5,6 +5,7 @@ import { OSCSettings } from './core/OscSettings.type.js';
 import { Settings } from './core/Settings.type.js';
 import { UserFields } from './core/UserFields.type.js';
 import { ViewSettings } from './core/Views.type.js';
+import { HttpSettings } from '../index.js';
 
 export type DatabaseModel = {
   rundown: OntimeRundown;
@@ -14,4 +15,5 @@ export type DatabaseModel = {
   aliases: Alias[];
   userFields: UserFields;
   osc: OSCSettings;
+  http: HttpSettings;
 };

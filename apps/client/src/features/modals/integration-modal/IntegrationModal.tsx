@@ -2,8 +2,9 @@ import { ModalBody, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/r
 
 import ModalWrapper from '../ModalWrapper';
 
-import OscIntegration from './OscIntegration';
-import OscSettings from './OscSettings';
+import HttpIntegration from './http/HttpIntegration';
+import OscIntegration from './osc/OscIntegration';
+import OscSettings from './osc/OscSettings';
 
 import styles from '../Modal.module.scss';
 
@@ -30,6 +31,7 @@ export default function IntegrationModal(props: IntegrationModalProps) {
           <TabList>
             <Tab>OSC</Tab>
             <Tab>OSC Integration</Tab>
+            <Tab>HTTP Integration</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -37,6 +39,9 @@ export default function IntegrationModal(props: IntegrationModalProps) {
             </TabPanel>
             <TabPanel>
               <OscIntegration />
+            </TabPanel>
+            <TabPanel>
+              <HttpIntegration />
             </TabPanel>
           </TabPanels>
         </Tabs>

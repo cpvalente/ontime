@@ -1,4 +1,5 @@
-import { Alias, DatabaseModel, GetInfo, LogOrigin, ProjectData } from 'ontime-types';
+import { LogOrigin } from 'ontime-types';
+import type { Alias, DatabaseModel, GetInfo, HttpSettings, ProjectData } from 'ontime-types';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
@@ -9,8 +10,9 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { isDocker, pathToStartStyles, resolveDbPath } from '../setup.js';
+import { isDocker, resolveDbPath, resolveStylesPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
+import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
 import { deepmerge } from 'ontime-utils';
@@ -115,7 +117,7 @@ export const getInfo = async (req: Request, res: Response<GetInfo>) => {
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
   ni.unshift({ name: 'localhost', address: '127.0.0.1' });
-  const cssOverride = pathToStartStyles;
+  const cssOverride = resolveStylesPath;
 
   // send object with network information
   res.status(200).send({
@@ -284,27 +286,6 @@ export const getOSC = async (req, res) => {
   res.status(200).send(osc);
 };
 
-export const postOscSubscriptions = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
-  try {
-    const oscSubscriptions = req.body;
-    const oscSettings = DataProvider.getOsc();
-    oscSettings.subscriptions = oscSubscriptions;
-    await DataProvider.setOsc(oscSettings);
-
-    // TODO: this update could be more granular, checking that relevant data was changed
-    const { message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Tx, message);
-
-    res.send(oscSettings).status(200);
-  } catch (error) {
-    res.status(400).send({ message: error.toString() });
-  }
-};
-
 // Create controller for POST request to '/ontime/osc'
 // Returns ACK message
 export const postOSC = async (req, res) => {
@@ -327,6 +308,59 @@ export const postOSC = async (req, res) => {
     }
 
     res.send(oscSettings).status(200);
+  } catch (error) {
+    res.status(400).send({ message: error.toString() });
+  }
+};
+
+export const postOscSubscriptions = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const subscriptions = req.body;
+    const oscSettings = DataProvider.getOsc();
+    oscSettings.subscriptions = subscriptions;
+    await DataProvider.setOsc(oscSettings);
+
+    // TODO: this update could be more granular, checking that relevant data was changed
+    const { message } = oscIntegration.init(oscSettings);
+    logger.info(LogOrigin.Tx, message);
+
+    res.send(oscSettings).status(200);
+  } catch (error) {
+    res.status(400).send({ message: error.toString() });
+  }
+};
+
+// Create controller for GET request to '/ontime/http'
+export const getHTTP = async (_req, res: Response<HttpSettings>) => {
+  const http = DataProvider.getHttp();
+  res.status(200).send(http);
+};
+
+// Create controller for POST request to '/ontime/http'
+export const postHTTP = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const httpSettings = req.body;
+    await DataProvider.setHttp(httpSettings);
+
+    integrationService.unregister(httpIntegration);
+
+    // TODO: this update could be more granular, checking that relevant data was changed
+    const { success, message } = httpIntegration.init(httpSettings);
+    logger.info(LogOrigin.Tx, message);
+
+    if (success) {
+      integrationService.register(httpIntegration);
+    }
+
+    res.send(httpSettings).status(200);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }

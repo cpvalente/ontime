@@ -3,6 +3,7 @@ import {
   Alias,
   DatabaseModel,
   GetInfo,
+  HttpSettings,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
@@ -102,6 +103,23 @@ export async function postUserFields(data: UserFields) {
 export async function getOSC(): Promise<OSCSettings> {
   const res = await axios.get(`${ontimeURL}/osc`);
   return res.data;
+}
+
+/**
+ * @description HTTP request to retrieve http settings
+ * @return {Promise}
+ */
+export async function getHTTP(): Promise<HttpSettings> {
+  const res = await axios.get(`${ontimeURL}/http`);
+  return res.data;
+}
+
+/**
+ * @description HTTP request to mutate http settings
+ * @return {Promise}
+ */
+export async function postHTTP(data: HttpSettings) {
+  return axios.post(`${ontimeURL}/http`, data);
 }
 
 /**

@@ -259,6 +259,17 @@
     "targetIP": "127.0.0.1",
     "enabled": true
   },
+  "http": {
+    "enabledOut": false,
+    "subscriptions": {
+      "onLoad": [],
+      "onStart": [],
+      "onPause": [],
+      "onStop": [],
+      "onUpdate": [],
+      "onFinish": []
+    }
+  },
   "aliases": [
     {
       "enabled": true,

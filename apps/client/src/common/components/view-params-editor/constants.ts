@@ -20,7 +20,7 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
     description: 'Background colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: '00000000',
+    placeholder: '00000000 (default)',
   },
   {
     id: 'text',
@@ -28,7 +28,7 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
     description: 'Text colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: 'fffff',
+    placeholder: 'fffff (default)',
   },
   {
     id: 'textbg',
@@ -36,21 +36,21 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
     description: 'Colour of text background in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: '00000000',
+    placeholder: '00000000 (default)',
   },
   {
     id: 'font',
     title: 'Font',
     description: 'Font family, will use the fonts available in the system',
     type: 'string',
-    defaultValue: 'Arial Black',
+    placeholder: 'Arial Black (default)',
   },
   {
     id: 'size',
     title: 'Text Size',
     description: 'Scales the current style (0.5 = 50% 1 = 100% 2 = 200%)',
     type: 'number',
-    defaultValue: 1,
+    placeholder: '1 (default)',
   },
   {
     id: 'alignx',
@@ -65,7 +65,7 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
     title: 'Offset Horizontal',
     description: 'Offsets the timer horizontal position by a given amount in pixels',
     type: 'number',
-    defaultValue: 0,
+    placeholder: '0 (default)',
   },
   {
     id: 'aligny',
@@ -80,7 +80,7 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
     title: 'Offset Vertical',
     description: 'Offsets the timer vertical position by a given amount in pixels',
     type: 'number',
-    defaultValue: 0,
+    placeholder: '0 (default)',
   },
 ];
 
@@ -130,7 +130,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     description: 'Background colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: '00000000',
+    placeholder: '00000000 (default)',
   },
   {
     id: 'text',
@@ -138,7 +138,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     description: 'Text colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: 'fffff',
+    placeholder: 'fffff (default)',
   },
   {
     id: 'textbg',
@@ -146,21 +146,21 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     description: 'Colour of text background in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: '00000000',
+    placeholder: '00000000 (default)',
   },
   {
     id: 'font',
     title: 'Font',
     description: 'Font family, will use the fonts available in the system',
     type: 'string',
-    defaultValue: 'Arial Black',
+    placeholder: 'Arial Black (default)',
   },
   {
     id: 'size',
     title: 'Text Size',
     description: 'Scales the current style (0.5 = 50% 1 = 100% 2 = 200%)',
     type: 'number',
-    defaultValue: 1,
+    placeholder: '1 (default)',
   },
   {
     id: 'alignx',
@@ -175,7 +175,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     title: 'Offset Horizontal',
     description: 'Offsets the timer horizontal position by a given amount in pixels',
     type: 'number',
-    defaultValue: 0,
+    placeholder: '0 (default)',
   },
   {
     id: 'aligny',
@@ -190,7 +190,7 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     title: 'Offset Vertical',
     description: 'Offsets the timer vertical position by a given amount in pixels',
     type: 'number',
-    defaultValue: 0,
+    placeholder: '0 (default)',
   },
   {
     id: 'hideovertime',
@@ -221,14 +221,14 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
     title: 'Size',
     description: 'Scales the current style (0.5 = 50% 1 = 100% 2 = 200%)',
     type: 'number',
-    defaultValue: 1,
+    placeholder: '1 (default)',
   },
   {
     id: 'transition',
     title: 'Transition',
     description: 'Transition in time in seconds (default 3)',
     type: 'number',
-    defaultValue: 3,
+    placeholder: '3 (default)',
   },
   {
     id: 'text',
@@ -236,7 +236,7 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
     description: 'Text colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: '#fffffa',
+    placeholder: 'fffffa (default)',
   },
   {
     id: 'bg',
@@ -244,7 +244,7 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
     description: 'Text background colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: '00000033',
+    placeholder: '00000033 (default)',
   },
   {
     id: 'key',
@@ -252,14 +252,14 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
     description: 'Screen background colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    defaultValue: '00000033',
+    placeholder: '00000033 (default)',
   },
   {
     id: 'fadeout',
     title: 'Fadeout',
     description: 'Time (in seconds) the lower third displays before fading out',
     type: 'number',
-    defaultValue: 3,
+    placeholder: '3 (default)',
   },
 ];
 
@@ -284,7 +284,7 @@ export const getBackstageOptions = (timeFormat: TimeFormat): ParamField[] => [
     title: 'Events per page',
     description: 'Sets the number of events on the page, can cause overlow',
     type: 'number',
-    defaultValue: 7,
+    placeholder: '7 (default)',
   },
 ];
 
@@ -309,7 +309,7 @@ export const getPublicOptions = (timeFormat: TimeFormat): ParamField[] => [
     title: 'Events per page',
     description: 'Sets the number of events on the page, can cause overlow',
     type: 'number',
-    defaultValue: 7,
+    placeholder: '7 (default)',
   },
 ];
 export const getStudioClockOptions = (timeFormat: TimeFormat): ParamField[] => [
@@ -379,6 +379,13 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeForma
         user8: userFields.user8 || 'user8',
         user9: userFields.user9 || 'user9',
       },
+    },
+    {
+      id: 'shouldEdit',
+      title: 'Edit user field',
+      description: 'Allows editing an events user field by long pressing on it. Needs a selected highlighted field',
+      type: 'boolean',
+      defaultValue: false,
     },
   ];
 };

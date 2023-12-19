@@ -1,4 +1,4 @@
-import { LogOrigin, OSCSettings } from 'ontime-types';
+import { HttpSettings, LogOrigin, OSCSettings } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -29,6 +29,7 @@ import { eventLoader } from './classes/event-loader/EventLoader.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
+import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
@@ -64,6 +65,9 @@ app.use('/playback', playbackRouter);
 
 // serve static - css
 app.use('/external', express.static(externalsStartDirectory));
+app.use('/external', (req, res) => {
+  res.status(404).send(`${req.originalUrl} not found`);
+});
 
 // serve static - react, in dev/test mode we fetch the React app from module
 const reactAppPath = join(currentDirectory, resolvedPath());
@@ -166,7 +170,6 @@ export const startServer = async () => {
 
 /**
  * @description starts OSC server
- * @description starts OSC server
  * @param overrideConfig
  * @return {Promise<void>}
  */
@@ -194,20 +197,30 @@ export const startOSCServer = async (overrideConfig = null) => {
 /**
  * starts integrations
  */
-export const startIntegrations = async (config?: { osc: OSCSettings }) => {
+export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpSettings }) => {
   checkStart(OntimeStartOrder.InitIO);
 
-  const { osc } = config ?? DataProvider.getData();
+  const { osc, http } = config ?? DataProvider.getData();
 
   if (!osc) {
     return 'OSC Invalid configuration';
+  } else {
+    const { success, message } = oscIntegration.init(osc);
+    logger.info(LogOrigin.Tx, message);
+
+    if (success) {
+      integrationService.register(oscIntegration);
+    }
   }
+  if (!http) {
+    return 'HTTP Invalid configuration';
+  } else {
+    const { success, message } = httpIntegration.init(http);
+    logger.info(LogOrigin.Tx, message);
 
-  const { success, message } = oscIntegration.init(osc);
-  logger.info(LogOrigin.Tx, message);
-
-  if (success) {
-    integrationService.register(oscIntegration);
+    if (success) {
+      integrationService.register(httpIntegration);
+    }
   }
 };
 
