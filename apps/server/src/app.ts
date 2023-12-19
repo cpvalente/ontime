@@ -15,7 +15,6 @@ import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { router as rundownRouter } from './routes/rundownRouter.js';
 import { router as projectRouter } from './routes/projectRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
-import { router as playbackRouter } from './routes/playbackRouter.js';
 import { router as apiRouter } from './routes/apiRouter.js';
 
 // Import adapters
@@ -62,7 +61,6 @@ app.use(express.json({ limit: '1mb' }));
 app.use('/events', rundownRouter);
 app.use('/project', projectRouter);
 app.use('/ontime', ontimeRouter);
-app.use('/playback', playbackRouter); // TODO: we want to deprecate this
 app.use('/api', apiRouter);
 
 // serve static - css
