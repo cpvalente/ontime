@@ -1,8 +1,7 @@
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
 
-import { ReactComponent as OntimeLogo } from '@/assets/images/ontime-logo.svg';
-
 import { version } from '../../../../package.json';
+import OntimeLogo from '../../../assets/images/ontime-logo.svg?react';
 import { gitbookUrl, githubUrl } from '../../../externals';
 import ModalLink from '../ModalLink';
 
