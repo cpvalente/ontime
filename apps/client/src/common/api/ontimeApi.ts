@@ -265,17 +265,23 @@ export const uploadSheetClientFile = async (file: File) => {
 };
 
 export const getSheetsAuthUrl = async () => {
-  const res = await axios.get(`${ontimeURL}/sheet-authurl`);
-  return res.data;
+  const response = await axios.get(`${ontimeURL}/sheet-authurl`);
+  return response.data;
 };
 
 export const postPreviewSheet = async (id: string, worksheet: string) => {
-  const response = await axios.post(`${ontimeURL}/sheet-preview`, { id, worksheet });
+  const response = await axios.post(`${ontimeURL}/sheet-preview`, {
+    id,
+    worksheet,
+  });
   return response.data.data;
 };
 
 export const postPushSheet = async (id: string, worksheet: string) => {
-  const response = await axios.post(`${ontimeURL}/sheet-push`, { id, worksheet });
+  const response = await axios.post(`${ontimeURL}/sheet-push`, {
+    id,
+    worksheet,
+  });
   return response.data.data;
 };
 
@@ -284,9 +290,9 @@ export const postPushSheet = async (id: string, worksheet: string) => {
  * @return {Promise}
  */
 export const getSheetState = async (id: string, worksheet: string): Promise<SheetState> => {
-  const res = await axios.post(`${ontimeURL}/sheet-state`, {
+  const response = await axios.post(`${ontimeURL}/sheet-state`, {
     id,
     worksheet,
   });
-  return res.data;
+  return response.data;
 };

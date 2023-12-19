@@ -464,7 +464,7 @@ export const postNew: RequestHandler = async (req, res) => {
  */
 export async function previewSheet(req, res) {
   try {
-    const { id, worksheet } = req.data;
+    const { id, worksheet } = req.body;
     const data = await Sheet.pull(id, worksheet);
     res.status(200).send(data);
   } catch (error) {
@@ -528,7 +528,6 @@ export async function sheetAuthUrl(req, res) {
  * @method POST
  */
 export const getSheetState = async (req, res) => {
-  console.log('getstate', req.body);
   const { id, worksheet } = req.body;
   res.status(200).send(await Sheet.getSheetState(id, worksheet));
 };

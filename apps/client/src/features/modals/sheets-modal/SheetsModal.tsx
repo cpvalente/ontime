@@ -16,11 +16,12 @@ import {
   Select,
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
+import { OntimeRundown, ProjectData, SheetState, UserFields } from 'ontime-types';
 
 import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
 import {
+  getSheetState,
   getSheetsAuthUrl,
   patchData,
   postPreviewSheet,
@@ -52,18 +53,25 @@ export default function SheetsModal(props: SheetsModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sheetRef = useRef<HTMLInputElement>(null);
   const worksheetRef = useRef<HTMLSelectElement>(null);
-  const [sheetId, setSheetId] = useState<string | null>(null);
-  const [worksheet, setWorksheet] = useState<string | null>(null);
+  // const [sheetId, setSheetId] = useState<string | null>(null);
+  // const [worksheet, setWorksheet] = useState<string | null>(null);
 
-  const { data: sheetState, refetch } = useSheetState(sheetId, worksheet);
+  // const { data: sheetState, refetch } = useSheetState(sheetId, worksheet);
 
-  const onChange = () => {
-    if (sheetRef.current?.value && sheetRef.current?.value.length > 43 && worksheetRef.current) {
-      setSheetId(sheetRef.current.value);
-      setWorksheet(worksheetRef.current.value);
-      refetch();
-    }
+  const [sheetState, setState] = useState<SheetState>({
+    secret: false,
+    auth: false,
+    id: false,
+    worksheet: false,
+    worksheetOptions: [],
+  });
+
+  //TODO: soulde the be a button like now or on change?
+  const testId = async () => {
+    console.log('test', sheetRef.current?.value, worksheetRef.current?.value);
+    setState(await getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? ''));
   };
+
   const handleClose = () => {
     setRundown(null);
     setProject(null);
@@ -87,12 +95,14 @@ export default function SheetsModal(props: SheetsModalProps) {
       // TODO: show this in the modal
       console.error(error);
     }
-    refetch();
+    // refetch();
+    setState(await getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? ''));
   };
 
   useEffect(() => {
     if (isOpen) {
-      refetch();
+      getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '').then((data) => setState(data));
+      // refetch();
     }
     return () => {
       // Alex: This function will be run when the component unmounts
@@ -214,11 +224,13 @@ export default function SheetsModal(props: SheetsModalProps) {
                     ref={sheetRef}
                     id='sheetid'
                     size='sm'
-                    onChange={onChange}
                     variant='ontime-filled-on-light'
                     disabled={!sheetState?.auth}
                   />
                 </label>
+                <Button variant='ontime-filled' padding='0 2em' onClick={testId}>
+                  Test Sheet ID
+                </Button>
               </Step>
 
               <Step
@@ -245,7 +257,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                     disabled={!sheetState?.worksheet}
                     variant='ontime-ghosted-on-light'
                     padding='0 2em'
-                    onClick={handlePullData}
+                    onClick={handlePushData}
                   >
                     Push data
                   </Button>
@@ -253,7 +265,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                     disabled={!sheetState?.worksheet}
                     variant='ontime-ghosted-on-light'
                     padding='0 2em'
-                    onClick={handlePushData}
+                    onClick={handlePullData}
                   >
                     Pull data
                   </Button>
