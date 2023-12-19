@@ -93,7 +93,7 @@ export default function StudioClock(props: StudioClockProps) {
           className='next-title'
           style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '75%' }}
         >
-          {eventNext?.title ?? ' '}
+          {eventNext?.title ?? '---'}
         </div>
         <div className='next-countdown-warp'>
           <div
@@ -103,9 +103,8 @@ export default function StudioClock(props: StudioClockProps) {
               isPaused ? ' next-countdown--paused' : '',
             ])}
           >
-            {/* ! is used an a blank character //TODO: placeholder moves a bit when becomming active*/}
             {isNegative ? '-' : '!'}
-            {selectedId === null ? '!!!!!!!' : formatDisplay(time.current)}
+            {formatDisplay(time.current)}
           </div>
         </div>
         <div className='clock-indicators'>

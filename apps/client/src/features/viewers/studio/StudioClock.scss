@@ -14,13 +14,6 @@
     url('./../../../assets/fonts/DSEG14ClassicMini-Regular.ttf') format('truetype');
 }
 
-@font-face {
-  font-family: 'mono';
-  src:
-    local('MONO'),
-    url('./../../../assets/fonts/Hack-Regular.ttf') format('truetype');
-}
-
 /* =============== CLOCK STUFF ==================*/
 
 $clock-size: 90vh;
@@ -100,7 +93,7 @@ $cyan-idle: #0aa;
       font-size: calc(#{$clock-size} / 5);
       margin-top: calc(50% - calc(#{$clock-size} / 6));
       line-height: 0.8em;
-
+      
       .studio-timer {
         color: var(--studio-active, $red-active);
 
@@ -112,7 +105,6 @@ $cyan-idle: #0aa;
 
       .studio-timer::before {
         content: '88:88';
-        // filter: brightness(10%);
         mix-blend-mode: lighten;
         color: $backlight;
         position: absolute;
@@ -120,7 +112,7 @@ $cyan-idle: #0aa;
     }
 
     .next-title {
-      font-family: mono;
+      font-family: monospace;
       color: var(--studio-idle-label, $cyan-idle);
       font-size: calc(#{$clock-size} / 10);
       margin-top: 0.51em;
@@ -132,8 +124,9 @@ $cyan-idle: #0aa;
       .next-countdown {
         color: var(--studio-active-label, $cyan-active);
         font-size: calc(#{$clock-size} / 10);
-        line-height: 1.5em;
-
+        line-height: 1em;
+        transform: translateX(-0.5em);
+        
         &--overtime {
           color: var(--studio-active, $red-active);
         }
@@ -141,11 +134,10 @@ $cyan-idle: #0aa;
           color: var(--studio-active, $orange-active);
         }
       }
-
+      
       .next-countdown::before {
         content: '-88:88:88';
         color: $backlight;
-        // filter: brightness(10%);
         mix-blend-mode: lighten;
         position: absolute;
       }
@@ -159,7 +151,7 @@ $cyan-idle: #0aa;
     margin: 4vh 0;
 
     .onAir {
-      font-family: fourteen-seg;
+      font-family: monospace;
       padding-bottom: 2vh;
       font-size: 15vh;
       line-height: 1.2em;
@@ -167,7 +159,6 @@ $cyan-idle: #0aa;
 
       &--idle {
         color: $backlight;
-        // color: var(--studio-idle, $red-idle);
       }
     }
 
@@ -197,7 +188,7 @@ $cyan-idle: #0aa;
           }
         }
         .title {
-          font-family: mono;
+          font-family: monospace;
         }
       }
 
