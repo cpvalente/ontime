@@ -1,3 +1,4 @@
+// skipcq: JS-C1003 - we like the API
 import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
