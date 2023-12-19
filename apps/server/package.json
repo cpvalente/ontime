@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
-    "@types/node": "^16.11.7",
+    "@types/node": "^18.11.18",
     "@types/node-osc": "^6.0.2",
     "@types/websocket": "^1.0.5",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
