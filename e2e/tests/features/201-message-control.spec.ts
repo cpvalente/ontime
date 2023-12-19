@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('message control sends messages to screens', async ({ context }) => {
   const editorPage = await context.newPage();
