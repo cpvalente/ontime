@@ -1,10 +1,24 @@
 @use '../../../theme/viewerDefs' as *;
 
 @font-face {
-  font-family: 'digital-clock';
+  font-family: 'seven-seg';
   src:
     local('DSEG7'),
     url('./../../../assets/fonts/DSEG7ClassicMini-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'fourteen-seg';
+  src:
+    local('DSEG14'),
+    url('./../../../assets/fonts/DSEG14ClassicMini-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'mono';
+  src:
+    local('MONO'),
+    url('./../../../assets/fonts/Hack-Regular.ttf') format('truetype');
 }
 
 /* =============== CLOCK STUFF ==================*/
@@ -45,7 +59,7 @@ $cyan-idle: #0aa;
     text-align: center;
     position: relative;
     margin: 4vh auto;
-    font-family: digital-clock, monospace;
+    font-family: seven-seg, monospace;
     text-transform: uppercase;
 
     .clock-indicators {
@@ -99,6 +113,7 @@ $cyan-idle: #0aa;
     }
 
     .next-title {
+      font-family: mono, monospace;
       color: var(--studio-idle-label, $cyan-idle);
       font-size: calc(#{$clock-size} / 10);
       margin-top: 0.51em;
@@ -126,10 +141,9 @@ $cyan-idle: #0aa;
   .schedule-container {
     grid-area: schd;
     margin: 4vh 0;
-    text-transform: uppercase;
 
     .onAir {
-      font-family: digital-clock, monospace;
+      font-family: fourteen-seg, monospace;
       padding-bottom: 2vh;
       font-size: 15vh;
       line-height: 0.9em;
