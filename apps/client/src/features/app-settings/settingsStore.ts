@@ -27,7 +27,15 @@ export const settingPanels: SettingsOption[] = [
     ],
   },
   { id: 'log', label: 'Log', split: true },
-  { id: 'about', label: 'About', split: true },
+  {
+    id: 'about',
+    label: 'About',
+    split: true,
+    secondary: [
+      { id: 'links', label: 'Links' },
+      { id: 'version', label: 'Version' },
+    ],
+  },
 ] as const;
 
 export type SettingsOptionId = (typeof settingPanels)[number]['id'];
