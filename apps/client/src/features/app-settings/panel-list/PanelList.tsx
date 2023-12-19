@@ -1,3 +1,5 @@
+import { KeyboardEvent } from 'react';
+
 import { cx } from '../../../common/utils/styleUtils';
 import { settingPanels, SettingsOption, useSettingsStore } from '../settingsStore';
 
@@ -9,6 +11,8 @@ export default function PanelList() {
   const handleSelect = (panel: SettingsOption) => {
     data.setShowSettings(panel.id);
   };
+
+  const isKeyEnter = (event: KeyboardEvent<HTMLLIElement>) => event.key === 'Enter';
 
   return (
     <ul className={style.tabs}>
@@ -24,7 +28,16 @@ export default function PanelList() {
 
         return (
           <>
-            <li key={panel.id} onClick={() => handleSelect(panel)} className={classes} tabIndex={0}>
+            <li
+              key={panel.id}
+              onClick={() => handleSelect(panel)}
+              onKeyDown={(event) => {
+                isKeyEnter(event) && handleSelect(panel);
+              }}
+              className={classes}
+              tabIndex={0}
+              role='button'
+            >
               {panel.label}
             </li>
             {panel.secondary?.map((secondary) => {

@@ -20,6 +20,11 @@ ul {
   padding: 0.25rem 1rem;
   margin-right: 1rem;
 
+  &:focus {
+    background-color: $gray-1000;
+    outline: 0;
+  }
+
   &:hover {
     background-color: $gray-1000;
     cursor: pointer;
