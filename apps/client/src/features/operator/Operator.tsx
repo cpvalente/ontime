@@ -123,7 +123,10 @@ export default function Operator() {
   }
 
   // get fields which the user subscribed to
+  const shouldEdit = searchParams.get('shouldEdit');
   const subscribe = searchParams.get('subscribe') as keyof UserFields | null;
+  const canEdit = shouldEdit && subscribe;
+
   const main = searchParams.get('main') as keyof TitleFields | null;
   const secondary = searchParams.get('secondary') as keyof TitleFields | null;
   const subscribedAlias = subscribe ? userFields[subscribe] : '';
@@ -152,7 +155,7 @@ export default function Operator() {
         lastId={lastEvent?.id}
       />
 
-      {subscribe && (
+      {canEdit && (
         <div className={`${style.editPrompt} ${showEditPrompt ? style.show : undefined}`}>
           Press and hold to edit user field
         </div>
@@ -193,7 +196,7 @@ export default function Operator() {
                 showSeconds={showSeconds}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
-                onLongPress={subscribe ? handleEdit : () => undefined}
+                onLongPress={canEdit ? handleEdit : () => undefined}
               />
             );
           }
