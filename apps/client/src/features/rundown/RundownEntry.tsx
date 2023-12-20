@@ -73,7 +73,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     }
   }, [cursor, data.id, eventsToEdit, clearEventsToEdit]);
 
-  const { eventSettings } = useEditorSettings();
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
