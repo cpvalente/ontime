@@ -7,13 +7,6 @@
     url('./../../../assets/fonts/DSEG7ClassicMini-Regular.ttf') format('truetype');
 }
 
-@font-face {
-  font-family: 'fourteen-seg';
-  src:
-    local('DSEG14'),
-    url('./../../../assets/fonts/DSEG14ClassicMini-Regular.ttf') format('truetype');
-}
-
 /* =============== CLOCK STUFF ==================*/
 
 $clock-size: 90vh;
