@@ -78,9 +78,9 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
-  const { clearEventsToEdit, eventsToEdit } = useEventSelection();
+  const { clearSelectedEvents, selectedEvents } = useEventSelection();
 
-  const isOpen = eventsToEdit.size === 1 && eventsToEdit.has(eventId);
+  const isOpen = selectedEvents.size === 1 && selectedEvents.has(eventId);
 
   useEffect(() => {
     setRenderInner(true);
@@ -90,10 +90,10 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     (event: MouseEvent) => {
       if (isOpen) {
         event.stopPropagation();
-        clearEventsToEdit();
+        clearSelectedEvents();
       }
     },
-    [clearEventsToEdit, isOpen],
+    [clearSelectedEvents, isOpen],
   );
 
   const eventIsPlaying = playback === Playback.Play;

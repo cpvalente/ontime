@@ -12,14 +12,27 @@ import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import useRundown from '../../../common/hooks-query/useRundown';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
+import { isMacOS } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
 import { useEventIdSwapping } from '../useEventIdSwapping';
-import { useEventSelection } from '../useEventSelection';
+import { EditMode, useEventSelection } from '../useEventSelection';
 
 import EventBlockInner from './EventBlockInner';
 
 import style from './EventBlock.module.scss';
+
+const getEditMode = (event: MouseEvent): EditMode => {
+  if ((isMacOS() && event.metaKey) || event.ctrlKey) {
+    return 'ctrl';
+  }
+
+  if (event.shiftKey) {
+    return 'shift';
+  }
+
+  return 'click';
+};
 
 interface EventBlockProps {
   cue: string;
@@ -82,13 +95,13 @@ export default function EventBlock(props: EventBlockProps) {
     disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { eventsToEdit, setEventsToEdit } = useEventSelection();
+  const { selectedEvents, setSelectedEvents } = useEventSelection();
   const { data: rundown = [] } = useRundown();
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(
-    eventsToEdit.size > 1
+    selectedEvents.size > 1
       ? [
           {
             label: 'Visiblity',
@@ -200,13 +213,16 @@ export default function EventBlock(props: EventBlockProps) {
     isPast ? style.past : null,
     selected ? style.selected : null,
     playback ? style[playback] : null,
-    eventsToEdit.has(eventId) ? style.hasCursor : null,
+    selectedEvents.has(eventId) ? style.hasCursor : null,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {
     event.stopPropagation();
+
+    const editMode = getEditMode(event);
+    return setSelectedEvents({ id: eventId, index: eventIndex, rundown, editMode });
+
     // moveCursorTo(eventId, true);
-    setEventsToEdit(eventId, eventIndex, rundown);
   };
 
   return (
@@ -214,7 +230,7 @@ export default function EventBlock(props: EventBlockProps) {
       className={blockClasses}
       ref={setNodeRef}
       style={dragStyle}
-      onClick={handleFocusClick}
+      onMouseDown={handleFocusClick}
       onContextMenu={onContextMenu}
     >
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>

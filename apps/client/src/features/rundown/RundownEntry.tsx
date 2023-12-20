@@ -58,17 +58,17 @@ export default function RundownEntry(props: RundownEntryProps) {
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
   const { data: rundown = [] } = useRundown();
   const { cursor } = useAppMode();
-  const { eventsToEdit, clearEventsToEdit } = useEventSelection();
+  const { selectedEvents, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
-    if (eventsToEdit.has(data.id)) {
-      clearEventsToEdit();
+    if (selectedEvents.has(data.id)) {
+      clearSelectedEvents();
     }
 
     if (cursor === data.id) {
       // setCursor(null);
     }
-  }, [cursor, data.id, eventsToEdit, clearEventsToEdit]);
+  }, [cursor, data.id, selectedEvents, clearSelectedEvents]);
 
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
@@ -106,7 +106,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           return swapEvents({ from: value as string, to: data.id });
         }
         case 'delete': {
-          if (eventsToEdit.has(data.id)) {
+          if (selectedEvents.has(data.id)) {
             removeOpenEvent();
           }
           return deleteEvent(data.id);
@@ -125,11 +125,11 @@ export default function RundownEntry(props: RundownEntryProps) {
 
           // if selected events are more than one
           // we need to bulk edit
-          if (eventsToEdit.size > 1) {
+          if (selectedEvents.size > 1) {
             const changes: Partial<OntimeEvent> = { [field]: value };
             const idsOfRundownEvents = rundown.filter(isOntimeEvent).map((event) => event.id);
 
-            const eventIds = [...eventsToEdit.keys()];
+            const eventIds = [...selectedEvents.keys()];
             // check every selected event id to see if they match rundown event ids
             const areIdsValid = eventIds.every((eventId) => idsOfRundownEvents.includes(eventId));
 
@@ -138,7 +138,7 @@ export default function RundownEntry(props: RundownEntryProps) {
             }
 
             batchUpdateEvents(changes, eventIds);
-            return clearEventsToEdit();
+            return clearSelectedEvents();
           }
 
           if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
@@ -180,11 +180,11 @@ export default function RundownEntry(props: RundownEntryProps) {
       emitError,
       previousEventId,
       removeOpenEvent,
-      clearEventsToEdit,
+      clearSelectedEvents,
       startTimeIsLastEnd,
       updateEvent,
       batchUpdateEvents,
-      eventsToEdit,
+      selectedEvents,
       swapEvents,
       rundown,
     ],

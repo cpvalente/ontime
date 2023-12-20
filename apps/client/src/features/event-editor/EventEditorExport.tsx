@@ -19,10 +19,13 @@ const closeBtnStyle = {
 };
 
 const EventEditorExport = () => {
-  const { clearEventsToEdit, eventsToEdit } = useEventSelection();
+  const { clearSelectedEvents, selectedEvents } = useEventSelection();
 
-  const editorStyle = cx([style.eventEditor, eventsToEdit.size > 1 || eventsToEdit.size === 0 ? style.noEvent : null]);
-  const removeOpenEvent = () => clearEventsToEdit();
+  const editorStyle = cx([
+    style.eventEditor,
+    selectedEvents.size > 1 || selectedEvents.size === 0 ? style.noEvent : null,
+  ]);
+  const removeOpenEvent = () => clearSelectedEvents();
 
   return (
     <div className={editorStyle}>

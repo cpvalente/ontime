@@ -12,7 +12,7 @@ import { useEventSelection } from '../../features/rundown/useEventSelection';
 import style from './RundownMenu.module.scss';
 
 const RundownMenu = () => {
-  const { clearEventsToEdit } = useEventSelection();
+  const { clearSelectedEvents } = useEventSelection();
 
   const { addEvent, deleteAllEvents } = useEventAction();
 
@@ -30,9 +30,9 @@ const RundownMenu = () => {
 
   const deleteAll = useCallback(() => {
     deleteAllEvents();
-    clearEventsToEdit();
+    clearSelectedEvents();
     // setCursor(null);
-  }, [deleteAllEvents, clearEventsToEdit]);
+  }, [deleteAllEvents, clearSelectedEvents]);
 
   return (
     <div className={style.headerButtons}>

@@ -200,6 +200,9 @@ export const useEventAction = () => {
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
+    onError: (_error, _newEvent, context) => {
+      queryClient.setQueryData(RUNDOWN, context?.previousEvents);
+    },
     networkMode: 'always',
   });
 
