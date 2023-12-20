@@ -1,36 +1,34 @@
 import { isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { create } from 'zustand';
 
-type EditMode = 'shift' | 'click' | 'ctrl';
+export type EditMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
-  editMode: EditMode;
-  eventsToEdit: Set<string>;
+  selectedEvents: Set<string>;
   anchoredIndex: number | null;
-  setEditMode: (mode: EditMode) => void;
-  setEventsToEdit: (id: string, index: number, rundown: OntimeRundown) => void;
-  clearEventsToEdit: () => void;
+  setSelectedEvents: (selectionArgs: { id: string; index: number; rundown: OntimeRundown; editMode: EditMode }) => void;
+  clearSelectedEvents: () => void;
 }
 
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
-  editMode: 'click',
-  eventsToEdit: new Set(),
+  selectedEvents: new Set(),
   anchoredIndex: null,
-  setEditMode: (mode) => set({ editMode: mode }),
-  setEventsToEdit: (id, indexPlusOne, rundown) => {
-    // indexes coming from rundown are not 0 based
-    const index = indexPlusOne - 1;
-    const { editMode, eventsToEdit, anchoredIndex } = get();
+  setSelectedEvents: (selectionArgs) => {
+    const { id, index: eventIndex, rundown, editMode } = selectionArgs;
+    // event indexes are not 0 based
+    const index = eventIndex - 1;
+
+    const { selectedEvents, anchoredIndex } = get();
 
     if (editMode === 'click') {
-      return set({ eventsToEdit: new Set([id]), anchoredIndex: index });
+      return set({ selectedEvents: new Set([id]), anchoredIndex: index });
     }
 
     if (editMode === 'ctrl') {
-      if (eventsToEdit.has(id)) {
+      if (selectedEvents.has(id)) {
         const eventIds = rundown.reduce(
           (newRundown, event, i) => {
-            if (isOntimeEvent(event) && eventsToEdit.has(id)) {
+            if (isOntimeEvent(event) && selectedEvents.has(id)) {
               return newRundown.concat({ id: event.id, index: i });
             }
 
@@ -43,16 +41,16 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
         // if unavailable, then grab the last index of events
         const newAnchoredIndex = eventIds.find(({ index: eventIndex }) => eventIndex > index) ?? eventIds.at(-1);
 
-        eventsToEdit.delete(id);
+        selectedEvents.delete(id);
 
         return set({
-          eventsToEdit: eventsToEdit,
+          selectedEvents: selectedEvents,
           anchoredIndex: newAnchoredIndex?.index ?? 0,
         });
       }
 
       return set({
-        eventsToEdit: eventsToEdit.add(id),
+        selectedEvents: selectedEvents.add(id),
         anchoredIndex: index,
       });
     }
@@ -61,27 +59,27 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       const eventIds = rundown.filter(isOntimeEvent);
 
       if (anchoredIndex === null) {
-        const eventsUntilIndex = eventIds.slice(0, indexPlusOne).map((event) => event.id);
+        const eventsUntilIndex = eventIds.slice(0, eventIndex).map((event) => event.id);
 
-        return set({ eventsToEdit: new Set(eventsUntilIndex), anchoredIndex: index });
+        return set({ selectedEvents: new Set(eventsUntilIndex), anchoredIndex: index });
       }
 
       if (anchoredIndex > index) {
         const eventsFromIndex = eventIds.slice(index, anchoredIndex + 1).map((event) => event.id);
 
         return set({
-          eventsToEdit: new Set([...eventsToEdit, ...eventsFromIndex]),
+          selectedEvents: new Set([...selectedEvents, ...eventsFromIndex]),
           anchoredIndex: index,
         });
       }
 
-      const eventsUntilIndex = eventIds.slice(anchoredIndex, indexPlusOne).map((event) => event.id);
+      const eventsUntilIndex = eventIds.slice(anchoredIndex, eventIndex).map((event) => event.id);
 
       return set({
-        eventsToEdit: new Set([...eventsToEdit, ...eventsUntilIndex]),
+        selectedEvents: new Set([...selectedEvents, ...eventsUntilIndex]),
         anchoredIndex: index,
       });
     }
   },
-  clearEventsToEdit: () => set({ eventsToEdit: new Set() }),
+  clearSelectedEvents: () => set({ selectedEvents: new Set() }),
 }));
