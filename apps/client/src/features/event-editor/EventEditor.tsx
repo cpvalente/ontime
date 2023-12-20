@@ -16,7 +16,7 @@ export type EventEditorSubmitActions = keyof OntimeEvent;
 export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
 
 export default function EventEditor() {
-  const { eventsToEdit } = useEventSelection();
+  const eventsToEdit = useEventSelection((state) => state.eventsToEdit);
   const { data } = useRundown();
   const { updateEvent } = useEventAction();
 
