@@ -231,6 +231,13 @@ export default function EventBlock(props: EventBlockProps) {
   const handleFocusClick = (event: MouseEvent) => {
     event.stopPropagation();
 
+    // event.button === 2 is a right-click
+    // disable selection if the user selected events and right clicks
+    // so the context menu shows up
+    if (selectedEvents.size > 1 && event.button === 2) {
+      return;
+    }
+
     const editMode = getEditMode(event);
     return setSelectedEvents({ id: eventId, index: eventIndex, rundown, editMode });
 
