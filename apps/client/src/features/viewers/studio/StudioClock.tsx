@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
-import { Playback, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, Playback } from 'ontime-types';
 import { formatDisplay } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -15,7 +15,7 @@ import { secondsInMillis } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 
-import { type ScheduleEvent, formatEventList, trimRundown } from './studioClock.utils';
+import { trimRundown } from './studioClock.utils';
 
 import './StudioClock.scss';
 
@@ -43,10 +43,10 @@ export default function StudioClock(props: StudioClockProps) {
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
 
-  const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
-
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
+
+  // TODO: fit titles on screen
   const MAX_TITLES = 12;
 
   const [searchParams] = useSearchParams();
@@ -58,27 +58,15 @@ export default function StudioClock(props: StudioClockProps) {
     document.title = 'ontime - Studio Clock';
   }, []);
 
-  // Prepare event list
-  useEffect(() => {
-    if (!backstageEvents) {
-      return;
-    }
-
-    const delayed = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
-    const trimmed = trimRundown(delayed as OntimeEvent[], selectedId || '', MAX_TITLES);
-
-    const formatted = formatEventList(trimmed, selectedId || '', nextId || '', {
-      showEnd: false,
-    });
-    setSchedule(formatted);
-  }, [backstageEvents, nextId, selectedId]);
-
   const clock = formatTime(time.clock, formatOptions);
   const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
   const isPaused = time.playback === Playback.Pause;
 
   const studioClockOptions = getStudioClockOptions(settings?.timeFormat ?? '24');
+
+  const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
+  const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
@@ -137,15 +125,18 @@ export default function StudioClock(props: StudioClockProps) {
         </div>
         <div className='schedule'>
           <ul>
-            {schedule.map((s) => (
-              <li key={s.id} className={s.isNow ? 'now' : s.isNext ? 'next' : ''}>
-                <div className='user-colour' style={{ backgroundColor: `${s.colour !== '' ? s.colour : ''}` }} />
-                <span className='time-warp'>
-                  <span className='time'>{s.time}&nbsp;</span>
-                </span>
-                <span className='title'>{s.title}</span>
-              </li>
-            ))}
+            {trimmedRundown.map((event) => {
+              const start = formatTime(event.timeStart + (event?.delay ?? 0));
+              const isSelected = event.id === selectedId;
+              const isNext = event.id === nextId;
+              return (
+                <li key={event.id} className={isSelected ? 'now' : isNext ? 'next' : ''}>
+                  <div className='user-colour' style={{ backgroundColor: `${event.colour}` }} />
+                  <span className='time'>{start}</span>
+                  <span className='title'>{event.title}</span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
