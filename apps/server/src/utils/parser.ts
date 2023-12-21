@@ -21,10 +21,11 @@ import {
 
 import fs from 'fs';
 import xlsx from 'node-xlsx';
+import path from 'path';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { deleteFile, makeString } from './parserUtils.js';
+import { makeString } from './parserUtils.js';
 import {
   parseAliases,
   parseProject,
@@ -36,6 +37,7 @@ import {
   parseViewSettings,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
+import { configService } from '../services/ConfigService.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -350,6 +352,8 @@ type ResponseOK = {
 export const fileHandler = async (file: string, options: ExcelImportOptions): Promise<Partial<ResponseOK>> => {
   const res: Partial<ResponseOK> = {};
 
+  const fileName = path.basename(file);
+
   // check which file type are we dealing with
   if (file.endsWith('.xlsx')) {
     // we need to check that the options are applicable
@@ -374,6 +378,9 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     }
     res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
+
+    await configService.updateDatabaseConfig(fileName);
+
     return res;
   }
 
@@ -385,8 +392,8 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     uploadedJson = JSON.parse(rawdata);
     res.data = await parseJson(uploadedJson);
 
-    // delete file
-    await deleteFile(file);
+    await configService.updateDatabaseConfig(fileName);
+
     return res;
   }
 };
