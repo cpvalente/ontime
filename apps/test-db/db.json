@@ -99,7 +99,7 @@
   },
   "settings": {
     "app": "ontime",
-    "version": "3.0.0-alpha",
+    "version": "2.21.3",
     "serverPort": 4001,
     "editorKey": null,
     "operatorKey": null,
@@ -120,6 +120,11 @@
       "enabled": true,
       "alias": "test",
       "pathAndParams": "lower?bg=ff2&text=f00&size=0.6&transition=5"
+    },
+    {
+      "enabled": true,
+      "alias": "testing",
+      "pathAndParams": "countdown"
     }
   ],
   "userFields": {
