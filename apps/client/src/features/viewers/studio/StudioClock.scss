@@ -13,7 +13,7 @@ $half-hours: min(1.5vh, 10px);
 $size-min: min(2.5vh, 18px);
 $half-min: min(1.25vh, 9px);
 $red-active: #c53030;
-$red-idle: #000000;
+$red-idle: #300000;
 $cyan-active: #0ff;
 $cyan-idle: #0aa;
 
@@ -109,7 +109,8 @@ $cyan-idle: #0aa;
       line-height: 1em;
 
       &--overtime {
-        color: darken($red-active, 10%);
+        color: var(--studio-active, $red-active);
+        filter: brightness(0.9);
       }
     }
 
@@ -133,7 +134,7 @@ $cyan-idle: #0aa;
       color: var(--studio-active, $red-active);
 
       &--idle {
-        color: var(--studio-idle, $red-active);
+        color: var(--studio-idle, $red-idle);
       }
     }
 
