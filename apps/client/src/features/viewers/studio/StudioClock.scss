@@ -10,9 +10,9 @@
 
 /* =============== CLOCK STUFF ==================*/
 
-$size-hours: clamp(12px, 2.5vw, 20px);
+$size-hours: clamp(12px, 2.5vw, 22px);
 $half-hours: calc($size-hours / 2);
-$size-min: clamp(10px, 2vw, 16px);
+$size-min: clamp(10px, 2vw, 18px);
 $half-min: calc($size-min / 2);
 
 $red-active: $red-700;
