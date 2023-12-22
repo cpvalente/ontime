@@ -109,7 +109,8 @@ $cyan-idle: #0aa;
       line-height: 1em;
 
       &--overtime {
-        color: darken($red-active, 10%);
+        color: var(--studio-active, $red-active);
+        filter: brightness(0.9);
       }
     }
 
@@ -133,7 +134,7 @@ $cyan-idle: #0aa;
       color: var(--studio-active, $red-active);
 
       &--idle {
-        color: var(--studio-idle, $red-active);
+        color: var(--studio-idle, $red-idle);
       }
     }
 
