@@ -12,7 +12,6 @@ import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
-import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 
 import { trimRundown } from './studioClock.utils';
@@ -47,7 +46,7 @@ export default function StudioClock(props: StudioClockProps) {
   const secondsIndicators = [...Array(60).keys()];
 
   // TODO: fit titles on screen
-  const MAX_TITLES = 12;
+  const MAX_TITLES = 11;
 
   const [searchParams] = useSearchParams();
   const showSeconds = searchParams.get('seconds');
@@ -83,17 +82,13 @@ export default function StudioClock(props: StudioClockProps) {
         >
           {eventNext?.title ?? '---'}
         </div>
-        <div className='next-countdown-warp'>
-          <div
-            className={cx([
-              'next-countdown',
-              isNegative ? ' next-countdown--overtime' : '',
-              isPaused ? ' next-countdown--paused' : '',
-            ])}
-          >
-            {isNegative ? '-' : '!'}
-            {formatDisplay(time.current)}
-          </div>
+        <div
+          className={`
+            next-countdown ${isNegative ? ' next-countdown--overtime' : ''} ${isPaused ? ' next-countdown--paused' : ''}
+          `}
+        >
+          {isNegative ? '-' : '!'}
+          {formatDisplay(time.current)}
         </div>
         <div className='clock-indicators'>
           {activeIndicators.map((i) => (
@@ -123,22 +118,21 @@ export default function StudioClock(props: StudioClockProps) {
         >
           ON AIR
         </div>
-        <div className='schedule'>
-          <ul>
-            {trimmedRundown.map((event) => {
-              const start = formatTime(event.timeStart + (event?.delay ?? 0));
-              const isSelected = event.id === selectedId;
-              const isNext = event.id === nextId;
-              return (
-                <li key={event.id} className={isSelected ? 'now' : isNext ? 'next' : ''}>
-                  <div className='user-colour' style={{ backgroundColor: `${event.colour}` }} />
-                  <span className='time'>{start}</span>
-                  <span className='title'>{event.title}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <ul className='schedule'>
+          {trimmedRundown.map((event) => {
+            const start = formatTime(event.timeStart + (event?.delay ?? 0));
+            const isSelected = event.id === selectedId;
+            const isNext = event.id === nextId;
+            const classes = `schedule__item schedule__item${isSelected ? '--now' : isNext ? '--next' : '--future'}`;
+            return (
+              <li key={event.id} className={classes}>
+                <span className='user-colour' style={{ backgroundColor: `${event.colour}` }} />
+                <span>{start}</span>
+                <span>{event.title}</span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
   );
