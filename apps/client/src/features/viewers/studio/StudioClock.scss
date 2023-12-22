@@ -23,11 +23,9 @@ $cyan-idle: #0aa;
 
 $orange-active: #f60;
 
-$backlight: $gray-1350;
-
 .studio-clock {
   --clock-size: min(90vh, 90vw);
-  --size-hours-gap: #{ calc($size-hours * 1.5) };
+  --size-hours-gap: #{calc($size-hours * 1.5)};
   --half-size: calc(var(--clock-size) / 2);
   --smaller-half-size: calc(var(--half-size) - var(--size-hours-gap));
 
@@ -105,8 +103,8 @@ $backlight: $gray-1350;
 
   .studio-timer::before {
     content: '88:88';
-    mix-blend-mode: lighten;
-    color: $backlight;
+    mix-blend-mode: hard-light;
+    opacity: 0.1;
     position: absolute;
   }
 }
@@ -147,7 +145,7 @@ $backlight: $gray-1350;
   color: var(--studio-active, $red-active);
 
   &--idle {
-    color: $backlight; // TODO: CSS VAR?
+    color: var(--studio-idle, $red-idle);
   }
 }
 
