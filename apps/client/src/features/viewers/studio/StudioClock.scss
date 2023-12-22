@@ -53,79 +53,79 @@ $backlight: $gray-1350;
   height: 100%;
   position: relative;
   font-family: seven-seg;
+}
 
-  .clock-indicators {
+.clock-indicators {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+
+  .min,
+  .hours {
+    border-radius: 50%;
     position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
+    background: var(--studio-idle, $red-idle);
 
-    .min,
-    .hours {
-      border-radius: 50%;
-      position: absolute;
-      background: var(--studio-idle, $red-idle);
-
-      &--active {
-        background: var(--studio-active, $red-active);
-      }
-    }
-
-    .min {
-      min-height: $size-min;
-      width: $size-min;
-      top: calc(50% - #{$half_min});
-      left: calc(50% - #{$half_min});
-    }
-
-    .hours {
-      min-height: $size-hours;
-      width: $size-hours;
-      top: calc(50% - #{$half_hours});
-      left: calc(50% - #{$half_hours});
+    &--active {
+      background: var(--studio-active, $red-active);
     }
   }
 
-  .studio-timer-warp {
-    font-size: calc(#{$clock-size} / 5);
-    line-height: 1em;
-
-    .studio-timer {
-      color: var(--studio-active, $red-active);
-
-      &--with-seconds {
-        font-size: calc(#{$clock-size} / 6.5);
-      }
-    }
-
-    .studio-timer::before {
-      content: '88:88';
-      mix-blend-mode: lighten;
-      color: $backlight;
-      position: absolute;
-    }
+  .min {
+    min-height: $size-min;
+    width: $size-min;
+    top: calc(50% - #{$half_min});
+    left: calc(50% - #{$half_min});
   }
 
-  .next-title {
-    font-family: monospace;
-    font-weight: 400;
-    color: var(--studio-active-label, $cyan-active);
-    font-size: calc(#{$clock-size} / 10);
-    text-align: center;
-    overflow: clip visible;
+  .hours {
+    min-height: $size-hours;
+    width: $size-hours;
+    top: calc(50% - #{$half_hours});
+    left: calc(50% - #{$half_hours});
   }
+}
 
-  .next-countdown {
+.studio-timer-warp {
+  font-size: calc(#{$clock-size} / 5);
+  line-height: 1em;
+
+  .studio-timer {
     color: var(--studio-active, $red-active);
-    font-size: calc(#{$clock-size} / 10);
-    line-height: 1em;
 
-    &--overtime {
-      color: var(--studio-active, $red-active);
+    &--with-seconds {
+      font-size: calc(#{$clock-size} / 6.5);
     }
-    &--paused {
-      color: var(--studio-active, $orange-active);
-    }
+  }
+
+  .studio-timer::before {
+    content: '88:88';
+    mix-blend-mode: lighten;
+    color: $backlight;
+    position: absolute;
+  }
+}
+
+.next-title {
+  font-family: monospace;
+  font-weight: 400;
+  color: var(--studio-active-label, $cyan-active);
+  font-size: calc(#{$clock-size} / 10);
+  text-align: center;
+  overflow: clip visible;
+}
+
+.next-countdown {
+  color: var(--studio-active, $red-active);
+  font-size: calc(#{$clock-size} / 10);
+  line-height: 1em;
+
+  &--overtime {
+    color: var(--studio-active, $red-active);
+  }
+  &--paused {
+    color: var(--studio-active, $orange-active);
   }
 }
 
