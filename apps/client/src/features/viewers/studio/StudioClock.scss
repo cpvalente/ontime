@@ -89,19 +89,17 @@ $orange-active: #f60;
   }
 }
 
-.studio-timer-warp {
+.studio-timer {
   font-size: calc(var(--clock-size) / 5);
   line-height: 1em;
 
-  .studio-timer {
-    color: var(--studio-active, $red-active);
+  color: var(--studio-active, $red-active);
 
-    &--with-seconds {
-      font-size: calc(var(--clock-size) / 6.5);
-    }
+  &--with-seconds {
+    font-size: calc(var(--clock-size) / 6.5);
   }
 
-  .studio-timer::before {
+  &::before {
     content: '88:88';
     mix-blend-mode: hard-light;
     opacity: 0.1;
