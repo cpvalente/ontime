@@ -96,7 +96,7 @@ export default function StudioClock(props: StudioClockProps) {
               key={i}
               className='hours hours--active'
               style={{
-                transform: `rotate(${(360 / 12) * i - 90}deg) translateX(40vh)`,
+                transform: `rotate(${(360 / 12) * i - 90}deg) translateX(var(--smaller-half-size))`,
               }}
             />
           ))}
@@ -105,7 +105,7 @@ export default function StudioClock(props: StudioClockProps) {
               key={i}
               className={i <= secondsNow ? 'min min--active' : 'min'}
               style={{
-                transform: `rotate(${(360 / 60) * i - 90}deg) translateX(43vh)`,
+                transform: `rotate(${(360 / 60) * i - 90}deg) translateX(var(--half-size))`,
               }}
             />
           ))}

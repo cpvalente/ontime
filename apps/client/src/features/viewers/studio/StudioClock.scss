@@ -10,11 +10,10 @@
 
 /* =============== CLOCK STUFF ==================*/
 
-$clock-size: 90vh;
-$size-hours: min(3vh, 20px);
-$half-hours: min(1.5vh, 10px);
-$size-min: min(2.5vh, 18px);
-$half-min: min(1.25vh, 9px);
+$size-hours: clamp(12px, 2.5vw, 20px);
+$half-hours: calc($size-hours / 2);
+$size-min: clamp(10px, 2vw, 16px);
+$half-min: calc($size-min / 2);
 
 $red-active: $red-700;
 $red-idle: $red-1350;
@@ -27,6 +26,11 @@ $orange-active: #f60;
 $backlight: $gray-1350;
 
 .studio-clock {
+  --clock-size: min(90vh, 90vw);
+  --size-hours-gap: #{ calc($size-hours * 1.5) };
+  --half-size: calc(var(--clock-size) / 2);
+  --smaller-half-size: calc(var(--half-size) - var(--size-hours-gap));
+
   overflow: hidden;
   width: 100%;
   height: 100vh;
@@ -36,9 +40,9 @@ $backlight: $gray-1350;
 
   display: grid;
   // we use vh since we are dealing with a square and the smaller dimension is the height
-  grid-template-columns: 95vh 1fr;
-  gap: 5vw;
-  grid-template-areas: 'clock schedule';
+  grid-template-columns: calc(var(--clock-size) + 5vw) 1fr;
+  gap: 2.5vw;
+  grid-template-areas: 'clock gap schedule';
   text-transform: uppercase;
 }
 
@@ -47,7 +51,7 @@ $backlight: $gray-1350;
   display: grid;
   place-content: center;
   justify-items: center;
-  padding-top: calc(50% - calc(#{$clock-size} / 2.5));
+  padding-top: 3em;
   gap: 0.5em;
   width: 100%;
   height: 100%;
@@ -88,14 +92,14 @@ $backlight: $gray-1350;
 }
 
 .studio-timer-warp {
-  font-size: calc(#{$clock-size} / 5);
+  font-size: calc(var(--clock-size) / 5);
   line-height: 1em;
 
   .studio-timer {
     color: var(--studio-active, $red-active);
 
     &--with-seconds {
-      font-size: calc(#{$clock-size} / 6.5);
+      font-size: calc(var(--clock-size) / 6.5);
     }
   }
 
@@ -111,14 +115,14 @@ $backlight: $gray-1350;
   font-family: monospace;
   font-weight: 400;
   color: var(--studio-active-label, $cyan-active);
-  font-size: calc(#{$clock-size} / 10);
+  font-size: calc(var(--clock-size) / 10);
   text-align: center;
   overflow: clip visible;
 }
 
 .next-countdown {
   color: var(--studio-active, $red-active);
-  font-size: calc(#{$clock-size} / 10);
+  font-size: calc(var(--clock-size) / 10);
   line-height: 1em;
 
   &--overtime {
@@ -132,6 +136,7 @@ $backlight: $gray-1350;
 .schedule-container {
   grid-area: schedule;
   font-family: monospace;
+  margin-right: 2vw;
 }
 
 .onAir {
@@ -158,6 +163,7 @@ $backlight: $gray-1350;
   padding-left: 0.25em;
   display: flex;
   align-items: center;
+
   gap: 0.25em;
 
   &--now {
