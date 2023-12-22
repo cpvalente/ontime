@@ -21,14 +21,13 @@ import { OntimeRundown, ProjectData, SheetState, UserFields } from 'ontime-types
 import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
 import {
-  getSheetState,
   getSheetsAuthUrl,
+  getSheetState,
   patchData,
   postPreviewSheet,
   postPushSheet,
   uploadSheetClientFile,
 } from '../../../common/api/ontimeApi';
-import useSheetState from '../../../common/hooks-query/useSheetState';
 import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { userFieldsPlaceholder } from '../../../common/models/UserFields';
 import ModalLink from '../ModalLink';
@@ -53,10 +52,6 @@ export default function SheetsModal(props: SheetsModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sheetRef = useRef<HTMLInputElement>(null);
   const worksheetRef = useRef<HTMLSelectElement>(null);
-  // const [sheetId, setSheetId] = useState<string | null>(null);
-  // const [worksheet, setWorksheet] = useState<string | null>(null);
-
-  // const { data: sheetState, refetch } = useSheetState(sheetId, worksheet);
 
   const [sheetState, setState] = useState<SheetState>({
     secret: false,
@@ -68,7 +63,6 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   //TODO: soulde the be a button like now or on change?
   const testId = async () => {
-    console.log('test', sheetRef.current?.value, worksheetRef.current?.value);
     setState(await getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? ''));
   };
 
@@ -95,14 +89,12 @@ export default function SheetsModal(props: SheetsModalProps) {
       // TODO: show this in the modal
       console.error(error);
     }
-    // refetch();
     setState(await getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? ''));
   };
 
   useEffect(() => {
     if (isOpen) {
       getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '').then((data) => setState(data));
-      // refetch();
     }
     return () => {
       // Alex: This function will be run when the component unmounts
@@ -195,7 +187,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                   accept='.json'
                   data-testid='file-input'
                 />
-                <Button size='sm' variant='ontime-ghosted-on-light' onClick={handleClick}>
+                <Button size='sm' variant='ontime-subtle-on-light' onClick={handleClick}>
                   Upload Client Secret
                 </Button>
               </Step>
@@ -208,7 +200,7 @@ export default function SheetsModal(props: SheetsModalProps) {
               >
                 <Button
                   size='sm'
-                  variant='ontime-ghosted-on-light'
+                  variant='ontime-subtle-on-light'
                   onClick={handleAuthenticate}
                   disabled={!sheetState?.secret}
                 >
@@ -228,7 +220,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                     disabled={!sheetState?.auth}
                   />
                 </label>
-                <Button variant='ontime-filled' padding='0 2em' onClick={testId}>
+                <Button variant='ontime-subtle-on-light' padding='0 2em' onClick={testId}>
                   Test Sheet ID
                 </Button>
               </Step>
@@ -255,7 +247,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                 <div style={{ display: 'flex', gap: '1em' }}>
                   <Button
                     disabled={!sheetState?.worksheet}
-                    variant='ontime-ghosted-on-light'
+                    variant='ontime-subtle-on-light'
                     padding='0 2em'
                     onClick={handlePushData}
                   >
@@ -263,7 +255,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                   </Button>
                   <Button
                     disabled={!sheetState?.worksheet}
-                    variant='ontime-ghosted-on-light'
+                    variant='ontime-subtle-on-light'
                     padding='0 2em'
                     onClick={handlePullData}
                   >
@@ -281,7 +273,7 @@ export default function SheetsModal(props: SheetsModalProps) {
           )}
         </ModalBody>
         <ModalFooter>
-          <Button variant='ontime-ghost-on-light'>Reset</Button>
+          <Button variant='ontime-subtle-on-light'>Reset</Button>
           {rundown && (
             <Button variant='ontime-filled' padding='0 2em' onClick={handleFinalise}>
               Import
