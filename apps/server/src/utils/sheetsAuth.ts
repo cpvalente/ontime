@@ -29,7 +29,7 @@ class sheet {
   constructor() {
     const appDataPath = getAppDataPath();
     if (appDataPath === '') {
-      throw new Error('Could not resolve sheet folser');
+      throw new Error('Sheet: Could not resolve sheet folser');
     }
     this.sheetsFolder = join(appDataPath, 'sheets');
     this.clientSecretFile = join(this.sheetsFolder, 'client_secret.json');
@@ -99,7 +99,9 @@ class sheet {
   }
 
   /**
-   * push sheet
+   * push rundown and project data to sheet
+   * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
+   * @param {string} worksheet - the name of the worksheet containing ontime data
    * @throws
    */
   public async push(id: string, worksheet: string) {
@@ -166,17 +168,19 @@ class sheet {
       });
 
       if (writeResponds.status == 200) {
-        logger.info(LogOrigin.Server, `Sheet write: ${writeResponds.statusText}`);
+        logger.info(LogOrigin.Server, `Sheet: write: ${writeResponds.statusText}`);
       } else {
-        throw new Error(`Sheet write faild: ${writeResponds.statusText}`);
+        throw new Error(`Sheet: write faild: ${writeResponds.statusText}`);
       }
     } else {
-      throw new Error(`Sheet read faild: ${rq.statusText}`);
+      throw new Error(`Sheet: read faild: ${rq.statusText}`);
     }
   }
 
   /**
-   * pull sheet
+   * pull rundown and project data to sheet
+   * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
+   * @param {string} worksheet - the name of the worksheet containing ontime data
    * @returns {Promise<Partial<ResponseOK>>}
    * @throws
    */
@@ -197,13 +201,13 @@ class sheet {
       const dataFromSheet = parseExcel(rq.data.values);
       res.data.rundown = parseRundown(dataFromSheet);
       if (res.data.rundown.length < 1) {
-        throw new Error(`Could not find data to import in the worksheet`);
+        throw new Error(`Sheet: Could not find data to import in the worksheet`);
       }
       res.data.project = parseProject(dataFromSheet);
       res.data.userFields = parseUserFields(dataFromSheet);
       return res;
     } else {
-      throw new Error(`Sheet read faild: ${rq.statusText}`);
+      throw new Error(`Sheet: read faild: ${rq.statusText}`);
     }
   }
 
@@ -225,7 +229,7 @@ class sheet {
       !('client_secret' in secrets['installed']) ||
       !('redirect_uris' in secrets['installed'])
     ) {
-      throw new Error('Sheet slient secret is missing some keys');
+      throw new Error('Sheet: Client secret is missing some keys');
     }
     await writeFile(this.clientSecretFile, JSON.stringify(secrets), 'utf-8').catch((err) =>
       logger.error(LogOrigin.Server, `${err}`),
@@ -236,11 +240,13 @@ class sheet {
   private authServerTimeout;
   /**
    * create local Auth Server
-   * @returns {Promise<string | false>} - returns url to serve on success
+   * @returns {Promise<string | null>} - returns url path serve on success
    * @throws
    */
   public async openAuthServer(): Promise<string | null> {
     //TODO: this only works on local networks
+
+    // if the server is allready running retun it
     if (sheet.authUrl) {
       clearTimeout(this.authServerTimeout);
       this.authServerTimeout = setTimeout(
@@ -253,17 +259,15 @@ class sheet {
       return sheet.authUrl;
     }
 
+    // Check that Secret is valid
     const keyFile = sheet.clientSecret;
     const keys = keyFile.installed || keyFile.web;
     if (!keys.redirect_uris || keys.redirect_uris.length === 0) {
-      logger.error(LogOrigin.Server, `${invalidRedirectUri}`);
-      return null;
+      throw new Error('Sheet: Missing redirect URI');
     }
-
-    // create an oAuth client to authorize the API call
     const redirectUri = new URL(keys.redirect_uris[0]);
     if (redirectUri.hostname !== 'localhost') {
-      throw new Error(invalidRedirectUri);
+      throw new Error('Sheet: Invalid redirect URI');
     }
 
     // create an oAuth client to authorize the API call
@@ -272,6 +276,7 @@ class sheet {
       clientSecret: keys.client_secret,
     });
 
+    // start the server that will recive the codes
     const server = http.createServer(async (req, res) => {
       try {
         const serverUrl = new URL(req.url, 'http://localhost:3000');
@@ -335,30 +340,5 @@ class sheet {
     return authorizeUrl;
   }
 }
-
-// Copyright 2020 Google LLC
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-//TODO: add modification notifications as requrirde by the license
-
-const invalidRedirectUri = `The provided keyfile does not define a valid
-redirect URI. There must be at least one redirect URI defined, and this sample
-assumes it redirects to 'http://localhost:3000/oauth2callback'.  Please edit
-your keyfile, and add a 'redirect_uris' section.  For example:
-
-"redirect_uris": [
-  "http://localhost:3000/oauth2callback"
-]
-`;
 
 export const Sheet = new sheet();
