@@ -78,7 +78,7 @@ export default function StudioClock(props: StudioClockProps) {
         <div
           ref={titleRef}
           className='next-title'
-          style={{ fontSize: titleFontSize, height: '10vh', width: '100%', maxWidth: '75%' }}
+          style={{ fontSize: titleFontSize, height: '12.5vh', width: '100%', maxWidth: '80%' }}
         >
           {eventNext?.title ?? '---'}
         </div>
@@ -87,7 +87,7 @@ export default function StudioClock(props: StudioClockProps) {
             next-countdown ${isNegative ? ' next-countdown--overtime' : ''} ${isPaused ? ' next-countdown--paused' : ''}
           `}
         >
-          {isNegative ? '-' : '!'}
+          {isNegative ? '-' : ''}
           {formatDisplay(time.current)}
         </div>
         <div className='clock-indicators'>

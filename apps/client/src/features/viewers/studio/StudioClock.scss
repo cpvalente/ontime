@@ -47,6 +47,8 @@ $backlight: $gray-1350;
   display: grid;
   place-content: center;
   justify-items: center;
+  padding-top: calc(50% - calc(#{$clock-size} / 2.5));
+  gap: 0.5em;
   width: 100%;
   height: 100%;
   position: relative;
@@ -86,15 +88,13 @@ $backlight: $gray-1350;
 
   .studio-timer-warp {
     font-size: calc(#{$clock-size} / 5);
-    margin-top: calc(50% - calc(#{$clock-size} / 4));
-    line-height: 0.8em;
+    line-height: 1em;
 
     .studio-timer {
       color: var(--studio-active, $red-active);
 
       &--with-seconds {
-        font-size: calc(#{$clock-size} / 4.6);
-        margin-top: calc(50% - calc(#{$clock-size} / 11));
+        font-size: calc(#{$clock-size} / 6.5);
       }
     }
 
@@ -111,7 +111,6 @@ $backlight: $gray-1350;
     font-weight: 400;
     color: var(--studio-active-label, $cyan-active);
     font-size: calc(#{$clock-size} / 10);
-    margin-top: 0.51em;
     text-align: center;
     overflow: clip visible;
   }
