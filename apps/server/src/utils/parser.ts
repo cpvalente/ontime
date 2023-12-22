@@ -277,9 +277,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
       } else if (j === subtitleIndex) {
         event.subtitle = makeString(column, '');
       } else if (j === isPublicIndex) {
-        event.isPublic = coerceBoolean(column);
+        event.isPublic = column == 'x' ? true : coerceBoolean(column);
       } else if (j === skipIndex) {
-        event.skip = coerceBoolean(column);
+        event.skip = column == 'x' ? true : coerceBoolean(column);
       } else if (j === notesIndex) {
         event.note = makeString(column, '');
       } else if (j === endActionIndex) {
