@@ -42,7 +42,7 @@ $backlight: $gray-1350;
   // we use vh since we are dealing with a square and the smaller dimension is the height
   grid-template-columns: calc(var(--clock-size) + 5vw) 1fr;
   gap: 2.5vw;
-  grid-template-areas: 'clock gap schedule';
+  grid-template-areas: 'clock schedule';
   text-transform: uppercase;
 }
 
