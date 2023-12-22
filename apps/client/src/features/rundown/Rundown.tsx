@@ -97,7 +97,7 @@ export default function Rundown(props: RundownProps) {
             if (entries.length < 1) {
               return;
             }
-            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor);
+            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor)?.nextEvent;
             if (nextEvent) {
               moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
             }
@@ -108,7 +108,7 @@ export default function Rundown(props: RundownProps) {
               return;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
-            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor);
+            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor).previousEvent;
             if (previousEvent) {
               moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
             }
@@ -140,18 +140,14 @@ export default function Rundown(props: RundownProps) {
           return;
         }
         if (event.code == 'ArrowDown') {
-          const nextEvent = getNext(entries, cursor);
-          if (nextEvent) {
-            const from = entries.findIndex((event) => event.id === cursor);
-            const to = entries.findIndex((event) => event.id === nextEvent.id);
-            reorderEvent(cursor, from, to);
+          const { nextEvent, nextIndex } = getNext(entries, cursor);
+          if (nextEvent && nextIndex !== null) {
+            reorderEvent(cursor, nextIndex - 1, nextIndex);
           }
         } else if (event.code == 'ArrowUp') {
-          const previousEvent = getPrevious(entries, cursor);
-          if (previousEvent) {
-            const from = entries.findIndex((event) => event.id === cursor);
-            const to = entries.findIndex((event) => event.id === previousEvent.id);
-            reorderEvent(cursor, from, to);
+          const { previousEvent, previousIndex } = getPrevious(entries, cursor);
+          if (previousEvent && previousIndex !== null) {
+            reorderEvent(cursor, previousIndex + 1, previousIndex);
           }
         }
       }
