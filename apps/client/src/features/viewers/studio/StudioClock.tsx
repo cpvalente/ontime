@@ -126,8 +126,10 @@ export default function StudioClock(props: StudioClockProps) {
             const classes = `schedule__item schedule__item${isSelected ? '--now' : isNext ? '--next' : '--future'}`;
             return (
               <li key={event.id} className={classes}>
-                <span className='user-colour' style={{ backgroundColor: `${event.colour}` }} />
-                <span>{start}</span>
+                <span className='event'>
+                  <span className='event__colour' style={{ backgroundColor: `${event.colour}` }} />
+                  <span>{start}</span>
+                </span>
                 <span>{event.title}</span>
               </li>
             );

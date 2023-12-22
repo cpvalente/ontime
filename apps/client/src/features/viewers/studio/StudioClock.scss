@@ -162,9 +162,8 @@ $backlight: $gray-1350;
   margin-bottom: 1.5vh;
   padding-left: 0.25em;
   display: flex;
-  align-items: center;
-
-  gap: 0.25em;
+  align-items: start;
+  gap: 0.5em;
 
   &--now {
     color: var(--studio-active-label, $red-active);
@@ -180,12 +179,18 @@ $backlight: $gray-1350;
   }
 }
 
-.user-colour {
-  width: 0.35em;
-  height: 0.35em;
-  aspect-ratio: 1;
-  border-radius: 0.35em;
-  background-color: var(--studio-idle, $red-idle);
+.event {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+
+  &__colour {
+    width: 0.35em;
+    height: 0.35em;
+    aspect-ratio: 1;
+    border-radius: 0.35em;
+    background-color: var(--studio-idle, $red-idle);
+  }
 }
 
 @media only screen and (max-width: 1200px) {
