@@ -1,5 +1,4 @@
-import { KeyboardEvent } from 'react';
-
+import { isKeyEnter } from '../../../common/utils/keyEvent';
 import { cx } from '../../../common/utils/styleUtils';
 import { settingPanels, SettingsOption, useSettingsStore } from '../settingsStore';
 
@@ -11,8 +10,6 @@ export default function PanelList() {
   const handleSelect = (panel: SettingsOption) => {
     setShowSettings(panel.id);
   };
-
-  const isKeyEnter = (event: KeyboardEvent<HTMLLIElement>) => event.key === 'Enter';
 
   return (
     <ul className={style.tabs}>
