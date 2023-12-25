@@ -1,4 +1,4 @@
-import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
@@ -13,6 +13,7 @@ import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
 import useFullscreen from '../../hooks/useFullscreen';
 import { useViewOptionsStore } from '../../stores/viewOptions';
+import { isKeyEnter } from '../../utils/keyEvent';
 
 import RenameClientModal from './rename-client-modal/RenameClientModal';
 
@@ -53,7 +54,6 @@ function NavigationMenu() {
     };
   }, []);
 
-  const isKeyEnter = (event: KeyboardEvent<HTMLDivElement>) => event.key === 'Enter';
   const handleFullscreen = () => toggleFullScreen();
   const handleMirror = () => toggleMirror();
 

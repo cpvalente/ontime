@@ -2,6 +2,7 @@ import { Button } from '@chakra-ui/react';
 
 import * as Panel from '../PanelUtils';
 
+import Upload from './upload/UploadArea';
 import ProjectList from './ProjectList';
 
 export default function ProjectPanel() {
@@ -9,7 +10,9 @@ export default function ProjectPanel() {
     <>
       <Panel.Header>Project</Panel.Header>
       <Panel.Section>
-        <Panel.Card>Upload</Panel.Card>
+        <Panel.Card>
+          <Upload />
+        </Panel.Card>
       </Panel.Section>
       <Panel.Section>
         <Panel.SubHeader>
