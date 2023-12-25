@@ -7,6 +7,7 @@ import withData from './features/viewers/ViewWrapper';
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
 const Operator = lazy(() => import('./features/operator/Operator'));
+const Table = lazy(() => import('./features/table/Table'));
 
 const TimerView = lazy(() => import('./features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
@@ -59,6 +60,7 @@ export default function AppRouter() {
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
         <Route path='/cuesheet' element={<Cuesheet />} />
+        <Route path='/table' element={<Table />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route

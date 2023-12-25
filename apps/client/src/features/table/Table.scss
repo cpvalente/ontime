@@ -1,0 +1,38 @@
+table {
+  color: white;
+  table-layout: fixed;
+}
+
+th {
+  border-width: 2px;
+  position: relative;
+}
+
+td {
+  border-width: 1px;
+
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.resizeHandle {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 5px;
+  background-color: aqua;
+  opacity: 0;
+}
+.resizeHandle.isResizing {
+  background-color: red;
+  opacity: 1;
+}
+th:hover > .resizeHandle {
+  opacity: 1;
+}
