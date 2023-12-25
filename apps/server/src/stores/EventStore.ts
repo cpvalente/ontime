@@ -1,4 +1,4 @@
-import { RuntimeStore } from 'ontime-types';
+import { Playback, RuntimeStore } from 'ontime-types';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
@@ -53,10 +53,10 @@ export const eventStore = {
  * Currently registered objects in store
  * - Timer Service      timer
  * - Timer Service      playback
+ * - Timer Service      onAir
  * - Message Service    timerMessage
  * - Message Service    publicMessage
  * - Message Service    lowerMessage
- * - Message Service    onAir
  * - Event Loader       loaded
  * - Event Loader       eventNow
  * - Event Loader       publicEventNow
@@ -67,11 +67,11 @@ export const eventStore = {
 export const getInitialPayload = () => ({
   timer: eventTimer.timer,
   playback: eventTimer.playback,
+  onAir: eventTimer.playback !== Playback.Stop,
   timerMessage: messageService.timerMessage,
   publicMessage: messageService.publicMessage,
   lowerMessage: messageService.lowerMessage,
   externalMessage: messageService.externalMessage,
-  onAir: messageService.onAir,
   loaded: eventLoader.loaded,
   eventNow: eventLoader.eventNow,
   publicEventNow: eventLoader.publicEventNow,

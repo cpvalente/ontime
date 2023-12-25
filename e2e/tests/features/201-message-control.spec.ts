@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('message control sends messages to screens', async ({ context }) => {
   const editorPage = await context.newPage();
@@ -32,12 +32,4 @@ test('message control sends messages to screens', async ({ context }) => {
   await featurePage.goto('http://localhost:4001/timer');
   await featurePage.waitForLoadState('load', { timeout: 5000 });
   await featurePage.getByText('testing stage').click();
-
-  // on air state
-  await editorPage.getByTestId('toggle on air').click();
-
-  await featurePage.goto('http://localhost:4001/studio');
-  await featurePage.getByText('ON AIR').click();
-  const onAirActive = await featurePage.locator('data-testid=on-air-enabled');
-  await expect(onAirActive).toHaveText(/on air/i);
 });
