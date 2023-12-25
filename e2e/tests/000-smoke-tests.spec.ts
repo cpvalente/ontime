@@ -80,7 +80,7 @@ test.describe('pages routes are available', () => {
       await page.screenshot({ path: 'automated-screenshots/countdown.png' });
 
       await page.getByRole('link', { name: '1. 10:00 → 10:20 | Albania' }).click();
-      await page.getByText('Start show').click();
+      await page.getByText('Albania').click();
       await page.screenshot({ path: 'automated-screenshots/countdown-2.png' });
     });
   });
