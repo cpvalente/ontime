@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+// TODO: can we replace the clicks with something else?
 test.describe('pages routes are available', () => {
   test.use({ viewport: { width: 1920, height: 1080 } });
   test.describe('main views', () => {
@@ -77,6 +78,10 @@ test.describe('pages routes are available', () => {
 
       await expect(page).toHaveTitle(/ontime/);
       await page.screenshot({ path: 'automated-screenshots/countdown.png' });
+
+      await page.getByRole('link', { name: '1. 20:45 → 20:45 | Start show' }).click();
+      await page.getByText('Start show').click();
+      await page.screenshot({ path: 'automated-screenshots/countdown-2.png' });
     });
   });
 
