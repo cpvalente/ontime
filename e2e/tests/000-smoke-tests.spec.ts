@@ -79,7 +79,7 @@ test.describe('pages routes are available', () => {
       await expect(page).toHaveTitle(/ontime/);
       await page.screenshot({ path: 'automated-screenshots/countdown.png' });
 
-      await page.getByRole('link', { name: '1. 20:45 → 20:45 | Start show' }).click();
+      await page.getByRole('link', { name: '1. 10:00 → 10:20 | Albania' }).click();
       await page.getByText('Start show').click();
       await page.screenshot({ path: 'automated-screenshots/countdown-2.png' });
     });
