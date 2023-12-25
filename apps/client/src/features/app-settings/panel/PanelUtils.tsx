@@ -21,3 +21,7 @@ export function Paragraph({ children }: { children: ReactNode }) {
 export function Card({ children }: { children: ReactNode }) {
   return <div className={style.card}>{children}</div>;
 }
+
+export function Table({ children }: { children: ReactNode }) {
+  return <table className={style.table}>{children}</table>;
+}
