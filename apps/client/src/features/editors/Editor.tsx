@@ -1,5 +1,4 @@
 import { lazy, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
