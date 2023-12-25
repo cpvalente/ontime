@@ -6,10 +6,10 @@ import { settingPanels, SettingsOption, useSettingsStore } from '../settingsStor
 import style from './PanelList.module.scss';
 
 export default function PanelList() {
-  const data = useSettingsStore();
+  const { showSettings, setShowSettings, hasUnsavedChanges } = useSettingsStore();
 
   const handleSelect = (panel: SettingsOption) => {
-    data.setShowSettings(panel.id);
+    setShowSettings(panel.id);
   };
 
   const isKeyEnter = (event: KeyboardEvent<HTMLLIElement>) => event.key === 'Enter';
@@ -17,13 +17,13 @@ export default function PanelList() {
   return (
     <ul className={style.tabs}>
       {settingPanels.map((panel) => {
-        const hasUnsavedChanges = Math.random() > 0.5;
+        const unsaved = hasUnsavedChanges(panel.id);
 
         const classes = cx([
           style.primary,
-          data.showSettings === panel.id ? style.active : null,
+          showSettings === panel.id ? style.active : null,
           panel.split ? style.split : null,
-          hasUnsavedChanges ? style.unsaved : null,
+          unsaved ? style.unsaved : null,
         ]);
 
         return (

@@ -9,11 +9,6 @@ import { useSettingsStore } from './settingsStore';
 
 import style from './AppSettings.module.scss';
 
-/**
- * TODO: make store to keep settings
- *       - whether a tab has unsaved changes
- */
-
 export default function AppSettings() {
   const setShowSettings = useSettingsStore((state) => state.setShowSettings);
   const selectedPanel = useSettingsStore((state) => state.showSettings);

@@ -44,34 +44,33 @@ const firstPanel = settingPanels[0].id;
 type SettingsStore = {
   showSettings: SettingsOptionId | null;
   setShowSettings: (panelId?: SettingsOptionId | null) => void;
-  hasUnsavedChanges: SettingsOptionId[];
+  unsavedChanges: SettingsOptionId[];
+  hasUnsavedChanges: (panelId: SettingsOptionId) => boolean;
   addUnsavedChanges: (panelId: SettingsOptionId) => void;
   removeUnsavedChanges: (panelId: SettingsOptionId) => void;
 };
 
-export const useSettingsStore = create<SettingsStore>((set) => ({
+export const useSettingsStore = create<SettingsStore>((set, get) => ({
   showSettings: null,
   setShowSettings: (panelId?: SettingsOptionId | null) => {
-    let newPanel = panelId === undefined ? firstPanel : panelId;
+    const newPanel = panelId === undefined ? firstPanel : panelId;
     set((state) => {
-      if (newPanel === state.showSettings) {
-        newPanel = null;
-      }
       return {
         ...state,
         showSettings: newPanel,
       };
     });
   },
-  hasUnsavedChanges: [],
+  unsavedChanges: [],
+  hasUnsavedChanges: (panelId: SettingsOptionId) => get().unsavedChanges.includes(panelId),
   addUnsavedChanges: (panelId: SettingsOptionId) =>
     set((state) => ({
       ...state,
-      hasUnsavedChanges: [...state.hasUnsavedChanges, panelId],
+      unsavedChanges: [...state.unsavedChanges, panelId],
     })),
   removeUnsavedChanges: (panelId: SettingsOptionId) =>
     set((state) => ({
       ...state,
-      hasUnsavedChanges: state.hasUnsavedChanges.filter((id) => id !== panelId),
+      unsavedChanges: state.unsavedChanges.filter((id) => id !== panelId),
     })),
 }));
