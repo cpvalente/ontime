@@ -107,8 +107,8 @@ export default function ViewSettingsForm() {
       </ModalSplitInput>
       <ModalSplitInput
         field='warningColor'
-        title='Warning Color'
-        description='Time (in minutes) when the timer moves to warning mode'
+        title='Warning Color Time'
+        description='Time when the timer moves to warning mode'
       >
         <TimeInput name='warningThreshold' submitHandler={handleTimeInput} time={data?.warningThreshold} />
       </ModalSplitInput>
@@ -117,12 +117,12 @@ export default function ViewSettingsForm() {
       </ModalSplitInput>
       <ModalSplitInput
         field='dangerThreshold'
-        title='Danger colour'
-        description='Time (in minutes) when the timer moves to danger mode'
+        title='Danger Color Time'
+        description='Time when the timer moves to danger mode'
       >
         <TimeInput name='dangerThreshold' submitHandler={handleTimeInput} time={data?.dangerThreshold} />
       </ModalSplitInput>
-      <ModalSplitInput field='dangerColor' title='Timer colour' description='Colour of timer in danger mode'>
+      <ModalSplitInput field='dangerColor' title='Danger Color' description='Colour of timer in danger mode'>
         <PopoverPickerRHF name='dangerColor' control={control} />
       </ModalSplitInput>
       <div style={{ height: '16px' }} />
