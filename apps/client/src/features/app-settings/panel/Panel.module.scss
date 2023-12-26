@@ -10,6 +10,7 @@
 
 .subheader {
   font-size: 1.25rem;
+  padding-bottom: 0.25rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -55,7 +56,8 @@
     color: $gray-400;
   }
 
-  th,td {
+  th,
+  td {
     padding: 0.5rem;
   }
 
