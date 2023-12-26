@@ -1,4 +1,5 @@
-import { Button } from '@chakra-ui/react';
+import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
 import * as Panel from '../PanelUtils';
 
@@ -55,7 +56,7 @@ export default function ProjectList() {
           <th>Project Name</th>
           <th>Date Created</th>
           <th>Date Modified</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -64,16 +65,8 @@ export default function ProjectList() {
           <td>Loaded Project</td>
           <td>{new Date().toLocaleString()}</td>
           <td>{new Date().toLocaleString()}</td>
-          <td className={style.buttonList}>
-            <Button variant='ontime-subtle' size='xs'>
-              LOAD
-            </Button>
-            <Button variant='ontime-subtle' size='xs'>
-              RENAME
-            </Button>
-            <Button size='xs' colorScheme='red'>
-              DELETE
-            </Button>
+          <td className={style.actionButton}>
+            <ActionMenu />
           </td>
         </tr>
         {data.map((project) => {
@@ -83,21 +76,33 @@ export default function ProjectList() {
               <td>{project.name}</td>
               <td>{project.dateCreated.toLocaleString()}</td>
               <td>{project.dateModified.toLocaleString()}</td>
-              <td className={style.buttonList}>
-                <Button variant='ontime-subtle' size='xs'>
-                  LOAD
-                </Button>
-                <Button variant='ontime-subtle' size='xs'>
-                  RENAME
-                </Button>
-                <Button size='xs' colorScheme='red'>
-                  DELETE
-                </Button>
+              <td className={style.actionButton}>
+                <ActionMenu />
               </td>
             </tr>
           );
         })}
       </tbody>
     </Panel.Table>
+  );
+}
+
+function ActionMenu() {
+  return (
+    <Menu variant='ontime-on-dark' size='sm'>
+      <MenuButton
+        as={IconButton}
+        aria-label='Options'
+        icon={<IoEllipsisHorizontal />}
+        variant='ontime-ghosted'
+        size='sm'
+      />
+      <MenuList>
+        <MenuItem>Load</MenuItem>
+        <MenuItem>Rename</MenuItem>
+        <MenuItem>Duplicate</MenuItem>
+        <MenuItem>Delete</MenuItem>
+      </MenuList>
+    </Menu>
   );
 }

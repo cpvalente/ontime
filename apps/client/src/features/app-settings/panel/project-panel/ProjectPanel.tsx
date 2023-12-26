@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/react';
 
 import * as Panel from '../PanelUtils';
 
-import Upload from './upload/UploadArea';
+import Upload from './upload/Upload';
 import ProjectList from './ProjectList';
 
 export default function ProjectPanel() {
