@@ -134,7 +134,7 @@ $orange-active: #f60;
     color: var(--studio-active, $red-active);
   }
   &--paused {
-    color: var(--studio-active, $orange-active);
+    color: var(--studio-overtime, $orange-active);
   }
 }
 
