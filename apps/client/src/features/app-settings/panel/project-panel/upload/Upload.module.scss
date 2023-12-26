@@ -1,0 +1,37 @@
+@use '../../../../../theme/ontimeColours' as *;
+@use '../../../../../theme/v2Styles' as *;
+
+.uploadArea {
+  margin: 0 auto;
+  width: 100%;
+  min-height: 150px;
+  border: 2px dashed $white-10;
+  border-radius: 3px;
+  text-align: center;
+
+  display: grid;
+  place-content: center;
+
+  transition-property: background-color, border, color;
+  transition-duration: $transition-time-action;
+
+  &:hover, &:focus {
+    background-color: $blue-800;
+    cursor: pointer;
+    color: $ui-white;
+  }
+}
+
+.main {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.secondary {
+  font-size: 1rem;
+  color: $gray-400;
+}
+
+.error {
+  color: $red-500;
+}
