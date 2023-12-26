@@ -107,6 +107,15 @@ $orange-active: #f60;
   }
 }
 
+.ampmIndicator {
+  font-family: monospace;
+  font-size: calc(var(--clock-size) / 20);
+  position: relative;
+  top: -2em;
+  margin-bottom: -2em;
+  color: var(--studio-active, $red-active);
+}
+
 .next-title {
   font-family: monospace;
   font-weight: 400;

@@ -12,7 +12,8 @@ import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, resolveTimeFormat } from '../../../common/utils/time';
+import { mth } from '../../../common/utils/timeConstants';
 
 import { trimRundown } from './studioClock.utils';
 
@@ -50,6 +51,7 @@ export default function StudioClock(props: StudioClockProps) {
 
   const [searchParams] = useSearchParams();
   const showSeconds = searchParams.get('seconds');
+  const timeFormat = resolveTimeFormat();
   formatOptions.showSeconds = Boolean(showSeconds);
   formatOptions.format = `hh:mm${formatOptions.showSeconds ? ':ss' : ''}`;
 
@@ -72,6 +74,7 @@ export default function StudioClock(props: StudioClockProps) {
       <NavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
+        {timeFormat == '12' && <div className='ampmIndicator'>{time.clock / (mth * 12) > 12 ? 'am' : 'pm'}</div>}
         <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
           ref={titleRef}
