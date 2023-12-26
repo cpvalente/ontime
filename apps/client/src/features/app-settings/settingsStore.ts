@@ -11,10 +11,7 @@ export const settingPanels: SettingsOption[] = [
   {
     id: 'project',
     label: 'Project',
-    secondary: [
-      { id: 'project__import', label: 'Import project file' },
-      { id: 'project__manage', label: 'Manage project files' },
-    ],
+    secondary: [{ id: 'project__manage', label: 'Manage project files' }],
   },
   { id: 'general', label: 'General' },
   { id: 'interface', label: 'Interface' },
