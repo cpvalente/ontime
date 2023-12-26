@@ -122,7 +122,7 @@ $orange-active: #f60;
   color: var(--studio-active-label, $cyan-active);
   font-size: calc(var(--clock-size) / 10);
   text-align: center;
-  overflow: clip visible;
+  overflow: clip hidden;
 }
 
 .next-countdown {
