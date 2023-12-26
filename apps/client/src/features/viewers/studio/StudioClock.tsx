@@ -14,6 +14,7 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
 import { formatTime, resolveTimeFormat } from '../../../common/utils/time';
 import { mth } from '../../../common/utils/timeConstants';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import { trimRundown } from './studioClock.utils';
 
@@ -68,13 +69,14 @@ export default function StudioClock(props: StudioClockProps) {
 
   const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
   const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
+  const isAm = time.clock / (mth * 12) > 12;
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
-        {timeFormat == '12' && <div className='ampmIndicator'>{time.clock / (mth * 12) > 12 ? 'am' : 'pm'}</div>}
+        {timeFormat == '12' && <div className='ampmIndicator'>{isAm ? 'am' : 'pm'}</div>}
         <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
           ref={titleRef}
@@ -129,7 +131,7 @@ export default function StudioClock(props: StudioClockProps) {
               <li key={event.id} className={classes}>
                 <span className='event'>
                   <span className='event__colour' style={{ backgroundColor: `${event.colour}` }} />
-                  <span>{start}</span>
+                  <SuperscriptTime time={start} />
                 </span>
                 <span>{event.title}</span>
               </li>
