@@ -401,4 +401,4 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeForma
   ];
 };
 
-export const getCountdownOptions = (timeFormat: TimeFormat): ParamField[] => [getTimeOption(timeFormat)];
+export const getCountdownOptions = (timeFormat: TimeFormat): ParamField[] => [getTimeOption(timeFormat), hideSeconds];

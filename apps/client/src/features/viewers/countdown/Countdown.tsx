@@ -10,6 +10,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
+import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
@@ -17,11 +18,6 @@ import { fetchTimerData, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
 
 import './Countdown.scss';
-
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
 
 const formatOptionsFinished = {
   showSeconds: false,
@@ -98,6 +94,12 @@ export default function Countdown(props: CountdownProps) {
   const isRunningFinished = finished && runningMessage === TimerMessage.running;
   const isSelected = runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
+
+  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
+  const formatOptions = {
+    showSeconds: !hideSeconds,
+    format: 'hh:mm:ss a',
+  };
 
   const clock = formatTime(time.clock, formatOptions);
   const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay, formatOptions);
