@@ -1,7 +1,7 @@
-@use '../../../../theme/v2Styles' as *;
+@use "../../../../theme/v2Styles" as *;
 
 $input-font-size: 15px;
-$input-delayed-border-color: #e69056;
+$input-delayed-border-color: #E69056;
 
 .timeInput {
   width: fit-content !important;
@@ -24,11 +24,11 @@ $input-delayed-border-color: #e69056;
 
   .warn {
     &::after {
-      content: '*';
+      content: "*";
       color: $warning-orange;
     }
   }
-  
+
   &.delayed {
     .inputField {
       border: 1px solid $input-delayed-border-color;

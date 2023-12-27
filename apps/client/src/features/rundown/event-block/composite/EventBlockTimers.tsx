@@ -1,12 +1,10 @@
 import { memo, useCallback, useState } from 'react';
-import { Tooltip } from '@chakra-ui/react';
 import { OntimeEvent } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import { cx } from '../../../../common/utils/styleUtils';
 import { TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
 
 import style from '../EventBlock.module.scss';
@@ -27,7 +25,6 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
   const { updateEvent } = useEventAction();
 
   const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
-  const [overlap, setOverlap] = useState<number>(timeStart - previousEnd);
 
   const handleSubmit = (field: TimeActions, value: number) => {
     const newEventData: Partial<OntimeEvent> = { id: eventId };
@@ -59,15 +56,17 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
    * @return {boolean}
    */
   const handleValidation = useCallback(
-    (field: TimeEntryField, value: number, proceeding: number) => {
-      const valid = validateEntry(field, value, timeStart, timeEnd, proceeding);
+    (field: TimeEntryField, value: number) => {
+      const valid = validateEntry(field, value, timeStart, timeEnd);
       setWarnings((prev) => ({ ...prev, ...valid.warnings }));
-      setOverlap(valid.overlap);
       return valid.value;
     },
     [timeEnd, timeStart],
   );
 
+  const delayedStart = Math.max(0, timeStart + delay);
+  const newTime = millisToString(delayedStart);
+  const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
 
   return (
     <div className={style.eventTimers}>
@@ -101,6 +100,13 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         previousEnd={previousEnd}
         warning={warning.duration}
       />
+      {delayTime && (
+        <div className={style.delayNote}>
+          {delayTime}
+          <br />
+          {`New start: ${newTime}`}
+        </div>
+      )}
     </div>
   );
 };

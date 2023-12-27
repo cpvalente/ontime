@@ -17,7 +17,7 @@ interface TimeInputProps {
   time?: number;
   delay?: number;
   placeholder: string;
-  validationHandler: (entry: TimeEntryField, val: number, proceeding: number) => boolean;
+  validationHandler: (entry: TimeEntryField, val: number) => boolean;
   previousEnd?: number;
   warning?: string;
 }
@@ -104,7 +104,7 @@ export default function TimeInput(props: TimeInputProps) {
       if (newValMillis === time) return false;
 
       // validate with parent
-      if (!validationHandler(name, newValMillis, previousEnd)) return false;
+      if (!validationHandler(name, newValMillis)) return false;
 
       // update entry
       submitHandler(name, newValMillis);

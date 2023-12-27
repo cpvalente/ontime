@@ -31,16 +31,14 @@ export const validateEntry = (
   value: number,
   timeStart: number,
   timeEnd: number,
-  proceeding: number,
-): { value: boolean; overlap: number; warnings: { start?: string; end?: string; duration?: string } } => {
-  const validate = { value: true, overlap: 0, warnings: { start: '', end: '', duration: '' } };
+): { value: boolean; warnings: { start?: string; end?: string; duration?: string } } => {
+  const validate = { value: true, warnings: { start: '', end: '', duration: '' } };
 
   const { start, end } = handleTimeEntry(field, value, timeStart, timeEnd);
 
   if (end < start) {
     validate.warnings.start = 'Start time later than end time';
   }
-  validate.overlap = proceeding - start;
 
   return validate;
 };
