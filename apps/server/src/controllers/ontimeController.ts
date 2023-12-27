@@ -463,7 +463,7 @@ export const postNew: RequestHandler = async (req, res) => {
  * @param req
  * @param res
  */
-export const listProjects: RequestHandler = async (_, res: Response<ProjectFileList | { message: string }>) => {
+export const listProjects: RequestHandler = (_, res: Response<ProjectFileList | { message: string }>) => {
   try {
     const uploadsFolderPath = join(getAppDataPath(), 'uploads');
     const fileList = getFileListFromFolder(uploadsFolderPath);
