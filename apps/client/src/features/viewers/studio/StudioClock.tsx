@@ -13,15 +13,11 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
+import { isStringBoolean } from '../../../common/utils/viewUtils';
 
 import { type ScheduleEvent, formatEventList, trimRundown } from './studioClock.utils';
 
 import './StudioClock.scss';
-
-const formatOptions = {
-  showSeconds: false,
-  format: 'hh:mm',
-};
 
 interface StudioClockProps {
   isMirrored: boolean;
@@ -49,9 +45,12 @@ export default function StudioClock(props: StudioClockProps) {
   const MAX_TITLES = 12;
 
   const [searchParams] = useSearchParams();
-  const showSeconds = searchParams.get('seconds');
-  formatOptions.showSeconds = Boolean(showSeconds);
-  formatOptions.format = `hh:mm${formatOptions.showSeconds ? ':ss' : ''}`;
+  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
+
+  const formatOptions = {
+    showSeconds: !hideSeconds,
+    format: 'hh:mm:ss',
+  };
 
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
@@ -83,7 +82,7 @@ export default function StudioClock(props: StudioClockProps) {
       <NavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
-        <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
+        <div className={`studio-timer ${formatOptions.showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
           ref={titleRef}
           className='next-title'

@@ -19,11 +19,6 @@ import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
 
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
-
 // motion
 const titleVariants = {
   hidden: {
@@ -72,6 +67,7 @@ export default function Timer(props: TimerProps) {
     hideCards: false,
     hideProgress: false,
     hideMessage: false,
+    hideSeconds: false,
   };
 
   const hideClock = searchParams.get('hideClock');
@@ -86,7 +82,13 @@ export default function Timer(props: TimerProps) {
   const hideMessage = searchParams.get('hideMessage');
   userOptions.hideMessage = isStringBoolean(hideMessage);
 
-  const clock = formatTime(time.clock, formatOptions);
+  const hideSeconds = searchParams.get('hideSeconds');
+  userOptions.hideSeconds = isStringBoolean(hideSeconds);
+  const clock = formatTime(time.clock, {
+    showSeconds: !userOptions.hideSeconds,
+    format: 'hh:mm:ss a',
+  });
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
