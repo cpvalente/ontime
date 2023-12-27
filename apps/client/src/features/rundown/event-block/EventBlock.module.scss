@@ -12,7 +12,7 @@ $skip-opacity: 0.1;
   grid-template-areas:
     'binder ...        ...     ...'
     'binder pb-actions times   actions'
-    'binder pb-actions title   next'
+    'binder pb-actions title   next-ind'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
 
@@ -124,35 +124,6 @@ $skip-opacity: 0.1;
     line-height: 0.8rem;
     color: $ontime-delay-text;
   }
-  .overlapNote {
-    font-size: 0.75rem;
-    line-height: 0.8rem;
-    color: $action-blue;
-  }
-  .spaceNote {
-    font-size: 0.75rem;
-    line-height: 0.8rem;
-    color: $error-red;
-  }
-  .indicator {
-    background-color: $black-20;
-    margin: 0 auto;
-    border-radius: 6px;
-    width: 12px;
-    height: 12px;
-  }
-  .indDelay {
-    background-color: $ontime-delay;
-  }
-  .indOverlap {
-    background-color: $violet-600;
-  }
-  .indSpacing {
-    background-color: $blue-600;
-  }
-  .indNextDay {
-    background-color: $gray-600;
-  }
 }
 
 .eventTitle {
@@ -210,7 +181,7 @@ $skip-opacity: 0.1;
 }
 
 .nextTag {
-  grid-area: next;
+  grid-area: next-ind;
   font-size: 1rem;
   color: $orange-500;
   letter-spacing: 0.03px;
@@ -219,27 +190,30 @@ $skip-opacity: 0.1;
 }
 
 .indicators {
-  grid-area: next;
-  display: grid;
-  grid-template-areas: 'ind1 ind2 ind3';
-  
+  grid-area: next-ind;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+
   .indicator {
     background-color: $black-20;
-    margin: 0 auto;
-    border-radius: 6px;
-    width: 12px;
-    height: 12px;
+    margin: 0.4rem;
+    margin-right: 0;
+    border-radius: 0.7rem;
+    width: 0.7rem;
+    height: 0.7rem;
   }
-  .indDelay {
+  .indicator.delay {
     background-color: $ontime-delay;
   }
-  .indOverlap {
+  .indicator.overlap {
     background-color: $violet-600;
   }
-  .indSpacing {
+  .indicator.spacing {
     background-color: $blue-600;
   }
-  .indNextDay {
+  .indicator.nextDay {
     background-color: $gray-600;
   }
 }

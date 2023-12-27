@@ -16,7 +16,6 @@ import { millisToString } from 'ontime-utils';
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
-import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
@@ -146,15 +145,13 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
               )
             }
           >
-            <div className={cx([style.indicator, delayTime ? style.indDelay : ''])} />
+            <div className={`${style.indicator} ${delayTime ? style.delay : ''}`} />
           </Tooltip>
           <Tooltip label={overlapTime}>
-            <div
-              className={cx([style.indicator, overlap > 0 ? style.indOverlap : overlap < 0 ? style.indSpacing : ''])}
-            />
+            <div className={`${style.indicator} ${overlap > 0 ? style.overlap : overlap < 0 ? style.spacing : ''}`} />
           </Tooltip>
-          <Tooltip label='//TODO:'>
-            <div className={cx([style.indicator, timeStart > timeEnd ? style.indNextDay : ''])} />
+          <Tooltip label='Start time is later than end'>
+            <div className={`${style.indicator} ${timeStart > timeEnd ? style.nextDay : ''}`} />
           </Tooltip>
         </span>
       )}
