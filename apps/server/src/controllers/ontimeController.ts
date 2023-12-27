@@ -481,9 +481,6 @@ export const listProjects: RequestHandler = async (_, res) => {
 export const loadProject: RequestHandler = async (req, res) => {
   try {
     const filename = req.body.filename;
-    if (!filename) {
-      return res.status(400).send({ message: 'Filename is required' });
-    }
 
     const uploadsFolderPath = join(getAppDataPath(), 'uploads');
     const filePath = join(uploadsFolderPath, filename);

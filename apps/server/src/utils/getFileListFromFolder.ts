@@ -1,13 +1,6 @@
-import fs from 'fs';
+import { readdirSync } from 'fs';
 
-export const getFileListFromFolder = async (folderPath): Promise<Array<string>> => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(folderPath, (err, files) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(files.map((file) => file.toString()));
-      }
-    });
-  });
+export const getFileListFromFolder = (folderPath: string): Array<string> => {
+  const files = readdirSync(folderPath);
+  return files.map((file) => file.toString());
 };
