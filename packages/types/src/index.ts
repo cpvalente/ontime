@@ -21,6 +21,7 @@ export type { Settings } from './definitions/core/Settings.type.js';
 
 // ---> Views
 export type { ViewSettings } from './definitions/core/Views.type.js';
+export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
 // ---> Aliases
 export type { Alias } from './definitions/core/Alias.type.js';
