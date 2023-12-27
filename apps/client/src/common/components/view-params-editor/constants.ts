@@ -1,9 +1,8 @@
-import { UserFields } from 'ontime-types';
-import { TimeFormat } from 'ontime-types/src/definitions/core/TimeFormat.type';
+import { TimeFormat, UserFields } from 'ontime-types';
 
 import { ParamField } from './types';
 
-export const getTimeOption = (timeFormat: TimeFormat): ParamField => ({
+const getTimeOption = (timeFormat: TimeFormat): ParamField => ({
   id: 'format',
   title: '12  / 24 hour timer',
   description: 'Whether to show the time in 12 or 24 hour mode. Overrides the global setting from preferences',

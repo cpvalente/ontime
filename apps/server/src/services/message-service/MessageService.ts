@@ -1,6 +1,5 @@
-import { Message } from 'ontime-types';
+import { Message, TimerMessage } from 'ontime-types';
 
-import { TimerMessage } from 'ontime-types/src/definitions/runtime/MessageControl.type.js';
 import { throttle } from '../../utils/throttle.js';
 
 import type { PublishFn } from '../../stores/EventStore.js';
