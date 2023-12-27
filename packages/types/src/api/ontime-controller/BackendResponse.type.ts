@@ -20,3 +20,7 @@ export type ProjectFile = {
 };
 
 export type ProjectFileList = Array<ProjectFile>;
+
+export type ErrorResponse = {
+  message: string;
+}

@@ -1,5 +1,13 @@
 import { LogOrigin } from 'ontime-types';
-import type { Alias, DatabaseModel, GetInfo, HttpSettings, ProjectData, ProjectFileList } from 'ontime-types';
+import type {
+  Alias,
+  DatabaseModel,
+  GetInfo,
+  HttpSettings,
+  ProjectData,
+  ProjectFileList,
+  ErrorResponse,
+} from 'ontime-types';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
@@ -463,7 +471,7 @@ export const postNew: RequestHandler = async (req, res) => {
  * @param req
  * @param res
  */
-export const listProjects: RequestHandler = (_, res: Response<ProjectFileList | { message: string }>) => {
+export const listProjects: RequestHandler = (_, res: Response<ProjectFileList | ErrorResponse>) => {
   try {
     const uploadsFolderPath = join(getAppDataPath(), 'uploads');
     const fileList = getFileListFromFolder(uploadsFolderPath);
