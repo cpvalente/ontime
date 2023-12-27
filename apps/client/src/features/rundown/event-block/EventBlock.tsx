@@ -50,6 +50,7 @@ interface EventBlockProps {
         },
   ) => void;
   disableEdit: boolean;
+  isFirstEvent: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -76,6 +77,7 @@ export default function EventBlock(props: EventBlockProps) {
     isRolling,
     actionHandler,
     disableEdit,
+    isFirstEvent,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const moveCursorTo = useAppMode((state) => state.setCursor);
@@ -210,6 +212,7 @@ export default function EventBlock(props: EventBlockProps) {
           isRolling={isRolling}
           actionHandler={actionHandler}
           disableEdit={disableEdit}
+          isFirstEvent={isFirstEvent}
         />
       )}
     </div>

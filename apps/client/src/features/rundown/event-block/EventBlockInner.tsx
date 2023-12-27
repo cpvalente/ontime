@@ -55,6 +55,7 @@ interface EventBlockInnerProps {
   isRolling: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
   disableEdit: boolean;
+  isFirstEvent: boolean;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -78,6 +79,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     isRolling,
     actionHandler,
     disableEdit,
+    isFirstEvent,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -110,12 +112,13 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
 
   const overlap = previousEnd - timeStart;
-  const overlapTime =
-    overlap > 0
+  const overlapTime = !isFirstEvent
+    ? overlap > 0
       ? `Overlapping ${millisToDelayString(overlap)}`
       : overlap < 0
       ? `Spacing ${millisToDelayString(overlap)}`
-      : null;
+      : null
+    : null;
 
   return !renderInner ? null : (
     <>
@@ -148,7 +151,11 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
             <div className={`${style.indicator} ${delayTime ? style.delay : ''}`} />
           </Tooltip>
           <Tooltip label={overlapTime}>
-            <div className={`${style.indicator} ${overlap > 0 ? style.overlap : overlap < 0 ? style.spacing : ''}`} />
+            <div
+              className={`${style.indicator} ${
+                overlap > 0 ? style.overlap : overlap < 0 && overlapTime !== null ? style.spacing : ''
+              }`}
+            />
           </Tooltip>
           <Tooltip label='Start time is later than end'>
             <div className={`${style.indicator} ${timeStart > timeEnd ? style.nextDay : ''}`} />
