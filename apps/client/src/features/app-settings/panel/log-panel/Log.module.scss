@@ -13,7 +13,6 @@ $info-hover: $section-white;
 }
 
 .logEntry {
-  padding: 0.5rem 0;
   display: flex;
 
   &.INFO {
@@ -51,8 +50,4 @@ $info-hover: $section-white;
   gap: 0.5rem;
   justify-content: flex-start;
   padding-bottom: 0.5rem;
-
-  :last-child {
-    margin-left: auto;
-  }
 }
