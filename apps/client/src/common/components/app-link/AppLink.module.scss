@@ -1,0 +1,13 @@
+@use "../../../theme/v2Styles" as *;
+@use "../../../theme/mixins" as *;
+
+.link {
+  @include action-link;
+  font-size: $inner-section-text-size;
+}
+
+.linkIcon {
+  margin-left: $element-inner-spacing;
+  display: inline-block;
+  transform: rotate(45deg);
+}
