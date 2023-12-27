@@ -123,6 +123,7 @@ $orange-active: #f60;
   font-size: calc(var(--clock-size) / 10);
   text-align: center;
   overflow: clip hidden;
+  white-space: nowrap;
 }
 
 .next-countdown {
@@ -169,6 +170,7 @@ $orange-active: #f60;
   display: flex;
   align-items: start;
   gap: 0.5em;
+  white-space: nowrap;
 
   &--now {
     color: var(--studio-active-label, $red-active);
