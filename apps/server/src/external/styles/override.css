@@ -23,6 +23,7 @@
     --studio-idle: #cfcfcf;
     --studio-active-label: #101010;
     --studio-idle-label: #595959;
+    --studio-overtime: #101010;
 }
 
 .timer {
