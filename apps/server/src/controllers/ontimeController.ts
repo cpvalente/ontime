@@ -1,16 +1,25 @@
 import { LogOrigin } from 'ontime-types';
-import type { Alias, DatabaseModel, GetInfo, HttpSettings, ProjectData } from 'ontime-types';
+import type {
+  Alias,
+  DatabaseModel,
+  GetInfo,
+  HttpSettings,
+  ProjectData,
+  ProjectFileList,
+  ErrorResponse,
+} from 'ontime-types';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
+import { join } from 'path';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { isDocker, resolveDbPath, resolveStylesPath } from '../setup.js';
+import { getAppDataPath, isDocker, resolveDbPath, resolveStylesPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
@@ -19,6 +28,7 @@ import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
+import { getFileListFromFolder } from '../utils/getFileListFromFolder.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -453,5 +463,46 @@ export const postNew: RequestHandler = async (req, res) => {
     res.status(201).send(newData);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Retrieves and lists all project files from the uploads directory.
+ * @param req
+ * @param res
+ */
+export const listProjects: RequestHandler = (_, res: Response<ProjectFileList | ErrorResponse>) => {
+  try {
+    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+    const fileList = getFileListFromFolder(uploadsFolderPath);
+    res.status(200).send(fileList);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Receives a `filename` from the request body and loads the project file from the uploads directory.
+ * @param req
+ * @param res
+ */
+export const loadProject: RequestHandler = async (req, res) => {
+  try {
+    const filename = req.body.filename;
+
+    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+    const filePath = join(uploadsFolderPath, filename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send({ message: 'File not found' });
+    }
+
+    await parseAndApply(filePath, req, res, {});
+
+    res.status(200).send({
+      message: `Loaded project ${filename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
   }
 };
