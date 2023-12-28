@@ -12,45 +12,55 @@ export function getFirst(rundown: OntimeRundownEntry[]) {
 /**
  * Gets first scheduled event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
- * @return {OntimeEvent | null}
+ * @return {{ firstEvent: OntimeEvent | null; firstIndex: number | null } }
  */
-export function getFirstEvent(rundown: OntimeRundownEntry[]) {
+export function getFirstEvent(rundown: OntimeRundownEntry[]): {
+  firstEvent: OntimeEvent | null;
+  firstIndex: number | null;
+} {
   for (let i = 0; i < rundown.length; i++) {
-    const event = rundown[i];
-    if (isOntimeEvent(event)) {
-      return event;
+    const firstEvent = rundown[i];
+    if (isOntimeEvent(firstEvent)) {
+      return { firstEvent, firstIndex: i };
     }
   }
-  return null;
+  return { firstEvent: null, firstIndex: null };
 }
 
-export function getLastEvent(rundown: OntimeRundown): OntimeEvent | null {
+export function getLastEvent(rundown: OntimeRundown): {
+  lastEvent: OntimeEvent | null;
+  lastIndex: number | null;
+} {
   if (rundown.length < 1) {
-    return null;
+    return { lastEvent: null, lastIndex: null };
   }
 
   for (let i = rundown.length - 1; i > 0; i--) {
-    const event = rundown.at(i);
-    if (isOntimeEvent(event)) {
-      return event;
+    const lastEvent = rundown.at(i);
+    if (isOntimeEvent(lastEvent)) {
+      return { lastEvent, lastIndex: i };
     }
   }
-
-  return null;
+  return { lastEvent: null, lastIndex: null };
 }
 
 /**
  * Gets next event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
  * @param {string} currentId
- * @return {OntimeRundownEntry | null}
+ * @return {{ nextEvent: OntimeRundownEntry | null; nextIndex: number | null } }
  */
-export function getNext(rundown: OntimeRundownEntry[], currentId: string): OntimeRundownEntry | null {
+export function getNext(
+  rundown: OntimeRundownEntry[],
+  currentId: string,
+): { nextEvent: OntimeRundownEntry | null; nextIndex: number | null } {
   const index = rundown.findIndex((event) => event.id === currentId);
   if (index !== -1 && index + 1 < rundown.length) {
-    return rundown[index + 1];
+    const nextIndex = index + 1;
+    const nextEvent = rundown[nextIndex];
+    return { nextEvent, nextIndex };
   } else {
-    return null;
+    return { nextEvent: null, nextIndex: null };
   }
 }
 
@@ -58,35 +68,43 @@ export function getNext(rundown: OntimeRundownEntry[], currentId: string): Ontim
  * Gets next scheduled event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
  * @param {string} currentId
- * @return {OntimeEvent | null}
+ * @return {{ nextEvent: OntimeEvent | null; nextIndex: number | null } }
  */
-export function getNextEvent(rundown: OntimeRundownEntry[], currentId: string): OntimeEvent | null {
+export function getNextEvent(
+  rundown: OntimeRundownEntry[],
+  currentId: string,
+): { nextEvent: OntimeEvent | null; nextIndex: number | null } {
   const index = rundown.findIndex((event) => event.id === currentId);
   if (index < 0) {
-    return null;
+    return { nextEvent: null, nextIndex: null };
   }
 
   for (let i = index + 1; i < rundown.length; i++) {
-    const event = rundown[i];
-    if (isOntimeEvent(event)) {
-      return event;
+    const nextEvent = rundown[i];
+    if (isOntimeEvent(nextEvent)) {
+      return { nextEvent, nextIndex: i };
     }
   }
-  return null;
+  return { nextEvent: null, nextIndex: null };
 }
 
 /**
  * Gets previous event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
  * @param {string} currentId
- * @return {OntimeRundownEntry | null}
+ * @return {{ previousEvent: OntimeRundownEntry | null; previousIndex: number | null } }
  */
-export function getPrevious(rundown: OntimeRundownEntry[], currentId: string) {
+export function getPrevious(
+  rundown: OntimeRundownEntry[],
+  currentId: string,
+): { previousEvent: OntimeRundownEntry | null; previousIndex: number | null } {
   const index = rundown.findIndex((event) => event.id === currentId);
   if (index !== -1 && index - 1 >= 0) {
-    return rundown[index - 1];
+    const previousIndex = index - 1;
+    const previousEvent = rundown[previousIndex];
+    return { previousEvent, previousIndex };
   } else {
-    return null;
+    return { previousEvent: null, previousIndex: null };
   }
 }
 
@@ -94,21 +112,23 @@ export function getPrevious(rundown: OntimeRundownEntry[], currentId: string) {
  * Gets previous scheduled event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
  * @param {string} currentId
- * @return {OntimeEvent | null}
+ * @return {{ previousEvent: OntimeRundownEntry | null; previousIndex: number | null } }
  */
-export function getPreviousEvent(rundown: OntimeRundownEntry[], currentId: string): OntimeEvent | null {
+export function getPreviousEvent(
+  rundown: OntimeRundownEntry[],
+  currentId: string,
+): { previousEvent: OntimeEvent | null; previousIndex: number | null } {
   const index = rundown.findIndex((event) => event.id === currentId);
   if (index < 0) {
-    return null;
+    return { previousEvent: null, previousIndex: null };
   }
-
   for (let i = index - 1; i >= 0; i--) {
-    const event = rundown[i];
-    if (isOntimeEvent(event)) {
-      return event;
+    const previousEvent = rundown[i];
+    if (isOntimeEvent(previousEvent)) {
+      return { previousEvent, previousIndex: i };
     }
   }
-  return null;
+  return { previousEvent: null, previousIndex: null };
 }
 
 /**

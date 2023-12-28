@@ -88,14 +88,16 @@ export default function Rundown(props: RundownProps) {
     (event: KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
-      // Check if the alt key is pressed
-      if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
+      // Check if the modifier combination
+      const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
+      const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
+      if (modKeysAlt) {
         switch (event.code) {
           case 'ArrowDown': {
             if (entries.length < 1) {
               return;
             }
-            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor);
+            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor)?.nextEvent;
             if (nextEvent) {
               moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
             }
@@ -106,7 +108,7 @@ export default function Rundown(props: RundownProps) {
               return;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
-            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor);
+            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor).previousEvent;
             if (previousEvent) {
               moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
             }
@@ -133,9 +135,24 @@ export default function Rundown(props: RundownProps) {
             break;
           }
         }
+      } else if (modKeysCtrlAlt) {
+        if (entries.length < 2 || cursor == null) {
+          return;
+        }
+        if (event.code == 'ArrowDown') {
+          const { nextEvent, nextIndex } = getNext(entries, cursor);
+          if (nextEvent && nextIndex !== null) {
+            reorderEvent(cursor, nextIndex - 1, nextIndex);
+          }
+        } else if (event.code == 'ArrowUp') {
+          const { previousEvent, previousIndex } = getPrevious(entries, cursor);
+          if (previousEvent && previousIndex !== null) {
+            reorderEvent(cursor, previousIndex + 1, previousIndex);
+          }
+        }
       }
     },
-    [cursor, entries, insertAtCursor, moveCursorTo],
+    [cursor, entries, insertAtCursor, moveCursorTo, reorderEvent],
   );
 
   // we copy the state from the store here
