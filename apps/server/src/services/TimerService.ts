@@ -79,6 +79,8 @@ export class TimerService {
       duration: null,
       timerType: null,
       endAction: null,
+      timeWarning: null,
+      timeDanger: null,
     };
     this.loadedTimerId = null;
     this.loadedTimerStart = null;
@@ -196,6 +198,8 @@ export class TimerService {
     this.timer.endAction = timer.endAction;
     this.pausedTime = 0;
     this.pausedAt = 0;
+    this.timer.timeWarning = timer.timeWarning;
+    this.timer.timeDanger = timer.timeDanger;
 
     this.timer.current = this.timer.duration;
     if (this.timer.timerType === TimerType.TimeToEnd) {
