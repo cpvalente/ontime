@@ -26,6 +26,8 @@ function ButtonInitial(name: TimeEntryField) {
   if (name === 'timeStart') return 'S';
   if (name === 'timeEnd') return 'E';
   if (name === 'durationOverride') return 'D';
+  if (name === 'timeWarning') return 'Wa';
+  if (name === 'timeDanger') return 'Da';
   return '';
 }
 
@@ -33,6 +35,8 @@ function ButtonTooltip(name: TimeEntryField, warning?: string) {
   if (name === 'timeStart') return `Start${warning ? `: ${warning}` : ''}`;
   if (name === 'timeEnd') return `End${warning ? `: ${warning}` : ''}`;
   if (name === 'durationOverride') return `Duration${warning ? `: ${warning}` : ''}`;
+  if (name === 'timeWarning') return `Warning${warning ? `: ${warning}` : ''}`;
+  if (name === 'timeDanger') return `Danger${warning ? `: ${warning}` : ''}`;
   return '';
 }
 
