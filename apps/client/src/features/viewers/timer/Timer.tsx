@@ -176,9 +176,9 @@ export default function Timer(props: TimerProps) {
           now={time.current}
           complete={totalTime}
           normalColor={viewSettings.normalColor}
-          warning={viewSettings.warningThreshold}
+          warning={eventNow?.timeWarning ?? 0}
           warningColor={viewSettings.warningColor}
-          danger={viewSettings.dangerThreshold}
+          danger={eventNow?.timeDanger ?? 0}
           dangerColor={viewSettings.dangerColor}
           hidden={!showProgress}
         />
