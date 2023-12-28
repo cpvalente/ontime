@@ -18,7 +18,7 @@ interface EventBlockTimerProps {
   previousEnd: number;
 }
 
-type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride';
+type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride' | 'timeWarning' | 'timeDanger';
 
 const EventBlockTimers = (props: EventBlockTimerProps) => {
   const { eventId, timeStart, timeEnd, duration, delay, previousEnd } = props;

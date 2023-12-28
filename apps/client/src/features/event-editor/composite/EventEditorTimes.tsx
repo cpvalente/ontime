@@ -20,13 +20,24 @@ interface EventEditorTimesProps {
   isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
+  timeWarning: number;
+  timeDanger: number;
 }
 
-type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride' | 'timerType' | 'endAction' | 'isPublic';
+type TimeActions =
+  | 'timeStart'
+  | 'timeEnd'
+  | 'durationOverride'
+  | 'timerType'
+  | 'endAction'
+  | 'isPublic'
+  | 'timeWarning'
+  | 'timeDanger';
 
 // Todo: add previous end to TimeInput fields
 const EventEditorTimes = (props: EventEditorTimesProps) => {
-  const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType } = props;
+  const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType, timeWarning, timeDanger } =
+    props;
   const { updateEvent } = useEventAction();
 
   const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
@@ -61,7 +72,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         break;
       }
       default: {
-        if (field === 'timerType' || field === 'endAction') {
+        if (field === 'timerType' || field === 'endAction' || field === 'timeWarning' || field === 'timeDanger') {
           // @ts-expect-error -- not sure how to typecheck here
           newEventData[field as keyof OntimeEvent] = value as string;
         } else {
@@ -118,6 +129,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           placeholder='Duration'
           warning={warning.duration}
         />
+        <span className={style.spacer} />
+        <label className={`${style.inputLabel} ${style.publicToggle}`}>
+          <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
+          Event is public
+        </label>
       </div>
       <div className={style.timeSettings}>
         <label className={style.inputLabel}>Timer Type</label>
@@ -146,11 +162,30 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <option value={EndAction.LoadNext}>Load Next</option>
           <option value={EndAction.PlayNext}>Play Next</option>
         </Select>
-        <span className={style.spacer} />
-        <label className={`${style.inputLabel} ${style.publicToggle}`}>
-          <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
-          Event is public
+        <label className={style.inputLabel} htmlFor='timeWarning'>
+          Warning Time
         </label>
+        <TimeInput
+          id='timeWarning'
+          name='timeWarning'
+          submitHandler={handleSubmit}
+          validationHandler={timerValidationHandler}
+          time={timeWarning}
+          placeholder='Duration'
+          warning={warning.duration}
+        />
+        <label className={style.inputLabel} htmlFor='timeDanger'>
+          Danger Time
+        </label>
+        <TimeInput
+          id='timeDanger'
+          name='timeDanger'
+          submitHandler={handleSubmit}
+          validationHandler={timerValidationHandler}
+          time={timeDanger}
+          placeholder='Duration'
+          warning={warning.duration}
+        />
       </div>
     </div>
   );

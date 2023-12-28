@@ -51,6 +51,6 @@ export type OntimeEvent = OntimeBaseEvent & {
   user9: string;
   revision: number;
   delay?: number; // calculated at runtime
-  timeWarning: number | null;
-  timeDanger: number | null;
+  timeWarning: number;
+  timeDanger: number;
 };
