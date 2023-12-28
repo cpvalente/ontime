@@ -158,6 +158,8 @@ export class TimerService {
     this.timer.endAction = timer.endAction;
     this.loadedTimerStart = timer.timeStart;
     this.loadedTimerEnd = timer.timeEnd;
+    this.timer.timeWarning = timer.timeWarning;
+    this.timer.timeDanger = timer.timeDanger;
 
     // this might not be ideal
     this.timer.finishedAt = null;
