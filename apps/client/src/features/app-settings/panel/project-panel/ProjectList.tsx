@@ -1,52 +1,13 @@
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
+import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 
 import style from './ProjectPanel.module.scss';
 
-type Project = {
-  name: string;
-  dateCreated: Date;
-  dateModified: Date;
-};
-
-// TODO: Data from endpoint
-const temp: Project[] = [
-  {
-    name: 'Project 1',
-    dateCreated: new Date('2021-01-01'),
-    dateModified: new Date('2021-01-01'),
-  },
-  {
-    name: 'Project 2',
-    dateCreated: new Date('2021-02-01'),
-    dateModified: new Date('2021-02-02'),
-  },
-  {
-    name: 'Project 3',
-    dateCreated: new Date('2021-03-01'),
-    dateModified: new Date('2021-03-03'),
-  },
-  {
-    name: 'Project 4',
-    dateCreated: new Date('2021-04-01'),
-    dateModified: new Date('2021-04-04'),
-  },
-  {
-    name: 'Project 5',
-    dateCreated: new Date('2021-05-01'),
-    dateModified: new Date('2021-05-05'),
-  },
-  {
-    name: 'Project 6',
-    dateCreated: new Date('2021-06-01'),
-    dateModified: new Date('2021-06-06'),
-  },
-];
-
 export default function ProjectList() {
-  const data = temp;
+  const { data } = useProjectList();
 
   return (
     <Panel.Table>
@@ -70,12 +31,14 @@ export default function ProjectList() {
           </td>
         </tr>
         {data.map((project) => {
+          const createdAt = new Date(project.createdAt).toLocaleString();
+          const updatedAt = new Date(project.updatedAt).toLocaleString();
           return (
-            <tr key={project.name}>
+            <tr key={project.filename}>
               <td></td>
-              <td>{project.name}</td>
-              <td>{project.dateCreated.toLocaleString()}</td>
-              <td>{project.dateModified.toLocaleString()}</td>
+              <td>{project.filename}</td>
+              <td>{createdAt}</td>
+              <td>{updatedAt}</td>
               <td className={style.actionButton}>
                 <ActionMenu />
               </td>

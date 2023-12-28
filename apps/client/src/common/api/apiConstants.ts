@@ -1,14 +1,15 @@
 // REST stuff
-export const PROJECT_DATA = ['project'];
 export const ALIASES = ['aliases'];
-export const USERFIELDS = ['userFields'];
-export const RUNDOWN = ['rundown'];
 export const APP_INFO = ['appinfo'];
-export const OSC_SETTINGS = ['oscSettings'];
-export const HTTP_SETTINGS = ['httpSettings'];
 export const APP_SETTINGS = ['appSettings'];
-export const VIEW_SETTINGS = ['viewSettings'];
+export const HTTP_SETTINGS = ['httpSettings'];
+export const OSC_SETTINGS = ['oscSettings'];
+export const PROJECT_DATA = ['project'];
+export const PROJECT_LIST = ['projectList'];
+export const RUNDOWN = ['rundown'];
 export const RUNTIME = ['runtimeStore'];
+export const USERFIELDS = ['userFields'];
+export const VIEW_SETTINGS = ['viewSettings'];
 
 const location = window.location;
 const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws';

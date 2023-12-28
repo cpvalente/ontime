@@ -9,11 +9,11 @@ export default function ProjectPanel() {
     <>
       <Panel.Header>Project</Panel.Header>
       <Panel.Section>
-        <Panel.SubHeader>
-          Manage projects
-          <Button variant='ontime-filled'>New</Button>
-        </Panel.SubHeader>
         <Panel.Card>
+          <Panel.SubHeader>
+            Manage projects
+            <Button variant='ontime-filled'>New</Button>
+          </Panel.SubHeader>
           <ProjectList />
         </Panel.Card>
       </Panel.Section>
