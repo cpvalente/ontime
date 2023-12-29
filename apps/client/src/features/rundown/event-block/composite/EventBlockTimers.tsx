@@ -2,7 +2,7 @@ import { memo, useCallback, useState } from 'react';
 import { OntimeEvent } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
 
-import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import { TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
@@ -70,7 +70,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
 
   return (
     <div className={style.eventTimers}>
-      <TimeInput
+      <TimeInputWithButton
         name='timeStart'
         submitHandler={handleSubmit}
         validationHandler={handleValidation}
@@ -80,7 +80,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         previousEnd={previousEnd}
         warning={warning.start}
       />
-      <TimeInput
+      <TimeInputWithButton
         name='timeEnd'
         submitHandler={handleSubmit}
         validationHandler={handleValidation}
@@ -90,7 +90,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         previousEnd={previousEnd}
         warning={warning.end}
       />
-      <TimeInput
+      <TimeInputWithButton
         name='durationOverride'
         submitHandler={handleSubmit}
         validationHandler={handleValidation}
