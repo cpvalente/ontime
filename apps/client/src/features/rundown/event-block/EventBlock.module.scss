@@ -54,8 +54,21 @@ $skip-opacity: 0.1;
   }
 
   &.past:not(.skip) {
-    opacity: 0.6;
+    .delayNote,
+    .statusElements,
+    .eventTitle,
+    .eventNote,
+    .eventTimers,
+    .eventStatus,
+    .playbackActions,
+    .binder {
+      opacity: 0.2;
+    }
   }
+
+  //   &.past:not(.skip) {
+  //     opacity: 0.6;
+  // }
 
   &.skip {
     border: 1px solid $white-3;
