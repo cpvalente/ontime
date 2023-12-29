@@ -6,9 +6,9 @@ interface MultiPartProgressBar {
   now: number | null;
   complete: number;
   normalColor: string;
-  warning: number;
+  warning: number | null;
   warningColor: string;
-  danger: number;
+  danger: number | null;
   dangerColor: string;
   hidden?: boolean;
   className?: string;
@@ -19,8 +19,8 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
 
   const percentComplete = 100 - clamp(100 - (Math.max(now ?? 0, 0) * 100) / complete, 0, 100);
 
-  const dangerWidth = clamp((danger / complete) * 100, 0, 100);
-  const warningWidth = clamp((warning / complete) * 100, 0, 100);
+  const dangerWidth = clamp(((danger || 0) / complete) * 100, 0, 100);
+  const warningWidth = clamp(((warning || 0) / complete) * 100, 0, 100);
 
   return (
     <div className={`multiprogress-bar ${hidden ? 'multiprogress-bar--hidden' : ''} ${className}`}>

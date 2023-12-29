@@ -14,9 +14,9 @@ export default function CuesheetProgress() {
       now={timer.current}
       complete={totalTime}
       normalColor={data!.normalColor}
-      warning={timer.timeWarning || 0}
+      warning={timer.timeWarning}
       warningColor={data!.warningColor}
-      danger={timer.timeDanger || 0}
+      danger={timer.timeDanger}
       dangerColor={data!.dangerColor}
       className={styles.progressOverride}
     />
