@@ -4,7 +4,7 @@ import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
-import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
+import TimeInputSimple from '../../../common/components/input/time-input/TimeInputSimple';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
@@ -95,7 +95,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={inputTimeLabels} htmlFor='timeStart'>
           {startLabel}
         </label>
-        <TimeInputWithButton
+        <TimeInput
           id='timeStart'
           name='timeStart'
           submitHandler={handleSubmit}
@@ -108,7 +108,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={inputTimeLabels} htmlFor='timeEnd'>
           {endLabel}
         </label>
-        <TimeInputWithButton
+        <TimeInput
           id='timeEnd'
           name='timeEnd'
           submitHandler={handleSubmit}
@@ -121,7 +121,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={style.inputLabel} htmlFor='durationOverride'>
           Duration
         </label>
-        <TimeInputWithButton
+        <TimeInput
           id='durationOverride'
           name='durationOverride'
           submitHandler={handleSubmit}
@@ -166,7 +166,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={style.inputLabel} htmlFor='timeWarning'>
           Warning Time
         </label>
-        <TimeInput
+        <TimeInputSimple
           id='timeWarning'
           name='timeWarning'
           submitHandler={handleSubmit}
@@ -178,7 +178,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={style.inputLabel} htmlFor='timeDanger'>
           Danger Time
         </label>
-        <TimeInput
+        <TimeInputSimple
           id='timeDanger'
           name='timeDanger'
           submitHandler={handleSubmit}

@@ -1,0 +1,12 @@
+@use "../../../../theme/v2Styles" as *;
+
+$input-font-size: 15px;
+$input-delayed-border-color: #E69056;
+
+.timeInput {
+  font-size: $input-font-size;
+  letter-spacing: 1px;
+  width: 8em;
+  // padding: 0 0 0 2.6em;
+}
+
