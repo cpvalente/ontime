@@ -72,7 +72,7 @@ export const currentDirectory = dirname(__dirname);
 const testDbStartDirectory = isTest ? '../' : getAppDataPath();
 export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
 
-const lastLoadedProjectConfigPath = join(getAppDataPath(), 'config.json');
+export const lastLoadedProjectConfigPath = join(getAppDataPath(), 'config.json');
 
 let lastLoadedProject;
 

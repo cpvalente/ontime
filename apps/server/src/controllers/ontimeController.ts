@@ -19,7 +19,7 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { getAppDataPath, isDocker, resolveDbPath, resolveStylesPath } from '../setup.js';
+import { getAppDataPath, isDocker, lastLoadedProjectConfigPath, resolveDbPath, resolveStylesPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
@@ -29,6 +29,7 @@ import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getFileListFromFolder } from '../utils/getFileListFromFolder.js';
+import { ProjectFileListResponse } from 'ontime-types/src/api/ontime-controller/BackendResponse.type.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -471,13 +472,19 @@ export const postNew: RequestHandler = async (req, res) => {
  * @param req
  * @param res
  */
-export const listProjects: RequestHandler = (_, res: Response<ProjectFileList | ErrorResponse>) => {
+export const listProjects: RequestHandler = (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
   try {
     const uploadsFolderPath = join(getAppDataPath(), 'uploads');
     const fileList = getFileListFromFolder(uploadsFolderPath, {
       allowedExtensions: ['.json'],
     });
-    res.status(200).send(fileList);
+
+    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+
+    res.status(200).send({
+      files: fileList,
+      lastLoadedProject,
+    });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
   }
