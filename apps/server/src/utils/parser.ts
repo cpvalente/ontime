@@ -379,8 +379,6 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
 
-    await configService.updateDatabaseConfig(fileName);
-
     await deleteFile(file);
 
     return res;
