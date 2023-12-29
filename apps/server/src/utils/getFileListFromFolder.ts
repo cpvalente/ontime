@@ -1,7 +1,8 @@
 import { ProjectFile } from 'ontime-types';
+import { getAppDataPath } from '../setup.js';
 
 import { readdirSync, statSync } from 'fs';
-import { extname } from 'path';
+import { extname, join } from 'path';
 
 const getFilesFromFolder = (folderPath: string): Array<string> => {
   return readdirSync(folderPath);
@@ -14,12 +15,14 @@ const filterProjectFiles = (files: Array<string>): Array<string> => {
   });
 };
 
-export const getProjectFiles = (folderPath: string): Array<ProjectFile> => {
-  const allFiles = getFilesFromFolder(folderPath);
+export const getProjectFiles = (): Array<ProjectFile> => {
+  const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+
+  const allFiles = getFilesFromFolder(uploadsFolderPath);
   const filteredFiles = filterProjectFiles(allFiles);
 
   return filteredFiles.map((file) => {
-    const filePath = `${folderPath}/${file}`;
+    const filePath = `${uploadsFolderPath}/${file}`;
     const stats = statSync(filePath);
 
     return {

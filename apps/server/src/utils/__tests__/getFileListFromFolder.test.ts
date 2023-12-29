@@ -19,7 +19,7 @@ describe('getProjectFiles test', async () => {
 
     const { readdirSync, statSync } = await import('fs');
 
-    const result = getProjectFiles('path/to/folder');
+    const result = getProjectFiles();
 
     const expectedFiles = ['file1.json', 'file2.json', 'file3.json'].map((file) => ({
       filename: file,

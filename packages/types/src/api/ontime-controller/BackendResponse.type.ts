@@ -23,9 +23,9 @@ export type ProjectFileList = Array<ProjectFile>;
 
 export type ProjectFileListResponse = {
   files: ProjectFileList;
-  lastLoadedProject: string | null;
-}
+  lastLoadedProject: string;
+};
 
 export type ErrorResponse = {
   message: string;
-}
+};

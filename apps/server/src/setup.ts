@@ -81,7 +81,7 @@ try {
 } catch {
   if (!isTest) {
     ensureDirectory(getAppDataPath());
-    fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: null }));
+    fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: 'default.json' }));
   }
 }
 

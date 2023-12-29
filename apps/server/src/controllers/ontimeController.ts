@@ -28,7 +28,7 @@ import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
-import { getFileListFromFolder } from '../utils/getFileListFromFolder.js';
+import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -473,10 +473,7 @@ export const postNew: RequestHandler = async (req, res) => {
  */
 export const listProjects: RequestHandler = (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
   try {
-    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-    const fileList = getFileListFromFolder(uploadsFolderPath, {
-      allowedExtensions: ['.json'],
-    });
+    const fileList = getProjectFiles();
 
     const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
 
