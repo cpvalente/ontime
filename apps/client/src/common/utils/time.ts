@@ -46,12 +46,21 @@ type FormatOptions = {
  * @param {function} resolver
  * @return {string}
  */
-export const formatTime = (milliseconds: number | null, options?: FormatOptions, resolver = resolveTimeFormat) => {
+export const formatTime = (
+  milliseconds: number | null,
+  options?: FormatOptions,
+  resolver = resolveTimeFormat,
+): string => {
   if (milliseconds === null) {
     return '...';
   }
   const timeFormat = resolver();
   const fallback = options?.showSeconds ? 'hh:mm:ss a' : 'hh:mm a';
   const { showSeconds = false, format: formatString = fallback } = options || {};
-  return timeFormat === '12' ? formatFromMillis(milliseconds, formatString) : millisToString(milliseconds, showSeconds);
+  const isNegative = (milliseconds ?? 0) < 0;
+  const display =
+    timeFormat === '12'
+      ? formatFromMillis(Math.abs(milliseconds), formatString)
+      : millisToString(Math.abs(milliseconds), showSeconds);
+  return `${isNegative ? '-' : ''}${display}`;
 };

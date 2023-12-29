@@ -15,7 +15,7 @@ import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
+import { getTimerByType, removePrependedZero } from '../common/viewerUtils';
 
 import './Timer.scss';
 
@@ -67,7 +67,8 @@ export default function Timer(props: TimerProps) {
     hideCards: false,
     hideProgress: false,
     hideMessage: false,
-    hideSeconds: false,
+    hideTimerSeconds: false,
+    hideClockSeconds: false,
   };
 
   const hideClock = searchParams.get('hideClock');
@@ -82,18 +83,19 @@ export default function Timer(props: TimerProps) {
   const hideMessage = searchParams.get('hideMessage');
   userOptions.hideMessage = isStringBoolean(hideMessage);
 
-  const hideSeconds = searchParams.get('hideSeconds');
-  userOptions.hideSeconds = isStringBoolean(hideSeconds);
+  const hideClockSeconds = searchParams.get('hideClockSeconds');
+  userOptions.hideClockSeconds = isStringBoolean(hideClockSeconds);
   const clock = formatTime(time.clock, {
-    showSeconds: !userOptions.hideSeconds,
+    showSeconds: !userOptions.hideClockSeconds,
     format: 'hh:mm:ss a',
   });
+
+  const hideTimerSeconds = searchParams.get('hideTimerSeconds');
+  userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
-  const isNegative =
-    (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
@@ -115,11 +117,18 @@ export default function Timer(props: TimerProps) {
       : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
-  let display = formatTimerDisplay(stageTimer);
-  const stageTimerCharacters = display.replace('/:/g', '').length;
-  if (isNegative) {
-    display = `-${display}`;
+  let display = '-- : -- : --';
+  if (stageTimer !== null) {
+    display = formatTime(stageTimer, {
+      showSeconds: !userOptions.hideTimerSeconds,
+      format: 'hh:mm:ss a',
+    });
+    display = removePrependedZero(display);
+    if (display.length < 3) {
+      display = `${display} ${getLocalizedString('common.minutes')}`;
+    }
   }
+  const stageTimerCharacters = display.replace('/:/g', '').length;
 
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
   let timerFontSize = 89 / (stageTimerCharacters - 1);

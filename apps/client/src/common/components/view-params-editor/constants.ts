@@ -11,10 +11,18 @@ const getTimeOption = (timeFormat: TimeFormat): ParamField => ({
   defaultValue: timeFormat,
 });
 
-const hideSeconds: ParamField = {
-  id: 'hideSeconds',
-  title: 'Hide seconds',
-  description: 'Whether to hide seconds in auxiliar timer fields (not the running timer)',
+const hideClockSeconds: ParamField = {
+  id: 'hideClockSeconds',
+  title: 'Hide seconds in clocks',
+  description: 'Whether to hide seconds in auxiliar time fields (not the running timer)',
+  type: 'boolean',
+  defaultValue: false,
+};
+
+const hideTimerSeconds: ParamField = {
+  id: 'hideTimerSeconds',
+  title: 'Hide seconds in timer',
+  description: 'Whether to hide seconds in the running timer',
   type: 'boolean',
   defaultValue: false,
 };
@@ -93,7 +101,8 @@ export const getClockOptions = (timeFormat: TimeFormat): ParamField[] => [
 
 export const getTimerOptions = (timeFormat: TimeFormat): ParamField[] => [
   getTimeOption(timeFormat),
-  hideSeconds,
+  hideTimerSeconds,
+  hideClockSeconds,
   {
     id: 'hideClock',
     title: 'Hide Time Now',
@@ -132,6 +141,7 @@ export const getTimerOptions = (timeFormat: TimeFormat): ParamField[] => [
 ];
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
+  hideTimerSeconds,
   {
     id: 'key',
     title: 'Key Colour',
@@ -273,7 +283,7 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
 
 export const getBackstageOptions = (timeFormat: TimeFormat): ParamField[] => [
   getTimeOption(timeFormat),
-  hideSeconds,
+  hideClockSeconds,
   {
     id: 'hidePast',
     title: 'Hide past events',
@@ -299,7 +309,7 @@ export const getBackstageOptions = (timeFormat: TimeFormat): ParamField[] => [
 
 export const getPublicOptions = (timeFormat: TimeFormat): ParamField[] => [
   getTimeOption(timeFormat),
-  hideSeconds,
+  hideClockSeconds,
   {
     id: 'hidePast',
     title: 'Hide past events',
@@ -324,7 +334,7 @@ export const getPublicOptions = (timeFormat: TimeFormat): ParamField[] => [
 ];
 export const getStudioClockOptions = (timeFormat: TimeFormat): ParamField[] => [
   getTimeOption(timeFormat),
-  hideSeconds,
+  hideClockSeconds,
   {
     id: 'seconds',
     title: 'Show Seconds',

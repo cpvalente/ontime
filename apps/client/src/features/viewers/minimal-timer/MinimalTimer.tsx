@@ -9,8 +9,10 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
+import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
-import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
+import { useTranslation } from '../../../translation/TranslationProvider';
+import { getTimerByType, removePrependedZero } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
 
@@ -24,6 +26,7 @@ interface MinimalTimerProps {
 export default function MinimalTimer(props: MinimalTimerProps) {
   const { isMirrored, pres, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -35,9 +38,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     return null;
   }
 
-  // get config from url: key, text, font, size, hideovertime
-  // eg. http://localhost:3000/minimal?key=f00&text=fff
-  // Check for user options
+  // TODO: this should be tied to the params
+  // USER OPTIONS
   const userOptions: OverridableOptions = {
     size: 1,
   };
@@ -126,10 +128,12 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideEndMessage = searchParams.get('hideendmessage');
   userOptions.hideEndMessage = isStringBoolean(hideEndMessage);
 
+  const hideTimerSeconds = searchParams.get('hideTimerSeconds');
+  userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
-  const isNegative =
-    (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
+
   const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const showFinished = finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
@@ -149,9 +153,16 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
-  let display = formatTimerDisplay(stageTimer);
-  if (isNegative) {
-    display = `-${display}`;
+  let display = '-- : -- : --';
+  if (stageTimer !== null) {
+    display = formatTime(stageTimer, {
+      showSeconds: !userOptions.hideTimerSeconds,
+      format: 'hh:mm:ss a',
+    });
+    display = removePrependedZero(display);
+    if (display.length < 3) {
+      display = `${display} ${getLocalizedString('common.minutes')}`;
+    }
   }
   const stageTimerCharacters = display.replace('/:/g', '').length;
 

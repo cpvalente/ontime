@@ -23,7 +23,7 @@ export function formatDisplay(milliseconds: number | null, hideZero = false): st
   return [hours, minutes, s % 60].map(format).join(':');
 }
 
-export const millisToSeconds = (millis: number | null): number => {
+const millisToSeconds = (millis: number | null): number => {
   if (millis === null) {
     return 0;
   }
