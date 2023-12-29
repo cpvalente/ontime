@@ -3,6 +3,7 @@ import path, { dirname, join } from 'path';
 import fs from 'fs';
 
 import { config } from './config/config.js';
+import { ensureDirectory } from './utils/fileManagement.js';
 
 // =================================================
 // resolve public path
@@ -79,6 +80,7 @@ try {
   lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
 } catch {
   if (!isTest) {
+    ensureDirectory(getAppDataPath());
     fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: null }));
   }
 }

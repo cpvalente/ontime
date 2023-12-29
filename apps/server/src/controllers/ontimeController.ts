@@ -474,7 +474,9 @@ export const postNew: RequestHandler = async (req, res) => {
 export const listProjects: RequestHandler = (_, res: Response<ProjectFileList | ErrorResponse>) => {
   try {
     const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-    const fileList = getFileListFromFolder(uploadsFolderPath);
+    const fileList = getFileListFromFolder(uploadsFolderPath, {
+      allowedExtensions: ['.json'],
+    });
     res.status(200).send(fileList);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
