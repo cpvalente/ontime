@@ -2,7 +2,7 @@ import MultiPartProgressBar from '../../../common/components/multi-part-progress
 import { useTimer } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 
-import styles from "./CuesheetProgress.module.scss"
+import styles from './CuesheetProgress.module.scss';
 
 export default function CuesheetProgress() {
   const { data } = useViewSettings();
@@ -14,9 +14,9 @@ export default function CuesheetProgress() {
       now={timer.current}
       complete={totalTime}
       normalColor={data!.normalColor}
-      warning={data!.warningThreshold}
+      warning={timer.timeWarning || 0}
       warningColor={data!.warningColor}
-      danger={data!.dangerThreshold}
+      danger={timer.timeDanger || 0}
       dangerColor={data!.dangerColor}
       className={styles.progressOverride}
     />
