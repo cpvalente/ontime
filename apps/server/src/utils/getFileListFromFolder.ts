@@ -3,22 +3,22 @@ import { ProjectFile } from 'ontime-types';
 import { readdirSync, statSync } from 'fs';
 import { extname } from 'path';
 
-interface Options {
-  allowedExtensions?: Array<string>;
-}
+const getFilesFromFolder = (folderPath: string): Array<string> => {
+  return readdirSync(folderPath);
+};
 
-export const getFileListFromFolder = (folderPath: string, options: Options = {}): Array<ProjectFile> => {
-  let files = readdirSync(folderPath);
+const filterProjectFiles = (files: Array<string>): Array<string> => {
+  return files.filter((file) => {
+    const ext = extname(file).toLowerCase();
+    return ext === '.json';
+  });
+};
 
-  // Filter files if allowedExtensions is provided
-  if (options.allowedExtensions && options.allowedExtensions.length > 0) {
-    files = files.filter((file) => {
-      const ext = extname(file).toLowerCase();
-      return options.allowedExtensions.includes(ext);
-    });
-  }
+export const getProjectFiles = (folderPath: string): Array<ProjectFile> => {
+  const allFiles = getFilesFromFolder(folderPath);
+  const filteredFiles = filterProjectFiles(allFiles);
 
-  return files.map((file) => {
+  return filteredFiles.map((file) => {
     const filePath = `${folderPath}/${file}`;
     const stats = statSync(filePath);
 
