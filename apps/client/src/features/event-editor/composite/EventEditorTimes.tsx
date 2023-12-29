@@ -4,6 +4,7 @@ import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
+import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
@@ -94,7 +95,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={inputTimeLabels} htmlFor='timeStart'>
           {startLabel}
         </label>
-        <TimeInput
+        <TimeInputWithButton
           id='timeStart'
           name='timeStart'
           submitHandler={handleSubmit}
@@ -107,7 +108,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={inputTimeLabels} htmlFor='timeEnd'>
           {endLabel}
         </label>
-        <TimeInput
+        <TimeInputWithButton
           id='timeEnd'
           name='timeEnd'
           submitHandler={handleSubmit}
@@ -120,7 +121,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={style.inputLabel} htmlFor='durationOverride'>
           Duration
         </label>
-        <TimeInput
+        <TimeInputWithButton
           id='durationOverride'
           name='durationOverride'
           submitHandler={handleSubmit}
