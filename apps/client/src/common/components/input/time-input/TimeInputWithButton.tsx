@@ -7,7 +7,7 @@ import { TimeEntryField } from '../../../utils/timesManager';
 
 import TimeInput from './TimeInput';
 
-import style from './TimeInput.module.scss';
+import style from './TimeInputWithButton.module.scss';
 
 interface TimeInputProps {
   id?: TimeEntryField;

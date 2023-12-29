@@ -6,6 +6,7 @@ import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
 import { TimeEntryField } from '../../../utils/timesManager';
 
+import style from './TimeInput.module.scss';
 interface TimeInputProps {
   id?: TimeEntryField;
   name: TimeEntryField;
@@ -152,13 +153,15 @@ export default function TimeInput(props: TimeInputProps) {
     resetValue();
   }, [resetValue, time]);
 
+  const timeInputClass = className ? className : style.timeInput;
+
   return (
     <Input
       size='sm'
       ref={inputRef}
       id={id}
       data-testid={`time-input-${name}`}
-      className={className}
+      className={timeInputClass}
       type='text'
       placeholder={placeholder}
       variant='ontime-filled'
