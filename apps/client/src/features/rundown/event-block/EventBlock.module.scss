@@ -62,13 +62,9 @@ $skip-opacity: 0.1;
     .eventStatus,
     .playbackActions,
     .binder {
-      opacity: 0.2;
+      opacity: 0.4;
     }
   }
-
-  //   &.past:not(.skip) {
-  //     opacity: 0.6;
-  // }
 
   &.skip {
     border: 1px solid $white-3;
