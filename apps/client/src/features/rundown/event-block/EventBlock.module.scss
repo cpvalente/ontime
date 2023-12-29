@@ -53,6 +53,7 @@ $skip-opacity: 0.1;
     outline: 1px solid $block-cursor-color;
   }
 
+  /* we stop the eventActions from having opacity to fix issue with dropdown drawing order */
   &.past:not(.skip) {
     .delayNote,
     .statusElements,
