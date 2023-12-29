@@ -6,9 +6,9 @@ interface MultiPartProgressBar {
   now: number | null;
   complete: number;
   normalColor: string;
-  warning?: number;
+  warning?: number | null;
   warningColor: string;
-  danger?: number;
+  danger?: number | null;
   dangerColor: string;
   hidden?: boolean;
   className?: string;
