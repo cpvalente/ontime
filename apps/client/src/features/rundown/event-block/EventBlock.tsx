@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { MouseEvent, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
@@ -130,12 +130,6 @@ export default function EventBlock(props: EventBlockProps) {
 
   const binderColours = colour && getAccessibleColour(colour);
 
-  useEffect(() => {
-    if (hasCursor) {
-      handleRef?.current?.focus();
-    }
-  }, [hasCursor]);
-
   useLayoutEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -184,7 +178,7 @@ export default function EventBlock(props: EventBlockProps) {
       onContextMenu={onContextMenu}
     >
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
-        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners} tabIndex={-1}>
           <IoReorderTwo />
         </span>
         <span className={style.cue}>{cue}</span>
