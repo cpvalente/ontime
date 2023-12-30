@@ -471,9 +471,9 @@ export const postNew: RequestHandler = async (req, res) => {
  * @param req
  * @param res
  */
-export const listProjects: RequestHandler = (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
+export const listProjects: RequestHandler = async (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
   try {
-    const fileList = getProjectFiles();
+    const fileList = await getProjectFiles();
 
     const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
 
