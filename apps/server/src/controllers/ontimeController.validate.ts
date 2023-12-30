@@ -152,3 +152,17 @@ export const validatePatchProjectFile = [
     next();
   },
 ];
+
+/**
+ * @description Validates the filename for loading a project file.
+ */
+export const validateLoadProjectFile = [
+  body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];

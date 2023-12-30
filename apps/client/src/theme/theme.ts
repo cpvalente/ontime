@@ -4,6 +4,7 @@ import { ontimeAlertOnLight } from './OntimeAlert';
 import {
   ontimeButtonFilled,
   ontimeButtonGhosted,
+  ontimeButtonGhostedWhite,
   ontimeButtonOutlined,
   ontimeButtonSubtle,
   ontimeButtonSubtleOnLight,
@@ -46,6 +47,7 @@ const theme = extendTheme({
         'ontime-outlined': { ...ontimeButtonOutlined },
         'ontime-subtle': { ...ontimeButtonSubtle },
         'ontime-ghosted': { ...ontimeButtonGhosted },
+        'ontime-ghosted-white': { ...ontimeButtonGhostedWhite },
         'ontime-subtle-white': { ...ontimeButtonSubtleWhite },
         'ontime-subtle-on-light': { ...ontimeButtonSubtleOnLight },
         'ontime-ghost-on-light': { ...ontimeGhostOnLight },

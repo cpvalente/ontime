@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "2.24.8",
+  "version": "3.0.0-alpha",
   "description": "Time keeping for live events",
   "keywords": [
     "lightdev",
@@ -17,7 +17,7 @@
   },
   "license": "AGPL-3.0-only",
   "engines": {
-    "node": "~16.16.0",
+    "node": "~18.18.2",
     "pnpm": ">=8"
   },
   "type": "module",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.34.3",
-    "@types/node": "^16.11.7",
+    "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "cross-env": "^7.0.3",
@@ -50,7 +50,7 @@
     "husky": "^8.0.3",
     "lint-staged": "^15.1.0",
     "prettier": "^3.0.3",
-    "turbo": "^1.10.16",
+    "turbo": "^1.11.2",
     "typescript": "^5.2.2"
   },
   "husky": {

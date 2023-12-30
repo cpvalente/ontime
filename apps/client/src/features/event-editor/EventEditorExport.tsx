@@ -8,21 +8,13 @@ import { cx } from '../../common/utils/styleUtils';
 
 import EventEditor from './EventEditor';
 
-import style from '../editors/Editor.module.scss';
-
-/* Styling for action buttons */
-const closeBtnStyle = {
-  size: 'md',
-  variant: 'ghost',
-  colorScheme: 'white',
-  _hover: { bg: '#ebedf0', color: '#333' },
-};
+import style from './EventEditor.module.scss';
 
 const EventEditorExport = () => {
   const editId = useAppMode((state) => state.editId);
   const setEditId = useAppMode((state) => state.setEditId);
 
-  const editorStyle = cx([style.eventEditor, !editId ? style.noEvent : null]);
+  const editorStyle = cx([style.eventEditorContainer, !editId ? style.noEvent : null]);
   const removeOpenEvent = () => setEditId(null);
 
   return (
@@ -31,7 +23,12 @@ const EventEditorExport = () => {
         <div className={style.eventEditorLayout}>
           <EventEditor />
           <div className={style.header}>
-            <IconButton aria-label='Close Menu' icon={<IoClose />} onClick={removeOpenEvent} {...closeBtnStyle} />
+            <IconButton
+              aria-label='Close Menu'
+              icon={<IoClose />}
+              onClick={removeOpenEvent}
+              variant='ontime-ghosted-white'
+            />
           </div>
         </div>
       </ErrorBoundary>

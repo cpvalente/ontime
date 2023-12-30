@@ -21,6 +21,8 @@ import {
   postViewSettings,
   previewExcel,
   postHTTP,
+  listProjects,
+  loadProject,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -32,6 +34,7 @@ import {
   viewValidator,
   validateHTTP,
   validateOscSubscription,
+  validateLoadProjectFile,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 
@@ -96,3 +99,9 @@ router.post('/http', validateHTTP, postHTTP);
 
 // create route between controller and '/ontime/new' endpoint
 router.post('/new', projectSanitiser, postNew);
+
+// create route between controller and '/ontime/projects' endpoint
+router.get('/projects', listProjects);
+
+// create route between controller and '/ontime/load-project' endpoint
+router.post('/load-project', validateLoadProjectFile, loadProject);

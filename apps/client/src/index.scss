@@ -17,7 +17,7 @@
 body,
 html,
 .App {
-  font-size: 16px;
+  font-size: 15px;
   font-family: $ontime-font-family;
   margin: 0 auto;
   overflow: hidden;
@@ -29,13 +29,6 @@ html,
   background-color: $bg-container-l1;
 }
 
-@media (min-width: 1450px) and (max-width: 1666px) {
-  body,
-  html,
-  .App {
-    font-size: 15px;
-  }
-}
 // workaround for chakra
 // // https://github.com/chakra-ui/chakra-ui/issues/417
 option {
