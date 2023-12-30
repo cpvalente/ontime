@@ -25,8 +25,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "32d31",
-      "cue": "SF1.01"
+      "cue": "SF1.01",
+      "id": "32d31"
     },
     {
       "title": "Latvia",
@@ -53,8 +53,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "21cd2",
-      "cue": "SF1.02"
+      "cue": "SF1.02",
+      "id": "21cd2"
     },
     {
       "title": "Lithuania",
@@ -81,8 +81,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "0b371",
-      "cue": "SF1.03"
+      "cue": "SF1.03",
+      "id": "0b371"
     },
     {
       "title": "Switzerland",
@@ -109,8 +109,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "3cd28",
-      "cue": "SF1.04"
+      "cue": "SF1.04",
+      "id": "3cd28"
     },
     {
       "title": "Slovenia",
@@ -137,8 +137,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "e457f",
-      "cue": "SF1.05"
+      "cue": "SF1.05",
+      "id": "e457f"
     },
     {
       "title": "Lunch break",
@@ -170,8 +170,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "1c420",
-      "cue": "SF1.06"
+      "cue": "SF1.06",
+      "id": "1c420"
     },
     {
       "title": "Bulgaria",
@@ -198,8 +198,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "b7737",
-      "cue": "SF1.07"
+      "cue": "SF1.07",
+      "id": "b7737"
     },
     {
       "title": "Netherlands",
@@ -226,8 +226,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "d3a80",
-      "cue": "SF1.08"
+      "cue": "SF1.08",
+      "id": "d3a80"
     },
     {
       "title": "Moldova",
@@ -254,8 +254,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "8276c",
-      "cue": "SF1.09"
+      "cue": "SF1.09",
+      "id": "8276c"
     },
     {
       "title": "Portugal",
@@ -282,8 +282,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "2340b",
-      "cue": "SF1.10"
+      "cue": "SF1.10",
+      "id": "2340b"
     },
     {
       "title": "Afternoon break",
@@ -315,8 +315,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "503c4",
-      "cue": "SF1.11"
+      "cue": "SF1.11",
+      "id": "503c4"
     },
     {
       "title": "Denmark",
@@ -343,8 +343,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "5e965",
-      "cue": "SF1.12"
+      "cue": "SF1.12",
+      "id": "5e965"
     },
     {
       "title": "Austria",
@@ -371,8 +371,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "bab4a",
-      "cue": "SF1.13"
+      "cue": "SF1.13",
+      "id": "bab4a"
     },
     {
       "title": "Greece",
@@ -399,8 +399,8 @@
       "user9": "",
       "type": "event",
       "revision": 0,
-      "id": "d3eb1",
-      "cue": "SF1.14"
+      "cue": "SF1.14",
+      "id": "d3eb1"
     }
   ],
   "project": {

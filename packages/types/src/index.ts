@@ -38,7 +38,14 @@ export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './def
 export type { HttpSettings, HttpSubscription, HttpSubscriptionOptions } from './definitions/core/HttpSettings.type.js';
 
 // SERVER RESPONSES
-export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';
+export type {
+  NetworkInterface,
+  GetInfo,
+  ProjectFileList,
+  ProjectFile,
+  ErrorResponse,
+  ProjectFileListResponse,
+} from './api/ontime-controller/BackendResponse.type.js';
 export type { GetRundownCached } from './api/rundown-controller/BackendResponse.type.js';
 
 // SERVER RUNTIME

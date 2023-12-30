@@ -61,7 +61,7 @@ describe('isRestorePoint()', () => {
 
 describe('RestoreService()', () => {
   describe('load()', () => {
-    it('loads working file with times', () => {
+    it('loads working file with times', async () => {
       const expected = {
         playback: Playback.Play,
         selectedEventId: 'da5b4',
@@ -71,13 +71,13 @@ describe('RestoreService()', () => {
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
-      vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => JSON.stringify(expected));
+      vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => expected);
 
-      const testLoad = restoreService.load();
+      const testLoad = await restoreService.load();
       expect(testLoad).toStrictEqual(expected);
     });
 
-    it('loads working file without times', () => {
+    it('loads working file without times', async () => {
       const expected = {
         playback: Playback.Stop,
         selectedEventId: null,
@@ -87,13 +87,13 @@ describe('RestoreService()', () => {
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
-      vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => JSON.stringify(expected));
+      vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => expected);
 
-      const testLoad = restoreService.load();
+      const testLoad = await restoreService.load();
       expect(testLoad).toStrictEqual(expected);
     });
 
-    it('does not load wrong play state', () => {
+    it('does not load wrong play state', async () => {
       const expected = {
         playback: 'does-not-exist',
         selectedEventId: 'da5b4',
@@ -103,9 +103,9 @@ describe('RestoreService()', () => {
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
-      vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => JSON.stringify(expected));
+      vi.spyOn<any, any>(restoreService, 'read').mockImplementation(() => expected);
 
-      const testLoad = restoreService.load();
+      const testLoad = await restoreService.load();
       expect(testLoad).toBe(null);
     });
   });
@@ -123,7 +123,7 @@ describe('RestoreService()', () => {
       const restoreService = new RestoreService('/path/to/restore/file');
       const writeSpy = vi.spyOn<any, any>(restoreService, 'write').mockImplementation(() => undefined);
       await restoreService.save(testData);
-      expect(writeSpy).toHaveBeenCalledWith(JSON.stringify(testData));
+      expect(writeSpy).toHaveBeenCalledWith(testData);
     });
   });
 });

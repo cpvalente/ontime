@@ -25,7 +25,7 @@ import path from 'path';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { makeString } from './parserUtils.js';
+import { deleteFile, makeString } from './parserUtils.js';
 import {
   parseAliases,
   parseProject,
@@ -379,7 +379,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
 
-    await configService.updateDatabaseConfig(fileName);
+    await deleteFile(file);
 
     return res;
   }

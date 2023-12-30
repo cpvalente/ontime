@@ -168,7 +168,13 @@ export const validateProjectDuplicate = [
     .withMessage('Duplicate project filename is required')
     .isString()
     .withMessage('Duplicate project filename must be a string'),
+];
 
+/**
+ * @description Validates the filename for loading a project file.
+ */
+export const validateLoadProjectFile = [
+  body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

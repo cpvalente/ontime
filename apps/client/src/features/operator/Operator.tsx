@@ -136,8 +136,8 @@ export default function Operator() {
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 
-  const firstEvent = getFirstEvent(data);
-  const lastEvent = getLastEvent(data);
+  const { firstEvent } = getFirstEvent(data);
+  const { lastEvent } = getLastEvent(data);
 
   return (
     <div className={style.operatorContainer}>

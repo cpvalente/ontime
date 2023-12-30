@@ -1,16 +1,26 @@
 import { LogOrigin } from 'ontime-types';
-import type { Alias, DatabaseModel, GetInfo, HttpSettings, ProjectData } from 'ontime-types';
+import type {
+  Alias,
+  DatabaseModel,
+  GetInfo,
+  HttpSettings,
+  ProjectData,
+  ErrorResponse,
+  ProjectFileListResponse,
+} from 'ontime-types';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
+import { join } from 'path';
+import { copyFile, open } from 'fs/promises';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { getAppDataPath, isDocker, resolveDbPath, resolveStylesPath } from '../setup.js';
+import { getAppDataPath, isDocker, lastLoadedProjectConfigPath, resolveDbPath, resolveStylesPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
@@ -19,8 +29,7 @@ import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
-import { join } from 'path';
-import { copyFile, open } from 'fs/promises';
+import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -494,6 +503,52 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
 
     res.status(200).send({
       message: `Duplicated project ${projectFilename} to ${duplicateProjectFilename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Retrieves and lists all project files from the uploads directory.
+ * @param req
+ * @param res
+ */
+export const listProjects: RequestHandler = async (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
+  try {
+    const fileList = await getProjectFiles();
+
+    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+
+    res.status(200).send({
+      files: fileList,
+      lastLoadedProject,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Receives a `filename` from the request body and loads the project file from the uploads directory.
+ * @param req
+ * @param res
+ */
+export const loadProject: RequestHandler = async (req, res) => {
+  try {
+    const filename = req.body.filename;
+
+    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+    const filePath = join(uploadsFolderPath, filename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send({ message: 'File not found' });
+    }
+
+    await parseAndApply(filePath, req, res, {});
+
+    res.status(200).send({
+      message: `Loaded project ${filename}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });

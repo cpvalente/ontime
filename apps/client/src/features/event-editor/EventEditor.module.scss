@@ -1,4 +1,35 @@
+@use '../../theme/ontimeColours' as *;
 @use '../../theme/v2Styles' as *;
+
+.eventEditorContainer {
+  border-radius: 8px 8px 0 0;
+  background-color: $bg-container-l2;
+  box-shadow: $large-bottom-drawer-shadow;
+  border-top: 1px solid $white-20;
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  left: 0;
+  z-index: 10;
+  color: white;
+  transition: bottom $transition-time-feedback;
+
+  &.noEvent {
+    bottom: -500px;
+    transition: bottom 0.7s;
+  }
+
+  .eventEditorLayout {
+    display: flex;
+  }
+
+  .header {
+    background-color: $gray-1250;
+    padding: 0.5rem;
+    border-left: 1px solid $white-10;
+    border-radius: 0 8px 0 0;
+  }
+}
 
 .eventEditor {
   padding: 1rem 2rem 2rem 2rem;
