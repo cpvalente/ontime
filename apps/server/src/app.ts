@@ -147,7 +147,7 @@ export const startServer = async () => {
   eventLoader.init();
 
   // load restore point if it exists
-  const maybeRestorePoint = restoreService.load();
+  const maybeRestorePoint = await restoreService.load();
 
   if (maybeRestorePoint) {
     logger.info(LogOrigin.Server, 'Found resumable state');

@@ -1,8 +1,6 @@
 import { Playback } from 'ontime-types';
 
-import { readFileSync } from 'fs';
-import { Writer } from 'steno';
-
+import { JSONFile } from 'lowdb/node';
 import { resolveRestoreFile } from '../setup.js';
 
 export type RestorePoint = {
@@ -58,32 +56,24 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
  */
 export class RestoreService {
   private readonly filePath: string | null;
-
+  private readonly file: JSONFile<RestorePoint | null>;
   private lastStore: string | null;
-  private file: Writer | null;
   private failedCreateAttempts: number;
 
   constructor(filePath: string) {
     this.filePath = filePath;
 
     this.lastStore = null;
-    this.file = null;
+    this.file = new JSONFile(this.filePath);
     this.failedCreateAttempts = 0;
-  }
-
-  /**
-   * Utility, creates a restore file
-   */
-  create() {
-    this.file = new Writer(this.filePath);
   }
 
   /**
    * Utility, reads from file
    * @private
    */
-  private read() {
-    return readFileSync(this.filePath, 'utf-8');
+  private async read() {
+    return this.file.read();
   }
 
   /**
@@ -91,13 +81,8 @@ export class RestoreService {
    * @throws
    * @param stringifiedState
    */
-  private async write(stringifiedState: string) {
-    // Create a file if it doesnt exist
-    if (!this.file) {
-      this.create();
-    }
-    // steno is async, and it uses a queue to avoid unnecessary re-writes
-    await this.file.write(stringifiedState);
+  private async write(data: RestorePoint) {
+    await this.file.write(data);
   }
 
   /**
@@ -113,10 +98,10 @@ export class RestoreService {
     const stringifiedStore = JSON.stringify(newState);
     if (stringifiedStore !== this.lastStore) {
       try {
-        await this.write(stringifiedStore);
+        await this.write(newState);
         this.lastStore = stringifiedStore;
         this.failedCreateAttempts = 0;
-      } catch (_err) {
+      } catch (_error) {
         this.failedCreateAttempts += 1;
       }
     }
@@ -126,34 +111,27 @@ export class RestoreService {
    * Attempts reading a restore point from a given file path
    * Returns null if none found, restore point otherwise
    */
-  load(): RestorePoint | null {
+  async load(): Promise<RestorePoint | null> {
     try {
-      const data = this.read();
-      const maybeRestorePoint = JSON.parse(data);
-
-      if (!isRestorePoint(maybeRestorePoint)) {
-        return null;
+      const maybeRestorePoint = await this.read();
+      if (isRestorePoint(maybeRestorePoint)) {
+        return maybeRestorePoint;
       }
-
-      return maybeRestorePoint;
     } catch (_error) {
       // no need to notify the user
-      return null;
     }
+    return null;
   }
 
   /**
    * Clears the restore file
    */
   async clear() {
-    if (this.file && this.failedCreateAttempts <= 3) {
-      try {
-        await this.file.write('');
-      } catch (_error) {
-        // nothing to do
-      }
+    try {
+      await this.write(null);
+    } catch (_error) {
+      // nothing to do
     }
-    this.file = undefined;
   }
 }
 
