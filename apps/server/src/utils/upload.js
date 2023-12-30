@@ -1,34 +1,9 @@
 import multer from 'multer';
 import path from 'path';
-import { existsSync } from 'fs';
 
 import { EXCEL_MIME, JSON_MIME } from './parser.js';
 import { ensureDirectory } from './fileManagement.js';
 import { getAppDataPath } from '../setup.js';
-
-/**
- * Generates a unique filename by appending a counter to the base name if necessary.
- * @param {string} uploadPath - Path where the file will be uploaded.
- * @param {string} originalName - Original name of the file.
- * @return {string} - Unique filename.
- */
-export function generateUniqueFilename(uploadPath, originalName) {
-  const fileParsed = path.parse(originalName);
-  let baseName = fileParsed.name;
-  let ext = fileParsed.ext;
-  let filename = originalName;
-  let fileExists = existsSync(path.join(uploadPath, filename));
-  let counter = 1;
-
-  // Append a number to the base name until a unique name is found
-  while (fileExists) {
-    filename = `${baseName} (${counter})${ext}`;
-    fileExists = existsSync(path.join(uploadPath, filename));
-    counter++;
-  }
-
-  return filename;
-}
 
 // Define multer storage object
 const storage = multer.diskStorage({
@@ -46,11 +21,7 @@ const storage = multer.diskStorage({
     cb(null, newDestination);
   },
   filename: function (_, file, cb) {
-    const appDataPath = getAppDataPath();
-    const uploadPath = path.join(appDataPath, 'uploads');
-    const uniqueFilename = generateUniqueFilename(uploadPath, file.originalname);
-
-    cb(null, uniqueFilename);
+    cb(null, file.originalname);
   },
 });
 
