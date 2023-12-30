@@ -30,6 +30,7 @@ import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
+import { configService } from '../services/ConfigService.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -589,6 +590,13 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
 
     // Rename the file
     await rename(projectFilePath, newProjectFilePath);
+
+    // Update the last loaded project config if current loaded project is the one being renamed
+    const { lastLoadedProject } = await configService.getConfig();
+
+    if (lastLoadedProject === projectFilename) {
+      await configService.updateDatabaseConfig(newProjectFilename);
+    }
 
     res.status(200).send({
       message: `Renamed project ${projectFilename} to ${newProjectFilename}`,
