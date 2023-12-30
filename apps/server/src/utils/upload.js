@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const appDataPath = getAppDataPath();
     if (appDataPath === '') {
-      return cb(new Error('Could not resolve public folder for platform'), false);
+      throw new Error('Could not resolve public folder for platform');
     }
 
     const uploadsPath = path.join(appDataPath, 'uploads');
