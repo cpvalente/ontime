@@ -8,7 +8,7 @@ import {
   OSCSettings,
   OscSubscription,
   ProjectData,
-  ProjectFileList,
+  ProjectFileListResponse,
   Settings,
   UserFields,
   ViewSettings,
@@ -253,7 +253,7 @@ export async function postNew(initialData: Partial<ProjectData>) {
 /**
  * @description HTTP request to get the list of available project files
  */
-export async function getProjects(): Promise<ProjectFileList> {
+export async function getProjects(): Promise<ProjectFileListResponse> {
   const res = await axios.get(`${ontimeURL}/projects`);
   return res.data;
 }

@@ -8,6 +8,12 @@ import style from './ProjectPanel.module.scss';
 
 export default function ProjectList() {
   const { data } = useProjectList();
+  const { files, lastLoadedProject } = data;
+
+  // extract currently loaded from file list
+  const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
+  const projectFiles = [...files];
+  const current = projectFiles.splice(currentlyLoadedIndex, 1)[0];
 
   return (
     <Panel.Table>
@@ -23,14 +29,14 @@ export default function ProjectList() {
       <tbody>
         <tr>
           <td></td>
-          <td>Loaded Project</td>
-          <td>{new Date().toLocaleString()}</td>
-          <td>{new Date().toLocaleString()}</td>
+          <td>{current.filename}</td>
+          <td>{new Date(current.createdAt).toLocaleString()}</td>
+          <td>{new Date(current.updatedAt).toLocaleString()}</td>
           <td className={style.actionButton}>
             <ActionMenu />
           </td>
         </tr>
-        {data.map((project) => {
+        {projectFiles.map((project) => {
           const createdAt = new Date(project.createdAt).toLocaleString();
           const updatedAt = new Date(project.updatedAt).toLocaleString();
           return (
