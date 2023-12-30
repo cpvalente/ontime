@@ -32,6 +32,8 @@ export const defaultExcelImportMap = {
   user7: 'user7',
   user8: 'user8',
   user9: 'user9',
+  timeWarning: 'timeWarning',
+  timeDanger: 'timeDanger',
 };
 
 export function isExcelImportMap(obj: unknown): obj is ExcelImportMap {

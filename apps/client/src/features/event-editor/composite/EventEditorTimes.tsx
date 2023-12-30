@@ -4,6 +4,7 @@ import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
+import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
@@ -20,13 +21,24 @@ interface EventEditorTimesProps {
   isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
+  timeWarning: number;
+  timeDanger: number;
 }
 
-type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride' | 'timerType' | 'endAction' | 'isPublic';
+type TimeActions =
+  | 'timeStart'
+  | 'timeEnd'
+  | 'durationOverride'
+  | 'timerType'
+  | 'endAction'
+  | 'isPublic'
+  | 'timeWarning'
+  | 'timeDanger';
 
 // Todo: add previous end to TimeInput fields
 const EventEditorTimes = (props: EventEditorTimesProps) => {
-  const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType } = props;
+  const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType, timeWarning, timeDanger } =
+    props;
   const { updateEvent } = useEventAction();
 
   const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
@@ -61,7 +73,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         break;
       }
       default: {
-        if (field === 'timerType' || field === 'endAction') {
+        if (field === 'timerType' || field === 'endAction' || field === 'timeWarning' || field === 'timeDanger') {
           // @ts-expect-error -- not sure how to typecheck here
           newEventData[field as keyof OntimeEvent] = value as string;
         } else {
@@ -83,7 +95,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={inputTimeLabels} htmlFor='timeStart'>
           {startLabel}
         </label>
-        <TimeInput
+        <TimeInputWithButton
           id='timeStart'
           name='timeStart'
           submitHandler={handleSubmit}
@@ -96,7 +108,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={inputTimeLabels} htmlFor='timeEnd'>
           {endLabel}
         </label>
-        <TimeInput
+        <TimeInputWithButton
           id='timeEnd'
           name='timeEnd'
           submitHandler={handleSubmit}
@@ -109,7 +121,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={style.inputLabel} htmlFor='durationOverride'>
           Duration
         </label>
-        <TimeInput
+        <TimeInputWithButton
           id='durationOverride'
           name='durationOverride'
           submitHandler={handleSubmit}
@@ -118,6 +130,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           placeholder='Duration'
           warning={warning.duration}
         />
+        <span className={style.spacer} />
+        <label className={`${style.inputLabel} ${style.publicToggle}`}>
+          <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
+          Event is public
+        </label>
       </div>
       <div className={style.timeSettings}>
         <label className={style.inputLabel}>Timer Type</label>
@@ -146,11 +163,30 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <option value={EndAction.LoadNext}>Load Next</option>
           <option value={EndAction.PlayNext}>Play Next</option>
         </Select>
-        <span className={style.spacer} />
-        <label className={`${style.inputLabel} ${style.publicToggle}`}>
-          <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
-          Event is public
+        <label className={style.inputLabel} htmlFor='timeWarning'>
+          Warning Time
         </label>
+        <TimeInput
+          id='timeWarning'
+          name='timeWarning'
+          submitHandler={handleSubmit}
+          validationHandler={timerValidationHandler}
+          time={timeWarning}
+          placeholder='Duration'
+          warning={warning.duration}
+        />
+        <label className={style.inputLabel} htmlFor='timeDanger'>
+          Danger Time
+        </label>
+        <TimeInput
+          id='timeDanger'
+          name='timeDanger'
+          submitHandler={handleSubmit}
+          validationHandler={timerValidationHandler}
+          time={timeDanger}
+          placeholder='Duration'
+          warning={warning.duration}
+        />
       </div>
     </div>
   );

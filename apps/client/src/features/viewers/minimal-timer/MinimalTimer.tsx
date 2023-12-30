@@ -135,8 +135,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const showFinished = finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
   const showProgress = time.playback !== Playback.Stop;
-  const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
-  const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
+  const showWarning = (time.current ?? 1) < (time.timeWarning ?? 0);
+  const showDanger = (time.current ?? 1) < (time.timeDanger ?? 0);
   const showBlinking = pres.timerBlink;
   const showBlackout = pres.timerBlackout;
 
