@@ -110,8 +110,8 @@ router.get('/projects', listProjects);
 // create route between controller and '/ontime/load-project' endpoint
 router.post('/load-project', validateLoadProjectFile, loadProject);
 
-// create route between controller and '/ontime/duplicate' endpoint
+// create route between controller and '/ontime/duplicate-project' endpoint
 router.post('/duplicate-project', validateProjectDuplicate, duplicateProjectFile);
 
-// create route between controller and '/ontime/duplicate' endpoint
+// create route between controller and '/ontime/rename-project' endpoint
 router.put('/rename-project', validateProjectRename, renameProjectFile);
