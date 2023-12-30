@@ -3,6 +3,7 @@ import path, { dirname, join } from 'path';
 import fs from 'fs';
 
 import { config } from './config/config.js';
+import { ensureDirectory } from './utils/fileManagement.js';
 
 // =================================================
 // resolve public path
@@ -71,7 +72,7 @@ export const currentDirectory = dirname(__dirname);
 const testDbStartDirectory = isTest ? '../' : getAppDataPath();
 export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
 
-const lastLoadedProjectConfigPath = join(getAppDataPath(), 'config.json');
+export const lastLoadedProjectConfigPath = join(getAppDataPath(), 'config.json');
 
 let lastLoadedProject;
 
@@ -79,7 +80,8 @@ try {
   lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
 } catch {
   if (!isTest) {
-    fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: null }));
+    ensureDirectory(getAppDataPath());
+    fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: 'default.json' }));
   }
 }
 
