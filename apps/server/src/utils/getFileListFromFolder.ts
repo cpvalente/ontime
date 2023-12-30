@@ -6,11 +6,7 @@ import { extname, join } from 'path';
 import { readdir, stat } from 'fs/promises';
 
 const getFilesFromFolder = async (folderPath: string) => {
-  try {
-    return await readdir(folderPath);
-  } catch (err) {
-    throw err;
-  }
+  return await readdir(folderPath);
 };
 
 const filterProjectFiles = (files: Array<string>): Array<string> => {
