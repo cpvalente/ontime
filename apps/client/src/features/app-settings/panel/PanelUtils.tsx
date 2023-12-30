@@ -11,7 +11,7 @@ export function SubHeader({ children }: { children: ReactNode }) {
 }
 
 export function Section({ children }: { children: ReactNode }) {
-  return <p className={style.section}>{children}</p>;
+  return <div className={style.section}>{children}</div>;
 }
 
 export function Paragraph({ children }: { children: ReactNode }) {

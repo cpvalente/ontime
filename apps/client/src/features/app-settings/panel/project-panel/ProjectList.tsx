@@ -27,15 +27,17 @@ export default function ProjectList() {
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td></td>
-          <td>{current.filename}</td>
-          <td>{new Date(current.createdAt).toLocaleString()}</td>
-          <td>{new Date(current.updatedAt).toLocaleString()}</td>
-          <td className={style.actionButton}>
-            <ActionMenu />
-          </td>
-        </tr>
+        {current && (
+          <tr>
+            <td></td>
+            <td>{current.filename}</td>
+            <td>{new Date(current.createdAt).toLocaleString()}</td>
+            <td>{new Date(current.updatedAt).toLocaleString()}</td>
+            <td className={style.actionButton}>
+              <ActionMenu />
+            </td>
+          </tr>
+        )}
         {projectFiles.map((project) => {
           const createdAt = new Date(project.createdAt).toLocaleString();
           const updatedAt = new Date(project.updatedAt).toLocaleString();
