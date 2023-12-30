@@ -20,15 +20,9 @@ const EventEditor = lazy(() => import('../event-editor/EventEditorExport'));
 const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
-// TODO: add breakpoints for body font size ??
-//       - 15px for normal
-//       - 16px for large screens
-
 // TODO: can we delete all the font-family stuff and leave it only at the top?
 
 // TODO: change scrollbar colours to use ontime stuff?
-
-// TODO: rename v2Styles to appStyles?
 
 // TODO: remove onAir as a setting
 

@@ -1,5 +1,5 @@
 @use '../../../../src/theme/ontimeColours' as *;
-@use '../../../../src/theme/v2Styles' as *;
+@use '../../../../src/theme/appStyles' as *;
 
 @mixin column {
   display: flex;

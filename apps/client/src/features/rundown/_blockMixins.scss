@@ -1,5 +1,5 @@
 @use '../../theme/ontimeColours' as *;
-@use '../../theme/v2Styles' as *;
+@use '../../theme/appStyles' as *;
 
 $block-gap: 0.25rem;
 $block-element-spacing: 0.25rem;
@@ -16,7 +16,6 @@ $block-cursor-color: $blue-400;
 @mixin block-styling() {
   box-sizing: content-box;
   border: 1px solid $white-10;
-  font-family: $ontime-font-family;
   border-radius: $block-border-radius;
   margin: 0.25rem 0.125rem;
   position: relative;

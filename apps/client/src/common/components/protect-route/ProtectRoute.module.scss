@@ -1,4 +1,4 @@
-@use '../../../theme/v2Styles' as *;
+@use '../../../theme/appStyles' as *;
 
 .container {
   display: grid;
@@ -8,7 +8,6 @@
 
   background: $bg-container-l1;
   color: $ontime-color;
-  font-family: $ontime-font-family;
   font-weight: 200;
   text-align: center;
   font-size: 3vw;
