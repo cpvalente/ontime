@@ -98,8 +98,8 @@ export default function Timer(props: TimerProps) {
   const showEndMessage = (time.current ?? 1) < 0 && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
-  const showWarning = (time.current ?? 1) < (eventNow?.timeWarning ?? 1);
-  const showDanger = (time.current ?? 1) < (eventNow?.timeDanger ?? 1);
+  const showWarning = (time.current ?? 1) < (eventNow?.timeWarning ?? 0);
+  const showDanger = (time.current ?? 1) < (eventNow?.timeDanger ?? 0);
   const showBlinking = pres.timerBlink;
   const showBlackout = pres.timerBlackout;
   const showClock = time.timerType !== TimerType.Clock;
