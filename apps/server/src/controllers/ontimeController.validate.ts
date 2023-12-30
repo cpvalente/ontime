@@ -154,6 +154,20 @@ export const validatePatchProjectFile = [
 ];
 
 /**
+ * @description Validates the filename for loading a project file.
+ */
+export const validateLoadProjectFile = [
+  body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
+/**
  * @description Validates the filenames for duplicating a project.
  */
 export const validateProjectDuplicate = [
@@ -168,18 +182,39 @@ export const validateProjectDuplicate = [
     .withMessage('Duplicate project filename is required')
     .isString()
     .withMessage('Duplicate project filename must be a string'),
-];
 
-/**
- * @description Validates the filename for loading a project file.
- */
-export const validateLoadProjectFile = [
-  body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
+
+    next();
+  },
+];
+
+/**
+ * @description Validates the filenames for renaming a project.
+ */
+export const validateProjectRename = [
+  body('projectFilename')
+    .exists()
+    .withMessage('Project filename is required')
+    .isString()
+    .withMessage('Project filename must be a string'),
+
+  body('newProjectFilename')
+    .exists()
+    .withMessage('Duplicate project filename is required')
+    .isString()
+    .withMessage('Duplicate project filename must be a string'),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
     next();
   },
 ];

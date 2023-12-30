@@ -13,7 +13,7 @@ import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 import { join } from 'path';
-import { copyFile, open } from 'fs/promises';
+import { copyFile, open, rename } from 'fs/promises';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
@@ -468,6 +468,52 @@ export const postNew: RequestHandler = async (req, res) => {
 };
 
 /**
+ * Retrieves and lists all project files from the uploads directory.
+ * @param req
+ * @param res
+ */
+export const listProjects: RequestHandler = async (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
+  try {
+    const fileList = await getProjectFiles();
+
+    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+
+    res.status(200).send({
+      files: fileList,
+      lastLoadedProject,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Receives a `filename` from the request body and loads the project file from the uploads directory.
+ * @param req
+ * @param res
+ */
+export const loadProject: RequestHandler = async (req, res) => {
+  try {
+    const filename = req.body.filename;
+
+    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+    const filePath = join(uploadsFolderPath, filename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send({ message: 'File not found' });
+    }
+
+    await parseAndApply(filePath, req, res, {});
+
+    res.status(200).send({
+      message: `Loaded project ${filename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
  * Duplicates a project file.
  * Receives the original project filename (`projectFilename`) and the filename for the duplicate (`duplicateProjectFilename`) from the request body.
  *
@@ -510,45 +556,42 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
 };
 
 /**
- * Retrieves and lists all project files from the uploads directory.
- * @param req
- * @param res
+ * Deletes a project file.
+ * Receives the project filename (`projectFilename`) from the request body.
+ *
+ * @param {Request} req - The express request object. Expects `projectFilename` in the request body.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful deletion,
+ *                         a 404 status if the file is not found, or a 500 status with an error message in case of an exception.
  */
-export const listProjects: RequestHandler = async (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
+export const renameProjectFile: RequestHandler = async (req, res) => {
   try {
-    const fileList = await getProjectFiles();
-
-    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
-
-    res.status(200).send({
-      files: fileList,
-      lastLoadedProject,
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.toString() });
-  }
-};
-
-/**
- * Receives a `filename` from the request body and loads the project file from the uploads directory.
- * @param req
- * @param res
- */
-export const loadProject: RequestHandler = async (req, res) => {
-  try {
-    const filename = req.body.filename;
+    const { projectFilename, newProjectFilename } = req.body;
 
     const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-    const filePath = join(uploadsFolderPath, filename);
 
-    if (!fs.existsSync(filePath)) {
+    const projectFilePath = join(uploadsFolderPath, projectFilename);
+    const newProjectFilePath = join(uploadsFolderPath, newProjectFilename);
+
+    try {
+      await open(projectFilePath);
+    } catch (error) {
       return res.status(404).send({ message: 'File not found' });
     }
 
-    await parseAndApply(filePath, req, res, {});
+    try {
+      await open(newProjectFilePath);
+
+      // File exists, so we can't continue
+      return res.status(409).send({ message: 'New file name already exists' });
+    } catch (error) {
+      // File does not exist, so we can continue
+    }
+
+    // Rename the file
+    await rename(projectFilePath, newProjectFilePath);
 
     res.status(200).send({
-      message: `Loaded project ${filename}`,
+      message: `Renamed project ${projectFilename} to ${newProjectFilename}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
