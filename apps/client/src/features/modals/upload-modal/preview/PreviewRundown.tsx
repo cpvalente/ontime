@@ -32,6 +32,8 @@ export default function PreviewRundown({ rundown, userFields }: PreviewRundownPr
             <th>Time Start</th>
             <th>Time End</th>
             <th>Duration</th>
+            <th>Warning Time</th>
+            <th>Danger Time</th>
             <th>Is Public</th>
             <th>Skip</th>
             <th>Colour</th>
@@ -94,6 +96,8 @@ export default function PreviewRundown({ rundown, userFields }: PreviewRundownPr
                   <td>{millisToString(event.timeStart)}</td>
                   <td>{millisToString(event.timeEnd)}</td>
                   <td>{millisToString(event.duration)}</td>
+                  <td>{millisToString(event.timeWarning)}</td>
+                  <td>{millisToString(event.timeDanger)}</td>
                   <td className={style.center}>{isPublic && <Tag>{isPublic}</Tag>}</td>
                   <td>{skip && <Tag>{skip}</Tag>}</td>
                   <td style={{ ...colour }}>{event.colour}</td>
