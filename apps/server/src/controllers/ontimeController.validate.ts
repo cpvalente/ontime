@@ -152,3 +152,28 @@ export const validatePatchProjectFile = [
     next();
   },
 ];
+
+/**
+ * @description Validates the filenames for duplicating a project.
+ */
+export const validateProjectDuplicate = [
+  body('projectFilename')
+    .exists()
+    .withMessage('Project filename is required')
+    .isString()
+    .withMessage('Project filename must be a string'),
+
+  body('duplicateProjectFilename')
+    .exists()
+    .withMessage('Duplicate project filename is required')
+    .isString()
+    .withMessage('Duplicate project filename must be a string'),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];

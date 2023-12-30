@@ -10,7 +10,7 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { isDocker, resolveDbPath, resolveStylesPath } from '../setup.js';
+import { getAppDataPath, isDocker, resolveDbPath, resolveStylesPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
@@ -19,6 +19,8 @@ import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
+import { join } from 'path';
+import { copyFile, open } from 'fs/promises';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -453,5 +455,47 @@ export const postNew: RequestHandler = async (req, res) => {
     res.status(201).send(newData);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Duplicates a project file.
+ * Receives the original project filename (`projectFilename`) and the filename for the duplicate (`duplicateProjectFilename`) from the request body.
+ *
+ * @param {Request} req - The express request object. Expects `projectFilename` and `duplicateProjectFilename` in the request body.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful duplication,
+ *                         a 404 status if the original file is not found, a 409 status if the duplicate file name already exists,
+ *                         or a 500 status with an error message in case of an exception.
+ */
+export const duplicateProjectFile: RequestHandler = async (req, res) => {
+  try {
+    const { projectFilename, duplicateProjectFilename } = req.body;
+
+    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+    const projectFilePath = join(uploadsFolderPath, projectFilename);
+    const duplicateProjectFilePath = join(uploadsFolderPath, duplicateProjectFilename);
+
+    try {
+      await open(projectFilePath);
+    } catch (error) {
+      return res.status(404).send({ message: 'File not found' });
+    }
+
+    try {
+      await open(duplicateProjectFilePath);
+
+      // File exists, so we can't continue
+      return res.status(409).send({ message: 'Duplicate file name already exists' });
+    } catch (error) {
+      // File does not exist, so we can continue
+    }
+
+    await copyFile(projectFilePath, duplicateProjectFilePath);
+
+    res.status(200).send({
+      message: `Duplicated project ${projectFilename} to ${duplicateProjectFilename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
   }
 };
