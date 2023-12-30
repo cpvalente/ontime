@@ -19,7 +19,6 @@ export default function ProjectList() {
     <Panel.Table>
       <thead>
         <tr>
-          <th></th>
           <th>Project Name</th>
           <th>Date Created</th>
           <th>Date Modified</th>
@@ -28,8 +27,7 @@ export default function ProjectList() {
       </thead>
       <tbody>
         {current && (
-          <tr>
-            <td></td>
+          <tr className={style.current}>
             <td>{current.filename}</td>
             <td>{new Date(current.createdAt).toLocaleString()}</td>
             <td>{new Date(current.updatedAt).toLocaleString()}</td>
@@ -43,7 +41,6 @@ export default function ProjectList() {
           const updatedAt = new Date(project.updatedAt).toLocaleString();
           return (
             <tr key={project.filename}>
-              <td></td>
               <td>{project.filename}</td>
               <td>{createdAt}</td>
               <td>{updatedAt}</td>
