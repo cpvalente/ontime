@@ -3,6 +3,7 @@ import { TranslationObject } from './en';
 export const langSv: TranslationObject = {
   'common.end_time': 'Sluttid',
   'common.expected_finish': 'Förväntat slut',
+  'common.minutes': 'min',
   'common.now': 'Nu',
   'common.next': 'Nästa',
   'common.public_message': 'Offentligt meddelande',

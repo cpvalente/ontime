@@ -8,6 +8,9 @@ interface SuperscriptTimeProps {
   style?: CSSProperties;
 }
 
+/**
+ * @description receives a string like 12:00 AM and adds the period part to the superscript
+ */
 export default function SuperscriptTime(props: SuperscriptTimeProps) {
   const { time, className, style } = props;
 
