@@ -13,7 +13,7 @@ import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 import { join } from 'path';
-import { copyFile, open, rename, writeFile } from 'fs/promises';
+import { copyFile, rename, writeFile } from 'fs/promises';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
