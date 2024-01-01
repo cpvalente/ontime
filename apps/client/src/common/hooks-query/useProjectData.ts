@@ -16,5 +16,5 @@ export default function useProjectData() {
     networkMode: 'always',
   });
 
-  return { data, status, isFetching, isError, refetch };
+  return { data: data ?? projectDataPlaceholder, status, isFetching, isError, refetch };
 }
