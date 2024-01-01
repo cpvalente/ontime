@@ -20,7 +20,14 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { getAppDataPath, isDocker, lastLoadedProjectConfigPath, resolveDbPath, resolveStylesPath } from '../setup.js';
+import {
+  getAppDataPath,
+  isDocker,
+  lastLoadedProjectConfigPath,
+  resolveDbPath,
+  resolveStylesPath,
+  uploadsFolderPath,
+} from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
@@ -32,6 +39,8 @@ import { integrationService } from '../services/integration-service/IntegrationS
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';
+import { emptyProject, sanitizeProjectName } from './ontimeController.config.js';
+import { validateProjectFiles } from './ontimeController.validate.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -528,23 +537,13 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
   try {
     const { projectFilename, duplicateProjectFilename } = req.body;
 
-    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
     const projectFilePath = join(uploadsFolderPath, projectFilename);
     const duplicateProjectFilePath = join(uploadsFolderPath, duplicateProjectFilename);
 
-    try {
-      await open(projectFilePath);
-    } catch (error) {
-      return res.status(404).send({ message: 'File not found' });
-    }
+    const errors = await validateProjectFiles({ projectFilename, newProjectFilename: duplicateProjectFilename });
 
-    try {
-      await open(duplicateProjectFilePath);
-
-      // File exists, so we can't continue
-      return res.status(409).send({ message: 'Duplicate file name already exists' });
-    } catch (error) {
-      // File does not exist, so we can continue
+    if (errors.length) {
+      return res.status(409).send({ message: errors.join(', ') });
     }
 
     await copyFile(projectFilePath, duplicateProjectFilePath);
@@ -569,24 +568,13 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
   try {
     const { projectFilename, newProjectFilename } = req.body;
 
-    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-
     const projectFilePath = join(uploadsFolderPath, projectFilename);
     const newProjectFilePath = join(uploadsFolderPath, newProjectFilename);
 
-    try {
-      await open(projectFilePath);
-    } catch (error) {
-      return res.status(404).send({ message: 'File not found' });
-    }
+    const errors = await validateProjectFiles({ projectFilename, newProjectFilename });
 
-    try {
-      await open(newProjectFilePath);
-
-      // File exists, so we can't continue
-      return res.status(409).send({ message: 'New file name already exists' });
-    } catch (error) {
-      // File does not exist, so we can continue
+    if (errors.length) {
+      return res.status(409).send({ message: errors.join(', ') });
     }
 
     // Rename the file
@@ -607,78 +595,21 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
   }
 };
 
-// TODO: This should be moved somewhere, I believe
-const defaultPlaceholderJson = {
-  rundown: [],
-  project: {
-    title: '',
-    description: '',
-    publicUrl: '',
-    publicInfo: '',
-    backstageUrl: '',
-    backstageInfo: '',
-  },
-  settings: {
-    app: '',
-    version: '',
-    serverPort: 0,
-    timeFormat: '24',
-    language: 'en',
-  },
-  viewSettings: {
-    overrideStyles: false,
-    normalColor: '',
-    warningColor: '',
-    warningThreshold: 0,
-    dangerColor: '',
-    dangerThreshold: 0,
-    endMessage: '',
-  },
-  aliases: [
-    {
-      enabled: false,
-      alias: '',
-      pathAndParams: '',
-    },
-  ],
-  userFields: {},
-  osc: {
-    portIn: 0,
-    portOut: 0,
-    targetIP: '127.0.0.1',
-    enabledIn: false,
-    enabledOut: false,
-    subscriptions: {},
-  },
-  http: {
-    enabledOut: false,
-    subscriptions: {},
-  },
-};
-
 export const createProjectFile: RequestHandler = async (req, res) => {
   try {
     const { projectFilename } = req.body;
 
-    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-
-    // add .json extension if not present
-    const projectFilenameWithExtension = projectFilename.endsWith('.json')
-      ? projectFilename
-      : `${projectFilename}.json`;
+    const projectFilenameWithExtension = sanitizeProjectName(projectFilename);
 
     const projectFilePath = join(uploadsFolderPath, projectFilenameWithExtension);
 
-    try {
-      await open(projectFilePath);
+    const errors = await validateProjectFiles({ newProjectFilename: projectFilenameWithExtension });
 
-      // File exists, so we can't continue
-      return res.status(409).send({ message: 'File name already exists' });
-    } catch (error) {
-      // File does not exist, so we can continue
+    if (errors.length) {
+      return res.status(409).send({ message: errors.join(', ') });
     }
 
-    await writeFile(projectFilePath, JSON.stringify(defaultPlaceholderJson));
+    await writeFile(projectFilePath, JSON.stringify(emptyProject));
 
     res.status(200).send({
       message: `Created project ${projectFilenameWithExtension}`,
@@ -692,17 +623,15 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
   try {
     const { projectName } = req.params;
 
-    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-
     // add .json extension if not present
-    const projectFilenameWithExtension = projectName.endsWith('.json') ? projectName : `${projectName}.json`;
+    const projectFilenameWithExtension = sanitizeProjectName(projectName);
 
     const projectFilePath = join(uploadsFolderPath, projectFilenameWithExtension);
 
-    try {
-      await open(projectFilePath);
-    } catch (error) {
-      return res.status(404).send({ message: 'File not found' });
+    const errors = await validateProjectFiles({ projectFilename: projectFilenameWithExtension });
+
+    if (errors.length) {
+      return res.status(409).send({ message: errors.join(', ') });
     }
 
     const { lastLoadedProject } = await configService.getConfig();

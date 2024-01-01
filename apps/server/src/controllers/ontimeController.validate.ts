@@ -1,9 +1,12 @@
 import { body, check, validationResult } from 'express-validator';
+import { join } from 'path';
+
 import {
   validateHttpSubscriptionObject,
   validateOscSubscriptionObject,
   validateOscSubscriptionCycle,
 } from '../utils/parserFunctions.js';
+import { uploadsFolderPath } from '../setup.js';
 
 /**
  * @description Validates object for POST /ontime/views
@@ -237,3 +240,64 @@ export const validateProjectCreate = [
     next();
   },
 ];
+
+const checkExistingFile = async (projectFilename?: string): Promise<string | null> => {
+  const projectFilePath = join(uploadsFolderPath, projectFilename);
+
+  try {
+    await open(projectFilePath);
+  } catch (error) {
+    return 'Project file does not exist';
+  }
+};
+
+const checkNewFile = async (newProjectFilename: string): Promise<string | null> => {
+  const newProjectFilePath = join(uploadsFolderPath, newProjectFilename);
+
+  try {
+    await open(newProjectFilePath);
+
+    // File exists, so we can't continue
+    return 'New file name already exists';
+  } catch (error) {
+    // File does not exist, so we can continue
+    return null;
+  }
+};
+
+/**
+ * @description Validates the existence of project files.
+ * @param {object} projectFiles
+ * @param {string} projectFiles.projectFilename
+ * @param {string} projectFiles.newProjectFilename
+ *
+ * @returns {Promise<Array<string>>} Array of errors
+ *
+ */
+export const validateProjectFiles = async (projectFiles: {
+  projectFilename?: string;
+  newProjectFilename?: string;
+}): Promise<Array<string>> => {
+  const errors = [];
+  try {
+    if (projectFiles.projectFilename) {
+      const existingFileError = await checkExistingFile(projectFiles.projectFilename);
+
+      if (existingFileError) {
+        errors.push(existingFileError);
+      }
+    }
+
+    if (projectFiles.newProjectFilename) {
+      const newFileError = await checkNewFile(projectFiles.newProjectFilename);
+
+      if (newFileError) {
+        errors.push(newFileError);
+      }
+    }
+
+    return errors;
+  } catch (error) {
+    return [error.toString()];
+  }
+};
