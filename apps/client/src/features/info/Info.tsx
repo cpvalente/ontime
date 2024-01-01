@@ -1,7 +1,6 @@
 import { useInfoPanel } from '../../common/hooks/useSocket';
 import { useEditorSettings } from '../../common/stores/editorSettings';
 
-import InfoHeader from './info-header/InfoHeader';
 import CollapsableInfo from './CollapsableInfo';
 import InfoLogger from './InfoLogger';
 import InfoNif from './InfoNif';
@@ -25,15 +24,8 @@ export default function Info() {
     note: data.eventNext?.note || '',
   };
 
-  const selected = !data.numEvents
-    ? 'No events'
-    : `Event ${data.selectedEventIndex !== null ? data.selectedEventIndex + 1 : '-'} / ${
-        data.numEvents ? data.numEvents : '-'
-      }`;
-
   return (
     <>
-      <InfoHeader selected={selected} />
       {showNif && (
         <CollapsableInfo title='Network Info'>
           <InfoNif />

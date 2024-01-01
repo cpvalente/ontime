@@ -34,16 +34,11 @@ $playback-width: 26rem;
   
   display: grid;
   grid-template-columns: $menu-width auto;
-  grid-template-rows: 2rem 1fr;
+  grid-template-rows: 3rem 1fr;
   grid-template-areas: 
     'menu overview'
     'menu main';
   gap: 0.5rem;
-}
-
-.overview {
-  grid-area: overview;
-  background-color: $white-10;
 }
 
 .panelContainer {
