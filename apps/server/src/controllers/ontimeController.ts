@@ -618,7 +618,6 @@ export const createProjectFile: RequestHandler = async (req, res) => {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
-    console.log({ projectFilePath });
     await writeFile(projectFilePath, JSON.stringify(emptyProject));
 
     res.status(200).send({
