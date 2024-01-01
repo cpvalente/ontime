@@ -13,7 +13,7 @@ import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 import { join } from 'path';
-import { copyFile, open, rename } from 'fs/promises';
+import { copyFile, open, rename, writeFile } from 'fs/promises';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
@@ -600,6 +600,87 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
 
     res.status(200).send({
       message: `Renamed project ${projectFilename} to ${newProjectFilename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+// TODO: This should be moved somewhere, I believe
+const defaultPlaceholderJson = {
+  rundown: [],
+  project: {
+    title: '',
+    description: '',
+    publicUrl: '',
+    publicInfo: '',
+    backstageUrl: '',
+    backstageInfo: '',
+  },
+  settings: {
+    app: '',
+    version: '',
+    serverPort: 0,
+    timeFormat: '24',
+    language: 'en',
+  },
+  viewSettings: {
+    overrideStyles: false,
+    normalColor: '',
+    warningColor: '',
+    warningThreshold: 0,
+    dangerColor: '',
+    dangerThreshold: 0,
+    endMessage: '',
+  },
+  aliases: [
+    {
+      enabled: false,
+      alias: '',
+      pathAndParams: '',
+    },
+  ],
+  userFields: {},
+  osc: {
+    portIn: 0,
+    portOut: 0,
+    targetIP: '127.0.0.1',
+    enabledIn: false,
+    enabledOut: false,
+    subscriptions: {},
+  },
+  http: {
+    enabledOut: false,
+    subscriptions: {},
+  },
+};
+
+export const createProjectFile: RequestHandler = async (req, res) => {
+  try {
+    const { projectFilename } = req.body;
+
+    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+
+    // add .json extension if not present
+    const projectFilenameWithExtension = projectFilename.endsWith('.json')
+      ? projectFilename
+      : `${projectFilename}.json`;
+
+    const projectFilePath = join(uploadsFolderPath, projectFilenameWithExtension);
+
+    try {
+      await open(projectFilePath);
+
+      // File exists, so we can't continue
+      return res.status(409).send({ message: 'File name already exists' });
+    } catch (error) {
+      // File does not exist, so we can continue
+    }
+
+    await writeFile(projectFilePath, JSON.stringify(defaultPlaceholderJson));
+
+    res.status(200).send({
+      message: `Created project ${projectFilenameWithExtension}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });

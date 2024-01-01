@@ -25,6 +25,7 @@ import {
   listProjects,
   loadProject,
   renameProjectFile,
+  createProjectFile,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -39,6 +40,7 @@ import {
   validateProjectDuplicate,
   validateLoadProjectFile,
   validateProjectRename,
+  validateProjectCreate,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 
@@ -115,3 +117,6 @@ router.post('/duplicate-project', validateProjectDuplicate, duplicateProjectFile
 
 // create route between controller and '/ontime/rename-project' endpoint
 router.put('/rename-project', validateProjectRename, renameProjectFile);
+
+// create route between controller and '/ontime/create-project' endpoint
+router.post('/create-project', validateProjectCreate, createProjectFile);
