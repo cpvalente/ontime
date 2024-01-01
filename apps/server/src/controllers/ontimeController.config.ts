@@ -46,12 +46,23 @@ export const emptyProject = {
   },
 };
 
-export const sanitizeProjectName = (projectName: string): string => {
-  // if already has a .json extension, return it
-  if (projectName.includes('.json')) {
-    return projectName;
+export const sanitizeProjectFilename = (req, res, next) => {
+  const { projectFilename, newProjectFilename } = req.body;
+  const { projectName } = req.params;
+
+  if (projectFilename) {
+    req.body.projectFilename = projectFilename.includes('.json') ? projectFilename : `${projectFilename}.json`;
   }
 
-  // if no extension, add it
-  return `${projectName}.json`;
+  if (newProjectFilename) {
+    req.body.newProjectFilename = newProjectFilename.includes('.json')
+      ? newProjectFilename
+      : `${newProjectFilename}.json`;
+  }
+
+  if (projectName) {
+    req.params.projectName = projectName.includes('.json') ? projectName : `${projectName}.json`;
+  }
+
+  next();
 };

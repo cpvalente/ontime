@@ -44,6 +44,7 @@ import {
   validateProjectCreate,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
+import { sanitizeProjectFilename } from '../controllers/ontimeController.config.js';
 
 export const router = express.Router();
 
@@ -114,13 +115,13 @@ router.get('/projects', listProjects);
 router.post('/load-project', validateLoadProjectFile, loadProject);
 
 // create route between controller and '/ontime/duplicate-project' endpoint
-router.post('/duplicate-project', validateProjectDuplicate, duplicateProjectFile);
+router.post('/duplicate-project', validateProjectDuplicate, sanitizeProjectFilename, duplicateProjectFile);
 
 // create route between controller and '/ontime/rename-project' endpoint
-router.put('/rename-project', validateProjectRename, renameProjectFile);
+router.put('/rename-project', validateProjectRename, sanitizeProjectFilename, renameProjectFile);
 
 // create route between controller and '/ontime/create-project' endpoint
-router.post('/create-project', validateProjectCreate, createProjectFile);
+router.post('/create-project', validateProjectCreate, sanitizeProjectFilename, createProjectFile);
 
 // create route between controller and '/ontime/delete-project' endpoint
-router.delete('/delete-project/:projectName', deleteProjectFile);
+router.delete('/delete-project/:projectName', sanitizeProjectFilename, deleteProjectFile);

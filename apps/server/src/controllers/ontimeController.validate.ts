@@ -1,5 +1,6 @@
 import { body, check, validationResult } from 'express-validator';
 import { join } from 'path';
+import { open } from 'fs/promises';
 
 import {
   validateHttpSubscriptionObject,
@@ -180,11 +181,11 @@ export const validateProjectDuplicate = [
     .isString()
     .withMessage('Project filename must be a string'),
 
-  body('duplicateProjectFilename')
+  body('newProjectFilename')
     .exists()
-    .withMessage('Duplicate project filename is required')
+    .withMessage('New project filename is required')
     .isString()
-    .withMessage('Duplicate project filename must be a string'),
+    .withMessage('New project filename must be a string'),
 
   (req, res, next) => {
     const errors = validationResult(req);

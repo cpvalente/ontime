@@ -39,7 +39,7 @@ import { integrationService } from '../services/integration-service/IntegrationS
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';
-import { emptyProject, sanitizeProjectName } from './ontimeController.config.js';
+import { emptyProject } from './ontimeController.config.js';
 import { validateProjectFiles } from './ontimeController.validate.js';
 
 // Create controller for GET request to '/ontime/poll'
@@ -526,21 +526,21 @@ export const loadProject: RequestHandler = async (req, res) => {
 
 /**
  * Duplicates a project file.
- * Receives the original project filename (`projectFilename`) and the filename for the duplicate (`duplicateProjectFilename`) from the request body.
+ * Receives the original project filename (`projectFilename`) and the filename for the duplicate (`newProjectFilename`) from the request body.
  *
- * @param {Request} req - The express request object. Expects `projectFilename` and `duplicateProjectFilename` in the request body.
+ * @param {Request} req - The express request object. Expects `projectFilename` and `newProjectFilename` in the request body.
  * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful duplication,
  *                         a 404 status if the original file is not found, a 409 status if the duplicate file name already exists,
  *                         or a 500 status with an error message in case of an exception.
  */
 export const duplicateProjectFile: RequestHandler = async (req, res) => {
   try {
-    const { projectFilename, duplicateProjectFilename } = req.body;
+    const { projectFilename, newProjectFilename } = req.body;
 
     const projectFilePath = join(uploadsFolderPath, projectFilename);
-    const duplicateProjectFilePath = join(uploadsFolderPath, duplicateProjectFilename);
+    const duplicateProjectFilePath = join(uploadsFolderPath, newProjectFilename);
 
-    const errors = await validateProjectFiles({ projectFilename, newProjectFilename: duplicateProjectFilename });
+    const errors = await validateProjectFiles({ projectFilename, newProjectFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -549,7 +549,7 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
     await copyFile(projectFilePath, duplicateProjectFilePath);
 
     res.status(200).send({
-      message: `Duplicated project ${projectFilename} to ${duplicateProjectFilename}`,
+      message: `Duplicated project ${projectFilename} to ${newProjectFilename}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -595,40 +595,60 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
   }
 };
 
+/**
+ * Creates a new project file.
+ * Receives the project filename (`projectFilename`) from the request body, sanitizes the filename,
+ * and creates a new file in the uploads folder with an initial empty project structure.
+ *
+ * @param {Request} req - The express request object. Expects `projectFilename` in the request body.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful creation,
+ *                         a 409 status if there is a validation error (like filename already exists),
+ *                         or a 500 status with an error message in case of an exception.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ */
 export const createProjectFile: RequestHandler = async (req, res) => {
   try {
     const { projectFilename } = req.body;
 
-    const projectFilenameWithExtension = sanitizeProjectName(projectFilename);
+    const projectFilePath = join(uploadsFolderPath, projectFilename);
 
-    const projectFilePath = join(uploadsFolderPath, projectFilenameWithExtension);
-
-    const errors = await validateProjectFiles({ newProjectFilename: projectFilenameWithExtension });
+    const errors = await validateProjectFiles({ newProjectFilename: projectFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
+    console.log({ projectFilePath });
     await writeFile(projectFilePath, JSON.stringify(emptyProject));
 
     res.status(200).send({
-      message: `Created project ${projectFilenameWithExtension}`,
+      message: `Created project ${projectFilename}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
   }
 };
 
+/**
+ * Deletes an existing project file.
+ * Receives the project name (`projectName`) from the request parameters
+ * and deletes the corresponding file in the uploads folder. It also checks if the project to be deleted
+ * is the currently loaded project, and prevents deletion in that case.
+ *
+ * @param {Request} req - The express request object. Expects `projectName` in the request parameters.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful deletion,
+ *                         a 403 status if attempting to delete the currently loaded project,
+ *                         a 409 status if there are validation errors,
+ *                         or a 500 status with an error message in case of an exception.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ */
 export const deleteProjectFile: RequestHandler = async (req, res) => {
   try {
     const { projectName } = req.params;
 
-    // add .json extension if not present
-    const projectFilenameWithExtension = sanitizeProjectName(projectName);
+    const projectFilePath = join(uploadsFolderPath, projectName);
 
-    const projectFilePath = join(uploadsFolderPath, projectFilenameWithExtension);
-
-    const errors = await validateProjectFiles({ projectFilename: projectFilenameWithExtension });
+    const errors = await validateProjectFiles({ projectFilename: projectName });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -636,14 +656,14 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
 
     const { lastLoadedProject } = await configService.getConfig();
 
-    if (lastLoadedProject === projectFilenameWithExtension) {
+    if (lastLoadedProject === projectName) {
       return res.status(403).send({ message: 'Cannot delete currently loaded project' });
     }
 
     await deleteFile(projectFilePath);
 
     res.status(200).send({
-      message: `Deleted project ${projectFilenameWithExtension}`,
+      message: `Deleted project ${projectName}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
