@@ -36,20 +36,22 @@
   gap: 0.25rem;
 }
 
-@mixin indicator() {
-  display: inline-flex;
-  height: 0.75em;
-  width: 0.75em;
-  vertical-align: middle;
-  margin-right: 0.25rem;
+@mixin indicator($bg-color) {
+  &::before {
+    content: '';  
+    background-color: $bg-color;
+    display: inline-flex;
+    height: 0.75em;
+    width: 0.75em;
+    vertical-align: middle;
+    margin-right: 0.25rem;
+  }
 }
 
 .start {
-  background-color: $green-500;
-  @include indicator();
+  @include indicator($green-500);
 }
 
 .end {
-  background-color: $red-500;
-  @include indicator();
+  @include indicator($red-500);
 }

@@ -1,3 +1,5 @@
+import { Tooltip } from '@chakra-ui/react';
+
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import PlaybackIcon from '../../common/components/playback-icon/PlaybackIcon';
 import { useRuntimeOverview } from '../../common/hooks/useSocket';
@@ -12,25 +14,21 @@ export default function Overview() {
       <ErrorBoundary>
         <TitlesOverview />
         <div className={styles.clocks}>
-          <div>
-            <span className={styles.start} />
-            Planned start
-          </div>
-          <div>
-            <span className={styles.start} />
-            Actual start
-          </div>
+          <Tooltip label='Planned start'>
+            <div className={styles.start}>Planned start</div>
+          </Tooltip>
+          <Tooltip label='Actual start'>
+            <div className={styles.start}>Actual start</div>
+          </Tooltip>
         </div>
         <RuntimeOverview />
         <div className={styles.clocks}>
-          <div>
-            <span className={styles.end} />
-            Planned end
-          </div>
-          <div>
-            <span className={styles.end} />
-            Expected end
-          </div>
+          <Tooltip label='Planned end'>
+            <div className={styles.end}>Planned end</div>
+          </Tooltip>
+          <Tooltip label='Expected end'>
+            <div className={styles.end}>Expected end</div>
+          </Tooltip>
         </div>
       </ErrorBoundary>
     </div>
