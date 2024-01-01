@@ -26,6 +26,7 @@ import {
   loadProject,
   renameProjectFile,
   createProjectFile,
+  deleteProjectFile,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -120,3 +121,6 @@ router.put('/rename-project', validateProjectRename, renameProjectFile);
 
 // create route between controller and '/ontime/create-project' endpoint
 router.post('/create-project', validateProjectCreate, createProjectFile);
+
+// create route between controller and '/ontime/delete-project' endpoint
+router.delete('/delete-project/:projectName', deleteProjectFile);

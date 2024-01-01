@@ -31,6 +31,7 @@ import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundo
 import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
+import { deleteFile } from '../utils/parserUtils.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -681,6 +682,39 @@ export const createProjectFile: RequestHandler = async (req, res) => {
 
     res.status(200).send({
       message: `Created project ${projectFilenameWithExtension}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+export const deleteProjectFile: RequestHandler = async (req, res) => {
+  try {
+    const { projectName } = req.params;
+
+    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+
+    // add .json extension if not present
+    const projectFilenameWithExtension = projectName.endsWith('.json') ? projectName : `${projectName}.json`;
+
+    const projectFilePath = join(uploadsFolderPath, projectFilenameWithExtension);
+
+    try {
+      await open(projectFilePath);
+    } catch (error) {
+      return res.status(404).send({ message: 'File not found' });
+    }
+
+    const { lastLoadedProject } = await configService.getConfig();
+
+    if (lastLoadedProject === projectFilenameWithExtension) {
+      return res.status(403).send({ message: 'Cannot delete currently loaded project' });
+    }
+
+    await deleteFile(projectFilePath);
+
+    res.status(200).send({
+      message: `Deleted project ${projectFilenameWithExtension}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
