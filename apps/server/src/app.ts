@@ -55,11 +55,11 @@ await fastify.register(fastifyExpress);
 fastify.use(app);
 
 // Implement middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json({ limit: '1mb' }));
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
-app.use('/events', rundownRouter);
+await fastify.register(rundownRouter, { prefix: '/events' });
 app.use('/project', projectRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/api', apiRouter);
@@ -72,12 +72,7 @@ app.use('/external', (req, res) => {
 
 // serve static - react, in dev/test mode we fetch the React app from module
 const reactAppPath = join(currentDirectory, resolvedPath());
-app.use(
-  expressStaticGzip(reactAppPath, {
-    enableBrotli: true,
-    orderPreference: ['br'],
-  }),
-);
+await fastify.register(fastifyCompress, { global: false }); //TODO: ?
 
 fastify.get('*', (req, res) => {
   res.send(resolve(currentDirectory, resolvedPath(), 'index.html'));

@@ -1,4 +1,5 @@
-import express from 'express';
+import Fastify, { FastifyBaseLogger } from 'fastify';
+import { Server, IncomingMessage, ServerResponse } from 'http';
 import {
   deleteEventById,
   rundownApplyDelay,
@@ -11,37 +12,42 @@ import {
   rundownSwap,
 } from '../controllers/rundownController.js';
 import {
-  paramsMustHaveEventId,
-  rundownPostValidator,
-  rundownPutValidator,
-  rundownReorderValidator,
-  rundownSwapValidator,
+  rundownPostSchema,
+  rundownPutSchema,
+  paramsMustHaveEventIdSchema,
+  rundownReorderSchema,
 } from '../controllers/rundownController.validate.js';
+import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
 
-export const router = express.Router();
+export const router = (
+  fastify: Fastify.FastifyInstance<Server, IncomingMessage, ServerResponse, FastifyBaseLogger, JsonSchemaToTsProvider>,
+  _opts,
+  done,
+) => {
+  // create route between controller and '/events/cached' endpoint
+  fastify.get('/cached', rundownGetCached);
 
-// create route between controller and '/events/cached' endpoint
-router.get('/cached', rundownGetCached);
+  // create route between controller and '/events/' endpoint
+  fastify.get('/', rundownGetAll);
 
-// create route between controller and '/events/' endpoint
-router.get('/', rundownGetAll);
+  // create route between controller and '/events/' endpoint
+  fastify.post('/', { schema: rundownPostSchema }, rundownPost);
+  // create route between controller and '/events/' endpoint
+  fastify.put('/', { schema: rundownPutSchema }, rundownPut);
 
-// create route between controller and '/events/' endpoint
-router.post('/', rundownPostValidator, rundownPost);
+  // create route between controller and '/events/reorder' endpoint
+  fastify.patch('/reorder/', { schema: rundownReorderSchema }, rundownReorder);
 
-// create route between controller and '/events/' endpoint
-router.put('/', rundownPutValidator, rundownPut);
+  fastify.patch('/swap', { schema: paramsMustHaveEventIdSchema }, rundownSwap);
 
-// create route between controller and '/events/reorder' endpoint
-router.patch('/reorder/', rundownReorderValidator, rundownReorder);
+  // create route between controller and '/events/applydelay/:eventId' endpoint
+  fastify.patch('/applydelay/:eventId', { schema: paramsMustHaveEventIdSchema }, rundownApplyDelay);
 
-router.patch('/swap', rundownSwapValidator, rundownSwap);
+  // create route between controller and '/events/all' endpoint
+  fastify.delete('/all', rundownDelete);
 
-// create route between controller and '/events/applydelay/:eventId' endpoint
-router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
+  // create route between controller and '/events/:eventId' endpoint
+  fastify.delete('/:eventId', { schema: paramsMustHaveEventIdSchema }, deleteEventById);
 
-// create route between controller and '/events/all' endpoint
-router.delete('/all', rundownDelete);
-
-// create route between controller and '/events/:eventId' endpoint
-router.delete('/:eventId', paramsMustHaveEventId, deleteEventById);
+  done();
+};
