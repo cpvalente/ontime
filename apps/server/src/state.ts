@@ -1,9 +1,11 @@
+import type { DeepReadonly, DeepWritable } from 'ts-essentials';
+
 import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
+import { calculateDuration, dayInMs } from 'ontime-utils';
+
 import { clock } from './services/Clock.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
-import { calculateDuration, dayInMs } from 'ontime-utils';
 import { getCurrent, getExpectedFinish } from './services/timerUtils.js';
-import type { DeepReadonly, DeepWritable } from 'ts-essentials';
 import { eventStore } from './stores/EventStore.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { PlaybackService } from './services/PlaybackService.js';
@@ -49,6 +51,7 @@ export const state: TState = {
 
 export const stateMutations = {
   timer: {
+    // utility to allow modifying the state from the ouside
     patch(timer: Partial<TimerState>) {
       mutate((state) => {
         for (const key in timer) {
@@ -87,6 +90,7 @@ export const stateMutations = {
         },
         {
           sideEffect() {
+            saveToRestore(state);
             integrationService.dispatch(TimerLifeCycle.onStart);
           },
         },
@@ -111,6 +115,7 @@ export const stateMutations = {
         },
         {
           sideEffect() {
+            saveToRestore(state);
             if (shouldNotify) {
               integrationService.dispatch(TimerLifeCycle.onStop);
             }
@@ -127,6 +132,7 @@ export const stateMutations = {
         },
         {
           sideEffect() {
+            saveToRestore(state);
             integrationService.dispatch(TimerLifeCycle.onPause);
           },
         },
@@ -181,6 +187,7 @@ export const stateMutations = {
         },
         {
           sideEffect() {
+            saveToRestore(state);
             integrationService.dispatch(TimerLifeCycle.onLoad);
           },
         },
@@ -210,24 +217,31 @@ export const stateMutations = {
       });
     },
     addTime(amount: number) {
-      mutate((state) => {
-        if (!state.timer.selectedEventId) {
-          return;
-        }
-
-        state.timer.addedTime += amount;
-
-        // handle edge cases
-        if (amount < 0 && Math.abs(amount) > state.timer.current) {
-          if (state.timer.finishedAt === null) {
-            // if we will make the clock negative
-            state.timer.finishedAt = clock.timeNow();
+      mutate(
+        (state) => {
+          if (!state.timer.selectedEventId) {
+            return;
           }
-        } else if (state.timer.current < 0 && state.timer.current + amount > 0) {
-          // clock will go from negative to positive
-          state.timer.finishedAt = null;
-        }
-      });
+
+          state.timer.addedTime += amount;
+
+          // handle edge cases
+          if (amount < 0 && Math.abs(amount) > state.timer.current) {
+            if (state.timer.finishedAt === null) {
+              // if we will make the clock negative
+              state.timer.finishedAt = clock.timeNow();
+            }
+          } else if (state.timer.current < 0 && state.timer.current + amount > 0) {
+            // clock will go from negative to positive
+            state.timer.finishedAt = null;
+          }
+        },
+        {
+          sideEffect() {
+            saveToRestore(state);
+          },
+        },
+      );
     },
     update(force: boolean, updateInterval: number) {
       return mutate(
@@ -348,6 +362,7 @@ export const stateMutations = {
 
             if (isFinished) {
               integrationService.dispatch(TimerLifeCycle.onFinish);
+              saveToRestore(state);
               if (newState.playback === Playback.Play) {
                 if (newState.timer.endAction === EndAction.Stop) {
                   PlaybackService.stop();
@@ -366,43 +381,50 @@ export const stateMutations = {
       );
     },
     roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null) {
-      mutate((state) => {
-        state.timer.clock = clock.timeNow();
+      mutate(
+        (state) => {
+          state.timer.clock = clock.timeNow();
 
-        if (currentEvent) {
-          // there is something running, load
-          state.timer.secondaryTimer = null;
-          state.timer.secondaryTarget = null;
+          if (currentEvent) {
+            // there is something running, load
+            state.timer.secondaryTimer = null;
+            state.timer.secondaryTarget = null;
 
-          // account for event that finishes the day after
-          const endTime =
-            currentEvent.timeEnd < currentEvent.timeStart ? currentEvent.timeEnd + dayInMs : currentEvent.timeEnd;
+            // account for event that finishes the day after
+            const endTime =
+              currentEvent.timeEnd < currentEvent.timeStart ? currentEvent.timeEnd + dayInMs : currentEvent.timeEnd;
 
-          // when we load a timer in roll, we do the same things as before
-          // but also pre-populate some data as to the running state
-          this.load(currentEvent, {
-            startedAt: currentEvent.timeStart,
-            expectedFinish: currentEvent.timeEnd,
-            current: endTime - state.timer.clock,
-          });
-        } else if (nextEvent) {
-          // account for day after
-          const nextStart =
-            nextEvent.timeStart < state.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
-          // nothing now, but something coming up
-          state.timer.secondaryTimer = nextStart - state.timer.clock;
-          state.timer.secondaryTarget = nextStart;
-        }
+            // when we load a timer in roll, we do the same things as before
+            // but also pre-populate some data as to the running state
+            this.load(currentEvent, {
+              startedAt: currentEvent.timeStart,
+              expectedFinish: currentEvent.timeEnd,
+              current: endTime - state.timer.clock,
+            });
+          } else if (nextEvent) {
+            // account for day after
+            const nextStart =
+              nextEvent.timeStart < state.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
+            // nothing now, but something coming up
+            state.timer.secondaryTimer = nextStart - state.timer.clock;
+            state.timer.secondaryTarget = nextStart;
+          }
 
-        state.playback = Playback.Roll;
-      });
+          state.playback = Playback.Roll;
+        },
+        {
+          sideEffect() {
+            saveToRestore(state);
+          },
+        },
+      );
     },
   },
 };
 
 /**
- * This function is the only way to write to the state. You should mock this
- * function on the unit tests to assert state transitions and side effects.
+ * This function is the only way to write to the state.
+ * Mock this in the unit tests to assert state transitions and side effects.
  */
 function mutate<R>(
   /**
@@ -430,11 +452,16 @@ function mutate<R>(
 
   opts?.sideEffect?.(result, newState, prevState);
 
+  // set eventStore any time a mutation happens
   eventStore.batchSet({
     playback: newState.playback,
     timer: newState.timer,
   });
 
+  return result;
+}
+
+function saveToRestore(state: TState) {
   restoreService.save({
     playback: state.playback,
     selectedEventId: state.timer.selectedEventId,
@@ -442,6 +469,4 @@ function mutate<R>(
     addedTime: state.timer.addedTime,
     pausedAt: state.timer.pausedAt,
   });
-
-  return result;
 }
