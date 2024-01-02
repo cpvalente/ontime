@@ -79,12 +79,12 @@ app.use(
   }),
 );
 
-app.get('*', (req, res) => {
-  res.sendFile(resolve(currentDirectory, resolvedPath(), 'index.html'));
+fastify.get('*', (req, res) => {
+  res.send(resolve(currentDirectory, resolvedPath(), 'index.html'));
 });
 
 // Implement catch all
-app.use((error, response) => {
+fastify.use((error, response) => {
   response.status(400).send('Unhandled request');
 });
 
