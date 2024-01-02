@@ -2,9 +2,11 @@ import { HttpSettings, LogOrigin, OSCSettings } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
+import fastifyExpress from '@fastify/express';
+import Fastify from 'fastify';
 import expressStaticGzip from 'express-static-gzip';
 import http, { type Server } from 'http';
-import cors from 'cors';
+import cors from '@fastify/cors';
 
 // import utils
 import { join, resolve } from 'path';
@@ -44,14 +46,14 @@ if (!isProduction) {
 }
 
 // Create express APP
+const fastify = Fastify({});
 const app = express();
 app.disable('x-powered-by');
 
 // setup cors for all routes
-app.use(cors());
-
-// enable pre-flight cors
-app.options('*', cors());
+await fastify.register(cors, { origin: true });
+await fastify.register(fastifyExpress);
+fastify.use(app);
 
 // Implement middleware
 app.use(express.urlencoded({ extended: true }));
@@ -141,9 +143,9 @@ export const startServer = async () => {
   const { serverPort } = DataProvider.getSettings();
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 
-  expressServer = http.createServer(app);
+  await fastify.listen({ port: serverPort, host: '0.0.0.0' });
 
-  socket.init(expressServer);
+  socket.init(fastify.server);
   eventLoader.init();
 
   // load restore point if it exists
@@ -162,8 +164,6 @@ export const startServer = async () => {
 
   // eventStore set is a dependency of the services that publish to it
   messageService.init(eventStore.set.bind(eventStore));
-
-  expressServer.listen(serverPort, '0.0.0.0');
 
   return { message: returnMessage, serverPort };
 };
