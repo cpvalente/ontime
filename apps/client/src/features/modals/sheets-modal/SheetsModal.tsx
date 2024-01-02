@@ -5,6 +5,7 @@ import {
   AlertIcon,
   AlertTitle,
   Button,
+  HStack,
   Input,
   Modal,
   ModalBody,
@@ -61,7 +62,6 @@ export default function SheetsModal(props: SheetsModalProps) {
     worksheetOptions: [],
   });
 
-  //TODO: soulde the be a button like now or on change?
   const testId = async () => {
     setState(await getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? ''));
   };
@@ -96,10 +96,6 @@ export default function SheetsModal(props: SheetsModalProps) {
     if (isOpen) {
       getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '').then((data) => setState(data));
     }
-    return () => {
-      // Alex: This function will be run when the component unmounts
-      console.log('Component is unmounting');
-    };
   }, [isOpen]);
 
   const handleAuthenticate = () => {
@@ -170,15 +166,13 @@ export default function SheetsModal(props: SheetsModalProps) {
               <AlertTitle>Sync with Google Sheets</AlertTitle>
               <AlertDescription>
                 Add information here, maybe a link too. <br />
-                The save button is also confusing, can we clarify? should the push data and pull data not be the end
-                game buttons here?
                 <ModalLink href='our-docs'>For more information, see the docs</ModalLink>
               </AlertDescription>
             </div>
           </Alert>
           {!rundown ? (
             <>
-              <Step step={1} title='Upload token' completed={Boolean(sheetState?.secret)} disabled={false}>
+              <Step title='1 - Upload OAuth 2.0 Client ID' completed={Boolean(sheetState?.secret)} disabled={false}>
                 <Input
                   ref={fileInputRef}
                   style={{ display: 'none' }}
@@ -188,13 +182,12 @@ export default function SheetsModal(props: SheetsModalProps) {
                   data-testid='file-input'
                 />
                 <Button size='sm' variant='ontime-subtle-on-light' onClick={handleClick}>
-                  Upload Client Secret
+                  {sheetState?.secret ? 'Reupload Client ID' : 'Upload Client ID'}
                 </Button>
               </Step>
 
               <Step
-                step={2}
-                title='Authenticate with Google'
+                title='2 - Authenticate with Google'
                 completed={Boolean(sheetState?.auth)}
                 disabled={!sheetState?.secret}
               >
@@ -208,9 +201,8 @@ export default function SheetsModal(props: SheetsModalProps) {
                 </Button>
               </Step>
 
-              <Step step={3} title='Add Sheet ID' completed={Boolean(sheetState?.id)} disabled={!sheetState?.auth}>
-                <label htmlFor='sheetid'>
-                  Sheet ID
+              <Step title='3 - Add Document ID' completed={Boolean(sheetState?.id)} disabled={!sheetState?.auth}>
+                <HStack>
                   <Input
                     type='text'
                     ref={sheetRef}
@@ -219,31 +211,27 @@ export default function SheetsModal(props: SheetsModalProps) {
                     variant='ontime-filled-on-light'
                     disabled={!sheetState?.auth}
                   />
-                </label>
-                <Button variant='ontime-subtle-on-light' padding='0 2em' onClick={testId}>
-                  Test Sheet ID
-                </Button>
+                  <Button size='sm' variant='ontime-subtle-on-light' padding='0 2em' onClick={testId}>
+                    Connect
+                  </Button>
+                </HStack>
               </Step>
 
               <Step
-                step={4}
-                title='Select Worksheet to import'
+                title='4 - Select Worksheet to import'
                 completed={Boolean(sheetState?.worksheet)}
-                disabled={!sheetState?.worksheetOptions}
+                disabled={sheetState?.worksheetOptions.length == 0}
               >
-                <label htmlFor='worksheet'>
-                  Worksheet
-                  <Select ref={worksheetRef} size='sm' id='worksheet' disabled={!sheetState?.worksheetOptions}>
-                    {sheetState?.worksheetOptions?.map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </Select>
-                </label>
+                <Select ref={worksheetRef} size='sm' id='worksheet' disabled={sheetState?.worksheetOptions.length == 0}>
+                  {sheetState?.worksheetOptions?.map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </Select>
               </Step>
 
-              <Step step={5} title='Upload / Download rundown' completed={false} disabled={!sheetState?.worksheet}>
+              <Step title='5 - Upload / Download rundown' completed={false} disabled={!sheetState?.worksheet}>
                 <div style={{ display: 'flex', gap: '1em' }}>
                   <Button
                     disabled={!sheetState?.worksheet}
@@ -251,7 +239,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                     padding='0 2em'
                     onClick={handlePushData}
                   >
-                    Push data
+                    Upload
                   </Button>
                   <Button
                     disabled={!sheetState?.worksheet}
@@ -259,7 +247,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                     padding='0 2em'
                     onClick={handlePullData}
                   >
-                    Pull data
+                    Download
                   </Button>
                 </div>
               </Step>
@@ -273,7 +261,6 @@ export default function SheetsModal(props: SheetsModalProps) {
           )}
         </ModalBody>
         <ModalFooter>
-          <Button variant='ontime-subtle-on-light'>Reset</Button>
           {rundown && (
             <Button variant='ontime-filled' padding='0 2em' onClick={handleFinalise}>
               Import
