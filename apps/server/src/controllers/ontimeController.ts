@@ -645,18 +645,18 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
   try {
     const { projectName } = req.params;
 
+    const { lastLoadedProject } = await configService.getConfig();
+
+    if (lastLoadedProject === projectName) {
+      return res.status(403).send({ message: 'Cannot delete currently loaded project' });
+    }
+
     const projectFilePath = join(uploadsFolderPath, projectName);
 
     const errors = await validateProjectFiles({ projectFilename: projectName });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
-    }
-
-    const { lastLoadedProject } = await configService.getConfig();
-
-    if (lastLoadedProject === projectName) {
-      return res.status(403).send({ message: 'Cannot delete currently loaded project' });
     }
 
     await deleteFile(projectFilePath);
