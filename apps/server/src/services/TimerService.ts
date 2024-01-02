@@ -21,7 +21,6 @@ export class TimerService {
    * @param {number} [timerConfig.updateInterval]
    */
   constructor(timerConfig: { refresh: number; updateInterval: number }) {
-    stateMutations.timer.stop();
     this._interval = setInterval(() => this.update(), timerConfig.refresh);
     this._updateInterval = timerConfig.updateInterval;
   }
@@ -46,6 +45,7 @@ export class TimerService {
       return;
     }
 
+    // TODO: this is no longer correct
     if (timer.id !== state.timer.selectedEventId) {
       // event timer only concerns itself with current event
       return;

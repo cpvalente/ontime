@@ -430,19 +430,10 @@ function mutate<R>(
 
   opts?.sideEffect?.(result, newState, prevState);
 
-  try {
-    eventStore.batchSet({
-      playback: newState.playback,
-      timer: newState.timer,
-    });
-  } catch (error) {
-    const shouldSwallow =
-      error instanceof Error && error.message === "Cannot access 'eventStore' before initialization";
-
-    if (!shouldSwallow) {
-      throw error;
-    }
-  }
+  eventStore.batchSet({
+    playback: newState.playback,
+    timer: newState.timer,
+  });
 
   restoreService.save({
     playback: state.playback,
