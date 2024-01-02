@@ -39,8 +39,8 @@ import { integrationService } from '../services/integration-service/IntegrationS
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';
-import { emptyProject } from './ontimeController.config.js';
 import { validateProjectFiles } from './ontimeController.validate.js';
+import { dbModel } from '../models/dataModel.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -618,7 +618,7 @@ export const createProjectFile: RequestHandler = async (req, res) => {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
-    await writeFile(projectFilePath, JSON.stringify(emptyProject));
+    await writeFile(projectFilePath, JSON.stringify(dbModel));
 
     res.status(200).send({
       message: `Created project ${projectFilename}`,
