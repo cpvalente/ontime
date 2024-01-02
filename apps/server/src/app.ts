@@ -4,9 +4,9 @@ import 'dotenv/config';
 import express from 'express';
 import fastifyExpress from '@fastify/express';
 import Fastify from 'fastify';
-import expressStaticGzip from 'express-static-gzip';
 import cors from '@fastify/cors';
-
+import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
+import fastifyCompress from '@fastify/compress';
 // import utils
 import { join, resolve } from 'path';
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
@@ -45,7 +45,7 @@ if (!isProduction) {
 }
 
 // Create express APP
-const fastify = Fastify({});
+const fastify = Fastify({ logger: false }).withTypeProvider<JsonSchemaToTsProvider>();
 const app = express();
 app.disable('x-powered-by');
 

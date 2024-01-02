@@ -5,8 +5,10 @@
   "version": "3.0.0-alpha",
   "exports": "./src/index.js",
   "dependencies": {
+    "@fastify/compress": "^6.5.0",
     "@fastify/cors": "^8.5.0",
     "@fastify/express": "^2.3.0",
+    "@fastify/type-provider-json-schema-to-ts": "^2.2.2",
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.2",
