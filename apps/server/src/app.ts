@@ -5,7 +5,6 @@ import express from 'express';
 import fastifyExpress from '@fastify/express';
 import Fastify from 'fastify';
 import expressStaticGzip from 'express-static-gzip';
-import http, { type Server } from 'http';
 import cors from '@fastify/cors';
 
 // import utils
@@ -113,7 +112,6 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitAssets;
-let expressServer: Server | null = null;
 let oscServer: OscServer | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
@@ -240,7 +238,7 @@ export const shutdown = async (exitCode = 0) => {
     await restoreService.clear();
   }
 
-  expressServer?.close();
+  fastify.close();
   oscServer?.shutdown();
   eventTimer.shutdown();
   integrationService.shutdown();
