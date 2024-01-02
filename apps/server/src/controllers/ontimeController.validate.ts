@@ -283,25 +283,21 @@ export const validateProjectFiles = async (projectFiles: {
   newProjectFilename?: string;
 }): Promise<Array<string>> => {
   const errors = [];
-  try {
-    if (projectFiles.projectFilename) {
-      const existingFileError = await checkExistingFile(projectFiles.projectFilename);
+  if (projectFiles.projectFilename) {
+    const existingFileError = await checkExistingFile(projectFiles.projectFilename);
 
-      if (existingFileError) {
-        errors.push(existingFileError);
-      }
+    if (existingFileError) {
+      errors.push(existingFileError);
     }
-
-    if (projectFiles.newProjectFilename) {
-      const newFileError = await checkNewFile(projectFiles.newProjectFilename);
-
-      if (newFileError) {
-        errors.push(newFileError);
-      }
-    }
-
-    return errors;
-  } catch (error) {
-    return [error.toString()];
   }
+
+  if (projectFiles.newProjectFilename) {
+    const newFileError = await checkNewFile(projectFiles.newProjectFilename);
+
+    if (newFileError) {
+      errors.push(newFileError);
+    }
+  }
+
+  return errors;
 };
