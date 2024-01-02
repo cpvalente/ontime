@@ -31,6 +31,7 @@ import {
 } from '../../../common/api/ontimeApi';
 import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { userFieldsPlaceholder } from '../../../common/models/UserFields';
+import { openLink } from '../../../common/utils/linkUtils';
 import ModalLink from '../ModalLink';
 import PreviewExcel from '../upload-modal/preview/PreviewExcel';
 
@@ -101,8 +102,15 @@ export default function SheetsModal(props: SheetsModalProps) {
   const handleAuthenticate = () => {
     getSheetsAuthUrl().then((data) => {
       if (data !== 'bad') {
-        window.open(data, '_blank', 'noreferrer');
-        //TODO: can we detect when this window is closed
+        openLink(data);
+        window.addEventListener(
+          'focus',
+          () =>
+            getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '').then((data) =>
+              setState(data),
+            ),
+          { once: true },
+        );
       }
     });
   };
