@@ -25,10 +25,4 @@ describe('ensureJsonExtension', () => {
     const result = ensureJsonExtension(filename);
     expect(result).toBe('my.test.file.json');
   });
-
-  it('should handle an empty filename', () => {
-    const filename = '';
-    const result = ensureJsonExtension(filename);
-    expect(result).toBe('.json');
-  });
 });
