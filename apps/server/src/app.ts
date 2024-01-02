@@ -5,8 +5,8 @@ import express from 'express';
 import fastifyExpress from '@fastify/express';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
 import fastifyCompress from '@fastify/compress';
+
 // import utils
 import { join, resolve } from 'path';
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
@@ -45,7 +45,7 @@ if (!isProduction) {
 }
 
 // Create express APP
-const fastify = Fastify({ logger: false }).withTypeProvider<JsonSchemaToTsProvider>();
+const fastify = Fastify({ logger: false });
 const app = express();
 app.disable('x-powered-by');
 
@@ -71,7 +71,7 @@ app.use('/external', (req, res) => {
 });
 
 // serve static - react, in dev/test mode we fetch the React app from module
-const reactAppPath = join(currentDirectory, resolvedPath());
+// const reactAppPath = join(currentDirectory, resolvedPath());
 await fastify.register(fastifyCompress, { global: false }); //TODO: ?
 
 fastify.get('*', (req, res) => {

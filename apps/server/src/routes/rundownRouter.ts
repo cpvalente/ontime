@@ -16,7 +16,7 @@ import {
   rundownPutSchema,
   paramsMustHaveEventIdSchema,
   rundownReorderSchema,
-} from '../controllers/rundownController.validate.js';
+} from '../controllers/rundownController.schema.js';
 import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
 
 export const router = (
@@ -36,7 +36,7 @@ export const router = (
   fastify.put('/', { schema: rundownPutSchema }, rundownPut);
 
   // create route between controller and '/events/reorder' endpoint
-  fastify.patch('/reorder/', { schema: rundownReorderSchema }, rundownReorder);
+  fastify.patch('/reorder', { schema: rundownReorderSchema }, rundownReorder);
 
   fastify.patch('/swap', { schema: paramsMustHaveEventIdSchema }, rundownSwap);
 
