@@ -51,7 +51,7 @@ export const state: TState = {
 
 export const stateMutations = {
   timer: {
-    // utility to allow modifying the state from the ouside
+    // utility to allow modifying the state from the outside
     patch(timer: Partial<TimerState>) {
       mutate((state) => {
         for (const key in timer) {
