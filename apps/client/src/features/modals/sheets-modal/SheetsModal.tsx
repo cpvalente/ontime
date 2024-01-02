@@ -78,6 +78,12 @@ export default function SheetsModal(props: SheetsModalProps) {
     fileInputRef.current?.click();
   };
 
+  const updateSheetState = () => {
+    const currentSheetId = sheetRef.current?.value ?? '';
+    const currentWorksheet = worksheetRef.current?.value ?? '';
+    getSheetState(currentSheetId, currentWorksheet).then((data) => setState(data));
+  };
+
   const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
       return;
@@ -90,12 +96,12 @@ export default function SheetsModal(props: SheetsModalProps) {
       // TODO: show this in the modal
       console.error(error);
     }
-    setState(await getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? ''));
+    updateSheetState();
   };
 
   useEffect(() => {
     if (isOpen) {
-      getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '').then((data) => setState(data));
+      updateSheetState();
     }
   }, [isOpen]);
 
@@ -103,14 +109,7 @@ export default function SheetsModal(props: SheetsModalProps) {
     getSheetsAuthUrl().then((data) => {
       if (data !== 'bad') {
         openLink(data);
-        window.addEventListener(
-          'focus',
-          () =>
-            getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '').then((data) =>
-              setState(data),
-            ),
-          { once: true },
-        );
+        window.addEventListener('focus', () => updateSheetState(), { once: true });
       }
     });
   };
@@ -124,7 +123,9 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePushData = () => {
-    postPushSheet(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '');
+    const currentSheetId = sheetRef.current?.value ?? '';
+    const currentWorksheet = worksheetRef.current?.value ?? '';
+    postPushSheet(currentSheetId, currentWorksheet);
   };
 
   const handleFinalise = async () => {
@@ -173,7 +174,6 @@ export default function SheetsModal(props: SheetsModalProps) {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <AlertTitle>Sync with Google Sheets</AlertTitle>
               <AlertDescription>
-                Add information here, maybe a link too. <br />
                 <ModalLink href='our-docs'>For more information, see the docs</ModalLink>
               </AlertDescription>
             </div>
