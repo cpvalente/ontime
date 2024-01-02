@@ -15,7 +15,7 @@ class ConfigService {
   constructor() {
     this.configPath = join(getAppDataPath(), 'config.json');
     const adapter = new JSONFile<Config>(this.configPath);
-    this.config = new Low<Config>(adapter);
+    this.config = new Low<Config>(adapter, null);
 
     this.init();
   }
