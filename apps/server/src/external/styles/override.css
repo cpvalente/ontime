@@ -26,10 +26,10 @@
     --studio-overtime: #101010;
 
     --lowerThird-font-family-override: 'Times New Roman';
-    --lowerThird-upper-font-weight-override: bold;
-    --lowerThird-lower-font-weight-override: bold;
-    --lowerThird-upper-font-style-override: normal;
-    --lowerThird-lower-font-style-override: italic;
+    --lowerThird-top-font-weight-override: bold;
+    --lowerThird-bottom-font-weight-override: bold;
+    --lowerThird-top-font-style-override: normal;
+    --lowerThird-bottom-font-style-override: italic;
     --lowerThird-line-height-override: 1vh;
     --lowerThird-text-align-override: center;
 }

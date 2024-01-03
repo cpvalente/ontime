@@ -13,62 +13,62 @@
     &--pre {
       animation-name: in;
       animation-play-state: paused;
-      .data-upper {
+      .data-top {
         animation-play-state: paused;
-        animation-name: upper-in;
+        animation-name: top-in;
       }
       .data-lower {
         animation-play-state: paused;
-        animation-name: lower-in;
+        animation-name: bottom-in;
       }
     }
     &--in {
       animation-name: in;
       animation-play-state: running;
-      .data-upper {
+      .data-top {
         animation-play-state: running;
-        animation-name: upper-in;
+        animation-name: top-in;
       }
-      .data-lower {
+      .data-bottom {
         animation-play-state: running;
-        animation-name: lower-in;
+        animation-name: bottom-in;
       }
     }
     &--out {
       animation-name: out;
       animation-play-state: running;
-      .data-upper {
+      .data-top {
         animation-play-state: running;
-        animation-name: upper-out;
+        animation-name: top-out;
       }
-      .data-lower {
+      .data-bottom {
         animation-play-state: running;
-        animation-name: lower-out;
+        animation-name: bottom-out;
       }
     }
 
     .line {
       width: 100%;
-      height: var(--lowerThird-line-height-override, 0.5vh);
+      height: var(--bottomThird-line-height-override, 0.5vh);
     }
     .clip {
       overflow: hidden;
     }
-    .data-lower,
-    .data-upper {
+    .data-bottom,
+    .data-top {
       padding-left: 3vw;
       padding-right: 3vw;
       font-family: var(--lowerThird-font-family-override, 'Arial');
       text-align: var(--lowerThird-text-align-override, left);
     }
 
-    .data-upper {
-      font-weight: var(--lowerThird-upper-font-weight-override, bold);
-      font-style: var(--lowerThird-upper-font-style-override, normal);
+    .data-top {
+      font-weight: var(--lowerThird-top-font-weight-override, bold);
+      font-style: var(--lowerThird-top-font-style-override, normal);
     }
-    .data-lower {
-      font-weight: var(--lowerThird-lower-font-weight-override, normal);
-      font-style: var(--lowerThird-lower-font-style-override, normal);
+    .data-bottom {
+      font-weight: var(--lowerThird-bottom-font-weight-override, normal);
+      font-style: var(--lowerThird-bottom-font-style-override, normal);
     }
   }
 }
@@ -97,7 +97,7 @@
   }
 }
 
-@keyframes upper-in {
+@keyframes top-in {
   0%,
   20% {
     transform: translateY(100%);
@@ -107,7 +107,7 @@
   }
 }
 
-@keyframes upper-out {
+@keyframes top-out {
   0% {
     transform: translateY(0%);
   }
@@ -117,7 +117,7 @@
   }
 }
 
-@keyframes lower-in {
+@keyframes bottom-in {
   0%,
   20% {
     transform: translateY(-100%);
@@ -127,7 +127,7 @@
   }
 }
 
-@keyframes lower-out {
+@keyframes bottom-out {
   0% {
     transform: translateY(0%);
   }

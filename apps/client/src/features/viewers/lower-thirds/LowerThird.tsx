@@ -26,14 +26,14 @@ enum triggerType {
 type LowerOptions = {
   width: number;
   trigger: triggerType;
-  upperSrc: srcKeys;
-  lowerSrc: srcKeys;
-  upperColour: string;
-  lowerColour: string;
-  upperBg: string;
-  lowerBg: string;
-  upperSize: string;
-  lowerSize: string;
+  topSrc: srcKeys;
+  bottomSrc: srcKeys;
+  topColour: string;
+  bottomColour: string;
+  topBg: string;
+  bottomBg: string;
+  topSize: string;
+  bottomSize: string;
   transition: number;
   delay: number;
   key: string;
@@ -53,14 +53,14 @@ export default function LowerThird(props: LowerProps) {
   const [options, setOptions] = useState<LowerOptions>({
     width: 45,
     trigger: triggerType.event,
-    upperSrc: srcKeys.title,
-    lowerSrc: srcKeys.subtitle,
-    upperColour: '000000ff',
-    lowerColour: '000000ff',
-    upperBg: '00000000',
-    lowerBg: '00000000',
-    upperSize: '4vh',
-    lowerSize: '3vh',
+    topSrc: srcKeys.title,
+    bottomSrc: srcKeys.subtitle,
+    topColour: '000000ff',
+    bottomColour: '000000ff',
+    topBg: '00000000',
+    bottomBg: '00000000',
+    topSize: '4vh',
+    bottomSize: '3vh',
     transition: 3,
     delay: 3,
     key: '00000000',
@@ -89,46 +89,46 @@ export default function LowerThird(props: LowerProps) {
     setOptions({ ...options, trigger });
   }
 
-  const _upperSrc = searchParams.get('upper-src');
-  if (_upperSrc && _upperSrc in srcKeys && _upperSrc != options.upperSrc) {
-    const upperSrc = _upperSrc as srcKeys;
-    setOptions({ ...options, upperSrc });
+  const _topSrc = searchParams.get('top-src');
+  if (_topSrc && _topSrc in srcKeys && _topSrc != options.topSrc) {
+    const topSrc = _topSrc as srcKeys;
+    setOptions({ ...options, topSrc });
   }
 
-  const _lowerSrc = searchParams.get('lower-src');
-  if (_lowerSrc && _lowerSrc in srcKeys && _lowerSrc != options.lowerSrc) {
-    const lowerSrc = _lowerSrc as srcKeys;
-    setOptions({ ...options, lowerSrc });
+  const _bottomSrc = searchParams.get('bottom-src');
+  if (_bottomSrc && _bottomSrc in srcKeys && _bottomSrc != options.bottomSrc) {
+    const bottomSrc = _bottomSrc as srcKeys;
+    setOptions({ ...options, bottomSrc });
   }
 
-  const upperColour = searchParams.get('upper-colour');
-  if (upperColour && upperColour != options.upperColour) {
-    setOptions({ ...options, upperColour });
+  const topColour = searchParams.get('top-colour');
+  if (topColour && topColour != options.topColour) {
+    setOptions({ ...options, topColour });
   }
 
-  const lowerColour = searchParams.get('lower-colour');
-  if (lowerColour && lowerColour != options.lowerColour) {
-    setOptions({ ...options, lowerColour });
+  const bottomColour = searchParams.get('bottom-colour');
+  if (bottomColour && bottomColour != options.bottomColour) {
+    setOptions({ ...options, bottomColour });
   }
 
-  const upperBg = searchParams.get('upper-bg');
-  if (upperBg && upperBg != options.upperBg) {
-    setOptions({ ...options, upperBg });
+  const topBg = searchParams.get('top-bg');
+  if (topBg && topBg != options.topBg) {
+    setOptions({ ...options, topBg });
   }
 
-  const lowerBg = searchParams.get('lower-bg');
-  if (lowerBg && lowerBg != options.lowerBg) {
-    setOptions({ ...options, lowerBg });
+  const bottomBg = searchParams.get('bottom-bg');
+  if (bottomBg && bottomBg != options.bottomBg) {
+    setOptions({ ...options, bottomBg });
   }
 
-  const upperSize = searchParams.get('upper-size');
-  if (upperSize && upperSize != options.upperSize) {
-    setOptions({ ...options, upperSize: upperSize });
+  const topSize = searchParams.get('top-size');
+  if (topSize && topSize != options.topSize) {
+    setOptions({ ...options, topSize });
   }
 
-  const lowerSize = searchParams.get('lower-size');
-  if (lowerSize && lowerSize != options.lowerSize) {
-    setOptions({ ...options, lowerSize: lowerSize });
+  const bottomSize = searchParams.get('bottom-size');
+  if (bottomSize && bottomSize != options.bottomSize) {
+    setOptions({ ...options, bottomSize });
   }
 
   const _transition = searchParams.get('transition');
@@ -157,9 +157,9 @@ export default function LowerThird(props: LowerProps) {
     setOptions({ ...options, lineColour });
   }
 
-  const upperText = options.upperSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.upperSrc] : '';
+  const topText = options.topSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.topSrc] : '';
 
-  const lowerText = options.lowerSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.lowerSrc] : '';
+  const bottomText = options.bottomSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.bottomSrc] : '';
 
   const transition = `${options.transition}s`;
 
@@ -200,15 +200,15 @@ export default function LowerThird(props: LowerProps) {
       >
         <div className='clip'>
           <div
-            className='data-upper'
+            className='data-top'
             style={{
               animationDuration: transition,
-              color: `#${options.upperColour}`,
-              backgroundColor: `#${options.upperBg}`,
-              fontSize: options.upperSize,
+              color: `#${options.topColour}`,
+              backgroundColor: `#${options.topBg}`,
+              fontSize: options.topSize,
             }}
           >
-            {upperText}
+            {topText}
           </div>
         </div>
         <div
@@ -219,15 +219,15 @@ export default function LowerThird(props: LowerProps) {
         />
         <div className='clip'>
           <div
-            className='data-lower'
+            className='data-bottom'
             style={{
               animationDuration: transition,
-              color: `#${options.lowerColour}`,
-              backgroundColor: `#${options.lowerBg}`,
-              fontSize: options.lowerSize,
+              color: `#${options.bottomColour}`,
+              backgroundColor: `#${options.bottomBg}`,
+              fontSize: options.bottomSize,
             }}
           >
-            {lowerText}
+            {bottomText}
           </div>
         </div>
       </div>
