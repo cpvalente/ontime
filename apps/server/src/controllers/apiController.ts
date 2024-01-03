@@ -20,22 +20,22 @@ const helloMessage = 'You have reached Ontime API server';
 /**
  * @description Create controller for GET request to '/events'.
  */
-export const test: RouteHandlerMethod = (request, reply) => {
-  reply.send({ message: helloMessage });
+export const test: RouteHandlerMethod = (req, res) => {
+  res.send({ message: helloMessage });
 };
 
 /**
  * @description Create controller for GET request to '/events/cached'
  */
-export const integration: RouteHandlerMethod = (request: Request<typeof schema>, reply) => {
-  const action = request.params.action;
-  const params = { payload: request.query };
+export const integration: RouteHandlerMethod = (req: Request<typeof schema>, res) => {
+  const action = req.params.action;
+  const params = { payload: req.query };
 
   try {
     const result = dispatchFromAdapter(action, params, 'http');
-    reply.status(202).send(result);
+    res.status(202).send(result);
   } catch (error) {
     logger.error(LogOrigin.Rx, `HTTP IN: ${error}`);
-    reply.status(500).send({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 };

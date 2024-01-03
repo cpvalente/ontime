@@ -21,107 +21,101 @@ import { Request } from './controller.types.js';
 /**
  * @description Create controller for GET request to '/events'.
  */
-export const rundownGetAll: RouteHandlerMethod = async (request, reply) => {
+export const rundownGetAll: RouteHandlerMethod = async (req, res) => {
   const delayedRundown = getDelayedRundown();
-  reply.send(delayedRundown);
+  res.send(delayedRundown);
 };
 
 /**
  * @description Create controller for GET request to '/events/cached'
  */
-export const rundownGetCached: RouteHandlerMethod = async (request, reply) => {
+export const rundownGetCached: RouteHandlerMethod = async (req, res) => {
   const cachedRundown = getRundownCache();
-  reply.send(cachedRundown);
+  res.send(cachedRundown);
 };
 
 /**
  * @description Create controller for POST request to '/events/'
  */
-export const rundownPost: RouteHandlerMethod = async (request: Request<typeof rundownPostSchema>, reply) => {
+export const rundownPost: RouteHandlerMethod = async (req: Request<typeof rundownPostSchema>, res) => {
   try {
-    const newEvent = await addEvent(request.body);
-    reply.status(201).send(newEvent);
+    const newEvent = await addEvent(req.body);
+    res.status(201).send(newEvent);
   } catch (error) {
-    reply.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error.toString() });
   }
 };
 
 /**
  * @description Create controller for PUT request to '/events/'
  */
-export const rundownPut: RouteHandlerMethod = async (request: Request<typeof rundownPutSchema>, reply) => {
+export const rundownPut: RouteHandlerMethod = async (req: Request<typeof rundownPutSchema>, res) => {
   try {
-    const event = await editEvent(request.body);
-    reply.status(200).send(event);
+    const event = await editEvent(req.body);
+    res.status(200).send(event);
   } catch (error) {
-    reply.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error.toString() });
   }
 };
 
 /**
  * @description Create controller for patch request to '/events/reorder'
  */
-export const rundownReorder: RouteHandlerMethod = async (request: Request<typeof rundownReorderSchema>, reply) => {
+export const rundownReorder: RouteHandlerMethod = async (req: Request<typeof rundownReorderSchema>, res) => {
   try {
-    const { eventId, from, to } = request.body;
+    const { eventId, from, to } = req.body;
     const event = await reorderEvent(eventId, from, to);
-    reply.status(200).send(event);
+    res.status(200).send(event);
   } catch (error) {
-    reply.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error.toString() });
   }
 };
 
 /**
  * @description Create controller for patch request to '/events/swap'
  */
-export const rundownSwap: RouteHandlerMethod = async (request: Request<typeof rundownSwapSchema>, reply) => {
+export const rundownSwap: RouteHandlerMethod = async (req: Request<typeof rundownSwapSchema>, res) => {
   try {
-    const { from, to } = request.body;
+    const { from, to } = req.body;
     await swapEvents(from, to);
-    reply.status(200);
+    res.status(200);
   } catch (error) {
-    reply.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error.toString() });
   }
 };
 
 /**
  * @description Create controller for PATCH request to '/events/applydelay/:eventId'
  */
-export const rundownApplyDelay: RouteHandlerMethod = async (
-  request: Request<typeof paramsMustHaveEventIdSchema>,
-  reply,
-) => {
+export const rundownApplyDelay: RouteHandlerMethod = async (req: Request<typeof paramsMustHaveEventIdSchema>, res) => {
   try {
-    await applyDelay(request.params.eventId);
-    reply.status(200);
+    await applyDelay(req.params.eventId);
+    res.status(200);
   } catch (error) {
-    reply.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error.toString() });
   }
 };
 
 /**
  * @description Create controller for DELETE request to '/events/:eventId'
  */
-export const deleteEventById: RouteHandlerMethod = async (
-  request: Request<typeof paramsMustHaveEventIdSchema>,
-  reply,
-) => {
+export const deleteEventById: RouteHandlerMethod = async (req: Request<typeof paramsMustHaveEventIdSchema>, res) => {
   try {
-    await deleteEvent(request.params.eventId);
-    reply.status(204);
+    await deleteEvent(req.params.eventId);
+    res.status(204);
   } catch (error) {
-    reply.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error.toString() });
   }
 };
 
 /**
  * @description Create controller for DELETE request to '/events/all'
  */
-export const rundownDelete: RouteHandlerMethod = async (request, reply) => {
+export const rundownDelete: RouteHandlerMethod = async (req, res) => {
   try {
     await deleteAllEvents();
-    reply.status(204);
+    res.status(204);
   } catch (error) {
-    reply.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error.toString() });
   }
 };
