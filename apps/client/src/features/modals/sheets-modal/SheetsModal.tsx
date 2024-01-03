@@ -94,9 +94,8 @@ export default function SheetsModal(props: SheetsModalProps) {
     getSheetState(currentSheetId, currentWorksheet)
       .then((data) => setState(data))
       .catch((err) => {
-        if (err.response.data.message) {
-          setErrors({ ...errors, sheetId: err.response.data.message });
-        }
+        const message = maybeAxiosError(err);
+        setErrors({ ...errors, sheetId: message });
       });
   };
 
@@ -132,9 +131,8 @@ export default function SheetsModal(props: SheetsModalProps) {
         window.addEventListener('focus', () => updateSheetState(), { once: true });
       })
       .catch((err) => {
-        if (err.response.data.message) {
-          setErrors({ ...errors, authenticate: err.response.data.message });
-        }
+        const message = maybeAxiosError(err);
+        setErrors({ ...errors, authenticate: message });
       });
   };
 
