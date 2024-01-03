@@ -20,7 +20,7 @@ enum srcKeys {
 
 enum triggerType {
   event = 'event',
-  manuel = 'manuel',
+  manual = 'manual',
 }
 
 type LowerOptions = {
@@ -164,7 +164,7 @@ export default function LowerThird(props: LowerProps) {
   const transition = `${options.transition}s`;
 
   const triggerData =
-    options.trigger == triggerType.event ? eventNow?.id : options.trigger == triggerType.manuel ? lower.visible : null;
+    options.trigger == triggerType.event ? eventNow?.id : options.trigger == triggerType.manual ? lower.visible : null;
 
   useEffect(() => {
     if (options.trigger == triggerType.event) {
@@ -177,7 +177,7 @@ export default function LowerThird(props: LowerProps) {
       } else {
         setplayState('pre');
       }
-    } else if (options.trigger == triggerType.manuel) {
+    } else if (options.trigger == triggerType.manual) {
       if (triggerData) {
         setplayState('in');
       } else {

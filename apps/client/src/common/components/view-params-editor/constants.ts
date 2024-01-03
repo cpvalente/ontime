@@ -289,7 +289,7 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     type: 'option',
     values: {
       event: 'Event Load',
-      manuel: 'Manuel',
+      manual: 'Manual',
     },
   },
   {
