@@ -16,6 +16,7 @@ const Countdown = lazy(() => import('./features/viewers/countdown/Countdown'));
 const Backstage = lazy(() => import('./features/viewers/backstage/Backstage'));
 const Public = lazy(() => import('./features/viewers/public/Public'));
 const Lower = lazy(() => import('./features/viewers/lower-thirds/LowerWrapper'));
+const LowerThird = lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = lazy(() => import('./features/viewers/studio/StudioClock'));
 
 const STimer = withAlias(withData(TimerView));
@@ -25,6 +26,7 @@ const SCountdown = withAlias(withData(Countdown));
 const SBackstage = withAlias(withData(Backstage));
 const SPublic = withAlias(withData(Public));
 const SLowerThird = withAlias(withData(Lower));
+const SLowerThird3 = withAlias(withData(LowerThird));
 const SStudio = withAlias(withData(StudioClock));
 
 const EditorFeatureWrapper = lazy(() => import('./features/EditorFeatureWrapper'));
@@ -52,6 +54,7 @@ export default function AppRouter() {
         <Route path='/studio' element={<SStudio />} />
         {/*/!* Lower cannot have fallback *!/*/}
         <Route path='/lower' element={<SLowerThird />} />
+        <Route path='/3' element={<SLowerThird3 />} />
 
         <Route path='/op' element={<Operator />} />
         <Route path='/operator' element={<Operator />} />

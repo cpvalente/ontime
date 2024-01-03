@@ -281,6 +281,94 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
   },
 ];
 
+export const LOWER_THIRD_OPTIONS: ParamField[] = [
+  {
+    id: 'upper-src',
+    title: 'Upper Text',
+    description: '',
+    type: 'option',
+    values: {
+      title: 'Title',
+      subtitle: 'Subtitle',
+      presenter: 'Presenter',
+      notes: 'Notes',
+      lower: 'Lower Third',
+    },
+  },
+  {
+    id: 'lower-src',
+    title: 'Lower Text',
+    description: '',
+    type: 'option',
+    values: {
+      subtitle: 'Subtitle',
+      title: 'Title',
+      presenter: 'Presenter',
+      notes: 'Notes',
+      lower: 'Lower Third',
+    },
+  },
+  {
+    id: 'upper-colour',
+    title: 'Upper Text Colour',
+    description: 'Upper text colour in hexadecimal',
+    prefix: '#',
+    type: 'string',
+    placeholder: '0000ff (default)',
+  },
+  {
+    id: 'lower-colour',
+    title: 'Lower Text Colour',
+    description: 'Lower text colour in hexadecimal',
+    prefix: '#',
+    type: 'string',
+    placeholder: '0000ff (default)',
+  },
+  {
+    id: 'upper-size',
+    title: 'Upper Text Size',
+    description: 'Upper text size in vh units',
+    type: 'number',
+    placeholder: '4 (default)',
+  },
+  {
+    id: 'lower-size',
+    title: 'Lower Text Size',
+    description: 'Lower text size in vh units',
+    type: 'number',
+    placeholder: '3 (default)',
+  },
+  {
+    id: 'upper-bold',
+    title: 'Upper Bold',
+    description: 'Doiplay upper text size in bold font',
+    type: 'boolean',
+    defaultValue: true,
+  },
+  {
+    id: 'lower-bold',
+    title: 'Lower Bold',
+    description: 'Doiplay lower text size in bold font',
+    type: 'boolean',
+    defaultValue: false,
+  },
+  {
+    id: 'width',
+    title: 'Width',
+    description: 'Width of the element',
+    type: 'number',
+    prefix: '%',
+    placeholder: '45 (default)',
+  },
+  {
+    id: 'transition',
+    title: 'Transition',
+    description: 'Transition in time in seconds (default 3)',
+    type: 'number',
+    placeholder: '3 (default)',
+  },
+];
+
 export const getBackstageOptions = (timeFormat: TimeFormat): ParamField[] => [
   getTimeOption(timeFormat),
   hideClockSeconds,

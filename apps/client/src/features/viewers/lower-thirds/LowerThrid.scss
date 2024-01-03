@@ -1,0 +1,71 @@
+.lower-third {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+
+  .container {
+    position: absolute;
+    display: block;
+    top: 75vh;
+    background-color: rgba(99, 19, 19, 0.382);
+    animation-name: in;
+    animation-timing-function: ease;
+
+    .line {
+      width: 100%;
+      height: 0.2em;
+      background-color: red;
+    }
+    .clip {
+      overflow: hidden;
+    }
+    .data-lower,
+    .data-upper {
+      margin-left: 3vw;
+      margin-right: 3vw;
+    }
+    .data-upper {
+      font-weight: bold;
+      animation-name: up;
+    }
+
+    .data-lower {
+      animation-name: down;
+    }
+  }
+}
+
+@keyframes in {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0%;
+  }
+  50% {
+    transform: translateX(0%);
+    opacity: 100%;
+  }
+}
+
+@keyframes up {
+  0% {
+    transform: translateY(100%);
+  }
+  20% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes down {
+  0% {
+    transform: translateY(-100%);
+  }
+  20% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
