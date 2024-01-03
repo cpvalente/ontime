@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Message, OntimeEvent } from 'ontime-types';
+import { Message, OntimeEvent, ViewSettings } from 'ontime-types';
 
+import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { LOWER_THIRD_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { cx } from '../../../common/utils/styleUtils';
 
 import './LowerThrid.scss';
@@ -14,8 +16,7 @@ enum srcKeys {
   title = 'title',
   subtitle = 'subtitle',
   presenter = 'presenter',
-  notes = 'note',
-  lower = 'lower',
+  lowerMsg = 'lowerMsg',
 }
 
 type LowerOptions = {
@@ -26,8 +27,8 @@ type LowerOptions = {
   lowerColour: string;
   upperBg: string;
   lowerBg: string;
-  upperFont: string;
-  lowerFont: string;
+  upperSize: string;
+  lowerSize: string;
   transition: number;
   delay: number;
   key: string;
@@ -37,11 +38,12 @@ type LowerOptions = {
 
 interface LowerProps {
   eventNow: OntimeEvent | null;
+  viewSettings: ViewSettings;
   lower: Message;
 }
 
 export default function LowerThird(props: LowerProps) {
-  const { eventNow, lower } = props;
+  const { eventNow, lower, viewSettings } = props;
   const [searchParams] = useSearchParams();
   const [options, setOptions] = useState<LowerOptions>({
     width: 45,
@@ -49,16 +51,18 @@ export default function LowerThird(props: LowerProps) {
     lowerSrc: srcKeys.subtitle,
     upperColour: '000000ff',
     lowerColour: '000000ff',
-    upperBg: 'dddddd44',
-    lowerBg: 'dddddd44',
-    upperFont: 'bold 4vh sans-serif',
-    lowerFont: 'normal 3.5vh sans-serif',
+    upperBg: '00000000',
+    lowerBg: '00000000',
+    upperSize: '4vh',
+    lowerSize: '3vh',
     transition: 3,
     delay: 3,
     key: '00000000',
     lineColour: 'ff0000ff',
     lineHeight: '0.4em',
   });
+
+  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
   const [playState, setplayState] = useState<'pre' | 'in' | 'out'>('pre');
 
@@ -106,14 +110,14 @@ export default function LowerThird(props: LowerProps) {
     setOptions({ ...options, lowerBg });
   }
 
-  const upperFont = searchParams.get('upper-font');
-  if (upperFont && upperFont != options.upperFont) {
-    setOptions({ ...options, upperFont });
+  const upperSize = searchParams.get('upper-size');
+  if (upperSize && upperSize != options.upperSize) {
+    setOptions({ ...options, upperSize: upperSize });
   }
 
-  const lowerFont = searchParams.get('lower-font');
-  if (lowerFont && lowerFont != options.lowerFont) {
-    setOptions({ ...options, lowerFont });
+  const lowerSize = searchParams.get('lower-size');
+  if (lowerSize && lowerSize != options.lowerSize) {
+    setOptions({ ...options, lowerSize: lowerSize });
   }
 
   const _transition = searchParams.get('transition');
@@ -142,15 +146,10 @@ export default function LowerThird(props: LowerProps) {
     setOptions({ ...options, lineColour });
   }
 
-  const lineHeight = searchParams.get('line-height');
-  if (lineHeight && lineHeight != options.lineHeight) {
-    setOptions({ ...options, lineHeight });
-  }
-
-  const upperSrcText = options.upperSrc == srcKeys.lower ? lower.text : eventNow ? eventNow[options.upperSrc] : '';
+  const upperSrcText = options.upperSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.upperSrc] : '';
   const upperText = upperSrcText.trim() == '' ? <div>&nbsp;</div> : upperSrcText;
 
-  const lowerSrcText = options.lowerSrc == srcKeys.lower ? lower.text : eventNow ? eventNow[options.lowerSrc] : '';
+  const lowerSrcText = options.lowerSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.lowerSrc] : '';
   const lowerText = lowerSrcText.trim() == '' ? <div>&nbsp;</div> : lowerSrcText;
 
   const transition = `${options.transition}s`;
@@ -175,7 +174,7 @@ export default function LowerThird(props: LowerProps) {
       <ViewParamsEditor paramFields={LOWER_THIRD_OPTIONS} />
       <div
         className={cx(['container', `container--${playState}`])}
-        style={{ width: `${options.width}vw`, animationDuration: transition }}
+        style={{ minWidth: `${options.width}vw`, animationDuration: transition }}
       >
         <div className='clip'>
           <div
@@ -184,7 +183,7 @@ export default function LowerThird(props: LowerProps) {
               animationDuration: transition,
               color: `#${options.upperColour}`,
               backgroundColor: `#${options.upperBg}`,
-              font: options.upperFont,
+              fontSize: options.upperSize,
             }}
           >
             {upperText}
@@ -194,7 +193,6 @@ export default function LowerThird(props: LowerProps) {
           className='line'
           style={{
             backgroundColor: `#${options.lineColour}`,
-            height: options.lineHeight,
           }}
         />
         <div className='clip'>
@@ -204,7 +202,7 @@ export default function LowerThird(props: LowerProps) {
               animationDuration: transition,
               color: `#${options.lowerColour}`,
               backgroundColor: `#${options.lowerBg}`,
-              font: options.lowerFont,
+              fontSize: options.lowerSize,
             }}
           >
             {lowerText}

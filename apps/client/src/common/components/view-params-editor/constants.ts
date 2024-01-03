@@ -330,7 +330,7 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     description: 'Upper text background colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    placeholder: 'dddddd44 (default)',
+    placeholder: '00000000 (default)',
   },
   {
     id: 'lower-bg',
@@ -338,21 +338,21 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     description: 'Lower text background colour in hexadecimal',
     prefix: '#',
     type: 'string',
-    placeholder: 'dddddd44 (default)',
+    placeholder: '00000000 (default)',
   },
   {
-    id: 'upper-font',
-    title: 'Upper Text Font',
-    description: 'https://developer.mozilla.org/en-US/docs/Web/CSS/font',
+    id: 'upper-size',
+    title: 'Upper Text Size',
+    description: 'Font size of the upper text',
     type: 'string',
-    placeholder: 'bold 4vh sans-serif',
+    placeholder: '4vh',
   },
   {
-    id: 'lower-font',
-    title: 'Lower Text Font',
-    description: 'https://developer.mozilla.org/en-US/docs/Web/CSS/font',
+    id: 'lower-size',
+    title: 'Lower Text Size',
+    description: 'Font size of the lower text',
     type: 'string',
-    placeholder: 'normal 3.5vh sans-serif',
+    placeholder: '3vh',
   },
   {
     id: 'width',
@@ -391,13 +391,6 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     prefix: '#',
     type: 'string',
     placeholder: 'ff0000ff (default)',
-  },
-  {
-    id: 'line-height',
-    title: 'Line Height',
-    description: 'Height of the line',
-    type: 'string',
-    placeholder: '0.4em (default)',
   },
 ];
 

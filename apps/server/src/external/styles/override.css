@@ -24,6 +24,14 @@
     --studio-active-label: #101010;
     --studio-idle-label: #595959;
     --studio-overtime: #101010;
+
+    --lowerThird-font-family-override: 'Times New Roman';
+    --lowerThird-upper-font-weight-override: bold;
+    --lowerThird-lower-font-weight-override: bold;
+    --lowerThird-upper-font-style-override: normal;
+    --lowerThird-lower-font-style-override: italic;
+    --lowerThird-line-height-override: 1vh;
+    --lowerThird-text-align-override: center;
 }
 
 .timer {
