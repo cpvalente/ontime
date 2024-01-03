@@ -1,5 +1,3 @@
-import Fastify, { FastifyBaseLogger } from 'fastify';
-import { Server, IncomingMessage, ServerResponse } from 'http';
 import {
   deleteEventById,
   rundownApplyDelay,
@@ -17,13 +15,9 @@ import {
   paramsMustHaveEventIdSchema,
   rundownReorderSchema,
 } from '../controllers/rundownController.schema.js';
-import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
+import { FastifyRouter } from './router.types.js';
 
-export const router = (
-  fastify: Fastify.FastifyInstance<Server, IncomingMessage, ServerResponse, FastifyBaseLogger, JsonSchemaToTsProvider>,
-  _opts,
-  done,
-) => {
+export const router = (fastify: FastifyRouter, _opts, done) => {
   // create route between controller and '/events/cached' endpoint
   fastify.get('/cached', rundownGetCached);
 
