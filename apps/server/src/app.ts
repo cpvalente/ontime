@@ -62,7 +62,7 @@ fastify.use(app);
 await fastify.register(rundownRouter, { prefix: '/events' });
 await fastify.register(projectRouter, { prefix: '/project' });
 app.use('/ontime', ontimeRouter);
-app.use('/api', apiRouter);
+await fastify.register(apiRouter, { prefix: '/api' });
 
 // serve static - css
 app.use('/external', express.static(externalsStartDirectory));
