@@ -60,7 +60,7 @@ fastify.use(app);
 
 // Implement route endpoints
 await fastify.register(rundownRouter, { prefix: '/events' });
-app.use('/project', projectRouter);
+await fastify.register(projectRouter, { prefix: '/project' });
 app.use('/ontime', ontimeRouter);
 app.use('/api', apiRouter);
 

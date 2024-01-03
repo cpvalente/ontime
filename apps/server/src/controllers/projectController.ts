@@ -1,35 +1,31 @@
-import { RequestHandler } from 'express';
-
+import { RouteHandlerMethod } from 'fastify';
 import { ProjectData } from 'ontime-types';
 
 import { removeUndefined } from '../utils/parserUtils.js';
-import { failEmptyObjects } from '../utils/routerUtils.js';
+import { projectSchema } from '../controllers/projectController.schema.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { Request } from './controller.types.js';
 
 // Create controller for GET request to 'project'
-export const getProject: RequestHandler = async (req, res) => {
-  res.json(DataProvider.getProjectData());
+export const getProject: RouteHandlerMethod = async (request, reply) => {
+  reply.send(DataProvider.getProjectData());
 };
 
 // Create controller for POST request to 'project'
-export const postProject: RequestHandler = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
+export const postProject: RouteHandlerMethod = async (request: Request<typeof projectSchema>, reply) => {
   try {
     const newEvent: Partial<ProjectData> = removeUndefined({
-      title: req.body?.title,
-      description: req.body?.description,
-      publicUrl: req.body?.publicUrl,
-      publicInfo: req.body?.publicInfo,
-      backstageUrl: req.body?.backstageUrl,
-      backstageInfo: req.body?.backstageInfo,
-      endMessage: req.body?.endMessage,
+      title: request.body?.title?.trim(),
+      description: request.body?.description?.trim(),
+      publicUrl: request.body?.publicUrl?.trim(),
+      publicInfo: request.body?.publicInfo?.trim(),
+      backstageUrl: request.body?.backstageUrl?.trim(),
+      backstageInfo: request.body?.backstageInfo?.trim(),
+      endMessage: request.body?.endMessage?.trim(),
     });
     const newData = await DataProvider.setProjectData(newEvent);
-    res.status(200).send(newData);
+    reply.status(200).send(newData);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    reply.status(400).send({ message: error.toString() });
   }
 };
