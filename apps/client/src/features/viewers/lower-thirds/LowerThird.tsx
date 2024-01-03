@@ -8,8 +8,8 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { cx } from '../../../common/utils/styleUtils';
 
 import './LowerThrid.scss';
-import { setPlayback } from 'common/hooks/useSocket';
 
+//TODO: add none option
 enum srcKeys {
   title = 'title',
   subtitle = 'subtitle',
@@ -24,10 +24,15 @@ type LowerOptions = {
   lowerSrc: srcKeys;
   upperColour: string;
   lowerColour: string;
-  upperSize: number;
-  lowerSize: number;
+  upperBg: string;
+  lowerBg: string;
+  upperFont: string;
+  lowerFont: string;
   transition: number;
   delay: number;
+  key: string;
+  lineColour: string;
+  lineHeight: string;
 };
 
 interface LowerProps {
@@ -44,13 +49,18 @@ export default function LowerThird(props: LowerProps) {
     lowerSrc: srcKeys.subtitle,
     upperColour: '000000ff',
     lowerColour: '000000ff',
-    upperSize: 4,
-    lowerSize: 3,
+    upperBg: 'dddddd44',
+    lowerBg: 'dddddd44',
+    upperFont: 'bold 4vh sans-serif',
+    lowerFont: 'normal 3.5vh sans-serif',
     transition: 3,
     delay: 3,
+    key: '00000000',
+    lineColour: 'ff0000ff',
+    lineHeight: '0.4em',
   });
 
-  const [playState, setplayState] = useState<'pre' | 'moveIn' | 'moveOut'>('pre');
+  const [playState, setplayState] = useState<'pre' | 'in' | 'out'>('pre');
 
   useEffect(() => {
     document.title = 'ontime - Lower3';
@@ -86,20 +96,24 @@ export default function LowerThird(props: LowerProps) {
     setOptions({ ...options, lowerColour });
   }
 
-  const _upperSize = searchParams.get('upper-colour');
-  if (_upperSize) {
-    const upperSize = Number(_upperSize);
-    if (!Number.isNaN(upperSize) && upperSize != options.upperSize) {
-      setOptions({ ...options, upperSize });
-    }
+  const upperBg = searchParams.get('upper-bg');
+  if (upperBg && upperBg != options.upperBg) {
+    setOptions({ ...options, upperBg });
   }
 
-  const _lowerSize = searchParams.get('upper-colour');
-  if (_lowerSize) {
-    const lowerSize = Number(_lowerSize);
-    if (!Number.isNaN(lowerSize) && lowerSize != options.lowerSize) {
-      setOptions({ ...options, lowerSize });
-    }
+  const lowerBg = searchParams.get('lower-bg');
+  if (lowerBg && lowerBg != options.lowerBg) {
+    setOptions({ ...options, lowerBg });
+  }
+
+  const upperFont = searchParams.get('upper-font');
+  if (upperFont && upperFont != options.upperFont) {
+    setOptions({ ...options, upperFont });
+  }
+
+  const lowerFont = searchParams.get('lower-font');
+  if (lowerFont && lowerFont != options.lowerFont) {
+    setOptions({ ...options, lowerFont });
   }
 
   const _transition = searchParams.get('transition');
@@ -118,6 +132,21 @@ export default function LowerThird(props: LowerProps) {
     }
   }
 
+  const key = searchParams.get('key');
+  if (key && key != options.key) {
+    setOptions({ ...options, key });
+  }
+
+  const lineColour = searchParams.get('line-colour');
+  if (lineColour && lineColour != options.lineColour) {
+    setOptions({ ...options, lineColour });
+  }
+
+  const lineHeight = searchParams.get('line-height');
+  if (lineHeight && lineHeight != options.lineHeight) {
+    setOptions({ ...options, lineHeight });
+  }
+
   const upperSrcText = options.upperSrc == srcKeys.lower ? lower.text : eventNow ? eventNow[options.upperSrc] : '';
   const upperText = upperSrcText.trim() == '' ? <div>&nbsp;</div> : upperSrcText;
 
@@ -129,23 +158,23 @@ export default function LowerThird(props: LowerProps) {
   const trigger = eventNow?.id;
 
   useEffect(() => {
-    console.log('event change');
     if (trigger) {
-      setplayState('moveIn');
+      setplayState('in');
       const timeout = setTimeout(() => {
-        setplayState('moveOut');
-        console.log('moveout');
-      }, 3000);
+        setplayState('out');
+      }, options.delay * 1000);
       return () => clearTimeout(timeout);
+    } else {
+      setplayState('pre');
     }
-  }, [trigger]);
+  }, [options.delay, trigger]);
 
   return (
-    <div className='lower-third' style={{ backgroundColor: '#ffff' }}>
+    <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
       <NavigationMenu />
       <ViewParamsEditor paramFields={LOWER_THIRD_OPTIONS} />
       <div
-        className={cx(['container', playState])}
+        className={cx(['container', `container--${playState}`])}
         style={{ width: `${options.width}vw`, animationDuration: transition }}
       >
         <div className='clip'>
@@ -154,20 +183,28 @@ export default function LowerThird(props: LowerProps) {
             style={{
               animationDuration: transition,
               color: `#${options.upperColour}`,
-              fontSize: `${options.upperSize}vh`,
+              backgroundColor: `#${options.upperBg}`,
+              font: options.upperFont,
             }}
           >
             {upperText}
           </div>
         </div>
-        <div className='line'></div>
+        <div
+          className='line'
+          style={{
+            backgroundColor: `#${options.lineColour}`,
+            height: options.lineHeight,
+          }}
+        />
         <div className='clip'>
           <div
             className='data-lower'
             style={{
               animationDuration: transition,
               color: `#${options.lowerColour}`,
-              fontSize: `${options.lowerSize}vh`,
+              backgroundColor: `#${options.lowerBg}`,
+              font: options.lowerFont,
             }}
           >
             {lowerText}
