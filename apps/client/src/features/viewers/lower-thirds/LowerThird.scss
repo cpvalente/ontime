@@ -60,6 +60,7 @@
       padding-right: 3vw;
       font-family: var(--lowerThird-font-family-override, 'Arial');
       text-align: var(--lowerThird-text-align-override, left);
+      white-space: nowrap;
     }
 
     .data-top {
