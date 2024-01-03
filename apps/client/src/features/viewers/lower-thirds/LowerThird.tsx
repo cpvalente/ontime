@@ -184,7 +184,8 @@ export default function LowerThird(props: LowerProps) {
         setplayState('out');
       }
     }
-  }, [options.delay, triggerData]);
+    return () => null;
+  }, [options.delay, options.trigger, triggerData]);
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
