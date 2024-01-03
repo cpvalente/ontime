@@ -11,7 +11,6 @@ import { cx } from '../../../common/utils/styleUtils';
 
 import './LowerThrid.scss';
 
-//TODO: add none option
 enum srcKeys {
   title = 'title',
   subtitle = 'subtitle',
@@ -146,11 +145,9 @@ export default function LowerThird(props: LowerProps) {
     setOptions({ ...options, lineColour });
   }
 
-  const upperSrcText = options.upperSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.upperSrc] : '';
-  const upperText = upperSrcText.trim() == '' ? <div>&nbsp;</div> : upperSrcText;
+  const upperText = options.upperSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.upperSrc] : '';
 
-  const lowerSrcText = options.lowerSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.lowerSrc] : '';
-  const lowerText = lowerSrcText.trim() == '' ? <div>&nbsp;</div> : lowerSrcText;
+  const lowerText = options.lowerSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.lowerSrc] : '';
 
   const transition = `${options.transition}s`;
 
