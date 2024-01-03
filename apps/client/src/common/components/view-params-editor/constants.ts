@@ -283,6 +283,16 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
 
 export const LOWER_THIRD_OPTIONS: ParamField[] = [
   {
+    id: 'trigger',
+    title: 'Animation Trigger',
+    description: '',
+    type: 'option',
+    values: {
+      event: 'Event Load',
+      manuel: 'Manuel',
+    },
+  },
+  {
     id: 'upper-src',
     title: 'Upper Text',
     description: '',

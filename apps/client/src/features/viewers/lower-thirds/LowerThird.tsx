@@ -18,8 +18,14 @@ enum srcKeys {
   lowerMsg = 'lowerMsg',
 }
 
+enum triggerType {
+  event = 'event',
+  manuel = 'manuel',
+}
+
 type LowerOptions = {
   width: number;
+  trigger: triggerType;
   upperSrc: srcKeys;
   lowerSrc: srcKeys;
   upperColour: string;
@@ -46,6 +52,7 @@ export default function LowerThird(props: LowerProps) {
   const [searchParams] = useSearchParams();
   const [options, setOptions] = useState<LowerOptions>({
     width: 45,
+    trigger: triggerType.event,
     upperSrc: srcKeys.title,
     lowerSrc: srcKeys.subtitle,
     upperColour: '000000ff',
@@ -75,6 +82,11 @@ export default function LowerThird(props: LowerProps) {
     if (!Number.isNaN(width) && width != options.width) {
       setOptions({ ...options, width });
     }
+  }
+
+  const trigger = searchParams.get('trigger') as triggerType;
+  if (trigger && Object.values(triggerType).includes(trigger) && trigger != options.trigger) {
+    setOptions({ ...options, trigger });
   }
 
   const _upperSrc = searchParams.get('upper-src');
@@ -151,19 +163,28 @@ export default function LowerThird(props: LowerProps) {
 
   const transition = `${options.transition}s`;
 
-  const trigger = eventNow?.id;
+  const triggerData =
+    options.trigger == triggerType.event ? eventNow?.id : options.trigger == triggerType.manuel ? lower.visible : null;
 
   useEffect(() => {
-    if (trigger) {
-      setplayState('in');
-      const timeout = setTimeout(() => {
+    if (options.trigger == triggerType.event) {
+      if (triggerData) {
+        setplayState('in');
+        const timeout = setTimeout(() => {
+          setplayState('out');
+        }, options.delay * 1000);
+        return () => clearTimeout(timeout);
+      } else {
+        setplayState('pre');
+      }
+    } else if (options.trigger == triggerType.manuel) {
+      if (triggerData) {
+        setplayState('in');
+      } else {
         setplayState('out');
-      }, options.delay * 1000);
-      return () => clearTimeout(timeout);
-    } else {
-      setplayState('pre');
+      }
     }
-  }, [options.delay, trigger]);
+  }, [options.delay, triggerData]);
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
