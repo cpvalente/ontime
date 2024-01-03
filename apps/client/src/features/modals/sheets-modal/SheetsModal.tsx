@@ -55,6 +55,14 @@ export default function SheetsModal(props: SheetsModalProps) {
   const sheetRef = useRef<HTMLInputElement>(null);
   const worksheetRef = useRef<HTMLSelectElement>(null);
 
+  const [errors, setErrors] = useState({
+    clientSecret: '',
+    authenticate: '',
+    sheetId: '',
+    worksheet: '',
+    pullPush: '',
+  });
+
   const [sheetState, setState] = useState<SheetState>({
     secret: false,
     auth: false,
@@ -62,10 +70,6 @@ export default function SheetsModal(props: SheetsModalProps) {
     worksheet: false,
     worksheetOptions: [],
   });
-
-  const testId = async () => {
-    setState(await getSheetState(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? ''));
-  };
 
   const handleClose = () => {
     setRundown(null);
@@ -81,21 +85,37 @@ export default function SheetsModal(props: SheetsModalProps) {
   const updateSheetState = () => {
     const currentSheetId = sheetRef.current?.value ?? '';
     const currentWorksheet = worksheetRef.current?.value ?? '';
-    getSheetState(currentSheetId, currentWorksheet).then((data) => setState(data));
+    return getSheetState(currentSheetId, currentWorksheet).then((data) => setState(data));
   };
 
-  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
+  const testId = () => {
+    const currentSheetId = sheetRef.current?.value ?? '';
+    const currentWorksheet = worksheetRef.current?.value ?? '';
+    getSheetState(currentSheetId, currentWorksheet)
+      .then((data) => setState(data))
+      .catch((err) => {
+        if (err.response.data.message) {
+          setErrors({ ...errors, sheetId: err.response.data.message });
+        }
+      });
+  };
+
+  const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
+      setErrors({ ...errors, clientSecret: 'Missing file' });
       return;
     }
 
     const selectedFile = event.target.files[0];
-    try {
-      await uploadSheetClientFile(selectedFile);
-    } catch (error) {
-      // TODO: show this in the modal
-      console.error(error);
-    }
+    uploadSheetClientFile(selectedFile)
+      .then(() => {
+        setErrors({ ...errors, clientSecret: '' });
+      })
+      .catch((err) => {
+        if (err.response.data.message) {
+          setErrors({ ...errors, clientSecret: err.response.data.message });
+        }
+      });
     updateSheetState();
   };
 
@@ -106,12 +126,16 @@ export default function SheetsModal(props: SheetsModalProps) {
   }, [isOpen]);
 
   const handleAuthenticate = () => {
-    getSheetsAuthUrl().then((data) => {
-      if (data !== 'bad') {
+    getSheetsAuthUrl()
+      .then((data) => {
         openLink(data);
         window.addEventListener('focus', () => updateSheetState(), { once: true });
-      }
-    });
+      })
+      .catch((err) => {
+        if (err.response.data.message) {
+          setErrors({ ...errors, authenticate: err.response.data.message });
+        }
+      });
   };
 
   const handlePullData = () => {
@@ -180,7 +204,12 @@ export default function SheetsModal(props: SheetsModalProps) {
           </Alert>
           {!rundown ? (
             <>
-              <Step title='1 - Upload OAuth 2.0 Client ID' completed={Boolean(sheetState?.secret)} disabled={false}>
+              <Step
+                title='1 - Upload OAuth 2.0 Client ID'
+                completed={Boolean(sheetState?.secret)}
+                disabled={false}
+                error={errors.clientSecret}
+              >
                 <Input
                   ref={fileInputRef}
                   style={{ display: 'none' }}
@@ -198,6 +227,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                 title='2 - Authenticate with Google'
                 completed={Boolean(sheetState?.auth)}
                 disabled={!sheetState?.secret}
+                error={errors.authenticate}
               >
                 <Button
                   size='sm'
@@ -209,7 +239,12 @@ export default function SheetsModal(props: SheetsModalProps) {
                 </Button>
               </Step>
 
-              <Step title='3 - Add Document ID' completed={Boolean(sheetState?.id)} disabled={!sheetState?.auth}>
+              <Step
+                title='3 - Add Document ID'
+                completed={Boolean(sheetState?.id)}
+                disabled={!sheetState?.auth}
+                error={errors.sheetId}
+              >
                 <HStack>
                   <Input
                     type='text'

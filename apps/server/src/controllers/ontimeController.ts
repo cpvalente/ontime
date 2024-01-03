@@ -515,11 +515,11 @@ export async function uploadSheetClientFile(req, res) {
  * @method GET
  */
 export async function sheetAuthUrl(req, res) {
-  const authUrl = await Sheet.openAuthServer();
-  if (!authUrl) {
-    res.status(500).send('Unable to start auth server');
-  } else {
+  try {
+    const authUrl = await Sheet.openAuthServer();
     res.status(200).send(authUrl);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
   }
 }
 
@@ -529,5 +529,10 @@ export async function sheetAuthUrl(req, res) {
  */
 export const getSheetState = async (req, res) => {
   const { id, worksheet } = req.body;
-  res.status(200).send(await Sheet.getSheetState(id, worksheet));
+  try {
+    const state = await Sheet.getSheetState(id, worksheet);
+    res.status(200).send(state);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
 };

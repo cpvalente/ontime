@@ -54,14 +54,10 @@ class sheet {
     state.auth = sheet.client !== null;
 
     if (id != '' && state.auth) {
-      const spreadsheets = await sheets({ version: 'v4', auth: sheet.client })
-        .spreadsheets.get({
-          spreadsheetId: id,
-          includeGridData: false,
-        })
-        .catch((err) => {
-          logger.error(LogOrigin.Server, `Sheet: faild to load sheet ${err}`);
-        });
+      const spreadsheets = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.get({
+        spreadsheetId: id,
+        includeGridData: false,
+      });
       if (!spreadsheets || spreadsheets.status != 200) {
         return state;
       }
