@@ -1,5 +1,4 @@
 import { RouteHandlerMethod } from 'fastify';
-import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,
   applyDelay,
@@ -19,27 +18,26 @@ import {
 } from '../controllers/rundownController.schema.js';
 import { Request } from './controller.types.js';
 
-// Create controller for GET request to '/events'
-// Returns -
+/**
+ * @description Create controller for GET request to '/events'.
+ */
 export const rundownGetAll: RouteHandlerMethod = async (request, reply) => {
   const delayedRundown = getDelayedRundown();
   reply.send(delayedRundown);
 };
 
-// Create controller for GET request to '/events/cached'
-// Returns -
+/**
+ * @description Create controller for GET request to '/events/cached'
+ */
 export const rundownGetCached: RouteHandlerMethod = async (request, reply) => {
   const cachedRundown = getRundownCache();
   reply.send(cachedRundown);
 };
 
-// Create controller for POST request to '/events/'
-// Returns -
+/**
+ * @description Create controller for POST request to '/events/'
+ */
 export const rundownPost: RouteHandlerMethod = async (request: Request<typeof rundownPostSchema>, reply) => {
-  if (failEmptyObjects(request.body, reply)) {
-    return;
-  }
-
   try {
     const newEvent = await addEvent(request.body);
     reply.status(201).send(newEvent);
@@ -48,13 +46,10 @@ export const rundownPost: RouteHandlerMethod = async (request: Request<typeof ru
   }
 };
 
-// Create controller for PUT request to '/events/'
-// Returns -
+/**
+ * @description Create controller for PUT request to '/events/'
+ */
 export const rundownPut: RouteHandlerMethod = async (request: Request<typeof rundownPutSchema>, reply) => {
-  if (failEmptyObjects(request.body, reply)) {
-    return;
-  }
-
   try {
     const event = await editEvent(request.body);
     reply.status(200).send(event);
@@ -63,11 +58,10 @@ export const rundownPut: RouteHandlerMethod = async (request: Request<typeof run
   }
 };
 
+/**
+ * @description Create controller for patch request to '/events/reorder'
+ */
 export const rundownReorder: RouteHandlerMethod = async (request: Request<typeof rundownReorderSchema>, reply) => {
-  if (failEmptyObjects(request.body, reply)) {
-    return;
-  }
-
   try {
     const { eventId, from, to } = request.body;
     const event = await reorderEvent(eventId, from, to);
@@ -77,11 +71,10 @@ export const rundownReorder: RouteHandlerMethod = async (request: Request<typeof
   }
 };
 
+/**
+ * @description Create controller for patch request to '/events/swap'
+ */
 export const rundownSwap: RouteHandlerMethod = async (request: Request<typeof rundownSwapSchema>, reply) => {
-  if (failEmptyObjects(request.body, reply)) {
-    return;
-  }
-
   try {
     const { from, to } = request.body;
     await swapEvents(from, to);
@@ -91,8 +84,9 @@ export const rundownSwap: RouteHandlerMethod = async (request: Request<typeof ru
   }
 };
 
-// Create controller for PATCH request to '/events/applydelay/:eventId'
-// Returns -
+/**
+ * @description Create controller for PATCH request to '/events/applydelay/:eventId'
+ */
 export const rundownApplyDelay: RouteHandlerMethod = async (
   request: Request<typeof paramsMustHaveEventIdSchema>,
   reply,
@@ -105,8 +99,9 @@ export const rundownApplyDelay: RouteHandlerMethod = async (
   }
 };
 
-// Create controller for DELETE request to '/events/:eventId'
-// Returns -
+/**
+ * @description Create controller for DELETE request to '/events/:eventId'
+ */
 export const deleteEventById: RouteHandlerMethod = async (
   request: Request<typeof paramsMustHaveEventIdSchema>,
   reply,
@@ -119,8 +114,9 @@ export const deleteEventById: RouteHandlerMethod = async (
   }
 };
 
-// Create controller for DELETE request to '/events/'
-// Returns -
+/**
+ * @description Create controller for DELETE request to '/events/all'
+ */
 export const rundownDelete: RouteHandlerMethod = async (request, reply) => {
   try {
     await deleteAllEvents();

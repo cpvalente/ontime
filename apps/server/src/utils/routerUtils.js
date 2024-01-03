@@ -4,6 +4,7 @@ import { isEmptyObject } from './parserUtils.js';
  * @description initial checks for an empty of malformed request object
  * @param obj
  * @param res
+ * @deprecated switch to using schema
  */
 export const failEmptyObjects = (obj, res) => {
   let failed = false;
