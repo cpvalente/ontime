@@ -73,7 +73,7 @@ export default function LowerThird(props: LowerProps) {
   const [playState, setplayState] = useState<'pre' | 'in' | 'out'>('pre');
 
   useEffect(() => {
-    document.title = 'ontime - Lower3';
+    document.title = 'ontime - Lower Third';
   }, []);
 
   const _width = searchParams.get('width');
