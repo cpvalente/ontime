@@ -63,7 +63,7 @@ export default function LowerThird(props: LowerProps) {
     bottomSize: '40px',
     transition: 3,
     delay: 3,
-    key: '00000000',
+    key: 'ffffff00',
     lineColour: 'ff0000ff',
     lineHeight: '0.4em',
   };
