@@ -170,9 +170,12 @@ export default function LowerThird(props: LowerProps) {
     if (options.trigger == triggerType.event) {
       if (triggerData) {
         setplayState('in');
-        const timeout = setTimeout(() => {
-          setplayState('out');
-        }, options.delay * 1000);
+        const timeout = setTimeout(
+          () => {
+            setplayState('out');
+          },
+          options.delay * 1000 + options.transition * 1000,
+        );
         return () => clearTimeout(timeout);
       } else {
         setplayState('pre');
