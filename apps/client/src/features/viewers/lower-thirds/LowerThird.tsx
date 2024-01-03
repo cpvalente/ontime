@@ -50,7 +50,7 @@ interface LowerProps {
 export default function LowerThird(props: LowerProps) {
   const { eventNow, lower, viewSettings } = props;
   const [searchParams] = useSearchParams();
-  const [options, setOptions] = useState<LowerOptions>({
+  const options: LowerOptions = {
     width: 45,
     trigger: triggerType.event,
     topSrc: srcKeys.title,
@@ -66,7 +66,7 @@ export default function LowerThird(props: LowerProps) {
     key: '00000000',
     lineColour: 'ff0000ff',
     lineHeight: '0.4em',
-  });
+  };
 
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
@@ -80,62 +80,62 @@ export default function LowerThird(props: LowerProps) {
   if (_width) {
     const width = Number(_width);
     if (!Number.isNaN(width) && width != options.width) {
-      setOptions({ ...options, width });
+      options.width = width;
     }
   }
 
   const trigger = searchParams.get('trigger') as triggerType;
   if (trigger && Object.values(triggerType).includes(trigger) && trigger != options.trigger) {
-    setOptions({ ...options, trigger });
+    options.trigger = trigger;
   }
 
   const _topSrc = searchParams.get('top-src');
   if (_topSrc && _topSrc in srcKeys && _topSrc != options.topSrc) {
     const topSrc = _topSrc as srcKeys;
-    setOptions({ ...options, topSrc });
+    options.topSrc = topSrc;
   }
 
   const _bottomSrc = searchParams.get('bottom-src');
   if (_bottomSrc && _bottomSrc in srcKeys && _bottomSrc != options.bottomSrc) {
     const bottomSrc = _bottomSrc as srcKeys;
-    setOptions({ ...options, bottomSrc });
+    options.bottomSrc = bottomSrc;
   }
 
   const topColour = searchParams.get('top-colour');
   if (topColour && topColour != options.topColour) {
-    setOptions({ ...options, topColour });
+    options.topColour = topColour;
   }
 
   const bottomColour = searchParams.get('bottom-colour');
   if (bottomColour && bottomColour != options.bottomColour) {
-    setOptions({ ...options, bottomColour });
+    options.bottomColour = bottomColour;
   }
 
   const topBg = searchParams.get('top-bg');
   if (topBg && topBg != options.topBg) {
-    setOptions({ ...options, topBg });
+    options.topBg = topBg;
   }
 
   const bottomBg = searchParams.get('bottom-bg');
   if (bottomBg && bottomBg != options.bottomBg) {
-    setOptions({ ...options, bottomBg });
+    options.bottomBg = bottomBg;
   }
 
   const topSize = searchParams.get('top-size');
   if (topSize && topSize != options.topSize) {
-    setOptions({ ...options, topSize });
+    options.topSize = topSize;
   }
 
   const bottomSize = searchParams.get('bottom-size');
   if (bottomSize && bottomSize != options.bottomSize) {
-    setOptions({ ...options, bottomSize });
+    options.bottomSize = bottomSize;
   }
 
   const _transition = searchParams.get('transition');
   if (_transition) {
     const transition = Number(_transition);
     if (!Number.isNaN(transition) && transition != options.transition) {
-      setOptions({ ...options, transition });
+      options.transition = transition;
     }
   }
 
@@ -143,18 +143,18 @@ export default function LowerThird(props: LowerProps) {
   if (_delay) {
     const delay = Number(_delay);
     if (!Number.isNaN(delay) && delay != options.delay) {
-      setOptions({ ...options, delay });
+      options.delay = delay;
     }
   }
 
   const key = searchParams.get('key');
   if (key && key != options.key) {
-    setOptions({ ...options, key });
+    options.key = key;
   }
 
   const lineColour = searchParams.get('line-colour');
   if (lineColour && lineColour != options.lineColour) {
-    setOptions({ ...options, lineColour });
+    options.lineColour = lineColour;
   }
 
   const topText = options.topSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.topSrc] : '';
