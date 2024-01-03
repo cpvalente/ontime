@@ -342,7 +342,7 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     description: 'Colour of the background',
     prefix: '#',
     type: 'string',
-    placeholder: 'ffffff00 (default)',
+    placeholder: 'ffffffff (default)',
   },
   {
     id: 'line-colour',

@@ -9,7 +9,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { cx } from '../../../common/utils/styleUtils';
 
-import './LowerThrid.scss';
+import './LowerThird.scss';
 
 enum srcKeys {
   title = 'title',
@@ -63,7 +63,7 @@ export default function LowerThird(props: LowerProps) {
     bottomSize: '40px',
     transition: 3,
     delay: 3,
-    key: 'ffffff00',
+    key: 'ffffffff',
     lineColour: 'ff0000ff',
     lineHeight: '0.4em',
   };
