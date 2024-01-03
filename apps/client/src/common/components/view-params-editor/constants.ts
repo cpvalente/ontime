@@ -305,14 +305,14 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     title: 'Top Text Size',
     description: 'Font size of the top text',
     type: 'string',
-    placeholder: '4vh',
+    placeholder: '65px',
   },
   {
     id: 'bottom-size',
     title: 'Bottom Text Size',
     description: 'Font size of the bottom text',
     type: 'string',
-    placeholder: '3vh',
+    placeholder: '64px',
   },
   {
     id: 'width',
