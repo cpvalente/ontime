@@ -5,8 +5,10 @@ import { Message, OntimeEvent } from 'ontime-types';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { LOWER_THIRD_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
+import { cx } from '../../../common/utils/styleUtils';
 
 import './LowerThrid.scss';
+import { setPlayback } from 'common/hooks/useSocket';
 
 enum srcKeys {
   title = 'title',
@@ -25,6 +27,7 @@ type LowerOptions = {
   upperSize: number;
   lowerSize: number;
   transition: number;
+  delay: number;
 };
 
 interface LowerProps {
@@ -44,7 +47,10 @@ export default function LowerThird(props: LowerProps) {
     upperSize: 4,
     lowerSize: 3,
     transition: 3,
+    delay: 3,
   });
+
+  const [playState, setplayState] = useState<'pre' | 'moveIn' | 'moveOut'>('pre');
 
   useEffect(() => {
     document.title = 'ontime - Lower3';
@@ -104,6 +110,14 @@ export default function LowerThird(props: LowerProps) {
     }
   }
 
+  const _delay = searchParams.get('delay');
+  if (_delay) {
+    const delay = Number(_delay);
+    if (!Number.isNaN(delay) && delay != options.delay) {
+      setOptions({ ...options, delay });
+    }
+  }
+
   const upperSrcText = options.upperSrc == srcKeys.lower ? lower.text : eventNow ? eventNow[options.upperSrc] : '';
   const upperText = upperSrcText.trim() == '' ? <div>&nbsp;</div> : upperSrcText;
 
@@ -112,11 +126,28 @@ export default function LowerThird(props: LowerProps) {
 
   const transition = `${options.transition}s`;
 
+  const trigger = eventNow?.id;
+
+  useEffect(() => {
+    console.log('event change');
+    if (trigger) {
+      setplayState('moveIn');
+      const timeout = setTimeout(() => {
+        setplayState('moveOut');
+        console.log('moveout');
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [trigger]);
+
   return (
     <div className='lower-third' style={{ backgroundColor: '#ffff' }}>
       <NavigationMenu />
       <ViewParamsEditor paramFields={LOWER_THIRD_OPTIONS} />
-      <div className='container' style={{ width: `${options.width}vw`, animationDuration: transition }}>
+      <div
+        className={cx(['container', playState])}
+        style={{ width: `${options.width}vw`, animationDuration: transition }}
+      >
         <div className='clip'>
           <div
             className='data-upper'

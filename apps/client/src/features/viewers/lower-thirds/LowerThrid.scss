@@ -3,6 +3,21 @@
   width: 100%;
   height: 100%;
 
+  .pre {
+    animation-play-state: paused;
+    animation-direction: normal;
+  }
+
+  .moveIn {
+    animation-play-state: running;
+    animation-direction: normal;
+  }
+
+  .moveOut {
+    animation-play-state: running;
+    animation-direction: reverse;
+  }
+
   .container {
     position: absolute;
     display: block;

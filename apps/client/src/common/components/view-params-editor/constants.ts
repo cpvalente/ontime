@@ -367,6 +367,13 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     type: 'number',
     placeholder: '3 (default)',
   },
+  {
+    id: 'delay',
+    title: 'Delay',
+    description: 'Delay between transition in and out in seconds (default 3)',
+    type: 'number',
+    placeholder: '3 (default)',
+  },
 ];
 
 export const getBackstageOptions = (timeFormat: TimeFormat): ParamField[] => [
