@@ -243,6 +243,7 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
       event: 'Event Load',
       manual: 'Manual',
     },
+    defaultValue: 'event',
   },
   {
     id: 'top-src',
@@ -255,6 +256,7 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
       presenter: 'Presenter',
       lowerMsg: 'Lower Thrid Message',
     },
+    defaultValue: 'title',
   },
   {
     id: 'bottom-src',
@@ -262,11 +264,12 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     description: 'Select the text source for the bottom element',
     type: 'option',
     values: {
-      subtitle: 'Subtitle',
       title: 'Title',
+      subtitle: 'Subtitle',
       presenter: 'Presenter',
       lowerMsg: 'Lower Thrid Message',
     },
+    defaultValue: 'subtitle',
   },
   {
     id: 'top-colour',
