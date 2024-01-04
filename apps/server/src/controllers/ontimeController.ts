@@ -526,21 +526,21 @@ export const loadProject: RequestHandler = async (req, res) => {
 
 /**
  * Duplicates a project file.
- * Receives the original project filename (`projectFilename`) and the filename for the duplicate (`newProjectFilename`) from the request body.
+ * Receives the original project filename (`filename`) and the filename for the duplicate (`newFilename`) from the request body.
  *
- * @param {Request} req - The express request object. Expects `projectFilename` and `newProjectFilename` in the request body.
+ * @param {Request} req - The express request object. Expects `filename` and `newFilename` in the request body.
  * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful duplication,
  *                         a 404 status if the original file is not found, a 409 status if the duplicate file name already exists,
  *                         or a 500 status with an error message in case of an exception.
  */
 export const duplicateProjectFile: RequestHandler = async (req, res) => {
   try {
-    const { projectFilename, newProjectFilename } = req.body;
+    const { filename, newFilename } = req.body;
 
-    const projectFilePath = join(uploadsFolderPath, projectFilename);
-    const duplicateProjectFilePath = join(uploadsFolderPath, newProjectFilename);
+    const projectFilePath = join(uploadsFolderPath, filename);
+    const duplicateProjectFilePath = join(uploadsFolderPath, newFilename);
 
-    const errors = validateProjectFiles({ projectFilename, newProjectFilename });
+    const errors = validateProjectFiles({ filename, newFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -549,7 +549,7 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
     await copyFile(projectFilePath, duplicateProjectFilePath);
 
     res.status(200).send({
-      message: `Duplicated project ${projectFilename} to ${newProjectFilename}`,
+      message: `Duplicated project ${filename} to ${newFilename}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -558,20 +558,20 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
 
 /**
  * Deletes a project file.
- * Receives the project filename (`projectFilename`) from the request body.
+ * Receives the project filename (`filename`) from the request body.
  *
- * @param {Request} req - The express request object. Expects `projectFilename` in the request body.
+ * @param {Request} req - The express request object. Expects `filename` in the request body.
  * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful deletion,
  *                         a 404 status if the file is not found, or a 500 status with an error message in case of an exception.
  */
 export const renameProjectFile: RequestHandler = async (req, res) => {
   try {
-    const { projectFilename, newProjectFilename } = req.body;
+    const { filename, newFilename } = req.body;
 
-    const projectFilePath = join(uploadsFolderPath, projectFilename);
-    const newProjectFilePath = join(uploadsFolderPath, newProjectFilename);
+    const projectFilePath = join(uploadsFolderPath, filename);
+    const newProjectFilePath = join(uploadsFolderPath, newFilename);
 
-    const errors = validateProjectFiles({ projectFilename, newProjectFilename });
+    const errors = validateProjectFiles({ filename, newFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -583,12 +583,12 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
     // Update the last loaded project config if current loaded project is the one being renamed
     const { lastLoadedProject } = await configService.getConfig();
 
-    if (lastLoadedProject === projectFilename) {
-      await configService.updateDatabaseConfig(newProjectFilename);
+    if (lastLoadedProject === filename) {
+      await configService.updateDatabaseConfig(newFilename);
     }
 
     res.status(200).send({
-      message: `Renamed project ${projectFilename} to ${newProjectFilename}`,
+      message: `Renamed project ${filename} to ${newFilename}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -597,10 +597,10 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
 
 /**
  * Creates a new project file.
- * Receives the project filename (`projectFilename`) from the request body, sanitizes the filename,
+ * Receives the project filename (`filename`) from the request body, sanitizes the filename,
  * and creates a new file in the uploads folder with an initial empty project structure.
  *
- * @param {Request} req - The express request object. Expects `projectFilename` in the request body.
+ * @param {Request} req - The express request object. Expects `filename` in the request body.
  * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful creation,
  *                         a 409 status if there is a validation error (like filename already exists),
  *                         or a 500 status with an error message in case of an exception.
@@ -608,11 +608,11 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
  */
 export const createProjectFile: RequestHandler = async (req, res) => {
   try {
-    const { projectFilename } = req.body;
+    const { filename } = req.body;
 
-    const projectFilePath = join(uploadsFolderPath, projectFilename);
+    const projectFilePath = join(uploadsFolderPath, filename);
 
-    const errors = validateProjectFiles({ newProjectFilename: projectFilename });
+    const errors = validateProjectFiles({ newFilename: filename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -621,7 +621,7 @@ export const createProjectFile: RequestHandler = async (req, res) => {
     await writeFile(projectFilePath, JSON.stringify(dbModel));
 
     res.status(200).send({
-      message: `Created project ${projectFilename}`,
+      message: `Created project ${filename}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -643,17 +643,17 @@ export const createProjectFile: RequestHandler = async (req, res) => {
  */
 export const deleteProjectFile: RequestHandler = async (req, res) => {
   try {
-    const { projectName } = req.params;
+    const { filename } = req.params;
 
     const { lastLoadedProject } = await configService.getConfig();
 
-    if (lastLoadedProject === projectName) {
+    if (lastLoadedProject === filename) {
       return res.status(403).send({ message: 'Cannot delete currently loaded project' });
     }
 
-    const projectFilePath = join(uploadsFolderPath, projectName);
+    const projectFilePath = join(uploadsFolderPath, filename);
 
-    const errors = validateProjectFiles({ projectFilename: projectName });
+    const errors = validateProjectFiles({ filename: filename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -662,7 +662,7 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
     await deleteFile(projectFilePath);
 
     res.status(200).send({
-      message: `Deleted project ${projectName}`,
+      message: `Deleted project ${filename}`,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });

@@ -124,4 +124,4 @@ router.put('/rename-project', validateProjectRename, sanitizeProjectFilename, re
 router.post('/create-project', validateProjectCreate, sanitizeProjectFilename, createProjectFile);
 
 // create route between controller and '/ontime/delete-project' endpoint
-router.delete('/delete-project/:projectName', sanitizeProjectFilename, deleteProjectFile);
+router.delete('/delete-project/:filename', sanitizeProjectFilename, deleteProjectFile);

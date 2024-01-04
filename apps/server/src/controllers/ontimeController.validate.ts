@@ -176,13 +176,13 @@ export const validateLoadProjectFile = [
  * @description Validates the filenames for duplicating a project.
  */
 export const validateProjectDuplicate = [
-  body('projectFilename')
+  body('filename')
     .exists()
     .withMessage('Project filename is required')
     .isString()
     .withMessage('Project filename must be a string'),
 
-  body('newProjectFilename')
+  body('newFilename')
     .exists()
     .withMessage('New project filename is required')
     .isString()
@@ -202,13 +202,13 @@ export const validateProjectDuplicate = [
  * @description Validates the filenames for renaming a project.
  */
 export const validateProjectRename = [
-  body('projectFilename')
+  body('filename')
     .exists()
     .withMessage('Project filename is required')
     .isString()
     .withMessage('Project filename must be a string'),
 
-  body('newProjectFilename')
+  body('newFilename')
     .exists()
     .withMessage('Duplicate project filename is required')
     .isString()
@@ -228,11 +228,7 @@ export const validateProjectRename = [
  * @description Validates the filename for creating a project file.
  */
 export const validateProjectCreate = [
-  body('projectFilename')
-    .exists()
-    .withMessage('Filename is required')
-    .isString()
-    .withMessage('Filename must be a string'),
+  body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -253,26 +249,23 @@ const checkExistingProjectFile = (projectFilename?: string): boolean => {
  * @description Validates the existence of project files.
  * @param {object} projectFiles
  * @param {string} projectFiles.projectFilename
- * @param {string} projectFiles.newProjectFilename
+ * @param {string} projectFiles.newFilename
  *
  * @returns {Promise<Array<string>>} Array of errors
  *
  */
-export const validateProjectFiles = (projectFiles: {
-  projectFilename?: string;
-  newProjectFilename?: string;
-}): Array<string> => {
+export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
   const errors = [];
-  if (projectFiles.projectFilename) {
-    const existingFile = checkExistingProjectFile(projectFiles.projectFilename);
+  if (projectFiles.filename) {
+    const existingFile = checkExistingProjectFile(projectFiles.filename);
 
     if (!existingFile) {
       errors.push('Project file does not exist');
     }
   }
 
-  if (projectFiles.newProjectFilename) {
-    const newFile = checkExistingProjectFile(projectFiles.newProjectFilename);
+  if (projectFiles.newFilename) {
+    const newFile = checkExistingProjectFile(projectFiles.newFilename);
 
     if (newFile) {
       errors.push('New project file already exists');
