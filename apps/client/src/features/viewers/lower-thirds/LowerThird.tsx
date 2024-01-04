@@ -153,9 +153,23 @@ export default function LowerThird(props: LowerProps) {
     document.title = 'ontime - Lower Third';
   }, []);
 
-  const topText = options.topSrc == srcKeys.LowerMsg ? lower.text : eventNow ? eventNow[options.topSrc] : '';
+  const topText = useMemo(() => {
+    if (options.topSrc === srcKeys.LowerMsg) {
+      return lower.text;
+    } else if (eventNow) {
+      return eventNow[options.topSrc];
+    }
+    return '';
+  }, [eventNow, lower.text, options]);
 
-  const bottomText = options.bottomSrc == srcKeys.LowerMsg ? lower.text : eventNow ? eventNow[options.bottomSrc] : '';
+  const bottomText = useMemo(() => {
+    if (options.bottomSrc === srcKeys.LowerMsg) {
+      return lower.text;
+    } else if (eventNow) {
+      return eventNow[options.bottomSrc];
+    }
+    return '';
+  }, [eventNow, lower.text, options]);
 
   const transition = `${options.transition}s`;
 
@@ -184,7 +198,7 @@ export default function LowerThird(props: LowerProps) {
       }
     }
     return () => null;
-  }, [options.delay, options.trigger, triggerData]);
+  }, [options.delay, options.transition, options.trigger, triggerData]);
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
