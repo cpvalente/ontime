@@ -81,7 +81,6 @@ export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
 /**
  * @description Removes undefined
  * @param {object} obj
- * @deprecated - replace with schema
  */
 export const removeUndefined = (obj: object) => {
   const patched = {};
