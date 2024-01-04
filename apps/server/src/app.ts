@@ -1,3 +1,4 @@
+//@ts-strictNullChecks-ignore
 import { HttpSettings, LogOrigin, OSCSettings } from 'ontime-types';
 
 import 'dotenv/config';
@@ -6,9 +7,10 @@ import fastifyExpress from '@fastify/express';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import fastifyCompress from '@fastify/compress';
+import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 
 // import utils
-import { join, resolve } from 'path';
+import { resolve } from 'path';
 import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
@@ -46,6 +48,9 @@ if (!isProduction) {
 
 // Create express APP
 const fastify = Fastify({ logger: false });
+// Add schema validator and serializer
+fastify.setValidatorCompiler(validatorCompiler);
+fastify.setSerializerCompiler(serializerCompiler);
 const app = express();
 app.disable('x-powered-by');
 

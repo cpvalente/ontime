@@ -62,5 +62,8 @@
     "*.{js,jsx,ts,tsx}": [
       "pnpm lint"
     ]
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
   }
 }

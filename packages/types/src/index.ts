@@ -15,6 +15,7 @@ export { TimerType } from './definitions/TimerType.type.js';
 
 // ---> Project Data
 export type { ProjectData } from './definitions/core/ProjectData.type.js';
+export { ProjectDataSchema } from './definitions/core/ProjectData.type.js';
 
 // ---> Settings
 export type { Settings } from './definitions/core/Settings.type.js';
@@ -44,10 +45,11 @@ export type {
   GetInfo,
   ProjectFileList,
   ProjectFile,
-  ErrorResponse,
   ProjectFileListResponse,
 } from './api/ontime-controller/BackendResponse.type.js';
 export type { GetRundownCached } from './api/rundown-controller/BackendResponse.type.js';
+
+export type { ErrorResponse } from './api/BackendResponds.type.js';
 
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';

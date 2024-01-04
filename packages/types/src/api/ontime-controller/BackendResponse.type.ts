@@ -26,6 +26,3 @@ export type ProjectFileListResponse = {
   lastLoadedProject: string;
 };
 
-export type ErrorResponse = {
-  message: string;
-};
