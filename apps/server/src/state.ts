@@ -64,6 +64,8 @@ export const stateMutations = {
     start() {
       mutate(
         (state) => {
+          // TODO: we need an event to start, should we get the event or the whole rundown?
+
           state.timer.clock = clock.timeNow();
           state.timer.secondaryTimer = null;
           state.timer.secondaryTarget = null;
@@ -96,7 +98,7 @@ export const stateMutations = {
         },
       );
     },
-    stop(shouldNotify = false) {
+    stop() {
       mutate(
         (state) => {
           state.playback = Playback.Stop;
@@ -112,13 +114,15 @@ export const stateMutations = {
           state.timer.duration = null;
           state.timer.timerType = null;
           state.timer.endAction = null;
+
+          state.timer.pausedTime = 0;
+          state.timer.pausedAt = null;
+          state.timer.secondaryTarget = null;
         },
         {
           sideEffect() {
             saveToRestore(state);
-            if (shouldNotify) {
-              integrationService.dispatch(TimerLifeCycle.onStop);
-            }
+            integrationService.dispatch(TimerLifeCycle.onStop);
           },
         },
       );
