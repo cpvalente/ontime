@@ -526,11 +526,12 @@ export const loadProject: RequestHandler = async (req, res) => {
 
 /**
  * Duplicates a project file.
- * Receives the original project filename (`filename`) and the filename for the duplicate (`newFilename`) from the request body.
+ * Receives the original project filename (`filename`) from the request parameters
+ * and the filename for the duplicate (`newFilename`) from the request body.
  *
- * @param {Request} req - The express request object. Expects `filename` and `newFilename` in the request body.
+ * @param {Request} req - The express request object. Expects `filename` in the request parameters and `newFilename` in the request body.
  * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful duplication,
- *                         a 404 status if the original file is not found, a 409 status if the duplicate file name already exists,
+ *                         a 409 status if there are validation errors,
  *                         or a 500 status with an error message in case of an exception.
  */
 export const duplicateProjectFile: RequestHandler = async (req, res) => {
@@ -558,12 +559,14 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
 };
 
 /**
- * Deletes a project file.
- * Receives the project filename (`filename`) from the request body.
+ * Renames a project file.
+ * Receives the current filename (`filename`) from the request parameters
+ * and the new filename (`newFilename`) from the request body.
  *
- * @param {Request} req - The express request object. Expects `filename` in the request body.
- * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful deletion,
- *                         a 404 status if the file is not found, or a 500 status with an error message in case of an exception.
+ * @param {Request} req - The express request object. Expects `filename` in the request parameters and `newFilename` in the request body.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful renaming,
+ *                         a 409 status if there are validation errors,
+ *                         or a 500 status with an error message in case of an exception.
  */
 export const renameProjectFile: RequestHandler = async (req, res) => {
   try {
@@ -599,14 +602,12 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
 
 /**
  * Creates a new project file.
- * Receives the project filename (`filename`) from the request body, sanitizes the filename,
- * and creates a new file in the uploads folder with an initial empty project structure.
+ * Receives the project filename (`filename`) from the request body.
  *
  * @param {Request} req - The express request object. Expects `filename` in the request body.
  * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful creation,
- *                         a 409 status if there is a validation error (like filename already exists),
+ *                         a 409 status if there are validation errors,
  *                         or a 500 status with an error message in case of an exception.
- * @returns {Promise<void>} A promise that resolves when the operation is complete.
  */
 export const createProjectFile: RequestHandler = async (req, res) => {
   try {
@@ -632,16 +633,13 @@ export const createProjectFile: RequestHandler = async (req, res) => {
 
 /**
  * Deletes an existing project file.
- * Receives the project name (`projectName`) from the request parameters
- * and deletes the corresponding file in the uploads folder. It also checks if the project to be deleted
- * is the currently loaded project, and prevents deletion in that case.
+ * Receives the project filename (`filename`) from the request parameters.
  *
- * @param {Request} req - The express request object. Expects `projectName` in the request parameters.
+ * @param {Request} req - The express request object. Expects `filename` in the request parameters.
  * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful deletion,
  *                         a 403 status if attempting to delete the currently loaded project,
  *                         a 409 status if there are validation errors,
  *                         or a 500 status with an error message in case of an exception.
- * @returns {Promise<void>} A promise that resolves when the operation is complete.
  */
 export const deleteProjectFile: RequestHandler = async (req, res) => {
   try {
