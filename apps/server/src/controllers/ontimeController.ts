@@ -540,7 +540,7 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
     const projectFilePath = join(uploadsFolderPath, projectFilename);
     const duplicateProjectFilePath = join(uploadsFolderPath, newProjectFilename);
 
-    const errors = await validateProjectFiles({ projectFilename, newProjectFilename });
+    const errors = validateProjectFiles({ projectFilename, newProjectFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -571,7 +571,7 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
     const projectFilePath = join(uploadsFolderPath, projectFilename);
     const newProjectFilePath = join(uploadsFolderPath, newProjectFilename);
 
-    const errors = await validateProjectFiles({ projectFilename, newProjectFilename });
+    const errors = validateProjectFiles({ projectFilename, newProjectFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -612,7 +612,7 @@ export const createProjectFile: RequestHandler = async (req, res) => {
 
     const projectFilePath = join(uploadsFolderPath, projectFilename);
 
-    const errors = await validateProjectFiles({ newProjectFilename: projectFilename });
+    const errors = validateProjectFiles({ newProjectFilename: projectFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -653,7 +653,7 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
 
     const projectFilePath = join(uploadsFolderPath, projectName);
 
-    const errors = await validateProjectFiles({ projectFilename: projectName });
+    const errors = validateProjectFiles({ projectFilename: projectName });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });

@@ -243,25 +243,10 @@ export const validateProjectCreate = [
   },
 ];
 
-const checkExistingFile = (projectFilename?: string): boolean => {
+const checkExistingProjectFile = (projectFilename?: string): boolean => {
   const projectFilePath = join(uploadsFolderPath, projectFilename);
 
   return existsSync(projectFilePath);
-};
-
-const checkNewFile = async (newProjectFilename: string): Promise<string | null> => {
-  const newProjectFilePath = join(uploadsFolderPath, newProjectFilename);
-
-  try {
-    const fh = await open(newProjectFilePath);
-    close(fh.fd);
-
-    // File exists, so we can't continue
-    return 'New file name already exists';
-  } catch (error) {
-    // File does not exist, so we can continue
-    return null;
-  }
 };
 
 /**
@@ -273,13 +258,13 @@ const checkNewFile = async (newProjectFilename: string): Promise<string | null> 
  * @returns {Promise<Array<string>>} Array of errors
  *
  */
-export const validateProjectFiles = async (projectFiles: {
+export const validateProjectFiles = (projectFiles: {
   projectFilename?: string;
   newProjectFilename?: string;
-}): Promise<Array<string>> => {
+}): Array<string> => {
   const errors = [];
   if (projectFiles.projectFilename) {
-    const existingFile = checkExistingFile(projectFiles.projectFilename);
+    const existingFile = checkExistingProjectFile(projectFiles.projectFilename);
 
     if (!existingFile) {
       errors.push('Project file does not exist');
@@ -287,10 +272,10 @@ export const validateProjectFiles = async (projectFiles: {
   }
 
   if (projectFiles.newProjectFilename) {
-    const newFileError = await checkNewFile(projectFiles.newProjectFilename);
+    const newFile = checkExistingProjectFile(projectFiles.newProjectFilename);
 
-    if (newFileError) {
-      errors.push(newFileError);
+    if (newFile) {
+      errors.push('New project file already exists');
     }
   }
 
