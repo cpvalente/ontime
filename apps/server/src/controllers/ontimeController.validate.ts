@@ -1,7 +1,6 @@
 import { body, check, validationResult } from 'express-validator';
 import { join } from 'path';
-import { open } from 'fs/promises';
-import { close, existsSync } from 'fs';
+import { existsSync } from 'fs';
 
 import {
   validateHttpSubscriptionObject,
