@@ -1,7 +1,7 @@
 import { body, check, validationResult } from 'express-validator';
 import { join } from 'path';
 import { open } from 'fs/promises';
-import { close } from 'fs';
+import { close, existsSync } from 'fs';
 
 import {
   validateHttpSubscriptionObject,
@@ -243,15 +243,10 @@ export const validateProjectCreate = [
   },
 ];
 
-const checkExistingFile = async (projectFilename?: string): Promise<string | null> => {
+const checkExistingFile = (projectFilename?: string): boolean => {
   const projectFilePath = join(uploadsFolderPath, projectFilename);
 
-  try {
-    const fh = await open(projectFilePath);
-    close(fh.fd);
-  } catch (error) {
-    return 'Project file does not exist';
-  }
+  return existsSync(projectFilePath);
 };
 
 const checkNewFile = async (newProjectFilename: string): Promise<string | null> => {
@@ -284,10 +279,10 @@ export const validateProjectFiles = async (projectFiles: {
 }): Promise<Array<string>> => {
   const errors = [];
   if (projectFiles.projectFilename) {
-    const existingFileError = await checkExistingFile(projectFiles.projectFilename);
+    const existingFile = checkExistingFile(projectFiles.projectFilename);
 
-    if (existingFileError) {
-      errors.push(existingFileError);
+    if (!existingFile) {
+      errors.push('Project file does not exist');
     }
   }
 
