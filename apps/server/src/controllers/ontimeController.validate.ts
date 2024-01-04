@@ -179,7 +179,7 @@ export const validateProjectDuplicate = [
     .exists()
     .withMessage('New project filename is required')
     .isString()
-    .isLength({ min: 1, max: 60 })
+    .isLength({ min: 1, max: 255 })
     .withMessage('New project filename must be a string'),
 
   (req, res, next) => {
@@ -200,7 +200,7 @@ export const validateProjectRename = [
     .exists()
     .withMessage('Duplicate project filename is required')
     .isString()
-    .isLength({ min: 1, max: 60 })
+    .isLength({ min: 1, max: 255 })
     .withMessage('Duplicate project filename must be a string'),
 
   (req, res, next) => {
@@ -221,7 +221,7 @@ export const validateProjectCreate = [
     .exists()
     .withMessage('Filename is required')
     .isString()
-    .isLength({ min: 1, max: 60 })
+    .isLength({ min: 1, max: 255 })
     .withMessage('Filename must be a string'),
   (req, res, next) => {
     const errors = validationResult(req);
