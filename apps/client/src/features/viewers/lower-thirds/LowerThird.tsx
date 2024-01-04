@@ -12,15 +12,15 @@ import { cx } from '../../../common/utils/styleUtils';
 import './LowerThird.scss';
 
 enum srcKeys {
-  title = 'title',
-  subtitle = 'subtitle',
-  presenter = 'presenter',
-  lowerMsg = 'lowerMsg',
+  Title = 'title',
+  Subtitle = 'subtitle',
+  Presenter = 'presenter',
+  LowerMsg = 'lowerMsg',
 }
 
 enum triggerType {
-  event = 'event',
-  manual = 'manual',
+  Event = 'event',
+  Manual = 'manual',
 }
 
 type LowerOptions = {
@@ -52,9 +52,9 @@ export default function LowerThird(props: LowerProps) {
   const [searchParams] = useSearchParams();
   const options: LowerOptions = {
     width: 45,
-    trigger: triggerType.event,
-    topSrc: srcKeys.title,
-    bottomSrc: srcKeys.subtitle,
+    trigger: triggerType.Event,
+    topSrc: srcKeys.Title,
+    bottomSrc: srcKeys.Subtitle,
     topColour: '000000ff',
     bottomColour: '000000ff',
     topBg: '00000000',
@@ -157,17 +157,17 @@ export default function LowerThird(props: LowerProps) {
     options.lineColour = lineColour;
   }
 
-  const topText = options.topSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.topSrc] : '';
+  const topText = options.topSrc == srcKeys.LowerMsg ? lower.text : eventNow ? eventNow[options.topSrc] : '';
 
-  const bottomText = options.bottomSrc == srcKeys.lowerMsg ? lower.text : eventNow ? eventNow[options.bottomSrc] : '';
+  const bottomText = options.bottomSrc == srcKeys.LowerMsg ? lower.text : eventNow ? eventNow[options.bottomSrc] : '';
 
   const transition = `${options.transition}s`;
 
   const triggerData =
-    options.trigger == triggerType.event ? eventNow?.id : options.trigger == triggerType.manual ? lower.visible : null;
+    options.trigger == triggerType.Event ? eventNow?.id : options.trigger == triggerType.Manual ? lower.visible : null;
 
   useEffect(() => {
-    if (options.trigger == triggerType.event) {
+    if (options.trigger == triggerType.Event) {
       if (triggerData) {
         setplayState('in');
         const timeout = setTimeout(
@@ -180,7 +180,7 @@ export default function LowerThird(props: LowerProps) {
       } else {
         setplayState('pre');
       }
-    } else if (options.trigger == triggerType.manual) {
+    } else if (options.trigger == triggerType.Manual) {
       if (triggerData) {
         setplayState('in');
       } else {
