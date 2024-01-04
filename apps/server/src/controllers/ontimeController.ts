@@ -535,7 +535,8 @@ export const loadProject: RequestHandler = async (req, res) => {
  */
 export const duplicateProjectFile: RequestHandler = async (req, res) => {
   try {
-    const { filename, newFilename } = req.body;
+    const { filename } = req.params;
+    const { newFilename } = req.body;
 
     const projectFilePath = join(uploadsFolderPath, filename);
     const duplicateProjectFilePath = join(uploadsFolderPath, newFilename);
@@ -566,7 +567,8 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
  */
 export const renameProjectFile: RequestHandler = async (req, res) => {
   try {
-    const { filename, newFilename } = req.body;
+    const { newFilename } = req.body;
+    const { filename } = req.params;
 
     const projectFilePath = join(uploadsFolderPath, filename);
     const newProjectFilePath = join(uploadsFolderPath, newFilename);

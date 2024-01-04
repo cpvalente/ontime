@@ -176,12 +176,6 @@ export const validateLoadProjectFile = [
  * @description Validates the filenames for duplicating a project.
  */
 export const validateProjectDuplicate = [
-  body('filename')
-    .exists()
-    .withMessage('Project filename is required')
-    .isString()
-    .withMessage('Project filename must be a string'),
-
   body('newFilename')
     .exists()
     .withMessage('New project filename is required')
@@ -202,12 +196,6 @@ export const validateProjectDuplicate = [
  * @description Validates the filenames for renaming a project.
  */
 export const validateProjectRename = [
-  body('filename')
-    .exists()
-    .withMessage('Project filename is required')
-    .isString()
-    .withMessage('Project filename must be a string'),
-
   body('newFilename')
     .exists()
     .withMessage('Duplicate project filename is required')
