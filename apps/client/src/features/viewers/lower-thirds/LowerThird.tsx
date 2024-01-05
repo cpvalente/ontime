@@ -11,23 +11,23 @@ import { cx } from '../../../common/utils/styleUtils';
 
 import './LowerThird.scss';
 
-enum srcKeys {
+enum SrcKeys {
   Title = 'title',
   Subtitle = 'subtitle',
   Presenter = 'presenter',
   LowerMsg = 'lowerMsg',
 }
 
-enum triggerType {
+enum TriggerType {
   Event = 'event',
   Manual = 'manual',
 }
 
 type LowerOptions = {
   width: number;
-  trigger: triggerType;
-  topSrc: srcKeys;
-  bottomSrc: srcKeys;
+  trigger: TriggerType;
+  topSrc: SrcKeys;
+  bottomSrc: SrcKeys;
   topColour: string;
   bottomColour: string;
   topBg: string;
@@ -49,9 +49,9 @@ interface LowerProps {
 
 const defaultOptions: Readonly<LowerOptions> = {
   width: 45,
-  trigger: triggerType.Event,
-  topSrc: srcKeys.Title,
-  bottomSrc: srcKeys.Subtitle,
+  trigger: TriggerType.Event,
+  topSrc: SrcKeys.Title,
+  bottomSrc: SrcKeys.Subtitle,
   topColour: '000000ff',
   bottomColour: '000000ff',
   topBg: '00000000',
@@ -77,17 +77,17 @@ export default function LowerThird(props: LowerProps) {
       newOptions.width = Number(width);
     }
 
-    const trigger = Object.values(triggerType).find((s) => s === searchParams.get('trigger'));
+    const trigger = Object.values(TriggerType).find((s) => s === searchParams.get('trigger'));
     if (trigger) {
       newOptions.trigger = trigger;
     }
 
-    const topSrc = Object.values(srcKeys).find((s) => s === searchParams.get('top-src'));
+    const topSrc = Object.values(SrcKeys).find((s) => s === searchParams.get('top-src'));
     if (topSrc) {
       newOptions.topSrc = topSrc;
     }
 
-    const bottomSrc = Object.values(srcKeys).find((s) => s === searchParams.get('bottom-src'));
+    const bottomSrc = Object.values(SrcKeys).find((s) => s === searchParams.get('bottom-src'));
     if (bottomSrc) {
       newOptions.bottomSrc = bottomSrc;
     }
@@ -154,7 +154,7 @@ export default function LowerThird(props: LowerProps) {
   }, []);
 
   const topText = useMemo(() => {
-    if (options.topSrc === srcKeys.LowerMsg) {
+    if (options.topSrc === SrcKeys.LowerMsg) {
       return lower.text;
     } else if (eventNow) {
       return eventNow[options.topSrc];
@@ -163,7 +163,7 @@ export default function LowerThird(props: LowerProps) {
   }, [eventNow, lower.text, options]);
 
   const bottomText = useMemo(() => {
-    if (options.bottomSrc === srcKeys.LowerMsg) {
+    if (options.bottomSrc === SrcKeys.LowerMsg) {
       return lower.text;
     } else if (eventNow) {
       return eventNow[options.bottomSrc];
@@ -174,10 +174,10 @@ export default function LowerThird(props: LowerProps) {
   const transition = `${options.transition}s`;
 
   const triggerData =
-    options.trigger == triggerType.Event ? eventNow?.id : options.trigger == triggerType.Manual ? lower.visible : null;
+    options.trigger == TriggerType.Event ? eventNow?.id : options.trigger == TriggerType.Manual ? lower.visible : null;
 
   useEffect(() => {
-    if (options.trigger == triggerType.Event) {
+    if (options.trigger == TriggerType.Event) {
       if (triggerData) {
         setplayState('in');
         const timeout = setTimeout(
@@ -190,7 +190,7 @@ export default function LowerThird(props: LowerProps) {
       } else {
         setplayState('pre');
       }
-    } else if (options.trigger == triggerType.Manual) {
+    } else if (options.trigger == TriggerType.Manual) {
       if (triggerData) {
         setplayState('in');
       } else {
