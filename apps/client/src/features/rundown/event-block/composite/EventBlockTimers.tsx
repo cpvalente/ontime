@@ -1,11 +1,10 @@
-import { memo, useCallback, useState } from 'react';
+import { memo } from 'react';
 import { OntimeEvent } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
 
 import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import { TimeEntryField, validateEntry } from '../../../../common/utils/timesManager';
 
 import style from '../EventBlock.module.scss';
 
@@ -23,8 +22,6 @@ type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride' | 'timeWarning' 
 const EventBlockTimers = (props: EventBlockTimerProps) => {
   const { eventId, timeStart, timeEnd, duration, delay, previousEnd } = props;
   const { updateEvent } = useEventAction();
-
-  const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
 
   const handleSubmit = (field: TimeActions, value: number) => {
     const newEventData: Partial<OntimeEvent> = { id: eventId };
@@ -49,21 +46,6 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
     updateEvent(newEventData);
   };
 
-  /**
-   * @description Validates a time input against its pair
-   * @param {string} entry - field to validate: timeStart, timeEnd, durationOverride
-   * @param {number} val - field value
-   * @return {boolean}
-   */
-  const handleValidation = useCallback(
-    (field: TimeEntryField, value: number) => {
-      const valid = validateEntry(field, value, timeStart, timeEnd);
-      setWarnings((prev) => ({ ...prev, ...valid.warnings }));
-      return valid.value;
-    },
-    [timeEnd, timeStart],
-  );
-
   const delayedStart = Math.max(0, timeStart + delay);
   const newTime = millisToString(delayedStart);
   const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
@@ -73,32 +55,26 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
       <TimeInputWithButton
         name='timeStart'
         submitHandler={handleSubmit}
-        validationHandler={handleValidation}
         time={timeStart}
         delay={delay}
         placeholder='Start'
         previousEnd={previousEnd}
-        warning={warning.start}
       />
       <TimeInputWithButton
         name='timeEnd'
         submitHandler={handleSubmit}
-        validationHandler={handleValidation}
         time={timeEnd}
         delay={delay}
         placeholder='End'
         previousEnd={previousEnd}
-        warning={warning.end}
       />
       <TimeInputWithButton
         name='durationOverride'
         submitHandler={handleSubmit}
-        validationHandler={handleValidation}
         time={duration}
         delay={0}
         placeholder='Duration'
         previousEnd={previousEnd}
-        warning={warning.duration}
       />
       {delayTime && (
         <div className={style.delayNote}>

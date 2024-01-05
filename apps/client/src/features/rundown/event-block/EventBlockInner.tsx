@@ -11,9 +11,11 @@ import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward'
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, Playback, TimerType } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { useAppMode } from '../../../common/stores/appModeStore';
+import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
@@ -53,6 +55,7 @@ interface EventBlockInnerProps {
   isRolling: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
   disableEdit: boolean;
+  isFirstEvent: boolean;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -76,6 +79,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     isRolling,
     actionHandler,
     disableEdit,
+    isFirstEvent,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -103,6 +107,19 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     playBtnStyles._hover = {};
   }
 
+  const delayedStart = Math.max(0, timeStart + delay);
+  const newTime = millisToString(delayedStart);
+  const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
+
+  const overlap = previousEnd - timeStart;
+  const overlapTime = !isFirstEvent
+    ? overlap > 0
+      ? `Overlapping ${millisToDelayString(overlap)}`
+      : overlap < 0
+      ? `Spacing ${millisToDelayString(overlap)}`
+      : null
+    : null;
+
   return !renderInner ? null : (
     <>
       <EventBlockTimers
@@ -114,10 +131,36 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         previousEnd={previousEnd}
       />
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
-      {next && (
+      {next ? (
         <Tooltip label='Next event' {...tooltipProps}>
           <span className={style.nextTag}>UP NEXT</span>
         </Tooltip>
+      ) : (
+        <span className={style.indicators}>
+          <Tooltip
+            label={
+              delayTime && (
+                <div>
+                  {delayTime}
+                  <br />
+                  New Time: {newTime}
+                </div>
+              )
+            }
+          >
+            <div className={`${style.indicator} ${delayTime ? style.delay : ''}`} />
+          </Tooltip>
+          <Tooltip label={overlapTime}>
+            <div
+              className={`${style.indicator} ${
+                overlap > 0 ? style.overlap : overlap < 0 && overlapTime !== null ? style.spacing : ''
+              }`}
+            />
+          </Tooltip>
+          <Tooltip label='Start time is later than end'>
+            <div className={`${style.indicator} ${timeStart > timeEnd ? style.nextDay : ''}`} />
+          </Tooltip>
+        </span>
       )}
       <EventBlockPlayback
         eventId={eventId}
