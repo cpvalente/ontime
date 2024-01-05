@@ -24,6 +24,7 @@ type TState = DeepReadonly<{
 }>;
 
 export const state: TState = {
+  // QUESTION: should merge playback into the timer?
   playback: Playback.Stop,
   timer: {
     clock: clock.timeNow(),
@@ -92,7 +93,6 @@ export const stateMutations = {
         },
         {
           sideEffect() {
-            saveToRestore(state);
             integrationService.dispatch(TimerLifeCycle.onStart);
           },
         },
@@ -101,6 +101,8 @@ export const stateMutations = {
     stop() {
       mutate(
         (state) => {
+          // TODO: make private utility to clear the state
+          // NOTE-TO-SELF: check that entire state is reset here
           state.playback = Playback.Stop;
           state.timer.clock = clock.timeNow();
           state.timer.current = null;
@@ -121,7 +123,6 @@ export const stateMutations = {
         },
         {
           sideEffect() {
-            saveToRestore(state);
             integrationService.dispatch(TimerLifeCycle.onStop);
           },
         },
@@ -130,68 +131,81 @@ export const stateMutations = {
     pause() {
       mutate(
         (state) => {
+          // TODO: is it easier to have a beforeAll() function that sets the timer?
           state.playback = Playback.Pause;
           state.timer.clock = clock.timeNow();
           state.timer.pausedAt = state.timer.clock;
         },
         {
           sideEffect() {
-            saveToRestore(state);
             integrationService.dispatch(TimerLifeCycle.onPause);
           },
         },
       );
     },
-    resume(timer: OntimeEvent, restorePoint: RestorePoint) {
+    resume(event: OntimeEvent, restorePoint: RestorePoint) {
       mutate((state) => {
-        state.timer.selectedEventId = timer.id;
-        state.timer.timeEnd = timer.timeEnd;
-        state.timer.pausedAt = restorePoint.pausedAt;
+        state.timer.clock = clock.timeNow();
 
-        state.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
-        state.playback = restorePoint.playback;
-        state.timer.timerType = timer.timerType;
-        state.timer.endAction = timer.endAction;
+        // TODO: the duplication of timer data would not be necessary
+        // once event loader is merged here
+        state.timer.selectedEventId = event.id;
         state.timer.startedAt = restorePoint.startedAt;
-        state.timer.addedTime = restorePoint.addedTime;
+        state.timer.timeEnd = event.timeEnd;
+        state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
         state.timer.current = state.timer.duration;
 
+        state.timer.timerType = event.timerType;
+        state.timer.endAction = event.endAction;
+
+        state.playback = restorePoint.playback;
+        state.timer.pausedAt = restorePoint.pausedAt;
+        state.timer.addedTime = restorePoint.addedTime;
+
+        // check if event finished meanwhile
         if (state.timer.timerType === TimerType.TimeToEnd) {
-          const now = clock.timeNow();
-          state.timer.current = getCurrent(now, state.timer.duration, 0, 0, now, timer.timeEnd, state.timer.timerType);
+          state.timer.current = getCurrent(
+            state.timer.clock, // TODO: should this be startedAt?
+            state.timer.duration,
+            0,
+            0,
+            state.timer.clock,
+            event.timeEnd,
+            state.timer.timerType,
+          );
         }
       });
     },
-    load(timer: OntimeEvent) {
+    load(event: OntimeEvent) {
       mutate(
         (state) => {
-          state.timer.selectedEventId = timer.id;
-          state.timer.timeEnd = timer.timeEnd;
+          // TODO: resume and load logic are very similar
+          state.timer.clock = clock.timeNow();
+          state.timer.selectedEventId = event.id;
+          state.timer.timeEnd = event.timeEnd;
 
           state.playback = Playback.Armed;
-          state.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
-          state.timer.timerType = timer.timerType;
-          state.timer.endAction = timer.endAction;
+          state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
+          state.timer.timerType = event.timerType;
+          state.timer.endAction = event.endAction;
           state.timer.pausedTime = 0;
-          state.timer.pausedAt = 0;
+          state.timer.pausedAt = 0; // TODO: should this not be null?
 
           state.timer.current = state.timer.duration;
           if (state.timer.timerType === TimerType.TimeToEnd) {
-            const now = clock.timeNow();
             state.timer.current = getCurrent(
-              now,
+              state.timer.clock,
               state.timer.duration,
               0,
               0,
-              now,
-              timer.timeEnd,
+              state.timer.clock,
+              event.timeEnd,
               state.timer.timerType,
             );
           }
         },
         {
           sideEffect() {
-            saveToRestore(state);
             integrationService.dispatch(TimerLifeCycle.onLoad);
           },
         },
@@ -203,8 +217,8 @@ export const stateMutations = {
         state.timer.timerType = timer.timerType;
         state.timer.endAction = timer.endAction;
         state.timer.timeEnd = timer.timeEnd;
-        state.timer.finishedAt = null;
 
+        state.timer.finishedAt = null;
         state.timer.expectedFinish = getExpectedFinish(
           state.timer.startedAt,
           state.timer.finishedAt,
@@ -221,32 +235,30 @@ export const stateMutations = {
       });
     },
     addTime(amount: number) {
-      mutate(
-        (state) => {
-          if (!state.timer.selectedEventId) {
-            return;
+      mutate((state) => {
+        // TODO: what kinds of validation go here or in the consumer?
+        if (!state.timer.selectedEventId) {
+          return;
+        }
+
+        // TODO: remove pausedTime in favour of addedTime
+        state.timer.addedTime += amount;
+
+        // handle edge cases
+        const willGoNegative = amount < 0 && Math.abs(amount) > state.timer.current;
+        if (willGoNegative) {
+          if (state.timer.finishedAt === null) {
+            state.timer.finishedAt = clock.timeNow();
           }
-
-          state.timer.addedTime += amount;
-
-          // handle edge cases
-          if (amount < 0 && Math.abs(amount) > state.timer.current) {
-            if (state.timer.finishedAt === null) {
-              // if we will make the clock negative
-              state.timer.finishedAt = clock.timeNow();
-            }
-          } else if (state.timer.current < 0 && state.timer.current + amount > 0) {
-            // clock will go from negative to positive
+        } else {
+          const willGoPositive = state.timer.current < 0 && state.timer.current + amount > 0;
+          if (willGoPositive) {
             state.timer.finishedAt = null;
           }
-        },
-        {
-          sideEffect() {
-            saveToRestore(state);
-          },
-        },
-      );
+        }
+      });
     },
+    // TODO: make options an object
     update(force: boolean, updateInterval: number) {
       return mutate(
         (state) => {
@@ -314,6 +326,7 @@ export const stateMutations = {
             return { isFinished };
           }
 
+          // force indicates whether the state change should be broadcast to socket
           let _force = force;
           let _didUpdate = false;
           let _doRoll = false;
@@ -342,8 +355,10 @@ export const stateMutations = {
 
           // we only update the store at the updateInterval
           // side effects such as onFinish will still be triggered in the update functions
-          if (_force || state.timer.clock > state.timer.lastUpdate + updateInterval) {
+          const isTimeToUpdate = state.timer.clock > state.timer.lastUpdate + updateInterval;
+          if (_force || isTimeToUpdate) {
             state.timer.lastUpdate = state.timer.clock;
+            // TODO: can we simplify the didUpdate and shouldNotify
             _didUpdate = true;
           }
 
@@ -357,6 +372,7 @@ export const stateMutations = {
         {
           sideEffect({ didUpdate, doRoll, isFinished, shouldNotify }, newState) {
             if (didUpdate && shouldNotify) {
+              // TODO: can we distinguish between a clock update and a timer update?
               integrationService.dispatch(TimerLifeCycle.onUpdate);
             }
 
@@ -366,15 +382,14 @@ export const stateMutations = {
 
             if (isFinished) {
               integrationService.dispatch(TimerLifeCycle.onFinish);
-              saveToRestore(state);
+
+              // handle end action if there was a timer playing
               if (newState.playback === Playback.Play) {
                 if (newState.timer.endAction === EndAction.Stop) {
                   PlaybackService.stop();
                 } else if (newState.timer.endAction === EndAction.LoadNext) {
                   // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
-                  setTimeout(() => {
-                    PlaybackService.loadNext();
-                  }, 0);
+                  setTimeout(PlaybackService.loadNext, 0);
                 } else if (newState.timer.endAction === EndAction.PlayNext) {
                   PlaybackService.startNext();
                 }
@@ -385,43 +400,37 @@ export const stateMutations = {
       );
     },
     roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null) {
-      mutate(
-        (state) => {
-          state.timer.clock = clock.timeNow();
+      mutate((state) => {
+        // TODO: should we have a pre-action that updates time in all mutations?
+        state.timer.clock = clock.timeNow();
 
-          if (currentEvent) {
-            // there is something running, load
-            state.timer.secondaryTimer = null;
-            state.timer.secondaryTarget = null;
+        if (currentEvent) {
+          // there is something running, load
+          state.timer.secondaryTimer = null;
+          state.timer.secondaryTarget = null;
 
-            // account for event that finishes the day after
-            const endTime =
-              currentEvent.timeEnd < currentEvent.timeStart ? currentEvent.timeEnd + dayInMs : currentEvent.timeEnd;
+          // account for event that finishes the day after
+          const endTime =
+            currentEvent.timeEnd < currentEvent.timeStart ? currentEvent.timeEnd + dayInMs : currentEvent.timeEnd;
 
-            // when we load a timer in roll, we do the same things as before
-            // but also pre-populate some data as to the running state
-            this.load(currentEvent, {
-              startedAt: currentEvent.timeStart,
-              expectedFinish: currentEvent.timeEnd,
-              current: endTime - state.timer.clock,
-            });
-          } else if (nextEvent) {
-            // account for day after
-            const nextStart =
-              nextEvent.timeStart < state.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
-            // nothing now, but something coming up
-            state.timer.secondaryTimer = nextStart - state.timer.clock;
-            state.timer.secondaryTarget = nextStart;
-          }
+          // when we load a timer in roll, we do the same things as before
+          // but also pre-populate some data as to the running state
+          this.load(currentEvent, {
+            startedAt: currentEvent.timeStart,
+            expectedFinish: currentEvent.timeEnd,
+            current: endTime - state.timer.clock,
+          });
+        } else if (nextEvent) {
+          // account for day after
+          const nextStart =
+            nextEvent.timeStart < state.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
+          // nothing now, but something coming up
+          state.timer.secondaryTimer = nextStart - state.timer.clock;
+          state.timer.secondaryTarget = nextStart;
+        }
 
-          state.playback = Playback.Roll;
-        },
-        {
-          sideEffect() {
-            saveToRestore(state);
-          },
-        },
-      );
+        state.playback = Playback.Roll;
+      });
     },
   },
 };
@@ -454,18 +463,20 @@ function mutate<R>(
 
   const newState = state;
 
+  // run action specific side effect before global side effects
   opts?.sideEffect?.(result, newState, prevState);
 
+  // TODO: how would we handle granular updates
+  // once more state is migrated here
+
   // set eventStore any time a mutation happens
+  // this means we are pushing this data to the client every 32ms
   eventStore.batchSet({
     playback: newState.playback,
     timer: newState.timer,
   });
 
-  return result;
-}
-
-function saveToRestore(state: TState) {
+  // we write to restore service if the underlying data changes
   restoreService.save({
     playback: state.playback,
     selectedEventId: state.timer.selectedEventId,
@@ -473,4 +484,6 @@ function saveToRestore(state: TState) {
     addedTime: state.timer.addedTime,
     pausedAt: state.timer.pausedAt,
   });
+
+  return result;
 }
