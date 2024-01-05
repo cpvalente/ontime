@@ -16,7 +16,6 @@ interface TimeInputProps {
   time?: number;
   delay?: number;
   placeholder: string;
-  validationHandler: (entry: TimeEntryField, val: number) => boolean;
   previousEnd?: number;
   warning?: string;
 }
@@ -40,17 +39,7 @@ function ButtonTooltip(name: TimeEntryField, warning?: string) {
 }
 
 export default function TimeInputWithButton(props: TimeInputProps) {
-  const {
-    id,
-    name,
-    submitHandler,
-    time = 0,
-    delay = 0,
-    placeholder,
-    validationHandler,
-    previousEnd = 0,
-    warning,
-  } = props;
+  const { id, name, submitHandler, time = 0, delay = 0, placeholder, previousEnd = 0, warning } = props;
 
   const isDelayed = delay !== 0;
   const inputClasses = cx([style.timeInput, isDelayed ? style.delayed : null]);
@@ -88,7 +77,6 @@ export default function TimeInputWithButton(props: TimeInputProps) {
         time={time}
         delay={delay}
         placeholder={placeholder}
-        validationHandler={validationHandler}
         previousEnd={previousEnd}
         className={style.inputField}
       />

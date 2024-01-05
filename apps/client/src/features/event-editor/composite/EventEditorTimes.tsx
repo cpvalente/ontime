@@ -40,7 +40,6 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     props;
   const { updateEvent } = useEventAction();
 
-
   const handleSubmit = (field: TimeActions, value: number | string | boolean) => {
     const newEventData: Partial<OntimeEvent> = { id: eventId };
     switch (field) {
@@ -156,10 +155,8 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           id='timeWarning'
           name='timeWarning'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={timeWarning}
           placeholder='Duration'
-          warning={warning.duration}
         />
         <label className={style.inputLabel} htmlFor='timeDanger'>
           Danger Time
@@ -168,10 +165,8 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           id='timeDanger'
           name='timeDanger'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={timeDanger}
           placeholder='Duration'
-          warning={warning.duration}
         />
       </div>
     </div>

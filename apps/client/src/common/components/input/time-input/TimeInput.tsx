@@ -18,20 +18,6 @@ interface TimeInputProps {
   className?: string;
 }
 
-function ButtonInitial(name: TimeEntryField) {
-  if (name === 'timeStart') return 'S';
-  if (name === 'timeEnd') return 'E';
-  if (name === 'durationOverride') return 'D';
-  return '';
-}
-
-function ButtonTooltip(name: TimeEntryField, tooltip?: string) {
-  if (name === 'timeStart') return `Start${tooltip ? `: ${tooltip}` : ''}`;
-  if (name === 'timeEnd') return `End${tooltip ? `: ${tooltip}` : ''}`;
-  if (name === 'durationOverride') return `Duration${tooltip ? `: ${tooltip}` : ''}`;
-  return '';
-}
-
 export default function TimeInput(props: TimeInputProps) {
   const { id, name, submitHandler, time = 0, delay = 0, placeholder, previousEnd = 0, className } = props;
   const { emitError } = useEmitLog();
@@ -152,18 +138,7 @@ export default function TimeInput(props: TimeInputProps) {
     resetValue();
   }, [resetValue, time]);
 
-  const isDelayed = delay !== 0;
-  const inputClasses = cx([style.timeInput, isDelayed ? style.delayed : null]);
-  const buttonClasses = cx([style.inputButton, isDelayed ? style.delayed : null]);
   const timeInputClass = className ? className : style.timeInput;
-
-  const TooltipLabel = useMemo(() => {
-    return ButtonTooltip(name, '');
-  }, [name]);
-
-  const ButtonText = useMemo(() => {
-    return ButtonInitial(name);
-  }, [name]);
 
   return (
     <Input
