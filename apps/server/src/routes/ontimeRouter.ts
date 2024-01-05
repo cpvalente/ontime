@@ -114,14 +114,14 @@ router.get('/projects', listProjects);
 // create route between controller and '/ontime/load-project' endpoint
 router.post('/load-project', validateLoadProjectFile, loadProject);
 
-// create route between controller and '/ontime/duplicate-project' endpoint
+// create route between controller and '/ontime/project/:filename/duplicate' endpoint
 router.post('/project/:filename/duplicate', validateProjectDuplicate, sanitizeProjectFilename, duplicateProjectFile);
 
-// create route between controller and '/ontime/rename-project' endpoint
+// create route between controller and '/ontime/project/:filename/rename' endpoint
 router.put('/project/:filename/rename', validateProjectRename, sanitizeProjectFilename, renameProjectFile);
 
-// create route between controller and '/ontime/create-project' endpoint
+// create route between controller and '/ontime/project' endpoint
 router.post('/project', validateProjectCreate, sanitizeProjectFilename, createProjectFile);
 
-// create route between controller and '/ontime/delete-project' endpoint
+// create route between controller and '/ontime/project/:filename' endpoint
 router.delete('/project/:filename', sanitizeProjectFilename, deleteProjectFile);
