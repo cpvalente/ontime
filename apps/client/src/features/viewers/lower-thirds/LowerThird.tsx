@@ -146,7 +146,7 @@ export default function LowerThird(props: LowerProps) {
 
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
-  const [playState, setplayState] = useState<'pre' | 'in' | 'out'>('pre');
+  const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
 
   useEffect(() => {
     document.title = 'ontime - Lower Third';
@@ -172,32 +172,30 @@ export default function LowerThird(props: LowerProps) {
 
   const transition = `${options.transition}s`;
 
-  const triggerData =
-    options.trigger == TriggerType.Event ? eventNow?.id : options.trigger == TriggerType.Manual ? lower.visible : null;
+  const trigger = useMemo(() => {
+    if (options.trigger === TriggerType.Event) {
+      return eventNow?.id;
+    } else if (options.trigger === TriggerType.Manual) {
+      return lower.visible;
+    }
+    return false;
+  }, [eventNow?.id, lower.visible, options.trigger]);
 
   useEffect(() => {
-    if (options.trigger == TriggerType.Event) {
-      if (triggerData) {
-        setplayState('in');
-        const timeout = setTimeout(
-          () => {
-            setplayState('out');
-          },
-          options.delay * 1000 + options.transition * 1000,
-        );
-        return () => clearTimeout(timeout);
-      } else {
-        setplayState('pre');
-      }
-    } else if (options.trigger == TriggerType.Manual) {
-      if (triggerData) {
-        setplayState('in');
-      } else {
-        setplayState('out');
-      }
+    if (options.trigger === TriggerType.Event && trigger) {
+      setPlayState('in');
+      const animateOutInMs = options.delay * 1000 + options.transition * 1000;
+      const timeout = setTimeout(() => {
+        setPlayState('out');
+      }, animateOutInMs);
+      return () => clearTimeout(timeout);
+    } else if (options.trigger === TriggerType.Manual) {
+      setPlayState(trigger ? 'in' : 'out');
+    } else {
+      setPlayState('pre');
     }
     return () => null;
-  }, [options.delay, options.transition, options.trigger, triggerData]);
+  }, [options.delay, options.transition, options.trigger, trigger]);
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
