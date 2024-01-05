@@ -19,6 +19,7 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 interface RundownEntryProps {
   type: SupportedEvent;
   isPast: boolean;
+  isFirstEvent: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
   hasCursor: boolean;
@@ -31,8 +32,19 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, disableEdit } =
-    props;
+  const {
+    isPast,
+    data,
+    selected,
+    hasCursor,
+    next,
+    previousEnd,
+    previousEventId,
+    playback,
+    isRolling,
+    disableEdit,
+    isFirstEvent,
+  } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
 
@@ -100,7 +112,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         }
         case 'clone': {
           const newEvent = cloneEvent(data as OntimeEvent, data.id);
-          const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? []
+          const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
           newEvent.cue = getCueCandidate(rundown, data.id);
           addEvent(newEvent);
           break;
@@ -176,6 +188,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         isRolling={isRolling}
         actionHandler={actionHandler}
         disableEdit={disableEdit}
+        isFirstEvent={isFirstEvent}
       />
     );
   } else if (data.type === SupportedEvent.Block) {
