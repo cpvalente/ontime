@@ -7,7 +7,6 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { LOWER_THIRD_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { cx } from '../../../common/utils/styleUtils';
 
 import './LowerThird.scss';
 
@@ -205,7 +204,7 @@ export default function LowerThird(props: LowerProps) {
       <NavigationMenu />
       <ViewParamsEditor paramFields={LOWER_THIRD_OPTIONS} />
       <div
-        className={cx(['container', `container--${playState}`])}
+        className={`container container--${playState}`}
         style={{ minWidth: `${options.width}vw`, animationDuration: transition }}
       >
         <div className='clip'>
