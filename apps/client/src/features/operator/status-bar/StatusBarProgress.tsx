@@ -20,9 +20,9 @@ export default function StatusBarProgress(props: StatusBarProgressProps) {
       now={timer.current}
       complete={totalTime}
       normalColor={viewSettings.normalColor}
-      warning={viewSettings.warningThreshold}
+      warning={timer?.timeWarning}
       warningColor={viewSettings.warningColor}
-      danger={viewSettings.dangerThreshold}
+      danger={timer?.timeDanger}
       dangerColor={viewSettings.dangerColor}
       className={styles.progressOverride}
     />

@@ -13,14 +13,13 @@
     "express-static-gzip": "^2.1.7",
     "express-validator": "^6.14.2",
     "got": "^14.0.0",
-    "lowdb": "^5.0.5",
+    "lowdb": "^7.0.1",
     "multer": "^1.4.5-lts.1",
     "node-osc": "^9.0.2",
     "node-xlsx": "^0.23.0",
     "ontime-utils": "workspace:*",
     "passport": "^0.6.0",
     "passport-local": "~1.0.0",
-    "steno": "^3.1.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
@@ -53,6 +52,7 @@
     "build:electron": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
     "build:local": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
     "build:docker": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
+    "build:localdocker": "NODE_ENV=local pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "lint": "eslint . --quiet",
     "lint-staged": "eslint",

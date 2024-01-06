@@ -12,3 +12,20 @@ export interface GetInfo {
   osc: OSCSettings;
   cssOverride: string;
 }
+
+export type ProjectFile = {
+  filename: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProjectFileList = Array<ProjectFile>;
+
+export type ProjectFileListResponse = {
+  files: ProjectFileList;
+  lastLoadedProject: string;
+};
+
+export type ErrorResponse = {
+  message: string;
+};

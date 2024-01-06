@@ -14,4 +14,6 @@ export type TimerState = {
   duration: number | null;
   timerType: TimerType | null;
   endAction: EndAction | null;
+  timeWarning: number | null;
+  timeDanger: number | null;
 };

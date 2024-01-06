@@ -3,7 +3,7 @@ version: "3"
 services:
   ontime:
     container_name: ontime
-    image: getontime/ontime:beta_v2
+    image: getontime/ontime:latest
     ports:
       - "4001:4001/tcp"
       - "8888:8888/udp"

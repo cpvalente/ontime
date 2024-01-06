@@ -10,11 +10,11 @@ $skip-opacity: 0.1;
 
   display: grid;
   grid-template-areas:
-          "binder ...        ...     ..."
-          "binder pb-actions times   actions"
-          "binder pb-actions title   next"
-          "binder pb-actions estatus estatus"
-          "binder ...        ...     ...";
+    'binder ...        ...     ...'
+    'binder pb-actions times   actions'
+    'binder pb-actions title   next-ind'
+    'binder pb-actions estatus estatus'
+    'binder ...        ...     ...';
 
   grid-template-columns: $block-binder-width auto 1fr auto;
   grid-template-rows: 0.25rem 2.25rem 2.25rem 2.25rem 0.25rem;
@@ -53,8 +53,18 @@ $skip-opacity: 0.1;
     outline: 1px solid $block-cursor-color;
   }
 
+  /* we stop the eventActions from having opacity to fix issue with dropdown drawing order */
   &.past:not(.skip) {
-    opacity: 0.6;
+    .delayNote,
+    .statusElements,
+    .eventTitle,
+    .eventNote,
+    .eventTimers,
+    .eventStatus,
+    .playbackActions,
+    .binder {
+      opacity: 0.4;
+    }
   }
 
   &.skip {
@@ -160,8 +170,8 @@ $skip-opacity: 0.1;
   grid-area: estatus;
   display: grid;
   grid-template-areas:
-          "notes status"
-          "progb progb";
+    'notes status'
+    'progb progb';
   gap: 2px;
   grid-template-rows: auto 0.25rem;
   align-items: center;
@@ -180,14 +190,42 @@ $skip-opacity: 0.1;
   overflow-y: hidden;
 }
 
-
 .nextTag {
-  grid-area: next;
+  grid-area: next-ind;
   font-size: 1rem;
   color: $orange-500;
   letter-spacing: 0.03px;
   font-weight: 600;
   text-align: right;
+}
+
+.indicators {
+  grid-area: next-ind;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+
+  .indicator {
+    background-color: $gray-1250;
+    margin: 0.4rem;
+    margin-right: 0;
+    border-radius: 0.7rem;
+    width: 0.7rem;
+    height: 0.7rem;
+  }
+  .indicator.delay {
+    background-color: $ontime-delay;
+  }
+  .indicator.overlap {
+    background-color: $gray-600;
+  }
+  .indicator.spacing {
+    background-color: $gray-600;
+  }
+  .indicator.nextDay {
+    background-color: $gray-600;
+  }
 }
 
 .eventStatus {
@@ -197,7 +235,6 @@ $skip-opacity: 0.1;
   align-items: center;
   gap: 0.5rem;
   color: var(--status-color-override, $gray-500);
-
 
   .statusIcon {
     width: 1rem;

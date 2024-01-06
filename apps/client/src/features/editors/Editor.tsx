@@ -8,6 +8,7 @@ import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
 import UploadModal from '../modals/upload-modal/UploadModal';
+import Overview from '../overview/Overview';
 
 import styles from './Editor.module.scss';
 
@@ -98,12 +99,7 @@ export default function Editor() {
             <Info />
           </div>
         )}
-        <div className={styles.overview}>
-          <ErrorBoundary></ErrorBoundary>
-          {
-            // TODO: the information about the event
-          }
-        </div>
+        <Overview />
       </div>
       <EventEditor />
     </>

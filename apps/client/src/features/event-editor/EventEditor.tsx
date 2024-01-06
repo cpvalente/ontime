@@ -56,6 +56,8 @@ export default function EventEditor() {
         isPublic={event.isPublic}
         endAction={event.endAction}
         timerType={event.timerType}
+        timeWarning={event.timeWarning}
+        timeDanger={event.timeDanger}
       />
       <EventEditorDataLeft
         key={`${event.id}-left`}

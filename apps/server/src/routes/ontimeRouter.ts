@@ -21,6 +21,12 @@ import {
   postViewSettings,
   previewExcel,
   postHTTP,
+  duplicateProjectFile,
+  listProjects,
+  loadProject,
+  renameProjectFile,
+  createProjectFile,
+  deleteProjectFile,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -32,8 +38,13 @@ import {
   viewValidator,
   validateHTTP,
   validateOscSubscription,
+  validateProjectDuplicate,
+  validateLoadProjectFile,
+  validateProjectRename,
+  validateProjectCreate,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
+import { sanitizeProjectFilename } from '../utils/sanitizeProjectFilename.js';
 
 export const router = express.Router();
 
@@ -96,3 +107,21 @@ router.post('/http', validateHTTP, postHTTP);
 
 // create route between controller and '/ontime/new' endpoint
 router.post('/new', projectSanitiser, postNew);
+
+// create route between controller and '/ontime/projects' endpoint
+router.get('/projects', listProjects);
+
+// create route between controller and '/ontime/load-project' endpoint
+router.post('/load-project', validateLoadProjectFile, loadProject);
+
+// create route between controller and '/ontime/project/:filename/duplicate' endpoint
+router.post('/project/:filename/duplicate', validateProjectDuplicate, sanitizeProjectFilename, duplicateProjectFile);
+
+// create route between controller and '/ontime/project/:filename/rename' endpoint
+router.put('/project/:filename/rename', validateProjectRename, sanitizeProjectFilename, renameProjectFile);
+
+// create route between controller and '/ontime/project' endpoint
+router.post('/project', validateProjectCreate, sanitizeProjectFilename, createProjectFile);
+
+// create route between controller and '/ontime/project/:filename' endpoint
+router.delete('/project/:filename', sanitizeProjectFilename, deleteProjectFile);

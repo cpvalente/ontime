@@ -1,6 +1,5 @@
 import { useInfoPanel } from '../../common/hooks/useSocket';
 
-import InfoHeader from './info-header/InfoHeader';
 import CollapsableInfo from './CollapsableInfo';
 import InfoTitles from './InfoTitles';
 
@@ -21,15 +20,8 @@ export default function Info() {
     note: data.eventNext?.note || '',
   };
 
-  const selected = !data.numEvents
-    ? 'No events'
-    : `Event ${data.selectedEventIndex !== null ? data.selectedEventIndex + 1 : '-'} / ${
-        data.numEvents ? data.numEvents : '-'
-      }`;
-
   return (
     <>
-      <InfoHeader selected={selected} />
       <CollapsableInfo title='Playing Now'>
         <InfoTitles data={titlesNow} />
       </CollapsableInfo>
