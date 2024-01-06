@@ -380,5 +380,12 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: TimeForma
         user9: userFields.user9 || 'user9',
       },
     },
+    {
+      id: 'shouldEdit',
+      title: 'Edit user field',
+      description: 'Allows editing an events user field by long pressing on it. Needs a selected highlighted field',
+      type: 'boolean',
+      defaultValue: false,
+    },
   ];
 };

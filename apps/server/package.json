@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "2.21.3",
+  "version": "2.24.8",
   "exports": "./src/index.js",
   "dependencies": {
     "@googleapis/sheets": "^5.0.5",
@@ -55,6 +55,7 @@
     "build:electron": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
     "build:local": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
     "build:docker": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
+    "build:localdocker": "NODE_ENV=local pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "lint": "eslint . --quiet",
     "lint-staged": "eslint",

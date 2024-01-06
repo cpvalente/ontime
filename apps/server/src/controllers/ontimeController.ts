@@ -10,7 +10,7 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { isDocker, pathToStartStyles, resolveDbPath } from '../setup.js';
+import { isDocker, resolveDbPath, resolveStylesPath } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
@@ -119,7 +119,7 @@ export const getInfo = async (req: Request, res: Response<GetInfo>) => {
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
   ni.unshift({ name: 'localhost', address: '127.0.0.1' });
-  const cssOverride = pathToStartStyles;
+  const cssOverride = resolveStylesPath;
 
   // send object with network information
   res.status(200).send({

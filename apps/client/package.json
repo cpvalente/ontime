@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "2.21.3",
+  "version": "2.24.8",
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^2.7.0",
@@ -40,6 +40,7 @@
     "build:local": "cross-env NODE_ENV=local vite build",
     "build:electron": "cross-env NODE_ENV=local vite build",
     "build:docker": "vite build",
+    "build:localdocker": "cross-env NODE_ENV=local vite build",
     "lint": "eslint . --quiet",
     "lint-staged": "eslint",
     "test": "vitest",
