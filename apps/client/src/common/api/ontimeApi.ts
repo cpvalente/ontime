@@ -9,7 +9,6 @@ import {
   OscSubscription,
   ProjectData,
   Settings,
-  SheetState,
   UserFields,
   ViewSettings,
 } from 'ontime-types';
@@ -248,14 +247,13 @@ export async function postNew(initialData: Partial<ProjectData>) {
 }
 
 /**
- * @description sheet Client File
- * @return {Promise}
+ * @description STEP 1
  */
 export const uploadSheetClientFile = async (file: File) => {
   const formData = new FormData();
   formData.append('userFile', file);
   const res = await axios
-    .post(`${ontimeURL}/sheet-clientsecrect`, formData, {
+    .post(`${ontimeURL}/sheet/clientsecrect`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -264,11 +262,50 @@ export const uploadSheetClientFile = async (file: File) => {
   return res;
 };
 
-export const getSheetsAuthUrl = async () => {
-  const response = await axios.get(`${ontimeURL}/sheet-authurl`);
+/**
+ * @description STEP 1 test
+ */
+export const getClientSecrect = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/clientsecrect`);
   return response.data;
 };
 
+/**
+ * @description STEP 2
+ */
+export const getSheetsAuthUrl = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/authentication/url`);
+  return response.data;
+};
+
+/**
+ * @description STEP 2 test
+ */
+export const getAuthentication = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/authentication`);
+  return response.data;
+};
+
+/**
+ * @description STEP 3
+ * @returns worksheetOptions
+ */
+export const postId = async (id: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet/id`, { id });
+  return response.data;
+};
+
+/**
+ * @description STEP 4
+ */
+export const postWorksheet = async (id: string, worksheet: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet/worksheet`, { id, worksheet });
+  return response.data;
+};
+
+/**
+ * @description STEP 5
+ */
 export const postPreviewSheet = async (id: string, worksheet: string) => {
   const response = await axios.post(`${ontimeURL}/sheet-preview`, {
     id,
@@ -277,22 +314,13 @@ export const postPreviewSheet = async (id: string, worksheet: string) => {
   return response.data.data;
 };
 
+/**
+ * @description STEP 5
+ */
 export const postPushSheet = async (id: string, worksheet: string) => {
   const response = await axios.post(`${ontimeURL}/sheet-push`, {
     id,
     worksheet,
   });
   return response.data.data;
-};
-
-/**
- * @description HTTP request to retrieve sheets state
- * @return {Promise}
- */
-export const getSheetState = async (id: string, worksheet: string): Promise<SheetState> => {
-  const response = await axios.post(`${ontimeURL}/sheet-state`, {
-    id,
-    worksheet,
-  });
-  return response.data;
 };

@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises';
 import { readFileSync } from 'fs';
 import { OAuth2Client } from 'google-auth-library';
 import http from 'http';
-import { DatabaseModel, SheetState, LogOrigin } from 'ontime-types';
+import { DatabaseModel, LogOrigin } from 'ontime-types';
 import { join } from 'path';
 import { URL } from 'url';
 import { logger } from '../classes/Logger.js';
@@ -18,13 +18,24 @@ type ResponseOK = {
   data: Partial<DatabaseModel>;
 };
 
-class sheet {
+class Sheet {
   private static client: null | OAuth2Client = null;
   private readonly scope = 'https://www.googleapis.com/auth/spreadsheets';
   private readonly sheetsFolder: string;
   private readonly clientSecretFile: string;
   private static clientSecret = null;
   private static authUrl: null | string = null;
+  private authServerTimeout;
+
+  private readonly requiredClientKeys = [
+    'client_id',
+    'project_id',
+    'auth_uri',
+    'token_uri',
+    'auth_provider_x509_cert_url',
+    'client_secret',
+    'redirect_uris',
+  ];
 
   constructor() {
     const appDataPath = getAppDataPath();
@@ -35,37 +46,194 @@ class sheet {
     this.clientSecretFile = join(this.sheetsFolder, 'client_secret.json');
     ensureDirectory(this.sheetsFolder);
     try {
-      sheet.clientSecret = JSON.parse(readFileSync(this.clientSecretFile, 'utf-8'));
+      const secrets = JSON.parse(readFileSync(this.clientSecretFile, 'utf-8'));
+      const isKeyMissing = this.requiredClientKeys.some((key) => !(key in secrets['installed']));
+      if (!isKeyMissing) {
+        Sheet.clientSecret = secrets;
+      }
     } catch (_) {
       /* empty - it is ok thet there is no clientSecret */
     }
   }
 
-  public async getSheetState(id: string, worksheet: string): Promise<SheetState> {
-    const state: SheetState = {
-      secret: false,
-      auth: false,
-      id: false,
-      worksheet: false,
-      worksheetOptions: [],
-    };
+  /**
+   * @description SETP 1 - saves secrets object to appdata path as client_secret.json
+   * @param {object} secrets
+   * @throws
+   */
+  public async saveClientSecrets(secrets: object) {
+    Sheet.client = null;
+    Sheet.authUrl = null;
+    Sheet.clientSecret = null;
 
-    state.secret = sheet.clientSecret !== null;
-    state.auth = sheet.client !== null;
-
-    if (id != '' && state.auth) {
-      const spreadsheets = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.get({
-        spreadsheetId: id,
-        includeGridData: false,
-      });
-      if (!spreadsheets || spreadsheets.status != 200) {
-        return state;
-      }
-      state.id = true;
-      state.worksheetOptions = spreadsheets.data.sheets.map((i) => i.properties.title);
-      state.worksheet = state.worksheetOptions.indexOf(worksheet) >= 0;
+    const isKeyMissing = this.requiredClientKeys.some((key) => !(key in secrets['installed']));
+    if (isKeyMissing) {
+      throw new Error('Client file is missing some keys');
     }
-    return state;
+
+    await writeFile(this.clientSecretFile, JSON.stringify(secrets), 'utf-8').catch((err) => {
+      throw new Error(`Unable to save client file to disk ${err}`);
+    });
+    Sheet.clientSecret = secrets;
+  }
+
+  /**
+   * @description SETP 1 - test that the saved object is pressent
+   */
+  testClientSecrect() {
+    return Sheet.clientSecret !== null;
+  }
+
+  /**
+   * @description SETP 2 - create server to interact with th OAuth2 request
+   * @returns {Promise<string | null>} - returns url path serve on success
+   * @throws
+   */
+  async openAuthServer(): Promise<string | null> {
+    //TODO: this only works on local networks
+
+    // if the server is allready running retun it
+    if (Sheet.authUrl) {
+      clearTimeout(this.authServerTimeout);
+      this.authServerTimeout = setTimeout(
+        () => {
+          Sheet.authUrl = null;
+          server.unref;
+        },
+        2 * 60 * 1000,
+      );
+      return Sheet.authUrl;
+    }
+
+    // Check that Secret is valid
+    const keyFile = Sheet.clientSecret;
+    const keys = keyFile.installed || keyFile.web;
+    if (!keys.redirect_uris || keys.redirect_uris.length === 0) {
+      throw new Error('Sheet: Missing redirect URI');
+    }
+    const redirectUri = new URL(keys.redirect_uris[0]);
+    if (redirectUri.hostname !== 'localhost') {
+      throw new Error('Sheet: Invalid redirect URI');
+    }
+
+    // create an oAuth client to authorize the API call
+    const client = new OAuth2Client({
+      clientId: keys.client_id,
+      clientSecret: keys.client_secret,
+    });
+
+    // start the server that will recive the codes
+    const server = http.createServer(async (req, res) => {
+      try {
+        const serverUrl = new URL(req.url, 'http://localhost:3000');
+        if (serverUrl.pathname !== redirectUri.pathname) {
+          res.end('Invalid callback URL');
+          return;
+        }
+        const searchParams = serverUrl.searchParams;
+        if (searchParams.has('error')) {
+          res.end('Authorization rejected.');
+          logger.info(LogOrigin.Server, `Sheet: ${searchParams.get('error')}`);
+          return;
+        }
+        if (!searchParams.has('code')) {
+          res.end('No authentication code provided.');
+          logger.info(LogOrigin.Server, `Sheet: Cannot read authentication code`);
+          return;
+        }
+        const code = searchParams.get('code');
+        const { tokens } = await client.getToken({
+          code,
+          redirect_uri: redirectUri.toString(),
+        });
+        client.credentials = tokens;
+        Sheet.client = client;
+        res.end('Authentication successful! Please close this tab and return to OnTime.');
+        logger.info(LogOrigin.Server, `Sheet: Authentication successful`);
+      } catch (e) {
+        logger.error(LogOrigin.Server, `Sheet: ${e}`);
+      } finally {
+        server.close();
+      }
+    });
+    let listenPort = 3000;
+    if (keyFile.installed) {
+      // Use emphemeral port if not a web client
+      listenPort = 0;
+    } else if (redirectUri.port !== '') {
+      listenPort = Number(redirectUri.port);
+    }
+    //TODO: the server might not start correctly
+    server.listen(listenPort);
+    const address = server.address();
+    if (typeof address !== 'string') {
+      redirectUri.port = String(address.port);
+    }
+    // open the browser to the authorize url to start the workflow
+    const authorizeUrl = client.generateAuthUrl({
+      redirect_uri: redirectUri.toString(),
+      access_type: 'offline',
+      scope: this.scope,
+    });
+    Sheet.authUrl = authorizeUrl;
+    this.authServerTimeout = setTimeout(
+      () => {
+        Sheet.authUrl = null;
+        server.unref();
+      },
+      2 * 60 * 1000,
+    );
+    return authorizeUrl;
+  }
+
+  /**
+   * @description SETP 2 - test that the reciveed OAuth2 is still valid
+   * @throws
+   */
+  async testAuthentication() {
+    if (Sheet.client) {
+      const ref = await Sheet.client.refreshAccessToken();
+      if (ref.credentials.expiry_date > 10000) {
+        return true;
+      } else {
+        throw new Error('Unable to use accese token');
+      }
+    } else {
+      throw new Error('Unable to authenticate');
+    }
+  }
+
+  /**
+   * @description SETP 3 - test the given sheet id
+   * @throws
+   */
+  async testSheetId(id: string) {
+    const spreadsheets = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.get({
+      spreadsheetId: id,
+      includeGridData: false,
+    });
+    if (spreadsheets.status != 200) {
+      throw new Error(spreadsheets.statusText);
+    }
+    return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
+  }
+
+  /**
+   * @description SETP 4 - test the given worksheet
+   * @throws
+   */
+  async testWorksheet(id: string, worksheet: string) {
+    const spreadsheets = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.get({
+      spreadsheetId: id,
+      includeGridData: false,
+    });
+    if (spreadsheets.status != 200) {
+      throw new Error(spreadsheets.statusText);
+    }
+    const worksheetExist = spreadsheets.data.sheets.find((i) => i.properties.title === worksheet);
+    if (!worksheetExist) {
+      throw new Error('Unable to find worksheet');
+    }
   }
 
   /**
@@ -76,7 +244,7 @@ class sheet {
    * @throws
    */
   private async exist(sheetId: string, worksheet: string): Promise<{ worksheetId: number; range: string }> {
-    const spreadsheets = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.get({
+    const spreadsheets = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.get({
       spreadsheetId: sheetId,
     });
 
@@ -95,7 +263,7 @@ class sheet {
   }
 
   /**
-   * push rundown and project data to sheet
+   * @description SETP 5 - Upload the rundown to sheet
    * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
    * @param {string} worksheet - the name of the worksheet containing ontime data
    * @throws
@@ -103,7 +271,7 @@ class sheet {
   public async push(id: string, worksheet: string) {
     const { worksheetId, range } = await this.exist(id, worksheet);
 
-    const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
+    const rq = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.values.get({
       spreadsheetId: id,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
@@ -154,7 +322,7 @@ class sheet {
       //update project data
       updateRundown.push(cellRequenstFromProjectData(projectData, worksheetId, projectMetadata));
 
-      const writeResponds = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.batchUpdate({
+      const writeResponds = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.batchUpdate({
         spreadsheetId: id,
         requestBody: {
           includeSpreadsheetInResponse: false,
@@ -174,7 +342,7 @@ class sheet {
   }
 
   /**
-   * pull rundown and project data to sheet
+   * @description SETP 5 - Downpload the rundown from sheet
    * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
    * @param {string} worksheet - the name of the worksheet containing ontime data
    * @returns {Promise<Partial<ResponseOK>>}
@@ -185,7 +353,7 @@ class sheet {
 
     const res: Partial<ResponseOK> = {};
 
-    const rq = await sheets({ version: 'v4', auth: sheet.client }).spreadsheets.values.get({
+    const rq = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.values.get({
       spreadsheetId: id,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
@@ -206,135 +374,6 @@ class sheet {
       throw new Error(`Sheet: read faild: ${rq.statusText}`);
     }
   }
-
-  /**
-   * saves secrets object to appdata path as client_secret.json
-   * @param {object} secrets
-   * @throws
-   */
-  public async saveClientSecrets(secrets: object) {
-    sheet.client = null;
-    sheet.authUrl = null;
-    sheet.clientSecret = null;
-    if (
-      !('client_id' in secrets['installed']) ||
-      !('project_id' in secrets['installed']) ||
-      !('auth_uri' in secrets['installed']) ||
-      !('token_uri' in secrets['installed']) ||
-      !('auth_provider_x509_cert_url' in secrets['installed']) ||
-      !('client_secret' in secrets['installed']) ||
-      !('redirect_uris' in secrets['installed'])
-    ) {
-      throw new Error('Sheet: Client secret is missing some keys');
-    }
-    await writeFile(this.clientSecretFile, JSON.stringify(secrets), 'utf-8').catch((err) =>
-      logger.error(LogOrigin.Server, `${err}`),
-    );
-    sheet.clientSecret = secrets;
-  }
-
-  private authServerTimeout;
-  /**
-   * create local Auth Server
-   * @returns {Promise<string | null>} - returns url path serve on success
-   * @throws
-   */
-  public async openAuthServer(): Promise<string | null> {
-    //TODO: this only works on local networks
-
-    // if the server is allready running retun it
-    if (sheet.authUrl) {
-      clearTimeout(this.authServerTimeout);
-      this.authServerTimeout = setTimeout(
-        () => {
-          sheet.authUrl = null;
-          server.unref;
-        },
-        2 * 60 * 1000,
-      );
-      return sheet.authUrl;
-    }
-
-    // Check that Secret is valid
-    const keyFile = sheet.clientSecret;
-    const keys = keyFile.installed || keyFile.web;
-    if (!keys.redirect_uris || keys.redirect_uris.length === 0) {
-      throw new Error('Sheet: Missing redirect URI');
-    }
-    const redirectUri = new URL(keys.redirect_uris[0]);
-    if (redirectUri.hostname !== 'localhost') {
-      throw new Error('Sheet: Invalid redirect URI');
-    }
-
-    // create an oAuth client to authorize the API call
-    const client = new OAuth2Client({
-      clientId: keys.client_id,
-      clientSecret: keys.client_secret,
-    });
-
-    // start the server that will recive the codes
-    const server = http.createServer(async (req, res) => {
-      try {
-        const serverUrl = new URL(req.url, 'http://localhost:3000');
-        if (serverUrl.pathname !== redirectUri.pathname) {
-          res.end('Invalid callback URL');
-          return;
-        }
-        const searchParams = serverUrl.searchParams;
-        if (searchParams.has('error')) {
-          res.end('Authorization rejected.');
-          logger.info(LogOrigin.Server, `Sheet: ${searchParams.get('error')}`);
-          return;
-        }
-        if (!searchParams.has('code')) {
-          res.end('No authentication code provided.');
-          logger.info(LogOrigin.Server, `Sheet: Cannot read authentication code`);
-          return;
-        }
-        const code = searchParams.get('code');
-        const { tokens } = await client.getToken({
-          code,
-          redirect_uri: redirectUri.toString(),
-        });
-        client.credentials = tokens;
-        sheet.client = client;
-        res.end('Authentication successful! Please close this tab and return to OnTime.');
-        logger.info(LogOrigin.Server, `Sheet: Authentication successful`);
-      } catch (e) {
-        logger.error(LogOrigin.Server, `Sheet: ${e}`);
-      } finally {
-        server.close();
-      }
-    });
-    let listenPort = 3000;
-    if (keyFile.installed) {
-      // Use emphemeral port if not a web client
-      listenPort = 0;
-    } else if (redirectUri.port !== '') {
-      listenPort = Number(redirectUri.port);
-    }
-    //TODO: the server might not start correctly
-    server.listen(listenPort);
-    const address = server.address();
-    if (typeof address !== 'string') {
-      redirectUri.port = String(address.port);
-    }
-    // open the browser to the authorize url to start the workflow
-    const authorizeUrl = client.generateAuthUrl({
-      redirect_uri: redirectUri.toString(),
-      access_type: 'offline',
-      scope: this.scope,
-    });
-    sheet.authUrl = authorizeUrl;
-    this.authServerTimeout = setTimeout(
-      () => {
-        sheet.authUrl = null;
-        server.unref();
-      },
-      2 * 60 * 1000,
-    );
-    return authorizeUrl;
-  }
 }
 
-export const Sheet = new sheet();
+export const sheet = new Sheet();

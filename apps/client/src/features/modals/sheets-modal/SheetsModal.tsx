@@ -17,16 +17,19 @@ import {
   Select,
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, ProjectData, SheetState, UserFields } from 'ontime-types';
+import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
 
 import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
 import {
+  getAuthentication,
+  getClientSecrect,
   getSheetsAuthUrl,
-  getSheetState,
   patchData,
+  postId,
   postPreviewSheet,
   postPushSheet,
+  postWorksheet,
   uploadSheetClientFile,
 } from '../../../common/api/ontimeApi';
 import { projectDataPlaceholder } from '../../../common/models/ProjectData';
@@ -51,25 +54,27 @@ export default function SheetsModal(props: SheetsModalProps) {
   const [userFields, setUserFields] = useState<UserFields | null>(null);
   const [project, setProject] = useState<ProjectData | null>(null);
 
+  const [id, setSheetId] = useState('');
+  const [worksheet, setWorksheet] = useState('');
+  const [worksheetOptions, setWorksheetOptions] = useState(new Array<string>());
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const sheetRef = useRef<HTMLInputElement>(null);
-  const worksheetRef = useRef<HTMLSelectElement>(null);
 
-  const [errors, setErrors] = useState({
-    clientSecret: '',
-    authenticate: '',
-    sheetId: '',
-    worksheet: '',
-    pullPush: '',
+  const [state, setState] = useState({
+    clientSecret: { complet: false, message: '' },
+    authenticate: { complet: false, message: '' },
+    id: { complet: false, message: '' },
+    worksheet: { complet: false, message: '' },
+    pullPush: { complet: false, message: '' },
   });
 
-  const [sheetState, setState] = useState<SheetState>({
-    secret: false,
-    auth: false,
-    id: false,
-    worksheet: false,
-    worksheetOptions: [],
-  });
+  useEffect(() => {
+    if (isOpen) {
+      testClientSecrect();
+      if (state.clientSecret.complet) testAuthentication();
+      if (state.authenticate.complet) testSheetId();
+    }
+  }, []);
 
   const handleClose = () => {
     setRundown(null);
@@ -78,66 +83,127 @@ export default function SheetsModal(props: SheetsModalProps) {
     onClose();
   };
 
+  //SETP-1 Upload Client ID
   const handleClick = () => {
     fileInputRef.current?.click();
   };
 
-  const updateSheetState = () => {
-    const currentSheetId = sheetRef.current?.value ?? '';
-    const currentWorksheet = worksheetRef.current?.value ?? '';
-    return getSheetState(currentSheetId, currentWorksheet).then((data) => setState(data));
-  };
-
-  const testId = () => {
-    const currentSheetId = sheetRef.current?.value ?? '';
-    const currentWorksheet = worksheetRef.current?.value ?? '';
-    getSheetState(currentSheetId, currentWorksheet)
-      .then((data) => setState(data))
-      .catch((err) => {
-        const message = maybeAxiosError(err);
-        setErrors({ ...errors, sheetId: message });
-      });
-  };
-
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
-      setErrors({ ...errors, clientSecret: 'Missing file' });
+      setState({
+        clientSecret: { complet: false, message: 'Missing file' },
+        authenticate: { complet: false, message: '' },
+        id: { complet: false, message: '' },
+        worksheet: { complet: false, message: '' },
+        pullPush: { complet: false, message: '' },
+      });
       return;
     }
-
     const selectedFile = event.target.files[0];
     uploadSheetClientFile(selectedFile)
       .then(() => {
-        setErrors({ ...errors, clientSecret: '' });
+        setState({ ...state, clientSecret: { complet: true, message: '' } });
       })
       .catch((err) => {
-        if (err.response.data.message) {
-          setErrors({ ...errors, clientSecret: err.response.data.message });
-        }
+        const message = maybeAxiosError(err);
+        setState({
+          clientSecret: { complet: false, message },
+          authenticate: { complet: false, message: '' },
+          id: { complet: false, message: '' },
+          worksheet: { complet: false, message: '' },
+          pullPush: { complet: false, message: '' },
+        });
       });
-    updateSheetState();
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      updateSheetState();
-    }
-  }, [isOpen]);
+  const testClientSecrect = () => {
+    getClientSecrect()
+      .then(() => {
+        setState({ ...state, clientSecret: { complet: true, message: '' } });
+      })
+      .catch((err) => {
+        const message = maybeAxiosError(err);
+        setState({
+          clientSecret: { complet: false, message },
+          authenticate: { complet: false, message: '' },
+          id: { complet: false, message: '' },
+          worksheet: { complet: false, message: '' },
+          pullPush: { complet: false, message: '' },
+        });
+      });
+  };
 
+  //SETP-2 Authenticate
   const handleAuthenticate = () => {
     getSheetsAuthUrl()
       .then((data) => {
         openLink(data);
-        window.addEventListener('focus', () => updateSheetState(), { once: true });
+        window.addEventListener('focus', () => testAuthentication(), { once: true });
       })
       .catch((err) => {
         const message = maybeAxiosError(err);
-        setErrors({ ...errors, authenticate: message });
+        setState({
+          ...state,
+          authenticate: { complet: false, message },
+          id: { complet: false, message: '' },
+          worksheet: { complet: false, message: '' },
+          pullPush: { complet: false, message: '' },
+        });
       });
   };
 
+  const testAuthentication = () => {
+    getAuthentication()
+      .then(() => {
+        setState({ ...state, authenticate: { complet: true, message: '' } });
+      })
+      .catch((error) => {
+        const message = maybeAxiosError(error);
+        setState({
+          ...state,
+          authenticate: { complet: false, message },
+          id: { complet: false, message: '' },
+          worksheet: { complet: false, message: '' },
+          pullPush: { complet: false, message: '' },
+        });
+      });
+  };
+
+  //SETP-3 set sheet ID
+  const testSheetId = () => {
+    postId(id)
+      .then((data) => {
+        setState({ ...state, id: { complet: true, message: '' } });
+        setWorksheetOptions(data.worksheetOptions);
+      })
+      .catch((err) => {
+        const message = maybeAxiosError(err);
+        setState({
+          ...state,
+          id: { complet: false, message },
+          worksheet: { complet: false, message: '' },
+          pullPush: { complet: false, message: '' },
+        });
+        setWorksheetOptions([]);
+      });
+  };
+
+  //SETP-4 Select Worksheet
+  const testWorksheet = (value: string) => {
+    setWorksheet(value);
+    postWorksheet(id, worksheet)
+      .then(() => {
+        setState({ ...state, worksheet: { complet: true, message: '' } });
+      })
+      .catch((err) => {
+        const message = maybeAxiosError(err);
+        setState({ ...state, worksheet: { complet: false, message }, pullPush: { complet: false, message: '' } });
+      });
+  };
+
+  //SETP-5 Upload / Download
   const handlePullData = () => {
-    postPreviewSheet(sheetRef.current?.value ?? '', worksheetRef.current?.value ?? '').then((data) => {
+    postPreviewSheet(id, worksheet).then((data) => {
       setProject(data.project);
       setRundown(data.rundown);
       setUserFields(data.userFields);
@@ -145,13 +211,11 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePushData = () => {
-    const currentSheetId = sheetRef.current?.value ?? '';
-    const currentWorksheet = worksheetRef.current?.value ?? '';
-    postPushSheet(currentSheetId, currentWorksheet);
+    postPushSheet(id, worksheet);
   };
 
+  //GET preview
   const handleFinalise = async () => {
-    // this step is currently only used for excel files, after preview
     if (rundown && userFields && project) {
       let doClose = false;
       try {
@@ -165,8 +229,7 @@ export default function SheetsModal(props: SheetsModalProps) {
         doClose = true;
       } catch (error) {
         const message = maybeAxiosError(error);
-        console.log(message);
-        // setErrors(`Failed applying changes ${message}`);
+        console.error(message);
       } finally {
         if (doClose) {
           handleClose();
@@ -204,9 +267,9 @@ export default function SheetsModal(props: SheetsModalProps) {
             <>
               <Step
                 title='1 - Upload OAuth 2.0 Client ID'
-                completed={Boolean(sheetState?.secret)}
+                completed={state.clientSecret.complet}
                 disabled={false}
-                error={errors.clientSecret}
+                error={state.clientSecret.message}
               >
                 <Input
                   ref={fileInputRef}
@@ -216,43 +279,58 @@ export default function SheetsModal(props: SheetsModalProps) {
                   accept='.json'
                   data-testid='file-input'
                 />
-                <Button size='sm' variant='ontime-subtle-on-light' onClick={handleClick}>
-                  {sheetState?.secret ? 'Reupload Client ID' : 'Upload Client ID'}
-                </Button>
+                <div style={{ display: 'flex', gap: '1em' }}>
+                  <Button size='sm' variant='ontime-subtle-on-light' onClick={handleClick}>
+                    {state.clientSecret.complet ? 'Reupload Client ID' : 'Upload Client ID'}
+                  </Button>
+                  <Button size='sm' variant='ontime-ghosted-on-light' onClick={testClientSecrect}>
+                    Retry Client ID
+                  </Button>
+                </div>
               </Step>
 
               <Step
                 title='2 - Authenticate with Google'
-                completed={Boolean(sheetState?.auth)}
-                disabled={!sheetState?.secret}
-                error={errors.authenticate}
+                completed={state.authenticate.complet}
+                disabled={!state.clientSecret.complet}
+                error={state.authenticate.message}
               >
-                <Button
-                  size='sm'
-                  variant='ontime-subtle-on-light'
-                  onClick={handleAuthenticate}
-                  disabled={!sheetState?.secret}
-                >
-                  Authenticate
-                </Button>
+                <div style={{ display: 'flex', gap: '1em' }}>
+                  <Button
+                    size='sm'
+                    variant='ontime-subtle-on-light'
+                    onClick={handleAuthenticate}
+                    isDisabled={!state.clientSecret.complet}
+                  >
+                    Authenticate
+                  </Button>
+                  <Button
+                    size='sm'
+                    variant='ontime-ghosted-on-light'
+                    onClick={testAuthentication}
+                    isDisabled={!state.clientSecret.complet}
+                  >
+                    Retry Connection
+                  </Button>
+                </div>
               </Step>
 
               <Step
                 title='3 - Add Document ID'
-                completed={Boolean(sheetState?.id)}
-                disabled={!sheetState?.auth}
-                error={errors.sheetId}
+                completed={state.id.complet}
+                disabled={!state.authenticate.complet}
+                error={state.id.message}
               >
                 <HStack>
                   <Input
                     type='text'
-                    ref={sheetRef}
-                    id='sheetid'
                     size='sm'
                     variant='ontime-filled-on-light'
-                    disabled={!sheetState?.auth}
+                    disabled={!state.authenticate.complet}
+                    value={id}
+                    onChange={(event) => setSheetId(event.target.value)}
                   />
-                  <Button size='sm' variant='ontime-subtle-on-light' padding='0 2em' onClick={testId}>
+                  <Button size='sm' variant='ontime-subtle-on-light' padding='0 2em' onClick={testSheetId}>
                     Connect
                   </Button>
                 </HStack>
@@ -260,11 +338,17 @@ export default function SheetsModal(props: SheetsModalProps) {
 
               <Step
                 title='4 - Select Worksheet to import'
-                completed={Boolean(sheetState?.worksheet)}
-                disabled={sheetState?.worksheetOptions.length == 0}
+                completed={state.worksheet.complet}
+                disabled={worksheetOptions.length == 0}
               >
-                <Select ref={worksheetRef} size='sm' id='worksheet' disabled={sheetState?.worksheetOptions.length == 0}>
-                  {sheetState?.worksheetOptions?.map((value) => (
+                <Select
+                  size='sm'
+                  disabled={worksheetOptions.length == 0}
+                  placeholder='Select a worksheet'
+                  onChange={(event) => testWorksheet(event.target.value)}
+                  value={worksheet}
+                >
+                  {worksheetOptions.map((value) => (
                     <option key={value} value={value}>
                       {value}
                     </option>
@@ -272,10 +356,10 @@ export default function SheetsModal(props: SheetsModalProps) {
                 </Select>
               </Step>
 
-              <Step title='5 - Upload / Download rundown' completed={false} disabled={!sheetState?.worksheet}>
+              <Step title='5 - Upload / Download rundown' completed={false} disabled={!state.worksheet.complet}>
                 <div style={{ display: 'flex', gap: '1em' }}>
                   <Button
-                    disabled={!sheetState?.worksheet}
+                    disabled={!state.worksheet.complet}
                     variant='ontime-subtle-on-light'
                     padding='0 2em'
                     onClick={handlePushData}
@@ -283,7 +367,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                     Upload
                   </Button>
                   <Button
-                    disabled={!sheetState?.worksheet}
+                    disabled={!state.worksheet.complet}
                     variant='ontime-subtle-on-light'
                     padding='0 2em'
                     onClick={handlePullData}

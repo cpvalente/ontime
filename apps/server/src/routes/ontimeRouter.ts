@@ -21,11 +21,13 @@ import {
   postViewSettings,
   previewExcel,
   postHTTP,
-  sheetAuthUrl,
+  getAuthenticationUrl,
   uploadSheetClientFile,
   previewSheet,
   pushSheet,
-  getSheetState,
+  postId,
+  getAuthentication,
+  getClientSecrect,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -33,11 +35,12 @@ import {
   validateOSC,
   validatePatchProjectFile,
   validateSettings,
-  validateSheetParams,
   validateUserFields,
   viewValidator,
   validateHTTP,
   validateOscSubscription,
+  validateSheetid,
+  validateWorksheet,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 
@@ -103,17 +106,23 @@ router.post('/http', validateHTTP, postHTTP);
 // create route between controller and '/ontime/new' endpoint
 router.post('/new', projectSanitiser, postNew);
 
-// create route between controller and '/ontime/sheet-client' endpoint
-router.post('/sheet-clientsecrect', uploadFile, uploadSheetClientFile);
 
-// create route between controller and '/ontime/sheet-authstatus' endpoint
-router.get('/sheet-authurl', sheetAuthUrl);
+//SETP-1
+router.post('/sheet/clientsecrect', uploadFile, uploadSheetClientFile);
+router.get('/sheet/clientsecrect', uploadFile, getClientSecrect);
 
-// create route between controller and '/ontime/preview-sheet' endpoint
-router.post('/sheet-preview', validateSheetParams, previewSheet);
+//SETP-2
+router.get('/sheet/authentication/url', getAuthenticationUrl);
+router.get('/sheet/authentication', getAuthentication);
 
-// create route between controller and '/ontime/preview-sheet' endpoint
-router.post('/sheet-push', validateSheetParams, pushSheet);
+//STEP-3
+router.post('/sheet/id', validateSheetid, postId);
 
-// create route between controller and '/ontime/sheet-state' endpoint
-router.post('/sheet-state', validateSheetParams, getSheetState);
+//STEP-4
+router.post('/sheet/worksheet', validateWorksheet, postId);
+
+//STEP-5 download and generate preview
+router.post('/sheet-preview', validateWorksheet, previewSheet);
+
+//STEP-5 upload
+router.post('/sheet-push', validateWorksheet, pushSheet);

@@ -20,7 +20,7 @@ import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
 
-import { Sheet } from '../utils/sheetsAuth.js';
+import { sheet } from '../utils/sheetsAuth.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -458,49 +458,19 @@ export const postNew: RequestHandler = async (req, res) => {
   }
 };
 
+//SHEET Functions
 /**
- * downloads and parses an sheet
+ * @description SETP-1 POST Client Secrect
  * @returns parsed result
- */
-export async function previewSheet(req, res) {
-  try {
-    const { id, worksheet } = req.body;
-    const data = await Sheet.pull(id, worksheet);
-    res.status(200).send(data);
-  } catch (error) {
-    res.status(500).send({ message: error.toString() });
-  }
-}
-
-/**
- * downloads and parses an sheet
- * @returns parsed result
- * @method POST
- */
-export async function pushSheet(req, res) {
-  try {
-    const { id, worksheet } = req.data;
-    await Sheet.push(id, worksheet);
-    res.status(200).send('ok');
-  } catch (error) {
-    res.status(500).send({ message: error.toString() });
-  }
-}
-
-/**
- * uploads Client secrets file
- * @returns parsed result
- * @method POST
  */
 export async function uploadSheetClientFile(req, res) {
   if (!req.file.path) {
     res.status(400).send({ message: 'File not found' });
     return;
   }
-
   try {
     const client = JSON.parse(fs.readFileSync(req.file.path as string, 'utf-8'));
-    await Sheet.saveClientSecrets(client);
+    await sheet.saveClientSecrets(client);
     res.status(200).send('OK');
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -511,12 +481,27 @@ export async function uploadSheetClientFile(req, res) {
 }
 
 /**
- * @returns link to sheet auth url
- * @method GET
+ * @description SETP-1 GET Client Secrect status
  */
-export async function sheetAuthUrl(req, res) {
+export const getClientSecrect = async (req, res) => {
   try {
-    const authUrl = await Sheet.openAuthServer();
+    const clientSecrectExists = await sheet.testClientSecrect();
+    if (clientSecrectExists) {
+      res.status(200).send();
+    } else {
+      res.status(500).send({ message: 'The Client ID does not exist' });
+    }
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * @description SETP-2 GET sheet authentication url
+ */
+export async function getAuthenticationUrl(req, res) {
+  try {
+    const authUrl = await sheet.openAuthServer();
     res.status(200).send(authUrl);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -524,15 +509,70 @@ export async function sheetAuthUrl(req, res) {
 }
 
 /**
- * @description Get sheet state
- * @method POST
+ * @description SETP-2 GET sheet authentication status
  */
-export const getSheetState = async (req, res) => {
-  const { id, worksheet } = req.body;
+export const getAuthentication = async (req, res) => {
   try {
-    const state = await Sheet.getSheetState(id, worksheet);
+    await sheet.testAuthentication();
+    res.status(200).send();
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * @description SETP-3 POST sheet id
+ * @returns list of worksheets
+ */
+export const postId = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (id.lenght < 40) {
+      res.status(400).send({ message: 'ID is usualy 44 characters long' });
+    }
+    const state = await sheet.testSheetId(id);
     res.status(200).send(state);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
   }
 };
+
+/**
+ * @description SETP-4 POST worksheet
+ */
+export const postWorksheet = async (req, res) => {
+  try {
+    const { worksheet, id } = req.body;
+    const state = await sheet.testWorksheet(worksheet, id);
+    res.status(200).send(state);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * @description STEP-5 POST download undown to sheet
+ * @returns parsed result
+ */
+export async function previewSheet(req, res) {
+  try {
+    const { id, worksheet } = req.body;
+    const data = await sheet.pull(id, worksheet);
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}
+
+/**
+ * @description STEP-5 POST upload rundown to sheet
+ */
+export async function pushSheet(req, res) {
+  try {
+    const { id, worksheet } = req.data;
+    await sheet.push(id, worksheet);
+    res.status(200).send();
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}

@@ -153,8 +153,16 @@ export const validatePatchProjectFile = [
   },
 ];
 
-//TODO: is thise correct
-export const validateSheetParams = [
+export const validateSheetid = [
+  body('id').exists().isString(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+export const validateWorksheet = [
   body('id').exists().isString(),
   body('worksheet').exists().isString(),
   (req, res, next) => {

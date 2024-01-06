@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import { IoCloseCircle } from '@react-icons/all-files/io5/IoCloseCircle';
 import { IoRadioButtonOffOutline } from '@react-icons/all-files/io5/IoRadioButtonOffOutline';
@@ -18,6 +18,12 @@ export default function Step(props: PropsWithChildren<StepProps>) {
 
   const handleCollapse = () => setCollapsed((prev) => !prev);
 
+  const icon = useMemo(() => {
+    if (completed) return <IoCheckmarkCircle className={style.step} style={{ color: 'green' }} />;
+    if (error) return <IoCloseCircle className={style.step} style={{ color: 'red' }} />;
+    return <IoRadioButtonOffOutline className={style.step} />;
+  }, [completed, error]);
+
   useEffect(() => {
     if (completed) {
       setCollapsed(true);
@@ -27,13 +33,7 @@ export default function Step(props: PropsWithChildren<StepProps>) {
   return (
     <div className={style.wrapper}>
       <div className={style.header} onClick={handleCollapse}>
-        {completed ? (
-          <IoCheckmarkCircle className={style.step} style={{ color: 'green' }} />
-        ) : error ? (
-          <IoCloseCircle className={style.step} style={{ color: 'red' }} />
-        ) : (
-          <IoRadioButtonOffOutline className={style.step} />
-        )}
+        {icon}
         <span className={style.title}>{title}</span>
       </div>
       {!collapsed && (
