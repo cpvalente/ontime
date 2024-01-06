@@ -43,23 +43,3 @@
   margin-left: $element-inner-spacing;
   font-size: $text-body-size;
 }
-
-.interfaceList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $section-spacing;
-  row-gap: $element-inner-spacing;
-
-  .interface {
-    @include action-link;
-    font-size: $inner-section-text-size;
-    white-space: nowrap;
-  }
-
-  .linkIcon {
-    margin-left: $element-inner-spacing;
-    display: inline-block;
-    transform: rotate(45deg);
-  }
-}
-
