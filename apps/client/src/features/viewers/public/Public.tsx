@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
@@ -14,16 +15,12 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
+import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Public.scss';
-
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
 
 interface BackstageProps {
   isMirrored: boolean;
@@ -51,6 +48,9 @@ export default function Public(props: BackstageProps) {
     viewSettings,
     settings,
   } = props;
+
+  const [searchParams] = useSearchParams();
+
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -64,6 +64,13 @@ export default function Public(props: BackstageProps) {
   }
 
   const showPublicMessage = publ.text && publ.visible;
+
+  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
+  const formatOptions = {
+    showSeconds: !hideSeconds,
+    format: 'hh:mm:ss a',
+  };
+
   const clock = formatTime(time.clock, formatOptions);
   const qrSize = Math.max(window.innerWidth / 15, 128);
 

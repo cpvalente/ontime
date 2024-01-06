@@ -14,16 +14,12 @@ import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
 import { formatTime, resolveTimeFormat } from '../../../common/utils/time';
 import { mth } from '../../../common/utils/timeConstants';
+import { isStringBoolean } from '../../../common/utils/viewUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import { trimRundown } from './studioClock.utils';
 
 import './StudioClock.scss';
-
-const formatOptions = {
-  showSeconds: false,
-  format: 'hh:mm',
-};
 
 interface StudioClockProps {
   isMirrored: boolean;
@@ -51,14 +47,16 @@ export default function StudioClock(props: StudioClockProps) {
   const MAX_TITLES = 11;
 
   const [searchParams] = useSearchParams();
-  const showSeconds = searchParams.get('seconds');
-  const timeFormat = resolveTimeFormat();
-  formatOptions.showSeconds = Boolean(showSeconds);
-  formatOptions.format = `hh:mm${formatOptions.showSeconds ? ':ss' : ''}`;
 
   useEffect(() => {
     document.title = 'ontime - Studio Clock';
   }, []);
+
+  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
+  const formatOptions = {
+    showSeconds: !hideSeconds,
+    format: 'hh:mm:ss',
+  };
 
   const clock = formatTime(time.clock, formatOptions);
   const secondsNow = secondsInMillis(time.clock);
@@ -70,14 +68,15 @@ export default function StudioClock(props: StudioClockProps) {
   const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
   const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
   const isAm = time.clock / (mth * 12) > 12;
+  const timeFormat = resolveTimeFormat();
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
-        {timeFormat == '12' && <div className='ampmIndicator'>{isAm ? 'am' : 'pm'}</div>}
-        <div className={`studio-timer ${showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
+        {timeFormat == '12' && <div className='clock__ampm'>{isAm ? 'am' : 'pm'}</div>}
+        <div className={`studio-timer ${formatOptions.showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
           ref={titleRef}
           className='next-title'

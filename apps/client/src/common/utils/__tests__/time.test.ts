@@ -36,4 +36,14 @@ describe('formatTime()', () => {
     const time = formatTime(ms, options, () => '12');
     expect(time).toStrictEqual('01:00 PM');
   });
+
+  it('handles negative times', () => {
+    const ms = 1 * 60 * 60 * 1000;
+    const options = {
+      showSeconds: false,
+      format: 'hh:mm:ss',
+    };
+    const time = formatTime(ms * -1, options, () => '24');
+    expect(time).toStrictEqual('-01:00');
+  });
 });

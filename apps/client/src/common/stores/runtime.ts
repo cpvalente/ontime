@@ -17,6 +17,8 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     duration: null,
     timerType: null,
     endAction: null,
+    timeWarning: null,
+    timeDanger: null,
   },
   playback: Playback.Stop,
   timerMessage: {

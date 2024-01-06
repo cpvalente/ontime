@@ -21,6 +21,7 @@ export type { Settings } from './definitions/core/Settings.type.js';
 
 // ---> Views
 export type { ViewSettings } from './definitions/core/Views.type.js';
+export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
 // ---> Aliases
 export type { Alias } from './definitions/core/Alias.type.js';
@@ -61,5 +62,5 @@ export type { TimerState } from './definitions/runtime/TimerState.type.js';
 // CLIENT
 
 // TYPE UTILITIES
-export { isOntimeBlock, isOntimeDelay, isOntimeEvent } from './utils/guards.js';
+export { isOntimeBlock, isOntimeDelay, isOntimeEvent, isKeyOfType } from './utils/guards.js';
 export type { MaybeNumber } from './utils/utils.type.js';

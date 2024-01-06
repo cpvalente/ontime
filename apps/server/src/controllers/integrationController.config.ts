@@ -1,9 +1,8 @@
-import { LogOrigin, OntimeEvent } from 'ontime-types';
+import { LogOrigin, OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
 import { EventLoader } from '../classes/event-loader/EventLoader.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
 import { logger } from '../classes/Logger.js';
-import { isKeyOfType, isOntimeEvent } from 'ontime-types/src/utils/guards.js';
 
 const whitelistedPayload = {
   title: coerceString,

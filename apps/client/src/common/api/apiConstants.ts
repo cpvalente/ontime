@@ -14,6 +14,7 @@ export const VIEW_SETTINGS = ['viewSettings'];
 const location = window.location;
 const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
 export const isProduction = import.meta.env.MODE === 'production';
+export const isDev = !isProduction;
 
 const STATIC_PORT = 4001;
 export const serverPort = isProduction ? location.port : STATIC_PORT;

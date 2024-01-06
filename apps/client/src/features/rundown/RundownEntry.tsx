@@ -4,6 +4,7 @@ import { calculateDuration, getCueCandidate } from 'ontime-utils';
 
 import { RUNDOWN } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
@@ -19,6 +20,7 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 interface RundownEntryProps {
   type: SupportedEvent;
   isPast: boolean;
+  isFirstEvent: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
   hasCursor: boolean;
@@ -31,8 +33,19 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, disableEdit } =
-    props;
+  const {
+    isPast,
+    data,
+    selected,
+    hasCursor,
+    next,
+    previousEnd,
+    previousEventId,
+    playback,
+    isRolling,
+    disableEdit,
+    isFirstEvent,
+  } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
 
@@ -61,95 +74,78 @@ export default function RundownEntry(props: RundownEntryProps) {
     value: unknown;
   };
 
-  // we assume the data is not changing in the lifecycle of this component
-  // changes to the data would make rundown re-render, also re-rendering this component
-  const actionHandler = useCallback(
-    (action: EventItemActions, payload?: number | FieldValue) => {
-      switch (action) {
-        case 'event': {
-          const newEvent = { type: SupportedEvent.Event };
-          const options = {
-            startTimeIsLastEnd,
-            defaultPublic,
-            lastEventId: previousEventId,
-            after: data.id,
-          };
-          addEvent(newEvent, options);
-          break;
-        }
-        case 'delay': {
-          addEvent({ type: SupportedEvent.Delay }, { after: data.id });
-          break;
-        }
-        case 'block': {
-          addEvent({ type: SupportedEvent.Block }, { after: data.id });
-          break;
-        }
-        case 'swap': {
-          const { value } = payload as FieldValue;
-          swapEvents({ from: value as string, to: data.id });
-
-          break;
-        }
-        case 'delete': {
-          if (openId === data.id) {
-            removeOpenEvent();
-          }
-          deleteEvent(data.id);
-          break;
-        }
-        case 'clone': {
-          const newEvent = cloneEvent(data as OntimeEvent, data.id);
-          const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? []
-          newEvent.cue = getCueCandidate(rundown, data.id);
-          addEvent(newEvent);
-          break;
-        }
-        case 'update': {
-          // Handles and filters update requests
-          const { field, value } = payload as FieldValue;
-          const newData: Partial<OntimeEvent> = { id: data.id };
-
-          if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
-            // duration defines timeEnd
-            newData.duration = value as number;
-            newData.timeEnd = data.timeStart + (value as number);
-            updateEvent(newData);
-          } else if (field === 'timeStart' && data.type === SupportedEvent.Event) {
-            newData.duration = calculateDuration(value as number, data.timeEnd);
-            newData.timeStart = value as number;
-            updateEvent(newData);
-          } else if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
-            newData.duration = calculateDuration(data.timeStart, value as number);
-            newData.timeEnd = value as number;
-            updateEvent(newData);
-          } else if (field in data) {
-            // @ts-expect-error not sure how to type this
-            newData[field] = value;
-            updateEvent(newData);
-          } else {
-            emitError(`Unknown field: ${field}`);
-          }
-          break;
-        }
-        default:
-          throw new Error(`Unhandled event ${action}`);
+  const actionHandler = useMemoisedFn((action: EventItemActions, payload?: number | FieldValue) => {
+    switch (action) {
+      case 'event': {
+        const newEvent = { type: SupportedEvent.Event };
+        const options = {
+          startTimeIsLastEnd,
+          defaultPublic,
+          lastEventId: previousEventId,
+          after: data.id,
+        };
+        addEvent(newEvent, options);
+        break;
       }
-    },
-    [
-      addEvent,
-      data,
-      defaultPublic,
-      deleteEvent,
-      emitError,
-      openId,
-      previousEventId,
-      removeOpenEvent,
-      startTimeIsLastEnd,
-      updateEvent,
-      swapEvents,
-    ],
-  );
+      case 'delay': {
+        addEvent({ type: SupportedEvent.Delay }, { after: data.id });
+        break;
+      }
+      case 'block': {
+        addEvent({ type: SupportedEvent.Block }, { after: data.id });
+        break;
+      }
+      case 'swap': {
+        const { value } = payload as FieldValue;
+        swapEvents({ from: value as string, to: data.id });
+
+        break;
+      }
+      case 'delete': {
+        if (openId === data.id) {
+          removeOpenEvent();
+        }
+        deleteEvent(data.id);
+        break;
+      }
+      case 'clone': {
+        const newEvent = cloneEvent(data as OntimeEvent, data.id);
+        const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
+        newEvent.cue = getCueCandidate(rundown, data.id);
+        addEvent(newEvent);
+        break;
+      }
+      case 'update': {
+        // Handles and filters update requests
+        const { field, value } = payload as FieldValue;
+        const newData: Partial<OntimeEvent> = { id: data.id };
+
+        if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
+          // duration defines timeEnd
+          newData.duration = value as number;
+          newData.timeEnd = data.timeStart + (value as number);
+          updateEvent(newData);
+        } else if (field === 'timeStart' && data.type === SupportedEvent.Event) {
+          newData.duration = calculateDuration(value as number, data.timeEnd);
+          newData.timeStart = value as number;
+          updateEvent(newData);
+        } else if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
+          newData.duration = calculateDuration(data.timeStart, value as number);
+          newData.timeEnd = value as number;
+          updateEvent(newData);
+        } else if (field in data) {
+          // @ts-expect-error not sure how to type this
+          newData[field] = value;
+          updateEvent(newData);
+        } else {
+          emitError(`Unknown field: ${field}`);
+        }
+        break;
+      }
+      default:
+        throw new Error(`Unhandled event ${action}`);
+    }
+  });
 
   if (data.type === SupportedEvent.Event) {
     return (
@@ -176,6 +172,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         isRolling={isRolling}
         actionHandler={actionHandler}
         disableEdit={disableEdit}
+        isFirstEvent={isFirstEvent}
       />
     );
   } else if (data.type === SupportedEvent.Block) {
