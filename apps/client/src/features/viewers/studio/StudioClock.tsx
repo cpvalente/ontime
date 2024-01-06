@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
 import { isOntimeEvent, Playback } from 'ontime-types';
-import { formatDisplay } from 'ontime-utils';
+import { millisToString } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -12,8 +12,7 @@ import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { secondsInMillis } from '../../../common/utils/dateConfig';
-import { formatTime, resolveTimeFormat } from '../../../common/utils/time';
-import { mth } from '../../../common/utils/timeConstants';
+import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
@@ -58,7 +57,16 @@ export default function StudioClock(props: StudioClockProps) {
     format: 'hh:mm:ss',
   };
 
-  const clock = formatTime(time.clock, formatOptions);
+  let clock = formatTime(time.clock, formatOptions);
+  let hasAmPm = '';
+  if (clock.includes('AM')) {
+    clock = clock.replace('PM', '');
+    hasAmPm = 'AM';
+  } else {
+    clock = clock.replace('PM', '');
+    hasAmPm = 'PM';
+  }
+
   const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
   const isPaused = time.playback === Playback.Pause;
@@ -67,15 +75,14 @@ export default function StudioClock(props: StudioClockProps) {
 
   const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
   const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
-  const isAm = time.clock / (mth * 12) > 12;
-  const timeFormat = resolveTimeFormat();
+  const timer = millisToString(time.current);
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
-        {timeFormat == '12' && <div className='clock__ampm'>{isAm ? 'am' : 'pm'}</div>}
+        {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}
         <div className={`studio-timer ${formatOptions.showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
           ref={titleRef}
@@ -90,7 +97,7 @@ export default function StudioClock(props: StudioClockProps) {
           `}
         >
           {isNegative ? '-' : ''}
-          {formatDisplay(time.current)}
+          {timer}
         </div>
         <div className='clock-indicators'>
           {activeIndicators.map((i) => (

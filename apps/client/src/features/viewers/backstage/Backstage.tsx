@@ -3,7 +3,7 @@ import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
-import { formatDisplay } from 'ontime-utils';
+import { millisToString, removePrependedZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -86,15 +86,8 @@ export default function Backstage(props: BackstageProps) {
   const showPublicMessage = publ.text && publ.visible;
   const showProgress = time.playback !== 'stop';
 
-  let stageTimer;
-  if (time.current === null) {
-    stageTimer = '- - : - -';
-  } else {
-    stageTimer = formatDisplay(Math.abs(time.current), true);
-    if (isNegative) {
-      stageTimer = `-${stageTimer}`;
-    }
-  }
+  let stageTimer = millisToString(time.current, { fallback: '- - : - -' });
+  stageTimer = removePrependedZero(stageTimer);
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
   const backstageOptions = getBackstageOptions(settings?.timeFormat ?? '24');
