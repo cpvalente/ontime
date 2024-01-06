@@ -11,7 +11,7 @@ export function SubHeader({ children }: { children: ReactNode }) {
 }
 
 export function Section({ children }: { children: ReactNode }) {
-  return <p className={style.section}>{children}</p>;
+  return <div className={style.section}>{children}</div>;
 }
 
 export function Paragraph({ children }: { children: ReactNode }) {
@@ -20,4 +20,8 @@ export function Paragraph({ children }: { children: ReactNode }) {
 
 export function Card({ children }: { children: ReactNode }) {
   return <div className={style.card}>{children}</div>;
+}
+
+export function Table({ children }: { children: ReactNode }) {
+  return <table className={style.table}>{children}</table>;
 }
