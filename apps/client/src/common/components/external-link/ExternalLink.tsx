@@ -12,7 +12,7 @@ interface ExternalLinkProps {
   inline?: boolean;
 }
 
-export default function ModalLink(props: ExternalLinkProps) {
+export default function ExternalLink(props: ExternalLinkProps) {
   const { href, inline, children } = props;
   const classes = cx([style.link, inline ? style.inline : null]);
 

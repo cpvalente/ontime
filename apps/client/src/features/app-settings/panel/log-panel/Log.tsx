@@ -2,11 +2,11 @@ import { useCallback, useState } from 'react';
 import { Button } from '@chakra-ui/react';
 import { LogOrigin } from 'ontime-types';
 
-import { clearLogs, useLogData } from '../../common/stores/logger';
+import { clearLogs, useLogData } from '../../../../common/stores/logger';
 
-import style from './InfoLogger.module.scss';
+import style from './Log.module.scss';
 
-export default function InfoLogger() {
+export default function Log() {
   const { logs: logData } = useLogData();
 
   const [showClient, setShowClient] = useState(true);
@@ -52,7 +52,7 @@ export default function InfoLogger() {
       <div className={style.buttonBar}>
         <Button
           variant={showUser ? 'ontime-filled' : 'ontime-subtle'}
-          size='xs'
+          size='sm'
           onClick={() => setShowUser((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.User)}
           onContextMenu={(e) => e.preventDefault()}
@@ -61,7 +61,7 @@ export default function InfoLogger() {
         </Button>
         <Button
           variant={showClient ? 'ontime-filled' : 'ontime-subtle'}
-          size='xs'
+          size='sm'
           onClick={() => setShowClient((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Client)}
           onContextMenu={(e) => e.preventDefault()}
@@ -70,7 +70,7 @@ export default function InfoLogger() {
         </Button>
         <Button
           variant={showServer ? 'ontime-filled' : 'ontime-subtle'}
-          size='xs'
+          size='sm'
           onClick={() => setShowServer((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Server)}
           onContextMenu={(e) => e.preventDefault()}
@@ -79,7 +79,7 @@ export default function InfoLogger() {
         </Button>
         <Button
           variant={showPlayback ? 'ontime-filled' : 'ontime-subtle'}
-          size='xs'
+          size='sm'
           onClick={() => setShowPlayback((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Playback)}
           onContextMenu={(e) => e.preventDefault()}
@@ -88,7 +88,7 @@ export default function InfoLogger() {
         </Button>
         <Button
           variant={showRx ? 'ontime-filled' : 'ontime-subtle'}
-          size='xs'
+          size='sm'
           onClick={() => setShowRx((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Rx)}
           onContextMenu={(e) => e.preventDefault()}
@@ -97,14 +97,14 @@ export default function InfoLogger() {
         </Button>
         <Button
           variant={showTx ? 'ontime-filled' : 'ontime-subtle'}
-          size='xs'
+          size='sm'
           onClick={() => setShowTx((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Tx)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Tx}
         </Button>
-        <Button variant='ontime-outlined' size='xs' onClick={clearLogs}>
+        <Button variant='ontime-outlined' size='sm' onClick={clearLogs}>
           Clear
         </Button>
       </div>

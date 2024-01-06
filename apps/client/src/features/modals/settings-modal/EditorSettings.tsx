@@ -10,7 +10,6 @@ export default function EditorSettings() {
   const setShowQuickEntry = useEditorSettings((state) => state.setShowQuickEntry);
   const setStartTimeIsLastEnd = useEditorSettings((state) => state.setStartTimeIsLastEnd);
   const setDefaultPublic = useEditorSettings((state) => state.setDefaultPublic);
-  const setShowNif = useEditorSettings((state) => state.setShowNif);
 
   return (
     <div className={style.sectionContainer}>
@@ -38,18 +37,6 @@ export default function EditorSettings() {
           variant='ontime-on-light'
           defaultChecked={eventSettings.defaultPublic}
           onChange={(event) => setDefaultPublic(event.target.checked)}
-        />
-      </ModalSplitInput>
-      <span className={style.title}>Info settings</span>
-      <ModalSplitInput
-        field=''
-        title='Show network'
-        description='Whether to available show network interfaces in the panel'
-      >
-        <Switch
-          variant='ontime-on-light'
-          defaultChecked={eventSettings.showQuickEntry}
-          onChange={(event) => setShowNif(event.target.checked)}
         />
       </ModalSplitInput>
     </div>
