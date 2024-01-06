@@ -26,11 +26,6 @@ export type ProjectFileListResponse = {
   lastLoadedProject: string;
 };
 
-export type ProjectFileListResponse = {
-  files: ProjectFileList;
-  lastLoadedProject: string;
-};
-
 export type ErrorResponse = {
   message: string;
 };
