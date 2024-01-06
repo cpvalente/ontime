@@ -306,21 +306,16 @@ export const postWorksheet = async (id: string, worksheet: string) => {
 /**
  * @description STEP 5
  */
-export const postPreviewSheet = async (id: string, worksheet: string) => {
-  const response = await axios.post(`${ontimeURL}/sheet-preview`, {
-    id,
-    worksheet,
-  });
+export const postPreviewSheet = async (id: string, options: ExcelImportMap) => {
+  console.log(options);
+  const response = await axios.post(`${ontimeURL}/sheet/pull`, { id, options });
   return response.data.data;
 };
 
 /**
  * @description STEP 5
  */
-export const postPushSheet = async (id: string, worksheet: string) => {
-  const response = await axios.post(`${ontimeURL}/sheet-push`, {
-    id,
-    worksheet,
-  });
+export const postPushSheet = async (id: string, options: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet-push`, { id, options });
   return response.data.data;
 };

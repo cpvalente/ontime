@@ -554,10 +554,10 @@ export const postWorksheet = async (req, res) => {
  * @description STEP-5 POST download undown to sheet
  * @returns parsed result
  */
-export async function previewSheet(req, res) {
+export async function pullSheet(req, res) {
   try {
-    const { id, worksheet } = req.body;
-    const data = await sheet.pull(id, worksheet);
+    const { id, options } = req.body;
+    const data = await sheet.pull(id, options);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: error.toString() });
@@ -569,8 +569,8 @@ export async function previewSheet(req, res) {
  */
 export async function pushSheet(req, res) {
   try {
-    const { id, worksheet } = req.data;
-    await sheet.push(id, worksheet);
+    const { id, options } = req.body;
+    await sheet.push(id, options);
     res.status(200).send();
   } catch (error) {
     res.status(500).send({ message: error.toString() });

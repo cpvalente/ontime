@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
+import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
 
 import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
@@ -37,6 +38,7 @@ import { userFieldsPlaceholder } from '../../../common/models/UserFields';
 import { openLink } from '../../../common/utils/linkUtils';
 import ModalLink from '../ModalLink';
 import PreviewExcel from '../upload-modal/preview/PreviewExcel';
+import ExcelFileOptions from '../upload-modal/upload-options/ExcelFileOptions';
 
 import Step from './Step';
 
@@ -58,6 +60,9 @@ export default function SheetsModal(props: SheetsModalProps) {
   const [worksheet, setWorksheet] = useState('');
   const [worksheetOptions, setWorksheetOptions] = useState(new Array<string>());
 
+  const [direction, setDirection] = useState('none');
+  const excelFileOptions = useRef<ExcelImportMap>(defaultExcelImportMap);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [state, setState] = useState({
@@ -70,6 +75,7 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   useEffect(() => {
     if (isOpen) {
+      setDirection('none');
       testClientSecrect();
       if (state.clientSecret.complet) testAuthentication();
       if (state.authenticate.complet) testSheetId();
@@ -190,6 +196,7 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   //SETP-4 Select Worksheet
   const testWorksheet = (value: string) => {
+    excelFileOptions.current.worksheet = value;
     setWorksheet(value);
     postWorksheet(id, worksheet)
       .then(() => {
@@ -202,16 +209,32 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   //SETP-5 Upload / Download
+  const updateExcelFileOptions = <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {
+    if (excelFileOptions.current[field] !== value) {
+      excelFileOptions.current = { ...excelFileOptions.current, [field]: value };
+    }
+  };
+
   const handlePullData = () => {
-    postPreviewSheet(id, worksheet).then((data) => {
-      setProject(data.project);
-      setRundown(data.rundown);
-      setUserFields(data.userFields);
-    });
+    postPreviewSheet(id, excelFileOptions.current)
+      .then((data) => {
+        setProject(data.project);
+        setRundown(data.rundown);
+        setUserFields(data.userFields);
+      })
+      .catch((error) => {
+        const message = maybeAxiosError(error);
+        setDirection('none');
+        setState({ ...state, pullPush: { complet: false, message } });
+      });
   };
 
   const handlePushData = () => {
-    postPushSheet(id, worksheet);
+    postPushSheet(id, excelFileOptions.current).catch((error) => {
+      const message = maybeAxiosError(error);
+      setDirection('none');
+      setState({ ...state, pullPush: { complet: false, message } });
+    });
   };
 
   //GET preview
@@ -266,119 +289,125 @@ export default function SheetsModal(props: SheetsModalProps) {
             </div>
           </Alert>
           {!rundown ? (
-            <>
-              <Step
-                title='1 - Upload OAuth 2.0 Client ID'
-                completed={state.clientSecret.complet}
-                disabled={false}
-                error={state.clientSecret.message}
-              >
-                <Input
-                  ref={fileInputRef}
-                  style={{ display: 'none' }}
-                  type='file'
-                  onChange={handleFile}
-                  accept='.json'
-                  data-testid='file-input'
-                />
-                <div style={{ display: 'flex', gap: '1em' }}>
-                  <Button size='sm' variant='ontime-subtle-on-light' onClick={handleClick}>
-                    {state.clientSecret.complet ? 'Reupload Client ID' : 'Upload Client ID'}
-                  </Button>
-                  <Button size='sm' variant='ontime-ghosted-on-light' onClick={testClientSecrect}>
-                    Retry Client ID
-                  </Button>
-                </div>
-              </Step>
-
-              <Step
-                title='2 - Authenticate with Google'
-                completed={state.authenticate.complet}
-                disabled={!state.clientSecret.complet}
-                error={state.authenticate.message}
-              >
-                <div style={{ display: 'flex', gap: '1em' }}>
-                  <Button
-                    size='sm'
-                    variant='ontime-subtle-on-light'
-                    onClick={handleAuthenticate}
-                    isDisabled={!state.clientSecret.complet}
-                  >
-                    Authenticate
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='ontime-ghosted-on-light'
-                    onClick={testAuthentication}
-                    isDisabled={!state.clientSecret.complet}
-                  >
-                    Retry Connection
-                  </Button>
-                </div>
-              </Step>
-
-              <Step
-                title='3 - Add Document ID'
-                completed={state.id.complet}
-                disabled={!state.authenticate.complet}
-                error={state.id.message}
-              >
-                <HStack>
-                  <Input
-                    type='text'
-                    size='sm'
-                    variant='ontime-filled-on-light'
-                    disabled={!state.authenticate.complet}
-                    value={id}
-                    onChange={(event) => setSheetId(event.target.value)}
-                  />
-                  <Button size='sm' variant='ontime-subtle-on-light' padding='0 2em' onClick={testSheetId}>
-                    Connect
-                  </Button>
-                </HStack>
-              </Step>
-
-              <Step
-                title='4 - Select Worksheet to import'
-                completed={state.worksheet.complet}
-                disabled={worksheetOptions.length == 0}
-              >
-                <Select
-                  size='sm'
-                  disabled={worksheetOptions.length == 0}
-                  placeholder='Select a worksheet'
-                  onChange={(event) => testWorksheet(event.target.value)}
-                  value={worksheet}
+            direction === 'up' ? (
+              <div>{direction}</div>
+            ) : direction === 'down' ? (
+              <ExcelFileOptions optionsRef={excelFileOptions} updateOptions={updateExcelFileOptions} />
+            ) : (
+              <>
+                <Step
+                  title='1 - Upload OAuth 2.0 Client ID'
+                  completed={state.clientSecret.complet}
+                  disabled={false}
+                  error={state.clientSecret.message}
                 >
-                  {worksheetOptions.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </Select>
-              </Step>
+                  <Input
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    type='file'
+                    onChange={handleFile}
+                    accept='.json'
+                    data-testid='file-input'
+                  />
+                  <div style={{ display: 'flex', gap: '1em' }}>
+                    <Button size='sm' variant='ontime-subtle-on-light' onClick={handleClick}>
+                      {state.clientSecret.complet ? 'Reupload Client ID' : 'Upload Client ID'}
+                    </Button>
+                    <Button size='sm' variant='ontime-ghosted-on-light' onClick={testClientSecrect}>
+                      Retry Client ID
+                    </Button>
+                  </div>
+                </Step>
 
-              <Step title='5 - Upload / Download rundown' completed={false} disabled={!state.worksheet.complet}>
-                <div style={{ display: 'flex', gap: '1em' }}>
-                  <Button
-                    disabled={!state.worksheet.complet}
-                    variant='ontime-subtle-on-light'
-                    padding='0 2em'
-                    onClick={handlePushData}
+                <Step
+                  title='2 - Authenticate with Google'
+                  completed={state.authenticate.complet}
+                  disabled={!state.clientSecret.complet}
+                  error={state.authenticate.message}
+                >
+                  <div style={{ display: 'flex', gap: '1em' }}>
+                    <Button
+                      size='sm'
+                      variant='ontime-subtle-on-light'
+                      onClick={handleAuthenticate}
+                      isDisabled={!state.clientSecret.complet}
+                    >
+                      Authenticate
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='ontime-ghosted-on-light'
+                      onClick={testAuthentication}
+                      isDisabled={!state.clientSecret.complet}
+                    >
+                      Retry Connection
+                    </Button>
+                  </div>
+                </Step>
+
+                <Step
+                  title='3 - Add Document ID'
+                  completed={state.id.complet}
+                  disabled={!state.authenticate.complet}
+                  error={state.id.message}
+                >
+                  <HStack>
+                    <Input
+                      type='text'
+                      size='sm'
+                      variant='ontime-filled-on-light'
+                      disabled={!state.authenticate.complet}
+                      value={id}
+                      onChange={(event) => setSheetId(event.target.value)}
+                    />
+                    <Button size='sm' variant='ontime-subtle-on-light' padding='0 2em' onClick={testSheetId}>
+                      Connect
+                    </Button>
+                  </HStack>
+                </Step>
+
+                <Step
+                  title='4 - Select Worksheet to import'
+                  completed={state.worksheet.complet}
+                  disabled={worksheetOptions.length == 0}
+                >
+                  <Select
+                    size='sm'
+                    disabled={worksheetOptions.length == 0}
+                    placeholder='Select a worksheet'
+                    onChange={(event) => testWorksheet(event.target.value)}
+                    value={worksheet}
                   >
-                    Upload
-                  </Button>
-                  <Button
-                    disabled={!state.worksheet.complet}
-                    variant='ontime-subtle-on-light'
-                    padding='0 2em'
-                    onClick={handlePullData}
-                  >
-                    Download
-                  </Button>
-                </div>
-              </Step>
-            </>
+                    {worksheetOptions.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </Select>
+                </Step>
+
+                <Step title='5 - Upload / Download rundown' completed={false} disabled={!state.worksheet.complet}>
+                  <div style={{ display: 'flex', gap: '1em' }}>
+                    <Button
+                      disabled={!state.worksheet.complet}
+                      variant='ontime-subtle-on-light'
+                      padding='0 2em'
+                      onClick={() => setDirection('up')}
+                    >
+                      Upload
+                    </Button>
+                    <Button
+                      disabled={!state.worksheet.complet}
+                      variant='ontime-subtle-on-light'
+                      padding='0 2em'
+                      onClick={() => setDirection('down')}
+                    >
+                      Download
+                    </Button>
+                  </div>
+                </Step>
+              </>
+            )
           ) : (
             <PreviewExcel
               rundown={rundown ?? []}
@@ -388,10 +417,41 @@ export default function SheetsModal(props: SheetsModalProps) {
           )}
         </ModalBody>
         <ModalFooter>
-          {rundown && (
-            <Button variant='ontime-filled' padding='0 2em' onClick={handleFinalise}>
-              Import
-            </Button>
+          {rundown ? (
+            <div style={{ display: 'flex', gap: '1em' }}>
+              <Button
+                onClick={() => {
+                  setRundown(null);
+                  setDirection('none');
+                }}
+                variant='ontime-ghost-on-light'
+              >
+                Go Back
+              </Button>
+              <Button variant='ontime-filled' padding='0 2em' onClick={handleFinalise}>
+                Import
+              </Button>
+            </div>
+          ) : direction === 'up' ? (
+            <div style={{ display: 'flex', gap: '1em' }}>
+              <Button onClick={() => setDirection('none')} variant='ontime-ghost-on-light'>
+                Go Back
+              </Button>
+              <Button variant='ontime-filled' padding='0 2em' onClick={handlePushData}>
+                Upload
+              </Button>
+            </div>
+          ) : direction === 'down' ? (
+            <div style={{ display: 'flex', gap: '1em' }}>
+              <Button onClick={() => setDirection('none')} variant='ontime-ghost-on-light'>
+                Go Back
+              </Button>
+              <Button variant='ontime-filled' padding='0 2em' onClick={handlePullData}>
+                Review
+              </Button>
+            </div>
+          ) : (
+            <></>
           )}
         </ModalFooter>
       </ModalContent>

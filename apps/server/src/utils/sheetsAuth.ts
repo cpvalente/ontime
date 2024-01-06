@@ -13,6 +13,7 @@ import { ensureDirectory } from './fileManagement.js';
 import { cellRequenstFromEvent, cellRequenstFromProjectData, getA1Notation } from './sheetUtils.js';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
+import { ExcelImportMap } from 'ontime-utils';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -265,11 +266,11 @@ class Sheet {
   /**
    * @description SETP 5 - Upload the rundown to sheet
    * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
-   * @param {string} worksheet - the name of the worksheet containing ontime data
+   * @param {ExcelImportMap} options
    * @throws
    */
-  public async push(id: string, worksheet: string) {
-    const { worksheetId, range } = await this.exist(id, worksheet);
+  public async push(id: string, options: ExcelImportMap) {
+    const { worksheetId, range } = await this.exist(id, options.worksheet);
 
     const rq = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.values.get({
       spreadsheetId: id,
@@ -278,7 +279,7 @@ class Sheet {
       range: range,
     });
     if (rq.status === 200) {
-      const { rundownMetadata, projectMetadata } = parseExcel(rq.data.values);
+      const { rundownMetadata, projectMetadata } = parseExcel(rq.data.values, options);
       const rundown = DataProvider.getRundown();
       const projectData = DataProvider.getProjectData();
       const titleRow = Object.values(rundownMetadata)[0]['row'];
@@ -344,12 +345,12 @@ class Sheet {
   /**
    * @description SETP 5 - Downpload the rundown from sheet
    * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
-   * @param {string} worksheet - the name of the worksheet containing ontime data
+   * @param {ExcelImportMap} options
    * @returns {Promise<Partial<ResponseOK>>}
    * @throws
    */
-  public async pull(id: string, worksheet: string): Promise<Partial<ResponseOK>> {
-    const { range } = await this.exist(id, worksheet);
+  public async pull(id: string, options: ExcelImportMap): Promise<Partial<ResponseOK>> {
+    const { range } = await this.exist(id, options.worksheet);
 
     const res: Partial<ResponseOK> = {};
 
@@ -362,12 +363,13 @@ class Sheet {
 
     if (rq.status === 200) {
       res.data = {};
-      const dataFromSheet = parseExcel(rq.data.values);
+      const dataFromSheet = parseExcel(rq.data.values, options);
       res.data.rundown = parseRundown(dataFromSheet);
       if (res.data.rundown.length < 1) {
         throw new Error(`Sheet: Could not find data to import in the worksheet`);
       }
-      console.log(parseProject(dataFromSheet));
+      console.log(dataFromSheet.project);
+      console.log(dataFromSheet.userFields);
       res.data.project = parseProject(dataFromSheet);
       res.data.userFields = parseUserFields(dataFromSheet);
       return res;
