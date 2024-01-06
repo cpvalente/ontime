@@ -8,22 +8,26 @@ export type SettingsOption = {
 };
 
 export const settingPanels: SettingsOption[] = [
-  { id: 'project', label: 'Project' },
+  {
+    id: 'project',
+    label: 'Project',
+    secondary: [{ id: 'project__manage', label: 'Manage project files' }],
+  },
   { id: 'general', label: 'General' },
   { id: 'interface', label: 'Interface' },
   { id: 'views', label: 'Views' },
   {
     id: 'sources',
     label: 'Data Sources',
-    secondary: [{ id: 'g-sheet', label: 'Sync with Google Sheet' }],
+    secondary: [{ id: 'sources__gsheet', label: 'Sync with Google Sheet' }],
     split: true,
   },
   {
     id: 'integrations',
     label: 'Integrations',
     secondary: [
-      { id: 'osc', label: 'OSC Integration' },
-      { id: 'http', label: 'HTTP Integration' },
+      { id: 'integrations__osc', label: 'OSC Integration' },
+      { id: 'integrations__http', label: 'HTTP Integration' },
     ],
   },
   { id: 'log', label: 'Log', split: true },
@@ -31,10 +35,6 @@ export const settingPanels: SettingsOption[] = [
     id: 'about',
     label: 'About',
     split: true,
-    secondary: [
-      { id: 'links', label: 'Links' },
-      { id: 'version', label: 'Version' },
-    ],
   },
 ] as const;
 
