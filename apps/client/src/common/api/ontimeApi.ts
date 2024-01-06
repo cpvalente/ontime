@@ -307,7 +307,6 @@ export const postWorksheet = async (id: string, worksheet: string) => {
  * @description STEP 5
  */
 export const postPreviewSheet = async (id: string, options: ExcelImportMap) => {
-  console.log(options);
   const response = await axios.post(`${ontimeURL}/sheet/pull`, { id, options });
   return response.data.data;
 };
