@@ -259,7 +259,9 @@ export default function SheetsModal(props: SheetsModalProps) {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <AlertTitle>Sync with Google Sheets</AlertTitle>
               <AlertDescription>
-                <ModalLink href='our-docs'>For more information, see the docs</ModalLink>
+                <ModalLink href='https://ontime.gitbook.io/v2/features/google-sheet-experimental'>
+                  For more information, see the docs
+                </ModalLink>
               </AlertDescription>
             </div>
           </Alert>
