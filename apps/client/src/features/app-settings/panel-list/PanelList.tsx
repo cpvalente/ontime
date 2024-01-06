@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+
 import { isKeyEnter } from '../../../common/utils/keyEvent';
 import { cx } from '../../../common/utils/styleUtils';
 import { settingPanels, SettingsOption, useSettingsStore } from '../settingsStore';
@@ -24,7 +26,7 @@ export default function PanelList() {
         ]);
 
         return (
-          <>
+          <Fragment key={panel.id}>
             <li
               key={panel.id}
               onClick={() => handleSelect(panel)}
@@ -44,7 +46,7 @@ export default function PanelList() {
                 </li>
               );
             })}
-          </>
+          </Fragment>
         );
       })}
     </ul>
