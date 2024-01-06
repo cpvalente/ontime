@@ -44,7 +44,7 @@ import {
   validateProjectCreate,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
-import { sanitizeProjectFilename } from '../controllers/ontimeController.config.js';
+import { sanitizeProjectFilename } from '../utils/sanitizeProjectFilename.js';
 
 export const router = express.Router();
 

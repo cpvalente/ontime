@@ -179,8 +179,9 @@ export const validateProjectDuplicate = [
     .exists()
     .withMessage('New project filename is required')
     .isString()
+    .withMessage('New project filename must be a string')
     .isLength({ min: 1, max: 255 })
-    .withMessage('New project filename must be a string'),
+    .withMessage('New project filename must be between 1 and 255 characters'),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -200,8 +201,9 @@ export const validateProjectRename = [
     .exists()
     .withMessage('Duplicate project filename is required')
     .isString()
+    .withMessage('Duplicate project filename must be a string')
     .isLength({ min: 1, max: 255 })
-    .withMessage('Duplicate project filename must be a string'),
+    .withMessage('Duplicate project filename must be between 1 and 255 characters'),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -221,8 +223,9 @@ export const validateProjectCreate = [
     .exists()
     .withMessage('Filename is required')
     .isString()
+    .withMessage('Filename must be a string')
     .isLength({ min: 1, max: 255 })
-    .withMessage('Filename must be a string'),
+    .withMessage('Filename must be between 1 and 255 characters'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -232,12 +235,6 @@ export const validateProjectCreate = [
     next();
   },
 ];
-
-const checkExistingProjectFile = (projectFilename?: string): boolean => {
-  const projectFilePath = join(uploadsFolderPath, projectFilename);
-
-  return existsSync(projectFilePath);
-};
 
 /**
  * @description Validates the existence of project files.
@@ -250,18 +247,19 @@ const checkExistingProjectFile = (projectFilename?: string): boolean => {
  */
 export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
   const errors = [];
-  if (projectFiles.filename) {
-    const existingFile = checkExistingProjectFile(projectFiles.filename);
 
-    if (!existingFile) {
+  if (projectFiles.filename) {
+    const projectFilePath = join(uploadsFolderPath, projectFiles.filename);
+
+    if (!existsSync(projectFilePath)) {
       errors.push('Project file does not exist');
     }
   }
 
   if (projectFiles.newFilename) {
-    const newFile = checkExistingProjectFile(projectFiles.newFilename);
+    const projectFilePath = join(uploadsFolderPath, projectFiles.newFilename);
 
-    if (newFile) {
+    if (existsSync(projectFilePath)) {
       errors.push('New project file already exists');
     }
   }
