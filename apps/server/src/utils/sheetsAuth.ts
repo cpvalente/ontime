@@ -367,6 +367,7 @@ class Sheet {
       if (res.data.rundown.length < 1) {
         throw new Error(`Sheet: Could not find data to import in the worksheet`);
       }
+      console.log(parseProject(dataFromSheet));
       res.data.project = parseProject(dataFromSheet);
       res.data.userFields = parseUserFields(dataFromSheet);
       return res;

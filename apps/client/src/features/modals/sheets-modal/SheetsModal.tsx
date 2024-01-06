@@ -74,7 +74,7 @@ export default function SheetsModal(props: SheetsModalProps) {
       if (state.clientSecret.complet) testAuthentication();
       if (state.authenticate.complet) testSheetId();
     }
-  }, []);
+  }, [isOpen]);
 
   const handleClose = () => {
     setRundown(null);
