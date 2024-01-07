@@ -39,6 +39,17 @@ export function getFormatFromSettings(): TimeFormat {
   return settings?.timeFormat ?? '24';
 }
 
+export function getDefaultFormat(
+  currentSettings?: TimeFormat,
+  format12: string = FORMAT_12,
+  format24: string = FORMAT_24,
+): string {
+  if (currentSettings === '12') {
+    return format12;
+  }
+  return format24;
+}
+
 function resolveTimeFormat(fallback12: string, fallback24: string): string {
   // if the user has an option, we use that
   const formatFromParams = getFormatFromParams();
@@ -64,8 +75,9 @@ type FormatOptions = {
  * @description utility function to format a date in 12 or 24 hour format
  * @param {MaybeNumber} milliseconds
  * @param {object} [options]
- * @param {string} [options.format]
- * @param {function} resolver DI for testing
+ * @param {string} [options.format.format12] format string if 12 hour time
+ * @param {string} [options.format.format24] format string if 24 hour time
+ * @param {Function} resolver DI for testing
  * @return {string}
  */
 export const formatTime = (

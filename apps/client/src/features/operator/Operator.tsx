@@ -14,6 +14,7 @@ import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useUserFields from '../../common/hooks-query/useUserFields';
 import { debounce } from '../../common/utils/debounce';
+import { getDefaultFormat } from '../../common/utils/time';
 import { isStringBoolean } from '../../common/utils/viewUtils';
 
 import EditModal from './edit-modal/EditModal';
@@ -131,7 +132,8 @@ export default function Operator() {
   const secondary = searchParams.get('secondary') as keyof TitleFields | null;
   const subscribedAlias = subscribe ? userFields[subscribe] : '';
 
-  const operatorOptions = getOperatorOptions(userFields, settings?.timeFormat);
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const operatorOptions = getOperatorOptions(userFields, defaultFormat);
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 

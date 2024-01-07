@@ -12,7 +12,7 @@ import { getTimerOptions } from '../../../common/components/view-params-editor/c
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -142,7 +142,8 @@ export default function Timer(props: TimerProps) {
   const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
-  const timerOptions = getTimerOptions(settings?.timeFormat);
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const timerOptions = getTimerOptions(defaultFormat);
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>

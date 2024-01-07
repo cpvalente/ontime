@@ -15,7 +15,7 @@ import { getBackstageOptions } from '../../../common/components/view-params-edit
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -78,7 +78,8 @@ export default function Backstage(props: BackstageProps) {
   stageTimer = removePrependedZero(stageTimer);
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
-  const backstageOptions = getBackstageOptions(settings?.timeFormat);
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const backstageOptions = getBackstageOptions(defaultFormat);
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>

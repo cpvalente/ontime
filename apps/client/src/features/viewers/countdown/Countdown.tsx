@@ -9,7 +9,7 @@ import { getCountdownOptions } from '../../../common/components/view-params-edit
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
@@ -105,7 +105,8 @@ export default function Countdown(props: CountdownProps) {
   };
   const formattedTimer = formatTimer();
 
-  const timeOption = getCountdownOptions(settings?.timeFormat);
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const timeOption = getCountdownOptions(defaultFormat);
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>

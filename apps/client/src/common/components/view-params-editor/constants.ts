@@ -1,29 +1,17 @@
 import { TimeFormat, UserFields } from 'ontime-types';
 
-import { FORMAT_12, FORMAT_24 } from '../../../viewerConfig';
-
 import { ParamField } from './types';
 
 // TODO: this should be the format string
-const getTimeOption = (timeFormat: TimeFormat = '24'): ParamField => {
-  // TODO: I dont think we can do this here
-  const format = timeFormat === '12' ? FORMAT_12 : FORMAT_24;
-  const placeholder = `${format}`;
+const getTimeOption = (timeFormat: string): ParamField => {
+  const placeholder = `${timeFormat} (default)`;
   return {
     id: 'timeformat',
-    title: 'Time format string, taken from the Application settings',
+    title: 'Time format string, taken from the Application Settings',
     description: 'Format for auxiliar time fields (not the running), eg. HH:mm:ss or hh:mm:ss a, see docs for help',
     type: 'string',
     placeholder,
   };
-};
-
-const hideClockSeconds: ParamField = {
-  id: 'hideClockSeconds',
-  title: 'Hide seconds in clocks',
-  description: 'Whether to hide seconds in auxiliar time fields (not the running timer)',
-  type: 'boolean',
-  defaultValue: false,
 };
 
 const hideTimerSeconds: ParamField = {
@@ -34,7 +22,7 @@ const hideTimerSeconds: ParamField = {
   defaultValue: false,
 };
 
-export const getClockOptions = (timeFormat?: TimeFormat): ParamField[] => [
+export const getClockOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   {
     id: 'key',
@@ -106,10 +94,9 @@ export const getClockOptions = (timeFormat?: TimeFormat): ParamField[] => [
   },
 ];
 
-export const getTimerOptions = (timeFormat: TimeFormat): ParamField[] => [
+export const getTimerOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   hideTimerSeconds,
-  hideClockSeconds,
   {
     id: 'hideClock',
     title: 'Hide Time Now',
@@ -288,7 +275,7 @@ export const LOWER_THIRDS_OPTIONS: ParamField[] = [
   },
 ];
 
-export const getBackstageOptions = (timeFormat?: TimeFormat): ParamField[] => [
+export const getBackstageOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   {
     id: 'hidePast',
@@ -313,7 +300,7 @@ export const getBackstageOptions = (timeFormat?: TimeFormat): ParamField[] => [
   },
 ];
 
-export const getPublicOptions = (timeFormat?: TimeFormat): ParamField[] => [
+export const getPublicOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   {
     id: 'hidePast',
@@ -337,12 +324,12 @@ export const getPublicOptions = (timeFormat?: TimeFormat): ParamField[] => [
     placeholder: '7 (default)',
   },
 ];
-export const getStudioClockOptions = (timeFormat?: TimeFormat): ParamField[] => [
+export const getStudioClockOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   hideTimerSeconds,
 ];
 
-export const getOperatorOptions = (userFields: UserFields, timeFormat?: TimeFormat): ParamField[] => {
+export const getOperatorOptions = (userFields: UserFields, timeFormat: string): ParamField[] => {
   return [
     getTimeOption(timeFormat),
     {
@@ -402,7 +389,4 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat?: TimeForm
   ];
 };
 
-export const getCountdownOptions = (timeFormat?: TimeFormat): ParamField[] => [
-  getTimeOption(timeFormat),
-  hideTimerSeconds,
-];
+export const getCountdownOptions = (timeFormat: string): ParamField[] => [getTimeOption(timeFormat), hideTimerSeconds];

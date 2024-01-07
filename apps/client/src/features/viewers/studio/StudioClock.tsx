@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
 import { isOntimeEvent, Playback } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { millisToString, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -11,7 +11,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
@@ -51,14 +51,12 @@ export default function StudioClock(props: StudioClockProps) {
     document.title = 'ontime - Studio Clock';
   }, []);
 
-  // TODO: hide seconds
-  const hideSeconds = isStringBoolean(searchParams.get('hideTimerSeconds'));
   let clock = formatTime(time.clock);
   let hasAmPm = '';
   if (clock.includes('AM')) {
     clock = clock.replace('PM', '');
     hasAmPm = 'AM';
-  } else {
+  } else if (clock.includes('PM')) {
     clock = clock.replace('PM', '');
     hasAmPm = 'PM';
   }
@@ -67,11 +65,16 @@ export default function StudioClock(props: StudioClockProps) {
   const isNegative = (time.current ?? 0) < 0;
   const isPaused = time.playback === Playback.Pause;
 
-  const studioClockOptions = getStudioClockOptions(settings?.timeFormat);
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const studioClockOptions = getStudioClockOptions(defaultFormat);
 
   const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
   const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
-  const timer = millisToString(time.current);
+  let timer = millisToString(time.current, { fallback: '---' });
+  const hideSeconds = isStringBoolean(searchParams.get('hideTimerSeconds'));
+  if (time.current != null && hideSeconds) {
+    timer = removeSeconds(timer);
+  }
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
@@ -79,13 +82,13 @@ export default function StudioClock(props: StudioClockProps) {
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
         {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}
-        <div className={`studio-timer ${formatOptions.showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
+        <div className={`studio-timer ${!hideSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
           ref={titleRef}
           className='next-title'
           style={{ fontSize: titleFontSize, height: '12.5vh', width: '100%', maxWidth: '80%' }}
         >
-          {eventNext?.title ?? '---'}
+          {eventNext?.title}
         </div>
         <div
           className={`
