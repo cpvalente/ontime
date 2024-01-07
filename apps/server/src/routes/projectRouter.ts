@@ -1,5 +1,5 @@
 import { getProject, postProject } from '../controllers/projectController.js';
-import { projectSchema } from '../controllers/projectController.schema.js';
+import { projectInfoSchema } from '../controllers/projectController.schema.js';
 import { FastifyRouter } from './router.types.js';
 
 export const router = (fastify: FastifyRouter, _opts, done) => {
@@ -7,7 +7,7 @@ export const router = (fastify: FastifyRouter, _opts, done) => {
   fastify.get('/', getProject);
 
   // create route between controller and 'POST /project' endpoint
-  fastify.post('/', { schema: projectSchema }, postProject);
+  fastify.post('/', { schema: projectInfoSchema }, postProject);
 
   done();
 };

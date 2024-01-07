@@ -2,15 +2,29 @@ import { LogOrigin } from 'ontime-types';
 import type {
   Alias,
   DatabaseModel,
-  GetInfo,
-  HttpSettings,
+  // GetInfo,
+  // HttpSettings,
   ProjectData,
-  ErrorResponse,
-  ProjectFileListResponse,
+  // ErrorResponse,
+  // ProjectFileListResponse,
 } from 'ontime-types';
 
-import { RequestHandler, Request, Response } from 'express';
-import fs from 'fs';
+import {
+  aliasesSchema,
+  oscSchema,
+  settingsSchema,
+  userFieldsSchema,
+  viewSchema,
+  oscSubscriptionSchema,
+  httpSchema,
+  loadProjectFileSchema,
+} from './ontimeController.schema.js';
+
+import { projectInfoSchema } from './projectController.schema.js';
+
+import { RouteHandlerMethod } from 'fastify';
+import { Request } from './controller.types.js';
+import { createReadStream, existsSync, readFileSync } from 'fs';
 import { networkInterfaces } from 'os';
 import { join } from 'path';
 
@@ -32,7 +46,7 @@ import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
-export const poll = async (req, res) => {
+export const poll: RouteHandlerMethod = async (req, res) => {
   try {
     const s = eventStore.poll();
     res.status(200).send(s);
@@ -45,17 +59,19 @@ export const poll = async (req, res) => {
 
 // Create controller for GET request to '/ontime/db'
 // Returns -
-export const dbDownload = async (req, res) => {
-  const { title } = DataProvider.getProjectData();
-  const fileTitle = title || 'ontime data';
-
-  res.download(resolveDbPath, `${fileTitle}.json`, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: `Could not download the file: ${err}`,
-      });
-    }
-  });
+export const dbDownload: RouteHandlerMethod = async (req, res) => {
+  try {
+    const { title } = DataProvider.getProjectData();
+    const fileTitle = title || 'ontime data';
+    const stream = createReadStream(resolveDbPath, 'utf-8');
+    res.header('Content-Type', 'application/octet-stream');
+    res.header('Content-Disposition', `attachment; filename="${fileTitle}`);
+    return res.send(stream);
+  } catch (erorr) {
+    res.status(500).send({
+      message: `Could not download the file: ${erorr}`,
+    });
+  }
 };
 
 /**
@@ -66,7 +82,7 @@ export const dbDownload = async (req, res) => {
  * @param options
  */
 async function parseFile(file, _req, _res, options) {
-  if (!fs.existsSync(file)) {
+  if (!existsSync(file)) {
     throw new Error('Upload failed');
   }
   const result = await fileHandler(file, options);
@@ -120,7 +136,8 @@ const getNetworkInterfaces = () => {
 
 // Create controller for GET request to '/ontime/info'
 // Returns -
-export const getInfo = async (req: Request, res: Response<GetInfo>) => {
+//TODO: Response<GetInfo>
+export const getInfo: RouteHandlerMethod = async (req, res) => {
   const { version, serverPort } = DataProvider.getSettings();
   const osc = DataProvider.getOsc();
 
@@ -141,14 +158,14 @@ export const getInfo = async (req: Request, res: Response<GetInfo>) => {
 
 // Create controller for POST request to '/ontime/aliases'
 // Returns -
-export const getAliases = async (req, res) => {
+export const getAliases: RouteHandlerMethod = async (req, res) => {
   const aliases = DataProvider.getAliases();
   res.status(200).send(aliases);
 };
 
 // Create controller for POST request to '/ontime/aliases'
 // Returns ACK message
-export const postAliases = async (req, res) => {
+export const postAliases: RouteHandlerMethod = async (req: Request<typeof aliasesSchema>, res) => {
   if (failIsNotArray(req.body, res)) {
     return;
   }
@@ -170,14 +187,14 @@ export const postAliases = async (req, res) => {
 
 // Create controller for GET request to '/ontime/userfields'
 // Returns -
-export const getUserFields = async (req, res) => {
+export const getUserFields: RouteHandlerMethod = async (req, res) => {
   const userFields = DataProvider.getUserFields();
   res.status(200).send(userFields);
 };
 
 // Create controller for POST request to '/ontime/userfields'
 // Returns ACK message
-export const postUserFields = async (req, res) => {
+export const postUserFields: RouteHandlerMethod = async (req: Request<typeof userFieldsSchema>, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -193,7 +210,7 @@ export const postUserFields = async (req, res) => {
 
 // Create controller for POST request to '/ontime/settings'
 // Returns -
-export const getSettings = async (req, res) => {
+export const getSettings: RouteHandlerMethod = async (req, res) => {
   const settings = DataProvider.getSettings();
   res.status(200).send(settings);
 };
@@ -213,7 +230,7 @@ function extractPin(value: string | undefined | null, fallback: string | null): 
 
 // Create controller for POST request to '/ontime/settings'
 // Returns ACK message
-export const postSettings = async (req, res) => {
+export const postSettings: RouteHandlerMethod = async (req: Request<typeof settingsSchema>, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -223,13 +240,13 @@ export const postSettings = async (req, res) => {
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
     const serverPort = Number(req.body?.serverPort);
     if (isNaN(serverPort)) {
-      return res.status(400).send(`Invalid value found for server port: ${req.body?.serverPort}`);
+      return res.status(400).send({ message: `Invalid value found for server port: ${req.body?.serverPort}` });
     }
 
     const hasChangedPort = settings.serverPort !== serverPort;
 
     if (isDocker && hasChangedPort) {
-      return res.status(403).json({ message: 'Can`t change port when running inside docker' });
+      return res.status(403).send({ message: 'Can`t change port when running inside docker' });
     }
 
     let timeFormat = settings.timeFormat;
@@ -258,16 +275,16 @@ export const postSettings = async (req, res) => {
  * @description Get view Settings
  * @method GET
  */
-export const getViewSettings = async (req, res) => {
+export const getViewSettings: RouteHandlerMethod = async (req, res) => {
   const views = DataProvider.getViewSettings();
   res.status(200).send(views);
 };
 
 /**
- * @description Change view Settings
- * @method POST
+ * @description POST Change view Settings
+ * TODO: what fields are required
  */
-export const postViewSettings = async (req, res) => {
+export const postViewSettings: RouteHandlerMethod = async (req: Request<typeof viewSchema>, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -291,18 +308,14 @@ export const postViewSettings = async (req, res) => {
 
 // Create controller for GET request to '/ontime/osc'
 // Returns -
-export const getOSC = async (req, res) => {
+export const getOSC: RouteHandlerMethod = async (req, res) => {
   const osc = DataProvider.getOsc();
   res.status(200).send(osc);
 };
 
 // Create controller for POST request to '/ontime/osc'
 // Returns ACK message
-export const postOSC = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
+export const postOSC: RouteHandlerMethod = async (req: Request<typeof oscSchema>, res) => {
   try {
     const oscSettings = req.body;
     await DataProvider.setOsc(oscSettings);
@@ -323,11 +336,7 @@ export const postOSC = async (req, res) => {
   }
 };
 
-export const postOscSubscriptions = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
+export const postOscSubscriptions: RouteHandlerMethod = async (req: Request<typeof oscSubscriptionSchema>, res) => {
   try {
     const subscriptions = req.body;
     const oscSettings = DataProvider.getOsc();
@@ -345,17 +354,14 @@ export const postOscSubscriptions = async (req, res) => {
 };
 
 // Create controller for GET request to '/ontime/http'
-export const getHTTP = async (_req, res: Response<HttpSettings>) => {
+//TODO: Response<HttpSettings>
+export const getHTTP: RouteHandlerMethod = async (_req, res) => {
   const http = DataProvider.getHttp();
   res.status(200).send(http);
 };
 
 // Create controller for POST request to '/ontime/http'
-export const postHTTP = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
+export const postHTTP: RouteHandlerMethod = async (req: Request<typeof httpSchema>, res) => {
   try {
     const httpSettings = req.body;
     await DataProvider.setHttp(httpSettings);
@@ -408,7 +414,7 @@ export async function patchPartialProjectFile(req, res) {
 /**
  * uploads, parses and applies the data from a given file
  */
-export const dbUpload = async (req, res) => {
+export const dbUpload: RouteHandlerMethod = async (req: any, res) => {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -448,7 +454,7 @@ export async function previewExcel(req, res) {
  * @param req
  * @param res
  */
-export const postNew: RequestHandler = async (req, res) => {
+export const postNew: RouteHandlerMethod = async (req: Request<typeof projectInfoSchema>, res) => {
   try {
     const newProjectData: ProjectData = {
       title: req.body?.title ?? '',
@@ -471,11 +477,12 @@ export const postNew: RequestHandler = async (req, res) => {
  * @param req
  * @param res
  */
-export const listProjects: RequestHandler = async (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
+//TODO: Response<ProjectFileListResponse | ErrorResponse>
+export const listProjects: RouteHandlerMethod = async (_, res) => {
   try {
     const fileList = await getProjectFiles();
 
-    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+    const lastLoadedProject = JSON.parse(readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
 
     res.status(200).send({
       files: fileList,
@@ -491,14 +498,14 @@ export const listProjects: RequestHandler = async (_, res: Response<ProjectFileL
  * @param req
  * @param res
  */
-export const loadProject: RequestHandler = async (req, res) => {
+export const loadProject: RouteHandlerMethod = async (req: Request<typeof loadProjectFileSchema>, res) => {
   try {
     const filename = req.body.filename;
 
     const uploadsFolderPath = join(getAppDataPath(), 'uploads');
     const filePath = join(uploadsFolderPath, filename);
 
-    if (!fs.existsSync(filePath)) {
+    if (!existsSync(filePath)) {
       return res.status(404).send({ message: 'File not found' });
     }
 

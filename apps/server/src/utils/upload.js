@@ -1,4 +1,6 @@
-import multer from 'multer';
+// import multer from 'multer';
+//TODO: this hase just been a straight replacement, are there some options missing or can it be better
+import multer from 'fastify-multer';
 import path from 'path';
 import fs from 'fs';
 

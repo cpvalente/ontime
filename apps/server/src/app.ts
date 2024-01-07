@@ -6,6 +6,7 @@ import fastifyExpress from '@fastify/express';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import fastifyCompress from '@fastify/compress';
+import fastifyMulter from 'fastify-multer';
 
 // import utils
 import { join, resolve } from 'path';
@@ -46,6 +47,7 @@ if (!isProduction) {
 
 // Create express APP
 const fastify = Fastify({ logger: false });
+fastify.register(fastifyMulter.contentParser);
 const app = express();
 app.disable('x-powered-by');
 
@@ -61,7 +63,7 @@ fastify.use(app);
 // Implement route endpoints
 await fastify.register(rundownRouter, { prefix: '/events' });
 await fastify.register(projectRouter, { prefix: '/project' });
-app.use('/ontime', ontimeRouter);
+await fastify.register(ontimeRouter, { prefix: '/ontime' });
 await fastify.register(apiRouter, { prefix: '/api' });
 
 // serve static - css

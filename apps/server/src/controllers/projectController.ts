@@ -2,7 +2,7 @@ import { RouteHandlerMethod } from 'fastify';
 import { ProjectData } from 'ontime-types';
 
 import { removeUndefined } from '../utils/parserUtils.js';
-import { projectSchema } from '../controllers/projectController.schema.js';
+import { projectInfoSchema } from '../controllers/projectController.schema.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { Request } from './controller.types.js';
 
@@ -12,7 +12,7 @@ export const getProject: RouteHandlerMethod = async (req, res) => {
 };
 
 // Create controller for POST request to 'project'
-export const postProject: RouteHandlerMethod = async (req: Request<typeof projectSchema>, res) => {
+export const postProject: RouteHandlerMethod = async (req: Request<typeof projectInfoSchema>, res) => {
   try {
     const newEvent: Partial<ProjectData> = removeUndefined({
       title: req.body?.title?.trim(),

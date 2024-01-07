@@ -1,4 +1,4 @@
-export const projectSchema = {
+export const projectInfoSchema = {
   body: {
     type: 'object',
     properties: {

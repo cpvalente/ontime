@@ -1,4 +1,5 @@
-import express from 'express';
+import { FastifyRouter } from './router.types.js';
+
 import { uploadFile } from '../utils/upload.js';
 import {
   dbDownload,
@@ -24,84 +25,85 @@ import {
   listProjects,
   loadProject,
 } from '../controllers/ontimeController.js';
-
+import { projectInfoSchema } from '../controllers/projectController.schema.js';
 import {
-  validateAliases,
-  validateOSC,
-  validatePatchProjectFile,
-  validateSettings,
-  validateUserFields,
-  viewValidator,
-  validateHTTP,
-  validateOscSubscription,
-  validateLoadProjectFile,
-} from '../controllers/ontimeController.validate.js';
-import { projectSanitiser } from '../controllers/projectController.validate.js';
+  aliasesSchema,
+  httpSchema,
+  oscSchema,
+  oscSubscriptionSchema,
+  projectPartialSchema,
+  settingsSchema,
+  userFieldsSchema,
+  viewSchema,
+  loadProjectFileSchema,
+} from '../controllers/ontimeController.schema.js';
 
-export const router = express.Router();
+export const router = (fastify: FastifyRouter, _opts, done) => {
+  // create route between controller and '/ontime/sync' endpoint
+  fastify.get('/poll', poll);
 
-// create route between controller and '/ontime/sync' endpoint
-router.get('/poll', poll);
+  // create route between controller and '/ontime/db' endpoint
+  fastify.get('/db', dbDownload);
 
-// create route between controller and '/ontime/db' endpoint
-router.get('/db', dbDownload);
+  // create route between controller and '/ontime/db' endpoint
+  fastify.post('/db', { preHandler: uploadFile }, dbUpload);
 
-// create route between controller and '/ontime/db' endpoint
-router.post('/db', uploadFile, dbUpload);
+  // create route between controller and '/ontime/excel' endpoint
+  fastify.patch('/db', { schema: projectPartialSchema }, patchPartialProjectFile);
 
-// create route between controller and '/ontime/excel' endpoint
-router.patch('/db', validatePatchProjectFile, patchPartialProjectFile);
+  // create route between controller and '/ontime/preview-spreadsheet' endpoint
+  fastify.post('/preview-spreadsheet', { preHandler: uploadFile }, previewExcel);
 
-// create route between controller and '/ontime/preview-spreadsheet' endpoint
-router.post('/preview-spreadsheet', uploadFile, previewExcel);
+  // create route between controller and '/ontime/settings' endpoint
+  fastify.get('/settings', getSettings);
 
-// create route between controller and '/ontime/settings' endpoint
-router.get('/settings', getSettings);
+  // create route between controller and '/ontime/settings' endpoint
+  fastify.post('/settings', { schema: settingsSchema }, postSettings);
 
-// create route between controller and '/ontime/settings' endpoint
-router.post('/settings', validateSettings, postSettings);
+  // create route between controller and '/ontime/views' endpoint
+  fastify.get('/views', getViewSettings);
 
-// create route between controller and '/ontime/views' endpoint
-router.get('/views', getViewSettings);
+  // create route between controller and '/ontime/views' endpoint
+  fastify.post('/views', { schema: viewSchema }, postViewSettings);
 
-// create route between controller and '/ontime/views' endpoint
-router.post('/views', viewValidator, postViewSettings);
+  // create route between controller and '/ontime/aliases' endpoint
+  fastify.get('/aliases', getAliases);
 
-// create route between controller and '/ontime/aliases' endpoint
-router.get('/aliases', getAliases);
+  // create route between controller and '/ontime/aliases' endpoint
+  fastify.post('/aliases', { schema: aliasesSchema }, postAliases);
 
-// create route between controller and '/ontime/aliases' endpoint
-router.post('/aliases', validateAliases, postAliases);
+  // create route between controller and '/ontime/aliases' endpoint
+  fastify.get('/userfields', getUserFields);
 
-// create route between controller and '/ontime/aliases' endpoint
-router.get('/userfields', getUserFields);
+  // create route between controller and '/ontime/aliases' endpoint
+  fastify.post('/userfields', { schema: userFieldsSchema }, postUserFields);
 
-// create route between controller and '/ontime/aliases' endpoint
-router.post('/userfields', validateUserFields, postUserFields);
+  // create route between controller and '/ontime/info' endpoint
+  fastify.get('/info', getInfo);
 
-// create route between controller and '/ontime/info' endpoint
-router.get('/info', getInfo);
+  // create route between controller and '/ontime/osc' endpoint
+  fastify.get('/osc', getOSC);
 
-// create route between controller and '/ontime/osc' endpoint
-router.get('/osc', getOSC);
+  // create route between controller and '/ontime/osc' endpoint
+  fastify.post('/osc', { schema: oscSchema }, postOSC);
 
-// create route between controller and '/ontime/osc' endpoint
-router.post('/osc', validateOSC, postOSC);
+  // create route between controller and '/ontime/osc-subscriptions' endpoint
+  fastify.post('/osc-subscriptions', { schema: oscSubscriptionSchema }, postOscSubscriptions);
 
-// create route between controller and '/ontime/osc-subscriptions' endpoint
-router.post('/osc-subscriptions', validateOscSubscription, postOscSubscriptions);
+  // create route between controller and '/ontime/http' endpoint
+  fastify.get('/http', getHTTP);
 
-// create route between controller and '/ontime/http' endpoint
-router.get('/http', getHTTP);
+  // create route between controller and '/ontime/http' endpoint
+  fastify.post('/http', { schema: httpSchema }, postHTTP);
 
-// create route between controller and '/ontime/http' endpoint
-router.post('/http', validateHTTP, postHTTP);
+  // create route between controller and '/ontime/new' endpoint
+  fastify.post('/new', { schema: projectInfoSchema }, postNew);
 
-// create route between controller and '/ontime/new' endpoint
-router.post('/new', projectSanitiser, postNew);
+  // create route between controller and '/ontime/projects' endpoint
+  fastify.get('/projects', listProjects);
 
-// create route between controller and '/ontime/projects' endpoint
-router.get('/projects', listProjects);
+  // create route between controller and '/ontime/load-project' endpoint
+  fastify.post('/load-project', { schema: loadProjectFileSchema }, loadProject);
 
-// create route between controller and '/ontime/load-project' endpoint
-router.post('/load-project', validateLoadProjectFile, loadProject);
+  done();
+};
