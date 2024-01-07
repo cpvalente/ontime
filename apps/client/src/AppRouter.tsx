@@ -15,7 +15,7 @@ const Countdown = lazy(() => import('./features/viewers/countdown/Countdown'));
 
 const Backstage = lazy(() => import('./features/viewers/backstage/Backstage'));
 const Public = lazy(() => import('./features/viewers/public/Public'));
-const Lower = lazy(() => import('./features/viewers/lower-thirds/LowerWrapper'));
+const Lower = lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = lazy(() => import('./features/viewers/studio/StudioClock'));
 
 const STimer = withAlias(withData(TimerView));
