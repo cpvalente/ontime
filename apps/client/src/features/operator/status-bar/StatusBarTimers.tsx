@@ -6,6 +6,7 @@ import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon'
 import { useTimer } from '../../../common/hooks/useSocket';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
+import SuperscriptTime from '../../viewers/common/superscript-time/SuperscriptTime';
 
 import styles from './StatusBar.module.scss';
 
@@ -31,10 +32,10 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
 
     if (selectedEventId) {
       if (firstId === selectedEventId) {
-        return millisToString(timer.expectedFinish);
+        return formatTime(timer.expectedFinish);
       }
     }
-    return millisToString(firstStart);
+    return formatTime(firstStart);
   };
 
   const getTimeEnd = () => {
@@ -44,10 +45,10 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
 
     if (selectedEventId) {
       if (lastId === selectedEventId) {
-        return millisToString(timer.expectedFinish);
+        return formatTime(timer.expectedFinish);
       }
     }
-    return millisToString(lastEnd);
+    return formatTime(lastEnd);
   };
 
   const PlaybackIconComponent = useMemo(() => {
@@ -57,10 +58,7 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
   }, [playback]);
 
   // use user defined format
-  const timeNow = formatTime(timer.clock, {
-    showSeconds: true,
-  });
-
+  const timeNow = formatTime(timer.clock);
   const runningTime = millisToString(timer.current);
   const elapsedTime = millisToString(timer.elapsed);
 
@@ -69,7 +67,7 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
       {PlaybackIconComponent}
       <div className={styles.timeNow}>
         <span className={styles.label}>Time now</span>
-        <span className={styles.timer}>{timeNow}</span>
+        <SuperscriptTime className={styles.timer} time={timeNow} />
       </div>
       <div className={styles.elapsedTime}>
         <span className={styles.label}>Elapsed time</span>
@@ -83,11 +81,11 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
       <span className={styles.title}>{projectTitle}</span>
       <div className={styles.startTime}>
         <span className={styles.label}>Scheduled start</span>
-        <span className={styles.timer}>{getTimeStart()}</span>
+        <SuperscriptTime className={styles.timer} time={getTimeStart()} />
       </div>
       <div className={styles.endTime}>
         <span className={styles.label}>Scheduled end</span>
-        <span className={styles.timer}>{getTimeEnd()}</span>
+        <SuperscriptTime className={styles.timer} time={getTimeEnd()} />
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
@@ -18,11 +17,6 @@ import { fetchTimerData, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
 
 import './Countdown.scss';
-
-const formatOptionsFinished = {
-  showSeconds: false,
-  format: 'hh:mm a',
-};
 
 interface CountdownProps {
   isMirrored: boolean;
@@ -95,19 +89,13 @@ export default function Countdown(props: CountdownProps) {
   const isSelected = runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
-  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
-  const formatOptions = {
-    showSeconds: !hideSeconds,
-    format: 'hh:mm:ss a',
-  };
-
-  const clock = formatTime(time.clock, formatOptions);
-  const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay, formatOptions);
-  const endTime = follow === null ? '...' : formatTime(follow.timeEnd + delay, formatOptions);
+  const clock = formatTime(time.clock);
+  const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay);
+  const endTime = follow === null ? '...' : formatTime(follow.timeEnd + delay);
 
   const formatTimer = (): string => {
     if (runningMessage === TimerMessage.ended) {
-      return formatTime(runningTimer, formatOptionsFinished);
+      return formatTime(runningTimer, { format12: 'hh:mm a', format24: 'HH:mm' });
     }
     let formattedTime = millisToString(isSelected ? runningTimer : runningTimer + delay);
     if (isSelected || runningMessage === TimerMessage.waiting) {
@@ -117,7 +105,7 @@ export default function Countdown(props: CountdownProps) {
   };
   const formattedTimer = formatTimer();
 
-  const timeOption = getCountdownOptions(settings?.timeFormat ?? '24');
+  const timeOption = getCountdownOptions(settings?.timeFormat);
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>

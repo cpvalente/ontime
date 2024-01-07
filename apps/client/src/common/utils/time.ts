@@ -1,6 +1,7 @@
-import { MaybeNumber, Settings } from 'ontime-types';
+import { MaybeNumber, Settings, TimeFormat } from 'ontime-types';
 import { formatFromMillis } from 'ontime-utils';
 
+import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/apiConstants';
 import { ontimeQueryClient } from '../queryClient';
 
@@ -26,34 +27,37 @@ export const nowInMillis = () => {
  */
 function getFormatFromParams() {
   const params = new URL(document.location.href).searchParams;
-  return params.get('format');
+  return params.get('timeformat');
 }
 
 /**
  * Gets the format options from the applicaton settings
  * @returns a string equivalent to the format, ie: hh:mm:ss a or HH:mm:ss
  */
-export function getFormatFromSettings() {
+export function getFormatFromSettings(): TimeFormat {
   const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);
-  return settings?.timeFormat === '12' ? 'hh:mm:ss a' : 'HH:mm:ss';
+  return settings?.timeFormat ?? '24';
 }
 
-function resolveTimeFormat(fallback: string = 'HH:mm:ss') {
+function resolveTimeFormat(fallback12: string, fallback24: string): string {
+  // if the user has an option, we use that
   const formatFromParams = getFormatFromParams();
   if (formatFromParams) {
     return formatFromParams;
   }
 
+  // otherwise we use the view defined, with respect to the 12-24 hour settings
   const formatFromSettings = getFormatFromSettings();
-  if (formatFromSettings) {
-    return formatFromSettings;
+  if (formatFromSettings === '12') {
+    return fallback12;
   }
 
-  return fallback;
+  return fallback24;
 }
 
 type FormatOptions = {
-  format?: string;
+  format12: string;
+  format24: string;
 };
 
 /**
@@ -73,9 +77,9 @@ export const formatTime = (
     return '...';
   }
 
-  const timeFormat = resolver(options?.format);
-
-  const isNegative = (milliseconds ?? 0) < 0;
+  const timeFormat = resolver(options?.format12 ?? FORMAT_12, options?.format24 ?? FORMAT_24);
   const display = formatFromMillis(Math.abs(milliseconds), timeFormat);
+
+  const isNegative = milliseconds < 0;
   return `${isNegative ? '-' : ''}${display}`;
 };

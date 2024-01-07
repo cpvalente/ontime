@@ -115,7 +115,6 @@ export default function Timer(props: TimerProps) {
       : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
-  const isNegative = stageTimer ?? 0 < 0;
   let display = millisToString(stageTimer, { fallback: '-- : -- : --' });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {
@@ -123,6 +122,7 @@ export default function Timer(props: TimerProps) {
     }
     display = removePrependedZero(display);
     // last unit rounds up in negative timers
+    const isNegative = stageTimer ?? 0 < 0;
     if (isNegative && display === '0') {
       display = '-1';
     }
@@ -142,7 +142,7 @@ export default function Timer(props: TimerProps) {
   const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
-  const timerOptions = getTimerOptions(settings?.timeFormat ?? '24');
+  const timerOptions = getTimerOptions(settings?.timeFormat);
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>

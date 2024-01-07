@@ -21,11 +21,6 @@ interface ClockProps {
   settings: Settings | undefined;
 }
 
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
-
 export default function Clock(props: ClockProps) {
   const { isMirrored, time, viewSettings, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
@@ -122,10 +117,10 @@ export default function Clock(props: ClockProps) {
     }
   }
 
-  const clock = formatTime(time.clock, formatOptions);
+  const clock = formatTime(time.clock);
   const clean = clock.replace('/:/g', '');
 
-  const clockOptions = getClockOptions(settings?.timeFormat ?? '24');
+  const clockOptions = getClockOptions(settings?.timeFormat);
 
   return (
     <div

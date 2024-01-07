@@ -1,10 +1,12 @@
 import { memo, RefObject, SyntheticEvent } from 'react';
+import { millisToString, removePrependedZero } from 'ontime-utils';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import useLongPress from '../../../common/hooks/useLongPress';
 import { useTimer } from '../../../common/hooks/useSocket';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
+import SuperscriptTime from '../../viewers/common/superscript-time/SuperscriptTime';
 import type { EditEvent } from '../Operator';
 
 import style from './OperatorEvent.module.scss';
@@ -22,7 +24,6 @@ interface OperatorEventProps {
   isSelected: boolean;
   subscribed?: string;
   subscribedAlias: string;
-  showSeconds: boolean;
   isPast: boolean;
   selectedRef?: RefObject<HTMLDivElement>;
   onLongPress: (event: EditEvent) => void;
@@ -31,7 +32,7 @@ interface OperatorEventProps {
 // extract this to contain re-renders
 function RollingTime() {
   const timer = useTimer();
-  return <>{formatTime(timer.current, { showSeconds: true, format: 'hh:mm:ss' })}</>;
+  return <>{millisToString(timer.current)}</>;
 }
 
 function OperatorEvent(props: OperatorEventProps) {
@@ -48,7 +49,6 @@ function OperatorEvent(props: OperatorEventProps) {
     isSelected,
     subscribed,
     subscribedAlias,
-    showSeconds,
     isPast,
     selectedRef,
     onLongPress,
@@ -62,8 +62,8 @@ function OperatorEvent(props: OperatorEventProps) {
 
   const mouseHandlers = useLongPress(handleLongPress, { threshold: 800 });
 
-  const start = formatTime(timeStart, { showSeconds });
-  const end = formatTime(timeEnd, { showSeconds });
+  const start = formatTime(timeStart);
+  const end = formatTime(timeEnd);
 
   const cueColours = colour && getAccessibleColour(colour);
 
@@ -82,13 +82,15 @@ function OperatorEvent(props: OperatorEventProps) {
 
       <span className={style.mainField}>{main}</span>
       <span className={style.schedule}>
-        {start} - {end}
+        <SuperscriptTime time={start} />
+        -
+        <SuperscriptTime time={end} />
       </span>
 
       <span className={style.secondaryField}>{secondary}</span>
       <span className={style.running}>
         <DelayIndicator delayValue={delay} />
-        {isSelected ? <RollingTime /> : formatTime(duration, { showSeconds: true, format: 'hh:mm:ss' })}
+        {isSelected ? <RollingTime /> : <SuperscriptTime time={removePrependedZero(millisToString(duration))} />}
       </span>
 
       <div className={style.fields}>

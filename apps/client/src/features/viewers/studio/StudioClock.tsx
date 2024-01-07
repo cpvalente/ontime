@@ -34,6 +34,7 @@ interface StudioClockProps {
 export default function StudioClock(props: StudioClockProps) {
   const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings, settings } = props;
 
+  // TODO: can we prevent the Flash of Unstyled Content on the 7segment fonts?
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
@@ -50,13 +51,9 @@ export default function StudioClock(props: StudioClockProps) {
     document.title = 'ontime - Studio Clock';
   }, []);
 
-  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
-  const formatOptions = {
-    showSeconds: !hideSeconds,
-    format: 'hh:mm:ss',
-  };
-
-  let clock = formatTime(time.clock, formatOptions);
+  // TODO: hide seconds
+  const hideSeconds = isStringBoolean(searchParams.get('hideTimerSeconds'));
+  let clock = formatTime(time.clock);
   let hasAmPm = '';
   if (clock.includes('AM')) {
     clock = clock.replace('PM', '');
@@ -70,7 +67,7 @@ export default function StudioClock(props: StudioClockProps) {
   const isNegative = (time.current ?? 0) < 0;
   const isPaused = time.playback === Playback.Pause;
 
-  const studioClockOptions = getStudioClockOptions(settings?.timeFormat ?? '24');
+  const studioClockOptions = getStudioClockOptions(settings?.timeFormat);
 
   const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
   const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
@@ -95,7 +92,6 @@ export default function StudioClock(props: StudioClockProps) {
             next-countdown ${isNegative ? ' next-countdown--overtime' : ''} ${isPaused ? ' next-countdown--paused' : ''}
           `}
         >
-          {isNegative ? '-' : ''}
           {timer}
         </div>
         <div className='clock-indicators'>
@@ -128,7 +124,7 @@ export default function StudioClock(props: StudioClockProps) {
         </div>
         <ul className='schedule'>
           {trimmedRundown.map((event) => {
-            const start = formatTime(event.timeStart + (event?.delay ?? 0));
+            const start = formatTime(event.timeStart + (event?.delay ?? 0), { format12: 'h:mm a', format24: 'HH:mm' });
             const isSelected = event.id === selectedId;
             const isNext = event.id === nextId;
             const classes = `schedule__item schedule__item${isSelected ? '--now' : isNext ? '--next' : '--future'}`;
