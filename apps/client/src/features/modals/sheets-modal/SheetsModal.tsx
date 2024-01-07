@@ -450,7 +450,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                 Go Back
               </Button>
               <Button variant='ontime-filled' padding='0 2em' onClick={handlePullData}>
-                Review
+                Preview
               </Button>
             </div>
           ) : (
