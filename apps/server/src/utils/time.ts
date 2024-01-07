@@ -103,15 +103,3 @@ export const parseExcelDate = (excelDate: unknown): number => {
 
   return 0;
 };
-
-/**
- * @description Converts milliseconds to seconds -- Copied from client code
- * @param {number | null} millis - time in seconds
- * @returns {number} Amount in seconds
- */
-export const millisToSeconds = (millis: number | null): number => {
-  if (millis === null) {
-    return 0;
-  }
-  return millis < 0 ? Math.ceil(millis / mts) : Math.floor(millis / mts);
-};

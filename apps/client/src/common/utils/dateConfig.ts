@@ -1,37 +1,10 @@
 import { formatFromMillis } from 'ontime-utils';
 
+// TODO: remove duplicate stuff
 import { mth, mtm, mts } from './timeConstants';
 
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
-
-export function secondsInMillis(millis: number | null) {
-  if (!millis) {
-    return 0;
-  }
-  return Math.floor((millis % mtm) / mts);
-}
-
-/**
- * @description Converts milliseconds to seconds
- * @param {number | null} millis - time in seconds
- * @returns {number} Amount in seconds
- */
-export const millisToSeconds = (millis: number | null): number => {
-  if (millis === null) {
-    return 0;
-  }
-  return millis < 0 ? Math.ceil(millis / mts) : Math.floor(millis / mts);
-};
-
-/**
- * @description Converts milliseconds to seconds
- * @param {number} millis - time in milliseconds
- * @returns {number} Amount in seconds
- */
-export const millisToMinutes = (millis: number): number => {
-  return millis < 0 ? Math.ceil(millis / mtm) : Math.floor(millis / mtm);
-};
 
 /**
  * @description safe parse string to int

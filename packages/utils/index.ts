@@ -11,9 +11,17 @@ export { generateId } from './src/generate-id/generateId.js';
 export { swapOntimeEvents } from './src/rundown-utils/rundownUtils.js';
 
 // format utils
+export {
+  MILLIS_PER_HOUR,
+  MILLIS_PER_MINUTE,
+  MILLIS_PER_SECOND,
+  millisToHours,
+  millisToMinutes,
+  millisToSeconds,
+} from './src/date-utils/conversionUtils.js';
 export { formatFromMillis } from './src/date-utils/formatFromMillis.js';
 export { isTimeString } from './src/date-utils/isTimeString.js';
-export { millisToString } from './src/date-utils/millisToString.js';
+export { millisToString, removePrependedZero, removeSeconds } from './src/date-utils/timeFormatting.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 
 // time utils
