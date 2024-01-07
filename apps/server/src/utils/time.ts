@@ -87,7 +87,6 @@ export const forgivingStringToMillis = (value: string, fillLeft = true): number 
  * @description Parses an excel date using the correct parser
  * @param {string} excelDate
  * @returns {number} - time in milliseconds
-
  */
 export const parseExcelDate = (excelDate: unknown): number => {
   if (excelDate instanceof Date) {

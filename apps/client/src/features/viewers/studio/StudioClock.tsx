@@ -11,12 +11,11 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { secondsInMillis } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
-import { trimRundown } from './studioClock.utils';
+import { secondsInMillis, trimRundown } from './studioClock.utils';
 
 import './StudioClock.scss';
 

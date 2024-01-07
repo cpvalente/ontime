@@ -1,5 +1,5 @@
-import { Settings } from 'ontime-types';
-import { formatFromMillis, millisToString } from 'ontime-utils';
+import { MaybeNumber, Settings } from 'ontime-types';
+import { formatFromMillis } from 'ontime-utils';
 
 import { APP_SETTINGS } from '../api/apiConstants';
 import { ontimeQueryClient } from '../queryClient';
@@ -22,45 +22,60 @@ export const nowInMillis = () => {
 
 /**
  * @description Resolves format from url and store
- * @return {string|undefined}
+ * @return {string|null} A format string like "hh:mm:ss a" or null
  */
-export const resolveTimeFormat = () => {
+function getFormatFromParams() {
   const params = new URL(document.location.href).searchParams;
-  const urlOptions = params.get('format');
-  const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);
+  return params.get('format');
+}
 
-  return urlOptions || settings?.timeFormat;
-};
+/**
+ * Gets the format options from the applicaton settings
+ * @returns a string equivalent to the format, ie: hh:mm:ss a or HH:mm:ss
+ */
+export function getFormatFromSettings() {
+  const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);
+  return settings?.timeFormat === '12' ? 'hh:mm:ss a' : 'HH:mm:ss';
+}
+
+function resolveTimeFormat(fallback: string = 'HH:mm:ss') {
+  const formatFromParams = getFormatFromParams();
+  if (formatFromParams) {
+    return formatFromParams;
+  }
+
+  const formatFromSettings = getFormatFromSettings();
+  if (formatFromSettings) {
+    return formatFromSettings;
+  }
+
+  return fallback;
+}
 
 type FormatOptions = {
-  showSeconds?: boolean;
   format?: string;
 };
 
 /**
  * @description utility function to format a date in 12 or 24 hour format
- * @param {number | null} milliseconds
+ * @param {MaybeNumber} milliseconds
  * @param {object} [options]
- * @param {boolean} [options.showSeconds]
  * @param {string} [options.format]
- * @param {function} resolver
+ * @param {function} resolver DI for testing
  * @return {string}
  */
 export const formatTime = (
-  milliseconds: number | null,
+  milliseconds: MaybeNumber,
   options?: FormatOptions,
   resolver = resolveTimeFormat,
 ): string => {
   if (milliseconds === null) {
     return '...';
   }
-  const timeFormat = resolver();
-  const fallback = options?.showSeconds ? 'hh:mm:ss a' : 'hh:mm a';
-  const { showSeconds = false, format: formatString = fallback } = options || {};
+
+  const timeFormat = resolver(options?.format);
+
   const isNegative = (milliseconds ?? 0) < 0;
-  const display =
-    timeFormat === '12'
-      ? formatFromMillis(Math.abs(milliseconds), formatString)
-      : millisToString(Math.abs(milliseconds), showSeconds);
+  const display = formatFromMillis(Math.abs(milliseconds), timeFormat);
   return `${isNegative ? '-' : ''}${display}`;
 };

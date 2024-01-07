@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message, OntimeEvent, Playback, Settings, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { millisToString, removePrependedZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -15,7 +16,7 @@ import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { getTimerByType, removePrependedZero } from '../common/viewerUtils';
+import { getTimerByType } from '../common/viewerUtils';
 
 import './Timer.scss';
 
@@ -85,10 +86,7 @@ export default function Timer(props: TimerProps) {
 
   const hideClockSeconds = searchParams.get('hideClockSeconds');
   userOptions.hideClockSeconds = isStringBoolean(hideClockSeconds);
-  const clock = formatTime(time.clock, {
-    showSeconds: !userOptions.hideClockSeconds,
-    format: 'hh:mm:ss a',
-  });
+  const clock = formatTime(time.clock);
 
   const hideTimerSeconds = searchParams.get('hideTimerSeconds');
   userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
@@ -117,13 +115,17 @@ export default function Timer(props: TimerProps) {
       : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
-  let display = '-- : -- : --';
+  const isNegative = stageTimer ?? 0 < 0;
+  let display = millisToString(stageTimer, { fallback: '-- : -- : --' });
   if (stageTimer !== null) {
-    display = formatTime(stageTimer, {
-      showSeconds: !userOptions.hideTimerSeconds,
-      format: 'hh:mm:ss a',
-    });
+    if (hideTimerSeconds) {
+      display = removeSeconds(display);
+    }
     display = removePrependedZero(display);
+    // last unit rounds up in negative timers
+    if (isNegative && display === '0') {
+      display = '-1';
+    }
     if (display.length < 3) {
       display = `${display} ${getLocalizedString('common.minutes')}`;
     }

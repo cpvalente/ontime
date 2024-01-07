@@ -1,3 +1,5 @@
+import { MaybeNumber } from 'ontime-types';
+
 import { millisToHours, millisToMinutes, millisToSeconds } from './conversionUtils.js';
 
 /**
@@ -12,11 +14,16 @@ function pad(val: number): string {
   return String(val).padStart(2, '0');
 }
 
-type MaybeNumber = number | null;
 type FormatOptions = {
   fallback?: string;
 };
 
+/**
+ * Converts a value in milliseconds to its time tag
+ * @param millis time to convert
+ * @param options optional overloads for format
+ * @returns formatted time such as 12:00:00
+ */
 export function millisToString(millis?: MaybeNumber, options?: FormatOptions): string {
   if (millis == null) {
     return options?.fallback ?? '...';

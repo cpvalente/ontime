@@ -2,14 +2,16 @@ import { TimeFormat, UserFields } from 'ontime-types';
 
 import { ParamField } from './types';
 
-const getTimeOption = (timeFormat: TimeFormat): ParamField => ({
-  id: 'format',
-  title: '12  / 24 hour timer',
-  description: 'Whether to show the time in 12 or 24 hour mode. Overrides the global setting from preferences',
-  type: 'option',
-  values: { '12': '12 hour AM/PM', '24': '24 hour' },
-  defaultValue: timeFormat,
-});
+const getTimeOption = (timeFormat: string): ParamField => {
+  const placeholder = `${timeFormat} from settings`;
+  return {
+    id: 'format',
+    title: 'Time format string',
+    description: 'Format for auxiliar time fields (not the running), eg. HH:mm:ss or hh:mm:ss a, see docs for help',
+    type: 'string',
+    placeholder,
+  };
+};
 
 const hideClockSeconds: ParamField = {
   id: 'hideClockSeconds',
