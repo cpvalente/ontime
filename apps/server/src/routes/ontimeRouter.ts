@@ -22,12 +22,12 @@ import {
   previewExcel,
   postHTTP,
   getAuthenticationUrl,
-  uploadSheetClientFile,
+  uploadSheetClientFile as uploadClientSecret,
   pullSheet,
   pushSheet,
   postId,
   getAuthentication,
-  getClientSecrect,
+  getClientSecrect as getClientSecret,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -108,8 +108,8 @@ router.post('/http', validateHTTP, postHTTP);
 router.post('/new', projectSanitiser, postNew);
 
 //SETP-1
-router.post('/sheet/clientsecrect', uploadFile, uploadSheetClientFile);
-router.get('/sheet/clientsecrect', uploadFile, getClientSecrect);
+router.post('/sheet/clientsecret', uploadFile, uploadClientSecret);
+router.get('/sheet/clientsecret', uploadFile, getClientSecret);
 
 //SETP-2
 router.get('/sheet/authentication/url', getAuthenticationUrl);

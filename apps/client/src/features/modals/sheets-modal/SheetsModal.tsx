@@ -66,19 +66,19 @@ export default function SheetsModal(props: SheetsModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [state, setState] = useState({
-    clientSecret: { complet: false, message: '' },
-    authenticate: { complet: false, message: '' },
-    id: { complet: false, message: '' },
-    worksheet: { complet: false, message: '' },
-    pullPush: { complet: false, message: '' },
+    clientSecret: { complete: false, message: '' },
+    authenticate: { complete: false, message: '' },
+    id: { complete: false, message: '' },
+    worksheet: { complete: false, message: '' },
+    pullPush: { complete: false, message: '' },
   });
 
   useEffect(() => {
     if (isOpen) {
       setDirection('none');
-      testClientSecrect();
-      if (state.clientSecret.complet) testAuthentication();
-      if (state.authenticate.complet) testSheetId();
+      testClientSecret();
+      if (state.clientSecret.complete) testAuthentication();
+      if (state.authenticate.complete) testSheetId();
     }
   }, [isOpen]);
 
@@ -97,44 +97,44 @@ export default function SheetsModal(props: SheetsModalProps) {
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
       setState({
-        clientSecret: { complet: false, message: 'Missing file' },
-        authenticate: { complet: false, message: '' },
-        id: { complet: false, message: '' },
-        worksheet: { complet: false, message: '' },
-        pullPush: { complet: false, message: '' },
+        clientSecret: { complete: false, message: 'Missing file' },
+        authenticate: { complete: false, message: '' },
+        id: { complete: false, message: '' },
+        worksheet: { complete: false, message: '' },
+        pullPush: { complete: false, message: '' },
       });
       return;
     }
     const selectedFile = event.target.files[0];
     uploadSheetClientFile(selectedFile)
       .then(() => {
-        setState({ ...state, clientSecret: { complet: true, message: '' } });
+        setState({ ...state, clientSecret: { complete: true, message: '' } });
       })
       .catch((err) => {
         const message = maybeAxiosError(err);
         setState({
-          clientSecret: { complet: false, message },
-          authenticate: { complet: false, message: '' },
-          id: { complet: false, message: '' },
-          worksheet: { complet: false, message: '' },
-          pullPush: { complet: false, message: '' },
+          clientSecret: { complete: false, message },
+          authenticate: { complete: false, message: '' },
+          id: { complete: false, message: '' },
+          worksheet: { complete: false, message: '' },
+          pullPush: { complete: false, message: '' },
         });
       });
   };
 
-  const testClientSecrect = () => {
+  const testClientSecret = () => {
     getClientSecrect()
       .then(() => {
-        setState({ ...state, clientSecret: { complet: true, message: '' } });
+        setState({ ...state, clientSecret: { complete: true, message: '' } });
       })
       .catch((err) => {
         const message = maybeAxiosError(err);
         setState({
-          clientSecret: { complet: false, message },
-          authenticate: { complet: false, message: '' },
-          id: { complet: false, message: '' },
-          worksheet: { complet: false, message: '' },
-          pullPush: { complet: false, message: '' },
+          clientSecret: { complete: false, message },
+          authenticate: { complete: false, message: '' },
+          id: { complete: false, message: '' },
+          worksheet: { complete: false, message: '' },
+          pullPush: { complete: false, message: '' },
         });
       });
   };
@@ -150,10 +150,10 @@ export default function SheetsModal(props: SheetsModalProps) {
         const message = maybeAxiosError(err);
         setState({
           ...state,
-          authenticate: { complet: false, message },
-          id: { complet: false, message: '' },
-          worksheet: { complet: false, message: '' },
-          pullPush: { complet: false, message: '' },
+          authenticate: { complete: false, message },
+          id: { complete: false, message: '' },
+          worksheet: { complete: false, message: '' },
+          pullPush: { complete: false, message: '' },
         });
       });
   };
@@ -161,16 +161,16 @@ export default function SheetsModal(props: SheetsModalProps) {
   const testAuthentication = () => {
     getAuthentication()
       .then(() => {
-        setState({ ...state, authenticate: { complet: true, message: '' } });
+        setState({ ...state, authenticate: { complete: true, message: '' } });
       })
       .catch((error) => {
         const message = maybeAxiosError(error);
         setState({
           ...state,
-          authenticate: { complet: false, message },
-          id: { complet: false, message: '' },
-          worksheet: { complet: false, message: '' },
-          pullPush: { complet: false, message: '' },
+          authenticate: { complete: false, message },
+          id: { complete: false, message: '' },
+          worksheet: { complete: false, message: '' },
+          pullPush: { complete: false, message: '' },
         });
       });
   };
@@ -179,16 +179,16 @@ export default function SheetsModal(props: SheetsModalProps) {
   const testSheetId = () => {
     postId(id)
       .then((data) => {
-        setState({ ...state, id: { complet: true, message: '' } });
+        setState({ ...state, id: { complete: true, message: '' } });
         setWorksheetOptions(data.worksheetOptions);
       })
       .catch((err) => {
         const message = maybeAxiosError(err);
         setState({
           ...state,
-          id: { complet: false, message },
-          worksheet: { complet: false, message: '' },
-          pullPush: { complet: false, message: '' },
+          id: { complete: false, message },
+          worksheet: { complete: false, message: '' },
+          pullPush: { complete: false, message: '' },
         });
         setWorksheetOptions([]);
       });
@@ -200,11 +200,11 @@ export default function SheetsModal(props: SheetsModalProps) {
     setWorksheet(value);
     postWorksheet(id, worksheet)
       .then(() => {
-        setState({ ...state, worksheet: { complet: true, message: '' } });
+        setState({ ...state, worksheet: { complete: true, message: '' } });
       })
       .catch((err) => {
         const message = maybeAxiosError(err);
-        setState({ ...state, worksheet: { complet: false, message }, pullPush: { complet: false, message: '' } });
+        setState({ ...state, worksheet: { complete: false, message }, pullPush: { complete: false, message: '' } });
       });
   };
 
@@ -225,7 +225,7 @@ export default function SheetsModal(props: SheetsModalProps) {
       .catch((error) => {
         const message = maybeAxiosError(error);
         setDirection('none');
-        setState({ ...state, pullPush: { complet: false, message } });
+        setState({ ...state, pullPush: { complete: false, message } });
       });
   };
 
@@ -233,7 +233,7 @@ export default function SheetsModal(props: SheetsModalProps) {
     postPushSheet(id, excelFileOptions.current).catch((error) => {
       const message = maybeAxiosError(error);
       setDirection('none');
-      setState({ ...state, pullPush: { complet: false, message } });
+      setState({ ...state, pullPush: { complete: false, message } });
     });
   };
 
@@ -297,7 +297,7 @@ export default function SheetsModal(props: SheetsModalProps) {
               <>
                 <Step
                   title='1 - Upload OAuth 2.0 Client ID'
-                  completed={state.clientSecret.complet}
+                  completed={state.clientSecret.complete}
                   disabled={false}
                   error={state.clientSecret.message}
                 >
@@ -311,9 +311,9 @@ export default function SheetsModal(props: SheetsModalProps) {
                   />
                   <div style={{ display: 'flex', gap: '1em' }}>
                     <Button size='sm' variant='ontime-subtle-on-light' onClick={handleClick}>
-                      {state.clientSecret.complet ? 'Reupload Client ID' : 'Upload Client ID'}
+                      {state.clientSecret.complete ? 'Reupload Client ID' : 'Upload Client ID'}
                     </Button>
-                    <Button size='sm' variant='ontime-ghosted-on-light' onClick={testClientSecrect}>
+                    <Button size='sm' variant='ontime-ghosted-on-light' onClick={testClientSecret}>
                       Retry Client ID
                     </Button>
                   </div>
@@ -321,8 +321,8 @@ export default function SheetsModal(props: SheetsModalProps) {
 
                 <Step
                   title='2 - Authenticate with Google'
-                  completed={state.authenticate.complet}
-                  disabled={!state.clientSecret.complet}
+                  completed={state.authenticate.complete}
+                  disabled={!state.clientSecret.complete}
                   error={state.authenticate.message}
                 >
                   <div style={{ display: 'flex', gap: '1em' }}>
@@ -330,7 +330,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                       size='sm'
                       variant='ontime-subtle-on-light'
                       onClick={handleAuthenticate}
-                      isDisabled={!state.clientSecret.complet}
+                      isDisabled={!state.clientSecret.complete}
                     >
                       Authenticate
                     </Button>
@@ -338,7 +338,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                       size='sm'
                       variant='ontime-ghosted-on-light'
                       onClick={testAuthentication}
-                      isDisabled={!state.clientSecret.complet}
+                      isDisabled={!state.clientSecret.complete}
                     >
                       Retry Connection
                     </Button>
@@ -347,8 +347,8 @@ export default function SheetsModal(props: SheetsModalProps) {
 
                 <Step
                   title='3 - Add Document ID'
-                  completed={state.id.complet}
-                  disabled={!state.authenticate.complet}
+                  completed={state.id.complete}
+                  disabled={!state.authenticate.complete}
                   error={state.id.message}
                 >
                   <HStack>
@@ -356,7 +356,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                       type='text'
                       size='sm'
                       variant='ontime-filled-on-light'
-                      disabled={!state.authenticate.complet}
+                      disabled={!state.authenticate.complete}
                       value={id}
                       onChange={(event) => setSheetId(event.target.value)}
                     />
@@ -368,7 +368,7 @@ export default function SheetsModal(props: SheetsModalProps) {
 
                 <Step
                   title='4 - Select Worksheet to import'
-                  completed={state.worksheet.complet}
+                  completed={state.worksheet.complete}
                   disabled={worksheetOptions.length == 0}
                 >
                   <Select
@@ -386,10 +386,10 @@ export default function SheetsModal(props: SheetsModalProps) {
                   </Select>
                 </Step>
 
-                <Step title='5 - Upload / Download rundown' completed={false} disabled={!state.worksheet.complet}>
+                <Step title='5 - Upload / Download rundown' completed={false} disabled={!state.worksheet.complete}>
                   <div style={{ display: 'flex', gap: '1em' }}>
                     <Button
-                      disabled={!state.worksheet.complet}
+                      disabled={!state.worksheet.complete}
                       variant='ontime-subtle-on-light'
                       padding='0 2em'
                       onClick={() => setDirection('up')}
@@ -397,7 +397,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                       Upload
                     </Button>
                     <Button
-                      disabled={!state.worksheet.complet}
+                      disabled={!state.worksheet.complete}
                       variant='ontime-subtle-on-light'
                       padding='0 2em'
                       onClick={() => setDirection('down')}

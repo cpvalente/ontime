@@ -485,7 +485,7 @@ export async function uploadSheetClientFile(req, res) {
  */
 export const getClientSecrect = async (req, res) => {
   try {
-    const clientSecrectExists = await sheet.testClientSecrect();
+    const clientSecrectExists = await sheet.testClientSecret();
     if (clientSecrectExists) {
       res.status(200).send();
     } else {

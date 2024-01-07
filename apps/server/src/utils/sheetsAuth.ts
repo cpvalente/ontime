@@ -81,7 +81,7 @@ class Sheet {
   /**
    * @description SETP 1 - test that the saved object is pressent
    */
-  testClientSecrect() {
+  testClientSecret() {
     return Sheet.clientSecret !== null;
   }
 
@@ -197,7 +197,7 @@ class Sheet {
       if (ref.credentials.expiry_date > 10000) {
         return true;
       } else {
-        throw new Error('Unable to use accese token');
+        throw new Error('Unable to use access token');
       }
     } else {
       throw new Error('Unable to authenticate');
