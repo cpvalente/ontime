@@ -9,6 +9,7 @@
   cursor: pointer;
   transition-property: color;
   transition-duration: $transition-time-action;
+  white-space: nowrap;
 
   &:hover {
     color: $ontime-color;

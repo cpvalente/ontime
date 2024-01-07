@@ -19,7 +19,7 @@ export type ProjectFile = {
   updatedAt: string;
 };
 
-export type ProjectFileList = Array<ProjectFile>;
+export type ProjectFileList = ProjectFile[];
 
 export type ProjectFileListResponse = {
   files: ProjectFileList;

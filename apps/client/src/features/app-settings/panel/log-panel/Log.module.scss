@@ -1,20 +1,19 @@
-@use '../../theme/v2Styles' as *;
-@use '../../theme/mixins' as *;
+@use '../../../../theme/ontimeColours' as *;
+@use '../../../../theme/v2Styles' as *;
 
 $info-gray: $secondary-text-gray;
 $info-hover: $section-white;
 
 .log {
-  flex: 1;
-  height: 100%;
-  overflow-y: scroll;
-  font-size: 0.8em;
+  font-size: $inner-section-text-size;
+  overflow-y: auto;
   user-select: text;
+  min-height: 10vh;
+  max-height: 40vh;
 }
 
 .logEntry {
   display: flex;
-  margin-bottom: 2px;
 
   &.INFO {
     color: $info-gray;
@@ -33,7 +32,7 @@ $info-hover: $section-white;
   }
 
   .time {
-    width: 4.5em
+    width: 4.5em;
   }
 
   .origin {
@@ -48,7 +47,7 @@ $info-hover: $section-white;
 .buttonBar {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.5rem;
   justify-content: flex-start;
-  margin-bottom: 8px;
+  padding-bottom: 0.5rem;
 }

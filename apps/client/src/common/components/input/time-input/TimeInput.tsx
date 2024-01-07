@@ -14,24 +14,12 @@ interface TimeInputProps {
   time?: number;
   delay?: number;
   placeholder: string;
-  validationHandler: (entry: TimeEntryField, val: number) => boolean;
   previousEnd?: number;
-  warning?: string;
   className?: string;
 }
 
 export default function TimeInput(props: TimeInputProps) {
-  const {
-    id,
-    name,
-    submitHandler,
-    time = 0,
-    delay = 0,
-    placeholder,
-    validationHandler,
-    previousEnd = 0,
-    className = '',
-  } = props;
+  const { id, name, submitHandler, time = 0, delay = 0, placeholder, previousEnd = 0, className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -87,15 +75,12 @@ export default function TimeInput(props: TimeInputProps) {
       // check if time is different from before
       if (newValMillis === time) return false;
 
-      // validate with parent
-      if (!validationHandler(name, newValMillis)) return false;
-
       // update entry
       submitHandler(name, newValMillis);
 
       return true;
     },
-    [name, previousEnd, submitHandler, time, validationHandler],
+    [name, previousEnd, submitHandler, time],
   );
 
   /**

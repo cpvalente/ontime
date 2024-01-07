@@ -1,9 +1,13 @@
 import { body, check, validationResult } from 'express-validator';
+import { join } from 'path';
+import { existsSync } from 'fs';
+
 import {
   validateHttpSubscriptionObject,
   validateOscSubscriptionObject,
   validateOscSubscriptionCycle,
 } from '../utils/parserFunctions.js';
+import { uploadsFolderPath } from '../setup.js';
 
 /**
  * @description Validates object for POST /ontime/views
@@ -166,3 +170,99 @@ export const validateLoadProjectFile = [
     next();
   },
 ];
+
+/**
+ * @description Validates the filenames for duplicating a project.
+ */
+export const validateProjectDuplicate = [
+  body('newFilename')
+    .exists()
+    .withMessage('New project filename is required')
+    .isString()
+    .withMessage('New project filename must be a string')
+    .isLength({ min: 1, max: 255 })
+    .withMessage('New project filename must be between 1 and 255 characters'),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
+];
+
+/**
+ * @description Validates the filenames for renaming a project.
+ */
+export const validateProjectRename = [
+  body('newFilename')
+    .exists()
+    .withMessage('Duplicate project filename is required')
+    .isString()
+    .withMessage('Duplicate project filename must be a string')
+    .isLength({ min: 1, max: 255 })
+    .withMessage('Duplicate project filename must be between 1 and 255 characters'),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
+];
+
+/**
+ * @description Validates the filename for creating a project file.
+ */
+export const validateProjectCreate = [
+  body('filename')
+    .exists()
+    .withMessage('Filename is required')
+    .isString()
+    .withMessage('Filename must be a string')
+    .isLength({ min: 1, max: 255 })
+    .withMessage('Filename must be between 1 and 255 characters'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
+];
+
+/**
+ * @description Validates the existence of project files.
+ * @param {object} projectFiles
+ * @param {string} projectFiles.projectFilename
+ * @param {string} projectFiles.newFilename
+ *
+ * @returns {Promise<Array<string>>} Array of errors
+ *
+ */
+export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
+  const errors = [];
+
+  if (projectFiles.filename) {
+    const projectFilePath = join(uploadsFolderPath, projectFiles.filename);
+
+    if (!existsSync(projectFilePath)) {
+      errors.push('Project file does not exist');
+    }
+  }
+
+  if (projectFiles.newFilename) {
+    const projectFilePath = join(uploadsFolderPath, projectFiles.newFilename);
+
+    if (existsSync(projectFilePath)) {
+      errors.push('New project file already exists');
+    }
+  }
+
+  return errors;
+};

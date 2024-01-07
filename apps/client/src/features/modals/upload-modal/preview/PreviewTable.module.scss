@@ -1,4 +1,4 @@
-@use "../../../../theme/_ontimeColours" as *;
+@use '../../../../theme/_ontimeColours' as *;
 
 .container {
   max-width: 100%;
@@ -9,6 +9,14 @@
 .rundownPreview {
   font-size: calc(1rem - 2px);
   overflow-x: scroll;
+  tr td:first-child,
+  tr th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: white;
+    box-shadow: 1px 0 $gray-50;
+  }
 }
 
 .header,
@@ -59,13 +67,4 @@
     padding: 0.25em 0.25em;
     background-color: $gray-50;
   }
-}
-
-table tr td:first-child,
-table tr th:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 2;
-  background-color: white;
-  box-shadow: 1px 0 $gray-50;
 }

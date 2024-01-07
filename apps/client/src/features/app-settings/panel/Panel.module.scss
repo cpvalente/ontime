@@ -10,7 +10,11 @@
 
 .subheader {
   font-size: 1.25rem;
+  padding-bottom: 0.25rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .section {
@@ -34,4 +38,30 @@
   font-size: $inner-section-text-size;
   display: block;
   color: $error-red;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: calc(1rem - 2px);
+  text-align: left;
+
+  tr {
+    padding: 1rem 0;
+  }
+
+  th {
+    border-bottom: 1px solid $white-10;
+    font-weight: 400;
+    color: $gray-400;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+  }
+
+  tr:nth-child(even) {
+    background-color: $white-1;
+  }
 }

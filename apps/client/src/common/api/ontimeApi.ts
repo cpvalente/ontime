@@ -8,6 +8,7 @@ import {
   OSCSettings,
   OscSubscription,
   ProjectData,
+  ProjectFileListResponse,
   Settings,
   UserFields,
   ViewSettings,
@@ -242,6 +243,17 @@ export async function getLatestVersion(): Promise<HasUpdate> {
   };
 }
 
+/**
+ * @description HTTP POST request to create a new project file with given project data
+ */
 export async function postNew(initialData: Partial<ProjectData>) {
   return axios.post(`${ontimeURL}/new`, initialData);
+}
+
+/**
+ * @description HTTP request to get the list of available project files
+ */
+export async function getProjects(): Promise<ProjectFileListResponse> {
+  const res = await axios.get(`${ontimeURL}/projects`);
+  return res.data;
 }

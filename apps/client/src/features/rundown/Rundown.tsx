@@ -215,7 +215,9 @@ export default function Rundown(props: RundownProps) {
               if (index === 0) {
                 eventIndex = 0;
               }
+              let isFirstEvent = false;
               if (entry.type === SupportedEvent.Event) {
+                isFirstEvent = eventIndex === 0;
                 eventIndex++;
                 previousEnd = thisEnd;
                 thisEnd = entry.timeEnd;
@@ -237,6 +239,7 @@ export default function Rundown(props: RundownProps) {
                       <RundownEntry
                         type={entry.type}
                         isPast={isPast}
+                        isFirstEvent={isFirstEvent}
                         data={entry}
                         selected={isSelected}
                         hasCursor={hasCursor}

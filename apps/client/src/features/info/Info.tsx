@@ -1,14 +1,10 @@
 import { useInfoPanel } from '../../common/hooks/useSocket';
-import { useEditorSettings } from '../../common/stores/editorSettings';
 
 import CollapsableInfo from './CollapsableInfo';
-import InfoLogger from './InfoLogger';
-import InfoNif from './InfoNif';
 import InfoTitles from './InfoTitles';
 
 export default function Info() {
   const data = useInfoPanel();
-  const showNif = useEditorSettings((state) => state.eventSettings.showNif);
 
   const titlesNow = {
     title: data.eventNow?.title || '',
@@ -26,19 +22,11 @@ export default function Info() {
 
   return (
     <>
-      {showNif && (
-        <CollapsableInfo title='Network Info'>
-          <InfoNif />
-        </CollapsableInfo>
-      )}
       <CollapsableInfo title='Playing Now'>
         <InfoTitles data={titlesNow} />
       </CollapsableInfo>
       <CollapsableInfo title='Playing Next'>
         <InfoTitles data={titlesNext} />
-      </CollapsableInfo>
-      <CollapsableInfo title='Log'>
-        <InfoLogger />
       </CollapsableInfo>
     </>
   );

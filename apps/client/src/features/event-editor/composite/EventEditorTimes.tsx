@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
@@ -8,7 +8,6 @@ import TimeInputWithButton from '../../../common/components/input/time-input/Tim
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
-import { TimeEntryField, validateEntry } from '../../../common/utils/timesManager';
 
 import style from '../EventEditor.module.scss';
 
@@ -40,14 +39,6 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType, timeWarning, timeDanger } =
     props;
   const { updateEvent } = useEventAction();
-
-  const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
-
-  const timerValidationHandler = (entry: TimeEntryField, val: number) => {
-    const valid = validateEntry(entry, val, timeStart, timeEnd);
-    setWarnings((prev) => ({ ...prev, ...valid.warnings }));
-    return valid.value;
-  };
 
   const handleSubmit = (field: TimeActions, value: number | string | boolean) => {
     const newEventData: Partial<OntimeEvent> = { id: eventId };
@@ -99,11 +90,9 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           id='timeStart'
           name='timeStart'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={timeStart}
           delay={delay}
           placeholder='Start'
-          warning={warning.start}
         />
         <label className={inputTimeLabels} htmlFor='timeEnd'>
           {endLabel}
@@ -112,11 +101,9 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           id='timeEnd'
           name='timeEnd'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={timeEnd}
           delay={delay}
           placeholder='End'
-          warning={warning.end}
         />
         <label className={style.inputLabel} htmlFor='durationOverride'>
           Duration
@@ -125,10 +112,8 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           id='durationOverride'
           name='durationOverride'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={duration}
           placeholder='Duration'
-          warning={warning.duration}
         />
         <span className={style.spacer} />
         <label className={`${style.inputLabel} ${style.publicToggle}`}>
@@ -170,10 +155,8 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           id='timeWarning'
           name='timeWarning'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={timeWarning}
           placeholder='Duration'
-          warning={warning.duration}
         />
         <label className={style.inputLabel} htmlFor='timeDanger'>
           Danger Time
@@ -182,10 +165,8 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           id='timeDanger'
           name='timeDanger'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={timeDanger}
           placeholder='Duration'
-          warning={warning.duration}
         />
       </div>
     </div>

@@ -23,14 +23,14 @@ type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
 type SavedViewParams = Record<string, ViewParamsObj>;
 
 const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ParamField[]) => {
-  const defaultValues = paramFields.map(({ defaultValue }) => String(defaultValue));
-
+  const defaultValues = paramFields.reduce<Record<string, string>>((acc, { id, defaultValue }) => {
+    return { ...acc, [id]: String(defaultValue) };
+  }, {});
   return Object.entries(paramsObj).reduce((newSearchParams, [id, value]) => {
     if (typeof value === 'string' && value.length) {
-      if (defaultValues.includes(value)) {
+      if (defaultValues[id] === value) {
         return newSearchParams;
       }
-
       newSearchParams.set(id, value);
 
       return newSearchParams;
