@@ -230,11 +230,16 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const handlePushData = () => {
-    postPushSheet(id, excelFileOptions.current).catch((error) => {
-      const message = maybeAxiosError(error);
-      setDirection('none');
-      setState({ ...state, pullPush: { complete: false, message } });
-    });
+    postPushSheet(id, excelFileOptions.current)
+      .then(() => {
+        setDirection('none');
+        setState({ ...state, pullPush: { complete: true, message: '' } });
+      })
+      .catch((error) => {
+        const message = maybeAxiosError(error);
+        setDirection('none');
+        setState({ ...state, pullPush: { complete: false, message } });
+      });
   };
 
   //GET preview
@@ -289,9 +294,7 @@ export default function SheetsModal(props: SheetsModalProps) {
             </div>
           </Alert>
           {!rundown ? (
-            direction === 'up' ? (
-              <div>{direction}</div>
-            ) : direction === 'down' ? (
+            direction === 'up' || direction === 'down' ? (
               <ExcelFileOptions optionsRef={excelFileOptions} updateOptions={updateExcelFileOptions} />
             ) : (
               <>
