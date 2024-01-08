@@ -359,11 +359,17 @@ export default function SheetsModal(props: SheetsModalProps) {
                       type='text'
                       size='sm'
                       variant='ontime-filled-on-light'
-                      disabled={!state.authenticate.complete}
+                      isDisabled={!state.authenticate.complete}
                       value={id}
                       onChange={(event) => setSheetId(event.target.value)}
                     />
-                    <Button size='sm' variant='ontime-subtle-on-light' padding='0 2em' onClick={testSheetId}>
+                    <Button
+                      isDisabled={!state.authenticate.complete}
+                      size='sm'
+                      variant='ontime-subtle-on-light'
+                      padding='0 2em'
+                      onClick={testSheetId}
+                    >
                       Connect
                     </Button>
                   </HStack>
@@ -376,7 +382,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                 >
                   <Select
                     size='sm'
-                    disabled={worksheetOptions.length == 0}
+                    isDisabled={worksheetOptions.length == 0}
                     placeholder='Select a worksheet'
                     onChange={(event) => testWorksheet(event.target.value)}
                     value={worksheet}
@@ -392,7 +398,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                 <Step title='5 - Upload / Download rundown' completed={false} disabled={!state.worksheet.complete}>
                   <div style={{ display: 'flex', gap: '1em' }}>
                     <Button
-                      disabled={!state.worksheet.complete}
+                      isDisabled={!state.worksheet.complete}
                       variant='ontime-subtle-on-light'
                       padding='0 2em'
                       onClick={() => setDirection('up')}
@@ -400,7 +406,7 @@ export default function SheetsModal(props: SheetsModalProps) {
                       Upload
                     </Button>
                     <Button
-                      disabled={!state.worksheet.complete}
+                      isDisabled={!state.worksheet.complete}
                       variant='ontime-subtle-on-light'
                       padding='0 2em'
                       onClick={() => setDirection('down')}
