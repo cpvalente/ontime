@@ -1,6 +1,6 @@
 import { RuntimeStore } from 'ontime-types';
 
-import { deepCompare, useRuntimeStore } from '../stores/runtime';
+import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
 
 export const useRundownEditor = () => {
@@ -10,7 +10,7 @@ export const useRundownEditor = () => {
     nextEventId: state.loaded.nextEventId,
   });
 
-  return useRuntimeStore(featureSelector, deepCompare);
+  return useRuntimeStore(featureSelector);
 };
 
 export const useOperator = () => {
@@ -19,7 +19,7 @@ export const useOperator = () => {
     selectedEventId: state.loaded.selectedEventId,
   });
 
-  return useRuntimeStore(featureSelector, deepCompare);
+  return useRuntimeStore(featureSelector);
 };
 
 export const useMessageControl = () => {
@@ -31,7 +31,7 @@ export const useMessageControl = () => {
     onAir: state.onAir,
   });
 
-  return useRuntimeStore(featureSelector, deepCompare);
+  return useRuntimeStore(featureSelector);
 };
 
 export const setMessage = {
@@ -55,7 +55,7 @@ export const usePlaybackControl = () => {
     numEvents: state.loaded.numEvents,
   });
 
-  return useRuntimeStore(featureSelector, deepCompare);
+  return useRuntimeStore(featureSelector);
 };
 
 export const setPlayback = {
@@ -89,7 +89,7 @@ export const useInfoPanel = () => {
     numEvents: state.loaded.numEvents,
   });
 
-  return useRuntimeStore(featureSelector, deepCompare);
+  return useRuntimeStore(featureSelector);
 };
 
 export const useCuesheet = () => {
@@ -101,7 +101,7 @@ export const useCuesheet = () => {
     titleNow: state.eventNow?.title || '',
   });
 
-  return useRuntimeStore(featureSelector, deepCompare);
+  return useRuntimeStore(featureSelector);
 };
 
 export const setEventPlayback = {
@@ -116,7 +116,7 @@ export const useTimer = () => {
     ...state.timer,
   });
 
-  return useRuntimeStore(featureSelector, deepCompare);
+  return useRuntimeStore(featureSelector);
 };
 
 export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
@@ -129,5 +129,5 @@ export const useRuntimeOverview = () => {
     selectedEventIndex: state.loaded.selectedEventIndex,
   });
 
-  return useRuntimeStore(featureSelector, deepCompare);
+  return useRuntimeStore(featureSelector);
 };
