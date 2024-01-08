@@ -86,7 +86,7 @@ function OperatorEvent(props: OperatorEventProps) {
       </span>
 
       <span className={style.secondaryField}>{secondary}</span>
-      <span className={style.runningTime}>
+      <span className={style.running}>
         <DelayIndicator delayValue={delay} />
         {isSelected ? <RollingTime /> : formatTime(duration, { showSeconds: true, format: 'hh:mm:ss' })}
       </span>
