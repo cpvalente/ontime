@@ -279,7 +279,7 @@ export default function SheetsModal(props: SheetsModalProps) {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Rundown from sheets</ModalHeader>
+        <ModalHeader>Rundown from sheets (experimental)</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Alert status='info' variant='ontime-on-light-info'>
@@ -287,7 +287,7 @@ export default function SheetsModal(props: SheetsModalProps) {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <AlertTitle>Sync with Google Sheets</AlertTitle>
               <AlertDescription>
-                <ModalLink href='https://ontime.gitbook.io/v2/features/google-sheet-experimental'>
+                <ModalLink href='https://ontime.gitbook.io/v2/features/google-sheet'>
                   For more information, see the docs
                 </ModalLink>
               </AlertDescription>
