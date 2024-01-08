@@ -10,7 +10,7 @@ import { logger } from '../classes/Logger.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { getAppDataPath } from '../setup.js';
 import { ensureDirectory } from './fileManagement.js';
-import { cellRequenstFromEvent, cellRequenstFromProjectData, getA1Notation } from './sheetUtils.js';
+import { cellRequestFromEvent, cellRequenstFromProjectData, getA1Notation } from './sheetUtils.js';
 import { parseExcel } from './parser.js';
 import { parseProject, parseRundown, parseUserFields } from './parserFunctions.js';
 import { ExcelImportMap } from 'ontime-utils';
@@ -272,14 +272,14 @@ class Sheet {
   public async push(id: string, options: ExcelImportMap) {
     const { worksheetId, range } = await this.exist(id, options.worksheet);
 
-    const rq = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.values.get({
+    const readResponse = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.values.get({
       spreadsheetId: id,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
       range: range,
     });
-    if (rq.status === 200) {
-      const { rundownMetadata, projectMetadata } = parseExcel(rq.data.values, options);
+    if (readResponse.status === 200) {
+      const { rundownMetadata, projectMetadata } = parseExcel(readResponse.data.values, options);
       const rundown = DataProvider.getRundown();
       const projectData = DataProvider.getProjectData();
       const titleRow = Object.values(rundownMetadata)[0]['row'];
@@ -317,13 +317,13 @@ class Sheet {
 
       //update the corresponding row with event data
       rundown.forEach((entry, index) =>
-        updateRundown.push(cellRequenstFromEvent(entry, index, worksheetId, rundownMetadata)),
+        updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata)),
       );
 
       //update project data
       updateRundown.push(cellRequenstFromProjectData(projectData, worksheetId, projectMetadata));
 
-      const writeResponds = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.batchUpdate({
+      const writeResponse = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.batchUpdate({
         spreadsheetId: id,
         requestBody: {
           includeSpreadsheetInResponse: false,
@@ -332,18 +332,18 @@ class Sheet {
         },
       });
 
-      if (writeResponds.status == 200) {
-        logger.info(LogOrigin.Server, `Sheet: write: ${writeResponds.statusText}`);
+      if (writeResponse.status === 200) {
+        logger.info(LogOrigin.Server, `Sheet: write: ${writeResponse.statusText}`);
       } else {
-        throw new Error(`Sheet: write faild: ${writeResponds.statusText}`);
+        throw new Error(`Sheet: write failed: ${writeResponse.statusText}`);
       }
     } else {
-      throw new Error(`Sheet: read faild: ${rq.statusText}`);
+      throw new Error(`Sheet: read failed: ${readResponse.statusText}`);
     }
   }
 
   /**
-   * @description SETP 5 - Downpload the rundown from sheet
+   * @description STEP 5 - Downpload the rundown from sheet
    * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
    * @param {ExcelImportMap} options
    * @returns {Promise<Partial<ResponseOK>>}
@@ -354,27 +354,25 @@ class Sheet {
 
     const res: Partial<ResponseOK> = {};
 
-    const rq = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.values.get({
+    const googleResponse = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.values.get({
       spreadsheetId: id,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
       range,
     });
 
-    if (rq.status === 200) {
+    if (googleResponse.status === 200) {
       res.data = {};
-      const dataFromSheet = parseExcel(rq.data.values, options);
+      const dataFromSheet = parseExcel(googleResponse.data.values, options);
       res.data.rundown = parseRundown(dataFromSheet);
       if (res.data.rundown.length < 1) {
         throw new Error(`Sheet: Could not find data to import in the worksheet`);
       }
-      console.log(dataFromSheet.project);
-      console.log(dataFromSheet.userFields);
       res.data.project = parseProject(dataFromSheet);
       res.data.userFields = parseUserFields(dataFromSheet);
       return res;
     } else {
-      throw new Error(`Sheet: read faild: ${rq.statusText}`);
+      throw new Error(`Sheet: read failed: ${googleResponse.statusText}`);
     }
   }
 }

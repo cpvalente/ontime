@@ -1,5 +1,5 @@
 import { millisToString } from 'ontime-utils';
-import { getA1Notation, cellRequenstFromEvent, cellRequenstFromProjectData } from '../sheetUtils.js';
+import { getA1Notation, cellRequestFromEvent, cellRequenstFromProjectData } from '../sheetUtils.js';
 import { EndAction, OntimeRundownEntry, ProjectData, SupportedEvent, TimerType } from 'ontime-types';
 
 describe('getA1Notation()', () => {
@@ -75,7 +75,7 @@ describe('cellRequenstFromEvent()', () => {
       revision: { row: 1, col: 38 },
       id: { row: 1, col: 39 },
     };
-    const result = cellRequenstFromEvent(event, 1, 1234, metadata);
+    const result = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result.updateCells.rows[0].values[5].userEnteredValue.stringValue).toStrictEqual(event.note);
   });
 
@@ -136,7 +136,7 @@ describe('cellRequenstFromEvent()', () => {
       revision: { row: 1, col: 38 },
       id: { row: 1, col: 39 },
     };
-    const result = cellRequenstFromEvent(event, 1, 1234, metadata).updateCells.rows[0].values[10].userEnteredValue
+    const result = cellRequestFromEvent(event, 1, 1234, metadata).updateCells.rows[0].values[10].userEnteredValue
       .stringValue;
     expect(result).toStrictEqual(millisToString(event.duration));
   });
@@ -198,7 +198,7 @@ describe('cellRequenstFromEvent()', () => {
       revision: { row: 1, col: 38 },
       id: { row: 1, col: 39 },
     };
-    const result = cellRequenstFromEvent(event, 1, 1234, metadata);
+    const result = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result.updateCells.rows[0].values[11].userEnteredValue.stringValue).toStrictEqual('x');
     expect(result.updateCells.rows[0].values[12].userEnteredValue.stringValue).toStrictEqual('');
   });
@@ -238,7 +238,7 @@ describe('cellRequenstFromEvent()', () => {
       subtitle: { row: 1, col: 10 },
       user0: { row: 1, col: 16 },
     };
-    const result = cellRequenstFromEvent(event, 1, 1234, metadata);
+    const result = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(event.cue);
     expect(result.updateCells.rows[0].values[6].userEnteredValue.stringValue).toStrictEqual(event.title);
     expect(result.updateCells.rows[0].values[10].userEnteredValue.stringValue).toStrictEqual(event.subtitle);
@@ -279,7 +279,7 @@ describe('cellRequenstFromEvent()', () => {
       subtitle: { row: 1, col: 10 },
       user0: { row: 1, col: 16 },
     };
-    const result = cellRequenstFromEvent(event, 1, 1234, metadata);
+    const result = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(event.cue);
     expect(result.updateCells.rows[0].values[1].userEnteredValue.stringValue).toStrictEqual(event.title);
     expect(result.updateCells.rows[0].values[5].userEnteredValue.stringValue).toStrictEqual(event.subtitle);
@@ -320,9 +320,9 @@ describe('cellRequenstFromEvent()', () => {
       subtitle: { row: 1, col: 10 },
       user0: { row: 10, col: 16 },
     };
-    const result1 = cellRequenstFromEvent(event, 1, 1234, metadata);
+    const result1 = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result1.updateCells.start.sheetId).toStrictEqual(1234);
-    const result2 = cellRequenstFromEvent(event, 10, 1234, metadata);
+    const result2 = cellRequestFromEvent(event, 10, 1234, metadata);
     expect(result2.updateCells.start.rowIndex).toStrictEqual(21);
     expect(result2.updateCells.start.columnIndex).toStrictEqual(5);
     expect(result2.updateCells.fields).toStrictEqual('userEnteredValue');

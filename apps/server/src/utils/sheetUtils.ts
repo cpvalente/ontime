@@ -36,7 +36,7 @@ export function getA1Notation(row: number, column: number): string {
  * @param {any} metadata - object with all the cell positions of the title of each attribute
  * @returns {sheets_v4.Schema} - list of update requests
  */
-export function cellRequenstFromEvent(
+export function cellRequestFromEvent(
   event: OntimeRundownEntry,
   index: number,
   worksheetId: number,
@@ -50,7 +50,7 @@ export function cellRequenstFromEvent(
   const titleCol = tmp[0][1].col;
 
   for (const [index, e] of tmp.entries()) {
-    if (index != 0) {
+    if (index !== 0) {
       const prevCol = tmp[index - 1][1].col;
       const thisCol = e[1].col;
       const diff = thisCol - prevCol;

@@ -58,7 +58,7 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   const [id, setSheetId] = useState('');
   const [worksheet, setWorksheet] = useState('');
-  const [worksheetOptions, setWorksheetOptions] = useState(new Array<string>());
+  const [worksheetOptions, setWorksheetOptions] = useState<string[]>([]);
 
   const [direction, setDirection] = useState('none');
   const excelFileOptions = useRef<ExcelImportMap>(defaultExcelImportMap);
