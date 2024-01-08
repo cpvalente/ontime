@@ -81,10 +81,12 @@
   justify-self: end;
 }
 
-.running {
+.runningTime {
   @include clock-size;
   grid-area: running;
   justify-self: end;
+  display: flex;
+  gap: 0.5em;
 }
 
 .fields {
