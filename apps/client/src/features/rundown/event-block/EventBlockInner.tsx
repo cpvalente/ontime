@@ -157,7 +157,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
               }`}
             />
           </Tooltip>
-          <Tooltip label='Start time is later than end'>
+          <Tooltip label={timeStart > timeEnd ? 'Start time is later than end' : ''}>
             <div className={`${style.indicator} ${timeStart > timeEnd ? style.nextDay : ''}`} />
           </Tooltip>
         </span>
