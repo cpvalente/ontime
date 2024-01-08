@@ -1,4 +1,4 @@
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, formatFromMillis } from 'ontime-utils';
+import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 /**
  * @description safe parse string to int
