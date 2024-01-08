@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { VStack } from '@chakra-ui/react';
-import { IoCalendarOutline } from '@react-icons/all-files/io5/IoCalendarOutline';
+import { IoCloud } from '@react-icons/all-files/io5/IoCloud';
+import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
@@ -182,7 +183,7 @@ const MenuBar = (props: MenuBarProps) => {
       <TooltipActionBtn
         {...buttonStyle}
         isDisabled={appMode === AppMode.Run}
-        icon={<IoCalendarOutline />}
+        icon={isSheetsOpen ? <IoCloud /> : <IoCloudOutline />}
         className={isSheetsOpen ? style.open : ''}
         clickHandler={onSheetsOpen}
         tooltip='Sheets'
