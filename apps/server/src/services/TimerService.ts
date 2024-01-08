@@ -309,6 +309,17 @@ export class TimerService {
   }
 
   /**
+   * @description
+   * @param {number} amount
+   */
+  setTime(amount: number) {
+    if (!this.loadedTimerId) {
+      return;
+    }
+    this.timer.current = amount;
+    this.update();
+  }
+  /**
    * Adds time to running timer by given amount
    * @param {number} amount
    */
@@ -385,6 +396,9 @@ export class TimerService {
         this.loadedTimerEnd,
         this.timer.timerType,
       );
+    }
+    if (this.timer.timerType === TimerType.External) {
+      return;
     }
     this.timer.current = getCurrent(
       this.timer.startedAt,

@@ -118,6 +118,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <option value={TimerType.CountUp}>Count up</option>
           <option value={TimerType.TimeToEnd}>Time to end</option>
           <option value={TimerType.Clock}>Clock</option>
+          <option value={TimerType.External}>External</option>
         </Select>
         <label className={style.inputLabel}>End Action</label>
         <Select

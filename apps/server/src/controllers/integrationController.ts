@@ -1,5 +1,9 @@
+import { Playback, TimerType } from 'ontime-types';
+import { mts } from '../../../../packages/utils/src/timeConstants.js';
+import { EventLoader } from '../classes/event-loader/EventLoader.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
+import { eventTimer } from '../services/TimerService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
 
@@ -265,6 +269,37 @@ export function dispatchFromAdapter(
     case 'get-timer': {
       const timer = eventStore.get('timer');
       return { topic: 'timer', payload: timer };
+    }
+
+    case 'set-time': {
+      const { eventId, property, value } = payload as ChangeOptions;
+      const amout = Number(value);
+      if (isNaN(amout)) {
+        throw new Error(`set-time "${value}" is not a number`);
+      }
+      const event = EventLoader.getEventWithId(eventId);
+      if (event.timerType !== TimerType.External) {
+        throw new Error(`Event ${eventId} is not set to external drive`);
+      }
+
+      const currentEvent = eventStore.get('eventNow');
+      const playback = eventStore.get('playback');
+      //TODO: what if in roll mode?
+      console.log(eventId, property, value);
+      if (!currentEvent || currentEvent.id !== eventId || playback !== Playback.Play) {
+        const success = PlaybackService.startById(eventId);
+        if (success) {
+          eventTimer.setTime(amout * mts);
+        }
+      } else {
+        if (property === 'elapsed') {
+          const duration = currentEvent.duration;
+          eventTimer.setTime(duration - amout * mts);
+        } else if (property === 'remaining') {
+          eventTimer.setTime(amout * mts);
+        }
+      }
+      break;
     }
 
     // WS: {type: 'change', payload: { eventId, property, value } }

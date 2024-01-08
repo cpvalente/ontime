@@ -10,6 +10,7 @@ import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
+import { MdInput } from '@react-icons/all-files/md/MdInput';
 import { EndAction, Playback, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
@@ -242,6 +243,9 @@ function TimerIcon(props: { type: TimerType; className: string }) {
   }
   if (type === TimerType.TimeToEnd) {
     return <BiArrowToBottom className={className} />;
+  }
+  if (type === TimerType.External) {
+    return <MdInput className={className} />;
   }
   return <IoArrowDown className={className} />;
 }

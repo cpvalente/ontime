@@ -39,7 +39,7 @@ export class OscServer implements IAdapter {
       let transformedPayload: unknown = args;
       // we need to transform the params for the change endpoint
       // OSC: ontime/change/{eventID}/{propertyName} value
-      if (path === 'change') {
+      if (path === 'change' || path === 'set-time') {
         if (params.length < 2) {
           logger.error(LogOrigin.Rx, 'OSC IN: No params provided for change');
           return;
