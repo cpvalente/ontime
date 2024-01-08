@@ -21,7 +21,7 @@ export {
 } from './src/date-utils/conversionUtils.js';
 export { formatFromMillis } from './src/date-utils/formatFromMillis.js';
 export { isTimeString } from './src/date-utils/isTimeString.js';
-export { millisToString, removePrependedZero, removeSeconds } from './src/date-utils/timeFormatting.js';
+export { millisToString, removeLeadingZero, removeSeconds } from './src/date-utils/timeFormatting.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 
 // time utils

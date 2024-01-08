@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
-import { millisToString, removePrependedZero, removeSeconds } from 'ontime-utils';
+import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -158,7 +158,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     if (hideTimerSeconds) {
       display = removeSeconds(display);
     }
-    display = removePrependedZero(display);
+    display = removeLeadingZero(display);
     // last unit rounds up in negative timers
     const isNegative = stageTimer ?? 0 < 0;
     if (isNegative && display === '0') {

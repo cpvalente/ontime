@@ -43,7 +43,7 @@ export function millisToString(millis?: MaybeNumber, options?: FormatOptions): s
  * Receives a string such as 00:10:10 and removes the hours field if it is 00
  * @param timer
  */
-export function removePrependedZero(timer: string): string {
+export function removeLeadingZero(timer: string): string {
   if (timer.startsWith('00:0')) {
     return timer.slice(4);
   }

@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
-import { Playback } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { MaybeNumber, Playback } from 'ontime-types';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
 import { useTimer } from '../../../common/hooks/useSocket';
 import { cx } from '../../../common/utils/styleUtils';
-import { formatTime } from '../../../common/utils/time';
-import SuperscriptTime from '../../viewers/common/superscript-time/SuperscriptTime';
+import ClockTime from '../../viewers/common/clock-time/ClockTime';
+import RunningTime from '../../viewers/common/running-time/RunningTime';
 
 import styles from './StatusBar.module.scss';
 
@@ -25,30 +24,30 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
 
   const timer = useTimer();
 
-  const getTimeStart = () => {
+  const getTimeStart = (): MaybeNumber => {
     if (firstStart === undefined) {
-      return '...';
+      return null;
     }
 
     if (selectedEventId) {
       if (firstId === selectedEventId) {
-        return formatTime(timer.expectedFinish);
+        return timer.expectedFinish;
       }
     }
-    return formatTime(firstStart);
+    return firstStart;
   };
 
-  const getTimeEnd = () => {
+  const getTimeEnd = (): MaybeNumber => {
     if (lastEnd === undefined) {
-      return '...';
+      return null;
     }
 
     if (selectedEventId) {
       if (lastId === selectedEventId) {
-        return formatTime(timer.expectedFinish);
+        return timer.expectedFinish;
       }
     }
-    return formatTime(lastEnd);
+    return lastEnd;
   };
 
   const PlaybackIconComponent = useMemo(() => {
@@ -57,35 +56,30 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
     return <PlaybackIcon state={playback} skipTooltip className={classes} />;
   }, [playback]);
 
-  // use user defined format
-  const timeNow = formatTime(timer.clock);
-  const runningTime = millisToString(timer.current);
-  const elapsedTime = millisToString(timer.elapsed);
-
   return (
     <div className={styles.timers}>
       {PlaybackIconComponent}
       <div className={styles.timeNow}>
         <span className={styles.label}>Time now</span>
-        <SuperscriptTime className={styles.timer} time={timeNow} />
+        <ClockTime className={styles.timer} value={timer.clock} />
       </div>
       <div className={styles.elapsedTime}>
         <span className={styles.label}>Elapsed time</span>
-        <span className={styles.timer}>{elapsedTime}</span>
+        <RunningTime className={styles.timer} value={timer.elapsed} />
       </div>
       <div className={styles.runningTime}>
         <span className={styles.label}>Running timer</span>
-        <span className={styles.timer}>{runningTime}</span>
+        <RunningTime className={styles.timer} value={timer.current} />
       </div>
 
       <span className={styles.title}>{projectTitle}</span>
       <div className={styles.startTime}>
         <span className={styles.label}>Scheduled start</span>
-        <SuperscriptTime className={styles.timer} time={getTimeStart()} />
+        <ClockTime className={styles.timer} value={getTimeStart()} />
       </div>
       <div className={styles.endTime}>
         <span className={styles.label}>Scheduled end</span>
-        <SuperscriptTime className={styles.timer} time={getTimeEnd()} />
+        <ClockTime className={styles.timer} value={getTimeEnd()} />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { millisToString, removePrependedZero } from 'ontime-utils';
+import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 // any value inside double curly braces {{val}}
 const placeholderRegex = /{{(.*?)}}/g;
@@ -14,7 +14,7 @@ function formatDisplayFromString(value: string, hideZero = false): string {
   }
   let formatted = millisToString(valueInNumber, { fallback: hideZero ? '00:00' : '00:00:00' });
   if (hideZero) {
-    formatted = removePrependedZero(formatted);
+    formatted = removeLeadingZero(formatted);
   }
   return formatted;
 }

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message, OntimeEvent, Playback, Settings, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
-import { millisToString, removePrependedZero, removeSeconds } from 'ontime-utils';
+import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -120,7 +120,7 @@ export default function Timer(props: TimerProps) {
     if (hideTimerSeconds) {
       display = removeSeconds(display);
     }
-    display = removePrependedZero(display);
+    display = removeLeadingZero(display);
     // last unit rounds up in negative timers
     const isNegative = stageTimer ?? 0 < 0;
     if (isNegative && display === '0') {

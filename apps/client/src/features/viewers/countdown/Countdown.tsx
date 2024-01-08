@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
-import { millisToString, removePrependedZero } from 'ontime-utils';
+import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -99,7 +99,7 @@ export default function Countdown(props: CountdownProps) {
     }
     let formattedTime = millisToString(isSelected ? runningTimer : runningTimer + delay);
     if (isSelected || runningMessage === TimerMessage.waiting) {
-      formattedTime = removePrependedZero(formattedTime);
+      formattedTime = removeLeadingZero(formattedTime);
     }
     return formattedTime;
   };

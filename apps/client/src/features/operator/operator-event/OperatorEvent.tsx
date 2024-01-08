@@ -1,12 +1,11 @@
 import { memo, RefObject, SyntheticEvent } from 'react';
-import { millisToString, removePrependedZero } from 'ontime-utils';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import useLongPress from '../../../common/hooks/useLongPress';
 import { useTimer } from '../../../common/hooks/useSocket';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { formatTime } from '../../../common/utils/time';
-import SuperscriptTime from '../../viewers/common/superscript-time/SuperscriptTime';
+import ClockTime from '../../viewers/common/clock-time/ClockTime';
+import RunningTime from '../../viewers/common/running-time/RunningTime';
 import type { EditEvent } from '../Operator';
 
 import style from './OperatorEvent.module.scss';
@@ -32,7 +31,7 @@ interface OperatorEventProps {
 // extract this to contain re-renders
 function RollingTime() {
   const timer = useTimer();
-  return <>{millisToString(timer.current)}</>;
+  return <RunningTime value={timer.current} />;
 }
 
 function OperatorEvent(props: OperatorEventProps) {
@@ -61,10 +60,6 @@ function OperatorEvent(props: OperatorEventProps) {
   };
 
   const mouseHandlers = useLongPress(handleLongPress, { threshold: 800 });
-
-  const start = formatTime(timeStart);
-  const end = formatTime(timeEnd);
-
   const cueColours = colour && getAccessibleColour(colour);
 
   const operatorClasses = cx([
@@ -82,15 +77,15 @@ function OperatorEvent(props: OperatorEventProps) {
 
       <span className={style.mainField}>{main}</span>
       <span className={style.schedule}>
-        <SuperscriptTime time={start} />
+        <ClockTime value={timeStart} />
         -
-        <SuperscriptTime time={end} />
+        <ClockTime value={timeEnd} />
       </span>
 
       <span className={style.secondaryField}>{secondary}</span>
       <span className={style.running}>
         <DelayIndicator delayValue={delay} />
-        {isSelected ? <RollingTime /> : <SuperscriptTime time={removePrependedZero(millisToString(duration))} />}
+        {isSelected ? <RollingTime /> : <RunningTime value={duration} hideLeadingZero />}
       </span>
 
       <div className={style.fields}>
