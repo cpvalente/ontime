@@ -193,11 +193,8 @@ export function dispatchFromAdapter(
       if (isNaN(time)) {
         throw new Error(`Time not recognised ${payload}`);
       }
-      try {
-        PlaybackService.addTime(time);
-      } catch (error) {
-        throw new Error(`Could not add time: ${error}`);
-      }
+
+      PlaybackService.addTime(time);
       break;
     }
     //deprecated
@@ -207,11 +204,7 @@ export function dispatchFromAdapter(
         throw new Error(`Delay time not recognised ${payload}`);
       }
 
-      try {
-        PlaybackService.setDelay(delayTime);
-      } catch (error) {
-        throw new Error(`Could not add delay: ${error}`);
-      }
+      PlaybackService.setDelay(delayTime);
       break;
     }
     case 'gotoindex':
