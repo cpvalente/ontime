@@ -3,11 +3,11 @@ import { create } from 'zustand';
 export type SettingsOption = {
   id: string;
   label: string;
-  secondary?: SettingsOption[];
+  secondary?: Readonly<SettingsOption[]>;
   split?: boolean;
 };
 
-export const settingPanels: SettingsOption[] = [
+export const settingPanels: Readonly<SettingsOption[]> = [
   {
     id: 'project',
     label: 'Project',
