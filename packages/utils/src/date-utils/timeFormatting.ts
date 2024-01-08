@@ -1,14 +1,7 @@
+import { DateTime } from 'luxon';
 import { MaybeNumber } from 'ontime-types';
 
 import { millisToHours, millisToMinutes, millisToSeconds } from './conversionUtils.js';
-
-/**
- * TODO: cleanup ways of converting time
- * - a way used in production views, where millis show a full time string
- * - a way used in views, where the string is formatted by a option
- * - ? a way used in timer where we create a string "2min 30sec"
- * See as inspiration: https://github.com/bitfocus/companion-module-stagetimerio-api/blob/main/src/utils.js
- */
 
 function pad(val: number): string {
   return String(val).padStart(2, '0');
@@ -65,4 +58,14 @@ export function removeLeadingZero(timer: string): string {
  */
 export function removeSeconds(timer: string): string {
   return timer.slice(0, -3);
+}
+
+/**
+ * @description utility function to format a date in milliseconds using luxon
+ * @param {number} millis
+ * @param {string} format
+ * @return {string}
+ */
+export function formatFromMillis(millis: number, format: string): string {
+  return DateTime.fromMillis(millis).toUTC().toFormat(format);
 }

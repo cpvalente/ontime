@@ -72,7 +72,7 @@ type FormatOptions = {
 };
 
 /**
- * @description utility function to format a date in 12 or 24 hour format
+ * @description viewer specific utility function to format a date in 12 or 24 hour format
  * @param {MaybeNumber} milliseconds
  * @param {object} [options]
  * @param {string} [options.format.format12] format string if 12 hour time

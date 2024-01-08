@@ -1,5 +1,5 @@
 /**
- * encapsulate logic related to showing a clock timer (hide seconds and whatnot)
+ * encapsulate logic related to showing a clock timer
  */
 
 import { MaybeNumber } from 'ontime-types';
@@ -18,7 +18,7 @@ interface ClockTimeProps {
 export default function ClockTime(props: ClockTimeProps) {
   const { value, preferredFormat12 = FORMAT_12, preferredFormat24 = FORMAT_24, className } = props;
 
-  // TODO: get params
+  // TODO: should we get the params from URL here to see if the user is overriding the default?
   const formattedTime = formatTime(value, { format12: preferredFormat12, format24: preferredFormat24 });
 
   return <SuperscriptTime className={className} time={formattedTime} />;

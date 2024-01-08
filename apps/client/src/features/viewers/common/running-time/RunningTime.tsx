@@ -1,5 +1,5 @@
 /**
- * encapsulate logic related to showing a running timer (hide seconds and whatnot)
+ * encapsulate logic related to showing a running timer
  */
 
 import { MaybeNumber } from 'ontime-types';
