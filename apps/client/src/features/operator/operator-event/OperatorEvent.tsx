@@ -83,7 +83,7 @@ function OperatorEvent(props: OperatorEventProps) {
       </span>
 
       <span className={style.secondaryField}>{secondary}</span>
-      <span className={style.running}>
+      <span className={style.runningTime}>
         <DelayIndicator delayValue={delay} />
         {isSelected ? <RollingTime /> : <RunningTime value={duration} hideLeadingZero />}
       </span>
