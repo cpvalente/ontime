@@ -95,7 +95,7 @@ export default function Countdown(props: CountdownProps) {
 
   const formatTimer = (): string => {
     if (runningMessage === TimerMessage.ended) {
-      return formatTime(runningTimer, { format12: 'hh:mm a', format24: 'HH:mm' });
+      return formatTime(runningTimer, { format12: 'hh:A', format24: 'HH:mm' });
     }
     let formattedTime = millisToString(isSelected ? runningTimer : runningTimer + delay);
     if (isSelected || runningMessage === TimerMessage.waiting) {

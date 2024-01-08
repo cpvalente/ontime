@@ -127,7 +127,7 @@ export default function StudioClock(props: StudioClockProps) {
         </div>
         <ul className='schedule'>
           {trimmedRundown.map((event) => {
-            const start = formatTime(event.timeStart + (event?.delay ?? 0), { format12: 'h:mm a', format24: 'HH:mm' });
+            const start = formatTime(event.timeStart + (event?.delay ?? 0), { format12: 'h:mm A', format24: 'HH:mm' });
             const isSelected = event.id === selectedId;
             const isNext = event.id === nextId;
             const classes = `schedule__item schedule__item${isSelected ? '--now' : isNext ? '--next' : '--future'}`;
