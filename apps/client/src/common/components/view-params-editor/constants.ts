@@ -1,8 +1,7 @@
-import { TimeFormat, UserFields } from 'ontime-types';
+import { UserFields } from 'ontime-types';
 
 import { ParamField } from './types';
 
-// TODO: this should be the format string
 const getTimeOption = (timeFormat: string): ParamField => {
   const placeholder = `${timeFormat} (default)`;
   return {
