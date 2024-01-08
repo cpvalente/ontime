@@ -19,6 +19,7 @@ import { apiRepoLatest } from '../../externals';
 import fileDownload from '../utils/fileDownload';
 
 import { ontimeURL } from './apiConstants';
+import { MessageResponse } from 'ontime-types/src/api/ontime-controller/BackendResponse.type';
 
 /**
  * @description HTTP request to retrieve application settings
@@ -255,5 +256,15 @@ export async function postNew(initialData: Partial<ProjectData>) {
  */
 export async function getProjects(): Promise<ProjectFileListResponse> {
   const res = await axios.get(`${ontimeURL}/projects`);
+  return res.data;
+}
+
+/**
+ * @description HTTP request to load a project file
+ */
+export async function loadProject(filename: string): Promise<MessageResponse> {
+  const res = await axios.post(`${ontimeURL}/load-project`, {
+    filename,
+  });
   return res.data;
 }

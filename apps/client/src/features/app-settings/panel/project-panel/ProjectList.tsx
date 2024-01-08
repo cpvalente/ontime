@@ -5,6 +5,7 @@ import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 
 import style from './ProjectPanel.module.scss';
+import { loadProject } from '../../../../common/api/ontimeApi';
 
 export default function ProjectList() {
   const { data } = useProjectList();
@@ -32,7 +33,7 @@ export default function ProjectList() {
             <td>{new Date(current.createdAt).toLocaleString()}</td>
             <td>{new Date(current.updatedAt).toLocaleString()}</td>
             <td className={style.actionButton}>
-              <ActionMenu />
+              <ActionMenu filename={current.filename} />
             </td>
           </tr>
         )}
@@ -45,7 +46,7 @@ export default function ProjectList() {
               <td>{createdAt}</td>
               <td>{updatedAt}</td>
               <td className={style.actionButton}>
-                <ActionMenu />
+                <ActionMenu filename={project.filename} />
               </td>
             </tr>
           );
@@ -55,7 +56,10 @@ export default function ProjectList() {
   );
 }
 
-function ActionMenu() {
+function ActionMenu({ filename }: { filename: string }) {
+  const handleLoad = () => {
+    loadProject(filename);
+  };
   return (
     <Menu variant='ontime-on-dark' size='sm'>
       <MenuButton
@@ -66,7 +70,7 @@ function ActionMenu() {
         size='sm'
       />
       <MenuList>
-        <MenuItem>Load</MenuItem>
+        <MenuItem onClick={handleLoad}>Load</MenuItem>
         <MenuItem>Rename</MenuItem>
         <MenuItem>Duplicate</MenuItem>
         <MenuItem>Delete</MenuItem>
