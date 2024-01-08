@@ -15,7 +15,7 @@ import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { getTimerByType, removePrefixZeroes } from '../common/viewerUtils';
+import { getTimerByType, removePrependedZero } from '../common/viewerUtils';
 
 import './Timer.scss';
 
@@ -123,7 +123,7 @@ export default function Timer(props: TimerProps) {
       showSeconds: !userOptions.hideTimerSeconds,
       format: 'hh:mm:ss a',
     });
-    display = removePrefixZeroes(display);
+    display = removePrependedZero(display);
     if (display.length < 3) {
       display = `${display} ${getLocalizedString('common.minutes')}`;
     }

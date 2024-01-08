@@ -12,7 +12,7 @@ import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
-import { getTimerByType, removePrefixZeroes } from '../common/viewerUtils';
+import { getTimerByType, removePrependedZero } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
 
@@ -159,7 +159,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       showSeconds: !userOptions.hideTimerSeconds,
       format: 'hh:mm:ss a',
     });
-    display = removePrefixZeroes(display);
+    display = removePrependedZero(display);
     if (display.length < 3) {
       display = `${display} ${getLocalizedString('common.minutes')}`;
     }
