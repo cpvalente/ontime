@@ -12,7 +12,6 @@
     "cleanup": "rm -rf .turbo && rm -rf node_modules"
   },
   "dependencies": {
-    "dayjs": "^1.11.10",
     "deepmerge-ts": "^5.1.0",
     "luxon": "^3.4.4",
     "nanoid": "^4.0.1"

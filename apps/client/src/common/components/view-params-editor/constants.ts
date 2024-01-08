@@ -7,7 +7,7 @@ const getTimeOption = (timeFormat: string): ParamField => {
   return {
     id: 'timeformat',
     title: 'Time format string, taken from the Application Settings',
-    description: 'Format for auxiliar time fields (not the running), eg. HH:mm:ss or hh:mm:ss A, see docs for help',
+    description: 'Format for auxiliar time fields (not the running), eg. HH:mm:ss or hh:mm:ss a, see docs for help',
     type: 'string',
     placeholder,
   };

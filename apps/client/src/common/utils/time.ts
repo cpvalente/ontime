@@ -23,7 +23,7 @@ export const nowInMillis = () => {
 
 /**
  * @description Resolves format from url and store
- * @return {string|null} A format string like "hh:mm:ss A" or null
+ * @return {string|null} A format string like "hh:mm:ss a" or null
  */
 function getFormatFromParams() {
   const params = new URL(document.location.href).searchParams;
@@ -32,7 +32,7 @@ function getFormatFromParams() {
 
 /**
  * Gets the format options from the applicaton settings
- * @returns a string equivalent to the format, ie: hh:mm:ss A or HH:mm:ss
+ * @returns a string equivalent to the format, ie: hh:mm:ss a or HH:mm:ss
  */
 export function getFormatFromSettings(): TimeFormat {
   const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);

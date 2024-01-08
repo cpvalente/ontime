@@ -1,7 +1,4 @@
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-dayjs.extend(utc);
-
+import { DateTime } from 'luxon';
 import { MaybeNumber } from 'ontime-types';
 
 import { millisToHours, millisToMinutes, millisToSeconds } from './conversionUtils.js';
@@ -70,5 +67,5 @@ export function removeSeconds(timer: string): string {
  * @return {string}
  */
 export function formatFromMillis(millis: number, format: string): string {
-  return dayjs(millis).utc().format(format);
+  return DateTime.fromMillis(millis).toUTC().toFormat(format);
 }

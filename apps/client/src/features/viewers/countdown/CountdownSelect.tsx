@@ -13,7 +13,7 @@ interface CountdownSelectProps {
   events: OntimeRundownEntry[];
 }
 
-const scheduleFormat = { format12: 'hh:mm A', format24: 'HH:mm' };
+const scheduleFormat = { format12: 'hh:mm a', format24: 'HH:mm' };
 
 export default function CountdownSelect(props: CountdownSelectProps) {
   const { events } = props;

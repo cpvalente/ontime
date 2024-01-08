@@ -4,7 +4,7 @@ import { formatTime } from '../../utils/time';
 import './Schedule.scss';
 
 const formatOptions = {
-  format12: 'hh:mm A',
+  format12: 'hh:mm a',
   format24: 'HH:mm',
 };
 
