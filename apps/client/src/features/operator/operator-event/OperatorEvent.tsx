@@ -77,9 +77,9 @@ function OperatorEvent(props: OperatorEventProps) {
 
       <span className={style.mainField}>{main}</span>
       <span className={style.schedule}>
-        <ClockTime value={timeStart} />
+        <ClockTime value={timeStart} preferredFormat12='h:mm' preferredFormat24='HH:mm'/>
         -
-        <ClockTime value={timeEnd} />
+        <ClockTime value={timeEnd} preferredFormat12='h:mm' preferredFormat24='HH:mm'/>
       </span>
 
       <span className={style.secondaryField}>{secondary}</span>
