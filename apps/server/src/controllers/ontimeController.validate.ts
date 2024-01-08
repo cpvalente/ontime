@@ -152,3 +152,32 @@ export const validatePatchProjectFile = [
     next();
   },
 ];
+
+export const validateSheetid = [
+  body('id').exists().isString(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+export const validateWorksheet = [
+  body('id').exists().isString(),
+  body('worksheet').exists().isString(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+export const validateSheetOptions = [
+  body('id').exists().isString(),
+  // body('options').exists().isObject(), TODO:
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];

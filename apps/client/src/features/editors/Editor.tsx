@@ -5,6 +5,7 @@ import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary'
 import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
+import SheetsModal from '../modals/sheets-modal/SheetsModal';
 import UploadModal from '../modals/upload-modal/UploadModal';
 
 import styles from './Editor.module.scss';
@@ -28,6 +29,7 @@ export default function Editor() {
   } = useDisclosure();
   const { isOpen: isAboutModalOpen, onOpen: onAboutModalOpen, onClose: onAboutModalClose } = useDisclosure();
   const { isOpen: isQuickStartOpen, onOpen: onQuickStartOpen, onClose: onQuickStartClose } = useDisclosure();
+  const { isOpen: isSheetsOpen, onOpen: onSheetsOpen, onClose: onSheetsClose } = useDisclosure();
 
   // Set window title
   useEffect(() => {
@@ -42,6 +44,7 @@ export default function Editor() {
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
         <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
+        <SheetsModal onClose={onSheetsClose} isOpen={isSheetsOpen} />
       </ErrorBoundary>
       <div className={styles.mainContainer} data-testid='event-editor'>
         <div id='settings' className={styles.settings}>
@@ -58,6 +61,8 @@ export default function Editor() {
               onAboutOpen={onAboutModalOpen}
               isQuickStartOpen={isQuickStartOpen}
               onQuickStartOpen={onQuickStartOpen}
+              isSheetsOpen={isSheetsOpen}
+              onSheetsOpen={onSheetsOpen}
             />
           </ErrorBoundary>
         </div>
