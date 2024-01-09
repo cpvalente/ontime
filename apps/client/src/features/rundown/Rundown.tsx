@@ -9,12 +9,10 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
-import { isMacOS } from '../../common/utils/deviceUtils';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
-import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
 
@@ -38,9 +36,7 @@ export default function Rundown(props: RundownProps) {
   const isExtracted = window.location.pathname.includes('/rundown');
 
   // cursor
-  const cursor = useAppMode((state) => state.cursor);
-  const appMode = useAppMode((state) => state.mode);
-  const setEditMode = useAppMode((state) => state.setEditMode);
+  const { cursor, mode: appMode } = useAppMode();
   const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -104,6 +100,7 @@ export default function Rundown(props: RundownProps) {
       // Check if the modifier combination
       const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
       const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
+
       if (modKeysAlt) {
         switch (event.code) {
           case 'ArrowDown': {
@@ -165,16 +162,7 @@ export default function Rundown(props: RundownProps) {
         }
       }
     },
-    [cursor, entries, insertAtCursor, moveCursorTo, reorderEvent, setEditMode],
-  );
-
-  const handleKeyUp = useCallback(
-    (event: KeyboardEvent) => {
-      if (['Shift', 'Meta', 'Control'].includes(event.key)) {
-        setEditMode('click');
-      }
-    },
-    [setEditMode],
+    [cursor, entries, insertAtCursor, reorderEvent],
   );
 
   // we copy the state from the store here
@@ -188,13 +176,11 @@ export default function Rundown(props: RundownProps) {
   // listen to keys
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [handleKeyDown, handleKeyUp]);
+  }, [handleKeyDown]);
 
   useEffect(() => {
     // in run mode, we follow selection
