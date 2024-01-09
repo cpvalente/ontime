@@ -141,7 +141,6 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
             <Tooltip
               label={
                 <div>
-                  {' '}
                   {delayTime} <br />
                   New Time: {newTime}
                 </div>
