@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -9,10 +10,9 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
-import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
-import { getTimerByType, removePrependedZero } from '../common/viewerUtils';
+import { getTimerByType } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
 
@@ -153,13 +153,17 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
-  let display = '-- : -- : --';
+  let display = millisToString(stageTimer, { fallback: '-- : -- : --' });
   if (stageTimer !== null) {
-    display = formatTime(stageTimer, {
-      showSeconds: !userOptions.hideTimerSeconds,
-      format: 'hh:mm:ss a',
-    });
-    display = removePrependedZero(display);
+    if (hideTimerSeconds) {
+      display = removeSeconds(display);
+    }
+    display = removeLeadingZero(display);
+    // last unit rounds up in negative timers
+    const isNegative = stageTimer ?? 0 < 0;
+    if (isNegative && display === '0') {
+      display = '-1';
+    }
     if (display.length < 3) {
       display = `${display} ${getLocalizedString('common.minutes')}`;
     }

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
-import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
@@ -14,8 +13,7 @@ import { getPublicOptions } from '../../../common/components/view-params-editor/
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -49,8 +47,6 @@ export default function Public(props: BackstageProps) {
     settings,
   } = props;
 
-  const [searchParams] = useSearchParams();
-
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -64,17 +60,11 @@ export default function Public(props: BackstageProps) {
   }
 
   const showPublicMessage = publ.text && publ.visible;
-
-  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
-  const formatOptions = {
-    showSeconds: !hideSeconds,
-    format: 'hh:mm:ss a',
-  };
-
-  const clock = formatTime(time.clock, formatOptions);
+  const clock = formatTime(time.clock);
   const qrSize = Math.max(window.innerWidth / 15, 128);
 
-  const publicOptions = getPublicOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const publicOptions = getPublicOptions(defaultFormat);
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
