@@ -4,7 +4,7 @@ import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { cx } from '../../common/utils/styleUtils';
-import { useEventSelection } from '../../features/rundown/useEventSelection';
+import { useEventSelection } from '../rundown/useEventSelection';
 
 import EventEditor from './EventEditor';
 
