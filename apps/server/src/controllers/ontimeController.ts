@@ -44,10 +44,10 @@ import { dbModel } from '../models/dataModel.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
-export const poll = async (req, res) => {
+export const poll = async (_req, res) => {
   try {
-    const s = eventStore.poll();
-    res.status(200).send(s);
+    const state = eventStore.poll();
+    res.status(200).send(state);
   } catch (error) {
     res.status(500).send({
       message: `Could not get sync data: ${error}`,
@@ -120,7 +120,7 @@ const getNetworkInterfaces = () => {
       // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
       if (net.family === 'IPv4' && !net.internal) {
         results.push({
-          name: name,
+          name,
           address: net.address,
         });
       }
@@ -653,7 +653,7 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
 
     const projectFilePath = join(uploadsFolderPath, filename);
 
-    const errors = validateProjectFiles({ filename: filename });
+    const errors = validateProjectFiles({ filename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
