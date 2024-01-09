@@ -8,7 +8,14 @@ import cors from 'cors';
 
 // import utils
 import { join, resolve } from 'path';
-import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
+import {
+  currentDirectory,
+  environment,
+  isProduction,
+  resolveExternalsDirectory,
+  resolveStylesDirectory,
+  resolvedPath,
+} from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
 // Import Routes
@@ -65,7 +72,8 @@ app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
 // serve static - css
-app.use('/external', express.static(externalsStartDirectory));
+app.use('/external/styles', express.static(resolveStylesDirectory));
+app.use('/external/', express.static(resolveExternalsDirectory));
 app.use('/external', (req, res) => {
   res.status(404).send(`${req.originalUrl} not found`);
 });
