@@ -285,19 +285,18 @@ export function dispatchFromAdapter(
       const currentEvent = eventStore.get('eventNow');
       const playback = eventStore.get('playback');
       //TODO: what if in roll mode?
-      console.log(eventId, property, value);
       if (!currentEvent || currentEvent.id !== eventId || playback !== Playback.Play) {
         const success = PlaybackService.startById(eventId);
-        if (success) {
-          eventTimer.setTime(amout * mts);
+        if (!success) {
+          throw new Error(`Unable to start event: ${eventId}`);
         }
-      } else {
-        if (property === 'elapsed') {
-          const duration = currentEvent.duration;
-          eventTimer.setTime(duration - amout * mts);
-        } else if (property === 'remaining') {
-          eventTimer.setTime(amout * mts);
-        }
+      }
+
+      if (property === 'elapsed') {
+        const duration = currentEvent.duration;
+        eventTimer.setTime(duration - amout * mts);
+      } else if (property === 'remaining') {
+        eventTimer.setTime(amout * mts);
       }
       break;
     }
