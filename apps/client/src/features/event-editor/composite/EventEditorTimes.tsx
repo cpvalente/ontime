@@ -28,7 +28,6 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType } = props;
   const { updateEvent } = useEventAction();
 
-
   const handleSubmit = (field: TimeActions, value: number | string | boolean) => {
     const newEventData: Partial<OntimeEvent> = { id: eventId };
     switch (field) {
@@ -113,12 +112,12 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           value={timerType}
           onChange={(event) => handleSubmit('timerType', event.target.value)}
           variant='ontime'
+          isDisabled={timerType === TimerType.External}
         >
           <option value={TimerType.CountDown}>Count down</option>
           <option value={TimerType.CountUp}>Count up</option>
           <option value={TimerType.TimeToEnd}>Time to end</option>
           <option value={TimerType.Clock}>Clock</option>
-          <option value={TimerType.External}>External</option>
         </Select>
         <label className={style.inputLabel}>End Action</label>
         <Select
@@ -137,6 +136,16 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <label className={`${style.inputLabel} ${style.publicToggle}`}>
           <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
           Event is public
+        </label>
+        <label className={`${style.inputLabel} ${style.publicToggle}`}>
+          <Switch
+            isChecked={timerType === TimerType.External}
+            onChange={(event) =>
+              handleSubmit('timerType', event.target.checked ? TimerType.External : TimerType.CountDown)
+            }
+            variant='ontime'
+          />
+          Source: External
         </label>
       </div>
     </div>
