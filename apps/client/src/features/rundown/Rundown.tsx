@@ -87,17 +87,6 @@ export default function Rundown(props: RundownProps) {
       // handle held key
       if (event.repeat) return;
 
-      if ((isMacOS() && event.metaKey) || event.ctrlKey) {
-        setEditMode('ctrl');
-        return;
-      }
-
-      if (event.shiftKey) {
-        setEditMode('shift');
-        return;
-      }
-
-      // Check if the modifier combination
       const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
       const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
 
