@@ -14,7 +14,6 @@ import { EndAction, Playback, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { useAppMode } from '../../../common/stores/appModeStore';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';

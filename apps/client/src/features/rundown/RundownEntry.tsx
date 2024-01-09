@@ -12,7 +12,6 @@ import { calculateDuration, getCueCandidate } from 'ontime-utils';
 import { RUNDOWN } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
-import useRundown from '../../common/hooks-query/useRundown';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
@@ -83,111 +82,95 @@ export default function RundownEntry(props: RundownEntryProps) {
   };
 
   const actionHandler = useMemoisedFn((action: EventItemActions, payload?: number | FieldValue) => {
-      switch (action) {
-        case 'event': {
-          const newEvent = { type: SupportedEvent.Event };
-          const options = {
-            startTimeIsLastEnd,
-            defaultPublic,
-            lastEventId: previousEventId,
-            after: data.id,
-          };
-          return addEvent(newEvent, options);
-        }
-        case 'delay': {
-          return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
-        }
-        case 'block': {
-          return addEvent({ type: SupportedEvent.Block }, { after: data.id });
-        }
-        case 'swap': {
-          const { value } = payload as FieldValue;
-          return swapEvents({ from: value as string, to: data.id });
-        }
-        case 'delete': {
-          if (selectedEvents.has(data.id)) {
-            removeOpenEvent();
-          }
-          return deleteEvent(data.id);
-        }
-        case 'clone': {
-          const newEvent = cloneEvent(data as OntimeEvent, data.id);
-          const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
-          newEvent.cue = getCueCandidate(rundown, data.id);
-          addEvent(newEvent);
-          break;
-        }
-        case 'update': {
-          // Handles and filters update requests
-          const { field, value } = payload as FieldValue;
-          const newData: Partial<OntimeEvent> = { id: data.id };
-
-          // if selected events are more than one
-          // we need to bulk edit
-          if (selectedEvents.size > 1) {
-            const changes: Partial<OntimeEvent> = { [field]: value };
-            const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
-            const idsOfRundownEvents = rundown.filter(isOntimeEvent).map((event) => event.id);
-
-            const eventIds = [...selectedEvents.keys()];
-            // check every selected event id to see if they match rundown event ids
-            const areIdsValid = eventIds.every((eventId) => idsOfRundownEvents.includes(eventId));
-
-            if (!areIdsValid) {
-              return;
-            }
-
-            batchUpdateEvents(changes, eventIds);
-            return clearSelectedEvents();
-          }
-
-          if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
-            // duration defines timeEnd
-            newData.duration = value as number;
-            newData.timeEnd = data.timeStart + (value as number);
-            return updateEvent(newData);
-          }
-
-          if (field === 'timeStart' && data.type === SupportedEvent.Event) {
-            newData.duration = calculateDuration(value as number, data.timeEnd);
-            newData.timeStart = value as number;
-            return updateEvent(newData);
-          }
-
-          if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
-            newData.duration = calculateDuration(data.timeStart, value as number);
-            newData.timeEnd = value as number;
-            return updateEvent(newData);
-          }
-
-          if (field in data) {
-            // @ts-expect-error not sure how to type this
-            newData[field] = value;
-            return updateEvent(newData);
-          }
-
-          return emitError(`Unknown field: ${field}`);
-        }
-        default:
-          throw new Error(`Unhandled event ${action}`);
+    switch (action) {
+      case 'event': {
+        const newEvent = { type: SupportedEvent.Event };
+        const options = {
+          startTimeIsLastEnd,
+          defaultPublic,
+          lastEventId: previousEventId,
+          after: data.id,
+        };
+        return addEvent(newEvent, options);
       }
-    },
-    [
-      addEvent,
-      data,
-      defaultPublic,
-      deleteEvent,
-      emitError,
-      previousEventId,
-      removeOpenEvent,
-      clearSelectedEvents,
-      startTimeIsLastEnd,
-      updateEvent,
-      batchUpdateEvents,
-      selectedEvents,
-      swapEvents,
-    ],
-  );
+      case 'delay': {
+        return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
+      }
+      case 'block': {
+        return addEvent({ type: SupportedEvent.Block }, { after: data.id });
+      }
+      case 'swap': {
+        const { value } = payload as FieldValue;
+        return swapEvents({ from: value as string, to: data.id });
+      }
+      case 'delete': {
+        if (selectedEvents.has(data.id)) {
+          removeOpenEvent();
+        }
+        return deleteEvent(data.id);
+      }
+      case 'clone': {
+        const newEvent = cloneEvent(data as OntimeEvent, data.id);
+        const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
+        newEvent.cue = getCueCandidate(rundown, data.id);
+        addEvent(newEvent);
+        break;
+      }
+      case 'update': {
+        // Handles and filters update requests
+        const { field, value } = payload as FieldValue;
+        const newData: Partial<OntimeEvent> = { id: data.id };
+
+        // if selected events are more than one
+        // we need to bulk edit
+        if (selectedEvents.size > 1) {
+          const changes: Partial<OntimeEvent> = { [field]: value };
+          const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
+          const idsOfRundownEvents = rundown.filter(isOntimeEvent).map((event) => event.id);
+
+          const eventIds = [...selectedEvents.keys()];
+          // check every selected event id to see if they match rundown event ids
+          const areIdsValid = eventIds.every((eventId) => idsOfRundownEvents.includes(eventId));
+
+          if (!areIdsValid) {
+            return;
+          }
+
+          batchUpdateEvents(changes, eventIds);
+          return clearSelectedEvents();
+        }
+
+        if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
+          // duration defines timeEnd
+          newData.duration = value as number;
+          newData.timeEnd = data.timeStart + (value as number);
+          return updateEvent(newData);
+        }
+
+        if (field === 'timeStart' && data.type === SupportedEvent.Event) {
+          newData.duration = calculateDuration(value as number, data.timeEnd);
+          newData.timeStart = value as number;
+          return updateEvent(newData);
+        }
+
+        if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
+          newData.duration = calculateDuration(data.timeStart, value as number);
+          newData.timeEnd = value as number;
+          return updateEvent(newData);
+        }
+
+        if (field in data) {
+          // @ts-expect-error not sure how to type this
+          newData[field] = value;
+          return updateEvent(newData);
+        }
+
+        return emitError(`Unknown field: ${field}`);
+      }
+      default:
+        throw new Error(`Unhandled event ${action}`);
+    }
+  });
 
   if (data.type === SupportedEvent.Event) {
     return (
