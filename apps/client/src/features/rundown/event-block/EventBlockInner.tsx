@@ -137,29 +137,29 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         </Tooltip>
       ) : (
         <span className={style.indicators}>
-          <Tooltip
-            label={
-              delayTime && (
+          {delayTime && (
+            <Tooltip
+              label={
                 <div>
-                  {delayTime}
-                  <br />
+                  {' '}
+                  {delayTime} <br />
                   New Time: {newTime}
                 </div>
-              )
-            }
-          >
-            <div className={`${style.indicator} ${delayTime ? style.delay : ''}`} />
-          </Tooltip>
-          <Tooltip label={overlapTime}>
-            <div
-              className={`${style.indicator} ${
-                overlap > 0 ? style.overlap : overlap < 0 && overlapTime !== null ? style.spacing : ''
-              }`}
-            />
-          </Tooltip>
-          <Tooltip label={timeStart > timeEnd ? 'Start time is later than end' : ''}>
-            <div className={`${style.indicator} ${timeStart > timeEnd ? style.nextDay : ''}`} />
-          </Tooltip>
+              }
+            >
+              <div className={`${style.indicator} ${style.delay}`} />
+            </Tooltip>
+          )}
+          {overlapTime && (
+            <Tooltip label={overlapTime}>
+              <div className={`${style.indicator} ${overlap > 0 ? style.overlap : style.spacing}`} />
+            </Tooltip>
+          )}
+          {timeStart > timeEnd && (
+            <Tooltip label='Start time is later than end'>
+              <div className={`${style.indicator} ${style.nextDay}`} />
+            </Tooltip>
+          )}
         </span>
       )}
       <EventBlockPlayback
