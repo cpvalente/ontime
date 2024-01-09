@@ -8,13 +8,17 @@ import style from './ProjectPanel.module.scss';
 import { loadProject } from '../../../../common/api/ontimeApi';
 
 export default function ProjectList() {
-  const { data } = useProjectList();
+  const { data, refetch } = useProjectList();
   const { files, lastLoadedProject } = data;
 
   // extract currently loaded from file list
   const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
   const projectFiles = [...files];
   const current = projectFiles.splice(currentlyLoadedIndex, 1)[0];
+
+  const handleRefetch = () => {
+    refetch();
+  };
 
   return (
     <Panel.Table>
@@ -46,7 +50,7 @@ export default function ProjectList() {
               <td>{createdAt}</td>
               <td>{updatedAt}</td>
               <td className={style.actionButton}>
-                <ActionMenu filename={project.filename} />
+                <ActionMenu filename={project.filename} onAction={handleRefetch} />
               </td>
             </tr>
           );
@@ -56,10 +60,12 @@ export default function ProjectList() {
   );
 }
 
-function ActionMenu({ filename }: { filename: string }) {
-  const handleLoad = () => {
-    loadProject(filename);
+function ActionMenu({ filename, onAction }: { filename: string; onAction?: () => void }) {
+  const handleLoad = async () => {
+    await loadProject(filename);
+    onAction?.();
   };
+
   return (
     <Menu variant='ontime-on-dark' size='sm'>
       <MenuButton
