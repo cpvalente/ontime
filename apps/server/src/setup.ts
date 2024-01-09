@@ -67,7 +67,7 @@ if (import.meta.url) {
 export const currentDirectory = dirname(__dirname);
 
 const testDbStartDirectory = isTest ? '../' : getAppDataPath();
-export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
+export const externalsStartDirectory = join(isProduction ? getAppDataPath() : currentDirectory, 'external');
 
 // path to public db
 export const resolveDbDirectory = join(
