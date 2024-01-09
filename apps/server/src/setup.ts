@@ -86,5 +86,15 @@ export const resolveStylesPath = join(resolveStylesDirectory, config.styles.file
 
 export const pathToStartStyles = join(currentDirectory, '/external/styles/', config.styles.filename);
 
+// path to public demo
+export const resolveDemoDirectory = join(externalsStartDirectory, config.demo.directory);
+export const resolveDemoPath = config.demo.filename.map((file) => {
+  return join(resolveDemoDirectory, file);
+});
+
+export const pathToStartDemo = config.demo.filename.map((file) => {
+  return join(currentDirectory, '/external/demo/', file);
+});
+
 // path to restore file
 export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);

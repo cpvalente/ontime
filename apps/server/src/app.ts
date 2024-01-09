@@ -35,6 +35,7 @@ import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
+import { populateDemo } from './modules/loadDemo.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -129,6 +130,7 @@ export const initAssets = async () => {
   checkStart(OntimeStartOrder.InitAssets);
   await dbLoadingProcess;
   populateStyles();
+  populateDemo();
 };
 
 /**
