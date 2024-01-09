@@ -59,7 +59,6 @@ export default function RundownEntry(props: RundownEntryProps) {
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
-  const { data: rundown = [] } = useRundown();
   const { cursor } = useAppMode();
   const { selectedEvents, clearSelectedEvents } = useEventSelection();
 
@@ -127,6 +126,7 @@ export default function RundownEntry(props: RundownEntryProps) {
           // we need to bulk edit
           if (selectedEvents.size > 1) {
             const changes: Partial<OntimeEvent> = { [field]: value };
+            const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
             const idsOfRundownEvents = rundown.filter(isOntimeEvent).map((event) => event.id);
 
             const eventIds = [...selectedEvents.keys()];
@@ -186,7 +186,6 @@ export default function RundownEntry(props: RundownEntryProps) {
       batchUpdateEvents,
       selectedEvents,
       swapEvents,
-      rundown,
     ],
   );
 
