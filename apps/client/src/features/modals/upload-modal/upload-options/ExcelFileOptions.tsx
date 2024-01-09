@@ -19,6 +19,8 @@ export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
     { label: 'Start time', title: 'timeStart', value: optionsRef.current.timeStart },
     { label: 'End Time', title: 'timeEnd', value: optionsRef.current.timeEnd },
     { label: 'Duration', title: 'duration', value: optionsRef.current.duration },
+    { label: 'Warning Time', title: 'timeWarning', value: optionsRef.current.timeWarning },
+    { label: 'Danger Time', title: 'timeDanger', value: optionsRef.current.timeDanger },
   ];
 
   const titles: TableEntry[] = [

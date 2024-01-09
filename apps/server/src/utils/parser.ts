@@ -21,6 +21,7 @@ import {
 
 import fs from 'fs';
 import xlsx from 'node-xlsx';
+import path from 'path';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
@@ -36,6 +37,7 @@ import {
   parseViewSettings,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
+import { configService } from '../services/ConfigService.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -86,6 +88,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   let timeStartIndex: number | null = null;
   let timeEndIndex: number | null = null;
   let durationIndex: number | null = null;
+  let timeWarningIndex: number | null = null;
+  let timeDangerIndex: number | null = null;
 
   // options: enum properties
   let endActionIndex: number | null = null;
@@ -149,6 +153,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
         [importMap.user7]: (index: number) => (user7Index = index),
         [importMap.user8]: (index: number) => (user8Index = index),
         [importMap.user9]: (index: number) => (user9Index = index),
+        [importMap.timeWarning]: (index: number) => (timeWarningIndex = index),
+        [importMap.timeDanger]: (index: number) => (timeDangerIndex = index),
       } as const;
 
       row.forEach((column, j) => {
@@ -217,6 +223,10 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
           event.user8 = makeString(column, '');
         } else if (j === user9Index) {
           event.user9 = makeString(column, '');
+        } else if (j === timeWarningIndex) {
+          event.timeWarning = parseExcelDate(column);
+        } else if (j === timeDangerIndex) {
+          event.timeDanger = parseExcelDate(column);
         } else {
           // 2. if there is no flag, lets see if we know the field type
           if (typeof column === 'string') {
@@ -331,6 +341,8 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
       cue: makeString(e.cue, cueFallback),
       id,
       type: 'event',
+      timeWarning: e.timeWarning,
+      timeDanger: e.timeDanger,
     };
   }
 
@@ -349,6 +361,8 @@ type ResponseOK = {
  */
 export const fileHandler = async (file: string, options: ExcelImportOptions): Promise<Partial<ResponseOK>> => {
   const res: Partial<ResponseOK> = {};
+
+  const fileName = path.basename(file);
 
   // check which file type are we dealing with
   if (file.endsWith('.xlsx')) {
@@ -374,6 +388,9 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     }
     res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
+
+    await deleteFile(file);
+
     return res;
   }
 
@@ -385,8 +402,8 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     uploadedJson = JSON.parse(rawdata);
     res.data = await parseJson(uploadedJson);
 
-    // delete file
-    await deleteFile(file);
+    await configService.updateDatabaseConfig(fileName);
+
     return res;
   }
 };

@@ -15,4 +15,7 @@ export type TimeManagerType = {
 
   finished: boolean;
   playback: Playback;
+
+  timeWarning: number | null;
+  timeDanger: number | null;
 };

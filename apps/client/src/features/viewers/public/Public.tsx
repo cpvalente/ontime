@@ -13,17 +13,12 @@ import { getPublicOptions } from '../../../common/components/view-params-editor/
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Public.scss';
-
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
 
 interface BackstageProps {
   isMirrored: boolean;
@@ -51,6 +46,7 @@ export default function Public(props: BackstageProps) {
     viewSettings,
     settings,
   } = props;
+
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -64,10 +60,11 @@ export default function Public(props: BackstageProps) {
   }
 
   const showPublicMessage = publ.text && publ.visible;
-  const clock = formatTime(time.clock, formatOptions);
+  const clock = formatTime(time.clock);
   const qrSize = Math.max(window.innerWidth / 15, 128);
 
-  const publicOptions = getPublicOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const publicOptions = getPublicOptions(defaultFormat);
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>

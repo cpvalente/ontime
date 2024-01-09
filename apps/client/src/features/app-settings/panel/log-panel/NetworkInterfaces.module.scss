@@ -1,0 +1,8 @@
+@use '../../../../theme/v2Styles' as *;
+
+.interfaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $section-spacing;
+  row-gap: $element-inner-spacing;
+}

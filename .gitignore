@@ -27,6 +27,7 @@ ontime.code-workspace
 test-results
 playwright-report
 /playwright/.cache/
+automated-screenshots
 
 # production
 build/

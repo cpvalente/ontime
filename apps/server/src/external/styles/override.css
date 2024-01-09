@@ -23,6 +23,15 @@
     --studio-idle: #cfcfcf;
     --studio-active-label: #101010;
     --studio-idle-label: #595959;
+    --studio-overtime: #101010;
+
+    --lowerThird-font-family-override: 'Times New Roman';
+    --lowerThird-top-font-weight-override: bold;
+    --lowerThird-bottom-font-weight-override: bold;
+    --lowerThird-top-font-style-override: normal;
+    --lowerThird-bottom-font-style-override: italic;
+    --lowerThird-line-height-override: 1vh;
+    --lowerThird-text-align-override: center;
 }
 
 .timer {

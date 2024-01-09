@@ -38,8 +38,9 @@ export default function Rundown(props: RundownProps) {
   const isExtracted = window.location.pathname.includes('/rundown');
 
   // cursor
-  const { cursor, mode: appMode } = useAppMode();
-  const { setEditMode } = useEventSelection();
+  const cursor = useAppMode((state) => state.cursor);
+  const appMode = useAppMode((state) => state.mode);
+  const setEditMode = useAppMode((state) => state.setEditMode);
   const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -92,23 +93,24 @@ export default function Rundown(props: RundownProps) {
 
       if ((isMacOS() && event.metaKey) || event.ctrlKey) {
         setEditMode('ctrl');
-
         return;
       }
 
       if (event.shiftKey) {
         setEditMode('shift');
-
         return;
       }
 
-      if (event.altKey) {
+      // Check if the modifier combination
+      const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
+      const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
+      if (modKeysAlt) {
         switch (event.code) {
           case 'ArrowDown': {
             if (entries.length < 1) {
               return;
             }
-            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor);
+            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor)?.nextEvent;
             if (nextEvent) {
               // moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
             }
@@ -119,7 +121,7 @@ export default function Rundown(props: RundownProps) {
               return;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
-            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor);
+            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor).previousEvent;
             if (previousEvent) {
               // moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
             }
@@ -146,9 +148,24 @@ export default function Rundown(props: RundownProps) {
             break;
           }
         }
+      } else if (modKeysCtrlAlt) {
+        if (entries.length < 2 || cursor == null) {
+          return;
+        }
+        if (event.code == 'ArrowDown') {
+          const { nextEvent, nextIndex } = getNext(entries, cursor);
+          if (nextEvent && nextIndex !== null) {
+            reorderEvent(cursor, nextIndex - 1, nextIndex);
+          }
+        } else if (event.code == 'ArrowUp') {
+          const { previousEvent, previousIndex } = getPrevious(entries, cursor);
+          if (previousEvent && previousIndex !== null) {
+            reorderEvent(cursor, previousIndex + 1, previousIndex);
+          }
+        }
       }
     },
-    [cursor, entries, insertAtCursor, setEditMode],
+    [cursor, entries, insertAtCursor, moveCursorTo, reorderEvent, setEditMode],
   );
 
   const handleKeyUp = useCallback(
@@ -222,7 +239,9 @@ export default function Rundown(props: RundownProps) {
               if (index === 0) {
                 eventIndex = 0;
               }
+              let isFirstEvent = false;
               if (entry.type === SupportedEvent.Event) {
+                isFirstEvent = eventIndex === 0;
                 eventIndex++;
                 previousEnd = thisEnd;
                 thisEnd = entry.timeEnd;
@@ -244,6 +263,7 @@ export default function Rundown(props: RundownProps) {
                       <RundownEntry
                         type={entry.type}
                         isPast={isPast}
+                        isFirstEvent={isFirstEvent}
                         eventIndex={eventIndex}
                         data={entry}
                         selected={isSelected}

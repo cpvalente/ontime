@@ -71,7 +71,6 @@ $button-size: 48px;
   @include action-link;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  cursor: pointer;
 
   &:hover {
     background-color: $menu-hover-bg;

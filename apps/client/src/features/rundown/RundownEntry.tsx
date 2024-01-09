@@ -11,6 +11,7 @@ import { calculateDuration, getCueCandidate } from 'ontime-utils';
 
 import { RUNDOWN } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
+import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import useRundown from '../../common/hooks-query/useRundown';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { useAppMode } from '../../common/stores/appModeStore';
@@ -28,6 +29,7 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 interface RundownEntryProps {
   type: SupportedEvent;
   isPast: boolean;
+  isFirstEvent: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
   eventIndex: number;
@@ -52,6 +54,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     playback,
     isRolling,
     disableEdit,
+    isFirstEvent,
     eventIndex,
   } = props;
   const { emitError } = useEmitLog();
@@ -80,10 +83,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     value: unknown;
   };
 
-  // we assume the data is not changing in the lifecycle of this component
-  // changes to the data would make rundown re-render, also re-rendering this component
-  const actionHandler = useCallback(
-    (action: EventItemActions, payload?: number | FieldValue) => {
+  const actionHandler = useMemoisedFn((action: EventItemActions, payload?: number | FieldValue) => {
       switch (action) {
         case 'event': {
           const newEvent = { type: SupportedEvent.Event };
@@ -216,6 +216,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         isRolling={isRolling}
         actionHandler={actionHandler}
         disableEdit={disableEdit}
+        isFirstEvent={isFirstEvent}
       />
     );
   } else if (data.type === SupportedEvent.Block) {

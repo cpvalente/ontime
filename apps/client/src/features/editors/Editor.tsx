@@ -2,10 +2,13 @@ import { lazy, useEffect } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
+import AppSettings from '../app-settings/AppSettings';
+import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
 import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
 import UploadModal from '../modals/upload-modal/UploadModal';
+import Overview from '../overview/Overview';
 
 import styles from './Editor.module.scss';
 
@@ -18,8 +21,31 @@ const EventEditor = lazy(() => import('../event-editor/EventEditorExport'));
 const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
+// TODO: add breakpoints for body font size ??
+//       - 15px for normal
+//       - 16px for large screens
+
+// TODO: can we delete all the font-family stuff and leave it only at the top?
+
+// TODO: change scrollbar colours to use ontime stuff?
+
+// TODO: rename v2Styles to appStyles?
+
+// TODO: remove onAir as a setting
+
+// TODO: add error boundaries
+
+// TODO: should nav menu have same rules as app settings
+
 export default function Editor() {
-  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
+  const showSettings = useSettingsStore((state) => state.showSettings);
+  const setShowSettings = useSettingsStore((state) => state.setShowSettings);
+
+  const handleSettings = (newTab?: SettingsOptionId) => {
+    setShowSettings(newTab);
+  };
+
+  const { isOpen: isOldSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
   const {
     isOpen: isIntegrationModalOpen,
@@ -34,6 +60,8 @@ export default function Editor() {
     document.title = 'ontime - Editor';
   }, []);
 
+  const isSettingsOpen = Boolean(showSettings);
+
   return (
     <>
       <ErrorBoundary>
@@ -41,30 +69,37 @@ export default function Editor() {
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
-        <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
+        <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
       </ErrorBoundary>
-      <div className={styles.mainContainer} data-testid='event-editor'>
-        <div id='settings' className={styles.settings}>
-          <ErrorBoundary>
-            <MenuBar
-              onSettingsOpen={onSettingsOpen}
-              isSettingsOpen={isSettingsOpen}
-              onSettingsClose={onSettingsClose}
-              isUploadOpen={isUploadModalOpen}
-              onUploadOpen={onUploadModalOpen}
-              isIntegrationOpen={isIntegrationModalOpen}
-              onIntegrationOpen={onIntegrationModalOpen}
-              isAboutOpen={isAboutModalOpen}
-              onAboutOpen={onAboutModalOpen}
-              isQuickStartOpen={isQuickStartOpen}
-              onQuickStartOpen={onQuickStartOpen}
-            />
-          </ErrorBoundary>
-        </div>
-        <Rundown />
-        <MessageControl />
-        <TimerControl />
-        <Info />
+      <div className={styles.mainContainer} data-testid='editor-container'>
+        <ErrorBoundary>
+          <MenuBar
+            isOldSettingsOpen={isOldSettingsOpen}
+            onSettingsOpen={onSettingsOpen}
+            onSettingsClose={onSettingsClose}
+            isUploadOpen={isUploadModalOpen}
+            onUploadOpen={onUploadModalOpen}
+            isIntegrationOpen={isIntegrationModalOpen}
+            onIntegrationOpen={onIntegrationModalOpen}
+            isAboutOpen={isAboutModalOpen}
+            onAboutOpen={onAboutModalOpen}
+            isQuickStartOpen={isQuickStartOpen}
+            onQuickStartOpen={onQuickStartOpen}
+            openSettings={handleSettings}
+            isSettingsOpen={isSettingsOpen}
+          />
+        </ErrorBoundary>
+        {showSettings ? (
+          <AppSettings />
+        ) : (
+          <div id='panels' className={styles.panelContainer}>
+            <Rundown />
+            <MessageControl />
+            <TimerControl />
+            <Info />
+          </div>
+        )}
+        <Overview />
       </div>
       <EventEditor />
     </>

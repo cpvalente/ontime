@@ -8,15 +8,12 @@ import { postViewSettings } from '../../../common/api/ontimeApi';
 import { PopoverPickerRHF } from '../../../common/components/input/popover-picker/PopoverPicker';
 import useInfo from '../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-import { mtm } from '../../../common/utils/timeConstants';
 import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';
 import ModalInput from '../ModalInput';
 import ModalLink from '../ModalLink';
 import ModalSplitInput from '../ModalSplitInput';
 import OntimeModalFooter from '../OntimeModalFooter';
-
-import InputMillisWithString from './InputMillisWithString';
 
 import style from './SettingsModal.module.scss';
 
@@ -31,7 +28,7 @@ export default function ViewSettingsForm() {
     handleSubmit,
     register,
     reset,
-    formState: { isSubmitting, isDirty, isValid, dirtyFields },
+    formState: { isSubmitting, isDirty, isValid },
   } = useForm<ViewSettings>({
     defaultValues: data,
     values: data,
@@ -47,19 +44,8 @@ export default function ViewSettingsForm() {
   }, [data, reset]);
 
   const onSubmit = async (formData: ViewSettings) => {
-    const parsedWarningThreshold = dirtyFields?.warningThreshold
-      ? // @ts-expect-error -- trust me
-        Number.parseInt(formData.warningThreshold) * mtm
-      : formData.warningThreshold;
-    const parsedDangerThreshold = dirtyFields?.dangerThreshold
-      ? // @ts-expect-error -- trust me
-        Number.parseInt(formData.dangerThreshold) * mtm
-      : formData.dangerThreshold;
-
     const newData = {
       ...formData,
-      warningThreshold: parsedWarningThreshold,
-      dangerThreshold: parsedDangerThreshold,
     };
 
     try {
@@ -107,27 +93,13 @@ export default function ViewSettingsForm() {
         <Switch {...register('overrideStyles')} variant='ontime-on-light' />
       </ModalSplitInput>
       <span className={style.title}>Timer view settings</span>
-      <ModalSplitInput field='normalColor' title='Timer colour' description='Normal colour of a running timer'>
+      <ModalSplitInput field='normalColor' title='Timer color' description='Normal color of a running timer'>
         <PopoverPickerRHF name='normalColor' control={control} />
       </ModalSplitInput>
-      <ModalSplitInput
-        field='warningColor'
-        title='Warning Color'
-        description='Time (in minutes) when the timer moves to warning mode'
-      >
-        <InputMillisWithString name='warningThreshold' control={control} />
-      </ModalSplitInput>
-      <ModalSplitInput field='warningColor' title='Warning Color' description='Colour of timer in warning mode'>
+      <ModalSplitInput field='warningColor' title='Warning color' description='Color of timer in warning mode'>
         <PopoverPickerRHF name='warningColor' control={control} />
       </ModalSplitInput>
-      <ModalSplitInput
-        field='dangerThreshold'
-        title='Danger colour'
-        description='Time (in minutes) when the timer moves to danger mode'
-      >
-        <InputMillisWithString name='dangerThreshold' control={control} />
-      </ModalSplitInput>
-      <ModalSplitInput field='dangerColor' title='Timer colour' description='Colour of timer in danger mode'>
+      <ModalSplitInput field='dangerColor' title='Timer color' description='Color of timer in danger mode'>
         <PopoverPickerRHF name='dangerColor' control={control} />
       </ModalSplitInput>
       <div style={{ height: '16px' }} />

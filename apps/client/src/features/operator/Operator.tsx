@@ -14,6 +14,7 @@ import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useUserFields from '../../common/hooks-query/useUserFields';
 import { debounce } from '../../common/utils/debounce';
+import { getDefaultFormat } from '../../common/utils/time';
 import { isStringBoolean } from '../../common/utils/viewUtils';
 
 import EditModal from './edit-modal/EditModal';
@@ -123,18 +124,21 @@ export default function Operator() {
   }
 
   // get fields which the user subscribed to
+  const shouldEdit = searchParams.get('shouldEdit');
   const subscribe = searchParams.get('subscribe') as keyof UserFields | null;
+  const canEdit = shouldEdit && subscribe;
+
   const main = searchParams.get('main') as keyof TitleFields | null;
   const secondary = searchParams.get('secondary') as keyof TitleFields | null;
   const subscribedAlias = subscribe ? userFields[subscribe] : '';
-  const showSeconds = isStringBoolean(searchParams.get('showseconds'));
 
-  const operatorOptions = getOperatorOptions(userFields, settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const operatorOptions = getOperatorOptions(userFields, defaultFormat);
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 
-  const firstEvent = getFirstEvent(data);
-  const lastEvent = getLastEvent(data);
+  const { firstEvent } = getFirstEvent(data);
+  const { lastEvent } = getLastEvent(data);
 
   return (
     <div className={style.operatorContainer}>
@@ -152,7 +156,7 @@ export default function Operator() {
         lastId={lastEvent?.id}
       />
 
-      {subscribe && (
+      {canEdit && (
         <div className={`${style.editPrompt} ${showEditPrompt ? style.show : undefined}`}>
           Press and hold to edit user field
         </div>
@@ -190,10 +194,9 @@ export default function Operator() {
                 isSelected={isSelected}
                 subscribed={subscribedData}
                 subscribedAlias={subscribedAlias}
-                showSeconds={showSeconds}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
-                onLongPress={subscribe ? handleEdit : () => undefined}
+                onLongPress={canEdit ? handleEdit : () => undefined}
               />
             );
           }

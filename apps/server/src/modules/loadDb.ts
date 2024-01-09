@@ -53,7 +53,7 @@ async function loadDb() {
   const dbInDisk = populateDb();
 
   const adapter = new JSONFile<DatabaseModel>(dbInDisk);
-  const db = new Low(adapter);
+  const db = new Low(adapter, dbModel);
 
   const data = await parseDb(dbInDisk, db);
   if (data === null) {

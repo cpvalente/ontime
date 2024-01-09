@@ -8,15 +8,7 @@ import { useEventSelection } from '../../features/rundown/useEventSelection';
 
 import EventEditor from './EventEditor';
 
-import style from '../editors/Editor.module.scss';
-
-/* Styling for action buttons */
-const closeBtnStyle = {
-  size: 'md',
-  variant: 'ghost',
-  colorScheme: 'white',
-  _hover: { bg: '#ebedf0', color: '#333' },
-};
+import style from './EventEditor.module.scss';
 
 const EventEditorExport = () => {
   const { clearEventsToEdit, eventsToEdit } = useEventSelection();
@@ -30,7 +22,12 @@ const EventEditorExport = () => {
         <div className={style.eventEditorLayout}>
           <EventEditor />
           <div className={style.header}>
-            <IconButton aria-label='Close Menu' icon={<IoClose />} onClick={removeOpenEvent} {...closeBtnStyle} />
+            <IconButton
+              aria-label='Close Menu'
+              icon={<IoClose />}
+              onClick={removeOpenEvent}
+              variant='ontime-ghosted-white'
+            />
           </div>
         </div>
       </ErrorBoundary>

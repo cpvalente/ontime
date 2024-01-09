@@ -3,7 +3,5 @@ export type ViewSettings = {
   endMessage: string;
   normalColor: string;
   warningColor: string;
-  warningThreshold: number;
   dangerColor: string;
-  dangerThreshold: number;
 };

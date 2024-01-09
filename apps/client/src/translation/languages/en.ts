@@ -1,6 +1,7 @@
 export const langEn = {
   'common.end_time': 'End Time',
   'common.expected_finish': 'Expected Finish',
+  'common.minutes': 'min',
   'common.now': 'Now',
   'common.next': 'Next',
   'common.public_message': 'Public message',

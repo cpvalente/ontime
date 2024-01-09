@@ -15,7 +15,7 @@ import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { router as rundownRouter } from './routes/rundownRouter.js';
 import { router as projectRouter } from './routes/projectRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
-import { router as playbackRouter } from './routes/playbackRouter.js';
+import { router as apiRouter } from './routes/apiRouter.js';
 
 // Import adapters
 import { OscServer } from './adapters/OscAdapter.js';
@@ -61,10 +61,13 @@ app.use(express.json({ limit: '1mb' }));
 app.use('/events', rundownRouter);
 app.use('/project', projectRouter);
 app.use('/ontime', ontimeRouter);
-app.use('/playback', playbackRouter);
+app.use('/api', apiRouter);
 
 // serve static - css
 app.use('/external', express.static(externalsStartDirectory));
+app.use('/external', (req, res) => {
+  res.status(404).send(`${req.originalUrl} not found`);
+});
 
 // serve static - react, in dev/test mode we fetch the React app from module
 const reactAppPath = join(currentDirectory, resolvedPath());
@@ -144,7 +147,7 @@ export const startServer = async () => {
   eventLoader.init();
 
   // load restore point if it exists
-  const maybeRestorePoint = restoreService.load();
+  const maybeRestorePoint = await restoreService.load();
 
   if (maybeRestorePoint) {
     logger.info(LogOrigin.Server, 'Found resumable state');

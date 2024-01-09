@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -10,7 +11,8 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
-import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
+import { useTranslation } from '../../../translation/TranslationProvider';
+import { getTimerByType } from '../common/viewerUtils';
 
 import './MinimalTimer.scss';
 
@@ -24,6 +26,7 @@ interface MinimalTimerProps {
 export default function MinimalTimer(props: MinimalTimerProps) {
   const { isMirrored, pres, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -35,9 +38,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     return null;
   }
 
-  // get config from url: key, text, font, size, hideovertime
-  // eg. http://localhost:3000/minimal?key=f00&text=fff
-  // Check for user options
+  // TODO: this should be tied to the params
+  // USER OPTIONS
   const userOptions: OverridableOptions = {
     size: 1,
   };
@@ -126,17 +128,19 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideEndMessage = searchParams.get('hideendmessage');
   userOptions.hideEndMessage = isStringBoolean(hideEndMessage);
 
+  const hideTimerSeconds = searchParams.get('hideTimerSeconds');
+  userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
-  const isNegative =
-    (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
+
   const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const showFinished = finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
   const showProgress = time.playback !== Playback.Stop;
-  const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
-  const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
+  const showWarning = (time.current ?? 1) < (time.timeWarning ?? 0);
+  const showDanger = (time.current ?? 1) < (time.timeDanger ?? 0);
   const showBlinking = pres.timerBlink;
   const showBlackout = pres.timerBlackout;
 
@@ -149,9 +153,20 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
-  let display = formatTimerDisplay(stageTimer);
-  if (isNegative) {
-    display = `-${display}`;
+  let display = millisToString(stageTimer, { fallback: '-- : -- : --' });
+  if (stageTimer !== null) {
+    if (hideTimerSeconds) {
+      display = removeSeconds(display);
+    }
+    display = removeLeadingZero(display);
+    // last unit rounds up in negative timers
+    const isNegative = stageTimer ?? 0 < 0;
+    if (isNegative && display === '0') {
+      display = '-1';
+    }
+    if (display.length < 3) {
+      display = `${display} ${getLocalizedString('common.minutes')}`;
+    }
   }
   const stageTimerCharacters = display.replace('/:/g', '').length;
 
