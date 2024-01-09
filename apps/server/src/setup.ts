@@ -68,6 +68,7 @@ export const currentDirectory = dirname(__dirname);
 
 const testDbStartDirectory = isTest ? '../' : getAppDataPath();
 export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
+//TODO: we only need one when they are all in the same folder
 export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : currentDirectory, 'external');
 // path to public db
 export const resolveDbDirectory = join(
@@ -80,7 +81,7 @@ export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
   : join(currentDirectory, '/preloaded-db/', config.database.filename);
 
-//TODO: move all to external
+//TODO: move all static files to the external directory
 // path to public styles
 export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
 export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);
