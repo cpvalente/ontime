@@ -3,22 +3,17 @@ import { pathToStartDemo, resolveDemoDirectory, resolveDemoPath } from '../setup
 import { ensureDirectory } from '../utils/fileManagement.js';
 
 /**
- * @description ensures directories exist and populates stylesheet
- * @return {string} - path to stylesheet file
+ * @description ensures directories exist and populates demo folder
  */
 export const populateDemo = () => {
-  const demoInDisk = resolveDemoPath;
   ensureDirectory(resolveDemoDirectory);
-
-  // eaven if demoInDisk exist we want to use startup demo
+  // even if demo exist we want to use startup demo
   try {
-    demoInDisk.forEach((to, index) => {
+    resolveDemoPath.forEach((to, index) => {
       const from = pathToStartDemo[index];
       copyFileSync(from, to);
     });
   } catch (_) {
     /* we do not handle this */
   }
-
-  return demoInDisk;
 };
