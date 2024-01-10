@@ -139,11 +139,10 @@ export function dispatchFromAdapter(
         throw new Error(`Event index not recognised or out of range ${eventIndex}`);
       }
 
-      try {
-        // Indexes in frontend are 1 based
-        PlaybackService.startByIndex(eventIndex - 1);
-      } catch (error) {
-        throw new Error(`Error loading event:: ${error}`);
+      // Indexes in frontend are 1 based
+      const success = PlaybackService.startByIndex(eventIndex - 1);
+      if (!success) {
+        throw new Error(`Event index not recognised or out of range ${eventIndex}`);
       }
       break;
     }
@@ -194,11 +193,8 @@ export function dispatchFromAdapter(
       if (isNaN(time)) {
         throw new Error(`Time not recognised ${payload}`);
       }
-      try {
-        PlaybackService.addTime(time);
-      } catch (error) {
-        throw new Error(`Could not add time: ${error}`);
-      }
+
+      PlaybackService.addTime(time);
       break;
     }
     //deprecated
@@ -208,11 +204,7 @@ export function dispatchFromAdapter(
         throw new Error(`Delay time not recognised ${payload}`);
       }
 
-      try {
-        PlaybackService.setDelay(delayTime);
-      } catch (error) {
-        throw new Error(`Could not add delay: ${error}`);
-      }
+      PlaybackService.setDelay(delayTime);
       break;
     }
     case 'gotoindex':
@@ -222,11 +214,10 @@ export function dispatchFromAdapter(
         throw new Error(`Event index not recognised or out of range ${eventIndex}`);
       }
 
-      try {
-        // Indexes in frontend are 1 based
-        PlaybackService.loadByIndex(eventIndex - 1);
-      } catch (error) {
-        throw new Error(`Event index not recognised or out of range ${error}`);
+      // Indexes in frontend are 1 based
+      const success = PlaybackService.loadByIndex(eventIndex - 1);
+      if (!success) {
+        throw new Error(`Event index not recognised or out of range ${eventIndex}`);
       }
       break;
     }
@@ -236,10 +227,9 @@ export function dispatchFromAdapter(
         throw new Error(`Event ID not recognised: ${payload}`);
       }
 
-      try {
-        PlaybackService.loadById(payload.toString().toLowerCase());
-      } catch (error) {
-        throw new Error(`OSC IN: error calling goto ${error}`);
+      const success = PlaybackService.loadById(payload.toString().toLowerCase());
+      if (!success) {
+        throw new Error(`Event ID not found: ${payload}`);
       }
       break;
     }
@@ -249,10 +239,9 @@ export function dispatchFromAdapter(
         throw new Error(`Event cue not recognised: ${payload}`);
       }
 
-      try {
-        PlaybackService.loadByCue(payload);
-      } catch (error) {
-        throw new Error(`OSC IN: error calling goto ${error}`);
+      const success = PlaybackService.loadByCue(payload);
+      if (!success) {
+        throw new Error(`Event cue not found: ${payload}`);
       }
       break;
     }

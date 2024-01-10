@@ -5,6 +5,7 @@
   "version": "2.24.8",
   "exports": "./src/index.js",
   "dependencies": {
+    "@googleapis/sheets": "^5.0.5",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
@@ -13,6 +14,7 @@
     "express-static-gzip": "^2.1.7",
     "express-validator": "^6.14.2",
     "got": "^14.0.0",
+    "google-auth-library": "^9.2.0",
     "lowdb": "^5.0.5",
     "multer": "^1.4.5-lts.1",
     "node-osc": "^9.0.2",
@@ -53,6 +55,7 @@
     "build:electron": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
     "build:local": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --bundle --minify --outfile=dist/index.cjs",
     "build:docker": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
+    "build:localdocker": "NODE_ENV=local pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --outfile=dist/index.cjs",
     "lint": "eslint . --quiet",
     "lint-staged": "eslint",

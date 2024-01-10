@@ -97,7 +97,6 @@ describe('safeMerge', () => {
       language: 'pt',
     });
   });
-
   it('merges the osc key', () => {
     const newData = {
       osc: {
