@@ -1,4 +1,4 @@
-import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { IconButton, Input, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
@@ -6,6 +6,8 @@ import * as Panel from '../PanelUtils';
 
 import style from './ProjectPanel.module.scss';
 import { loadProject } from '../../../../common/api/ontimeApi';
+import { useState } from 'react';
+import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 
 export default function ProjectList() {
   const { data, refetch } = useProjectList();
@@ -16,8 +18,15 @@ export default function ProjectList() {
   const projectFiles = [...files];
   const current = projectFiles.splice(currentlyLoadedIndex, 1)[0];
 
+  // TODO: Improve this
+  const [editing, setEditing] = useState<string | null>(null);
+
   const handleRefetch = () => {
     refetch();
+  };
+
+  const handleToggleRename = (filename: string) => {
+    setEditing((prev) => (prev === filename ? null : filename));
   };
 
   return (
@@ -46,11 +55,44 @@ export default function ProjectList() {
           const updatedAt = new Date(project.updatedAt).toLocaleString();
           return (
             <tr key={project.filename}>
-              <td>{project.filename}</td>
+              {project.filename === editing ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    height: '100%',
+                  }}
+                >
+                  <Input
+                    size='sm'
+                    // ref={inputRef}
+                    // data-testid='delay-input'
+                    className={style.inputField}
+                    type='text'
+                    variant='ontime-filled'
+                    // onFocus={handleFocus}
+                    // onChange={(event) => setValue(event.target.value)}
+                    // onBlur={(event) => validateAndSubmit(event.target.value)}
+                    // onKeyDown={onKeyDownHandler}
+                    value={project.filename}
+                    maxLength={9}
+                  />
+                  <IconButton
+                    size='sm'
+                    icon={<IoSaveOutline />}
+                    aria-label='Save duplicate project name'
+                    variant={'ontime-filled'}
+                  />
+                </div>
+              ) : (
+                <td>{project.filename}</td>
+              )}
               <td>{createdAt}</td>
               <td>{updatedAt}</td>
               <td className={style.actionButton}>
-                <ActionMenu filename={project.filename} onAction={handleRefetch} />
+                <ActionMenu filename={project.filename} onAction={handleRefetch} onRename={handleToggleRename} />
               </td>
             </tr>
           );
@@ -60,10 +102,23 @@ export default function ProjectList() {
   );
 }
 
-function ActionMenu({ filename, onAction }: { filename: string; onAction?: () => void }) {
+function ActionMenu({
+  filename,
+  onAction,
+  onRename,
+}: {
+  filename: string;
+  onAction?: () => void;
+  onRename?: (filename: string) => void;
+}) {
   const handleLoad = async () => {
     await loadProject(filename);
     onAction?.();
+    // TODO: Add a toast or something here
+  };
+
+  const handleRename = () => {
+    onRename?.(filename);
   };
 
   return (
@@ -77,7 +132,7 @@ function ActionMenu({ filename, onAction }: { filename: string; onAction?: () =>
       />
       <MenuList>
         <MenuItem onClick={handleLoad}>Load</MenuItem>
-        <MenuItem>Rename</MenuItem>
+        <MenuItem onClick={handleRename}>Rename</MenuItem>
         <MenuItem>Duplicate</MenuItem>
         <MenuItem>Delete</MenuItem>
       </MenuList>
