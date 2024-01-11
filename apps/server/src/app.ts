@@ -35,7 +35,6 @@ import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
-import { ExtraTimerService, timer } from './services/extra-timer-service/ExtraTimerService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -266,8 +265,3 @@ process.on('uncaughtException', async (error) => {
 process.once('SIGHUP', async () => shutdown(0));
 process.once('SIGINT', async () => shutdown(0));
 process.once('SIGTERM', async () => shutdown(0));
-
-
-
-timer.setTime(10000)
-timer.play()
