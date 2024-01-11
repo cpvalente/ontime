@@ -35,7 +35,7 @@ import { eventStore, getInitialPayload } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
-import { SimpleTimer } from './classes/simple-timer/SimpleTimer.js';
+import { ExtraTimerService, timer } from './services/extra-timer-service/ExtraTimerService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -268,16 +268,6 @@ process.once('SIGINT', async () => shutdown(0));
 process.once('SIGTERM', async () => shutdown(0));
 
 
-const timeNow = Date.now()
-const timer1 = new SimpleTimer((state) => {
-  console.log('emit clock state', state)
-  eventStore.set('timer1', state )
-})
-timer1.setTime(10000)
-timer1.play({ timeNow })
 
-
-setInterval(() => {
-  const timeNow = Date.now()
-  timer1.update({ timeNow })
-}, 500)
+timer.setTime(10000)
+timer.play()

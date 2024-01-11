@@ -32,7 +32,6 @@ export function dispatchFromAdapter(
 
 type ActionHandler = (payload: unknown) => { payload: unknown };
 
-// TODO: add data to missing returns once available
 const actionHandlers: Record<string, ActionHandler> = {
   /* General */
   'test-ontime': () => ({ payload: `Hello from Ontime version ${ONTIME_VERSION}` }),
@@ -199,6 +198,8 @@ const actionHandlers: Record<string, ActionHandler> = {
     PlaybackService.addTime(time);
     return { payload: 'success' };
   },
+  /* Extra timers */
+
 };
 
 /**
