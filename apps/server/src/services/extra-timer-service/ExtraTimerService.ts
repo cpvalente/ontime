@@ -1,71 +1,72 @@
-import { SimpleTimer, SimpleTimerState } from "../../classes/simple-timer/SimpleTimer.js";
-import { eventStore } from "../../stores/EventStore.js";
+import { SimpleTimerState } from 'ontime-types';
+
+import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
+import { eventStore } from '../../stores/EventStore.js';
 
 export type EmitFn = (state: SimpleTimerState) => void;
 export type GetTimeFn = () => number;
 
 export class ExtraTimerService {
-    private timer: SimpleTimer;
-    private interval: NodeJS.Timer
-    private emit: EmitFn;
-    private getTime: GetTimeFn;
+  private timer: SimpleTimer;
+  private interval: NodeJS.Timer;
+  private emit: EmitFn;
+  private getTime: GetTimeFn;
 
-    constructor(emit: EmitFn, getTime: GetTimeFn) {
-        this.timer = new SimpleTimer();
-        this.emit = emit;
-        this.getTime = getTime;
-        console.log('constructor', this.timer)
-    }
+  constructor(emit: EmitFn, getTime: GetTimeFn) {
+    this.timer = new SimpleTimer();
+    this.emit = emit;
+    this.getTime = getTime;
+  }
 
-    private startInterval() {
-        this.interval = setInterval(this.update.bind(this), 500);
-    }
+  private startInterval() {
+    this.interval = setInterval(this.update.bind(this), 500);
+  }
 
-    private stopInterval() {
-        clearInterval(this.interval);
-    }
+  private stopInterval() {
+    clearInterval(this.interval);
+  }
 
-    @broadcastReturn
-    play() {
-        this.startInterval();
-        return this.timer.play(this.getTime());
-    }
+  @broadcastReturn
+  play() {
+    this.startInterval();
+    return this.timer.play(this.getTime());
+  }
 
-    @broadcastReturn
-    pause() {
-        return this.timer.pause(this.getTime());
-    }
+  @broadcastReturn
+  pause() {
+    return this.timer.pause(this.getTime());
+  }
 
-    @broadcastReturn
-    stop() {
-        this.stopInterval();
-        return this.timer.stop();
-    }
+  @broadcastReturn
+  stop() {
+    this.stopInterval();
+    return this.timer.stop();
+  }
 
-    @broadcastReturn
-    setTime(duration: number) {
-        return this.timer.setTime(duration);
-    }
+  @broadcastReturn
+  setTime(duration: number) {
+    return this.timer.setTime(duration);
+  }
 
-    @broadcastReturn
-    private update() {
-        return this.timer.update(this.getTime())
-    }
+  @broadcastReturn
+  private update() {
+    return this.timer.update(this.getTime());
+  }
 }
 
 function broadcastReturn(_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value;
+  const originalMethod = descriptor.value;
 
-    descriptor.value = function (...args: any[]) {
-        const result = originalMethod.apply(this, args);
-        this.emit(result);
-        return result;
-    };
+  descriptor.value = function (...args: any[]) {
+    const result = originalMethod.apply(this, args);
+    this.emit(result);
+    return result;
+  };
 
-    return descriptor;
+  return descriptor;
 }
 
-const emit = (state) => eventStore.set('timer1', state)
-const timeNow = () => Date.now()
+const emit = (state: SimpleTimerState) => eventStore.set('timer1', state);
+const timeNow = () => Date.now();
 
-export const extraTimerService = new ExtraTimerService(emit, timeNow)
+export const extraTimerService = new ExtraTimerService(emit, timeNow);

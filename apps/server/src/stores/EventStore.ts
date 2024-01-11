@@ -1,9 +1,8 @@
-import { Playback, RuntimeStore } from 'ontime-types';
+import { Playback, RuntimeStore, SimplePlayback } from 'ontime-types';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { eventLoader } from '../classes/event-loader/EventLoader.js';
-import { SimplePlayback } from '../classes/simple-timer/SimpleTimer.js';
 
 export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
 
@@ -82,5 +81,5 @@ export const getInitialPayload = () => ({
     duration: null,
     current: null,
     playback: 'stop' as SimplePlayback,
-  }
+  },
 });

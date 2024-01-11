@@ -81,27 +81,23 @@ export const setPlayback = {
 };
 
 export const useExtraTimerTime = () => {
-  const featureSelector = (state: RuntimeStore) => (
-    state.timer1.current
-  );
+  const featureSelector = (state: RuntimeStore) => state.timer1.current;
 
   return useRuntimeStore(featureSelector);
-}
+};
 
 export const useExtraTimerPlayback = () => {
-  const featureSelector = (state: RuntimeStore) => (
-    state.timer1.playback
-  );
+  const featureSelector = (state: RuntimeStore) => state.timer1.playback;
 
   return useRuntimeStore(featureSelector);
-}
+};
 
 export const setExtraTimer = {
   start: () => socketSendJson('timer-play'),
   pause: () => socketSendJson('timer-pause'),
   stop: () => socketSendJson('timer-stop'),
   setTime: (time: number) => socketSendJson('timer-set', time),
-}
+};
 
 export const useInfoPanel = () => {
   const featureSelector = (state: RuntimeStore) => ({

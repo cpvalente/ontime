@@ -7,10 +7,13 @@ import { forgivingStringToMillis } from '../../../utils/dateConfig';
 import { TimeEntryField } from '../../../utils/timesManager';
 
 import style from './TimeInput.module.scss';
+
+type OntimeTimeEntry = TimeEntryField | 'extraTimer'
+
 interface TimeInputProps {
-  id?: TimeEntryField;
-  name: TimeEntryField | 'extraTimer';
-  submitHandler: (field: TimeEntryField, value: number) => void;
+  id?: OntimeTimeEntry;
+  name: OntimeTimeEntry;
+  submitHandler: (field: OntimeTimeEntry, value: number) => void;
   time?: number;
   delay?: number;
   placeholder: string;
