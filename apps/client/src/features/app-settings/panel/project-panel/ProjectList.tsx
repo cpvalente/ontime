@@ -5,8 +5,8 @@ import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 
 import style from './ProjectPanel.module.scss';
-import { loadProject } from '../../../../common/api/ontimeApi';
-import { useState } from 'react';
+import { loadProject, renameProject } from '../../../../common/api/ontimeApi';
+import { useRef, useState } from 'react';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 
 export default function ProjectList() {
@@ -20,6 +20,7 @@ export default function ProjectList() {
 
   // TODO: Improve this
   const [editing, setEditing] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleRefetch = () => {
     refetch();
@@ -28,6 +29,11 @@ export default function ProjectList() {
   const handleToggleRename = (filename: string) => {
     setEditing((prev) => (prev === filename ? null : filename));
   };
+
+  const handleSubmitRename = () => {
+    renameProject(editing!, inputRef.current!.value);
+  };
+
 
   return (
     <Panel.Table>
@@ -67,7 +73,7 @@ export default function ProjectList() {
                 >
                   <Input
                     size='sm'
-                    // ref={inputRef}
+                    ref={inputRef}
                     // data-testid='delay-input'
                     className={style.inputField}
                     type='text'
@@ -76,14 +82,15 @@ export default function ProjectList() {
                     // onChange={(event) => setValue(event.target.value)}
                     // onBlur={(event) => validateAndSubmit(event.target.value)}
                     // onKeyDown={onKeyDownHandler}
-                    value={project.filename}
-                    maxLength={9}
-                  />
+                    // value={project.filename}
+                    defaultValue={project.filename}
+                />
                   <IconButton
                     size='sm'
                     icon={<IoSaveOutline />}
                     aria-label='Save duplicate project name'
                     variant={'ontime-filled'}
+                    onClick={handleSubmitRename}
                   />
                 </div>
               ) : (

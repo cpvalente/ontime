@@ -268,3 +268,15 @@ export async function loadProject(filename: string): Promise<MessageResponse> {
   });
   return res.data;
 }
+
+/**
+ * @description HTTP request to rename a project file
+ */
+export async function renameProject(filename: string, newFilename: string): Promise<MessageResponse> {
+  const url = `${ontimeURL}/project/${filename}/rename`;
+  let decodedUrl = decodeURIComponent(url);
+  const res = await axios.put(decodedUrl, {
+    newFilename,
+  });
+  return res.data;
+}
