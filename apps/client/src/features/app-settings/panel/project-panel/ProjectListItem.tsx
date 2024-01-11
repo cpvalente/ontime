@@ -17,26 +17,26 @@ interface ProjectListItemProps {
 }
 
 export default function ProjectListItem({ filename, createdAt, updatedAt }: ProjectListItemProps) {
-    const [editing, setEditing] = useState<EditMode | null>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const [editingMode, setEditingMode] = useState<EditMode | null>(null);
+    const renameInputRef = useRef<HTMLInputElement>(null);
 
     const handleRefetch = async () => {
         await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
     };
 
-    const handleToggleRename = () => {
-        setEditing(editing === "rename" ? null : "rename");
-    };
+    const handleToggleEditMode = (editMode: EditMode) => {
+        setEditingMode((prev) => (prev === editMode ? null : editMode));
+    }
 
     const handleSubmitRename = async () => {
-        await renameProject(filename, inputRef.current!.value);
+        await renameProject(filename, renameInputRef.current!.value);
         await handleRefetch();
-        setEditing(null);
+        setEditingMode(null);
     };
 
     return (
         <tr key={filename}>
-              {editing === "rename" ? (
+              {editingMode === "rename" ? (
                 <div
                   style={{
                     display: 'flex',
@@ -48,7 +48,7 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
                 >
                   <Input
                     size='md'
-                    ref={inputRef}
+                    ref={renameInputRef}
                     className={style.inputField}
                     type='text'
                     variant='ontime-filled'
@@ -63,12 +63,16 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
                   />
                 </div>
               ) : (
-                <td>{filename}</td>
+                <>
+                <td style={{
+                    padding: editingMode === "duplicate" ? "100px" : "0px"
+                }}>{filename}</td>
+                </>
               )}
             <td>{createdAt}</td>
             <td>{updatedAt}</td>
             <td className={style.actionButton}>
-                <ActionMenu filename={filename} onAction={handleRefetch} onRename={handleToggleRename} />
+                <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={handleToggleEditMode} />
             </td>
         </tr>
     );
@@ -76,11 +80,11 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
 function ActionMenu({
     filename,
     onAction,
-    onRename,
+    onChangeEditMode,
 }: {
     filename: string;
     onAction?: () => void;
-    onRename?: () => void;
+    onChangeEditMode?: (editMode: EditMode) => void;
 }) {
     const handleLoad = async () => {
         await loadProject(filename);
@@ -88,8 +92,12 @@ function ActionMenu({
     };
 
     const handleRename = () => {
-        onRename?.();
+        onChangeEditMode?.("rename");
     };
+
+    const handleDuplicate = () => {
+        onChangeEditMode?.("duplicate");
+    }
 
     return (
         <Menu variant='ontime-on-dark' size='sm'>
@@ -103,7 +111,7 @@ function ActionMenu({
             <MenuList>
                 <MenuItem onClick={handleLoad}>Load</MenuItem>
                 <MenuItem onClick={handleRename}>Rename</MenuItem>
-                <MenuItem>Duplicate</MenuItem>
+                <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
                 <MenuItem>Delete</MenuItem>
             </MenuList>
         </Menu>
