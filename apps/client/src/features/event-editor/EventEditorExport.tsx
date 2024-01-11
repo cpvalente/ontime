@@ -3,6 +3,7 @@ import { IconButton } from '@chakra-ui/react';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
+import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { cx } from '../../common/utils/styleUtils';
 import { useEventSelection } from '../rundown/useEventSelection';
 
@@ -12,10 +13,10 @@ import style from './EventEditor.module.scss';
 
 const EventEditorExport = () => {
   const { clearSelectedEvents, selectedEvents } = useEventSelection();
-
+  const { mode } = useAppMode();
   const editorStyle = cx([
     style.eventEditorContainer,
-    selectedEvents.size > 1 || selectedEvents.size === 0 ? style.noEvent : null,
+    selectedEvents.size > 1 || selectedEvents.size === 0 || mode === AppMode.Run ? style.noEvent : null,
   ]);
   const removeOpenEvent = () => clearSelectedEvents();
 
