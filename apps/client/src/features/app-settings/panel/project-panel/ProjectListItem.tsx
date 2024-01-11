@@ -5,35 +5,38 @@ import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 
 import style from './ProjectPanel.module.scss';
 import { renameProject, loadProject } from '../../../../common/api/ontimeApi';
+import { ontimeQueryClient } from '../../../../common/queryClient';
+import { PROJECT_LIST } from '../../../../common/api/apiConstants';
+
+type EditMode = "rename" | "duplicate";
 
 interface ProjectListItemProps {
     filename: string;
     createdAt: string;
     updatedAt: string;
-    onRefetch?: () => void;
 }
 
-export default function ProjectListItem({ filename, createdAt, updatedAt, onRefetch }: ProjectListItemProps) {
-    // TODO: Improve this
-    const [editing, setEditing] = useState<string | null>(null);
+export default function ProjectListItem({ filename, createdAt, updatedAt }: ProjectListItemProps) {
+    const [editing, setEditing] = useState<EditMode | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleRefetch = () => {
-        onRefetch?.();
+        ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
     };
 
-    const handleToggleRename = (filename: string) => {
-        setEditing((prev) => (prev === filename ? null : filename));
+    const handleToggleRename = () => {
+        setEditing(editing === "rename" ? null : "rename");
     };
 
-    const handleSubmitRename = () => {
-        renameProject(editing!, inputRef.current!.value);
+    const handleSubmitRename = async () => {
+        await renameProject(filename, inputRef.current!.value);
         handleRefetch();
+        setEditing(null);
     };
 
     return (
         <tr key={filename}>
-              {filename === editing ? (
+              {editing === "rename" ? (
                 <div
                   style={{
                     display: 'flex',
@@ -83,16 +86,15 @@ function ActionMenu({
 }: {
     filename: string;
     onAction?: () => void;
-    onRename?: (filename: string) => void;
+    onRename?: () => void;
 }) {
     const handleLoad = async () => {
         await loadProject(filename);
         onAction?.();
-        // TODO: Add a toast or something here
     };
 
     const handleRename = () => {
-        onRename?.(filename);
+        onRename?.();
     };
 
     return (
