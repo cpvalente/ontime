@@ -117,11 +117,11 @@ export async function cachedEdit(
   const updatedRundown = DataProvider.getRundown();
   const eventFromRundown = updatedRundown[indexInMemory];
 
-  const isPatchObjectSameAsRundownEvent = Object.entries(patchObject).some(
-    ([key, value]) => eventFromRundown[key] === value,
+  const isPatchObjectDifferentFromRundownEvent = Object.entries(patchObject).some(
+    ([key, value]) => eventFromRundown[key] !== value,
   );
 
-  if (isPatchObjectSameAsRundownEvent) {
+  if (!isPatchObjectDifferentFromRundownEvent) {
     return eventFromRundown;
   }
 
