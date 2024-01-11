@@ -248,7 +248,7 @@ export default function Rundown(props: RundownProps) {
                         previousEventId={previousEventId}
                         playback={isSelected ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
-                        disableEdit={isExtracted}
+                        disableEdit={isExtracted || appMode === AppMode.Run}
                       />
                     </div>
                   </div>
