@@ -1,10 +1,4 @@
-export type SimplePlayback = 'play' | 'pause' | 'stop';
-
-export type SimpleTimerState = {
-    duration: number;
-    current: number;
-    playback: SimplePlayback;
-}
+import { SimpleTimerState } from "ontime-types";
 
 export class SimpleTimer {
     state: SimpleTimerState = {

@@ -3,7 +3,7 @@ import { Message, TimerMessage } from './MessageControl.type.js';
 import { TimerState } from './TimerState.type.js';
 import { Loaded } from './Playlist.type.js';
 import { OntimeEvent } from '../core/OntimeEvent.type.js';
-import { SimpleTimerState } from '../../../../../apps/server/src/classes/simple-timer/SimpleTimer.js';
+import { SimpleTimerState } from './Extratimer.type.js';
 
 export type RuntimeStore = {
   // timer service

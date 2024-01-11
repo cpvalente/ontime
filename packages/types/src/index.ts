@@ -59,6 +59,9 @@ export type { Loaded } from './definitions/runtime/Playlist.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export type { TimerState } from './definitions/runtime/TimerState.type.js';
 
+// ---> Extra Timer
+export type { SimpleTimerState, SimplePlayback } from './definitions/runtime/Extratimer.type.js';
+
 // CLIENT
 
 // TYPE UTILITIES
