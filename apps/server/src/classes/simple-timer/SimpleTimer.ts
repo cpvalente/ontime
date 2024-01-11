@@ -1,17 +1,15 @@
-import { MaybeNumber } from "ontime-types";
-
 export type SimplePlayback = 'play' | 'pause' | 'stop';
 
 export type SimpleTimerState = {
-    duration: MaybeNumber;
-    current: MaybeNumber;
+    duration: number;
+    current: number;
     playback: SimplePlayback;
 }
 
 export class SimpleTimer {
     state: SimpleTimerState = {
         duration: 0,
-        current: null,
+        current: 0,
         playback: "stop",
     }
     private startedAt: number | null = null;
@@ -22,7 +20,7 @@ export class SimpleTimer {
     public reset() {
         this.state = {
             duration: 0,
-            current: null,
+            current: 0,
             playback: "stop",
         }
     }
@@ -33,18 +31,19 @@ export class SimpleTimer {
      */
     public setTime(time: number): SimpleTimerState {
         this.state.duration = time;
+        this.state.current = time;
         return this.state;
     }
 
     public play(timeNow: number): SimpleTimerState {
         if (this.state.playback === 'pause') {
-            this.startedAt = timeNow - (this.pausedAt - this.startedAt);
+            const elapsedSincePause = this.pausedAt - this.startedAt;
+            this.startedAt = timeNow - elapsedSincePause;
         } else if (this.state.playback === 'stop') {
             this.startedAt = timeNow;
         }
         this.state.playback = 'play';
-        this.state.current = timeNow - this.startedAt;
-        return this.state;
+        return this.update(timeNow);
     }
 
     public pause(timeNow: number): SimpleTimerState {
@@ -55,14 +54,17 @@ export class SimpleTimer {
 
     public stop(): SimpleTimerState {
         this.state.playback = 'stop';
-        this.state.current = null;
+        this.state.current = this.state.duration;
+        this.startedAt = null;
         return this.state;
     }
 
     public update(timeNow: number): SimpleTimerState {
         if (this.state.playback === 'play') {
-            this.state.current = timeNow - this.startedAt;
+            const elapsed = timeNow - this.startedAt;
+            this.state.current = this.state.duration - elapsed;
         }
+
         return this.state;
     }
 }

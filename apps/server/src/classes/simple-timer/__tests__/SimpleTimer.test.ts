@@ -11,16 +11,17 @@ describe('SimpleTimer', () => {
             const newState = timer.setTime(initialTime);
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: null,
+                current: initialTime,
                 playback: 'stop',
             });
         })
 
         test("setting the timer to play", () => {
+            console.log('test', timer.state)
             const newState = timer.play(0)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 0,
+                current: initialTime,
                 playback: 'play',
             });
         })
@@ -29,58 +30,59 @@ describe('SimpleTimer', () => {
             let newState = timer.update(100)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 100,
+                current: initialTime - 100,
                 playback: 'play',
             });
 
             newState = timer.update(500)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 500,
+                current: initialTime - 500,
                 playback: 'play',
             });
 
             newState = timer.update(1500)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 1500,
+                current: initialTime - 1500,
                 playback: 'play',
             });
         })
 
         test("pausing the time doesnt affect the current", () => {
+            const pausedTime = 200;
             let newState = timer.pause(1500)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 1500,
+                current: initialTime - 1500,
                 playback: 'pause',
             });
 
             newState = timer.update(1600)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 1500,
+                current: initialTime - 1500,
                 playback: 'pause',
             });
 
             newState = timer.update(1700)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 1500,
+                current: initialTime - 1500,
                 playback: 'pause',
             });
 
             newState = timer.play(1700)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 1500,
+                current: initialTime - 1500,
                 playback: 'play',
             });
 
             newState = timer.update(1800)
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: 1600,
+                current: initialTime - 1800 + pausedTime,
                 playback: 'play',
             });
         })
@@ -89,7 +91,7 @@ describe('SimpleTimer', () => {
             const newState = timer.stop()
             expect(newState).toStrictEqual({
                 duration: initialTime,
-                current: null,
+                current: initialTime,
                 playback: 'stop',
             });
         })
