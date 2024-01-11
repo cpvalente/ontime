@@ -14,7 +14,7 @@ const EventEditorExport = () => {
   const { clearSelectedEvents, selectedEvents } = useEventSelection();
 
   const editorStyle = cx([
-    style.eventEditor,
+    style.eventEditorContainer,
     selectedEvents.size > 1 || selectedEvents.size === 0 ? style.noEvent : null,
   ]);
   const removeOpenEvent = () => clearSelectedEvents();
