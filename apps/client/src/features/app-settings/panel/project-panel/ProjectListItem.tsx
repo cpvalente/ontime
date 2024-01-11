@@ -20,8 +20,8 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
     const [editing, setEditing] = useState<EditMode | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleRefetch = () => {
-        ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+    const handleRefetch = async () => {
+        await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
     };
 
     const handleToggleRename = () => {
@@ -30,7 +30,7 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
 
     const handleSubmitRename = async () => {
         await renameProject(filename, inputRef.current!.value);
-        handleRefetch();
+        await handleRefetch();
         setEditing(null);
     };
 
@@ -47,17 +47,11 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
                   }}
                 >
                   <Input
-                    size='sm'
+                    size='md'
                     ref={inputRef}
-                    // data-testid='delay-input'
                     className={style.inputField}
                     type='text'
                     variant='ontime-filled'
-                    // onFocus={handleFocus}
-                    // onChange={(event) => setValue(event.target.value)}
-                    // onBlur={(event) => validateAndSubmit(event.target.value)}
-                    // onKeyDown={onKeyDownHandler}
-                    // value={project.filename}
                     defaultValue={filename}
                 />
                   <IconButton
