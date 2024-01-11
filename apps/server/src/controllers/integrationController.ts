@@ -6,6 +6,7 @@ import { isPartialTimerMessage, messageService } from '../services/message-servi
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
+import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
 
 export type ChangeOptions = {
   eventId: string;
@@ -199,7 +200,23 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: 'success' };
   },
   /* Extra timers */
-
+  'extra-timer-play': () => {
+    extraTimerService.play();
+    return { payload: 'success' };
+  },
+  'extra-timer-pause': () => {
+    extraTimerService.pause();
+    return { payload: 'success' };
+  },
+  'extra-timer-stop': () => {
+    extraTimerService.stop();
+    return { payload: 'success' };
+  },
+  'extra-timer-set': (payload) => {
+    const time = numberOrError(payload);
+    extraTimerService.setTime(time);
+    return { payload: 'success' };
+  },
 };
 
 /**

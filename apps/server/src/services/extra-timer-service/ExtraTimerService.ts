@@ -71,4 +71,4 @@ const emit = (state) => {
 }
 
 const timeNow = () => Date.now()
-export const timer = new ExtraTimerService(emit, timeNow)
+export const extraTimerService = new ExtraTimerService(emit, timeNow)
