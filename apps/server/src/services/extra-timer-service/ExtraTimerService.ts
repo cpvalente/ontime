@@ -65,10 +65,7 @@ function broadcastReturn(_target: any, _propertyKey: string, descriptor: Propert
     return descriptor;
 }
 
-const emit = (state) => {
-    console.log('emit clock state', state)
-    eventStore.set('timer1', state)
-}
-
+const emit = (state) => eventStore.set('timer1', state)
 const timeNow = () => Date.now()
+
 export const extraTimerService = new ExtraTimerService(emit, timeNow)

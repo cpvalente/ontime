@@ -200,19 +200,19 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: 'success' };
   },
   /* Extra timers */
-  'extra-timer-play': () => {
+  'timer-play': () => {
     extraTimerService.play();
     return { payload: 'success' };
   },
-  'extra-timer-pause': () => {
+  'timer-pause': () => {
     extraTimerService.pause();
     return { payload: 'success' };
   },
-  'extra-timer-stop': () => {
+  'timer-stop': () => {
     extraTimerService.stop();
     return { payload: 'success' };
   },
-  'extra-timer-set': (payload) => {
+  'timer-set': (payload) => {
     const time = numberOrError(payload);
     extraTimerService.setTime(time);
     return { payload: 'success' };

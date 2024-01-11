@@ -9,7 +9,7 @@ import { TimeEntryField } from '../../../utils/timesManager';
 import style from './TimeInput.module.scss';
 interface TimeInputProps {
   id?: TimeEntryField;
-  name: TimeEntryField;
+  name: TimeEntryField | 'extraTimer';
   submitHandler: (field: TimeEntryField, value: number) => void;
   time?: number;
   delay?: number;
