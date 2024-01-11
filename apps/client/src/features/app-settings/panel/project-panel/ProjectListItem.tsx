@@ -36,39 +36,64 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
 
     return (
         <tr key={filename}>
-              {editingMode === "rename" ? (
+            {editingMode === "rename" ? (
                 <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    height: '100%',
-                  }}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        height: '100%',
+                    }}
                 >
-                  <Input
-                    size='md'
-                    ref={renameInputRef}
-                    className={style.inputField}
-                    type='text'
-                    variant='ontime-filled'
-                    defaultValue={filename}
-                />
-                  <IconButton
-                    size='sm'
-                    icon={<IoSaveOutline />}
-                    aria-label='Save duplicate project name'
-                    variant={'ontime-filled'}
-                    onClick={handleSubmitRename}
-                  />
+                    <Input
+                        size='md'
+                        ref={renameInputRef}
+                        className={style.inputField}
+                        type='text'
+                        variant='ontime-filled'
+                        defaultValue={filename}
+                    />
+                    <IconButton
+                        size='sm'
+                        icon={<IoSaveOutline />}
+                        aria-label='Save duplicate project name'
+                        variant={'ontime-filled'}
+                        onClick={handleSubmitRename}
+                    />
                 </div>
-              ) : (
+            ) : (
                 <>
-                <td style={{
-                    padding: editingMode === "duplicate" ? "100px" : "0px"
-                }}>{filename}</td>
+                    <td>
+                        <span>
+                            {filename}
+                        </span>
+                        {
+                            editingMode === "duplicate" ?
+                                (
+                                    <>
+                                        <Input
+                                            size='md'
+                                            ref={renameInputRef}
+                                            className={style.inputField}
+                                            type='text'
+                                            variant='ontime-filled'
+                                            defaultValue={filename}
+                                        />
+                                        <IconButton
+                                            size='sm'
+                                            icon={<IoSaveOutline />}
+                                            aria-label='Save duplicate project name'
+                                            variant={'ontime-filled'}
+                                            onClick={handleSubmitRename}
+                                        />
+
+                                    </>
+                                ) : null
+                        }
+                    </td>
                 </>
-              )}
+            )}
             <td>{createdAt}</td>
             <td>{updatedAt}</td>
             <td className={style.actionButton}>
