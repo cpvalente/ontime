@@ -44,7 +44,6 @@ import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
 import { state } from './state.js';
-import { event } from './models/eventsDefinition.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
