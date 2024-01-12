@@ -1,13 +1,13 @@
 import { LogOrigin, OntimeEvent, Playback } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
-import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
-import { eventStore } from '../stores/EventStore.js';
-import { eventTimer } from './TimerService.js';
-import { clock } from './Clock.js';
-import { logger } from '../classes/Logger.js';
-import { RestorePoint } from './RestoreService.js';
-import { state } from '../state.js';
+import { eventLoader, EventLoader } from '../../classes/event-loader/EventLoader.js';
+import { eventStore } from '../../stores/EventStore.js';
+import { eventTimer } from '../TimerService.js';
+import { clock } from '../Clock.js';
+import { logger } from '../../classes/Logger.js';
+import { RestorePoint } from '../RestoreService.js';
+import { state } from '../../state.js';
 
 /**
  * Service manages playback status of app

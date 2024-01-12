@@ -8,7 +8,7 @@ import { RestorePoint, restoreService } from './services/RestoreService.js';
 import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './services/timerUtils.js';
 import { eventStore } from './stores/EventStore.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
-import { PlaybackService } from './services/PlaybackService.js';
+import { PlaybackService } from './services/runtime-service/RuntimeService.js';
 import { updateRoll } from './services/rollUtils.js';
 
 // TODO: move to timer config

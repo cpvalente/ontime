@@ -3,7 +3,7 @@ import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
 import { isPartialTimerMessage, messageService } from '../services/message-service/MessageService.js';
-import { PlaybackService } from '../services/PlaybackService.js';
+import { PlaybackService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
 

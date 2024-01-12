@@ -18,7 +18,7 @@ import { copyFile, rename, writeFile } from 'fs/promises';
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
-import { PlaybackService } from '../services/PlaybackService.js';
+import { PlaybackService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import {
   getAppDataPath,

@@ -39,7 +39,7 @@ import { oscIntegration } from './services/integration-service/OscIntegration.js
 import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
-import { PlaybackService } from './services/PlaybackService.js';
+import { PlaybackService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
