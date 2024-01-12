@@ -11,8 +11,9 @@ type initialLoadingData = {
 };
 
 export class TimerService {
-  private readonly _interval: NodeJS.Timer;
+  private _interval: NodeJS.Timer;
   private _updateInterval: number;
+  private _refreshInterval: number;
 
   /**
    * @constructor
@@ -21,8 +22,13 @@ export class TimerService {
    * @param {number} [timerConfig.updateInterval]
    */
   constructor(timerConfig: { refresh: number; updateInterval: number }) {
-    this._interval = setInterval(() => this.update(), timerConfig.refresh);
+    this._refreshInterval = timerConfig.refresh;
     this._updateInterval = timerConfig.updateInterval;
+    logger.info(LogOrigin.Server, 'Timer service started');
+  }
+
+  init() {
+    this._interval = setInterval(() => this.update(), this._refreshInterval);
   }
 
   /**
@@ -31,7 +37,6 @@ export class TimerService {
    * @param {OntimeEvent} event
    */
   resume(event: OntimeEvent, restorePoint: RestorePoint) {
-    stateMutations.timer.stop();
     stateMutations.timer.resume(event, restorePoint);
   }
 

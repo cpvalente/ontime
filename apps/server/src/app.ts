@@ -44,6 +44,7 @@ import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
 import { state } from './state.js';
+import { event } from './models/eventsDefinition.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -159,11 +160,11 @@ export const startServer = async () => {
 
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();
-
   if (maybeRestorePoint) {
     logger.info(LogOrigin.Server, 'Found resumable state');
     PlaybackService.resume(maybeRestorePoint);
   }
+  eventTimer.init();
 
   /**
    * Module initialises the services and provides initial payload for the store
