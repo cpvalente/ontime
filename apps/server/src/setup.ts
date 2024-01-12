@@ -99,7 +99,7 @@ export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
   : join(currentDirectory, '/preloaded-db/', config.database.filename);
 
-//TODO: move all static files to the external directory
+// TODO: move all static files to the external directory
 // path to public styles
 export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
 export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);

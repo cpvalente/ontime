@@ -1,6 +1,7 @@
-import { millisToString } from 'ontime-utils';
-import { getA1Notation, cellRequestFromEvent, cellRequenstFromProjectData } from '../sheetUtils.js';
 import { EndAction, OntimeRundownEntry, ProjectData, SupportedEvent, TimerType } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
+
+import { getA1Notation, cellRequestFromEvent, cellRequenstFromProjectData } from '../sheetUtils.js';
 
 describe('getA1Notation()', () => {
   test('A1', () => {
@@ -46,6 +47,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: '',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -74,6 +77,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: { row: 1, col: 37 },
       revision: { row: 1, col: 38 },
       id: { row: 1, col: 39 },
+      timeWarning: { row: 1, col: 40 },
+      timeDanger: { row: 1, col: 41 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result.updateCells.rows[0].values[5].userEnteredValue.stringValue).toStrictEqual(event.note);
@@ -107,6 +112,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: '',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -135,6 +142,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: { row: 1, col: 37 },
       revision: { row: 1, col: 38 },
       id: { row: 1, col: 39 },
+      timeWarning: { row: 1, col: 40 },
+      timeDanger: { row: 1, col: 41 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata).updateCells.rows[0].values[10].userEnteredValue
       .stringValue;
@@ -169,6 +178,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: 'u',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -197,6 +208,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: { row: 1, col: 37 },
       revision: { row: 1, col: 38 },
       id: { row: 1, col: 39 },
+      timeWarning: { row: 1, col: 40 },
+      timeDanger: { row: 1, col: 41 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result.updateCells.rows[0].values[11].userEnteredValue.stringValue).toStrictEqual('x');
@@ -231,6 +244,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: 'u',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       cue: { row: 1, col: 0 },
@@ -272,6 +287,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: 'u',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       cue: { row: 1, col: 5 },
@@ -313,6 +330,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: 'u',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       cue: { row: 10, col: 5 },

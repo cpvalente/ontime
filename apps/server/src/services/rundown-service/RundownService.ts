@@ -28,6 +28,7 @@ import {
 import { logger } from '../../classes/Logger.js';
 import { validateEvent } from '../../utils/parser.js';
 import { clock } from '../Clock.js';
+import { state } from '../../state.js';
 
 /**
  * Forces rundown to be recalculated
@@ -123,7 +124,7 @@ export function updateTimer(affectedIds?: string[]) {
   if (eventInMemory) {
     eventLoader.reset();
 
-    if (eventTimer.playback === Playback.Roll) {
+    if (state.playback === Playback.Roll) {
       const rollTimers = eventLoader.findRoll(clock.timeNow());
       if (rollTimers === null) {
         eventTimer.stop();
