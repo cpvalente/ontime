@@ -1,4 +1,4 @@
-import { HttpSettings, LogOrigin, OSCSettings, Playback } from "ontime-types";
+import { HttpSettings, LogOrigin, OSCSettings, Playback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';

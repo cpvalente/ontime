@@ -44,6 +44,8 @@ export const state: TState = {
     endAction: null,
     lastUpdate: null,
     secondaryTarget: null,
+    timeWarning: null,
+    timeDanger: null,
     get finishedNow() {
       return this.current <= 0 && this.finishedAt === null;
     },
