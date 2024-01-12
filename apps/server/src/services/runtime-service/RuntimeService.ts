@@ -19,22 +19,17 @@ class RuntimeService {
   /**
    * makes calls for loading and starting given event
    * @param {OntimeEvent} event
-   * @return {boolean} success
+   * @return {boolean} success - whether an event was loaded
    */
   loadEvent(event: OntimeEvent): boolean {
-    let success = false;
-
-    if (!event) {
-      logger.error(LogOrigin.Playback, 'No event found');
-    } else if (event.skip) {
+    if (event.skip) {
       logger.warning(LogOrigin.Playback, `Refused playback of skipped event ID ${event.id}`);
-    } else {
-      eventLoader.loadEvent(event);
-      eventTimer.load(event);
-      success = true;
+      return false;
     }
-    eventStore.broadcast();
-    return success;
+
+    // TODO: receive some indication of success
+    stateMutations.load(event);
+    return true;
   }
 
   /**
@@ -213,8 +208,8 @@ class RuntimeService {
    * Reloads current event
    */
   reload() {
-    if (state.timer.selectedEventId) {
-      this.loadById(state.timer.selectedEventId);
+    if (state.runtime.selectedEventId) {
+      this.loadById(state.runtime.selectedEventId);
     }
   }
 
@@ -278,7 +273,7 @@ class RuntimeService {
    * @param {number} time - time to add in seconds
    */
   addTime(time: number) {
-    if (state.timer.selectedEventId) {
+    if (state.runtime.selectedEventId) {
       const timeInMs = time * 1000;
       eventTimer.addTime(timeInMs);
       timeInMs > 0

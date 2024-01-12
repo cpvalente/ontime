@@ -10,17 +10,16 @@ import { eventStore } from './stores/EventStore.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { updateRoll } from './services/rollUtils.js';
+import { EventLoader } from './classes/event-loader/EventLoader.js';
 
 // TODO: move to timer config
 const timeSkipLimit = 3 * 32;
 
 type TState = DeepReadonly<{
-  loader: {
-    eventNow: OntimeEvent | null;
-    publicEventNow: OntimeEvent | null;
-    eventNext: OntimeEvent | null;
-    publicEventNext: OntimeEvent | null;
-  };
+  eventNow: OntimeEvent | null;
+  publicEventNow: OntimeEvent | null;
+  eventNext: OntimeEvent | null;
+  publicEventNext: OntimeEvent | null;
   runtime: Loaded;
   playback: Playback;
   timer: TimerState & {
@@ -34,12 +33,10 @@ type TState = DeepReadonly<{
 }>;
 
 export const state: TState = {
-  loader: {
-    eventNow: null,
-    publicEventNow: null,
-    eventNext: null,
-    publicEventNext: null,
-  },
+  eventNow: null,
+  publicEventNow: null,
+  eventNext: null,
+  publicEventNext: null,
   runtime: {
     selectedEventIndex: null,
     selectedEventId: null,
@@ -77,16 +74,128 @@ export const state: TState = {
 };
 
 export const stateMutations = {
-  load() {
+  load(event: OntimeEvent) {
     mutate((state) => {
-      console.log('called load', state);
+      const timedEvents = EventLoader.getPlayableEvents();
+      const eventIndex = timedEvents.findIndex((eventInMemory) => eventInMemory.id === event.id);
+      const playableEvents = EventLoader.getPlayableEvents();
+
+      state.runtime.selectedEventIndex = eventIndex;
+      state.runtime.selectedEventId = event.id;
+      state.runtime.numEvents = playableEvents.length;
+
+      this.loadNow(event, playableEvents);
+      this.loadNext(playableEvents);
+
+      state.timer.clock = clock.timeNow();
+      state.timer.timeEnd = event.timeEnd;
+
+      state.playback = Playback.Armed;
+      state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
+      state.timer.current = state.timer.duration;
+
+      state.timer.timerType = event.timerType;
+      state.timer.endAction = event.endAction;
+      state.timer.timeWarning = event.timeWarning;
+      state.timer.timeDanger = event.timeDanger;
+      state.timer.pausedTime = 0;
+      state.timer.pausedAt = null;
+
+      if (state.timer.timerType === TimerType.TimeToEnd) {
+        // TODO: getCurrent receives state
+        state.timer.current = getCurrent(
+          state.timer.clock,
+          state.timer.duration,
+          0,
+          0,
+          state.timer.clock,
+          event.timeEnd,
+          state.timer.timerType,
+        );
+      }
+      // TODO: eventual patch data
     });
   },
+  loadNow(event: OntimeEvent, playableEvents: OntimeEvent[]) {
+    mutate((state) => {
+      state.eventNow = event;
+
+      // check if current is also public
+      if (event.isPublic) {
+        state.publicEventNow = event;
+        state.runtime.selectedPublicEventId = event.id;
+      } else {
+        // assume there is no public event
+        state.publicEventNow = null;
+        state.runtime.selectedPublicEventId = null;
+
+        // if there is nothing before, return
+        if (!state.runtime.selectedEventIndex) {
+          return;
+        }
+
+        // iterate backwards to find it
+        for (let i = state.runtime.selectedEventIndex; i >= 0; i--) {
+          if (playableEvents[i].isPublic) {
+            state.publicEventNow = playableEvents[i];
+            state.runtime.selectedPublicEventId = playableEvents[i].id;
+            break;
+          }
+        }
+      }
+    });
+  },
+  loadNext(playableEvents: OntimeEvent[]) {
+    mutate((state) => {
+      // assume there are no next events
+      state.eventNext = null;
+      state.publicEventNext = null;
+      state.runtime.nextEventId = null;
+      state.runtime.nextPublicEventId = null;
+
+      if (state.runtime.selectedEventIndex === null) {
+        return;
+      }
+
+      const numEvents = playableEvents.length;
+
+      if (state.runtime.selectedEventIndex < numEvents - 1) {
+        let nextPublic = false;
+        let nextProduction = false;
+
+        for (let i = state.runtime.selectedEventIndex + 1; i < numEvents; i++) {
+          // if we have not set private
+          if (!nextProduction) {
+            state.eventNext = playableEvents[i];
+            state.runtime.nextEventId = playableEvents[i].id;
+            nextProduction = true;
+          }
+
+          // if event is public
+          if (playableEvents[i].isPublic) {
+            state.publicEventNext = playableEvents[i];
+            state.runtime.nextPublicEventId = playableEvents[i].id;
+            nextPublic = true;
+          }
+
+          // Stop if both are set
+          if (nextPublic && nextProduction) break;
+        }
+      }
+    });
+  },
+
   timer: {
     // utility to reset the state of the timer
     clear() {
       mutate((state) => {
         // TODO: check that entire state is reset here
+        state.runtime.selectedEventId = null;
+        state.runtime.selectedEventIndex = null;
+        state.runtime.selectedPublicEventId = null;
+        state.runtime.nextEventId = null;
+        state.runtime.nextPublicEventId = null;
+
         state.playback = Playback.Stop;
         state.timer.clock = clock.timeNow();
         state.timer.current = null;
@@ -96,7 +205,6 @@ export const stateMutations = {
         state.timer.startedAt = null;
         state.timer.finishedAt = null;
         state.timer.secondaryTimer = null;
-        state.timer.selectedEventId = null;
         state.timer.duration = null;
         state.timer.timerType = null;
         state.timer.endAction = null;
@@ -185,7 +293,7 @@ export const stateMutations = {
 
         // TODO: the duplication of timer data would not be necessary
         // once event loader is merged here
-        state.timer.selectedEventId = event.id;
+        state.runtime.selectedEventId = event.id;
         state.timer.startedAt = restorePoint.startedAt;
         state.timer.timeEnd = event.timeEnd;
         state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
@@ -212,12 +320,13 @@ export const stateMutations = {
         }
       });
     },
+    // TODO: remove in favour of global load
     load(event: OntimeEvent, patch?: Partial<TimerState>) {
       mutate(
         (state) => {
           // TODO: resume and load logic are very similar
           state.timer.clock = clock.timeNow();
-          state.timer.selectedEventId = event.id;
+          state.runtime.selectedEventId = event.id;
           state.timer.timeEnd = event.timeEnd;
 
           state.playback = Playback.Armed;
@@ -279,7 +388,7 @@ export const stateMutations = {
     addTime(amount: number) {
       mutate((state) => {
         // TODO: what kinds of validation go here or in the consumer?
-        if (!state.timer.selectedEventId) {
+        if (!state.runtime.selectedEventId) {
           return;
         }
 
@@ -317,7 +426,7 @@ export const stateMutations = {
             }
 
             const tempCurrentTimer = {
-              selectedEventId: state.timer.selectedEventId,
+              selectedEventId: state.runtime.selectedEventId,
               current: state.timer.current,
               // safeguard on midnight rollover
               _finishAt:
@@ -336,7 +445,7 @@ export const stateMutations = {
             state.timer.elapsed = state.timer.duration - state.timer.current;
 
             if (isFinished) {
-              state.timer.selectedEventId = null;
+              state.runtime.selectedEventId = null;
             }
 
             return { doRoll: doRollLoad, isFinished };
@@ -533,7 +642,7 @@ function mutate<R>(
   // we write to restore service if the underlying data changes
   restoreService.save({
     playback: state.playback,
-    selectedEventId: state.timer.selectedEventId,
+    selectedEventId: state.runtime.selectedEventId,
     startedAt: state.timer.startedAt,
     addedTime: state.timer.addedTime,
     pausedAt: state.timer.pausedAt,

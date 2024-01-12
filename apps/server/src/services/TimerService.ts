@@ -52,7 +52,7 @@ export class TimerService {
     }
 
     // TODO: this is no longer correct
-    if (event.id !== state.timer.selectedEventId) {
+    if (event.id !== state.runtime.selectedEventId) {
       // we only hot reload if the timer is the same
       return;
     }
@@ -73,10 +73,6 @@ export class TimerService {
    * @param {initialLoadingData} initialData
    */
   load(event: OntimeEvent, initialData?: initialLoadingData) {
-    if (event.skip) {
-      throw new Error('Refuse load of skipped event');
-    }
-
     stateMutations.timer.clear();
 
     // TODO: does this replace the need for hot reload?
@@ -85,10 +81,11 @@ export class TimerService {
     }
 
     stateMutations.timer.load(event);
+    // TODO: schedule update for expected end - 16ms
   }
 
   start() {
-    if (!state.timer.selectedEventId) {
+    if (!state.runtime.selectedEventId) {
       // TODO: we should be able to start
       if (state.playback === Playback.Roll) {
         logger.error(LogOrigin.Playback, 'Cannot start while waiting for event');
@@ -125,7 +122,7 @@ export class TimerService {
     if (amount === 0) {
       return;
     }
-    if (state.timer.selectedEventId === null) {
+    if (state.runtime.selectedEventId === null) {
       return;
     }
     stateMutations.timer.addTime(amount);
