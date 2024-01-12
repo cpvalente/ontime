@@ -113,7 +113,6 @@ export const stateMutations = {
           state.timer.timerType,
         );
       }
-      // TODO: eventual patch data
     });
   },
   loadNow(event: OntimeEvent, playableEvents: OntimeEvent[]) {

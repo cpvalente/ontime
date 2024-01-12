@@ -27,9 +27,8 @@ class RuntimeService {
       return false;
     }
 
-    // TODO: receive some indication of success
     stateMutations.load(event);
-    return true;
+    return event.id === state.runtime.selectedEventId;
   }
 
   /**
