@@ -71,7 +71,7 @@ export function cellRequestFromEvent(
         });
       } else if (typeof event[key] === 'number') {
         returnRows.push({
-          userEnteredValue: { stringValue: millisToString(event[key], true) },
+          userEnteredValue: { stringValue: millisToString(event[key]) },
         });
       } else if (typeof event[key] === 'string') {
         returnRows.push({

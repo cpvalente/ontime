@@ -74,6 +74,10 @@ export const externalsStartDirectory = isProduction ? getAppDataPath() : join(cu
 //TODO: we only need one when they are all in the same folder
 export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : currentDirectory, 'external');
 
+// project files
+export const lastLoadedProjectConfigPath = join(getAppDataPath(), 'config.json');
+export const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+
 const getLastLoadedProject = () => {
   try {
     return JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
@@ -91,11 +95,6 @@ const configDbDirectory = lastLoadedProject ? 'uploads' : config.database.direct
 // path to public db
 export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : configDbDirectory);
 export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
-
-// project files
-export const lastLoadedProjectConfigPath = join(getAppDataPath(), 'config.json');
-export const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-
 export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
   : join(currentDirectory, '/preloaded-db/', config.database.filename);
