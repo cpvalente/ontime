@@ -1,6 +1,6 @@
 import { millisToString } from 'ontime-utils';
 import { getA1Notation, cellRequestFromEvent, cellRequenstFromProjectData } from '../sheetUtils.js';
-import { EndAction, OntimeRundownEntry, ProjectData, SupportedEvent, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, OntimeRundownEntry, ProjectData, SupportedEvent, TimerType } from 'ontime-types';
 
 describe('getA1Notation()', () => {
   test('A1', () => {
@@ -46,6 +46,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: '',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -107,6 +109,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: '',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -169,6 +173,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: 'u',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -231,6 +237,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: 'u',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       cue: { row: 1, col: 0 },
@@ -272,6 +280,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: 'u',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       cue: { row: 1, col: 5 },
@@ -313,6 +323,8 @@ describe('cellRequenstFromEvent()', () => {
       user9: 'u',
       revision: 0,
       id: '1358',
+      timeWarning: 0,
+      timeDanger: 0,
     };
     const metadata = {
       cue: { row: 10, col: 5 },
