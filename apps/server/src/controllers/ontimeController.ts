@@ -18,7 +18,7 @@ import { copyFile, rename, writeFile } from 'fs/promises';
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
-import { RuntimeService } from '../services/runtime-service/RuntimeService.js';
+import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import {
   getAppDataPath,
@@ -98,7 +98,7 @@ async function parseFile(file, _req, _res, options) {
 const parseAndApply = async (file, _req, res, options) => {
   const result = await parseFile(file, _req, res, options);
 
-  RuntimeService.stop();
+  runtimeService.stop();
 
   const newRundown = result.rundown || [];
   if (options?.onlyRundown === 'true') {
@@ -409,7 +409,7 @@ export async function patchPartialProjectFile(req, res) {
     await DataProvider.mergeIntoData(patchDb);
     if (patchDb.rundown !== undefined) {
       // it is likely cheaper to invalidate cache than to calculate diff
-      RuntimeService.stop();
+      runtimeService.stop();
       runtimeCacheStore.invalidate(delayedRundownCacheKey);
       notifyChanges({ external: true, reset: true });
     }

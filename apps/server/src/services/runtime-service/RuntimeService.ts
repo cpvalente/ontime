@@ -7,20 +7,23 @@ import { eventTimer } from '../TimerService.js';
 import { clock } from '../Clock.js';
 import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
-import { state } from '../../state.js';
+import { state, stateMutations } from '../../state.js';
 
 /**
  * Service manages playback status of app
  * Coordinating with necessary services
  */
-export class RuntimeService {
+class RuntimeService {
+  constructor() {}
+
   /**
    * makes calls for loading and starting given event
    * @param {OntimeEvent} event
    * @return {boolean} success
    */
-  static loadEvent(event: OntimeEvent): boolean {
+  loadEvent(event: OntimeEvent): boolean {
     let success = false;
+
     if (!event) {
       logger.error(LogOrigin.Playback, 'No event found');
     } else if (event.skip) {
@@ -39,12 +42,12 @@ export class RuntimeService {
    * @param {string} eventId
    * @return {boolean} success
    */
-  static startById(eventId: string): boolean {
+  startById(eventId: string): boolean {
     const event = EventLoader.getEventWithId(eventId);
-    const success = RuntimeService.loadEvent(event);
+    const success = this.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
-      RuntimeService.start();
+      this.start();
     }
     return success;
   }
@@ -54,12 +57,12 @@ export class RuntimeService {
    * @param {number} eventIndex
    * @return {boolean} success
    */
-  static startByIndex(eventIndex: number): boolean {
+  startByIndex(eventIndex: number): boolean {
     const event = EventLoader.getEventAtIndex(eventIndex);
-    const success = RuntimeService.loadEvent(event);
+    const success = this.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
-      RuntimeService.start();
+      this.start();
     }
     return success;
   }
@@ -69,12 +72,12 @@ export class RuntimeService {
    * @param {string} cue
    * @return {boolean} success
    */
-  static startByCue(cue: string): boolean {
+  startByCue(cue: string): boolean {
     const event = EventLoader.getEventWithCue(cue);
-    const success = RuntimeService.loadEvent(event);
+    const success = this.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
-      RuntimeService.start();
+      this.start();
     }
     return success;
   }
@@ -84,9 +87,9 @@ export class RuntimeService {
    * @param {string} eventId
    * @return {boolean} success
    */
-  static loadById(eventId: string): boolean {
+  loadById(eventId: string): boolean {
     const event = EventLoader.getEventWithId(eventId);
-    const success = RuntimeService.loadEvent(event);
+    const success = this.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -98,9 +101,9 @@ export class RuntimeService {
    * @param {number} eventIndex
    * @return {boolean} success
    */
-  static loadByIndex(eventIndex: number): boolean {
+  loadByIndex(eventIndex: number): boolean {
     const event = EventLoader.getEventAtIndex(eventIndex);
-    const success = RuntimeService.loadEvent(event);
+    const success = this.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -112,9 +115,9 @@ export class RuntimeService {
    * @param {string} cue
    * @return {boolean} success
    */
-  static loadByCue(cue: string): boolean {
+  loadByCue(cue: string): boolean {
     const event = EventLoader.getEventWithCue(cue);
-    const success = RuntimeService.loadEvent(event);
+    const success = this.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -124,10 +127,10 @@ export class RuntimeService {
   /**
    * Loads event before currently selected
    */
-  static loadPrevious() {
+  loadPrevious() {
     const previousEvent = eventLoader.findPrevious();
     if (previousEvent) {
-      const success = RuntimeService.loadEvent(previousEvent);
+      const success = this.loadEvent(previousEvent);
       if (success) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${previousEvent.id}`);
       }
@@ -139,21 +142,21 @@ export class RuntimeService {
    * @param {string} [fallbackAction] - 'stop', 'pause'
    * @return {boolean} success
    */
-  static loadNext(fallbackAction?: 'stop' | 'pause'): boolean {
+  loadNext(fallbackAction?: 'stop' | 'pause'): boolean {
     const nextEvent = eventLoader.findNext();
     if (nextEvent) {
-      const success = RuntimeService.loadEvent(nextEvent);
+      const success = this.loadEvent(nextEvent);
       if (success) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${nextEvent.id}`);
         return true;
       }
     } else if (fallbackAction === 'stop') {
       logger.info(LogOrigin.Playback, 'No next event found! Stopping playback');
-      RuntimeService.stop();
+      this.stop();
       return false;
     } else if (fallbackAction === 'pause') {
       logger.info(LogOrigin.Playback, 'No next event found! Pausing playback');
-      RuntimeService.pause();
+      this.pause();
       return false;
     } else {
       logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
@@ -164,7 +167,7 @@ export class RuntimeService {
   /**
    * Starts playback on selected event
    */
-  static start() {
+  start() {
     if (validatePlayback(state.playback).start) {
       eventTimer.start();
       const newState = state.playback;
@@ -176,17 +179,17 @@ export class RuntimeService {
    * Starts playback on next event
    * @param {string} [fallbackAction] - 'stop', 'pause'
    */
-  static startNext(fallbackAction?: 'stop' | 'pause') {
-    const success = RuntimeService.loadNext(fallbackAction);
+  startNext(fallbackAction?: 'stop' | 'pause') {
+    const success = this.loadNext(fallbackAction);
     if (success) {
-      RuntimeService.start();
+      this.start();
     }
   }
 
   /**
    * Pauses playback on selected event
    */
-  static pause() {
+  pause() {
     if (validatePlayback(state.playback).pause) {
       eventTimer.pause();
       const newState = state.playback;
@@ -197,7 +200,7 @@ export class RuntimeService {
   /**
    * Stops timer and unloads any events
    */
-  static stop() {
+  stop() {
     if (validatePlayback(state.playback).stop) {
       eventLoader.reset();
       eventTimer.stop();
@@ -209,7 +212,7 @@ export class RuntimeService {
   /**
    * Reloads current event
    */
-  static reload() {
+  reload() {
     if (state.timer.selectedEventId) {
       this.loadById(state.timer.selectedEventId);
     }
@@ -218,21 +221,21 @@ export class RuntimeService {
   /**
    * Sets playback to roll
    */
-  static roll() {
+  roll() {
     if (EventLoader.getPlayableEvents()) {
       const rollTimers = eventLoader.findRoll(clock.timeNow());
 
       // nothing to play
       if (rollTimers === null) {
         logger.warning(LogOrigin.Server, 'Roll: no events found');
-        RuntimeService.stop();
+        this.stop();
         return;
       }
 
       const { currentEvent, nextEvent } = rollTimers;
       if (!currentEvent && !nextEvent) {
         logger.warning(LogOrigin.Server, 'Roll: no events found');
-        RuntimeService.stop();
+        this.stop();
         return;
       }
 
@@ -247,12 +250,12 @@ export class RuntimeService {
    * @description resume playback state given a restore point
    * @param restorePoint
    */
-  static resume(restorePoint: RestorePoint) {
+  resume(restorePoint: RestorePoint) {
     const willResume = () => logger.info(LogOrigin.Server, 'Resuming playback');
 
     if (restorePoint.playback === Playback.Roll) {
       willResume();
-      RuntimeService.roll();
+      this.roll();
     }
 
     if (restorePoint.selectedEventId) {
@@ -274,7 +277,7 @@ export class RuntimeService {
    * Adds time to current event
    * @param {number} time - time to add in seconds
    */
-  static addTime(time: number) {
+  addTime(time: number) {
     if (state.timer.selectedEventId) {
       const timeInMs = time * 1000;
       eventTimer.addTime(timeInMs);
@@ -283,13 +286,6 @@ export class RuntimeService {
         : logger.info(LogOrigin.Playback, `Removed ${time} sec`);
     }
   }
-
-  /**
-   * Adds delay to current event
-   * @deprecated Use addTime
-   * @param {number} delayTime time in minutes
-   */
-  static setDelay(delayTime: number) {
-    this.addTime(delayTime * 60);
-  }
 }
+
+export const runtimeService = new RuntimeService();

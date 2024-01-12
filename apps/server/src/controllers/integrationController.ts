@@ -3,7 +3,7 @@ import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
 import { isPartialTimerMessage, messageService } from '../services/message-service/MessageService.js';
-import { RuntimeService } from '../services/runtime-service/RuntimeService.js';
+import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
 
@@ -122,12 +122,12 @@ const actionHandlers: Record<string, ActionHandler> = {
       }
     }
 
-    RuntimeService.start();
+    runtimeService.start();
 
     return { payload: 'start' };
   },
   'start-next': () => {
-    RuntimeService.startNext();
+    runtimeService.startNext();
     return { payload: 'start' };
   },
   startindex: (payload) => {
@@ -137,7 +137,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
 
     // Indexes in frontend are 1 based
-    const success = RuntimeService.startByIndex(eventIndex - 1);
+    const success = runtimeService.startByIndex(eventIndex - 1);
     if (!success) {
       throw new Error(`Event index not recognised or out of range ${eventIndex}`);
     }
@@ -145,36 +145,36 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   startid: (payload) => {
     assert.isString(payload);
-    RuntimeService.startById(payload);
+    runtimeService.startById(payload);
     return { payload: 'success' };
   },
   startcue: (payload) => {
     assert.isString(payload);
-    RuntimeService.startByCue(payload);
+    runtimeService.startByCue(payload);
     return { payload: 'success' };
   },
   pause: () => {
-    RuntimeService.pause();
+    runtimeService.pause();
     return { payload: 'success' };
   },
   previous: () => {
-    RuntimeService.loadPrevious();
+    runtimeService.loadPrevious();
     return { payload: 'success' };
   },
   next: () => {
-    RuntimeService.loadNext();
+    runtimeService.loadNext();
     return { payload: 'success' };
   },
   stop: () => {
-    RuntimeService.stop();
+    runtimeService.stop();
     return { payload: 'success' };
   },
   reload: () => {
-    RuntimeService.reload();
+    runtimeService.reload();
     return { payload: 'success' };
   },
   roll: () => {
-    RuntimeService.roll();
+    runtimeService.roll();
     return { payload: 'success' };
   },
   loadindex: (payload) => {
@@ -183,22 +183,22 @@ const actionHandlers: Record<string, ActionHandler> = {
       throw new Error(`Event index out of range ${eventIndex}`);
     }
     // Indexes in frontend are 1 based
-    RuntimeService.loadByIndex(eventIndex - 1);
+    runtimeService.loadByIndex(eventIndex - 1);
     return { payload: 'success' };
   },
   loadid: (payload) => {
     assert.isDefined(payload);
-    RuntimeService.loadById(payload.toString().toLowerCase());
+    runtimeService.loadById(payload.toString().toLowerCase());
     return { payload: 'success' };
   },
   loadcue: (payload) => {
     assert.isString(payload);
-    RuntimeService.loadByCue(payload);
+    runtimeService.loadByCue(payload);
     return { payload: 'success' };
   },
   addtime: (payload) => {
     const time = numberOrError(payload);
-    RuntimeService.addTime(time);
+    runtimeService.addTime(time);
     return { payload: 'success' };
   },
 };

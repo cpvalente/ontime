@@ -39,7 +39,7 @@ import { oscIntegration } from './services/integration-service/OscIntegration.js
 import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
-import { RuntimeService } from './services/runtime-service/RuntimeService.js';
+import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
@@ -161,7 +161,7 @@ export const startServer = async () => {
   const maybeRestorePoint = await restoreService.load();
   if (maybeRestorePoint) {
     logger.info(LogOrigin.Server, 'Found resumable state');
-    RuntimeService.resume(maybeRestorePoint);
+    runtimeService.resume(maybeRestorePoint);
   }
   eventTimer.init();
 

@@ -1,6 +1,6 @@
 import type { DeepReadonly, DeepWritable } from 'ts-essentials';
 
-import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
+import { EndAction, Loaded, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
 import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from './services/Clock.js';
@@ -8,13 +8,20 @@ import { RestorePoint, restoreService } from './services/RestoreService.js';
 import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './services/timerUtils.js';
 import { eventStore } from './stores/EventStore.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
-import { RuntimeService } from './services/runtime-service/RuntimeService.js';
+import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { updateRoll } from './services/rollUtils.js';
 
 // TODO: move to timer config
 const timeSkipLimit = 3 * 32;
 
 type TState = DeepReadonly<{
+  loader: {
+    eventNow: OntimeEvent | null;
+    publicEventNow: OntimeEvent | null;
+    eventNext: OntimeEvent | null;
+    publicEventNext: OntimeEvent | null;
+  };
+  runtime: Loaded;
   playback: Playback;
   timer: TimerState & {
     pausedTime: number;
@@ -27,6 +34,20 @@ type TState = DeepReadonly<{
 }>;
 
 export const state: TState = {
+  loader: {
+    eventNow: null,
+    publicEventNow: null,
+    eventNext: null,
+    publicEventNext: null,
+  },
+  runtime: {
+    selectedEventIndex: null,
+    selectedEventId: null,
+    selectedPublicEventId: null,
+    nextEventId: null,
+    nextPublicEventId: null,
+    numEvents: 0,
+  },
   // QUESTION: should merge playback into the timer?
   playback: Playback.Stop,
   timer: {
@@ -56,6 +77,11 @@ export const state: TState = {
 };
 
 export const stateMutations = {
+  load() {
+    mutate((state) => {
+      console.log('called load', state);
+    });
+  },
   timer: {
     // utility to reset the state of the timer
     clear() {
@@ -405,7 +431,7 @@ export const stateMutations = {
             }
 
             if (doRoll) {
-              RuntimeService.roll();
+              runtimeService.roll();
             }
 
             if (isFinished) {
@@ -414,12 +440,12 @@ export const stateMutations = {
               // handle end action if there was a timer playing
               if (newState.playback === Playback.Play) {
                 if (newState.timer.endAction === EndAction.Stop) {
-                  RuntimeService.stop();
+                  runtimeService.stop();
                 } else if (newState.timer.endAction === EndAction.LoadNext) {
                   // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
-                  setTimeout(RuntimeService.loadNext, 0);
+                  setTimeout(runtimeService.loadNext, 0);
                 } else if (newState.timer.endAction === EndAction.PlayNext) {
-                  RuntimeService.startNext();
+                  runtimeService.startNext();
                 }
               }
             }
