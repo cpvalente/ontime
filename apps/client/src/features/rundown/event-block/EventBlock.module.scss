@@ -207,7 +207,7 @@ $skip-opacity: 0.1;
   gap: 0.5rem;
 
   .indicator {
-    background-color: $gray-1250;
+    background-color: transparent;
     margin: 0.4rem;
     margin-right: 0;
     border-radius: 0.7rem;
@@ -217,13 +217,9 @@ $skip-opacity: 0.1;
   .indicator.delay {
     background-color: $ontime-delay;
   }
-  .indicator.overlap {
-    background-color: $gray-600;
-  }
+  .indicator.nextDay,
+  .indicator.overlap,
   .indicator.spacing {
-    background-color: $gray-600;
-  }
-  .indicator.nextDay {
     background-color: $gray-600;
   }
 }

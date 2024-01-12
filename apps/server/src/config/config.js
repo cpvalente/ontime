@@ -8,5 +8,9 @@ export const config = {
     directory: 'styles',
     filename: 'override.css',
   },
+  demo: {
+    directory: 'demo',
+    filename: ['app.js', 'index.html', 'styles.css'],
+  },
   restoreFile: 'ontime.restore',
 };

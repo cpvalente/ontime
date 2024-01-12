@@ -7,6 +7,7 @@ import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStor
 import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
+import SheetsModal from '../modals/sheets-modal/SheetsModal';
 import UploadModal from '../modals/upload-modal/UploadModal';
 import Overview from '../overview/Overview';
 
@@ -20,22 +21,6 @@ const EventEditor = lazy(() => import('../event-editor/EventEditorExport'));
 
 const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
-
-// TODO: add breakpoints for body font size ??
-//       - 15px for normal
-//       - 16px for large screens
-
-// TODO: can we delete all the font-family stuff and leave it only at the top?
-
-// TODO: change scrollbar colours to use ontime stuff?
-
-// TODO: rename v2Styles to appStyles?
-
-// TODO: remove onAir as a setting
-
-// TODO: add error boundaries
-
-// TODO: should nav menu have same rules as app settings
 
 export default function Editor() {
   const showSettings = useSettingsStore((state) => state.showSettings);
@@ -54,6 +39,7 @@ export default function Editor() {
   } = useDisclosure();
   const { isOpen: isAboutModalOpen, onOpen: onAboutModalOpen, onClose: onAboutModalClose } = useDisclosure();
   const { isOpen: isQuickStartOpen, onOpen: onQuickStartOpen, onClose: onQuickStartClose } = useDisclosure();
+  const { isOpen: isSheetsOpen, onOpen: onSheetsOpen, onClose: onSheetsClose } = useDisclosure();
 
   // Set window title
   useEffect(() => {
@@ -70,8 +56,9 @@ export default function Editor() {
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
         <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
+        <SheetsModal onClose={onSheetsClose} isOpen={isSheetsOpen} />
       </ErrorBoundary>
-      <div className={styles.mainContainer} data-testid='editor-container'>
+      <div className={styles.mainContainer} data-testid='event-editor'>
         <ErrorBoundary>
           <MenuBar
             isOldSettingsOpen={isOldSettingsOpen}
@@ -87,6 +74,8 @@ export default function Editor() {
             onQuickStartOpen={onQuickStartOpen}
             openSettings={handleSettings}
             isSettingsOpen={isSettingsOpen}
+            isSheetsOpen={isSheetsOpen}
+            onSheetsOpen={onSheetsOpen}
           />
         </ErrorBoundary>
         {showSettings ? (
