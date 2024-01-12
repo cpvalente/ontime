@@ -23,7 +23,6 @@ export class TimerService {
   constructor(timerConfig: { refresh: number; updateInterval: number }) {
     this._interval = setInterval(() => this.update(), timerConfig.refresh);
     this._updateInterval = timerConfig.updateInterval;
-    // TODO: we lost the skip threshold behaviour from master
   }
 
   /**
@@ -73,8 +72,7 @@ export class TimerService {
       throw new Error('Refuse load of skipped event');
     }
 
-    // TODO: we are using stop instead of clear
-    stateMutations.timer.stop();
+    stateMutations.timer.clear();
 
     // TODO: does this replace the need for hot reload?
     if (initialData) {
@@ -86,6 +84,7 @@ export class TimerService {
 
   start() {
     if (!state.timer.selectedEventId) {
+      // TODO: we should be able to start
       if (state.playback === Playback.Roll) {
         logger.error(LogOrigin.Playback, 'Cannot start while waiting for event');
       }
@@ -110,7 +109,6 @@ export class TimerService {
     if (state.playback === Playback.Stop) {
       return;
     }
-
     stateMutations.timer.stop();
   }
 
@@ -119,10 +117,13 @@ export class TimerService {
    * @param {number} amount
    */
   addTime(amount: number) {
-    // TODO: should we short circuit if there is no timer running? Mind the playbackservice merging
-    // TODO: short circuit if amount is 0
+    if (amount === 0) {
+      return;
+    }
+    if (state.timer.selectedEventId === null) {
+      return;
+    }
     stateMutations.timer.addTime(amount);
-    this.update(true);
   }
 
   update(force = false) {
@@ -135,11 +136,8 @@ export class TimerService {
    * @param {OntimeEvent | null} nextEvent -- both current event and next event cant be null
    */
   roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null) {
-    // we use stop as a shortcut for clearning the data
-    // that will result in a misleading side effect
-    stateMutations.timer.stop();
     stateMutations.timer.roll(currentEvent, nextEvent);
-    this.update(true);
+    this.update();
   }
 
   shutdown() {

@@ -5,11 +5,14 @@ import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from './services/Clock.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
-import { getCurrent, getExpectedFinish } from './services/timerUtils.js';
+import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './services/timerUtils.js';
 import { eventStore } from './stores/EventStore.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { PlaybackService } from './services/PlaybackService.js';
 import { updateRoll } from './services/rollUtils.js';
+
+// TODO: move to timer config
+const timeSkipLimit = 3 * 32;
 
 type TState = DeepReadonly<{
   playback: Playback;
@@ -54,6 +57,29 @@ export const state: TState = {
 
 export const stateMutations = {
   timer: {
+    // utility to reset the state of the timer
+    clear() {
+      mutate((state) => {
+        // TODO: check that entire state is reset here
+        state.playback = Playback.Stop;
+        state.timer.clock = clock.timeNow();
+        state.timer.current = null;
+        state.timer.elapsed = null;
+        state.timer.expectedFinish = null;
+        state.timer.addedTime = 0;
+        state.timer.startedAt = null;
+        state.timer.finishedAt = null;
+        state.timer.secondaryTimer = null;
+        state.timer.selectedEventId = null;
+        state.timer.duration = null;
+        state.timer.timerType = null;
+        state.timer.endAction = null;
+
+        state.timer.pausedTime = 0;
+        state.timer.pausedAt = null;
+        state.timer.secondaryTarget = null;
+      });
+    },
     // utility to allow modifying the state from the outside
     patch(timer: Partial<TimerState>) {
       mutate((state) => {
@@ -102,26 +128,8 @@ export const stateMutations = {
     },
     stop() {
       mutate(
-        (state) => {
-          // TODO: make private utility to clear the state
-          // NOTE-TO-SELF: check that entire state is reset here
-          state.playback = Playback.Stop;
-          state.timer.clock = clock.timeNow();
-          state.timer.current = null;
-          state.timer.elapsed = null;
-          state.timer.expectedFinish = null;
-          state.timer.addedTime = 0;
-          state.timer.startedAt = null;
-          state.timer.finishedAt = null;
-          state.timer.secondaryTimer = null;
-          state.timer.selectedEventId = null;
-          state.timer.duration = null;
-          state.timer.timerType = null;
-          state.timer.endAction = null;
-
-          state.timer.pausedTime = 0;
-          state.timer.pausedAt = null;
-          state.timer.secondaryTarget = null;
+        (_state) => {
+          stateMutations.timer.clear();
         },
         {
           sideEffect() {
@@ -178,7 +186,7 @@ export const stateMutations = {
         }
       });
     },
-    load(event: OntimeEvent) {
+    load(event: OntimeEvent, patch?: Partial<TimerState>) {
       mutate(
         (state) => {
           // TODO: resume and load logic are very similar
@@ -190,6 +198,8 @@ export const stateMutations = {
           state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
           state.timer.timerType = event.timerType;
           state.timer.endAction = event.endAction;
+          state.timer.timeWarning = event.timeWarning;
+          state.timer.timeDanger = event.timeDanger;
           state.timer.pausedTime = 0;
           state.timer.pausedAt = 0; // TODO: should this not be null?
 
@@ -204,6 +214,10 @@ export const stateMutations = {
               event.timeEnd,
               state.timer.timerType,
             );
+          }
+
+          if (patch) {
+            state.timer = { ...state.timer, ...patch };
           }
         },
         {
@@ -265,6 +279,17 @@ export const stateMutations = {
       return mutate(
         (state) => {
           function roll() {
+            const hasSkippedOutOfEvent = skippedOutOfEvent(
+              previousTime,
+              state.timer.clock,
+              state.timer.startedAt,
+              state.timer.expectedFinish,
+              timeSkipLimit,
+            );
+            if (hasSkippedOutOfEvent) {
+              return { doRoll: true };
+            }
+
             const tempCurrentTimer = {
               selectedEventId: state.timer.selectedEventId,
               current: state.timer.current,
@@ -278,8 +303,8 @@ export const stateMutations = {
               secondaryTarget: state.timer.secondaryTarget,
             };
 
-            const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
-
+            const updated = updateRoll(tempCurrentTimer);
+            const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updated;
             state.timer.current = updatedTimer;
             state.timer.secondaryTimer = updatedSecondaryTimer;
             state.timer.elapsed = state.timer.duration - state.timer.current;
@@ -373,6 +398,7 @@ export const stateMutations = {
         },
         {
           sideEffect({ didUpdate, doRoll, isFinished, shouldNotify }, newState) {
+            // TODO: we cant cyclic calls to PlaybackService
             if (didUpdate && shouldNotify) {
               // TODO: can we distinguish between a clock update and a timer update?
               integrationService.dispatch(TimerLifeCycle.onUpdate);
@@ -403,6 +429,7 @@ export const stateMutations = {
     },
     roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null) {
       mutate((state) => {
+        stateMutations.timer.clear();
         // TODO: should we have a pre-action that updates time in all mutations?
         state.timer.clock = clock.timeNow();
 
@@ -430,7 +457,6 @@ export const stateMutations = {
           state.timer.secondaryTimer = nextStart - state.timer.clock;
           state.timer.secondaryTarget = nextStart;
         }
-
         state.playback = Playback.Roll;
       });
     },
