@@ -1,4 +1,4 @@
-import { HttpSettings, LogOrigin, OSCSettings } from 'ontime-types';
+import { HttpSettings, LogOrigin, OSCSettings, Playback } from "ontime-types";
 
 import 'dotenv/config';
 import express from 'express';
@@ -8,7 +8,14 @@ import cors from 'cors';
 
 // import utils
 import { join, resolve } from 'path';
-import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
+import {
+  currentDirectory,
+  environment,
+  isProduction,
+  resolveExternalsDirectory,
+  resolveStylesDirectory,
+  resolvedPath,
+} from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
 // Import Routes
@@ -35,6 +42,7 @@ import { eventStore } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
 import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
+import { populateDemo } from './modules/loadDemo.js';
 import { state } from './state.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -65,7 +73,8 @@ app.use('/ontime', ontimeRouter);
 app.use('/api', apiRouter);
 
 // serve static - css
-app.use('/external', express.static(externalsStartDirectory));
+app.use('/external/styles', express.static(resolveStylesDirectory));
+app.use('/external/', express.static(resolveExternalsDirectory));
 app.use('/external', (req, res) => {
   res.status(404).send(`${req.originalUrl} not found`);
 });
@@ -130,6 +139,7 @@ export const initAssets = async () => {
   checkStart(OntimeStartOrder.InitAssets);
   await dbLoadingProcess;
   populateStyles();
+  populateDemo();
 };
 
 /**
@@ -177,7 +187,7 @@ export const startServer = async () => {
     publicMessage: messageService.publicMessage,
     lowerMessage: messageService.lowerMessage,
     externalMessage: messageService.externalMessage,
-    onAir: messageService.onAir,
+    onAir: state.playback !== Playback.Stop,
     loaded: eventLoader.loaded,
     eventNow: eventLoader.eventNow,
     publicEventNow: eventLoader.publicEventNow,
