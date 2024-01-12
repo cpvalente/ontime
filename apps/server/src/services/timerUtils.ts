@@ -1,6 +1,8 @@
 import { MaybeNumber, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
+// TODO: timerUtils receive entire state object
+
 /**
  * Calculates expected finish time of a running timer
  */
