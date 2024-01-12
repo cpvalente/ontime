@@ -90,12 +90,13 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     setRenderInner(true);
   }, []);
 
+  //TODO: fix this
   const toggleOpenEvent = useCallback(
-    (event: MouseEvent) => {
-      if (isOpen) {
-        event.stopPropagation();
-        clearSelectedEvents();
-      }
+    (_event: MouseEvent) => {
+      // if (isOpen) {
+      //   event.stopPropagation();
+      //   clearSelectedEvents();
+      // }
     },
     [clearSelectedEvents, isOpen],
   );
