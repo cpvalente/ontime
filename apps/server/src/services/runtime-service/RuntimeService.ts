@@ -13,7 +13,7 @@ import { state } from '../../state.js';
  * Service manages playback status of app
  * Coordinating with necessary services
  */
-export class PlaybackService {
+export class RuntimeService {
   /**
    * makes calls for loading and starting given event
    * @param {OntimeEvent} event
@@ -41,10 +41,10 @@ export class PlaybackService {
    */
   static startById(eventId: string): boolean {
     const event = EventLoader.getEventWithId(eventId);
-    const success = PlaybackService.loadEvent(event);
+    const success = RuntimeService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
-      PlaybackService.start();
+      RuntimeService.start();
     }
     return success;
   }
@@ -56,10 +56,10 @@ export class PlaybackService {
    */
   static startByIndex(eventIndex: number): boolean {
     const event = EventLoader.getEventAtIndex(eventIndex);
-    const success = PlaybackService.loadEvent(event);
+    const success = RuntimeService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
-      PlaybackService.start();
+      RuntimeService.start();
     }
     return success;
   }
@@ -71,10 +71,10 @@ export class PlaybackService {
    */
   static startByCue(cue: string): boolean {
     const event = EventLoader.getEventWithCue(cue);
-    const success = PlaybackService.loadEvent(event);
+    const success = RuntimeService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
-      PlaybackService.start();
+      RuntimeService.start();
     }
     return success;
   }
@@ -86,7 +86,7 @@ export class PlaybackService {
    */
   static loadById(eventId: string): boolean {
     const event = EventLoader.getEventWithId(eventId);
-    const success = PlaybackService.loadEvent(event);
+    const success = RuntimeService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -100,7 +100,7 @@ export class PlaybackService {
    */
   static loadByIndex(eventIndex: number): boolean {
     const event = EventLoader.getEventAtIndex(eventIndex);
-    const success = PlaybackService.loadEvent(event);
+    const success = RuntimeService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -114,7 +114,7 @@ export class PlaybackService {
    */
   static loadByCue(cue: string): boolean {
     const event = EventLoader.getEventWithCue(cue);
-    const success = PlaybackService.loadEvent(event);
+    const success = RuntimeService.loadEvent(event);
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
@@ -127,7 +127,7 @@ export class PlaybackService {
   static loadPrevious() {
     const previousEvent = eventLoader.findPrevious();
     if (previousEvent) {
-      const success = PlaybackService.loadEvent(previousEvent);
+      const success = RuntimeService.loadEvent(previousEvent);
       if (success) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${previousEvent.id}`);
       }
@@ -142,18 +142,18 @@ export class PlaybackService {
   static loadNext(fallbackAction?: 'stop' | 'pause'): boolean {
     const nextEvent = eventLoader.findNext();
     if (nextEvent) {
-      const success = PlaybackService.loadEvent(nextEvent);
+      const success = RuntimeService.loadEvent(nextEvent);
       if (success) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${nextEvent.id}`);
         return true;
       }
     } else if (fallbackAction === 'stop') {
       logger.info(LogOrigin.Playback, 'No next event found! Stopping playback');
-      PlaybackService.stop();
+      RuntimeService.stop();
       return false;
     } else if (fallbackAction === 'pause') {
       logger.info(LogOrigin.Playback, 'No next event found! Pausing playback');
-      PlaybackService.pause();
+      RuntimeService.pause();
       return false;
     } else {
       logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
@@ -177,9 +177,9 @@ export class PlaybackService {
    * @param {string} [fallbackAction] - 'stop', 'pause'
    */
   static startNext(fallbackAction?: 'stop' | 'pause') {
-    const success = PlaybackService.loadNext(fallbackAction);
+    const success = RuntimeService.loadNext(fallbackAction);
     if (success) {
-      PlaybackService.start();
+      RuntimeService.start();
     }
   }
 
@@ -225,14 +225,14 @@ export class PlaybackService {
       // nothing to play
       if (rollTimers === null) {
         logger.warning(LogOrigin.Server, 'Roll: no events found');
-        PlaybackService.stop();
+        RuntimeService.stop();
         return;
       }
 
       const { currentEvent, nextEvent } = rollTimers;
       if (!currentEvent && !nextEvent) {
         logger.warning(LogOrigin.Server, 'Roll: no events found');
-        PlaybackService.stop();
+        RuntimeService.stop();
         return;
       }
 
@@ -252,7 +252,7 @@ export class PlaybackService {
 
     if (restorePoint.playback === Playback.Roll) {
       willResume();
-      PlaybackService.roll();
+      RuntimeService.roll();
     }
 
     if (restorePoint.selectedEventId) {

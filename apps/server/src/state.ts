@@ -8,7 +8,7 @@ import { RestorePoint, restoreService } from './services/RestoreService.js';
 import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './services/timerUtils.js';
 import { eventStore } from './stores/EventStore.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
-import { PlaybackService } from './services/runtime-service/RuntimeService.js';
+import { RuntimeService } from './services/runtime-service/RuntimeService.js';
 import { updateRoll } from './services/rollUtils.js';
 
 // TODO: move to timer config
@@ -405,7 +405,7 @@ export const stateMutations = {
             }
 
             if (doRoll) {
-              PlaybackService.roll();
+              RuntimeService.roll();
             }
 
             if (isFinished) {
@@ -414,12 +414,12 @@ export const stateMutations = {
               // handle end action if there was a timer playing
               if (newState.playback === Playback.Play) {
                 if (newState.timer.endAction === EndAction.Stop) {
-                  PlaybackService.stop();
+                  RuntimeService.stop();
                 } else if (newState.timer.endAction === EndAction.LoadNext) {
                   // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
-                  setTimeout(PlaybackService.loadNext, 0);
+                  setTimeout(RuntimeService.loadNext, 0);
                 } else if (newState.timer.endAction === EndAction.PlayNext) {
-                  PlaybackService.startNext();
+                  RuntimeService.startNext();
                 }
               }
             }
