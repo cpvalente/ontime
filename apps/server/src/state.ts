@@ -165,7 +165,7 @@ export const stateMutations = {
         // check if event finished meanwhile
         if (state.timer.timerType === TimerType.TimeToEnd) {
           state.timer.current = getCurrent(
-            state.timer.clock, // TODO: should this be startedAt?
+            state.timer.startedAt,
             state.timer.duration,
             0,
             0,
