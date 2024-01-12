@@ -50,6 +50,7 @@ interface EventBlockProps {
         },
   ) => void;
   disableEdit: boolean;
+  isFirstEvent: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -76,6 +77,7 @@ export default function EventBlock(props: EventBlockProps) {
     isRolling,
     actionHandler,
     disableEdit,
+    isFirstEvent,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const moveCursorTo = useAppMode((state) => state.setCursor);
@@ -130,9 +132,19 @@ export default function EventBlock(props: EventBlockProps) {
 
   const binderColours = colour && getAccessibleColour(colour);
 
+  // move focus to element if necessary
   useEffect(() => {
-    if (hasCursor) {
-      handleRef?.current?.focus();
+    if (!hasCursor || handleRef?.current == null) {
+      return;
+    }
+
+    const elementInFocus = document.activeElement;
+    // we know the block is the grandparent of our binder
+    const blockElement = handleRef.current.closest('#event-block');
+
+    // we only move focus if the block doesnt already contain focus
+    if (blockElement && !blockElement.contains(elementInFocus)) {
+      handleRef.current.focus();
     }
   }, [hasCursor]);
 
@@ -182,6 +194,7 @@ export default function EventBlock(props: EventBlockProps) {
       style={dragStyle}
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}
+      id='event-block'
     >
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
@@ -210,6 +223,7 @@ export default function EventBlock(props: EventBlockProps) {
           isRolling={isRolling}
           actionHandler={actionHandler}
           disableEdit={disableEdit}
+          isFirstEvent={isFirstEvent}
         />
       )}
     </div>

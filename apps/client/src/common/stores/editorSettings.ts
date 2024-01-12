@@ -6,7 +6,6 @@ type EditorSettings = {
   showQuickEntry: boolean;
   startTimeIsLastEnd: boolean;
   defaultPublic: boolean;
-  showNif: boolean;
 };
 
 type EditorSettingsStore = {
@@ -15,14 +14,12 @@ type EditorSettingsStore = {
   setShowQuickEntry: (showQuickEntry: boolean) => void;
   setStartTimeIsLastEnd: (startTimeIsLastEnd: boolean) => void;
   setDefaultPublic: (defaultPublic: boolean) => void;
-  setShowNif: (showNif: boolean) => void;
 };
 
 enum EditorSettingsKeys {
   ShowQuickEntry = 'ontime-show-quick-entry',
   StartTimeIsLastEnd = 'ontime-start-is-last-end',
   DefaultPublic = 'ontime-default-public',
-  ShowNif = 'ontime-show-nif',
 }
 
 export const useEditorSettings = create<EditorSettingsStore>((set) => ({
@@ -30,7 +27,6 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => ({
     showQuickEntry: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, false),
     startTimeIsLastEnd: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, true),
     defaultPublic: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, true),
-    showNif: booleanFromLocalStorage(EditorSettingsKeys.ShowNif, true),
   },
 
   setLocalEventSettings: (value) =>
@@ -57,11 +53,5 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => ({
     set((state) => {
       localStorage.setItem(EditorSettingsKeys.DefaultPublic, String(defaultPublic));
       return { eventSettings: { ...state.eventSettings, defaultPublic } };
-    }),
-
-  setShowNif: (showNif) =>
-    set((state) => {
-      localStorage.setItem(EditorSettingsKeys.ShowNif, String(showNif));
-      return { eventSettings: { ...state.eventSettings, showNif } };
     }),
 }));

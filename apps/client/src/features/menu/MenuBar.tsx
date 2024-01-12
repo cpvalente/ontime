@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useState } from 'react';
-import { VStack } from '@chakra-ui/react';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
@@ -20,7 +19,7 @@ import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 import style from './MenuBar.module.scss';
 
 interface MenuBarProps {
-  isSettingsOpen: boolean;
+  isOldSettingsOpen: boolean;
   onSettingsOpen: () => void;
   onSettingsClose: () => void;
   isUploadOpen: boolean;
@@ -31,6 +30,8 @@ interface MenuBarProps {
   onAboutOpen: () => void;
   isQuickStartOpen: boolean;
   onQuickStartOpen: () => void;
+  openSettings: (newTab?: string) => void;
+  isSettingsOpen: boolean;
 }
 
 const buttonStyle = {
@@ -47,7 +48,7 @@ const buttonStyle = {
 
 const MenuBar = (props: MenuBarProps) => {
   const {
-    isSettingsOpen,
+    isOldSettingsOpen,
     onSettingsOpen,
     onSettingsClose,
     isUploadOpen,
@@ -58,6 +59,8 @@ const MenuBar = (props: MenuBarProps) => {
     onAboutOpen,
     isQuickStartOpen,
     onQuickStartOpen,
+    openSettings,
+    isSettingsOpen,
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
@@ -118,7 +121,7 @@ const MenuBar = (props: MenuBarProps) => {
   };
 
   return (
-    <VStack>
+    <div className={style.menu}>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} size='md' />
 
       <div className={style.gap} />
@@ -188,7 +191,7 @@ const MenuBar = (props: MenuBarProps) => {
         {...buttonStyle}
         isDisabled={appMode === AppMode.Run}
         icon={<IoSettingsOutline />}
-        className={isSettingsOpen ? style.open : ''}
+        className={isOldSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
         tooltip='Settings'
         aria-label='Settings'
@@ -204,7 +207,17 @@ const MenuBar = (props: MenuBarProps) => {
         aria-label='About'
         size='sm'
       />
-    </VStack>
+      <div className={style.gap} />
+      <TooltipActionBtn
+        {...buttonStyle}
+        className={isSettingsOpen ? style.open : ''}
+        icon={<IoSettingsOutline />}
+        clickHandler={() => openSettings()}
+        tooltip='About'
+        aria-label='About'
+        size='sm'
+      />
+    </div>
   );
 };
 

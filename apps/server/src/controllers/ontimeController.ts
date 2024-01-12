@@ -1,28 +1,53 @@
-import { Alias, DatabaseModel, GetInfo, LogOrigin, ProjectData } from 'ontime-types';
+import { LogOrigin } from 'ontime-types';
+import type {
+  Alias,
+  DatabaseModel,
+  GetInfo,
+  HttpSettings,
+  ProjectData,
+  ErrorResponse,
+  ProjectFileListResponse,
+} from 'ontime-types';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
+import { join } from 'path';
+import { copyFile, rename, writeFile } from 'fs/promises';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { isDocker, pathToStartStyles, resolveDbPath } from '../setup.js';
+import {
+  getAppDataPath,
+  isDocker,
+  lastLoadedProjectConfigPath,
+  resolveDbPath,
+  resolveStylesPath,
+  uploadsFolderPath,
+} from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
+import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
 import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
+import { integrationService } from '../services/integration-service/IntegrationService.js';
+import { getProjectFiles } from '../utils/getFileListFromFolder.js';
+import { configService } from '../services/ConfigService.js';
+import { deleteFile } from '../utils/parserUtils.js';
+import { validateProjectFiles } from './ontimeController.validate.js';
+import { dbModel } from '../models/dataModel.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
-export const poll = async (req, res) => {
+export const poll = async (_req, res) => {
   try {
-    const s = eventStore.poll();
-    res.status(200).send(s);
+    const state = eventStore.poll();
+    res.status(200).send(state);
   } catch (error) {
     res.status(500).send({
       message: `Could not get sync data: ${error}`,
@@ -95,7 +120,7 @@ const getNetworkInterfaces = () => {
       // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
       if (net.family === 'IPv4' && !net.internal) {
         results.push({
-          name: name,
+          name,
           address: net.address,
         });
       }
@@ -114,7 +139,7 @@ export const getInfo = async (req: Request, res: Response<GetInfo>) => {
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
   ni.unshift({ name: 'localhost', address: '127.0.0.1' });
-  const cssOverride = pathToStartStyles;
+  const cssOverride = resolveStylesPath;
 
   // send object with network information
   res.status(200).send({
@@ -283,15 +308,42 @@ export const getOSC = async (req, res) => {
   res.status(200).send(osc);
 };
 
+// Create controller for POST request to '/ontime/osc'
+// Returns ACK message
+export const postOSC = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const oscSettings = req.body;
+    await DataProvider.setOsc(oscSettings);
+
+    integrationService.unregister(oscIntegration);
+
+    // TODO: this update could be more granular, checking that relevant data was changed
+    const { success, message } = oscIntegration.init(oscSettings);
+    logger.info(LogOrigin.Tx, message);
+
+    if (success) {
+      integrationService.register(oscIntegration);
+    }
+
+    res.send(oscSettings).status(200);
+  } catch (error) {
+    res.status(400).send({ message: error.toString() });
+  }
+};
+
 export const postOscSubscriptions = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
-    const oscSubscriptions = req.body;
+    const subscriptions = req.body;
     const oscSettings = DataProvider.getOsc();
-    oscSettings.subscriptions = oscSubscriptions;
+    oscSettings.subscriptions = subscriptions;
     await DataProvider.setOsc(oscSettings);
 
     // TODO: this update could be more granular, checking that relevant data was changed
@@ -304,22 +356,33 @@ export const postOscSubscriptions = async (req, res) => {
   }
 };
 
-// Create controller for POST request to '/ontime/osc'
-// Returns ACK message
-export const postOSC = async (req, res) => {
+// Create controller for GET request to '/ontime/http'
+export const getHTTP = async (_req, res: Response<HttpSettings>) => {
+  const http = DataProvider.getHttp();
+  res.status(200).send(http);
+};
+
+// Create controller for POST request to '/ontime/http'
+export const postHTTP = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
-    const oscSettings = req.body;
-    await DataProvider.setOsc(oscSettings);
+    const httpSettings = req.body;
+    await DataProvider.setHttp(httpSettings);
+
+    integrationService.unregister(httpIntegration);
 
     // TODO: this update could be more granular, checking that relevant data was changed
-    const { message } = oscIntegration.init(oscSettings);
+    const { success, message } = httpIntegration.init(httpSettings);
     logger.info(LogOrigin.Tx, message);
 
-    res.send(oscSettings).status(200);
+    if (success) {
+      integrationService.register(httpIntegration);
+    }
+
+    res.send(httpSettings).status(200);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
@@ -412,5 +475,196 @@ export const postNew: RequestHandler = async (req, res) => {
     res.status(201).send(newData);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Retrieves and lists all project files from the uploads directory.
+ * @param req
+ * @param res
+ */
+export const listProjects: RequestHandler = async (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
+  try {
+    const fileList = await getProjectFiles();
+
+    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+
+    res.status(200).send({
+      files: fileList,
+      lastLoadedProject,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Receives a `filename` from the request body and loads the project file from the uploads directory.
+ * @param req
+ * @param res
+ */
+export const loadProject: RequestHandler = async (req, res) => {
+  try {
+    const filename = req.body.filename;
+
+    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
+    const filePath = join(uploadsFolderPath, filename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send({ message: 'File not found' });
+    }
+
+    await parseAndApply(filePath, req, res, {});
+
+    res.status(200).send({
+      message: `Loaded project ${filename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Duplicates a project file.
+ * Receives the original project filename (`filename`) from the request parameters
+ * and the filename for the duplicate (`newFilename`) from the request body.
+ *
+ * @param {Request} req - The express request object. Expects `filename` in the request parameters and `newFilename` in the request body.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful duplication,
+ *                         a 409 status if there are validation errors,
+ *                         or a 500 status with an error message in case of an exception.
+ */
+export const duplicateProjectFile: RequestHandler = async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const { newFilename } = req.body;
+
+    const projectFilePath = join(uploadsFolderPath, filename);
+    const duplicateProjectFilePath = join(uploadsFolderPath, newFilename);
+
+    const errors = validateProjectFiles({ filename, newFilename });
+
+    if (errors.length) {
+      return res.status(409).send({ message: errors.join(', ') });
+    }
+
+    await copyFile(projectFilePath, duplicateProjectFilePath);
+
+    res.status(200).send({
+      message: `Duplicated project ${filename} to ${newFilename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Renames a project file.
+ * Receives the current filename (`filename`) from the request parameters
+ * and the new filename (`newFilename`) from the request body.
+ *
+ * @param {Request} req - The express request object. Expects `filename` in the request parameters and `newFilename` in the request body.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful renaming,
+ *                         a 409 status if there are validation errors,
+ *                         or a 500 status with an error message in case of an exception.
+ */
+export const renameProjectFile: RequestHandler = async (req, res) => {
+  try {
+    const { newFilename } = req.body;
+    const { filename } = req.params;
+
+    const projectFilePath = join(uploadsFolderPath, filename);
+    const newProjectFilePath = join(uploadsFolderPath, newFilename);
+
+    const errors = validateProjectFiles({ filename, newFilename });
+
+    if (errors.length) {
+      return res.status(409).send({ message: errors.join(', ') });
+    }
+
+    // Rename the file
+    await rename(projectFilePath, newProjectFilePath);
+
+    // Update the last loaded project config if current loaded project is the one being renamed
+    const { lastLoadedProject } = await configService.getConfig();
+
+    if (lastLoadedProject === filename) {
+      await configService.updateDatabaseConfig(newFilename);
+    }
+
+    res.status(200).send({
+      message: `Renamed project ${filename} to ${newFilename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Creates a new project file.
+ * Receives the project filename (`filename`) from the request body.
+ *
+ * @param {Request} req - The express request object. Expects `filename` in the request body.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful creation,
+ *                         a 409 status if there are validation errors,
+ *                         or a 500 status with an error message in case of an exception.
+ */
+export const createProjectFile: RequestHandler = async (req, res) => {
+  try {
+    const { filename } = req.body;
+
+    const projectFilePath = join(uploadsFolderPath, filename);
+
+    const errors = validateProjectFiles({ newFilename: filename });
+
+    if (errors.length) {
+      return res.status(409).send({ message: errors.join(', ') });
+    }
+
+    await writeFile(projectFilePath, JSON.stringify(dbModel));
+
+    res.status(200).send({
+      message: `Created project ${filename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * Deletes an existing project file.
+ * Receives the project filename (`filename`) from the request parameters.
+ *
+ * @param {Request} req - The express request object. Expects `filename` in the request parameters.
+ * @param {Response} res - The express response object. Sends a 200 status with a success message upon successful deletion,
+ *                         a 403 status if attempting to delete the currently loaded project,
+ *                         a 409 status if there are validation errors,
+ *                         or a 500 status with an error message in case of an exception.
+ */
+export const deleteProjectFile: RequestHandler = async (req, res) => {
+  try {
+    const { filename } = req.params;
+
+    const { lastLoadedProject } = await configService.getConfig();
+
+    if (lastLoadedProject === filename) {
+      return res.status(403).send({ message: 'Cannot delete currently loaded project' });
+    }
+
+    const projectFilePath = join(uploadsFolderPath, filename);
+
+    const errors = validateProjectFiles({ filename });
+
+    if (errors.length) {
+      return res.status(409).send({ message: errors.join(', ') });
+    }
+
+    await deleteFile(projectFilePath);
+
+    res.status(200).send({
+      message: `Deleted project ${filename}`,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
   }
 };

@@ -9,7 +9,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Clock.scss';
@@ -20,11 +20,6 @@ interface ClockProps {
   viewSettings: ViewSettings;
   settings: Settings | undefined;
 }
-
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
 
 export default function Clock(props: ClockProps) {
   const { isMirrored, time, viewSettings, settings } = props;
@@ -122,10 +117,11 @@ export default function Clock(props: ClockProps) {
     }
   }
 
-  const clock = formatTime(time.clock, formatOptions);
+  const clock = formatTime(time.clock);
   const clean = clock.replace('/:/g', '');
 
-  const clockOptions = getClockOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const clockOptions = getClockOptions(defaultFormat);
 
   return (
     <div

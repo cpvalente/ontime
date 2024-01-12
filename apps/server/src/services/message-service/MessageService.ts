@@ -1,6 +1,5 @@
-import { Message } from 'ontime-types';
+import { Message, TimerMessage } from 'ontime-types';
 
-import { TimerMessage } from 'ontime-types/src/definitions/runtime/MessageControl.type.js';
 import { throttle } from '../../utils/throttle.js';
 
 import type { PublishFn } from '../../stores/EventStore.js';
@@ -12,7 +11,6 @@ class MessageService {
   publicMessage: Message;
   lowerMessage: Message;
   externalMessage: Message;
-  onAir: boolean;
 
   private throttledSet: PublishFn;
   private publish: PublishFn | null;
@@ -47,7 +45,6 @@ class MessageService {
       visible: false,
     };
 
-    this.onAir = false;
     this.throttledSet = () => {
       throw new Error('Published called before initialisation');
     };
@@ -75,6 +72,15 @@ class MessageService {
   setExternalVisibility(status: boolean) {
     this.externalMessage.visible = status;
     this.throttledSet('externalMessage', this.externalMessage);
+    return this.getAll();
+  }
+
+  /**
+   * @description patches the TimerMessage object
+   */
+  setTimerMessage(payload: Partial<TimerMessage>) {
+    this.timerMessage = { ...this.timerMessage, ...payload };
+    this.throttledSet('timerMessage', this.timerMessage);
     return this.getAll();
   }
 
@@ -133,19 +139,6 @@ class MessageService {
   }
 
   /**
-   * @description set state of onAir, toggles if parameters are offered
-   */
-  setOnAir(status?: boolean) {
-    if (typeof status === 'undefined') {
-      this.onAir = !this.onAir;
-    } else {
-      this.onAir = status;
-    }
-    this.throttledSet('onAir', this.onAir);
-    return this.getAll();
-  }
-
-  /**
    * @description set state of timer blink, toggles if parameters are offered
    */
 
@@ -181,9 +174,25 @@ class MessageService {
       timerMessage: this.timerMessage,
       publicMessage: this.publicMessage,
       lowerMessage: this.lowerMessage,
-      onAir: this.onAir,
+      externalMessage: this.externalMessage,
     };
   }
 }
 
 export const messageService = new MessageService();
+
+/**
+ * Asserts whether an object is a valid TimerMessage patch
+ * @param obj - object to evaluate
+ * @returns boolean
+ */
+export function isPartialTimerMessage(obj: any): obj is Partial<TimerMessage> {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    (typeof obj.text === 'string' || obj.text === undefined) &&
+    (typeof obj.visible === 'boolean' || obj.visible === undefined) &&
+    (typeof obj.timerBlink === 'boolean' || obj.timerBlink === undefined) &&
+    (typeof obj.timerBlackout === 'boolean' || obj.timerBlackout === undefined)
+  );
+}

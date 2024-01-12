@@ -42,24 +42,31 @@ export default function ParamInput(props: EditFormInputProps) {
   }
 
   if (type === 'number') {
-    const { prefix } = paramField;
+    const { prefix, placeholder } = paramField;
     const defaultNumberValue = searchParams.get(id) ?? defaultValue;
 
     return (
       <InputGroup variant='ontime-filled'>
         {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
-        <Input type='number' step='any' variant='ontime-filled' name={id} defaultValue={defaultNumberValue} />
+        <Input
+          type='number'
+          step='any'
+          variant='ontime-filled'
+          name={id}
+          defaultValue={defaultNumberValue}
+          placeholder={placeholder}
+        />
       </InputGroup>
     );
   }
 
   const defaultStringValue = searchParams.get(id) ?? defaultValue;
-  const { prefix } = paramField;
+  const { prefix, placeholder } = paramField;
 
   return (
     <InputGroup variant='ontime-filled'>
       {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
-      <Input name={id} defaultValue={defaultStringValue} />
+      <Input name={id} defaultValue={defaultStringValue} placeholder={placeholder} />
     </InputGroup>
   );
 }

@@ -1,4 +1,4 @@
-import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
@@ -13,6 +13,7 @@ import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
 import useFullscreen from '../../hooks/useFullscreen';
 import { useViewOptionsStore } from '../../stores/viewOptions';
+import { isKeyEnter } from '../../utils/keyEvent';
 
 import RenameClientModal from './rename-client-modal/RenameClientModal';
 
@@ -22,7 +23,7 @@ function NavigationMenu() {
   const location = useLocation();
 
   const { isFullScreen, toggleFullScreen } = useFullscreen();
-  const { mirror, toggleMirror } = useViewOptionsStore();
+  const { toggleMirror } = useViewOptionsStore();
   const [showButton, setShowButton] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
@@ -53,7 +54,6 @@ function NavigationMenu() {
     };
   }, []);
 
-  const isKeyEnter = (event: KeyboardEvent<HTMLDivElement>) => event.key === 'Enter';
   const handleFullscreen = () => toggleFullScreen();
   const handleMirror = () => toggleMirror();
 
@@ -63,7 +63,7 @@ function NavigationMenu() {
   };
 
   return createPortal(
-    <div id='navigation-menu-portal' ref={menuRef} className={mirror ? style.mirror : ''}>
+    <div id='navigation-menu-portal' ref={menuRef}>
       <RenameClientModal isOpen={isOpen} onClose={onClose} />
       <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
         <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>

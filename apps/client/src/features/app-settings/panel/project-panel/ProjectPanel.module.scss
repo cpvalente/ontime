@@ -1,0 +1,10 @@
+@use '../../../../theme/ontimeColours' as *;
+
+.current {
+  color: $blue-400;
+  background-color: $gray-1350;
+}
+
+.actionButton {
+  text-align: right;
+}

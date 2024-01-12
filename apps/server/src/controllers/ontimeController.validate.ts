@@ -1,5 +1,13 @@
 import { body, check, validationResult } from 'express-validator';
-import { validateOscObject, validateOscSubscriptionEntry } from '../utils/parserFunctions.js';
+import { join } from 'path';
+import { existsSync } from 'fs';
+
+import {
+  validateHttpSubscriptionObject,
+  validateOscSubscriptionObject,
+  validateOscSubscriptionCycle,
+} from '../utils/parserFunctions.js';
+import { uploadsFolderPath } from '../setup.js';
 
 /**
  * @description Validates object for POST /ontime/views
@@ -82,7 +90,22 @@ export const validateOSC = [
   body('enabledOut').exists().isBoolean(),
   body('subscriptions')
     .isObject()
-    .custom((value) => validateOscObject(value)),
+    .custom((value) => validateOscSubscriptionObject(value)),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+/**
+ * @description Validates object for POST /ontime/http
+ */
+export const validateHTTP = [
+  body('enabledOut').exists().isBoolean(),
+  body('subscriptions')
+    .isObject()
+    .custom((value) => validateHttpSubscriptionObject(value)),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
@@ -96,22 +119,22 @@ export const validateOSC = [
 export const validateOscSubscription = [
   body('onLoad')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onStart')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onPause')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onStop')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onUpdate')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   body('onFinish')
     .isArray()
-    .custom((value) => validateOscSubscriptionEntry(value)),
+    .custom((value) => validateOscSubscriptionCycle(value)),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
@@ -133,3 +156,113 @@ export const validatePatchProjectFile = [
     next();
   },
 ];
+
+/**
+ * @description Validates the filename for loading a project file.
+ */
+export const validateLoadProjectFile = [
+  body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
+/**
+ * @description Validates the filenames for duplicating a project.
+ */
+export const validateProjectDuplicate = [
+  body('newFilename')
+    .exists()
+    .withMessage('New project filename is required')
+    .isString()
+    .withMessage('New project filename must be a string')
+    .isLength({ min: 1, max: 255 })
+    .withMessage('New project filename must be between 1 and 255 characters'),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
+];
+
+/**
+ * @description Validates the filenames for renaming a project.
+ */
+export const validateProjectRename = [
+  body('newFilename')
+    .exists()
+    .withMessage('Duplicate project filename is required')
+    .isString()
+    .withMessage('Duplicate project filename must be a string')
+    .isLength({ min: 1, max: 255 })
+    .withMessage('Duplicate project filename must be between 1 and 255 characters'),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
+];
+
+/**
+ * @description Validates the filename for creating a project file.
+ */
+export const validateProjectCreate = [
+  body('filename')
+    .exists()
+    .withMessage('Filename is required')
+    .isString()
+    .withMessage('Filename must be a string')
+    .isLength({ min: 1, max: 255 })
+    .withMessage('Filename must be between 1 and 255 characters'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
+];
+
+/**
+ * @description Validates the existence of project files.
+ * @param {object} projectFiles
+ * @param {string} projectFiles.projectFilename
+ * @param {string} projectFiles.newFilename
+ *
+ * @returns {Promise<Array<string>>} Array of errors
+ *
+ */
+export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
+  const errors = [];
+
+  if (projectFiles.filename) {
+    const projectFilePath = join(uploadsFolderPath, projectFiles.filename);
+
+    if (!existsSync(projectFilePath)) {
+      errors.push('Project file does not exist');
+    }
+  }
+
+  if (projectFiles.newFilename) {
+    const projectFilePath = join(uploadsFolderPath, projectFiles.newFilename);
+
+    if (existsSync(projectFilePath)) {
+      errors.push('New project file already exists');
+    }
+  }
+
+  return errors;
+};

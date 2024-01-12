@@ -1,4 +1,4 @@
-export type TimeEntryField = 'timeStart' | 'timeEnd' | 'durationOverride';
+export type TimeEntryField = 'timeStart' | 'timeEnd' | 'durationOverride' | 'timeWarning' | 'timeDanger';
 
 /**
  * @description Checks which field the value relates to

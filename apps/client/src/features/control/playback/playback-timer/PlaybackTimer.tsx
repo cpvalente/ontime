@@ -1,12 +1,11 @@
 import { Tooltip } from '@chakra-ui/react';
 import { Playback } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
 
-import TimerDisplay from '../../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../../common/hooks/useSocket';
-import { millisToMinutes, millisToSeconds } from '../../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
+import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';
 
@@ -65,9 +64,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
           <div className={hasAddedTime ? style.indDelayActive : style.indDelay} />
         </Tooltip>
       </div>
-      <div className={style.timer}>
-        <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} />
-      </div>
+      <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} />
       {isWaiting ? (
         <div className={style.roll}>
           <span className={style.rolltag}>Roll: Countdown to start</span>
@@ -86,22 +83,22 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       )}
       <div className={style.btn}>
         <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.delay(-1)} disabled={disableButtons} aspect='square'>
+          <TapButton onClick={() => setPlayback.addTime(-60)} disabled={disableButtons} aspect='square'>
             -1
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.delay(1)} disabled={disableButtons} aspect='square'>
+          <TapButton onClick={() => setPlayback.addTime(60)} disabled={disableButtons} aspect='square'>
             +1
           </TapButton>
         </Tooltip>
         <Tooltip label='Remove 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.delay(-5)} disabled={disableButtons} aspect='square'>
+          <TapButton onClick={() => setPlayback.addTime(-5 * 60)} disabled={disableButtons} aspect='square'>
             -5
           </TapButton>
         </Tooltip>
         <Tooltip label='Add 5 minutes' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
-          <TapButton onClick={() => setPlayback.delay(+5)} disabled={disableButtons} aspect='square'>
+          <TapButton onClick={() => setPlayback.addTime(+5 * 60)} disabled={disableButtons} aspect='square'>
             +5
           </TapButton>
         </Tooltip>

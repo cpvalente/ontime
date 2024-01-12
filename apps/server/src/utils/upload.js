@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 
 import { EXCEL_MIME, JSON_MIME } from './parser.js';
 import { ensureDirectory } from './fileManagement.js';
@@ -8,20 +9,29 @@ import { getAppDataPath } from '../setup.js';
 // Define multer storage object
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // get platform path
     const appDataPath = getAppDataPath();
     if (appDataPath === '') {
       throw new Error('Could not resolve public folder for platform');
     }
-    // append uploads folder
-    const newDestination = path.join(appDataPath, 'uploads');
 
-    // Create directory if not exist
-    ensureDirectory(newDestination);
-    cb(null, newDestination);
+    const uploadsPath = path.join(appDataPath, 'uploads');
+    ensureDirectory(uploadsPath);
+
+    const filePath = path.join(uploadsPath, file.originalname);
+
+    // Check if file already exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        // File does not exist, can safely proceed to this destination
+        cb(null, uploadsPath);
+      } else {
+        // File already exists, handle error
+        return cb(new Error('File already exists'), false);
+      }
+    });
   },
-  filename: function (req, file, cb) {
-    cb(null, `${Date.now()}--${file.originalname}`);
+  filename: function (_, file, cb) {
+    cb(null, file.originalname);
   },
 });
 

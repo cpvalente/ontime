@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
-import { formatDisplay } from 'ontime-utils';
+import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -15,17 +15,12 @@ import { getBackstageOptions } from '../../../common/components/view-params-edit
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Backstage.scss';
-
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
 
 interface BackstageProps {
   isMirrored: boolean;
@@ -43,6 +38,7 @@ interface BackstageProps {
 export default function Backstage(props: BackstageProps) {
   const { isMirrored, publ, eventNow, eventNext, time, backstageEvents, selectedId, general, viewSettings, settings } =
     props;
+
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [blinkClass, setBlinkClass] = useState(false);
@@ -68,30 +64,22 @@ export default function Backstage(props: BackstageProps) {
     return null;
   }
 
-  const clock = formatTime(time.clock, formatOptions);
-  const startedAt = formatTime(time.startedAt, formatOptions);
+  const clock = formatTime(time.clock);
+  const startedAt = formatTime(time.startedAt);
   const isNegative = (time.current ?? 0) < 0;
-  const expectedFinish = isNegative
-    ? getLocalizedString('countdown.overtime')
-    : formatTime(time.expectedFinish, formatOptions);
+  const expectedFinish = isNegative ? getLocalizedString('countdown.overtime') : formatTime(time.expectedFinish);
 
   const qrSize = Math.max(window.innerWidth / 15, 128);
   const filteredEvents = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
   const showPublicMessage = publ.text && publ.visible;
   const showProgress = time.playback !== 'stop';
 
-  let stageTimer;
-  if (time.current === null) {
-    stageTimer = '- - : - -';
-  } else {
-    stageTimer = formatDisplay(Math.abs(time.current), true);
-    if (isNegative) {
-      stageTimer = `-${stageTimer}`;
-    }
-  }
+  let stageTimer = millisToString(time.current, { fallback: '- - : - -' });
+  stageTimer = removeLeadingZero(stageTimer);
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
-  const backstageOptions = getBackstageOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const backstageOptions = getBackstageOptions(defaultFormat);
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
@@ -140,7 +128,7 @@ export default function Backstage(props: BackstageProps) {
                   {isNegative ? (
                     <div className='aux-timers__value'>{expectedFinish}</div>
                   ) : (
-                    <SuperscriptTime time={startedAt} className='aux-timers__value' />
+                    <SuperscriptTime time={expectedFinish} className='aux-timers__value' />
                   )}
                 </div>
                 <div className='timer-gap' />

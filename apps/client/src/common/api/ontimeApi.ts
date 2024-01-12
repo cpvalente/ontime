@@ -3,10 +3,12 @@ import {
   Alias,
   DatabaseModel,
   GetInfo,
+  HttpSettings,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
   ProjectData,
+  ProjectFileListResponse,
   Settings,
   UserFields,
   ViewSettings,
@@ -102,6 +104,23 @@ export async function postUserFields(data: UserFields) {
 export async function getOSC(): Promise<OSCSettings> {
   const res = await axios.get(`${ontimeURL}/osc`);
   return res.data;
+}
+
+/**
+ * @description HTTP request to retrieve http settings
+ * @return {Promise}
+ */
+export async function getHTTP(): Promise<HttpSettings> {
+  const res = await axios.get(`${ontimeURL}/http`);
+  return res.data;
+}
+
+/**
+ * @description HTTP request to mutate http settings
+ * @return {Promise}
+ */
+export async function postHTTP(data: HttpSettings) {
+  return axios.post(`${ontimeURL}/http`, data);
 }
 
 /**
@@ -224,6 +243,17 @@ export async function getLatestVersion(): Promise<HasUpdate> {
   };
 }
 
+/**
+ * @description HTTP POST request to create a new project file with given project data
+ */
 export async function postNew(initialData: Partial<ProjectData>) {
   return axios.post(`${ontimeURL}/new`, initialData);
+}
+
+/**
+ * @description HTTP request to get the list of available project files
+ */
+export async function getProjects(): Promise<ProjectFileListResponse> {
+  const res = await axios.get(`${ontimeURL}/projects`);
+  return res.data;
 }

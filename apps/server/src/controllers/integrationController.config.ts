@@ -1,7 +1,7 @@
-import { LogOrigin, OntimeEvent } from 'ontime-types';
+import { LogOrigin, OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
 import { EventLoader } from '../classes/event-loader/EventLoader.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
-import { coerceString, coerceNumber, coerceBoolean } from '../utils/coerceType.js';
+import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
 import { logger } from '../classes/Logger.js';
 
 const whitelistedPayload = {
@@ -16,7 +16,8 @@ const whitelistedPayload = {
   isPublic: coerceBoolean,
   skip: coerceBoolean,
 
-  colour: coerceString,
+  colour: coerceColour,
+
   user0: coerceString,
   user1: coerceString,
   user2: coerceString,
@@ -29,12 +30,12 @@ const whitelistedPayload = {
   user9: coerceString,
 };
 
-export function parse(field: string, value: unknown) {
-  if (!Object.hasOwn(whitelistedPayload, field)) {
-    throw new Error(`Field ${field} not permitted`);
+export function parse(property: string, value: unknown) {
+  if (!isKeyOfType(property, whitelistedPayload)) {
+    throw new Error(`Property ${property} not permitted`);
   }
-  const parserFn = whitelistedPayload[field];
-  return parserFn(value);
+  const parserFn = whitelistedPayload[property];
+  return { parsedProperty: property, parsedPayload: parserFn(value) };
 }
 
 /**
@@ -49,8 +50,10 @@ export function updateEvent(
   newValue: OntimeEvent[typeof propertyName],
 ) {
   const event = EventLoader.getEventWithId(eventId);
-
   if (event) {
+    if (!isOntimeEvent(event)) {
+      throw new Error(`Can only update events`);
+    }
     const propertiesToUpdate = { [propertyName]: newValue };
 
     // Handles the special case for duration

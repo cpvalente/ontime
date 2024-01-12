@@ -1,0 +1,67 @@
+@use '../../../theme/ontimeColours' as *;
+@use '../../../theme/v2Styles' as *;
+
+.header {
+  font-size: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid $white-10;
+  font-weight: 600;
+}
+
+.subheader {
+  font-size: 1.25rem;
+  padding-bottom: 0.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section {
+  margin: 2rem 0;
+  font-size: calc(1rem - 1px);
+  max-width: 800px;
+}
+
+.paragraph {
+  padding: 0.5rem 0;
+}
+
+.card {
+  padding: 1rem;
+  background-color: $white-1;
+  border: 1px solid $gray-1100;
+  border-radius: 0.25rem;
+}
+
+.error {
+  font-size: $inner-section-text-size;
+  display: block;
+  color: $error-red;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: calc(1rem - 2px);
+  text-align: left;
+
+  tr {
+    padding: 1rem 0;
+  }
+
+  th {
+    border-bottom: 1px solid $white-10;
+    font-weight: 400;
+    color: $gray-400;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+  }
+
+  tr:nth-child(even) {
+    background-color: $white-1;
+  }
+}

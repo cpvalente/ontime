@@ -28,5 +28,7 @@ export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
     colour: event.colour,
     after: after,
     revision: 0,
+    timeWarning: event.timeWarning,
+    timeDanger: event.timeDanger,
   };
 };

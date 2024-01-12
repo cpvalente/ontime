@@ -24,9 +24,7 @@ export const dbModel: DatabaseModel = {
     overrideStyles: false,
     normalColor: '#ffffffcc',
     warningColor: '#FFAB33',
-    warningThreshold: 120000,
     dangerColor: '#ED3333',
-    dangerThreshold: 60000,
     endMessage: '',
   },
   aliases: [],
@@ -47,6 +45,17 @@ export const dbModel: DatabaseModel = {
     portOut: 9999,
     targetIP: '127.0.0.1',
     enabledIn: false,
+    enabledOut: false,
+    subscriptions: {
+      onLoad: [],
+      onStart: [],
+      onPause: [],
+      onStop: [],
+      onUpdate: [],
+      onFinish: [],
+    },
+  },
+  http: {
     enabledOut: false,
     subscriptions: {
       onLoad: [],

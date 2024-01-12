@@ -31,6 +31,8 @@ describe('cloneEvent()', () => {
       user7: 'user7',
       user8: 'user8',
       user9: 'user9',
+      timeWarning: 120000,
+      timeDanger: 60000,
     } as OntimeEvent;
 
     const cloned = cloneEvent(original);
@@ -51,5 +53,7 @@ describe('cloneEvent()', () => {
     expect(cloned.colour).toBe(original.colour);
     expect(cloned.type).toBe(SupportedEvent.Event);
     expect(cloned.revision).toBe(0);
+    expect(cloned.timeWarning).toBe(original.timeWarning);
+    expect(cloned.timeDanger).toBe(original.timeDanger);
   });
 });

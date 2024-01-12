@@ -1,8 +1,6 @@
 import { Button } from '@chakra-ui/react';
 import { IoEye } from '@react-icons/all-files/io5/IoEye';
 import { IoEyeOffOutline } from '@react-icons/all-files/io5/IoEyeOffOutline';
-import { IoMicOffOutline } from '@react-icons/all-files/io5/IoMicOffOutline';
-import { IoMicSharp } from '@react-icons/all-files/io5/IoMicSharp';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import { IoSunnyOutline } from '@react-icons/all-files/io5/IoSunnyOutline';
 
@@ -72,18 +70,6 @@ export default function MessageControl() {
         changeHandler={() => undefined}
         actionHandler={() => undefined}
       />
-      <div className={style.onAirSection}>
-        <label className={style.label}>Toggle On Air state</label>
-        <Button
-          size='sm'
-          variant={data.onAir ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={data.onAir ? <IoMicSharp size='24px' /> : <IoMicOffOutline size='24px' />}
-          onClick={() => setMessage.onAir(!data.onAir)}
-          data-testid='toggle on air'
-        >
-          {data?.onAir ? 'Ontime is On Air' : 'Ontime is Off Air'}
-        </Button>
-      </div>
     </div>
   );
 }

@@ -21,6 +21,7 @@ export type { Settings } from './definitions/core/Settings.type.js';
 
 // ---> Views
 export type { ViewSettings } from './definitions/core/Views.type.js';
+export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
 // ---> Aliases
 export type { Alias } from './definitions/core/Alias.type.js';
@@ -28,13 +29,24 @@ export type { Alias } from './definitions/core/Alias.type.js';
 // ---> User Fields
 export type { UserFields } from './definitions/core/UserFields.type.js';
 
+// ---> Integration, Subscription
+export type { Subscription } from './definitions/core/Subscription.type.js';
+
 // ---> OSC
 export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './definitions/core/OscSettings.type.js';
 
 // ---> HTTP
+export type { HttpSettings, HttpSubscription, HttpSubscriptionOptions } from './definitions/core/HttpSettings.type.js';
 
 // SERVER RESPONSES
-export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';
+export type {
+  NetworkInterface,
+  GetInfo,
+  ProjectFileList,
+  ProjectFile,
+  ErrorResponse,
+  ProjectFileListResponse,
+} from './api/ontime-controller/BackendResponse.type.js';
 export type { GetRundownCached } from './api/rundown-controller/BackendResponse.type.js';
 
 // SERVER RUNTIME
@@ -50,5 +62,5 @@ export type { TimerState } from './definitions/runtime/TimerState.type.js';
 // CLIENT
 
 // TYPE UTILITIES
-export { isOntimeBlock, isOntimeDelay, isOntimeEvent } from './utils/guards.js';
+export { isOntimeBlock, isOntimeDelay, isOntimeEvent, isKeyOfType } from './utils/guards.js';
 export type { MaybeNumber } from './utils/utils.type.js';

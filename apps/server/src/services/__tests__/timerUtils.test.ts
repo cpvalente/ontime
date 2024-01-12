@@ -1,7 +1,7 @@
 import { dayInMs } from 'ontime-utils';
 import { TimerType } from 'ontime-types';
 
-import { getCurrent, getExpectedFinish } from '../timerUtils.js';
+import { getCurrent, getExpectedFinish, skippedOutOfEvent } from '../timerUtils.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {
@@ -352,5 +352,108 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
     expect(expectedFinish).toBe(13);
     expect(elapsed).toBe(2);
     expect(current).toBe(8);
+  });
+});
+
+describe('skippedOutOfEvent()', () => {
+  const testSkipLimit = 32;
+  it('does not consider an event end as a skip', () => {
+    const startedAt = 1000;
+    const duration = 1000;
+    const expectedFinish = startedAt + duration;
+    const previousTime = expectedFinish - testSkipLimit / 2;
+
+    let clock = previousTime;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+
+    clock += testSkipLimit;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+  });
+
+  it('allows rolling backwards in an event', () => {
+    const startedAt = 1000;
+    const duration = 1000;
+    const expectedFinish = startedAt + duration;
+    const previousTime = startedAt + testSkipLimit / 2;
+
+    let clock = previousTime;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+
+    clock -= testSkipLimit;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+  });
+
+  it('accounts for crossing midnight', () => {
+    const startedAt = dayInMs - testSkipLimit;
+    const expectedFinish = 10;
+    const previousTime = dayInMs - 1;
+
+    let clock = previousTime;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+
+    clock = testSkipLimit - 2;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+  });
+
+  it('allows rolling backwards in an event across midnight', () => {
+    const startedAt = dayInMs - testSkipLimit;
+    const expectedFinish = 10;
+    const previousTime = startedAt + 1;
+
+    let clock = previousTime;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+
+    clock -= testSkipLimit;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+  });
+
+  it('finds skip forwards out of event', () => {
+    const startedAt = 1000;
+    const duration = 1000;
+    const expectedFinish = startedAt + duration;
+    const previousTime = expectedFinish - testSkipLimit / 2;
+
+    let clock = previousTime;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+
+    clock += testSkipLimit + 1;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(true);
+  });
+
+  it('finds skip backwards out of event', () => {
+    const startedAt = 1000;
+    const duration = 1000;
+    const expectedFinish = startedAt + duration;
+    const previousTime = startedAt + testSkipLimit / 2;
+
+    let clock = previousTime;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+
+    clock -= testSkipLimit + 1;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(true);
+  });
+
+  it('finds skip forwards out of event across midnight', () => {
+    const startedAt = dayInMs - testSkipLimit;
+    const expectedFinish = 10;
+    const previousTime = dayInMs - 3;
+
+    let clock = previousTime;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+
+    clock = testSkipLimit - 2;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(true);
+  });
+
+  it('finds skip backwards out of event across midnight', () => {
+    const startedAt = dayInMs - testSkipLimit;
+    const expectedFinish = 10;
+    const previousTime = startedAt + 1;
+
+    let clock = previousTime;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(false);
+
+    clock -= testSkipLimit + 1;
+    expect(skippedOutOfEvent(previousTime, clock, startedAt, expectedFinish, testSkipLimit)).toBe(true);
   });
 });

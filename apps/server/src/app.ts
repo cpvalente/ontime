@@ -1,4 +1,4 @@
-import { LogOrigin, OSCSettings } from 'ontime-types';
+import { HttpSettings, LogOrigin, OSCSettings } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -15,7 +15,7 @@ import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { router as rundownRouter } from './routes/rundownRouter.js';
 import { router as projectRouter } from './routes/projectRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
-import { router as playbackRouter } from './routes/playbackRouter.js';
+import { router as apiRouter } from './routes/apiRouter.js';
 
 // Import adapters
 import { OscServer } from './adapters/OscAdapter.js';
@@ -29,6 +29,7 @@ import { eventLoader } from './classes/event-loader/EventLoader.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
+import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { PlaybackService } from './services/PlaybackService.js';
@@ -61,10 +62,13 @@ app.use(express.json({ limit: '1mb' }));
 app.use('/events', rundownRouter);
 app.use('/project', projectRouter);
 app.use('/ontime', ontimeRouter);
-app.use('/playback', playbackRouter);
+app.use('/api', apiRouter);
 
 // serve static - css
 app.use('/external', express.static(externalsStartDirectory));
+app.use('/external', (req, res) => {
+  res.status(404).send(`${req.originalUrl} not found`);
+});
 
 // serve static - react, in dev/test mode we fetch the React app from module
 const reactAppPath = join(currentDirectory, resolvedPath());
@@ -144,7 +148,7 @@ export const startServer = async () => {
   eventLoader.init();
 
   // load restore point if it exists
-  const maybeRestorePoint = restoreService.load();
+  const maybeRestorePoint = await restoreService.load();
 
   if (maybeRestorePoint) {
     logger.info(LogOrigin.Server, 'Found resumable state');
@@ -191,7 +195,6 @@ export const startServer = async () => {
 
 /**
  * @description starts OSC server
- * @description starts OSC server
  * @param overrideConfig
  * @return {Promise<void>}
  */
@@ -219,20 +222,30 @@ export const startOSCServer = async (overrideConfig = null) => {
 /**
  * starts integrations
  */
-export const startIntegrations = async (config?: { osc: OSCSettings }) => {
+export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpSettings }) => {
   checkStart(OntimeStartOrder.InitIO);
 
-  const { osc } = config ?? DataProvider.getData();
+  const { osc, http } = config ?? DataProvider.getData();
 
   if (!osc) {
     return 'OSC Invalid configuration';
+  } else {
+    const { success, message } = oscIntegration.init(osc);
+    logger.info(LogOrigin.Tx, message);
+
+    if (success) {
+      integrationService.register(oscIntegration);
+    }
   }
+  if (!http) {
+    return 'HTTP Invalid configuration';
+  } else {
+    const { success, message } = httpIntegration.init(http);
+    logger.info(LogOrigin.Tx, message);
 
-  const { success, message } = oscIntegration.init(osc);
-  logger.info(LogOrigin.Tx, message);
-
-  if (success) {
-    integrationService.register(oscIntegration);
+    if (success) {
+      integrationService.register(httpIntegration);
+    }
   }
 };
 

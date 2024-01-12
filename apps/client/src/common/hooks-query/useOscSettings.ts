@@ -1,7 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-nocheck -- working on it
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { OSCSettings } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { OSC_SETTINGS } from '../api/apiConstants';
@@ -13,7 +10,10 @@ import { ontimeQueryClient } from '../queryClient';
 export default function useOscSettings() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: OSC_SETTINGS,
-    queryFn: getOSC,
+    queryFn: async () => {
+      const oscData = await getOSC();
+      return { ...oscData, portIn: String(oscData.portIn), portOut: String(oscData.portOut) };
+    },
     placeholderData: oscPlaceholderSettings,
     retry: 5,
     retryDelay: (attempt: number) => attempt * 2500,
@@ -21,8 +21,7 @@ export default function useOscSettings() {
     networkMode: 'always',
   });
 
-  // we need to jump through some hoops because of the type op port
-  return { data: data! as unknown as OSCSettings, status, isFetching, isError, refetch };
+  return { data: data ?? oscPlaceholderSettings, status, isFetching, isError, refetch };
 }
 
 export function useOscSettingsMutation() {
