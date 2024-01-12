@@ -74,6 +74,20 @@ export const externalsStartDirectory = isProduction ? getAppDataPath() : join(cu
 //TODO: we only need one when they are all in the same folder
 export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : currentDirectory, 'external');
 
+const getLastLoadedProject = () => {
+  try {
+    return JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+  } catch {
+    if (!isTest) {
+      ensureDirectory(getAppDataPath());
+      fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: 'default.json' }));
+    }
+  }
+};
+
+const lastLoadedProject = getLastLoadedProject();
+const configDbDirectory = lastLoadedProject ? 'uploads' : config.database.directory;
+
 // path to public db
 export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : configDbDirectory);
 export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
@@ -81,18 +95,6 @@ export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLo
 // project files
 export const lastLoadedProjectConfigPath = join(getAppDataPath(), 'config.json');
 export const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-let lastLoadedProject;
-
-try {
-  lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
-} catch {
-  if (!isTest) {
-    ensureDirectory(getAppDataPath());
-    fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: 'default.json' }));
-  }
-}
-
-const configDbDirectory = lastLoadedProject ? 'uploads' : config.database.directory;
 
 export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
