@@ -36,7 +36,7 @@ type ActionHandler = (payload: unknown) => { payload: unknown };
 const actionHandlers: Record<string, ActionHandler> = {
   /* General */
   version: () => ({ payload: ONTIME_VERSION }),
-  'ontime-poll': () => ({
+  poll: () => ({
     payload: eventStore.poll(),
   }),
   change: (payload) => {
