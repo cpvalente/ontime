@@ -56,6 +56,15 @@ class MessageService {
   }
 
   /**
+   * @description patches the Message object
+   */
+  setExternalMessage(payload: Partial<Message>) {
+    this.externalMessage = { ...this.externalMessage, ...payload };
+    this.throttledSet('externalMessage', this.externalMessage);
+    return this.getAll();
+  }
+
+  /**
    * @description sets message on stage timer screen
    */
   setExternalText(payload: string) {
@@ -105,6 +114,15 @@ class MessageService {
   /**
    * @description sets message on public screen
    */
+  setPublicMessage(payload: Partial<Message>) {
+    this.publicMessage = { ...this.publicMessage, ...payload };
+    this.throttledSet('publicMessage', this.publicMessage);
+    return this.getAll();
+  }
+
+  /**
+   * @description sets message on public screen
+   */
   setPublicText(payload: string) {
     this.publicMessage.text = payload;
     this.throttledSet('publicMessage', this.publicMessage);
@@ -117,6 +135,15 @@ class MessageService {
   setPublicVisibility(status: boolean) {
     this.publicMessage.visible = status;
     this.throttledSet('publicMessage', this.publicMessage);
+    return this.getAll();
+  }
+
+  /**
+   * @description sets message on public screen
+   */
+  setLowerMessage(payload: Partial<Message>) {
+    this.lowerMessage = { ...this.lowerMessage, ...payload };
+    this.throttledSet('lowerMessage', this.publicMessage);
     return this.getAll();
   }
 
@@ -194,5 +221,19 @@ export function isPartialTimerMessage(obj: any): obj is Partial<TimerMessage> {
     (typeof obj.visible === 'boolean' || obj.visible === undefined) &&
     (typeof obj.timerBlink === 'boolean' || obj.timerBlink === undefined) &&
     (typeof obj.timerBlackout === 'boolean' || obj.timerBlackout === undefined)
+  );
+}
+
+/**
+ * Asserts whether an object is a valid TimerMessage patch
+ * @param obj - object to evaluate
+ * @returns boolean
+ */
+export function isPartialMessage(obj: any): obj is Partial<Message> {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    (typeof obj.text === 'string' || obj.text === undefined) &&
+    (typeof obj.visible === 'boolean' || obj.visible === undefined)
   );
 }

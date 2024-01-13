@@ -2,7 +2,7 @@
 import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
-import { isPartialTimerMessage, messageService } from '../services/message-service/MessageService.js';
+import { isPartialMessage, isPartialTimerMessage, messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
@@ -48,6 +48,40 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: updatedEvent };
   },
   /* Message Service */
+  message: (payload) => {
+    if (payload && typeof payload === 'object') {
+      if ('timer' in payload) {
+        if (!isPartialTimerMessage(payload)) {
+          throw new Error('Payload is not a valid timer message');
+        }
+        const newState = messageService.setTimerMessage(payload.timer);
+        return { payload: newState.timerMessage };
+      }
+      if ('public' in payload) {
+        if (!isPartialMessage(payload)) {
+          throw new Error('Payload is not a valid public message');
+        }
+        const newState = messageService.setPublicMessage(payload);
+        return { payload: newState.timerMessage };
+      }
+      if ('lower' in payload) {
+        if (!isPartialMessage(payload)) {
+          throw new Error('Payload is not a valid lower message');
+        }
+        const newState = messageService.setLowerMessage(payload);
+        return { payload: newState.timerMessage };
+      }
+      if ('external' in payload) {
+        if (!isPartialMessage(payload)) {
+          throw new Error('Payload is not a valid external message');
+        }
+        const newState = messageService.setExternalMessage(payload);
+        return { payload: newState.timerMessage };
+      }
+    }
+    PlaybackService.start();
+    return { payload: 'start' };
+  },
   'set-timer-message': (payload) => {
     if (!isPartialTimerMessage(payload)) {
       throw new Error('Payload is not a valid timer message');
