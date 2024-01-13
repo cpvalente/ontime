@@ -174,6 +174,31 @@ const actionHandlers: Record<string, ActionHandler> = {
     PlaybackService.roll();
     return { payload: 'success' };
   },
+  load: (payload) => {
+    if (payload && typeof payload === 'object') {
+      if ('index' in payload) {
+        const reply = actionHandlers.loadindex(payload.index);
+        return reply;
+      }
+      if ('id' in payload) {
+        const reply = actionHandlers.loadid(payload.id);
+        return reply;
+      }
+      if ('cue' in payload) {
+        const reply = actionHandlers.loadcue(payload.cue);
+        return reply;
+      }
+      if ('next' in payload) {
+        const reply = actionHandlers.next(payload.next);
+        return reply;
+      }
+      if ('previous' in payload) {
+        const reply = actionHandlers.previous(payload.previous);
+        return reply;
+      }
+    }
+    throw new Error('No load method provided');
+  },
   loadindex: (payload) => {
     const eventIndex = numberOrError(payload);
     if (eventIndex <= 0) {
