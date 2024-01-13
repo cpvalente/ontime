@@ -48,6 +48,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: updatedEvent };
   },
   /* Message Service */
+  //TODO: maybe coerce the boolean values
   message: (payload) => {
     if (payload && typeof payload === 'object') {
       if ('timer' in payload) {
@@ -79,8 +80,7 @@ const actionHandlers: Record<string, ActionHandler> = {
         return { payload: newState.timerMessage };
       }
     }
-    PlaybackService.start();
-    return { payload: 'start' };
+    throw new Error('No message destination provided');
   },
   'set-timer-message': (payload) => {
     if (!isPartialTimerMessage(payload)) {
