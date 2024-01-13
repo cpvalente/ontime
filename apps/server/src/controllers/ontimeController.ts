@@ -42,6 +42,8 @@ import { deleteFile } from '../utils/parserUtils.js';
 import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
 
+import { sheet } from '../utils/sheetsAuth.js';
+
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
 export const poll = async (_req, res) => {
@@ -668,3 +670,122 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
     res.status(500).send({ message: error.toString() });
   }
 };
+
+// SHEET Functions
+/**
+ * @description SETP-1 POST Client Secrect
+ * @returns parsed result
+ */
+export async function uploadSheetClientFile(req, res) {
+  if (!req.file.path) {
+    res.status(400).send({ message: 'File not found' });
+    return;
+  }
+  try {
+    const client = JSON.parse(fs.readFileSync(req.file.path as string, 'utf-8'));
+    await sheet.saveClientSecrets(client);
+    res.status(200).send('OK');
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+  fs.unlink(req.file.path, (err) => {
+    if (err) logger.error(LogOrigin.Server, err.message);
+  });
+}
+
+/**
+ * @description STEP-1 GET Client Secrect status
+ */
+export const getClientSecrect = async (req, res) => {
+  try {
+    const clientSecrectExists = await sheet.testClientSecret();
+    if (clientSecrectExists) {
+      res.status(200).send();
+    } else {
+      res.status(500).send({ message: 'The Client ID does not exist' });
+    }
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * @description STEP-2 GET sheet authentication url
+ */
+export async function getAuthenticationUrl(req, res) {
+  try {
+    const authUrl = await sheet.openAuthServer();
+    res.status(200).send(authUrl);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}
+
+/**
+ * @description STEP-2 GET sheet authentication status
+ */
+export const getAuthentication = async (req, res) => {
+  try {
+    await sheet.testAuthentication();
+    res.status(200).send();
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * @description STEP-3 POST sheet id
+ * @returns list of worksheets
+ */
+export const postId = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (id.lenght < 40) {
+      res.status(400).send({ message: 'ID is usualy 44 characters long' });
+    }
+    const state = await sheet.testSheetId(id);
+    res.status(200).send(state);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * @description STEP-4 POST worksheet
+ */
+export const postWorksheet = async (req, res) => {
+  try {
+    const { worksheet, id } = req.body;
+    const state = await sheet.testWorksheet(worksheet, id);
+    res.status(200).send(state);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+};
+
+/**
+ * @description STEP-5 POST download undown to sheet
+ * @returns parsed result
+ */
+export async function pullSheet(req, res) {
+  try {
+    const { id, options } = req.body;
+    const data = await sheet.pull(id, options);
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}
+
+/**
+ * @description STEP-5 POST upload rundown to sheet
+ */
+export async function pushSheet(req, res) {
+  try {
+    const { id, options } = req.body;
+    await sheet.push(id, options);
+    res.status(200).send();
+  } catch (error) {
+    res.status(500).send({ message: error.toString() });
+  }
+}

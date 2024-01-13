@@ -171,7 +171,10 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
 
     // Indexes in frontend are 1 based
-    PlaybackService.startByIndex(eventIndex - 1);
+    const success = PlaybackService.startByIndex(eventIndex - 1);
+    if (!success) {
+      throw new Error(`Event index not recognised or out of range ${eventIndex}`);
+    }
     return { payload: 'success' };
   },
   startid: (payload) => {
@@ -238,7 +241,6 @@ const actionHandlers: Record<string, ActionHandler> = {
     if (eventIndex <= 0) {
       throw new Error(`Event index out of range ${eventIndex}`);
     }
-
     // Indexes in frontend are 1 based
     PlaybackService.loadByIndex(eventIndex - 1);
     return { payload: 'success' };
@@ -259,7 +261,6 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: 'success' };
   },
 };
-
 /**
  * Returns a value of type number, converting if necessary
  * Otherwise throws

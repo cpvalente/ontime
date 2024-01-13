@@ -3,19 +3,22 @@ import { IconButton } from '@chakra-ui/react';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
-import { useAppMode } from '../../common/stores/appModeStore';
+import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { cx } from '../../common/utils/styleUtils';
+import { useEventSelection } from '../rundown/useEventSelection';
 
 import EventEditor from './EventEditor';
 
 import style from './EventEditor.module.scss';
 
 const EventEditorExport = () => {
-  const editId = useAppMode((state) => state.editId);
-  const setEditId = useAppMode((state) => state.setEditId);
-
-  const editorStyle = cx([style.eventEditorContainer, !editId ? style.noEvent : null]);
-  const removeOpenEvent = () => setEditId(null);
+  const { clearSelectedEvents, selectedEvents } = useEventSelection();
+  const { mode } = useAppMode();
+  const editorStyle = cx([
+    style.eventEditorContainer,
+    selectedEvents.size > 1 || selectedEvents.size === 0 || mode === AppMode.Run ? style.noEvent : null,
+  ]);
+  const removeOpenEvent = () => clearSelectedEvents();
 
   return (
     <div className={editorStyle}>

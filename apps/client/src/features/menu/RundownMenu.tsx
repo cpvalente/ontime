@@ -7,13 +7,12 @@ import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
-import { useAppMode } from '../../common/stores/appModeStore';
+import { useEventSelection } from '../../features/rundown/useEventSelection';
 
 import style from './RundownMenu.module.scss';
 
 const RundownMenu = () => {
-  const setEditId = useAppMode((state) => state.setEditId);
-  const setCursor = useAppMode((state) => state.setCursor);
+  const { clearSelectedEvents } = useEventSelection();
 
   const { addEvent, deleteAllEvents } = useEventAction();
 
@@ -31,9 +30,9 @@ const RundownMenu = () => {
 
   const deleteAll = useCallback(() => {
     deleteAllEvents();
-    setEditId(null);
-    setCursor(null);
-  }, [deleteAllEvents, setCursor, setEditId]);
+    clearSelectedEvents();
+    // setCursor(null);
+  }, [deleteAllEvents, clearSelectedEvents]);
 
   return (
     <div className={style.headerButtons}>
