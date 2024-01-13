@@ -126,7 +126,7 @@ const actionHandlers: Record<string, ActionHandler> = {
 
     return { payload: 'start' };
   },
-  'start-next': () => {
+  startnext: () => {
     PlaybackService.startNext();
     return { payload: 'start' };
   },
