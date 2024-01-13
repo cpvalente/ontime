@@ -59,6 +59,12 @@ export class OscServer implements IAdapter {
           property,
           value,
         } satisfies ChangeOptions;
+      } else if (params.length) {
+        //transform params array into a nested object with args as the value
+        transformedPayload = params.reduceRight(
+          (parm, key, index) => (index === params.length - 1 ? { [key]: args } : { [key]: parm }),
+          {},
+        );
       }
 
       try {
