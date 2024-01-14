@@ -1,6 +1,6 @@
 import { LogOrigin, OSCSettings } from 'ontime-types';
 
-import { Server } from 'node-osc';
+import { Server, Client } from 'node-osc';
 
 import { IAdapter } from './IAdapter.js';
 import { dispatchFromAdapter, type ChangeOptions } from '../controllers/integrationController.js';
@@ -14,7 +14,8 @@ export class OscServer implements IAdapter {
 
     this.osc.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
 
-    this.osc.on('message', (msg) => {
+    this.osc.on('message', (msg, rinfo) => {
+      // TODO: update this comment
       // message should look like /ontime/{path}/{params?} {args} where
       // ontime: fixed message for app
       // path: command to be called
@@ -60,7 +61,8 @@ export class OscServer implements IAdapter {
           value,
         } satisfies ChangeOptions;
       } else if (params.length) {
-        //transform params array into a nested object with args as the value
+        // transform params array into a nested object with args as the value
+        // /a/b/c/d 5 will become {a:{b:{c:{d: 5}}}}
         transformedPayload = params.reduceRight(
           (parm, key, index) => (index === params.length - 1 ? { [key]: args } : { [key]: parm }),
           {},
@@ -68,14 +70,19 @@ export class OscServer implements IAdapter {
       }
 
       try {
-        // we dont reply on OSC
-        dispatchFromAdapter(
+        const reply = dispatchFromAdapter(
           path,
           {
             payload: transformedPayload,
           },
           'osc',
         );
+        //We only send simple types back to the OSC client
+        if (typeof reply.payload === 'string' || typeof reply.payload === 'number') {
+          const client = new Client(rinfo.address, rinfo.port);
+          client.send([msg[0], reply.payload]);
+          client.close();
+        }
       } catch (error) {
         logger.error(LogOrigin.Rx, `OSC IN: ${error}`);
       }
