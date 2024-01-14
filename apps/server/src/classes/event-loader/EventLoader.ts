@@ -159,7 +159,7 @@ export class EventLoader {
    * finds next event within Roll context
    * @param {number} timeNow - current time in ms
    */
-  findRoll(timeNow) {
+  findRoll(timeNow: number) {
     const timedEvents = EventLoader.getPlayableEvents();
     if (!timedEvents.length) {
       return null;

@@ -120,6 +120,16 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
           Event is public
         </label>
+        <label className={`${style.inputLabel} ${style.publicToggle}`}>
+          <Switch
+            isChecked={timerType === TimerType.External}
+            onChange={(event) =>
+              handleSubmit('timerType', event.target.checked ? TimerType.External : TimerType.CountDown)
+            }
+            variant='ontime'
+          />
+          Source: External
+        </label>
       </div>
       <div className={style.timeSettings}>
         <label className={style.inputLabel}>Timer Type</label>
@@ -129,6 +139,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           value={timerType}
           onChange={(event) => handleSubmit('timerType', event.target.value)}
           variant='ontime'
+          isDisabled={timerType === TimerType.External}
         >
           <option value={TimerType.CountDown}>Count down</option>
           <option value={TimerType.CountUp}>Count up</option>

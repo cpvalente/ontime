@@ -9,6 +9,7 @@ import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './timerUtils.j
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 import type { RestorePoint } from './RestoreService.js';
+import { extraTimerService } from './extra-timer-service/ExtraTimerService.js';
 
 type initialLoadingData = {
   startedAt?: number | null;
@@ -52,6 +53,8 @@ export class TimerService {
     this._skipThreshold = timerConfig.skipThreshold;
   }
 
+  private timeNow = () => (this.timer?.timerType === TimerType.External ? extraTimerService.time : clock.timeNow());
+
   /**
    * Provides callback to save restore point
    * @param cb
@@ -67,7 +70,7 @@ export class TimerService {
   _clear() {
     this.playback = Playback.Stop;
     this.timer = {
-      clock: clock.timeNow(),
+      clock: this.timeNow(),
       current: null,
       elapsed: null,
       expectedFinish: null,
@@ -117,7 +120,7 @@ export class TimerService {
 
     this.timer.current = this.timer.duration;
     if (this.timer.timerType === TimerType.TimeToEnd) {
-      const now = clock.timeNow();
+      const now = this.timeNow();
       this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
     }
 
@@ -205,7 +208,7 @@ export class TimerService {
 
     this.timer.current = this.timer.duration;
     if (this.timer.timerType === TimerType.TimeToEnd) {
-      const now = clock.timeNow();
+      const now = this.timeNow();
       this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
     }
 
@@ -241,7 +244,7 @@ export class TimerService {
       return;
     }
 
-    this.timer.clock = clock.timeNow();
+    this.timer.clock = this.timeNow();
     this.timer.secondaryTimer = null;
     this.secondaryTarget = null;
 
@@ -282,7 +285,7 @@ export class TimerService {
 
   pause() {
     this.playback = Playback.Pause;
-    this.timer.clock = clock.timeNow();
+    this.timer.clock = this.timeNow();
     this.pausedAt = this.timer.clock;
     this._onPause();
   }
@@ -329,7 +332,7 @@ export class TimerService {
     if (amount < 0 && Math.abs(amount) > this.timer.current) {
       if (this.timer.finishedAt === null) {
         // if we will make the clock negative
-        this.timer.finishedAt = clock.timeNow();
+        this.timer.finishedAt = this.timeNow();
       }
     } else if (this.timer.current < 0 && this.timer.current + amount > 0) {
       // clock will go from negative to positive
@@ -406,7 +409,7 @@ export class TimerService {
 
   update(force = false) {
     const previousTime = this.timer.clock;
-    this.timer.clock = clock.timeNow();
+    this.timer.clock = this.timeNow();
     if (previousTime > this.timer.clock) {
       force = true;
     }
@@ -474,7 +477,7 @@ export class TimerService {
    */
   roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null) {
     this._clear();
-    this.timer.clock = clock.timeNow();
+    this.timer.clock = this.timeNow();
 
     if (currentEvent) {
       // there is something running, load

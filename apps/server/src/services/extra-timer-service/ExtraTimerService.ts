@@ -1,19 +1,27 @@
 import { SimpleTimerState } from 'ontime-types';
 
-import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
+import { SimpleTimerUp } from '../../classes/simple-timer/SimpleTimerUp.js';
 import { eventStore } from '../../stores/EventStore.js';
+import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
+import { getRollTimers } from '../rollUtils.js';
+import { PlaybackService } from '../PlaybackService.js';
 
 export type EmitFn = (state: SimpleTimerState) => void;
 export type GetTimeFn = () => number;
 
 export class ExtraTimerService {
-  private timer: SimpleTimer;
+  private timer: SimpleTimerUp;
   private interval: NodeJS.Timer;
   private emit: EmitFn;
   private getTime: GetTimeFn;
+  private current: number = 0;
+
+  public get time(): number {
+    return this.current;
+  }
 
   constructor(emit: EmitFn, getTime: GetTimeFn) {
-    this.timer = new SimpleTimer();
+    this.timer = new SimpleTimerUp();
     this.emit = emit;
     this.getTime = getTime;
   }
@@ -50,7 +58,14 @@ export class ExtraTimerService {
 
   @broadcastReturn
   private update() {
-    return this.timer.update(this.getTime());
+    const time = this.timer.update(this.getTime());
+    const events = EventLoader.getPlayableEvents();
+    const { currentEvent } = getRollTimers(events, time.current);
+    if (currentEvent && currentEvent.id !== eventLoader.eventNow?.id) {
+      PlaybackService.startById(currentEvent.id);
+    }
+    this.current = time.current;
+    return time;
   }
 }
 
