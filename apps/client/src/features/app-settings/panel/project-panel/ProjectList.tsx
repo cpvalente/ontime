@@ -25,11 +25,14 @@ export default function ProjectList() {
         {current && (
           <ProjectListItem filename={current.filename} createdAt={current.createdAt} updatedAt={current.updatedAt} />
         )}
-        {
-          projectFiles.map((project) => (
-            <ProjectListItem key={project.filename} filename={project.filename} createdAt={project.createdAt} updatedAt={project.updatedAt} />
-          ))
-        }
+        {projectFiles.map((project) => (
+          <ProjectListItem
+            key={project.filename}
+            filename={project.filename}
+            createdAt={project.createdAt}
+            updatedAt={project.updatedAt}
+          />
+        ))}
       </tbody>
     </Panel.Table>
   );
