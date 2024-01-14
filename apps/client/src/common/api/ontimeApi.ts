@@ -280,3 +280,15 @@ export async function renameProject(filename: string, newFilename: string): Prom
   });
   return res.data;
 }
+
+/**
+ * @description HTTP request to duplicate a project file
+ */
+export async function duplicateProject(filename: string, newFilename: string): Promise<MessageResponse> {
+  const url = `${ontimeURL}/project/${filename}/duplicate`;
+  let decodedUrl = decodeURIComponent(url);
+  const res = await axios.post(decodedUrl, {
+    newFilename,
+  });
+  return res.data;
+}

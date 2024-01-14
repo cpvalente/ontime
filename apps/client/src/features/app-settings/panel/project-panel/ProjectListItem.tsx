@@ -1,12 +1,13 @@
-import { Menu, MenuButton, IconButton, MenuList, MenuItem, Input } from '@chakra-ui/react';
+import { Menu, MenuButton, IconButton, MenuList, MenuItem, Input, FormControl } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 
 import style from './ProjectPanel.module.scss';
-import { renameProject, loadProject } from '../../../../common/api/ontimeApi';
+import { renameProject, loadProject, duplicateProject } from '../../../../common/api/ontimeApi';
 import { ontimeQueryClient } from '../../../../common/queryClient';
 import { PROJECT_LIST } from '../../../../common/api/apiConstants';
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 type EditMode = 'rename' | 'duplicate';
 
@@ -18,7 +19,10 @@ interface ProjectListItemProps {
 
 export default function ProjectListItem({ filename, createdAt, updatedAt }: ProjectListItemProps) {
   const [editingMode, setEditingMode] = useState<EditMode | null>(null);
+  const [editingFilename, setEditingFilename] = useState<string | null>(null);
+
   const renameInputRef = useRef<HTMLInputElement>(null);
+  const duplicateInputRef = useRef<HTMLInputElement>(null);
 
   const handleRefetch = async () => {
     await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
@@ -34,57 +38,116 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
     setEditingMode(null);
   };
 
+  const handleSubmitDuplicate = async () => {
+    await duplicateProject(filename, duplicateInputRef.current!.value);
+    await handleRefetch();
+    setEditingMode(null);
+  };
+
+  const renderEditMode = useMemo(() => {
+    switch (editingMode) {
+      case 'rename':
+        return (
+          <>
+            <Input
+              className={style.inputField}
+              defaultValue={filename}
+              ref={renameInputRef}
+              size='md'
+              type='text'
+              variant='ontime-filled'
+            />
+            <IconButton
+              aria-label='Save duplicate project name'
+              icon={<IoSaveOutline />}
+              onClick={handleSubmitRename}
+              size='sm'
+              variant='ontime-filled'
+            />
+          </>
+        );
+      case 'duplicate':
+        return (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexDirection: 'column',
+              }}
+            >
+              <FormControl>
+                <label htmlFor='filename'>
+                  <span>Current name</span>
+                </label>
+                <Input
+                  className={style.inputField}
+                  defaultValue={filename}
+                  id='filename'
+                  size='md'
+                  type='text'
+                  variant='ontime-filled'
+                  disabled
+                />
+              </FormControl>
+              <FormControl>
+                <label htmlFor='newFilename'>
+                  <span>New name</span>
+                </label>
+                <Input
+                  className={style.inputField}
+                  defaultValue={filename}
+                  id='newFilename'
+                  ref={duplicateInputRef}
+                  size='md'
+                  type='text'
+                  variant='ontime-filled'
+                />
+              </FormControl>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-around',
+              }}
+            >
+              <IconButton
+                aria-label='Save duplicate project name'
+                icon={<IoSaveOutline />}
+                onClick={handleSubmitDuplicate}
+                size='sm'
+                variant='ontime-filled'
+              />
+              <IconButton
+                aria-label='Save duplicate project name'
+                icon={<IoClose />}
+                onClick={handleSubmitDuplicate}
+                size='sm'
+                variant='ontime-filled'
+              />
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  }, [editingMode, filename]);
+
   return (
     <tr key={filename}>
-      {editingMode === 'rename' ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            height: '100%',
-          }}
-        >
-          <Input
-            size='md'
-            ref={renameInputRef}
-            className={style.inputField}
-            type='text'
-            variant='ontime-filled'
-            defaultValue={filename}
-          />
-          <IconButton
-            size='sm'
-            icon={<IoSaveOutline />}
-            aria-label='Save duplicate project name'
-            variant={'ontime-filled'}
-            onClick={handleSubmitRename}
-          />
-        </div>
+      {editingMode ? (
+        renderEditMode
       ) : (
         <>
           <td>
             <span>{filename}</span>
-            {editingMode === 'duplicate' ? (
-              <>
-                <Input
-                  size='md'
-                  ref={renameInputRef}
-                  className={style.inputField}
-                  type='text'
-                  variant='ontime-filled'
-                  defaultValue={filename}
-                />
-                <IconButton
-                  size='sm'
-                  icon={<IoSaveOutline />}
-                  aria-label='Save duplicate project name'
-                  variant={'ontime-filled'}
-                  onClick={handleSubmitRename}
-                />
-              </>
-            ) : null}
           </td>
         </>
       )}
