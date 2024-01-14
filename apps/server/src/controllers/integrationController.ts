@@ -82,63 +82,6 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
     throw new Error('No message destination provided');
   },
-  'set-timer-message': (payload) => {
-    if (!isPartialTimerMessage(payload)) {
-      throw new Error('Payload is not a valid timer message');
-    }
-    const newState = messageService.setTimerMessage(payload);
-    return { payload: newState.timerMessage };
-  },
-  'set-timer-blink': (payload) => {
-    assert.isDefined(payload);
-    const newState = messageService.setTimerBlink(Boolean(payload));
-    return { payload: newState.timerMessage };
-  },
-  'set-timer-blackout': (payload) => {
-    assert.isDefined(payload);
-    const newState = messageService.setTimerBlackout(Boolean(payload));
-    return { payload: newState.timerMessage };
-  },
-  'set-timer-message-text': (payload) => {
-    assert.isString(payload);
-    const newState = messageService.setTimerText(payload);
-    return { payload: newState.timerMessage };
-  },
-  'set-timer-message-visible': (payload) => {
-    assert.isDefined(payload);
-    const newState = messageService.setTimerVisibility(Boolean(payload));
-    return { payload: newState.timerMessage };
-  },
-  'set-public-message-text': (payload) => {
-    assert.isString(payload);
-    const newState = messageService.setPublicText(payload);
-    return { payload: newState.publicMessage };
-  },
-  'set-public-message-visible': (payload) => {
-    assert.isDefined(payload);
-    const newState = messageService.setPublicVisibility(Boolean(payload));
-    return { payload: newState.publicMessage };
-  },
-  'set-lower-message-text': (payload) => {
-    assert.isString(payload);
-    const newState = messageService.setLowerText(payload);
-    return { payload: newState.lowerMessage };
-  },
-  'set-lower-message-visible': (payload) => {
-    assert.isDefined(payload);
-    const newState = messageService.setLowerVisibility(Boolean(payload));
-    return { payload: newState.lowerMessage };
-  },
-  'set-external-message-text': (payload) => {
-    assert.isString(payload);
-    const newState = messageService.setExternalText(payload);
-    return { payload: newState.externalMessage };
-  },
-  'set-external-message-visible': (payload) => {
-    assert.isDefined(payload);
-    const newState = messageService.setExternalVisibility(Boolean(payload));
-    return { payload: newState.externalMessage };
-  },
   /* Playback */
   start: (payload) => {
     if (payload && typeof payload === 'object') {
